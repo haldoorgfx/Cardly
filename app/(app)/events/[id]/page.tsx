@@ -1,6 +1,7 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import QRCode from 'qrcode';
 import CopyButton from '@/components/shared/CopyButton';
 import EventDetailActions from './EventDetailActions';
 import type { Zone } from '@/types/database';
@@ -51,6 +52,15 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
   const conversionPct = event.view_count > 0
     ? Math.round((event.download_count / event.view_count) * 100)
     : 0;
+
+  const qrDataUrl = event.status === 'published'
+    ? await QRCode.toDataURL(shareUrl, {
+        width: 180,
+        margin: 2,
+        color: { dark: '#0f0f1a', light: '#ffffff' },
+        errorCorrectionLevel: 'M',
+      })
+    : null;
 
   return (
     <div className="px-8 py-8 max-w-[1200px]">
@@ -217,7 +227,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                 <span className="text-[12px] font-mono text-[#0f0f1a]/70 flex-1 truncate">{shareUrl}</span>
                 <CopyButton text={shareUrl} />
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-2 mb-4">
                 <a
                   href={`https://wa.me/?text=${encodeURIComponent(`Get your personalized card: ${shareUrl}`)}`}
                   target="_blank" rel="noopener noreferrer"
@@ -241,6 +251,37 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                   Preview ↗
                 </a>
               </div>
+
+              {/* QR code */}
+              {qrDataUrl && (
+                <div className="border-t border-[#f0f0f0] pt-4">
+                  <div className="text-[10.5px] font-mono tracking-widest text-[#0f0f1a]/40 mb-3">QR CODE · Display on screen or print</div>
+                  <div className="flex items-center gap-4">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={qrDataUrl}
+                      alt="QR code for attendee link"
+                      className="w-20 h-20 rounded-xl border border-[#e5e5ea]"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[12.5px] font-medium">Scan to personalise</div>
+                      <div className="text-[11.5px] text-[#0f0f1a]/50 mt-0.5 leading-snug">
+                        Show this QR on stage, in emails, or on printed materials.
+                      </div>
+                      <a
+                        href={qrDataUrl}
+                        download={`${event.slug}-qr.png`}
+                        className="mt-2 inline-flex items-center gap-1 text-[11.5px] text-[#6c63ff] font-medium hover:underline"
+                      >
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        Download PNG
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="bg-white rounded-2xl border border-[#e5e5ea] p-5 shadow-soft">

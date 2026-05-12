@@ -26,13 +26,30 @@ export default function SettingsClient({ profile }: Props) {
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  const [saveError, setSaveError] = useState<string | null>(null);
+
   const handleSave = async () => {
+    if (!name.trim()) return;
     setSaving(true);
-    // In production, add a PATCH /api/profile route
-    await new Promise(r => setTimeout(r, 600));
-    setSaving(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    setSaveError(null);
+    try {
+      const res = await fetch('/api/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ full_name: name }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setSaveError(data.error ?? 'Failed to save');
+      } else {
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2500);
+      }
+    } catch {
+      setSaveError('Network error — please try again');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const planLabel = PLAN_LABELS[profile?.plan ?? 'free'] ?? 'Free';
@@ -83,13 +100,21 @@ export default function SettingsClient({ profile }: Props) {
               />
             </label>
           </div>
+          {saveError && (
+            <div className="mt-3 text-[12.5px] text-rose-600 bg-rose-50 px-3 py-2 rounded-xl">{saveError}</div>
+          )}
           <button
             onClick={handleSave}
-            disabled={saving}
-            className="mt-4 inline-flex items-center gap-2 text-[13.5px] font-semibold text-white px-4 py-2 rounded-xl hover:opacity-95 transition"
+            disabled={saving || !name.trim()}
+            className="mt-4 inline-flex items-center gap-2 text-[13.5px] font-semibold text-white px-4 py-2 rounded-xl hover:opacity-95 disabled:opacity-60 transition"
             style={{ background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)' }}
           >
-            {saved ? '✓ Saved' : saving ? 'Saving…' : 'Save changes'}
+            {saved ? (
+              <>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Saved
+              </>
+            ) : saving ? 'Saving…' : 'Save changes'}
           </button>
         </div>
 
