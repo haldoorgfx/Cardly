@@ -2,6 +2,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import CopyButton from '@/components/shared/CopyButton';
+import EventDetailActions from './EventDetailActions';
 import type { Zone } from '@/types/database';
 
 export default async function EventDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -55,6 +56,11 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                <EventDetailActions
+                  eventId={id}
+                  eventName={event.name}
+                  status={event.status}
+                />
                 <Link
                   href={`/events/${id}/edit`}
                   className="inline-flex items-center gap-1.5 text-[13px] text-[#0f0f1a]/80 bg-white border border-[#e5e5ea] px-3 py-2 rounded-xl hover:bg-[#fafafa] transition"
