@@ -10,7 +10,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const admin = createAdminClient();
   const { data, error } = await admin
     .from('events')
-    .select('*')
+    .select('*, event_variants(id, variant_name, variant_slug, background_url, background_width, background_height, zones, position, created_at)')
     .eq('id', id)
     .eq('user_id', user.id)
     .single();
@@ -26,7 +26,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json();
-  const allowed = ['name', 'zones', 'status', 'slug'] as const;
+  const allowed = ['name', 'status', 'slug'] as const;
   type UpdateKey = typeof allowed[number];
   const patch: Partial<Record<UpdateKey, unknown>> = {};
   for (const key of allowed) {

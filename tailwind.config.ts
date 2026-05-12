@@ -46,6 +46,14 @@ const config: Config = {
           "0%, 100%": { boxShadow: "0 0 0 0 rgba(108,99,255,0.25)" },
           "50%": { boxShadow: "0 0 0 6px rgba(108,99,255,0)" },
         },
+        slideInLeft: {
+          from: { transform: "translateX(-100%)" },
+          to: { transform: "translateX(0)" },
+        },
+        slideInRight: {
+          from: { transform: "translateX(100%)" },
+          to: { transform: "translateX(0)" },
+        },
       },
       animation: {
         floatA: "floatA 8s ease-in-out infinite",
@@ -53,6 +61,7 @@ const config: Config = {
         marquee: "marquee 38s linear infinite",
         blink: "blink 1s steps(1) infinite",
         zonePulse: "zonePulse 2.4s ease-in-out infinite",
+        slideInLeft: "slideInLeft 200ms ease-out",
       },
     },
   },

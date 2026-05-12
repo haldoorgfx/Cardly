@@ -4,7 +4,7 @@ import Link from 'next/link';
 import QRCode from 'qrcode';
 import CopyButton from '@/components/shared/CopyButton';
 import EventDetailActions from './EventDetailActions';
-import type { Zone } from '@/types/database';
+import type { Zone, Variant } from '@/types/database';
 
 function timeAgo(dateStr: string) {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -36,17 +36,20 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
   if (!user) redirect('/login');
 
   const admin = createAdminClient();
-  const [{ data: event }, { data: recentCards }] = await Promise.all([
+  const [{ data: event }, { data: variantsData }, { data: recentCards }] = await Promise.all([
     admin.from('events').select('*').eq('id', id).eq('user_id', user.id).single(),
+    admin.from('event_variants').select('*').eq('event_id', id).order('position', { ascending: true }),
     admin.from('generated_cards').select('id, attendee_name, attendee_data, created_at').eq('event_id', id).order('created_at', { ascending: false }).limit(8),
   ]);
 
   if (!event) redirect('/dashboard');
 
-  const zones = (event.zones as unknown as Zone[]) ?? [];
+  const variants = (variantsData ?? []) as unknown as Variant[];
+  const firstVariant = variants[0];
+  const zones = (firstVariant?.zones as unknown as Zone[]) ?? [];
   const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL}/c/${event.slug}`;
-  const bgW = event.background_width ?? 1080;
-  const bgH = event.background_height ?? 1350;
+  const bgW = firstVariant?.background_width ?? 1080;
+  const bgH = firstVariant?.background_height ?? 1350;
   const activity = recentCards ?? [];
 
   const conversionPct = event.view_count > 0
@@ -93,6 +96,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                       <span className="h-1.5 w-1.5 rounded-full bg-amber-500" /> Draft
                     </span>
                   )}
+                  <span className="text-[12px] font-mono text-[#0f0f1a]/40">{variants.length} variant{variants.length !== 1 ? 's' : ''}</span>
                   <span className="text-[12px] font-mono text-[#0f0f1a]/40">{zones.length} zones</span>
                   <span className="text-[12px] font-mono text-[#0f0f1a]/40">/{event.slug}</span>
                 </div>
@@ -119,10 +123,10 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
               </div>
             </div>
 
-            {event.background_url && (
+            {firstVariant?.background_url && (
               <div className="relative overflow-hidden bg-[#0f0f1a]" style={{ aspectRatio: `${bgW}/${bgH}`, maxHeight: 460 }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={event.background_url} alt={event.name} className="w-full h-full object-contain" />
+                <img src={firstVariant.background_url} alt={event.name} className="w-full h-full object-contain" />
                 {zones.map(z => (
                   <div
                     key={z.id}
@@ -136,6 +140,19 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                       borderRadius: z.type === 'photo' && z.shape === 'circle' ? '50%' : z.type === 'photo' && z.shape === 'rounded' ? '20%' : 4,
                     }}
                   />
+                ))}
+              </div>
+            )}
+
+            {/* Variants strip */}
+            {variants.length > 1 && (
+              <div className="px-6 py-3 border-t border-[#e5e5ea] flex items-center gap-2 flex-wrap">
+                <span className="text-[11px] font-mono text-[#0f0f1a]/40 mr-1">VARIANTS</span>
+                {variants.map(v => (
+                  <span key={v.id} className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#6c63ff] bg-[#6c63ff]/8 px-2 py-1 rounded-full">
+                    {v.variant_name}
+                    <span className="text-[#0f0f1a]/30">· {(v.zones as Zone[]).length} zones</span>
+                  </span>
                 ))}
               </div>
             )}
@@ -252,7 +269,6 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                 </a>
               </div>
 
-              {/* QR code */}
               {qrDataUrl && (
                 <div className="border-t border-[#f0f0f0] pt-4">
                   <div className="text-[10.5px] font-mono tracking-widest text-[#0f0f1a]/40 mb-3">QR CODE · Display on screen or print</div>
@@ -297,7 +313,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
             </div>
           )}
 
-          {/* Zones */}
+          {/* Zones (from first variant) */}
           <div className="bg-white rounded-2xl border border-[#e5e5ea] p-5 shadow-soft">
             <div className="flex items-center justify-between mb-3">
               <div className="text-[11px] font-mono tracking-widest text-[#0f0f1a]/45">ZONES ({zones.length})</div>
@@ -345,7 +361,11 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-[#0f0f1a]/55">Format</span>
-                <span className="font-mono text-[12px]">{(event.background_width ?? 1080)} × {(event.background_height ?? 1350)}</span>
+                <span className="font-mono text-[12px]">{bgW} × {bgH}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[#0f0f1a]/55">Variants</span>
+                <span className="font-mono text-[12px]">{variants.length}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-[#0f0f1a]/55">Created</span>
@@ -354,7 +374,6 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
             </div>
           </div>
 
-          {/* Link to full analytics */}
           <Link href="/analytics" className="flex items-center gap-3 bg-white rounded-2xl border border-[#e5e5ea] p-4 shadow-soft hover:bg-[#fafafa] transition group">
             <div className="h-9 w-9 rounded-xl grid place-items-center text-white shrink-0" style={{ background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)' }}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

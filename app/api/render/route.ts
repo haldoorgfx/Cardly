@@ -20,9 +20,8 @@ function escapeXml(str: string): string {
     .replace(/'/g, '&apos;');
 }
 
-// Wrap text to fit within a given pixel width using estimated char widths
 function wrapText(text: string, maxWidth: number, fontSize: number): string[] {
-  const approxCharWidth = fontSize * 0.55; // rough em estimate
+  const approxCharWidth = fontSize * 0.55;
   const maxChars = Math.max(1, Math.floor(maxWidth / approxCharWidth));
   const words = text.split(' ');
   const lines: string[] = [];
@@ -142,19 +141,24 @@ export async function POST(req: NextRequest) {
   const supabase = createAdminClient();
 
   const formData = await req.formData();
-  const eventId = formData.get('eventId') as string;
-  const fieldsJson = formData.get('fields') as string;
+  const variantId = formData.get('variantId') as string;
 
-  if (!eventId) return NextResponse.json({ error: 'Missing eventId' }, { status: 400 });
+  if (!variantId) return NextResponse.json({ error: 'Missing variantId' }, { status: 400 });
 
-  const { data: event } = await supabase
-    .from('events')
-    .select('id, background_url, background_width, background_height, zones, status, user_id, download_count')
-    .eq('id', eventId)
-    .eq('status', 'published')
+  // Load the variant (join to event for status + user_id)
+  const { data: variant } = await supabase
+    .from('event_variants')
+    .select('id, background_url, background_width, background_height, zones, event_id, events(id, status, user_id, download_count)')
+    .eq('id', variantId)
     .single();
 
-  if (!event) return NextResponse.json({ error: 'Event not found or not published' }, { status: 404 });
+  if (!variant) return NextResponse.json({ error: 'Variant not found' }, { status: 404 });
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const event = variant.events as any;
+  if (!event || event.status !== 'published') {
+    return NextResponse.json({ error: 'Event not found or not published' }, { status: 404 });
+  }
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -163,12 +167,13 @@ export async function POST(req: NextRequest) {
     .single();
 
   const needsWatermark = !profile || profile.plan === 'free';
-  const zones = (event.zones as unknown as Zone[]) ?? [];
+  const zones = (variant.zones as unknown as Zone[]) ?? [];
+  const fieldsJson = formData.get('fields') as string;
   const fields: Record<string, string> = fieldsJson ? JSON.parse(fieldsJson) : {};
-  const canvasW = event.background_width ?? 1080;
-  const canvasH = event.background_height ?? 1350;
+  const canvasW = variant.background_width ?? 1080;
+  const canvasH = variant.background_height ?? 1350;
 
-  const bgBuffer = await fetchBuffer(event.background_url!);
+  const bgBuffer = await fetchBuffer(variant.background_url!);
   let pipeline = sharp(bgBuffer).resize(canvasW, canvasH, { fit: 'fill' });
 
   for (const zone of zones) {
@@ -197,21 +202,22 @@ export async function POST(req: NextRequest) {
   // Fire-and-forget: save record + increment download count
   const attendeeName = Object.values(fields).find(v => v?.trim()) ?? 'Anonymous';
   supabase.from('generated_cards').insert({
-    event_id: eventId,
+    event_id: event.id,
+    variant_id: variantId,
     attendee_name: attendeeName,
     attendee_data: fields,
     output_url: null,
   }).then(() => {
     supabase.from('events')
       .update({ download_count: (event.download_count ?? 0) + 1 })
-      .eq('id', eventId);
+      .eq('id', event.id);
   });
 
   return new Response(outputBuffer as unknown as BodyInit, {
     status: 200,
     headers: {
       'Content-Type': 'image/png',
-      'Content-Disposition': `attachment; filename="${eventId}-card.png"`,
+      'Content-Disposition': `attachment; filename="${variantId}-card.png"`,
       'Cache-Control': 'no-store',
     },
   });

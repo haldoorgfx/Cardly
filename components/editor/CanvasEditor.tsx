@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import type { Zone } from '@/types/database';
+import type { Zone, Variant } from '@/types/database';
 
 const CW = 1080;
 const CH = 1350;
@@ -41,6 +41,8 @@ const I = {
   upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>',
   play: '<polygon points="6 4 20 12 6 20 6 4"/>',
   pin: '<line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V17z"/>',
+  close: '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+  layers: '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
 };
 
 const COLORS = ['#FFFFFF', '#0F0F1A', '#6C63FF', '#F8A4D8', '#FFD28A', '#7BE0C0', '#FF6058'];
@@ -49,13 +51,38 @@ const FONTS = ['DM Sans', 'Inter', 'JetBrains Mono', 'Space Grotesk', 'Playfair 
 interface CanvasEditorProps {
   eventId: string;
   eventName: string;
-  backgroundUrl: string;
-  initialZones: Zone[];
+  variants: Variant[];
 }
 
-export default function CanvasEditor({ eventId, eventName, backgroundUrl, initialZones }: CanvasEditorProps) {
+export default function CanvasEditor({ eventId, eventName, variants: initialVariants }: CanvasEditorProps) {
   const router = useRouter();
-  const [zones, setZones] = useState<Zone[]>(initialZones);
+
+  // Variant state
+  const [variants, setVariants] = useState<Variant[]>(initialVariants);
+  const [activeVariantId, setActiveVariantId] = useState<string>(initialVariants[0]?.id ?? '');
+  const [showAddVariantModal, setShowAddVariantModal] = useState(false);
+  const [addingVariant, setAddingVariant] = useState(false);
+  const [newVariantName, setNewVariantName] = useState('');
+  const [newVariantFile, setNewVariantFile] = useState<File | null>(null);
+  const newVariantFileRef = useRef<HTMLInputElement>(null);
+
+  // Per-variant zones — keyed by variant id
+  const [variantZonesMap, setVariantZonesMap] = useState<Record<string, Zone[]>>(() => {
+    const map: Record<string, Zone[]> = {};
+    for (const v of initialVariants) {
+      map[v.id] = (v.zones as Zone[]) ?? [];
+    }
+    return map;
+  });
+
+  const activeVariant = variants.find(v => v.id === activeVariantId) ?? variants[0];
+  const zones = variantZonesMap[activeVariantId] ?? [];
+
+  // Derive canvas dimensions from active variant
+  const bgW = activeVariant?.background_width ?? CW;
+  const bgH = activeVariant?.background_height ?? CH;
+  const backgroundUrl = activeVariant?.background_url ?? '';
+
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [zoom, setZoom] = useState(0.42);
   const [grid, setGrid] = useState(false);
@@ -70,11 +97,18 @@ export default function CanvasEditor({ eventId, eventName, backgroundUrl, initia
 
   const selected = zones.find(z => z.id === selectedId) ?? null;
 
-  // 800ms debounced autosave
-  const scheduleSave = useCallback((nextZones: Zone[]) => {
+  // When switching variants, clear selection and reset history
+  const switchVariant = useCallback((variantId: string) => {
+    setActiveVariantId(variantId);
+    setSelectedId(null);
+    setHistory({ past: [], future: [] });
+  }, []);
+
+  // 800ms debounced autosave — saves to variant endpoint
+  const scheduleSave = useCallback((nextZones: Zone[], variantId: string) => {
     if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
     autosaveTimer.current = setTimeout(async () => {
-      await fetch(`/api/events/${eventId}`, {
+      await fetch(`/api/events/${eventId}/variants/${variantId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ zones: nextZones }),
@@ -83,17 +117,24 @@ export default function CanvasEditor({ eventId, eventName, backgroundUrl, initia
     }, 800);
   }, [eventId]);
 
+  const setZonesForVariant = useCallback((variantId: string, nextZones: Zone[]) => {
+    setVariantZonesMap(m => ({ ...m, [variantId]: nextZones }));
+  }, []);
+
   const pushHistory = useCallback((nextZones: Zone[]) => {
     setHistory(h => ({ past: [...h.past.slice(-50), zonesRef.current], future: [] }));
-    setZones(nextZones);
-    scheduleSave(nextZones);
-  }, [scheduleSave]);
+    setZonesForVariant(activeVariantId, nextZones);
+    scheduleSave(nextZones, activeVariantId);
+  }, [scheduleSave, activeVariantId, setZonesForVariant]);
 
   const updateZone = useCallback((id: string, patch: Partial<Zone>, withHistory = false) => {
     const next = zonesRef.current.map(z => z.id === id ? { ...z, ...patch } : z);
     if (withHistory) pushHistory(next);
-    else { setZones(next); scheduleSave(next); }
-  }, [pushHistory, scheduleSave]);
+    else {
+      setZonesForVariant(activeVariantId, next);
+      scheduleSave(next, activeVariantId);
+    }
+  }, [pushHistory, scheduleSave, activeVariantId, setZonesForVariant]);
 
   const removeZone = useCallback((id: string) => {
     pushHistory(zonesRef.current.filter(z => z.id !== id));
@@ -109,7 +150,7 @@ export default function CanvasEditor({ eventId, eventName, backgroundUrl, initia
   }, [pushHistory]);
 
   const addZone = useCallback((type: 'text' | 'photo' | 'custom') => {
-    const base = { id: 'z' + Math.random().toString(36).slice(2, 7), x: CW / 2 - 200, y: CH / 2 - 50, required: false };
+    const base = { id: 'z' + Math.random().toString(36).slice(2, 7), x: bgW / 2 - 200, y: bgH / 2 - 50, required: false };
     let z: Zone;
     if (type === 'text') {
       z = { ...base, type: 'text', label: 'New text field', w: 400, h: 80, font: 'DM Sans', weight: 600, size: 48, color: '#FFFFFF', align: 'left', placeholder: 'Placeholder', sample: 'Sample text' };
@@ -120,27 +161,27 @@ export default function CanvasEditor({ eventId, eventName, backgroundUrl, initia
     }
     pushHistory([...zonesRef.current, z]);
     setSelectedId(z.id);
-  }, [pushHistory]);
+  }, [pushHistory, bgW, bgH]);
 
   const undo = useCallback(() => {
     setHistory(h => {
       if (!h.past.length) return h;
       const prev = h.past[h.past.length - 1];
-      setZones(prev);
-      scheduleSave(prev);
+      setZonesForVariant(activeVariantId, prev);
+      scheduleSave(prev, activeVariantId);
       return { past: h.past.slice(0, -1), future: [zonesRef.current, ...h.future] };
     });
-  }, [scheduleSave]);
+  }, [scheduleSave, activeVariantId, setZonesForVariant]);
 
   const redo = useCallback(() => {
     setHistory(h => {
       if (!h.future.length) return h;
       const next = h.future[0];
-      setZones(next);
-      scheduleSave(next);
+      setZonesForVariant(activeVariantId, next);
+      scheduleSave(next, activeVariantId);
       return { past: [...h.past, zonesRef.current], future: h.future.slice(1) };
     });
-  }, [scheduleSave]);
+  }, [scheduleSave, activeVariantId, setZonesForVariant]);
 
   // Drag/resize
   const interaction = useRef<{ mode: 'move' | 'resize'; dir?: string; id: string; sx: number; sy: number; ox: number; oy: number; ow: number; oh: number } | null>(null);
@@ -166,8 +207,8 @@ export default function CanvasEditor({ eventId, eventName, backgroundUrl, initia
       const dx = (e.clientX - it.sx) / zoom;
       const dy = (e.clientY - it.sy) / zoom;
       if (it.mode === 'move') {
-        const nx = Math.max(0, Math.min(CW - it.ow, it.ox + dx));
-        const ny = Math.max(0, Math.min(CH - it.oh, it.oy + dy));
+        const nx = Math.max(0, Math.min(bgW - it.ow, it.ox + dx));
+        const ny = Math.max(0, Math.min(bgH - it.oh, it.oy + dy));
         updateZone(it.id, { x: Math.round(nx), y: Math.round(ny) });
       } else if (it.mode === 'resize' && it.dir) {
         const d = it.dir;
@@ -177,14 +218,13 @@ export default function CanvasEditor({ eventId, eventName, backgroundUrl, initia
         if (d.includes('w')) { nw = Math.max(40, it.ow - dx); nx = it.ox + (it.ow - nw); }
         if (d.includes('n')) { nh = Math.max(20, it.oh - dy); ny = it.oy + (it.oh - nh); }
         nx = Math.max(0, nx); ny = Math.max(0, ny);
-        nw = Math.min(nw, CW - nx); nh = Math.min(nh, CH - ny);
+        nw = Math.min(nw, bgW - nx); nh = Math.min(nh, bgH - ny);
         updateZone(it.id, { x: Math.round(nx), y: Math.round(ny), w: Math.round(nw), h: Math.round(nh) });
       }
     };
     const onUp = () => {
       if (interaction.current) {
-        const z = zonesRef.current.find(z => z.id === interaction.current!.id);
-        if (z) setHistory(h => ({ past: [...h.past.slice(-50), zonesRef.current], future: [] }));
+        setHistory(h => ({ past: [...h.past.slice(-50), zonesRef.current], future: [] }));
       }
       interaction.current = null;
       document.body.classList.remove('cursor-grabbing', 'select-none');
@@ -192,7 +232,7 @@ export default function CanvasEditor({ eventId, eventName, backgroundUrl, initia
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onUp);
     return () => { window.removeEventListener('pointermove', onMove); window.removeEventListener('pointerup', onUp); };
-  }, [zoom, updateZone]);
+  }, [zoom, updateZone, bgW, bgH]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -208,14 +248,14 @@ export default function CanvasEditor({ eventId, eventName, backgroundUrl, initia
       } else if (selected) {
         const step = e.shiftKey ? 10 : 1;
         if (e.key === 'ArrowLeft') { e.preventDefault(); updateZone(selected.id, { x: Math.max(0, selected.x - step) }, true); }
-        if (e.key === 'ArrowRight') { e.preventDefault(); updateZone(selected.id, { x: Math.min(CW - selected.w, selected.x + step) }, true); }
+        if (e.key === 'ArrowRight') { e.preventDefault(); updateZone(selected.id, { x: Math.min(bgW - selected.w, selected.x + step) }, true); }
         if (e.key === 'ArrowUp') { e.preventDefault(); updateZone(selected.id, { y: Math.max(0, selected.y - step) }, true); }
-        if (e.key === 'ArrowDown') { e.preventDefault(); updateZone(selected.id, { y: Math.min(CH - selected.h, selected.y + step) }, true); }
+        if (e.key === 'ArrowDown') { e.preventDefault(); updateZone(selected.id, { y: Math.min(bgH - selected.h, selected.y + step) }, true); }
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [selected, selectedId, undo, redo, removeZone, duplicateZone, updateZone]);
+  }, [selected, selectedId, undo, redo, removeZone, duplicateZone, updateZone, bgW, bgH]);
 
   // Fit zoom to viewport on mount
   useEffect(() => {
@@ -223,20 +263,15 @@ export default function CanvasEditor({ eventId, eventName, backgroundUrl, initia
       const el = stageRef.current;
       if (!el) return;
       const pad = 80;
-      const z = Math.min((el.clientWidth - pad) / CW, (el.clientHeight - pad) / CH);
+      const z = Math.min((el.clientWidth - pad) / bgW, (el.clientHeight - pad) / bgH);
       setZoom(Math.max(0.18, Math.min(1.4, z)));
     };
     fit();
     window.addEventListener('resize', fit);
     return () => window.removeEventListener('resize', fit);
-  }, []);
+  }, [bgW, bgH, activeVariantId]);
 
   const handlePublish = async () => {
-    await fetch(`/api/events/${eventId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ zones }),
-    });
     router.push(`/events/${eventId}/publish`);
   };
 
@@ -247,6 +282,30 @@ export default function CanvasEditor({ eventId, eventName, backgroundUrl, initia
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: nameVal }),
     });
+  };
+
+  const handleAddVariant = async () => {
+    if (!newVariantName.trim() || !newVariantFile) return;
+    setAddingVariant(true);
+    try {
+      const fd = new FormData();
+      fd.append('variant_name', newVariantName.trim());
+      fd.append('file', newVariantFile);
+      const res = await fetch(`/api/events/${eventId}/variants`, { method: 'POST', body: fd });
+      if (!res.ok) throw new Error('Failed to create variant');
+      const newVariant = await res.json() as Variant;
+      newVariant.zones = [];
+      setVariants(v => [...v, newVariant]);
+      setVariantZonesMap(m => ({ ...m, [newVariant.id]: [] }));
+      switchVariant(newVariant.id);
+      setShowAddVariantModal(false);
+      setNewVariantName('');
+      setNewVariantFile(null);
+    } catch {
+      // silently fail — user sees no change
+    } finally {
+      setAddingVariant(false);
+    }
   };
 
   return (
@@ -304,6 +363,29 @@ export default function CanvasEditor({ eventId, eventName, backgroundUrl, initia
         </div>
       </header>
 
+      {/* Variant tab bar */}
+      <div className="h-11 bg-white border-b border-[#e5e5ea] flex items-center px-4 gap-1 shrink-0 z-10">
+        <span className="text-[11px] font-mono text-[#0f0f1a]/40 mr-2 shrink-0">VARIANTS</span>
+        {variants.map(v => (
+          <button
+            key={v.id}
+            onClick={() => switchVariant(v.id)}
+            className={`flex items-center gap-2 px-3.5 h-7 rounded-lg text-[13px] font-medium transition ${v.id === activeVariantId ? 'bg-[#6c63ff] text-white shadow-sm' : 'text-[#0f0f1a]/60 hover:text-[#0f0f1a] hover:bg-[#fafafa] border border-[#e5e5ea]'}`}
+          >
+            <Icon d={I.layers} size={12} sw={2} />
+            {v.variant_name}
+          </button>
+        ))}
+        <button
+          onClick={() => setShowAddVariantModal(true)}
+          className="flex items-center gap-1.5 px-3 h-7 rounded-lg text-[13px] font-medium text-[#0f0f1a]/50 hover:text-[#6c63ff] hover:bg-[#6c63ff]/8 border border-dashed border-[#e5e5ea] hover:border-[#6c63ff]/40 transition"
+          title="Add variant"
+        >
+          <Icon d={I.plus} size={13} sw={2.5} />
+          Add variant
+        </button>
+      </div>
+
       <div className="flex-1 flex min-h-0">
         {/* Left Rail */}
         <aside className="w-[256px] shrink-0 bg-white border-r border-[#e5e5ea] flex flex-col overflow-y-auto">
@@ -320,7 +402,7 @@ export default function CanvasEditor({ eventId, eventName, backgroundUrl, initia
                   onClick={() => addZone(item.type)}
                   className="group w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-[#fafafa] border border-transparent hover:border-[#e5e5ea] transition text-left"
                 >
-                  <span className="h-9 w-9 rounded-lg bg-[#fafafa] grid place-items-center text-[#6c63ff] group-hover:text-white transition" style={undefined}>
+                  <span className="h-9 w-9 rounded-lg bg-[#fafafa] grid place-items-center text-[#6c63ff] group-hover:text-white transition">
                     <svg className="group-hover:[background:linear-gradient(135deg,#6c63ff,#f8a4d8)] rounded-lg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: item.icon }} />
                   </span>
                   <span className="flex-1 min-w-0">
@@ -364,10 +446,10 @@ export default function CanvasEditor({ eventId, eventName, backgroundUrl, initia
           <div className="mt-auto p-3 border-t border-[#e5e5ea]">
             <div className="text-[11px] font-mono tracking-widest text-[#0f0f1a]/40 mb-2">BACKGROUND</div>
             <div className="flex items-center gap-3 rounded-xl border border-[#e5e5ea] p-2.5">
-              <div className="h-9 w-9 rounded-md shrink-0 bg-cover bg-center" style={{ backgroundImage: `url(${backgroundUrl})` }} />
+              <div className="h-9 w-9 rounded-md shrink-0 bg-cover bg-center" style={{ backgroundImage: backgroundUrl ? `url(${backgroundUrl})` : undefined, background: backgroundUrl ? undefined : '#fafafa' }} />
               <div className="flex-1 min-w-0">
-                <div className="text-[12px] font-medium truncate">Design background</div>
-                <div className="text-[10px] font-mono text-[#0f0f1a]/45">{CW} × {CH}</div>
+                <div className="text-[12px] font-medium truncate">{activeVariant?.variant_name ?? 'Variant'}</div>
+                <div className="text-[10px] font-mono text-[#0f0f1a]/45">{bgW} × {bgH}</div>
               </div>
             </div>
           </div>
@@ -381,9 +463,11 @@ export default function CanvasEditor({ eventId, eventName, backgroundUrl, initia
           onPointerDown={() => setSelectedId(null)}
         >
           <div className="absolute inset-0 flex items-center justify-center">
+            {/* Outer div sized to the VISUAL (scaled) dimensions so flexbox centers correctly */}
+            <div style={{ width: bgW * zoom, height: bgH * zoom, position: 'relative', flexShrink: 0 }}>
             <div
               className="relative shadow-lift rounded-md"
-              style={{ width: CW, height: CH, transform: `scale(${zoom})`, transformOrigin: 'center center' }}
+              style={{ width: bgW, height: bgH, transform: `scale(${zoom})`, transformOrigin: '0 0', position: 'absolute', top: 0, left: 0 }}
               onPointerDown={e => e.stopPropagation()}
             >
               {/* Background image */}
@@ -411,7 +495,7 @@ export default function CanvasEditor({ eventId, eventName, backgroundUrl, initia
 
               {/* Canvas frame label */}
               <div className="absolute -top-7 left-0 right-0 flex items-center justify-between text-[11px] font-mono text-[#0f0f1a]/45">
-                <span>{CW} × {CH} px</span>
+                <span>{bgW} × {bgH} px</span>
                 <span>{zones.length} zones · {zones.filter(z => z.required).length} required</span>
               </div>
               {/* Corner marks */}
@@ -419,6 +503,7 @@ export default function CanvasEditor({ eventId, eventName, backgroundUrl, initia
               <span className="absolute -top-1 -right-1 h-3 w-3 border-t border-r border-[#6c63ff]/50" />
               <span className="absolute -bottom-1 -left-1 h-3 w-3 border-b border-l border-[#6c63ff]/50" />
               <span className="absolute -bottom-1 -right-1 h-3 w-3 border-b border-r border-[#6c63ff]/50" />
+            </div>
             </div>
           </div>
 
@@ -442,7 +527,7 @@ export default function CanvasEditor({ eventId, eventName, backgroundUrl, initia
               <Icon d={I.grid} size={13} />
               Grid
             </button>
-            <button onClick={() => { const el = stageRef.current; if (!el) return; const pad = 80; setZoom(Math.max(0.18, Math.min(1.4, Math.min((el.clientWidth - pad) / CW, (el.clientHeight - pad) / CH)))); }} className="h-8 px-2.5 rounded-lg hover:bg-[#fafafa] text-[12px] text-[#0f0f1a]/70">
+            <button onClick={() => { const el = stageRef.current; if (!el) return; const pad = 80; setZoom(Math.max(0.18, Math.min(1.4, Math.min((el.clientWidth - pad) / bgW, (el.clientHeight - pad) / bgH)))); }} className="h-8 px-2.5 rounded-lg hover:bg-[#fafafa] text-[12px] text-[#0f0f1a]/70">
               Fit
             </button>
           </div>
@@ -482,7 +567,6 @@ export default function CanvasEditor({ eventId, eventName, backgroundUrl, initia
               </button>
             </div>
 
-            {/* Field section */}
             <PropSection title="Field">
               <PropRow label="Label">
                 <input value={selected.label} onChange={e => updateZone(selected.id, { label: e.target.value })} className="prop-input" />
@@ -496,7 +580,6 @@ export default function CanvasEditor({ eventId, eventName, backgroundUrl, initia
               <PropToggle label="Required" value={!!selected.required} onChange={v => updateZone(selected.id, { required: v })} />
             </PropSection>
 
-            {/* Style section */}
             {selected.type === 'photo' ? (
               <PropSection title="Photo style">
                 <PropRow label="Shape">
@@ -545,7 +628,6 @@ export default function CanvasEditor({ eventId, eventName, backgroundUrl, initia
               </PropSection>
             )}
 
-            {/* Position section */}
             <PropSection title="Position & size">
               <div className="grid grid-cols-2 gap-2">
                 <NumberProp label="X" value={selected.x} onChange={v => updateZone(selected.id, { x: v })} />
@@ -554,7 +636,7 @@ export default function CanvasEditor({ eventId, eventName, backgroundUrl, initia
                 <NumberProp label="H" value={selected.h} onChange={v => updateZone(selected.id, { h: v })} />
               </div>
               <button
-                onClick={() => updateZone(selected.id, { x: Math.round(CW / 2 - selected.w / 2) })}
+                onClick={() => updateZone(selected.id, { x: Math.round(bgW / 2 - selected.w / 2) })}
                 className="mt-3 w-full text-[12px] text-[#0f0f1a]/60 border border-[#e5e5ea] rounded-lg py-1.5 hover:bg-[#fafafa] flex items-center justify-center gap-1.5"
               >
                 <Icon d={I.pin} size={11} />
@@ -569,6 +651,80 @@ export default function CanvasEditor({ eventId, eventName, backgroundUrl, initia
           </aside>
         )}
       </div>
+
+      {/* Add Variant Modal */}
+      {showAddVariantModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-[#0f0f1a]/40 backdrop-blur-sm" onClick={() => setShowAddVariantModal(false)} />
+          <div className="relative bg-white rounded-2xl shadow-lift w-full max-w-[420px] mx-4 p-6">
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <h2 className="font-display font-bold text-[18px]">Add variant</h2>
+                <p className="text-[12.5px] text-[#0f0f1a]/50 mt-0.5">A new card type for this event (e.g. Speaker, Sponsor)</p>
+              </div>
+              <button onClick={() => setShowAddVariantModal(false)} className="h-8 w-8 rounded-lg hover:bg-[#fafafa] grid place-items-center text-[#0f0f1a]/50">
+                <Icon d={I.close} size={15} />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-[12px] font-medium text-[#0f0f1a]/70 mb-1.5">Variant name</label>
+                <input
+                  autoFocus
+                  type="text"
+                  placeholder="e.g. Speaker, Sponsor, Exhibitor"
+                  value={newVariantName}
+                  onChange={e => setNewVariantName(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleAddVariant()}
+                  className="w-full h-10 px-3 rounded-xl border border-[#e5e5ea] text-[13.5px] outline-none focus:border-[#6c63ff] transition"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[12px] font-medium text-[#0f0f1a]/70 mb-1.5">Background design</label>
+                <input
+                  ref={newVariantFileRef}
+                  type="file"
+                  accept="image/png,image/jpeg"
+                  className="hidden"
+                  onChange={e => setNewVariantFile(e.target.files?.[0] ?? null)}
+                />
+                <button
+                  onClick={() => newVariantFileRef.current?.click()}
+                  className={`w-full h-24 rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition ${newVariantFile ? 'border-[#6c63ff]/50 bg-[#6c63ff]/4 text-[#6c63ff]' : 'border-[#e5e5ea] hover:border-[#6c63ff]/40 text-[#0f0f1a]/40'}`}
+                >
+                  {newVariantFile ? (
+                    <>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      <span className="text-[12px] font-medium">{newVariantFile.name}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Icon d={I.upload} size={20} sw={1.6} />
+                      <span className="text-[12.5px]">Upload PNG or JPG</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex gap-2 mt-6">
+              <button onClick={() => setShowAddVariantModal(false)} className="flex-1 h-10 rounded-xl border border-[#e5e5ea] text-[13px] hover:bg-[#fafafa] transition">
+                Cancel
+              </button>
+              <button
+                onClick={handleAddVariant}
+                disabled={!newVariantName.trim() || !newVariantFile || addingVariant}
+                className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white transition disabled:opacity-40"
+                style={{ background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)' }}
+              >
+                {addingVariant ? 'Creating…' : 'Create variant'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -602,7 +758,6 @@ function ZoneEl({ zone, selected, onPointerDown, onHandle }: { zone: Zone; selec
       style={{ left: zone.x, top: zone.y, width: zone.w, height: zone.h, borderRadius: radius, cursor: zone.locked ? 'not-allowed' : 'grab', outline: selected ? `1.5px solid ${dashColor}` : undefined }}
       onPointerDown={onPointerDown}
     >
-      {/* Dashed border */}
       <div className="absolute inset-0 pointer-events-none" style={{
         borderRadius: radius,
         backgroundImage: `repeating-linear-gradient(90deg, ${dashColor} 0 8px, transparent 8px 14px), repeating-linear-gradient(180deg, ${dashColor} 0 8px, transparent 8px 14px), repeating-linear-gradient(0deg, ${dashColor} 0 8px, transparent 8px 14px), repeating-linear-gradient(270deg, ${dashColor} 0 8px, transparent 8px 14px)`,
@@ -614,12 +769,10 @@ function ZoneEl({ zone, selected, onPointerDown, onHandle }: { zone: Zone; selec
 
       {inner}
 
-      {/* Label */}
       <span className="absolute pointer-events-auto font-mono text-[10px] px-1.5 py-px rounded text-white whitespace-nowrap" style={{ background: dashColor, top: -4, left: 0, transform: 'translateY(-100%)' }}>
         {zone.label}{zone.required && ' *'}
       </span>
 
-      {/* Handles when selected */}
       {selected && (
         <>
           {(['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'] as const).map(dir => (

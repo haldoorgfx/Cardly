@@ -4,9 +4,12 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import type { Database } from '@/types/database';
+import type { Database, Json } from '@/types/database';
 
-type Event = Database['public']['Tables']['events']['Row'];
+type EventRow = Database['public']['Tables']['events']['Row'];
+type Event = EventRow & {
+  event_variants?: Array<{ id: string; background_url: string | null; zones: Json; position: number }> | null;
+};
 
 interface Props {
   event: Event;
@@ -43,7 +46,8 @@ export default function EventCard({ event, compact = false }: Props) {
   const [busy, setBusy] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const zonesCount = Array.isArray(event.zones) ? event.zones.length : 0;
+  const firstVariant = (event.event_variants ?? []).sort((a, b) => a.position - b.position)[0];
+  const zonesCount = Array.isArray(firstVariant?.zones) ? (firstVariant.zones as unknown[]).length : 0;
   const isDraft = event.status === 'draft';
   const isArchived = event.status === 'archived';
 
@@ -86,8 +90,8 @@ export default function EventCard({ event, compact = false }: Props) {
     router.refresh();
   }
 
-  const bgStyle = event.background_url
-    ? { backgroundImage: `url(${event.background_url})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+  const bgStyle = firstVariant?.background_url
+    ? { backgroundImage: `url(${firstVariant.background_url})`, backgroundSize: 'cover', backgroundPosition: 'center' }
     : { background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)' };
 
   const updatedAgo = (() => {

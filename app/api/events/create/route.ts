@@ -15,15 +15,12 @@ function generateSlug(name: string): string {
 const PLAN_LIMITS: Record<string, number> = { free: 1, pro: 10, studio: Infinity };
 
 export async function POST(req: NextRequest) {
-  // Auth check with user client
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  // Admin client for trusted DB writes (bypasses RLS after we've verified auth above)
   const admin = createAdminClient();
 
-  // Check plan limits
   const { data: profile } = await admin.from('profiles').select('plan').eq('id', user.id).single();
   const plan = profile?.plan ?? 'free';
   const limit = PLAN_LIMITS[plan] ?? 1;
@@ -48,7 +45,6 @@ export async function POST(req: NextRequest) {
   const ext = file.type === 'image/png' ? 'png' : 'jpg';
   const path = `${user.id}/${Date.now()}.${ext}`;
 
-  // Storage upload uses admin client (bypasses storage RLS)
   const { error: uploadError } = await admin.storage
     .from('event-backgrounds')
     .upload(path, file, { contentType: file.type, upsert: false });
@@ -82,20 +78,27 @@ export async function POST(req: NextRequest) {
   const slug = generateSlug(name);
   const { data: event, error: dbError } = await admin
     .from('events')
-    .insert({
-      user_id: user.id,
-      name,
-      slug,
-      background_url: backgroundUrl,
-      background_width: w || null,
-      background_height: h || null,
-      zones: [],
-      status: 'draft',
-    })
+    .insert({ user_id: user.id, name, slug, status: 'draft' })
     .select()
     .single();
 
   if (dbError) return NextResponse.json({ error: dbError.message }, { status: 500 });
+
+  // Create the default "Attendee" variant with the uploaded background
+  const { error: variantError } = await admin
+    .from('event_variants')
+    .insert({
+      event_id: event.id,
+      variant_name: 'Attendee',
+      variant_slug: 'attendee',
+      background_url: backgroundUrl,
+      background_width: w || null,
+      background_height: h || null,
+      zones: [],
+      position: 0,
+    });
+
+  if (variantError) return NextResponse.json({ error: variantError.message }, { status: 500 });
 
   return NextResponse.json({ id: event.id, slug: event.slug });
 }

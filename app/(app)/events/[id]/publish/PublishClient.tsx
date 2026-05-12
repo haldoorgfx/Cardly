@@ -112,7 +112,12 @@ export default function PublishClient({ eventId, eventName, shareUrl, zonesCount
               className="w-full py-3 rounded-xl font-display font-semibold text-[15px] text-white hover:opacity-95 transition mb-3"
               style={{ background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)' }}
             >
-              {copied ? '✓ Copied!' : 'Copy link'}
+              {copied ? (
+                <span className="inline-flex items-center justify-center gap-2">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  Copied!
+                </span>
+              ) : 'Copy link'}
             </button>
             <div className="grid grid-cols-2 gap-2">
               <a

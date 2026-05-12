@@ -12,7 +12,7 @@ export default async function DashboardPage() {
 
   const admin = createAdminClient();
   const [{ data: events }, { data: profile }] = await Promise.all([
-    admin.from('events').select('*').eq('user_id', user.id).order('updated_at', { ascending: false }),
+    admin.from('events').select('*, event_variants(id, background_url, zones, position)').eq('user_id', user.id).order('updated_at', { ascending: false }),
     admin.from('profiles').select('plan').eq('id', user.id).single(),
   ]);
 

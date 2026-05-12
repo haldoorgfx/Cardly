@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import type { Zone } from '@/types/database';
 
 interface Props {
-  eventId: string;
+  variantId: string;
   eventName: string;
   backgroundUrl: string;
   backgroundWidth: number;
@@ -63,7 +63,7 @@ function Confetti() {
   );
 }
 
-export default function AttendeeClient({ eventId, eventName, backgroundUrl, backgroundWidth, backgroundHeight, zones }: Props) {
+export default function AttendeeClient({ variantId, eventName, backgroundUrl, backgroundWidth, backgroundHeight, zones }: Props) {
   const [values, setValues] = useState<FieldValues>({});
   const [photoFiles, setPhotoFiles] = useState<Record<string, File>>({});
   const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({});
@@ -133,7 +133,7 @@ export default function AttendeeClient({ eventId, eventName, backgroundUrl, back
     setError('');
     try {
       const formData = new FormData();
-      formData.append('eventId', eventId);
+      formData.append('variantId', variantId);
       formData.append('fields', JSON.stringify(values));
 
       for (const [zoneId, file] of Object.entries(photoFiles)) {
@@ -383,7 +383,10 @@ export default function AttendeeClient({ eventId, eventName, backgroundUrl, back
                 onClick={() => setScreen('success')}
                 className="flex-1 py-3 rounded-xl text-[13px] font-semibold text-[#6c63ff] border border-[#6c63ff]/30 hover:bg-[#6c63ff]/10 transition"
               >
-                Done ✓
+                <span className="inline-flex items-center gap-1.5">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  Done
+                </span>
               </button>
             )}
           </div>

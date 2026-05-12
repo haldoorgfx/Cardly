@@ -27,6 +27,19 @@ export interface Zone {
   locked?: boolean;
 }
 
+export interface Variant {
+  id: string;
+  event_id: string;
+  variant_name: string;
+  variant_slug: string;
+  background_url: string | null;
+  background_width: number | null;
+  background_height: number | null;
+  zones: Zone[];
+  position: number;
+  created_at: string;
+}
+
 export type Json =
   | string
   | number
@@ -44,6 +57,7 @@ export interface Database {
           email: string | null;
           full_name: string | null;
           plan: Plan;
+          brand_kit: Json | null;
           created_at: string;
         };
         Insert: {
@@ -51,12 +65,14 @@ export interface Database {
           email?: string | null;
           full_name?: string | null;
           plan?: Plan;
+          brand_kit?: Json | null;
           created_at?: string;
         };
         Update: {
           email?: string | null;
           full_name?: string | null;
           plan?: Plan;
+          brand_kit?: Json | null;
         };
         Relationships: [];
       };
@@ -66,10 +82,6 @@ export interface Database {
           user_id: string;
           name: string;
           slug: string;
-          background_url: string | null;
-          background_width: number | null;
-          background_height: number | null;
-          zones: Json;
           status: EventStatus;
           view_count: number;
           download_count: number;
@@ -81,10 +93,6 @@ export interface Database {
           user_id: string;
           name: string;
           slug: string;
-          background_url?: string | null;
-          background_width?: number | null;
-          background_height?: number | null;
-          zones?: Json;
           status?: EventStatus;
           view_count?: number;
           download_count?: number;
@@ -94,10 +102,6 @@ export interface Database {
         Update: {
           name?: string;
           slug?: string;
-          background_url?: string | null;
-          background_width?: number | null;
-          background_height?: number | null;
-          zones?: Json;
           status?: EventStatus;
           view_count?: number;
           download_count?: number;
@@ -113,10 +117,55 @@ export interface Database {
           }
         ];
       };
+      event_variants: {
+        Row: {
+          id: string;
+          event_id: string;
+          variant_name: string;
+          variant_slug: string;
+          background_url: string | null;
+          background_width: number | null;
+          background_height: number | null;
+          zones: Json;
+          position: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          event_id: string;
+          variant_name: string;
+          variant_slug: string;
+          background_url?: string | null;
+          background_width?: number | null;
+          background_height?: number | null;
+          zones?: Json;
+          position?: number;
+          created_at?: string;
+        };
+        Update: {
+          variant_name?: string;
+          variant_slug?: string;
+          background_url?: string | null;
+          background_width?: number | null;
+          background_height?: number | null;
+          zones?: Json;
+          position?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "event_variants_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
       generated_cards: {
         Row: {
           id: string;
           event_id: string;
+          variant_id: string | null;
           attendee_name: string | null;
           attendee_data: Json | null;
           output_url: string | null;
@@ -125,12 +174,14 @@ export interface Database {
         Insert: {
           id?: string;
           event_id: string;
+          variant_id?: string | null;
           attendee_name?: string | null;
           attendee_data?: Json | null;
           output_url?: string | null;
           created_at?: string;
         };
         Update: {
+          variant_id?: string | null;
           attendee_name?: string | null;
           attendee_data?: Json | null;
           output_url?: string | null;
