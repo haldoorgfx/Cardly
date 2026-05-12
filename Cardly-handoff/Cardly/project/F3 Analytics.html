@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Analytics · Cardly</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,500;9..40,600;9..40,700;9..40,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    colors: { brand: { primary:'#6c63ff', secondary:'#f8a4d8', ink:'#0f0f1a', offwhite:'#fafafa', border:'#e5e5ea' } },
+    fontFamily: { display:['"DM Sans"','system-ui','sans-serif'], sans:['Inter','system-ui','sans-serif'], mono:['"JetBrains Mono"','monospace'] },
+  }}}
+</script>
+<style>
+  body { font-family:'Inter', system-ui, sans-serif; color:#0f0f1a; background:#fafafa; }
+  .font-display { font-family:'DM Sans', system-ui, sans-serif; letter-spacing:-0.02em; }
+  .font-mono { font-family:'JetBrains Mono', monospace; }
+  .grad-bg { background: linear-gradient(135deg,#6c63ff 0%,#f8a4d8 100%); }
+  .grad-text { background: linear-gradient(135deg,#6c63ff,#f8a4d8); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .card-shadow { box-shadow: 0 1px 2px rgba(15,15,26,0.04), 0 12px 28px rgba(15,15,26,0.05); }
+</style>
+</head>
+<body class="min-h-screen flex">
+
+<aside class="w-[64px] bg-white border-r border-brand-border flex flex-col items-center py-4 gap-2 shrink-0">
+  <div class="h-9 w-9 rounded-xl grad-bg grid place-items-center text-white font-display font-bold text-[16px] mb-3">C</div>
+  <a href="C2 Events List.html" class="h-10 w-10 rounded-xl text-brand-ink/45 hover:bg-brand-offwhite grid place-items-center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18"/></svg></a>
+  <button class="h-10 w-10 rounded-xl bg-brand-ink text-white grid place-items-center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18M7 14l4-5 4 3 5-7"/></svg></button>
+  <a href="F1 Templates Gallery.html" class="h-10 w-10 rounded-xl text-brand-ink/45 hover:bg-brand-offwhite grid place-items-center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></a>
+  <a href="F2 Brand Kit.html" class="h-10 w-10 rounded-xl text-brand-ink/45 hover:bg-brand-offwhite grid place-items-center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r="2.5"/></svg></a>
+  <div class="flex-1"></div>
+  <div class="h-9 w-9 rounded-full grid place-items-center text-white font-display font-bold text-[12px]" style="background:linear-gradient(135deg,#ffd28a,#f8a4d8)">AO</div>
+</aside>
+
+<main class="flex-1 min-h-screen overflow-y-auto">
+  <header class="sticky top-0 z-30 bg-white/85 backdrop-blur border-b border-brand-border">
+    <div class="px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3"><div class="font-display font-bold text-[16px]">Flutterwave Design</div><span class="text-brand-ink/30">/</span><div class="text-[14px] text-brand-ink/70">Analytics</div></div>
+      <div class="flex items-center gap-2">
+        <select class="h-9 px-3 rounded-lg border border-brand-border bg-white text-[13px]">
+          <option>All events</option><option>Africa Tech Festival '26</option><option>Founders Retreat</option>
+        </select>
+        <select class="h-9 px-3 rounded-lg border border-brand-border bg-white text-[13px]">
+          <option>Last 30 days</option><option>Last 7 days</option><option>This year</option>
+        </select>
+        <button class="h-9 px-3 rounded-lg border border-brand-border bg-white text-[13px] font-medium">Export CSV</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="px-8 py-8 max-w-[1280px] mx-auto">
+    <!-- KPIs -->
+    <div class="grid grid-cols-4 gap-4">
+      <Kpi label="Page views" value="48,290" delta="+18.4%" pos="1" />
+      <Kpi label="Cards generated" value="11,842" delta="+22.1%" pos="1" />
+      <Kpi label="Downloads" value="9,506" delta="+31.7%" pos="1" />
+      <Kpi label="Conversion" value="24.5%" delta="+3.2pp" pos="1" />
+    </div>
+
+    <!-- Main chart -->
+    <section class="mt-6 bg-white rounded-2xl border border-brand-border card-shadow p-6">
+      <div class="flex items-center justify-between mb-5">
+        <div>
+          <div class="text-[11px] font-mono tracking-widest text-brand-ink/45">DAILY VIEWS VS DOWNLOADS</div>
+          <div class="font-display font-semibold text-[15px] mt-0.5">Last 30 days</div>
+        </div>
+        <div class="flex items-center gap-4 text-[12px]">
+          <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-brand-primary"></span>Views</span>
+          <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-brand-secondary"></span>Downloads</span>
+        </div>
+      </div>
+      <svg viewBox="0 0 600 220" class="w-full h-[220px]">
+        <defs>
+          <linearGradient id="g1" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#6c63ff" stop-opacity=".18"/><stop offset="100%" stop-color="#6c63ff" stop-opacity="0"/></linearGradient>
+          <linearGradient id="g2" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#f8a4d8" stop-opacity=".22"/><stop offset="100%" stop-color="#f8a4d8" stop-opacity="0"/></linearGradient>
+        </defs>
+        <!-- grid -->
+        <g stroke="#e5e5ea" stroke-width="1">
+          <line x1="40" y1="40" x2="590" y2="40"/><line x1="40" y1="90" x2="590" y2="90"/><line x1="40" y1="140" x2="590" y2="140"/><line x1="40" y1="190" x2="590" y2="190"/>
+        </g>
+        <g font-family="JetBrains Mono" font-size="9" fill="#0f0f1a55">
+          <text x="8" y="44">12k</text><text x="8" y="94">8k</text><text x="8" y="144">4k</text><text x="8" y="194">0</text>
+        </g>
+        <!-- views path -->
+        <path d="M40 170 L 60 165 L 80 155 L 100 150 L 120 130 L 140 138 L 160 120 L 180 110 L 200 122 L 220 100 L 240 85 L 260 92 L 280 78 L 300 70 L 320 80 L 340 62 L 360 55 L 380 70 L 400 50 L 420 45 L 440 38 L 460 50 L 480 35 L 500 28 L 520 40 L 540 25 L 560 18 L 580 12 L 580 200 L 40 200 Z" fill="url(#g1)"/>
+        <path d="M40 170 L 60 165 L 80 155 L 100 150 L 120 130 L 140 138 L 160 120 L 180 110 L 200 122 L 220 100 L 240 85 L 260 92 L 280 78 L 300 70 L 320 80 L 340 62 L 360 55 L 380 70 L 400 50 L 420 45 L 440 38 L 460 50 L 480 35 L 500 28 L 520 40 L 540 25 L 560 18 L 580 12" stroke="#6c63ff" stroke-width="2" fill="none" stroke-linejoin="round"/>
+        <!-- downloads path -->
+        <path d="M40 188 L 60 185 L 80 180 L 100 178 L 120 168 L 140 172 L 160 160 L 180 156 L 200 162 L 220 148 L 240 138 L 260 142 L 280 130 L 300 125 L 320 130 L 340 118 L 360 110 L 380 122 L 400 100 L 420 95 L 440 88 L 460 95 L 480 80 L 500 72 L 520 82 L 540 68 L 560 60 L 580 52 L 580 200 L 40 200 Z" fill="url(#g2)"/>
+        <path d="M40 188 L 60 185 L 80 180 L 100 178 L 120 168 L 140 172 L 160 160 L 180 156 L 200 162 L 220 148 L 240 138 L 260 142 L 280 130 L 300 125 L 320 130 L 340 118 L 360 110 L 380 122 L 400 100 L 420 95 L 440 88 L 460 95 L 480 80 L 500 72 L 520 82 L 540 68 L 560 60 L 580 52" stroke="#f8a4d8" stroke-width="2" fill="none" stroke-linejoin="round"/>
+        <!-- highlight dot -->
+        <circle cx="580" cy="12" r="4" fill="#6c63ff"/>
+        <circle cx="580" cy="52" r="4" fill="#f8a4d8"/>
+        <g font-family="JetBrains Mono" font-size="9" fill="#0f0f1a55">
+          <text x="40" y="215">APR 12</text><text x="170" y="215">APR 20</text><text x="300" y="215">APR 28</text><text x="430" y="215">MAY 5</text><text x="540" y="215">MAY 12</text>
+        </g>
+      </svg>
+    </section>
+
+    <!-- Geo + funnel -->
+    <div class="grid grid-cols-3 gap-4 mt-6">
+      <!-- Map -->
+      <section class="col-span-2 bg-white rounded-2xl border border-brand-border card-shadow p-6">
+        <div class="flex items-center justify-between mb-5">
+          <div><div class="text-[11px] font-mono tracking-widest text-brand-ink/45">GEOGRAPHIC SPREAD</div><div class="font-display font-semibold text-[15px] mt-0.5">42 cities · 18 countries</div></div>
+        </div>
+        <div class="relative">
+          <!-- stylized africa map -->
+          <svg viewBox="0 0 400 360" class="w-full h-[300px]">
+            <path d="M180 30 Q140 40 130 80 Q115 110 130 150 Q120 180 140 210 Q130 240 160 270 Q170 310 220 320 Q260 310 280 270 Q300 250 295 220 Q310 190 295 160 Q305 130 280 100 Q275 70 240 50 Q210 25 180 30 Z" fill="#f6f4ef" stroke="#e5e5ea" stroke-width="1.5"/>
+            <!-- cities -->
+            <g>
+              <circle cx="190" cy="135" r="14" fill="#6c63ff" fill-opacity=".15"/><circle cx="190" cy="135" r="6" fill="#6c63ff"/>
+              <circle cx="235" cy="290" r="11" fill="#6c63ff" fill-opacity=".15"/><circle cx="235" cy="290" r="5" fill="#6c63ff"/>
+              <circle cx="265" cy="195" r="9" fill="#6c63ff" fill-opacity=".15"/><circle cx="265" cy="195" r="4" fill="#6c63ff"/>
+              <circle cx="170" cy="160" r="7" fill="#f8a4d8" fill-opacity=".25"/><circle cx="170" cy="160" r="3.5" fill="#f8a4d8"/>
+              <circle cx="230" cy="155" r="6" fill="#f8a4d8" fill-opacity=".25"/><circle cx="230" cy="155" r="3" fill="#f8a4d8"/>
+              <circle cx="280" cy="145" r="5" fill="#f8a4d8" fill-opacity=".25"/><circle cx="280" cy="145" r="2.5" fill="#f8a4d8"/>
+              <circle cx="200" cy="220" r="5" fill="#f8a4d8" fill-opacity=".25"/><circle cx="200" cy="220" r="2.5" fill="#f8a4d8"/>
+              <circle cx="250" cy="250" r="4" fill="#f8a4d8" fill-opacity=".25"/><circle cx="250" cy="250" r="2" fill="#f8a4d8"/>
+            </g>
+            <g font-family="JetBrains Mono" font-size="9" fill="#0f0f1a">
+              <text x="155" y="125">Lagos</text>
+              <text x="200" y="285">Cape Town</text>
+              <text x="275" y="200">Nairobi</text>
+              <text x="135" y="155">Accra</text>
+              <text x="245" y="150">Cairo</text>
+            </g>
+          </svg>
+        </div>
+      </section>
+      <section class="bg-white rounded-2xl border border-brand-border card-shadow p-6">
+        <div class="text-[11px] font-mono tracking-widest text-brand-ink/45">FUNNEL · LAST 30D</div>
+        <div class="font-display font-semibold text-[15px] mt-0.5 mb-5">Where attendees drop</div>
+        <FunnelStep label="Opened link" value="48,290" pct="100" />
+        <FunnelStep label="Started form" value="22,140" pct="46" />
+        <FunnelStep label="Generated card" value="11,842" pct="24.5" />
+        <FunnelStep label="Downloaded" value="9,506" pct="19.7" last="1" />
+      </section>
+    </div>
+
+    <!-- Devices + sources + top events -->
+    <div class="grid grid-cols-3 gap-4 mt-6">
+      <section class="bg-white rounded-2xl border border-brand-border card-shadow p-6">
+        <div class="text-[11px] font-mono tracking-widest text-brand-ink/45">DEVICES</div>
+        <div class="font-display font-semibold text-[15px] mt-0.5 mb-4">Mobile-first audience</div>
+        <div class="flex items-center justify-center my-4">
+          <svg width="160" height="160" viewBox="0 0 42 42">
+            <circle cx="21" cy="21" r="15.91" fill="none" stroke="#e5e5ea" stroke-width="6"/>
+            <circle cx="21" cy="21" r="15.91" fill="none" stroke="#6c63ff" stroke-width="6" stroke-dasharray="78 100" stroke-dashoffset="25" transform="rotate(-90 21 21)"/>
+            <circle cx="21" cy="21" r="15.91" fill="none" stroke="#f8a4d8" stroke-width="6" stroke-dasharray="16 100" stroke-dashoffset="-53" transform="rotate(-90 21 21)"/>
+            <text x="21" y="22" text-anchor="middle" font-family="DM Sans" font-weight="700" font-size="6" fill="#0f0f1a">78%</text>
+            <text x="21" y="27" text-anchor="middle" font-family="JetBrains Mono" font-size="2.4" fill="#0f0f1a55">MOBILE</text>
+          </svg>
+        </div>
+        <div class="space-y-1.5 text-[13px]">
+          <Legend dot="#6c63ff" name="Mobile" pct="78" />
+          <Legend dot="#f8a4d8" name="Desktop" pct="16" />
+          <Legend dot="#e5e5ea" name="Tablet" pct="6" />
+        </div>
+      </section>
+      <section class="bg-white rounded-2xl border border-brand-border card-shadow p-6">
+        <div class="text-[11px] font-mono tracking-widest text-brand-ink/45">TRAFFIC SOURCES</div>
+        <div class="font-display font-semibold text-[15px] mt-0.5 mb-4">Where they come from</div>
+        <div class="space-y-3 text-[13px]">
+          <Bar name="WhatsApp" pct="42" color="#25D366" />
+          <Bar name="X / Twitter" pct="22" color="#0f0f1a" />
+          <Bar name="LinkedIn" pct="14" color="#0a66c2" />
+          <Bar name="Direct" pct="11" color="#6c63ff" />
+          <Bar name="Email" pct="8" color="#f8a4d8" />
+          <Bar name="Other" pct="3" color="#e5e5ea" />
+        </div>
+      </section>
+      <section class="bg-white rounded-2xl border border-brand-border card-shadow p-6">
+        <div class="text-[11px] font-mono tracking-widest text-brand-ink/45">TOP EVENTS</div>
+        <div class="font-display font-semibold text-[15px] mt-0.5 mb-4">By cards generated</div>
+        <div class="space-y-3">
+          <TopEvent name="Africa Tech Festival '26" cards="4,840" g="linear-gradient(135deg,#6c63ff,#f8a4d8)" />
+          <TopEvent name="Founders Retreat" cards="2,210" g="linear-gradient(135deg,#0a2540,#7be0c0)" />
+          <TopEvent name="Sunrise Hackathon" cards="1,684" g="linear-gradient(135deg,#1f8a5b,#ffd28a)" />
+          <TopEvent name="Devfest Lagos" cards="1,205" g="linear-gradient(135deg,#3a3aff,#7be0c0)" />
+          <TopEvent name="Studio Sessions" cards="987" g="linear-gradient(135deg,#f8a4d8,#0f0f1a)" />
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<script>
+  document.querySelectorAll('Kpi').forEach(el => {
+    const l = el.getAttribute('label'), v = el.getAttribute('value'), d = el.getAttribute('delta');
+    const div = document.createElement('div');
+    div.className = 'bg-white rounded-2xl border border-brand-border p-5 card-shadow';
+    div.innerHTML = `<div class="text-[10.5px] font-mono tracking-widest text-brand-ink/45">${l.toUpperCase()}</div><div class="font-display font-bold text-[28px] mt-1">${v}</div><div class="text-[12px] font-mono text-emerald-600 mt-0.5">↑ ${d} vs prev period</div>`;
+    el.replaceWith(div);
+  });
+  document.querySelectorAll('FunnelStep').forEach(el => {
+    const l = el.getAttribute('label'), v = el.getAttribute('value'), p = el.getAttribute('pct'), last = el.getAttribute('last');
+    const div = document.createElement('div');
+    div.className = 'mb-3';
+    div.innerHTML = `<div class="flex items-baseline justify-between text-[13px]"><span>${l}</span><span class="font-mono text-brand-ink/55">${v} · ${p}%</span></div><div class="mt-1.5 h-2.5 rounded-full bg-brand-offwhite overflow-hidden"><div class="h-full grad-bg" style="width:${p}%"></div></div>`;
+    el.replaceWith(div);
+  });
+  document.querySelectorAll('Legend').forEach(el => {
+    const dot=el.getAttribute('dot'), n=el.getAttribute('name'), p=el.getAttribute('pct');
+    const div = document.createElement('div');
+    div.className = 'flex items-center gap-2 justify-between';
+    div.innerHTML = `<div class="flex items-center gap-2"><span class="h-2 w-2 rounded-full" style="background:${dot}"></span>${n}</div><span class="font-mono text-brand-ink/55 text-[12px]">${p}%</span>`;
+    el.replaceWith(div);
+  });
+  document.querySelectorAll('Bar').forEach(el => {
+    const n=el.getAttribute('name'), p=el.getAttribute('pct'), c=el.getAttribute('color');
+    const div = document.createElement('div');
+    div.innerHTML = `<div class="flex items-center justify-between text-[12.5px]"><span>${n}</span><span class="font-mono text-brand-ink/55">${p}%</span></div><div class="mt-1 h-1.5 rounded-full bg-brand-offwhite overflow-hidden"><div class="h-full" style="background:${c}; width:${p}%"></div></div>`;
+    el.replaceWith(div);
+  });
+  document.querySelectorAll('TopEvent').forEach(el => {
+    const n=el.getAttribute('name'), c=el.getAttribute('cards'), g=el.getAttribute('g');
+    const div = document.createElement('div');
+    div.className = 'flex items-center gap-3';
+    div.innerHTML = `<div class="h-9 w-9 rounded-lg shrink-0" style="background:${g}"></div><div class="flex-1 min-w-0"><div class="text-[13px] font-medium truncate">${n}</div><div class="font-mono text-[11px] text-brand-ink/55">${c} cards</div></div>`;
+    el.replaceWith(div);
+  });
+</script>
+</body></html>

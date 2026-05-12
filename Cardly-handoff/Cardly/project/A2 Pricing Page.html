@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pricing · Cardly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,500;9..40,600;9..40,700;9..40,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    colors: { brand: { primary:'#6c63ff', secondary:'#f8a4d8', ink:'#0f0f1a', offwhite:'#fafafa', border:'#e5e5ea' } },
+    fontFamily: { display:['"DM Sans"','system-ui','sans-serif'], sans:['Inter','system-ui','sans-serif'], mono:['"JetBrains Mono"','monospace'] },
+  }}}
+</script>
+<style>
+  body { font-family:'Inter', system-ui, sans-serif; color:#0f0f1a; background:#fafafa; }
+  .font-display { font-family:'DM Sans', system-ui, sans-serif; letter-spacing:-0.02em; }
+  .font-mono { font-family:'JetBrains Mono', monospace; }
+  .grad-bg { background: linear-gradient(135deg,#6c63ff 0%,#f8a4d8 100%); }
+  .grad-text { background: linear-gradient(135deg,#6c63ff 0%,#f8a4d8 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .card-shadow { box-shadow: 0 1px 2px rgba(15,15,26,0.04), 0 12px 32px rgba(15,15,26,0.06); }
+  .nav-blur { backdrop-filter: saturate(180%) blur(14px); -webkit-backdrop-filter: saturate(180%) blur(14px); background: rgba(255,255,255,0.78); }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- NAV -->
+<nav class="sticky top-0 z-40 nav-blur border-b border-brand-border">
+  <div class="max-w-[1240px] mx-auto px-6 h-16 flex items-center justify-between">
+    <a href="A1 Landing Page.html" class="flex items-center gap-2.5">
+      <span class="h-7 w-7 rounded-lg grad-bg grid place-items-center text-white font-display font-bold text-[14px]">C</span>
+      <span class="font-display font-bold text-[18px]">Cardly</span>
+    </a>
+    <div class="hidden md:flex items-center gap-7 text-[14px] text-brand-ink/70">
+      <a href="#" class="hover:text-brand-ink">Product</a>
+      <a href="#" class="hover:text-brand-ink">Showcase</a>
+      <a href="#" class="text-brand-ink font-medium">Pricing</a>
+      <a href="#" class="hover:text-brand-ink">Docs</a>
+    </div>
+    <div class="flex items-center gap-2">
+      <a href="B1 Auth.html" class="hidden sm:inline-flex items-center px-3.5 h-9 text-[14px] font-medium text-brand-ink/80 hover:text-brand-ink">Sign in</a>
+      <a href="B1 Auth.html" class="inline-flex items-center h-9 px-4 rounded-full grad-bg text-white font-medium text-[14px] hover:opacity-95">Get started</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="max-w-[1240px] mx-auto px-6 pt-20 pb-12 text-center">
+  <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-brand-border bg-white text-[11px] font-mono tracking-wider text-brand-ink/60 mb-6">
+    <span class="h-1.5 w-1.5 rounded-full bg-brand-primary"></span>
+    SIMPLE · TRANSPARENT · CANCEL ANYTIME
+  </div>
+  <h1 class="font-display font-bold text-[56px] sm:text-[68px] leading-[1.02] tracking-tight max-w-[820px] mx-auto">
+    Pricing that scales <span class="grad-text">with your events.</span>
+  </h1>
+  <p class="mt-5 text-[17px] text-brand-ink/65 max-w-[560px] mx-auto leading-relaxed">
+    Start free. Upgrade when you need your own brand on the page — and unlimited attendees.
+  </p>
+
+  <!-- billing toggle -->
+  <div class="mt-9 inline-flex items-center gap-1 p-1 rounded-full bg-white border border-brand-border">
+    <button id="t-month" class="px-5 h-9 rounded-full text-[13px] font-medium text-brand-ink/60">Monthly</button>
+    <button id="t-year" class="px-5 h-9 rounded-full text-[13px] font-medium bg-brand-ink text-white inline-flex items-center gap-2">
+      Yearly
+      <span class="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-brand-primary/20 text-brand-secondary">−20%</span>
+    </button>
+  </div>
+</section>
+
+<!-- PRICING CARDS -->
+<section class="max-w-[1240px] mx-auto px-6 pb-24">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+    <!-- FREE -->
+    <div class="bg-white rounded-3xl card-shadow p-8 border border-brand-border/60 flex flex-col">
+      <div class="flex items-center gap-2 mb-1">
+        <span class="text-[13px] font-mono tracking-widest text-brand-ink/50">FREE</span>
+      </div>
+      <div class="font-display font-bold text-[24px]">Sketch</div>
+      <p class="text-[13.5px] text-brand-ink/60 mt-1">For one-off meetups and trying out the editor.</p>
+      <div class="my-6">
+        <div class="flex items-end gap-1.5">
+          <span class="font-display font-bold text-[44px] leading-none">$0</span>
+          <span class="text-brand-ink/50 text-[14px] mb-1.5">/forever</span>
+        </div>
+      </div>
+      <a href="B1 Auth.html" class="block text-center py-3 rounded-xl border border-brand-border font-medium text-[14px] hover:bg-brand-offwhite transition">Start free</a>
+      <ul class="mt-7 space-y-3 text-[14px] text-brand-ink/80">
+        <li class="flex gap-2.5"><span class="text-brand-primary mt-0.5">✓</span>1 event per month</li>
+        <li class="flex gap-2.5"><span class="text-brand-primary mt-0.5">✓</span>Up to 100 attendee cards</li>
+        <li class="flex gap-2.5"><span class="text-brand-primary mt-0.5">✓</span>PNG export</li>
+        <li class="flex gap-2.5"><span class="text-brand-primary mt-0.5">✓</span>Basic analytics</li>
+        <li class="flex gap-2.5 text-brand-ink/45"><span class="mt-0.5">•</span>Cardly watermark on cards</li>
+      </ul>
+    </div>
+
+    <!-- PRO -->
+    <div class="relative rounded-3xl p-[1.5px] grad-bg">
+      <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full grad-bg text-white text-[11px] font-mono tracking-widest shadow-sm">MOST POPULAR</div>
+      <div class="bg-white rounded-[22px] p-8 flex flex-col h-full">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-[13px] font-mono tracking-widest grad-text">PRO</span>
+        </div>
+        <div class="font-display font-bold text-[24px]">Studio</div>
+        <p class="text-[13.5px] text-brand-ink/60 mt-1">For designers and event organizers running regular events.</p>
+        <div class="my-6">
+          <div class="flex items-end gap-1.5">
+            <span class="font-display font-bold text-[44px] leading-none">$19</span>
+            <span class="text-brand-ink/50 text-[14px] mb-1.5">/month</span>
+          </div>
+          <div class="text-[12px] font-mono text-brand-ink/45 mt-1.5">Billed annually · $228/yr</div>
+        </div>
+        <a href="B1 Auth.html" class="block text-center py-3 rounded-xl grad-bg text-white font-medium text-[14px] hover:opacity-95 transition">Start 14-day trial</a>
+        <ul class="mt-7 space-y-3 text-[14px] text-brand-ink/80">
+          <li class="flex gap-2.5"><span class="text-brand-primary mt-0.5">✓</span>10 events per month</li>
+          <li class="flex gap-2.5"><span class="text-brand-primary mt-0.5">✓</span>Up to 5,000 attendee cards / event</li>
+          <li class="flex gap-2.5"><span class="text-brand-primary mt-0.5">✓</span><b>No watermark</b></li>
+          <li class="flex gap-2.5"><span class="text-brand-primary mt-0.5">✓</span>Custom subdomain (yourevent.cardly.app)</li>
+          <li class="flex gap-2.5"><span class="text-brand-primary mt-0.5">✓</span>Advanced analytics + regional breakdown</li>
+          <li class="flex gap-2.5"><span class="text-brand-primary mt-0.5">✓</span>Embed snippet for event sites</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- STUDIO -->
+    <div class="bg-brand-ink text-white rounded-3xl card-shadow p-8 flex flex-col relative overflow-hidden">
+      <div class="absolute -top-20 -right-20 h-56 w-56 rounded-full opacity-30" style="background:radial-gradient(closest-side,#f8a4d8,transparent)"></div>
+      <div class="absolute -bottom-24 -left-16 h-56 w-56 rounded-full opacity-25" style="background:radial-gradient(closest-side,#6c63ff,transparent)"></div>
+      <div class="relative">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-[13px] font-mono tracking-widest text-brand-secondary">STUDIO</span>
+        </div>
+        <div class="font-display font-bold text-[24px]">Agency</div>
+        <p class="text-[13.5px] text-white/65 mt-1">For agencies running events for many clients.</p>
+        <div class="my-6">
+          <div class="flex items-end gap-1.5">
+            <span class="font-display font-bold text-[44px] leading-none">$49</span>
+            <span class="text-white/50 text-[14px] mb-1.5">/month</span>
+          </div>
+          <div class="text-[12px] font-mono text-white/40 mt-1.5">Billed annually · $588/yr</div>
+        </div>
+        <a href="B1 Auth.html" class="block text-center py-3 rounded-xl bg-white text-brand-ink font-medium text-[14px] hover:bg-white/90 transition">Talk to sales</a>
+        <ul class="mt-7 space-y-3 text-[14px] text-white/85">
+          <li class="flex gap-2.5"><span class="text-brand-secondary mt-0.5">✓</span>Unlimited events</li>
+          <li class="flex gap-2.5"><span class="text-brand-secondary mt-0.5">✓</span>Unlimited attendee cards</li>
+          <li class="flex gap-2.5"><span class="text-brand-secondary mt-0.5">✓</span>Team workspace (up to 10 seats)</li>
+          <li class="flex gap-2.5"><span class="text-brand-secondary mt-0.5">✓</span>White-label (your domain, no Cardly footer)</li>
+          <li class="flex gap-2.5"><span class="text-brand-secondary mt-0.5">✓</span>API access + webhooks</li>
+          <li class="flex gap-2.5"><span class="text-brand-secondary mt-0.5">✓</span>Priority support + onboarding</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <p class="text-center text-[13px] text-brand-ink/50 mt-8">All plans include unlimited preview cards while editing. Cancel anytime — no questions.</p>
+</section>
+
+<!-- COMPARISON TABLE -->
+<section class="max-w-[1100px] mx-auto px-6 pb-24">
+  <div class="text-center mb-10">
+    <div class="text-[11px] font-mono tracking-widest text-brand-ink/45 mb-3">COMPARE</div>
+    <h2 class="font-display font-bold text-[36px] leading-tight">Everything in detail.</h2>
+  </div>
+  <div class="bg-white rounded-3xl border border-brand-border overflow-hidden card-shadow">
+    <table class="w-full text-[14px]">
+      <thead>
+        <tr class="border-b border-brand-border">
+          <th class="text-left p-5 w-[40%] font-display text-brand-ink/60 font-medium">Feature</th>
+          <th class="text-center p-5 font-display">Sketch</th>
+          <th class="text-center p-5 font-display grad-text">Studio</th>
+          <th class="text-center p-5 font-display">Agency</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="border-b border-brand-border/50"><td class="p-4 pl-5 text-brand-ink/75">Events per month</td><td class="text-center text-brand-ink/70">1</td><td class="text-center font-medium">10</td><td class="text-center font-medium">Unlimited</td></tr>
+        <tr class="border-b border-brand-border/50"><td class="p-4 pl-5 text-brand-ink/75">Cards per event</td><td class="text-center text-brand-ink/70">100</td><td class="text-center">5,000</td><td class="text-center">Unlimited</td></tr>
+        <tr class="border-b border-brand-border/50"><td class="p-4 pl-5 text-brand-ink/75">Watermark removed</td><td class="text-center text-brand-ink/30">—</td><td class="text-center text-brand-primary">✓</td><td class="text-center text-brand-primary">✓</td></tr>
+        <tr class="border-b border-brand-border/50"><td class="p-4 pl-5 text-brand-ink/75">Custom subdomain</td><td class="text-center text-brand-ink/30">—</td><td class="text-center text-brand-primary">✓</td><td class="text-center text-brand-primary">✓</td></tr>
+        <tr class="border-b border-brand-border/50"><td class="p-4 pl-5 text-brand-ink/75">White-label (own domain)</td><td class="text-center text-brand-ink/30">—</td><td class="text-center text-brand-ink/30">—</td><td class="text-center text-brand-primary">✓</td></tr>
+        <tr class="border-b border-brand-border/50"><td class="p-4 pl-5 text-brand-ink/75">Team seats</td><td class="text-center text-brand-ink/70">1</td><td class="text-center">3</td><td class="text-center">10</td></tr>
+        <tr class="border-b border-brand-border/50"><td class="p-4 pl-5 text-brand-ink/75">Analytics</td><td class="text-center text-brand-ink/70">Basic</td><td class="text-center">Advanced</td><td class="text-center">Advanced + API</td></tr>
+        <tr class="border-b border-brand-border/50"><td class="p-4 pl-5 text-brand-ink/75">Embed snippet</td><td class="text-center text-brand-ink/30">—</td><td class="text-center text-brand-primary">✓</td><td class="text-center text-brand-primary">✓</td></tr>
+        <tr><td class="p-4 pl-5 text-brand-ink/75">Priority support</td><td class="text-center text-brand-ink/30">—</td><td class="text-center text-brand-ink/30">—</td><td class="text-center text-brand-primary">✓</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="max-w-[820px] mx-auto px-6 pb-28">
+  <div class="text-center mb-10">
+    <div class="text-[11px] font-mono tracking-widest text-brand-ink/45 mb-3">FAQ</div>
+    <h2 class="font-display font-bold text-[36px] leading-tight">Questions, briefly answered.</h2>
+  </div>
+  <div class="space-y-3">
+    <details open class="bg-white rounded-2xl border border-brand-border group">
+      <summary class="cursor-pointer list-none flex items-center justify-between p-5 font-display font-semibold text-[16px]">What counts as one "event"?<span class="text-brand-ink/40 group-open:rotate-45 transition">+</span></summary>
+      <p class="px-5 pb-5 text-[14px] text-brand-ink/65 leading-relaxed">One event = one design + one public link. You can keep an event open indefinitely; cards generated by attendees during that time don't count as new events.</p>
+    </details>
+    <details class="bg-white rounded-2xl border border-brand-border group">
+      <summary class="cursor-pointer list-none flex items-center justify-between p-5 font-display font-semibold text-[16px]">Do attendees need an account?<span class="text-brand-ink/40 group-open:rotate-45 transition">+</span></summary>
+      <p class="px-5 pb-5 text-[14px] text-brand-ink/65 leading-relaxed">No. The link is the product — your attendees just open it on their phone, fill in their info, and download. No login, no friction.</p>
+    </details>
+    <details class="bg-white rounded-2xl border border-brand-border group">
+      <summary class="cursor-pointer list-none flex items-center justify-between p-5 font-display font-semibold text-[16px]">Can I change plans later?<span class="text-brand-ink/40 group-open:rotate-45 transition">+</span></summary>
+      <p class="px-5 pb-5 text-[14px] text-brand-ink/65 leading-relaxed">Anytime. Upgrades are prorated, downgrades take effect at the next billing cycle.</p>
+    </details>
+    <details class="bg-white rounded-2xl border border-brand-border group">
+      <summary class="cursor-pointer list-none flex items-center justify-between p-5 font-display font-semibold text-[16px]">What payment methods do you accept?<span class="text-brand-ink/40 group-open:rotate-45 transition">+</span></summary>
+      <p class="px-5 pb-5 text-[14px] text-brand-ink/65 leading-relaxed">Cards (Visa, Mastercard, Verve), Apple Pay, Google Pay. Annual plans can be invoiced.</p>
+    </details>
+    <details class="bg-white rounded-2xl border border-brand-border group">
+      <summary class="cursor-pointer list-none flex items-center justify-between p-5 font-display font-semibold text-[16px]">Is there an education / NGO discount?<span class="text-brand-ink/40 group-open:rotate-45 transition">+</span></summary>
+      <p class="px-5 pb-5 text-[14px] text-brand-ink/65 leading-relaxed">Yes — 50% off any paid plan. Email us with proof and we'll set it up the same day.</p>
+    </details>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="max-w-[1240px] mx-auto px-6 pb-28">
+  <div class="grad-bg rounded-3xl p-14 text-center text-white relative overflow-hidden">
+    <div class="absolute -top-24 -right-24 h-72 w-72 rounded-full opacity-30" style="background:radial-gradient(closest-side, white, transparent)"></div>
+    <h3 class="font-display font-bold text-[40px] leading-tight">Run your first event in 10 minutes.</h3>
+    <p class="text-white/85 mt-3 max-w-[480px] mx-auto">Free forever for one event a month. Upgrade when you outgrow it.</p>
+    <a href="B1 Auth.html" class="inline-flex items-center gap-2 mt-7 h-12 px-7 rounded-full bg-white text-brand-ink font-display font-semibold">Get started — it's free →</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="border-t border-brand-border bg-white py-10">
+  <div class="max-w-[1240px] mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[13px] text-brand-ink/55">
+    <div class="flex items-center gap-2">
+      <span class="h-5 w-5 rounded grad-bg"></span>
+      <span class="font-display font-semibold text-brand-ink">Cardly</span>
+      <span>· © 2026</span>
+    </div>
+    <div class="flex items-center gap-5">
+      <a href="#" class="hover:text-brand-ink">Privacy</a>
+      <a href="#" class="hover:text-brand-ink">Terms</a>
+      <a href="#" class="hover:text-brand-ink">Status</a>
+      <a href="#" class="hover:text-brand-ink">Contact</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Billing toggle (visual only — prices already shown for yearly billing)
+  const m = document.getElementById('t-month'); const y = document.getElementById('t-year');
+  const setTab = (active, other) => {
+    active.classList.add('bg-brand-ink','text-white'); active.classList.remove('text-brand-ink/60');
+    other.classList.remove('bg-brand-ink','text-white'); other.classList.add('text-brand-ink/60');
+  };
+  m.onclick = () => setTab(m,y);
+  y.onclick = () => setTab(y,m);
+</script>
+</body>
+</html>

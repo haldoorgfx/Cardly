@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Welcome · Cardly</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,500;9..40,600;9..40,700;9..40,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    colors: { brand: { primary:'#6c63ff', secondary:'#f8a4d8', ink:'#0f0f1a', offwhite:'#fafafa', border:'#e5e5ea' } },
+    fontFamily: { display:['"DM Sans"','system-ui','sans-serif'], sans:['Inter','system-ui','sans-serif'], mono:['"JetBrains Mono"','monospace'] },
+  }}}
+</script>
+<style>
+  body { font-family:'Inter', system-ui, sans-serif; color:#0f0f1a; background:#fafafa; }
+  .font-display { font-family:'DM Sans', system-ui, sans-serif; letter-spacing:-0.02em; }
+  .font-mono { font-family:'JetBrains Mono', monospace; }
+  .grad-bg { background: linear-gradient(135deg,#6c63ff 0%,#f8a4d8 100%); }
+  .grad-text { background: linear-gradient(135deg,#6c63ff,#f8a4d8); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .card-shadow { box-shadow: 0 1px 2px rgba(15,15,26,0.04), 0 12px 28px rgba(15,15,26,0.05); }
+  .dashed-tile { background-image: linear-gradient(135deg, rgba(108,99,255,0.04), rgba(248,164,216,0.04)); }
+</style>
+</head>
+<body class="min-h-screen flex">
+
+<!-- SIDEBAR -->
+<aside class="w-[64px] bg-white border-r border-brand-border flex flex-col items-center py-4 gap-2 shrink-0">
+  <div class="h-9 w-9 rounded-xl grad-bg grid place-items-center text-white font-display font-bold text-[16px] mb-3">C</div>
+  <button class="h-10 w-10 rounded-xl bg-brand-ink text-white grid place-items-center" title="Events"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18"/></svg></button>
+  <button class="h-10 w-10 rounded-xl text-brand-ink/45 hover:bg-brand-offwhite grid place-items-center" title="Analytics"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18M7 14l4-5 4 3 5-7"/></svg></button>
+  <button class="h-10 w-10 rounded-xl text-brand-ink/45 hover:bg-brand-offwhite grid place-items-center" title="Templates"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></button>
+  <button class="h-10 w-10 rounded-xl text-brand-ink/45 hover:bg-brand-offwhite grid place-items-center" title="Brand kit"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="10.5" r="2.5"/><circle cx="8.5" cy="7.5" r="2.5"/><circle cx="6.5" cy="12.5" r="2.5"/><path d="M12 22a10 10 0 1 1 10-10c0 5-5 5-5 8a2 2 0 0 1-2 2z"/></svg></button>
+  <div class="flex-1"></div>
+  <button class="h-10 w-10 rounded-xl text-brand-ink/45 hover:bg-brand-offwhite grid place-items-center" title="Settings"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+  <div class="h-9 w-9 rounded-full grid place-items-center text-white font-display font-bold text-[12px]" style="background:linear-gradient(135deg,#ffd28a,#f8a4d8)">AO</div>
+</aside>
+
+<!-- MAIN -->
+<main class="flex-1 min-h-screen overflow-y-auto">
+  <!-- TOPBAR -->
+  <header class="sticky top-0 z-30 bg-white/85 backdrop-blur border-b border-brand-border">
+    <div class="px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="font-display font-bold text-[16px]">Flutterwave Design</div>
+        <span class="text-brand-ink/30">/</span>
+        <div class="text-[14px] text-brand-ink/70">Events</div>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="relative">
+          <input type="text" placeholder="Search events…" class="w-[280px] h-9 pl-9 pr-12 rounded-lg bg-brand-offwhite border border-transparent text-[13.5px] focus:outline-none focus:border-brand-border focus:bg-white" />
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="absolute left-3 top-1/2 -translate-y-1/2 text-brand-ink/40"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono px-1.5 py-0.5 rounded bg-white border border-brand-border text-brand-ink/45">⌘K</span>
+        </div>
+        <button class="h-9 w-9 rounded-lg hover:bg-brand-offwhite grid place-items-center text-brand-ink/60"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- WELCOME BANNER -->
+  <div class="px-8 pt-8">
+    <div class="bg-white rounded-2xl border border-brand-border p-6 flex items-center gap-6 relative overflow-hidden">
+      <div class="absolute -top-16 -right-16 h-48 w-48 rounded-full opacity-15" style="background:radial-gradient(closest-side,#6c63ff,transparent)"></div>
+      <div class="h-14 w-14 rounded-2xl grad-bg grid place-items-center text-white shrink-0">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.4L22 12l-7.6 2.6L12 22l-2.4-7.4L2 12l7.6-2.6z"/></svg>
+      </div>
+      <div class="flex-1 min-w-0 relative">
+        <div class="font-display font-bold text-[20px]">Welcome to Cardly, Adaeze 👋</div>
+        <div class="text-[14px] text-brand-ink/60 mt-0.5">You're on the <b class="text-brand-ink">Studio</b> plan. 10 events / month. Let's set up your first one.</div>
+      </div>
+      <button class="text-[13px] text-brand-ink/50 hover:text-brand-ink shrink-0">Dismiss</button>
+    </div>
+  </div>
+
+  <!-- CENTER EMPTY STATE -->
+  <section class="px-8 pt-10 pb-16">
+    <div class="max-w-[920px] mx-auto">
+      <!-- Big tile -->
+      <a href="D1 Upload Design.html" class="block group">
+        <div class="dashed-tile relative rounded-3xl border-2 border-dashed border-brand-primary/30 hover:border-brand-primary transition px-10 py-16 text-center overflow-hidden">
+          <!-- Floating shapes -->
+          <div class="absolute top-8 left-12 h-16 w-16 rounded-2xl grad-bg opacity-60 -rotate-12 group-hover:rotate-0 transition-transform"></div>
+          <div class="absolute top-12 right-16 h-12 w-12 rounded-full opacity-70" style="background:linear-gradient(135deg,#ffd28a,#f8a4d8)"></div>
+          <div class="absolute bottom-10 left-20 h-10 w-10 rounded-full border-2 border-brand-primary/40"></div>
+          <div class="absolute bottom-12 right-24 h-14 w-14 rounded-xl opacity-50 rotate-12 group-hover:-rotate-0 transition-transform" style="background:linear-gradient(135deg,#1f8a5b,#7be0c0)"></div>
+
+          <div class="relative">
+            <div class="inline-flex h-16 w-16 rounded-2xl grad-bg grid place-items-center text-white mb-5 shadow-[0_12px_30px_rgba(108,99,255,0.35)] group-hover:scale-110 transition">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+            </div>
+            <h2 class="font-display font-bold text-[36px] leading-tight">Create your first event</h2>
+            <p class="text-[15px] text-brand-ink/60 mt-2 max-w-[440px] mx-auto">Upload your design, mark the editable zones, share the link. Attendees personalize their own card.</p>
+            <div class="mt-7 inline-flex items-center gap-2 h-12 px-7 rounded-full grad-bg text-white font-display font-semibold text-[15px] shadow-[0_8px_24px_rgba(108,99,255,0.35)]">
+              Upload a design
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </div>
+            <div class="mt-4 text-[12px] font-mono text-brand-ink/40 tracking-wide">PNG OR JPG · UP TO 10MB</div>
+          </div>
+        </div>
+      </a>
+
+      <!-- Quick start row -->
+      <div class="mt-10">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <div class="text-[11px] font-mono tracking-widest text-brand-ink/45">GET STARTED</div>
+            <h3 class="font-display font-bold text-[22px] mt-1">How it works in 60 seconds</h3>
+          </div>
+          <a href="#" class="text-[13px] text-brand-primary font-medium hover:underline">Watch the tour →</a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-white rounded-2xl border border-brand-border p-5 card-shadow">
+            <div class="flex items-center justify-between mb-4">
+              <div class="text-[11px] font-mono text-brand-ink/45">01</div>
+              <div class="h-8 w-8 rounded-lg bg-brand-primary/10 text-brand-primary grid place-items-center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+            </div>
+            <div class="font-display font-bold text-[16px]">Upload your design</div>
+            <p class="text-[13px] text-brand-ink/60 mt-1.5 leading-relaxed">Drop your PNG or JPG. Anything you'd post on Instagram works.</p>
+          </div>
+          <div class="bg-white rounded-2xl border border-brand-border p-5 card-shadow">
+            <div class="flex items-center justify-between mb-4">
+              <div class="text-[11px] font-mono text-brand-ink/45">02</div>
+              <div class="h-8 w-8 rounded-lg bg-brand-secondary/15 text-brand-secondary grid place-items-center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="3 3"/><circle cx="12" cy="12" r="4"/></svg></div>
+            </div>
+            <div class="font-display font-bold text-[16px]">Mark the zones</div>
+            <p class="text-[13px] text-brand-ink/60 mt-1.5 leading-relaxed">Drag rectangles where the attendee's name and photo should go.</p>
+          </div>
+          <div class="bg-white rounded-2xl border border-brand-border p-5 card-shadow">
+            <div class="flex items-center justify-between mb-4">
+              <div class="text-[11px] font-mono text-brand-ink/45">03</div>
+              <div class="h-8 w-8 rounded-lg bg-emerald-100 text-emerald-600 grid place-items-center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10 13a5 5 0 0 0 7 0l4-4a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-4 4a5 5 0 0 0 7 7l1-1"/></svg></div>
+            </div>
+            <div class="font-display font-bold text-[16px]">Share the link</div>
+            <p class="text-[13px] text-brand-ink/60 mt-1.5 leading-relaxed">Send the public URL anywhere — WhatsApp, email, QR on stage.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inspiration link -->
+      <div class="mt-10 text-center">
+        <div class="text-[13px] text-brand-ink/55">Need inspiration? <a href="#" class="text-brand-primary font-medium hover:underline">Browse 40+ example designs</a> from past events.</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+</body>
+</html>

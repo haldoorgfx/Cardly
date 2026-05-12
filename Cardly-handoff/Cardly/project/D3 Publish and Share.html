@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Published · Cardly</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,500;9..40,600;9..40,700;9..40,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    colors: { brand: { primary:'#6c63ff', secondary:'#f8a4d8', ink:'#0f0f1a', offwhite:'#fafafa', border:'#e5e5ea' } },
+    fontFamily: { display:['"DM Sans"','system-ui','sans-serif'], sans:['Inter','system-ui','sans-serif'], mono:['"JetBrains Mono"','monospace'] },
+  }}}
+</script>
+<style>
+  body { font-family:'Inter', system-ui, sans-serif; color:#0f0f1a; background:#fafafa; }
+  .font-display { font-family:'DM Sans', system-ui, sans-serif; letter-spacing:-0.02em; }
+  .font-mono { font-family:'JetBrains Mono', monospace; }
+  .grad-bg { background: linear-gradient(135deg,#6c63ff 0%,#f8a4d8 100%); }
+  .grad-text { background: linear-gradient(135deg,#6c63ff,#f8a4d8); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .card-shadow { box-shadow: 0 1px 2px rgba(15,15,26,0.04), 0 12px 32px rgba(15,15,26,0.06); }
+  .stepper-dot { width:28px; height:28px; border-radius:99px; display:grid; place-items:center; font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:600;}
+  @keyframes burst { 0% { transform: scale(.6); opacity: 0;} 60% { transform: scale(1.05); opacity:1;} 100% { transform: scale(1); opacity:1;} }
+  .burst { animation: burst .6s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes confetti-fall { 0% { transform: translateY(-20px) rotate(0); opacity:0;} 15% { opacity:1;} 100% { transform: translateY(100vh) rotate(720deg); opacity:0;} }
+  .confetti { position: absolute; width:8px; height: 12px; border-radius: 2px; animation: confetti-fall 4s linear infinite; }
+</style>
+</head>
+<body class="min-h-screen flex flex-col relative overflow-hidden">
+
+<!-- Confetti -->
+<div class="absolute inset-0 pointer-events-none">
+  <div class="confetti" style="left:8%;  background:#6c63ff; animation-delay:0s"></div>
+  <div class="confetti" style="left:16%; background:#f8a4d8; animation-delay:.6s"></div>
+  <div class="confetti" style="left:26%; background:#ffd28a; animation-delay:1.2s"></div>
+  <div class="confetti" style="left:38%; background:#1f8a5b; animation-delay:.3s"></div>
+  <div class="confetti" style="left:52%; background:#6c63ff; animation-delay:.9s"></div>
+  <div class="confetti" style="left:64%; background:#f8a4d8; animation-delay:1.5s"></div>
+  <div class="confetti" style="left:74%; background:#ffd28a; animation-delay:.2s"></div>
+  <div class="confetti" style="left:86%; background:#1f8a5b; animation-delay:1s"></div>
+  <div class="confetti" style="left:92%; background:#6c63ff; animation-delay:.5s"></div>
+</div>
+
+<!-- Top -->
+<header class="bg-white border-b border-brand-border relative z-10">
+  <div class="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="D2 Canvas Editor.html" class="h-9 w-9 rounded-lg hover:bg-brand-offwhite grid place-items-center text-brand-ink/60"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></a>
+      <div class="flex items-center gap-2">
+        <span class="h-7 w-7 rounded-lg grad-bg grid place-items-center text-white font-display font-bold text-[14px]">C</span>
+        <div class="font-display font-bold text-[16px]">Africa Tech Festival '26</div>
+      </div>
+    </div>
+    <div class="hidden md:flex items-center gap-2 text-[12.5px]">
+      <div class="flex items-center gap-2 text-brand-ink/40"><span class="stepper-dot bg-emerald-100 text-emerald-700">✓</span><span>Upload</span></div>
+      <div class="w-8 h-px bg-emerald-300"></div>
+      <div class="flex items-center gap-2 text-brand-ink/40"><span class="stepper-dot bg-emerald-100 text-emerald-700">✓</span><span>Define zones</span></div>
+      <div class="w-8 h-px bg-emerald-300"></div>
+      <div class="flex items-center gap-2 text-brand-ink"><span class="stepper-dot grad-bg text-white">3</span><span class="font-medium">Publish</span></div>
+    </div>
+    <a href="C3 Event Detail.html" class="h-9 px-4 rounded-lg bg-brand-ink text-white text-[13px] font-medium hover:opacity-90">Go to event →</a>
+  </div>
+</header>
+
+<main class="flex-1 grid place-items-center px-6 py-10 relative z-10">
+  <div class="w-full max-w-[1080px]">
+    <!-- HERO -->
+    <div class="text-center mb-10 burst">
+      <div class="inline-flex h-16 w-16 rounded-2xl grad-bg grid place-items-center text-white mb-5 shadow-[0_12px_30px_rgba(108,99,255,0.35)]">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h1 class="font-display font-bold text-[44px] leading-tight">Your event is <span class="grad-text">live</span>.</h1>
+      <p class="text-[15.5px] text-brand-ink/60 mt-2 max-w-[480px] mx-auto">Share the link anywhere. Attendees personalize and download their card in under a minute.</p>
+    </div>
+
+    <div class="grid grid-cols-12 gap-6">
+      <!-- LEFT: link + share -->
+      <div class="col-span-12 lg:col-span-7 space-y-5">
+
+        <!-- Big link -->
+        <div class="bg-white rounded-3xl border border-brand-border card-shadow p-6">
+          <div class="text-[11px] font-mono tracking-widest text-brand-ink/45 mb-2">PUBLIC SHARE LINK</div>
+          <div class="flex items-center gap-3 p-4 rounded-2xl bg-brand-offwhite border border-brand-border">
+            <div class="h-10 w-10 rounded-xl grad-bg grid place-items-center text-white shrink-0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10 13a5 5 0 0 0 7 0l4-4a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-4 4a5 5 0 0 0 7 7l1-1"/></svg></div>
+            <input readonly value="https://cardly.app/atf-26" class="flex-1 bg-transparent font-mono text-[16px] text-brand-ink outline-none" />
+            <button onclick="navigator.clipboard?.writeText('https://cardly.app/atf-26'); this.querySelector('span').innerText='Copied'; setTimeout(()=>this.querySelector('span').innerText='Copy link',1400)" class="h-10 px-4 rounded-xl grad-bg text-white text-[13px] font-medium inline-flex items-center gap-2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <span>Copy link</span>
+            </button>
+          </div>
+          <div class="mt-3 flex items-center gap-3 text-[12px] font-mono text-brand-ink/50">
+            <a href="E1 Attendee Public Page.html" target="_blank" class="text-brand-primary hover:underline">↗ Open live page</a>
+            <span>·</span>
+            <span>Custom subdomain available on Pro</span>
+          </div>
+        </div>
+
+        <!-- Social -->
+        <div class="bg-white rounded-3xl border border-brand-border card-shadow p-6">
+          <div class="text-[11px] font-mono tracking-widest text-brand-ink/45 mb-3">SHARE TO</div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <Social bg="#25D366" name="WhatsApp" letter="w" />
+            <Social bg="#0f0f1a" name="Post on X" letter="𝕏" />
+            <Social bg="#0a66c2" name="LinkedIn" letter="in" />
+            <Social bg="#6c63ff" name="Email" letter="✉" />
+          </div>
+        </div>
+
+        <!-- Embed -->
+        <div class="bg-brand-ink text-white rounded-3xl p-6 relative overflow-hidden">
+          <div class="absolute -top-16 -right-16 h-44 w-44 rounded-full opacity-25" style="background:radial-gradient(closest-side,#f8a4d8,transparent)"></div>
+          <div class="relative">
+            <div class="flex items-center justify-between mb-3">
+              <div class="text-[11px] font-mono tracking-widest text-white/50">EMBED ON YOUR EVENT SITE</div>
+              <button onclick="navigator.clipboard?.writeText(document.getElementById('snippet').innerText); this.innerText='Copied'; setTimeout(()=>this.innerText='Copy',1400)" class="h-8 px-3 rounded-lg bg-white/10 hover:bg-white/15 text-[12px] font-mono">Copy</button>
+            </div>
+            <pre id="snippet" class="bg-black/40 rounded-xl p-4 font-mono text-[12.5px] leading-relaxed overflow-x-auto text-white/85"><span style="color:#f8a4d8">&lt;iframe</span>
+  <span style="color:#ffd28a">src</span>=<span style="color:#7be0c0">"https://cardly.app/embed/atf-26"</span>
+  <span style="color:#ffd28a">width</span>=<span style="color:#7be0c0">"100%"</span> <span style="color:#ffd28a">height</span>=<span style="color:#7be0c0">"720"</span>
+  <span style="color:#ffd28a">frameborder</span>=<span style="color:#7be0c0">"0"</span> <span style="color:#ffd28a">allow</span>=<span style="color:#7be0c0">"camera"</span><span style="color:#f8a4d8">&gt;</span>
+<span style="color:#f8a4d8">&lt;/iframe&gt;</span></pre>
+          </div>
+        </div>
+
+        <!-- Next steps -->
+        <div class="bg-white rounded-3xl border border-brand-border p-6">
+          <div class="text-[11px] font-mono tracking-widest text-brand-ink/45 mb-3">NEXT</div>
+          <div class="space-y-2.5 text-[13.5px]">
+            <a class="flex items-center gap-3 p-3 rounded-xl hover:bg-brand-offwhite" href="C3 Event Detail.html">
+              <div class="h-8 w-8 rounded-lg bg-brand-primary/10 text-brand-primary grid place-items-center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18M7 14l4-5 4 3 5-7"/></svg></div>
+              <div class="flex-1"><div class="font-medium">View live analytics</div><div class="text-[12px] text-brand-ink/55">Track downloads, regions, conversion</div></div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+            <a class="flex items-center gap-3 p-3 rounded-xl hover:bg-brand-offwhite" href="#">
+              <div class="h-8 w-8 rounded-lg bg-brand-secondary/15 text-brand-secondary grid place-items-center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+              <div class="flex-1"><div class="font-medium">Set a public end date</div><div class="text-[12px] text-brand-ink/55">Auto-close the link after your event</div></div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: QR + preview -->
+      <div class="col-span-12 lg:col-span-5">
+        <div class="bg-white rounded-3xl border border-brand-border card-shadow p-6 sticky top-6">
+          <div class="text-[11px] font-mono tracking-widest text-brand-ink/45 mb-3">QR CODE FOR ON-STAGE / FLYERS</div>
+          <div class="rounded-2xl bg-gradient-to-br from-brand-offwhite to-white border border-brand-border p-6">
+            <div class="aspect-square rounded-xl bg-white grid place-items-center p-3">
+              <!-- QR with logo overlay -->
+              <div class="relative w-full h-full">
+                <svg viewBox="0 0 25 25" class="w-full h-full" shape-rendering="crispEdges">
+                  <rect width="25" height="25" fill="#fff"/>
+                  <g fill="#0f0f1a">
+                    <rect x="0" y="0" width="7" height="7"/><rect x="1" y="1" width="5" height="5" fill="#fff"/><rect x="2" y="2" width="3" height="3"/>
+                    <rect x="18" y="0" width="7" height="7"/><rect x="19" y="1" width="5" height="5" fill="#fff"/><rect x="20" y="2" width="3" height="3"/>
+                    <rect x="0" y="18" width="7" height="7"/><rect x="1" y="19" width="5" height="5" fill="#fff"/><rect x="2" y="20" width="3" height="3"/>
+                    <!-- noise -->
+                    <rect x="8" y="0" width="1" height="2"/><rect x="10" y="0" width="2" height="1"/><rect x="13" y="0" width="1" height="1"/><rect x="15" y="0" width="1" height="2"/>
+                    <rect x="9" y="1" width="1" height="2"/><rect x="11" y="1" width="1" height="1"/><rect x="13" y="1" width="2" height="1"/>
+                    <rect x="8" y="2" width="1" height="1"/><rect x="10" y="2" width="3" height="1"/><rect x="14" y="2" width="2" height="2"/>
+                    <rect x="11" y="3" width="1" height="2"/><rect x="13" y="3" width="1" height="2"/><rect x="16" y="3" width="1" height="1"/>
+                    <rect x="8" y="4" width="2" height="1"/><rect x="12" y="4" width="1" height="2"/><rect x="15" y="4" width="1" height="1"/>
+                    <rect x="9" y="5" width="1" height="1"/><rect x="11" y="5" width="1" height="1"/><rect x="14" y="5" width="2" height="1"/>
+                    <rect x="8" y="6" width="9" height="1"/>
+                    <rect x="0" y="8" width="1" height="2"/><rect x="2" y="8" width="2" height="1"/><rect x="5" y="8" width="1" height="2"/><rect x="7" y="8" width="2" height="1"/><rect x="10" y="8" width="1" height="2"/><rect x="12" y="8" width="2" height="1"/><rect x="15" y="8" width="1" height="1"/><rect x="17" y="8" width="2" height="1"/><rect x="20" y="8" width="1" height="2"/><rect x="22" y="8" width="2" height="1"/>
+                    <rect x="3" y="9" width="1" height="1"/><rect x="6" y="9" width="1" height="2"/><rect x="9" y="9" width="1" height="1"/><rect x="11" y="9" width="1" height="2"/><rect x="14" y="9" width="1" height="1"/><rect x="16" y="9" width="2" height="1"/><rect x="19" y="9" width="1" height="2"/><rect x="22" y="9" width="1" height="2"/>
+                    <rect x="1" y="10" width="2" height="1"/><rect x="4" y="10" width="2" height="1"/><rect x="8" y="10" width="2" height="1"/><rect x="13" y="10" width="2" height="1"/><rect x="17" y="10" width="1" height="2"/><rect x="20" y="10" width="2" height="1"/><rect x="23" y="10" width="1" height="1"/>
+                    <rect x="0" y="11" width="1" height="2"/><rect x="3" y="11" width="1" height="1"/><rect x="5" y="11" width="1" height="2"/><rect x="7" y="11" width="2" height="1"/><rect x="10" y="11" width="2" height="1"/><rect x="13" y="11" width="1" height="1"/><rect x="15" y="11" width="1" height="2"/><rect x="18" y="11" width="1" height="1"/><rect x="20" y="11" width="1" height="2"/>
+                    <rect x="2" y="12" width="2" height="1"/><rect x="6" y="12" width="1" height="1"/><rect x="9" y="12" width="2" height="1"/><rect x="12" y="12" width="2" height="1"/><rect x="16" y="12" width="2" height="1"/><rect x="19" y="12" width="2" height="1"/><rect x="22" y="12" width="2" height="1"/>
+                    <rect x="0" y="13" width="1" height="1"/><rect x="3" y="13" width="2" height="1"/><rect x="7" y="13" width="1" height="2"/><rect x="9" y="13" width="1" height="2"/><rect x="11" y="13" width="2" height="1"/><rect x="14" y="13" width="2" height="1"/><rect x="17" y="13" width="2" height="1"/><rect x="20" y="13" width="2" height="2"/>
+                    <rect x="1" y="14" width="2" height="1"/><rect x="4" y="14" width="2" height="1"/><rect x="11" y="14" width="1" height="2"/><rect x="13" y="14" width="1" height="2"/><rect x="15" y="14" width="2" height="1"/><rect x="18" y="14" width="1" height="2"/><rect x="22" y="14" width="2" height="1"/>
+                    <rect x="0" y="15" width="2" height="1"/><rect x="3" y="15" width="1" height="2"/><rect x="6" y="15" width="2" height="1"/><rect x="9" y="15" width="1" height="1"/><rect x="14" y="15" width="2" height="1"/><rect x="17" y="15" width="1" height="2"/><rect x="20" y="15" width="2" height="2"/>
+                    <rect x="2" y="16" width="2" height="1"/><rect x="5" y="16" width="1" height="2"/><rect x="8" y="16" width="2" height="2"/><rect x="11" y="16" width="2" height="1"/><rect x="14" y="16" width="1" height="2"/><rect x="16" y="16" width="2" height="1"/><rect x="19" y="16" width="2" height="1"/><rect x="22" y="16" width="1" height="2"/>
+                    <!-- bottom data -->
+                    <rect x="8" y="18" width="2" height="1"/><rect x="11" y="18" width="1" height="2"/><rect x="13" y="18" width="2" height="1"/><rect x="16" y="18" width="1" height="2"/><rect x="18" y="18" width="2" height="1"/><rect x="21" y="18" width="2" height="1"/>
+                    <rect x="9" y="19" width="2" height="1"/><rect x="12" y="19" width="1" height="2"/><rect x="14" y="19" width="1" height="2"/><rect x="17" y="19" width="2" height="1"/><rect x="20" y="19" width="1" height="2"/><rect x="23" y="19" width="1" height="1"/>
+                    <rect x="8" y="20" width="3" height="1"/><rect x="12" y="20" width="1" height="1"/><rect x="15" y="20" width="2" height="1"/><rect x="18" y="20" width="1" height="2"/><rect x="22" y="20" width="2" height="1"/>
+                    <rect x="9" y="21" width="1" height="2"/><rect x="11" y="21" width="2" height="1"/><rect x="14" y="21" width="2" height="1"/><rect x="17" y="21" width="1" height="2"/><rect x="20" y="21" width="2" height="1"/>
+                    <rect x="10" y="22" width="1" height="1"/><rect x="13" y="22" width="1" height="2"/><rect x="15" y="22" width="2" height="1"/><rect x="19" y="22" width="2" height="1"/><rect x="23" y="22" width="1" height="2"/>
+                    <rect x="8" y="23" width="2" height="1"/><rect x="11" y="23" width="2" height="1"/><rect x="15" y="23" width="1" height="1"/><rect x="17" y="23" width="2" height="1"/><rect x="20" y="23" width="2" height="1"/>
+                  </g>
+                </svg>
+                <!-- center logo overlay -->
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-9 w-9 rounded-lg grad-bg grid place-items-center text-white font-display font-bold text-[14px] shadow-md ring-4 ring-white">C</div>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2 mt-4">
+              <button class="h-10 rounded-xl bg-white border border-brand-border text-[12.5px] font-medium hover:bg-brand-offwhite">Download PNG</button>
+              <button class="h-10 rounded-xl bg-white border border-brand-border text-[12.5px] font-medium hover:bg-brand-offwhite">Download SVG</button>
+            </div>
+          </div>
+
+          <!-- Phone-shape preview -->
+          <div class="mt-6">
+            <div class="text-[11px] font-mono tracking-widest text-brand-ink/45 mb-2">WHAT ATTENDEES SEE</div>
+            <a href="E1 Attendee Public Page.html" class="block relative rounded-2xl overflow-hidden border border-brand-border" style="aspect-ratio:16/10">
+              <div class="absolute inset-0" style="background:linear-gradient(135deg,#1b1240,#3a2068)"></div>
+              <div class="absolute inset-0 grid place-items-center">
+                <div class="bg-white rounded-2xl p-3 w-[140px]" style="aspect-ratio: 9/16; box-shadow: 0 12px 30px rgba(0,0,0,0.25)">
+                  <div class="rounded-xl h-full overflow-hidden relative" style="background:linear-gradient(155deg,#1b1240,#7a3a9a 80%,#f8a4d8 130%)">
+                    <div class="absolute top-2 left-2 right-2 text-white font-display font-bold leading-tight text-[10px]">I'm attending<br/><span style="background:linear-gradient(135deg,#f8a4d8,#ffd28a); -webkit-background-clip:text; background-clip:text; color:transparent">ATF.</span></div>
+                    <div class="absolute bottom-2 left-2 right-2 flex items-center gap-1.5">
+                      <div class="h-5 w-5 rounded-full" style="background:linear-gradient(135deg,#ffd28a,#f8a4d8)"></div>
+                      <div class="flex-1"><div class="h-1 w-12 bg-white/60 rounded mb-0.5"></div><div class="h-1 w-8 bg-white/30 rounded"></div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="absolute bottom-3 left-3 right-3 text-center text-white/85 text-[11px] font-mono inline-flex items-center justify-center gap-1.5">↗ open live page</div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  document.querySelectorAll('Social').forEach(el => {
+    const bg = el.getAttribute('bg'), name = el.getAttribute('name'), l = el.getAttribute('letter');
+    const div = document.createElement('button');
+    div.className = 'h-14 rounded-2xl bg-brand-offwhite hover:bg-brand-offwhite/60 transition flex flex-col items-center justify-center gap-1';
+    div.innerHTML = `<div class="h-7 w-7 rounded-lg grid place-items-center text-white text-[13px] font-bold" style="background:${bg}">${l}</div><div class="text-[11.5px] font-medium">${name}</div>`;
+    el.replaceWith(div);
+  });
+</script>
+</body>
+</html>

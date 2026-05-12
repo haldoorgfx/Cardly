@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Upload design · Cardly</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,500;9..40,600;9..40,700;9..40,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    colors: { brand: { primary:'#6c63ff', secondary:'#f8a4d8', ink:'#0f0f1a', offwhite:'#fafafa', border:'#e5e5ea' } },
+    fontFamily: { display:['"DM Sans"','system-ui','sans-serif'], sans:['Inter','system-ui','sans-serif'], mono:['"JetBrains Mono"','monospace'] },
+  }}}
+</script>
+<style>
+  body { font-family:'Inter', system-ui, sans-serif; color:#0f0f1a; background:#fafafa; }
+  .font-display { font-family:'DM Sans', system-ui, sans-serif; letter-spacing:-0.02em; }
+  .font-mono { font-family:'JetBrains Mono', monospace; }
+  .grad-bg { background: linear-gradient(135deg,#6c63ff 0%,#f8a4d8 100%); }
+  .grad-text { background: linear-gradient(135deg,#6c63ff,#f8a4d8); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .card-shadow { box-shadow: 0 1px 2px rgba(15,15,26,0.04), 0 12px 32px rgba(15,15,26,0.06); }
+  .stepper-dot { width:28px; height:28px; border-radius:99px; display:grid; place-items:center; font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:600;}
+  .dropzone-grid {
+    background-image:
+      linear-gradient(rgba(108,99,255,0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(108,99,255,0.08) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  @keyframes pulse { 0%,100%{opacity:.45;transform:scale(1);} 50%{opacity:.85;transform:scale(1.05);} }
+  .pulse { animation: pulse 2.4s ease-in-out infinite; }
+</style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+<!-- Top -->
+<header class="bg-white border-b border-brand-border">
+  <div class="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="C1 Empty Dashboard.html" class="h-9 w-9 rounded-lg hover:bg-brand-offwhite grid place-items-center text-brand-ink/60"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></a>
+      <div class="flex items-center gap-2">
+        <span class="h-7 w-7 rounded-lg grad-bg grid place-items-center text-white font-display font-bold text-[14px]">C</span>
+        <div class="font-display font-bold text-[16px]">New event</div>
+        <span class="text-brand-ink/30">·</span>
+        <input value="Africa AI Summit '26" class="text-[14px] font-medium bg-transparent outline-none border-b border-dashed border-transparent hover:border-brand-border focus:border-brand-primary px-1" />
+      </div>
+    </div>
+    <!-- Stepper -->
+    <div class="hidden md:flex items-center gap-2 text-[12.5px]">
+      <div class="flex items-center gap-2 text-brand-ink"><span class="stepper-dot grad-bg text-white">1</span><span class="font-medium">Upload</span></div>
+      <div class="w-8 h-px bg-brand-border"></div>
+      <div class="flex items-center gap-2 text-brand-ink/40"><span class="stepper-dot bg-brand-offwhite text-brand-ink/55">2</span><span>Define zones</span></div>
+      <div class="w-8 h-px bg-brand-border"></div>
+      <div class="flex items-center gap-2 text-brand-ink/40"><span class="stepper-dot bg-brand-offwhite text-brand-ink/55">3</span><span>Publish</span></div>
+    </div>
+    <button class="h-9 px-3 rounded-lg text-[13px] text-brand-ink/55 hover:bg-brand-offwhite">Save draft</button>
+  </div>
+</header>
+
+<main class="flex-1 grid place-items-center px-6 py-10">
+  <div class="w-full max-w-[860px]">
+    <div class="text-center mb-8">
+      <div class="text-[11px] font-mono tracking-widest text-brand-ink/45">STEP 1 OF 3</div>
+      <h1 class="font-display font-bold text-[40px] leading-tight mt-2">Upload your design</h1>
+      <p class="text-[15px] text-brand-ink/60 mt-2 max-w-[520px] mx-auto">Anything you'd post on Instagram works. We'll show it on a canvas where you can mark editable zones.</p>
+    </div>
+
+    <!-- DROPZONE -->
+    <div id="dz" class="dropzone-grid relative rounded-3xl border-2 border-dashed border-brand-primary/40 hover:border-brand-primary transition bg-white card-shadow overflow-hidden">
+      <div class="px-10 py-20 text-center relative">
+        <div class="inline-flex h-16 w-16 rounded-2xl grad-bg grid place-items-center text-white mb-5 shadow-[0_12px_30px_rgba(108,99,255,0.3)] pulse">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <div class="font-display font-bold text-[24px]">Drop your design here</div>
+        <div class="text-[14px] text-brand-ink/55 mt-1">or <button id="browse" class="text-brand-primary font-medium hover:underline">browse files</button></div>
+
+        <!-- spec chips -->
+        <div class="flex items-center justify-center gap-2 flex-wrap mt-6">
+          <span class="text-[11px] font-mono px-2.5 py-1 rounded-full bg-brand-offwhite border border-brand-border text-brand-ink/70">PNG · JPG</span>
+          <span class="text-[11px] font-mono px-2.5 py-1 rounded-full bg-brand-offwhite border border-brand-border text-brand-ink/70">UP TO 10MB</span>
+          <span class="text-[11px] font-mono px-2.5 py-1 rounded-full bg-brand-offwhite border border-brand-border text-brand-ink/70">4:5 · 1:1 · 9:16</span>
+        </div>
+
+        <input id="file" type="file" accept="image/png,image/jpeg" class="hidden" />
+      </div>
+    </div>
+
+    <!-- Uploaded preview (hidden initially) -->
+    <div id="preview" class="hidden mt-6 bg-white rounded-3xl border border-brand-border card-shadow p-6">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <div class="text-[11px] font-mono tracking-widest text-brand-ink/45">UPLOADED</div>
+          <div class="font-display font-semibold text-[15px] mt-0.5" id="fileName">africa-ai-summit-card.png</div>
+          <div class="text-[12px] font-mono text-brand-ink/50 mt-0.5" id="fileMeta">1080 × 1350 · 4:5 · 1.4 MB</div>
+        </div>
+        <button id="reset" class="text-[13px] text-brand-ink/55 hover:text-brand-ink">Replace</button>
+      </div>
+      <div class="grid grid-cols-12 gap-5">
+        <div class="col-span-12 md:col-span-7 rounded-2xl overflow-hidden bg-brand-offwhite border border-brand-border" style="aspect-ratio:4/5">
+          <div class="h-full w-full relative" style="background:linear-gradient(155deg,#0a2540,#1f8a5b 50%,#ffd28a 130%)">
+            <div class="absolute top-5 left-5 right-5 flex items-center justify-between text-white/80 font-mono" style="font-size:10px; letter-spacing:0.18em">
+              <span>AFRICA · AI · SUMMIT</span><span>NAIROBI</span>
+            </div>
+            <div class="absolute top-14 left-5 right-5 text-white font-display font-bold leading-[0.95]" style="font-size:42px; letter-spacing:-0.03em">
+              I'm building<br/>the future of<br/><span style="color:#ffd28a">African AI.</span>
+            </div>
+            <div class="absolute bottom-5 left-5 right-5 flex items-end gap-3 text-white">
+              <div class="h-[70px] w-[70px] rounded-full bg-white/20 border border-white/30"></div>
+              <div class="flex-1 pb-1">
+                <div class="h-3 w-32 rounded bg-white/40 mb-1.5"></div>
+                <div class="h-2 w-24 rounded bg-white/25"></div>
+              </div>
+            </div>
+            <div class="absolute bottom-1 right-2 text-white/40 font-mono" style="font-size:8px; letter-spacing:0.16em">#AAI26</div>
+          </div>
+        </div>
+        <div class="col-span-12 md:col-span-5 space-y-3">
+          <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200/60">
+            <div class="flex items-center gap-2 text-[13px] font-medium text-emerald-700"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg> Looks great</div>
+            <div class="text-[12.5px] text-emerald-700/80 mt-1">High-res 4:5 social card. Perfect for Instagram, WhatsApp status, X.</div>
+          </div>
+          <Detail k="DIMENSIONS" v="1080 × 1350 px" />
+          <Detail k="ASPECT" v="4 : 5 (portrait)" />
+          <Detail k="FILE SIZE" v="1.4 MB" />
+          <Detail k="DETECTED COLORS" v=" " color1="#0a2540" color2="#1f8a5b" color3="#ffd28a" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer actions -->
+    <div class="mt-7 flex items-center justify-between">
+      <a href="C1 Empty Dashboard.html" class="text-[13.5px] text-brand-ink/55 hover:text-brand-ink">← Back</a>
+      <button id="cont" disabled class="h-12 px-7 rounded-xl bg-brand-border text-white/70 font-display font-semibold text-[15px] cursor-not-allowed inline-flex items-center gap-2">
+        Continue to canvas
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+
+    <!-- Tip -->
+    <div class="mt-8 text-center">
+      <div class="text-[13px] text-brand-ink/50">Don't have a design yet? <a href="#" class="text-brand-primary font-medium">Start from a free template</a> →</div>
+    </div>
+  </div>
+</main>
+
+<script>
+  // Render Detail components
+  document.querySelectorAll('Detail').forEach(el => {
+    const k = el.getAttribute('k'), v = el.getAttribute('v');
+    const colors = ['color1','color2','color3'].map(c => el.getAttribute(c)).filter(Boolean);
+    const div = document.createElement('div');
+    div.className = 'flex items-center justify-between p-3 rounded-xl bg-brand-offwhite';
+    let right = `<div class="font-mono text-[12.5px] text-brand-ink">${v}</div>`;
+    if (colors.length) right = `<div class="flex gap-1.5">${colors.map(c=>`<div class="h-4 w-4 rounded-full border border-brand-border" style="background:${c}"></div>`).join('')}</div>`;
+    div.innerHTML = `<div class="text-[10.5px] font-mono tracking-widest text-brand-ink/45">${k}</div>${right}`;
+    el.replaceWith(div);
+  });
+
+  // Dropzone interactivity (simulated)
+  const dz = document.getElementById('dz');
+  const browse = document.getElementById('browse');
+  const file = document.getElementById('file');
+  const preview = document.getElementById('preview');
+  const reset = document.getElementById('reset');
+  const cont = document.getElementById('cont');
+
+  function setUploaded() {
+    preview.classList.remove('hidden');
+    dz.classList.add('hidden');
+    cont.disabled = false;
+    cont.classList.remove('bg-brand-border','text-white/70','cursor-not-allowed');
+    cont.classList.add('grad-bg','text-white','hover:opacity-95','shadow-[0_8px_24px_rgba(108,99,255,0.35)]');
+    cont.onclick = () => window.location = 'D2 Canvas Editor.html';
+  }
+  function setEmpty() {
+    preview.classList.add('hidden'); dz.classList.remove('hidden');
+    cont.disabled = true;
+    cont.classList.add('bg-brand-border','text-white/70','cursor-not-allowed');
+    cont.classList.remove('grad-bg','text-white','hover:opacity-95','shadow-[0_8px_24px_rgba(108,99,255,0.35)]');
+    cont.onclick = null;
+  }
+  browse.onclick = setUploaded;
+  file.onchange = setUploaded;
+  reset.onclick = setEmpty;
+  ['dragover','dragenter'].forEach(e => dz.addEventListener(e, ev => { ev.preventDefault(); dz.classList.add('border-brand-primary','bg-brand-primary/5'); }));
+  ['dragleave','drop'].forEach(e => dz.addEventListener(e, ev => { ev.preventDefault(); dz.classList.remove('bg-brand-primary/5'); if(e==='drop') setUploaded(); }));
+</script>
+</body>
+</html>

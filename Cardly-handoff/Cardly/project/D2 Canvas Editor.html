@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Editor · Africa Tech Festival '26 · Cardly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          brand: {
+            primary: '#6c63ff',
+            secondary: '#f8a4d8',
+            ink: '#0f0f1a',
+            offwhite: '#fafafa',
+            border: '#e5e5ea',
+          }
+        },
+        fontFamily: {
+          display: ['"DM Sans"', 'system-ui', 'sans-serif'],
+          sans: ['Inter', 'system-ui', 'sans-serif'],
+          mono: ['"JetBrains Mono"', 'monospace'],
+        },
+        boxShadow: {
+          'soft': '0 1px 2px rgba(15,15,26,0.04), 0 8px 24px rgba(15,15,26,0.06)',
+          'lift': '0 4px 12px rgba(15,15,26,0.06), 0 24px 60px rgba(108,99,255,0.12)',
+        }
+      }
+    }
+  }
+</script>
+<style>
+  html, body, #root { height: 100%; }
+  body { font-family: 'Inter', system-ui, sans-serif; color: #0f0f1a; background: #fafafa; overflow:hidden;}
+  .font-display { font-family: 'DM Sans', system-ui, sans-serif; letter-spacing: -0.02em; }
+  .font-mono { font-family: 'JetBrains Mono', monospace; }
+  .grad-bg { background: linear-gradient(135deg, #6c63ff 0%, #f8a4d8 100%); }
+  .grad-text { background: linear-gradient(135deg,#6c63ff,#f8a4d8); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  /* canvas backdrop dots */
+  .canvas-bg {
+    background-color: #f4f4f7;
+    background-image: radial-gradient(#d4d4dc 1px, transparent 1px);
+    background-size: 16px 16px;
+  }
+  /* grid overlay on the design */
+  .grid-overlay {
+    background-image:
+      linear-gradient(to right, rgba(108,99,255,0.10) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(108,99,255,0.10) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+  /* selection ring */
+  .zone-selected { outline: 1.5px solid #6c63ff; outline-offset: 0; }
+  .zone { transition: box-shadow .15s ease; }
+  .zone:hover:not(.zone-selected) { outline: 1.5px dashed rgba(108,99,255,0.6); }
+  /* handles */
+  .handle {
+    position:absolute; width:10px; height:10px; background:white; border:1.5px solid #6c63ff; border-radius:2px;
+  }
+  .handle.round { border-radius:999px; }
+  /* range styled */
+  input[type=range] { -webkit-appearance:none; height:4px; background:#e5e5ea; border-radius:999px; outline:none;}
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance:none; width:14px; height:14px; background:white; border:1.5px solid #6c63ff; border-radius:999px; cursor:pointer;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  }
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 8px; height: 8px;}
+  ::-webkit-scrollbar-thumb { background: #d4d4d8; border-radius: 8px;}
+  ::-webkit-scrollbar-track { background: transparent;}
+  /* tooltips */
+  [data-tip] { position:relative; }
+  [data-tip]:hover::after {
+    content: attr(data-tip); position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
+    background:#0f0f1a; color:white; font-size:11px; padding:4px 8px; border-radius:6px; white-space:nowrap; pointer-events:none; z-index:50;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  /* live pulse */
+  @keyframes pulse-dot { 0%,100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.55);} 50% { box-shadow: 0 0 0 4px rgba(34,197,94,0);} }
+  .live-dot { animation: pulse-dot 1.8s ease-out infinite; }
+  /* float labels on zones */
+  .zone-label {
+    position:absolute; transform:translateY(-100%); top:-4px; left:0;
+    font-family:'JetBrains Mono',monospace; font-size:10px; padding:2px 6px; border-radius:4px;
+    background:#6c63ff; color:white; white-space:nowrap;
+    pointer-events: auto;
+  }
+  /* prevent text selection while dragging */
+  .dragging, .dragging * { user-select:none !important; cursor: grabbing !important; }
+  .resizing, .resizing * { user-select:none !important; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" data-presets="react">
+const { useState, useRef, useEffect, useCallback, useMemo } = React;
+
+// =============== ICON helper ===============
+const Icon = ({ d, size=16, sw=1.8 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{__html:d}} />
+);
+const I = {
+  text:        '<path d="M4 7V4h16v3M9 20h6M12 4v16"/>',
+  photo:       '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>',
+  field:       '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10v4"/>',
+  plus:        '<path d="M12 5v14M5 12h14"/>',
+  eye:         '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
+  eyeOff:      '<path d="M17.94 17.94A10 10 0 0 1 12 20c-7 0-11-8-11-8a18 18 0 0 1 5.06-5.94M9.9 4.24A10 10 0 0 1 12 4c7 0 11 8 11 8a18 18 0 0 1-3.17 4.19M1 1l22 22"/><path d="M14.12 14.12A3 3 0 1 1 9.88 9.88"/>',
+  lock:        '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  trash:       '<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/>',
+  duplicate:   '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
+  align_l:     '<line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/>',
+  align_c:     '<line x1="18" y1="10" x2="6" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="18" y1="18" x2="6" y2="18"/>',
+  align_r:     '<line x1="21" y1="10" x2="7" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="21" y1="18" x2="7" y2="18"/>',
+  zoom_in:     '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/>',
+  zoom_out:    '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M8 11h6"/>',
+  grid:        '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',
+  hand:        '<path d="M18 11V6a2 2 0 0 0-4 0v5M14 10V4a2 2 0 0 0-4 0v6M10 10.5V6a2 2 0 0 0-4 0v8.5"/><path d="M18 8a2 2 0 0 1 4 0v6a8 8 0 0 1-8 8h-2c-2 0-3.5-.5-5-2l-4-5 1.5-1.5a2 2 0 0 1 2.5 0L10 17"/>',
+  cursor:      '<path d="M5 3l14 7-6 2-2 6-6-15z"/>',
+  back:        '<path d="M19 12H5M12 19l-7-7 7-7"/>',
+  save:        '<circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/>',
+  play:        '<polygon points="6 4 20 12 6 20 6 4"/>',
+  globe:       '<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/>',
+  more:        '<circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/>',
+  undo:        '<path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-15-6.7L3 13"/>',
+  redo:        '<path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 15-6.7L21 13"/>',
+  upload:      '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>',
+  bold:        '<path d="M6 4h8a4 4 0 0 1 0 8H6z"/><path d="M6 12h9a4 4 0 0 1 0 8H6z"/>',
+  italic:      '<line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/>',
+  pin:         '<line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V17z"/>',
+};
+
+// =============== CANVAS DIMENSIONS ===============
+const CW = 1080, CH = 1350; // logical canvas
+
+// Initial zones laid out on the Africa Tech Festival design
+const INITIAL_ZONES = [
+  { id: 'z1', type:'photo',  label:'Profile photo', x:80, y:980, w:200, h:200, shape:'circle', required:true, sample:'AO', placeholder:'Tap to add a photo' },
+  { id: 'z2', type:'text',   label:'Full name',     x:320, y:1000, w:680, h:80, font:'DM Sans', weight:700, size:64, color:'#FFFFFF', align:'left', required:true, placeholder:'Your full name', sample:'Adaeze Okonkwo' },
+  { id: 'z3', type:'text',   label:'Role · Company',x:320, y:1090, w:680, h:50, font:'JetBrains Mono', weight:500, size:28, color:'#F8A4D8', align:'left', required:false, placeholder:'Role · Company', sample:'Lead Designer · Flutterwave' },
+  { id: 'z4', type:'text',   label:'Country',       x:760, y:160, w:240, h:36, font:'JetBrains Mono', weight:500, size:20, color:'#FFFFFF', align:'right', required:false, placeholder:'Country', sample:'Lagos, Nigeria' },
+];
+
+// =============== APP ===============
+function App() {
+  const [zones, setZones] = useState(INITIAL_ZONES);
+  const [selectedId, setSelectedId] = useState('z2');
+  const [zoom, setZoom] = useState(0.42);
+  const [grid, setGrid] = useState(false);
+  const [tool, setTool] = useState('cursor');
+  const [eventName, setEventName] = useState('Africa Tech Festival \u201926');
+  const [savedAt, setSavedAt] = useState('just now');
+  const [history, setHistory] = useState({past:[], future:[]});
+  const stageRef = useRef(null);
+  const canvasRef = useRef(null);
+
+  const selected = zones.find(z => z.id === selectedId);
+
+  // ---- mutate zones with history ----
+  const pushHistory = useCallback((nextZones) => {
+    setHistory(h => ({ past: [...h.past, zones], future: [] }));
+    setZones(nextZones);
+    setSavedAt('just now');
+  }, [zones]);
+  const updateZone = (id, patch, withHistory=false) => {
+    const next = zones.map(z => z.id === id ? {...z, ...patch} : z);
+    if (withHistory) pushHistory(next);
+    else { setZones(next); setSavedAt('just now'); }
+  };
+  const removeZone = (id) => {
+    pushHistory(zones.filter(z => z.id !== id));
+    setSelectedId(null);
+  };
+  const duplicateZone = (id) => {
+    const z = zones.find(x => x.id===id); if (!z) return;
+    const nz = {...z, id: 'z'+Math.random().toString(36).slice(2,7), x: z.x+30, y:z.y+30, label: z.label+' copy'};
+    pushHistory([...zones, nz]);
+    setSelectedId(nz.id);
+  };
+  const addZone = (type) => {
+    const base = { id:'z'+Math.random().toString(36).slice(2,7), x: CW/2-200, y: CH/2-50, required:false };
+    let z;
+    if (type==='text') z = {...base, type:'text', label:'New text field', w:400, h:80, font:'DM Sans', weight:600, size:48, color:'#FFFFFF', align:'left', placeholder:'Placeholder', sample:'Sample text'};
+    else if (type==='photo') z = {...base, type:'photo', label:'Photo', w:240, h:240, shape:'circle', sample:'·', placeholder:'Tap to add a photo'};
+    else z = {...base, type:'custom', label:'Custom field', w:400, h:60, font:'Inter', weight:500, size:24, color:'#FFFFFF', align:'left', options:['Speaker','Sponsor','Delegate'], sample:'Speaker'};
+    pushHistory([...zones, z]);
+    setSelectedId(z.id);
+  };
+  const undo = () => {
+    setHistory(h => {
+      if (!h.past.length) return h;
+      const prev = h.past[h.past.length-1];
+      setZones(prev);
+      return { past: h.past.slice(0,-1), future:[zones, ...h.future] };
+    });
+  };
+  const redo = () => {
+    setHistory(h => {
+      if (!h.future.length) return h;
+      const next = h.future[0];
+      setZones(next);
+      return { past: [...h.past, zones], future: h.future.slice(1) };
+    });
+  };
+
+  // ---- Pointer drag/resize ----
+  const interaction = useRef(null);
+  const onZonePointerDown = (e, zone) => {
+    if (e.target.dataset.handle) return; // handle handles itself
+    e.stopPropagation();
+    setSelectedId(zone.id);
+    interaction.current = { mode:'move', id:zone.id, sx:e.clientX, sy:e.clientY, ox:zone.x, oy:zone.y, ow:zone.w, oh:zone.h };
+    document.body.classList.add('dragging');
+  };
+  const onHandlePointerDown = (e, zone, dir) => {
+    e.stopPropagation();
+    setSelectedId(zone.id);
+    interaction.current = { mode:'resize', dir, id:zone.id, sx:e.clientX, sy:e.clientY, ox:zone.x, oy:zone.y, ow:zone.w, oh:zone.h };
+    document.body.classList.add('resizing');
+  };
+  useEffect(() => {
+    const onMove = (e) => {
+      const it = interaction.current; if (!it) return;
+      const dx = (e.clientX - it.sx) / zoom;
+      const dy = (e.clientY - it.sy) / zoom;
+      if (it.mode === 'move') {
+        const nx = Math.max(0, Math.min(CW - it.ow, it.ox + dx));
+        const ny = Math.max(0, Math.min(CH - it.oh, it.oy + dy));
+        updateZone(it.id, { x:Math.round(nx), y:Math.round(ny) });
+      } else if (it.mode === 'resize') {
+        let {ox,oy,ow,oh} = it;
+        const d = it.dir;
+        let nx=ox, ny=oy, nw=ow, nh=oh;
+        if (d.includes('e')) nw = Math.max(40, ow + dx);
+        if (d.includes('s')) nh = Math.max(20, oh + dy);
+        if (d.includes('w')) { nw = Math.max(40, ow - dx); nx = ox + (ow - nw); }
+        if (d.includes('n')) { nh = Math.max(20, oh - dy); ny = oy + (oh - nh); }
+        // clamp
+        nx = Math.max(0, nx); ny = Math.max(0, ny);
+        nw = Math.min(nw, CW - nx); nh = Math.min(nh, CH - ny);
+        updateZone(it.id, { x:Math.round(nx), y:Math.round(ny), w:Math.round(nw), h:Math.round(nh) });
+      }
+    };
+    const onUp = () => {
+      if (interaction.current) {
+        // commit final state to history
+        const z = zones.find(z => z.id === interaction.current.id);
+        if (z) {
+          setHistory(h => ({ past: [...h.past, zones], future:[] }));
+        }
+      }
+      interaction.current = null;
+      document.body.classList.remove('dragging','resizing');
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+    return () => { window.removeEventListener('pointermove', onMove); window.removeEventListener('pointerup', onUp); };
+  }, [zoom, zones]);
+
+  // ---- Keyboard ----
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.key === 'Backspace' || e.key === 'Delete') { if (selectedId) { e.preventDefault(); removeZone(selectedId); } }
+      else if (e.key === 'Escape') setSelectedId(null);
+      else if (e.metaKey || e.ctrlKey) {
+        if (e.key === 'z') { e.preventDefault(); e.shiftKey ? redo() : undo(); }
+        if (e.key === 'd' && selectedId) { e.preventDefault(); duplicateZone(selectedId); }
+      } else if (selected) {
+        const step = e.shiftKey ? 10 : 1;
+        if (e.key === 'ArrowLeft')  { e.preventDefault(); updateZone(selected.id, {x: Math.max(0, selected.x - step)}); }
+        if (e.key === 'ArrowRight') { e.preventDefault(); updateZone(selected.id, {x: Math.min(CW-selected.w, selected.x + step)}); }
+        if (e.key === 'ArrowUp')    { e.preventDefault(); updateZone(selected.id, {y: Math.max(0, selected.y - step)}); }
+        if (e.key === 'ArrowDown')  { e.preventDefault(); updateZone(selected.id, {y: Math.min(CH-selected.h, selected.y + step)}); }
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [selected, selectedId, zones]);
+
+  // ---- Fit zoom to viewport on mount/resize ----
+  useEffect(() => {
+    const fit = () => {
+      const el = stageRef.current; if (!el) return;
+      const pad = 80;
+      const z = Math.min((el.clientWidth - pad) / CW, (el.clientHeight - pad) / CH);
+      setZoom(Math.max(0.18, Math.min(1.4, z)));
+    };
+    fit();
+    window.addEventListener('resize', fit);
+    return () => window.removeEventListener('resize', fit);
+  }, []);
+
+  return (
+    <div className="flex flex-col h-full">
+      <TopBar
+        eventName={eventName} setEventName={setEventName}
+        savedAt={savedAt}
+        canUndo={!!history.past.length} canRedo={!!history.future.length}
+        onUndo={undo} onRedo={redo}
+      />
+      <div className="flex-1 flex min-h-0">
+        <LeftRail
+          zones={zones}
+          selectedId={selectedId}
+          setSelectedId={setSelectedId}
+          onAdd={addZone}
+          onToggleVisible={(id) => updateZone(id, {hidden: !zones.find(z=>z.id===id).hidden})}
+          onToggleLock={(id) => updateZone(id, {locked: !zones.find(z=>z.id===id).locked})}
+          tool={tool} setTool={setTool}
+        />
+        <Stage
+          stageRef={stageRef}
+          canvasRef={canvasRef}
+          zones={zones}
+          selectedId={selectedId}
+          setSelectedId={setSelectedId}
+          zoom={zoom} setZoom={setZoom}
+          grid={grid} setGrid={setGrid}
+          onZonePointerDown={onZonePointerDown}
+          onHandlePointerDown={onHandlePointerDown}
+        />
+        <RightRail
+          zone={selected}
+          onChange={(p) => updateZone(selected.id, p)}
+          onDelete={() => removeZone(selected.id)}
+          onDuplicate={() => duplicateZone(selected.id)}
+        />
+      </div>
+    </div>
+  );
+}
+
+// =============== TOP BAR ===============
+function TopBar({eventName, setEventName, savedAt, canUndo, canRedo, onUndo, onRedo}) {
+  const [editName, setEditName] = useState(false);
+  return (
+    <header className="h-14 bg-white border-b border-brand-border flex items-center px-4 gap-3 shrink-0">
+      <a href="C2 Events List.html" className="h-8 w-8 rounded-lg hover:bg-brand-offwhite grid place-items-center text-brand-ink/70" data-tip="Back to events">
+        <Icon d={I.back} size={16} />
+      </a>
+      <div className="h-6 w-px bg-brand-border"></div>
+      <a href="#" className="flex items-center gap-2 shrink-0">
+        <span className="h-7 w-7 rounded-lg grad-bg grid place-items-center text-white font-display font-bold text-[13px]">C</span>
+      </a>
+      <div className="flex items-center gap-1.5 text-[13px]">
+        <span className="text-brand-ink/40 font-mono text-[11px]">Events</span>
+        <span className="text-brand-ink/30">/</span>
+        {editName
+          ? <input autoFocus value={eventName} onChange={e=>setEventName(e.target.value)} onBlur={()=>setEditName(false)} onKeyDown={e=>e.key==='Enter'&&setEditName(false)} className="font-display font-semibold bg-white border border-brand-primary/40 rounded-md px-2 py-0.5 outline-none w-[260px]" />
+          : <button onClick={()=>setEditName(true)} className="font-display font-semibold hover:bg-brand-offwhite rounded-md px-2 py-0.5">{eventName}</button>
+        }
+      </div>
+
+      <div className="flex-1"></div>
+
+      <div className="flex items-center gap-1">
+        <button data-tip="Undo (⌘Z)" disabled={!canUndo} onClick={onUndo} className={"h-8 w-8 rounded-lg grid place-items-center " + (canUndo ? "text-brand-ink/80 hover:bg-brand-offwhite" : "text-brand-ink/25")}>
+          <Icon d={I.undo} size={15} />
+        </button>
+        <button data-tip="Redo (⇧⌘Z)" disabled={!canRedo} onClick={onRedo} className={"h-8 w-8 rounded-lg grid place-items-center " + (canRedo ? "text-brand-ink/80 hover:bg-brand-offwhite" : "text-brand-ink/25")}>
+          <Icon d={I.redo} size={15} />
+        </button>
+      </div>
+
+      <div className="flex items-center gap-1.5 text-[12px] text-brand-ink/55 mx-2">
+        <Icon d={I.save} size={13} sw={2} />
+        Saved · {savedAt}
+      </div>
+
+      <div className="flex items-center gap-2">
+        <button className="inline-flex items-center gap-1.5 text-[13px] text-brand-ink/80 bg-white border border-brand-border px-3 py-1.5 rounded-lg hover:bg-brand-offwhite transition">
+          <Icon d={I.play} size={13} sw={2.2} />
+          Preview as attendee
+        </button>
+        <button className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-white grad-bg px-3.5 py-1.5 rounded-lg hover:opacity-95 transition shadow-soft">
+          <Icon d={I.globe} size={13} sw={2.2} />
+          Publish
+        </button>
+        <button className="h-8 w-8 rounded-lg hover:bg-brand-offwhite grid place-items-center text-brand-ink/60">
+          <Icon d={I.more} size={15} />
+        </button>
+      </div>
+    </header>
+  );
+}
+
+// =============== LEFT RAIL ===============
+function LeftRail({zones, selectedId, setSelectedId, onAdd, onToggleVisible, onToggleLock, tool, setTool}) {
+  return (
+    <aside className="w-[256px] shrink-0 bg-white border-r border-brand-border flex flex-col overflow-y-auto">
+      {/* Tool toggle */}
+      <div className="p-3 border-b border-brand-border flex gap-1">
+        <button onClick={()=>setTool('cursor')} data-tip="Select (V)" className={"flex-1 h-9 rounded-lg grid place-items-center " + (tool==='cursor' ? "bg-brand-offwhite text-brand-ink" : "text-brand-ink/50 hover:bg-brand-offwhite")}>
+          <Icon d={I.cursor} size={15} sw={1.6} />
+        </button>
+        <button onClick={()=>setTool('hand')} data-tip="Pan (H)" className={"flex-1 h-9 rounded-lg grid place-items-center " + (tool==='hand' ? "bg-brand-offwhite text-brand-ink" : "text-brand-ink/50 hover:bg-brand-offwhite")}>
+          <Icon d={I.hand} size={15} />
+        </button>
+      </div>
+
+      <div className="p-4">
+        <div className="text-[11px] font-mono tracking-widest text-brand-ink/40 mb-3">ADD TO CANVAS</div>
+        <div className="space-y-1.5">
+          <ToolBtn icon={I.text}  label="Text field"   sub="Name, title, country…"     onClick={()=>onAdd('text')} />
+          <ToolBtn icon={I.photo} label="Photo zone"   sub="Headshot or logo"          onClick={()=>onAdd('photo')} />
+          <ToolBtn icon={I.field} label="Custom field" sub="Dropdown, badge, role…"    onClick={()=>onAdd('custom')} />
+        </div>
+      </div>
+
+      <div className="px-4">
+        <div className="text-[11px] font-mono tracking-widest text-brand-ink/40 mb-2 flex items-center justify-between">
+          ZONES <span className="text-brand-ink/40 normal-case">{zones.length}</span>
+        </div>
+        <div className="space-y-0.5">
+          {zones.map(z => (
+            <ZoneRow key={z.id} zone={z} active={z.id===selectedId} onSelect={()=>setSelectedId(z.id)} onToggleVis={()=>onToggleVisible(z.id)} onToggleLock={()=>onToggleLock(z.id)} />
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-auto p-3 border-t border-brand-border">
+        <div className="text-[11px] font-mono tracking-widest text-brand-ink/40 mb-2">BACKGROUND</div>
+        <div className="flex items-center gap-3 rounded-xl border border-brand-border p-2.5">
+          <div className="h-9 w-9 rounded-md shrink-0" style={{background:'linear-gradient(135deg,#1b1240,#4b2d7a 60%,#f8a4d8)'}}></div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[12px] font-medium truncate">atf-26-card.png</div>
+            <div className="text-[10px] font-mono text-brand-ink/45">1080 × 1350 · 412 KB</div>
+          </div>
+          <button data-tip="Replace" className="h-7 w-7 rounded-md hover:bg-brand-offwhite grid place-items-center text-brand-ink/60">
+            <Icon d={I.upload} size={13} />
+          </button>
+        </div>
+      </div>
+    </aside>
+  );
+}
+function ToolBtn({icon, label, sub, onClick}) {
+  return (
+    <button onClick={onClick} className="group w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-brand-offwhite border border-transparent hover:border-brand-border transition text-left">
+      <span className="h-9 w-9 rounded-lg bg-brand-offwhite grid place-items-center text-brand-primary group-hover:grad-bg group-hover:text-white transition">
+        <Icon d={icon} size={15} />
+      </span>
+      <span className="flex-1 min-w-0">
+        <span className="block text-[13px] font-medium">{label}</span>
+        <span className="block text-[11px] text-brand-ink/50">{sub}</span>
+      </span>
+      <Icon d={I.plus} size={13} sw={2} />
+    </button>
+  );
+}
+function ZoneRow({zone, active, onSelect, onToggleVis, onToggleLock}) {
+  const typeIcon = zone.type === 'photo' ? I.photo : zone.type === 'custom' ? I.field : I.text;
+  return (
+    <div onClick={onSelect} className={"group flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer text-[12.5px] " + (active ? "bg-brand-primary/10 text-brand-primary" : "hover:bg-brand-offwhite text-brand-ink/80")}>
+      <span className={"h-6 w-6 rounded-md grid place-items-center " + (active ? "text-brand-primary" : "text-brand-ink/50")}>
+        <Icon d={typeIcon} size={12} />
+      </span>
+      <span className="flex-1 truncate">{zone.label}</span>
+      {zone.required && <span className="text-[9px] font-mono px-1 py-px rounded bg-brand-primary/10 text-brand-primary">REQ</span>}
+      <button onClick={(e)=>{e.stopPropagation(); onToggleVis();}} className="opacity-0 group-hover:opacity-100 h-6 w-6 rounded-md grid place-items-center text-brand-ink/50 hover:bg-white" data-tip={zone.hidden?"Show":"Hide"}>
+        <Icon d={zone.hidden? I.eyeOff : I.eye} size={12} />
+      </button>
+      <button onClick={(e)=>{e.stopPropagation(); onToggleLock();}} className={"opacity-0 group-hover:opacity-100 h-6 w-6 rounded-md grid place-items-center hover:bg-white " + (zone.locked ? "text-brand-primary opacity-100" : "text-brand-ink/50")}>
+        <Icon d={I.lock} size={12} />
+      </button>
+    </div>
+  );
+}
+
+// =============== STAGE (canvas area) ===============
+function Stage({stageRef, canvasRef, zones, selectedId, setSelectedId, zoom, setZoom, grid, setGrid, onZonePointerDown, onHandlePointerDown}) {
+  const clickEmpty = () => setSelectedId(null);
+
+  return (
+    <div ref={stageRef} className="flex-1 relative canvas-bg overflow-hidden" onPointerDown={clickEmpty}>
+      {/* Centered canvas wrapper */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div
+          ref={canvasRef}
+          className="relative bg-white shadow-lift rounded-md"
+          style={{ width: CW, height: CH, transform: `scale(${zoom})`, transformOrigin:'center center' }}
+          onPointerDown={(e)=>{e.stopPropagation(); setSelectedId(null);}}
+        >
+          {/* "Uploaded" design */}
+          <DesignBackground />
+
+          {/* Grid overlay */}
+          {grid && <div className="absolute inset-0 grid-overlay pointer-events-none" />}
+
+          {/* Zones */}
+          {zones.map(z => (
+            <Zone
+              key={z.id} zone={z}
+              selected={z.id === selectedId}
+              onPointerDown={(e)=>onZonePointerDown(e,z)}
+              onHandle={(e,dir)=>onHandlePointerDown(e,z,dir)}
+            />
+          ))}
+
+          {/* Canvas frame label (outside) */}
+          <div className="absolute -top-7 left-0 right-0 flex items-center justify-between text-[11px] font-mono text-brand-ink/45">
+            <span>1080 × 1350 px</span>
+            <span>4 zones · {zones.filter(z=>z.required).length} required</span>
+          </div>
+          {/* corner marks */}
+          <CornerMarks />
+        </div>
+      </div>
+
+      {/* Floating callout */}
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full text-[11.5px] font-mono bg-white/90 backdrop-blur border border-brand-border shadow-soft text-brand-ink/70 flex items-center gap-2">
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 live-dot"></span>
+        47 attendees on the live link right now
+      </div>
+
+      {/* Bottom bar */}
+      <BottomBar zoom={zoom} setZoom={setZoom} grid={grid} setGrid={setGrid} />
+    </div>
+  );
+}
+
+function DesignBackground() {
+  // Recreates the Africa Tech Festival card as the "uploaded design" - 1080x1350
+  return (
+    <div className="absolute inset-0 rounded-md overflow-hidden" style={{background:'linear-gradient(155deg,#1b1240 0%,#3a2068 40%,#7a3a9a 80%,#f8a4d8 130%)'}}>
+      {/* decorative orbs */}
+      <div className="absolute -top-32 -right-32 h-[420px] w-[420px] rounded-full" style={{background:'radial-gradient(closest-side, rgba(248,164,216,0.55), transparent)'}}></div>
+      <div className="absolute bottom-[-100px] left-[-100px] h-[360px] w-[360px] rounded-full" style={{background:'radial-gradient(closest-side, rgba(108,99,255,0.45), transparent)'}}></div>
+      {/* big circle outline */}
+      <div className="absolute top-[34%] left-[6%] right-[6%] aspect-square rounded-full border border-white/10"></div>
+      <div className="absolute top-[42%] left-[12%] right-[12%] aspect-square rounded-full border border-white/8"></div>
+
+      {/* Top meta */}
+      <div className="absolute top-10 left-12 right-12 flex items-center justify-between text-white/80" style={{fontFamily:'JetBrains Mono',fontSize:22,letterSpacing:'0.18em'}}>
+        <span>AFRICA · TECH · FESTIVAL</span>
+        <span>NOV 14–16 · 26</span>
+      </div>
+      {/* Hero text */}
+      <div className="absolute top-32 left-12 right-12 text-white font-display font-bold leading-[1.02]" style={{fontSize:108, letterSpacing:'-0.03em'}}>
+        I'm attending<br/>
+        <span style={{background:'linear-gradient(135deg,#f8a4d8,#ffd28a)', WebkitBackgroundClip:'text', backgroundClip:'text', color:'transparent'}}>Africa Tech Festival.</span>
+      </div>
+      <div className="absolute top-[510px] left-12 right-12 text-white/75" style={{fontFamily:'JetBrains Mono',fontSize:22, lineHeight:1.5}}>
+        The continent's largest gathering of builders,<br/>investors and policy-makers. Cape Town, ZA.
+      </div>
+      {/* footer marks */}
+      <div className="absolute bottom-10 left-12 right-12 flex items-center justify-between text-white/55" style={{fontFamily:'JetBrains Mono',fontSize:18,letterSpacing:'0.16em'}}>
+        <span>#ATF26</span>
+        <span>CAPE TOWN · ZA</span>
+      </div>
+    </div>
+  );
+}
+
+function CornerMarks() {
+  const sty = "absolute h-3 w-3 border-brand-primary/50";
+  return (
+    <>
+      <span className={sty + " -top-1 -left-1 border-t border-l"}></span>
+      <span className={sty + " -top-1 -right-1 border-t border-r"}></span>
+      <span className={sty + " -bottom-1 -left-1 border-b border-l"}></span>
+      <span className={sty + " -bottom-1 -right-1 border-b border-r"}></span>
+    </>
+  );
+}
+
+// =============== ZONE ===============
+function Zone({zone, selected, onPointerDown, onHandle}) {
+  if (zone.hidden) return null;
+  const isPhoto = zone.type === 'photo';
+  const radius = isPhoto ? (zone.shape === 'circle' ? '50%' : zone.shape === 'rounded' ? '20%' : '4px') : '6px';
+  const dashColor = selected ? '#6c63ff' : '#f8a4d8';
+  const inner = (() => {
+    if (isPhoto) {
+      return (
+        <div className="absolute inset-0 grid place-items-center text-white" style={{borderRadius:radius, background:'rgba(255,255,255,0.05)', backdropFilter:'blur(2px)'}}>
+          <div className="font-display font-bold" style={{fontSize: Math.min(zone.w, zone.h)/3}}>{zone.sample}</div>
+        </div>
+      );
+    }
+    if (zone.type === 'custom') {
+      return (
+        <div className="absolute inset-0 flex items-center" style={{padding:'0 12px'}}>
+          <div className="px-4 py-2 rounded-full" style={{background:'rgba(255,255,255,0.15)', color:zone.color, fontFamily:zone.font, fontWeight:zone.weight, fontSize:zone.size}}>
+            {zone.sample}
+          </div>
+        </div>
+      );
+    }
+    // text
+    return (
+      <div className="absolute inset-0 flex items-center" style={{padding:'0', justifyContent: zone.align==='center'?'center': zone.align==='right'?'flex-end':'flex-start'}}>
+        <div style={{fontFamily:zone.font, fontWeight:zone.weight, fontSize:zone.size, color:zone.color, lineHeight:1, whiteSpace:'nowrap', textAlign:zone.align}}>
+          {zone.sample}
+        </div>
+      </div>
+    );
+  })();
+
+  const labelColor = selected ? '#6c63ff' : '#f8a4d8';
+
+  return (
+    <div
+      className={"zone absolute " + (selected ? "zone-selected" : "")}
+      style={{ left: zone.x, top: zone.y, width: zone.w, height: zone.h, borderRadius:radius, boxShadow: `inset 0 0 0 2px ${dashColor}`, outlineOffset:'0px', cursor: zone.locked ? 'not-allowed' : 'grab' }}
+      onPointerDown={(e)=>{ if (!zone.locked) onPointerDown(e); else e.stopPropagation(); }}
+    >
+      {/* dashed border on top so its visible */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        borderRadius:radius,
+        backgroundImage: `repeating-linear-gradient(90deg, ${dashColor} 0 8px, transparent 8px 14px), repeating-linear-gradient(180deg, ${dashColor} 0 8px, transparent 8px 14px), repeating-linear-gradient(0deg, ${dashColor} 0 8px, transparent 8px 14px), repeating-linear-gradient(270deg, ${dashColor} 0 8px, transparent 8px 14px)`,
+        backgroundSize: `100% 2px, 2px 100%, 100% 2px, 2px 100%`,
+        backgroundPosition: `0 0, 0 0, 0 100%, 100% 0`,
+        backgroundRepeat:'no-repeat',
+        opacity: 0.95
+      }}></div>
+
+      {inner}
+
+      {/* label */}
+      <span className="zone-label" style={{background: labelColor}}>
+        {zone.label} {zone.required && '*'}
+      </span>
+
+      {/* Handles when selected */}
+      {selected && (
+        <>
+          {['nw','n','ne','e','se','s','sw','w'].map(dir => (
+            <Handle key={dir} dir={dir} round={isPhoto && zone.shape==='circle'} onPointerDown={(e)=>onHandle(e,dir)} />
+          ))}
+          {/* dimension chip */}
+          <span className="absolute -bottom-7 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded text-[10px] font-mono text-white" style={{background:'#6c63ff', whiteSpace:'nowrap'}}>
+            {zone.w} × {zone.h}
+          </span>
+        </>
+      )}
+    </div>
+  );
+}
+
+function Handle({dir, onPointerDown, round}) {
+  const map = {
+    nw:{top:-6,left:-6,cursor:'nwse-resize'}, n:{top:-6,left:'50%',marginLeft:-5,cursor:'ns-resize'},
+    ne:{top:-6,right:-6,cursor:'nesw-resize'}, e:{top:'50%',right:-6,marginTop:-5,cursor:'ew-resize'},
+    se:{bottom:-6,right:-6,cursor:'nwse-resize'}, s:{bottom:-6,left:'50%',marginLeft:-5,cursor:'ns-resize'},
+    sw:{bottom:-6,left:-6,cursor:'nesw-resize'}, w:{top:'50%',left:-6,marginTop:-5,cursor:'ew-resize'}
+  };
+  return <span data-handle={dir} className={"handle " + (round?'round':'')} style={map[dir]} onPointerDown={onPointerDown} />;
+}
+
+// =============== BOTTOM BAR ===============
+function BottomBar({zoom, setZoom, grid, setGrid}) {
+  const setZ = (v) => setZoom(Math.max(0.1, Math.min(2, v)));
+  return (
+    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white rounded-xl border border-brand-border shadow-soft p-1">
+      <button onClick={()=>setZ(zoom-0.1)} className="h-8 w-8 rounded-lg hover:bg-brand-offwhite grid place-items-center text-brand-ink/70" data-tip="Zoom out">
+        <Icon d={I.zoom_out} size={14} />
+      </button>
+      <button onClick={()=>setZ(1)} className="font-mono text-[12px] px-2 min-w-[64px] text-center hover:bg-brand-offwhite rounded-lg py-1.5">
+        {Math.round(zoom*100)}%
+      </button>
+      <button onClick={()=>setZ(zoom+0.1)} className="h-8 w-8 rounded-lg hover:bg-brand-offwhite grid place-items-center text-brand-ink/70" data-tip="Zoom in">
+        <Icon d={I.zoom_in} size={14} />
+      </button>
+      <span className="h-5 w-px bg-brand-border mx-1"></span>
+      <button onClick={()=>setGrid(!grid)} className={"h-8 px-2.5 rounded-lg flex items-center gap-1.5 text-[12px] " + (grid ? "bg-brand-primary/10 text-brand-primary" : "hover:bg-brand-offwhite text-brand-ink/70")} data-tip="Toggle grid">
+        <Icon d={I.grid} size={13} />
+        Grid
+      </button>
+      <button onClick={()=>setZ(0.42)} className="h-8 px-2.5 rounded-lg hover:bg-brand-offwhite text-[12px] text-brand-ink/70">Fit</button>
+    </div>
+  );
+}
+
+// =============== RIGHT RAIL (PROPERTIES) ===============
+function RightRail({zone, onChange, onDelete, onDuplicate}) {
+  if (!zone) {
+    return (
+      <aside className="w-[300px] shrink-0 bg-white border-l border-brand-border flex flex-col items-center justify-center p-8 text-center">
+        <div className="h-12 w-12 rounded-2xl bg-brand-offwhite grid place-items-center text-brand-ink/40">
+          <Icon d={I.cursor} size={18} />
+        </div>
+        <div className="mt-4 font-display font-medium text-[14px]">Nothing selected</div>
+        <p className="text-[12.5px] text-brand-ink/55 mt-1 max-w-[200px]">Pick a zone on the canvas, or add a new field from the left panel.</p>
+        <div className="mt-6 grid grid-cols-2 gap-1.5 text-[10px] font-mono text-brand-ink/50">
+          <span>Click</span><span>select zone</span>
+          <span>Drag</span><span>reposition</span>
+          <span>⌫</span><span>delete zone</span>
+          <span>⌘D</span><span>duplicate</span>
+        </div>
+      </aside>
+    );
+  }
+  return (
+    <aside className="w-[300px] shrink-0 bg-white border-l border-brand-border flex flex-col overflow-y-auto">
+      {/* header */}
+      <div className="p-4 border-b border-brand-border flex items-center gap-2">
+        <span className="h-7 w-7 rounded-md grad-bg grid place-items-center text-white">
+          <Icon d={zone.type==='photo'?I.photo:zone.type==='custom'?I.field:I.text} size={13} />
+        </span>
+        <div className="flex-1 min-w-0">
+          <div className="text-[11px] font-mono text-brand-ink/50 uppercase tracking-widest">{zone.type} zone</div>
+          <div className="text-[13px] font-display font-semibold truncate">{zone.label}</div>
+        </div>
+        <button onClick={onDuplicate} data-tip="Duplicate (⌘D)" className="h-7 w-7 rounded-md hover:bg-brand-offwhite grid place-items-center text-brand-ink/60">
+          <Icon d={I.duplicate} size={13} />
+        </button>
+        <button onClick={onDelete} data-tip="Delete (⌫)" className="h-7 w-7 rounded-md hover:bg-rose-50 grid place-items-center text-rose-500">
+          <Icon d={I.trash} size={13} />
+        </button>
+      </div>
+
+      {/* FIELD section */}
+      <Section title="Field">
+        <Row label="Label">
+          <input value={zone.label} onChange={e=>onChange({label:e.target.value})} className="prop-input" />
+        </Row>
+        <Row label="Placeholder">
+          <input value={zone.placeholder||''} onChange={e=>onChange({placeholder:e.target.value})} className="prop-input" placeholder="Shown in the form" />
+        </Row>
+        <Row label="Sample">
+          <input value={zone.sample||''} onChange={e=>onChange({sample:e.target.value})} className="prop-input" placeholder="Live preview value" />
+        </Row>
+        <Toggle label="Required" value={!!zone.required} onChange={v=>onChange({required:v})} />
+      </Section>
+
+      {/* STYLE section */}
+      {zone.type === 'photo' ? (
+        <Section title="Photo style">
+          <Row label="Shape">
+            <Segmented value={zone.shape} onChange={v=>onChange({shape:v})} options={[
+              {v:'circle', label:'Circle'},{v:'rounded', label:'Rounded'},{v:'square', label:'Square'}
+            ]} />
+          </Row>
+        </Section>
+      ) : (
+        <Section title="Type">
+          <Row label="Font">
+            <select value={zone.font} onChange={e=>onChange({font:e.target.value})} className="prop-input">
+              {['DM Sans','Inter','JetBrains Mono','Space Grotesk','Playfair Display'].map(f => <option key={f} value={f}>{f}</option>)}
+            </select>
+          </Row>
+          <Row label="Weight">
+            <Segmented value={String(zone.weight)} onChange={v=>onChange({weight:Number(v)})} options={[
+              {v:'400',label:'Reg'},{v:'500',label:'Med'},{v:'600',label:'SBd'},{v:'700',label:'Bld'},
+            ]} />
+          </Row>
+          <Row label={`Size · ${zone.size}px`}>
+            <input type="range" min="12" max="160" value={zone.size} onChange={e=>onChange({size:Number(e.target.value)})} className="w-full" />
+          </Row>
+          <Row label="Color">
+            <ColorPicker value={zone.color} onChange={v=>onChange({color:v})} />
+          </Row>
+          <Row label="Align">
+            <Segmented value={zone.align} onChange={v=>onChange({align:v})} options={[
+              {v:'left', icon:I.align_l},{v:'center', icon:I.align_c},{v:'right', icon:I.align_r},
+            ]} />
+          </Row>
+        </Section>
+      )}
+
+      {/* POSITION section */}
+      <Section title="Position & size">
+        <div className="grid grid-cols-2 gap-2">
+          <NumberInput label="X" value={zone.x} onChange={v=>onChange({x:v})} />
+          <NumberInput label="Y" value={zone.y} onChange={v=>onChange({y:v})} />
+          <NumberInput label="W" value={zone.w} onChange={v=>onChange({w:v})} />
+          <NumberInput label="H" value={zone.h} onChange={v=>onChange({h:v})} />
+        </div>
+        <button className="mt-3 w-full text-[12px] text-brand-ink/60 border border-brand-border rounded-lg py-1.5 hover:bg-brand-offwhite flex items-center justify-center gap-1.5">
+          <Icon d={I.pin} size={11} />
+          Snap to center
+        </button>
+      </Section>
+
+      <style>{`
+        .prop-input { width:100%; height:32px; padding:0 10px; border:1px solid #e5e5ea; border-radius:8px; background:#fafafa; font-size:12.5px; font-family:'Inter',sans-serif;}
+        .prop-input:focus { background:white; outline:2px solid rgba(108,99,255,0.25); outline-offset: -1px; border-color:#6c63ff;}
+      `}</style>
+    </aside>
+  );
+}
+
+function Section({title, children}) {
+  return (
+    <div className="px-4 py-4 border-b border-brand-border">
+      <div className="text-[11px] font-mono tracking-widest text-brand-ink/40 mb-3">{title.toUpperCase()}</div>
+      <div className="space-y-3">{children}</div>
+    </div>
+  );
+}
+function Row({label, children}) {
+  return (
+    <label className="block">
+      <div className="text-[11px] text-brand-ink/55 mb-1">{label}</div>
+      {children}
+    </label>
+  );
+}
+function Toggle({label, value, onChange}) {
+  return (
+    <label className="flex items-center justify-between cursor-pointer">
+      <span className="text-[12.5px]">{label}</span>
+      <button type="button" onClick={()=>onChange(!value)} className={"relative h-5 w-9 rounded-full transition " + (value ? "grad-bg" : "bg-brand-border")}>
+        <span className={"absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all " + (value ? "left-[18px]" : "left-0.5")}></span>
+      </button>
+    </label>
+  );
+}
+function Segmented({value, onChange, options}) {
+  return (
+    <div className="flex p-0.5 bg-brand-offwhite rounded-lg border border-brand-border">
+      {options.map(o => (
+        <button key={o.v} onClick={()=>onChange(o.v)} className={"flex-1 h-7 text-[11px] font-medium rounded-md grid place-items-center transition " + (value===o.v ? "bg-white shadow-sm text-brand-ink" : "text-brand-ink/55 hover:text-brand-ink")}>
+          {o.icon ? <Icon d={o.icon} size={12} /> : o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+function ColorPicker({value, onChange}) {
+  const swatches = ['#FFFFFF','#0F0F1A','#6C63FF','#F8A4D8','#FFD28A','#7BE0C0','#FF6058'];
+  return (
+    <div className="flex items-center gap-1.5">
+      <input type="color" value={value} onChange={e=>onChange(e.target.value)} className="h-7 w-7 rounded border border-brand-border cursor-pointer bg-white" />
+      <input value={value} onChange={e=>onChange(e.target.value)} className="prop-input flex-1 font-mono text-[11px] uppercase" />
+      <div className="flex gap-1">
+        {swatches.map(s => (
+          <button key={s} onClick={()=>onChange(s)} className={"h-5 w-5 rounded border " + (value.toUpperCase()===s ? "border-brand-primary ring-2 ring-brand-primary/30" : "border-brand-border")} style={{background:s}} />
+        ))}
+      </div>
+    </div>
+  );
+}
+function NumberInput({label, value, onChange}) {
+  return (
+    <label className="block">
+      <div className="text-[10px] font-mono uppercase tracking-widest text-brand-ink/40 mb-1">{label}</div>
+      <input type="number" value={value} onChange={e=>onChange(Number(e.target.value))} className="prop-input font-mono text-[12px]" />
+    </label>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

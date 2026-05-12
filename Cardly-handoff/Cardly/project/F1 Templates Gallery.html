@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Templates · Cardly</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,500;9..40,600;9..40,700;9..40,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    colors: { brand: { primary:'#6c63ff', secondary:'#f8a4d8', ink:'#0f0f1a', offwhite:'#fafafa', border:'#e5e5ea' } },
+    fontFamily: { display:['"DM Sans"','system-ui','sans-serif'], sans:['Inter','system-ui','sans-serif'], mono:['"JetBrains Mono"','monospace'] },
+  }}}
+</script>
+<style>
+  body { font-family:'Inter', system-ui, sans-serif; color:#0f0f1a; background:#fafafa; }
+  .font-display { font-family:'DM Sans', system-ui, sans-serif; letter-spacing:-0.02em; }
+  .font-mono { font-family:'JetBrains Mono', monospace; }
+  .grad-bg { background: linear-gradient(135deg,#6c63ff 0%,#f8a4d8 100%); }
+  .grad-text { background: linear-gradient(135deg,#6c63ff,#f8a4d8); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .card-shadow { box-shadow: 0 1px 2px rgba(15,15,26,0.04), 0 12px 28px rgba(15,15,26,0.05); }
+  .chip-active { background:#0f0f1a; color:#fff; }
+  .tmpl-hover:hover .tmpl-cta { opacity: 1; transform: translateY(0); }
+  .tmpl-cta { opacity: 0; transform: translateY(8px); transition: all .25s ease; }
+</style>
+</head>
+<body class="min-h-screen flex">
+
+<!-- SIDEBAR -->
+<aside class="w-[64px] bg-white border-r border-brand-border flex flex-col items-center py-4 gap-2 shrink-0">
+  <div class="h-9 w-9 rounded-xl grad-bg grid place-items-center text-white font-display font-bold text-[16px] mb-3">C</div>
+  <a href="C2 Events List.html" class="h-10 w-10 rounded-xl text-brand-ink/45 hover:bg-brand-offwhite grid place-items-center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18"/></svg></a>
+  <a href="F3 Analytics.html" class="h-10 w-10 rounded-xl text-brand-ink/45 hover:bg-brand-offwhite grid place-items-center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18M7 14l4-5 4 3 5-7"/></svg></a>
+  <button class="h-10 w-10 rounded-xl bg-brand-ink text-white grid place-items-center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></button>
+  <a href="F2 Brand Kit.html" class="h-10 w-10 rounded-xl text-brand-ink/45 hover:bg-brand-offwhite grid place-items-center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="10.5" r="2.5"/><circle cx="8.5" cy="7.5" r="2.5"/><circle cx="6.5" cy="12.5" r="2.5"/><path d="M12 22a10 10 0 1 1 10-10c0 5-5 5-5 8a2 2 0 0 1-2 2z"/></svg></a>
+  <div class="flex-1"></div>
+  <a href="F4 Settings.html" class="h-10 w-10 rounded-xl text-brand-ink/45 hover:bg-brand-offwhite grid place-items-center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 10v6M4.22 4.22l4.24 4.24m7.08 7.08 4.24 4.24M1 12h6m10 0h6M4.22 19.78l4.24-4.24m7.08-7.08 4.24-4.24"/></svg></a>
+  <div class="h-9 w-9 rounded-full grid place-items-center text-white font-display font-bold text-[12px]" style="background:linear-gradient(135deg,#ffd28a,#f8a4d8)">AO</div>
+</aside>
+
+<main class="flex-1 min-h-screen overflow-y-auto">
+  <!-- HEADER -->
+  <header class="sticky top-0 z-30 bg-white/85 backdrop-blur border-b border-brand-border">
+    <div class="px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="font-display font-bold text-[16px]">Flutterwave Design</div>
+        <span class="text-brand-ink/30">/</span>
+        <div class="text-[14px] text-brand-ink/70">Templates</div>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="relative">
+          <input type="text" placeholder="Search 40+ templates…" class="w-[280px] h-9 pl-9 pr-3 rounded-lg bg-brand-offwhite border border-transparent text-[13.5px] focus:outline-none focus:border-brand-border focus:bg-white" />
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="absolute left-3 top-1/2 -translate-y-1/2 text-brand-ink/40"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="px-8 pt-10 pb-6">
+    <div class="max-w-[1200px] mx-auto">
+      <div class="text-[11px] font-mono tracking-widest text-brand-ink/45">TEMPLATES</div>
+      <h1 class="font-display font-bold text-[40px] leading-tight mt-1.5">Start from a <span class="grad-text">proven design</span>.</h1>
+      <p class="text-[15px] text-brand-ink/60 mt-2 max-w-[520px]">40+ event card templates designed by Cardly — every one is fully editable, with zones already mapped out.</p>
+    </div>
+  </section>
+
+  <!-- FILTERS -->
+  <section class="px-8 pb-6">
+    <div class="max-w-[1200px] mx-auto flex items-center gap-2 flex-wrap">
+      <button class="chip-active h-9 px-4 rounded-full text-[13px] font-medium">All <span class="opacity-60 ml-1.5 font-mono text-[11px]">42</span></button>
+      <Chip n="Tech & startup" c="14" />
+      <Chip n="Conferences" c="9" />
+      <Chip n="Music & culture" c="6" />
+      <Chip n="Workshops" c="5" />
+      <Chip n="Webinars" c="4" />
+      <Chip n="Sport" c="3" />
+      <Chip n="Religious / NGO" c="3" />
+      <div class="flex-1"></div>
+      <select class="h-9 px-3 rounded-full bg-white border border-brand-border text-[13px]">
+        <option>Most popular</option><option>Newest</option><option>A–Z</option>
+      </select>
+    </div>
+  </section>
+
+  <!-- GRID -->
+  <section class="px-8 pb-16">
+    <div class="max-w-[1200px] mx-auto grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+
+      <!-- Blank -->
+      <a href="D1 Upload Design.html" class="rounded-2xl border-2 border-dashed border-brand-primary/30 hover:border-brand-primary transition bg-white p-6 flex flex-col items-center justify-center min-h-[280px] text-center group">
+        <div class="h-12 w-12 rounded-xl grad-bg grid place-items-center text-white mb-3 group-hover:scale-110 transition"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg></div>
+        <div class="font-display font-bold text-[15px]">Start blank</div>
+        <div class="text-[12px] text-brand-ink/55 mt-1">Upload your own design</div>
+      </a>
+
+      <Tmpl name="Africa Tech Festival" cat="Conference" badge="POPULAR" g="linear-gradient(155deg,#1b1240,#3a2068 40%,#7a3a9a 80%,#f8a4d8 130%)" t1="I'm attending" t2="Africa Tech Festival." />
+      <Tmpl name="Sunrise Hackathon" cat="Hackathon" badge="NEW" g="linear-gradient(155deg,#0a2540,#1f8a5b 50%,#ffd28a 130%)" t1="Building at" t2="Sunrise '26." />
+      <Tmpl name="Studio Sessions" cat="Workshop" g="linear-gradient(155deg,#f8a4d8,#6c63ff 60%,#0f0f1a 130%)" t1="See you at" t2="Studio Sessions." />
+      <Tmpl name="Devfest Lagos" cat="Conference" g="linear-gradient(155deg,#0a2540,#3a3aff 50%,#7be0c0 130%)" t1="Going to" t2="Devfest Lagos." />
+      <Tmpl name="Black Tie Gala" cat="Conference" g="linear-gradient(155deg,#0f0f1a,#3a2068 60%,#ffd28a 130%)" t1="Joining the" t2="Annual Gala." />
+      <Tmpl name="Pulse Music Fest" cat="Music" badge="POPULAR" g="linear-gradient(155deg,#E1306C,#6c63ff 60%,#ffd28a 130%)" t1="Front row at" t2="Pulse '26." />
+      <Tmpl name="Founders Retreat" cat="Workshop" g="linear-gradient(155deg,#0a2540,#6c63ff 50%,#f8a4d8 130%)" t1="Reset at" t2="Founders Retreat." />
+      <Tmpl name="Run Lagos 10K" cat="Sport" g="linear-gradient(155deg,#1f8a5b,#7be0c0 60%,#ffd28a 130%)" t1="Running" t2="Lagos 10K." />
+      <Tmpl name="Devs at Sea" cat="Conference" g="linear-gradient(155deg,#0a2540,#0a66c2 50%,#7be0c0 130%)" t1="Sailing with" t2="Devs at Sea." />
+      <Tmpl name="Webinar · AI Ethics" cat="Webinar" g="linear-gradient(155deg,#0f0f1a,#6c63ff 70%,#f8a4d8 130%)" t1="Joining the" t2="AI Ethics talk." />
+      <Tmpl name="Faith Conference" cat="Religious" g="linear-gradient(155deg,#0a2540,#3a2068 60%,#ffd28a 130%)" t1="Attending" t2="Faith Conf '26." />
+
+    </div>
+  </section>
+</main>
+
+<script>
+  document.querySelectorAll('Chip').forEach(el => {
+    const n = el.getAttribute('n'), c = el.getAttribute('c');
+    const b = document.createElement('button');
+    b.className = 'h-9 px-4 rounded-full bg-white border border-brand-border text-[13px] font-medium text-brand-ink/70 hover:bg-brand-offwhite';
+    b.innerHTML = `${n} <span class="opacity-50 ml-1.5 font-mono text-[11px]">${c}</span>`;
+    el.replaceWith(b);
+  });
+  document.querySelectorAll('Tmpl').forEach(el => {
+    const name = el.getAttribute('name'), cat = el.getAttribute('cat'), badge = el.getAttribute('badge'), g = el.getAttribute('g');
+    const t1 = el.getAttribute('t1'), t2 = el.getAttribute('t2');
+    const a = document.createElement('a');
+    a.href = 'D2 Canvas Editor.html';
+    a.className = 'tmpl-hover group block';
+    a.innerHTML = `
+      <div class="relative rounded-2xl overflow-hidden border border-brand-border bg-white card-shadow" style="aspect-ratio:4/5">
+        <div class="absolute inset-0" style="background:${g}"></div>
+        <div class="absolute -top-10 -right-10 h-32 w-32 rounded-full" style="background:radial-gradient(closest-side, rgba(255,255,255,0.25), transparent)"></div>
+        <div class="absolute top-3 left-3 right-3 text-white/70 font-mono flex justify-between" style="font-size:8px; letter-spacing:0.18em"><span>CARDLY · TEMPLATE</span><span>4:5</span></div>
+        <div class="absolute top-9 left-3 right-3 text-white font-display font-bold leading-[0.98]" style="font-size:22px; letter-spacing:-0.03em">${t1}<br/><span style="background:linear-gradient(135deg,#f8a4d8,#ffd28a); -webkit-background-clip:text; background-clip:text; color:transparent">${t2}</span></div>
+        <div class="absolute bottom-3 left-3 right-3 flex items-end gap-2">
+          <div class="h-10 w-10 rounded-full bg-white/20 border border-white/30"></div>
+          <div class="flex-1 pb-0.5"><div class="h-2 w-20 rounded bg-white/40 mb-1"></div><div class="h-1.5 w-14 rounded bg-white/25"></div></div>
+        </div>
+        ${badge ? `<div class="absolute top-3 right-3 px-2 py-1 rounded-full text-[9px] font-mono tracking-widest grad-bg text-white">${badge}</div>` : ''}
+        <div class="tmpl-cta absolute inset-x-3 bottom-3 z-10">
+          <div class="grad-bg text-white text-center py-2.5 rounded-xl font-display font-semibold text-[13px] shadow-lg">Use this template →</div>
+        </div>
+      </div>
+      <div class="mt-3 flex items-start justify-between gap-3">
+        <div>
+          <div class="font-display font-semibold text-[14px] leading-tight">${name}</div>
+          <div class="text-[11.5px] font-mono text-brand-ink/45 tracking-wide mt-0.5">${cat.toUpperCase()}</div>
+        </div>
+        <button onclick="event.preventDefault();event.stopPropagation();this.classList.toggle('text-brand-secondary')" class="h-7 w-7 rounded-lg grid place-items-center text-brand-ink/35 hover:bg-brand-offwhite"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7-4.5-9-9.5C1.6 7.7 4 4 7.5 4c2 0 3.5 1 4.5 2.5C13 5 14.5 4 16.5 4 20 4 22.4 7.7 21 11.5c-2 5-9 9.5-9 9.5z"/></svg></button>
+      </div>`;
+    el.replaceWith(a);
+  });
+</script>
+</body>
+</html>

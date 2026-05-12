@@ -1,0 +1,125 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 10%;
+    --primary: 245 100% 70%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 316 90% 82%;
+    --secondary-foreground: 240 10% 10%;
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 4% 46%;
+    --accent: 240 5% 96%;
+    --accent-foreground: 240 10% 10%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
+    --ring: 245 100% 70%;
+    --radius: 0.75rem;
+  }
+
+  html,
+  body {
+    font-family: "Inter", system-ui, sans-serif;
+    color: #0f0f1a;
+    background: #ffffff;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  * {
+    border-color: hsl(var(--border));
+  }
+}
+
+@layer components {
+  .font-display {
+    font-family: "DM Sans", system-ui, sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  .grad-text {
+    background: linear-gradient(135deg, #6c63ff 0%, #f8a4d8 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .grad-bg {
+    background: linear-gradient(135deg, #6c63ff 0%, #f8a4d8 100%);
+  }
+
+  .grad-border {
+    background:
+      linear-gradient(#fff, #fff) padding-box,
+      linear-gradient(135deg, #6c63ff 0%, #f8a4d8 100%) border-box;
+    border: 1.5px solid transparent;
+  }
+
+  .ring-grad:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.25);
+  }
+
+  .marquee {
+    mask-image: linear-gradient(
+      90deg,
+      transparent 0%,
+      #000 10%,
+      #000 90%,
+      transparent 100%
+    );
+  }
+
+  .marquee-track {
+    animation: marquee 38s linear infinite;
+  }
+
+  .floatA {
+    animation: floatA 8s ease-in-out infinite;
+  }
+
+  .floatB {
+    animation: floatB 9s ease-in-out infinite;
+  }
+
+  .caret {
+    animation: blink 1s steps(1) infinite;
+  }
+
+  .zone {
+    animation: zonePulse 2.4s ease-in-out infinite;
+  }
+
+  .zone-delay {
+    animation-delay: 0.6s;
+  }
+
+  .zone-delay-2 {
+    animation-delay: 1.2s;
+  }
+
+  .noise::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.04;
+    mix-blend-mode: multiply;
+    background-image: radial-gradient(#0f0f1a 1px, transparent 1px);
+    background-size: 3px 3px;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
