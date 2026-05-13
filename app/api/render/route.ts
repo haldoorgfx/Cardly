@@ -356,63 +356,6 @@ async function addWatermark(base: sharp.Sharp, canvasW: number, canvasH: number)
   return sharp(baseBuf).composite([{ input: svgBuf, left: 0, top: canvasH - WATERMARK_HEIGHT }]);
 }
 
-export async function GET(req: NextRequest) {
-  // Debug probe: GET /api/render?debug=1&variantId=xxx&fields=...
-  // Returns JSON diagnostics for each text zone instead of the PNG.
-  const url = new URL(req.url);
-  if (url.searchParams.get('debug') !== '1') {
-    return NextResponse.json({ error: 'Use POST for rendering or add ?debug=1' }, { status: 405 });
-  }
-  const fakeBody = new URLSearchParams(url.search);
-  const variantId = fakeBody.get('variantId') ?? '';
-  const fieldsRaw = fakeBody.get('fields') ?? '{}';
-  const fields: Record<string, string> = JSON.parse(fieldsRaw);
-
-  const supabase = createAdminClient();
-  const { data: variant } = await supabase
-    .from('event_variants')
-    .select('id, background_url, background_width, background_height, zones, event_id, events(id, status, user_id, download_count)')
-    .eq('id', variantId)
-    .single();
-  if (!variant) return NextResponse.json({ error: 'Variant not found' }, { status: 404 });
-  // event intentionally unused in debug handler — just need variant data
-  const zones = (variant.zones as unknown as Zone[]) ?? [];
-  const canvasW = variant.background_width ?? 1080;
-  const canvasH = variant.background_height ?? 1350;
-
-  const fontKeys = new Map<string, { family: string; weight: number }>();
-  for (const z of zones) {
-    if ((z.type === 'text' || z.type === 'custom' || z.type === 'label') && z.font) {
-      fontKeys.set(`${z.font}:${z.weight ?? 400}`, { family: z.font, weight: z.weight ?? 400 });
-    }
-  }
-  const fontFileMap = new Map<string, string | null>();
-  await Promise.all(
-    Array.from(fontKeys.entries()).map(async ([key, { family, weight }]) => {
-      fontFileMap.set(key, await ensureFontFile(family, weight));
-    })
-  );
-
-  const bgBuffer = await fetchBuffer(variant.background_url!);
-  let pipeline = sharp(bgBuffer).resize(canvasW, canvasH, { fit: 'fill' });
-  const debugOut: ZoneDebug[] = [];
-
-  for (const zone of zones) {
-    if (zone.hidden) continue;
-    if (zone.type === 'text' || zone.type === 'custom' || zone.type === 'label') {
-      const text = fields[zone.id]?.trim() || zone.sample || zone.placeholder || 'test';
-      if (text) {
-        const family = (zone.font ?? '').replace(/'/g, '');
-        const weight = zone.weight ?? 400;
-        const fontFilePath = fontFileMap.get(`${family}:${weight}`) ?? null;
-        pipeline = await compositeText(pipeline, zone, text, canvasW, canvasH, fontFilePath, debugOut);
-      }
-    }
-  }
-
-  return NextResponse.json({ variantId, zones: zones.length, debugOut });
-}
-
 export async function POST(req: NextRequest) {
   const supabase = createAdminClient();
 
@@ -441,10 +384,12 @@ export async function POST(req: NextRequest) {
     .eq('id', event.user_id)
     .single();
 
+  const isDebug = formData.get('debug') === '1';
   const needsWatermark = !profile || profile.plan === 'free';
   const zones = (variant.zones as unknown as Zone[]) ?? [];
   const fieldsJson = formData.get('fields') as string;
   const fields: Record<string, string> = fieldsJson ? JSON.parse(fieldsJson) : {};
+  const debugOut: ZoneDebug[] = [];
   const canvasW = variant.background_width ?? 1080;
   const canvasH = variant.background_height ?? 1350;
 
@@ -476,7 +421,7 @@ export async function POST(req: NextRequest) {
         const family = (zone.font ?? '').replace(/'/g, '');
         const weight = zone.weight ?? 400;
         const fontFilePath = fontFileMap.get(`${family}:${weight}`) ?? null;
-        pipeline = await compositeText(pipeline, zone, text, canvasW, canvasH, fontFilePath);
+        pipeline = await compositeText(pipeline, zone, text, canvasW, canvasH, fontFilePath, debugOut);
       }
     } else if (zone.type === 'label') {
       // Static text baked into the design — always rendered, no attendee input needed
@@ -485,7 +430,7 @@ export async function POST(req: NextRequest) {
         const family = (zone.font ?? '').replace(/'/g, '');
         const weight = zone.weight ?? 400;
         const fontFilePath = fontFileMap.get(`${family}:${weight}`) ?? null;
-        pipeline = await compositeText(pipeline, zone, text, canvasW, canvasH, fontFilePath);
+        pipeline = await compositeText(pipeline, zone, text, canvasW, canvasH, fontFilePath, debugOut);
       }
     } else if (zone.type === 'photo') {
       const photoFile = formData.get(`photo_${zone.id}`) as File | null;
@@ -494,6 +439,11 @@ export async function POST(req: NextRequest) {
         pipeline = await compositePhoto(pipeline, zone, photoBuf, canvasW, canvasH);
       }
     }
+  }
+
+  // Debug mode: return diagnostics JSON without producing the PNG
+  if (isDebug) {
+    return NextResponse.json({ variantId, debugOut });
   }
 
   if (needsWatermark) {
