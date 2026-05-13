@@ -172,6 +172,18 @@ async function compositeText(
   const textW = greyInfo.width;
   const textH = greyInfo.height;
 
+  // Diagnostic: log grey stats to detect all-white (no text) output
+  let greyMin = 255, greyMax = 0, greyDark = 0;
+  for (let px = 0; px < greyPixels.length; px++) {
+    const v = greyPixels[px];
+    if (v < greyMin) greyMin = v;
+    if (v > greyMax) greyMax = v;
+    if (v < 128) greyDark++;
+  }
+  console.log(`[render] zone=${zone.id} type=${zone.type} text="${text.slice(0,20)}" font="${fontDesc}" ` +
+    `rendered=${textW}x${textH} greyMin=${greyMin} greyMax=${greyMax} darkPx=${greyDark} ` +
+    `color=${color} fontFile=${fontFilePath ? 'yes' : 'no'}`);
+
   // Parse target color
   const hexCol = color.replace('#', '').padEnd(6, '0');
   const cr = parseInt(hexCol.slice(0, 2), 16) || 0;
