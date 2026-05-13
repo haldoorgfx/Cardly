@@ -276,7 +276,7 @@ export default async function AnalyticsPage() {
           <div className="flex items-center justify-between mb-5">
             <div>
               <div className="text-[11px] font-mono tracking-widest text-[#0f0f1a]/45">GEOGRAPHIC SPREAD</div>
-              <div className="font-display font-semibold text-[15px] mt-0.5">Africa-first audience</div>
+              <div className="font-display font-semibold text-[15px] mt-0.5">Worldwide audience</div>
             </div>
             <span className="text-[11px] font-mono text-[#0f0f1a]/35 bg-[#fafafa] border border-[#e5e5ea] px-2 py-1 rounded-lg">
               {cityData.length > 0 ? 'Live data' : 'Waiting'}
