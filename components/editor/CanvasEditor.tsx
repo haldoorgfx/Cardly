@@ -250,14 +250,22 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
   }, [pushHistory]);
 
   const addZone = useCallback((type: 'text' | 'photo' | 'custom') => {
-    const base = { id: 'z' + Math.random().toString(36).slice(2, 7), x: bgW / 2 - 200, y: bgH / 2 - 50, required: false };
+    // Scale defaults proportionally to canvas size (calibrated for 1080px baseline)
+    const s = bgW / 1080;
+    const zoneW  = Math.round(400 * s);
+    const zoneH  = Math.round(80  * s);
+    const photoS = Math.round(240 * s);
+    const textSz = Math.round(48  * s);
+    const custSz = Math.round(24  * s);
+    const custH  = Math.round(60  * s);
+    const base   = { id: 'z' + Math.random().toString(36).slice(2, 7), x: Math.round(bgW / 2 - zoneW / 2), y: Math.round(bgH / 2 - zoneH / 2), required: false };
     let z: Zone;
     if (type === 'text') {
-      z = { ...base, type, label: 'Text field', w: 400, h: 80, font: 'DM Sans', weight: 600, size: 48, color: '#FFFFFF', align: 'left', placeholder: 'Enter text', sample: 'Sample text', lineHeight: 1.2, letterSpacing: 0, opacity: 100, rotation: 0 };
+      z = { ...base, type, label: 'Text field', w: zoneW, h: zoneH, font: 'DM Sans', weight: 700, size: textSz, color: '#FFFFFF', align: 'center', placeholder: 'Enter text', sample: 'Sample text', lineHeight: 1.2, letterSpacing: 0, opacity: 100, rotation: 0 };
     } else if (type === 'photo') {
-      z = { ...base, type, label: 'Photo', w: 240, h: 240, shape: 'circle', placeholder: 'Tap to add a photo', sample: '·', opacity: 100, rotation: 0 };
+      z = { ...base, type, label: 'Photo', w: photoS, h: photoS, shape: 'circle', placeholder: 'Tap to add a photo', sample: '·', opacity: 100, rotation: 0 };
     } else {
-      z = { ...base, type, label: 'Custom field', w: 400, h: 60, font: 'Inter', weight: 500, size: 24, color: '#FFFFFF', align: 'left', placeholder: 'Select option', sample: 'Speaker', options: ['Speaker', 'Sponsor', 'Delegate'], opacity: 100, rotation: 0 };
+      z = { ...base, type, label: 'Custom field', w: zoneW, h: custH, font: 'Inter', weight: 500, size: custSz, color: '#FFFFFF', align: 'center', placeholder: 'Select option', sample: 'Speaker', options: ['Speaker', 'Sponsor', 'Delegate'], opacity: 100, rotation: 0 };
     }
     pushHistory([...zonesRef.current, z]);
     setSelectedIds([z.id]);
