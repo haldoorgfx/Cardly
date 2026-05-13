@@ -53,6 +53,7 @@ export default async function AttendeePage({ params }: { params: Promise<{ slug:
   return (
     <VariantPickerClient
       eventName={event.name}
+      eventSlug={event.slug}
       variants={variants}
     />
   );

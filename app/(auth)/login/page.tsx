@@ -198,14 +198,14 @@ function AuthVisual() {
           className="relative rounded-3xl shadow-2xl animate-floatA overflow-hidden aspect-[4/5]"
           style={{
             background:
-              "linear-gradient(155deg,#1b1240,#3a2068 40%,#7a3a9a 80%,#f8a4d8 130%)",
+              "linear-gradient(155deg,#0F1F18,#1F4D3A 40%,#2A6A50 80%,#E8C57E 130%)",
           }}
         >
           <div
             className="absolute -top-16 -right-16 h-44 w-44 rounded-full"
             style={{
               background:
-                "radial-gradient(closest-side, rgba(248,164,216,0.55), transparent)",
+                "radial-gradient(closest-side, rgba(232,197,126,0.45), transparent)",
             }}
           />
           <div
@@ -223,7 +223,7 @@ function AuthVisual() {
             <br />
             <span
               style={{
-                background: "linear-gradient(135deg,#f8a4d8,#ffd28a)",
+                background: "linear-gradient(135deg,#E8C57E,#fff)",
                 WebkitBackgroundClip: "text",
                 backgroundClip: "text",
                 color: "transparent",
@@ -236,7 +236,7 @@ function AuthVisual() {
             <div
               className="h-14 w-14 rounded-full grid place-items-center text-white font-display font-bold text-[17px] shrink-0"
               style={{
-                background: "linear-gradient(135deg,#ffd28a,#f8a4d8)",
+                background: "linear-gradient(135deg,#1F4D3A,#E8C57E)",
               }}
             >
               AO

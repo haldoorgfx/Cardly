@@ -4,7 +4,6 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { signOut } from '@/app/(auth)/actions';
 
 type Profile = {
   full_name: string | null;
@@ -231,6 +230,13 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
 function NavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
   const planLimitCtx = usePlanCtx();
   const { profile, eventCount, planPct, planLabel } = planLimitCtx;
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push('/login');
+  };
 
   return (
     <>
@@ -333,7 +339,7 @@ function NavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: (
 
           <li>
             <button
-              onClick={() => signOut()}
+              onClick={handleSignOut}
               className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[#0F1F18]/65 hover:bg-cream hover:text-[#0F1F18] transition text-left text-[13.5px]"
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">

@@ -30,10 +30,15 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Protect /dashboard and /events routes
+  // Protect all app routes
   const isProtected =
     request.nextUrl.pathname.startsWith("/dashboard") ||
-    request.nextUrl.pathname.startsWith("/events");
+    request.nextUrl.pathname.startsWith("/events") ||
+    request.nextUrl.pathname.startsWith("/analytics") ||
+    request.nextUrl.pathname.startsWith("/templates") ||
+    request.nextUrl.pathname.startsWith("/brand") ||
+    request.nextUrl.pathname.startsWith("/settings") ||
+    request.nextUrl.pathname.startsWith("/team");
 
   if (isProtected && !user) {
     const url = request.nextUrl.clone();

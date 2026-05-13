@@ -22,11 +22,11 @@ function getInitials(name: string | null) {
 }
 
 const GRADIENT_POOL = [
-  'linear-gradient(135deg,#ffd28a,#f8a4d8)',
-  'linear-gradient(135deg,#7be0c0,#6c63ff)',
-  'linear-gradient(135deg,#f8a4d8,#6c63ff)',
-  'linear-gradient(135deg,#1f8a5b,#ffd28a)',
-  'linear-gradient(135deg,#6c63ff,#f8a4d8)',
+  'linear-gradient(135deg,#1F4D3A,#E8C57E)',
+  'linear-gradient(135deg,#2A6A50,#E8C57E)',
+  'linear-gradient(135deg,#163828,#2D7A4F)',
+  'linear-gradient(135deg,#1F4D3A,#3A6B8C)',
+  'linear-gradient(135deg,#0F1F18,#1F4D3A)',
 ];
 
 export default async function EventDetailPage({ params }: { params: Promise<{ id: string }> }) {
