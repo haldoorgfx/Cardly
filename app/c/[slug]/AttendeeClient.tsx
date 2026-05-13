@@ -209,7 +209,7 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
   // ─── E3 Success Screen ──────────────────────────────────────────────────────
   if (screen === 'success') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8" style={{ background: 'linear-gradient(160deg,#0a0915 0%,#1b1240 60%,#3a1060 100%)' }}>
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8" style={{ background: 'linear-gradient(160deg, #070f0b 0%, #0F1F18 55%, #0a1810 100%)' }}>
         <Confetti />
 
         {/* Check icon */}
@@ -290,7 +290,7 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
   // ─── E2 Result / Preview Screen ─────────────────────────────────────────────
   if (screen === 'result' && resultUrl) {
     return (
-      <div className="min-h-screen flex flex-col items-center px-4 pt-8 pb-12" style={{ background: 'linear-gradient(160deg,#0a0915 0%,#1b1240 60%,#3a1060 100%)' }}>
+      <div className="min-h-screen flex flex-col items-center px-4 pt-8 pb-12" style={{ background: 'linear-gradient(160deg, #070f0b 0%, #0F1F18 55%, #0a1810 100%)' }}>
         {/* Toast */}
         {toast && (
           <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-white text-[#0F1F18] text-[13px] font-medium px-4 py-2.5 rounded-xl shadow-lift">
@@ -318,7 +318,7 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={resultUrl} alt="Your personalized card" className="w-full h-full object-cover" />
           </div>
-          <div className="text-center text-[11px] font-mono text-white/30 mb-6">1080 × 1350 px · PNG · ready to share</div>
+          <div className="text-center text-[11px] font-mono text-white/30 mb-6">{backgroundWidth} × {backgroundHeight} px · PNG · ready to share</div>
 
           {/* Download CTA */}
           <button
@@ -402,7 +402,7 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
   // ─── Generating Screen ───────────────────────────────────────────────────────
   if (screen === 'generating') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4" style={{ background: 'linear-gradient(160deg,#0a0915 0%,#1b1240 60%,#3a1060 100%)' }}>
+      <div className="min-h-screen flex flex-col items-center justify-center px-4" style={{ background: 'linear-gradient(160deg, #070f0b 0%, #0F1F18 55%, #0a1810 100%)' }}>
         <div className="text-center">
           <div className="inline-flex h-20 w-20 rounded-full items-center justify-center mb-6 relative" style={{ background: '#1F4D3A' }}>
             <svg className="animate-spin text-white" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -421,7 +421,7 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
 
   // ─── E1 Form Screen ──────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen flex flex-col items-center" style={{ background: 'linear-gradient(160deg,#0a0915 0%,#1b1240 60%,#3a1060 100%)' }}>
+    <div className="min-h-screen flex flex-col items-center" style={{ background: 'linear-gradient(160deg, #070f0b 0%, #0F1F18 55%, #0a1810 100%)' }}>
       {/* Progress bar */}
       <div className="fixed top-0 left-0 right-0 z-20 h-1 bg-white/10">
         <div
@@ -587,9 +587,9 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
                   className="w-full h-12 px-4 rounded-xl bg-white/10 border border-white/20 text-white text-[15px] focus:outline-none focus:border-[#1F4D3A]/60 transition appearance-none"
                   style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.4)' stroke-width='2' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\")", backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center' }}
                 >
-                  <option value="" disabled style={{ background: '#1b1240' }}>{z.placeholder ?? `Select ${z.label}`}</option>
+                  <option value="" disabled style={{ background: '#0F1F18' }}>{z.placeholder ?? `Select ${z.label}`}</option>
                   {z.options.map(opt => (
-                    <option key={opt} value={opt} style={{ background: '#1b1240' }}>{opt}</option>
+                    <option key={opt} value={opt} style={{ background: '#0F1F18' }}>{opt}</option>
                   ))}
                 </select>
               </div>
@@ -612,9 +612,9 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
                   className="w-full h-12 px-4 rounded-xl bg-white/10 border border-white/20 text-white text-[15px] focus:outline-none focus:border-[#1F4D3A]/60 transition appearance-none"
                   style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.4)' stroke-width='2' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\")", backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center' }}
                 >
-                  <option value="" disabled style={{ background: '#1b1240' }}>{z.placeholder ?? 'Select city / country'}</option>
+                  <option value="" disabled style={{ background: '#0F1F18' }}>{z.placeholder ?? 'Select city / country'}</option>
                   {COUNTRIES.map(c => (
-                    <option key={c} value={c} style={{ background: '#1b1240' }}>{c}</option>
+                    <option key={c} value={c} style={{ background: '#0F1F18' }}>{c}</option>
                   ))}
                 </select>
               ) : (
@@ -636,7 +636,7 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
       </div>
 
       {/* Sticky CTA */}
-      <div className="fixed bottom-0 left-0 right-0 z-10" style={{ background: 'linear-gradient(to top,rgba(10,9,21,0.98) 60%,transparent)' }}>
+      <div className="fixed bottom-0 left-0 right-0 z-10" style={{ background: 'linear-gradient(to top, rgba(7,15,11,0.98) 60%, transparent)' }}>
         <div className="max-w-[375px] mx-auto px-4 pb-6 pt-4">
           {/* Progress indicator */}
           <div className="flex items-center justify-between mb-3 px-1">
@@ -648,7 +648,7 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
             onClick={handleGenerate}
             className="w-full h-14 rounded-2xl font-display font-bold text-[16px] transition"
             style={isComplete()
-              ? { background: '#1F4D3A', color: 'white', boxShadow: '0 8px_24px rgba(31,77,58,0.4)' }
+              ? { background: '#1F4D3A', color: 'white', boxShadow: '0 8px 24px rgba(31,77,58,0.4)' }
               : { background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.3)', cursor: 'not-allowed' }
             }
           >

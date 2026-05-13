@@ -21,6 +21,13 @@ export interface Zone {
   options?: string[];
   // photo fields
   shape?: "circle" | "square" | "rounded";
+  // text styling extras
+  lineHeight?: number;     // 0.8 – 2.5, default 1.2
+  letterSpacing?: number;  // px, -5 – 20, default 0
+  // appearance
+  opacity?: number;        // 0 – 100, default 100
+  bgColor?: string;        // background rect behind text
+  bgOpacity?: number;      // 0 – 100, default 60
   // state flags
   required?: boolean;
   hidden?: boolean;

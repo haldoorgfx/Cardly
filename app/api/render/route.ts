@@ -52,9 +52,12 @@ async function compositeText(
   const weight = zone.weight ?? 400;
   const color = zone.color ?? '#FFFFFF';
   const align = zone.align ?? 'left';
+  const lh = zone.lineHeight ?? 1.2;
+  const ls = zone.letterSpacing ?? 0;
+  const zoneOpacity = (zone.opacity ?? 100) / 100;
 
   const lines = wrapText(text, zone.w - 16, size);
-  const lineHeight = size * 1.25;
+  const lineHeight = size * lh;
   const totalH = lines.length * lineHeight;
   const svgH = Math.max(zone.h, totalH + size * 0.5);
 
@@ -62,6 +65,11 @@ async function compositeText(
   let x = 8;
   if (align === 'center') { textAnchor = 'middle'; x = zone.w / 2; }
   if (align === 'right') { textAnchor = 'end'; x = zone.w - 8; }
+
+  // Background fill rect
+  const bgRect = zone.bgColor
+    ? `<rect x="0" y="0" width="${zone.w}" height="${svgH}" fill="${zone.bgColor}" opacity="${(zone.bgOpacity ?? 60) / 100}"/>`
+    : '';
 
   const textEls = lines.map((line, i) => {
     const y = size + i * lineHeight;
@@ -73,10 +81,11 @@ async function compositeText(
       font-weight="${weight}"
       fill="${color}"
       text-anchor="${textAnchor}"
+      letter-spacing="${ls}"
     >${escapeXml(line)}</text>`;
   }).join('\n');
 
-  const svg = `<svg width="${zone.w}" height="${svgH}" xmlns="http://www.w3.org/2000/svg">${textEls}</svg>`;
+  const svg = `<svg width="${zone.w}" height="${svgH}" xmlns="http://www.w3.org/2000/svg" opacity="${zoneOpacity}">${bgRect}${textEls}</svg>`;
   const overlay = await sharp(Buffer.from(svg)).png().toBuffer();
 
   const left = Math.max(0, Math.min(Math.round(zone.x), canvasW - zone.w));
@@ -116,7 +125,14 @@ async function compositePhoto(
   const photoBuf = await photoSharp.png().toBuffer();
   const left = Math.max(0, Math.min(Math.round(zone.x), canvasW - w));
   const top = Math.max(0, Math.min(Math.round(zone.y), canvasH - h));
+  const zoneOpacity = (zone.opacity ?? 100) / 100;
 
+  // If opacity < 1, composite onto a transparent canvas first then blend
+  if (zoneOpacity < 1) {
+    const blendSvg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg"><image href="data:image/png;base64,${photoBuf.toString('base64')}" width="${w}" height="${h}" opacity="${zoneOpacity}"/></svg>`;
+    const blendBuf = await sharp(Buffer.from(blendSvg)).png().toBuffer();
+    return base.composite([{ input: blendBuf, left, top }]);
+  }
   return base.composite([{ input: photoBuf, left, top }]);
 }
 
