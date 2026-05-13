@@ -150,55 +150,45 @@ async function compositeText(
 
   const sharpAlign = align === 'center' ? 'centre' : (align as 'left' | 'right');
 
-  // ── Strategy: render WITHOUT rgba:true ───────────────────────────────────
-  // On Vercel Linux (older Cairo/GTK), rgba:true sometimes produces an
-  // *opaque* white background instead of transparent. That means our
-  // subsequent pixel loop sets alpha=255 everywhere, creating a solid color
-  // block that wipes out all previously composited zones.
+  // ── Strategy: rgba:true + extractChannel(3) for cross-platform color ────────
+  // rgba:true tells Pango to render with transparent background. The text shape
+  // appears in the alpha channel (ch 3). On Vercel Linux (older Cairo), `<span
+  // foreground>` and similar color hints are ignored — text renders as white on
+  // transparent. On Windows it renders as black on transparent. Either way, the
+  // *alpha channel* reliably encodes the text mask on every platform.
   //
-  // Instead we render with the default (black text on opaque white background),
-  // flatten any potential transparency to white, then convert to greyscale
-  // (1 byte / pixel). Inverted luminance gives us a clean text-shape alpha mask
-  // that is 100% reliable across Windows, Linux, and every libvips version.
+  // We extract that alpha channel directly (1 byte/px, no stride ambiguity),
+  // then construct a fresh RGBA buffer with the target color and the extracted
+  // alpha. No dest-in blend needed; no luminance inversion needed.
   const textInput: Record<string, unknown> = {
     text: pangoText,
     font: fontDesc,
     width: zone.w,
     align: sharpAlign,
+    rgba: true,   // transparent background → text shape lives in alpha channel
     dpi: 72,
-    // NOTE: intentionally omitting rgba:true — see above
   };
   if (fontFilePath) textInput.fontfile = fontFilePath;
 
-  let renderedBuf: Buffer;
+  let alphaBuf: Buffer;
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    renderedBuf = await (sharp as any)({ text: textInput }).png().toBuffer();
+    alphaBuf = await (sharp as any)({ text: textInput }).png().toBuffer();
   } catch (err) {
     console.error('[render] Pango text render failed, zone', zone.id, err);
     return base;
   }
 
-  // Flatten any alpha to white, then extract single-channel luminance.
-  // White pixels (BG) → lum 255 → inverted alpha 0 (transparent).
-  // Black pixels (text) → lum 0 → inverted alpha 255 (opaque).
-  const { data: greyPixels, info: greyInfo } = await sharp(renderedBuf)
-    .flatten({ background: { r: 255, g: 255, b: 255 } })
-    .grayscale()
+  const { width: textW = zone.w, height: textH = zone.h } =
+    await sharp(alphaBuf).metadata();
+
+  // Extract alpha channel by index (3 = 4th channel).
+  // Using extractChannel(3) rather than 'alpha' avoids name-resolution
+  // differences across libvips versions.
+  const alphaRaw = await sharp(alphaBuf)
+    .extractChannel(3)
     .raw()
-    .toBuffer({ resolveWithObject: true });
-
-  const textW = greyInfo.width;
-  const textH = greyInfo.height;
-
-  // Diagnostic: gather grey stats to detect all-white (no text) output
-  let greyMin = 255, greyMax = 0, greyDark = 0;
-  for (let px = 0; px < greyPixels.length; px++) {
-    const v = greyPixels[px];
-    if (v < greyMin) greyMin = v;
-    if (v > greyMax) greyMax = v;
-    if (v < 128) greyDark++;
-  }
+    .toBuffer();   // 1 byte per pixel — pure alpha mask
 
   // Parse target color
   const hexCol = color.replace('#', '').padEnd(6, '0');
@@ -206,13 +196,22 @@ async function compositeText(
   const cg = parseInt(hexCol.slice(2, 4), 16) || 0;
   const cb = parseInt(hexCol.slice(4, 6), 16) || 0;
 
-  // Build RGBA buffer: fill with target color, alpha = inverted luminance
+  // Build RGBA: flat target color + Pango alpha mask (1 byte/px, no ambiguity)
   const newPixels = Buffer.alloc(textW * textH * 4);
   for (let px = 0; px < textW * textH; px++) {
     newPixels[px * 4]     = cr;
     newPixels[px * 4 + 1] = cg;
     newPixels[px * 4 + 2] = cb;
-    newPixels[px * 4 + 3] = 255 - greyPixels[px]; // inverted lum = text mask
+    newPixels[px * 4 + 3] = alphaRaw[px] ?? 0;
+  }
+
+  // Diagnostic
+  let greyDark = 0, greyMin = 255, greyMax = 0;
+  for (let px = 0; px < alphaRaw.length; px++) {
+    const v = alphaRaw[px];
+    if (v > 0) greyDark++;
+    if (v < greyMin) greyMin = v;
+    if (v > greyMax) greyMax = v;
   }
 
   let rawBuf = await sharp(newPixels, {
