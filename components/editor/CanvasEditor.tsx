@@ -6,73 +6,126 @@ import type { Zone, Variant } from '@/types/database';
 
 const CW = 1080;
 const CH = 1350;
+const GRID_SIZE = 60;
+const ROTATE_HANDLE_DIST = 32; // px above zone (canvas space)
 
 type HistoryState = { past: Zone[][]; future: Zone[][] };
 type SnapGuides = { x?: number; y?: number };
+interface Interaction {
+  mode: 'move' | 'resize' | 'rotate';
+  id: string;
+  sx: number; sy: number;
+  ox: number; oy: number; ow: number; oh: number;
+  dir?: string;
+  startMouseAngle?: number;
+  startRotation?: number;
+  multiPositions?: Record<string, { x: number; y: number }>;
+}
+
+/* ── helpers ─────────────────────────────────────────────── */
+function wrapTextLines(text: string, maxWidth: number, fontSize: number): string[] {
+  const approxCharWidth = fontSize * 0.55;
+  const maxChars = Math.max(1, Math.floor(maxWidth / approxCharWidth));
+  const words = text.split(' ');
+  const lines: string[] = [];
+  let current = '';
+  for (const word of words) {
+    const test = current ? `${current} ${word}` : word;
+    if (test.length > maxChars && current) { lines.push(current); current = word; }
+    else current = test;
+  }
+  if (current) lines.push(current);
+  return lines.length ? lines : [''];
+}
+
+
 
 function Icon({ d, size = 16, sw = 1.8 }: { d: string; size?: number; sw?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: d }} />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"
+      dangerouslySetInnerHTML={{ __html: d }} />
   );
 }
 
 const I = {
-  text: '<path d="M4 7V4h16v3M9 20h6M12 4v16"/>',
-  photo: '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>',
-  field: '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10v4"/>',
-  plus: '<path d="M12 5v14M5 12h14"/>',
-  eye: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
-  eyeOff: '<path d="M17.94 17.94A10 10 0 0 1 12 20c-7 0-11-8-11-8a18 18 0 0 1 5.06-5.94M9.9 4.24A10 10 0 0 1 12 4c7 0 11 8 11 8a18 18 0 0 1-3.17 4.19M1 1l22 22"/><path d="M14.12 14.12A3 3 0 1 1 9.88 9.88"/>',
-  lock: '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
-  unlock: '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>',
-  trash: '<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/>',
-  duplicate: '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
-  align_l: '<line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/>',
-  align_c: '<line x1="18" y1="10" x2="6" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="18" y1="18" x2="6" y2="18"/>',
-  align_r: '<line x1="21" y1="10" x2="7" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="21" y1="18" x2="7" y2="18"/>',
-  zoom_in: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/>',
-  zoom_out: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M8 11h6"/>',
-  grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',
-  cursor: '<path d="M5 3l14 7-6 2-2 6-6-15z"/>',
-  back: '<path d="M19 12H5M12 19l-7-7 7-7"/>',
-  save: '<circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/>',
-  globe: '<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/>',
-  more: '<circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/>',
-  undo: '<path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-15-6.7L3 13"/>',
-  redo: '<path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 15-6.7L21 13"/>',
-  upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>',
-  play: '<polygon points="6 4 20 12 6 20 6 4"/>',
-  pin: '<line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V17z"/>',
-  close: '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
-  layers: '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
-  up: '<path d="M18 15l-6-6-6 6"/>',
-  down: '<path d="M6 9l6 6 6-6"/>',
-  preview: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/><path d="M3 3l18 18"/>',
-  alignTop: '<line x1="3" y1="3" x2="21" y2="3"/><rect x="7" y="7" width="4" height="14" rx="1"/><rect x="13" y="7" width="4" height="10" rx="1"/>',
-  alignMid: '<line x1="3" y1="12" x2="21" y2="12"/><rect x="7" y="5" width="4" height="14" rx="1"/><rect x="13" y="7" width="4" height="10" rx="1"/>',
-  alignBot: '<line x1="3" y1="21" x2="21" y2="21"/><rect x="7" y="3" width="4" height="14" rx="1"/><rect x="13" y="7" width="4" height="10" rx="1"/>',
+  text:    '<path d="M4 7V4h16v3M9 20h6M12 4v16"/>',
+  photo:   '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>',
+  field:   '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10v4"/>',
+  plus:    '<path d="M12 5v14M5 12h14"/>',
+  eye:     '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
+  eyeOff:  '<path d="M17.94 17.94A10 10 0 0 1 12 20c-7 0-11-8-11-8a18 18 0 0 1 5.06-5.94M9.9 4.24A10 10 0 0 1 12 4c7 0 11 8 11 8a18 18 0 0 1-3.17 4.19M1 1l22 22"/>',
+  lock:    '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  unlock:  '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>',
+  trash:   '<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/>',
+  dup:     '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
+  al:      '<line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/>',
+  ac:      '<line x1="18" y1="10" x2="6" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="18" y1="18" x2="6" y2="18"/>',
+  ar:      '<line x1="21" y1="10" x2="7" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="21" y1="18" x2="7" y2="18"/>',
+  zoomin:  '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/>',
+  zoomout: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M8 11h6"/>',
+  grid:    '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',
+  cursor:  '<path d="M5 3l14 7-6 2-2 6-6-15z"/>',
+  back:    '<path d="M19 12H5M12 19l-7-7 7-7"/>',
+  check:   '<circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/>',
+  globe:   '<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/>',
+  undo:    '<path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-15-6.7L3 13"/>',
+  redo:    '<path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 15-6.7L21 13"/>',
+  upload:  '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>',
+  play:    '<polygon points="6 4 20 12 6 20 6 4"/>',
+  close:   '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+  layers:  '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
+  up:      '<path d="M18 15l-6-6-6 6"/>',
+  down:    '<path d="M6 9l6 6 6-6"/>',
+  rotate:  '<path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38"/>',
+  shadow:  '<rect x="4" y="4" width="13" height="13" rx="2"/><rect x="7" y="7" width="13" height="13" rx="2" opacity="0.35" fill="currentColor" stroke="none"/>',
+  stroke:  '<path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z" stroke-width="4"/>',
+  style:   '<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>',
+  help:    '<circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/>',
+  snap:    '<path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>',
+  border:  '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/>',
+  multi:   '<rect x="2" y="2" width="9" height="9" rx="1.5"/><rect x="13" y="2" width="9" height="9" rx="1.5"/><rect x="2" y="13" width="9" height="9" rx="1.5"/><rect x="13" y="13" width="9" height="9" rx="1.5"/>',
 };
 
-const COLORS = ['#FFFFFF', '#0F1F18', '#1F4D3A', '#E8C57E', '#FFD28A', '#7BE0C0', '#FF6058', '#000000'];
-const FONTS = ['DM Sans', 'Inter', 'JetBrains Mono', 'Space Grotesk', 'Playfair Display', 'Georgia'];
+const BRAND_COLORS = [
+  '#FFFFFF','#0F1F18','#1F4D3A','#2A6A50','#E8C57E',
+  '#FFD28A','#7BE0C0','#FF6058','#3A6B8C','#C97A2D',
+  '#000000','#FAF6EE',
+];
 
+const FONTS = [
+  'DM Sans','Inter','JetBrains Mono','Space Grotesk','Playfair Display',
+  'Poppins','Montserrat','Raleway','Nunito','Lato',
+  'Oswald','Roboto','Work Sans','Merriweather','Lora',
+  'Cormorant Garamond','Bebas Neue','Anton','Georgia','Times New Roman',
+];
+
+const GOOGLE_FONTS_URL =
+  'https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Oswald:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Work+Sans:wght@300;400;500;600;700&family=Merriweather:wght@300;400;700&family=Lora:wght@400;500;600;700&family=Cormorant+Garamond:wght@300;400;500;600;700&family=Bebas+Neue&family=Anton&display=swap';
+
+/* ── types ───────────────────────────────────────────────── */
 interface CanvasEditorProps {
   eventId: string;
   eventName: string;
   variants: Variant[];
 }
 
+/* ══════════════════════════════════════════════════════════
+   MAIN COMPONENT
+══════════════════════════════════════════════════════════ */
 export default function CanvasEditor({ eventId, eventName, variants: initialVariants }: CanvasEditorProps) {
   const router = useRouter();
 
+  /* variants */
   const [variants, setVariants] = useState<Variant[]>(initialVariants);
   const [activeVariantId, setActiveVariantId] = useState<string>(initialVariants[0]?.id ?? '');
-  const [showAddVariantModal, setShowAddVariantModal] = useState(false);
+  const [showAddVariant, setShowAddVariant] = useState(false);
   const [addingVariant, setAddingVariant] = useState(false);
   const [newVariantName, setNewVariantName] = useState('');
   const [newVariantFile, setNewVariantFile] = useState<File | null>(null);
   const newVariantFileRef = useRef<HTMLInputElement>(null);
 
+  /* zones per variant */
   const [variantZonesMap, setVariantZonesMap] = useState<Record<string, Zone[]>>(() => {
     const map: Record<string, Zone[]> = {};
     for (const v of initialVariants) map[v.id] = (v.zones as Zone[]) ?? [];
@@ -80,34 +133,59 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
   });
 
   const activeVariant = variants.find(v => v.id === activeVariantId) ?? variants[0];
-  const zones = variantZonesMap[activeVariantId] ?? [];
-  const bgW = activeVariant?.background_width ?? CW;
-  const bgH = activeVariant?.background_height ?? CH;
-  const backgroundUrl = activeVariant?.background_url ?? '';
+  const zones        = variantZonesMap[activeVariantId] ?? [];
+  const bgW          = activeVariant?.background_width  ?? CW;
+  const bgH          = activeVariant?.background_height ?? CH;
+  const backgroundUrl = activeVariant?.background_url  ?? '';
 
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [zoom, setZoom] = useState(0.42);
-  const [grid, setGrid] = useState(false);
+  /* selection */
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const selectedId = selectedIds[selectedIds.length - 1] ?? null;
+  const selected   = zones.find(z => z.id === selectedId) ?? null;
+
+  /* ui state */
+  const [zoom, setZoom]               = useState(0.42);
+  const [grid, setGrid]               = useState(false);
+  const [gridSnap, setGridSnap]       = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
-  const [snapGuides, setSnapGuides] = useState<SnapGuides>({});
-  const [nameVal, setNameVal] = useState(eventName);
-  const [editName, setEditName] = useState(false);
-  const [savedAt, setSavedAt] = useState('just now');
+  const [snapGuides, setSnapGuides]   = useState<SnapGuides>({});
+  const [nameVal, setNameVal]         = useState(eventName);
+  const [editName, setEditName]       = useState(false);
+  const [savedAt, setSavedAt]         = useState('just now');
+  const [fontSearch, setFontSearch]   = useState('');
+  const [showShortcuts, setShowShortcuts] = useState(false);
+  const [copiedStyle, setCopiedStyle] = useState<Partial<Zone> | null>(null);
+  const [styleFlash, setStyleFlash]   = useState(false);
+
+  /* history */
   const [history, setHistory] = useState<HistoryState>({ past: [], future: [] });
-  const stageRef = useRef<HTMLDivElement>(null);
+
+  /* refs */
+  const stageRef      = useRef<HTMLDivElement>(null);
+  const canvasInnerRef = useRef<HTMLDivElement>(null);
   const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const zonesRef = useRef(zones);
-  zonesRef.current = zones;
-  const didMoveRef = useRef(false);
+  const zonesRef      = useRef(zones);
+  zonesRef.current    = zones;
+  const didMoveRef    = useRef(false);
+  const interaction   = useRef<Interaction | null>(null);
 
-  const selected = zones.find(z => z.id === selectedId) ?? null;
+  /* ── load Google Fonts ───────────────────────────────── */
+  useEffect(() => {
+    const id = 'cardly-gfonts';
+    if (document.getElementById(id)) return;
+    const link = document.createElement('link');
+    link.id = id; link.rel = 'stylesheet'; link.href = GOOGLE_FONTS_URL;
+    document.head.appendChild(link);
+  }, []);
 
-  const switchVariant = useCallback((variantId: string) => {
-    setActiveVariantId(variantId);
-    setSelectedId(null);
+  /* ── variant helpers ─────────────────────────────────── */
+  const switchVariant = useCallback((id: string) => {
+    setActiveVariantId(id);
+    setSelectedIds([]);
     setHistory({ past: [], future: [] });
   }, []);
 
+  /* ── autosave ────────────────────────────────────────── */
   const scheduleSave = useCallback((nextZones: Zone[], variantId: string) => {
     if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
     autosaveTimer.current = setTimeout(async () => {
@@ -130,34 +208,36 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
     scheduleSave(nextZones, activeVariantId);
   }, [scheduleSave, activeVariantId, setZonesForVariant]);
 
+  /* ── zone operations ─────────────────────────────────── */
   const updateZone = useCallback((id: string, patch: Partial<Zone>, withHistory = false) => {
     const next = zonesRef.current.map(z => z.id === id ? { ...z, ...patch } : z);
     if (withHistory) pushHistory(next);
-    else {
-      setZonesForVariant(activeVariantId, next);
-      scheduleSave(next, activeVariantId);
-    }
+    else { setZonesForVariant(activeVariantId, next); scheduleSave(next, activeVariantId); }
   }, [pushHistory, scheduleSave, activeVariantId, setZonesForVariant]);
 
   const removeZone = useCallback((id: string) => {
     pushHistory(zonesRef.current.filter(z => z.id !== id));
-    setSelectedId(null);
+    setSelectedIds(ids => ids.filter(i => i !== id));
   }, [pushHistory]);
+
+  const removeSelected = useCallback(() => {
+    pushHistory(zonesRef.current.filter(z => !selectedIds.includes(z.id)));
+    setSelectedIds([]);
+  }, [pushHistory, selectedIds]);
 
   const duplicateZone = useCallback((id: string) => {
     const z = zonesRef.current.find(x => x.id === id);
     if (!z) return;
     const nz: Zone = { ...z, id: 'z' + Math.random().toString(36).slice(2, 7), x: z.x + 30, y: z.y + 30, label: z.label + ' copy' };
     pushHistory([...zonesRef.current, nz]);
-    setSelectedId(nz.id);
+    setSelectedIds([nz.id]);
   }, [pushHistory]);
 
   const moveZoneUp = useCallback((id: string) => {
     const arr = zonesRef.current;
     const idx = arr.findIndex(z => z.id === id);
     if (idx <= 0) return;
-    const next = [...arr];
-    [next[idx - 1], next[idx]] = [next[idx], next[idx - 1]];
+    const next = [...arr]; [next[idx - 1], next[idx]] = [next[idx], next[idx - 1]];
     pushHistory(next);
   }, [pushHistory]);
 
@@ -165,31 +245,25 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
     const arr = zonesRef.current;
     const idx = arr.findIndex(z => z.id === id);
     if (idx >= arr.length - 1) return;
-    const next = [...arr];
-    [next[idx + 1], next[idx]] = [next[idx], next[idx + 1]];
+    const next = [...arr]; [next[idx + 1], next[idx]] = [next[idx], next[idx + 1]];
     pushHistory(next);
   }, [pushHistory]);
-
-  const toggleLock = useCallback((id: string) => {
-    const z = zonesRef.current.find(z => z.id === id);
-    if (!z) return;
-    updateZone(id, { locked: !z.locked }, true);
-  }, [updateZone]);
 
   const addZone = useCallback((type: 'text' | 'photo' | 'custom') => {
     const base = { id: 'z' + Math.random().toString(36).slice(2, 7), x: bgW / 2 - 200, y: bgH / 2 - 50, required: false };
     let z: Zone;
     if (type === 'text') {
-      z = { ...base, type: 'text', label: 'New text field', w: 400, h: 80, font: 'DM Sans', weight: 600, size: 48, color: '#FFFFFF', align: 'left', placeholder: 'Placeholder', sample: 'Sample text', lineHeight: 1.2, letterSpacing: 0, opacity: 100 };
+      z = { ...base, type, label: 'Text field', w: 400, h: 80, font: 'DM Sans', weight: 600, size: 48, color: '#FFFFFF', align: 'left', placeholder: 'Enter text', sample: 'Sample text', lineHeight: 1.2, letterSpacing: 0, opacity: 100, rotation: 0 };
     } else if (type === 'photo') {
-      z = { ...base, type: 'photo', label: 'Photo', w: 240, h: 240, shape: 'circle', placeholder: 'Tap to add a photo', sample: '·', opacity: 100 };
+      z = { ...base, type, label: 'Photo', w: 240, h: 240, shape: 'circle', placeholder: 'Tap to add a photo', sample: '·', opacity: 100, rotation: 0 };
     } else {
-      z = { ...base, type: 'custom', label: 'Custom field', w: 400, h: 60, font: 'Inter', weight: 500, size: 24, color: '#FFFFFF', align: 'left', placeholder: 'Select option', sample: 'Speaker', options: ['Speaker', 'Sponsor', 'Delegate'], opacity: 100 };
+      z = { ...base, type, label: 'Custom field', w: 400, h: 60, font: 'Inter', weight: 500, size: 24, color: '#FFFFFF', align: 'left', placeholder: 'Select option', sample: 'Speaker', options: ['Speaker', 'Sponsor', 'Delegate'], opacity: 100, rotation: 0 };
     }
     pushHistory([...zonesRef.current, z]);
-    setSelectedId(z.id);
+    setSelectedIds([z.id]);
   }, [pushHistory, bgW, bgH]);
 
+  /* ── undo / redo ─────────────────────────────────────── */
   const undo = useCallback(() => {
     setHistory(h => {
       if (!h.past.length) return h;
@@ -210,52 +284,136 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
     });
   }, [scheduleSave, activeVariantId, setZonesForVariant]);
 
-  const interaction = useRef<{ mode: 'move' | 'resize'; dir?: string; id: string; sx: number; sy: number; ox: number; oy: number; ow: number; oh: number } | null>(null);
+  /* ── copy / paste style ──────────────────────────────── */
+  const copyStyle = useCallback(() => {
+    if (!selected) return;
+    const { id, type, label, x, y, w, h, required, hidden, locked, ...style } = selected;
+    void id; void type; void label; void x; void y; void w; void h; void required; void hidden; void locked;
+    setCopiedStyle(style);
+    setStyleFlash(true);
+    setTimeout(() => setStyleFlash(false), 1200);
+  }, [selected]);
 
+  const pasteStyle = useCallback(() => {
+    if (!selected || !copiedStyle) return;
+    updateZone(selected.id, copiedStyle, true);
+  }, [selected, copiedStyle, updateZone]);
+
+  /* ── pointer: zone drag / resize / rotate ────────────── */
   const onZonePointerDown = useCallback((e: React.PointerEvent, zone: Zone) => {
     e.stopPropagation();
-    setSelectedId(zone.id);
     didMoveRef.current = false;
-    interaction.current = { mode: 'move', id: zone.id, sx: e.clientX, sy: e.clientY, ox: zone.x, oy: zone.y, ow: zone.w, oh: zone.h };
+
+    if (e.shiftKey) {
+      setSelectedIds(ids => ids.includes(zone.id) ? ids.filter(i => i !== zone.id) : [...ids, zone.id]);
+    } else {
+      if (!selectedIds.includes(zone.id)) setSelectedIds([zone.id]);
+    }
+
+    // Multi-select move: store all starting positions
+    const relevantIds = e.shiftKey ? selectedIds : selectedIds.includes(zone.id) ? selectedIds : [zone.id];
+    const multiPositions: Record<string, { x: number; y: number }> = {};
+    for (const sid of relevantIds) {
+      const sz = zonesRef.current.find(z => z.id === sid);
+      if (sz) multiPositions[sid] = { x: sz.x, y: sz.y };
+    }
+
+    interaction.current = {
+      mode: 'move', id: zone.id,
+      sx: e.clientX, sy: e.clientY,
+      ox: zone.x, oy: zone.y, ow: zone.w, oh: zone.h,
+      multiPositions,
+    };
     document.body.classList.add('cursor-grabbing', 'select-none');
-  }, []);
+  }, [selectedIds]);
 
   const onHandlePointerDown = useCallback((e: React.PointerEvent, zone: Zone, dir: string) => {
     e.stopPropagation();
-    setSelectedId(zone.id);
+    setSelectedIds([zone.id]);
     didMoveRef.current = false;
     interaction.current = { mode: 'resize', dir, id: zone.id, sx: e.clientX, sy: e.clientY, ox: zone.x, oy: zone.y, ow: zone.w, oh: zone.h };
     document.body.classList.add('select-none');
   }, []);
 
+  const onRotatePointerDown = useCallback((e: React.PointerEvent, zone: Zone) => {
+    e.stopPropagation();
+    setSelectedIds([zone.id]);
+    didMoveRef.current = false;
+    const canvasEl = canvasInnerRef.current;
+    if (!canvasEl) return;
+    const rect = canvasEl.getBoundingClientRect();
+    const cx = rect.left + (zone.x + zone.w / 2) * zoom;
+    const cy = rect.top  + (zone.y + zone.h / 2) * zoom;
+    const startMouseAngle = Math.atan2(e.clientY - cy, e.clientX - cx);
+    interaction.current = {
+      mode: 'rotate', id: zone.id,
+      sx: e.clientX, sy: e.clientY,
+      ox: zone.x, oy: zone.y, ow: zone.w, oh: zone.h,
+      startMouseAngle,
+      startRotation: zone.rotation ?? 0,
+    };
+    document.body.classList.add('select-none');
+  }, [zoom]);
+
+  /* ── global pointer move / up ────────────────────────── */
   useEffect(() => {
-    const SNAP_THRESHOLD = 8 / zoom;
+    const SNAP = 8 / zoom;
+
     const onMove = (e: PointerEvent) => {
       const it = interaction.current;
       if (!it) return;
       didMoveRef.current = true;
+
+      if (it.mode === 'rotate') {
+        const canvasEl = canvasInnerRef.current;
+        if (!canvasEl) return;
+        const rect = canvasEl.getBoundingClientRect();
+        const cx = rect.left + (it.ox + it.ow / 2) * zoom;
+        const cy = rect.top  + (it.oy + it.oh / 2) * zoom;
+        const curAngle = Math.atan2(e.clientY - cy, e.clientX - cx);
+        const delta = (curAngle - it.startMouseAngle!) * (180 / Math.PI);
+        let newRot = ((it.startRotation! + delta) % 360 + 360) % 360;
+        if (e.shiftKey) newRot = Math.round(newRot / 15) * 15;
+        updateZone(it.id, { rotation: Math.round(newRot) });
+        return;
+      }
+
       const dx = (e.clientX - it.sx) / zoom;
       const dy = (e.clientY - it.sy) / zoom;
       const guides: SnapGuides = {};
 
       if (it.mode === 'move') {
-        let nx = Math.max(0, Math.min(bgW - it.ow, it.ox + dx));
-        let ny = Math.max(0, Math.min(bgH - it.oh, it.oy + dy));
-        // Snap to horizontal center
-        if (Math.abs((nx + it.ow / 2) - bgW / 2) < SNAP_THRESHOLD) {
-          nx = bgW / 2 - it.ow / 2;
-          guides.x = bgW / 2;
+        // Multi-move
+        if (it.multiPositions && Object.keys(it.multiPositions).length > 1) {
+          const next = zonesRef.current.map(z => {
+            const sp = it.multiPositions![z.id];
+            if (!sp) return z;
+            let nx = Math.max(0, Math.min(bgW - z.w, sp.x + dx));
+            let ny = Math.max(0, Math.min(bgH - z.h, sp.y + dy));
+            if (gridSnap) { nx = Math.round(nx / GRID_SIZE) * GRID_SIZE; ny = Math.round(ny / GRID_SIZE) * GRID_SIZE; }
+            return { ...z, x: Math.round(nx), y: Math.round(ny) };
+          });
+          setZonesForVariant(activeVariantId, next);
+        } else {
+          // Single move with snap
+          let nx = Math.max(0, Math.min(bgW - it.ow, it.ox + dx));
+          let ny = Math.max(0, Math.min(bgH - it.oh, it.oy + dy));
+
+          if (gridSnap) {
+            nx = Math.round(nx / GRID_SIZE) * GRID_SIZE;
+            ny = Math.round(ny / GRID_SIZE) * GRID_SIZE;
+          } else {
+            // center snap
+            if (Math.abs((nx + it.ow / 2) - bgW / 2) < SNAP) { nx = bgW / 2 - it.ow / 2; guides.x = bgW / 2; }
+            if (Math.abs((ny + it.oh / 2) - bgH / 2) < SNAP) { ny = bgH / 2 - it.oh / 2; guides.y = bgH / 2; }
+            if (Math.abs(nx) < SNAP) { nx = 0; guides.x = 0; }
+            if (Math.abs(nx + it.ow - bgW) < SNAP) { nx = bgW - it.ow; guides.x = bgW; }
+            if (Math.abs(ny) < SNAP) { ny = 0; guides.y = 0; }
+            if (Math.abs(ny + it.oh - bgH) < SNAP) { ny = bgH - it.oh; guides.y = bgH; }
+          }
+          setSnapGuides(guides);
+          updateZone(it.id, { x: Math.round(nx), y: Math.round(ny) });
         }
-        // Snap to vertical center
-        if (Math.abs((ny + it.oh / 2) - bgH / 2) < SNAP_THRESHOLD) {
-          ny = bgH / 2 - it.oh / 2;
-          guides.y = bgH / 2;
-        }
-        // Snap to left/right edges
-        if (Math.abs(nx) < SNAP_THRESHOLD) { nx = 0; guides.x = 0; }
-        if (Math.abs(nx + it.ow - bgW) < SNAP_THRESHOLD) { nx = bgW - it.ow; guides.x = bgW; }
-        setSnapGuides(guides);
-        updateZone(it.id, { x: Math.round(nx), y: Math.round(ny) });
       } else if (it.mode === 'resize' && it.dir) {
         const d = it.dir;
         let nx = it.ox, ny = it.oy, nw = it.ow, nh = it.oh;
@@ -265,10 +423,11 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
         if (d.includes('n')) { nh = Math.max(20, it.oh - dy); ny = it.oy + (it.oh - nh); }
         nx = Math.max(0, nx); ny = Math.max(0, ny);
         nw = Math.min(nw, bgW - nx); nh = Math.min(nh, bgH - ny);
-        setSnapGuides(guides);
+        if (e.shiftKey) { const s = Math.max(nw, nh); nw = s; nh = s; } // lock aspect ratio
         updateZone(it.id, { x: Math.round(nx), y: Math.round(ny), w: Math.round(nw), h: Math.round(nh) });
       }
     };
+
     const onUp = () => {
       if (interaction.current && didMoveRef.current) {
         setHistory(h => ({ past: [...h.past.slice(-50), zonesRef.current], future: [] }));
@@ -278,60 +437,76 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
       setSnapGuides({});
       document.body.classList.remove('cursor-grabbing', 'select-none');
     };
+
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onUp);
     return () => { window.removeEventListener('pointermove', onMove); window.removeEventListener('pointerup', onUp); };
-  }, [zoom, updateZone, bgW, bgH]);
+  }, [zoom, updateZone, bgW, bgH, gridSnap, activeVariantId, setZonesForVariant]);
 
+  /* ── keyboard shortcuts ──────────────────────────────── */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'TEXTAREA') return;
+      const inInput = (e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'TEXTAREA';
+      if (inInput) return;
+
+      const meta = e.metaKey || e.ctrlKey;
+
+      if (e.key === 'Escape') { setSelectedIds([]); setShowShortcuts(false); return; }
       if (e.key === 'Backspace' || e.key === 'Delete') {
-        if (selectedId) { e.preventDefault(); removeZone(selectedId); }
-      } else if (e.key === 'Escape') {
-        setSelectedId(null);
-      } else if (e.metaKey || e.ctrlKey) {
-        if (e.key === 'z') { e.preventDefault(); if (e.shiftKey) { redo(); } else { undo(); } }
-        if (e.key === 'd' && selectedId) { e.preventDefault(); duplicateZone(selectedId); }
-        if (e.key === 'p') { e.preventDefault(); setPreviewMode(p => !p); }
-      } else if (selected) {
+        if (selectedIds.length) { e.preventDefault(); removeSelected(); }
+        return;
+      }
+      if (meta && e.key === 'z') { e.preventDefault(); if (e.shiftKey) { redo(); } else { undo(); } return; }
+      if (meta && e.key === 'y') { e.preventDefault(); redo(); return; }
+      if (meta && e.key === 'd' && selectedId) { e.preventDefault(); duplicateZone(selectedId); return; }
+      if (meta && e.key === 'p') { e.preventDefault(); setPreviewMode(p => !p); return; }
+      if (meta && e.key === '/') { e.preventDefault(); setShowShortcuts(s => !s); return; }
+      if (meta && e.altKey && e.key === 'c') { e.preventDefault(); copyStyle(); return; }
+      if (meta && e.altKey && e.key === 'v') { e.preventDefault(); pasteStyle(); return; }
+      if (e.key === 'g') { setGrid(g => !g); return; }
+
+      // Arrow nudge
+      if (selected && !selected.locked) {
         const step = e.shiftKey ? 10 : 1;
-        if (e.key === 'ArrowLeft') { e.preventDefault(); updateZone(selected.id, { x: Math.max(0, selected.x - step) }, true); }
+        if (e.key === 'ArrowLeft')  { e.preventDefault(); updateZone(selected.id, { x: Math.max(0, selected.x - step) }, true); }
         if (e.key === 'ArrowRight') { e.preventDefault(); updateZone(selected.id, { x: Math.min(bgW - selected.w, selected.x + step) }, true); }
-        if (e.key === 'ArrowUp') { e.preventDefault(); updateZone(selected.id, { y: Math.max(0, selected.y - step) }, true); }
-        if (e.key === 'ArrowDown') { e.preventDefault(); updateZone(selected.id, { y: Math.min(bgH - selected.h, selected.y + step) }, true); }
+        if (e.key === 'ArrowUp')    { e.preventDefault(); updateZone(selected.id, { y: Math.max(0, selected.y - step) }, true); }
+        if (e.key === 'ArrowDown')  { e.preventDefault(); updateZone(selected.id, { y: Math.min(bgH - selected.h, selected.y + step) }, true); }
+        if (e.key === '[')  { e.preventDefault(); moveZoneDown(selected.id); }
+        if (e.key === ']')  { e.preventDefault(); moveZoneUp(selected.id); }
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [selected, selectedId, undo, redo, removeZone, duplicateZone, updateZone, bgW, bgH]);
+  }, [selected, selectedId, selectedIds, undo, redo, removeSelected, duplicateZone, updateZone, bgW, bgH, copyStyle, pasteStyle, moveZoneUp, moveZoneDown]);
 
+  /* ── fit zoom on mount / variant change ──────────────── */
   useEffect(() => {
     const fit = () => {
       const el = stageRef.current;
       if (!el) return;
       const pad = 80;
-      const z = Math.min((el.clientWidth - pad) / bgW, (el.clientHeight - pad) / bgH);
-      setZoom(Math.max(0.18, Math.min(1.4, z)));
+      setZoom(Math.max(0.18, Math.min(1.4, Math.min((el.clientWidth - pad) / bgW, (el.clientHeight - pad) / bgH))));
     };
     fit();
     window.addEventListener('resize', fit);
     return () => window.removeEventListener('resize', fit);
   }, [bgW, bgH, activeVariantId]);
 
-  const handlePublish = async () => {
-    router.push(`/events/${eventId}/publish`);
-  };
+  /* ── scroll-to-zoom ──────────────────────────────────── */
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      if (!(e.metaKey || e.ctrlKey)) return;
+      e.preventDefault();
+      setZoom(z => Math.max(0.1, Math.min(3, z * (e.deltaY > 0 ? 0.92 : 1.08))));
+    };
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => el.removeEventListener('wheel', onWheel);
+  }, []);
 
-  const saveName = async () => {
-    setEditName(false);
-    await fetch(`/api/events/${eventId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: nameVal }),
-    });
-  };
-
+  /* ── add variant ─────────────────────────────────────── */
   const handleAddVariant = async () => {
     if (!newVariantName.trim() || !newVariantFile) return;
     setAddingVariant(true);
@@ -340,30 +515,43 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
       fd.append('variant_name', newVariantName.trim());
       fd.append('file', newVariantFile);
       const res = await fetch(`/api/events/${eventId}/variants`, { method: 'POST', body: fd });
-      if (!res.ok) throw new Error('Failed to create variant');
-      const newVariant = await res.json() as Variant;
-      newVariant.zones = [];
-      setVariants(v => [...v, newVariant]);
-      setVariantZonesMap(m => ({ ...m, [newVariant.id]: [] }));
-      switchVariant(newVariant.id);
-      setShowAddVariantModal(false);
-      setNewVariantName('');
-      setNewVariantFile(null);
-    } catch {
-      // silently fail
-    } finally {
-      setAddingVariant(false);
-    }
+      if (!res.ok) throw new Error('failed');
+      const nv = await res.json() as Variant;
+      nv.zones = [];
+      setVariants(v => [...v, nv]);
+      setVariantZonesMap(m => ({ ...m, [nv.id]: [] }));
+      switchVariant(nv.id);
+      setShowAddVariant(false);
+      setNewVariantName(''); setNewVariantFile(null);
+    } finally { setAddingVariant(false); }
   };
 
+  const saveName = async () => {
+    setEditName(false);
+    await fetch(`/api/events/${eventId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: nameVal }) });
+  };
+
+  const fitZoom = () => {
+    const el = stageRef.current;
+    if (!el) return;
+    const pad = 80;
+    setZoom(Math.max(0.18, Math.min(1.4, Math.min((el.clientWidth - pad) / bgW, (el.clientHeight - pad) / bgH))));
+  };
+
+  const filteredFonts = FONTS.filter(f => f.toLowerCase().includes(fontSearch.toLowerCase()));
+
+  /* ══════════════════════════════════════════════════════
+     RENDER
+  ══════════════════════════════════════════════════════ */
   return (
     <div className="flex flex-col" style={{ height: '100vh', overflow: 'hidden', background: '#FAF6EE' }}>
-      {/* Top Bar */}
+
+      {/* ── Top bar ─────────────────────────────────────── */}
       <header className="h-14 bg-white border-b border-border flex items-center px-4 gap-3 shrink-0 z-10">
-        <a href="/dashboard" className="h-8 w-8 rounded-lg hover:bg-cream grid place-items-center text-[#0F1F18]/70" title="Back">
+        <a href="/dashboard" className="h-8 w-8 rounded-lg hover:bg-cream grid place-items-center text-[#0F1F18]/70 shrink-0" title="Back to dashboard">
           <Icon d={I.back} size={16} />
         </a>
-        <div className="h-6 w-px bg-border" />
+        <div className="h-5 w-px bg-border" />
         <a href="/dashboard" className="flex items-center gap-2 shrink-0">
           <span className="h-7 w-7 rounded-lg grid place-items-center text-white font-display font-bold text-[13px] bg-primary">C</span>
         </a>
@@ -371,33 +559,56 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
           <span className="text-[#0F1F18]/40 font-mono text-[11px]">Events</span>
           <span className="text-[#0F1F18]/30">/</span>
           {editName
-            ? <input autoFocus value={nameVal} onChange={e => setNameVal(e.target.value)} onBlur={saveName} onKeyDown={e => e.key === 'Enter' && saveName()} className="font-display font-semibold bg-white border border-primary/40 rounded-md px-2 py-0.5 outline-none w-[260px]" />
-            : <button onClick={() => setEditName(true)} className="font-display font-semibold hover:bg-cream rounded-md px-2 py-0.5">{nameVal}</button>
+            ? <input autoFocus value={nameVal} onChange={e => setNameVal(e.target.value)} onBlur={saveName} onKeyDown={e => e.key === 'Enter' && saveName()} className="font-display font-semibold bg-white border border-primary/40 rounded-md px-2 py-0.5 outline-none w-[240px] text-[13px]" />
+            : <button onClick={() => setEditName(true)} className="font-display font-semibold hover:bg-cream rounded-md px-2 py-0.5 text-[13px]">{nameVal}</button>
           }
         </div>
 
         <div className="flex-1" />
 
-        <div className="flex items-center gap-1">
-          <button title="Undo (⌘Z)" disabled={!history.past.length} onClick={undo} className={`h-8 w-8 rounded-lg grid place-items-center ${history.past.length ? 'text-[#0F1F18]/80 hover:bg-cream' : 'text-[#0F1F18]/25'}`}>
-            <Icon d={I.undo} size={15} />
-          </button>
-          <button title="Redo (⇧⌘Z)" disabled={!history.future.length} onClick={redo} className={`h-8 w-8 rounded-lg grid place-items-center ${history.future.length ? 'text-[#0F1F18]/80 hover:bg-cream' : 'text-[#0F1F18]/25'}`}>
-            <Icon d={I.redo} size={15} />
-          </button>
+        {/* Undo / Redo */}
+        <div className="flex items-center gap-0.5">
+          <button title="Undo (⌘Z)" disabled={!history.past.length} onClick={undo} className={`h-8 w-8 rounded-lg grid place-items-center transition ${history.past.length ? 'text-[#0F1F18]/80 hover:bg-cream' : 'text-[#0F1F18]/25'}`}><Icon d={I.undo} size={15} /></button>
+          <button title="Redo (⇧⌘Z)" disabled={!history.future.length} onClick={redo} className={`h-8 w-8 rounded-lg grid place-items-center transition ${history.future.length ? 'text-[#0F1F18]/80 hover:bg-cream' : 'text-[#0F1F18]/25'}`}><Icon d={I.redo} size={15} /></button>
         </div>
 
-        <div className="flex items-center gap-1.5 text-[12px] text-[#0F1F18]/55 mx-2">
-          <Icon d={I.save} size={13} sw={2} />
-          Saved · {savedAt}
+        {/* Saved indicator */}
+        <div className="flex items-center gap-1.5 text-[11.5px] text-[#0F1F18]/50 mx-1 font-mono">
+          <Icon d={I.check} size={12} sw={2.2} />
+          {savedAt}
         </div>
+
+        {/* Copy / paste style */}
+        {selected && (
+          <div className="flex items-center gap-0.5">
+            <button
+              onClick={copyStyle}
+              title="Copy style (⌘⌥C)"
+              className={`h-8 px-2.5 rounded-lg text-[11.5px] font-mono flex items-center gap-1.5 transition ${styleFlash ? 'bg-primary text-white' : 'hover:bg-cream text-[#0F1F18]/65'}`}
+            >
+              <Icon d={I.style} size={13} sw={1.8} />
+              {styleFlash ? 'Copied!' : 'Copy style'}
+            </button>
+            {copiedStyle && (
+              <button onClick={pasteStyle} title="Paste style (⌘⌥V)" className="h-8 px-2.5 rounded-lg text-[11.5px] font-mono flex items-center gap-1.5 hover:bg-primary/10 hover:text-primary text-[#0F1F18]/65 transition border border-dashed border-primary/30">
+                <Icon d={I.style} size={13} sw={1.8} />
+                Paste style
+              </button>
+            )}
+          </div>
+        )}
 
         <div className="flex items-center gap-2">
+          {/* Shortcuts */}
+          <button onClick={() => setShowShortcuts(s => !s)} title="Keyboard shortcuts (⌘/)" className="h-8 w-8 rounded-lg grid place-items-center hover:bg-cream text-[#0F1F18]/60 transition">
+            <Icon d={I.help} size={15} />
+          </button>
+
           {/* Preview toggle */}
           <button
             onClick={() => setPreviewMode(p => !p)}
             title="Preview mode (⌘P)"
-            className={`inline-flex items-center gap-1.5 text-[12px] px-3 py-1.5 rounded-lg border transition ${previewMode ? 'bg-primary/10 text-primary border-primary/30' : 'text-[#0F1F18]/70 border-border hover:bg-cream'}`}
+            className={`inline-flex items-center gap-1.5 text-[12.5px] px-3 py-1.5 rounded-lg border transition ${previewMode ? 'bg-primary/10 text-primary border-primary/30 font-medium' : 'text-[#0F1F18]/70 border-border hover:bg-cream'}`}
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
@@ -405,174 +616,173 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
             {previewMode ? 'Editing' : 'Preview'}
           </button>
 
-          <a
-            href={`/events/${eventId}`}
-            className="inline-flex items-center gap-1.5 text-[13px] text-[#0F1F18]/80 bg-white border border-border px-3 py-1.5 rounded-lg hover:bg-cream transition"
-          >
-            <Icon d={I.play} size={13} sw={2.2} />
-            Test
+          <a href={`/events/${eventId}`} className="inline-flex items-center gap-1.5 text-[12.5px] text-[#0F1F18]/80 bg-white border border-border px-3 py-1.5 rounded-lg hover:bg-cream transition">
+            <Icon d={I.play} size={13} sw={2.2} />Test
           </a>
           <button
-            onClick={handlePublish}
+            onClick={() => router.push(`/events/${eventId}/publish`)}
             className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-white px-3.5 py-1.5 rounded-lg hover:opacity-95 transition shadow-soft bg-primary"
           >
-            <Icon d={I.globe} size={13} sw={2.2} />
-            Publish
+            <Icon d={I.globe} size={13} sw={2.2} />Publish
           </button>
         </div>
       </header>
 
-      {/* Variant tab bar */}
-      <div className="h-11 bg-white border-b border-border flex items-center px-4 gap-1 shrink-0 z-10">
-        <span className="text-[11px] font-mono text-[#0F1F18]/40 mr-2 shrink-0">VARIANTS</span>
+      {/* ── Variant tab bar ──────────────────────────────── */}
+      <div className="h-11 bg-white border-b border-border flex items-center px-4 gap-1.5 shrink-0 z-10 overflow-x-auto">
+        <span className="text-[10.5px] font-mono text-[#0F1F18]/40 mr-1 shrink-0 tracking-widest">VARIANTS</span>
         {variants.map(v => (
           <button
             key={v.id}
             onClick={() => switchVariant(v.id)}
-            className={`flex items-center gap-2 px-3.5 h-7 rounded-lg text-[13px] font-medium transition ${v.id === activeVariantId ? 'bg-primary text-white shadow-sm' : 'text-[#0F1F18]/60 hover:text-[#0F1F18] hover:bg-cream border border-border'}`}
+            className={`flex items-center gap-1.5 px-3 h-7 rounded-lg text-[12.5px] font-medium transition shrink-0 ${v.id === activeVariantId ? 'bg-primary text-white shadow-sm' : 'text-[#0F1F18]/60 hover:text-[#0F1F18] hover:bg-cream border border-border'}`}
           >
-            <Icon d={I.layers} size={12} sw={2} />
+            <Icon d={I.layers} size={11} sw={2} />
             {v.variant_name}
           </button>
         ))}
         <button
-          onClick={() => setShowAddVariantModal(true)}
-          className="flex items-center gap-1.5 px-3 h-7 rounded-lg text-[13px] font-medium text-[#0F1F18]/50 hover:text-primary hover:bg-primary/[0.08] border border-dashed border-border hover:border-primary/40 transition"
+          onClick={() => setShowAddVariant(true)}
+          className="flex items-center gap-1.5 px-3 h-7 rounded-lg text-[12.5px] font-medium text-[#0F1F18]/50 hover:text-primary hover:bg-primary/[0.08] border border-dashed border-border hover:border-primary/40 transition shrink-0"
         >
-          <Icon d={I.plus} size={13} sw={2.5} />
-          Add variant
+          <Icon d={I.plus} size={13} sw={2.5} />Add variant
         </button>
       </div>
 
       <div className="flex-1 flex min-h-0">
-        {/* Left Rail */}
-        <aside className="w-[256px] shrink-0 bg-white border-r border-border flex flex-col overflow-y-auto">
+
+        {/* ── Left Rail ───────────────────────────────────── */}
+        <aside className="w-[252px] shrink-0 bg-white border-r border-border flex flex-col overflow-y-auto">
           {!previewMode && (
             <div className="p-4">
-              <div className="text-[11px] font-mono tracking-widest text-[#0F1F18]/40 mb-3">ADD TO CANVAS</div>
-              <div className="space-y-1.5">
+              <div className="text-[10.5px] font-mono tracking-widest text-[#0F1F18]/40 mb-3">ADD ELEMENT</div>
+              <div className="space-y-1">
                 {[
-                  { type: 'text' as const, label: 'Text field', sub: 'Name, title, country…', icon: I.text },
-                  { type: 'photo' as const, label: 'Photo zone', sub: 'Headshot or logo', icon: I.photo },
-                  { type: 'custom' as const, label: 'Custom field', sub: 'Dropdown, badge, role…', icon: I.field },
+                  { type: 'text' as const,   label: 'Text field',   sub: 'Name, title, country…',      icon: I.text  },
+                  { type: 'photo' as const,  label: 'Photo zone',   sub: 'Headshot or logo',            icon: I.photo },
+                  { type: 'custom' as const, label: 'Custom field', sub: 'Dropdown, badge, role…',      icon: I.field },
                 ].map(item => (
                   <button
                     key={item.type}
                     onClick={() => addZone(item.type)}
                     className="group w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-cream border border-transparent hover:border-border transition text-left"
                   >
-                    <span className="h-9 w-9 rounded-lg bg-cream grid place-items-center text-primary group-hover:text-white group-hover:bg-primary transition">
+                    <span className="h-9 w-9 rounded-lg bg-cream grid place-items-center text-primary group-hover:text-white group-hover:bg-primary transition shrink-0">
                       <Icon d={item.icon} size={15} sw={1.8} />
                     </span>
                     <span className="flex-1 min-w-0">
                       <span className="block text-[13px] font-medium">{item.label}</span>
                       <span className="block text-[11px] text-[#0F1F18]/50">{item.sub}</span>
                     </span>
-                    <Icon d={I.plus} size={13} sw={2} />
+                    <Icon d={I.plus} size={12} sw={2} />
                   </button>
                 ))}
               </div>
             </div>
           )}
 
-          <div className={previewMode ? 'p-4' : 'px-4'}>
-            <div className="text-[11px] font-mono tracking-widest text-[#0F1F18]/40 mb-2 flex items-center justify-between">
-              LAYERS <span className="text-[#0F1F18]/40 normal-case font-sans">{zones.length}</span>
+          {/* Layers panel */}
+          <div className={previewMode ? 'p-4 flex-1' : 'px-4 pb-4 flex-1'}>
+            <div className="text-[10.5px] font-mono tracking-widest text-[#0F1F18]/40 mb-2 flex items-center justify-between">
+              <span>LAYERS</span>
+              <span className="text-[#0F1F18]/35 font-sans normal-case">{zones.length}</span>
             </div>
             <div className="space-y-0.5">
-              {zones.map((z, idx) => (
-                <div
-                  key={z.id}
-                  onClick={() => { if (!previewMode) setSelectedId(z.id); }}
-                  className={`group flex items-center gap-1.5 px-2 py-1.5 rounded-lg cursor-pointer text-[12.5px] ${z.id === selectedId && !previewMode ? 'bg-primary/10 text-primary' : 'hover:bg-cream text-[#0F1F18]/80'}`}
-                >
-                  {/* Layer order arrows */}
-                  {!previewMode && (
-                    <div className="flex flex-col gap-0 opacity-0 group-hover:opacity-100 shrink-0">
-                      <button onClick={e => { e.stopPropagation(); moveZoneUp(z.id); }} disabled={idx === 0} className="h-4 w-4 rounded grid place-items-center text-[#0F1F18]/40 hover:text-primary disabled:opacity-20" title="Move up">
-                        <Icon d={I.up} size={9} sw={2.5} />
-                      </button>
-                      <button onClick={e => { e.stopPropagation(); moveZoneDown(z.id); }} disabled={idx === zones.length - 1} className="h-4 w-4 rounded grid place-items-center text-[#0F1F18]/40 hover:text-primary disabled:opacity-20" title="Move down">
-                        <Icon d={I.down} size={9} sw={2.5} />
-                      </button>
-                    </div>
-                  )}
-                  <span className={`h-6 w-6 rounded-md grid place-items-center shrink-0 ${z.id === selectedId && !previewMode ? 'text-primary' : 'text-[#0F1F18]/50'}`}>
-                    <Icon d={z.type === 'photo' ? I.photo : z.type === 'custom' ? I.field : I.text} size={12} />
-                  </span>
-                  <span className="flex-1 truncate">{z.label}</span>
-                  {z.required && <span className="text-[9px] font-mono px-1 py-px rounded bg-primary/10 text-primary shrink-0">REQ</span>}
-                  {!previewMode && (
-                    <div className="opacity-0 group-hover:opacity-100 flex items-center gap-0.5">
-                      <button
-                        onClick={e => { e.stopPropagation(); toggleLock(z.id); }}
-                        className={`h-6 w-6 rounded-md grid place-items-center ${z.locked ? 'text-warning' : 'text-[#0F1F18]/40 hover:text-[#0F1F18]'}`}
-                        title={z.locked ? 'Unlock' : 'Lock'}
-                      >
-                        <Icon d={z.locked ? I.lock : I.unlock} size={11} />
-                      </button>
-                      <button
-                        onClick={e => { e.stopPropagation(); updateZone(z.id, { hidden: !z.hidden }); }}
-                        className="h-6 w-6 rounded-md grid place-items-center text-[#0F1F18]/40 hover:text-[#0F1F18]"
-                        title={z.hidden ? 'Show' : 'Hide'}
-                      >
-                        <Icon d={z.hidden ? I.eyeOff : I.eye} size={11} />
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ))}
+              {[...zones].reverse().map((z) => {
+                const realIdx = zones.findIndex(x => x.id === z.id);
+                const isSel = selectedIds.includes(z.id) && !previewMode;
+                return (
+                  <div
+                    key={z.id}
+                    onClick={e => {
+                      if (previewMode) return;
+                      if (e.shiftKey) {
+                        setSelectedIds(ids => ids.includes(z.id) ? ids.filter(i => i !== z.id) : [...ids, z.id]);
+                      } else {
+                        setSelectedIds([z.id]);
+                      }
+                    }}
+                    className={`group flex items-center gap-1.5 px-2 py-1.5 rounded-lg cursor-pointer text-[12.5px] ${isSel ? 'bg-primary/10 text-primary' : 'hover:bg-cream text-[#0F1F18]/80'}`}
+                  >
+                    {!previewMode && (
+                      <div className="flex flex-col gap-0 opacity-0 group-hover:opacity-100 shrink-0">
+                        <button onClick={e => { e.stopPropagation(); moveZoneUp(z.id); }} disabled={realIdx >= zones.length - 1} className="h-4 w-4 rounded grid place-items-center text-[#0F1F18]/40 hover:text-primary disabled:opacity-20"><Icon d={I.up} size={9} sw={2.5} /></button>
+                        <button onClick={e => { e.stopPropagation(); moveZoneDown(z.id); }} disabled={realIdx <= 0} className="h-4 w-4 rounded grid place-items-center text-[#0F1F18]/40 hover:text-primary disabled:opacity-20"><Icon d={I.down} size={9} sw={2.5} /></button>
+                      </div>
+                    )}
+                    <span className={`h-6 w-6 rounded-md grid place-items-center shrink-0 ${isSel ? 'text-primary' : 'text-[#0F1F18]/50'}`}>
+                      <Icon d={z.type === 'photo' ? I.photo : z.type === 'custom' ? I.field : I.text} size={12} />
+                    </span>
+                    <span className="flex-1 truncate">{z.label}</span>
+                    {z.required && <span className="text-[9px] font-mono px-1 py-px rounded bg-primary/10 text-primary shrink-0">REQ</span>}
+                    {(z.rotation ?? 0) !== 0 && <span className="text-[9px] font-mono text-accent shrink-0" title={`${z.rotation}°`}>↻</span>}
+                    {!previewMode && (
+                      <div className="opacity-0 group-hover:opacity-100 flex items-center gap-0.5 shrink-0">
+                        <button onClick={e => { e.stopPropagation(); updateZone(z.id, { locked: !z.locked }); }} className={`h-6 w-6 rounded-md grid place-items-center ${z.locked ? 'text-warning' : 'text-[#0F1F18]/40 hover:text-[#0F1F18]'}`} title={z.locked ? 'Unlock' : 'Lock'}>
+                          <Icon d={z.locked ? I.lock : I.unlock} size={11} />
+                        </button>
+                        <button onClick={e => { e.stopPropagation(); updateZone(z.id, { hidden: !z.hidden }); }} className="h-6 w-6 rounded-md grid place-items-center text-[#0F1F18]/40 hover:text-[#0F1F18]" title={z.hidden ? 'Show' : 'Hide'}>
+                          <Icon d={z.hidden ? I.eyeOff : I.eye} size={11} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
               {zones.length === 0 && (
-                <div className="text-center py-6 text-[12px] text-[#0F1F18]/35">
-                  No zones yet.<br />Add one above.
+                <div className="text-center py-6 text-[12px] text-[#0F1F18]/30 font-mono">
+                  No elements yet.
                 </div>
               )}
             </div>
           </div>
 
-          <div className="mt-auto p-3 border-t border-border">
-            <div className="text-[11px] font-mono tracking-widest text-[#0F1F18]/40 mb-2">BACKGROUND</div>
-            <div className="flex items-center gap-3 rounded-xl border border-border p-2.5">
-              <div className="h-9 w-9 rounded-md shrink-0 bg-cover bg-center" style={{ backgroundImage: backgroundUrl ? `url(${backgroundUrl})` : undefined, background: backgroundUrl ? undefined : '#FAF6EE' }} />
+          {/* Background info */}
+          <div className="p-3 border-t border-border shrink-0">
+            <div className="text-[10.5px] font-mono tracking-widest text-[#0F1F18]/40 mb-2">BACKGROUND</div>
+            <div className="flex items-center gap-2.5 rounded-xl border border-border p-2">
+              <div className="h-9 w-9 rounded-md shrink-0 bg-cover bg-center border border-border/50" style={{ backgroundImage: backgroundUrl ? `url(${backgroundUrl})` : undefined, background: backgroundUrl ? undefined : '#EDE9E0' }} />
               <div className="flex-1 min-w-0">
                 <div className="text-[12px] font-medium truncate">{activeVariant?.variant_name ?? 'Variant'}</div>
-                <div className="text-[10px] font-mono text-[#0F1F18]/45">{bgW} × {bgH}</div>
+                <div className="text-[10px] font-mono text-[#0F1F18]/45">{bgW} × {bgH} px</div>
               </div>
             </div>
           </div>
         </aside>
 
-        {/* Stage */}
+        {/* ── Stage ───────────────────────────────────────── */}
         <div
           ref={stageRef}
           className="flex-1 relative overflow-hidden"
           style={{ backgroundColor: '#EDE9E0', backgroundImage: 'radial-gradient(#C8C2B5 1px, transparent 1px)', backgroundSize: '16px 16px' }}
-          onPointerDown={() => setSelectedId(null)}
+          onPointerDown={() => { if (!interaction.current) setSelectedIds([]); }}
         >
           <div className="absolute inset-0 flex items-center justify-center">
             <div style={{ width: bgW * zoom, height: bgH * zoom, position: 'relative', flexShrink: 0 }}>
               <div
+                ref={canvasInnerRef}
                 className="relative shadow-lift rounded-md"
                 style={{ width: bgW, height: bgH, transform: `scale(${zoom})`, transformOrigin: '0 0', position: 'absolute', top: 0, left: 0 }}
                 onPointerDown={e => e.stopPropagation()}
               >
+                {/* Background image */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={backgroundUrl} alt="" className="absolute inset-0 w-full h-full object-cover rounded-md" draggable={false} />
+                <img src={backgroundUrl} alt="" className="absolute inset-0 w-full h-full object-cover rounded-md pointer-events-none" draggable={false} />
 
                 {/* Grid overlay */}
                 {grid && (
-                  <div className="absolute inset-0 pointer-events-none" style={{
-                    backgroundImage: 'linear-gradient(to right, rgba(31,77,58,0.10) 1px, transparent 1px), linear-gradient(to bottom, rgba(31,77,58,0.10) 1px, transparent 1px)',
-                    backgroundSize: '60px 60px',
+                  <div className="absolute inset-0 pointer-events-none rounded-md" style={{
+                    backgroundImage: 'linear-gradient(to right,rgba(31,77,58,0.10) 1px,transparent 1px),linear-gradient(to bottom,rgba(31,77,58,0.10) 1px,transparent 1px)',
+                    backgroundSize: `${GRID_SIZE}px ${GRID_SIZE}px`,
                   }} />
                 )}
 
                 {/* Snap guides */}
                 {snapGuides.x !== undefined && (
-                  <div className="absolute top-0 bottom-0 pointer-events-none" style={{ left: snapGuides.x, width: 1, background: 'rgba(232,197,126,0.9)', boxShadow: '0 0 4px rgba(232,197,126,0.5)' }} />
+                  <div className="absolute top-0 bottom-0 pointer-events-none" style={{ left: snapGuides.x, width: 1, background: 'rgba(232,197,126,0.9)', boxShadow: '0 0 4px rgba(232,197,126,0.6)' }} />
                 )}
                 {snapGuides.y !== undefined && (
-                  <div className="absolute left-0 right-0 pointer-events-none" style={{ top: snapGuides.y, height: 1, background: 'rgba(232,197,126,0.9)', boxShadow: '0 0 4px rgba(232,197,126,0.5)' }} />
+                  <div className="absolute left-0 right-0 pointer-events-none" style={{ top: snapGuides.y, height: 1, background: 'rgba(232,197,126,0.9)', boxShadow: '0 0 4px rgba(232,197,126,0.6)' }} />
                 )}
 
                 {/* Zones */}
@@ -580,335 +790,504 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                   <ZoneEl
                     key={z.id}
                     zone={z}
-                    selected={z.id === selectedId && !previewMode}
+                    selected={selectedIds.includes(z.id) && !previewMode}
+                    multiSelected={selectedIds.length > 1 && selectedIds.includes(z.id)}
                     previewMode={previewMode}
                     onPointerDown={e => { if (!z.locked && !previewMode) onZonePointerDown(e, z); }}
                     onHandle={(e, dir) => onHandlePointerDown(e, z, dir)}
+                    onRotate={e => { if (!z.locked && !previewMode) onRotatePointerDown(e, z); }}
                   />
                 ))}
 
-                {/* Canvas frame label */}
+                {/* Canvas corner brackets */}
                 {!previewMode && (
                   <>
-                    <div className="absolute -top-7 left-0 right-0 flex items-center justify-between text-[11px] font-mono text-[#0F1F18]/45">
+                    <div className="absolute -top-7 left-0 right-0 flex items-center justify-between text-[10px] font-mono text-[#0F1F18]/40 pointer-events-none">
                       <span>{bgW} × {bgH} px</span>
-                      <span>{zones.length} zones · {zones.filter(z => z.required).length} required</span>
+                      <span>{zones.length} zones · {zones.filter(z => z.required).length} req</span>
                     </div>
-                    <span className="absolute -top-1 -left-1 h-3 w-3 border-t border-l border-primary/50" />
-                    <span className="absolute -top-1 -right-1 h-3 w-3 border-t border-r border-primary/50" />
-                    <span className="absolute -bottom-1 -left-1 h-3 w-3 border-b border-l border-primary/50" />
-                    <span className="absolute -bottom-1 -right-1 h-3 w-3 border-b border-r border-primary/50" />
+                    <span className="absolute -top-1 -left-1 h-3 w-3 border-t border-l border-primary/50 pointer-events-none" />
+                    <span className="absolute -top-1 -right-1 h-3 w-3 border-t border-r border-primary/50 pointer-events-none" />
+                    <span className="absolute -bottom-1 -left-1 h-3 w-3 border-b border-l border-primary/50 pointer-events-none" />
+                    <span className="absolute -bottom-1 -right-1 h-3 w-3 border-b border-r border-primary/50 pointer-events-none" />
                   </>
                 )}
 
                 {previewMode && (
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white/70 text-[11px] font-mono px-3 py-1.5 rounded-full backdrop-blur-sm pointer-events-none">
-                    PREVIEW · no zone outlines
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white/70 text-[11px] font-mono px-3 py-1.5 rounded-full pointer-events-none">
+                    PREVIEW — ⌘P to edit
                   </div>
                 )}
               </div>
             </div>
           </div>
 
+          {/* Multi-select badge */}
+          {selectedIds.length > 1 && !previewMode && (
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-primary text-white text-[11.5px] font-mono px-3 py-1.5 rounded-full shadow-lift pointer-events-none">
+              {selectedIds.length} elements selected · ⌫ delete · drag to move
+            </div>
+          )}
+
           {/* Bottom zoom bar */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white rounded-xl border border-border shadow-soft p-1">
-            <button onClick={() => setZoom(z => Math.max(0.1, z - 0.1))} className="h-8 w-8 rounded-lg hover:bg-cream grid place-items-center text-[#0F1F18]/70" title="Zoom out">
-              <Icon d={I.zoom_out} size={14} />
-            </button>
-            <button onClick={() => setZoom(1)} className="font-mono text-[12px] px-2 min-w-[64px] text-center hover:bg-cream rounded-lg py-1.5">
-              {Math.round(zoom * 100)}%
-            </button>
-            <button onClick={() => setZoom(z => Math.min(2, z + 0.1))} className="h-8 w-8 rounded-lg hover:bg-cream grid place-items-center text-[#0F1F18]/70" title="Zoom in">
-              <Icon d={I.zoom_in} size={14} />
-            </button>
-            <span className="h-5 w-px bg-border mx-1" />
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white rounded-xl border border-border shadow-soft p-1 z-10">
+            <button onClick={() => setZoom(z => Math.max(0.1, z - 0.1))} className="h-8 w-8 rounded-lg hover:bg-cream grid place-items-center text-[#0F1F18]/70" title="Zoom out (⌘-)"><Icon d={I.zoomout} size={14} /></button>
+            <button onClick={() => setZoom(1)} className="font-mono text-[12px] px-2 min-w-[60px] text-center hover:bg-cream rounded-lg py-1.5">{Math.round(zoom * 100)}%</button>
+            <button onClick={() => setZoom(z => Math.min(3, z + 0.1))} className="h-8 w-8 rounded-lg hover:bg-cream grid place-items-center text-[#0F1F18]/70" title="Zoom in (⌘+)"><Icon d={I.zoomin} size={14} /></button>
+            <span className="h-5 w-px bg-border mx-0.5" />
+            <button onClick={fitZoom} className="h-8 px-2.5 rounded-lg hover:bg-cream text-[12px] text-[#0F1F18]/70 font-mono">Fit</button>
+            <span className="h-5 w-px bg-border mx-0.5" />
             <button
               onClick={() => setGrid(g => !g)}
-              className={`h-8 px-2.5 rounded-lg flex items-center gap-1.5 text-[12px] ${grid ? 'bg-primary/10 text-primary' : 'hover:bg-cream text-[#0F1F18]/70'}`}
-            >
-              <Icon d={I.grid} size={13} />
-              Grid
-            </button>
-            <button onClick={() => { const el = stageRef.current; if (!el) return; const pad = 80; setZoom(Math.max(0.18, Math.min(1.4, Math.min((el.clientWidth - pad) / bgW, (el.clientHeight - pad) / bgH)))); }} className="h-8 px-2.5 rounded-lg hover:bg-cream text-[12px] text-[#0F1F18]/70">
-              Fit
-            </button>
+              className={`h-8 px-2.5 rounded-lg flex items-center gap-1.5 text-[12px] transition ${grid ? 'bg-primary/10 text-primary' : 'hover:bg-cream text-[#0F1F18]/70'}`}
+              title="Toggle grid (G)"
+            ><Icon d={I.grid} size={12} />Grid</button>
+            <button
+              onClick={() => setGridSnap(s => !s)}
+              className={`h-8 px-2.5 rounded-lg flex items-center gap-1.5 text-[12px] transition ${gridSnap ? 'bg-accent/20 text-[#C9A45E]' : 'hover:bg-cream text-[#0F1F18]/70'}`}
+              title="Snap to grid"
+            ><Icon d={I.snap} size={12} />Snap</button>
           </div>
         </div>
 
-        {/* Right Rail */}
+        {/* ── Right Rail ──────────────────────────────────── */}
         {!selected || previewMode ? (
           <aside className="w-[300px] shrink-0 bg-white border-l border-border flex flex-col items-center justify-center p-8 text-center">
             <div className="h-12 w-12 rounded-2xl bg-cream grid place-items-center text-[#0F1F18]/40">
-              <Icon d={previewMode ? I.preview : I.cursor} size={18} />
+              <Icon d={previewMode ? I.eye : I.cursor} size={18} />
             </div>
-            <div className="mt-4 font-display font-medium text-[14px]">
-              {previewMode ? 'Preview mode' : 'Nothing selected'}
+            <div className="mt-3 font-display font-semibold text-[14px]">
+              {previewMode ? 'Preview mode' : selectedIds.length > 1 ? `${selectedIds.length} selected` : 'Nothing selected'}
             </div>
-            <p className="text-[12.5px] text-[#0F1F18]/55 mt-1 max-w-[200px]">
-              {previewMode
-                ? 'Zone outlines are hidden. Press ⌘P or click "Editing" to resume editing.'
-                : 'Pick a zone on the canvas, or add a new field from the left panel.'}
+            <p className="text-[12px] text-[#0F1F18]/50 mt-1 max-w-[200px]">
+              {previewMode ? 'Press ⌘P to resume editing.' : selectedIds.length > 1 ? 'Select a single element to edit its properties.' : 'Click an element on the canvas.'}
             </p>
-            {!previewMode && (
-              <div className="mt-6 grid grid-cols-2 gap-1.5 text-[10px] font-mono text-[#0F1F18]/50">
-                <span>Click</span><span>select zone</span>
-                <span>Drag</span><span>reposition</span>
-                <span>⌫</span><span>delete zone</span>
-                <span>⌘D</span><span>duplicate</span>
-                <span>⌘P</span><span>preview mode</span>
+            {!previewMode && selectedIds.length <= 1 && (
+              <div className="mt-5 text-[10.5px] font-mono text-[#0F1F18]/40 space-y-1.5 text-left w-full">
+                {[['Click', 'select'],['Drag','reposition'],['Scroll','zoom (⌘+wheel)'],['⌫','delete'],['⌘D','duplicate'],['⌘Z','undo'],['⌘P','preview'],['⌘/','shortcuts'],['G','grid']].map(([k, v]) => (
+                  <div key={k} className="flex justify-between"><span>{k}</span><span className="text-[#0F1F18]/30">{v}</span></div>
+                ))}
               </div>
+            )}
+            {selectedIds.length > 1 && (
+              <button onClick={removeSelected} className="mt-4 text-[12px] text-rose-500 hover:text-rose-600 font-medium border border-rose-200 hover:bg-rose-50 px-4 py-1.5 rounded-lg transition">
+                Delete {selectedIds.length} elements
+              </button>
             )}
           </aside>
         ) : (
-          <aside className="w-[300px] shrink-0 bg-white border-l border-border flex flex-col overflow-y-auto">
-            {/* Header */}
-            <div className="p-4 border-b border-border flex items-center gap-2">
-              <span className="h-7 w-7 rounded-md grid place-items-center text-white bg-primary">
-                <Icon d={selected.type === 'photo' ? I.photo : selected.type === 'custom' ? I.field : I.text} size={13} />
-              </span>
-              <div className="flex-1 min-w-0">
-                <div className="text-[11px] font-mono text-[#0F1F18]/50 uppercase tracking-widest">{selected.type} zone</div>
-                <div className="text-[13px] font-display font-semibold truncate">{selected.label}</div>
-              </div>
-              <button onClick={() => duplicateZone(selected.id)} title="Duplicate (⌘D)" className="h-7 w-7 rounded-md hover:bg-cream grid place-items-center text-[#0F1F18]/60">
-                <Icon d={I.duplicate} size={13} />
-              </button>
-              <button onClick={() => removeZone(selected.id)} title="Delete (⌫)" className="h-7 w-7 rounded-md hover:bg-rose-50 grid place-items-center text-rose-500">
-                <Icon d={I.trash} size={13} />
-              </button>
-            </div>
-
-            {/* Field properties */}
-            <PropSection title="Field">
-              <PropRow label="Label">
-                <input value={selected.label} onChange={e => updateZone(selected.id, { label: e.target.value })} className="prop-input" />
-              </PropRow>
-              <PropRow label="Placeholder">
-                <input value={selected.placeholder ?? ''} onChange={e => updateZone(selected.id, { placeholder: e.target.value })} className="prop-input" placeholder="Shown in the form" />
-              </PropRow>
-              <PropRow label="Sample text">
-                <input value={selected.sample ?? ''} onChange={e => updateZone(selected.id, { sample: e.target.value })} className="prop-input" placeholder="Live preview value" />
-              </PropRow>
-              <PropToggle label="Required field" value={!!selected.required} onChange={v => updateZone(selected.id, { required: v })} />
-            </PropSection>
-
-            {selected.type === 'photo' ? (
-              <PropSection title="Photo style">
-                <PropRow label="Shape">
-                  <Segmented
-                    value={selected.shape ?? 'circle'}
-                    onChange={v => updateZone(selected.id, { shape: v as Zone['shape'] })}
-                    options={[{ v: 'circle', label: 'Circle' }, { v: 'rounded', label: 'Rounded' }, { v: 'square', label: 'Square' }]}
-                  />
-                </PropRow>
-              </PropSection>
-            ) : (
-              <>
-                <PropSection title="Typography">
-                  <PropRow label="Font">
-                    <select value={selected.font ?? 'Inter'} onChange={e => updateZone(selected.id, { font: e.target.value })} className="prop-input">
-                      {FONTS.map(f => <option key={f} value={f}>{f}</option>)}
-                    </select>
-                  </PropRow>
-                  <PropRow label="Weight">
-                    <Segmented
-                      value={String(selected.weight ?? 400)}
-                      onChange={v => updateZone(selected.id, { weight: Number(v) })}
-                      options={[{ v: '300', label: 'Light' }, { v: '400', label: 'Reg' }, { v: '600', label: 'SBd' }, { v: '700', label: 'Bold' }]}
-                    />
-                  </PropRow>
-                  <PropRow label={`Size · ${selected.size ?? 32}px`}>
-                    <input type="range" min="8" max="200" value={selected.size ?? 32} onChange={e => updateZone(selected.id, { size: Number(e.target.value) })} className="w-full accent-primary" style={{ height: 4 }} />
-                  </PropRow>
-                  <PropRow label={`Line height · ${(selected.lineHeight ?? 1.2).toFixed(1)}`}>
-                    <input type="range" min="0.8" max="2.5" step="0.05" value={selected.lineHeight ?? 1.2} onChange={e => updateZone(selected.id, { lineHeight: Number(e.target.value) })} className="w-full accent-primary" style={{ height: 4 }} />
-                  </PropRow>
-                  <PropRow label={`Letter spacing · ${selected.letterSpacing ?? 0}px`}>
-                    <input type="range" min="-5" max="20" step="0.5" value={selected.letterSpacing ?? 0} onChange={e => updateZone(selected.id, { letterSpacing: Number(e.target.value) })} className="w-full accent-primary" style={{ height: 4 }} />
-                  </PropRow>
-                  <PropRow label="Align">
-                    <Segmented
-                      value={selected.align ?? 'left'}
-                      onChange={v => updateZone(selected.id, { align: v as Zone['align'] })}
-                      options={[{ v: 'left', icon: I.align_l }, { v: 'center', icon: I.align_c }, { v: 'right', icon: I.align_r }]}
-                    />
-                  </PropRow>
-                  <PropRow label="Text color">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <input type="color" value={selected.color ?? '#FFFFFF'} onChange={e => updateZone(selected.id, { color: e.target.value })} className="h-7 w-7 rounded border border-border cursor-pointer bg-white" />
-                      <input value={selected.color ?? '#FFFFFF'} onChange={e => updateZone(selected.id, { color: e.target.value })} className="prop-input flex-1 font-mono text-[11px] uppercase" style={{ minWidth: 72 }} />
-                      <div className="flex gap-1 flex-wrap">
-                        {COLORS.map(s => (
-                          <button key={s} onClick={() => updateZone(selected.id, { color: s })} className={`h-5 w-5 rounded border transition ${(selected.color ?? '').toUpperCase() === s.toUpperCase() ? 'border-primary ring-2 ring-primary/30' : 'border-border'}`} style={{ background: s }} />
-                        ))}
-                      </div>
-                    </div>
-                  </PropRow>
-                </PropSection>
-
-                {/* Background fill */}
-                <PropSection title="Background fill">
-                  <PropToggle label="Enable background" value={!!selected.bgColor} onChange={v => updateZone(selected.id, { bgColor: v ? 'rgba(0,0,0,0.5)' : undefined })} />
-                  {selected.bgColor && (
-                    <>
-                      <PropRow label="Fill color">
-                        <div className="flex items-center gap-2">
-                          <input type="color" value={selected.bgColor.startsWith('#') ? selected.bgColor : '#000000'} onChange={e => updateZone(selected.id, { bgColor: e.target.value })} className="h-7 w-7 rounded border border-border cursor-pointer" />
-                          <input value={selected.bgColor} onChange={e => updateZone(selected.id, { bgColor: e.target.value })} className="prop-input flex-1 font-mono text-[11px]" />
-                        </div>
-                      </PropRow>
-                      <PropRow label={`Fill opacity · ${selected.bgOpacity ?? 60}%`}>
-                        <input type="range" min="0" max="100" value={selected.bgOpacity ?? 60} onChange={e => updateZone(selected.id, { bgOpacity: Number(e.target.value) })} className="w-full accent-primary" style={{ height: 4 }} />
-                      </PropRow>
-                    </>
-                  )}
-                </PropSection>
-              </>
-            )}
-
-            {/* Appearance */}
-            <PropSection title="Appearance">
-              <PropRow label={`Opacity · ${selected.opacity ?? 100}%`}>
-                <input type="range" min="0" max="100" value={selected.opacity ?? 100} onChange={e => updateZone(selected.id, { opacity: Number(e.target.value) })} className="w-full accent-primary" style={{ height: 4 }} />
-              </PropRow>
-              <PropToggle label="Locked (no drag)" value={!!selected.locked} onChange={v => updateZone(selected.id, { locked: v })} />
-              <PropToggle label="Hidden on canvas" value={!!selected.hidden} onChange={v => updateZone(selected.id, { hidden: v })} />
-            </PropSection>
-
-            {/* Position & size */}
-            <PropSection title="Position & size">
-              <div className="grid grid-cols-2 gap-2">
-                <NumberProp label="X" value={selected.x} onChange={v => updateZone(selected.id, { x: v })} />
-                <NumberProp label="Y" value={selected.y} onChange={v => updateZone(selected.id, { y: v })} />
-                <NumberProp label="W" value={selected.w} onChange={v => updateZone(selected.id, { w: v })} />
-                <NumberProp label="H" value={selected.h} onChange={v => updateZone(selected.id, { h: v })} />
-              </div>
-              {/* Quick alignment */}
-              <div className="mt-3 grid grid-cols-3 gap-1.5">
-                <button onClick={() => updateZone(selected.id, { x: Math.round(bgW / 2 - selected.w / 2) })} className="py-1.5 text-[11px] font-mono text-[#0F1F18]/60 border border-border rounded-lg hover:bg-cream flex items-center justify-center gap-1" title="Center H">
-                  <Icon d={I.pin} size={10} />Center H
-                </button>
-                <button onClick={() => updateZone(selected.id, { y: Math.round(bgH / 2 - selected.h / 2) })} className="py-1.5 text-[11px] font-mono text-[#0F1F18]/60 border border-border rounded-lg hover:bg-cream flex items-center justify-center gap-1" title="Center V">
-                  <Icon d={I.pin} size={10} />Center V
-                </button>
-                <button onClick={() => updateZone(selected.id, { x: 0, y: 0 })} className="py-1.5 text-[11px] font-mono text-[#0F1F18]/60 border border-border rounded-lg hover:bg-cream flex items-center justify-center gap-1" title="Reset pos">
-                  <Icon d={I.back} size={10} />Reset
-                </button>
-              </div>
-            </PropSection>
-
-            <style>{`
-              .prop-input { width:100%; height:32px; padding:0 10px; border:1px solid #E5E0D4; border-radius:8px; background:#FAF6EE; font-size:12.5px; font-family:'Inter',sans-serif; outline:none; }
-              .prop-input:focus { background:white; outline:2px solid rgba(31,77,58,0.25); outline-offset:-1px; border-color:#1F4D3A; }
-            `}</style>
-          </aside>
+          <RightRail
+            selected={selected}
+            bgW={bgW}
+            bgH={bgH}
+            fontSearch={fontSearch}
+            setFontSearch={setFontSearch}
+            filteredFonts={filteredFonts}
+            updateZone={updateZone}
+            duplicateZone={duplicateZone}
+            removeZone={removeZone}
+            BRAND_COLORS={BRAND_COLORS}
+          />
         )}
       </div>
 
-      {/* Add Variant Modal */}
-      {showAddVariantModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-[#0F1F18]/40 backdrop-blur-sm" onClick={() => setShowAddVariantModal(false)} />
-          <div className="relative bg-white rounded-2xl shadow-lift w-full max-w-[420px] mx-4 p-6">
-            <div className="flex items-center justify-between mb-5">
-              <div>
-                <h2 className="font-display font-bold text-[18px]">Add variant</h2>
-                <p className="text-[12.5px] text-[#0F1F18]/50 mt-0.5">A new card type for this event (e.g. Speaker, Sponsor)</p>
-              </div>
-              <button onClick={() => setShowAddVariantModal(false)} className="h-8 w-8 rounded-lg hover:bg-cream grid place-items-center text-[#0F1F18]/50">
-                <Icon d={I.close} size={15} />
+      {/* ── Add Variant Modal ───────────────────────────── */}
+      {showAddVariant && (
+        <Modal onClose={() => setShowAddVariant(false)} title="Add variant" subtitle="A new card type, e.g. Speaker, Sponsor, Exhibitor">
+          <div className="space-y-4">
+            <ModalField label="Variant name">
+              <input autoFocus type="text" placeholder="e.g. Speaker" value={newVariantName}
+                onChange={e => setNewVariantName(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleAddVariant()}
+                className="w-full h-10 px-3 rounded-xl border border-border text-[13.5px] outline-none focus:border-primary transition" />
+            </ModalField>
+            <ModalField label="Background design">
+              <input ref={newVariantFileRef} type="file" accept="image/png,image/jpeg" className="hidden" onChange={e => setNewVariantFile(e.target.files?.[0] ?? null)} />
+              <button onClick={() => newVariantFileRef.current?.click()}
+                className={`w-full h-24 rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition ${newVariantFile ? 'border-primary/50 bg-primary/[0.04] text-primary' : 'border-border hover:border-primary/40 text-[#0F1F18]/40'}`}>
+                {newVariantFile ? (<><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg><span className="text-[12px] font-medium">{newVariantFile.name}</span></>) : (<><Icon d={I.upload} size={20} sw={1.6} /><span className="text-[12.5px]">Upload PNG or JPG</span></>)}
               </button>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-[12px] font-medium text-[#0F1F18]/70 mb-1.5">Variant name</label>
-                <input
-                  autoFocus
-                  type="text"
-                  placeholder="e.g. Speaker, Sponsor, Exhibitor"
-                  value={newVariantName}
-                  onChange={e => setNewVariantName(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && handleAddVariant()}
-                  className="w-full h-10 px-3 rounded-xl border border-border text-[13.5px] outline-none focus:border-primary transition"
-                />
-              </div>
-              <div>
-                <label className="block text-[12px] font-medium text-[#0F1F18]/70 mb-1.5">Background design</label>
-                <input ref={newVariantFileRef} type="file" accept="image/png,image/jpeg" className="hidden" onChange={e => setNewVariantFile(e.target.files?.[0] ?? null)} />
-                <button
-                  onClick={() => newVariantFileRef.current?.click()}
-                  className={`w-full h-24 rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition ${newVariantFile ? 'border-primary/50 bg-primary/[0.04] text-primary' : 'border-border hover:border-primary/40 text-[#0F1F18]/40'}`}
-                >
-                  {newVariantFile ? (
-                    <>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-                      <span className="text-[12px] font-medium">{newVariantFile.name}</span>
-                    </>
-                  ) : (
-                    <>
-                      <Icon d={I.upload} size={20} sw={1.6} />
-                      <span className="text-[12.5px]">Upload PNG or JPG</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-            <div className="flex gap-2 mt-6">
-              <button onClick={() => setShowAddVariantModal(false)} className="flex-1 h-10 rounded-xl border border-border text-[13px] hover:bg-cream transition">Cancel</button>
-              <button
-                onClick={handleAddVariant}
-                disabled={!newVariantName.trim() || !newVariantFile || addingVariant}
-                className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white transition disabled:opacity-40 bg-primary"
-              >
-                {addingVariant ? 'Creating…' : 'Create variant'}
-              </button>
-            </div>
+            </ModalField>
           </div>
-        </div>
+          <div className="flex gap-2 mt-6">
+            <button onClick={() => setShowAddVariant(false)} className="flex-1 h-10 rounded-xl border border-border text-[13px] hover:bg-cream transition">Cancel</button>
+            <button onClick={handleAddVariant} disabled={!newVariantName.trim() || !newVariantFile || addingVariant}
+              className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white transition disabled:opacity-40 bg-primary">
+              {addingVariant ? 'Creating…' : 'Create variant'}
+            </button>
+          </div>
+        </Modal>
+      )}
+
+      {/* ── Shortcuts Modal ─────────────────────────────── */}
+      {showShortcuts && (
+        <Modal onClose={() => setShowShortcuts(false)} title="Keyboard shortcuts" subtitle="Everything you can do without a mouse">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-[12.5px]">
+            {[
+              ['⌘Z / ⇧⌘Z','Undo / Redo'],['⌘D','Duplicate zone'],['⌫','Delete selected'],
+              ['⌘P','Preview mode'],['⌘/','This panel'],['G','Toggle grid'],
+              ['⌘⌥C','Copy style'],['⌘⌥V','Paste style'],['Arrow keys','Nudge 1px'],
+              ['⇧+Arrow','Nudge 10px'],['[',  'Send backward'],[']','Bring forward'],
+              ['⇧+click','Multi-select'],['⇧+drag resize','Lock aspect ratio'],['Esc','Deselect all'],
+              ['⌘+wheel','Zoom in/out'],['⇧+rotate','Snap to 15°'],['⌘+click variant','Switch variant'],
+            ].map(([k, v]) => (
+              <div key={k} className="flex items-center justify-between py-1 border-b border-border/50">
+                <span className="font-mono text-[11px] bg-cream px-1.5 py-0.5 rounded text-[#0F1F18]/70">{k}</span>
+                <span className="text-[#0F1F18]/60">{v}</span>
+              </div>
+            ))}
+          </div>
+        </Modal>
       )}
     </div>
   );
 }
 
-function ZoneEl({ zone, selected, previewMode, onPointerDown, onHandle }: {
-  zone: Zone; selected: boolean; previewMode: boolean;
+/* ══════════════════════════════════════════════════════════
+   RIGHT RAIL COMPONENT
+══════════════════════════════════════════════════════════ */
+function RightRail({
+  selected, bgW, bgH, fontSearch, setFontSearch, filteredFonts,
+  updateZone, duplicateZone, removeZone, BRAND_COLORS,
+}: {
+  selected: Zone; bgW: number; bgH: number;
+  fontSearch: string; setFontSearch: (v: string) => void; filteredFonts: string[];
+  updateZone: (id: string, patch: Partial<Zone>, withHistory?: boolean) => void;
+  duplicateZone: (id: string) => void;
+  removeZone: (id: string) => void;
+  BRAND_COLORS: string[];
+}) {
+  const upd = (patch: Partial<Zone>) => updateZone(selected.id, patch);
+  const [showFontSearch, setShowFontSearch] = useState(false);
+
+  return (
+    <aside className="w-[300px] shrink-0 bg-white border-l border-border flex flex-col overflow-y-auto">
+      {/* Zone header */}
+      <div className="p-4 border-b border-border flex items-center gap-2 shrink-0">
+        <span className="h-7 w-7 rounded-md grid place-items-center text-white bg-primary shrink-0">
+          <Icon d={selected.type === 'photo' ? I.photo : selected.type === 'custom' ? I.field : I.text} size={13} />
+        </span>
+        <div className="flex-1 min-w-0">
+          <div className="text-[10.5px] font-mono text-[#0F1F18]/45 uppercase tracking-widest">{selected.type} zone</div>
+          <div className="text-[13px] font-display font-semibold truncate">{selected.label}</div>
+        </div>
+        <button onClick={() => duplicateZone(selected.id)} title="Duplicate (⌘D)" className="h-7 w-7 rounded-md hover:bg-cream grid place-items-center text-[#0F1F18]/55 transition"><Icon d={I.dup} size={13} /></button>
+        <button onClick={() => removeZone(selected.id)} title="Delete (⌫)" className="h-7 w-7 rounded-md hover:bg-rose-50 grid place-items-center text-rose-400 hover:text-rose-500 transition"><Icon d={I.trash} size={13} /></button>
+      </div>
+
+      {/* ── Field ───────────────────────────────────────── */}
+      <PropSection title="Field">
+        <PropRow label="Label">
+          <input value={selected.label} onChange={e => upd({ label: e.target.value })} className="prop-input" />
+        </PropRow>
+        <PropRow label="Placeholder">
+          <input value={selected.placeholder ?? ''} onChange={e => upd({ placeholder: e.target.value })} className="prop-input" placeholder="Shown in the form" />
+        </PropRow>
+        <PropRow label="Preview text">
+          <input value={selected.sample ?? ''} onChange={e => upd({ sample: e.target.value })} className="prop-input" placeholder="Live preview value" />
+        </PropRow>
+        <PropToggle label="Required" value={!!selected.required} onChange={v => upd({ required: v })} />
+      </PropSection>
+
+      {/* ── Photo style ─────────────────────────────────── */}
+      {selected.type === 'photo' && (
+        <>
+          <PropSection title="Photo style">
+            <PropRow label="Shape">
+              <Segmented
+                value={selected.shape ?? 'circle'}
+                onChange={v => upd({ shape: v as Zone['shape'] })}
+                options={[{ v: 'circle', label: 'Circle' }, { v: 'rounded', label: 'Rounded' }, { v: 'square', label: 'Square' }]}
+              />
+            </PropRow>
+          </PropSection>
+          <PropSection title="Border">
+            <PropToggle label="Show border" value={!!(selected.photoBorderWidth && selected.photoBorderWidth > 0)} onChange={v => upd({ photoBorderWidth: v ? 4 : 0, photoBorderColor: v ? '#FFFFFF' : undefined })} />
+            {(selected.photoBorderWidth ?? 0) > 0 && (
+              <>
+                <PropRow label="Border color">
+                  <ColorRow value={selected.photoBorderColor ?? '#FFFFFF'} onChange={c => upd({ photoBorderColor: c })} BRAND_COLORS={BRAND_COLORS} />
+                </PropRow>
+                <PropRow label={`Width · ${selected.photoBorderWidth ?? 4}px`}>
+                  <input type="range" min="1" max="40" value={selected.photoBorderWidth ?? 4} onChange={e => upd({ photoBorderWidth: Number(e.target.value) })} className="w-full accent-primary" style={{ height: 4 }} />
+                </PropRow>
+              </>
+            )}
+          </PropSection>
+        </>
+      )}
+
+      {/* ── Typography (text/custom) ─────────────────────── */}
+      {(selected.type === 'text' || selected.type === 'custom') && (
+        <>
+          <PropSection title="Typography">
+            {/* Font picker */}
+            <PropRow label="Font">
+              <div className="relative">
+                <button
+                  onClick={() => setShowFontSearch(s => !s)}
+                  className="prop-input flex items-center justify-between text-left"
+                  style={{ fontFamily: selected.font }}
+                >
+                  <span>{selected.font ?? 'Inter'}</span>
+                  <Icon d={I.down} size={12} />
+                </button>
+                {showFontSearch && (
+                  <div className="absolute top-full left-0 right-0 z-50 bg-white border border-border rounded-xl shadow-lift mt-1 overflow-hidden">
+                    <div className="p-2 border-b border-border">
+                      <input
+                        autoFocus
+                        placeholder="Search fonts…"
+                        value={fontSearch}
+                        onChange={e => setFontSearch(e.target.value)}
+                        className="w-full text-[12px] outline-none px-2 py-1.5 bg-cream rounded-lg"
+                        onClick={e => e.stopPropagation()}
+                      />
+                    </div>
+                    <div className="max-h-[200px] overflow-y-auto py-1">
+                      {filteredFonts.map(f => (
+                        <button
+                          key={f}
+                          onClick={() => { upd({ font: f }); setShowFontSearch(false); setFontSearch(''); }}
+                          className={`w-full text-left px-3 py-2 text-[13px] hover:bg-cream transition ${selected.font === f ? 'text-primary font-medium bg-primary/5' : ''}`}
+                          style={{ fontFamily: f }}
+                        >
+                          {f}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </PropRow>
+
+            <PropRow label="Weight">
+              <Segmented
+                value={String(selected.weight ?? 400)}
+                onChange={v => upd({ weight: Number(v) })}
+                options={[{ v: '300', label: 'Light' }, { v: '400', label: 'Reg' }, { v: '600', label: 'SBd' }, { v: '700', label: 'Bold' }]}
+              />
+            </PropRow>
+
+            <PropRow label={`Size · ${selected.size ?? 32}px`}>
+              <div className="flex items-center gap-2">
+                <input type="range" min="8" max="300" value={selected.size ?? 32} onChange={e => upd({ size: Number(e.target.value) })} className="flex-1 accent-primary" style={{ height: 4 }} />
+                <input type="number" min="8" max="300" value={selected.size ?? 32} onChange={e => upd({ size: Number(e.target.value) })} className="w-14 h-7 text-center border border-border rounded-lg text-[12px] font-mono outline-none focus:border-primary" />
+              </div>
+            </PropRow>
+
+            <PropRow label="Align">
+              <Segmented
+                value={selected.align ?? 'left'}
+                onChange={v => upd({ align: v as Zone['align'] })}
+                options={[{ v: 'left', icon: I.al }, { v: 'center', icon: I.ac }, { v: 'right', icon: I.ar }]}
+              />
+            </PropRow>
+
+            <PropRow label="Transform">
+              <Segmented
+                value={selected.textTransform ?? 'none'}
+                onChange={v => upd({ textTransform: v as Zone['textTransform'] })}
+                options={[{ v: 'none', label: 'Aa' }, { v: 'uppercase', label: 'AA' }, { v: 'lowercase', label: 'aa' }]}
+              />
+            </PropRow>
+
+            <PropRow label={`Line height · ${(selected.lineHeight ?? 1.2).toFixed(1)}`}>
+              <input type="range" min="0.8" max="2.5" step="0.05" value={selected.lineHeight ?? 1.2} onChange={e => upd({ lineHeight: Number(e.target.value) })} className="w-full accent-primary" style={{ height: 4 }} />
+            </PropRow>
+
+            <PropRow label={`Letter spacing · ${selected.letterSpacing ?? 0}px`}>
+              <input type="range" min="-5" max="30" step="0.5" value={selected.letterSpacing ?? 0} onChange={e => upd({ letterSpacing: Number(e.target.value) })} className="w-full accent-primary" style={{ height: 4 }} />
+            </PropRow>
+
+            <PropRow label="Text color">
+              <ColorRow value={selected.color ?? '#FFFFFF'} onChange={c => upd({ color: c })} BRAND_COLORS={BRAND_COLORS} />
+            </PropRow>
+          </PropSection>
+
+          {/* ── Text Effects ─────────────────────────────── */}
+          <PropSection title="Text effects">
+            {/* Stroke */}
+            <PropToggle label="Text stroke" value={!!(selected.strokeColor && (selected.strokeWidth ?? 0) > 0)} onChange={v => upd({ strokeColor: v ? '#000000' : undefined, strokeWidth: v ? 3 : 0 })} />
+            {selected.strokeColor && (selected.strokeWidth ?? 0) > 0 && (
+              <>
+                <PropRow label="Stroke color">
+                  <ColorRow value={selected.strokeColor ?? '#000000'} onChange={c => upd({ strokeColor: c })} BRAND_COLORS={BRAND_COLORS} />
+                </PropRow>
+                <PropRow label={`Stroke width · ${selected.strokeWidth ?? 3}px`}>
+                  <input type="range" min="1" max="20" value={selected.strokeWidth ?? 3} onChange={e => upd({ strokeWidth: Number(e.target.value) })} className="w-full accent-primary" style={{ height: 4 }} />
+                </PropRow>
+              </>
+            )}
+
+            {/* Shadow */}
+            <PropToggle label="Drop shadow" value={!!(selected.shadowColor && (selected.shadowBlur ?? 0) > 0)} onChange={v => upd({ shadowColor: v ? 'rgba(0,0,0,0.6)' : undefined, shadowBlur: v ? 12 : 0, shadowX: v ? 2 : 0, shadowY: v ? 4 : 0 })} />
+            {selected.shadowColor && (selected.shadowBlur ?? 0) > 0 && (
+              <>
+                <PropRow label="Shadow color">
+                  <div className="flex items-center gap-2">
+                    <input type="color" value={selected.shadowColor?.startsWith('#') ? selected.shadowColor : '#000000'} onChange={e => upd({ shadowColor: e.target.value })} className="h-7 w-7 rounded border border-border cursor-pointer" />
+                    <input value={selected.shadowColor ?? ''} onChange={e => upd({ shadowColor: e.target.value })} className="prop-input flex-1 font-mono text-[11px]" />
+                  </div>
+                </PropRow>
+                <PropRow label={`Blur · ${selected.shadowBlur ?? 12}px`}>
+                  <input type="range" min="0" max="40" value={selected.shadowBlur ?? 12} onChange={e => upd({ shadowBlur: Number(e.target.value) })} className="w-full accent-primary" style={{ height: 4 }} />
+                </PropRow>
+                <div className="grid grid-cols-2 gap-2">
+                  <PropRow label={`X · ${selected.shadowX ?? 0}px`}>
+                    <input type="range" min="-20" max="20" value={selected.shadowX ?? 0} onChange={e => upd({ shadowX: Number(e.target.value) })} className="w-full accent-primary" style={{ height: 4 }} />
+                  </PropRow>
+                  <PropRow label={`Y · ${selected.shadowY ?? 0}px`}>
+                    <input type="range" min="-20" max="20" value={selected.shadowY ?? 0} onChange={e => upd({ shadowY: Number(e.target.value) })} className="w-full accent-primary" style={{ height: 4 }} />
+                  </PropRow>
+                </div>
+              </>
+            )}
+          </PropSection>
+
+          {/* ── Background fill ───────────────────────────── */}
+          <PropSection title="Background fill">
+            <PropToggle label="Enable fill" value={!!selected.bgColor} onChange={v => upd({ bgColor: v ? '#000000' : undefined, bgOpacity: v ? 50 : undefined })} />
+            {selected.bgColor && (
+              <>
+                <PropRow label="Fill color">
+                  <ColorRow value={selected.bgColor.startsWith('#') ? selected.bgColor : '#000000'} onChange={c => upd({ bgColor: c })} BRAND_COLORS={BRAND_COLORS} />
+                </PropRow>
+                <PropRow label={`Fill opacity · ${selected.bgOpacity ?? 60}%`}>
+                  <input type="range" min="0" max="100" value={selected.bgOpacity ?? 60} onChange={e => upd({ bgOpacity: Number(e.target.value) })} className="w-full accent-primary" style={{ height: 4 }} />
+                </PropRow>
+              </>
+            )}
+          </PropSection>
+        </>
+      )}
+
+      {/* ── Appearance ──────────────────────────────────── */}
+      <PropSection title="Appearance">
+        <PropRow label={`Opacity · ${selected.opacity ?? 100}%`}>
+          <input type="range" min="0" max="100" value={selected.opacity ?? 100} onChange={e => upd({ opacity: Number(e.target.value) })} className="w-full accent-primary" style={{ height: 4 }} />
+        </PropRow>
+        <PropRow label={`Rotation · ${selected.rotation ?? 0}°`}>
+          <div className="flex items-center gap-2">
+            <input type="range" min="0" max="359" value={selected.rotation ?? 0} onChange={e => upd({ rotation: Number(e.target.value) })} className="flex-1 accent-primary" style={{ height: 4 }} />
+            <input type="number" min="0" max="359" value={selected.rotation ?? 0} onChange={e => upd({ rotation: Number(e.target.value) })} className="w-14 h-7 text-center border border-border rounded-lg text-[12px] font-mono outline-none focus:border-primary" />
+          </div>
+        </PropRow>
+        <div className="flex gap-1.5">
+          {[0, 45, 90, 135, 180, 270].map(d => (
+            <button key={d} onClick={() => upd({ rotation: d })} className={`flex-1 h-7 text-[10.5px] font-mono rounded-lg border transition ${(selected.rotation ?? 0) === d ? 'bg-primary/10 text-primary border-primary/30' : 'border-border hover:bg-cream text-[#0F1F18]/55'}`}>{d}°</button>
+          ))}
+        </div>
+        <PropToggle label="Locked" value={!!selected.locked} onChange={v => upd({ locked: v })} />
+        <PropToggle label="Hidden" value={!!selected.hidden} onChange={v => upd({ hidden: v })} />
+      </PropSection>
+
+      {/* ── Position & size ─────────────────────────────── */}
+      <PropSection title="Position & size">
+        <div className="grid grid-cols-2 gap-2">
+          <NumberProp label="X" value={selected.x} onChange={v => upd({ x: v })} />
+          <NumberProp label="Y" value={selected.y} onChange={v => upd({ y: v })} />
+          <NumberProp label="W" value={selected.w} onChange={v => upd({ w: v })} />
+          <NumberProp label="H" value={selected.h} onChange={v => upd({ h: v })} />
+        </div>
+        {/* Alignment quick buttons */}
+        <div className="mt-3 grid grid-cols-3 gap-1">
+          <button onClick={() => upd({ x: 0 })} className="py-1.5 text-[10.5px] font-mono text-[#0F1F18]/55 border border-border rounded-lg hover:bg-cream transition" title="Align left edge">⇤ Left</button>
+          <button onClick={() => upd({ x: Math.round(bgW / 2 - selected.w / 2) })} className="py-1.5 text-[10.5px] font-mono text-[#0F1F18]/55 border border-border rounded-lg hover:bg-cream transition" title="Center horizontally">↔ H</button>
+          <button onClick={() => upd({ x: bgW - selected.w })} className="py-1.5 text-[10.5px] font-mono text-[#0F1F18]/55 border border-border rounded-lg hover:bg-cream transition" title="Align right edge">Right ⇥</button>
+          <button onClick={() => upd({ y: 0 })} className="py-1.5 text-[10.5px] font-mono text-[#0F1F18]/55 border border-border rounded-lg hover:bg-cream transition" title="Align top edge">⇡ Top</button>
+          <button onClick={() => upd({ y: Math.round(bgH / 2 - selected.h / 2) })} className="py-1.5 text-[10.5px] font-mono text-[#0F1F18]/55 border border-border rounded-lg hover:bg-cream transition" title="Center vertically">↕ V</button>
+          <button onClick={() => upd({ y: bgH - selected.h })} className="py-1.5 text-[10.5px] font-mono text-[#0F1F18]/55 border border-border rounded-lg hover:bg-cream transition" title="Align bottom edge">Bot ⇩</button>
+        </div>
+      </PropSection>
+
+      {/* Custom field options */}
+      {selected.type === 'custom' && (
+        <PropSection title="Dropdown options">
+          <PropRow label="Options (one per line)">
+            <textarea
+              rows={4}
+              value={(selected.options ?? []).join('\n')}
+              onChange={e => upd({ options: e.target.value.split('\n').filter(Boolean) })}
+              className="prop-input !h-auto py-2 resize-none font-mono text-[11.5px] leading-relaxed"
+            />
+          </PropRow>
+        </PropSection>
+      )}
+
+      <style>{`
+        .prop-input{width:100%;height:32px;padding:0 10px;border:1px solid #E5E0D4;border-radius:8px;background:#FAF6EE;font-size:12.5px;font-family:'Inter',sans-serif;outline:none;}
+        .prop-input:focus{background:white;outline:2px solid rgba(31,77,58,0.25);outline-offset:-1px;border-color:#1F4D3A;}
+      `}</style>
+    </aside>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════
+   ZONE ELEMENT
+══════════════════════════════════════════════════════════ */
+function ZoneEl({ zone, selected, multiSelected, previewMode, onPointerDown, onHandle, onRotate }: {
+  zone: Zone; selected: boolean; multiSelected: boolean; previewMode: boolean;
   onPointerDown: (e: React.PointerEvent) => void;
   onHandle: (e: React.PointerEvent, dir: string) => void;
+  onRotate: (e: React.PointerEvent) => void;
 }) {
   if (zone.hidden) return null;
-  const isPhoto = zone.type === 'photo';
-  const radius = isPhoto ? (zone.shape === 'circle' ? '50%' : zone.shape === 'rounded' ? '20%' : '4px') : '6px';
-  const dashColor = selected ? '#1F4D3A' : '#E8C57E';
+
+  const isPhoto  = zone.type === 'photo';
+  const rotation = zone.rotation ?? 0;
+  const radius   = isPhoto ? (zone.shape === 'circle' ? '50%' : zone.shape === 'rounded' ? '20%' : '4px') : '6px';
+  const dashColor = multiSelected ? '#C9A45E' : '#1F4D3A';
   const opacityVal = (zone.opacity ?? 100) / 100;
+
+  const displayText = (() => {
+    const raw = zone.sample ?? zone.placeholder ?? '';
+    const t = zone.textTransform;
+    if (t === 'uppercase') return raw.toUpperCase();
+    if (t === 'lowercase') return raw.toLowerCase();
+    return raw;
+  })();
+
+  const lines = (!isPhoto) ? wrapTextLines(displayText, zone.w - 16, zone.size ?? 32) : [];
+
+  const textStyle: React.CSSProperties = {
+    fontFamily: zone.font,
+    fontWeight: zone.weight,
+    fontSize: zone.size,
+    color: zone.color,
+    lineHeight: zone.lineHeight ?? 1.2,
+    letterSpacing: zone.letterSpacing ? `${zone.letterSpacing}px` : undefined,
+    textAlign: zone.align,
+    WebkitTextStroke: (zone.strokeColor && (zone.strokeWidth ?? 0) > 0) ? `${zone.strokeWidth}px ${zone.strokeColor}` : undefined,
+    textShadow: (zone.shadowColor && (zone.shadowBlur ?? 0) > 0)
+      ? `${zone.shadowX ?? 0}px ${zone.shadowY ?? 0}px ${zone.shadowBlur}px ${zone.shadowColor}`
+      : undefined,
+  };
 
   const inner = (() => {
     if (isPhoto) {
       return (
-        <div className="absolute inset-0 grid place-items-center text-white" style={{ borderRadius: radius, background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(2px)' }}>
-          <div className="font-display font-bold opacity-60" style={{ fontSize: Math.min(zone.w, zone.h) / 3 }}>{zone.sample ?? '+'}</div>
+        <div className="absolute inset-0 grid place-items-center text-white" style={{
+          borderRadius: radius,
+          background: 'rgba(255,255,255,0.06)',
+          backdropFilter: 'blur(2px)',
+          border: (zone.photoBorderWidth ?? 0) > 0 ? `${zone.photoBorderWidth}px solid ${zone.photoBorderColor ?? '#fff'}` : undefined,
+        }}>
+          <div className="font-display font-bold opacity-50" style={{ fontSize: Math.min(zone.w, zone.h) / 3 }}>{zone.sample ?? '+'}</div>
         </div>
       );
     }
     return (
-      <>
+      <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: 6, padding: '0 8px' }}>
         {zone.bgColor && (
-          <div className="absolute inset-0" style={{
-            borderRadius: 4,
-            background: zone.bgColor,
-            opacity: (zone.bgOpacity ?? 60) / 100,
-          }} />
+          <div className="absolute inset-0" style={{ background: zone.bgColor, opacity: (zone.bgOpacity ?? 60) / 100, borderRadius: 4 }} />
         )}
-        <div className="absolute inset-0 flex items-center overflow-hidden" style={{ justifyContent: zone.align === 'center' ? 'center' : zone.align === 'right' ? 'flex-end' : 'flex-start' }}>
-          <div style={{
-            fontFamily: zone.font, fontWeight: zone.weight, fontSize: zone.size, color: zone.color,
-            lineHeight: zone.lineHeight ?? 1.2,
-            letterSpacing: zone.letterSpacing ? `${zone.letterSpacing}px` : undefined,
-            whiteSpace: 'nowrap', textAlign: zone.align,
-          }}>
-            {zone.sample ?? zone.placeholder}
-          </div>
+        <div className="relative h-full" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: zone.align === 'center' ? 'center' : zone.align === 'right' ? 'flex-end' : 'flex-start' }}>
+          {lines.map((line, i) => (
+            <div key={i} style={{ ...textStyle, whiteSpace: 'nowrap' }}>{line || ' '}</div>
+          ))}
         </div>
-      </>
+      </div>
     );
   })();
 
@@ -916,40 +1295,76 @@ function ZoneEl({ zone, selected, previewMode, onPointerDown, onHandle }: {
     <div
       className="absolute"
       style={{
-        left: zone.x, top: zone.y, width: zone.w, height: zone.h, borderRadius: radius,
+        left: zone.x, top: zone.y, width: zone.w, height: zone.h,
+        borderRadius: radius,
         cursor: zone.locked ? 'not-allowed' : previewMode ? 'default' : 'grab',
         opacity: opacityVal,
-        outline: selected && !previewMode ? `1.5px solid ${dashColor}` : undefined,
+        transform: rotation ? `rotate(${rotation}deg)` : undefined,
+        transformOrigin: 'center center',
+        outline: selected && !previewMode ? `2px solid ${dashColor}` : undefined,
+        boxShadow: multiSelected && !previewMode ? `0 0 0 1px ${dashColor}40` : undefined,
       }}
       onPointerDown={onPointerDown}
     >
-      {!previewMode && (
+      {/* Dashed border when not selected */}
+      {!previewMode && !selected && (
         <div className="absolute inset-0 pointer-events-none" style={{
           borderRadius: radius,
-          backgroundImage: `repeating-linear-gradient(90deg, ${dashColor} 0 8px, transparent 8px 14px), repeating-linear-gradient(180deg, ${dashColor} 0 8px, transparent 8px 14px), repeating-linear-gradient(0deg, ${dashColor} 0 8px, transparent 8px 14px), repeating-linear-gradient(270deg, ${dashColor} 0 8px, transparent 8px 14px)`,
-          backgroundSize: '100% 2px, 2px 100%, 100% 2px, 2px 100%',
-          backgroundPosition: '0 0, 0 0, 0 100%, 100% 0',
+          backgroundImage: `repeating-linear-gradient(90deg,${dashColor} 0 6px,transparent 6px 12px),repeating-linear-gradient(180deg,${dashColor} 0 6px,transparent 6px 12px),repeating-linear-gradient(0deg,${dashColor} 0 6px,transparent 6px 12px),repeating-linear-gradient(270deg,${dashColor} 0 6px,transparent 6px 12px)`,
+          backgroundSize: '100% 1.5px,1.5px 100%,100% 1.5px,1.5px 100%',
+          backgroundPosition: '0 0,0 0,0 100%,100% 0',
           backgroundRepeat: 'no-repeat',
-          opacity: 0.95,
+          opacity: 0.7,
         }} />
       )}
 
       {inner}
 
+      {/* Label tag */}
       {!previewMode && (
-        <span className="absolute pointer-events-auto font-mono text-[10px] px-1.5 py-px rounded text-white whitespace-nowrap" style={{ background: dashColor, top: -4, left: 0, transform: 'translateY(-100%)' }}>
-          {zone.label}{zone.required && ' *'}
-          {zone.locked && ' 🔒'}
+        <span className="absolute pointer-events-none font-mono text-[9.5px] px-1.5 py-px rounded text-white whitespace-nowrap" style={{ background: dashColor, top: -2, left: 0, transform: 'translateY(-100%)' }}>
+          {zone.label}{zone.required && ' *'}{zone.locked && ' 🔒'}{rotation !== 0 && ` ${rotation}°`}
         </span>
       )}
 
+      {/* Rotation handle */}
       {selected && !previewMode && (
         <>
-          {(['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'] as const).map(dir => (
-            <HandleEl key={dir} dir={dir} round={isPhoto && zone.shape === 'circle'} onPointerDown={e => onHandle(e, dir)} />
+          {/* Stem line */}
+          <div className="absolute pointer-events-none" style={{
+            width: 1, height: ROTATE_HANDLE_DIST,
+            background: dashColor,
+            left: zone.w / 2 - 0.5,
+            bottom: '100%',
+          }} />
+          {/* Circle handle */}
+          <div
+            onPointerDown={onRotate}
+            title="Drag to rotate (⇧ = snap 15°)"
+            style={{
+              position: 'absolute',
+              width: 14, height: 14,
+              borderRadius: 999,
+              background: 'white',
+              border: `2px solid ${dashColor}`,
+              bottom: `calc(100% + ${ROTATE_HANDLE_DIST}px)`,
+              left: zone.w / 2 - 7,
+              cursor: 'grab',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
+              zIndex: 10,
+            }}
+          />
+        </>
+      )}
+
+      {/* Resize handles + size badge */}
+      {selected && !previewMode && (
+        <>
+          {(['nw','n','ne','e','se','s','sw','w'] as const).map(dir => (
+            <HandleEl key={dir} dir={dir} round={isPhoto && zone.shape === 'circle'} color={dashColor} onPointerDown={e => onHandle(e, dir)} />
           ))}
-          <span className="absolute font-mono text-[10px] text-white px-2 py-0.5 rounded whitespace-nowrap" style={{ background: '#1F4D3A', bottom: -28, left: '50%', transform: 'translateX(-50%)' }}>
-            {zone.w} × {zone.h}
+          <span className="absolute font-mono text-[9.5px] text-white px-1.5 py-0.5 rounded whitespace-nowrap pointer-events-none" style={{ background: dashColor, bottom: -26, left: '50%', transform: 'translateX(-50%)' }}>
+            {zone.w} × {zone.h}{rotation !== 0 ? ` · ${rotation}°` : ''}
           </span>
         </>
       )}
@@ -957,31 +1372,34 @@ function ZoneEl({ zone, selected, previewMode, onPointerDown, onHandle }: {
   );
 }
 
-const HANDLE_POSITIONS: Record<string, React.CSSProperties> = {
-  nw: { top: -6, left: -6, cursor: 'nwse-resize' },
-  n:  { top: -6, left: '50%', marginLeft: -5, cursor: 'ns-resize' },
-  ne: { top: -6, right: -6, cursor: 'nesw-resize' },
-  e:  { top: '50%', right: -6, marginTop: -5, cursor: 'ew-resize' },
-  se: { bottom: -6, right: -6, cursor: 'nwse-resize' },
-  s:  { bottom: -6, left: '50%', marginLeft: -5, cursor: 'ns-resize' },
-  sw: { bottom: -6, left: -6, cursor: 'nesw-resize' },
-  w:  { top: '50%', left: -6, marginTop: -5, cursor: 'ew-resize' },
+const HANDLE_POS: Record<string, React.CSSProperties> = {
+  nw: { top: -6,   left: -6,              cursor: 'nwse-resize' },
+  n:  { top: -6,   left: '50%', marginLeft: -5, cursor: 'ns-resize'   },
+  ne: { top: -6,   right: -6,             cursor: 'nesw-resize' },
+  e:  { top: '50%',right: -6,  marginTop: -5,   cursor: 'ew-resize'   },
+  se: { bottom: -6,right: -6,             cursor: 'nwse-resize' },
+  s:  { bottom: -6,left: '50%',marginLeft: -5,  cursor: 'ns-resize'   },
+  sw: { bottom: -6,left: -6,              cursor: 'nesw-resize' },
+  w:  { top: '50%',left: -6,  marginTop: -5,    cursor: 'ew-resize'   },
 };
 
-function HandleEl({ dir, round, onPointerDown }: { dir: string; round: boolean; onPointerDown: (e: React.PointerEvent) => void }) {
+function HandleEl({ dir, round, color, onPointerDown }: { dir: string; round: boolean; color: string; onPointerDown: (e: React.PointerEvent) => void }) {
   return (
     <span
       data-handle={dir}
       onPointerDown={onPointerDown}
-      style={{ position: 'absolute', width: 10, height: 10, background: 'white', border: '1.5px solid #1F4D3A', borderRadius: round ? 999 : 2, ...HANDLE_POSITIONS[dir] }}
+      style={{ position: 'absolute', width: 10, height: 10, background: 'white', border: `2px solid ${color}`, borderRadius: round ? 999 : 2, ...HANDLE_POS[dir] }}
     />
   );
 }
 
+/* ══════════════════════════════════════════════════════════
+   UI PRIMITIVES
+══════════════════════════════════════════════════════════ */
 function PropSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="px-4 py-4 border-b border-border">
-      <div className="text-[11px] font-mono tracking-widest text-[#0F1F18]/40 mb-3">{title.toUpperCase()}</div>
+      <div className="text-[10.5px] font-mono tracking-widest text-[#0F1F18]/40 mb-3">{title.toUpperCase()}</div>
       <div className="space-y-3">{children}</div>
     </div>
   );
@@ -998,7 +1416,7 @@ function PropRow({ label, children }: { label: string; children: React.ReactNode
 
 function PropToggle({ label, value, onChange }: { label: string; value: boolean; onChange: (v: boolean) => void }) {
   return (
-    <label className="flex items-center justify-between cursor-pointer">
+    <label className="flex items-center justify-between cursor-pointer py-0.5">
       <span className="text-[12.5px]">{label}</span>
       <button type="button" onClick={() => onChange(!value)} className={`relative h-5 w-9 rounded-full transition ${value ? 'bg-primary' : 'bg-border'}`}>
         <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all ${value ? 'left-[18px]' : 'left-0.5'}`} />
@@ -1011,11 +1429,8 @@ function Segmented({ value, onChange, options }: { value: string; onChange: (v: 
   return (
     <div className="flex p-0.5 bg-cream rounded-lg border border-border">
       {options.map(o => (
-        <button
-          key={o.v}
-          onClick={() => onChange(o.v)}
-          className={`flex-1 h-7 text-[11px] font-medium rounded-md grid place-items-center transition ${value === o.v ? 'bg-white shadow-sm text-[#0F1F18]' : 'text-[#0F1F18]/55 hover:text-[#0F1F18]'}`}
-        >
+        <button key={o.v} onClick={() => onChange(o.v)}
+          className={`flex-1 h-7 text-[11px] font-medium rounded-md grid place-items-center transition ${value === o.v ? 'bg-white shadow-sm text-[#0F1F18]' : 'text-[#0F1F18]/50 hover:text-[#0F1F18]'}`}>
           {o.icon ? <Icon d={o.icon} size={12} /> : o.label}
         </button>
       ))}
@@ -1029,5 +1444,54 @@ function NumberProp({ label, value, onChange }: { label: string; value: number; 
       <div className="text-[10px] font-mono uppercase tracking-widest text-[#0F1F18]/40 mb-1">{label}</div>
       <input type="number" value={value} onChange={e => onChange(Number(e.target.value))} className="prop-input font-mono text-[12px]" />
     </label>
+  );
+}
+
+function ColorRow({ value, onChange, BRAND_COLORS }: { value: string; onChange: (v: string) => void; BRAND_COLORS: string[] }) {
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-center gap-2">
+        <input type="color" value={value.startsWith('#') ? value : '#ffffff'} onChange={e => onChange(e.target.value)} className="h-7 w-7 rounded border border-border cursor-pointer bg-white shrink-0" />
+        <input value={value} onChange={e => onChange(e.target.value)} className="prop-input flex-1 font-mono text-[11px] uppercase" style={{ minWidth: 72 }} />
+      </div>
+      <div className="flex gap-1 flex-wrap">
+        {BRAND_COLORS.map(s => (
+          <button key={s} onClick={() => onChange(s)}
+            className={`h-5 w-5 rounded border transition ${value.toUpperCase() === s.toUpperCase() ? 'border-primary ring-2 ring-primary/30' : 'border-border hover:border-primary/50'}`}
+            style={{ background: s }}
+            title={s}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Modal({ onClose, title, subtitle, children }: { onClose: () => void; title: string; subtitle?: string; children: React.ReactNode }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+      <div className="absolute inset-0 bg-[#0F1F18]/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-white rounded-2xl shadow-lift w-full max-w-[440px] p-6">
+        <div className="flex items-start justify-between mb-5">
+          <div>
+            <h2 className="font-display font-bold text-[18px]">{title}</h2>
+            {subtitle && <p className="text-[12.5px] text-[#0F1F18]/50 mt-0.5">{subtitle}</p>}
+          </div>
+          <button onClick={onClose} className="h-8 w-8 rounded-lg hover:bg-cream grid place-items-center text-[#0F1F18]/50 shrink-0 ml-4">
+            <Icon d={I.close} size={15} />
+          </button>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function ModalField({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label className="block text-[12px] font-medium text-[#0F1F18]/70 mb-1.5">{label}</label>
+      {children}
+    </div>
   );
 }

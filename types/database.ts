@@ -24,10 +24,22 @@ export interface Zone {
   // text styling extras
   lineHeight?: number;     // 0.8 – 2.5, default 1.2
   letterSpacing?: number;  // px, -5 – 20, default 0
+  textTransform?: 'none' | 'uppercase' | 'lowercase';
+  // text effects
+  strokeColor?: string;    // outline/stroke color
+  strokeWidth?: number;    // outline width px, default 0
+  shadowColor?: string;    // drop shadow color
+  shadowBlur?: number;     // shadow blur px, default 0
+  shadowX?: number;        // shadow offset X px, default 0
+  shadowY?: number;        // shadow offset Y px, default 0
   // appearance
   opacity?: number;        // 0 – 100, default 100
+  rotation?: number;       // degrees, default 0
   bgColor?: string;        // background rect behind text
   bgOpacity?: number;      // 0 – 100, default 60
+  // photo extras
+  photoBorderColor?: string;
+  photoBorderWidth?: number;  // px, default 0
   // state flags
   required?: boolean;
   hidden?: boolean;

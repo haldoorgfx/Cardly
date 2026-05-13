@@ -20,13 +20,18 @@ function escapeXml(str: string): string {
     .replace(/'/g, '&apos;');
 }
 
+function applyTextTransform(text: string, transform?: string): string {
+  if (transform === 'uppercase') return text.toUpperCase();
+  if (transform === 'lowercase') return text.toLowerCase();
+  return text;
+}
+
 function wrapText(text: string, maxWidth: number, fontSize: number): string[] {
   const approxCharWidth = fontSize * 0.55;
   const maxChars = Math.max(1, Math.floor(maxWidth / approxCharWidth));
   const words = text.split(' ');
   const lines: string[] = [];
   let current = '';
-
   for (const word of words) {
     const test = current ? `${current} ${word}` : word;
     if (test.length > maxChars && current) {
@@ -40,6 +45,23 @@ function wrapText(text: string, maxWidth: number, fontSize: number): string[] {
   return lines;
 }
 
+// Rotate a sharp buffer by arbitrary degrees, returning the new buffer + dimensions
+async function rotateBuffer(
+  buf: Buffer,
+  degrees: number,
+): Promise<{ buf: Buffer; w: number; h: number }> {
+  if (!degrees || degrees === 0) {
+    const meta = await sharp(buf).metadata();
+    return { buf, w: meta.width!, h: meta.height! };
+  }
+  const rotated = await sharp(buf)
+    .rotate(degrees, { background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .png()
+    .toBuffer();
+  const meta = await sharp(rotated).metadata();
+  return { buf: rotated, w: meta.width!, h: meta.height! };
+}
+
 async function compositeText(
   base: sharp.Sharp,
   zone: Zone,
@@ -47,6 +69,7 @@ async function compositeText(
   canvasW: number,
   canvasH: number,
 ): Promise<sharp.Sharp> {
+  const rawText = applyTextTransform(text, zone.textTransform);
   const font = (zone.font ?? 'sans-serif').replace(/'/g, '');
   const size = Math.max(8, zone.size ?? 32);
   const weight = zone.weight ?? 400;
@@ -55,8 +78,17 @@ async function compositeText(
   const lh = zone.lineHeight ?? 1.2;
   const ls = zone.letterSpacing ?? 0;
   const zoneOpacity = (zone.opacity ?? 100) / 100;
+  const rotation = zone.rotation ?? 0;
 
-  const lines = wrapText(text, zone.w - 16, size);
+  // Text effects
+  const strokeColor = zone.strokeColor;
+  const strokeWidth = zone.strokeWidth ?? 0;
+  const shadowColor = zone.shadowColor;
+  const shadowBlur = zone.shadowBlur ?? 0;
+  const shadowX = zone.shadowX ?? 0;
+  const shadowY = zone.shadowY ?? 0;
+
+  const lines = wrapText(rawText, zone.w - 16, size);
   const lineHeight = size * lh;
   const totalH = lines.length * lineHeight;
   const svgH = Math.max(zone.h, totalH + size * 0.5);
@@ -66,9 +98,19 @@ async function compositeText(
   if (align === 'center') { textAnchor = 'middle'; x = zone.w / 2; }
   if (align === 'right') { textAnchor = 'end'; x = zone.w - 8; }
 
+  // Shadow filter
+  const filterDef = (shadowColor && shadowBlur > 0)
+    ? `<defs><filter id="sf" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="${shadowX}" dy="${shadowY}" stdDeviation="${shadowBlur / 2}" flood-color="${shadowColor}" flood-opacity="1"/></filter></defs>`
+    : '';
+  const filterAttr = (shadowColor && shadowBlur > 0) ? 'filter="url(#sf)"' : '';
+
   // Background fill rect
   const bgRect = zone.bgColor
     ? `<rect x="0" y="0" width="${zone.w}" height="${svgH}" fill="${zone.bgColor}" opacity="${(zone.bgOpacity ?? 60) / 100}"/>`
+    : '';
+
+  const strokeAttrs = (strokeColor && strokeWidth > 0)
+    ? `stroke="${strokeColor}" stroke-width="${strokeWidth}" paint-order="stroke fill"`
     : '';
 
   const textEls = lines.map((line, i) => {
@@ -82,14 +124,23 @@ async function compositeText(
       fill="${color}"
       text-anchor="${textAnchor}"
       letter-spacing="${ls}"
+      ${strokeAttrs}
+      ${filterAttr}
     >${escapeXml(line)}</text>`;
   }).join('\n');
 
-  const svg = `<svg width="${zone.w}" height="${svgH}" xmlns="http://www.w3.org/2000/svg" opacity="${zoneOpacity}">${bgRect}${textEls}</svg>`;
-  const overlay = await sharp(Buffer.from(svg)).png().toBuffer();
+  const svg = `<svg width="${zone.w}" height="${svgH}" xmlns="http://www.w3.org/2000/svg" opacity="${zoneOpacity}">${filterDef}${bgRect}${textEls}</svg>`;
+  const rawBuf = await sharp(Buffer.from(svg)).png().toBuffer();
 
-  const left = Math.max(0, Math.min(Math.round(zone.x), canvasW - zone.w));
-  const top = Math.max(0, Math.min(Math.round(zone.y), canvasH - Math.round(svgH)));
+  // Apply rotation
+  const { buf: overlay, w: ow, h: oh } = await rotateBuffer(rawBuf, rotation);
+
+  // Position centered on zone center
+  const zoneCX = zone.x + zone.w / 2;
+  const zoneCY = zone.y + svgH / 2;
+
+  const left = Math.max(0, Math.min(Math.round(zoneCX - ow / 2), canvasW - ow));
+  const top = Math.max(0, Math.min(Math.round(zoneCY - oh / 2), canvasH - oh));
 
   return base.composite([{ input: overlay, left, top }]);
 }
@@ -104,9 +155,14 @@ async function compositePhoto(
   const w = Math.max(1, Math.round(zone.w));
   const h = Math.max(1, Math.round(zone.h));
   const shape = zone.shape ?? 'square';
+  const rotation = zone.rotation ?? 0;
+  const zoneOpacity = (zone.opacity ?? 100) / 100;
+  const borderColor = zone.photoBorderColor;
+  const borderWidth = zone.photoBorderWidth ?? 0;
 
   let photoSharp = sharp(photoBuffer).resize(w, h, { fit: 'cover', position: 'center' });
 
+  // Shape mask
   if (shape === 'circle') {
     const mask = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
       <ellipse cx="${w / 2}" cy="${h / 2}" rx="${w / 2 - 1}" ry="${h / 2 - 1}" fill="white"/>
@@ -122,18 +178,34 @@ async function compositePhoto(
     photoSharp = sharp(await photoSharp.png().toBuffer()).composite([{ input: maskBuf, blend: 'dest-in' }]);
   }
 
-  const photoBuf = await photoSharp.png().toBuffer();
-  const left = Math.max(0, Math.min(Math.round(zone.x), canvasW - w));
-  const top = Math.max(0, Math.min(Math.round(zone.y), canvasH - h));
-  const zoneOpacity = (zone.opacity ?? 100) / 100;
+  let photoBuf = await photoSharp.png().toBuffer();
 
-  // If opacity < 1, composite onto a transparent canvas first then blend
+  // Border overlay
+  if (borderColor && borderWidth > 0) {
+    const r = shape === 'circle' ? '50%' : shape === 'rounded' ? `${Math.min(w, h) * 0.2}` : '0';
+    const borderSvg = shape === 'circle'
+      ? `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg"><ellipse cx="${w / 2}" cy="${h / 2}" rx="${w / 2 - borderWidth / 2}" ry="${h / 2 - borderWidth / 2}" fill="none" stroke="${borderColor}" stroke-width="${borderWidth}"/></svg>`
+      : `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg"><rect x="${borderWidth / 2}" y="${borderWidth / 2}" width="${w - borderWidth}" height="${h - borderWidth}" rx="${r}" fill="none" stroke="${borderColor}" stroke-width="${borderWidth}"/></svg>`;
+    const borderBuf = await sharp(Buffer.from(borderSvg)).png().toBuffer();
+    photoBuf = await sharp(photoBuf).composite([{ input: borderBuf }]).png().toBuffer();
+  }
+
+  // Opacity
   if (zoneOpacity < 1) {
     const blendSvg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg"><image href="data:image/png;base64,${photoBuf.toString('base64')}" width="${w}" height="${h}" opacity="${zoneOpacity}"/></svg>`;
-    const blendBuf = await sharp(Buffer.from(blendSvg)).png().toBuffer();
-    return base.composite([{ input: blendBuf, left, top }]);
+    photoBuf = await sharp(Buffer.from(blendSvg)).png().toBuffer();
   }
-  return base.composite([{ input: photoBuf, left, top }]);
+
+  // Rotation
+  const { buf: finalBuf, w: fw, h: fh } = await rotateBuffer(photoBuf, rotation);
+
+  // Center on original zone center
+  const zoneCX = zone.x + zone.w / 2;
+  const zoneCY = zone.y + zone.h / 2;
+  const left = Math.max(0, Math.min(Math.round(zoneCX - fw / 2), canvasW - fw));
+  const top = Math.max(0, Math.min(Math.round(zoneCY - fh / 2), canvasH - fh));
+
+  return base.composite([{ input: finalBuf, left, top }]);
 }
 
 async function addWatermark(base: sharp.Sharp, canvasW: number, canvasH: number): Promise<sharp.Sharp> {
@@ -161,7 +233,6 @@ export async function POST(req: NextRequest) {
 
   if (!variantId) return NextResponse.json({ error: 'Missing variantId' }, { status: 400 });
 
-  // Load the variant (join to event for status + user_id)
   const { data: variant } = await supabase
     .from('event_variants')
     .select('id, background_url, background_width, background_height, zones, event_id, events(id, status, user_id, download_count)')
@@ -215,7 +286,7 @@ export async function POST(req: NextRequest) {
 
   const outputBuffer = await pipeline.png({ quality: 92 }).toBuffer();
 
-  // Capture location from Vercel geo headers (production) — no API key needed
+  // Geo headers from Vercel
   const geoCity    = req.headers.get('x-vercel-ip-city')
     ? decodeURIComponent(req.headers.get('x-vercel-ip-city')!) : null;
   const geoCountry = req.headers.get('x-vercel-ip-country') ?? null;
@@ -224,7 +295,6 @@ export async function POST(req: NextRequest) {
   const geoLng     = req.headers.get('x-vercel-ip-longitude')
     ? parseFloat(req.headers.get('x-vercel-ip-longitude')!) : null;
 
-  // Fire-and-forget: save record + increment download count
   const attendeeName = Object.values(fields).find(v => v?.trim()) ?? 'Anonymous';
   const attendeeData = {
     ...fields,
@@ -233,6 +303,7 @@ export async function POST(req: NextRequest) {
     ...(geoLat     ? { _lat:     geoLat     } : {}),
     ...(geoLng     ? { _lng:     geoLng     } : {}),
   };
+
   supabase.from('generated_cards').insert({
     event_id: event.id,
     variant_id: variantId,
@@ -240,9 +311,11 @@ export async function POST(req: NextRequest) {
     attendee_data: attendeeData,
     output_url: null,
   }).then(() => {
-    supabase.from('events')
+    supabase
+      .from('events')
       .update({ download_count: (event.download_count ?? 0) + 1 })
-      .eq('id', event.id);
+      .eq('id', event.id)
+      .then(() => {});
   });
 
   return new Response(outputBuffer as unknown as BodyInit, {
