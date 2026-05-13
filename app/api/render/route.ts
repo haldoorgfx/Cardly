@@ -159,20 +159,30 @@ async function compositeText(
   const { width: textW = zone.w, height: textH = zone.h } =
     await sharp(alphaBuf).metadata();
 
-  // ── Color the text using the alpha-mask approach ─────────────────────────
-  // 1. Create a solid-colour rect the same size as the text output.
-  // 2. Extract only the alpha channel of the Pango output (text shape).
-  // 3. Apply the alpha as a mask onto the solid rect → coloured glyphs,
-  //    transparent background. Works regardless of Pango/Cairo version.
-  const solidSvg = `<svg width="${textW}" height="${textH}" xmlns="http://www.w3.org/2000/svg">
-    <rect x="0" y="0" width="${textW}" height="${textH}" fill="${color}"/>
-  </svg>`;
-  const solidBuf   = await sharp(Buffer.from(solidSvg)).png().toBuffer();
-  const textAlpha  = await sharp(alphaBuf).extractChannel('alpha').toBuffer();
-  let rawBuf = await sharp(solidBuf)
-    .composite([{ input: textAlpha, blend: 'dest-in' }])
-    .png()
-    .toBuffer();
+  // ── Color the text via raw pixel manipulation ────────────────────────────
+  // Pango renders RGBA with text shape in alpha; RGB color is unreliable
+  // across platforms (Vercel's Cairo ignores <span foreground>).
+  // Fix: decode raw RGBA bytes, overwrite every pixel's RGB with the
+  // target color while preserving the alpha channel → correct color,
+  // transparent background, no libvips compositing tricks needed.
+  const hexCol = color.replace('#', '');
+  const cr = parseInt(hexCol.slice(0, 2), 16) || 0;
+  const cg = parseInt(hexCol.slice(2, 4), 16) || 0;
+  const cb = parseInt(hexCol.slice(4, 6), 16) || 0;
+
+  const { data: rawPixels, info: rawInfo } =
+    await sharp(alphaBuf).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+
+  for (let i = 0; i < rawPixels.length; i += 4) {
+    rawPixels[i]     = cr;   // R → target color
+    rawPixels[i + 1] = cg;   // G → target color
+    rawPixels[i + 2] = cb;   // B → target color
+    // rawPixels[i+3] = alpha (unchanged — this IS the text shape)
+  }
+
+  let rawBuf = await sharp(rawPixels, {
+    raw: { width: rawInfo.width, height: rawInfo.height, channels: 4 },
+  }).png().toBuffer();
 
   // Optional background rect (rendered as a plain SVG, no font needed)
   if (zone.bgColor) {
