@@ -375,8 +375,7 @@ export async function GET(req: NextRequest) {
     .eq('id', variantId)
     .single();
   if (!variant) return NextResponse.json({ error: 'Variant not found' }, { status: 404 });
-  const event = variant.events as any; // eslint-disable-line @typescript-eslint/no-explicit-any
-
+  // event intentionally unused in debug handler — just need variant data
   const zones = (variant.zones as unknown as Zone[]) ?? [];
   const canvasW = variant.background_width ?? 1080;
   const canvasH = variant.background_height ?? 1350;
