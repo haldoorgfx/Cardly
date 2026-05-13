@@ -22,24 +22,39 @@ async function fetchGoogleFontBase64(family: string, weight: number): Promise<st
 
   try {
     const familyParam = family.trim().replace(/\s+/g, '+');
-    // Request both the weight and a range to maximise match
-    const cssUrl = `https://fonts.googleapis.com/css2?family=${familyParam}:wght@${weight}&display=swap`;
-    const cssRes = await fetch(cssUrl, {
-      headers: {
-        // Modern UA ensures Google returns woff2
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/120 Safari/537.36',
-      },
-    });
+
+    // Use the legacy CSS1 API with no User-Agent → Google returns a TTF URL.
+    // TTF is universally supported by librsvg (all versions), whereas woff2
+    // data URIs only work with librsvg ≥ 2.52 on Linux (Vercel may have older).
+    const cssUrl = `https://fonts.googleapis.com/css?family=${familyParam}:${weight}`;
+    const cssRes = await fetch(cssUrl);
     if (!cssRes.ok) return null;
     const css = await cssRes.text();
 
-    // Extract first woff2 URL from the CSS
-    const match = css.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+\.woff2)\)/);
-    if (!match) return null;
+    // Extract the TTF URL (legacy API always serves TTF)
+    const ttfMatch = css.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+\.ttf)\)/);
+    if (ttfMatch) {
+      const fontRes = await fetch(ttfMatch[1]);
+      if (fontRes.ok) {
+        const b64 = Buffer.from(await fontRes.arrayBuffer()).toString('base64');
+        fontCache.set(key, b64);
+        return b64;
+      }
+    }
 
-    const fontRes = await fetch(match[1]);
-    if (!fontRes.ok) return null;
-    const b64 = Buffer.from(await fontRes.arrayBuffer()).toString('base64');
+    // Fallback: modern API with woff2 (works on newer librsvg)
+    const css2Url = `https://fonts.googleapis.com/css2?family=${familyParam}:wght@${weight}&display=swap`;
+    const css2Res = await fetch(css2Url, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/120 Safari/537.36' },
+    });
+    if (!css2Res.ok) return null;
+    const css2 = await css2Res.text();
+    const woff2Match = css2.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+\.woff2)\)/);
+    if (!woff2Match) return null;
+
+    const fontRes2 = await fetch(woff2Match[1]);
+    if (!fontRes2.ok) return null;
+    const b64 = Buffer.from(await fontRes2.arrayBuffer()).toString('base64');
     fontCache.set(key, b64);
     return b64;
   } catch {
@@ -156,9 +171,11 @@ async function compositeText(
     ? `stroke="${strokeColor}" stroke-width="${strokeWidth}" paint-order="stroke fill"`
     : '';
 
-  // Embed Google Font as @font-face so sharp/librsvg uses it
+  // Embed Google Font as @font-face so sharp/librsvg uses it.
+  // We serve TTF (fetched via the legacy CSS1 API) because TTF data URIs are
+  // supported by all versions of librsvg, including the older builds on Vercel.
   const fontFaceDef = fontB64
-    ? `<defs><style>@font-face{font-family:'${font}';font-weight:${weight};src:url(data:font/woff2;base64,${fontB64}) format('woff2');}</style></defs>`
+    ? `<defs><style>@font-face{font-family:'${font}';font-weight:${weight};src:url(data:font/ttf;base64,${fontB64}) format('truetype');}</style></defs>`
     : '';
 
   const textEls = lines.map((line, i) => {
