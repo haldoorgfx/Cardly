@@ -64,38 +64,20 @@ async function fetchBuffer(url: string): Promise<Buffer> {
   return Buffer.from(await res.arrayBuffer());
 }
 
-function escapeXml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
-}
-
 function applyTextTransform(text: string, transform?: string): string {
   if (transform === 'uppercase') return text.toUpperCase();
   if (transform === 'lowercase') return text.toLowerCase();
   return text;
 }
 
-function wrapText(text: string, maxWidth: number, fontSize: number): string[] {
-  const approxCharWidth = fontSize * 0.55;
-  const maxChars = Math.max(1, Math.floor(maxWidth / approxCharWidth));
-  const words = text.split(' ');
-  const lines: string[] = [];
-  let current = '';
-  for (const word of words) {
-    const test = current ? `${current} ${word}` : word;
-    if (test.length > maxChars && current) {
-      lines.push(current);
-      current = word;
-    } else {
-      current = test;
-    }
-  }
-  if (current) lines.push(current);
-  return lines;
+// ── Pango weight tokens ───────────────────────────────────────────────────────
+function pangoWeight(w: number): string {
+  if (w >= 900) return 'Heavy';
+  if (w >= 800) return 'Ultra-Bold';
+  if (w >= 700) return 'Bold';
+  if (w >= 600) return 'Semi-Bold';
+  if (w >= 500) return 'Medium';
+  return 'Regular';
 }
 
 // Rotate a sharp buffer by arbitrary degrees, returning the new buffer + dimensions
@@ -124,85 +106,95 @@ async function compositeText(
   fontFilePath?: string | null,
 ): Promise<sharp.Sharp> {
   const rawText = applyTextTransform(text, zone.textTransform);
-  const font = (zone.font ?? 'sans-serif').replace(/'/g, '');
-  const size = Math.max(8, zone.size ?? 32);
-  const weight = zone.weight ?? 400;
-  const color = zone.color ?? '#FFFFFF';
-  const align = zone.align ?? 'left';
-  const lh = zone.lineHeight ?? 1.2;
-  const ls = zone.letterSpacing ?? 0;
+  const font    = (zone.font ?? 'Sans').replace(/'/g, '');
+  const size    = Math.max(8, zone.size ?? 32);
+  const weight  = zone.weight ?? 400;
+  const color   = zone.color ?? '#FFFFFF';
+  const align   = zone.align ?? 'left';
+  const ls      = zone.letterSpacing ?? 0;
   const zoneOpacity = (zone.opacity ?? 100) / 100;
-  const rotation = zone.rotation ?? 0;
+  const rotation    = zone.rotation ?? 0;
 
-  // Text effects
-  const strokeColor = zone.strokeColor;
-  const strokeWidth = zone.strokeWidth ?? 0;
-  const shadowColor = zone.shadowColor;
-  const shadowBlur = zone.shadowBlur ?? 0;
-  const shadowX = zone.shadowX ?? 0;
-  const shadowY = zone.shadowY ?? 0;
+  // Escape for Pango markup (XML subset)
+  const safe = rawText
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 
-  const lines = wrapText(rawText, zone.w - 16, size);
-  const lineHeight = size * lh;
-  const totalH = lines.length * lineHeight;
-  const svgH = Math.max(zone.h, totalH + size * 0.5);
+  // Pango font description:  "Family Weight Size"
+  // e.g. "DM Sans Bold 64"
+  const fontDesc = `${font} ${pangoWeight(weight)} ${size}`;
 
-  let textAnchor = 'start';
-  let x = 8;
-  if (align === 'center') { textAnchor = 'middle'; x = zone.w / 2; }
-  if (align === 'right') { textAnchor = 'end'; x = zone.w - 8; }
+  // Pango letter_spacing is in thousandths of a point
+  const lsAttr = ls !== 0 ? ` letter_spacing="${Math.round(ls * 1024)}"` : '';
 
-  // Shadow filter
-  const filterDef = (shadowColor && shadowBlur > 0)
-    ? `<defs><filter id="sf" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="${shadowX}" dy="${shadowY}" stdDeviation="${shadowBlur / 2}" flood-color="${shadowColor}" flood-opacity="1"/></filter></defs>`
-    : '';
-  const filterAttr = (shadowColor && shadowBlur > 0) ? 'filter="url(#sf)"' : '';
+  // Pango markup: set foreground colour + optional letter-spacing
+  const markup = `<span foreground="${color}"${lsAttr}>${safe}</span>`;
 
-  // Background fill rect
-  const bgRect = zone.bgColor
-    ? `<rect x="0" y="0" width="${zone.w}" height="${svgH}" fill="${zone.bgColor}" opacity="${(zone.bgOpacity ?? 60) / 100}"/>`
-    : '';
+  // sharp's text input uses Cairo/Pango — completely bypasses librsvg.
+  // fontfile loads the TTF directly; align wraps multi-line text.
+  const sharpAlign = align === 'center' ? 'centre' : (align as 'left' | 'right');
 
-  const strokeAttrs = (strokeColor && strokeWidth > 0)
-    ? `stroke="${strokeColor}" stroke-width="${strokeWidth}" paint-order="stroke fill"`
-    : '';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const textInput: any = {
+    text: markup,
+    font: fontDesc,
+    width: zone.w,       // wrap at zone width
+    align: sharpAlign,
+    rgba:  true,         // transparent background
+    dpi:   72,
+  };
+  if (fontFilePath) textInput.fontfile = fontFilePath;
 
-  // Reference the TTF font via file:// URL — much more reliable than base64
-  // data URIs across different librsvg versions (including older Vercel Linux builds).
-  const fontFaceDef = fontFilePath
-    ? `<defs><style>@font-face{font-family:'${font}';font-weight:${weight};src:url('file://${fontFilePath}') format('truetype');}</style></defs>`
-    : '';
+  let rawBuf: Buffer;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    rawBuf = await (sharp as any)({ text: textInput }).png().toBuffer();
+  } catch (err) {
+    console.error('[render] Pango text render failed, zone', zone.id, err);
+    return base; // graceful degradation — skip this zone
+  }
 
-  const textEls = lines.map((line, i) => {
-    const y = size + i * lineHeight;
-    return `<text
-      x="${x}"
-      y="${y}"
-      font-family="'${font}', DM Sans, Inter, sans-serif"
-      font-size="${size}"
-      font-weight="${weight}"
-      fill="${color}"
-      text-anchor="${textAnchor}"
-      letter-spacing="${ls}"
-      ${strokeAttrs}
-      ${filterAttr}
-    >${escapeXml(line)}</text>`;
-  }).join('\n');
+  const { width: textW = zone.w, height: textH = zone.h } =
+    await sharp(rawBuf).metadata();
 
-  const svg = `<svg width="${zone.w}" height="${svgH}" xmlns="http://www.w3.org/2000/svg" opacity="${zoneOpacity}">${fontFaceDef}${filterDef}${bgRect}${textEls}</svg>`;
-  const rawBuf = await sharp(Buffer.from(svg)).png().toBuffer();
+  // Optional background rect (rendered as a plain SVG, no font needed)
+  if (zone.bgColor) {
+    const bgSvg = `<svg width="${textW}" height="${textH}" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="0" width="${textW}" height="${textH}"
+        fill="${zone.bgColor}" opacity="${(zone.bgOpacity ?? 60) / 100}"/>
+    </svg>`;
+    const bgBuf = await sharp(Buffer.from(bgSvg)).png().toBuffer();
+    rawBuf = await sharp(bgBuf).composite([{ input: rawBuf }]).png().toBuffer();
+  }
 
-  // Apply rotation
+  // Opacity
+  if (zoneOpacity < 1) {
+    const opSvg = `<svg width="${textW}" height="${textH}" xmlns="http://www.w3.org/2000/svg">
+      <image href="data:image/png;base64,${rawBuf.toString('base64')}"
+        width="${textW}" height="${textH}" opacity="${zoneOpacity}"/>
+    </svg>`;
+    rawBuf = await sharp(Buffer.from(opSvg)).png().toBuffer();
+  }
+
+  // Rotation
   const { buf: overlay, w: ow, h: oh } = await rotateBuffer(rawBuf, rotation);
 
-  // Position centered on zone center
-  const zoneCX = zone.x + zone.w / 2;
-  const zoneCY = zone.y + svgH / 2;
+  // Position the text image so it sits in the right place within the zone.
+  // sharp text output width = natural text width (≤ zone.w).
+  // For center/right alignment we must shift left accordingly.
+  let left = zone.x;
+  if (align === 'center') left = Math.round(zone.x + (zone.w - ow) / 2);
+  if (align === 'right')  left = Math.round(zone.x + zone.w - ow);
 
-  const left = Math.max(0, Math.min(Math.round(zoneCX - ow / 2), canvasW - ow));
-  const top = Math.max(0, Math.min(Math.round(zoneCY - oh / 2), canvasH - oh));
+  const top = zone.y;
 
-  return base.composite([{ input: overlay, left, top }]);
+  return base.composite([{
+    input: overlay,
+    left:  Math.max(0, Math.min(left, canvasW - ow)),
+    top:   Math.max(0, Math.min(top,  canvasH - oh)),
+  }]);
 }
 
 async function compositePhoto(
