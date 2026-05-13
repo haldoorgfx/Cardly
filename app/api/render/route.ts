@@ -115,49 +115,64 @@ async function compositeText(
   const zoneOpacity = (zone.opacity ?? 100) / 100;
   const rotation    = zone.rotation ?? 0;
 
-  // Escape for Pango markup (XML subset)
+  // Escape special chars (Pango uses plain text — no markup for color)
   const safe = rawText
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 
-  // Pango font description:  "Family Weight Size"
-  // e.g. "DM Sans Bold 64"
+  // Pango font description: "Family Weight Size"
   const fontDesc = `${font} ${pangoWeight(weight)} ${size}`;
 
-  // Pango letter_spacing is in thousandths of a point
+  // Letter-spacing via Pango markup attribute (thousandths of a point)
   const lsAttr = ls !== 0 ? ` letter_spacing="${Math.round(ls * 1024)}"` : '';
+  // Use Pango markup only for letter-spacing — NOT for foreground color.
+  // Pango's <span foreground="#rrggbb"> is silently ignored on some Linux
+  // builds (older GTK/Cairo versions on Vercel). Color is applied below via
+  // the alpha-mask technique instead, which works on every platform.
+  const pangoText = lsAttr ? `<span${lsAttr}>${safe}</span>` : safe;
 
-  // Pango markup: set foreground colour + optional letter-spacing
-  const markup = `<span foreground="${color}"${lsAttr}>${safe}</span>`;
-
-  // sharp's text input uses Cairo/Pango — completely bypasses librsvg.
-  // fontfile loads the TTF directly; align wraps multi-line text.
+  // sharp's text input uses Cairo/Pango — bypasses librsvg entirely.
   const sharpAlign = align === 'center' ? 'centre' : (align as 'left' | 'right');
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const textInput: any = {
-    text: markup,
+    text: pangoText,
     font: fontDesc,
-    width: zone.w,       // wrap at zone width
+    width: zone.w,
     align: sharpAlign,
-    rgba:  true,         // transparent background
+    rgba:  true,   // transparent background — gives us the alpha mask
     dpi:   72,
   };
   if (fontFilePath) textInput.fontfile = fontFilePath;
 
-  let rawBuf: Buffer;
+  let alphaBuf: Buffer;
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    rawBuf = await (sharp as any)({ text: textInput }).png().toBuffer();
+    alphaBuf = await (sharp as any)({ text: textInput }).png().toBuffer();
   } catch (err) {
     console.error('[render] Pango text render failed, zone', zone.id, err);
-    return base; // graceful degradation — skip this zone
+    return base;
   }
 
   const { width: textW = zone.w, height: textH = zone.h } =
-    await sharp(rawBuf).metadata();
+    await sharp(alphaBuf).metadata();
+
+  // ── Color the text using the alpha-mask approach ─────────────────────────
+  // 1. Create a solid-colour rect the same size as the text output.
+  // 2. Extract only the alpha channel of the Pango output (text shape).
+  // 3. Apply the alpha as a mask onto the solid rect → coloured glyphs,
+  //    transparent background. Works regardless of Pango/Cairo version.
+  const solidSvg = `<svg width="${textW}" height="${textH}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="0" width="${textW}" height="${textH}" fill="${color}"/>
+  </svg>`;
+  const solidBuf   = await sharp(Buffer.from(solidSvg)).png().toBuffer();
+  const textAlpha  = await sharp(alphaBuf).extractChannel('alpha').toBuffer();
+  let rawBuf = await sharp(solidBuf)
+    .composite([{ input: textAlpha, blend: 'dest-in' }])
+    .png()
+    .toBuffer();
 
   // Optional background rect (rendered as a plain SVG, no font needed)
   if (zone.bgColor) {
