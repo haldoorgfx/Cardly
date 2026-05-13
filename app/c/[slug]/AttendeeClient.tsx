@@ -63,6 +63,13 @@ function Confetti() {
   );
 }
 
+// System fonts that don't need Google Fonts
+const SYSTEM_FONTS_ATTENDEE = new Set([
+  'georgia', 'times new roman', 'times', 'arial', 'helvetica',
+  'verdana', 'trebuchet ms', 'courier new', 'courier',
+  'sans-serif', 'serif', 'monospace',
+]);
+
 export default function AttendeeClient({ variantId, eventName, backgroundUrl, backgroundWidth, backgroundHeight, zones }: Props) {
   const [values, setValues] = useState<FieldValues>({});
   const [photoFiles, setPhotoFiles] = useState<Record<string, File>>({});
@@ -75,6 +82,29 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
   const [toast, setToast] = useState<string | null>(null);
   const [downloaded, setDownloaded] = useState(false);
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+
+  // Load Google Fonts used by zones
+  useEffect(() => {
+    const families = Array.from(
+      new Set(
+        zones
+          .filter(z => z.font && !SYSTEM_FONTS_ATTENDEE.has(z.font.toLowerCase()))
+          .map(z => {
+            const weights = new Set<number>();
+            zones.filter(z2 => z2.font === z.font).forEach(z2 => weights.add(z2.weight ?? 400));
+            return `${z.font!.replace(/\s+/g, '+')}:wght@${Array.from(weights).sort().join(';')}`;
+          })
+      )
+    );
+    if (!families.length) return;
+    const id = 'cardly-attendee-gfonts';
+    if (document.getElementById(id)) return;
+    const link = document.createElement('link');
+    link.id = id;
+    link.rel = 'stylesheet';
+    link.href = `https://fonts.googleapis.com/css2?${families.map(f => `family=${f}`).join('&')}&display=swap`;
+    document.head.appendChild(link);
+  }, [zones]);
 
   const textZones = zones.filter(z => z.type === 'text' || z.type === 'custom');
   const photoZones = zones.filter(z => z.type === 'photo');

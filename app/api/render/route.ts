@@ -5,6 +5,48 @@ import type { Zone } from '@/types/database';
 
 const WATERMARK_HEIGHT = 36;
 
+// ── Google Fonts cache (module-level, survives hot-reload in dev) ────────────
+const fontCache = new Map<string, string>(); // "Family:weight" → base64 woff2
+
+// System fonts that don't need fetching
+const SYSTEM_FONTS = new Set([
+  'georgia', 'times new roman', 'times', 'arial', 'helvetica',
+  'verdana', 'trebuchet ms', 'courier new', 'courier',
+  'sans-serif', 'serif', 'monospace', 'cursive', 'fantasy',
+]);
+
+async function fetchGoogleFontBase64(family: string, weight: number): Promise<string | null> {
+  const key = `${family}:${weight}`;
+  if (fontCache.has(key)) return fontCache.get(key)!;
+  if (SYSTEM_FONTS.has(family.toLowerCase())) return null;
+
+  try {
+    const familyParam = family.trim().replace(/\s+/g, '+');
+    // Request both the weight and a range to maximise match
+    const cssUrl = `https://fonts.googleapis.com/css2?family=${familyParam}:wght@${weight}&display=swap`;
+    const cssRes = await fetch(cssUrl, {
+      headers: {
+        // Modern UA ensures Google returns woff2
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/120 Safari/537.36',
+      },
+    });
+    if (!cssRes.ok) return null;
+    const css = await cssRes.text();
+
+    // Extract first woff2 URL from the CSS
+    const match = css.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+\.woff2)\)/);
+    if (!match) return null;
+
+    const fontRes = await fetch(match[1]);
+    if (!fontRes.ok) return null;
+    const b64 = Buffer.from(await fontRes.arrayBuffer()).toString('base64');
+    fontCache.set(key, b64);
+    return b64;
+  } catch {
+    return null;
+  }
+}
+
 async function fetchBuffer(url: string): Promise<Buffer> {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Failed to fetch image: ${res.status}`);
@@ -68,6 +110,7 @@ async function compositeText(
   text: string,
   canvasW: number,
   canvasH: number,
+  fontB64?: string | null,
 ): Promise<sharp.Sharp> {
   const rawText = applyTextTransform(text, zone.textTransform);
   const font = (zone.font ?? 'sans-serif').replace(/'/g, '');
@@ -113,12 +156,17 @@ async function compositeText(
     ? `stroke="${strokeColor}" stroke-width="${strokeWidth}" paint-order="stroke fill"`
     : '';
 
+  // Embed Google Font as @font-face so sharp/librsvg uses it
+  const fontFaceDef = fontB64
+    ? `<defs><style>@font-face{font-family:'${font}';font-weight:${weight};src:url(data:font/woff2;base64,${fontB64}) format('woff2');}</style></defs>`
+    : '';
+
   const textEls = lines.map((line, i) => {
     const y = size + i * lineHeight;
     return `<text
       x="${x}"
       y="${y}"
-      font-family="${font}, DM Sans, Inter, sans-serif"
+      font-family="'${font}', DM Sans, Inter, sans-serif"
       font-size="${size}"
       font-weight="${weight}"
       fill="${color}"
@@ -129,7 +177,7 @@ async function compositeText(
     >${escapeXml(line)}</text>`;
   }).join('\n');
 
-  const svg = `<svg width="${zone.w}" height="${svgH}" xmlns="http://www.w3.org/2000/svg" opacity="${zoneOpacity}">${filterDef}${bgRect}${textEls}</svg>`;
+  const svg = `<svg width="${zone.w}" height="${svgH}" xmlns="http://www.w3.org/2000/svg" opacity="${zoneOpacity}">${fontFaceDef}${filterDef}${bgRect}${textEls}</svg>`;
   const rawBuf = await sharp(Buffer.from(svg)).png().toBuffer();
 
   // Apply rotation
@@ -260,6 +308,22 @@ export async function POST(req: NextRequest) {
   const canvasW = variant.background_width ?? 1080;
   const canvasH = variant.background_height ?? 1350;
 
+  // Pre-fetch all unique fonts used by text/custom zones in parallel
+  const fontKeys = new Map<string, { family: string; weight: number }>();
+  for (const z of zones) {
+    if ((z.type === 'text' || z.type === 'custom') && z.font) {
+      const family = z.font.replace(/'/g, '');
+      const weight = z.weight ?? 400;
+      fontKeys.set(`${family}:${weight}`, { family, weight });
+    }
+  }
+  const fontB64Map = new Map<string, string | null>();
+  await Promise.all(
+    Array.from(fontKeys.entries()).map(async ([key, { family, weight }]) => {
+      fontB64Map.set(key, await fetchGoogleFontBase64(family, weight));
+    })
+  );
+
   const bgBuffer = await fetchBuffer(variant.background_url!);
   let pipeline = sharp(bgBuffer).resize(canvasW, canvasH, { fit: 'fill' });
 
@@ -269,7 +333,10 @@ export async function POST(req: NextRequest) {
     if (zone.type === 'text' || zone.type === 'custom') {
       const text = fields[zone.id]?.trim();
       if (text) {
-        pipeline = await compositeText(pipeline, zone, text, canvasW, canvasH);
+        const family = (zone.font ?? '').replace(/'/g, '');
+        const weight = zone.weight ?? 400;
+        const fontB64 = fontB64Map.get(`${family}:${weight}`) ?? null;
+        pipeline = await compositeText(pipeline, zone, text, canvasW, canvasH, fontB64);
       }
     } else if (zone.type === 'photo') {
       const photoFile = formData.get(`photo_${zone.id}`) as File | null;
