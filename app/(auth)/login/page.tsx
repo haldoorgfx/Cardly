@@ -31,24 +31,24 @@ export default function LoginPage() {
 
         <div className="flex-1 grid place-items-center">
           <div className="w-full max-w-[400px]">
-            <div className="font-mono text-[11px] tracking-widest text-brand-ink/45 mb-3">
+            <div className="font-mono text-[11px] tracking-widest text-ink/45 mb-3">
               WELCOME BACK
             </div>
             <h1 className="font-display font-bold text-[36px] leading-tight">
               Sign in to <span className="grad-text">Cardly</span>
             </h1>
-            <p className="text-[14px] text-brand-ink/60 mt-2">
+            <p className="text-[14px] text-ink/60 mt-2">
               Design once. Let attendees personalize forever.
             </p>
 
             {/* Tabs */}
-            <div className="mt-7 inline-flex p-1 rounded-full bg-brand-offwhite border border-brand-border text-[13px]">
+            <div className="mt-7 inline-flex p-1 rounded-full bg-cream border border-border text-[13px]">
               <span className="px-4 h-9 rounded-full bg-white shadow-sm font-medium flex items-center">
                 Sign in
               </span>
               <Link
                 href="/signup"
-                className="px-4 h-9 rounded-full text-brand-ink/60 font-medium flex items-center hover:text-brand-ink transition"
+                className="px-4 h-9 rounded-full text-ink/60 font-medium flex items-center hover:text-ink transition"
               >
                 Create account
               </Link>
@@ -57,16 +57,16 @@ export default function LoginPage() {
             {/* Google */}
             <button
               type="button"
-              className="mt-5 w-full h-12 rounded-xl border border-brand-border bg-white flex items-center justify-center gap-3 font-medium text-[14px] hover:bg-brand-offwhite transition"
+              className="mt-5 w-full h-12 rounded-xl border border-border bg-white flex items-center justify-center gap-3 font-medium text-[14px] hover:bg-cream transition"
             >
               <GoogleIcon />
               Continue with Google
             </button>
 
-            <div className="my-5 flex items-center gap-3 text-[11px] font-mono tracking-widest text-brand-ink/40">
-              <div className="flex-1 h-px bg-brand-border" />
+            <div className="my-5 flex items-center gap-3 text-[11px] font-mono tracking-widest text-ink/40">
+              <div className="flex-1 h-px bg-border" />
               OR
-              <div className="flex-1 h-px bg-brand-border" />
+              <div className="flex-1 h-px bg-border" />
             </div>
 
             {/* Form */}
@@ -77,7 +77,7 @@ export default function LoginPage() {
                 </p>
               )}
               <div>
-                <label className="text-[12px] font-medium text-brand-ink/70 mb-1.5 block">
+                <label className="text-[12px] font-medium text-ink/70 mb-1.5 block">
                   Work email
                 </label>
                 <input
@@ -85,17 +85,17 @@ export default function LoginPage() {
                   type="email"
                   required
                   placeholder="you@studio.com"
-                  className="w-full px-[14px] py-[13px] border-[1.5px] border-brand-border rounded-xl text-[14.5px] font-medium bg-white focus:outline-none focus:border-brand-primary focus:shadow-[0_0_0_4px_rgba(108,99,255,0.12)] transition"
+                  className="w-full px-[14px] py-[13px] border-[1.5px] border-border rounded-xl text-[14.5px] font-medium bg-white focus:outline-none focus:border-primary focus:shadow-[0_0_0_4px_rgba(31,77,58,0.15)] transition"
                 />
               </div>
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-[12px] font-medium text-brand-ink/70">
+                  <label className="text-[12px] font-medium text-ink/70">
                     Password
                   </label>
                   <a
                     href="#"
-                    className="text-[12px] text-brand-primary font-medium hover:underline"
+                    className="text-[12px] text-primary font-medium hover:underline"
                   >
                     Forgot?
                   </a>
@@ -105,23 +105,23 @@ export default function LoginPage() {
                   type="password"
                   required
                   placeholder="At least 8 characters"
-                  className="w-full px-[14px] py-[13px] border-[1.5px] border-brand-border rounded-xl text-[14.5px] font-medium bg-white focus:outline-none focus:border-brand-primary focus:shadow-[0_0_0_4px_rgba(108,99,255,0.12)] transition"
+                  className="w-full px-[14px] py-[13px] border-[1.5px] border-border rounded-xl text-[14.5px] font-medium bg-white focus:outline-none focus:border-primary focus:shadow-[0_0_0_4px_rgba(31,77,58,0.15)] transition"
                 />
               </div>
               <button
                 type="submit"
                 disabled={isPending}
-                className="w-full h-12 rounded-xl grad-bg text-white font-display font-semibold text-[15px] shadow-[0_8px_20px_rgba(108,99,255,0.3)] hover:opacity-95 transition disabled:opacity-60"
+                className="w-full h-12 rounded-xl grad-bg text-white font-display font-semibold text-[15px] shadow-[0_8px_20px_rgba(31,77,58,0.25)] hover:opacity-95 transition disabled:opacity-60"
               >
                 {isPending ? "Signing in…" : "Sign in"}
               </button>
             </form>
 
-            <p className="mt-6 text-[13px] text-brand-ink/55 text-center">
+            <p className="mt-6 text-[13px] text-ink/55 text-center">
               New here?{" "}
               <Link
                 href="/signup"
-                className="text-brand-primary font-medium hover:underline"
+                className="text-primary font-medium hover:underline"
               >
                 Create an account
               </Link>
@@ -129,13 +129,13 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div className="text-[11.5px] font-mono text-brand-ink/40 flex items-center justify-between">
+        <div className="text-[11.5px] font-mono text-ink/40 flex items-center justify-between">
           <span>© 2026 Cardly</span>
           <div className="flex gap-4">
-            <a href="#" className="hover:text-brand-ink">
+            <a href="#" className="hover:text-ink">
               Privacy
             </a>
-            <a href="#" className="hover:text-brand-ink">
+            <a href="#" className="hover:text-ink">
               Terms
             </a>
           </div>

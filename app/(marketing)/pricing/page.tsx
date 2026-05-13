@@ -14,32 +14,32 @@ export default function PricingPage() {
     <>
       {/* Hero */}
       <section className="max-w-[1240px] mx-auto px-6 pt-20 pb-12 text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#e5e5ea] bg-white text-[11px] font-mono tracking-wider text-[#0f0f1a]/60 mb-6">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#6c63ff]" />
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-white text-[11px] font-mono tracking-wider text-[#0F1F18]/60 mb-6">
+          <span className="h-1.5 w-1.5 rounded-full bg-primary" />
           SIMPLE &middot; TRANSPARENT &middot; CANCEL ANYTIME
         </div>
         <h1 className="font-display font-bold text-[52px] sm:text-[64px] leading-[1.02] tracking-tight max-w-[820px] mx-auto">
           Pricing that scales{' '}
           <span className="grad-text">with your events.</span>
         </h1>
-        <p className="mt-5 text-[17px] text-[#0f0f1a]/65 max-w-[560px] mx-auto leading-relaxed">
+        <p className="mt-5 text-[17px] text-[#0F1F18]/65 max-w-[560px] mx-auto leading-relaxed">
           Start free. Upgrade when you need your own brand on the page &mdash; and unlimited attendees.
         </p>
 
         {/* Billing toggle */}
-        <div className="mt-9 inline-flex items-center gap-1 p-1 rounded-full bg-white border border-[#e5e5ea]">
+        <div className="mt-9 inline-flex items-center gap-1 p-1 rounded-full bg-white border border-border">
           <button
             onClick={() => setYearly(false)}
-            className={`px-5 h-9 rounded-full text-[13px] font-medium transition ${!yearly ? 'bg-[#0f0f1a] text-white' : 'text-[#0f0f1a]/60 hover:text-[#0f0f1a]'}`}
+            className={`px-5 h-9 rounded-full text-[13px] font-medium transition ${!yearly ? 'bg-[#0f0f1a] text-white' : 'text-[#0F1F18]/60 hover:text-[#0F1F18]'}`}
           >
             Monthly
           </button>
           <button
             onClick={() => setYearly(true)}
-            className={`px-5 h-9 rounded-full text-[13px] font-medium transition inline-flex items-center gap-2 ${yearly ? 'bg-[#0f0f1a] text-white' : 'text-[#0f0f1a]/60 hover:text-[#0f0f1a]'}`}
+            className={`px-5 h-9 rounded-full text-[13px] font-medium transition inline-flex items-center gap-2 ${yearly ? 'bg-[#0f0f1a] text-white' : 'text-[#0F1F18]/60 hover:text-[#0F1F18]'}`}
           >
             Yearly
-            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-[#6c63ff]/20 text-[#f8a4d8]">&minus;20%</span>
+            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-primary/20 text-accent">&minus;20%</span>
           </button>
         </div>
       </section>
@@ -49,25 +49,25 @@ export default function PricingPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
 
           {/* Free */}
-          <div className="bg-white rounded-3xl shadow-soft p-8 border border-[#e5e5ea]/60 flex flex-col">
-            <div className="text-[13px] font-mono tracking-widest text-[#0f0f1a]/50 mb-1">FREE</div>
+          <div className="bg-white rounded-3xl shadow-soft p-8 border border-border/60 flex flex-col">
+            <div className="text-[13px] font-mono tracking-widest text-[#0F1F18]/50 mb-1">FREE</div>
             <div className="font-display font-bold text-[24px]">Sketch</div>
-            <p className="text-[13.5px] text-[#0f0f1a]/60 mt-1">For one-off meetups and trying out the editor.</p>
+            <p className="text-[13.5px] text-[#0F1F18]/60 mt-1">For one-off meetups and trying out the editor.</p>
             <div className="my-6">
               <div className="flex items-end gap-1.5">
                 <span className="font-display font-bold text-[44px] leading-none">$0</span>
-                <span className="text-[#0f0f1a]/50 text-[14px] mb-1.5">/forever</span>
+                <span className="text-[#0F1F18]/50 text-[14px] mb-1.5">/forever</span>
               </div>
             </div>
-            <Link href="/signup" className="block text-center py-3 rounded-xl border border-[#e5e5ea] font-medium text-[14px] hover:bg-[#fafafa] transition">
+            <Link href="/signup" className="block text-center py-3 rounded-xl border border-border font-medium text-[14px] hover:bg-cream transition">
               Start free
             </Link>
-            <ul className="mt-7 space-y-3 text-[14px] text-[#0f0f1a]/80">
+            <ul className="mt-7 space-y-3 text-[14px] text-[#0F1F18]/80">
               <li className="flex gap-2.5"><Chk />1 active event</li>
               <li className="flex gap-2.5"><Chk />Up to 100 attendee cards</li>
               <li className="flex gap-2.5"><Chk />PNG export</li>
               <li className="flex gap-2.5"><Chk />Basic analytics</li>
-              <li className="flex gap-2.5 text-[#0f0f1a]/45"><span className="mt-0.5">&bull;</span>Cardly watermark on cards</li>
+              <li className="flex gap-2.5 text-[#0F1F18]/45"><span className="mt-0.5">&bull;</span>Cardly watermark on cards</li>
             </ul>
           </div>
 
@@ -79,18 +79,18 @@ export default function PricingPage() {
             <div className="bg-white rounded-[22px] p-8 flex flex-col h-full">
               <div className="text-[13px] font-mono tracking-widest grad-text mb-1">PRO</div>
               <div className="font-display font-bold text-[24px]">Studio</div>
-              <p className="text-[13.5px] text-[#0f0f1a]/60 mt-1">For designers and organizers running regular events.</p>
+              <p className="text-[13.5px] text-[#0F1F18]/60 mt-1">For designers and organizers running regular events.</p>
               <div className="my-6">
                 <div className="flex items-end gap-1.5">
                   <span className="font-display font-bold text-[44px] leading-none">${prices.pro}</span>
-                  <span className="text-[#0f0f1a]/50 text-[14px] mb-1.5">/month</span>
+                  <span className="text-[#0F1F18]/50 text-[14px] mb-1.5">/month</span>
                 </div>
-                {yearly && <div className="text-[12px] font-mono text-[#0f0f1a]/45 mt-1.5">Billed annually &middot; ${prices.pro * 12}/yr</div>}
+                {yearly && <div className="text-[12px] font-mono text-[#0F1F18]/45 mt-1.5">Billed annually &middot; ${prices.pro * 12}/yr</div>}
               </div>
               <Link href="/signup" className="block text-center py-3 rounded-xl grad-bg text-white font-medium text-[14px] hover:opacity-95 transition">
                 Start 14-day trial
               </Link>
-              <ul className="mt-7 space-y-3 text-[14px] text-[#0f0f1a]/80">
+              <ul className="mt-7 space-y-3 text-[14px] text-[#0F1F18]/80">
                 <li className="flex gap-2.5"><Chk />10 active events</li>
                 <li className="flex gap-2.5"><Chk />Up to 5,000 cards / event</li>
                 <li className="flex gap-2.5"><Chk /><b>No watermark</b></li>
@@ -103,10 +103,10 @@ export default function PricingPage() {
 
           {/* Studio/Agency */}
           <div className="bg-[#0f0f1a] text-white rounded-3xl shadow-soft p-8 flex flex-col relative overflow-hidden">
-            <div className="absolute -top-20 -right-20 h-56 w-56 rounded-full opacity-30" style={{ background: 'radial-gradient(closest-side,#f8a4d8,transparent)' }} />
-            <div className="absolute -bottom-24 -left-16 h-56 w-56 rounded-full opacity-25" style={{ background: 'radial-gradient(closest-side,#6c63ff,transparent)' }} />
+            <div className="absolute -top-20 -right-20 h-56 w-56 rounded-full opacity-30" style={{ background: 'radial-gradient(closest-side,#E8C57E,transparent)' }} />
+            <div className="absolute -bottom-24 -left-16 h-56 w-56 rounded-full opacity-25" style={{ background: 'radial-gradient(closest-side,#1F4D3A,transparent)' }} />
             <div className="relative flex flex-col flex-1">
-              <div className="text-[13px] font-mono tracking-widest text-[#f8a4d8] mb-1">STUDIO</div>
+              <div className="text-[13px] font-mono tracking-widest text-accent mb-1">STUDIO</div>
               <div className="font-display font-bold text-[24px]">Agency</div>
               <p className="text-[13.5px] text-white/65 mt-1">For agencies running events for many clients.</p>
               <div className="my-6">
@@ -131,7 +131,7 @@ export default function PricingPage() {
           </div>
         </div>
 
-        <p className="text-center text-[13px] text-[#0f0f1a]/50 mt-8">
+        <p className="text-center text-[13px] text-[#0F1F18]/50 mt-8">
           All plans include unlimited preview cards while editing. Cancel anytime &mdash; no questions.
         </p>
       </section>
@@ -139,14 +139,14 @@ export default function PricingPage() {
       {/* Comparison table */}
       <section className="max-w-[1100px] mx-auto px-6 pb-24">
         <div className="text-center mb-10">
-          <div className="text-[11px] font-mono tracking-widest text-[#0f0f1a]/45 mb-3">COMPARE</div>
+          <div className="text-[11px] font-mono tracking-widest text-[#0F1F18]/45 mb-3">COMPARE</div>
           <h2 className="font-display font-bold text-[36px] leading-tight">Everything in detail.</h2>
         </div>
-        <div className="bg-white rounded-3xl border border-[#e5e5ea] overflow-hidden shadow-soft">
+        <div className="bg-white rounded-3xl border border-border overflow-hidden shadow-soft">
           <table className="w-full text-[14px]">
             <thead>
-              <tr className="border-b border-[#e5e5ea]">
-                <th className="text-left p-5 w-[40%] font-display text-[#0f0f1a]/60 font-medium">Feature</th>
+              <tr className="border-b border-border">
+                <th className="text-left p-5 w-[40%] font-display text-[#0F1F18]/60 font-medium">Feature</th>
                 <th className="text-center p-5 font-display">Sketch</th>
                 <th className="text-center p-5 font-display grad-text">Studio</th>
                 <th className="text-center p-5 font-display">Agency</th>
@@ -170,7 +170,7 @@ export default function PricingPage() {
       {/* FAQ */}
       <section className="max-w-[820px] mx-auto px-6 pb-28">
         <div className="text-center mb-10">
-          <div className="text-[11px] font-mono tracking-widest text-[#0f0f1a]/45 mb-3">FAQ</div>
+          <div className="text-[11px] font-mono tracking-widest text-[#0F1F18]/45 mb-3">FAQ</div>
           <h2 className="font-display font-bold text-[36px] leading-tight">Questions, briefly answered.</h2>
         </div>
         <div className="space-y-3">
@@ -198,18 +198,18 @@ export default function PricingPage() {
 }
 
 function Chk({ pink }: { pink?: boolean }) {
-  return <span className={`mt-0.5 ${pink ? 'text-[#f8a4d8]' : 'text-[#6c63ff]'}`}>&#10003;</span>;
+  return <span className={`mt-0.5 ${pink ? 'text-accent' : 'text-primary'}`}>&#10003;</span>;
 }
 
 function CompRow({ label, free, pro, studio, last }: { label: string; free: string; pro: string; studio: string; last: boolean }) {
   const cell = (val: string) => {
-    if (val === 'check') return <td className="text-center text-[#6c63ff]">&#10003;</td>;
-    if (!val)           return <td className="text-center text-[#0f0f1a]/30">&mdash;</td>;
-    return <td className="text-center text-[#0f0f1a]/70">{val}</td>;
+    if (val === 'check') return <td className="text-center text-primary">&#10003;</td>;
+    if (!val)           return <td className="text-center text-[#0F1F18]/30">&mdash;</td>;
+    return <td className="text-center text-[#0F1F18]/70">{val}</td>;
   };
   return (
-    <tr className={last ? '' : 'border-b border-[#e5e5ea]/50'}>
-      <td className="p-4 pl-5 text-[#0f0f1a]/75">{label}</td>
+    <tr className={last ? '' : 'border-b border-border/50'}>
+      <td className="p-4 pl-5 text-[#0F1F18]/75">{label}</td>
       {cell(free)}
       {cell(pro)}
       {cell(studio)}
@@ -219,12 +219,12 @@ function CompRow({ label, free, pro, studio, last }: { label: string; free: stri
 
 function FaqItem({ q, a }: { q: string; a: string }) {
   return (
-    <details className="bg-white rounded-2xl border border-[#e5e5ea] group">
+    <details className="bg-white rounded-2xl border border-border group">
       <summary className="cursor-pointer list-none flex items-center justify-between p-5 font-display font-semibold text-[16px]">
         {q}
-        <span className="text-[#0f0f1a]/40 group-open:rotate-45 transition-transform duration-200">+</span>
+        <span className="text-[#0F1F18]/40 group-open:rotate-45 transition-transform duration-200">+</span>
       </summary>
-      <p className="px-5 pb-5 text-[14px] text-[#0f0f1a]/65 leading-relaxed">{a}</p>
+      <p className="px-5 pb-5 text-[14px] text-[#0F1F18]/65 leading-relaxed">{a}</p>
     </details>
   );
 }

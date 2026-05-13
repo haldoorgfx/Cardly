@@ -45,7 +45,7 @@ const I = {
   layers: '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
 };
 
-const COLORS = ['#FFFFFF', '#0F0F1A', '#6C63FF', '#F8A4D8', '#FFD28A', '#7BE0C0', '#FF6058'];
+const COLORS = ['#FFFFFF', '#0F1F18', '#1F4D3A', '#E8C57E', '#FFD28A', '#7BE0C0', '#FF6058'];
 const FONTS = ['DM Sans', 'Inter', 'JetBrains Mono', 'Space Grotesk', 'Playfair Display'];
 
 interface CanvasEditorProps {
@@ -309,37 +309,37 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
   };
 
   return (
-    <div className="flex flex-col" style={{ height: '100vh', overflow: 'hidden', background: '#fafafa' }}>
+    <div className="flex flex-col" style={{ height: '100vh', overflow: 'hidden', background: '#FAF6EE' }}>
       {/* Top Bar */}
-      <header className="h-14 bg-white border-b border-[#e5e5ea] flex items-center px-4 gap-3 shrink-0 z-10">
-        <a href="/dashboard" className="h-8 w-8 rounded-lg hover:bg-[#fafafa] grid place-items-center text-[#0f0f1a]/70" title="Back to events">
+      <header className="h-14 bg-white border-b border-border flex items-center px-4 gap-3 shrink-0 z-10">
+        <a href="/dashboard" className="h-8 w-8 rounded-lg hover:bg-cream grid place-items-center text-[#0F1F18]/70" title="Back to events">
           <Icon d={I.back} size={16} />
         </a>
-        <div className="h-6 w-px bg-[#e5e5ea]" />
+        <div className="h-6 w-px bg-border" />
         <a href="/dashboard" className="flex items-center gap-2 shrink-0">
-          <span className="h-7 w-7 rounded-lg grid place-items-center text-white font-display font-bold text-[13px]" style={{ background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)' }}>C</span>
+          <span className="h-7 w-7 rounded-lg grid place-items-center text-white font-display font-bold text-[13px] bg-primary">C</span>
         </a>
         <div className="flex items-center gap-1.5 text-[13px]">
-          <span className="text-[#0f0f1a]/40 font-mono text-[11px]">Events</span>
-          <span className="text-[#0f0f1a]/30">/</span>
+          <span className="text-[#0F1F18]/40 font-mono text-[11px]">Events</span>
+          <span className="text-[#0F1F18]/30">/</span>
           {editName
-            ? <input autoFocus value={nameVal} onChange={e => setNameVal(e.target.value)} onBlur={saveName} onKeyDown={e => e.key === 'Enter' && saveName()} className="font-display font-semibold bg-white border border-[#6c63ff]/40 rounded-md px-2 py-0.5 outline-none w-[260px]" />
-            : <button onClick={() => setEditName(true)} className="font-display font-semibold hover:bg-[#fafafa] rounded-md px-2 py-0.5">{nameVal}</button>
+            ? <input autoFocus value={nameVal} onChange={e => setNameVal(e.target.value)} onBlur={saveName} onKeyDown={e => e.key === 'Enter' && saveName()} className="font-display font-semibold bg-white border border-primary/40 rounded-md px-2 py-0.5 outline-none w-[260px]" />
+            : <button onClick={() => setEditName(true)} className="font-display font-semibold hover:bg-cream rounded-md px-2 py-0.5">{nameVal}</button>
           }
         </div>
 
         <div className="flex-1" />
 
         <div className="flex items-center gap-1">
-          <button title="Undo (⌘Z)" disabled={!history.past.length} onClick={undo} className={`h-8 w-8 rounded-lg grid place-items-center ${history.past.length ? 'text-[#0f0f1a]/80 hover:bg-[#fafafa]' : 'text-[#0f0f1a]/25'}`}>
+          <button title="Undo (⌘Z)" disabled={!history.past.length} onClick={undo} className={`h-8 w-8 rounded-lg grid place-items-center ${history.past.length ? 'text-[#0F1F18]/80 hover:bg-cream' : 'text-[#0F1F18]/25'}`}>
             <Icon d={I.undo} size={15} />
           </button>
-          <button title="Redo (⇧⌘Z)" disabled={!history.future.length} onClick={redo} className={`h-8 w-8 rounded-lg grid place-items-center ${history.future.length ? 'text-[#0f0f1a]/80 hover:bg-[#fafafa]' : 'text-[#0f0f1a]/25'}`}>
+          <button title="Redo (⇧⌘Z)" disabled={!history.future.length} onClick={redo} className={`h-8 w-8 rounded-lg grid place-items-center ${history.future.length ? 'text-[#0F1F18]/80 hover:bg-cream' : 'text-[#0F1F18]/25'}`}>
             <Icon d={I.redo} size={15} />
           </button>
         </div>
 
-        <div className="flex items-center gap-1.5 text-[12px] text-[#0f0f1a]/55 mx-2">
+        <div className="flex items-center gap-1.5 text-[12px] text-[#0F1F18]/55 mx-2">
           <Icon d={I.save} size={13} sw={2} />
           Saved · {savedAt}
         </div>
@@ -347,15 +347,14 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
         <div className="flex items-center gap-2">
           <a
             href={`/events/${eventId}`}
-            className="inline-flex items-center gap-1.5 text-[13px] text-[#0f0f1a]/80 bg-white border border-[#e5e5ea] px-3 py-1.5 rounded-lg hover:bg-[#fafafa] transition"
+            className="inline-flex items-center gap-1.5 text-[13px] text-[#0F1F18]/80 bg-white border border-border px-3 py-1.5 rounded-lg hover:bg-cream transition"
           >
             <Icon d={I.play} size={13} sw={2.2} />
             Preview
           </a>
           <button
             onClick={handlePublish}
-            className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-white px-3.5 py-1.5 rounded-lg hover:opacity-95 transition shadow-soft"
-            style={{ background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)' }}
+            className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-white px-3.5 py-1.5 rounded-lg hover:opacity-95 transition shadow-soft bg-primary"
           >
             <Icon d={I.globe} size={13} sw={2.2} />
             Publish
@@ -364,13 +363,13 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
       </header>
 
       {/* Variant tab bar */}
-      <div className="h-11 bg-white border-b border-[#e5e5ea] flex items-center px-4 gap-1 shrink-0 z-10">
-        <span className="text-[11px] font-mono text-[#0f0f1a]/40 mr-2 shrink-0">VARIANTS</span>
+      <div className="h-11 bg-white border-b border-border flex items-center px-4 gap-1 shrink-0 z-10">
+        <span className="text-[11px] font-mono text-[#0F1F18]/40 mr-2 shrink-0">VARIANTS</span>
         {variants.map(v => (
           <button
             key={v.id}
             onClick={() => switchVariant(v.id)}
-            className={`flex items-center gap-2 px-3.5 h-7 rounded-lg text-[13px] font-medium transition ${v.id === activeVariantId ? 'bg-[#6c63ff] text-white shadow-sm' : 'text-[#0f0f1a]/60 hover:text-[#0f0f1a] hover:bg-[#fafafa] border border-[#e5e5ea]'}`}
+            className={`flex items-center gap-2 px-3.5 h-7 rounded-lg text-[13px] font-medium transition ${v.id === activeVariantId ? 'bg-primary text-white shadow-sm' : 'text-[#0F1F18]/60 hover:text-[#0F1F18] hover:bg-cream border border-border'}`}
           >
             <Icon d={I.layers} size={12} sw={2} />
             {v.variant_name}
@@ -378,7 +377,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
         ))}
         <button
           onClick={() => setShowAddVariantModal(true)}
-          className="flex items-center gap-1.5 px-3 h-7 rounded-lg text-[13px] font-medium text-[#0f0f1a]/50 hover:text-[#6c63ff] hover:bg-[#6c63ff]/8 border border-dashed border-[#e5e5ea] hover:border-[#6c63ff]/40 transition"
+          className="flex items-center gap-1.5 px-3 h-7 rounded-lg text-[13px] font-medium text-[#0F1F18]/50 hover:text-primary hover:bg-primary/[0.08] border border-dashed border-border hover:border-primary/40 transition"
           title="Add variant"
         >
           <Icon d={I.plus} size={13} sw={2.5} />
@@ -388,9 +387,9 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
 
       <div className="flex-1 flex min-h-0">
         {/* Left Rail */}
-        <aside className="w-[256px] shrink-0 bg-white border-r border-[#e5e5ea] flex flex-col overflow-y-auto">
+        <aside className="w-[256px] shrink-0 bg-white border-r border-border flex flex-col overflow-y-auto">
           <div className="p-4">
-            <div className="text-[11px] font-mono tracking-widest text-[#0f0f1a]/40 mb-3">ADD TO CANVAS</div>
+            <div className="text-[11px] font-mono tracking-widest text-[#0F1F18]/40 mb-3">ADD TO CANVAS</div>
             <div className="space-y-1.5">
               {[
                 { type: 'text' as const, label: 'Text field', sub: 'Name, title, country…', icon: I.text },
@@ -400,14 +399,14 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                 <button
                   key={item.type}
                   onClick={() => addZone(item.type)}
-                  className="group w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-[#fafafa] border border-transparent hover:border-[#e5e5ea] transition text-left"
+                  className="group w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-cream border border-transparent hover:border-border transition text-left"
                 >
-                  <span className="h-9 w-9 rounded-lg bg-[#fafafa] grid place-items-center text-[#6c63ff] group-hover:text-white transition">
-                    <svg className="group-hover:[background:linear-gradient(135deg,#6c63ff,#f8a4d8)] rounded-lg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: item.icon }} />
+                  <span className="h-9 w-9 rounded-lg bg-cream grid place-items-center text-primary group-hover:text-white transition">
+                    <svg className="group-hover:bg-primary rounded-lg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: item.icon }} />
                   </span>
                   <span className="flex-1 min-w-0">
                     <span className="block text-[13px] font-medium">{item.label}</span>
-                    <span className="block text-[11px] text-[#0f0f1a]/50">{item.sub}</span>
+                    <span className="block text-[11px] text-[#0F1F18]/50">{item.sub}</span>
                   </span>
                   <Icon d={I.plus} size={13} sw={2} />
                 </button>
@@ -416,24 +415,24 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
           </div>
 
           <div className="px-4">
-            <div className="text-[11px] font-mono tracking-widest text-[#0f0f1a]/40 mb-2 flex items-center justify-between">
-              ZONES <span className="text-[#0f0f1a]/40 normal-case">{zones.length}</span>
+            <div className="text-[11px] font-mono tracking-widest text-[#0F1F18]/40 mb-2 flex items-center justify-between">
+              ZONES <span className="text-[#0F1F18]/40 normal-case">{zones.length}</span>
             </div>
             <div className="space-y-0.5">
               {zones.map(z => (
                 <div
                   key={z.id}
                   onClick={() => setSelectedId(z.id)}
-                  className={`group flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer text-[12.5px] ${z.id === selectedId ? 'bg-[#6c63ff]/10 text-[#6c63ff]' : 'hover:bg-[#fafafa] text-[#0f0f1a]/80'}`}
+                  className={`group flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer text-[12.5px] ${z.id === selectedId ? 'bg-primary/10 text-primary' : 'hover:bg-cream text-[#0F1F18]/80'}`}
                 >
-                  <span className={`h-6 w-6 rounded-md grid place-items-center ${z.id === selectedId ? 'text-[#6c63ff]' : 'text-[#0f0f1a]/50'}`}>
+                  <span className={`h-6 w-6 rounded-md grid place-items-center ${z.id === selectedId ? 'text-primary' : 'text-[#0F1F18]/50'}`}>
                     <Icon d={z.type === 'photo' ? I.photo : z.type === 'custom' ? I.field : I.text} size={12} />
                   </span>
                   <span className="flex-1 truncate">{z.label}</span>
-                  {z.required && <span className="text-[9px] font-mono px-1 py-px rounded bg-[#6c63ff]/10 text-[#6c63ff]">REQ</span>}
+                  {z.required && <span className="text-[9px] font-mono px-1 py-px rounded bg-primary/10 text-primary">REQ</span>}
                   <button
                     onClick={e => { e.stopPropagation(); updateZone(z.id, { hidden: !z.hidden }); }}
-                    className="opacity-0 group-hover:opacity-100 h-6 w-6 rounded-md grid place-items-center text-[#0f0f1a]/50 hover:bg-white"
+                    className="opacity-0 group-hover:opacity-100 h-6 w-6 rounded-md grid place-items-center text-[#0F1F18]/50 hover:bg-white"
                     title={z.hidden ? 'Show' : 'Hide'}
                   >
                     <Icon d={z.hidden ? I.eyeOff : I.eye} size={12} />
@@ -443,13 +442,13 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
             </div>
           </div>
 
-          <div className="mt-auto p-3 border-t border-[#e5e5ea]">
-            <div className="text-[11px] font-mono tracking-widest text-[#0f0f1a]/40 mb-2">BACKGROUND</div>
-            <div className="flex items-center gap-3 rounded-xl border border-[#e5e5ea] p-2.5">
-              <div className="h-9 w-9 rounded-md shrink-0 bg-cover bg-center" style={{ backgroundImage: backgroundUrl ? `url(${backgroundUrl})` : undefined, background: backgroundUrl ? undefined : '#fafafa' }} />
+          <div className="mt-auto p-3 border-t border-border">
+            <div className="text-[11px] font-mono tracking-widest text-[#0F1F18]/40 mb-2">BACKGROUND</div>
+            <div className="flex items-center gap-3 rounded-xl border border-border p-2.5">
+              <div className="h-9 w-9 rounded-md shrink-0 bg-cover bg-center" style={{ backgroundImage: backgroundUrl ? `url(${backgroundUrl})` : undefined, background: backgroundUrl ? undefined : '#FAF6EE' }} />
               <div className="flex-1 min-w-0">
                 <div className="text-[12px] font-medium truncate">{activeVariant?.variant_name ?? 'Variant'}</div>
-                <div className="text-[10px] font-mono text-[#0f0f1a]/45">{bgW} × {bgH}</div>
+                <div className="text-[10px] font-mono text-[#0F1F18]/45">{bgW} × {bgH}</div>
               </div>
             </div>
           </div>
@@ -459,7 +458,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
         <div
           ref={stageRef}
           className="flex-1 relative overflow-hidden"
-          style={{ backgroundColor: '#f4f4f7', backgroundImage: 'radial-gradient(#d4d4dc 1px, transparent 1px)', backgroundSize: '16px 16px' }}
+          style={{ backgroundColor: '#EDE9E0', backgroundImage: 'radial-gradient(#C8C2B5 1px, transparent 1px)', backgroundSize: '16px 16px' }}
           onPointerDown={() => setSelectedId(null)}
         >
           <div className="absolute inset-0 flex items-center justify-center">
@@ -477,7 +476,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
               {/* Grid overlay */}
               {grid && (
                 <div className="absolute inset-0 pointer-events-none" style={{
-                  backgroundImage: 'linear-gradient(to right, rgba(108,99,255,0.10) 1px, transparent 1px), linear-gradient(to bottom, rgba(108,99,255,0.10) 1px, transparent 1px)',
+                  backgroundImage: 'linear-gradient(to right, rgba(31,77,58,0.10) 1px, transparent 1px), linear-gradient(to bottom, rgba(31,77,58,0.10) 1px, transparent 1px)',
                   backgroundSize: '60px 60px',
                 }} />
               )}
@@ -494,40 +493,40 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
               ))}
 
               {/* Canvas frame label */}
-              <div className="absolute -top-7 left-0 right-0 flex items-center justify-between text-[11px] font-mono text-[#0f0f1a]/45">
+              <div className="absolute -top-7 left-0 right-0 flex items-center justify-between text-[11px] font-mono text-[#0F1F18]/45">
                 <span>{bgW} × {bgH} px</span>
                 <span>{zones.length} zones · {zones.filter(z => z.required).length} required</span>
               </div>
               {/* Corner marks */}
-              <span className="absolute -top-1 -left-1 h-3 w-3 border-t border-l border-[#6c63ff]/50" />
-              <span className="absolute -top-1 -right-1 h-3 w-3 border-t border-r border-[#6c63ff]/50" />
-              <span className="absolute -bottom-1 -left-1 h-3 w-3 border-b border-l border-[#6c63ff]/50" />
-              <span className="absolute -bottom-1 -right-1 h-3 w-3 border-b border-r border-[#6c63ff]/50" />
+              <span className="absolute -top-1 -left-1 h-3 w-3 border-t border-l border-primary/50" />
+              <span className="absolute -top-1 -right-1 h-3 w-3 border-t border-r border-primary/50" />
+              <span className="absolute -bottom-1 -left-1 h-3 w-3 border-b border-l border-primary/50" />
+              <span className="absolute -bottom-1 -right-1 h-3 w-3 border-b border-r border-primary/50" />
             </div>
             </div>
           </div>
 
           {/* Bottom bar */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white rounded-xl border border-[#e5e5ea] shadow-soft p-1">
-            <button onClick={() => setZoom(z => Math.max(0.1, z - 0.1))} className="h-8 w-8 rounded-lg hover:bg-[#fafafa] grid place-items-center text-[#0f0f1a]/70" title="Zoom out">
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white rounded-xl border border-border shadow-soft p-1">
+            <button onClick={() => setZoom(z => Math.max(0.1, z - 0.1))} className="h-8 w-8 rounded-lg hover:bg-cream grid place-items-center text-[#0F1F18]/70" title="Zoom out">
               <Icon d={I.zoom_out} size={14} />
             </button>
-            <button onClick={() => setZoom(1)} className="font-mono text-[12px] px-2 min-w-[64px] text-center hover:bg-[#fafafa] rounded-lg py-1.5">
+            <button onClick={() => setZoom(1)} className="font-mono text-[12px] px-2 min-w-[64px] text-center hover:bg-cream rounded-lg py-1.5">
               {Math.round(zoom * 100)}%
             </button>
-            <button onClick={() => setZoom(z => Math.min(2, z + 0.1))} className="h-8 w-8 rounded-lg hover:bg-[#fafafa] grid place-items-center text-[#0f0f1a]/70" title="Zoom in">
+            <button onClick={() => setZoom(z => Math.min(2, z + 0.1))} className="h-8 w-8 rounded-lg hover:bg-cream grid place-items-center text-[#0F1F18]/70" title="Zoom in">
               <Icon d={I.zoom_in} size={14} />
             </button>
-            <span className="h-5 w-px bg-[#e5e5ea] mx-1" />
+            <span className="h-5 w-px bg-border mx-1" />
             <button
               onClick={() => setGrid(g => !g)}
-              className={`h-8 px-2.5 rounded-lg flex items-center gap-1.5 text-[12px] ${grid ? 'bg-[#6c63ff]/10 text-[#6c63ff]' : 'hover:bg-[#fafafa] text-[#0f0f1a]/70'}`}
+              className={`h-8 px-2.5 rounded-lg flex items-center gap-1.5 text-[12px] ${grid ? 'bg-primary/10 text-primary' : 'hover:bg-cream text-[#0F1F18]/70'}`}
               title="Toggle grid"
             >
               <Icon d={I.grid} size={13} />
               Grid
             </button>
-            <button onClick={() => { const el = stageRef.current; if (!el) return; const pad = 80; setZoom(Math.max(0.18, Math.min(1.4, Math.min((el.clientWidth - pad) / bgW, (el.clientHeight - pad) / bgH)))); }} className="h-8 px-2.5 rounded-lg hover:bg-[#fafafa] text-[12px] text-[#0f0f1a]/70">
+            <button onClick={() => { const el = stageRef.current; if (!el) return; const pad = 80; setZoom(Math.max(0.18, Math.min(1.4, Math.min((el.clientWidth - pad) / bgW, (el.clientHeight - pad) / bgH)))); }} className="h-8 px-2.5 rounded-lg hover:bg-cream text-[12px] text-[#0F1F18]/70">
               Fit
             </button>
           </div>
@@ -535,13 +534,13 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
 
         {/* Right Rail */}
         {!selected ? (
-          <aside className="w-[300px] shrink-0 bg-white border-l border-[#e5e5ea] flex flex-col items-center justify-center p-8 text-center">
-            <div className="h-12 w-12 rounded-2xl bg-[#fafafa] grid place-items-center text-[#0f0f1a]/40">
+          <aside className="w-[300px] shrink-0 bg-white border-l border-border flex flex-col items-center justify-center p-8 text-center">
+            <div className="h-12 w-12 rounded-2xl bg-cream grid place-items-center text-[#0F1F18]/40">
               <Icon d={I.cursor} size={18} />
             </div>
             <div className="mt-4 font-display font-medium text-[14px]">Nothing selected</div>
-            <p className="text-[12.5px] text-[#0f0f1a]/55 mt-1 max-w-[200px]">Pick a zone on the canvas, or add a new field from the left panel.</p>
-            <div className="mt-6 grid grid-cols-2 gap-1.5 text-[10px] font-mono text-[#0f0f1a]/50">
+            <p className="text-[12.5px] text-[#0F1F18]/55 mt-1 max-w-[200px]">Pick a zone on the canvas, or add a new field from the left panel.</p>
+            <div className="mt-6 grid grid-cols-2 gap-1.5 text-[10px] font-mono text-[#0F1F18]/50">
               <span>Click</span><span>select zone</span>
               <span>Drag</span><span>reposition</span>
               <span>⌫</span><span>delete zone</span>
@@ -549,17 +548,17 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
             </div>
           </aside>
         ) : (
-          <aside className="w-[300px] shrink-0 bg-white border-l border-[#e5e5ea] flex flex-col overflow-y-auto">
+          <aside className="w-[300px] shrink-0 bg-white border-l border-border flex flex-col overflow-y-auto">
             {/* Header */}
-            <div className="p-4 border-b border-[#e5e5ea] flex items-center gap-2">
-              <span className="h-7 w-7 rounded-md grid place-items-center text-white" style={{ background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)' }}>
+            <div className="p-4 border-b border-border flex items-center gap-2">
+              <span className="h-7 w-7 rounded-md grid place-items-center text-white bg-primary">
                 <Icon d={selected.type === 'photo' ? I.photo : selected.type === 'custom' ? I.field : I.text} size={13} />
               </span>
               <div className="flex-1 min-w-0">
-                <div className="text-[11px] font-mono text-[#0f0f1a]/50 uppercase tracking-widest">{selected.type} zone</div>
+                <div className="text-[11px] font-mono text-[#0F1F18]/50 uppercase tracking-widest">{selected.type} zone</div>
                 <div className="text-[13px] font-display font-semibold truncate">{selected.label}</div>
               </div>
-              <button onClick={() => duplicateZone(selected.id)} title="Duplicate (⌘D)" className="h-7 w-7 rounded-md hover:bg-[#fafafa] grid place-items-center text-[#0f0f1a]/60">
+              <button onClick={() => duplicateZone(selected.id)} title="Duplicate (⌘D)" className="h-7 w-7 rounded-md hover:bg-cream grid place-items-center text-[#0F1F18]/60">
                 <Icon d={I.duplicate} size={13} />
               </button>
               <button onClick={() => removeZone(selected.id)} title="Delete (⌫)" className="h-7 w-7 rounded-md hover:bg-rose-50 grid place-items-center text-rose-500">
@@ -605,15 +604,15 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                   />
                 </PropRow>
                 <PropRow label={`Size · ${selected.size ?? 32}px`}>
-                  <input type="range" min="12" max="160" value={selected.size ?? 32} onChange={e => updateZone(selected.id, { size: Number(e.target.value) })} className="w-full" style={{ WebkitAppearance: 'none', height: 4, background: '#e5e5ea', borderRadius: 999 }} />
+                  <input type="range" min="12" max="160" value={selected.size ?? 32} onChange={e => updateZone(selected.id, { size: Number(e.target.value) })} className="w-full" style={{ WebkitAppearance: 'none', height: 4, background: '#E5E0D4', borderRadius: 999 }} />
                 </PropRow>
                 <PropRow label="Color">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <input type="color" value={selected.color ?? '#FFFFFF'} onChange={e => updateZone(selected.id, { color: e.target.value })} className="h-7 w-7 rounded border border-[#e5e5ea] cursor-pointer bg-white" />
+                    <input type="color" value={selected.color ?? '#FFFFFF'} onChange={e => updateZone(selected.id, { color: e.target.value })} className="h-7 w-7 rounded border border-border cursor-pointer bg-white" />
                     <input value={selected.color ?? '#FFFFFF'} onChange={e => updateZone(selected.id, { color: e.target.value })} className="prop-input flex-1 font-mono text-[11px] uppercase" style={{ minWidth: 80 }} />
                     <div className="flex gap-1">
                       {COLORS.map(s => (
-                        <button key={s} onClick={() => updateZone(selected.id, { color: s })} className={`h-5 w-5 rounded border ${(selected.color ?? '').toUpperCase() === s ? 'border-[#6c63ff] ring-2 ring-[#6c63ff]/30' : 'border-[#e5e5ea]'}`} style={{ background: s }} />
+                        <button key={s} onClick={() => updateZone(selected.id, { color: s })} className={`h-5 w-5 rounded border ${(selected.color ?? '').toUpperCase() === s ? 'border-primary ring-2 ring-primary/30' : 'border-border'}`} style={{ background: s }} />
                       ))}
                     </div>
                   </div>
@@ -637,7 +636,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
               </div>
               <button
                 onClick={() => updateZone(selected.id, { x: Math.round(bgW / 2 - selected.w / 2) })}
-                className="mt-3 w-full text-[12px] text-[#0f0f1a]/60 border border-[#e5e5ea] rounded-lg py-1.5 hover:bg-[#fafafa] flex items-center justify-center gap-1.5"
+                className="mt-3 w-full text-[12px] text-[#0F1F18]/60 border border-border rounded-lg py-1.5 hover:bg-cream flex items-center justify-center gap-1.5"
               >
                 <Icon d={I.pin} size={11} />
                 Snap to center horizontally
@@ -645,8 +644,8 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
             </PropSection>
 
             <style>{`
-              .prop-input { width:100%; height:32px; padding:0 10px; border:1px solid #e5e5ea; border-radius:8px; background:#fafafa; font-size:12.5px; font-family:'Inter',sans-serif; outline:none; }
-              .prop-input:focus { background:white; outline:2px solid rgba(108,99,255,0.25); outline-offset:-1px; border-color:#6c63ff; }
+              .prop-input { width:100%; height:32px; padding:0 10px; border:1px solid #E5E0D4; border-radius:8px; background:#FAF6EE; font-size:12.5px; font-family:'Inter',sans-serif; outline:none; }
+              .prop-input:focus { background:white; outline:2px solid rgba(31,77,58,0.25); outline-offset:-1px; border-color:#1F4D3A; }
             `}</style>
           </aside>
         )}
@@ -655,21 +654,21 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
       {/* Add Variant Modal */}
       {showAddVariantModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-[#0f0f1a]/40 backdrop-blur-sm" onClick={() => setShowAddVariantModal(false)} />
+          <div className="absolute inset-0 bg-[#0F1F18]/40 backdrop-blur-sm" onClick={() => setShowAddVariantModal(false)} />
           <div className="relative bg-white rounded-2xl shadow-lift w-full max-w-[420px] mx-4 p-6">
             <div className="flex items-center justify-between mb-5">
               <div>
                 <h2 className="font-display font-bold text-[18px]">Add variant</h2>
-                <p className="text-[12.5px] text-[#0f0f1a]/50 mt-0.5">A new card type for this event (e.g. Speaker, Sponsor)</p>
+                <p className="text-[12.5px] text-[#0F1F18]/50 mt-0.5">A new card type for this event (e.g. Speaker, Sponsor)</p>
               </div>
-              <button onClick={() => setShowAddVariantModal(false)} className="h-8 w-8 rounded-lg hover:bg-[#fafafa] grid place-items-center text-[#0f0f1a]/50">
+              <button onClick={() => setShowAddVariantModal(false)} className="h-8 w-8 rounded-lg hover:bg-cream grid place-items-center text-[#0F1F18]/50">
                 <Icon d={I.close} size={15} />
               </button>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-[12px] font-medium text-[#0f0f1a]/70 mb-1.5">Variant name</label>
+                <label className="block text-[12px] font-medium text-[#0F1F18]/70 mb-1.5">Variant name</label>
                 <input
                   autoFocus
                   type="text"
@@ -677,12 +676,12 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                   value={newVariantName}
                   onChange={e => setNewVariantName(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleAddVariant()}
-                  className="w-full h-10 px-3 rounded-xl border border-[#e5e5ea] text-[13.5px] outline-none focus:border-[#6c63ff] transition"
+                  className="w-full h-10 px-3 rounded-xl border border-border text-[13.5px] outline-none focus:border-primary transition"
                 />
               </div>
 
               <div>
-                <label className="block text-[12px] font-medium text-[#0f0f1a]/70 mb-1.5">Background design</label>
+                <label className="block text-[12px] font-medium text-[#0F1F18]/70 mb-1.5">Background design</label>
                 <input
                   ref={newVariantFileRef}
                   type="file"
@@ -692,7 +691,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                 />
                 <button
                   onClick={() => newVariantFileRef.current?.click()}
-                  className={`w-full h-24 rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition ${newVariantFile ? 'border-[#6c63ff]/50 bg-[#6c63ff]/4 text-[#6c63ff]' : 'border-[#e5e5ea] hover:border-[#6c63ff]/40 text-[#0f0f1a]/40'}`}
+                  className={`w-full h-24 rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition ${newVariantFile ? 'border-primary/50 bg-primary/[0.04] text-primary' : 'border-border hover:border-primary/40 text-[#0F1F18]/40'}`}
                 >
                   {newVariantFile ? (
                     <>
@@ -710,14 +709,13 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
             </div>
 
             <div className="flex gap-2 mt-6">
-              <button onClick={() => setShowAddVariantModal(false)} className="flex-1 h-10 rounded-xl border border-[#e5e5ea] text-[13px] hover:bg-[#fafafa] transition">
+              <button onClick={() => setShowAddVariantModal(false)} className="flex-1 h-10 rounded-xl border border-border text-[13px] hover:bg-cream transition">
                 Cancel
               </button>
               <button
                 onClick={handleAddVariant}
                 disabled={!newVariantName.trim() || !newVariantFile || addingVariant}
-                className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white transition disabled:opacity-40"
-                style={{ background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)' }}
+                className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white transition disabled:opacity-40 bg-primary"
               >
                 {addingVariant ? 'Creating…' : 'Create variant'}
               </button>
@@ -733,7 +731,7 @@ function ZoneEl({ zone, selected, onPointerDown, onHandle }: { zone: Zone; selec
   if (zone.hidden) return null;
   const isPhoto = zone.type === 'photo';
   const radius = isPhoto ? (zone.shape === 'circle' ? '50%' : zone.shape === 'rounded' ? '20%' : '4px') : '6px';
-  const dashColor = selected ? '#6c63ff' : '#f8a4d8';
+  const dashColor = selected ? '#1F4D3A' : '#E8C57E';
 
   const inner = (() => {
     if (isPhoto) {
@@ -778,7 +776,7 @@ function ZoneEl({ zone, selected, onPointerDown, onHandle }: { zone: Zone; selec
           {(['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'] as const).map(dir => (
             <HandleEl key={dir} dir={dir} round={isPhoto && zone.shape === 'circle'} onPointerDown={e => onHandle(e, dir)} />
           ))}
-          <span className="absolute font-mono text-[10px] text-white px-2 py-0.5 rounded whitespace-nowrap" style={{ background: '#6c63ff', bottom: -28, left: '50%', transform: 'translateX(-50%)' }}>
+          <span className="absolute font-mono text-[10px] text-white px-2 py-0.5 rounded whitespace-nowrap" style={{ background: '#1F4D3A', bottom: -28, left: '50%', transform: 'translateX(-50%)' }}>
             {zone.w} × {zone.h}
           </span>
         </>
@@ -808,7 +806,7 @@ function HandleEl({ dir, round, onPointerDown }: { dir: string; round: boolean; 
         width: 10,
         height: 10,
         background: 'white',
-        border: '1.5px solid #6c63ff',
+        border: '1.5px solid #1F4D3A',
         borderRadius: round ? 999 : 2,
         ...HANDLE_POSITIONS[dir],
       }}
@@ -818,8 +816,8 @@ function HandleEl({ dir, round, onPointerDown }: { dir: string; round: boolean; 
 
 function PropSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="px-4 py-4 border-b border-[#e5e5ea]">
-      <div className="text-[11px] font-mono tracking-widest text-[#0f0f1a]/40 mb-3">{title.toUpperCase()}</div>
+    <div className="px-4 py-4 border-b border-border">
+      <div className="text-[11px] font-mono tracking-widest text-[#0F1F18]/40 mb-3">{title.toUpperCase()}</div>
       <div className="space-y-3">{children}</div>
     </div>
   );
@@ -828,7 +826,7 @@ function PropSection({ title, children }: { title: string; children: React.React
 function PropRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <div className="text-[11px] text-[#0f0f1a]/55 mb-1">{label}</div>
+      <div className="text-[11px] text-[#0F1F18]/55 mb-1">{label}</div>
       {children}
     </label>
   );
@@ -838,7 +836,7 @@ function PropToggle({ label, value, onChange }: { label: string; value: boolean;
   return (
     <label className="flex items-center justify-between cursor-pointer">
       <span className="text-[12.5px]">{label}</span>
-      <button type="button" onClick={() => onChange(!value)} className={`relative h-5 w-9 rounded-full transition ${value ? '' : 'bg-[#e5e5ea]'}`} style={value ? { background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)' } : {}}>
+      <button type="button" onClick={() => onChange(!value)} className={`relative h-5 w-9 rounded-full transition ${value ? 'bg-primary' : 'bg-border'}`}>
         <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all ${value ? 'left-[18px]' : 'left-0.5'}`} />
       </button>
     </label>
@@ -847,12 +845,12 @@ function PropToggle({ label, value, onChange }: { label: string; value: boolean;
 
 function Segmented({ value, onChange, options }: { value: string; onChange: (v: string) => void; options: { v: string; label?: string; icon?: string }[] }) {
   return (
-    <div className="flex p-0.5 bg-[#fafafa] rounded-lg border border-[#e5e5ea]">
+    <div className="flex p-0.5 bg-cream rounded-lg border border-border">
       {options.map(o => (
         <button
           key={o.v}
           onClick={() => onChange(o.v)}
-          className={`flex-1 h-7 text-[11px] font-medium rounded-md grid place-items-center transition ${value === o.v ? 'bg-white shadow-sm text-[#0f0f1a]' : 'text-[#0f0f1a]/55 hover:text-[#0f0f1a]'}`}
+          className={`flex-1 h-7 text-[11px] font-medium rounded-md grid place-items-center transition ${value === o.v ? 'bg-white shadow-sm text-[#0F1F18]' : 'text-[#0F1F18]/55 hover:text-[#0F1F18]'}`}
         >
           {o.icon ? <Icon d={o.icon} size={12} /> : o.label}
         </button>
@@ -864,7 +862,7 @@ function Segmented({ value, onChange, options }: { value: string; onChange: (v: 
 function NumberProp({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) {
   return (
     <label className="block">
-      <div className="text-[10px] font-mono uppercase tracking-widest text-[#0f0f1a]/40 mb-1">{label}</div>
+      <div className="text-[10px] font-mono uppercase tracking-widest text-[#0F1F18]/40 mb-1">{label}</div>
       <input type="number" value={value} onChange={e => onChange(Number(e.target.value))} className="prop-input font-mono text-[12px]" />
     </label>
   );

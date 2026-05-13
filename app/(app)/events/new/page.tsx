@@ -78,41 +78,41 @@ export default function NewEventPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#fafafa] flex flex-col">
+    <div className="min-h-screen bg-[#FAF6EE] flex flex-col">
       {/* Header */}
-      <header className="bg-white border-b border-[#e5e5ea]">
+      <header className="bg-white border-b border-[#E5E0D4]">
         <div className="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link href="/dashboard" className="h-9 w-9 rounded-lg hover:bg-[#fafafa] grid place-items-center text-[#0f0f1a]/60">
+            <Link href="/dashboard" className="h-9 w-9 rounded-lg hover:bg-[#FAF6EE] grid place-items-center text-[#0F1F18]/60">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6" /></svg>
             </Link>
             <div className="flex items-center gap-2">
-              <span className="h-7 w-7 rounded-lg grid place-items-center text-white font-display font-bold text-[14px]" style={{ background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)' }}>C</span>
+              <span className="h-7 w-7 rounded-lg grid place-items-center text-white font-display font-bold text-[14px]" style={{ background: 'linear-gradient(135deg,#1F4D3A,#E8C57E)' }}>C</span>
               <div className="font-display font-bold text-[16px]">New event</div>
-              <span className="text-[#0f0f1a]/30">·</span>
+              <span className="text-[#0F1F18]/30">·</span>
               <input
                 value={eventName}
                 onChange={e => setEventName(e.target.value)}
                 placeholder="Event name"
-                className="text-[14px] font-medium bg-transparent outline-none border-b border-dashed border-transparent hover:border-[#e5e5ea] focus:border-[#6c63ff] px-1 w-48"
+                className="text-[14px] font-medium bg-transparent outline-none border-b border-dashed border-transparent hover:border-[#E5E0D4] focus:border-[#1F4D3A] px-1 w-48"
               />
             </div>
           </div>
 
           {/* Stepper */}
           <div className="hidden md:flex items-center gap-2 text-[12.5px]">
-            <div className="flex items-center gap-2 text-[#0f0f1a]">
-              <span className="w-7 h-7 rounded-full grid place-items-center font-mono text-[12px] font-semibold text-white" style={{ background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)' }}>1</span>
+            <div className="flex items-center gap-2 text-[#0F1F18]">
+              <span className="w-7 h-7 rounded-full grid place-items-center font-mono text-[12px] font-semibold text-white" style={{ background: 'linear-gradient(135deg,#1F4D3A,#E8C57E)' }}>1</span>
               <span className="font-medium">Upload</span>
             </div>
-            <div className="w-8 h-px bg-[#e5e5ea]" />
-            <div className="flex items-center gap-2 text-[#0f0f1a]/40">
-              <span className="w-7 h-7 rounded-full bg-[#fafafa] grid place-items-center font-mono text-[12px] font-semibold text-[#0f0f1a]/55">2</span>
+            <div className="w-8 h-px bg-[#E5E0D4]" />
+            <div className="flex items-center gap-2 text-[#0F1F18]/40">
+              <span className="w-7 h-7 rounded-full bg-[#FAF6EE] grid place-items-center font-mono text-[12px] font-semibold text-[#0F1F18]/55">2</span>
               <span>Define zones</span>
             </div>
-            <div className="w-8 h-px bg-[#e5e5ea]" />
-            <div className="flex items-center gap-2 text-[#0f0f1a]/40">
-              <span className="w-7 h-7 rounded-full bg-[#fafafa] grid place-items-center font-mono text-[12px] font-semibold text-[#0f0f1a]/55">3</span>
+            <div className="w-8 h-px bg-[#E5E0D4]" />
+            <div className="flex items-center gap-2 text-[#0F1F18]/40">
+              <span className="w-7 h-7 rounded-full bg-[#FAF6EE] grid place-items-center font-mono text-[12px] font-semibold text-[#0F1F18]/55">3</span>
               <span>Publish</span>
             </div>
           </div>
@@ -124,9 +124,9 @@ export default function NewEventPage() {
       <main className="flex-1 grid place-items-center px-6 py-10">
         <div className="w-full max-w-[860px]">
           <div className="text-center mb-8">
-            <div className="text-[11px] font-mono tracking-widest text-[#0f0f1a]/45">STEP 1 OF 3</div>
+            <div className="text-[11px] font-mono tracking-widest text-[#0F1F18]/45">STEP 1 OF 3</div>
             <h1 className="font-display font-bold text-[40px] leading-tight mt-2">Upload your design</h1>
-            <p className="text-[15px] text-[#0f0f1a]/60 mt-2 max-w-[520px] mx-auto">Anything you&apos;d post on Instagram works. We&apos;ll show it on a canvas where you can mark editable zones.</p>
+            <p className="text-[15px] text-[#0F1F18]/60 mt-2 max-w-[520px] mx-auto">Anything you&apos;d post on Instagram works. We&apos;ll show it on a canvas where you can mark editable zones.</p>
           </div>
 
           {error && (
@@ -140,40 +140,82 @@ export default function NewEventPage() {
               onDragLeave={() => setDragging(false)}
               onDrop={onDrop}
               onClick={() => fileRef.current?.click()}
-              className={`relative rounded-3xl border-2 border-dashed transition bg-white cursor-pointer overflow-hidden ${dragging ? 'border-[#6c63ff] bg-[#6c63ff]/5' : 'border-[#6c63ff]/40 hover:border-[#6c63ff]'}`}
-              style={{ backgroundImage: 'linear-gradient(rgba(108,99,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(108,99,255,0.08) 1px, transparent 1px)', backgroundSize: '24px 24px', boxShadow: '0 1px 2px rgba(15,15,26,0.04), 0 12px 32px rgba(15,15,26,0.06)' }}
+              className={`relative rounded-3xl border-2 border-dashed cursor-pointer overflow-hidden transition-all duration-200 ${
+                dragging
+                  ? 'border-[#1F4D3A] bg-[#1F4D3A]/[0.04] scale-[1.01]'
+                  : 'border-[#E5E0D4] hover:border-[#1F4D3A]/50 bg-white'
+              }`}
+              style={{ boxShadow: dragging ? '0 0 0 4px rgba(31,77,58,0.08), 0 12px 40px rgba(31,77,58,0.1)' : '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.05)' }}
             >
-              <div className="px-10 py-20 text-center relative">
-                <div className="inline-flex h-16 w-16 rounded-2xl grid place-items-center text-white mb-5 animate-pulse" style={{ background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)', boxShadow: '0 12px 30px rgba(108,99,255,0.3)' }}>
-                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" />
-                  </svg>
+              {/* Ambient glow blobs */}
+              <div className="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-[#1F4D3A]/10 blur-3xl pointer-events-none" />
+              <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-[#E8C57E]/15 blur-3xl pointer-events-none" />
+
+              <div className="relative px-10 py-20 text-center">
+                {/* Icon stack */}
+                <div className="relative inline-flex items-center justify-center mb-7">
+                  {/* Outer ring */}
+                  <span className="absolute h-24 w-24 rounded-3xl border border-[#1F4D3A]/12 bg-[#1F4D3A]/[0.04]" />
+                  {/* Inner icon */}
+                  <span
+                    className="relative h-16 w-16 rounded-2xl grid place-items-center text-white"
+                    style={{ background: 'linear-gradient(135deg,#1F4D3A,#E8C57E)', boxShadow: '0 8px 24px rgba(31,77,58,0.32)' }}
+                  >
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" />
+                    </svg>
+                  </span>
                 </div>
-                <div className="font-display font-bold text-[24px]">Drop your design here</div>
-                <div className="text-[14px] text-[#0f0f1a]/55 mt-1">or <span className="text-[#6c63ff] font-medium">browse files</span></div>
-                <div className="flex items-center justify-center gap-2 flex-wrap mt-6">
-                  {['PNG · JPG', 'UP TO 20MB', '4:5 · 1:1 · 9:16'].map(s => (
-                    <span key={s} className="text-[11px] font-mono px-2.5 py-1 rounded-full bg-[#fafafa] border border-[#e5e5ea] text-[#0f0f1a]/70">{s}</span>
+
+                <div className="font-display font-bold text-[26px] text-[#0F1F18]">
+                  {dragging ? 'Release to upload' : 'Drop your design here'}
+                </div>
+                <div className="text-[14.5px] text-[#0F1F18]/50 mt-2">
+                  or{' '}
+                  <span className="text-[#1F4D3A] font-semibold underline underline-offset-2 decoration-[#1F4D3A]/30">
+                    browse files
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-center gap-2 flex-wrap mt-7">
+                  {[
+                    {
+                      icon: <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>,
+                      label: 'PNG · JPG',
+                    },
+                    {
+                      icon: <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>,
+                      label: 'Up to 20 MB',
+                    },
+                    {
+                      icon: <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 3H3v18"/><path d="M7 12h10M7 17h6M7 7h14"/></svg>,
+                      label: '4:5 · 1:1 · 9:16',
+                    },
+                  ].map(({ icon, label }) => (
+                    <span key={label} className="inline-flex items-center gap-1.5 text-[12px] font-mono px-3 py-1.5 rounded-full bg-[#FAF6EE] border border-[#E5E0D4] text-[#0F1F18]/60">
+                      {icon}
+                      {label}
+                    </span>
                   ))}
                 </div>
               </div>
             </div>
           ) : (
-            <div className="mt-6 bg-white rounded-3xl border border-[#e5e5ea] p-6" style={{ boxShadow: '0 1px 2px rgba(15,15,26,0.04), 0 12px 32px rgba(15,15,26,0.06)' }}>
+            <div className="mt-6 bg-white rounded-3xl border border-[#E5E0D4] p-6" style={{ boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 12px 32px rgba(15,31,24,0.06)' }}>
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <div className="text-[11px] font-mono tracking-widest text-[#0f0f1a]/45">UPLOADED</div>
+                  <div className="text-[11px] font-mono tracking-widest text-[#0F1F18]/45">UPLOADED</div>
                   <div className="font-display font-semibold text-[15px] mt-0.5">{file?.name}</div>
                   {dims && (
-                    <div className="text-[12px] font-mono text-[#0f0f1a]/50 mt-0.5">
+                    <div className="text-[12px] font-mono text-[#0F1F18]/50 mt-0.5">
                       {dims.w} × {dims.h} · {aspectLabel()} · {formatSize(file?.size ?? 0)}
                     </div>
                   )}
                 </div>
-                <button onClick={() => { setFile(null); setPreview(null); setDims(null); }} className="text-[13px] text-[#0f0f1a]/55 hover:text-[#0f0f1a]">Replace</button>
+                <button onClick={() => { setFile(null); setPreview(null); setDims(null); }} className="text-[13px] text-[#0F1F18]/55 hover:text-[#0F1F18]">Replace</button>
               </div>
               <div className="grid grid-cols-12 gap-5">
-                <div className="col-span-12 md:col-span-7 rounded-2xl overflow-hidden bg-[#fafafa] border border-[#e5e5ea]" style={{ aspectRatio: '4/5' }}>
+                <div className="col-span-12 md:col-span-7 rounded-2xl overflow-hidden bg-[#FAF6EE] border border-[#E5E0D4]" style={{ aspectRatio: '4/5' }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={preview} alt="Preview" className="w-full h-full object-cover" />
                 </div>
@@ -192,9 +234,9 @@ export default function NewEventPage() {
                         { k: 'ASPECT', v: aspectLabel() },
                         { k: 'FILE SIZE', v: formatSize(file?.size ?? 0) },
                       ].map(row => (
-                        <div key={row.k} className="flex items-center justify-between p-3 rounded-xl bg-[#fafafa]">
-                          <div className="text-[10.5px] font-mono tracking-widest text-[#0f0f1a]/45">{row.k}</div>
-                          <div className="font-mono text-[12.5px] text-[#0f0f1a]">{row.v}</div>
+                        <div key={row.k} className="flex items-center justify-between p-3 rounded-xl bg-[#FAF6EE]">
+                          <div className="text-[10.5px] font-mono tracking-widest text-[#0F1F18]/45">{row.k}</div>
+                          <div className="font-mono text-[12.5px] text-[#0F1F18]">{row.v}</div>
                         </div>
                       ))}
                     </>
@@ -207,12 +249,12 @@ export default function NewEventPage() {
           <input ref={fileRef} type="file" accept="image/png,image/jpeg" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
 
           <div className="mt-7 flex items-center justify-between">
-            <Link href="/dashboard" className="text-[13.5px] text-[#0f0f1a]/55 hover:text-[#0f0f1a]">← Back</Link>
+            <Link href="/dashboard" className="text-[13.5px] text-[#0F1F18]/55 hover:text-[#0F1F18]">← Back</Link>
             <button
               disabled={!file || uploading}
               onClick={handleContinue}
-              className={`h-12 px-7 rounded-xl font-display font-semibold text-[15px] inline-flex items-center gap-2 transition ${file && !uploading ? 'text-white hover:opacity-95' : 'bg-[#e5e5ea] text-white/70 cursor-not-allowed'}`}
-              style={file && !uploading ? { background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)', boxShadow: '0 8px 24px rgba(108,99,255,0.35)' } : {}}
+              className={`h-12 px-7 rounded-xl font-display font-semibold text-[15px] inline-flex items-center gap-2 transition ${file && !uploading ? 'text-white hover:opacity-95' : 'bg-[#E5E0D4] text-white/70 cursor-not-allowed'}`}
+              style={file && !uploading ? { background: '#1F4D3A', boxShadow: '0 8px 24px rgba(31,77,58,0.35)' } : {}}
             >
               {uploading ? 'Uploading…' : 'Continue to canvas'}
               {!uploading && (
@@ -224,7 +266,7 @@ export default function NewEventPage() {
           </div>
 
           <div className="mt-8 text-center">
-            <div className="text-[13px] text-[#0f0f1a]/50">Don&apos;t have a design yet? <Link href="/dashboard" className="text-[#6c63ff] font-medium">Browse example designs</Link> →</div>
+            <div className="text-[13px] text-[#0F1F18]/50">Don&apos;t have a design yet? <Link href="/dashboard" className="text-[#1F4D3A] font-medium">Browse example designs</Link> →</div>
           </div>
         </div>
       </main>

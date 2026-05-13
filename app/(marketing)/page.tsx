@@ -23,13 +23,13 @@ function HeroSection() {
         <div
           className="absolute -top-24 -left-24 h-[420px] w-[420px] rounded-full blur-3xl opacity-40"
           style={{
-            background: "radial-gradient(closest-side, #f8a4d8, transparent)",
+            background: "radial-gradient(closest-side, #E8C57E, transparent)",
           }}
         />
         <div
           className="absolute -top-10 right-[-120px] h-[520px] w-[520px] rounded-full blur-3xl opacity-30"
           style={{
-            background: "radial-gradient(closest-side, #6c63ff, transparent)",
+            background: "radial-gradient(closest-side, #1F4D3A, transparent)",
           }}
         />
       </div>
@@ -38,7 +38,7 @@ function HeroSection() {
         <div className="grid lg:grid-cols-12 gap-12 items-center">
           {/* Copy */}
           <div className="lg:col-span-6">
-            <span className="inline-flex items-center gap-2 text-[12px] font-medium tracking-wide px-3 py-1.5 rounded-full grad-border text-brand-ink/80">
+            <span className="inline-flex items-center gap-2 text-[12px] font-medium tracking-wide px-3 py-1.5 rounded-full grad-border text-ink/80">
               <span className="h-1.5 w-1.5 rounded-full grad-bg" />
               For event designers, not template-pickers
             </span>
@@ -51,7 +51,7 @@ function HeroSection() {
               <span className="grad-text">One link.</span>
             </h1>
 
-            <p className="mt-6 text-[18px] leading-relaxed text-brand-ink/70 max-w-[540px]">
+            <p className="mt-6 text-[18px] leading-relaxed text-ink/70 max-w-[540px]">
               Upload your event design. Define editable zones. Share one link —
               attendees personalize and download their own version. No Canva. No
               mess.
@@ -67,7 +67,7 @@ function HeroSection() {
               </Link>
               <a
                 href="#how"
-                className="inline-flex items-center gap-2 text-[15px] font-medium text-brand-ink/80 hover:text-brand-ink px-5 py-3.5 rounded-2xl border border-brand-border hover:bg-brand-offwhite transition"
+                className="inline-flex items-center gap-2 text-[15px] font-medium text-ink/80 hover:text-ink px-5 py-3.5 rounded-2xl border border-border hover:bg-cream transition"
               >
                 <PlayIcon />
                 See how it works
@@ -75,14 +75,14 @@ function HeroSection() {
             </div>
 
             {/* trust row */}
-            <div className="mt-10 flex items-center gap-6 text-[13px] text-brand-ink/60">
+            <div className="mt-10 flex items-center gap-6 text-[13px] text-ink/60">
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">
                   {[
-                    "linear-gradient(135deg,#6c63ff,#f8a4d8)",
-                    "linear-gradient(135deg,#f8a4d8,#ffd28a)",
-                    "linear-gradient(135deg,#7be0c0,#6c63ff)",
-                    "linear-gradient(135deg,#ffd28a,#f8a4d8)",
+                    "linear-gradient(135deg,#1F4D3A,#E8C57E)",
+                    "linear-gradient(135deg,#E8C57E,#C9A45E)",
+                    "linear-gradient(135deg,#2D7A4F,#1F4D3A)",
+                    "linear-gradient(135deg,#C9A45E,#E8C57E)",
                   ].map((bg, i) => (
                     <span
                       key={i}
@@ -92,7 +92,7 @@ function HeroSection() {
                   ))}
                 </div>
                 <span>
-                  <strong className="text-brand-ink">12,400+</strong> cards
+                  <strong className="text-ink">12,400+</strong> cards
                   generated this month
                 </span>
               </div>
@@ -104,29 +104,29 @@ function HeroSection() {
             <div className="relative aspect-[5/4] w-full">
               {/* decorative shapes */}
               <div className="absolute -top-6 right-10 h-16 w-16 rounded-2xl grad-bg opacity-90 floatA" />
-              <div className="absolute bottom-6 -left-4 h-10 w-10 rounded-full border-2 border-brand-primary/40 floatB" />
+              <div className="absolute bottom-6 -left-4 h-10 w-10 rounded-full border-2 border-primary/40 floatB" />
               <div className="absolute top-1/3 -right-4 h-4 w-4 rounded grad-bg floatA" />
 
               {/* Editor mock */}
-              <div className="absolute top-0 left-0 w-[78%] rounded-2xl bg-white border border-brand-border shadow-lift overflow-hidden">
+              <div className="absolute top-0 left-0 w-[78%] rounded-2xl bg-white border border-border shadow-lift overflow-hidden">
                 {/* window chrome */}
-                <div className="flex items-center justify-between px-4 h-9 border-b border-brand-border bg-brand-offwhite">
+                <div className="flex items-center justify-between px-4 h-9 border-b border-border bg-cream">
                   <div className="flex gap-1.5">
                     <span className="h-2.5 w-2.5 rounded-full bg-[#ff6058]" />
                     <span className="h-2.5 w-2.5 rounded-full bg-[#ffbd2e]" />
                     <span className="h-2.5 w-2.5 rounded-full bg-[#27c83f]" />
                   </div>
-                  <div className="text-[11px] font-mono text-brand-ink/50">
+                  <div className="text-[11px] font-mono text-ink/50">
                     cardly.app/edit/aya-summit-26
                   </div>
-                  <div className="text-[11px] font-medium text-brand-primary">
+                  <div className="text-[11px] font-medium text-primary">
                     ● Saved
                   </div>
                 </div>
                 {/* editor body */}
                 <div className="grid grid-cols-[40px_1fr_120px] h-[260px]">
                   {/* left tools */}
-                  <div className="border-r border-brand-border bg-white py-3 flex flex-col items-center gap-3">
+                  <div className="border-r border-border bg-white py-3 flex flex-col items-center gap-3">
                     <div className="h-7 w-7 rounded-lg grad-bg grid place-items-center text-white">
                       <svg
                         width="13"
@@ -147,7 +147,7 @@ function HeroSection() {
                     ].map((shape, i) => (
                       <div
                         key={i}
-                        className="h-7 w-7 rounded-lg bg-brand-offwhite grid place-items-center text-brand-ink/60"
+                        className="h-7 w-7 rounded-lg bg-cream grid place-items-center text-ink/60"
                       >
                         <svg
                           width="13"
@@ -187,51 +187,51 @@ function HeroSection() {
                         <br />
                         Africa Tech Festival.
                       </div>
-                      <div className="zone absolute bottom-4 left-4 h-14 w-14 rounded-full border-[1.5px] border-dashed border-brand-primary bg-white/10 backdrop-blur-sm">
-                        <span className="absolute -top-5 left-0 text-[9px] font-mono text-brand-primary bg-white px-1.5 py-0.5 rounded">
+                      <div className="zone absolute bottom-4 left-4 h-14 w-14 rounded-full border-[1.5px] border-dashed border-primary bg-white/10 backdrop-blur-sm">
+                        <span className="absolute -top-5 left-0 text-[9px] font-mono text-primary bg-white px-1.5 py-0.5 rounded">
                           photo
                         </span>
                       </div>
-                      <div className="zone zone-delay absolute bottom-6 left-24 right-4 h-10 rounded-md border-[1.5px] border-dashed border-brand-primary">
-                        <span className="absolute -top-5 left-0 text-[9px] font-mono text-brand-primary bg-white px-1.5 py-0.5 rounded">
+                      <div className="zone zone-delay absolute bottom-6 left-24 right-4 h-10 rounded-md border-[1.5px] border-dashed border-primary">
+                        <span className="absolute -top-5 left-0 text-[9px] font-mono text-primary bg-white px-1.5 py-0.5 rounded">
                           name + title
                         </span>
                       </div>
-                      <div className="zone zone-delay-2 absolute top-[44%] right-4 h-6 w-20 rounded-md border-[1.5px] border-dashed border-brand-secondary">
-                        <span className="absolute -top-5 right-0 text-[9px] font-mono text-brand-secondary bg-white px-1.5 py-0.5 rounded">
+                      <div className="zone zone-delay-2 absolute top-[44%] right-4 h-6 w-20 rounded-md border-[1.5px] border-dashed border-accent">
+                        <span className="absolute -top-5 right-0 text-[9px] font-mono text-accent bg-white px-1.5 py-0.5 rounded">
                           company
                         </span>
                       </div>
                     </div>
                   </div>
                   {/* right props */}
-                  <div className="border-l border-brand-border bg-white p-3 text-[10px]">
-                    <div className="font-medium text-brand-ink/70 mb-2">
+                  <div className="border-l border-border bg-white p-3 text-[10px]">
+                    <div className="font-medium text-ink/70 mb-2">
                       Zone properties
                     </div>
                     <div className="space-y-2">
                       <div>
-                        <div className="text-brand-ink/50 mb-1">Label</div>
-                        <div className="h-5 rounded bg-brand-offwhite px-1.5 flex items-center font-mono">
+                        <div className="text-ink/50 mb-1">Label</div>
+                        <div className="h-5 rounded bg-cream px-1.5 flex items-center font-mono">
                           Full name
                         </div>
                       </div>
                       <div>
-                        <div className="text-brand-ink/50 mb-1">Font</div>
-                        <div className="h-5 rounded bg-brand-offwhite px-1.5 flex items-center">
+                        <div className="text-ink/50 mb-1">Font</div>
+                        <div className="h-5 rounded bg-cream px-1.5 flex items-center">
                           DM Sans · 600
                         </div>
                       </div>
                       <div>
-                        <div className="text-brand-ink/50 mb-1">Color</div>
+                        <div className="text-ink/50 mb-1">Color</div>
                         <div className="flex gap-1">
-                          <span className="h-4 w-4 rounded bg-white border border-brand-border ring-1 ring-brand-primary ring-offset-1" />
-                          <span className="h-4 w-4 rounded bg-brand-ink" />
+                          <span className="h-4 w-4 rounded bg-white border border-border ring-1 ring-primary ring-offset-1" />
+                          <span className="h-4 w-4 rounded bg-ink" />
                           <span className="h-4 w-4 rounded grad-bg" />
                         </div>
                       </div>
                       <label className="flex items-center justify-between mt-3">
-                        <span className="text-brand-ink/60">Required</span>
+                        <span className="text-ink/60">Required</span>
                         <span className="relative inline-block h-3.5 w-6 rounded-full grad-bg">
                           <span className="absolute top-0.5 right-0.5 h-2.5 w-2.5 rounded-full bg-white" />
                         </span>
@@ -242,11 +242,11 @@ function HeroSection() {
               </div>
 
               {/* Phone mock */}
-              <div className="absolute bottom-0 right-0 w-[42%] aspect-[9/19] rounded-[28px] bg-brand-ink p-2 shadow-lift">
+              <div className="absolute bottom-0 right-0 w-[42%] aspect-[9/19] rounded-[28px] bg-ink p-2 shadow-lift">
                 <div className="relative h-full w-full rounded-[22px] bg-white overflow-hidden">
-                  <div className="absolute top-1.5 left-1/2 -translate-x-1/2 h-4 w-16 rounded-full bg-brand-ink z-10" />
+                  <div className="absolute top-1.5 left-1/2 -translate-x-1/2 h-4 w-16 rounded-full bg-ink z-10" />
                   <div className="h-full w-full flex flex-col">
-                    <div className="px-3 pt-7 pb-2 flex items-center gap-1.5 text-[8px] font-mono text-brand-ink/60">
+                    <div className="px-3 pt-7 pb-2 flex items-center gap-1.5 text-[8px] font-mono text-ink/60">
                       <span className="h-3.5 w-3.5 rounded grad-bg" />
                       AFRICA TECH FESTIVAL
                     </div>
@@ -287,17 +287,17 @@ function HeroSection() {
                       </div>
                     </div>
                     <div className="px-3 pt-3 pb-2 space-y-1.5 text-[8px]">
-                      <div className="text-brand-ink/50 font-medium">
+                      <div className="text-ink/50 font-medium">
                         Full name
                       </div>
-                      <div className="h-6 rounded-md border border-brand-border px-2 flex items-center font-display font-medium">
+                      <div className="h-6 rounded-md border border-border px-2 flex items-center font-display font-medium">
                         Adaeze Okonkwo
-                        <span className="caret ml-0.5 w-px h-2.5 bg-brand-primary inline-block" />
+                        <span className="caret ml-0.5 w-px h-2.5 bg-primary inline-block" />
                       </div>
-                      <div className="text-brand-ink/50 font-medium pt-1">
+                      <div className="text-ink/50 font-medium pt-1">
                         Role · Company
                       </div>
-                      <div className="h-6 rounded-md border border-brand-border px-2 flex items-center font-display">
+                      <div className="h-6 rounded-md border border-border px-2 flex items-center font-display">
                         Lead Designer · Flutterwave
                       </div>
                     </div>
@@ -331,13 +331,13 @@ const LOGOS = [
 
 function LogoStrip() {
   return (
-    <section className="border-y border-brand-border bg-brand-offwhite/70">
+    <section className="border-y border-border bg-cream/70">
       <div className="max-w-7xl mx-auto px-6 lg:px-10 py-10">
-        <div className="text-center text-[12px] tracking-[0.18em] font-mono text-brand-ink/50 mb-6">
+        <div className="text-center text-[12px] tracking-[0.18em] font-mono text-ink/50 mb-6">
           USED BY TEAMS BEHIND
         </div>
         <div className="marquee overflow-hidden">
-          <div className="marquee-track flex items-center gap-12 whitespace-nowrap text-brand-ink/50 text-xl">
+          <div className="marquee-track flex items-center gap-12 whitespace-nowrap text-ink/50 text-xl">
             {[...LOGOS, ...LOGOS].map((logo, i) => (
               <span key={i} className={logo.cls}>
                 {logo.text}
@@ -356,7 +356,7 @@ function HowItWorksSection() {
     <section id="how" className="py-24 lg:py-32">
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
         <div className="max-w-2xl">
-          <div className="text-[12px] tracking-[0.18em] font-mono text-brand-primary mb-3">
+          <div className="text-[12px] tracking-[0.18em] font-mono text-primary mb-3">
             HOW IT WORKS
           </div>
           <h2 className="font-display font-bold text-[36px] sm:text-[44px] leading-[1.05] text-balance">
@@ -367,12 +367,12 @@ function HowItWorksSection() {
 
         <div className="mt-16 grid md:grid-cols-3 gap-6">
           {/* Step 1 */}
-          <article className="relative rounded-2xl border border-brand-border bg-white p-7 hover:shadow-lift transition group">
+          <article className="relative rounded-2xl border border-border bg-white p-7 hover:shadow-lift transition group">
             <div className="flex items-center justify-between">
-              <span className="font-mono text-[12px] text-brand-ink/40">
+              <span className="font-mono text-[12px] text-ink/40">
                 01
               </span>
-              <div className="h-9 w-9 rounded-xl bg-brand-offwhite grid place-items-center text-brand-primary group-hover:grad-bg group-hover:text-white transition">
+              <div className="h-9 w-9 rounded-xl bg-primary-soft grid place-items-center text-primary group-hover:grad-bg group-hover:text-white transition">
                 <svg
                   width="18"
                   height="18"
@@ -392,22 +392,22 @@ function HowItWorksSection() {
             <h3 className="mt-6 font-display font-semibold text-[22px]">
               Upload your design
             </h3>
-            <p className="mt-2 text-[15px] text-brand-ink/60 leading-relaxed">
+            <p className="mt-2 text-[15px] text-ink/60 leading-relaxed">
               Drop in a PNG or JPG. Bring your typography, your colors, your
               brand. We don&apos;t touch a pixel.
             </p>
-            <div className="mt-6 h-28 rounded-xl border border-dashed border-brand-border bg-brand-offwhite grid place-items-center text-brand-ink/40 text-[12px] font-mono">
+            <div className="mt-6 h-28 rounded-xl border border-dashed border-border bg-cream grid place-items-center text-ink/40 text-[12px] font-mono">
               drop&nbsp;·&nbsp;design.png
             </div>
           </article>
 
           {/* Step 2 */}
-          <article className="relative rounded-2xl border border-brand-border bg-white p-7 hover:shadow-lift transition group">
+          <article className="relative rounded-2xl border border-border bg-white p-7 hover:shadow-lift transition group">
             <div className="flex items-center justify-between">
-              <span className="font-mono text-[12px] text-brand-ink/40">
+              <span className="font-mono text-[12px] text-ink/40">
                 02
               </span>
-              <div className="h-9 w-9 rounded-xl bg-brand-offwhite grid place-items-center text-brand-primary group-hover:grad-bg group-hover:text-white transition">
+              <div className="h-9 w-9 rounded-xl bg-primary-soft grid place-items-center text-primary group-hover:grad-bg group-hover:text-white transition">
                 <svg
                   width="18"
                   height="18"
@@ -426,30 +426,30 @@ function HowItWorksSection() {
             <h3 className="mt-6 font-display font-semibold text-[22px]">
               Mark editable zones
             </h3>
-            <p className="mt-2 text-[15px] text-brand-ink/60 leading-relaxed">
+            <p className="mt-2 text-[15px] text-ink/60 leading-relaxed">
               Drag boxes onto the canvas. Name, title, company, photo — set
               fonts, colors, shapes. Done.
             </p>
-            <div className="mt-6 h-28 rounded-xl bg-brand-offwhite relative overflow-hidden">
+            <div className="mt-6 h-28 rounded-xl bg-cream relative overflow-hidden">
               <div
                 className="absolute inset-3 rounded-lg"
                 style={{
                   background: "linear-gradient(135deg,#1b1240,#4b2d7a)",
                 }}
               />
-              <div className="absolute left-6 top-6 h-6 w-6 rounded-full border-[1.5px] border-dashed border-brand-primary" />
-              <div className="absolute left-14 top-7 right-6 h-4 rounded border-[1.5px] border-dashed border-brand-primary" />
-              <div className="absolute left-6 bottom-6 h-3 w-16 rounded border-[1.5px] border-dashed border-brand-secondary" />
+              <div className="absolute left-6 top-6 h-6 w-6 rounded-full border-[1.5px] border-dashed border-primary" />
+              <div className="absolute left-14 top-7 right-6 h-4 rounded border-[1.5px] border-dashed border-primary" />
+              <div className="absolute left-6 bottom-6 h-3 w-16 rounded border-[1.5px] border-dashed border-accent" />
             </div>
           </article>
 
           {/* Step 3 */}
-          <article className="relative rounded-2xl border border-brand-border bg-white p-7 hover:shadow-lift transition group">
+          <article className="relative rounded-2xl border border-border bg-white p-7 hover:shadow-lift transition group">
             <div className="flex items-center justify-between">
-              <span className="font-mono text-[12px] text-brand-ink/40">
+              <span className="font-mono text-[12px] text-ink/40">
                 03
               </span>
-              <div className="h-9 w-9 rounded-xl bg-brand-offwhite grid place-items-center text-brand-primary group-hover:grad-bg group-hover:text-white transition">
+              <div className="h-9 w-9 rounded-xl bg-primary-soft grid place-items-center text-primary group-hover:grad-bg group-hover:text-white transition">
                 <svg
                   width="18"
                   height="18"
@@ -469,20 +469,20 @@ function HowItWorksSection() {
             <h3 className="mt-6 font-display font-semibold text-[22px]">
               Share one link
             </h3>
-            <p className="mt-2 text-[15px] text-brand-ink/60 leading-relaxed">
+            <p className="mt-2 text-[15px] text-ink/60 leading-relaxed">
               Send attendees one URL. They personalize on their phone and
               download in seconds. You watch downloads tick up.
             </p>
-            <div className="mt-6 h-28 rounded-xl bg-brand-offwhite p-4 flex items-center gap-3">
+            <div className="mt-6 h-28 rounded-xl bg-cream p-4 flex items-center gap-3">
               <div className="flex-1">
-                <div className="text-[10px] font-mono text-brand-ink/50">
+                <div className="text-[10px] font-mono text-ink/50">
                   cardly.app/
                 </div>
-                <div className="text-[14px] font-mono font-medium text-brand-ink">
+                <div className="text-[14px] font-mono font-medium text-ink">
                   /aya-summit-26
                 </div>
               </div>
-              <div className="h-12 w-12 rounded-md grid place-items-center bg-white border border-brand-border shrink-0">
+              <div className="h-12 w-12 rounded-md grid place-items-center bg-white border border-border shrink-0">
                 <QRPattern />
               </div>
             </div>
@@ -513,7 +513,7 @@ const CARDS = [
     avatarBg: "linear-gradient(135deg,#6c63ff,#f8a4d8)",
     name: "Zola Khumalo",
     role: "Design Director",
-    textColor: "text-brand-ink",
+    textColor: "text-ink",
   },
   {
     bg: "linear-gradient(160deg,#0a3d2e,#1f8a5b)",
@@ -541,19 +541,19 @@ function ShowcaseSection() {
   return (
     <section
       id="showcase"
-      className="py-24 lg:py-28 bg-brand-ink text-white relative overflow-hidden"
+      className="py-24 lg:py-28 bg-ink text-white relative overflow-hidden"
     >
       <div className="pointer-events-none absolute inset-0 opacity-50">
         <div
           className="absolute -top-40 -right-40 h-[520px] w-[520px] rounded-full blur-3xl"
           style={{
-            background: "radial-gradient(closest-side, #6c63ff, transparent)",
+            background: "radial-gradient(closest-side, #1F4D3A, transparent)",
           }}
         />
         <div
           className="absolute -bottom-40 -left-40 h-[460px] w-[460px] rounded-full blur-3xl"
           style={{
-            background: "radial-gradient(closest-side, #f8a4d8, transparent)",
+            background: "radial-gradient(closest-side, #E8C57E, transparent)",
           }}
         />
       </div>
@@ -561,7 +561,7 @@ function ShowcaseSection() {
       <div className="relative max-w-7xl mx-auto px-6 lg:px-10">
         <div className="grid lg:grid-cols-12 gap-12 items-end">
           <div className="lg:col-span-7">
-            <div className="text-[12px] tracking-[0.18em] font-mono text-brand-secondary mb-3">
+            <div className="text-[12px] tracking-[0.18em] font-mono text-accent mb-3">
               DESIGNER-NATIVE
             </div>
             <h2 className="font-display font-bold text-[36px] sm:text-[48px] leading-[1.05] text-balance">
@@ -586,7 +586,7 @@ function ShowcaseSection() {
               style={{ background: card.bg }}
             >
               <div
-                className={`absolute top-3 left-3 right-3 flex items-center justify-between text-[9px] font-mono tracking-widest ${card.textColor === "text-brand-ink" ? "text-brand-ink/70" : "text-white/70"}`}
+                className={`absolute top-3 left-3 right-3 flex items-center justify-between text-[9px] font-mono tracking-widest ${card.textColor === "text-ink" ? "text-ink/70" : "text-white/70"}`}
               >
                 <span>{card.label}</span>
                 {card.year && <span>{card.year}</span>}
@@ -622,7 +622,7 @@ function ShowcaseSection() {
                     {card.name}
                   </div>
                   <div
-                    className={`font-mono text-[9px] ${card.textColor === "text-brand-ink" ? "text-brand-ink/60" : "opacity-70"}`}
+                    className={`font-mono text-[9px] ${card.textColor === "text-ink" ? "text-ink/60" : "opacity-70"}`}
                   >
                     {card.role}
                   </div>
@@ -659,7 +659,7 @@ function TestimonialSection() {
       <div className="max-w-4xl mx-auto px-6 lg:px-10">
         <figure className="relative">
           <svg
-            className="absolute -top-6 -left-2 text-brand-primary/20"
+            className="absolute -top-6 -left-2 text-primary/20"
             width="60"
             height="60"
             viewBox="0 0 24 24"
@@ -667,21 +667,18 @@ function TestimonialSection() {
           >
             <path d="M9 7c-3 0-5 2-5 5v5h5v-5H7c0-2 1-3 2-3V7zm9 0c-3 0-5 2-5 5v5h5v-5h-2c0-2 1-3 2-3V7z" />
           </svg>
-          <blockquote className="font-display text-[28px] sm:text-[34px] leading-[1.25] text-brand-ink font-medium text-balance">
+          <blockquote className="font-display text-[28px] sm:text-[34px] leading-[1.25] text-ink font-medium text-balance">
             Cardly let our identity actually travel with our attendees. Every
             share felt like the festival had designed it.{" "}
             <span className="grad-text">Which is the point.</span>
           </blockquote>
           <figcaption className="mt-8 flex items-center gap-3">
             <span
-              className="h-11 w-11 rounded-full shrink-0"
-              style={{
-                background: "linear-gradient(135deg,#6c63ff,#f8a4d8)",
-              }}
+              className="h-11 w-11 rounded-full bg-primary shrink-0"
             />
             <div>
               <div className="font-display font-semibold">Ifeoma Adesanya</div>
-              <div className="text-[13px] text-brand-ink/60">
+              <div className="text-[13px] text-ink/60">
                 Brand Lead · Africa Tech Festival
               </div>
             </div>
@@ -697,12 +694,12 @@ function PricingTeaserSection() {
   return (
     <section
       id="pricing"
-      className="py-24 bg-brand-offwhite border-t border-brand-border"
+      className="py-24 bg-cream border-t border-border"
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
         <div className="flex items-end justify-between flex-wrap gap-6">
           <div className="max-w-xl">
-            <div className="text-[12px] tracking-[0.18em] font-mono text-brand-primary mb-3">
+            <div className="text-[12px] tracking-[0.18em] font-mono text-primary mb-3">
               PRICING
             </div>
             <h2 className="font-display font-bold text-[36px] sm:text-[44px] leading-[1.05]">
@@ -711,7 +708,7 @@ function PricingTeaserSection() {
           </div>
           <Link
             href="/pricing"
-            className="text-[14px] font-medium text-brand-ink/70 hover:text-brand-ink inline-flex items-center gap-1.5"
+            className="text-[14px] font-medium text-ink/70 hover:text-ink inline-flex items-center gap-1.5"
           >
             Full pricing &amp; comparison
             <ArrowIcon />
@@ -720,35 +717,35 @@ function PricingTeaserSection() {
 
         <div className="mt-12 grid md:grid-cols-3 gap-5">
           {/* Free */}
-          <div className="rounded-2xl bg-white border border-brand-border p-7 flex flex-col">
-            <div className="text-[13px] font-mono text-brand-ink/50 tracking-wide">
+          <div className="rounded-2xl bg-white border border-border p-7 flex flex-col">
+            <div className="text-[13px] font-mono text-ink/50 tracking-wide">
               FREE
             </div>
             <div className="mt-4 flex items-baseline gap-1">
               <span className="font-display font-bold text-[44px] leading-none">
                 $0
               </span>
-              <span className="text-brand-ink/50 text-[14px]">/forever</span>
+              <span className="text-ink/50 text-[14px]">/forever</span>
             </div>
-            <p className="mt-3 text-[14px] text-brand-ink/60">
+            <p className="mt-3 text-[14px] text-ink/60">
               Try the full editor. Ship one event a month with a small Cardly
               watermark.
             </p>
-            <ul className="mt-6 space-y-2.5 text-[14px] text-brand-ink/80 flex-1">
+            <ul className="mt-6 space-y-2.5 text-[14px] text-ink/80 flex-1">
               {[
                 "1 active event / month",
                 "Unlimited zones",
                 "PNG downloads · watermark",
               ].map((f) => (
                 <li key={f} className="flex gap-2">
-                  <span className="mt-1 h-1.5 w-1.5 rounded-full bg-brand-primary shrink-0" />
+                  <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
                   {f}
                 </li>
               ))}
             </ul>
             <Link
               href="/signup"
-              className="mt-8 inline-flex items-center justify-center text-[14px] font-medium text-brand-ink border border-brand-border rounded-xl py-2.5 hover:bg-brand-offwhite transition"
+              className="mt-8 inline-flex items-center justify-center text-[14px] font-medium text-ink border border-border rounded-xl py-2.5 hover:bg-cream transition"
             >
               Start free
             </Link>
@@ -759,20 +756,20 @@ function PricingTeaserSection() {
             <span className="absolute -top-3 left-7 text-[10px] font-mono tracking-widest px-2 py-1 rounded-full text-white grad-bg">
               MOST POPULAR
             </span>
-            <div className="text-[13px] font-mono text-brand-primary tracking-wide">
+            <div className="text-[13px] font-mono text-primary tracking-wide">
               PRO
             </div>
             <div className="mt-4 flex items-baseline gap-1">
               <span className="font-display font-bold text-[44px] leading-none grad-text">
                 $19
               </span>
-              <span className="text-brand-ink/50 text-[14px]">/month</span>
+              <span className="text-ink/50 text-[14px]">/month</span>
             </div>
-            <p className="mt-3 text-[14px] text-brand-ink/60">
+            <p className="mt-3 text-[14px] text-ink/60">
               For event organizers running real campaigns. No watermark.
               Analytics.
             </p>
-            <ul className="mt-6 space-y-2.5 text-[14px] text-brand-ink/80 flex-1">
+            <ul className="mt-6 space-y-2.5 text-[14px] text-ink/80 flex-1">
               {[
                 "10 active events",
                 "No watermark · custom domain",
@@ -794,20 +791,20 @@ function PricingTeaserSection() {
           </div>
 
           {/* Studio */}
-          <div className="rounded-2xl bg-white border border-brand-border p-7 flex flex-col">
-            <div className="text-[13px] font-mono text-brand-ink/50 tracking-wide">
+          <div className="rounded-2xl bg-white border border-border p-7 flex flex-col">
+            <div className="text-[13px] font-mono text-ink/50 tracking-wide">
               STUDIO
             </div>
             <div className="mt-4 flex items-baseline gap-1">
               <span className="font-display font-bold text-[44px] leading-none">
                 $49
               </span>
-              <span className="text-brand-ink/50 text-[14px]">/month</span>
+              <span className="text-ink/50 text-[14px]">/month</span>
             </div>
-            <p className="mt-3 text-[14px] text-brand-ink/60">
+            <p className="mt-3 text-[14px] text-ink/60">
               For agencies and brand teams running concurrent client events.
             </p>
-            <ul className="mt-6 space-y-2.5 text-[14px] text-brand-ink/80 flex-1">
+            <ul className="mt-6 space-y-2.5 text-[14px] text-ink/80 flex-1">
               {[
                 "Unlimited events",
                 "Client workspaces & roles",
@@ -815,14 +812,14 @@ function PricingTeaserSection() {
                 "Priority support · SLA",
               ].map((f) => (
                 <li key={f} className="flex gap-2">
-                  <span className="mt-1 h-1.5 w-1.5 rounded-full bg-brand-ink shrink-0" />
+                  <span className="mt-1 h-1.5 w-1.5 rounded-full bg-ink shrink-0" />
                   {f}
                 </li>
               ))}
             </ul>
             <a
               href="mailto:hello@cardly.app"
-              className="mt-8 inline-flex items-center justify-center text-[14px] font-medium text-white bg-brand-ink rounded-xl py-2.5 hover:opacity-90 transition"
+              className="mt-8 inline-flex items-center justify-center text-[14px] font-medium text-white bg-ink rounded-xl py-2.5 hover:opacity-90 transition"
             >
               Talk to us
             </a>
@@ -860,14 +857,14 @@ function FaqSection() {
         <h2 className="font-display font-bold text-[32px] sm:text-[36px]">
           Quick questions, fast answers.
         </h2>
-        <div className="mt-10 divide-y divide-brand-border border-y border-brand-border">
+        <div className="mt-10 divide-y divide-border border-y border-border">
           {FAQS.map((faq) => (
             <details key={faq.q} className="group py-5">
               <summary className="flex items-center justify-between gap-6 cursor-pointer list-none">
                 <span className="font-display font-medium text-[17px]">
                   {faq.q}
                 </span>
-                <span className="h-7 w-7 rounded-full bg-brand-offwhite grid place-items-center text-brand-ink/60 group-open:grad-bg group-open:text-white transition shrink-0">
+                <span className="h-7 w-7 rounded-full bg-cream grid place-items-center text-ink/60 group-open:grad-bg group-open:text-white transition shrink-0">
                   <svg
                     width="14"
                     height="14"
@@ -881,7 +878,7 @@ function FaqSection() {
                   </svg>
                 </span>
               </summary>
-              <p className="mt-3 text-brand-ink/65 text-[15px] leading-relaxed">
+              <p className="mt-3 text-ink/65 text-[15px] leading-relaxed">
                 {faq.a}
               </p>
             </details>
@@ -923,7 +920,7 @@ function FinalCtaSection() {
           <div className="lg:justify-self-end flex flex-col sm:flex-row gap-3">
             <Link
               href="/signup"
-              className="inline-flex items-center justify-center gap-2 text-[15px] font-semibold text-brand-ink bg-white px-6 py-3.5 rounded-2xl hover:bg-white/90 transition"
+              className="inline-flex items-center justify-center gap-2 text-[15px] font-semibold text-ink bg-white px-6 py-3.5 rounded-2xl hover:bg-white/90 transition"
             >
               Start free — no card needed
               <ArrowIcon />
@@ -980,7 +977,7 @@ function QRPattern() {
   return (
     <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden>
       <rect width="40" height="40" fill="white" />
-      <g fill="#0f0f1a">
+      <g fill="#0F1F18">
         <rect x="2" y="2" width="10" height="10" />
         <rect x="4" y="4" width="6" height="6" fill="white" />
         <rect x="6" y="6" width="2" height="2" />

@@ -60,7 +60,7 @@ export default function EventDetailActions({ eventId, eventName, status }: Props
         <span className="text-[13px] text-red-700 font-medium">Delete &ldquo;{eventName}&rdquo;?</span>
         <button
           onClick={() => setConfirmDelete(false)}
-          className="text-[13px] text-[#0f0f1a]/60 hover:text-[#0f0f1a] px-2 py-1 rounded-lg hover:bg-white/60 transition"
+          className="text-[13px] text-[#0F1F18]/60 hover:text-[#0F1F18] px-2 py-1 rounded-lg hover:bg-white/60 transition"
         >
           Cancel
         </button>
@@ -87,19 +87,19 @@ export default function EventDetailActions({ eventId, eventName, status }: Props
             if (e.key === 'Enter') doRename();
             if (e.key === 'Escape') { setRenaming(false); setNameVal(eventName); }
           }}
-          className="font-display font-semibold text-[22px] bg-[#6c63ff]/5 border border-[#6c63ff]/30 rounded-xl px-3 py-1.5 outline-none focus:ring-2 focus:ring-[#6c63ff]/30 min-w-[240px]"
+          className="font-display font-semibold text-[22px] bg-[#1F4D3A]/5 border border-[#1F4D3A]/30 rounded-xl px-3 py-1.5 outline-none focus:ring-2 focus:ring-[#1F4D3A]/30 min-w-[240px]"
         />
         <button
           onClick={doRename}
           disabled={busy}
           className="text-[13px] font-semibold text-white px-3 py-1.5 rounded-lg hover:opacity-90 transition"
-          style={{ background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)' }}
+          style={{ background: 'linear-gradient(135deg,#1F4D3A,#2A6A50)' }}
         >
           Save
         </button>
         <button
           onClick={() => { setRenaming(false); setNameVal(eventName); }}
-          className="text-[13px] text-[#0f0f1a]/60 px-3 py-1.5 rounded-lg hover:bg-[#fafafa] border border-[#e5e5ea] transition"
+          className="text-[13px] text-[#0F1F18]/60 px-3 py-1.5 rounded-lg hover:bg-[#FAF6EE] border border-[#E5E0D4] transition"
         >
           Cancel
         </button>
@@ -111,7 +111,7 @@ export default function EventDetailActions({ eventId, eventName, status }: Props
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
         <button
-          className="inline-flex items-center gap-2 text-[13px] text-[#0f0f1a]/70 bg-white border border-[#e5e5ea] px-3 py-2 rounded-xl hover:bg-[#fafafa] transition disabled:opacity-50"
+          className="inline-flex items-center gap-2 text-[13px] text-[#0F1F18]/70 bg-white border border-[#E5E0D4] px-3 py-2 rounded-xl hover:bg-[#FAF6EE] transition disabled:opacity-50"
           disabled={busy}
           title="More actions"
         >
@@ -124,12 +124,12 @@ export default function EventDetailActions({ eventId, eventName, status }: Props
 
       <DropdownMenu.Portal>
         <DropdownMenu.Content
-          className="z-50 min-w-[192px] bg-white rounded-xl border border-[#e5e5ea] shadow-lift p-1 text-[13px]"
+          className="z-50 min-w-[192px] bg-white rounded-xl border border-[#E5E0D4] shadow-lift p-1 text-[13px]"
           align="end"
           sideOffset={4}
         >
           <DropdownMenu.Item
-            className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[#fafafa] cursor-pointer outline-none"
+            className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[#FAF6EE] cursor-pointer outline-none"
             onSelect={() => setRenaming(true)}
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
@@ -140,7 +140,7 @@ export default function EventDetailActions({ eventId, eventName, status }: Props
 
           {status === 'published' && (
             <DropdownMenu.Item
-              className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[#fafafa] cursor-pointer outline-none text-[#0f0f1a]/60"
+              className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[#FAF6EE] cursor-pointer outline-none text-[#0F1F18]/60"
               onSelect={() => doStatus('draft')}
             >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
@@ -152,7 +152,7 @@ export default function EventDetailActions({ eventId, eventName, status }: Props
 
           {status === 'draft' && (
             <DropdownMenu.Item
-              className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[#fafafa] cursor-pointer outline-none text-[#0f0f1a]/60"
+              className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[#FAF6EE] cursor-pointer outline-none text-[#0F1F18]/60"
               onSelect={() => doStatus('archived')}
             >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
@@ -164,7 +164,7 @@ export default function EventDetailActions({ eventId, eventName, status }: Props
 
           {status === 'archived' && (
             <DropdownMenu.Item
-              className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[#fafafa] cursor-pointer outline-none"
+              className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[#FAF6EE] cursor-pointer outline-none"
               onSelect={() => doStatus('draft')}
             >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">

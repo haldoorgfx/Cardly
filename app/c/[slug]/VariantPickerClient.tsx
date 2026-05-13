@@ -46,7 +46,7 @@ export default function VariantPickerClient({ eventName, variants }: Props) {
         </div>
 
         <div className="mt-10 text-center text-[11px] font-mono text-white/20">
-          Powered by <span style={{ background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>Cardly</span>
+          Powered by <span style={{ background: 'linear-gradient(135deg,#1F4D3A,#E8C57E)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>Cardly</span>
         </div>
       </div>
     </div>

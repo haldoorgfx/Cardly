@@ -54,30 +54,30 @@ export default function TemplatesPage() {
   return (
     <div className="min-h-full">
       {/* Hero section */}
-      <div className="px-8 pt-10 pb-6 border-b border-[#e5e5ea]">
+      <div className="px-8 pt-10 pb-6 border-b border-[#E5E0D4]">
         <div className="flex items-end justify-between flex-wrap gap-4">
           <div>
-            <div className="text-[11px] font-mono tracking-widest text-[#0f0f1a]/45">TEMPLATES</div>
+            <div className="text-[11px] font-mono tracking-widest text-[#0F1F18]/45">TEMPLATES</div>
             <h1 className="font-display font-bold text-[38px] leading-tight mt-1.5">
               Start from a{' '}
-              <span style={{ background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>
+              <span style={{ background: 'linear-gradient(135deg,#1F4D3A,#E8C57E)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>
                 proven design.
               </span>
             </h1>
-            <p className="text-[14.5px] text-[#0f0f1a]/60 mt-2 max-w-[520px]">
+            <p className="text-[14.5px] text-[#0F1F18]/60 mt-2 max-w-[520px]">
               40+ event card templates designed by Cardly — every one is fully editable, with zones already mapped out.
             </p>
           </div>
           {/* Search */}
           <div className="relative">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0f0f1a]/35 pointer-events-none" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0F1F18]/35 pointer-events-none" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>
             </svg>
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search 40+ templates…"
-              className="w-[260px] h-10 pl-9 pr-3 rounded-xl bg-white border border-[#e5e5ea] text-[13.5px] focus:outline-none focus:border-[#6c63ff]/40 focus:ring-2 focus:ring-[#6c63ff]/10 transition"
+              className="w-[260px] h-10 pl-9 pr-3 rounded-xl bg-white border border-[#E5E0D4] text-[13.5px] focus:outline-none focus:border-[#1F4D3A]/40 focus:ring-2 focus:ring-[#1F4D3A]/10 transition"
             />
           </div>
         </div>
@@ -92,8 +92,8 @@ export default function TemplatesPage() {
               onClick={() => setActiveCategory(cat.key)}
               className={`h-9 px-4 rounded-full text-[12.5px] font-medium transition-all duration-150 ${
                 activeCategory === cat.key
-                  ? 'bg-[#0f0f1a] text-white'
-                  : 'bg-white border border-[#e5e5ea] text-[#0f0f1a]/65 hover:bg-[#fafafa] hover:text-[#0f0f1a]'
+                  ? 'bg-[#0F1F18] text-white'
+                  : 'bg-white border border-[#E5E0D4] text-[#0F1F18]/65 hover:bg-[#FAF6EE] hover:text-[#0F1F18]'
               }`}
             >
               {cat.label}
@@ -103,7 +103,7 @@ export default function TemplatesPage() {
             </button>
           ))}
           <div className="flex-1" />
-          <select className="h-9 px-3 rounded-full bg-white border border-[#e5e5ea] text-[12.5px] outline-none cursor-pointer hover:bg-[#fafafa] transition">
+          <select className="h-9 px-3 rounded-full bg-white border border-[#E5E0D4] text-[12.5px] outline-none cursor-pointer hover:bg-[#FAF6EE] transition">
             <option>Most popular</option>
             <option>Newest</option>
             <option>A–Z</option>
@@ -118,19 +118,19 @@ export default function TemplatesPage() {
           {/* Start blank */}
           <Link
             href="/events/new"
-            className="group rounded-2xl border-2 border-dashed border-[#6c63ff]/25 hover:border-[#6c63ff] bg-white transition-all flex flex-col items-center justify-center text-center p-6"
+            className="group rounded-2xl border-2 border-dashed border-[#1F4D3A]/25 hover:border-[#1F4D3A] bg-white transition-all flex flex-col items-center justify-center text-center p-6"
             style={{ aspectRatio: '4/5' }}
           >
             <div
               className="h-12 w-12 rounded-xl grid place-items-center text-white mb-3 group-hover:scale-110 transition-transform duration-200"
-              style={{ background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)', boxShadow: '0 8px 24px rgba(108,99,255,0.25)' }}
+              style={{ background: 'linear-gradient(135deg,#1F4D3A,#E8C57E)', boxShadow: '0 8px 24px rgba(31,77,58,0.25)' }}
             >
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
                 <path d="M12 5v14M5 12h14" />
               </svg>
             </div>
             <div className="font-display font-bold text-[15px]">Start blank</div>
-            <div className="text-[12px] text-[#0f0f1a]/50 mt-1 leading-snug">Upload your own design</div>
+            <div className="text-[12px] text-[#0F1F18]/50 mt-1 leading-snug">Upload your own design</div>
           </Link>
 
           {filtered.map(tmpl => (
@@ -141,7 +141,7 @@ export default function TemplatesPage() {
                 style={{
                   aspectRatio: '4/5',
                   background: tmpl.gradient,
-                  boxShadow: '0 2px 8px rgba(15,15,26,0.08)',
+                  boxShadow: '0 2px 8px rgba(15,31,24,0.08)',
                 }}
               >
                 {/* Glow */}
@@ -184,7 +184,7 @@ export default function TemplatesPage() {
                 {tmpl.badge && (
                   <div
                     className="absolute top-3 right-3 px-2 py-0.5 rounded-full text-[8px] font-mono tracking-widest text-white"
-                    style={{ background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)' }}
+                    style={{ background: 'linear-gradient(135deg,#1F4D3A,#E8C57E)' }}
                   >
                     {tmpl.badge}
                   </div>
@@ -194,7 +194,7 @@ export default function TemplatesPage() {
                 <div className="absolute inset-x-3 bottom-3 z-10 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200">
                   <div
                     className="text-white text-center py-2.5 rounded-xl font-display font-semibold text-[12.5px]"
-                    style={{ background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)', boxShadow: '0 8px 20px rgba(108,99,255,0.45)' }}
+                    style={{ background: 'linear-gradient(135deg,#1F4D3A,#E8C57E)', boxShadow: '0 8px 20px rgba(31,77,58,0.45)' }}
                   >
                     Use this template →
                   </div>
@@ -205,11 +205,11 @@ export default function TemplatesPage() {
               <div className="mt-3 flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <div className="font-display font-semibold text-[13.5px] leading-tight truncate">{tmpl.name}</div>
-                  <div className="text-[10.5px] font-mono text-[#0f0f1a]/40 tracking-wide mt-0.5">{tmpl.catLabel}</div>
+                  <div className="text-[10.5px] font-mono text-[#0F1F18]/40 tracking-wide mt-0.5">{tmpl.catLabel}</div>
                 </div>
                 <button
                   onClick={e => toggleFav(tmpl.id, e)}
-                  className={`h-7 w-7 rounded-lg grid place-items-center shrink-0 transition hover:bg-[#fafafa] ${favorites.has(tmpl.id) ? 'text-[#f8a4d8]' : 'text-[#0f0f1a]/25 hover:text-[#0f0f1a]/50'}`}
+                  className={`h-7 w-7 rounded-lg grid place-items-center shrink-0 transition hover:bg-[#FAF6EE] ${favorites.has(tmpl.id) ? 'text-[#E8C57E]' : 'text-[#0F1F18]/25 hover:text-[#0F1F18]/50'}`}
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill={favorites.has(tmpl.id) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                     <path d="M12 21s-7-4.5-9-9.5C1.6 7.7 4 4 7.5 4c2 0 3.5 1 4.5 2.5C13 5 14.5 4 16.5 4 20 4 22.4 7.7 21 11.5c-2 5-9 9.5-9 9.5z"/>
@@ -222,24 +222,24 @@ export default function TemplatesPage() {
 
         {filtered.length === 0 && (
           <div className="text-center py-16">
-            <div className="text-[14px] text-[#0f0f1a]/40">No templates match your search.</div>
-            <button onClick={() => { setSearch(''); setActiveCategory('all'); }} className="mt-3 text-[13px] text-[#6c63ff] hover:underline">
+            <div className="text-[14px] text-[#0F1F18]/40">No templates match your search.</div>
+            <button onClick={() => { setSearch(''); setActiveCategory('all'); }} className="mt-3 text-[13px] text-[#1F4D3A] hover:underline">
               Clear filters
             </button>
           </div>
         )}
 
         {/* Coming soon */}
-        <div className="mt-10 rounded-2xl border border-dashed border-[#6c63ff]/20 bg-gradient-to-br from-[#6c63ff]/[0.03] to-[#f8a4d8]/[0.03] px-8 py-7 text-center">
-          <div className="text-[10px] font-mono tracking-widest text-[#6c63ff]/60 mb-2 uppercase">Coming soon</div>
+        <div className="mt-10 rounded-2xl border border-dashed border-[#1F4D3A]/20 bg-gradient-to-br from-[#1F4D3A]/[0.03] to-[#E8C57E]/[0.03] px-8 py-7 text-center">
+          <div className="text-[10px] font-mono tracking-widest text-[#1F4D3A]/60 mb-2 uppercase">Coming soon</div>
           <div className="font-display font-bold text-[20px]">Submit your own template</div>
-          <p className="text-[13.5px] text-[#0f0f1a]/55 mt-1.5 max-w-[400px] mx-auto">
+          <p className="text-[13.5px] text-[#0F1F18]/55 mt-1.5 max-w-[400px] mx-auto">
             Save any event design as a reusable template and share it with the community.
           </p>
           <Link
             href="/pricing"
             className="mt-4 inline-flex items-center gap-2 text-[13px] font-semibold text-white px-5 py-2.5 rounded-xl hover:opacity-95 transition"
-            style={{ background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)' }}
+            style={{ background: 'linear-gradient(135deg,#1F4D3A,#E8C57E)' }}
           >
             See Studio plan →
           </Link>

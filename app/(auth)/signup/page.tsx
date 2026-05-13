@@ -31,21 +31,21 @@ export default function SignupPage() {
 
         <div className="flex-1 grid place-items-center">
           <div className="w-full max-w-[400px]">
-            <div className="font-mono text-[11px] tracking-widest text-brand-ink/45 mb-3">
+            <div className="font-mono text-[11px] tracking-widest text-ink/45 mb-3">
               GET STARTED FREE
             </div>
             <h1 className="font-display font-bold text-[36px] leading-tight">
               Create your <span className="grad-text">account</span>
             </h1>
-            <p className="text-[14px] text-brand-ink/60 mt-2">
+            <p className="text-[14px] text-ink/60 mt-2">
               Upload your design. Share one link.
             </p>
 
             {/* Tabs */}
-            <div className="mt-7 inline-flex p-1 rounded-full bg-brand-offwhite border border-brand-border text-[13px]">
+            <div className="mt-7 inline-flex p-1 rounded-full bg-cream border border-border text-[13px]">
               <Link
                 href="/login"
-                className="px-4 h-9 rounded-full text-brand-ink/60 font-medium flex items-center hover:text-brand-ink transition"
+                className="px-4 h-9 rounded-full text-ink/60 font-medium flex items-center hover:text-ink transition"
               >
                 Sign in
               </Link>
@@ -57,16 +57,16 @@ export default function SignupPage() {
             {/* Google */}
             <button
               type="button"
-              className="mt-5 w-full h-12 rounded-xl border border-brand-border bg-white flex items-center justify-center gap-3 font-medium text-[14px] hover:bg-brand-offwhite transition"
+              className="mt-5 w-full h-12 rounded-xl border border-border bg-white flex items-center justify-center gap-3 font-medium text-[14px] hover:bg-cream transition"
             >
               <GoogleIcon />
               Continue with Google
             </button>
 
-            <div className="my-5 flex items-center gap-3 text-[11px] font-mono tracking-widest text-brand-ink/40">
-              <div className="flex-1 h-px bg-brand-border" />
+            <div className="my-5 flex items-center gap-3 text-[11px] font-mono tracking-widest text-ink/40">
+              <div className="flex-1 h-px bg-border" />
               OR
-              <div className="flex-1 h-px bg-brand-border" />
+              <div className="flex-1 h-px bg-border" />
             </div>
 
             {/* Form */}
@@ -77,7 +77,7 @@ export default function SignupPage() {
                 </p>
               )}
               <div>
-                <label className="text-[12px] font-medium text-brand-ink/70 mb-1.5 block">
+                <label className="text-[12px] font-medium text-ink/70 mb-1.5 block">
                   Full name
                 </label>
                 <input
@@ -85,11 +85,11 @@ export default function SignupPage() {
                   type="text"
                   required
                   placeholder="Your name"
-                  className="w-full px-[14px] py-[13px] border-[1.5px] border-brand-border rounded-xl text-[14.5px] font-medium bg-white focus:outline-none focus:border-brand-primary focus:shadow-[0_0_0_4px_rgba(108,99,255,0.12)] transition"
+                  className="w-full px-[14px] py-[13px] border-[1.5px] border-border rounded-xl text-[14.5px] font-medium bg-white focus:outline-none focus:border-primary focus:shadow-[0_0_0_4px_rgba(31,77,58,0.15)] transition"
                 />
               </div>
               <div>
-                <label className="text-[12px] font-medium text-brand-ink/70 mb-1.5 block">
+                <label className="text-[12px] font-medium text-ink/70 mb-1.5 block">
                   Work email
                 </label>
                 <input
@@ -97,11 +97,11 @@ export default function SignupPage() {
                   type="email"
                   required
                   placeholder="you@studio.com"
-                  className="w-full px-[14px] py-[13px] border-[1.5px] border-brand-border rounded-xl text-[14.5px] font-medium bg-white focus:outline-none focus:border-brand-primary focus:shadow-[0_0_0_4px_rgba(108,99,255,0.12)] transition"
+                  className="w-full px-[14px] py-[13px] border-[1.5px] border-border rounded-xl text-[14.5px] font-medium bg-white focus:outline-none focus:border-primary focus:shadow-[0_0_0_4px_rgba(31,77,58,0.15)] transition"
                 />
               </div>
               <div>
-                <label className="text-[12px] font-medium text-brand-ink/70 mb-1.5 block">
+                <label className="text-[12px] font-medium text-ink/70 mb-1.5 block">
                   Password
                 </label>
                 <input
@@ -110,34 +110,34 @@ export default function SignupPage() {
                   required
                   minLength={8}
                   placeholder="At least 8 characters"
-                  className="w-full px-[14px] py-[13px] border-[1.5px] border-brand-border rounded-xl text-[14.5px] font-medium bg-white focus:outline-none focus:border-brand-primary focus:shadow-[0_0_0_4px_rgba(108,99,255,0.12)] transition"
+                  className="w-full px-[14px] py-[13px] border-[1.5px] border-border rounded-xl text-[14.5px] font-medium bg-white focus:outline-none focus:border-primary focus:shadow-[0_0_0_4px_rgba(31,77,58,0.15)] transition"
                 />
               </div>
               <button
                 type="submit"
                 disabled={isPending}
-                className="w-full h-12 rounded-xl grad-bg text-white font-display font-semibold text-[15px] shadow-[0_8px_20px_rgba(108,99,255,0.3)] hover:opacity-95 transition disabled:opacity-60"
+                className="w-full h-12 rounded-xl grad-bg text-white font-display font-semibold text-[15px] shadow-[0_8px_20px_rgba(31,77,58,0.25)] hover:opacity-95 transition disabled:opacity-60"
               >
                 {isPending ? "Creating account…" : "Create account — it's free"}
               </button>
-              <p className="text-[11.5px] text-brand-ink/45 text-center leading-relaxed">
+              <p className="text-[11.5px] text-ink/45 text-center leading-relaxed">
                 By creating an account you agree to our{" "}
-                <a href="#" className="text-brand-primary hover:underline">
+                <a href="#" className="text-primary hover:underline">
                   Terms
                 </a>{" "}
                 and{" "}
-                <a href="#" className="text-brand-primary hover:underline">
+                <a href="#" className="text-primary hover:underline">
                   Privacy Policy
                 </a>
                 .
               </p>
             </form>
 
-            <p className="mt-4 text-[13px] text-brand-ink/55 text-center">
+            <p className="mt-4 text-[13px] text-ink/55 text-center">
               Already have an account?{" "}
               <Link
                 href="/login"
-                className="text-brand-primary font-medium hover:underline"
+                className="text-primary font-medium hover:underline"
               >
                 Sign in
               </Link>
@@ -145,13 +145,13 @@ export default function SignupPage() {
           </div>
         </div>
 
-        <div className="text-[11.5px] font-mono text-brand-ink/40 flex items-center justify-between">
+        <div className="text-[11.5px] font-mono text-ink/40 flex items-center justify-between">
           <span>© 2026 Cardly</span>
           <div className="flex gap-4">
-            <a href="#" className="hover:text-brand-ink">
+            <a href="#" className="hover:text-ink">
               Privacy
             </a>
-            <a href="#" className="hover:text-brand-ink">
+            <a href="#" className="hover:text-ink">
               Terms
             </a>
           </div>

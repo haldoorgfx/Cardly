@@ -24,9 +24,9 @@ const COUNTRIES = [
 ];
 
 const AVATAR_PRESETS = [
-  { id: 'a', gradient: 'linear-gradient(135deg,#ffd28a,#f8a4d8)' },
-  { id: 'b', gradient: 'linear-gradient(135deg,#7be0c0,#6c63ff)' },
-  { id: 'c', gradient: 'linear-gradient(135deg,#f8a4d8,#6c63ff)' },
+  { id: 'a', gradient: 'linear-gradient(135deg,#ffd28a,#E8C57E)' },
+  { id: 'b', gradient: 'linear-gradient(135deg,#7be0c0,#1F4D3A)' },
+  { id: 'c', gradient: 'linear-gradient(135deg,#E8C57E,#1F4D3A)' },
   { id: 'd', gradient: 'linear-gradient(135deg,#1f8a5b,#ffd28a)' },
 ];
 
@@ -35,7 +35,7 @@ type Screen = 'form' | 'generating' | 'result' | 'success';
 function Confetti() {
   const pieces = Array.from({ length: 20 }).map((_, i) => ({
     left: `${5 + (i / 19) * 90}%`,
-    color: ['#6c63ff', '#f8a4d8', '#ffd28a', '#7be0c0', '#ff6058'][i % 5],
+    color: ['#1F4D3A', '#E8C57E', '#ffd28a', '#7be0c0', '#ff6058'][i % 5],
     delay: `${(i * 0.07).toFixed(2)}s`,
     dur: `${3 + (i % 4) * 0.5}s`,
   }));
@@ -150,7 +150,7 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
           canvas.height = 400;
           const ctx = canvas.getContext('2d')!;
           const grd = ctx.createLinearGradient(0, 0, 400, 400);
-          const parts = preset.gradient.match(/#[0-9a-fA-F]{6}/g) ?? ['#6c63ff', '#f8a4d8'];
+          const parts = preset.gradient.match(/#[0-9a-fA-F]{6}/g) ?? ['#1F4D3A', '#E8C57E'];
           grd.addColorStop(0, parts[0]);
           grd.addColorStop(1, parts[1]);
           ctx.fillStyle = grd;
@@ -214,7 +214,7 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
 
         {/* Check icon */}
         <div className="relative mb-6" style={{ animation: 'scaleIn 0.5s ease-out forwards' }}>
-          <div className="h-20 w-20 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)', boxShadow: '0 24px 60px rgba(108,99,255,0.45)' }}>
+          <div className="h-20 w-20 rounded-full flex items-center justify-center" style={{ background: '#1F4D3A', boxShadow: '0 24px 60px rgba(31,77,58,0.45)' }}>
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
               <polyline points="20 6 9 17 4 12" />
             </svg>
@@ -240,7 +240,7 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
           {[
             { name: 'WhatsApp', color: '#25D366', letter: 'w', href: `https://wa.me/?text=${encodeURIComponent(cardCaption)}` },
             { name: 'Instagram', color: '#E1306C', letter: '◉', href: '#' },
-            { name: 'X', color: '#0f0f1a', letter: '𝕏', href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(cardCaption)}` },
+            { name: 'X', color: '#0F1F18', letter: '𝕏', href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(cardCaption)}` },
             { name: 'LinkedIn', color: '#0a66c2', letter: 'in', href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://cardly.app')}` },
           ].map(s => (
             <a
@@ -264,7 +264,7 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
           <p className="text-[13px] text-white/80 leading-relaxed italic">&ldquo;{cardCaption}&rdquo;</p>
           <button
             onClick={() => { navigator.clipboard?.writeText(cardCaption); showToast('Caption copied!'); }}
-            className="mt-3 text-[11px] font-mono text-[#6c63ff] flex items-center gap-1 hover:text-[#f8a4d8] transition"
+            className="mt-3 text-[11px] font-mono text-[#1F4D3A] flex items-center gap-1 hover:text-[#E8C57E] transition"
           >
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             Copy caption
@@ -293,8 +293,8 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
       <div className="min-h-screen flex flex-col items-center px-4 pt-8 pb-12" style={{ background: 'linear-gradient(160deg,#0a0915 0%,#1b1240 60%,#3a1060 100%)' }}>
         {/* Toast */}
         {toast && (
-          <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-white text-[#0f0f1a] text-[13px] font-medium px-4 py-2.5 rounded-xl shadow-lift">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6c63ff" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-white text-[#0F1F18] text-[13px] font-medium px-4 py-2.5 rounded-xl shadow-lift">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1F4D3A" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
             {toast}
           </div>
         )}
@@ -314,7 +314,7 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
           </div>
 
           {/* Card */}
-          <div className="rounded-2xl overflow-hidden mb-3" style={{ boxShadow: '0 24px 60px rgba(108,99,255,0.35)', aspectRatio: `${backgroundWidth}/${backgroundHeight}` }}>
+          <div className="rounded-2xl overflow-hidden mb-3" style={{ boxShadow: '0 24px 60px rgba(31,77,58,0.35)', aspectRatio: `${backgroundWidth}/${backgroundHeight}` }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={resultUrl} alt="Your personalized card" className="w-full h-full object-cover" />
           </div>
@@ -324,7 +324,7 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
           <button
             onClick={handleDownload}
             className="w-full h-14 rounded-2xl font-display font-bold text-[16px] text-white mb-3 hover:opacity-95 transition flex items-center justify-center gap-2.5"
-            style={{ background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)', boxShadow: '0 8px 24px rgba(108,99,255,0.4)' }}
+            style={{ background: '#1F4D3A', boxShadow: '0 8px 24px rgba(31,77,58,0.4)' }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/>
@@ -337,7 +337,7 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
             {[
               { name: 'WhatsApp', color: '#25D366', letter: 'w', href: `https://wa.me/?text=${encodeURIComponent(cardCaption)}` },
               { name: 'Instagram', color: '#E1306C', letter: '◉', href: '#' },
-              { name: 'Post on X', color: '#0f0f1a', letter: '𝕏', href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(cardCaption)}` },
+              { name: 'Post on X', color: '#0F1F18', letter: '𝕏', href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(cardCaption)}` },
               { name: 'LinkedIn', color: '#0a66c2', letter: 'in', href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://cardly.app')}` },
             ].map(s => (
               <a
@@ -361,7 +361,7 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
             <p className="text-[12.5px] text-white/70 leading-relaxed italic">&ldquo;{cardCaption}&rdquo;</p>
             <button
               onClick={() => { navigator.clipboard?.writeText(cardCaption); showToast('Caption copied!'); }}
-              className="mt-2 text-[11px] font-mono text-[#6c63ff] flex items-center gap-1 hover:text-[#f8a4d8] transition"
+              className="mt-2 text-[11px] font-mono text-[#1F4D3A] flex items-center gap-1 hover:text-[#E8C57E] transition"
             >
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
               Copy caption
@@ -381,7 +381,7 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
             {downloaded && (
               <button
                 onClick={() => setScreen('success')}
-                className="flex-1 py-3 rounded-xl text-[13px] font-semibold text-[#6c63ff] border border-[#6c63ff]/30 hover:bg-[#6c63ff]/10 transition"
+                className="flex-1 py-3 rounded-xl text-[13px] font-semibold text-[#1F4D3A] border border-[#1F4D3A]/30 hover:bg-[#1F4D3A]/10 transition"
               >
                 <span className="inline-flex items-center gap-1.5">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -392,7 +392,7 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
           </div>
 
           <div className="mt-8 text-center text-[11px] font-mono text-white/20">
-            Powered by <span style={{ background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>Cardly</span>
+            Powered by <span style={{ background: 'linear-gradient(135deg,#1F4D3A,#E8C57E)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>Cardly</span>
           </div>
         </div>
       </div>
@@ -404,7 +404,7 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-4" style={{ background: 'linear-gradient(160deg,#0a0915 0%,#1b1240 60%,#3a1060 100%)' }}>
         <div className="text-center">
-          <div className="inline-flex h-20 w-20 rounded-full items-center justify-center mb-6 relative" style={{ background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)' }}>
+          <div className="inline-flex h-20 w-20 rounded-full items-center justify-center mb-6 relative" style={{ background: '#1F4D3A' }}>
             <svg className="animate-spin text-white" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M21 12a9 9 0 1 1-6.219-8.56" strokeLinecap="round"/>
             </svg>
@@ -426,7 +426,7 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
       <div className="fixed top-0 left-0 right-0 z-20 h-1 bg-white/10">
         <div
           className="h-full transition-all duration-500"
-          style={{ width: `${progressPct}%`, background: 'linear-gradient(90deg,#6c63ff,#f8a4d8)' }}
+          style={{ width: `${progressPct}%`, background: 'linear-gradient(90deg,#1F4D3A,#E8C57E)' }}
         />
       </div>
 
@@ -512,7 +512,7 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
           <div key={z.id}>
             <div className="flex items-center gap-2 mb-2">
               <label className="text-[12px] font-mono text-white/50 uppercase">{z.label}</label>
-              {z.required && <span className="text-[10px] font-mono text-[#6c63ff] bg-[#6c63ff]/20 px-1.5 py-0.5 rounded">REQ</span>}
+              {z.required && <span className="text-[10px] font-mono text-[#1F4D3A] bg-[#1F4D3A]/20 px-1.5 py-0.5 rounded">REQ</span>}
             </div>
             <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
               {/* Upload button */}
@@ -579,12 +579,12 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
               <div key={z.id}>
                 <div className="flex items-center gap-2 mb-2">
                   <label className="text-[12px] font-mono text-white/50 uppercase">{z.label}</label>
-                  {z.required && <span className="text-[10px] font-mono text-[#6c63ff] bg-[#6c63ff]/20 px-1.5 py-0.5 rounded">REQ</span>}
+                  {z.required && <span className="text-[10px] font-mono text-[#1F4D3A] bg-[#1F4D3A]/20 px-1.5 py-0.5 rounded">REQ</span>}
                 </div>
                 <select
                   value={values[z.id] ?? ''}
                   onChange={e => setValues(v => ({ ...v, [z.id]: e.target.value }))}
-                  className="w-full h-12 px-4 rounded-xl bg-white/10 border border-white/20 text-white text-[15px] focus:outline-none focus:border-[#6c63ff]/60 transition appearance-none"
+                  className="w-full h-12 px-4 rounded-xl bg-white/10 border border-white/20 text-white text-[15px] focus:outline-none focus:border-[#1F4D3A]/60 transition appearance-none"
                   style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.4)' stroke-width='2' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\")", backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center' }}
                 >
                   <option value="" disabled style={{ background: '#1b1240' }}>{z.placeholder ?? `Select ${z.label}`}</option>
@@ -603,13 +603,13 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
             <div key={z.id}>
               <div className="flex items-center gap-2 mb-2">
                 <label className="text-[12px] font-mono text-white/50 uppercase">{z.label}</label>
-                {z.required && <span className="text-[10px] font-mono text-[#6c63ff] bg-[#6c63ff]/20 px-1.5 py-0.5 rounded">REQ</span>}
+                {z.required && <span className="text-[10px] font-mono text-[#1F4D3A] bg-[#1F4D3A]/20 px-1.5 py-0.5 rounded">REQ</span>}
               </div>
               {isLocation ? (
                 <select
                   value={values[z.id] ?? ''}
                   onChange={e => setValues(v => ({ ...v, [z.id]: e.target.value }))}
-                  className="w-full h-12 px-4 rounded-xl bg-white/10 border border-white/20 text-white text-[15px] focus:outline-none focus:border-[#6c63ff]/60 transition appearance-none"
+                  className="w-full h-12 px-4 rounded-xl bg-white/10 border border-white/20 text-white text-[15px] focus:outline-none focus:border-[#1F4D3A]/60 transition appearance-none"
                   style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.4)' stroke-width='2' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\")", backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center' }}
                 >
                   <option value="" disabled style={{ background: '#1b1240' }}>{z.placeholder ?? 'Select city / country'}</option>
@@ -623,7 +623,7 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
                   placeholder={z.placeholder ?? z.label}
                   value={values[z.id] ?? ''}
                   onChange={e => setValues(v => ({ ...v, [z.id]: e.target.value }))}
-                  className="w-full h-12 px-4 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/30 text-[15px] focus:outline-none focus:border-[#6c63ff]/60 focus:bg-white/15 transition"
+                  className="w-full h-12 px-4 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/30 text-[15px] focus:outline-none focus:border-[#1F4D3A]/60 focus:bg-white/15 transition"
                 />
               )}
             </div>
@@ -648,14 +648,14 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
             onClick={handleGenerate}
             className="w-full h-14 rounded-2xl font-display font-bold text-[16px] transition"
             style={isComplete()
-              ? { background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)', color: 'white', boxShadow: '0 8px_24px rgba(108,99,255,0.4)' }
+              ? { background: '#1F4D3A', color: 'white', boxShadow: '0 8px_24px rgba(31,77,58,0.4)' }
               : { background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.3)', cursor: 'not-allowed' }
             }
           >
             Generate my card →
           </button>
           <div className="text-center mt-2 text-[11px] font-mono text-white/25">
-            Powered by <span style={{ background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>Cardly</span>
+            Powered by <span style={{ background: 'linear-gradient(135deg,#1F4D3A,#E8C57E)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>Cardly</span>
           </div>
         </div>
       </div>
