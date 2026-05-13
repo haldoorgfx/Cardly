@@ -97,6 +97,24 @@ async function rotateBuffer(
   return { buf: rotated, w: meta.width!, h: meta.height! };
 }
 
+interface ZoneDebug {
+  zoneId: string;
+  type: string;
+  text: string;
+  fontDesc: string;
+  color: string;
+  fontFile: boolean;
+  renderedW: number;
+  renderedH: number;
+  greyMin: number;
+  greyMax: number;
+  darkPx: number;
+  overlayW: number;
+  overlayH: number;
+  left: number;
+  top: number;
+}
+
 async function compositeText(
   base: sharp.Sharp,
   zone: Zone,
@@ -104,6 +122,7 @@ async function compositeText(
   canvasW: number,
   canvasH: number,
   fontFilePath?: string | null,
+  debugOut?: ZoneDebug[],
 ): Promise<sharp.Sharp> {
   const rawText = applyTextTransform(text, zone.textTransform);
   const font    = (zone.font ?? 'Sans').replace(/'/g, '');
@@ -172,7 +191,7 @@ async function compositeText(
   const textW = greyInfo.width;
   const textH = greyInfo.height;
 
-  // Diagnostic: log grey stats to detect all-white (no text) output
+  // Diagnostic: gather grey stats to detect all-white (no text) output
   let greyMin = 255, greyMax = 0, greyDark = 0;
   for (let px = 0; px < greyPixels.length; px++) {
     const v = greyPixels[px];
@@ -180,9 +199,6 @@ async function compositeText(
     if (v > greyMax) greyMax = v;
     if (v < 128) greyDark++;
   }
-  console.log(`[render] zone=${zone.id} type=${zone.type} text="${text.slice(0,20)}" font="${fontDesc}" ` +
-    `rendered=${textW}x${textH} greyMin=${greyMin} greyMax=${greyMax} darkPx=${greyDark} ` +
-    `color=${color} fontFile=${fontFilePath ? 'yes' : 'no'}`);
 
   // Parse target color
   const hexCol = color.replace('#', '').padEnd(6, '0');
@@ -234,14 +250,27 @@ async function compositeText(
 
   const top = zone.y;
 
+  const compositeLeft  = Math.max(0, Math.min(left, canvasW - ow));
+  const compositeTop   = Math.max(0, Math.min(top,  canvasH - oh));
+
+  const dbg = {
+    zoneId: zone.id, type: zone.type, text: text.slice(0, 20),
+    fontDesc, color, fontFile: !!fontFilePath,
+    renderedW: textW, renderedH: textH,
+    greyMin, greyMax, darkPx: greyDark,
+    overlayW: ow, overlayH: oh, left: compositeLeft, top: compositeTop,
+  };
+  console.log('[render]', JSON.stringify(dbg));
+  if (debugOut) debugOut.push(dbg);
+
   // Materialize base to a buffer before compositing.
   // sharp's .composite() replaces (not appends) when chained on a lazy pipeline —
   // converting to an intermediate buffer ensures all zones stack correctly.
   const baseBuf = await base.png().toBuffer();
   return sharp(baseBuf).composite([{
     input: overlay,
-    left:  Math.max(0, Math.min(left, canvasW - ow)),
-    top:   Math.max(0, Math.min(top,  canvasH - oh)),
+    left:  compositeLeft,
+    top:   compositeTop,
   }]);
 }
 
@@ -325,6 +354,64 @@ async function addWatermark(base: sharp.Sharp, canvasW: number, canvasH: number)
   const svgBuf = await sharp(Buffer.from(svg)).png().toBuffer();
   const baseBuf = await base.png().toBuffer();
   return sharp(baseBuf).composite([{ input: svgBuf, left: 0, top: canvasH - WATERMARK_HEIGHT }]);
+}
+
+export async function GET(req: NextRequest) {
+  // Debug probe: GET /api/render?debug=1&variantId=xxx&fields=...
+  // Returns JSON diagnostics for each text zone instead of the PNG.
+  const url = new URL(req.url);
+  if (url.searchParams.get('debug') !== '1') {
+    return NextResponse.json({ error: 'Use POST for rendering or add ?debug=1' }, { status: 405 });
+  }
+  const fakeBody = new URLSearchParams(url.search);
+  const variantId = fakeBody.get('variantId') ?? '';
+  const fieldsRaw = fakeBody.get('fields') ?? '{}';
+  const fields: Record<string, string> = JSON.parse(fieldsRaw);
+
+  const supabase = createAdminClient();
+  const { data: variant } = await supabase
+    .from('event_variants')
+    .select('id, background_url, background_width, background_height, zones, event_id, events(id, status, user_id, download_count)')
+    .eq('id', variantId)
+    .single();
+  if (!variant) return NextResponse.json({ error: 'Variant not found' }, { status: 404 });
+  const event = variant.events as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+
+  const zones = (variant.zones as unknown as Zone[]) ?? [];
+  const canvasW = variant.background_width ?? 1080;
+  const canvasH = variant.background_height ?? 1350;
+
+  const fontKeys = new Map<string, { family: string; weight: number }>();
+  for (const z of zones) {
+    if ((z.type === 'text' || z.type === 'custom' || z.type === 'label') && z.font) {
+      fontKeys.set(`${z.font}:${z.weight ?? 400}`, { family: z.font, weight: z.weight ?? 400 });
+    }
+  }
+  const fontFileMap = new Map<string, string | null>();
+  await Promise.all(
+    Array.from(fontKeys.entries()).map(async ([key, { family, weight }]) => {
+      fontFileMap.set(key, await ensureFontFile(family, weight));
+    })
+  );
+
+  const bgBuffer = await fetchBuffer(variant.background_url!);
+  let pipeline = sharp(bgBuffer).resize(canvasW, canvasH, { fit: 'fill' });
+  const debugOut: ZoneDebug[] = [];
+
+  for (const zone of zones) {
+    if (zone.hidden) continue;
+    if (zone.type === 'text' || zone.type === 'custom' || zone.type === 'label') {
+      const text = fields[zone.id]?.trim() || zone.sample || zone.placeholder || 'test';
+      if (text) {
+        const family = (zone.font ?? '').replace(/'/g, '');
+        const weight = zone.weight ?? 400;
+        const fontFilePath = fontFileMap.get(`${family}:${weight}`) ?? null;
+        pipeline = await compositeText(pipeline, zone, text, canvasW, canvasH, fontFilePath, debugOut);
+      }
+    }
+  }
+
+  return NextResponse.json({ variantId, zones: zones.length, debugOut });
 }
 
 export async function POST(req: NextRequest) {
