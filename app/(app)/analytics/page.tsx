@@ -1,6 +1,7 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import GeoMap, { type CityPoint } from '@/components/analytics/GeoMap';
 
 function fmtNum(n: number) {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -26,6 +27,24 @@ export default async function AnalyticsPage() {
 
   const allEvents = events ?? [];
   const allCards = (cards as { id: string; event_id: string; attendee_data: Record<string, string> | null; created_at: string }[] | null) ?? [];
+
+  // Aggregate real geo data stored by /api/render from Vercel geo headers
+  const cityMap = new Map<string, { count: number; lat: number; lng: number; country: string }>();
+  for (const card of allCards) {
+    const d = card.attendee_data as Record<string, unknown> | null;
+    const city    = typeof d?._city    === 'string' ? d._city    : null;
+    const country = typeof d?._country === 'string' ? d._country : '';
+    const lat     = typeof d?._lat     === 'number' ? d._lat     : null;
+    const lng     = typeof d?._lng     === 'number' ? d._lng     : null;
+    if (city && lat !== null && lng !== null) {
+      const existing = cityMap.get(city);
+      if (existing) { existing.count++; }
+      else { cityMap.set(city, { count: 1, lat, lng, country }); }
+    }
+  }
+  const cityData: CityPoint[] = [...cityMap.entries()]
+    .map(([city, data]) => ({ city, ...data }))
+    .sort((a, b) => b.count - a.count);
 
   const totalViews = allEvents.reduce((s, e) => s + (e.view_count ?? 0), 0);
   const totalCards = allCards.length;
@@ -252,7 +271,7 @@ export default async function AnalyticsPage() {
       {/* Geo + Funnel */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
 
-        {/* Africa geo map */}
+        {/* Real Africa geo map */}
         <div className="lg:col-span-2 bg-white rounded-2xl border border-[#e5e5ea] p-6 shadow-soft">
           <div className="flex items-center justify-between mb-5">
             <div>
@@ -260,76 +279,10 @@ export default async function AnalyticsPage() {
               <div className="font-display font-semibold text-[15px] mt-0.5">Africa-first audience</div>
             </div>
             <span className="text-[11px] font-mono text-[#0f0f1a]/35 bg-[#fafafa] border border-[#e5e5ea] px-2 py-1 rounded-lg">
-              {totalCards > 0 ? 'Live data' : 'Estimated'}
+              {cityData.length > 0 ? 'Live data' : 'Waiting'}
             </span>
           </div>
-          <div className="relative">
-            <svg viewBox="0 0 440 380" className="w-full" style={{ height: 280 }}>
-              {/* Africa continent silhouette */}
-              <path
-                d="M185 28 Q148 38 138 76 Q122 108 136 146 Q124 178 144 212 Q132 244 162 276 Q172 318 224 328 Q268 316 288 276 Q308 254 302 222 Q316 192 300 162 Q312 130 284 98 Q278 68 242 48 Q214 24 185 28 Z"
-                fill="#f6f4ef"
-                stroke="#e5e5ea"
-                strokeWidth="1.5"
-              />
-              {/* City dots */}
-              <g>
-                {/* Lagos — largest */}
-                <circle cx="192" cy="192" r="16" fill="#6c63ff" fillOpacity="0.12" />
-                <circle cx="192" cy="192" r="6" fill="#6c63ff" />
-                <text x="154" y="186" fontFamily="JetBrains Mono, monospace" fontSize="9" fill="#0f0f1a" fontWeight="500">Lagos</text>
-
-                {/* Nairobi */}
-                <circle cx="270" cy="198" r="12" fill="#6c63ff" fillOpacity="0.12" />
-                <circle cx="270" cy="198" r="4.5" fill="#6c63ff" />
-                <text x="278" y="202" fontFamily="JetBrains Mono, monospace" fontSize="9" fill="#0f0f1a" fontWeight="500">Nairobi</text>
-
-                {/* Cape Town */}
-                <circle cx="238" cy="296" r="11" fill="#6c63ff" fillOpacity="0.12" />
-                <circle cx="238" cy="296" r="4" fill="#6c63ff" />
-                <text x="202" y="312" fontFamily="JetBrains Mono, monospace" fontSize="9" fill="#0f0f1a" fontWeight="500">Cape Town</text>
-
-                {/* Accra */}
-                <circle cx="172" cy="200" r="8" fill="#f8a4d8" fillOpacity="0.22" />
-                <circle cx="172" cy="200" r="3.5" fill="#f8a4d8" />
-                <text x="137" y="204" fontFamily="JetBrains Mono, monospace" fontSize="9" fill="#0f0f1a">Accra</text>
-
-                {/* Cairo */}
-                <circle cx="232" cy="102" r="7" fill="#f8a4d8" fillOpacity="0.22" />
-                <circle cx="232" cy="102" r="3" fill="#f8a4d8" />
-                <text x="240" y="106" fontFamily="JetBrains Mono, monospace" fontSize="9" fill="#0f0f1a">Cairo</text>
-
-                {/* Johannesburg */}
-                <circle cx="262" cy="274" r="7" fill="#ffd28a" fillOpacity="0.3" />
-                <circle cx="262" cy="274" r="3" fill="#ffd28a" />
-
-                {/* Abidjan */}
-                <circle cx="168" cy="214" r="5" fill="#7be0c0" fillOpacity="0.3" />
-                <circle cx="168" cy="214" r="2.5" fill="#7be0c0" />
-
-                {/* Addis */}
-                <circle cx="286" cy="174" r="5" fill="#f8a4d8" fillOpacity="0.25" />
-                <circle cx="286" cy="174" r="2.5" fill="#f8a4d8" />
-              </g>
-            </svg>
-          </div>
-
-          <div className="grid grid-cols-3 gap-3 mt-4">
-            {[
-              { city: 'Lagos', pct: '34%', color: '#6c63ff' },
-              { city: 'Nairobi', pct: '22%', color: '#6c63ff' },
-              { city: 'Cape Town', pct: '18%', color: '#6c63ff' },
-              { city: 'Accra', pct: '12%', color: '#f8a4d8' },
-              { city: 'Cairo', pct: '8%', color: '#f8a4d8' },
-              { city: 'Other', pct: '6%', color: '#e5e5ea' },
-            ].map(c => (
-              <div key={c.city} className="flex items-center gap-2 text-[12px]">
-                <span className="h-2 w-2 rounded-full shrink-0" style={{ background: c.color }} />
-                <span className="flex-1 text-[#0f0f1a]/70">{c.city}</span>
-                <span className="font-mono text-[#0f0f1a]/50">{c.pct}</span>
-              </div>
-            ))}
-          </div>
+          <GeoMap cityData={cityData} totalCards={totalCards} />
         </div>
 
         {/* Funnel */}

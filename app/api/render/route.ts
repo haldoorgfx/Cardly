@@ -199,13 +199,29 @@ export async function POST(req: NextRequest) {
 
   const outputBuffer = await pipeline.png({ quality: 92 }).toBuffer();
 
+  // Capture location from Vercel geo headers (production) — no API key needed
+  const geoCity    = req.headers.get('x-vercel-ip-city')
+    ? decodeURIComponent(req.headers.get('x-vercel-ip-city')!) : null;
+  const geoCountry = req.headers.get('x-vercel-ip-country') ?? null;
+  const geoLat     = req.headers.get('x-vercel-ip-latitude')
+    ? parseFloat(req.headers.get('x-vercel-ip-latitude')!) : null;
+  const geoLng     = req.headers.get('x-vercel-ip-longitude')
+    ? parseFloat(req.headers.get('x-vercel-ip-longitude')!) : null;
+
   // Fire-and-forget: save record + increment download count
   const attendeeName = Object.values(fields).find(v => v?.trim()) ?? 'Anonymous';
+  const attendeeData = {
+    ...fields,
+    ...(geoCity    ? { _city:    geoCity    } : {}),
+    ...(geoCountry ? { _country: geoCountry } : {}),
+    ...(geoLat     ? { _lat:     geoLat     } : {}),
+    ...(geoLng     ? { _lng:     geoLng     } : {}),
+  };
   supabase.from('generated_cards').insert({
     event_id: event.id,
     variant_id: variantId,
     attendee_name: attendeeName,
-    attendee_data: fields,
+    attendee_data: attendeeData,
     output_url: null,
   }).then(() => {
     supabase.from('events')
