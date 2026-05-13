@@ -335,6 +335,72 @@ async function compositePhoto(
   return sharp(baseBuf).composite([{ input: finalBuf, left, top }]);
 }
 
+async function compositeShape(
+  base: sharp.Sharp,
+  zone: Zone,
+  canvasW: number,
+  canvasH: number,
+): Promise<sharp.Sharp> {
+  const w  = Math.max(1, Math.round(zone.w));
+  const h  = Math.max(1, Math.round(zone.h));
+  const fill       = zone.bgColor ?? '#1F4D3A';
+  const fillOpacity = (zone.bgOpacity ?? 100) / 100;
+  const stroke     = zone.strokeColor ?? 'none';
+  const strokeW    = zone.strokeWidth  ?? 0;
+  const sw2        = strokeW / 2;
+  const st         = zone.shapeType   ?? 'rect';
+  const rotation   = zone.rotation    ?? 0;
+  const zoneOpacity = (zone.opacity   ?? 100) / 100;
+
+  let shapeSvg: string;
+  if (st === 'ellipse') {
+    shapeSvg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="${w / 2}" cy="${h / 2}" rx="${Math.max(1, w / 2 - sw2)}" ry="${Math.max(1, h / 2 - sw2)}"
+        fill="${fill}" fill-opacity="${fillOpacity}"
+        ${strokeW > 0 ? `stroke="${stroke}" stroke-width="${strokeW}"` : ''}/>
+    </svg>`;
+  } else if (st === 'triangle') {
+    const pts = `${w / 2},${sw2} ${w - sw2},${h - sw2} ${sw2},${h - sw2}`;
+    shapeSvg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="${pts}"
+        fill="${fill}" fill-opacity="${fillOpacity}"
+        ${strokeW > 0 ? `stroke="${stroke}" stroke-width="${strokeW}"` : ''}/>
+    </svg>`;
+  } else if (st === 'line') {
+    shapeSvg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+      <line x1="0" y1="${h / 2}" x2="${w}" y2="${h / 2}"
+        stroke="${fill}" stroke-width="${h}" stroke-opacity="${fillOpacity}"/>
+    </svg>`;
+  } else {
+    // rect (default)
+    shapeSvg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+      <rect x="${sw2}" y="${sw2}" width="${Math.max(1, w - strokeW)}" height="${Math.max(1, h - strokeW)}"
+        fill="${fill}" fill-opacity="${fillOpacity}"
+        ${strokeW > 0 ? `stroke="${stroke}" stroke-width="${strokeW}"` : ''}/>
+    </svg>`;
+  }
+
+  let shapeBuf = await sharp(Buffer.from(shapeSvg)).png().toBuffer();
+
+  if (zoneOpacity < 1) {
+    const opSvg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+      <image href="data:image/png;base64,${shapeBuf.toString('base64')}"
+        width="${w}" height="${h}" opacity="${zoneOpacity}"/>
+    </svg>`;
+    shapeBuf = await sharp(Buffer.from(opSvg)).png().toBuffer();
+  }
+
+  const { buf: finalBuf, w: fw, h: fh } = await rotateBuffer(shapeBuf, rotation);
+
+  const zoneCX = zone.x + zone.w / 2;
+  const zoneCY = zone.y + zone.h / 2;
+  const left = Math.max(0, Math.min(Math.round(zoneCX - fw / 2), canvasW - fw));
+  const top  = Math.max(0, Math.min(Math.round(zoneCY - fh / 2), canvasH - fh));
+
+  const baseBuf = await base.png().toBuffer();
+  return sharp(baseBuf).composite([{ input: finalBuf, left, top }]);
+}
+
 async function addWatermark(base: sharp.Sharp, canvasW: number, canvasH: number): Promise<sharp.Sharp> {
   const svg = `<svg width="${canvasW}" height="${WATERMARK_HEIGHT}" xmlns="http://www.w3.org/2000/svg">
     <rect width="${canvasW}" height="${WATERMARK_HEIGHT}" fill="rgba(0,0,0,0.4)"/>
@@ -435,6 +501,8 @@ export async function POST(req: NextRequest) {
         const photoBuf = Buffer.from(await photoFile.arrayBuffer());
         pipeline = await compositePhoto(pipeline, zone, photoBuf, canvasW, canvasH);
       }
+    } else if (zone.type === 'shape') {
+      pipeline = await compositeShape(pipeline, zone, canvasW, canvasH);
     }
   }
 

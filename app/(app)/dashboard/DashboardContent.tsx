@@ -119,7 +119,7 @@ export default function DashboardContent({ events, atLimit }: Props) {
         </div>
       ) : (
         <div className={`mt-6 ${view === 'grid'
-          ? 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5'
+          ? 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5'
           : 'flex flex-col gap-3'
         }`}>
           {filtered.map(event => (

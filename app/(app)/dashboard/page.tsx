@@ -106,7 +106,7 @@ export default async function DashboardPage() {
 
   // ─── C2: Events list ───────────────────────────────────────────────────────
   return (
-    <div className="px-8 py-8 max-w-[1400px]">
+    <div className="px-8 py-8 w-full">
 
       {/* Header row */}
       <div className="flex items-end justify-between flex-wrap gap-4">

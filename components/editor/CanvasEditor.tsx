@@ -97,6 +97,11 @@ const I = {
   centerH:     '<line x1="12" y1="5" x2="12" y2="19"/><path d="M5 12h14"/><path d="M5 8h2M5 16h2M17 8h2M17 16h2"/>',
   centerV:     '<line x1="5" y1="12" x2="19" y2="12"/><path d="M12 5v14"/><path d="M8 5v2M16 5v2M8 17v2M16 17v2"/>',
   aspect:      '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><line x1="9" y1="6.5" x2="14" y2="6.5"/><line x1="3" y1="14" x2="3" y2="21"/><path d="M3 21h6M3 17h3"/>',
+  // shape tools
+  shRect:   '<rect x="3" y="5" width="18" height="14" rx="2"/>',
+  shOval:   '<ellipse cx="12" cy="12" rx="9" ry="6"/>',
+  shTri:    '<path d="M12 3L22 21H2L12 3z"/>',
+  shLine:   '<line x1="2" y1="12" x2="22" y2="12"/>',
 };
 
 const BRAND_COLORS = [
@@ -326,6 +331,32 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
       // label
       z = { ...base, type: 'label', label: 'Static text', w: zoneW, h: zoneH, font: 'DM Sans', weight: 700, size: textSz, color: '#FFFFFF', align: 'center', placeholder: '', sample: 'I\'m Attending', lineHeight: 1.2, letterSpacing: 0, opacity: 100, rotation: 0 };
     }
+    pushHistory([...zonesRef.current, z]);
+    setSelectedIds([z.id]);
+  }, [pushHistory, bgW, bgH]);
+
+  const addShapeZone = useCallback((shapeType: 'rect' | 'ellipse' | 'triangle' | 'line') => {
+    const s = bgW / 1080;
+    const isLine = shapeType === 'line';
+    const sw = isLine ? Math.round(400 * s) : Math.round(200 * s);
+    const sh = isLine ? Math.max(4, Math.round(6  * s)) : Math.round(200 * s);
+    const labels: Record<string, string> = { rect: 'Rectangle', ellipse: 'Circle', triangle: 'Triangle', line: 'Line' };
+    const z: Zone = {
+      id: 'z' + Math.random().toString(36).slice(2, 7),
+      type: 'shape',
+      label: labels[shapeType] ?? 'Shape',
+      x: Math.round(bgW / 2 - sw / 2),
+      y: Math.round(bgH / 2 - sh / 2),
+      w: sw,
+      h: sh,
+      shapeType,
+      bgColor: '#1F4D3A',
+      bgOpacity: 100,
+      strokeWidth: 0,
+      opacity: 100,
+      rotation: 0,
+      required: false,
+    };
     pushHistory([...zonesRef.current, z]);
     setSelectedIds([z.id]);
   }, [pushHistory, bgW, bgH]);
@@ -755,6 +786,34 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                   </button>
                 ))}
               </div>
+
+              {/* Shapes section */}
+              <div className="mt-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="flex-1 h-px bg-border" />
+                  <span className="text-[10px] font-mono tracking-widest text-[#0F1F18]/35">SHAPES</span>
+                  <div className="flex-1 h-px bg-border" />
+                </div>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {([
+                    { shapeType: 'rect'     as const, label: 'Rectangle', icon: I.shRect },
+                    { shapeType: 'ellipse'  as const, label: 'Circle',    icon: I.shOval },
+                    { shapeType: 'triangle' as const, label: 'Triangle',  icon: I.shTri  },
+                    { shapeType: 'line'     as const, label: 'Line',      icon: I.shLine },
+                  ] as const).map(item => (
+                    <button
+                      key={item.shapeType}
+                      onClick={() => addShapeZone(item.shapeType)}
+                      className="group flex items-center gap-2 p-2 rounded-xl hover:bg-cream border border-transparent hover:border-border transition text-left"
+                    >
+                      <span className="h-7 w-7 rounded-lg bg-cream grid place-items-center text-primary group-hover:text-white group-hover:bg-primary transition shrink-0">
+                        <Icon d={item.icon} size={13} sw={1.8} />
+                      </span>
+                      <span className="text-[12px] font-medium">{item.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
 
@@ -788,7 +847,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                       </div>
                     )}
                     <span className={`h-6 w-6 rounded-md grid place-items-center shrink-0 ${isSel ? 'text-primary' : 'text-[#0F1F18]/50'}`}>
-                      <Icon d={z.type === 'photo' ? I.photo : z.type === 'custom' ? I.field : z.type === 'label' ? I.label : I.text} size={12} />
+                      <Icon d={z.type === 'photo' ? I.photo : z.type === 'custom' ? I.field : z.type === 'label' ? I.label : z.type === 'shape' ? I.shRect : I.text} size={12} />
                     </span>
                     <span className="flex-1 truncate">{z.label}</span>
                     {z.required && <span className="text-[9px] font-mono px-1 py-px rounded bg-primary/10 text-primary shrink-0">REQ</span>}
@@ -1103,7 +1162,7 @@ function RightRail({
       {/* Zone header */}
       <div className="p-4 border-b border-border flex items-center gap-2 shrink-0">
         <span className="h-7 w-7 rounded-md grid place-items-center text-white bg-primary shrink-0">
-          <Icon d={selected.type === 'photo' ? I.photo : selected.type === 'custom' ? I.field : selected.type === 'label' ? I.label : I.text} size={13} />
+          <Icon d={selected.type === 'photo' ? I.photo : selected.type === 'custom' ? I.field : selected.type === 'label' ? I.label : selected.type === 'shape' ? I.shRect : I.text} size={13} />
         </span>
         <div className="flex-1 min-w-0">
           <div className="text-[10.5px] font-mono text-[#0F1F18]/45 uppercase tracking-widest">{selected.type} zone</div>
@@ -1127,7 +1186,7 @@ function RightRail({
               Static — this text is baked into every card, not editable by attendees.
             </div>
           </>
-        ) : (
+        ) : selected.type === 'shape' ? null : (
           <>
             <PropRow label="Placeholder">
               <input value={selected.placeholder ?? ''} onChange={e => upd({ placeholder: e.target.value })} className="prop-input" placeholder="Shown in the form" />
@@ -1166,6 +1225,33 @@ function RightRail({
             )}
           </PropSection>
         </>
+      )}
+
+      {/* ── Shape style ──────────────────────────────────── */}
+      {selected.type === 'shape' && (
+        <PropSection title="Shape style">
+          <PropRow label="Fill color">
+            <ColorRow value={selected.bgColor ?? '#1F4D3A'} onChange={c => upd({ bgColor: c })} BRAND_COLORS={BRAND_COLORS} />
+          </PropRow>
+          <PropRow label={`Fill opacity · ${selected.bgOpacity ?? 100}%`}>
+            <input type="range" min="0" max="100" value={selected.bgOpacity ?? 100} onChange={e => upd({ bgOpacity: Number(e.target.value) })} className="w-full accent-primary" style={{ height: 4 }} />
+          </PropRow>
+          <PropToggle
+            label="Show border"
+            value={!!(selected.strokeWidth && selected.strokeWidth > 0)}
+            onChange={v => upd({ strokeWidth: v ? 4 : 0, strokeColor: v ? '#FFFFFF' : undefined })}
+          />
+          {(selected.strokeWidth ?? 0) > 0 && (
+            <>
+              <PropRow label="Border color">
+                <ColorRow value={selected.strokeColor ?? '#FFFFFF'} onChange={c => upd({ strokeColor: c })} BRAND_COLORS={BRAND_COLORS} />
+              </PropRow>
+              <PropRow label={`Border width · ${selected.strokeWidth ?? 4}px`}>
+                <input type="range" min="1" max="40" value={selected.strokeWidth ?? 4} onChange={e => upd({ strokeWidth: Number(e.target.value) })} className="w-full accent-primary" style={{ height: 4 }} />
+              </PropRow>
+            </>
+          )}
+        </PropSection>
       )}
 
       {/* ── Typography (text/custom/label) ──────────────── */}
@@ -1413,9 +1499,10 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, onPointerDown, onH
 
   const isPhoto  = zone.type === 'photo';
   const isLabel  = zone.type === 'label';
+  const isShape  = zone.type === 'shape';
   const rotation = zone.rotation ?? 0;
-  const radius   = isPhoto ? (zone.shape === 'circle' ? '50%' : zone.shape === 'rounded' ? '20%' : '4px') : '6px';
-  const dashColor = multiSelected ? '#C9A45E' : isLabel ? '#C97A2D' : '#1F4D3A';
+  const radius   = isPhoto ? (zone.shape === 'circle' ? '50%' : zone.shape === 'rounded' ? '20%' : '4px') : isShape ? '0' : '6px';
+  const dashColor = multiSelected ? '#C9A45E' : isLabel ? '#C97A2D' : isShape ? '#3A6B8C' : '#1F4D3A';
   const opacityVal = (zone.opacity ?? 100) / 100;
 
   const displayText = (() => {
@@ -1426,7 +1513,7 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, onPointerDown, onH
     return raw;
   })();
 
-  const lines = (!isPhoto) ? wrapTextLines(displayText, zone.w - 16, zone.size ?? 32) : [];
+  const lines = (!isPhoto && !isShape) ? wrapTextLines(displayText, zone.w - 16, zone.size ?? 32) : [];
 
   const textStyle: React.CSSProperties = {
     fontFamily: zone.font,
@@ -1443,6 +1530,40 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, onPointerDown, onH
   };
 
   const inner = (() => {
+    if (isShape) {
+      const fill  = zone.bgColor ?? '#1F4D3A';
+      const fillOp = (zone.bgOpacity ?? 100) / 100;
+      const stroke = zone.strokeColor ?? 'none';
+      const strokeW = zone.strokeWidth ?? 0;
+      const st = zone.shapeType ?? 'rect';
+      return (
+        <div className="absolute inset-0">
+          <svg width="100%" height="100%" viewBox={`0 0 ${zone.w} ${zone.h}`} xmlns="http://www.w3.org/2000/svg">
+            {st === 'ellipse' && (
+              <ellipse cx={zone.w / 2} cy={zone.h / 2}
+                rx={Math.max(1, zone.w / 2 - strokeW / 2)} ry={Math.max(1, zone.h / 2 - strokeW / 2)}
+                fill={fill} fillOpacity={fillOp}
+                stroke={strokeW > 0 ? stroke : 'none'} strokeWidth={strokeW} />
+            )}
+            {st === 'triangle' && (
+              <polygon points={`${zone.w / 2},${strokeW / 2} ${zone.w - strokeW / 2},${zone.h - strokeW / 2} ${strokeW / 2},${zone.h - strokeW / 2}`}
+                fill={fill} fillOpacity={fillOp}
+                stroke={strokeW > 0 ? stroke : 'none'} strokeWidth={strokeW} />
+            )}
+            {st === 'line' && (
+              <line x1={0} y1={zone.h / 2} x2={zone.w} y2={zone.h / 2}
+                stroke={fill} strokeWidth={zone.h} strokeOpacity={fillOp} />
+            )}
+            {st === 'rect' && (
+              <rect x={strokeW / 2} y={strokeW / 2}
+                width={Math.max(1, zone.w - strokeW)} height={Math.max(1, zone.h - strokeW)}
+                fill={fill} fillOpacity={fillOp}
+                stroke={strokeW > 0 ? stroke : 'none'} strokeWidth={strokeW} />
+            )}
+          </svg>
+        </div>
+      );
+    }
     if (isPhoto) {
       return (
         <div className="absolute inset-0 grid place-items-center text-white" style={{
