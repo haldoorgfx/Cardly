@@ -115,7 +115,7 @@ async function compositeText(
   const zoneOpacity = (zone.opacity ?? 100) / 100;
   const rotation    = zone.rotation ?? 0;
 
-  // Escape special chars (Pango uses plain text — no markup for color)
+  // Escape special chars
   const safe = rawText
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -127,61 +127,68 @@ async function compositeText(
 
   // Letter-spacing via Pango markup attribute (thousandths of a point)
   const lsAttr = ls !== 0 ? ` letter_spacing="${Math.round(ls * 1024)}"` : '';
-  // Use Pango markup only for letter-spacing — NOT for foreground color.
-  // Pango's <span foreground="#rrggbb"> is silently ignored on some Linux
-  // builds (older GTK/Cairo versions on Vercel). Color is applied below via
-  // the alpha-mask technique instead, which works on every platform.
   const pangoText = lsAttr ? `<span${lsAttr}>${safe}</span>` : safe;
 
-  // sharp's text input uses Cairo/Pango — bypasses librsvg entirely.
   const sharpAlign = align === 'center' ? 'centre' : (align as 'left' | 'right');
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const textInput: any = {
+  // ── Strategy: render WITHOUT rgba:true ───────────────────────────────────
+  // On Vercel Linux (older Cairo/GTK), rgba:true sometimes produces an
+  // *opaque* white background instead of transparent. That means our
+  // subsequent pixel loop sets alpha=255 everywhere, creating a solid color
+  // block that wipes out all previously composited zones.
+  //
+  // Instead we render with the default (black text on opaque white background),
+  // flatten any potential transparency to white, then convert to greyscale
+  // (1 byte / pixel). Inverted luminance gives us a clean text-shape alpha mask
+  // that is 100% reliable across Windows, Linux, and every libvips version.
+  const textInput: Record<string, unknown> = {
     text: pangoText,
     font: fontDesc,
     width: zone.w,
     align: sharpAlign,
-    rgba:  true,   // transparent background — gives us the alpha mask
-    dpi:   72,
+    dpi: 72,
+    // NOTE: intentionally omitting rgba:true — see above
   };
   if (fontFilePath) textInput.fontfile = fontFilePath;
 
-  let alphaBuf: Buffer;
+  let renderedBuf: Buffer;
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    alphaBuf = await (sharp as any)({ text: textInput }).png().toBuffer();
+    renderedBuf = await (sharp as any)({ text: textInput }).png().toBuffer();
   } catch (err) {
     console.error('[render] Pango text render failed, zone', zone.id, err);
     return base;
   }
 
-  const { width: textW = zone.w, height: textH = zone.h } =
-    await sharp(alphaBuf).metadata();
+  // Flatten any alpha to white, then extract single-channel luminance.
+  // White pixels (BG) → lum 255 → inverted alpha 0 (transparent).
+  // Black pixels (text) → lum 0 → inverted alpha 255 (opaque).
+  const { data: greyPixels, info: greyInfo } = await sharp(renderedBuf)
+    .flatten({ background: { r: 255, g: 255, b: 255 } })
+    .grayscale()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
 
-  // ── Color the text via raw pixel manipulation ────────────────────────────
-  // Pango renders RGBA with text shape in alpha; RGB color is unreliable
-  // across platforms (Vercel's Cairo ignores <span foreground>).
-  // Fix: decode raw RGBA bytes, overwrite every pixel's RGB with the
-  // target color while preserving the alpha channel → correct color,
-  // transparent background, no libvips compositing tricks needed.
-  const hexCol = color.replace('#', '');
+  const textW = greyInfo.width;
+  const textH = greyInfo.height;
+
+  // Parse target color
+  const hexCol = color.replace('#', '').padEnd(6, '0');
   const cr = parseInt(hexCol.slice(0, 2), 16) || 0;
   const cg = parseInt(hexCol.slice(2, 4), 16) || 0;
   const cb = parseInt(hexCol.slice(4, 6), 16) || 0;
 
-  const { data: rawPixels, info: rawInfo } =
-    await sharp(alphaBuf).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
-
-  for (let i = 0; i < rawPixels.length; i += 4) {
-    rawPixels[i]     = cr;   // R → target color
-    rawPixels[i + 1] = cg;   // G → target color
-    rawPixels[i + 2] = cb;   // B → target color
-    // rawPixels[i+3] = alpha (unchanged — this IS the text shape)
+  // Build RGBA buffer: fill with target color, alpha = inverted luminance
+  const newPixels = Buffer.alloc(textW * textH * 4);
+  for (let px = 0; px < textW * textH; px++) {
+    newPixels[px * 4]     = cr;
+    newPixels[px * 4 + 1] = cg;
+    newPixels[px * 4 + 2] = cb;
+    newPixels[px * 4 + 3] = 255 - greyPixels[px]; // inverted lum = text mask
   }
 
-  let rawBuf = await sharp(rawPixels, {
-    raw: { width: rawInfo.width, height: rawInfo.height, channels: 4 },
+  let rawBuf = await sharp(newPixels, {
+    raw: { width: textW, height: textH, channels: 4 },
   }).png().toBuffer();
 
   // Optional background rect (rendered as a plain SVG, no font needed)
