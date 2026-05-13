@@ -252,15 +252,13 @@ async function compositeText(
   const compositeLeft  = Math.max(0, Math.min(left, canvasW - ow));
   const compositeTop   = Math.max(0, Math.min(top,  canvasH - oh));
 
-  const dbg = {
+  if (debugOut) debugOut.push({
     zoneId: zone.id, type: zone.type, text: text.slice(0, 20),
     fontDesc, color, fontFile: !!fontFilePath,
     renderedW: textW, renderedH: textH,
     greyMin, greyMax, darkPx: greyDark,
     overlayW: ow, overlayH: oh, left: compositeLeft, top: compositeTop,
-  };
-  console.log('[render]', JSON.stringify(dbg));
-  if (debugOut) debugOut.push(dbg);
+  });
 
   // Materialize base to a buffer before compositing.
   // sharp's .composite() replaces (not appends) when chained on a lazy pipeline —
