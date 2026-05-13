@@ -190,7 +190,11 @@ async function compositeText(
 
   const top = zone.y;
 
-  return base.composite([{
+  // Materialize base to a buffer before compositing.
+  // sharp's .composite() replaces (not appends) when chained on a lazy pipeline —
+  // converting to an intermediate buffer ensures all zones stack correctly.
+  const baseBuf = await base.png().toBuffer();
+  return sharp(baseBuf).composite([{
     input: overlay,
     left:  Math.max(0, Math.min(left, canvasW - ow)),
     top:   Math.max(0, Math.min(top,  canvasH - oh)),
@@ -257,7 +261,8 @@ async function compositePhoto(
   const left = Math.max(0, Math.min(Math.round(zoneCX - fw / 2), canvasW - fw));
   const top = Math.max(0, Math.min(Math.round(zoneCY - fh / 2), canvasH - fh));
 
-  return base.composite([{ input: finalBuf, left, top }]);
+  const baseBuf = await base.png().toBuffer();
+  return sharp(baseBuf).composite([{ input: finalBuf, left, top }]);
 }
 
 async function addWatermark(base: sharp.Sharp, canvasW: number, canvasH: number): Promise<sharp.Sharp> {
@@ -274,7 +279,8 @@ async function addWatermark(base: sharp.Sharp, canvasW: number, canvasH: number)
     >Made with Cardly</text>
   </svg>`;
   const svgBuf = await sharp(Buffer.from(svg)).png().toBuffer();
-  return base.composite([{ input: svgBuf, left: 0, top: canvasH - WATERMARK_HEIGHT }]);
+  const baseBuf = await base.png().toBuffer();
+  return sharp(baseBuf).composite([{ input: svgBuf, left: 0, top: canvasH - WATERMARK_HEIGHT }]);
 }
 
 export async function POST(req: NextRequest) {
