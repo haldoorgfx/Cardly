@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import sharp from 'sharp';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 import type { Zone } from '@/types/database';
 
 const WATERMARK_HEIGHT = 36;
 
-// ── Google Fonts cache (module-level, survives hot-reload in dev) ────────────
-const fontCache = new Map<string, string>(); // "Family:weight" → base64 woff2
+// ── Google Fonts cache: "Family:weight" → absolute path to TTF in /tmp ───────
+const fontCache = new Map<string, string>();
 
 // System fonts that don't need fetching
 const SYSTEM_FONTS = new Set([
@@ -15,48 +18,41 @@ const SYSTEM_FONTS = new Set([
   'sans-serif', 'serif', 'monospace', 'cursive', 'fantasy',
 ]);
 
-async function fetchGoogleFontBase64(family: string, weight: number): Promise<string | null> {
+/** Returns an absolute path to a TTF file in /tmp, downloading if needed. */
+async function ensureFontFile(family: string, weight: number): Promise<string | null> {
   const key = `${family}:${weight}`;
   if (fontCache.has(key)) return fontCache.get(key)!;
   if (SYSTEM_FONTS.has(family.toLowerCase())) return null;
 
   try {
     const familyParam = family.trim().replace(/\s+/g, '+');
+    const safeName   = family.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const tmpDir     = os.tmpdir();  // /tmp on Vercel Linux
+    const fontPath   = path.join(tmpDir, `gf-${safeName}-${weight}.ttf`);
 
-    // Use the legacy CSS1 API with no User-Agent → Google returns a TTF URL.
-    // TTF is universally supported by librsvg (all versions), whereas woff2
-    // data URIs only work with librsvg ≥ 2.52 on Linux (Vercel may have older).
+    // Reuse cached file if it already exists on disk (warm lambda)
+    if (fs.existsSync(fontPath)) {
+      fontCache.set(key, fontPath);
+      return fontPath;
+    }
+
+    // Legacy CSS1 API → Google always returns a TTF download URL
     const cssUrl = `https://fonts.googleapis.com/css?family=${familyParam}:${weight}`;
     const cssRes = await fetch(cssUrl);
-    if (!cssRes.ok) return null;
-    const css = await cssRes.text();
-
-    // Extract the TTF URL (legacy API always serves TTF)
-    const ttfMatch = css.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+\.ttf)\)/);
-    if (ttfMatch) {
-      const fontRes = await fetch(ttfMatch[1]);
-      if (fontRes.ok) {
-        const b64 = Buffer.from(await fontRes.arrayBuffer()).toString('base64');
-        fontCache.set(key, b64);
-        return b64;
+    if (cssRes.ok) {
+      const css      = await cssRes.text();
+      const ttfMatch = css.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+\.ttf)\)/);
+      if (ttfMatch) {
+        const fontRes = await fetch(ttfMatch[1]);
+        if (fontRes.ok) {
+          fs.writeFileSync(fontPath, Buffer.from(await fontRes.arrayBuffer()));
+          fontCache.set(key, fontPath);
+          return fontPath;
+        }
       }
     }
 
-    // Fallback: modern API with woff2 (works on newer librsvg)
-    const css2Url = `https://fonts.googleapis.com/css2?family=${familyParam}:wght@${weight}&display=swap`;
-    const css2Res = await fetch(css2Url, {
-      headers: { 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/120 Safari/537.36' },
-    });
-    if (!css2Res.ok) return null;
-    const css2 = await css2Res.text();
-    const woff2Match = css2.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+\.woff2)\)/);
-    if (!woff2Match) return null;
-
-    const fontRes2 = await fetch(woff2Match[1]);
-    if (!fontRes2.ok) return null;
-    const b64 = Buffer.from(await fontRes2.arrayBuffer()).toString('base64');
-    fontCache.set(key, b64);
-    return b64;
+    return null;
   } catch {
     return null;
   }
@@ -125,7 +121,7 @@ async function compositeText(
   text: string,
   canvasW: number,
   canvasH: number,
-  fontB64?: string | null,
+  fontFilePath?: string | null,
 ): Promise<sharp.Sharp> {
   const rawText = applyTextTransform(text, zone.textTransform);
   const font = (zone.font ?? 'sans-serif').replace(/'/g, '');
@@ -171,11 +167,10 @@ async function compositeText(
     ? `stroke="${strokeColor}" stroke-width="${strokeWidth}" paint-order="stroke fill"`
     : '';
 
-  // Embed Google Font as @font-face so sharp/librsvg uses it.
-  // We serve TTF (fetched via the legacy CSS1 API) because TTF data URIs are
-  // supported by all versions of librsvg, including the older builds on Vercel.
-  const fontFaceDef = fontB64
-    ? `<defs><style>@font-face{font-family:'${font}';font-weight:${weight};src:url(data:font/ttf;base64,${fontB64}) format('truetype');}</style></defs>`
+  // Reference the TTF font via file:// URL — much more reliable than base64
+  // data URIs across different librsvg versions (including older Vercel Linux builds).
+  const fontFaceDef = fontFilePath
+    ? `<defs><style>@font-face{font-family:'${font}';font-weight:${weight};src:url('file://${fontFilePath}') format('truetype');}</style></defs>`
     : '';
 
   const textEls = lines.map((line, i) => {
@@ -325,7 +320,7 @@ export async function POST(req: NextRequest) {
   const canvasW = variant.background_width ?? 1080;
   const canvasH = variant.background_height ?? 1350;
 
-  // Pre-fetch all unique fonts used by text/custom zones in parallel
+  // Ensure TTF files for all unique fonts (downloads to /tmp, cached in memory)
   const fontKeys = new Map<string, { family: string; weight: number }>();
   for (const z of zones) {
     if ((z.type === 'text' || z.type === 'custom' || z.type === 'label') && z.font) {
@@ -334,10 +329,10 @@ export async function POST(req: NextRequest) {
       fontKeys.set(`${family}:${weight}`, { family, weight });
     }
   }
-  const fontB64Map = new Map<string, string | null>();
+  const fontFileMap = new Map<string, string | null>();
   await Promise.all(
     Array.from(fontKeys.entries()).map(async ([key, { family, weight }]) => {
-      fontB64Map.set(key, await fetchGoogleFontBase64(family, weight));
+      fontFileMap.set(key, await ensureFontFile(family, weight));
     })
   );
 
@@ -352,8 +347,8 @@ export async function POST(req: NextRequest) {
       if (text) {
         const family = (zone.font ?? '').replace(/'/g, '');
         const weight = zone.weight ?? 400;
-        const fontB64 = fontB64Map.get(`${family}:${weight}`) ?? null;
-        pipeline = await compositeText(pipeline, zone, text, canvasW, canvasH, fontB64);
+        const fontFilePath = fontFileMap.get(`${family}:${weight}`) ?? null;
+        pipeline = await compositeText(pipeline, zone, text, canvasW, canvasH, fontFilePath);
       }
     } else if (zone.type === 'label') {
       // Static text baked into the design — always rendered, no attendee input needed
@@ -361,8 +356,8 @@ export async function POST(req: NextRequest) {
       if (text) {
         const family = (zone.font ?? '').replace(/'/g, '');
         const weight = zone.weight ?? 400;
-        const fontB64 = fontB64Map.get(`${family}:${weight}`) ?? null;
-        pipeline = await compositeText(pipeline, zone, text, canvasW, canvasH, fontB64);
+        const fontFilePath = fontFileMap.get(`${family}:${weight}`) ?? null;
+        pipeline = await compositeText(pipeline, zone, text, canvasW, canvasH, fontFilePath);
       }
     } else if (zone.type === 'photo') {
       const photoFile = formData.get(`photo_${zone.id}`) as File | null;
