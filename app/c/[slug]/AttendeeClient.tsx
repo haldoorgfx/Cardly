@@ -511,7 +511,8 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
               );
             }
 
-            const val = values[z.id];
+            // label zones always show sample text; text/custom show attendee value
+            const val = z.type === 'label' ? (z.sample || z.placeholder || '') : values[z.id];
             if (!val) return null;
             return (
               <div
@@ -526,6 +527,8 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
                   fontFamily: z.font, fontWeight: z.weight,
                   fontSize: `${(z.size ?? 32) * (375 / backgroundWidth)}px`,
                   color: z.color, lineHeight: 1.1, textAlign: z.align, wordBreak: 'break-word',
+                  WebkitTextStroke: (z.strokeColor && (z.strokeWidth ?? 0) > 0) ? `${z.strokeWidth}px ${z.strokeColor}` : undefined,
+                  textShadow: (z.shadowColor && (z.shadowBlur ?? 0) > 0) ? `${z.shadowX ?? 0}px ${z.shadowY ?? 0}px ${z.shadowBlur}px ${z.shadowColor}` : undefined,
                 }}>
                   {val}
                 </span>

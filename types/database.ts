@@ -1,6 +1,6 @@
 export type Plan = "free" | "pro" | "studio";
 export type EventStatus = "draft" | "published" | "archived";
-export type ZoneType = "text" | "photo" | "custom";
+export type ZoneType = "text" | "photo" | "custom" | "label";
 
 export interface Zone {
   id: string;

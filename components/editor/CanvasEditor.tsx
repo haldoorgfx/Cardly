@@ -52,6 +52,7 @@ const I = {
   text:    '<path d="M4 7V4h16v3M9 20h6M12 4v16"/>',
   photo:   '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>',
   field:   '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10v4"/>',
+  label:   '<path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>',
   plus:    '<path d="M12 5v14M5 12h14"/>',
   eye:     '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
   eyeOff:  '<path d="M17.94 17.94A10 10 0 0 1 12 20c-7 0-11-8-11-8a18 18 0 0 1 5.06-5.94M9.9 4.24A10 10 0 0 1 12 4c7 0 11 8 11 8a18 18 0 0 1-3.17 4.19M1 1l22 22"/>',
@@ -84,7 +85,18 @@ const I = {
   help:    '<circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/>',
   snap:    '<path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>',
   border:  '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/>',
-  multi:   '<rect x="2" y="2" width="9" height="9" rx="1.5"/><rect x="13" y="2" width="9" height="9" rx="1.5"/><rect x="2" y="13" width="9" height="9" rx="1.5"/><rect x="13" y="13" width="9" height="9" rx="1.5"/>',
+  multi:       '<rect x="2" y="2" width="9" height="9" rx="1.5"/><rect x="13" y="2" width="9" height="9" rx="1.5"/><rect x="2" y="13" width="9" height="9" rx="1.5"/><rect x="13" y="13" width="9" height="9" rx="1.5"/>',
+  alignL:      '<line x1="3" y1="12" x2="21" y2="12"/><rect x="3" y="4" width="7" height="16" rx="1"/><rect x="3" y="8" width="14" height="8" rx="1" opacity="0.45" fill="currentColor" stroke="none"/>',
+  alignCH:     '<line x1="12" y1="3" x2="12" y2="21"/><rect x="5" y="7" width="14" height="5" rx="1"/><rect x="8" y="12" width="8" height="5" rx="1"/>',
+  alignR:      '<line x1="21" y1="12" x2="3" y2="12"/><rect x="14" y="4" width="7" height="16" rx="1"/><rect x="7" y="8" width="14" height="8" rx="1" opacity="0.45" fill="currentColor" stroke="none"/>',
+  alignT:      '<line x1="12" y1="3" x2="12" y2="3"/><line x1="3" y1="3" x2="21" y2="3"/><rect x="4" y="3" width="16" height="7" rx="1"/><rect x="8" y="3" width="8" height="14" rx="1" opacity="0.45" fill="currentColor" stroke="none"/>',
+  alignMV:     '<line x1="3" y1="12" x2="21" y2="12"/><rect x="7" y="5" width="5" height="14" rx="1"/><rect x="12" y="8" width="5" height="8" rx="1"/>',
+  alignB:      '<line x1="3" y1="21" x2="21" y2="21"/><rect x="4" y="14" width="16" height="7" rx="1"/><rect x="8" y="7" width="8" height="14" rx="1" opacity="0.45" fill="currentColor" stroke="none"/>',
+  distH:       '<line x1="3" y1="3" x2="3" y2="21"/><line x1="21" y1="3" x2="21" y2="21"/><rect x="9" y="7" width="6" height="10" rx="1"/>',
+  distV:       '<line x1="3" y1="3" x2="21" y2="3"/><line x1="3" y1="21" x2="21" y2="21"/><rect x="7" y="9" width="10" height="6" rx="1"/>',
+  centerH:     '<line x1="12" y1="5" x2="12" y2="19"/><path d="M5 12h14"/><path d="M5 8h2M5 16h2M17 8h2M17 16h2"/>',
+  centerV:     '<line x1="5" y1="12" x2="19" y2="12"/><path d="M12 5v14"/><path d="M8 5v2M16 5v2M8 17v2M16 17v2"/>',
+  aspect:      '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><line x1="9" y1="6.5" x2="14" y2="6.5"/><line x1="3" y1="14" x2="3" y2="21"/><path d="M3 21h6M3 17h3"/>',
 };
 
 const BRAND_COLORS = [
@@ -156,6 +168,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [copiedStyle, setCopiedStyle] = useState<Partial<Zone> | null>(null);
   const [styleFlash, setStyleFlash]   = useState(false);
+  const [aspectLock, setAspectLock]   = useState(false);
 
   /* history */
   const [history, setHistory] = useState<HistoryState>({ past: [], future: [] });
@@ -249,7 +262,50 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
     pushHistory(next);
   }, [pushHistory]);
 
-  const addZone = useCallback((type: 'text' | 'photo' | 'custom') => {
+  /* ── multi-select align / distribute ──────────────────── */
+  const alignSelected = useCallback((axis: 'left' | 'centerH' | 'right' | 'top' | 'middleV' | 'bottom') => {
+    if (selectedIds.length < 2) return;
+    const sel = zonesRef.current.filter(z => selectedIds.includes(z.id));
+    const next = zonesRef.current.map(z => {
+      if (!selectedIds.includes(z.id)) return z;
+      switch (axis) {
+        case 'left':    return { ...z, x: Math.min(...sel.map(s => s.x)) };
+        case 'right':   return { ...z, x: Math.max(...sel.map(s => s.x + s.w)) - z.w };
+        case 'centerH': return { ...z, x: Math.round((Math.min(...sel.map(s => s.x)) + Math.max(...sel.map(s => s.x + s.w))) / 2 - z.w / 2) };
+        case 'top':     return { ...z, y: Math.min(...sel.map(s => s.y)) };
+        case 'bottom':  return { ...z, y: Math.max(...sel.map(s => s.y + s.h)) - z.h };
+        case 'middleV': return { ...z, y: Math.round((Math.min(...sel.map(s => s.y)) + Math.max(...sel.map(s => s.y + s.h))) / 2 - z.h / 2) };
+        default: return z;
+      }
+    });
+    pushHistory(next);
+  }, [selectedIds, pushHistory]);
+
+  const distributeSelected = useCallback((dir: 'h' | 'v') => {
+    if (selectedIds.length < 3) return;
+    const sel = [...zonesRef.current.filter(z => selectedIds.includes(z.id))];
+    if (dir === 'h') {
+      sel.sort((a, b) => a.x - b.x);
+      const totalSpace = sel[sel.length - 1].x - sel[0].x;
+      const totalW = sel.slice(1, -1).reduce((s, z) => s + z.w, 0);
+      const gap = (totalSpace - totalW) / (sel.length - 1);
+      let cursor = sel[0].x + sel[0].w + gap;
+      const patches: Record<string, number> = {};
+      for (let i = 1; i < sel.length - 1; i++) { patches[sel[i].id] = Math.round(cursor); cursor += sel[i].w + gap; }
+      pushHistory(zonesRef.current.map(z => patches[z.id] !== undefined ? { ...z, x: patches[z.id] } : z));
+    } else {
+      sel.sort((a, b) => a.y - b.y);
+      const totalSpace = sel[sel.length - 1].y - sel[0].y;
+      const totalH = sel.slice(1, -1).reduce((s, z) => s + z.h, 0);
+      const gap = (totalSpace - totalH) / (sel.length - 1);
+      let cursor = sel[0].y + sel[0].h + gap;
+      const patches: Record<string, number> = {};
+      for (let i = 1; i < sel.length - 1; i++) { patches[sel[i].id] = Math.round(cursor); cursor += sel[i].h + gap; }
+      pushHistory(zonesRef.current.map(z => patches[z.id] !== undefined ? { ...z, y: patches[z.id] } : z));
+    }
+  }, [selectedIds, pushHistory]);
+
+  const addZone = useCallback((type: 'text' | 'photo' | 'custom' | 'label') => {
     // Scale defaults proportionally to canvas size (calibrated for 1080px baseline)
     const s = bgW / 1080;
     const zoneW  = Math.round(400 * s);
@@ -264,8 +320,11 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
       z = { ...base, type, label: 'Text field', w: zoneW, h: zoneH, font: 'DM Sans', weight: 700, size: textSz, color: '#FFFFFF', align: 'center', placeholder: 'Enter text', sample: 'Sample text', lineHeight: 1.2, letterSpacing: 0, opacity: 100, rotation: 0 };
     } else if (type === 'photo') {
       z = { ...base, type, label: 'Photo', w: photoS, h: photoS, shape: 'circle', placeholder: 'Tap to add a photo', sample: '·', opacity: 100, rotation: 0 };
-    } else {
+    } else if (type === 'custom') {
       z = { ...base, type, label: 'Custom field', w: zoneW, h: custH, font: 'Inter', weight: 500, size: custSz, color: '#FFFFFF', align: 'center', placeholder: 'Select option', sample: 'Speaker', options: ['Speaker', 'Sponsor', 'Delegate'], opacity: 100, rotation: 0 };
+    } else {
+      // label
+      z = { ...base, type: 'label', label: 'Static text', w: zoneW, h: zoneH, font: 'DM Sans', weight: 700, size: textSz, color: '#FFFFFF', align: 'center', placeholder: '', sample: 'I\'m Attending', lineHeight: 1.2, letterSpacing: 0, opacity: 100, rotation: 0 };
     }
     pushHistory([...zonesRef.current, z]);
     setSelectedIds([z.id]);
@@ -431,7 +490,16 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
         if (d.includes('n')) { nh = Math.max(20, it.oh - dy); ny = it.oy + (it.oh - nh); }
         nx = Math.max(0, nx); ny = Math.max(0, ny);
         nw = Math.min(nw, bgW - nx); nh = Math.min(nh, bgH - ny);
-        if (e.shiftKey) { const s = Math.max(nw, nh); nw = s; nh = s; } // lock aspect ratio
+        if (e.shiftKey) {
+          // Shift key: lock to true square
+          const s = Math.max(nw, nh); nw = s; nh = s;
+        } else if (aspectLock) {
+          // Aspect lock: maintain original ratio
+          const ratio = it.ow / it.oh;
+          const d = it.dir!;
+          if (d.includes('n') || d.includes('s')) { nw = nh * ratio; }
+          else { nh = nw / ratio; }
+        }
         updateZone(it.id, { x: Math.round(nx), y: Math.round(ny), w: Math.round(nw), h: Math.round(nh) });
       }
     };
@@ -449,7 +517,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onUp);
     return () => { window.removeEventListener('pointermove', onMove); window.removeEventListener('pointerup', onUp); };
-  }, [zoom, updateZone, bgW, bgH, gridSnap, activeVariantId, setZonesForVariant]);
+  }, [zoom, updateZone, bgW, bgH, gridSnap, activeVariantId, setZonesForVariant, aspectLock]);
 
   /* ── keyboard shortcuts ──────────────────────────────── */
   useEffect(() => {
@@ -669,6 +737,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                   { type: 'text' as const,   label: 'Text field',   sub: 'Name, title, country…',      icon: I.text  },
                   { type: 'photo' as const,  label: 'Photo zone',   sub: 'Headshot or logo',            icon: I.photo },
                   { type: 'custom' as const, label: 'Custom field', sub: 'Dropdown, badge, role…',      icon: I.field },
+                  { type: 'label' as const,  label: 'Static text',  sub: 'Fixed text on the card',      icon: I.label },
                 ].map(item => (
                   <button
                     key={item.type}
@@ -719,7 +788,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                       </div>
                     )}
                     <span className={`h-6 w-6 rounded-md grid place-items-center shrink-0 ${isSel ? 'text-primary' : 'text-[#0F1F18]/50'}`}>
-                      <Icon d={z.type === 'photo' ? I.photo : z.type === 'custom' ? I.field : I.text} size={12} />
+                      <Icon d={z.type === 'photo' ? I.photo : z.type === 'custom' ? I.field : z.type === 'label' ? I.label : I.text} size={12} />
                     </span>
                     <span className="flex-1 truncate">{z.label}</span>
                     {z.required && <span className="text-[9px] font-mono px-1 py-px rounded bg-primary/10 text-primary shrink-0">REQ</span>}
@@ -807,6 +876,28 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                   />
                 ))}
 
+                {/* Floating mini-toolbar above selected zone */}
+                {selected && !previewMode && (() => {
+                  const toolbarY = Math.max(0, selected.y - ROTATE_HANDLE_DIST - 52);
+                  return (
+                    <div
+                      style={{ position: 'absolute', left: selected.x + selected.w / 2, top: toolbarY, transform: 'translateX(-50%)', zIndex: 30, pointerEvents: 'all', whiteSpace: 'nowrap' }}
+                      onPointerDown={e => e.stopPropagation()}
+                    >
+                      <div className="flex items-center gap-0.5 bg-white border border-border rounded-xl shadow-lift px-1 py-1">
+                        <button title="Center horizontally" onClick={() => updateZone(selected.id, { x: Math.round(bgW / 2 - selected.w / 2) }, true)} className="h-7 w-7 rounded-lg grid place-items-center text-[#0F1F18]/65 hover:bg-cream hover:text-primary transition"><Icon d={I.centerH} size={13} /></button>
+                        <button title="Center vertically"   onClick={() => updateZone(selected.id, { y: Math.round(bgH / 2 - selected.h / 2) }, true)} className="h-7 w-7 rounded-lg grid place-items-center text-[#0F1F18]/65 hover:bg-cream hover:text-primary transition"><Icon d={I.centerV} size={13} /></button>
+                        <span className="h-4 w-px bg-border mx-0.5" />
+                        <button title="Duplicate (⌘D)" onClick={() => duplicateZone(selected.id)} className="h-7 w-7 rounded-lg grid place-items-center text-[#0F1F18]/65 hover:bg-cream transition"><Icon d={I.dup} size={13} /></button>
+                        <button title="Move up [" onClick={() => moveZoneUp(selected.id)} className="h-7 w-7 rounded-lg grid place-items-center text-[#0F1F18]/65 hover:bg-cream transition"><Icon d={I.up} size={13} /></button>
+                        <button title="Move down ]" onClick={() => moveZoneDown(selected.id)} className="h-7 w-7 rounded-lg grid place-items-center text-[#0F1F18]/65 hover:bg-cream transition"><Icon d={I.down} size={13} /></button>
+                        <span className="h-4 w-px bg-border mx-0.5" />
+                        <button title="Delete (⌫)" onClick={() => removeZone(selected.id)} className="h-7 w-7 rounded-lg grid place-items-center text-rose-400 hover:bg-rose-50 hover:text-rose-500 transition"><Icon d={I.trash} size={13} /></button>
+                      </div>
+                    </div>
+                  );
+                })()}
+
                 {/* Canvas corner brackets */}
                 {!previewMode && (
                   <>
@@ -878,9 +969,44 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
               </div>
             )}
             {selectedIds.length > 1 && (
-              <button onClick={removeSelected} className="mt-4 text-[12px] text-rose-500 hover:text-rose-600 font-medium border border-rose-200 hover:bg-rose-50 px-4 py-1.5 rounded-lg transition">
-                Delete {selectedIds.length} elements
-              </button>
+              <div className="mt-5 w-full text-left space-y-3">
+                {/* Align */}
+                <div className="text-[10.5px] font-mono text-[#0F1F18]/40 tracking-widest mb-1">ALIGN</div>
+                <div className="grid grid-cols-3 gap-1">
+                  {([
+                    { axis: 'left' as const,    title: 'Align left edges',    icon: I.alignL  },
+                    { axis: 'centerH' as const, title: 'Align centers (H)',   icon: I.alignCH },
+                    { axis: 'right' as const,   title: 'Align right edges',   icon: I.alignR  },
+                    { axis: 'top' as const,     title: 'Align top edges',     icon: I.alignT  },
+                    { axis: 'middleV' as const, title: 'Align middles (V)',   icon: I.alignMV },
+                    { axis: 'bottom' as const,  title: 'Align bottom edges',  icon: I.alignB  },
+                  ] as const).map(({ axis, title, icon }) => (
+                    <button key={axis} title={title} onClick={() => alignSelected(axis)}
+                      className="h-9 rounded-xl border border-border flex items-center justify-center hover:bg-cream hover:border-primary/40 hover:text-primary text-[#0F1F18]/55 transition">
+                      <Icon d={icon} size={15} />
+                    </button>
+                  ))}
+                </div>
+                {/* Distribute (needs 3+) */}
+                {selectedIds.length >= 3 && (
+                  <>
+                    <div className="text-[10.5px] font-mono text-[#0F1F18]/40 tracking-widest mt-2 mb-1">DISTRIBUTE</div>
+                    <div className="grid grid-cols-2 gap-1">
+                      <button title="Distribute horizontally" onClick={() => distributeSelected('h')}
+                        className="h-9 rounded-xl border border-border flex items-center justify-center gap-1.5 text-[11px] hover:bg-cream hover:border-primary/40 hover:text-primary text-[#0F1F18]/55 transition">
+                        <Icon d={I.distH} size={13} />H
+                      </button>
+                      <button title="Distribute vertically" onClick={() => distributeSelected('v')}
+                        className="h-9 rounded-xl border border-border flex items-center justify-center gap-1.5 text-[11px] hover:bg-cream hover:border-primary/40 hover:text-primary text-[#0F1F18]/55 transition">
+                        <Icon d={I.distV} size={13} />V
+                      </button>
+                    </div>
+                  </>
+                )}
+                <button onClick={removeSelected} className="w-full mt-2 text-[12px] text-rose-500 hover:text-rose-600 font-medium border border-rose-200 hover:bg-rose-50 px-4 py-1.5 rounded-lg transition">
+                  Delete {selectedIds.length} elements
+                </button>
+              </div>
             )}
           </aside>
         ) : (
@@ -895,6 +1021,8 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
             duplicateZone={duplicateZone}
             removeZone={removeZone}
             BRAND_COLORS={BRAND_COLORS}
+            aspectLock={aspectLock}
+            setAspectLock={setAspectLock}
           />
         )}
       </div>
@@ -956,7 +1084,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
 ══════════════════════════════════════════════════════════ */
 function RightRail({
   selected, bgW, bgH, fontSearch, setFontSearch, filteredFonts,
-  updateZone, duplicateZone, removeZone, BRAND_COLORS,
+  updateZone, duplicateZone, removeZone, BRAND_COLORS, aspectLock, setAspectLock,
 }: {
   selected: Zone; bgW: number; bgH: number;
   fontSearch: string; setFontSearch: (v: string) => void; filteredFonts: string[];
@@ -964,6 +1092,8 @@ function RightRail({
   duplicateZone: (id: string) => void;
   removeZone: (id: string) => void;
   BRAND_COLORS: string[];
+  aspectLock: boolean;
+  setAspectLock: (v: boolean) => void;
 }) {
   const upd = (patch: Partial<Zone>) => updateZone(selected.id, patch);
   const [showFontSearch, setShowFontSearch] = useState(false);
@@ -973,7 +1103,7 @@ function RightRail({
       {/* Zone header */}
       <div className="p-4 border-b border-border flex items-center gap-2 shrink-0">
         <span className="h-7 w-7 rounded-md grid place-items-center text-white bg-primary shrink-0">
-          <Icon d={selected.type === 'photo' ? I.photo : selected.type === 'custom' ? I.field : I.text} size={13} />
+          <Icon d={selected.type === 'photo' ? I.photo : selected.type === 'custom' ? I.field : selected.type === 'label' ? I.label : I.text} size={13} />
         </span>
         <div className="flex-1 min-w-0">
           <div className="text-[10.5px] font-mono text-[#0F1F18]/45 uppercase tracking-widest">{selected.type} zone</div>
@@ -984,17 +1114,30 @@ function RightRail({
       </div>
 
       {/* ── Field ───────────────────────────────────────── */}
-      <PropSection title="Field">
+      <PropSection title={selected.type === 'label' ? 'Content' : 'Field'}>
         <PropRow label="Label">
           <input value={selected.label} onChange={e => upd({ label: e.target.value })} className="prop-input" />
         </PropRow>
-        <PropRow label="Placeholder">
-          <input value={selected.placeholder ?? ''} onChange={e => upd({ placeholder: e.target.value })} className="prop-input" placeholder="Shown in the form" />
-        </PropRow>
-        <PropRow label="Preview text">
-          <input value={selected.sample ?? ''} onChange={e => upd({ sample: e.target.value })} className="prop-input" placeholder="Live preview value" />
-        </PropRow>
-        <PropToggle label="Required" value={!!selected.required} onChange={v => upd({ required: v })} />
+        {selected.type === 'label' ? (
+          <>
+            <PropRow label="Text content">
+              <input value={selected.sample ?? ''} onChange={e => upd({ sample: e.target.value })} className="prop-input" placeholder="Text shown on the card" />
+            </PropRow>
+            <div className="text-[10.5px] font-mono text-warning bg-warning/8 border border-warning/20 rounded-lg px-2.5 py-1.5 leading-relaxed">
+              Static — this text is baked into every card, not editable by attendees.
+            </div>
+          </>
+        ) : (
+          <>
+            <PropRow label="Placeholder">
+              <input value={selected.placeholder ?? ''} onChange={e => upd({ placeholder: e.target.value })} className="prop-input" placeholder="Shown in the form" />
+            </PropRow>
+            <PropRow label="Preview text">
+              <input value={selected.sample ?? ''} onChange={e => upd({ sample: e.target.value })} className="prop-input" placeholder="Live preview value" />
+            </PropRow>
+            <PropToggle label="Required" value={!!selected.required} onChange={v => upd({ required: v })} />
+          </>
+        )}
       </PropSection>
 
       {/* ── Photo style ─────────────────────────────────── */}
@@ -1025,8 +1168,8 @@ function RightRail({
         </>
       )}
 
-      {/* ── Typography (text/custom) ─────────────────────── */}
-      {(selected.type === 'text' || selected.type === 'custom') && (
+      {/* ── Typography (text/custom/label) ──────────────── */}
+      {(selected.type === 'text' || selected.type === 'custom' || selected.type === 'label') && (
         <>
           <PropSection title="Typography">
             {/* Font picker */}
@@ -1081,6 +1224,11 @@ function RightRail({
               <div className="flex items-center gap-2">
                 <input type="range" min="8" max="300" value={selected.size ?? 32} onChange={e => upd({ size: Number(e.target.value) })} className="flex-1 accent-primary" style={{ height: 4 }} />
                 <input type="number" min="8" max="300" value={selected.size ?? 32} onChange={e => upd({ size: Number(e.target.value) })} className="w-14 h-7 text-center border border-border rounded-lg text-[12px] font-mono outline-none focus:border-primary" />
+              </div>
+              <div className="flex flex-wrap gap-1 mt-1.5">
+                {[12, 18, 24, 32, 48, 64, 96, 128].map(s => (
+                  <button key={s} onClick={() => upd({ size: s })} className={`h-6 px-2 text-[10.5px] font-mono rounded-lg border transition ${(selected.size ?? 32) === s ? 'bg-primary text-white border-primary' : 'border-border hover:bg-cream text-[#0F1F18]/55'}`}>{s}</button>
+                ))}
               </div>
             </PropRow>
 
@@ -1195,8 +1343,29 @@ function RightRail({
         <div className="grid grid-cols-2 gap-2">
           <NumberProp label="X" value={selected.x} onChange={v => upd({ x: v })} />
           <NumberProp label="Y" value={selected.y} onChange={v => upd({ y: v })} />
-          <NumberProp label="W" value={selected.w} onChange={v => upd({ w: v })} />
-          <NumberProp label="H" value={selected.h} onChange={v => upd({ h: v })} />
+          <div className="relative">
+            <NumberProp label="W" value={selected.w} onChange={v => {
+              if (aspectLock && selected.h > 0) { const r = selected.w / selected.h; upd({ w: v, h: Math.round(v / r) }); }
+              else upd({ w: v });
+            }} />
+          </div>
+          <div className="relative">
+            <NumberProp label="H" value={selected.h} onChange={v => {
+              if (aspectLock && selected.w > 0) { const r = selected.w / selected.h; upd({ h: v, w: Math.round(v * r) }); }
+              else upd({ h: v });
+            }} />
+          </div>
+        </div>
+        <div className="flex items-center justify-between mt-1">
+          <button
+            onClick={() => setAspectLock(!aspectLock)}
+            title="Lock aspect ratio"
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[11.5px] font-mono transition ${aspectLock ? 'bg-primary/10 text-primary border-primary/30' : 'border-border text-[#0F1F18]/50 hover:bg-cream'}`}
+          >
+            <Icon d={aspectLock ? I.lock : I.unlock} size={12} />
+            {aspectLock ? 'Ratio locked' : 'Lock ratio'}
+          </button>
+          <span className="text-[10.5px] font-mono text-[#0F1F18]/35">{selected.w} : {selected.h}</span>
         </div>
         {/* Alignment quick buttons */}
         <div className="mt-3 grid grid-cols-3 gap-1">
@@ -1243,9 +1412,10 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, onPointerDown, onH
   if (zone.hidden) return null;
 
   const isPhoto  = zone.type === 'photo';
+  const isLabel  = zone.type === 'label';
   const rotation = zone.rotation ?? 0;
   const radius   = isPhoto ? (zone.shape === 'circle' ? '50%' : zone.shape === 'rounded' ? '20%' : '4px') : '6px';
-  const dashColor = multiSelected ? '#C9A45E' : '#1F4D3A';
+  const dashColor = multiSelected ? '#C9A45E' : isLabel ? '#C97A2D' : '#1F4D3A';
   const opacityVal = (zone.opacity ?? 100) / 100;
 
   const displayText = (() => {

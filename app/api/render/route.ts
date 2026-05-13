@@ -311,7 +311,7 @@ export async function POST(req: NextRequest) {
   // Pre-fetch all unique fonts used by text/custom zones in parallel
   const fontKeys = new Map<string, { family: string; weight: number }>();
   for (const z of zones) {
-    if ((z.type === 'text' || z.type === 'custom') && z.font) {
+    if ((z.type === 'text' || z.type === 'custom' || z.type === 'label') && z.font) {
       const family = z.font.replace(/'/g, '');
       const weight = z.weight ?? 400;
       fontKeys.set(`${family}:${weight}`, { family, weight });
@@ -332,6 +332,15 @@ export async function POST(req: NextRequest) {
 
     if (zone.type === 'text' || zone.type === 'custom') {
       const text = fields[zone.id]?.trim();
+      if (text) {
+        const family = (zone.font ?? '').replace(/'/g, '');
+        const weight = zone.weight ?? 400;
+        const fontB64 = fontB64Map.get(`${family}:${weight}`) ?? null;
+        pipeline = await compositeText(pipeline, zone, text, canvasW, canvasH, fontB64);
+      }
+    } else if (zone.type === 'label') {
+      // Static text baked into the design — always rendered, no attendee input needed
+      const text = (zone.sample || zone.placeholder || '').trim();
       if (text) {
         const family = (zone.font ?? '').replace(/'/g, '');
         const weight = zone.weight ?? 400;
