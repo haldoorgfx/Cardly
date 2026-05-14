@@ -36,14 +36,19 @@ async function ensureFontFile(family: string, weight: number): Promise<string | 
       return fontPath;
     }
 
-    // Legacy CSS1 API → Google always returns a TTF download URL
+    // CSS1 API with an old-browser UA forces Google to respond with a TTF download URL.
+    // Without a UA header, Vercel's Node.js runtime may receive WOFF2 instead, which
+    // breaks the TTF regex and causes Pango to silently fall back to a system font.
     const cssUrl = `https://fonts.googleapis.com/css?family=${familyParam}:${weight}`;
-    const cssRes = await fetch(cssUrl);
+    const cssRes = await fetch(cssUrl, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (Linux; U; Android 2.2; en-us) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1' },
+    });
     if (cssRes.ok) {
-      const css      = await cssRes.text();
-      const ttfMatch = css.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+\.ttf)\)/);
-      if (ttfMatch) {
-        const fontRes = await fetch(ttfMatch[1]);
+      const css       = await cssRes.text();
+      // Handle quoted/unquoted URLs; match .ttf or .otf
+      const fontMatch = css.match(/url\(['"]?(https:\/\/fonts\.gstatic\.com\/[^'")\s]+\.(?:ttf|otf))['"]?\)/i);
+      if (fontMatch) {
+        const fontRes = await fetch(fontMatch[1]);
         if (fontRes.ok) {
           fs.writeFileSync(fontPath, Buffer.from(await fontRes.arrayBuffer()));
           fontCache.set(key, fontPath);
@@ -161,6 +166,8 @@ async function compositeText(
   // We extract that alpha channel directly (1 byte/px, no stride ambiguity),
   // then construct a fresh RGBA buffer with the target color and the extracted
   // alpha. No dest-in blend needed; no luminance inversion needed.
+  const lineH = zone.lineHeight ?? 1.2;
+
   const textInput: Record<string, unknown> = {
     text: pangoText,
     font: fontDesc,
@@ -168,6 +175,9 @@ async function compositeText(
     align: sharpAlign,
     rgba: true,   // transparent background → text shape lives in alpha channel
     dpi: 72,
+    // Extra inter-line spacing (points) to match CSS lineHeight.
+    // Pango's natural default is ~1.2× em; delta compensates for designer overrides.
+    spacing: Math.round((lineH - 1.2) * size),
   };
   if (fontFilePath) textInput.fontfile = fontFilePath;
 
