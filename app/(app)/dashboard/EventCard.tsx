@@ -19,21 +19,19 @@ interface Props {
 function StatusBadge({ status }: { status: string }) {
   if (status === 'published') {
     return (
-      <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-1 rounded-full shrink-0">
-        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Active
+      <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600">
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
+        Live
       </span>
     );
   }
   if (status === 'archived') {
-    return (
-      <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#0F1F18]/50 bg-[#FAF6EE] border border-[#E5E0D4] px-2 py-1 rounded-full shrink-0">
-        Archived
-      </span>
-    );
+    return <span className="text-[11px] text-neutral-400">Archived</span>;
   }
   return (
-    <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-amber-700 bg-amber-50 px-2 py-1 rounded-full shrink-0">
-      <span className="h-1.5 w-1.5 rounded-full bg-amber-500" /> Draft
+    <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-600">
+      <span className="h-1.5 w-1.5 rounded-full bg-amber-400 shrink-0" />
+      Draft
     </span>
   );
 }
@@ -107,21 +105,31 @@ export default function EventCard({ event, compact = false }: Props) {
   // ─── Delete confirmation overlay ───────────────────────────────────────────
   if (confirmDelete) {
     return (
-      <article className={`rounded-2xl bg-white border border-red-200 overflow-hidden p-6 flex flex-col items-center justify-center gap-4 text-center ${compact ? '' : ''}`} style={{ minHeight: compact ? 72 : 200 }}>
-        <div className="h-10 w-10 rounded-full bg-red-50 grid place-items-center">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round">
+      <article
+        className="rounded-lg bg-white border border-red-200 overflow-hidden p-6 flex flex-col items-center justify-center gap-4 text-center"
+        style={{ minHeight: compact ? 72 : 200 }}
+      >
+        <div className="h-9 w-9 rounded-full bg-red-50 grid place-items-center">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round">
             <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2" />
           </svg>
         </div>
         <div>
-          <div className="font-display font-semibold text-[15px]">Delete &ldquo;{event.name}&rdquo;?</div>
-          <div className="text-[13px] text-[#0F1F18]/55 mt-1">This cannot be undone.</div>
+          <div className="font-semibold text-[14px] text-neutral-900">Delete &ldquo;{event.name}&rdquo;?</div>
+          <div className="text-[13px] text-neutral-500 mt-1">This cannot be undone.</div>
         </div>
         <div className="flex gap-2">
-          <button onClick={() => setConfirmDelete(false)} className="px-4 py-2 rounded-xl text-[13px] font-medium border border-[#E5E0D4] hover:bg-[#FAF6EE] transition">
+          <button
+            onClick={() => setConfirmDelete(false)}
+            className="px-4 py-1.5 rounded-md text-[13px] font-medium border border-neutral-200 hover:bg-neutral-50 transition"
+          >
             Cancel
           </button>
-          <button onClick={doDelete} disabled={busy} className="px-4 py-2 rounded-xl text-[13px] font-semibold text-white bg-red-500 hover:bg-red-600 transition disabled:opacity-60">
+          <button
+            onClick={doDelete}
+            disabled={busy}
+            className="px-4 py-1.5 rounded-md text-[13px] font-medium text-white bg-red-500 hover:bg-red-600 transition disabled:opacity-60"
+          >
             {busy ? 'Deleting…' : 'Delete forever'}
           </button>
         </div>
@@ -134,7 +142,7 @@ export default function EventCard({ event, compact = false }: Props) {
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
         <button
-          className="h-7 w-7 rounded-lg flex items-center justify-center text-[#0F1F18]/40 hover:text-[#0F1F18] hover:bg-[#F0EDE5] transition"
+          className="h-7 w-7 rounded-md flex items-center justify-center text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 transition"
           title="More options"
           disabled={busy}
         >
@@ -145,16 +153,20 @@ export default function EventCard({ event, compact = false }: Props) {
       </DropdownMenu.Trigger>
 
       <DropdownMenu.Portal>
-        <DropdownMenu.Content className="z-50 min-w-[188px] bg-white rounded-xl border border-[#E5E0D4] shadow-lift p-1 text-[13px]" align="end" sideOffset={4}>
+        <DropdownMenu.Content
+          className="z-50 min-w-[176px] bg-white rounded-lg border border-neutral-200 shadow-lg p-1 text-[13px]"
+          align="end"
+          sideOffset={4}
+        >
           <DropdownMenu.Item asChild>
-            <Link href={`/events/${event.id}`} className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[#FAF6EE] cursor-pointer outline-none">
+            <Link href={`/events/${event.id}`} className="flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-neutral-50 cursor-pointer outline-none text-neutral-700">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="3" /><path d="M2 12s4-8 10-8 10 8 10 8-4 8-10 8-10-8-10-8z" /></svg>
               View details
             </Link>
           </DropdownMenu.Item>
 
           <DropdownMenu.Item asChild>
-            <Link href={`/events/${event.id}/edit`} className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[#FAF6EE] cursor-pointer outline-none">
+            <Link href={`/events/${event.id}/edit`} className="flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-neutral-50 cursor-pointer outline-none text-neutral-700">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                 <path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
@@ -165,7 +177,7 @@ export default function EventCard({ event, compact = false }: Props) {
 
           {event.status !== 'published' && (
             <DropdownMenu.Item asChild>
-              <Link href={`/events/${event.id}/publish`} className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[#FAF6EE] cursor-pointer outline-none text-[#1F4D3A] font-medium">
+              <Link href={`/events/${event.id}/publish`} className="flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-neutral-50 cursor-pointer outline-none text-[#1F4D3A] font-medium">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
                 Publish
               </Link>
@@ -173,7 +185,10 @@ export default function EventCard({ event, compact = false }: Props) {
           )}
 
           {event.status === 'published' && (
-            <DropdownMenu.Item className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[#FAF6EE] cursor-pointer outline-none" onSelect={() => navigator.clipboard.writeText(`${window.location.origin}/c/${event.slug}`)}>
+            <DropdownMenu.Item
+              className="flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-neutral-50 cursor-pointer outline-none text-neutral-700"
+              onSelect={() => navigator.clipboard.writeText(`${window.location.origin}/c/${event.slug}`)}
+            >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
                 <path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1 1" />
                 <path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1-1" />
@@ -182,15 +197,21 @@ export default function EventCard({ event, compact = false }: Props) {
             </DropdownMenu.Item>
           )}
 
-          <DropdownMenu.Separator className="my-1 h-px bg-[#f0f0f0]" />
+          <DropdownMenu.Separator className="my-1 h-px bg-neutral-100" />
 
-          <DropdownMenu.Item className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[#FAF6EE] cursor-pointer outline-none" onSelect={() => setRenaming(true)}>
+          <DropdownMenu.Item
+            className="flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-neutral-50 cursor-pointer outline-none text-neutral-700"
+            onSelect={() => setRenaming(true)}
+          >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /></svg>
             Rename
           </DropdownMenu.Item>
 
           {event.status === 'published' && (
-            <DropdownMenu.Item className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[#FAF6EE] cursor-pointer outline-none text-[#0F1F18]/60" onSelect={() => doStatus('draft')}>
+            <DropdownMenu.Item
+              className="flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-neutral-50 cursor-pointer outline-none text-neutral-500"
+              onSelect={() => doStatus('draft')}
+            >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
                 <path d="M18.36 6.64A9 9 0 1 1 5.64 17.36" /><path d="M2 12h10" />
               </svg>
@@ -199,14 +220,20 @@ export default function EventCard({ event, compact = false }: Props) {
           )}
 
           {event.status !== 'archived' ? (
-            <DropdownMenu.Item className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[#FAF6EE] cursor-pointer outline-none text-[#0F1F18]/60" onSelect={() => doStatus('archived')}>
+            <DropdownMenu.Item
+              className="flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-neutral-50 cursor-pointer outline-none text-neutral-500"
+              onSelect={() => doStatus('archived')}
+            >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
                 <polyline points="21 8 21 21 3 21 3 8" /><rect x="1" y="3" width="22" height="5" /><line x1="10" y1="12" x2="14" y2="12" />
               </svg>
               Archive
             </DropdownMenu.Item>
           ) : (
-            <DropdownMenu.Item className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[#FAF6EE] cursor-pointer outline-none" onSelect={() => doStatus('draft')}>
+            <DropdownMenu.Item
+              className="flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-neutral-50 cursor-pointer outline-none text-neutral-700"
+              onSelect={() => doStatus('draft')}
+            >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
                 <polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 .49-3.32" />
               </svg>
@@ -214,9 +241,12 @@ export default function EventCard({ event, compact = false }: Props) {
             </DropdownMenu.Item>
           )}
 
-          <DropdownMenu.Separator className="my-1 h-px bg-[#f0f0f0]" />
+          <DropdownMenu.Separator className="my-1 h-px bg-neutral-100" />
 
-          <DropdownMenu.Item className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-red-50 text-red-600 cursor-pointer outline-none" onSelect={() => setConfirmDelete(true)}>
+          <DropdownMenu.Item
+            className="flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-red-50 text-red-600 cursor-pointer outline-none"
+            onSelect={() => setConfirmDelete(true)}
+          >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
               <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2" />
             </svg>
@@ -230,13 +260,14 @@ export default function EventCard({ event, compact = false }: Props) {
   // ─── List / compact view ───────────────────────────────────────────────────
   if (compact) {
     return (
-      <article className={`group flex items-center gap-4 bg-white rounded-2xl border border-[#E5E0D4] hover:border-[#1F4D3A]/20 hover:shadow-soft transition px-4 py-3 ${isArchived ? 'opacity-70' : ''}`}>
+      <article className={`group flex items-center gap-4 bg-white rounded-md border border-neutral-200 hover:border-neutral-300 transition px-4 py-3 ${isArchived ? 'opacity-70' : ''}`}>
         {/* Thumbnail */}
         <div
-          className={`h-12 w-20 rounded-xl shrink-0 overflow-hidden ${isArchived ? 'grayscale' : ''}`}
+          className={`h-10 w-16 rounded-md shrink-0 overflow-hidden bg-neutral-100 ${isArchived ? 'grayscale' : ''}`}
           style={bgStyle}
         />
-        {/* Info */}
+
+        {/* Name + meta */}
         <div className="flex-1 min-w-0">
           {renaming ? (
             <input
@@ -244,71 +275,79 @@ export default function EventCard({ event, compact = false }: Props) {
               value={nameVal}
               onChange={e => setNameVal(e.target.value)}
               onBlur={doRename}
-              onKeyDown={e => { if (e.key === 'Enter') doRename(); if (e.key === 'Escape') { setRenaming(false); setNameVal(event.name); } }}
-              className="w-full font-display font-semibold text-[14px] bg-[#1F4D3A]/5 border border-[#1F4D3A]/30 rounded-lg px-2 py-0.5 outline-none"
+              onKeyDown={e => {
+                if (e.key === 'Enter') doRename();
+                if (e.key === 'Escape') { setRenaming(false); setNameVal(event.name); }
+              }}
+              className="w-full text-[14px] font-medium bg-neutral-50 border border-neutral-300 rounded px-2 py-0.5 outline-none focus:ring-2 focus:ring-neutral-300"
             />
           ) : (
-            <Link href={`/events/${event.id}`} className="font-display font-semibold text-[14px] truncate block hover:text-[#1F4D3A] transition">
+            <Link href={`/events/${event.id}`} className="text-[14px] font-medium text-neutral-900 hover:text-neutral-700 truncate block">
               {event.name}
             </Link>
           )}
-          <div className="text-[12px] font-mono text-[#0F1F18]/45 truncate mt-0.5">
-            {isDraft ? `${zonesCount} zone${zonesCount !== 1 ? 's' : ''} defined` : event.status === 'published' ? `/c/${event.slug}` : 'Archived'}
+          <div className="text-[12px] text-neutral-400 truncate mt-0.5">
+            {event.status === 'published' ? `/c/${event.slug}` : isDraft ? `${zonesCount} zone${zonesCount !== 1 ? 's' : ''}` : 'Archived'}
           </div>
         </div>
+
         {/* Stats */}
-        <div className="hidden sm:flex items-center gap-5 text-[12px] shrink-0">
-          <span className="flex items-center gap-1.5 text-[#0F1F18]/60">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /></svg>
-            <strong className="text-[#0F1F18]">{event.download_count.toLocaleString()}</strong>
-          </span>
-          <span className="flex items-center gap-1.5 text-[#0F1F18]/60">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3" /><path d="M2 12s4-8 10-8 10 8 10 8-4 8-10 8-10-8-10-8z" /></svg>
-            <strong className="text-[#0F1F18]">{event.view_count.toLocaleString()}</strong>
-          </span>
-          <span className="text-[#0F1F18]/35 font-mono text-[11px] w-20 text-right">{updatedAgo}</span>
-        </div>
-        {/* Status + menu */}
-        <div className="flex items-center gap-2 shrink-0">
-          <StatusBadge status={event.status} />
-          {Menu}
-        </div>
+        {!isDraft && (
+          <div className="hidden sm:flex items-center gap-4 text-[12px] text-neutral-500">
+            <span>{event.download_count.toLocaleString()} downloads</span>
+            <span>{event.view_count.toLocaleString()} views</span>
+          </div>
+        )}
+
+        {/* Status */}
+        <StatusBadge status={event.status} />
+
+        {/* Updated time */}
+        <span className="text-[12px] text-neutral-400 w-16 text-right hidden md:block">{updatedAgo}</span>
+
+        {/* Menu */}
+        {Menu}
       </article>
     );
   }
 
   // ─── Grid / card view ──────────────────────────────────────────────────────
   return (
-    <article className={`group rounded-2xl bg-white border border-[#E5E0D4] overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift hover:border-[#1F4D3A]/20 ${isArchived ? 'opacity-80' : ''}`}>
+    <article className={`group bg-white rounded-lg border border-neutral-200 overflow-hidden hover:border-neutral-300 hover:shadow-sm transition ${isArchived ? 'opacity-80' : ''}`}>
       {/* Thumbnail */}
       <div
         className={`relative overflow-hidden ${isArchived ? 'grayscale' : ''}`}
-        style={{ aspectRatio: '5/3', ...bgStyle }}
+        style={{ aspectRatio: '16/9', ...bgStyle }}
       >
         {event.status === 'published' && (
-          <div className="absolute top-3 left-3">
-            <span className="inline-flex items-center gap-1.5 text-[10px] font-mono text-white bg-black/30 backdrop-blur-sm px-2 py-1 rounded-full">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" /> LIVE
+          <div className="absolute top-2 left-2">
+            <span className="inline-flex items-center gap-1 text-[10px] font-medium text-white bg-black/40 px-1.5 py-0.5 rounded">
+              <span className="h-1 w-1 rounded-full bg-emerald-400" /> Live
             </span>
           </div>
         )}
 
         {/* Hover quick actions */}
-        <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-3 right-3 flex gap-1.5">
+        <div className="opacity-0 group-hover:opacity-100 transition absolute bottom-2 right-2 flex gap-1">
           {event.status === 'published' && (
             <button
               onClick={e => { e.preventDefault(); navigator.clipboard.writeText(`${window.location.origin}/c/${event.slug}`); }}
-              className="h-8 w-8 rounded-lg bg-white/95 hover:bg-white grid place-items-center text-[#0F1F18] shadow-soft"
-              title="Copy attendee link"
+              className="h-7 w-7 rounded bg-white/90 hover:bg-white grid place-items-center text-neutral-700"
+              title="Copy link"
             >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
                 <path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1 1" />
                 <path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1-1" />
               </svg>
             </button>
           )}
-          <Link href={`/events/${event.id}/edit`} className="h-8 w-8 rounded-lg bg-white/95 hover:bg-white grid place-items-center text-[#0F1F18] shadow-soft" title="Edit zones" onClick={e => e.stopPropagation()}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+          <Link
+            href={`/events/${event.id}/edit`}
+            className="h-7 w-7 rounded bg-white/90 hover:bg-white grid place-items-center text-neutral-700"
+            title="Edit"
+            onClick={e => e.stopPropagation()}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
               <path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
             </svg>
@@ -317,7 +356,7 @@ export default function EventCard({ event, compact = false }: Props) {
       </div>
 
       {/* Card body */}
-      <div className="p-5">
+      <div className="p-4">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
             {renaming ? (
@@ -330,58 +369,29 @@ export default function EventCard({ event, compact = false }: Props) {
                   if (e.key === 'Enter') doRename();
                   if (e.key === 'Escape') { setRenaming(false); setNameVal(event.name); }
                 }}
-                className="w-full font-display font-semibold text-[16px] bg-[#1F4D3A]/5 border border-[#1F4D3A]/30 rounded-lg px-2 py-0.5 outline-none focus:ring-2 focus:ring-[#1F4D3A]/30"
+                className="w-full text-[14px] font-semibold bg-neutral-50 border border-neutral-300 rounded px-2 py-0.5 outline-none focus:ring-2 focus:ring-neutral-300"
               />
             ) : (
-              <Link href={`/events/${event.id}`} className="block">
-                <div className="font-display font-semibold text-[16px] truncate">{event.name}</div>
-                <div className="text-[12px] font-mono text-[#0F1F18]/50 mt-0.5 truncate">
-                  {isDraft
-                    ? `${zonesCount} zone${zonesCount !== 1 ? 's' : ''} defined`
-                    : event.status === 'published'
-                      ? `/c/${event.slug}`
-                      : 'Archived'}
-                </div>
+              <Link href={`/events/${event.id}`} className="text-[14px] font-semibold truncate block text-neutral-900 hover:text-neutral-700">
+                {event.name}
               </Link>
             )}
           </div>
-
-          <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
+          <div className="flex items-center gap-1.5 shrink-0">
             <StatusBadge status={event.status} />
             {Menu}
           </div>
         </div>
 
-        {/* Stats row */}
-        <div className="mt-4 flex items-center justify-between text-[12.5px]">
+        <div className="mt-3 flex items-center justify-between text-[12px] text-neutral-500">
           {isDraft ? (
-            /* Draft CTA */
-            <Link
-              href={`/events/${event.id}/edit`}
-              className="inline-flex items-center gap-1.5 text-[#1F4D3A] font-medium hover:underline"
-            >
-              {zonesCount === 0 ? 'Set up zones' : 'Continue setup'}
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
-                <path d="M5 12h14M13 6l6 6-6 6" />
-              </svg>
+            <Link href={`/events/${event.id}/edit`} className="text-[#1F4D3A] font-medium hover:underline text-[12px]">
+              {zonesCount === 0 ? 'Set up zones →' : 'Continue setup →'}
             </Link>
           ) : (
-            <div className="flex items-center gap-4 text-[#0F1F18]/60">
-              <span className="flex items-center gap-1.5">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" />
-                </svg>
-                <strong className="text-[#0F1F18]">{event.download_count.toLocaleString()}</strong>
-              </span>
-              <span className="flex items-center gap-1.5">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="3" /><path d="M2 12s4-8 10-8 10 8 10 8-4 8-10 8-10-8-10-8z" />
-                </svg>
-                <strong className="text-[#0F1F18]">{event.view_count.toLocaleString()}</strong>
-              </span>
-            </div>
+            <span>{event.download_count.toLocaleString()} downloads · {event.view_count.toLocaleString()} views</span>
           )}
-          <span className="text-[#0F1F18]/40 font-mono text-[11px]">Updated {updatedAgo}</span>
+          <span className="text-neutral-400">{updatedAgo}</span>
         </div>
       </div>
     </article>

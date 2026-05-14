@@ -1,6 +1,7 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import PublishClient from './PublishClient';
+import type { Zone } from '@/types/database';
 
 export default async function PublishPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -33,7 +34,7 @@ export default async function PublishPage({ params }: { params: Promise<{ id: st
   // Get total zones from all variants
   const { data: variants } = await admin
     .from('event_variants')
-    .select('zones, background_url')
+    .select('zones, background_url, background_width, background_height')
     .eq('event_id', id)
     .order('position', { ascending: true });
 
@@ -52,6 +53,9 @@ export default async function PublishPage({ params }: { params: Promise<{ id: st
       slug={slug}
       zonesCount={zonesCount}
       backgroundUrl={firstVariant?.background_url ?? ''}
+      zones={(firstVariant?.zones as unknown as Zone[]) ?? []}
+      bgW={firstVariant?.background_width ?? 1080}
+      bgH={firstVariant?.background_height ?? 1350}
     />
   );
 }

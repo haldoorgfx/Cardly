@@ -12,184 +12,248 @@ export default function PricingPage() {
 
   return (
     <>
-      {/* Hero */}
-      <section className="max-w-[1240px] mx-auto px-6 pt-20 pb-12 text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-white text-[11px] font-mono tracking-wider text-[#0F1F18]/60 mb-6">
-          <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-          SIMPLE &middot; TRANSPARENT &middot; CANCEL ANYTIME
-        </div>
-        <h1 className="font-display font-bold text-[52px] sm:text-[64px] leading-[1.02] tracking-tight max-w-[820px] mx-auto">
-          Pricing that scales{' '}
-          <span className="grad-text">with your events.</span>
+      {/* Header */}
+      <section className="max-w-5xl mx-auto px-6 pt-20 pb-14">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-[13px] text-neutral-500 hover:text-neutral-800 transition mb-10"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 12H5M11 6l-6 6 6 6" />
+          </svg>
+          Back to home
+        </Link>
+
+        <h1 className="text-[32px] font-bold text-[#0a0a0a] tracking-tight">
+          Pricing
         </h1>
-        <p className="mt-5 text-[17px] text-[#0F1F18]/65 max-w-[560px] mx-auto leading-relaxed">
-          Start free. Upgrade when you need your own brand on the page &mdash; and unlimited attendees.
+        <p className="mt-2 text-[15px] text-neutral-500 leading-relaxed max-w-[420px]">
+          Simple, transparent pricing. Start free. Upgrade when you need it.
         </p>
 
         {/* Billing toggle */}
-        <div className="mt-9 inline-flex items-center gap-1 p-1 rounded-full bg-white border border-border">
+        <div className="mt-8 inline-flex items-center gap-0.5 p-1 rounded-md bg-neutral-100 border border-neutral-200">
           <button
             onClick={() => setYearly(false)}
-            className={`px-5 h-9 rounded-full text-[13px] font-medium transition ${!yearly ? 'bg-[#0f0f1a] text-white' : 'text-[#0F1F18]/60 hover:text-[#0F1F18]'}`}
+            className={`px-4 h-8 rounded text-[13px] font-medium transition ${!yearly ? 'bg-white text-[#0a0a0a] shadow-sm' : 'text-neutral-500 hover:text-neutral-700'}`}
           >
             Monthly
           </button>
           <button
             onClick={() => setYearly(true)}
-            className={`px-5 h-9 rounded-full text-[13px] font-medium transition inline-flex items-center gap-2 ${yearly ? 'bg-[#0f0f1a] text-white' : 'text-[#0F1F18]/60 hover:text-[#0F1F18]'}`}
+            className={`px-4 h-8 rounded text-[13px] font-medium transition inline-flex items-center gap-2 ${yearly ? 'bg-white text-[#0a0a0a] shadow-sm' : 'text-neutral-500 hover:text-neutral-700'}`}
           >
             Yearly
-            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-primary/20 text-accent">&minus;20%</span>
+            <span className="text-[10px] font-medium text-[#1F4D3A] bg-[#1F4D3A]/10 px-1.5 py-0.5 rounded">
+              -20%
+            </span>
           </button>
         </div>
       </section>
 
-      {/* Pricing cards */}
-      <section className="max-w-[1240px] mx-auto px-6 pb-24">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      {/* Pricing columns */}
+      <section className="max-w-5xl mx-auto px-6 pb-24">
+        <div className="grid md:grid-cols-3 gap-px bg-neutral-200 rounded-lg overflow-hidden border border-neutral-200">
 
           {/* Free */}
-          <div className="bg-white rounded-3xl shadow-soft p-8 border border-border/60 flex flex-col">
-            <div className="text-[13px] font-mono tracking-widest text-[#0F1F18]/50 mb-1">FREE</div>
-            <div className="font-display font-bold text-[24px]">Sketch</div>
-            <p className="text-[13.5px] text-[#0F1F18]/60 mt-1">For one-off meetups and trying out the editor.</p>
-            <div className="my-6">
-              <div className="flex items-end gap-1.5">
-                <span className="font-display font-bold text-[44px] leading-none">$0</span>
-                <span className="text-[#0F1F18]/50 text-[14px] mb-1.5">/forever</span>
-              </div>
+          <div className="bg-white p-8 flex flex-col">
+            <div className="text-[12px] font-medium text-neutral-500 uppercase tracking-widest">
+              Free
             </div>
-            <Link href="/signup" className="block text-center py-3 rounded-xl border border-border font-medium text-[14px] hover:bg-cream transition">
-              Start free
+            <div className="mt-4">
+              <span className="text-[36px] font-bold text-neutral-900 tracking-tight">$0</span>
+              <span className="text-[14px] text-neutral-500 ml-1">/forever</span>
+            </div>
+            <p className="mt-3 text-[14px] text-neutral-500 leading-relaxed">
+              Try the full editor. Ship one event with a small Cardly watermark.
+            </p>
+            <Link
+              href="/signup"
+              className="mt-6 h-10 px-5 border border-neutral-300 text-[14px] font-medium rounded-md hover:bg-neutral-50 transition flex items-center justify-center"
+            >
+              Get started free
             </Link>
-            <ul className="mt-7 space-y-3 text-[14px] text-[#0F1F18]/80">
-              <li className="flex gap-2.5"><Chk />1 active event</li>
-              <li className="flex gap-2.5"><Chk />Up to 100 attendee cards</li>
-              <li className="flex gap-2.5"><Chk />PNG export</li>
-              <li className="flex gap-2.5"><Chk />Basic analytics</li>
-              <li className="flex gap-2.5 text-[#0F1F18]/45"><span className="mt-0.5">&bull;</span>Cardly watermark on cards</li>
+            <ul className="mt-8 space-y-3">
+              {[
+                "1 active event",
+                "Up to 100 attendee cards",
+                "PNG export",
+                "Basic analytics",
+              ].map((f) => (
+                <li key={f} className="flex items-start gap-2.5 text-[14px] text-neutral-700">
+                  <CheckIcon />
+                  {f}
+                </li>
+              ))}
+              <li className="flex items-start gap-2.5 text-[14px] text-neutral-400">
+                <span className="mt-0.5 text-neutral-300">—</span>
+                Cardly watermark on cards
+              </li>
             </ul>
           </div>
 
-          {/* Pro */}
-          <div className="relative rounded-3xl p-[1.5px] grad-bg">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full grad-bg text-white text-[11px] font-mono tracking-widest shadow-sm whitespace-nowrap">
-              MOST POPULAR
-            </div>
-            <div className="bg-white rounded-[22px] p-8 flex flex-col h-full">
-              <div className="text-[13px] font-mono tracking-widest grad-text mb-1">PRO</div>
-              <div className="font-display font-bold text-[24px]">Studio</div>
-              <p className="text-[13.5px] text-[#0F1F18]/60 mt-1">For designers and organizers running regular events.</p>
-              <div className="my-6">
-                <div className="flex items-end gap-1.5">
-                  <span className="font-display font-bold text-[44px] leading-none">${prices.pro}</span>
-                  <span className="text-[#0F1F18]/50 text-[14px] mb-1.5">/month</span>
-                </div>
-                {yearly && <div className="text-[12px] font-mono text-[#0F1F18]/45 mt-1.5">Billed annually &middot; ${prices.pro * 12}/yr</div>}
+          {/* Pro (recommended) */}
+          <div className="bg-white p-8 flex flex-col border-x-2 border-neutral-900">
+            <div className="flex items-center justify-between">
+              <div className="text-[12px] font-medium text-neutral-500 uppercase tracking-widest">
+                Pro
               </div>
-              <Link href="/signup" className="block text-center py-3 rounded-xl grad-bg text-white font-medium text-[14px] hover:opacity-95 transition">
-                Start 14-day trial
-              </Link>
-              <ul className="mt-7 space-y-3 text-[14px] text-[#0F1F18]/80">
-                <li className="flex gap-2.5"><Chk />10 active events</li>
-                <li className="flex gap-2.5"><Chk />Up to 5,000 cards / event</li>
-                <li className="flex gap-2.5"><Chk /><b>No watermark</b></li>
-                <li className="flex gap-2.5"><Chk />Custom subdomain</li>
-                <li className="flex gap-2.5"><Chk />Advanced analytics</li>
-                <li className="flex gap-2.5"><Chk />Embed snippet</li>
-              </ul>
+              <span className="text-[10px] font-medium text-[#0a0a0a] border border-neutral-900 px-2 py-0.5 rounded">
+                Most popular
+              </span>
             </div>
+            <div className="mt-4">
+              <span className="text-[36px] font-bold text-neutral-900 tracking-tight">${prices.pro}</span>
+              <span className="text-[14px] text-neutral-500 ml-1">/mo</span>
+            </div>
+            {yearly && (
+              <p className="mt-1 text-[12px] text-neutral-400">
+                Billed annually · ${prices.pro * 12}/yr
+              </p>
+            )}
+            <p className="mt-3 text-[14px] text-neutral-500 leading-relaxed">
+              For organizers running real campaigns. No watermark. Analytics.
+            </p>
+            <Link
+              href="/signup"
+              className="mt-6 h-10 px-5 bg-[#0a0a0a] text-white text-[14px] font-medium rounded-md hover:bg-neutral-800 transition flex items-center justify-center"
+            >
+              Start Pro trial
+            </Link>
+            <ul className="mt-8 space-y-3">
+              {[
+                "10 active events",
+                "Up to 5,000 cards / event",
+                "No watermark",
+                "Custom subdomain",
+                "Advanced analytics",
+                "Embed snippet",
+              ].map((f) => (
+                <li key={f} className="flex items-start gap-2.5 text-[14px] text-neutral-700">
+                  <CheckIcon />
+                  {f}
+                </li>
+              ))}
+            </ul>
           </div>
 
-          {/* Studio/Agency */}
-          <div className="bg-[#0f0f1a] text-white rounded-3xl shadow-soft p-8 flex flex-col relative overflow-hidden">
-            <div className="absolute -top-20 -right-20 h-56 w-56 rounded-full opacity-30" style={{ background: 'radial-gradient(closest-side,#E8C57E,transparent)' }} />
-            <div className="absolute -bottom-24 -left-16 h-56 w-56 rounded-full opacity-25" style={{ background: 'radial-gradient(closest-side,#1F4D3A,transparent)' }} />
-            <div className="relative flex flex-col flex-1">
-              <div className="text-[13px] font-mono tracking-widest text-accent mb-1">STUDIO</div>
-              <div className="font-display font-bold text-[24px]">Agency</div>
-              <p className="text-[13.5px] text-white/65 mt-1">For agencies running events for many clients.</p>
-              <div className="my-6">
-                <div className="flex items-end gap-1.5">
-                  <span className="font-display font-bold text-[44px] leading-none">${prices.studio}</span>
-                  <span className="text-white/50 text-[14px] mb-1.5">/month</span>
-                </div>
-                {yearly && <div className="text-[12px] font-mono text-white/40 mt-1.5">Billed annually &middot; ${prices.studio * 12}/yr</div>}
-              </div>
-              <a href="mailto:hello@cardly.app" className="block text-center py-3 rounded-xl bg-white text-[#0f0f1a] font-medium text-[14px] hover:bg-white/90 transition">
-                Talk to sales
-              </a>
-              <ul className="mt-7 space-y-3 text-[14px] text-white/85">
-                <li className="flex gap-2.5"><Chk pink />Unlimited events</li>
-                <li className="flex gap-2.5"><Chk pink />Unlimited attendee cards</li>
-                <li className="flex gap-2.5"><Chk pink />Team workspace (10 seats)</li>
-                <li className="flex gap-2.5"><Chk pink />White-label (your domain)</li>
-                <li className="flex gap-2.5"><Chk pink />API access + webhooks</li>
-                <li className="flex gap-2.5"><Chk pink />Priority support + onboarding</li>
-              </ul>
+          {/* Studio */}
+          <div className="bg-white p-8 flex flex-col">
+            <div className="text-[12px] font-medium text-neutral-500 uppercase tracking-widest">
+              Studio
             </div>
+            <div className="mt-4">
+              <span className="text-[36px] font-bold text-neutral-900 tracking-tight">${prices.studio}</span>
+              <span className="text-[14px] text-neutral-500 ml-1">/mo</span>
+            </div>
+            {yearly && (
+              <p className="mt-1 text-[12px] text-neutral-400">
+                Billed annually · ${prices.studio * 12}/yr
+              </p>
+            )}
+            <p className="mt-3 text-[14px] text-neutral-500 leading-relaxed">
+              For agencies and brand teams running concurrent client events.
+            </p>
+            <a
+              href="mailto:hello@cardly.app"
+              className="mt-6 h-10 px-5 border border-neutral-300 text-[14px] font-medium rounded-md hover:bg-neutral-50 transition flex items-center justify-center"
+            >
+              Contact sales
+            </a>
+            <ul className="mt-8 space-y-3">
+              {[
+                "Unlimited events",
+                "Unlimited attendee cards",
+                "Team workspace (10 seats)",
+                "White-label (your domain)",
+                "API access + webhooks",
+                "Priority support + onboarding",
+              ].map((f) => (
+                <li key={f} className="flex items-start gap-2.5 text-[14px] text-neutral-700">
+                  <CheckIcon />
+                  {f}
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
 
-        <p className="text-center text-[13px] text-[#0F1F18]/50 mt-8">
-          All plans include unlimited preview cards while editing. Cancel anytime &mdash; no questions.
+        <p className="mt-5 text-center text-[13px] text-neutral-400">
+          All plans include unlimited preview cards while editing. Cancel anytime.
         </p>
       </section>
 
       {/* Comparison table */}
-      <section className="max-w-[1100px] mx-auto px-6 pb-24">
-        <div className="text-center mb-10">
-          <div className="text-[11px] font-mono tracking-widest text-[#0F1F18]/45 mb-3">COMPARE</div>
-          <h2 className="font-display font-bold text-[36px] leading-tight">Everything in detail.</h2>
-        </div>
-        <div className="bg-white rounded-3xl border border-border overflow-hidden shadow-soft">
+      <section className="max-w-4xl mx-auto px-6 pb-24">
+        <h2 className="text-[22px] font-bold text-[#0a0a0a] tracking-tight mb-8">
+          Everything in detail
+        </h2>
+        <div className="border border-neutral-200 rounded-lg overflow-hidden">
           <table className="w-full text-[14px]">
             <thead>
-              <tr className="border-b border-border">
-                <th className="text-left p-5 w-[40%] font-display text-[#0F1F18]/60 font-medium">Feature</th>
-                <th className="text-center p-5 font-display">Sketch</th>
-                <th className="text-center p-5 font-display grad-text">Studio</th>
-                <th className="text-center p-5 font-display">Agency</th>
+              <tr className="border-b border-neutral-200 bg-neutral-50">
+                <th className="text-left px-5 py-3.5 font-medium text-neutral-500 w-[40%]">Feature</th>
+                <th className="text-center px-5 py-3.5 font-medium text-neutral-900">Free</th>
+                <th className="text-center px-5 py-3.5 font-medium text-neutral-900">Pro</th>
+                <th className="text-center px-5 py-3.5 font-medium text-neutral-900">Studio</th>
               </tr>
             </thead>
             <tbody>
-              <CompRow label="Active events"    free="1"      pro="10"       studio="Unlimited" last={false} />
-              <CompRow label="Cards per event"  free="100"    pro="5,000"    studio="Unlimited" last={false} />
-              <CompRow label="Watermark removed" free=""      pro="check"    studio="check"     last={false} />
-              <CompRow label="Custom subdomain" free=""       pro="check"    studio="check"     last={false} />
-              <CompRow label="White-label"      free=""       pro=""         studio="check"     last={false} />
-              <CompRow label="Team seats"       free="1"      pro="3"        studio="10"        last={false} />
-              <CompRow label="Analytics"        free="Basic"  pro="Advanced" studio="Advanced + API" last={false} />
-              <CompRow label="Embed snippet"    free=""       pro="check"    studio="check"     last={false} />
-              <CompRow label="Priority support" free=""       pro=""         studio="check"     last />
+              <CompRow label="Active events"      free="1"       pro="10"        studio="Unlimited" />
+              <CompRow label="Cards per event"    free="100"     pro="5,000"     studio="Unlimited" />
+              <CompRow label="Watermark removed"  free={false}   pro={true}      studio={true} />
+              <CompRow label="Custom subdomain"   free={false}   pro={true}      studio={true} />
+              <CompRow label="White-label"        free={false}   pro={false}     studio={true} />
+              <CompRow label="Team seats"         free="1"       pro="3"         studio="10" />
+              <CompRow label="Analytics"          free="Basic"   pro="Advanced"  studio="Advanced + API" />
+              <CompRow label="Embed snippet"      free={false}   pro={true}      studio={true} />
+              <CompRow label="Priority support"   free={false}   pro={false}     studio={true} last />
             </tbody>
           </table>
         </div>
       </section>
 
       {/* FAQ */}
-      <section className="max-w-[820px] mx-auto px-6 pb-28">
-        <div className="text-center mb-10">
-          <div className="text-[11px] font-mono tracking-widest text-[#0F1F18]/45 mb-3">FAQ</div>
-          <h2 className="font-display font-bold text-[36px] leading-tight">Questions, briefly answered.</h2>
-        </div>
-        <div className="space-y-3">
-          <FaqItem q='What counts as one "event"?' a="One event = one design + one public link. You can keep an event open indefinitely — cards generated by attendees don't count as new events." />
-          <FaqItem q="Do attendees need an account?" a="No. The link is the product — attendees just open it on their phone, fill in their info, and download. No login, no friction." />
-          <FaqItem q="Can I change plans later?" a="Anytime. Upgrades are prorated, downgrades take effect at the next billing cycle." />
-          <FaqItem q="What payment methods do you accept?" a="Cards (Visa, Mastercard, Verve), Apple Pay, Google Pay. Annual plans can be invoiced." />
-          <FaqItem q="Is there an education / NGO discount?" a="Yes — 50% off any paid plan. Email us with proof and we'll set it up the same day." />
+      <section className="max-w-3xl mx-auto px-6 pb-24">
+        <h2 className="text-[22px] font-bold text-[#0a0a0a] tracking-tight mb-8">
+          Questions
+        </h2>
+        <div className="divide-y divide-neutral-100 border-y border-neutral-100">
+          {FAQS.map((faq) => (
+            <details key={faq.q} className="group py-5">
+              <summary className="flex items-center justify-between gap-6 cursor-pointer list-none">
+                <span className="text-[15px] font-medium text-[#0a0a0a]">
+                  {faq.q}
+                </span>
+                <span className="text-neutral-400 group-open:rotate-45 transition-transform duration-150 shrink-0 text-[20px] font-light leading-none">
+                  +
+                </span>
+              </summary>
+              <p className="mt-3 text-[14px] text-neutral-500 leading-relaxed">
+                {faq.a}
+              </p>
+            </details>
+          ))}
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="max-w-[1240px] mx-auto px-6 pb-28">
-        <div className="grad-bg rounded-3xl p-14 text-center text-white relative overflow-hidden">
-          <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full opacity-30" style={{ background: 'radial-gradient(closest-side, white, transparent)' }} />
-          <h3 className="font-display font-bold text-[40px] leading-tight relative">Run your first event in 10 minutes.</h3>
-          <p className="text-white/85 mt-3 max-w-[480px] mx-auto relative">Free forever for one event. Upgrade when you outgrow it.</p>
-          <Link href="/signup" className="inline-flex items-center gap-2 mt-7 h-12 px-7 rounded-full bg-white text-[#0f0f1a] font-display font-semibold hover:bg-white/90 transition relative">
-            Get started &mdash; it&apos;s free &rarr;
+      {/* CTA band */}
+      <section className="bg-[#0a0a0a] py-24 text-center">
+        <div className="max-w-2xl mx-auto px-6">
+          <h2 className="text-[32px] font-bold text-white tracking-tight">
+            Ready to ship your first card?
+          </h2>
+          <p className="mt-3 text-[15px] text-neutral-400 leading-relaxed">
+            Free forever for one event. Upgrade when you outgrow it.
+          </p>
+          <Link
+            href="/signup"
+            className="mt-8 inline-flex items-center gap-2 h-10 px-6 bg-white text-[#0a0a0a] text-[14px] font-medium rounded-md hover:bg-neutral-100 transition"
+          >
+            Get started free
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
           </Link>
         </div>
       </section>
@@ -197,34 +261,82 @@ export default function PricingPage() {
   );
 }
 
-function Chk({ pink }: { pink?: boolean }) {
-  return <span className={`mt-0.5 ${pink ? 'text-accent' : 'text-primary'}`}>&#10003;</span>;
+/* ─── HELPERS ─────────────────────────────────────────────────────────── */
+
+const FAQS = [
+  {
+    q: 'What counts as one "event"?',
+    a: "One event = one design + one public link. You can keep an event open indefinitely — cards generated by attendees don't count as new events.",
+  },
+  {
+    q: "Do attendees need an account?",
+    a: "No. The link is the product — attendees open it on their phone, fill in their info, and download. No login, no friction.",
+  },
+  {
+    q: "Can I change plans later?",
+    a: "Anytime. Upgrades are prorated, downgrades take effect at the next billing cycle.",
+  },
+  {
+    q: "Is there an education / NGO discount?",
+    a: "Yes — 50% off any paid plan. Email us with proof and we'll set it up the same day.",
+  },
+];
+
+function CheckIcon() {
+  return (
+    <svg
+      className="mt-0.5 shrink-0 text-emerald-600"
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
 }
 
-function CompRow({ label, free, pro, studio, last }: { label: string; free: string; pro: string; studio: string; last: boolean }) {
-  const cell = (val: string) => {
-    if (val === 'check') return <td className="text-center text-primary">&#10003;</td>;
-    if (!val)           return <td className="text-center text-[#0F1F18]/30">&mdash;</td>;
-    return <td className="text-center text-[#0F1F18]/70">{val}</td>;
+function CompRow({
+  label,
+  free,
+  pro,
+  studio,
+  last,
+}: {
+  label: string;
+  free: string | boolean;
+  pro: string | boolean;
+  studio: string | boolean;
+  last?: boolean;
+}) {
+  const cell = (val: string | boolean) => {
+    if (val === true)
+      return (
+        <td className="text-center px-5 py-3.5">
+          <span className="text-emerald-600 font-bold text-[15px]">✓</span>
+        </td>
+      );
+    if (val === false)
+      return (
+        <td className="text-center px-5 py-3.5 text-neutral-300 text-[15px]">
+          —
+        </td>
+      );
+    return (
+      <td className="text-center px-5 py-3.5 text-neutral-600">{val}</td>
+    );
   };
+
   return (
-    <tr className={last ? '' : 'border-b border-border/50'}>
-      <td className="p-4 pl-5 text-[#0F1F18]/75">{label}</td>
+    <tr className={last ? "" : "border-b border-neutral-100"}>
+      <td className="px-5 py-3.5 text-neutral-700">{label}</td>
       {cell(free)}
       {cell(pro)}
       {cell(studio)}
     </tr>
-  );
-}
-
-function FaqItem({ q, a }: { q: string; a: string }) {
-  return (
-    <details className="bg-white rounded-2xl border border-border group">
-      <summary className="cursor-pointer list-none flex items-center justify-between p-5 font-display font-semibold text-[16px]">
-        {q}
-        <span className="text-[#0F1F18]/40 group-open:rotate-45 transition-transform duration-200">+</span>
-      </summary>
-      <p className="px-5 pb-5 text-[14px] text-[#0F1F18]/65 leading-relaxed">{a}</p>
-    </details>
   );
 }

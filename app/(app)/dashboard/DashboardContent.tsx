@@ -17,7 +17,7 @@ interface Props {
 export default function DashboardContent({ events, atLimit }: Props) {
   const [filter, setFilter] = useState<Filter>('all');
   const [sort, setSort] = useState<SortKey>('recent');
-  const [view, setView] = useState<'grid' | 'list'>('grid');
+  const [view, setView] = useState<'grid' | 'list'>('list');
 
   const counts = {
     all: events.length,
@@ -45,61 +45,58 @@ export default function DashboardContent({ events, atLimit }: Props) {
   return (
     <>
       {/* Filter + sort bar */}
-      <div className="mt-9 flex items-center justify-between flex-wrap gap-3">
-        {/* Filter tabs */}
-        <div className="flex items-center gap-1 p-1 rounded-xl bg-white border border-[#E5E0D4]">
-          {(['all', 'active', 'draft', 'archived'] as Filter[]).map(f => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`text-[13px] font-medium px-3.5 py-1.5 rounded-lg transition capitalize ${
-                filter === f
-                  ? 'bg-[#FAF6EE] text-[#0F1F18]'
-                  : 'text-[#0F1F18]/60 hover:text-[#0F1F18]'
-              }`}
-            >
-              {f === 'all' ? 'All' : f === 'active' ? 'Active' : f === 'draft' ? 'Draft' : 'Archived'}
-              <span className="ml-1.5 text-[#0F1F18]/40 font-mono text-[11px]">{counts[f]}</span>
-            </button>
-          ))}
-        </div>
+      <div className="flex items-center gap-0 border-b border-neutral-200 mb-5">
+        {(['all', 'active', 'draft', 'archived'] as Filter[]).map(f => (
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
+            className={`px-3 py-2 text-[13px] transition border-b-2 -mb-px ${
+              filter === f
+                ? 'border-neutral-900 text-neutral-900 font-medium'
+                : 'border-transparent text-neutral-500 hover:text-neutral-700'
+            }`}
+          >
+            {f === 'all' ? 'All' : f === 'active' ? 'Active' : f === 'draft' ? 'Draft' : 'Archived'}
+            <span className="ml-1.5 text-neutral-400 text-[12px]">{counts[f]}</span>
+          </button>
+        ))}
 
         {/* Sort + view toggle */}
-        <div className="flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-2 mb-1">
           <select
             value={sort}
             onChange={e => setSort(e.target.value as SortKey)}
-            className="text-[13px] text-[#0F1F18]/70 bg-white border border-[#E5E0D4] px-3 py-2 rounded-xl hover:bg-[#FAF6EE] transition outline-none cursor-pointer"
+            className="h-7 text-[12px] bg-white border border-neutral-200 rounded-md px-2 text-neutral-600 outline-none cursor-pointer"
           >
-            <option value="recent">Sort: Most recent</option>
-            <option value="downloads">Sort: Downloads</option>
-            <option value="views">Sort: Views</option>
+            <option value="recent">Most recent</option>
+            <option value="downloads">Downloads</option>
+            <option value="views">Views</option>
           </select>
 
-          <div className="flex items-center bg-white border border-[#E5E0D4] rounded-xl p-1">
-            <button
-              onClick={() => setView('grid')}
-              className={`h-7 w-7 rounded-lg grid place-items-center transition ${
-                view === 'grid' ? 'bg-[#FAF6EE] text-[#0F1F18]' : 'text-[#0F1F18]/40 hover:text-[#0F1F18]'
-              }`}
-              title="Grid view"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
-                <rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" />
-              </svg>
-            </button>
+          <div className="flex items-center border border-neutral-200 rounded-md overflow-hidden">
             <button
               onClick={() => setView('list')}
-              className={`h-7 w-7 rounded-lg grid place-items-center transition ${
-                view === 'list' ? 'bg-[#FAF6EE] text-[#0F1F18]' : 'text-[#0F1F18]/40 hover:text-[#0F1F18]'
+              className={`h-7 w-7 grid place-items-center transition ${
+                view === 'list' ? 'bg-neutral-100 text-neutral-900' : 'bg-white text-neutral-400 hover:text-neutral-600'
               }`}
               title="List view"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
                 <line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" />
                 <line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" />
                 <line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" />
+              </svg>
+            </button>
+            <button
+              onClick={() => setView('grid')}
+              className={`h-7 w-7 grid place-items-center transition border-l border-neutral-200 ${
+                view === 'grid' ? 'bg-neutral-100 text-neutral-900' : 'bg-white text-neutral-400 hover:text-neutral-600'
+              }`}
+              title="Grid view"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
+                <rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" />
               </svg>
             </button>
           </div>
@@ -108,20 +105,12 @@ export default function DashboardContent({ events, atLimit }: Props) {
 
       {/* Empty filter state */}
       {filtered.length === 0 && !showNewTile ? (
-        <div className="mt-10 rounded-2xl border border-dashed border-[#E5E0D4] bg-white p-12 text-center">
-          <div className="mx-auto h-12 w-12 rounded-2xl bg-[#FAF6EE] grid place-items-center text-[#0F1F18]/40">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-              <circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3" />
-            </svg>
-          </div>
-          <div className="mt-4 font-display font-semibold">No events match that filter.</div>
-          <p className="text-[14px] text-[#0F1F18]/55 mt-1">Switch the filter, or create a new event.</p>
-        </div>
+        <p className="text-[13px] text-neutral-500 py-6">No events match that filter.</p>
       ) : (
-        <div className={`mt-6 ${view === 'grid'
-          ? 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5'
-          : 'flex flex-col gap-3'
-        }`}>
+        <div className={view === 'grid'
+          ? 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4'
+          : 'flex flex-col gap-2'
+        }>
           {filtered.map(event => (
             <EventCard key={event.id} event={event} compact={view === 'list'} />
           ))}
@@ -131,28 +120,23 @@ export default function DashboardContent({ events, atLimit }: Props) {
             view === 'list' ? (
               <Link
                 href="/events/new"
-                className="group flex items-center gap-4 bg-white rounded-2xl border-2 border-dashed border-[#E5E0D4] hover:border-[#1F4D3A]/40 hover:bg-[#FAF6EE] transition px-5 py-4"
+                className="flex items-center gap-3 rounded-md border border-dashed border-neutral-200 hover:border-neutral-400 px-4 py-3 text-[13px] text-neutral-400 hover:text-neutral-600 transition"
               >
-                <div className="h-10 w-10 rounded-xl grid place-items-center text-white shrink-0" style={{ background: '#1F4D3A' }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
-                    <path d="M12 5v14M5 12h14" />
-                  </svg>
-                </div>
-                <span className="font-display font-semibold text-[14px] text-[#0F1F18]/60 group-hover:text-[#1F4D3A] transition">Create a new event</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+                New event
               </Link>
             ) : (
               <Link
                 href="/events/new"
-                className="group rounded-2xl border-2 border-dashed border-[#E5E0D4] hover:border-[#1F4D3A]/40 hover:bg-white transition flex flex-col items-center justify-center gap-3 p-8 text-center"
-                style={{ minHeight: 280 }}
+                className="rounded-lg border-2 border-dashed border-neutral-200 hover:border-neutral-400 transition flex flex-col items-center justify-center gap-2 text-neutral-400 hover:text-neutral-600"
+                style={{ minHeight: 220 }}
               >
-                <div className="h-14 w-14 rounded-2xl grid place-items-center text-white group-hover:scale-105 transition" style={{ background: '#1F4D3A', boxShadow: '0 8px 24px rgba(31,77,58,0.25)' }}>
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
-                    <path d="M12 5v14M5 12h14" />
-                  </svg>
-                </div>
-                <div className="font-display font-semibold text-[16px]">Create a new event</div>
-                <div className="text-[13px] text-[#0F1F18]/55 max-w-[220px]">Upload your design and ship a share link in minutes.</div>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+                <span className="text-[13px]">New event</span>
               </Link>
             )
           )}

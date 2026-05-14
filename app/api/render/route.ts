@@ -148,7 +148,8 @@ async function compositeText(
   const lsAttr = ls !== 0 ? ` letter_spacing="${Math.round(ls * 1024)}"` : '';
   const pangoText = lsAttr ? `<span${lsAttr}>${safe}</span>` : safe;
 
-  const sharpAlign = align === 'center' ? 'centre' : (align as 'left' | 'right');
+  // 'justify' maps to 'left' for Pango (no native justify in sharp text input)
+  const sharpAlign = align === 'center' ? 'centre' : align === 'right' ? 'right' : 'left';
 
   // ── Strategy: rgba:true + extractChannel(3) for cross-platform color ────────
   // rgba:true tells Pango to render with transparent background. The text shape
@@ -218,6 +219,26 @@ async function compositeText(
     raw: { width: textW, height: textH, channels: 4 },
   }).png().toBuffer();
 
+  // Clip / position text based on zone.h and vertical alignment
+  const maxH = Math.max(1, Math.floor(zone.h));
+  const vertAlign = zone.verticalAlign ?? 'top';
+  let textCompositeTopOffset = 0; // extra vertical offset within zone
+
+  if (textH > maxH) {
+    // Text overflows zone height — crop to fit
+    let cropTop = 0;
+    if (vertAlign === 'bottom')  cropTop = textH - maxH;
+    if (vertAlign === 'center') cropTop = Math.round((textH - maxH) / 2);
+    rawBuf = await sharp(rawBuf)
+      .extract({ left: 0, top: Math.max(0, cropTop), width: textW, height: maxH })
+      .png()
+      .toBuffer();
+  } else if (textH < maxH) {
+    // Text is shorter than zone — shift within zone for center/bottom
+    if (vertAlign === 'center') textCompositeTopOffset = Math.round((maxH - textH) / 2);
+    if (vertAlign === 'bottom') textCompositeTopOffset = maxH - textH;
+  }
+
   // Optional background rect (rendered as a plain SVG, no font needed)
   if (zone.bgColor) {
     const bgSvg = `<svg width="${textW}" height="${textH}" xmlns="http://www.w3.org/2000/svg">
@@ -240,14 +261,14 @@ async function compositeText(
   // Rotation
   const { buf: overlay, w: ow, h: oh } = await rotateBuffer(rawBuf, rotation);
 
-  // Position the text image so it sits in the right place within the zone.
-  // sharp text output width = natural text width (≤ zone.w).
-  // For center/right alignment we must shift left accordingly.
+  // Position the text image within the zone.
+  // Horizontal: center/right shift based on rendered text width vs zone width.
+  // Vertical: apply textCompositeTopOffset from vertical alignment calculation above.
   let left = zone.x;
-  if (align === 'center') left = Math.round(zone.x + (zone.w - ow) / 2);
+  if (align === 'center' || align === 'justify') left = Math.round(zone.x + (zone.w - ow) / 2);
   if (align === 'right')  left = Math.round(zone.x + zone.w - ow);
 
-  const top = zone.y;
+  const top = zone.y + textCompositeTopOffset;
 
   const compositeLeft  = Math.max(0, Math.min(left, canvasW - ow));
   const compositeTop   = Math.max(0, Math.min(top,  canvasH - oh));
@@ -488,7 +509,28 @@ export async function POST(req: NextRequest) {
 
   const isDebug = formData.get('debug') === '1';
   const needsWatermark = !profile || profile.plan === 'free';
-  const zones = (variant.zones as unknown as Zone[]) ?? [];
+
+  // Base zones from DB
+  const rawZones = (variant.zones as unknown as Zone[]) ?? [];
+
+  // Attendee-supplied position/size overrides (from drag/resize in UI)
+  const zoneOverridesJson = formData.get('zoneOverrides') as string | null;
+  const zoneOverridesMap: Record<string, { x?: number; y?: number; w?: number; h?: number }> =
+    zoneOverridesJson ? JSON.parse(zoneOverridesJson) : {};
+
+  // Merge overrides into zones — clamp to valid canvas bounds
+  const zones: Zone[] = rawZones.map(z => {
+    const ov = zoneOverridesMap[z.id];
+    if (!ov) return z;
+    return {
+      ...z,
+      x: Math.max(0, Math.round(ov.x ?? z.x)),
+      y: Math.max(0, Math.round(ov.y ?? z.y)),
+      w: Math.max(1, Math.round(ov.w ?? z.w)),
+      h: Math.max(1, Math.round(ov.h ?? z.h)),
+    };
+  });
+
   const fieldsJson = formData.get('fields') as string;
   const fields: Record<string, string> = fieldsJson ? JSON.parse(fieldsJson) : {};
   const debugOut: ZoneDebug[] = [];

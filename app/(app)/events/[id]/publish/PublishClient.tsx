@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import QRCode from 'qrcode';
+import CardPreviewClient from '../CardPreviewClient';
+import type { Zone } from '@/types/database';
 
 interface Props {
   eventId: string;
@@ -11,9 +13,12 @@ interface Props {
   slug: string;
   zonesCount: number;
   backgroundUrl: string;
+  zones: Zone[];
+  bgW: number;
+  bgH: number;
 }
 
-export default function PublishClient({ eventId, eventName, shareUrl, zonesCount, backgroundUrl }: Props) {
+export default function PublishClient({ eventId, eventName, shareUrl, zonesCount, backgroundUrl, zones, bgW, bgH }: Props) {
   const [copied, setCopied] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState('');
   const [confettiDone, setConfettiDone] = useState(false);
@@ -45,7 +50,7 @@ export default function PublishClient({ eventId, eventName, shareUrl, zonesCount
   const embedCode = `<iframe src="${shareUrl}" width="375" height="812" frameborder="0" allow="camera"></iframe>`;
 
   return (
-    <div className="min-h-screen bg-[#FAF6EE] flex flex-col">
+    <div className="min-h-screen bg-[#F5F5F5] flex flex-col">
       {/* Confetti dots */}
       {!confettiDone && (
         <div className="fixed inset-0 pointer-events-none overflow-hidden z-50">
@@ -65,58 +70,55 @@ export default function PublishClient({ eventId, eventName, shareUrl, zonesCount
       )}
 
       {/* Header */}
-      <header className="bg-white border-b border-[#E5E0D4]">
-        <div className="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
+      <header className="bg-white border-b border-neutral-200">
+        <div className="max-w-[1200px] mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link href={`/events/${eventId}`} className="h-9 w-9 rounded-lg hover:bg-[#FAF6EE] grid place-items-center text-[#0F1F18]/60">
+            <Link href={`/events/${eventId}`} className="h-8 w-8 rounded-md border border-neutral-200 hover:bg-neutral-50 grid place-items-center text-neutral-500 transition">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6" /></svg>
             </Link>
-            <span className="h-7 w-7 rounded-lg grid place-items-center text-white font-display font-bold text-[14px]" style={{ background: '#1F4D3A' }}>C</span>
-            <div className="font-display font-bold text-[16px]">{eventName}</div>
+            <span className="text-[12px] text-neutral-500 hover:text-neutral-700">
+              <Link href={`/events/${eventId}`}>{eventName}</Link>
+            </span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full">
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Published
             </span>
-            <Link href="/dashboard" className="text-[13px] text-[#0F1F18]/60 hover:text-[#0F1F18] ml-2">Dashboard →</Link>
+            <Link href="/dashboard" className="h-8 px-3 border border-neutral-200 bg-white text-[13px] rounded-md hover:bg-neutral-50 transition inline-flex items-center">Dashboard</Link>
           </div>
         </div>
       </header>
 
-      <main className="flex-1 px-6 py-12 max-w-[900px] mx-auto w-full">
+      <main className="flex-1 px-4 sm:px-6 py-8 sm:py-12 max-w-[900px] mx-auto w-full">
         {/* Success header */}
         <div className="text-center mb-10">
-          <div className="inline-flex h-20 w-20 rounded-full items-center justify-center text-white mb-5 shadow-lift" style={{ background: '#1F4D3A' }}>
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <div className="inline-flex h-12 w-12 rounded-full items-center justify-center bg-[#1F4D3A] text-white mb-4">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <polyline points="20 6 9 17 4 12" />
             </svg>
           </div>
-          <h1 className="font-display font-bold text-[40px] leading-tight">
-            <span style={{ background: 'linear-gradient(135deg,#1F4D3A,#E8C57E)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>
-              {eventName}
-            </span>{' '}
-            is live!
+          <h1 className="text-xl font-semibold">
+            {eventName} is live!
           </h1>
-          <p className="text-[16px] text-[#0F1F18]/60 mt-2">{zonesCount} zones defined · Ready for attendees</p>
+          <p className="text-[14px] text-neutral-500 mt-1">{zonesCount} zones defined · Ready for attendees</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Link share */}
-          <div className="bg-white rounded-2xl border border-[#E5E0D4] p-6 shadow-soft">
-            <div className="text-[11px] font-mono tracking-widest text-[#0F1F18]/45 mb-4">SHARE LINK</div>
-            <div className="flex items-center gap-2 bg-[#FAF6EE] rounded-xl border border-[#E5E0D4] px-3 py-3 mb-4">
-              <span className="text-[12px] font-mono text-[#0F1F18]/70 flex-1 truncate">{shareUrl}</span>
+          <div className="bg-white rounded-lg border border-neutral-200 p-5">
+            <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-4">Share Link</div>
+            <div className="font-mono text-[13px] text-neutral-600 bg-neutral-50 border border-neutral-200 rounded-md px-3 py-2 mb-3 truncate">
+              {shareUrl}
             </div>
             <button
               onClick={handleCopy}
-              className="w-full py-3 rounded-xl font-display font-semibold text-[15px] text-white hover:opacity-95 transition mb-3"
-              style={{ background: '#1F4D3A' }}
+              className="w-full h-8 px-3 border border-neutral-200 bg-white text-[13px] rounded-md hover:bg-neutral-50 transition mb-3 flex items-center justify-center gap-2"
             >
               {copied ? (
-                <span className="inline-flex items-center justify-center gap-2">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                <>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
                   Copied!
-                </span>
+                </>
               ) : 'Copy link'}
             </button>
             <div className="grid grid-cols-2 gap-2">
@@ -124,7 +126,7 @@ export default function PublishClient({ eventId, eventName, shareUrl, zonesCount
                 href={`https://wa.me/?text=${encodeURIComponent(`Get your personalized card for ${eventName}: ${shareUrl}`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="py-2.5 rounded-xl text-[13px] font-medium text-white text-center"
+                className="h-8 rounded-md text-[13px] font-medium text-white text-center flex items-center justify-center"
                 style={{ background: '#25D366' }}
               >
                 WhatsApp
@@ -133,7 +135,7 @@ export default function PublishClient({ eventId, eventName, shareUrl, zonesCount
                 href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Get your personalized card: ${shareUrl}`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="py-2.5 rounded-xl text-[13px] font-medium text-white text-center bg-black"
+                className="h-8 rounded-md text-[13px] font-medium text-white text-center bg-black flex items-center justify-center"
               >
                 X / Twitter
               </a>
@@ -141,22 +143,22 @@ export default function PublishClient({ eventId, eventName, shareUrl, zonesCount
           </div>
 
           {/* QR code */}
-          <div className="bg-white rounded-2xl border border-[#E5E0D4] p-6 shadow-soft">
-            <div className="text-[11px] font-mono tracking-widest text-[#0F1F18]/45 mb-4">QR CODE</div>
-            <div className="flex justify-center mb-4">
+          <div className="bg-white rounded-lg border border-neutral-200 p-5">
+            <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-4">QR Code</div>
+            <div className="border border-neutral-200 rounded-lg p-4 flex justify-center mb-4">
               {qrDataUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={qrDataUrl} alt="QR code" width={160} height={160} className="rounded-xl border border-[#E5E0D4]" />
+                <img src={qrDataUrl} alt="QR code" width={140} height={140} className="rounded-md" />
               ) : (
-                <div className="h-40 w-40 rounded-xl bg-[#FAF6EE] border border-[#E5E0D4] animate-pulse" />
+                <div className="h-[140px] w-[140px] rounded-md bg-neutral-100 animate-pulse" />
               )}
             </div>
             <button
               onClick={handleDownloadQR}
               disabled={!qrDataUrl}
-              className="w-full py-2.5 rounded-xl text-[13px] font-medium text-[#0F1F18]/80 border border-[#E5E0D4] hover:bg-[#FAF6EE] transition flex items-center justify-center gap-2"
+              className="w-full h-8 px-3 border border-neutral-200 bg-white text-[13px] rounded-md hover:bg-neutral-50 transition flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" />
               </svg>
               Download QR
@@ -164,25 +166,33 @@ export default function PublishClient({ eventId, eventName, shareUrl, zonesCount
           </div>
 
           {/* Embed snippet */}
-          <div className="md:col-span-2 bg-white rounded-2xl border border-[#E5E0D4] p-6 shadow-soft">
-            <div className="text-[11px] font-mono tracking-widest text-[#0F1F18]/45 mb-3">EMBED IN YOUR SITE</div>
-            <div className="bg-[#0F1F18] rounded-xl p-4 font-mono text-[12px] text-emerald-400 overflow-x-auto">
+          <div className="md:col-span-2 bg-white rounded-lg border border-neutral-200 p-5">
+            <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-3">Embed in Your Site</div>
+            <div className="bg-neutral-50 border border-neutral-200 rounded-md px-3 py-3 font-mono text-[12px] text-neutral-600 overflow-x-auto">
               {embedCode}
             </div>
           </div>
 
           {/* Preview card */}
           {backgroundUrl && (
-            <div className="bg-white rounded-2xl border border-[#E5E0D4] p-6 shadow-soft flex flex-col items-center">
-              <div className="text-[11px] font-mono tracking-widest text-[#0F1F18]/45 mb-4 self-start">PREVIEW</div>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={backgroundUrl} alt="Design preview" className="rounded-xl max-h-48 object-cover shadow-soft" />
+            <div className="bg-white rounded-lg border border-neutral-200 p-5">
+              <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-4">Preview</div>
+              <div className="rounded-md overflow-hidden border border-neutral-200">
+                <CardPreviewClient
+                  backgroundUrl={backgroundUrl}
+                  bgW={bgW}
+                  bgH={bgH}
+                  zones={zones}
+                  eventName={eventName}
+                  maxHeight={220}
+                />
+              </div>
             </div>
           )}
 
           {/* Next steps */}
-          <div className="bg-white rounded-2xl border border-[#E5E0D4] p-6 shadow-soft">
-            <div className="text-[11px] font-mono tracking-widest text-[#0F1F18]/45 mb-4">WHAT HAPPENS NEXT</div>
+          <div className="bg-white rounded-lg border border-neutral-200 p-5">
+            <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-4">What Happens Next</div>
             <div className="space-y-3">
               {[
                 'Attendees open the link on their phone',
@@ -190,8 +200,8 @@ export default function PublishClient({ eventId, eventName, shareUrl, zonesCount
                 'They get a personalized PNG to share',
               ].map((step, i) => (
                 <div key={i} className="flex items-start gap-3">
-                  <span className="h-6 w-6 rounded-full bg-[#1F4D3A]/10 text-[#1F4D3A] text-[11px] font-mono font-semibold grid place-items-center shrink-0 mt-0.5">{i + 1}</span>
-                  <span className="text-[13px] text-[#0F1F18]/70">{step}</span>
+                  <span className="h-5 w-5 rounded-full bg-neutral-100 text-neutral-500 text-[11px] font-medium grid place-items-center shrink-0 mt-0.5">{i + 1}</span>
+                  <span className="text-[13px] text-neutral-600">{step}</span>
                 </div>
               ))}
             </div>

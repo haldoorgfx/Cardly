@@ -15,7 +15,8 @@ export interface Zone {
   size?: number;
   weight?: number;
   color?: string;
-  align?: "left" | "center" | "right";
+  align?: "left" | "center" | "right" | "justify";
+  verticalAlign?: "top" | "center" | "bottom";
   placeholder?: string;
   sample?: string;
   options?: string[];

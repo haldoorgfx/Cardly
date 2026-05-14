@@ -104,6 +104,12 @@ const I = {
   shLine:   '<line x1="2" y1="12" x2="22" y2="12"/>',
   // image tool
   imgIcon:  '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/>',
+  // justify (4th horizontal text align)
+  aj:       '<line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="10" x2="3" y2="10"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="21" y1="18" x2="3" y2="18"/>',
+  // vertical text alignment within zone
+  vAt:      '<line x1="3" y1="4" x2="21" y2="4"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="6" y1="14" x2="18" y2="14"/><line x1="8" y1="19" x2="16" y2="19"/>',
+  vAc:      '<line x1="8" y1="5" x2="16" y2="5"/><line x1="6" y1="10" x2="18" y2="10"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="6" y1="14" x2="18" y2="14"/><line x1="8" y1="19" x2="16" y2="19"/>',
+  vAb:      '<line x1="8" y1="5" x2="16" y2="5"/><line x1="6" y1="10" x2="18" y2="10"/><line x1="8" y1="15" x2="16" y2="15"/><line x1="3" y1="20" x2="21" y2="20"/>',
 };
 
 const BRAND_COLORS = [
@@ -177,6 +183,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
   const [styleFlash, setStyleFlash]   = useState(false);
   const [aspectLock, setAspectLock]   = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [spaceDown, setSpaceDown] = useState(false);
 
   /* history */
   const [history, setHistory] = useState<HistoryState>({ past: [], future: [] });
@@ -190,6 +197,9 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
   zonesRef.current    = zones;
   const didMoveRef    = useRef(false);
   const interaction   = useRef<Interaction | null>(null);
+  const isPanning     = useRef(false);
+  const spaceDownRef  = useRef(false);
+  const panStart      = useRef({ x: 0, y: 0, scrollLeft: 0, scrollTop: 0 });
 
   /* ── load Google Fonts ───────────────────────────────── */
   useEffect(() => {
@@ -326,14 +336,14 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
     const base   = { id: 'z' + Math.random().toString(36).slice(2, 7), x: Math.round(bgW / 2 - zoneW / 2), y: Math.round(bgH / 2 - zoneH / 2), required: false };
     let z: Zone;
     if (type === 'text') {
-      z = { ...base, type, label: 'Text field', w: zoneW, h: zoneH, font: 'DM Sans', weight: 700, size: textSz, color: '#FFFFFF', align: 'center', placeholder: 'Enter text', sample: 'Sample text', lineHeight: 1.2, letterSpacing: 0, opacity: 100, rotation: 0 };
+      z = { ...base, type, label: 'Text field', w: zoneW, h: zoneH, font: 'DM Sans', weight: 700, size: textSz, color: '#FFFFFF', align: 'center', verticalAlign: 'top' as const, placeholder: 'Enter text', sample: 'Sample text', lineHeight: 1.2, letterSpacing: 0, opacity: 100, rotation: 0 };
     } else if (type === 'photo') {
       z = { ...base, type, label: 'Photo', w: photoS, h: photoS, shape: 'circle', placeholder: 'Tap to add a photo', sample: '·', opacity: 100, rotation: 0 };
     } else if (type === 'custom') {
       z = { ...base, type, label: 'Custom field', w: zoneW, h: custH, font: 'Inter', weight: 500, size: custSz, color: '#FFFFFF', align: 'center', placeholder: 'Select option', sample: 'Speaker', options: ['Speaker', 'Sponsor', 'Delegate'], opacity: 100, rotation: 0 };
     } else {
       // label
-      z = { ...base, type: 'label', label: 'Static text', w: zoneW, h: zoneH, font: 'DM Sans', weight: 700, size: textSz, color: '#FFFFFF', align: 'center', placeholder: '', sample: 'I\'m Attending', lineHeight: 1.2, letterSpacing: 0, opacity: 100, rotation: 0 };
+      z = { ...base, type: 'label', label: 'Static text', w: zoneW, h: zoneH, font: 'DM Sans', weight: 700, size: textSz, color: '#FFFFFF', align: 'center', verticalAlign: 'top' as const, placeholder: '', sample: 'I\'m Attending', lineHeight: 1.2, letterSpacing: 0, opacity: 100, rotation: 0 };
     }
     pushHistory([...zonesRef.current, z]);
     setSelectedIds([z.id]);
@@ -617,6 +627,9 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
       if (meta && e.altKey && e.key === 'c') { e.preventDefault(); copyStyle(); return; }
       if (meta && e.altKey && e.key === 'v') { e.preventDefault(); pasteStyle(); return; }
       if (e.key === 'g') { setGrid(g => !g); return; }
+      if (meta && (e.key === '=' || e.key === '+')) { e.preventDefault(); setZoom(z => Math.min(3, z + 0.15)); return; }
+      if (meta && e.key === '-') { e.preventDefault(); setZoom(z => Math.max(0.1, z - 0.15)); return; }
+      if (e.key === ' ') { e.preventDefault(); setSpaceDown(true); spaceDownRef.current = true; return; }
 
       // Arrow nudge
       if (selected && !selected.locked) {
@@ -629,8 +642,12 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
         if (e.key === ']')  { e.preventDefault(); moveZoneUp(selected.id); }
       }
     };
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.key === ' ') { setSpaceDown(false); spaceDownRef.current = false; }
+    };
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener('keyup', onKeyUp);
+    return () => { window.removeEventListener('keydown', onKey); window.removeEventListener('keyup', onKeyUp); };
   }, [selected, selectedId, selectedIds, undo, redo, removeSelected, duplicateZone, updateZone, bgW, bgH, copyStyle, pasteStyle, moveZoneUp, moveZoneDown]);
 
   /* ── fit zoom on mount / variant change ──────────────── */
@@ -658,6 +675,16 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
     el.addEventListener('wheel', onWheel, { passive: false });
     return () => el.removeEventListener('wheel', onWheel);
   }, []);
+
+  /* ── re-center canvas after zoom changes ─────────────── */
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    requestAnimationFrame(() => {
+      el.scrollLeft = Math.max(0, (el.scrollWidth - el.clientWidth)  / 2);
+      el.scrollTop  = Math.max(0, (el.scrollHeight - el.clientHeight) / 2);
+    });
+  }, [zoom]);
 
   /* ── add variant ─────────────────────────────────────── */
   const handleAddVariant = async () => {
@@ -962,20 +989,62 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
         </aside>
 
         {/* ── Stage ───────────────────────────────────────── */}
-        <div
-          ref={stageRef}
-          className="flex-1 relative overflow-hidden"
-          style={{ backgroundColor: '#EDE9E0', backgroundImage: 'radial-gradient(#C8C2B5 1px, transparent 1px)', backgroundSize: '16px 16px' }}
-          onPointerDown={() => { if (!interaction.current) setSelectedIds([]); }}
-        >
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div style={{ width: bgW * zoom, height: bgH * zoom, position: 'relative', flexShrink: 0 }}>
-              <div
-                ref={canvasInnerRef}
-                className="relative shadow-lift rounded-md"
-                style={{ width: bgW, height: bgH, transform: `scale(${zoom})`, transformOrigin: '0 0', position: 'absolute', top: 0, left: 0 }}
-                onPointerDown={e => e.stopPropagation()}
-              >
+        <div className="flex-1 relative overflow-hidden">
+          {/* Scrollable canvas area */}
+          <div
+            ref={stageRef}
+            className={`absolute inset-0 overflow-auto${spaceDown ? ' cursor-grab' : ''}`}
+            style={{ backgroundColor: '#EDE9E0', backgroundImage: 'radial-gradient(#C8C2B5 1px, transparent 1px)', backgroundSize: '16px 16px', backgroundAttachment: 'local' }}
+            onPointerDown={e => {
+              if (spaceDownRef.current) {
+                isPanning.current = true;
+                panStart.current = { x: e.clientX, y: e.clientY, scrollLeft: stageRef.current!.scrollLeft, scrollTop: stageRef.current!.scrollTop };
+                (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+                return;
+              }
+              if (!interaction.current) setSelectedIds([]);
+            }}
+            onPointerMove={e => {
+              if (!isPanning.current) return;
+              const dx = e.clientX - panStart.current.x;
+              const dy = e.clientY - panStart.current.y;
+              if (stageRef.current) {
+                stageRef.current.scrollLeft = panStart.current.scrollLeft - dx;
+                stageRef.current.scrollTop  = panStart.current.scrollTop  - dy;
+              }
+            }}
+            onPointerUp={() => { isPanning.current = false; }}
+          >
+            {/* Centering wrapper: fills stage when canvas is small, expands when canvas is large */}
+            <div style={{ minWidth: '100%', minHeight: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 80, boxSizing: 'border-box' }}>
+              <div style={{ width: bgW * zoom, height: bgH * zoom, position: 'relative', flexShrink: 0 }}>
+                <div
+                  ref={canvasInnerRef}
+                  className="relative shadow-lift rounded-md"
+                  style={{ width: bgW, height: bgH, transform: `scale(${zoom})`, transformOrigin: '0 0', position: 'absolute', top: 0, left: 0 }}
+                  onPointerDown={e => e.stopPropagation()}
+                  onDoubleClick={e => {
+                    if (previewMode || e.target !== e.currentTarget) return;
+                    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                    const cx = Math.round((e.clientX - rect.left) / zoom);
+                    const cy = Math.round((e.clientY - rect.top) / zoom);
+                    const s = bgW / 1080;
+                    const zW = Math.round(400 * s), zH = Math.round(80 * s);
+                    const z: Zone = {
+                      id: 'z' + Math.random().toString(36).slice(2, 7), type: 'text',
+                      label: 'Text field',
+                      x: Math.max(0, Math.min(bgW - zW, cx - Math.round(zW / 2))),
+                      y: Math.max(0, Math.min(bgH - zH, cy - Math.round(zH / 2))),
+                      w: zW, h: zH,
+                      font: 'DM Sans', weight: 700, size: Math.round(48 * s),
+                      color: '#FFFFFF', align: 'center', verticalAlign: 'top',
+                      placeholder: 'Enter text', sample: 'Sample text',
+                      lineHeight: 1.2, letterSpacing: 0, opacity: 100, rotation: 0,
+                    };
+                    pushHistory([...zonesRef.current, z]);
+                    setSelectedIds([z.id]);
+                  }}
+                >
                 {/* Background image */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={backgroundUrl} alt="" className="absolute inset-0 w-full h-full object-cover rounded-md pointer-events-none" draggable={false} />
@@ -1054,15 +1123,16 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
               </div>
             </div>
           </div>
+          </div>
 
-          {/* Multi-select badge */}
+          {/* Multi-select badge — viewport-fixed, not inside scroll area */}
           {selectedIds.length > 1 && !previewMode && (
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-primary text-white text-[11.5px] font-mono px-3 py-1.5 rounded-full shadow-lift pointer-events-none">
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-primary text-white text-[11.5px] font-mono px-3 py-1.5 rounded-full shadow-lift pointer-events-none z-10">
               {selectedIds.length} elements selected · ⌫ delete · drag to move
             </div>
           )}
 
-          {/* Bottom zoom bar */}
+          {/* Bottom zoom bar — viewport-fixed */}
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white rounded-xl border border-border shadow-soft p-1 z-10">
             <button onClick={() => setZoom(z => Math.max(0.1, z - 0.1))} className="h-8 w-8 rounded-lg hover:bg-cream grid place-items-center text-[#0F1F18]/70" title="Zoom out (⌘-)"><Icon d={I.zoomout} size={14} /></button>
             <button onClick={() => setZoom(1)} className="font-mono text-[12px] px-2 min-w-[60px] text-center hover:bg-cream rounded-lg py-1.5">{Math.round(zoom * 100)}%</button>
@@ -1080,6 +1150,8 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
               className={`h-8 px-2.5 rounded-lg flex items-center gap-1.5 text-[12px] transition ${gridSnap ? 'bg-accent/20 text-[#C9A45E]' : 'hover:bg-cream text-[#0F1F18]/70'}`}
               title="Snap to grid"
             ><Icon d={I.snap} size={12} />Snap</button>
+            <span className="h-5 w-px bg-border mx-0.5" />
+            <span className="text-[10px] font-mono text-[#0F1F18]/35 px-1 select-none hidden sm:block">⎵ pan</span>
           </div>
         </div>
 
@@ -1430,11 +1502,19 @@ function RightRail({
               </div>
             </PropRow>
 
-            <PropRow label="Align">
+            <PropRow label="Horizontal">
               <Segmented
                 value={selected.align ?? 'left'}
                 onChange={v => upd({ align: v as Zone['align'] })}
-                options={[{ v: 'left', icon: I.al }, { v: 'center', icon: I.ac }, { v: 'right', icon: I.ar }]}
+                options={[{ v: 'left', icon: I.al }, { v: 'center', icon: I.ac }, { v: 'right', icon: I.ar }, { v: 'justify', icon: I.aj }]}
+              />
+            </PropRow>
+
+            <PropRow label="Vertical">
+              <Segmented
+                value={selected.verticalAlign ?? 'top'}
+                onChange={v => upd({ verticalAlign: v as Zone['verticalAlign'] })}
+                options={[{ v: 'top', icon: I.vAt }, { v: 'center', icon: I.vAc }, { v: 'bottom', icon: I.vAb }]}
               />
             </PropRow>
 
@@ -1714,7 +1794,7 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, onPointerDown, onH
         {zone.bgColor && (
           <div className="absolute inset-0" style={{ background: zone.bgColor, opacity: (zone.bgOpacity ?? 60) / 100, borderRadius: 4 }} />
         )}
-        <div className="relative h-full" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: zone.align === 'center' ? 'center' : zone.align === 'right' ? 'flex-end' : 'flex-start' }}>
+        <div className="relative h-full" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', justifyContent: zone.verticalAlign === 'bottom' ? 'flex-end' : zone.verticalAlign === 'center' ? 'center' : 'flex-start', alignItems: zone.align === 'center' ? 'center' : zone.align === 'right' ? 'flex-end' : 'flex-start' }}>
           {lines.map((line, i) => (
             <div key={i} style={{ ...textStyle, whiteSpace: 'nowrap' }}>{line || ' '}</div>
           ))}
@@ -1805,14 +1885,14 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, onPointerDown, onH
 }
 
 const HANDLE_POS: Record<string, React.CSSProperties> = {
-  nw: { top: -6,   left: -6,              cursor: 'nwse-resize' },
-  n:  { top: -6,   left: '50%', marginLeft: -5, cursor: 'ns-resize'   },
-  ne: { top: -6,   right: -6,             cursor: 'nesw-resize' },
-  e:  { top: '50%',right: -6,  marginTop: -5,   cursor: 'ew-resize'   },
-  se: { bottom: -6,right: -6,             cursor: 'nwse-resize' },
-  s:  { bottom: -6,left: '50%',marginLeft: -5,  cursor: 'ns-resize'   },
-  sw: { bottom: -6,left: -6,              cursor: 'nesw-resize' },
-  w:  { top: '50%',left: -6,  marginTop: -5,    cursor: 'ew-resize'   },
+  nw: { top: -7,   left: -7,              cursor: 'nwse-resize' },
+  n:  { top: -7,   left: '50%', marginLeft: -6, cursor: 'ns-resize'   },
+  ne: { top: -7,   right: -7,             cursor: 'nesw-resize' },
+  e:  { top: '50%',right: -7,  marginTop: -6,   cursor: 'ew-resize'   },
+  se: { bottom: -7,right: -7,             cursor: 'nwse-resize' },
+  s:  { bottom: -7,left: '50%',marginLeft: -6,  cursor: 'ns-resize'   },
+  sw: { bottom: -7,left: -7,              cursor: 'nesw-resize' },
+  w:  { top: '50%',left: -7,  marginTop: -6,    cursor: 'ew-resize'   },
 };
 
 function HandleEl({ dir, round, color, onPointerDown }: { dir: string; round: boolean; color: string; onPointerDown: (e: React.PointerEvent) => void }) {
@@ -1820,7 +1900,7 @@ function HandleEl({ dir, round, color, onPointerDown }: { dir: string; round: bo
     <span
       data-handle={dir}
       onPointerDown={onPointerDown}
-      style={{ position: 'absolute', width: 10, height: 10, background: 'white', border: `2px solid ${color}`, borderRadius: round ? 999 : 2, ...HANDLE_POS[dir] }}
+      style={{ position: 'absolute', width: 12, height: 12, background: 'white', border: `2px solid ${color}`, borderRadius: round ? 999 : 3, boxShadow: '0 1px 3px rgba(0,0,0,0.2)', ...HANDLE_POS[dir] }}
     />
   );
 }

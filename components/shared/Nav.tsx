@@ -22,33 +22,30 @@ export function Nav() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 backdrop-blur-md bg-cream/80 border-b border-border/60">
-        <nav className="max-w-7xl mx-auto flex items-center justify-between px-6 lg:px-10 h-16">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="h-8 w-8 rounded-xl grad-bg grid place-items-center text-white font-display font-bold">
-              C
-            </span>
-            <span className="font-display font-bold text-[17px]">Cardly</span>
+      <header className="sticky top-0 z-40 bg-white border-b border-neutral-100">
+        <nav className="max-w-7xl mx-auto flex items-center justify-between px-6 lg:px-10 h-14">
+          <Link href="/" className="flex items-center">
+            <span className="font-semibold text-[16px] text-[#0a0a0a]">Cardly</span>
           </Link>
 
-          <ul className="hidden md:flex items-center gap-9 text-[14px] text-ink/70">
+          <ul className="hidden md:flex items-center gap-8 text-[14px] text-neutral-600">
             <li>
-              <a className="hover:text-ink transition" href="#how">
+              <a className="hover:text-neutral-900 transition" href="#how">
                 How it works
               </a>
             </li>
             <li>
-              <a className="hover:text-ink transition" href="#showcase">
+              <a className="hover:text-neutral-900 transition" href="#showcase">
                 Showcase
               </a>
             </li>
             <li>
-              <Link className="hover:text-ink transition" href="/pricing">
+              <Link className="hover:text-neutral-900 transition" href="/pricing">
                 Pricing
               </Link>
             </li>
             <li>
-              <a className="hover:text-ink transition" href="#faq">
+              <a className="hover:text-neutral-900 transition" href="#faq">
                 FAQ
               </a>
             </li>
@@ -57,21 +54,20 @@ export function Nav() {
           <div className="flex items-center gap-2">
             <Link
               href="/login"
-              className="hidden sm:inline-flex text-[14px] text-ink/80 hover:text-ink px-3 py-2 rounded-lg transition"
+              className="hidden sm:inline-flex text-[14px] text-neutral-600 hover:text-neutral-900 px-3 py-1.5 transition"
             >
               Sign in
             </Link>
             <Link
               href="/signup"
-              className="hidden sm:inline-flex items-center gap-1.5 text-[14px] font-medium text-white grad-bg px-4 py-2 rounded-xl shadow-soft hover:opacity-95 transition"
+              className="hidden sm:inline-flex items-center gap-1.5 h-8 px-4 bg-[#0a0a0a] text-white text-[13px] font-medium rounded-md hover:bg-neutral-800 transition"
             >
-              Start free
-              <ArrowIcon />
+              Get started
             </Link>
 
             {/* Mobile hamburger */}
             <button
-              className="md:hidden h-9 w-9 rounded-xl hover:bg-cream grid place-items-center text-ink/60 transition"
+              className="md:hidden h-9 w-9 rounded-md hover:bg-neutral-100 grid place-items-center text-neutral-600 transition"
               onClick={() => setOpen(true)}
               aria-label="Open menu"
             >
@@ -89,21 +85,18 @@ export function Nav() {
       {open && (
         <div className="fixed inset-0 z-50 md:hidden">
           <div
-            className="absolute inset-0 bg-[#0F1F18]/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/30"
             onClick={() => setOpen(false)}
           />
-          <div className="absolute right-0 top-0 bottom-0 w-[280px] bg-white shadow-[−4px_0_40px_rgba(15,31,24,0.12)] flex flex-col animate-[slideInRight_200ms_ease-out]" style={{ animation: 'slideInRight 200ms ease-out' }}>
+          <div className="absolute right-0 top-0 bottom-0 w-[280px] bg-white flex flex-col" style={{ animation: 'slideInRight 200ms ease-out' }}>
             {/* Drawer header */}
-            <div className="flex items-center justify-between px-5 h-16 border-b border-border">
-              <Link href="/" className="flex items-center gap-2" onClick={() => setOpen(false)}>
-                <span className="h-8 w-8 rounded-xl grad-bg grid place-items-center text-white font-display font-bold">
-                  C
-                </span>
-                <span className="font-display font-bold text-[17px]">Cardly</span>
+            <div className="flex items-center justify-between px-5 h-14 border-b border-neutral-100">
+              <Link href="/" className="flex items-center" onClick={() => setOpen(false)}>
+                <span className="font-semibold text-[16px] text-[#0a0a0a]">Cardly</span>
               </Link>
               <button
                 onClick={() => setOpen(false)}
-                className="h-8 w-8 rounded-xl hover:bg-cream grid place-items-center text-[#0F1F18]/50 transition"
+                className="h-8 w-8 rounded-md hover:bg-neutral-100 grid place-items-center text-neutral-500 transition"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
                   <path d="M18 6L6 18M6 6l12 12"/>
@@ -123,7 +116,7 @@ export function Nav() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setOpen(false)}
-                  className="flex items-center px-3 py-2.5 rounded-xl text-[14px] text-[#0F1F18]/70 hover:text-[#0F1F18] hover:bg-cream transition"
+                  className="flex items-center px-3 py-2.5 rounded-md text-[14px] text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 transition"
                 >
                   {item.label}
                 </a>
@@ -131,43 +124,25 @@ export function Nav() {
             </nav>
 
             {/* Drawer CTA */}
-            <div className="p-4 border-t border-border space-y-2">
+            <div className="p-4 border-t border-neutral-100 space-y-2">
               <Link
                 href="/login"
                 onClick={() => setOpen(false)}
-                className="flex items-center justify-center w-full px-4 py-2.5 rounded-xl border border-border text-[14px] font-medium text-[#0F1F18]/80 hover:bg-cream transition"
+                className="flex items-center justify-center w-full px-4 py-2 rounded-md border border-neutral-200 text-[14px] font-medium text-neutral-700 hover:bg-neutral-50 transition"
               >
                 Sign in
               </Link>
               <Link
                 href="/signup"
                 onClick={() => setOpen(false)}
-                className="flex items-center justify-center gap-1.5 w-full px-4 py-2.5 rounded-xl text-[14px] font-medium text-white bg-primary hover:opacity-95 transition"
+                className="flex items-center justify-center w-full h-9 px-4 rounded-md text-[14px] font-medium text-white bg-[#0a0a0a] hover:bg-neutral-800 transition"
               >
-                Start free
-                <ArrowIcon />
+                Get started
               </Link>
             </div>
           </div>
         </div>
       )}
     </>
-  );
-}
-
-function ArrowIcon() {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M5 12h14M13 6l6 6-6 6" />
-    </svg>
   );
 }
