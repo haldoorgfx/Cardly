@@ -1,6 +1,6 @@
 export type Plan = "free" | "pro" | "studio";
 export type EventStatus = "draft" | "published" | "archived";
-export type ZoneType = "text" | "photo" | "custom" | "label" | "shape";
+export type ZoneType = "text" | "photo" | "custom" | "label" | "shape" | "image";
 
 export interface Zone {
   id: string;
@@ -42,6 +42,8 @@ export interface Zone {
   photoBorderWidth?: number;  // px, default 0
   // shape zone
   shapeType?: 'rect' | 'ellipse' | 'triangle' | 'line';  // for type === 'shape'
+  // image zone
+  imageUrl?: string;  // for type === 'image' — designer-uploaded static image
   // state flags
   required?: boolean;
   hidden?: boolean;

@@ -271,6 +271,45 @@ async function compositeText(
   }]);
 }
 
+async function compositeImage(
+  base: sharp.Sharp,
+  zone: Zone,
+  canvasW: number,
+  canvasH: number,
+): Promise<sharp.Sharp> {
+  if (!zone.imageUrl) return base;
+  const w = Math.max(1, Math.round(zone.w));
+  const h = Math.max(1, Math.round(zone.h));
+  const rotation    = zone.rotation ?? 0;
+  const zoneOpacity = (zone.opacity ?? 100) / 100;
+
+  const imgBuf = await fetchBuffer(zone.imageUrl);
+
+  // Resize to zone bounds keeping full image visible (contain, transparent bg)
+  let imgProcessed = await sharp(imgBuf)
+    .resize(w, h, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .png()
+    .toBuffer();
+
+  if (zoneOpacity < 1) {
+    const opSvg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+      <image href="data:image/png;base64,${imgProcessed.toString('base64')}"
+        width="${w}" height="${h}" opacity="${zoneOpacity}"/>
+    </svg>`;
+    imgProcessed = await sharp(Buffer.from(opSvg)).png().toBuffer();
+  }
+
+  const { buf: finalBuf, w: fw, h: fh } = await rotateBuffer(imgProcessed, rotation);
+
+  const zoneCX = zone.x + zone.w / 2;
+  const zoneCY = zone.y + zone.h / 2;
+  const left = Math.max(0, Math.min(Math.round(zoneCX - fw / 2), canvasW - fw));
+  const top  = Math.max(0, Math.min(Math.round(zoneCY - fh / 2), canvasH - fh));
+
+  const baseBuf = await base.png().toBuffer();
+  return sharp(baseBuf).composite([{ input: finalBuf, left, top }]);
+}
+
 async function compositePhoto(
   base: sharp.Sharp,
   zone: Zone,
@@ -503,6 +542,8 @@ export async function POST(req: NextRequest) {
       }
     } else if (zone.type === 'shape') {
       pipeline = await compositeShape(pipeline, zone, canvasW, canvasH);
+    } else if (zone.type === 'image') {
+      pipeline = await compositeImage(pipeline, zone, canvasW, canvasH);
     }
   }
 

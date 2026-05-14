@@ -102,6 +102,8 @@ const I = {
   shOval:   '<ellipse cx="12" cy="12" rx="9" ry="6"/>',
   shTri:    '<path d="M12 3L22 21H2L12 3z"/>',
   shLine:   '<line x1="2" y1="12" x2="22" y2="12"/>',
+  // image tool
+  imgIcon:  '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/>',
 };
 
 const BRAND_COLORS = [
@@ -174,13 +176,15 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
   const [copiedStyle, setCopiedStyle] = useState<Partial<Zone> | null>(null);
   const [styleFlash, setStyleFlash]   = useState(false);
   const [aspectLock, setAspectLock]   = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   /* history */
   const [history, setHistory] = useState<HistoryState>({ past: [], future: [] });
 
   /* refs */
-  const stageRef      = useRef<HTMLDivElement>(null);
-  const canvasInnerRef = useRef<HTMLDivElement>(null);
+  const stageRef       = useRef<HTMLDivElement>(null);
+  const canvasInnerRef  = useRef<HTMLDivElement>(null);
+  const imageUploadRef  = useRef<HTMLInputElement>(null);
   const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const zonesRef      = useRef(zones);
   zonesRef.current    = zones;
@@ -360,6 +364,48 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
     pushHistory([...zonesRef.current, z]);
     setSelectedIds([z.id]);
   }, [pushHistory, bgW, bgH]);
+
+  const handleImageUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    // Reset so the same file can be re-selected
+    if (imageUploadRef.current) imageUploadRef.current.value = '';
+    setUploadingImage(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('eventId', eventId);
+      const res = await fetch('/api/upload-zone-image', { method: 'POST', body: fd });
+      if (!res.ok) {
+        const { error } = await res.json().catch(() => ({ error: 'Upload failed' }));
+        console.error('[upload-zone-image]', error);
+        return;
+      }
+      const { url } = await res.json() as { url: string };
+      const s  = bgW / 1080;
+      const iW = Math.round(400 * s);
+      const iH = Math.round(300 * s);
+      const z: Zone = {
+        id:       'z' + Math.random().toString(36).slice(2, 7),
+        type:     'image',
+        label:    file.name.replace(/\.[^.]+$/, '').slice(0, 30),
+        x:        Math.round(bgW / 2 - iW / 2),
+        y:        Math.round(bgH / 2 - iH / 2),
+        w:        iW,
+        h:        iH,
+        imageUrl: url,
+        opacity:  100,
+        rotation: 0,
+        required: false,
+      };
+      pushHistory([...zonesRef.current, z]);
+      setSelectedIds([z.id]);
+    } catch (err) {
+      console.error('[upload-zone-image] unexpected error', err);
+    } finally {
+      setUploadingImage(false);
+    }
+  }, [eventId, bgW, bgH, pushHistory]);
 
   /* ── undo / redo ─────────────────────────────────────── */
   const undo = useCallback(() => {
@@ -763,6 +809,16 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
           {!previewMode && (
             <div className="p-4">
               <div className="text-[10.5px] font-mono tracking-widest text-[#0F1F18]/40 mb-3">ADD ELEMENT</div>
+
+              {/* Hidden file input for image upload */}
+              <input
+                ref={imageUploadRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+                className="hidden"
+                onChange={handleImageUpload}
+              />
+
               <div className="space-y-1">
                 {[
                   { type: 'text' as const,   label: 'Text field',   sub: 'Name, title, country…',      icon: I.text  },
@@ -786,6 +842,25 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                   </button>
                 ))}
               </div>
+
+              {/* Image upload button */}
+              <button
+                onClick={() => imageUploadRef.current?.click()}
+                disabled={uploadingImage}
+                className="group w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-cream border border-transparent hover:border-border transition text-left disabled:opacity-50 mt-1"
+              >
+                <span className="h-9 w-9 rounded-lg bg-cream grid place-items-center text-primary group-hover:text-white group-hover:bg-primary transition shrink-0">
+                  {uploadingImage
+                    ? <svg className="animate-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                    : <Icon d={I.imgIcon} size={15} sw={1.8} />
+                  }
+                </span>
+                <span className="flex-1 min-w-0">
+                  <span className="block text-[13px] font-medium">{uploadingImage ? 'Uploading…' : 'Image'}</span>
+                  <span className="block text-[11px] text-[#0F1F18]/50">PNG, JPG, WebP, SVG, GIF</span>
+                </span>
+                <Icon d={I.plus} size={12} sw={2} />
+              </button>
 
               {/* Shapes section */}
               <div className="mt-3">
@@ -847,7 +922,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                       </div>
                     )}
                     <span className={`h-6 w-6 rounded-md grid place-items-center shrink-0 ${isSel ? 'text-primary' : 'text-[#0F1F18]/50'}`}>
-                      <Icon d={z.type === 'photo' ? I.photo : z.type === 'custom' ? I.field : z.type === 'label' ? I.label : z.type === 'shape' ? I.shRect : I.text} size={12} />
+                      <Icon d={z.type === 'photo' ? I.photo : z.type === 'custom' ? I.field : z.type === 'label' ? I.label : z.type === 'shape' ? I.shRect : z.type === 'image' ? I.imgIcon : I.text} size={12} />
                     </span>
                     <span className="flex-1 truncate">{z.label}</span>
                     {z.required && <span className="text-[9px] font-mono px-1 py-px rounded bg-primary/10 text-primary shrink-0">REQ</span>}
@@ -1082,6 +1157,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
             BRAND_COLORS={BRAND_COLORS}
             aspectLock={aspectLock}
             setAspectLock={setAspectLock}
+            eventId={eventId}
           />
         )}
       </div>
@@ -1143,7 +1219,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
 ══════════════════════════════════════════════════════════ */
 function RightRail({
   selected, bgW, bgH, fontSearch, setFontSearch, filteredFonts,
-  updateZone, duplicateZone, removeZone, BRAND_COLORS, aspectLock, setAspectLock,
+  updateZone, duplicateZone, removeZone, BRAND_COLORS, aspectLock, setAspectLock, eventId,
 }: {
   selected: Zone; bgW: number; bgH: number;
   fontSearch: string; setFontSearch: (v: string) => void; filteredFonts: string[];
@@ -1153,6 +1229,7 @@ function RightRail({
   BRAND_COLORS: string[];
   aspectLock: boolean;
   setAspectLock: (v: boolean) => void;
+  eventId: string;
 }) {
   const upd = (patch: Partial<Zone>) => updateZone(selected.id, patch);
   const [showFontSearch, setShowFontSearch] = useState(false);
@@ -1162,7 +1239,7 @@ function RightRail({
       {/* Zone header */}
       <div className="p-4 border-b border-border flex items-center gap-2 shrink-0">
         <span className="h-7 w-7 rounded-md grid place-items-center text-white bg-primary shrink-0">
-          <Icon d={selected.type === 'photo' ? I.photo : selected.type === 'custom' ? I.field : selected.type === 'label' ? I.label : selected.type === 'shape' ? I.shRect : I.text} size={13} />
+          <Icon d={selected.type === 'photo' ? I.photo : selected.type === 'custom' ? I.field : selected.type === 'label' ? I.label : selected.type === 'shape' ? I.shRect : selected.type === 'image' ? I.imgIcon : I.text} size={13} />
         </span>
         <div className="flex-1 min-w-0">
           <div className="text-[10.5px] font-mono text-[#0F1F18]/45 uppercase tracking-widest">{selected.type} zone</div>
@@ -1251,6 +1328,41 @@ function RightRail({
               </PropRow>
             </>
           )}
+        </PropSection>
+      )}
+
+      {/* ── Image style ───────────────────────────────────── */}
+      {selected.type === 'image' && (
+        <PropSection title="Image">
+          {selected.imageUrl && (
+            <div className="rounded-xl overflow-hidden border border-border bg-cream" style={{ height: 120 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={selected.imageUrl} alt={selected.label} className="w-full h-full object-contain" />
+            </div>
+          )}
+          <PropRow label="Replace image">
+            <label className="flex items-center gap-2 cursor-pointer w-full h-9 px-3 rounded-xl border border-border bg-cream text-[12.5px] hover:bg-white transition">
+              <Icon d={I.upload} size={13} sw={1.8} />
+              <span>Upload new image…</span>
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+                className="hidden"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  const fd = new FormData();
+                  fd.append('file', file);
+                  fd.append('eventId', eventId);
+                  const res = await fetch('/api/upload-zone-image', { method: 'POST', body: fd });
+                  if (res.ok) {
+                    const { url } = await res.json() as { url: string };
+                    upd({ imageUrl: url, label: file.name.replace(/\.[^.]+$/, '').slice(0, 30) });
+                  }
+                }}
+              />
+            </label>
+          </PropRow>
         </PropSection>
       )}
 
@@ -1500,9 +1612,10 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, onPointerDown, onH
   const isPhoto  = zone.type === 'photo';
   const isLabel  = zone.type === 'label';
   const isShape  = zone.type === 'shape';
+  const isImage  = zone.type === 'image';
   const rotation = zone.rotation ?? 0;
-  const radius   = isPhoto ? (zone.shape === 'circle' ? '50%' : zone.shape === 'rounded' ? '20%' : '4px') : isShape ? '0' : '6px';
-  const dashColor = multiSelected ? '#C9A45E' : isLabel ? '#C97A2D' : isShape ? '#3A6B8C' : '#1F4D3A';
+  const radius   = isPhoto ? (zone.shape === 'circle' ? '50%' : zone.shape === 'rounded' ? '20%' : '4px') : (isShape || isImage) ? '0' : '6px';
+  const dashColor = multiSelected ? '#C9A45E' : isLabel ? '#C97A2D' : isShape ? '#3A6B8C' : isImage ? '#7C3AED' : '#1F4D3A';
   const opacityVal = (zone.opacity ?? 100) / 100;
 
   const displayText = (() => {
@@ -1513,7 +1626,7 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, onPointerDown, onH
     return raw;
   })();
 
-  const lines = (!isPhoto && !isShape) ? wrapTextLines(displayText, zone.w - 16, zone.size ?? 32) : [];
+  const lines = (!isPhoto && !isShape && !isImage) ? wrapTextLines(displayText, zone.w - 16, zone.size ?? 32) : [];
 
   const textStyle: React.CSSProperties = {
     fontFamily: zone.font,
@@ -1561,6 +1674,26 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, onPointerDown, onH
                 stroke={strokeW > 0 ? stroke : 'none'} strokeWidth={strokeW} />
             )}
           </svg>
+        </div>
+      );
+    }
+    if (isImage) {
+      return (
+        <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: 4 }}>
+          {zone.imageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={zone.imageUrl}
+              alt={zone.label}
+              className="w-full h-full pointer-events-none"
+              style={{ objectFit: 'contain' }}
+              draggable={false}
+            />
+          ) : (
+            <div className="absolute inset-0 grid place-items-center text-white/50 bg-white/5">
+              <Icon d={I.imgIcon} size={32} sw={1.2} />
+            </div>
+          )}
         </div>
       );
     }
