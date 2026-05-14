@@ -64,11 +64,6 @@ const WORKSPACE_ITEMS = [
   },
 ];
 
-const STATUS_STYLES: Record<string, string> = {
-  published: 'bg-emerald-500/10 text-emerald-400',
-  draft:     'bg-white/[0.06] text-white/35',
-  archived:  'bg-rose-500/10 text-rose-400',
-};
 
 // ─── Command palette ──────────────────────────────────────────────────────────
 

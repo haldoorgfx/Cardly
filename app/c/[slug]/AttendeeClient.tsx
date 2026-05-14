@@ -88,8 +88,6 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
   // ── Interaction state ────────────────────────────────────────────────────────
   const [editingZoneId, setEditingZoneId]         = useState<string | null>(null);
   const [activePhotoZoneId, setActivePhotoZoneId] = useState<string | null>(null);
-  const [isDesktop, setIsDesktop]                 = useState(false);
-
   // ── Refs / measurements ──────────────────────────────────────────────────────
   const fileInputRefs    = useRef<Record<string, HTMLInputElement | null>>({});
   const cardRef          = useRef<HTMLDivElement>(null);
@@ -97,13 +95,6 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
   const [measuredHeights, setMeasuredHeights] = useState<Record<string, number>>({});
   const measureSpanRefs  = useRef<Record<string, HTMLSpanElement | null>>({});
 
-  // Desktop detection
-  useEffect(() => {
-    const check = () => setIsDesktop(window.innerWidth >= 768);
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
 
   // Measure card width on mount + resize
   useEffect(() => {
