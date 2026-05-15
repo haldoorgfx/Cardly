@@ -408,9 +408,21 @@ async function compositePhoto(
     const maskBuf = await sharp(Buffer.from(mask)).png().toBuffer();
     photoSharp = sharp(await photoSharp.png().toBuffer()).composite([{ input: maskBuf, blend: 'dest-in' }]);
   } else if (shape === 'rounded') {
-    const r = Math.min(w, h) * 0.2;
+    const r = (zone.cornerRadius ?? 18) / 100 * Math.min(w, h);
     const mask = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
       <rect x="0" y="0" width="${w}" height="${h}" rx="${r}" ry="${r}" fill="white"/>
+    </svg>`;
+    const maskBuf = await sharp(Buffer.from(mask)).png().toBuffer();
+    photoSharp = sharp(await photoSharp.png().toBuffer()).composite([{ input: maskBuf, blend: 'dest-in' }]);
+  } else if (shape === 'hexagon') {
+    // Pointy-top hexagon polygon
+    const hx = w / 2, hy = h / 2;
+    const pts = [
+      `${hx},1`, `${w - 1},${h / 4}`, `${w - 1},${3 * h / 4}`,
+      `${hx},${h - 1}`, `1,${3 * h / 4}`, `1,${h / 4}`,
+    ].join(' ');
+    const mask = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="${pts}" fill="white"/>
     </svg>`;
     const maskBuf = await sharp(Buffer.from(mask)).png().toBuffer();
     photoSharp = sharp(await photoSharp.png().toBuffer()).composite([{ input: maskBuf, blend: 'dest-in' }]);
@@ -420,13 +432,22 @@ async function compositePhoto(
 
   // Border overlay
   if (borderColor && borderWidth > 0) {
-    const r = shape === 'circle' ? '50%' : shape === 'rounded' ? `${Math.min(w, h) * 0.2}` : '0';
-    const borderSvg = shape === 'circle'
-      ? `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg"><ellipse cx="${w / 2}" cy="${h / 2}" rx="${w / 2 - borderWidth / 2}" ry="${h / 2 - borderWidth / 2}" fill="none" stroke="${borderColor}" stroke-width="${borderWidth}"/></svg>`
-      : `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg"><rect x="${borderWidth / 2}" y="${borderWidth / 2}" width="${w - borderWidth}" height="${h - borderWidth}" rx="${r}" fill="none" stroke="${borderColor}" stroke-width="${borderWidth}"/></svg>`;
+    const bw2 = borderWidth / 2;
+    let borderSvg: string;
+    if (shape === 'circle') {
+      borderSvg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg"><ellipse cx="${w / 2}" cy="${h / 2}" rx="${w / 2 - bw2}" ry="${h / 2 - bw2}" fill="none" stroke="${borderColor}" stroke-width="${borderWidth}"/></svg>`;
+    } else if (shape === 'hexagon') {
+      const hx = w / 2, hy = h / 2;
+      const pts = [`${hx},${bw2}`, `${w - bw2},${h / 4}`, `${w - bw2},${3 * h / 4}`, `${hx},${h - bw2}`, `${bw2},${3 * h / 4}`, `${bw2},${h / 4}`].join(' ');
+      borderSvg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg"><polygon points="${pts}" fill="none" stroke="${borderColor}" stroke-width="${borderWidth}"/></svg>`;
+    } else {
+      const r = shape === 'rounded' ? (zone.cornerRadius ?? 18) / 100 * Math.min(w, h) : 0;
+      borderSvg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg"><rect x="${bw2}" y="${bw2}" width="${w - borderWidth}" height="${h - borderWidth}" rx="${r}" fill="none" stroke="${borderColor}" stroke-width="${borderWidth}"/></svg>`;
+    }
     const borderBuf = await sharp(Buffer.from(borderSvg)).png().toBuffer();
     photoBuf = await sharp(photoBuf).composite([{ input: borderBuf }]).png().toBuffer();
   }
+  void h; // suppress unused var warning if h is only used in hexagon path
 
   // Opacity
   if (zoneOpacity < 1) {

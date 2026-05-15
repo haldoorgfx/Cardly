@@ -3,10 +3,12 @@
 import {
   useState, useRef, useEffect, useLayoutEffect, useCallback, type CSSProperties,
 } from 'react';
+import Cropper from 'react-easy-crop';
+import type { Area } from 'react-easy-crop';
 import type { Zone } from '@/types/database';
 import {
   Check, Download, Copy, ChevronLeft, ChevronRight,
-  Layers, Camera, Pencil, Sparkles, Upload, X,
+  Layers, Camera, Pencil, Sparkles, Upload, X, ZoomIn, ZoomOut,
 } from 'lucide-react';
 
 interface Props {
@@ -34,6 +36,38 @@ function SI({ n }: { n: string }) {
   if (n==='X')         return <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>;
   if (n==='LinkedIn')  return <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>;
   return null;
+}
+
+/* ── Crop helper — draw cropped area to canvas, return JPEG blob ─────────── */
+async function getCroppedBlob(
+  imageSrc: string,
+  crop: Area,
+): Promise<Blob> {
+  const image = new window.Image();
+  image.crossOrigin = 'anonymous';
+  await new Promise<void>((resolve, reject) => {
+    image.onload  = () => resolve();
+    image.onerror = () => reject(new Error('Failed to load image'));
+    image.src = imageSrc;
+  });
+  const canvas = document.createElement('canvas');
+  canvas.width  = Math.round(crop.width);
+  canvas.height = Math.round(crop.height);
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('No canvas context');
+  ctx.drawImage(
+    image,
+    Math.round(crop.x), Math.round(crop.y),
+    Math.round(crop.width), Math.round(crop.height),
+    0, 0,
+    Math.round(crop.width), Math.round(crop.height),
+  );
+  return new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob(
+      blob => blob ? resolve(blob) : reject(new Error('Canvas is empty')),
+      'image/jpeg', 0.93,
+    );
+  });
 }
 
 function Confetti() {
@@ -65,6 +99,14 @@ export default function AttendeeClient({
   const [downloaded, setDownloaded]   = useState(false);
   const [activeZoneId, setActiveZoneId] = useState<string | null>(null);
   const [dropActive, setDropActive]   = useState(false);
+
+  /* ── Crop modal state ──────────────────────────────────────────────────── */
+  const [cropTarget, setCropTarget] = useState<{
+    zoneId: string; zone: Zone; srcUrl: string; file: File;
+  } | null>(null);
+  const [cropPos, setCropPos]   = useState<{x: number; y: number}>({ x: 0, y: 0 });
+  const [cropZoom, setCropZoom] = useState(1);
+  const [croppedAreaPx, setCroppedAreaPx] = useState<Area | null>(null);
 
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const sheetInputRef = useRef<HTMLInputElement | null>(null);
@@ -137,15 +179,38 @@ export default function AttendeeClient({
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(()=>setToast(null),2200); };
 
+  /* Open crop modal after file selection */
   const handlePhotoSelect = useCallback((zoneId: string, file: File) => {
-    setPhotoFiles(p=>({...p,[zoneId]:file}));
-    setPhotoUrls(u=>({...u,[zoneId]:URL.createObjectURL(file)}));
-    // Auto-advance to next field after photo selection
-    const idx = editableFields.findIndex(f=>f.id===zoneId);
-    if (idx < editableFields.length-1) setTimeout(()=>setActiveZoneId(editableFields[idx+1].id), 350);
-    else setActiveZoneId(null);
+    const zone = zones.find(z => z.id === zoneId);
+    if (!zone) return;
+    const srcUrl = URL.createObjectURL(file);
+    setCropPos({ x: 0, y: 0 });
+    setCropZoom(1);
+    setCroppedAreaPx(null);
+    setCropTarget({ zoneId, zone, srcUrl, file });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editableFields]);
+  }, [zones]);
+
+  /* Confirm crop — create cropped blob and store it */
+  const handleCropConfirm = useCallback(async () => {
+    if (!cropTarget || !croppedAreaPx) return;
+    try {
+      const blob = await getCroppedBlob(cropTarget.srcUrl, croppedAreaPx);
+      const croppedFile = new File([blob], cropTarget.file.name, { type: 'image/jpeg' });
+      const croppedUrl  = URL.createObjectURL(blob);
+      setPhotoFiles(p => ({ ...p, [cropTarget.zoneId]: croppedFile }));
+      setPhotoUrls(u  => ({ ...u, [cropTarget.zoneId]: croppedUrl }));
+      const zoneId = cropTarget.zoneId;
+      setCropTarget(null);
+      // Auto-advance
+      const idx = editableFields.findIndex(f => f.id === zoneId);
+      if (idx < editableFields.length - 1) setTimeout(() => setActiveZoneId(editableFields[idx + 1].id), 350);
+      else setActiveZoneId(null);
+    } catch (err) {
+      console.error('[crop]', err);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cropTarget, croppedAreaPx, editableFields]);
 
   const handleGenerate = async () => {
     setScreen('generating'); setError('');
@@ -318,13 +383,21 @@ export default function AttendeeClient({
 
     /* ── Photo zone ─────────────────────────────────────────────────────── */
     if (z.type==='photo') {
-      const br  = z.shape==='circle'?'50%':z.shape==='rounded'?'20%':'10px';
+      const shortDim = Math.min(z.w, z.h) * scale;
+      const br  = z.shape==='circle'?'50%'
+        : z.shape==='rounded'?`${((z.cornerRadius??18)/100)*shortDim}px`
+        : z.shape==='hexagon'?'0'
+        : '10px';
+      const clipPath = z.shape==='hexagon'
+        ? 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)'
+        : undefined;
       const url = photoUrls[z.id];
       return (
         <div key={z.id} className="absolute" style={{left:`${left}%`,top:`${top}%`,width:`${width}%`,height:`${height}%`,zIndex:2}}
           onClick={()=>{setActiveZoneId(z.id); fileInputRefs.current[z.id]?.click();}}>
           <div className="w-full h-full overflow-hidden relative cursor-pointer" style={{
             borderRadius:br,
+            clipPath,
             outline: isActive?'3px solid rgba(232,197,126,1)':'none',
             outlineOffset:'3px',
             transition:'outline 0.2s ease',
@@ -375,7 +448,7 @@ export default function AttendeeClient({
             {/* Tap-to-change overlay for filled photos */}
             {url && (
               <div className="absolute inset-0 opacity-0 hover:opacity-100 active:opacity-100 transition-opacity flex items-center justify-center"
-                style={{background:'rgba(0,0,0,0.35)', borderRadius:br}}>
+                style={{background:'rgba(0,0,0,0.35)', borderRadius:br, clipPath}}>
                 <div className="flex flex-col items-center gap-1">
                   <Camera color="white" size={Math.max(14, 18*scale)} strokeWidth={1.8}/>
                   <span style={{color:'white',fontSize:`${Math.max(8,10*scale)}px`,fontWeight:600}}>Change</span>
@@ -813,11 +886,13 @@ export default function AttendeeClient({
                   const left=(z.x/backgroundWidth)*100, top=((z.y+accOff)/backgroundHeight)*100;
                   const width=(z.w/backgroundWidth)*100, height=(z.h/backgroundHeight)*100;
                   if (z.type==='photo') {
-                    const br=z.shape==='circle'?'50%':z.shape==='rounded'?'20%':'6px';
+                    const sd = Math.min(z.w, z.h) * scale;
+                    const br = z.shape==='circle'?'50%':z.shape==='rounded'?`${((z.cornerRadius??18)/100)*sd}px`:z.shape==='hexagon'?'0':'6px';
+                    const cp = z.shape==='hexagon'?'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)':undefined;
                     const url=photoUrls[z.id];
                     return (
                       <div key={z.id} className="absolute pointer-events-none" style={{left:`${left}%`,top:`${top}%`,width:`${width}%`,height:`${height}%`}}>
-                        <div className="w-full h-full overflow-hidden" style={{borderRadius:br}}>
+                        <div className="w-full h-full overflow-hidden" style={{borderRadius:br,clipPath:cp}}>
                           {url?(
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={url} alt="" className="w-full h-full object-cover"/>
@@ -863,8 +938,119 @@ export default function AttendeeClient({
       {zones.filter(z=>z.type==='photo').map(z=>(
         <input key={z.id} ref={el=>{fileInputRefs.current[z.id]=el;}}
           type="file" accept="image/*" className="hidden"
-          onChange={e=>{const f=e.target.files?.[0];if(f)handlePhotoSelect(z.id,f);}}/>
+          onChange={e=>{const f=e.target.files?.[0];if(f)handlePhotoSelect(z.id,f);if(e.target)e.target.value='';}}/>
       ))}
+
+      {/* ─── Crop modal ──────────────────────────────────────────────────── */}
+      {cropTarget && (() => {
+        const z = cropTarget.zone;
+        const aspect = z.w / z.h;
+        const isCircle = z.shape === 'circle';
+        return (
+          <div
+            className="fixed inset-0 z-50 flex flex-col"
+            style={{ background: 'rgba(10,20,14,0.97)', backdropFilter: 'blur(8px)' }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 pt-5 pb-3 shrink-0">
+              <div>
+                <div className="text-[10.5px] font-mono tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                  CROP PHOTO
+                </div>
+                <div className="text-[15px] font-semibold text-white mt-0.5">{z.label || 'Photo'}</div>
+              </div>
+              <button
+                onClick={() => setCropTarget(null)}
+                className="h-9 w-9 rounded-xl grid place-items-center transition"
+                style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}
+              >
+                <X size={16} color="rgba(255,255,255,0.7)" strokeWidth={2} />
+              </button>
+            </div>
+
+            {/* Shape hint */}
+            <div className="px-5 pb-3 shrink-0">
+              <div className="inline-flex items-center gap-1.5 text-[10.5px] font-mono px-2.5 py-1 rounded-full"
+                style={{ background: 'rgba(232,197,126,0.1)', border: '1px solid rgba(232,197,126,0.3)', color: '#E8C57E' }}>
+                <span className="h-1.5 w-1.5 rounded-full bg-[#E8C57E]" />
+                {isCircle ? 'Circle crop' : z.shape === 'rounded' ? 'Rounded crop' : 'Square crop'} · drag to reposition
+              </div>
+            </div>
+
+            {/* Cropper area */}
+            <div className="flex-1 relative">
+              <Cropper
+                image={cropTarget.srcUrl}
+                crop={cropPos}
+                zoom={cropZoom}
+                aspect={aspect}
+                cropShape={isCircle ? 'round' : 'rect'}
+                onCropChange={setCropPos}
+                onZoomChange={setCropZoom}
+                onCropComplete={(_croppedArea: Area, croppedAreaPixels: Area) => {
+                  setCroppedAreaPx(croppedAreaPixels);
+                }}
+                style={{
+                  containerStyle: { background: 'transparent' },
+                  cropAreaStyle: {
+                    border: '2px solid rgba(232,197,126,0.9)',
+                    boxShadow: '0 0 0 9999px rgba(10,20,14,0.65)',
+                  },
+                  mediaStyle: {},
+                }}
+                showGrid={false}
+                zoomWithScroll
+              />
+            </div>
+
+            {/* Zoom slider + actions */}
+            <div className="px-5 pt-4 pb-8 shrink-0">
+              {/* Zoom control */}
+              <div className="flex items-center gap-3 mb-5">
+                <button
+                  onClick={() => setCropZoom(z => Math.max(1, z - 0.1))}
+                  className="h-9 w-9 rounded-xl grid place-items-center shrink-0 transition"
+                  style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}
+                >
+                  <ZoomOut size={15} color="rgba(255,255,255,0.7)" strokeWidth={2} />
+                </button>
+                <input
+                  type="range" min={1} max={3} step={0.01}
+                  value={cropZoom}
+                  onChange={e => setCropZoom(Number(e.target.value))}
+                  className="flex-1"
+                  style={{ accentColor: '#E8C57E', height: 4 }}
+                />
+                <button
+                  onClick={() => setCropZoom(z => Math.min(3, z + 0.1))}
+                  className="h-9 w-9 rounded-xl grid place-items-center shrink-0 transition"
+                  style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}
+                >
+                  <ZoomIn size={15} color="rgba(255,255,255,0.7)" strokeWidth={2} />
+                </button>
+              </div>
+              {/* Action buttons */}
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setCropTarget(null)}
+                  className="flex-1 h-12 rounded-2xl text-[14px] font-medium transition"
+                  style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCropConfirm}
+                  className="flex-1 h-12 rounded-2xl text-[15px] font-bold text-white transition"
+                  style={{ background: '#1F4D3A', boxShadow: '0 6px 20px rgba(31,77,58,0.5)' }}
+                >
+                  Use this crop
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
