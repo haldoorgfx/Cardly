@@ -455,6 +455,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   const ctxValue: PlanCtx = { profile, eventCount, initials, planPct, planLabel };
 
+  // Editor & publish routes are full-screen — bypass all chrome
+  const isFullScreen = /\/events\/[^/]+\/(edit|publish)/.test(pathname);
+  if (isFullScreen) {
+    return <>{children}</>;
+  }
+
   return (
     <PlanContext.Provider value={ctxValue}>
       <div className="flex min-h-screen" style={{ background: '#F5F5F4' }}>
