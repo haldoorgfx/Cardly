@@ -21,7 +21,8 @@ export interface Zone {
   sample?: string;
   options?: string[];
   // photo fields
-  shape?: "circle" | "square" | "rounded";
+  shape?: "circle" | "square" | "rounded" | "hexagon";
+  cornerRadius?: number;  // only for shape "rounded" — 1-50, as % of shortest dim
   // text styling extras
   lineHeight?: number;     // 0.8 – 2.5, default 1.2
   letterSpacing?: number;  // px, -5 – 20, default 0
@@ -45,6 +46,8 @@ export interface Zone {
   shapeType?: 'rect' | 'ellipse' | 'triangle' | 'line';  // for type === 'shape'
   // image zone
   imageUrl?: string;  // for type === 'image' — designer-uploaded static image
+  // text field constraints
+  maxChars?: number;  // max character count for attendee input, 1-200
   // state flags
   required?: boolean;
   hidden?: boolean;

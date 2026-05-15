@@ -140,6 +140,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
   const stageRef       = useRef<HTMLDivElement>(null);
   const canvasInnerRef  = useRef<HTMLDivElement>(null);
   const imageUploadRef  = useRef<HTMLInputElement>(null);
+  const bgReplaceRef  = useRef<HTMLInputElement>(null);
   const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const zonesRef      = useRef(zones);
   zonesRef.current    = zones;
@@ -298,6 +299,20 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
     pushHistory(next);
   }, [pushHistory]);
 
+  const bringToFront = useCallback((id: string) => {
+    const arr = zonesRef.current;
+    const zone = arr.find(z => z.id === id);
+    if (!zone || arr[arr.length - 1]?.id === id) return;
+    pushHistory([...arr.filter(z => z.id !== id), zone]);
+  }, [pushHistory]);
+
+  const sendToBack = useCallback((id: string) => {
+    const arr = zonesRef.current;
+    const zone = arr.find(z => z.id === id);
+    if (!zone || arr[0]?.id === id) return;
+    pushHistory([zone, ...arr.filter(z => z.id !== id)]);
+  }, [pushHistory]);
+
   /* ── multi-select align / distribute ──────────────────── */
   const alignSelected = useCallback((axis: 'left' | 'centerH' | 'right' | 'top' | 'middleV' | 'bottom') => {
     if (selectedIds.length < 2) return;
@@ -434,6 +449,38 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
     }
   }, [eventId, bgW, bgH, pushHistory]);
 
+  const handleReplaceBackground = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (bgReplaceRef.current) bgReplaceRef.current.value = '';
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('eventId', eventId);
+      const res = await fetch('/api/upload-zone-image', { method: 'POST', body: fd });
+      if (!res.ok) return;
+      const { url } = await res.json() as { url: string };
+      const img = new window.Image();
+      img.onload = async () => {
+        const w = img.naturalWidth;
+        const h = img.naturalHeight;
+        setVariants(vs => vs.map(v =>
+          v.id === activeVariantId
+            ? { ...v, background_url: url, background_width: w, background_height: h }
+            : v
+        ));
+        await fetch(`/api/events/${eventId}/variants/${activeVariantId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ background_url: url, background_width: w, background_height: h }),
+        });
+      };
+      img.src = url;
+    } catch (err) {
+      console.error('[replace-background]', err);
+    }
+  }, [eventId, activeVariantId]);
+
   /* ── undo / redo ─────────────────────────────────────── */
   const undo = useCallback(() => {
     setHistory(h => {
@@ -528,7 +575,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
 
   /* ── global pointer move / up ────────────────────────── */
   useEffect(() => {
-    const SNAP = 8 / zoom;
+    const SNAP = 6 / zoom;  // 6 visual px threshold
 
     const DRAG_THRESHOLD_PX = 5; // must move this many px before it counts as a drag
 
@@ -580,14 +627,37 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
           if (gridSnap) {
             nx = Math.round(nx / GRID_SIZE) * GRID_SIZE;
             ny = Math.round(ny / GRID_SIZE) * GRID_SIZE;
-          } else {
-            // center snap
-            if (Math.abs((nx + it.ow / 2) - bgW / 2) < SNAP) { nx = bgW / 2 - it.ow / 2; guides.x = bgW / 2; }
-            if (Math.abs((ny + it.oh / 2) - bgH / 2) < SNAP) { ny = bgH / 2 - it.oh / 2; guides.y = bgH / 2; }
-            if (Math.abs(nx) < SNAP) { nx = 0; guides.x = 0; }
-            if (Math.abs(nx + it.ow - bgW) < SNAP) { nx = bgW - it.ow; guides.x = bgW; }
-            if (Math.abs(ny) < SNAP) { ny = 0; guides.y = 0; }
-            if (Math.abs(ny + it.oh - bgH) < SNAP) { ny = bgH - it.oh; guides.y = bgH; }
+          } else if (!e.ctrlKey) {
+            // Build snap candidate lists from canvas edges/center + other zones' edges/centers
+            const others = zonesRef.current.filter(z => z.id !== it.id);
+            const snapX: number[] = [0, bgW / 2, bgW];
+            const snapY: number[] = [0, bgH / 2, bgH];
+            for (const oz of others) {
+              snapX.push(oz.x, oz.x + oz.w / 2, oz.x + oz.w);
+              snapY.push(oz.y, oz.y + oz.h / 2, oz.y + oz.h);
+            }
+            // Try snapping dragged zone's left/center/right to candidate X positions
+            let bestXDist = SNAP;
+            for (const cx of snapX) {
+              const d0 = Math.abs(nx - cx);               // left edge
+              const d1 = Math.abs(nx + it.ow / 2 - cx);  // center
+              const d2 = Math.abs(nx + it.ow - cx);       // right edge
+              if (d0 <= bestXDist) { bestXDist = d0; nx = cx; guides.x = cx; }
+              if (d1 <= bestXDist) { bestXDist = d1; nx = cx - it.ow / 2; guides.x = cx; }
+              if (d2 <= bestXDist) { bestXDist = d2; nx = cx - it.ow; guides.x = cx; }
+            }
+            // Try snapping dragged zone's top/middle/bottom to candidate Y positions
+            let bestYDist = SNAP;
+            for (const cy of snapY) {
+              const d0 = Math.abs(ny - cy);               // top edge
+              const d1 = Math.abs(ny + it.oh / 2 - cy);  // center
+              const d2 = Math.abs(ny + it.oh - cy);       // bottom edge
+              if (d0 <= bestYDist) { bestYDist = d0; ny = cy; guides.y = cy; }
+              if (d1 <= bestYDist) { bestYDist = d1; ny = cy - it.oh / 2; guides.y = cy; }
+              if (d2 <= bestYDist) { bestYDist = d2; ny = cy - it.oh; guides.y = cy; }
+            }
+            nx = Math.max(0, Math.min(bgW - it.ow, nx));
+            ny = Math.max(0, Math.min(bgH - it.oh, ny));
           }
           setSnapGuides(guides);
           updateZone(it.id, { x: Math.round(nx), y: Math.round(ny) });
@@ -1140,12 +1210,12 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                   }} />
                 )}
 
-                {/* Snap guides */}
+                {/* Snap guides — magenta alignment lines */}
                 {snapGuides.x !== undefined && (
-                  <div className="absolute top-0 bottom-0 pointer-events-none" style={{ left: snapGuides.x, width: 1, background: 'rgba(232,197,126,0.9)', boxShadow: '0 0 4px rgba(232,197,126,0.6)' }} />
+                  <div className="absolute top-0 bottom-0 pointer-events-none" style={{ left: snapGuides.x, width: 1, background: 'rgba(255,0,204,0.85)', boxShadow: '0 0 6px rgba(255,0,204,0.5)' }} />
                 )}
                 {snapGuides.y !== undefined && (
-                  <div className="absolute left-0 right-0 pointer-events-none" style={{ top: snapGuides.y, height: 1, background: 'rgba(232,197,126,0.9)', boxShadow: '0 0 4px rgba(232,197,126,0.6)' }} />
+                  <div className="absolute left-0 right-0 pointer-events-none" style={{ top: snapGuides.y, height: 1, background: 'rgba(255,0,204,0.85)', boxShadow: '0 0 6px rgba(255,0,204,0.5)' }} />
                 )}
 
                 {/* Zones */}
@@ -1521,64 +1591,133 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
         </div>
 
         {/* ── Right Rail ──────────────────────────────────── */}
-        {!selected || previewMode ? (
+        {previewMode ? (
+          /* Preview mode message */
           <aside className="w-[300px] shrink-0 bg-white border-l border-border flex flex-col items-center justify-center p-8 text-center">
             <div className="h-12 w-12 rounded-2xl bg-cream grid place-items-center text-[#0F1F18]/40">
-              {previewMode ? <Eye size={18} strokeWidth={1.8} /> : <MousePointer2 size={18} strokeWidth={1.8} />}
+              <Eye size={18} strokeWidth={1.8} />
             </div>
-            <div className="mt-3 font-display font-semibold text-[14px]">
-              {previewMode ? 'Preview mode' : selectedIds.length > 1 ? `${selectedIds.length} selected` : 'Nothing selected'}
+            <div className="mt-3 font-display font-semibold text-[14px]">Preview mode</div>
+            <p className="text-[12px] text-[#0F1F18]/50 mt-1">Press ⌘P to resume editing.</p>
+          </aside>
+        ) : selectedIds.length > 1 ? (
+          /* Multi-select panel */
+          <aside className="w-[300px] shrink-0 bg-white border-l border-border flex flex-col items-center justify-center p-8 text-center">
+            <div className="h-12 w-12 rounded-2xl bg-cream grid place-items-center text-[#0F1F18]/40">
+              <MousePointer2 size={18} strokeWidth={1.8} />
             </div>
-            <p className="text-[12px] text-[#0F1F18]/50 mt-1 max-w-[200px]">
-              {previewMode ? 'Press ⌘P to resume editing.' : selectedIds.length > 1 ? 'Select a single element to edit its properties.' : 'Click an element on the canvas.'}
-            </p>
-            {!previewMode && selectedIds.length <= 1 && (
-              <div className="mt-5 text-[10.5px] font-mono text-[#0F1F18]/40 space-y-1.5 text-left w-full">
-                {[['Click', 'select'],['Drag','reposition'],['Scroll','zoom (⌘+wheel)'],['⌫','delete'],['⌘D','duplicate'],['⌘Z','undo'],['⌘P','preview'],['⌘/','shortcuts'],['G','grid']].map(([k, v]) => (
-                  <div key={k} className="flex justify-between"><span>{k}</span><span className="text-[#0F1F18]/30">{v}</span></div>
+            <div className="mt-3 font-display font-semibold text-[14px]">{selectedIds.length} selected</div>
+            <p className="text-[12px] text-[#0F1F18]/50 mt-1">Select a single element to edit its properties.</p>
+            <div className="mt-5 w-full text-left space-y-3">
+              <div className="text-[10.5px] font-mono text-[#0F1F18]/40 tracking-widest mb-1">ALIGN</div>
+              <div className="grid grid-cols-3 gap-1">
+                {([
+                  { axis: 'left' as const,    title: 'Align left edges',    icon: <AlignStartHorizontal size={15} strokeWidth={1.8} />    },
+                  { axis: 'centerH' as const, title: 'Align centers (H)',   icon: <AlignCenterHorizontal size={15} strokeWidth={1.8} />   },
+                  { axis: 'right' as const,   title: 'Align right edges',   icon: <AlignEndHorizontal size={15} strokeWidth={1.8} />      },
+                  { axis: 'top' as const,     title: 'Align top edges',     icon: <AlignStartVertical size={15} strokeWidth={1.8} />      },
+                  { axis: 'middleV' as const, title: 'Align middles (V)',   icon: <AlignCenterVertical size={15} strokeWidth={1.8} />     },
+                  { axis: 'bottom' as const,  title: 'Align bottom edges',  icon: <AlignEndVertical size={15} strokeWidth={1.8} />        },
+                ] as { axis: 'left' | 'centerH' | 'right' | 'top' | 'middleV' | 'bottom'; title: string; icon: React.ReactNode }[]).map(({ axis, title, icon }) => (
+                  <button key={axis} title={title} onClick={() => alignSelected(axis)}
+                    className="h-9 rounded-xl border border-border flex items-center justify-center hover:bg-cream hover:border-primary/40 hover:text-primary text-[#0F1F18]/55 transition">
+                    {icon}
+                  </button>
                 ))}
               </div>
-            )}
-            {selectedIds.length > 1 && (
-              <div className="mt-5 w-full text-left space-y-3">
-                {/* Align */}
-                <div className="text-[10.5px] font-mono text-[#0F1F18]/40 tracking-widest mb-1">ALIGN</div>
-                <div className="grid grid-cols-3 gap-1">
-                  {([
-                    { axis: 'left' as const,    title: 'Align left edges',    icon: <AlignStartHorizontal size={15} strokeWidth={1.8} />    },
-                    { axis: 'centerH' as const, title: 'Align centers (H)',   icon: <AlignCenterHorizontal size={15} strokeWidth={1.8} />   },
-                    { axis: 'right' as const,   title: 'Align right edges',   icon: <AlignEndHorizontal size={15} strokeWidth={1.8} />      },
-                    { axis: 'top' as const,     title: 'Align top edges',     icon: <AlignStartVertical size={15} strokeWidth={1.8} />      },
-                    { axis: 'middleV' as const, title: 'Align middles (V)',   icon: <AlignCenterVertical size={15} strokeWidth={1.8} />     },
-                    { axis: 'bottom' as const,  title: 'Align bottom edges',  icon: <AlignEndVertical size={15} strokeWidth={1.8} />        },
-                  ] as { axis: 'left' | 'centerH' | 'right' | 'top' | 'middleV' | 'bottom'; title: string; icon: React.ReactNode }[]).map(({ axis, title, icon }) => (
-                    <button key={axis} title={title} onClick={() => alignSelected(axis)}
-                      className="h-9 rounded-xl border border-border flex items-center justify-center hover:bg-cream hover:border-primary/40 hover:text-primary text-[#0F1F18]/55 transition">
-                      {icon}
+              {selectedIds.length >= 3 && (
+                <>
+                  <div className="text-[10.5px] font-mono text-[#0F1F18]/40 tracking-widest mt-2 mb-1">DISTRIBUTE</div>
+                  <div className="grid grid-cols-2 gap-1">
+                    <button title="Distribute horizontally" onClick={() => distributeSelected('h')}
+                      className="h-9 rounded-xl border border-border flex items-center justify-center gap-1.5 text-[11px] hover:bg-cream hover:border-primary/40 hover:text-primary text-[#0F1F18]/55 transition">
+                      <AlignHorizontalSpaceAround size={13} strokeWidth={1.8} />H
                     </button>
-                  ))}
-                </div>
-                {/* Distribute (needs 3+) */}
-                {selectedIds.length >= 3 && (
-                  <>
-                    <div className="text-[10.5px] font-mono text-[#0F1F18]/40 tracking-widest mt-2 mb-1">DISTRIBUTE</div>
-                    <div className="grid grid-cols-2 gap-1">
-                      <button title="Distribute horizontally" onClick={() => distributeSelected('h')}
-                        className="h-9 rounded-xl border border-border flex items-center justify-center gap-1.5 text-[11px] hover:bg-cream hover:border-primary/40 hover:text-primary text-[#0F1F18]/55 transition">
-                        <AlignHorizontalSpaceAround size={13} strokeWidth={1.8} />H
-                      </button>
-                      <button title="Distribute vertically" onClick={() => distributeSelected('v')}
-                        className="h-9 rounded-xl border border-border flex items-center justify-center gap-1.5 text-[11px] hover:bg-cream hover:border-primary/40 hover:text-primary text-[#0F1F18]/55 transition">
-                        <AlignVerticalSpaceAround size={13} strokeWidth={1.8} />V
-                      </button>
-                    </div>
-                  </>
+                    <button title="Distribute vertically" onClick={() => distributeSelected('v')}
+                      className="h-9 rounded-xl border border-border flex items-center justify-center gap-1.5 text-[11px] hover:bg-cream hover:border-primary/40 hover:text-primary text-[#0F1F18]/55 transition">
+                      <AlignVerticalSpaceAround size={13} strokeWidth={1.8} />V
+                    </button>
+                  </div>
+                </>
+              )}
+              <button onClick={removeSelected} className="w-full mt-2 text-[12px] text-rose-500 hover:text-rose-600 font-medium border border-rose-200 hover:bg-rose-50 px-4 py-1.5 rounded-lg transition">
+                Delete {selectedIds.length} elements
+              </button>
+            </div>
+          </aside>
+        ) : !selected ? (
+          /* No-selection: event info panel */
+          <aside className="w-[300px] shrink-0 bg-white border-l border-border flex flex-col overflow-y-auto">
+            {/* Event section */}
+            <div className="p-4 border-b border-border">
+              <div className="text-[10px] font-mono text-[#6B7A72] tracking-widest mb-3">EVENT</div>
+              {/* Name */}
+              <div className="mb-3">
+                <div className="text-[10.5px] text-[#6B7A72] mb-1">Name</div>
+                {editName ? (
+                  <input
+                    autoFocus
+                    value={nameVal}
+                    onChange={e => setNameVal(e.target.value)}
+                    onBlur={saveName}
+                    onKeyDown={e => e.key === 'Enter' && saveName()}
+                    className="w-full h-9 px-2.5 rounded-lg border border-primary/40 text-[13px] font-display font-semibold outline-none bg-white"
+                  />
+                ) : (
+                  <button
+                    onClick={() => setEditName(true)}
+                    className="w-full text-left h-9 px-2.5 rounded-lg border border-border hover:border-primary/40 text-[13px] font-display font-semibold transition group"
+                  >
+                    {nameVal}
+                    <span className="ml-1.5 text-[10px] font-mono font-normal text-[#6B7A72] opacity-0 group-hover:opacity-100 transition">edit</span>
+                  </button>
                 )}
-                <button onClick={removeSelected} className="w-full mt-2 text-[12px] text-rose-500 hover:text-rose-600 font-medium border border-rose-200 hover:bg-rose-50 px-4 py-1.5 rounded-lg transition">
-                  Delete {selectedIds.length} elements
-                </button>
               </div>
-            )}
+              {/* Canvas size */}
+              <div className="mb-3">
+                <div className="text-[10.5px] text-[#6B7A72] mb-1">Canvas</div>
+                <div className="h-9 px-2.5 rounded-lg border border-border bg-cream flex items-center text-[12px] font-mono text-[#6B7A72]">{bgW} × {bgH} px</div>
+              </div>
+              {/* Background */}
+              <div className="mb-3">
+                <div className="text-[10.5px] text-[#6B7A72] mb-1">Background</div>
+                <div className="relative rounded-xl overflow-hidden border border-border bg-cream" style={{ height: 90 }}>
+                  {backgroundUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={backgroundUrl} alt="Background" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-[11px] text-[#6B7A72]">No background</div>
+                  )}
+                  <label className="absolute bottom-1.5 right-1.5 bg-white/90 border border-border rounded-lg px-2 py-0.5 text-[10.5px] font-medium cursor-pointer hover:bg-white transition">
+                    Replace
+                    <input
+                      ref={bgReplaceRef}
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      className="hidden"
+                      onChange={handleReplaceBackground}
+                    />
+                  </label>
+                </div>
+              </div>
+              {/* Zone count */}
+              <div className="flex items-center justify-between py-2 px-2.5 rounded-lg bg-cream">
+                <span className="text-[11.5px] text-[#3A4A42]">Zones</span>
+                <span className="font-mono text-[12px] font-semibold text-primary">{zones.length}</span>
+              </div>
+            </div>
+            {/* Shortcuts */}
+            <div className="p-4">
+              <div className="text-[10px] font-mono text-[#6B7A72] tracking-widest mb-3">SHORTCUTS</div>
+              <div className="space-y-1.5">
+                {[['Click','select zone'],['Drag','reposition'],['⌫','delete'],['⌘D','duplicate'],['⌘Z / ⇧⌘Z','undo / redo'],['[ ]','layer order'],['⌘P','preview'],['⌘/','shortcuts'],['G','toggle grid']].map(([k, v]) => (
+                  <div key={k} className="flex justify-between text-[10.5px] font-mono">
+                    <span className="bg-cream px-1.5 py-0.5 rounded text-[#0F1F18]/70">{k}</span>
+                    <span className="text-[#0F1F18]/40">{v}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </aside>
         ) : (
           <RightRail
@@ -1595,6 +1734,12 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
             aspectLock={aspectLock}
             setAspectLock={setAspectLock}
             eventId={eventId}
+            bringForward={moveZoneDown}
+            sendBack={moveZoneUp}
+            bringToFront={bringToFront}
+            sendToBack={sendToBack}
+            zoneIndex={zones.findIndex(z => z.id === selected?.id)}
+            zoneCount={zones.length}
           />
         )}
       </div>
@@ -1654,9 +1799,12 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
 /* ══════════════════════════════════════════════════════════
    RIGHT RAIL COMPONENT
 ══════════════════════════════════════════════════════════ */
+const EDITOR_FONTS = ['DM Sans', 'Inter', 'JetBrains Mono'];
+
 function RightRail({
   selected, bgW, bgH, fontSearch, setFontSearch, filteredFonts,
   updateZone, duplicateZone, removeZone, BRAND_COLORS, aspectLock, setAspectLock, eventId,
+  bringForward, sendBack, bringToFront, sendToBack, zoneIndex, zoneCount,
 }: {
   selected: Zone; bgW: number; bgH: number;
   fontSearch: string; setFontSearch: (v: string) => void; filteredFonts: string[];
@@ -1667,9 +1815,14 @@ function RightRail({
   aspectLock: boolean;
   setAspectLock: (v: boolean) => void;
   eventId: string;
+  bringForward: (id: string) => void;
+  sendBack: (id: string) => void;
+  bringToFront: (id: string) => void;
+  sendToBack: (id: string) => void;
+  zoneIndex: number;
+  zoneCount: number;
 }) {
   const upd = (patch: Partial<Zone>) => updateZone(selected.id, patch);
-  const [showFontSearch, setShowFontSearch] = useState(false);
 
   return (
     <aside className="w-[300px] shrink-0 bg-white border-l border-border flex flex-col overflow-y-auto">
@@ -1684,6 +1837,35 @@ function RightRail({
         </div>
         <button onClick={() => duplicateZone(selected.id)} title="Duplicate (⌘D)" className="h-7 w-7 rounded-md hover:bg-cream grid place-items-center text-[#0F1F18]/55 transition"><Copy size={13} strokeWidth={1.8} /></button>
         <button onClick={() => removeZone(selected.id)} title="Delete (⌫)" className="h-7 w-7 rounded-md hover:bg-rose-50 grid place-items-center text-rose-400 hover:text-rose-500 transition"><Trash2 size={13} strokeWidth={1.8} /></button>
+      </div>
+      {/* Layer order strip */}
+      <div className="px-4 py-2 border-b border-border flex items-center gap-1 shrink-0">
+        <span className="text-[10px] font-mono text-[#6B7A72] tracking-widest mr-auto">LAYER</span>
+        <button
+          onClick={() => sendToBack(selected.id)}
+          disabled={zoneIndex === 0}
+          title="Send to back"
+          className="h-6 px-2 rounded-md text-[10px] font-mono border border-border hover:bg-cream disabled:opacity-30 disabled:cursor-not-allowed transition text-[#0F1F18]/60"
+        >⇊</button>
+        <button
+          onClick={() => sendBack(selected.id)}
+          disabled={zoneIndex === 0}
+          title="Send backward ([)"
+          className="h-6 px-2 rounded-md text-[10px] font-mono border border-border hover:bg-cream disabled:opacity-30 disabled:cursor-not-allowed transition text-[#0F1F18]/60"
+        >↓</button>
+        <button
+          onClick={() => bringForward(selected.id)}
+          disabled={zoneIndex === zoneCount - 1}
+          title="Bring forward (])"
+          className="h-6 px-2 rounded-md text-[10px] font-mono border border-border hover:bg-cream disabled:opacity-30 disabled:cursor-not-allowed transition text-[#0F1F18]/60"
+        >↑</button>
+        <button
+          onClick={() => bringToFront(selected.id)}
+          disabled={zoneIndex === zoneCount - 1}
+          title="Bring to front"
+          className="h-6 px-2 rounded-md text-[10px] font-mono border border-border hover:bg-cream disabled:opacity-30 disabled:cursor-not-allowed transition text-[#0F1F18]/60"
+        >⇈</button>
+        <span className="ml-1 text-[10px] font-mono text-[#6B7A72]">{zoneIndex + 1}/{zoneCount}</span>
       </div>
 
       {/* ── Field ───────────────────────────────────────── */}
@@ -1709,6 +1891,25 @@ function RightRail({
               <input value={selected.sample ?? ''} onChange={e => upd({ sample: e.target.value })} className="prop-input" placeholder="Live preview value" />
             </PropRow>
             <PropToggle label="Required" value={!!selected.required} onChange={v => upd({ required: v })} />
+            {(selected.type === 'text' || selected.type === 'custom') && (
+              <PropRow label={`Max chars · ${selected.maxChars ?? 'none'}`}>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="range" min="1" max="200"
+                    value={selected.maxChars ?? 100}
+                    onChange={e => upd({ maxChars: Number(e.target.value) })}
+                    className="flex-1 accent-primary" style={{ height: 4 }}
+                  />
+                  <input
+                    type="number" min="1" max="200"
+                    value={selected.maxChars ?? ''}
+                    placeholder="∞"
+                    onChange={e => upd({ maxChars: e.target.value ? Number(e.target.value) : undefined })}
+                    className="w-14 h-7 text-center border border-border rounded-lg text-[12px] font-mono outline-none focus:border-primary"
+                  />
+                </div>
+              </PropRow>
+            )}
           </>
         )}
       </PropSection>
@@ -1721,9 +1922,24 @@ function RightRail({
               <Segmented
                 value={selected.shape ?? 'circle'}
                 onChange={v => upd({ shape: v as Zone['shape'] })}
-                options={[{ v: 'circle', label: 'Circle' }, { v: 'rounded', label: 'Rounded' }, { v: 'square', label: 'Square' }]}
+                options={[
+                  { v: 'circle',  label: 'Circle'  },
+                  { v: 'rounded', label: 'Rounded' },
+                  { v: 'square',  label: 'Square'  },
+                  { v: 'hexagon', label: 'Hex'     },
+                ]}
               />
             </PropRow>
+            {selected.shape === 'rounded' && (
+              <PropRow label={`Corner radius · ${selected.cornerRadius ?? 18}%`}>
+                <input
+                  type="range" min="1" max="48"
+                  value={selected.cornerRadius ?? 18}
+                  onChange={e => upd({ cornerRadius: Number(e.target.value) })}
+                  className="w-full accent-primary" style={{ height: 4 }}
+                />
+              </PropRow>
+            )}
           </PropSection>
           <PropSection title="Border">
             <PropToggle label="Show border" value={!!(selected.photoBorderWidth && selected.photoBorderWidth > 0)} onChange={v => upd({ photoBorderWidth: v ? 4 : 0, photoBorderColor: v ? '#FFFFFF' : undefined })} />
@@ -1807,43 +2023,20 @@ function RightRail({
       {(selected.type === 'text' || selected.type === 'custom' || selected.type === 'label') && (
         <>
           <PropSection title="Typography">
-            {/* Font picker */}
+            {/* Font picker — restricted to the 3 bundled fonts */}
             <PropRow label="Font">
-              <div className="relative">
-                <button
-                  onClick={() => setShowFontSearch(s => !s)}
-                  className="prop-input flex items-center justify-between text-left"
-                  style={{ fontFamily: selected.font }}
-                >
-                  <span>{selected.font ?? 'Inter'}</span>
-                  <ChevronDown size={12} strokeWidth={1.8} />
-                </button>
-                {showFontSearch && (
-                  <div className="absolute top-full left-0 right-0 z-50 bg-white border border-border rounded-xl shadow-lift mt-1 overflow-hidden">
-                    <div className="p-2 border-b border-border">
-                      <input
-                        autoFocus
-                        placeholder="Search fonts…"
-                        value={fontSearch}
-                        onChange={e => setFontSearch(e.target.value)}
-                        className="w-full text-[12px] outline-none px-2 py-1.5 bg-cream rounded-lg"
-                        onClick={e => e.stopPropagation()}
-                      />
-                    </div>
-                    <div className="max-h-[200px] overflow-y-auto py-1">
-                      {filteredFonts.map(f => (
-                        <button
-                          key={f}
-                          onClick={() => { upd({ font: f }); setShowFontSearch(false); setFontSearch(''); }}
-                          className={`w-full text-left px-3 py-2 text-[13px] hover:bg-cream transition ${selected.font === f ? 'text-primary font-medium bg-primary/5' : ''}`}
-                          style={{ fontFamily: f }}
-                        >
-                          {f}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
+              <div className="grid grid-cols-3 gap-1">
+                {EDITOR_FONTS.map(f => (
+                  <button
+                    key={f}
+                    onClick={() => upd({ font: f })}
+                    className={`h-8 rounded-lg border text-[11px] transition truncate px-1 ${(selected.font ?? 'DM Sans') === f ? 'bg-primary/10 text-primary border-primary/30 font-semibold' : 'border-border hover:bg-cream text-[#0F1F18]/65'}`}
+                    style={{ fontFamily: f }}
+                    title={f}
+                  >
+                    {f.split(' ')[0]}
+                  </button>
+                ))}
               </div>
             </PropRow>
 
@@ -2059,7 +2252,16 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, onPointerDown, onH
   const isShape  = zone.type === 'shape';
   const isImage  = zone.type === 'image';
   const rotation = zone.rotation ?? 0;
-  const radius   = isPhoto ? (zone.shape === 'circle' ? '50%' : zone.shape === 'rounded' ? '20%' : '4px') : (isShape || isImage) ? '0' : '6px';
+  const dim      = Math.min(zone.w, zone.h);
+  const radius   = isPhoto
+    ? (zone.shape === 'circle' ? '50%'
+      : zone.shape === 'rounded' ? `${(zone.cornerRadius ?? 18) / 100 * dim}px`
+      : zone.shape === 'hexagon' ? '0'
+      : '4px')
+    : (isShape || isImage) ? '0' : '6px';
+  const hexClip  = isPhoto && zone.shape === 'hexagon'
+    ? 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)'
+    : undefined;
   const dashColor = multiSelected ? '#C9A45E' : isLabel ? '#C97A2D' : isShape ? '#3A6B8C' : isImage ? '#7C3AED' : '#1F4D3A';
   const opacityVal = (zone.opacity ?? 100) / 100;
 
@@ -2200,8 +2402,10 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, onPointerDown, onH
               {zone.shape === 'circle'
                 ? <clipPath id={clipId}><ellipse cx={w / 2} cy={h / 2} rx={w / 2 - 1} ry={h / 2 - 1} /></clipPath>
                 : zone.shape === 'rounded'
-                  ? <clipPath id={clipId}><rect x={1} y={1} width={w - 2} height={h - 2} rx={dim * 0.18} /></clipPath>
-                  : <clipPath id={clipId}><rect x={1} y={1} width={w - 2} height={h - 2} rx={3} /></clipPath>
+                  ? <clipPath id={clipId}><rect x={1} y={1} width={w - 2} height={h - 2} rx={(zone.cornerRadius ?? 18) / 100 * dim} /></clipPath>
+                  : zone.shape === 'hexagon'
+                    ? <clipPath id={clipId}><polygon points={`${w/2},1 ${w-1},${h/4} ${w-1},${3*h/4} ${w/2},${h-1} 1,${3*h/4} 1,${h/4}`} /></clipPath>
+                    : <clipPath id={clipId}><rect x={1} y={1} width={w - 2} height={h - 2} rx={3} /></clipPath>
               }
               {/* Hatch pattern */}
               <pattern id={`ph-hatch-${zone.id}`} width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
@@ -2235,9 +2439,13 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, onPointerDown, onH
               zone.shape === 'circle'
                 ? <ellipse cx={w / 2} cy={h / 2} rx={w / 2 - bw / 2} ry={h / 2 - bw / 2}
                     fill="none" stroke={bCol} strokeWidth={bw} />
-                : <rect x={bw / 2} y={bw / 2} width={w - bw} height={h - bw}
-                    rx={zone.shape === 'rounded' ? dim * 0.18 : 3}
-                    fill="none" stroke={bCol} strokeWidth={bw} />
+                : zone.shape === 'hexagon'
+                  ? <polygon
+                      points={`${w/2},${bw/2} ${w-bw/2},${h/4} ${w-bw/2},${3*h/4} ${w/2},${h-bw/2} ${bw/2},${3*h/4} ${bw/2},${h/4}`}
+                      fill="none" stroke={bCol} strokeWidth={bw} />
+                  : <rect x={bw / 2} y={bw / 2} width={w - bw} height={h - bw}
+                      rx={zone.shape === 'rounded' ? (zone.cornerRadius ?? 18) / 100 * dim : 3}
+                      fill="none" stroke={bCol} strokeWidth={bw} />
             )}
           </svg>
         </div>
@@ -2263,6 +2471,7 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, onPointerDown, onH
       style={{
         left: zone.x, top: zone.y, width: zone.w, height: zone.h,
         borderRadius: radius,
+        clipPath: hexClip,
         cursor: zone.locked ? 'not-allowed' : previewMode ? 'default' : 'grab',
         opacity: opacityVal,
         transform: rotation ? `rotate(${rotation}deg)` : undefined,

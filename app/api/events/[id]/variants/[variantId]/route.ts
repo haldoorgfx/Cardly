@@ -21,7 +21,7 @@ export async function PATCH(
   }
 
   const body = await req.json();
-  const allowed = ['variant_name', 'zones'] as const;
+  const allowed = ['variant_name', 'zones', 'background_url', 'background_width', 'background_height'] as const;
   type UpdateKey = typeof allowed[number];
   const patch: Partial<Record<UpdateKey, unknown>> = {};
   for (const key of allowed) {
