@@ -4,7 +4,7 @@ export default function NotFound() {
   return (
     <div className="min-h-screen bg-[#FAF6EE] grid place-items-center px-6">
       <div className="text-center max-w-[440px]">
-        <div className="inline-flex h-16 w-16 rounded-2xl grad-bg grid place-items-center text-white text-[28px] font-display font-bold mb-6">
+        <div className="inline-grid h-16 w-16 rounded-2xl grad-bg place-items-center text-white text-[28px] font-display font-bold mb-6">
           C
         </div>
         <div className="text-[11px] font-mono tracking-widest text-[#0F1F18]/40 mb-4">404</div>
