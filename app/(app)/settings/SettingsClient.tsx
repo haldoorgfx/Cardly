@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { signOut, resetPassword, deleteAccount } from '@/app/(auth)/actions';
+import { Check, Minus, Mail, ArrowRight } from 'lucide-react';
 
 interface Profile {
   full_name: string | null;
@@ -55,19 +56,11 @@ const PLANS: Record<string, { label: string; limit: string; color: string; featu
 };
 
 function CheckIcon() {
-  return (
-    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1F4D3A" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-  );
+  return <Check size={11} strokeWidth={2.8} color="#1F4D3A" className="shrink-0" />;
 }
 
 function MinusIcon() {
-  return (
-    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6B7A72" strokeWidth="2.2" strokeLinecap="round" className="shrink-0 opacity-40">
-      <line x1="5" y1="12" x2="19" y2="12" />
-    </svg>
-  );
+  return <Minus size={11} strokeWidth={2.2} color="#6B7A72" className="shrink-0 opacity-40" />;
 }
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
@@ -276,7 +269,7 @@ export default function SettingsClient({ profile }: Props) {
                 >
                   {saved ? (
                     <>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      <Check size={12} strokeWidth={2.5} />
                       Saved
                     </>
                   ) : saving ? 'Saving…' : 'Save changes'}
@@ -320,7 +313,7 @@ export default function SettingsClient({ profile }: Props) {
                       style={{ background: '#1F4D3A' }}
                     >
                       Upgrade
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                      <ArrowRight size={12} strokeWidth={2.2} />
                     </Link>
                   )}
                 </div>
@@ -369,9 +362,7 @@ export default function SettingsClient({ profile }: Props) {
                       style={{ background: 'rgba(31,77,58,0.06)', border: '1px solid rgba(31,77,58,0.15)' }}
                     >
                       <div className="h-7 w-7 rounded-full grid place-items-center shrink-0" style={{ background: 'rgba(31,77,58,0.12)' }}>
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1F4D3A" strokeWidth="2.2" strokeLinecap="round">
-                          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
-                        </svg>
+                        <Mail size={13} strokeWidth={2.2} color="#1F4D3A" />
                       </div>
                       <div>
                         <div className="text-[13px] font-medium text-[#1F4D3A]">Reset link sent</div>

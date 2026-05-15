@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import { MoreVertical, Eye, Pencil, ChevronRight, Link as LinkIcon, RotateCcw, Archive, Trash2 } from 'lucide-react';
 import type { Database, Json } from '@/types/database';
 
 type EventRow = Database['public']['Tables']['events']['Row'];
@@ -110,9 +111,7 @@ export default function EventCard({ event, compact = false }: Props) {
         style={{ border: '1px solid #fecaca', minHeight: compact ? 72 : 200 }}
       >
         <div className="h-9 w-9 rounded-full bg-red-50 grid place-items-center">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round">
-            <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2" />
-          </svg>
+          <Trash2 size={16} strokeWidth={2} color="#ef4444" />
         </div>
         <div>
           <div className="font-display font-semibold text-[14px] text-[#0F1F18]">Delete &ldquo;{event.name}&rdquo;?</div>
@@ -150,9 +149,7 @@ export default function EventCard({ event, compact = false }: Props) {
           onMouseEnter={e => (e.currentTarget.style.background = '#F5F5F4')}
           onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-            <circle cx="12" cy="5" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="12" cy="19" r="1.5" />
-          </svg>
+          <MoreVertical size={14} strokeWidth={1.8} />
         </button>
       </DropdownMenu.Trigger>
 
@@ -168,7 +165,7 @@ export default function EventCard({ event, compact = false }: Props) {
               onMouseEnter={e => (e.currentTarget.style.background = '#FAF6EE')}
               onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
             >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="3" /><path d="M2 12s4-8 10-8 10 8 10 8-4 8-10 8-10-8-10-8z" /></svg>
+              <Eye size={13} strokeWidth={1.8} />
               View details
             </Link>
           </DropdownMenu.Item>
@@ -178,10 +175,7 @@ export default function EventCard({ event, compact = false }: Props) {
               onMouseEnter={e => (e.currentTarget.style.background = '#FAF6EE')}
               onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
             >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                <path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-              </svg>
+              <Pencil size={13} strokeWidth={1.8} />
               Edit zones
             </Link>
           </DropdownMenu.Item>
@@ -192,7 +186,7 @@ export default function EventCard({ event, compact = false }: Props) {
                 onMouseEnter={e => (e.currentTarget.style.background = '#E8EFEB')}
                 onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
               >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                <ChevronRight size={13} strokeWidth={1.8} />
                 Publish
               </Link>
             </DropdownMenu.Item>
@@ -204,10 +198,7 @@ export default function EventCard({ event, compact = false }: Props) {
               style={{ color: '#3A4A42' }}
               onSelect={() => navigator.clipboard.writeText(`${window.location.origin}/c/${event.slug}`)}
             >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                <path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1 1" />
-                <path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1-1" />
-              </svg>
+              <LinkIcon size={13} strokeWidth={1.8} />
               Copy link
             </DropdownMenu.Item>
           )}
@@ -219,7 +210,7 @@ export default function EventCard({ event, compact = false }: Props) {
             style={{ color: '#3A4A42' }}
             onSelect={() => setRenaming(true)}
           >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /></svg>
+            <Pencil size={13} strokeWidth={1.8} />
             Rename
           </DropdownMenu.Item>
 
@@ -229,9 +220,7 @@ export default function EventCard({ event, compact = false }: Props) {
               style={{ color: '#6B7A72' }}
               onSelect={() => doStatus('draft')}
             >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                <path d="M18.36 6.64A9 9 0 1 1 5.64 17.36" /><path d="M2 12h10" />
-              </svg>
+              <RotateCcw size={13} strokeWidth={1.8} />
               Unpublish
             </DropdownMenu.Item>
           )}
@@ -242,9 +231,7 @@ export default function EventCard({ event, compact = false }: Props) {
               style={{ color: '#6B7A72' }}
               onSelect={() => doStatus('archived')}
             >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                <polyline points="21 8 21 21 3 21 3 8" /><rect x="1" y="3" width="22" height="5" /><line x1="10" y1="12" x2="14" y2="12" />
-              </svg>
+              <Archive size={13} strokeWidth={1.8} />
               Archive
             </DropdownMenu.Item>
           ) : (
@@ -253,9 +240,7 @@ export default function EventCard({ event, compact = false }: Props) {
               style={{ color: '#3A4A42' }}
               onSelect={() => doStatus('draft')}
             >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                <polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 .49-3.32" />
-              </svg>
+              <RotateCcw size={13} strokeWidth={1.8} />
               Restore to draft
             </DropdownMenu.Item>
           )}
@@ -266,9 +251,7 @@ export default function EventCard({ event, compact = false }: Props) {
             className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-red-600 cursor-pointer outline-none transition"
             onSelect={() => setConfirmDelete(true)}
           >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-              <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2" />
-            </svg>
+            <Trash2 size={13} strokeWidth={1.8} />
             Delete
           </DropdownMenu.Item>
         </DropdownMenu.Content>
@@ -361,10 +344,7 @@ export default function EventCard({ event, compact = false }: Props) {
               className="h-7 w-7 rounded-lg bg-white/90 hover:bg-white grid place-items-center text-[#3A4A42]"
               title="Copy link"
             >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                <path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1 1" />
-                <path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1-1" />
-              </svg>
+              <LinkIcon size={12} strokeWidth={1.8} />
             </button>
           )}
           <Link
@@ -373,10 +353,7 @@ export default function EventCard({ event, compact = false }: Props) {
             title="Edit"
             onClick={e => e.stopPropagation()}
           >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-              <path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-            </svg>
+            <Pencil size={12} strokeWidth={1.8} />
           </Link>
         </div>
       </div>

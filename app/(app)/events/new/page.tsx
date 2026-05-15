@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { ChevronLeft, Upload, Check, ArrowRight } from 'lucide-react';
 
 export default function NewEventPage() {
   const router = useRouter();
@@ -84,7 +85,7 @@ export default function NewEventPage() {
         <div className="max-w-[1200px] mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/dashboard" className="h-8 w-8 rounded-md hover:bg-neutral-100 grid place-items-center text-neutral-500 transition">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6" /></svg>
+              <ChevronLeft size={16} strokeWidth={2} />
             </Link>
             <div className="flex items-center gap-2">
               <span className="font-semibold text-[16px] text-[#0a0a0a]">Cardly</span>
@@ -146,10 +147,8 @@ export default function NewEventPage() {
             >
               <div className="px-5 py-14 sm:py-20 text-center">
                 {/* Upload icon */}
-                <div className="inline-flex items-center justify-center h-12 w-12 rounded-lg bg-neutral-100 mb-5">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#525252" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" />
-                  </svg>
+                <div className="inline-flex items-center justify-center h-12 w-12 rounded-lg bg-neutral-100 mb-5 text-neutral-500">
+                  <Upload size={22} strokeWidth={2} />
                 </div>
 
                 <div className="text-lg font-semibold text-[#0a0a0a]">
@@ -196,7 +195,7 @@ export default function NewEventPage() {
                 <div className="col-span-12 md:col-span-5 space-y-2.5">
                   <div className="p-3 rounded-md bg-emerald-50 border border-emerald-200">
                     <div className="flex items-center gap-2 text-[13px] font-medium text-emerald-700">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><polyline points="20 6 9 17 4 12" /></svg>
+                      <Check size={13} strokeWidth={2.4} />
                       Looks great
                     </div>
                     <div className="text-[12px] text-emerald-700/80 mt-1">Ready for zone editing. Click Continue to add editable fields.</div>
@@ -248,9 +247,7 @@ export default function NewEventPage() {
             >
               {uploading ? 'Uploading…' : 'Continue to canvas'}
               {!uploading && (
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                  <path d="M5 12h14M13 6l6 6-6 6" />
-                </svg>
+                <ArrowRight size={14} strokeWidth={2.2} />
               )}
             </button>
           </div>

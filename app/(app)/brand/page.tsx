@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
+import { Check, ArrowRight } from 'lucide-react';
 
 const PRESET_SWATCHES = [
   { name: 'Forest Green', hex: '#1F4D3A' },
@@ -144,7 +145,7 @@ export default function BrandKitPage() {
           >
             {saved ? (
               <>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                <Check size={14} strokeWidth={2.5} />
                 Saved
               </>
             ) : saving ? 'Saving…' : 'Save changes'}
@@ -260,7 +261,7 @@ export default function BrandKitPage() {
             <span className="text-white font-display font-bold text-[20px] opacity-90 tracking-tight">Your brand gradient</span>
             <div className="ml-auto flex items-center gap-2">
               <span className="text-[11px] font-mono text-white/70 bg-white/15 px-2.5 py-1 rounded-lg">{primaryColor.toUpperCase()}</span>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" opacity="0.6"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              <ArrowRight size={12} strokeWidth={2.2} color="white" style={{ opacity: 0.6 }} />
               <span className="text-[11px] font-mono text-white/70 bg-white/15 px-2.5 py-1 rounded-lg">{secondaryColor.toUpperCase()}</span>
             </div>
           </div>
@@ -281,7 +282,7 @@ export default function BrandKitPage() {
                 />
                 {copiedHex === swatch.hex && (
                   <div className="absolute inset-0 rounded-xl flex items-center justify-center bg-black/60">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.8" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    <Check size={12} strokeWidth={2.8} color="white" />
                   </div>
                 )}
                 <div className="mt-1.5 text-[9px] font-mono text-[#0F1F18]/45 text-center truncate">{swatch.hex}</div>
@@ -377,7 +378,7 @@ export default function BrandKitPage() {
               className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-white px-4 py-2 rounded-xl bg-primary hover:opacity-95 transition"
             >
               Upgrade to unlock
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              <ArrowRight size={12} strokeWidth={2.2} />
             </Link>
           </section>
 

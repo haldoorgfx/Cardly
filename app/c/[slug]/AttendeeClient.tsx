@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useLayoutEffect, type CSSProperties } from 'react';
 import type { Zone } from '@/types/database';
+import { Pencil, Check, Download, Upload, Copy, ChevronLeft, Layers } from 'lucide-react';
 
 interface Props {
   variantId: string;
@@ -72,30 +73,10 @@ function SocialIcon({ name }: { name: string }) {
   return null;
 }
 
-const IconPencil = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-    <path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-  </svg>
-);
-const IconCheck = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-    <polyline points="20 6 9 17 4 12"/>
-  </svg>
-);
-const IconDownload = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/>
-    <line x1="12" y1="3" x2="12" y2="15"/>
-  </svg>
-);
-const IconUpload = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-    <polyline points="17 8 12 3 7 8"/>
-    <line x1="12" y1="3" x2="12" y2="15"/>
-  </svg>
-);
+const IconPencil = () => <Pencil size={14} strokeWidth={2} />;
+const IconCheck = () => <Check size={14} strokeWidth={2.5} />;
+const IconDownload = () => <Download size={18} strokeWidth={2.2} />;
+const IconUpload = () => <Upload size={24} strokeWidth={1.8} />;
 
 export default function AttendeeClient({ variantId, eventName, backgroundUrl, backgroundWidth, backgroundHeight, zones }: Props) {
   // ── Field / photo state ──────────────────────────────────────────────────────
@@ -259,7 +240,7 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
         <Confetti />
         <div className="h-20 w-20 rounded-full flex items-center justify-center mb-6"
           style={{ background: '#1F4D3A', boxShadow: '0 24px 60px rgba(31,77,58,0.45)' }}>
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <Check size={36} strokeWidth={2.5} color="white" />
         </div>
         <h2 className="font-display font-bold text-white text-[28px] mb-1.5 text-center">You&apos;re all set, {firstName}!</h2>
         <p className="text-white/60 text-[14.5px] text-center max-w-[300px] mb-8">Your card is ready. Share it with your network.</p>
@@ -291,7 +272,7 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
           <p className="text-[13px] text-white/80 leading-relaxed italic">&ldquo;{cardCaption}&rdquo;</p>
           <button onClick={() => { navigator.clipboard?.writeText(cardCaption); showToast('Caption copied!'); }}
             className="mt-3 text-[11px] font-mono text-[#E8C57E] flex items-center gap-1.5">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <Copy size={11} strokeWidth={2} />
             Copy caption
           </button>
         </div>
@@ -314,7 +295,7 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
         <div className="w-full max-w-[375px]">
           <div className="flex items-center justify-between mb-6">
             <button onClick={() => setScreen('form')} className="h-9 w-9 rounded-xl bg-white/10 grid place-items-center text-white/70 hover:bg-white/20 transition">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6"/></svg>
+              <ChevronLeft size={16} strokeWidth={2} />
             </button>
             <div className="text-[11px] font-mono text-white/40 tracking-widest">YOUR CARD IS READY</div>
             <div className="flex items-center gap-1.5 text-[11px] font-mono text-emerald-400">
@@ -352,7 +333,7 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
             <p className="text-[12.5px] text-white/70 leading-relaxed italic">&ldquo;{cardCaption}&rdquo;</p>
             <button onClick={() => { navigator.clipboard?.writeText(cardCaption); showToast('Caption copied!'); }}
               className="mt-2 text-[11px] font-mono text-[#E8C57E] flex items-center gap-1">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <Copy size={11} strokeWidth={2} />
               Copy caption
             </button>
           </div>
@@ -407,9 +388,7 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
     >
       {isComplete() ? (
         <>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-            <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
-          </svg>
+          <Layers size={16} strokeWidth={2.2} />
           Generate my card
         </>
       ) : (
@@ -532,7 +511,7 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
                           style={{ background: preset.gradient, borderColor: selectedAvatar === preset.id ? '#E8C57E' : 'transparent' }}>
                           {selectedAvatar === preset.id && (
                             <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                              <Check size={13} strokeWidth={3} color="white" />
                             </div>
                           )}
                         </button>
@@ -791,10 +770,7 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
                     {!isEditing && isGhost && (
                       <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2"
                         style={{ background: 'rgba(31,77,58,0.9)', borderRadius: '50%', padding: 4 }}>
-                        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
-                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                          <path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                        </svg>
+                        <Pencil size={9} strokeWidth={2.5} color="white" />
                       </div>
                     )}
                   </div>
@@ -826,9 +802,7 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
                         </>
                       ) : (
                         <>
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
-                          </svg>
+                          <Upload size={16} strokeWidth={2} />
                           <span className="text-[13.5px] font-medium">Upload your photo</span>
                         </>
                       )}
@@ -846,7 +820,7 @@ export default function AttendeeClient({ variantId, eventName, backgroundUrl, ba
                           style={{ background: preset.gradient, borderColor: selectedAvatar === preset.id ? '#E8C57E' : 'transparent' }}>
                           {selectedAvatar === preset.id && (
                             <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                              <Check size={13} strokeWidth={3} color="white" />
                             </div>
                           )}
                         </button>

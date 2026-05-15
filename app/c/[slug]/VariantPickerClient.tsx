@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import type { Variant } from '@/types/database';
+import { ArrowRight } from 'lucide-react';
 
 interface Props {
   eventName: string;
@@ -41,13 +42,10 @@ export default function VariantPickerClient({ eventName, eventSlug, variants }: 
                 <div className="font-display font-semibold text-white text-[16px]">{v.variant_name}</div>
                 <div className="text-[12px] text-white/40 mt-0.5">Tap to personalise your card</div>
               </div>
-              <svg
+              <ArrowRight
                 className="text-white/30 group-hover:text-white/60 transition shrink-0"
-                width="18" height="18" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
-              >
-                <path d="M5 12h14M13 6l6 6-6 6"/>
-              </svg>
+                size={18} strokeWidth={2}
+              />
             </button>
           ))}
         </div>

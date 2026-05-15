@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import QRCode from 'qrcode';
+import { ChevronLeft, Check, Download } from 'lucide-react';
 import CardPreviewClient from '../CardPreviewClient';
 import type { Zone } from '@/types/database';
 
@@ -74,7 +75,7 @@ export default function PublishClient({ eventId, eventName, shareUrl, zonesCount
         <div className="max-w-[1200px] mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href={`/events/${eventId}`} className="h-8 w-8 rounded-md border border-neutral-200 hover:bg-neutral-50 grid place-items-center text-neutral-500 transition">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6" /></svg>
+              <ChevronLeft size={16} strokeWidth={2} />
             </Link>
             <span className="text-[12px] text-neutral-500 hover:text-neutral-700">
               <Link href={`/events/${eventId}`}>{eventName}</Link>
@@ -93,9 +94,7 @@ export default function PublishClient({ eventId, eventName, shareUrl, zonesCount
         {/* Success header */}
         <div className="text-center mb-10">
           <div className="inline-flex h-12 w-12 rounded-full items-center justify-center bg-[#1F4D3A] text-white mb-4">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
+            <Check size={22} strokeWidth={2.5} />
           </div>
           <h1 className="text-xl font-semibold">
             {eventName} is live!
@@ -116,7 +115,7 @@ export default function PublishClient({ eventId, eventName, shareUrl, zonesCount
             >
               {copied ? (
                 <>
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  <Check size={13} strokeWidth={2.5} />
                   Copied!
                 </>
               ) : 'Copy link'}
@@ -158,9 +157,7 @@ export default function PublishClient({ eventId, eventName, shareUrl, zonesCount
               disabled={!qrDataUrl}
               className="w-full h-8 px-3 border border-neutral-200 bg-white text-[13px] rounded-md hover:bg-neutral-50 transition flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" />
-              </svg>
+              <Download size={13} strokeWidth={1.8} />
               Download QR
             </button>
           </div>

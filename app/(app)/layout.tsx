@@ -1,9 +1,13 @@
 'use client';
 
-import { useEffect, useState, useRef, useCallback, createContext, useContext } from 'react';
+import React, { useEffect, useState, useRef, useCallback, createContext, useContext } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import {
+  LayoutGrid, TrendingUp, LayoutTemplate, Palette,
+  Settings2, Users, LogOut, Menu, Search, Plus, ChevronRight,
+} from 'lucide-react';
 
 type Profile = {
   full_name: string | null;
@@ -24,28 +28,28 @@ const NAV_ITEMS = [
   {
     href: '/dashboard',
     label: 'Events',
-    icon: '<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>',
+    icon: <LayoutGrid size={15} strokeWidth={1.8} />,
     badge: null,
     matchPrefix: true,
   },
   {
     href: '/analytics',
     label: 'Analytics',
-    icon: '<path d="M3 3v18h18"/><path d="M7 14l3-3 4 4 5-5"/>',
+    icon: <TrendingUp size={15} strokeWidth={1.8} />,
     badge: null,
     matchPrefix: false,
   },
   {
     href: '/templates',
     label: 'Templates',
-    icon: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>',
+    icon: <LayoutTemplate size={15} strokeWidth={1.8} />,
     badge: 'NEW',
     matchPrefix: false,
   },
   {
     href: '/brand',
     label: 'Brand kit',
-    icon: '<circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="10.5" r="2.5"/><circle cx="8.5" cy="7.5" r="2.5"/><circle cx="6.5" cy="12.5" r="2.5"/><path d="M12 22a10 10 0 1 1 10-10c0 5-5 5-5 8a2 2 0 0 1-2 2z"/>',
+    icon: <Palette size={15} strokeWidth={1.8} />,
     badge: null,
     matchPrefix: false,
   },
@@ -55,12 +59,12 @@ const WORKSPACE_ITEMS = [
   {
     href: '/settings',
     label: 'Settings',
-    icon: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.9 2.9l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.6V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.9-2.9l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.6-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.9-2.9l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.6V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.9 2.9l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.6 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+    icon: <Settings2 size={15} strokeWidth={1.8} />,
   },
   {
     href: '/team',
     label: 'Team',
-    icon: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    icon: <Users size={15} strokeWidth={1.8} />,
   },
 ];
 
@@ -117,10 +121,10 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
   }, [results, selected, navigate, onClose]);
 
   const quickActions = [
-    { label: 'New event',  href: '/events/new',  icon: '<path d="M12 5v14M5 12h14"/>' },
-    { label: 'Analytics',  href: '/analytics',   icon: '<path d="M3 3v18h18"/><path d="M7 14l3-3 4 4 5-5"/>' },
-    { label: 'Settings',   href: '/settings',    icon: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.9 2.9l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.6V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.9-2.9l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.6-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.9-2.9l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.6V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.9 2.9l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.6 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>' },
-    { label: 'Pricing',    href: '/pricing',     icon: '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-4 0v2"/>' },
+    { label: 'New event',  href: '/events/new',  icon: <Plus size={13} strokeWidth={1.8} /> },
+    { label: 'Analytics',  href: '/analytics',   icon: <TrendingUp size={13} strokeWidth={1.8} /> },
+    { label: 'Settings',   href: '/settings',    icon: <Settings2 size={13} strokeWidth={1.8} /> },
+    { label: 'Pricing',    href: '/pricing',     icon: <ChevronRight size={13} strokeWidth={1.8} /> },
   ];
 
   return (
@@ -130,9 +134,7 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
 
         {/* Search input */}
         <div className="flex items-center gap-3 px-4 py-3 border-b" style={{ borderColor: '#E5E0D4' }}>
-          <svg className="text-[#6B7A72] shrink-0" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
-          </svg>
+          <Search className="text-[#6B7A72] shrink-0" size={15} strokeWidth={2} />
           <input
             ref={inputRef}
             value={query}
@@ -204,12 +206,10 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
                   }`}
                 >
                   <div className="h-7 w-7 rounded-lg border grid place-items-center text-[#3A4A42] shrink-0" style={{ borderColor: '#E5E0D4', background: '#FAF6EE' }}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: a.icon }} />
+                    {a.icon}
                   </div>
                   <span className="text-[13px] text-[#3A4A42]">{a.label}</span>
-                  <svg className="ml-auto text-[#E5E0D4] shrink-0" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                    <path d="M9 18l6-6-6-6"/>
-                  </svg>
+                  <ChevronRight className="ml-auto text-[#E5E0D4] shrink-0" size={12} strokeWidth={2.2} />
                 </Link>
               ))}
             </div>
@@ -237,7 +237,7 @@ function NavItem({
   onNavigate,
 }: {
   href: string;
-  icon: string;
+  icon: React.ReactNode;
   label: string;
   badge?: string | null;
   active: boolean;
@@ -254,17 +254,7 @@ function NavItem({
             : 'text-white/50 hover:text-white/85 hover:bg-white/[0.06]'
         }`}
       >
-        <svg
-          width="15" height="15"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={active ? '2' : '1.7'}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="shrink-0"
-          dangerouslySetInnerHTML={{ __html: icon }}
-        />
+        <span className="shrink-0">{icon}</span>
         <span className="flex-1 leading-none">{label}</span>
         {badge && (
           <span className="text-[9px] font-mono font-medium text-white/40 bg-white/[0.08] px-1.5 py-0.5 rounded-md tracking-wide">
@@ -361,11 +351,7 @@ function NavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: (
                 onClick={handleSignOut}
                 className="w-full flex items-center gap-3 px-2.5 py-[7px] rounded-lg text-[13.5px] text-white/50 hover:text-white/85 hover:bg-white/[0.06] transition text-left"
               >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" className="shrink-0">
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                  <polyline points="16 17 21 12 16 7" />
-                  <line x1="21" y1="12" x2="9" y2="12" />
-                </svg>
+                <LogOut size={15} strokeWidth={1.7} className="shrink-0" />
                 <span className="leading-none">Sign out</span>
               </button>
             </li>
@@ -500,11 +486,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               onClick={() => setMobileNavOpen(true)}
               aria-label="Open menu"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <line x1="3" y1="6" x2="21" y2="6"/>
-                <line x1="3" y1="12" x2="21" y2="12"/>
-                <line x1="3" y1="18" x2="21" y2="18"/>
-              </svg>
+              <Menu size={16} strokeWidth={2} />
             </button>
 
             {/* Search / CMD+K trigger */}
@@ -513,9 +495,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               className="flex items-center gap-2 h-8 px-3 rounded-lg text-[13px] text-[#6B7A72] cursor-pointer transition min-w-[200px] max-w-[280px] border"
               style={{ background: '#FAF6EE', borderColor: '#E5E0D4' }}
             >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="shrink-0">
-                <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
-              </svg>
+              <Search size={13} strokeWidth={2} className="shrink-0" />
               <span className="flex-1 text-[13px] text-[#6B7A72]/70">Search</span>
               <span className="text-[11px] text-[#6B7A72]/50 font-mono hidden sm:block">⌘K</span>
             </div>
@@ -528,9 +508,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 className="hidden sm:inline-flex items-center gap-1.5 h-8 px-3.5 text-white text-[13px] font-medium rounded-lg transition hover:opacity-90"
                 style={{ background: '#1F4D3A' }}
               >
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round">
-                  <path d="M12 5v14M5 12h14" />
-                </svg>
+                <Plus size={11} strokeWidth={2.8} />
                 New event
               </Link>
 

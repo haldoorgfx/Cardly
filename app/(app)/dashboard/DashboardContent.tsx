@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { LayoutGrid, List, Search, Plus } from 'lucide-react';
 import EventCard from './EventCard';
 import type { Database } from '@/types/database';
 
@@ -100,10 +101,7 @@ export default function DashboardContent({ events, atLimit }: Props) {
               style={view === 'grid' ? { background: '#E8EFEB', color: '#0F1F18' } : { color: '#6B7A72' }}
               title="Grid view"
             >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
-                <rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" />
-              </svg>
+              <LayoutGrid size={13} strokeWidth={1.8} />
             </button>
             <button
               onClick={() => setView('list')}
@@ -111,11 +109,7 @@ export default function DashboardContent({ events, atLimit }: Props) {
               style={view === 'list' ? { background: '#E8EFEB', color: '#0F1F18', borderColor: '#E5E0D4' } : { color: '#6B7A72', borderColor: '#E5E0D4' }}
               title="List view"
             >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                <line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" />
-                <line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" />
-                <line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" />
-              </svg>
+              <List size={13} strokeWidth={1.8} />
             </button>
           </div>
         </div>
@@ -128,9 +122,7 @@ export default function DashboardContent({ events, atLimit }: Props) {
           style={{ borderColor: '#E5E0D4', background: 'white' }}
         >
           <div className="mx-auto h-11 w-11 rounded-xl grid place-items-center mb-4" style={{ background: '#E8EFEB' }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F4D3A" strokeWidth="1.8" strokeLinecap="round">
-              <circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3" />
-            </svg>
+            <Search size={18} strokeWidth={1.8} color="#1F4D3A" />
           </div>
           <div className="font-display font-semibold text-[15px] text-[#0F1F18]">No events match that filter.</div>
           <p className="text-[13px] text-[#6B7A72] mt-1">Switch the filter or clear your search.</p>
@@ -154,12 +146,10 @@ export default function DashboardContent({ events, atLimit }: Props) {
                 style={{ borderColor: 'rgba(31,77,58,0.3)', color: '#1F4D3A', background: 'rgba(31,77,58,0.02)' }}
               >
                 <div
-                  className="h-7 w-7 rounded-lg grid place-items-center shrink-0"
+                  className="h-7 w-7 rounded-lg grid place-items-center shrink-0 text-white"
                   style={{ background: '#1F4D3A' }}
                 >
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.8" strokeLinecap="round">
-                    <path d="M12 5v14M5 12h14" />
-                  </svg>
+                  <Plus size={11} strokeWidth={2.8} />
                 </div>
                 New event
               </Link>
@@ -173,9 +163,7 @@ export default function DashboardContent({ events, atLimit }: Props) {
                   className="h-14 w-14 rounded-2xl grid place-items-center text-white group-hover:scale-105 transition-transform"
                   style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)', boxShadow: '0 8px 20px rgba(31,77,58,0.3)' }}
                 >
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
-                    <path d="M12 5v14M5 12h14" />
-                  </svg>
+                  <Plus size={22} strokeWidth={2.4} />
                 </div>
                 <div>
                   <div className="font-display font-semibold text-[15px] text-[#0F1F18]">Create a new event</div>

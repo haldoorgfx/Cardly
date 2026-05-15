@@ -1,4 +1,6 @@
 import Link from "next/link";
+import React from "react";
+import { ArrowRight, Upload, Link2, Settings2, Image as ImageIcon, Maximize2, Plus, Minus, Check } from "lucide-react";
 
 export default function LandingPage() {
   return (
@@ -39,11 +41,7 @@ function DotGrid({
 }
 
 function ArrowIcon({ dark }: { dark?: boolean }) {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={dark ? "#0F1F18" : "currentColor"} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M5 12h14M13 6l6 6-6 6" />
-    </svg>
-  );
+  return <ArrowRight size={14} strokeWidth={2.2} color={dark ? "#0F1F18" : "currentColor"} />;
 }
 
 /* ─── HERO ──────────────────────────────────────────────────────────── */
@@ -145,12 +143,12 @@ function HeroSection() {
                 {/* Left toolbar */}
                 <div className="flex flex-col items-center py-3 gap-1.5" style={{ background: "#FAF6EE", borderRight: "1px solid #E5E0D4" }}>
                   {[
-                    { icon: '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>', active: true },
-                    { icon: '<path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>', active: false },
-                    { icon: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.9 2.9l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.6V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1-.1a2 2 0 1 1-2.9-2.9l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.6-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.9-2.9l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.6V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.9 2.9l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.6 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>', active: false },
+                    { icon: <ImageIcon size={13} strokeWidth={1.8} />, active: true },
+                    { icon: <Maximize2 size={13} strokeWidth={1.8} />, active: false },
+                    { icon: <Settings2 size={13} strokeWidth={1.8} />, active: false },
                   ].map((item, i) => (
-                    <button key={i} className="h-8 w-8 rounded-md grid place-items-center shrink-0" style={item.active ? { background: "#1F4D3A" } : {}}>
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={item.active ? "white" : "#6B7A72"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: item.icon }} />
+                    <button key={i} className="h-8 w-8 rounded-md grid place-items-center shrink-0" style={item.active ? { background: "#1F4D3A", color: "white" } : { color: "#6B7A72" }}>
+                      {item.icon}
                     </button>
                   ))}
                 </div>
@@ -280,10 +278,10 @@ function LogoStrip() {
 }
 
 /* ─── HOW IT WORKS ───────────────────────────────────────────────────── */
-const HOW_ICONS = [
-  '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>',
-  '<rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="3 3"/><circle cx="12" cy="12" r="4"/>',
-  '<path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1 1"/><path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1-1"/>',
+const HOW_ICONS: React.ReactNode[] = [
+  <Upload key="upload" size={15} strokeWidth={1.8} color="#1F4D3A" />,
+  <Maximize2 key="maximize" size={15} strokeWidth={1.8} color="#1F4D3A" />,
+  <Link2 key="link" size={15} strokeWidth={1.8} color="#1F4D3A" />,
 ];
 
 const HOW_STEPS = [
@@ -324,7 +322,7 @@ function HowItWorksSection() {
                   className="h-9 w-9 rounded-xl grid place-items-center shrink-0"
                   style={{ background: "rgba(31,77,58,0.08)", border: "1px solid rgba(31,77,58,0.12)" }}
                 >
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1F4D3A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: HOW_ICONS[i] }} />
+                  {HOW_ICONS[i]}
                 </div>
               </div>
 
@@ -524,9 +522,7 @@ function PricingSection() {
                         : { background: "rgba(31,77,58,0.08)", border: "1px solid rgba(31,77,58,0.15)" }
                       }
                     >
-                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke={plan.highlight ? "#a8d5a2" : "#1F4D3A"} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
+                      <Check size={9} strokeWidth={3} color={plan.highlight ? "#a8d5a2" : "#1F4D3A"} />
                     </div>
                     <span className={`text-[13px] ${plan.highlight ? "text-white/65" : "text-[#3A4A42]"}`}>{f}</span>
                   </li>
@@ -575,12 +571,8 @@ function FaqSection() {
               <summary className="flex items-center justify-between gap-6 cursor-pointer [&::-webkit-details-marker]:hidden list-none">
                 <span className="font-display font-medium text-[16px] text-[#0F1F18]">{faq.q}</span>
                 <span className="h-7 w-7 rounded-full grid place-items-center shrink-0 transition-colors" style={{ background: "#F0EDE6" }}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6B7A72" strokeWidth="2.2" strokeLinecap="round" className="group-open:hidden">
-                    <path d="M12 5v14M5 12h14" />
-                  </svg>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F4D3A" strokeWidth="2.2" strokeLinecap="round" className="hidden group-open:block">
-                    <path d="M5 12h14" />
-                  </svg>
+                  <Plus size={12} strokeWidth={2.2} color="#6B7A72" className="group-open:hidden" />
+                  <Minus size={12} strokeWidth={2.2} color="#1F4D3A" className="hidden group-open:block" />
                 </span>
               </summary>
               <p className="mt-4 text-[14px] text-[#6B7A72] leading-relaxed pr-12">{faq.a}</p>

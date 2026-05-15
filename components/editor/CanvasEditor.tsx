@@ -1,8 +1,20 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Zone, Variant } from '@/types/database';
+import {
+  Type, Image, ImagePlus, ToggleLeft, Tag, Plus, Eye, EyeOff, Lock, LockOpen,
+  Trash2, Copy, AlignLeft, AlignCenter, AlignRight, AlignJustify,
+  ZoomIn, ZoomOut, Grid, MousePointer2, ArrowLeft, CheckCircle2, Globe,
+  Undo2, Redo2, Upload, Play, X, Layers, ChevronUp, ChevronDown, RotateCcw,
+  Circle, Wand2, HelpCircle, Magnet, Square, LayoutGrid,
+  AlignStartHorizontal, AlignCenterHorizontal, AlignEndHorizontal,
+  AlignStartVertical, AlignCenterVertical, AlignEndVertical,
+  AlignHorizontalSpaceAround, AlignVerticalSpaceAround,
+  AlignHorizontalJustifyCenter, AlignVerticalJustifyCenter,
+  MoreHorizontal, Triangle, Minus, GripVertical,
+} from 'lucide-react';
 
 const CW = 1080;
 const CH = 1350;
@@ -38,80 +50,6 @@ function wrapTextLines(text: string, maxWidth: number, fontSize: number): string
   return lines.length ? lines : [''];
 }
 
-
-
-function Icon({ d, size = 16, sw = 1.8 }: { d: string; size?: number; sw?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"
-      dangerouslySetInnerHTML={{ __html: d }} />
-  );
-}
-
-const I = {
-  text:    '<path d="M4 7V4h16v3M9 20h6M12 4v16"/>',
-  photo:   '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>',
-  field:   '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10v4"/>',
-  label:   '<path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>',
-  plus:    '<path d="M12 5v14M5 12h14"/>',
-  eye:     '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
-  eyeOff:  '<path d="M17.94 17.94A10 10 0 0 1 12 20c-7 0-11-8-11-8a18 18 0 0 1 5.06-5.94M9.9 4.24A10 10 0 0 1 12 4c7 0 11 8 11 8a18 18 0 0 1-3.17 4.19M1 1l22 22"/>',
-  lock:    '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
-  unlock:  '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>',
-  trash:   '<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/>',
-  dup:     '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
-  al:      '<line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/>',
-  ac:      '<line x1="18" y1="10" x2="6" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="18" y1="18" x2="6" y2="18"/>',
-  ar:      '<line x1="21" y1="10" x2="7" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="21" y1="18" x2="7" y2="18"/>',
-  zoomin:  '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/>',
-  zoomout: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M8 11h6"/>',
-  grid:    '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',
-  cursor:  '<path d="M5 3l14 7-6 2-2 6-6-15z"/>',
-  back:    '<path d="M19 12H5M12 19l-7-7 7-7"/>',
-  check:   '<circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/>',
-  globe:   '<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/>',
-  undo:    '<path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-15-6.7L3 13"/>',
-  redo:    '<path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 15-6.7L21 13"/>',
-  upload:  '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>',
-  play:    '<polygon points="6 4 20 12 6 20 6 4"/>',
-  close:   '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
-  layers:  '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
-  up:      '<path d="M18 15l-6-6-6 6"/>',
-  down:    '<path d="M6 9l6 6 6-6"/>',
-  rotate:  '<path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38"/>',
-  shadow:  '<rect x="4" y="4" width="13" height="13" rx="2"/><rect x="7" y="7" width="13" height="13" rx="2" opacity="0.35" fill="currentColor" stroke="none"/>',
-  stroke:  '<path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z" stroke-width="4"/>',
-  style:   '<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>',
-  help:    '<circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/>',
-  snap:    '<path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>',
-  border:  '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/>',
-  multi:       '<rect x="2" y="2" width="9" height="9" rx="1.5"/><rect x="13" y="2" width="9" height="9" rx="1.5"/><rect x="2" y="13" width="9" height="9" rx="1.5"/><rect x="13" y="13" width="9" height="9" rx="1.5"/>',
-  alignL:      '<line x1="3" y1="12" x2="21" y2="12"/><rect x="3" y="4" width="7" height="16" rx="1"/><rect x="3" y="8" width="14" height="8" rx="1" opacity="0.45" fill="currentColor" stroke="none"/>',
-  alignCH:     '<line x1="12" y1="3" x2="12" y2="21"/><rect x="5" y="7" width="14" height="5" rx="1"/><rect x="8" y="12" width="8" height="5" rx="1"/>',
-  alignR:      '<line x1="21" y1="12" x2="3" y2="12"/><rect x="14" y="4" width="7" height="16" rx="1"/><rect x="7" y="8" width="14" height="8" rx="1" opacity="0.45" fill="currentColor" stroke="none"/>',
-  alignT:      '<line x1="12" y1="3" x2="12" y2="3"/><line x1="3" y1="3" x2="21" y2="3"/><rect x="4" y="3" width="16" height="7" rx="1"/><rect x="8" y="3" width="8" height="14" rx="1" opacity="0.45" fill="currentColor" stroke="none"/>',
-  alignMV:     '<line x1="3" y1="12" x2="21" y2="12"/><rect x="7" y="5" width="5" height="14" rx="1"/><rect x="12" y="8" width="5" height="8" rx="1"/>',
-  alignB:      '<line x1="3" y1="21" x2="21" y2="21"/><rect x="4" y="14" width="16" height="7" rx="1"/><rect x="8" y="7" width="8" height="14" rx="1" opacity="0.45" fill="currentColor" stroke="none"/>',
-  distH:       '<line x1="3" y1="3" x2="3" y2="21"/><line x1="21" y1="3" x2="21" y2="21"/><rect x="9" y="7" width="6" height="10" rx="1"/>',
-  distV:       '<line x1="3" y1="3" x2="21" y2="3"/><line x1="3" y1="21" x2="21" y2="21"/><rect x="7" y="9" width="10" height="6" rx="1"/>',
-  centerH:     '<line x1="12" y1="5" x2="12" y2="19"/><path d="M5 12h14"/><path d="M5 8h2M5 16h2M17 8h2M17 16h2"/>',
-  centerV:     '<line x1="5" y1="12" x2="19" y2="12"/><path d="M12 5v14"/><path d="M8 5v2M16 5v2M8 17v2M16 17v2"/>',
-  aspect:      '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><line x1="9" y1="6.5" x2="14" y2="6.5"/><line x1="3" y1="14" x2="3" y2="21"/><path d="M3 21h6M3 17h3"/>',
-  more:        '<circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/>',
-  // shape tools
-  shRect:   '<rect x="3" y="5" width="18" height="14" rx="2"/>',
-  shOval:   '<ellipse cx="12" cy="12" rx="9" ry="6"/>',
-  shTri:    '<path d="M12 3L22 21H2L12 3z"/>',
-  shLine:   '<line x1="2" y1="12" x2="22" y2="12"/>',
-  // image tool
-  imgIcon:  '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/>',
-  // justify (4th horizontal text align)
-  aj:       '<line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="10" x2="3" y2="10"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="21" y1="18" x2="3" y2="18"/>',
-  // vertical text alignment within zone
-  vAt:      '<line x1="3" y1="4" x2="21" y2="4"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="6" y1="14" x2="18" y2="14"/><line x1="8" y1="19" x2="16" y2="19"/>',
-  vAc:      '<line x1="8" y1="5" x2="16" y2="5"/><line x1="6" y1="10" x2="18" y2="10"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="6" y1="14" x2="18" y2="14"/><line x1="8" y1="19" x2="16" y2="19"/>',
-  vAb:      '<line x1="8" y1="5" x2="16" y2="5"/><line x1="6" y1="10" x2="18" y2="10"/><line x1="8" y1="15" x2="16" y2="15"/><line x1="3" y1="20" x2="21" y2="20"/>',
-};
 
 const BRAND_COLORS = [
   '#FFFFFF','#0F1F18','#1F4D3A','#2A6A50','#E8C57E',
@@ -808,7 +746,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
       {/* ── Top bar ─────────────────────────────────────── */}
       <header className="h-14 bg-white border-b border-border flex items-center px-4 gap-3 shrink-0 z-10">
         <a href="/dashboard" className="h-8 w-8 rounded-lg hover:bg-cream grid place-items-center text-[#0F1F18]/70 shrink-0" title="Back to dashboard">
-          <Icon d={I.back} size={16} />
+          <ArrowLeft size={16} strokeWidth={1.8} />
         </a>
         <div className="h-5 w-px bg-border" />
         <a href="/dashboard" className="flex items-center gap-2 shrink-0">
@@ -827,13 +765,13 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
 
         {/* Undo / Redo */}
         <div className="flex items-center gap-0.5">
-          <button title="Undo (⌘Z)" disabled={!history.past.length} onClick={undo} className={`h-8 w-8 rounded-lg grid place-items-center transition ${history.past.length ? 'text-[#0F1F18]/80 hover:bg-cream' : 'text-[#0F1F18]/25'}`}><Icon d={I.undo} size={15} /></button>
-          <button title="Redo (⇧⌘Z)" disabled={!history.future.length} onClick={redo} className={`h-8 w-8 rounded-lg grid place-items-center transition ${history.future.length ? 'text-[#0F1F18]/80 hover:bg-cream' : 'text-[#0F1F18]/25'}`}><Icon d={I.redo} size={15} /></button>
+          <button title="Undo (⌘Z)" disabled={!history.past.length} onClick={undo} className={`h-8 w-8 rounded-lg grid place-items-center transition ${history.past.length ? 'text-[#0F1F18]/80 hover:bg-cream' : 'text-[#0F1F18]/25'}`}><Undo2 size={15} strokeWidth={1.8} /></button>
+          <button title="Redo (⇧⌘Z)" disabled={!history.future.length} onClick={redo} className={`h-8 w-8 rounded-lg grid place-items-center transition ${history.future.length ? 'text-[#0F1F18]/80 hover:bg-cream' : 'text-[#0F1F18]/25'}`}><Redo2 size={15} strokeWidth={1.8} /></button>
         </div>
 
         {/* Saved indicator */}
         <div className="flex items-center gap-1.5 text-[11.5px] text-[#0F1F18]/50 mx-1 font-mono">
-          <Icon d={I.check} size={12} sw={2.2} />
+          <CheckCircle2 size={12} strokeWidth={2.2} />
           {savedAt}
         </div>
 
@@ -845,12 +783,12 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
               title="Copy style (⌘⌥C)"
               className={`h-8 px-2.5 rounded-lg text-[11.5px] font-mono flex items-center gap-1.5 transition ${styleFlash ? 'bg-primary text-white' : 'hover:bg-cream text-[#0F1F18]/65'}`}
             >
-              <Icon d={I.style} size={13} sw={1.8} />
+              <Wand2 size={13} strokeWidth={1.8} />
               {styleFlash ? 'Copied!' : 'Copy style'}
             </button>
             {copiedStyle && (
               <button onClick={pasteStyle} title="Paste style (⌘⌥V)" className="h-8 px-2.5 rounded-lg text-[11.5px] font-mono flex items-center gap-1.5 hover:bg-primary/10 hover:text-primary text-[#0F1F18]/65 transition border border-dashed border-primary/30">
-                <Icon d={I.style} size={13} sw={1.8} />
+                <Wand2 size={13} strokeWidth={1.8} />
                 Paste style
               </button>
             )}
@@ -860,7 +798,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
         <div className="flex items-center gap-2">
           {/* Shortcuts */}
           <button onClick={() => setShowShortcuts(s => !s)} title="Keyboard shortcuts (⌘/)" className="h-8 w-8 rounded-lg grid place-items-center hover:bg-cream text-[#0F1F18]/60 transition">
-            <Icon d={I.help} size={15} />
+            <HelpCircle size={15} strokeWidth={1.8} />
           </button>
 
           {/* Preview toggle */}
@@ -869,20 +807,18 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
             title="Preview mode (⌘P)"
             className={`inline-flex items-center gap-1.5 text-[12.5px] px-3 py-1.5 rounded-lg border transition ${previewMode ? 'bg-primary/10 text-primary border-primary/30 font-medium' : 'text-[#0F1F18]/70 border-border hover:bg-cream'}`}
           >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-            </svg>
+            <Eye size={13} strokeWidth={2} />
             {previewMode ? 'Editing' : 'Preview'}
           </button>
 
           <a href={`/events/${eventId}`} className="inline-flex items-center gap-1.5 text-[12.5px] text-[#0F1F18]/80 bg-white border border-border px-3 py-1.5 rounded-lg hover:bg-cream transition">
-            <Icon d={I.play} size={13} sw={2.2} />Test
+            <Play size={13} strokeWidth={2.2} />Test
           </a>
           <button
             onClick={() => router.push(`/events/${eventId}/publish`)}
             className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-white px-3.5 py-1.5 rounded-lg hover:opacity-95 transition shadow-soft bg-primary"
           >
-            <Icon d={I.globe} size={13} sw={2.2} />Publish
+            <Globe size={13} strokeWidth={2.2} />Publish
           </button>
         </div>
       </header>
@@ -928,7 +864,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                         : 'bg-white text-[#0F1F18]/65 hover:text-[#0F1F18] hover:bg-[#FAF6EE] border border-r-0 border-[#E5E0D4]'
                     }`}
                   >
-                    <Icon d={I.layers} size={11} sw={2} />
+                    <Layers size={11} strokeWidth={2} />
                     {v.variant_name}
                   </button>
                   <button
@@ -940,7 +876,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                         : 'bg-white border border-[#E5E0D4] text-[#0F1F18]/35 hover:text-[#0F1F18] hover:bg-[#FAF6EE]'
                     }`}
                   >
-                    <Icon d={I.down} size={10} sw={2.5} />
+                    <ChevronDown size={10} strokeWidth={2.5} />
                   </button>
                 </div>
               )}
@@ -956,13 +892,13 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                     onClick={() => { setRenamingVariantId(v.id); setRenameValue(v.variant_name); setVariantMenuId(null); }}
                     className="w-full text-left px-3 py-2 text-[12.5px] text-[#0F1F18] hover:bg-[#FAF6EE] flex items-center gap-2.5 rounded-lg mx-0"
                   >
-                    <Icon d={I.label} size={13} sw={1.8} />Rename
+                    <Tag size={13} strokeWidth={1.8} />Rename
                   </button>
                   <button
                     onClick={() => handleDuplicateVariant(v.id)}
                     className="w-full text-left px-3 py-2 text-[12.5px] text-[#0F1F18] hover:bg-[#FAF6EE] flex items-center gap-2.5"
                   >
-                    <Icon d={I.dup} size={13} sw={1.8} />Duplicate
+                    <Copy size={13} strokeWidth={1.8} />Duplicate
                   </button>
                   <div className="h-px mx-3 my-1" style={{ background: '#E5E0D4' }} />
                   <button
@@ -970,7 +906,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                     disabled={variants.length <= 1}
                     className="w-full text-left px-3 py-2 text-[12.5px] text-red-500 hover:bg-red-50 flex items-center gap-2.5 disabled:opacity-30 disabled:cursor-not-allowed"
                   >
-                    <Icon d={I.trash} size={13} sw={1.8} />Delete
+                    <Trash2 size={13} strokeWidth={1.8} />Delete
                   </button>
                 </div>
               )}
@@ -985,7 +921,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
           onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '1'; (e.currentTarget as HTMLElement).style.color = '#1F4D3A'; }}
           onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '0.5'; (e.currentTarget as HTMLElement).style.color = '#0F1F18'; }}
         >
-          <Icon d={I.plus} size={13} sw={2.5} />Add variant
+          <Plus size={13} strokeWidth={2.5} />Add variant
         </button>
       </div>
 
@@ -1008,10 +944,10 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
 
               <div className="space-y-1">
                 {[
-                  { type: 'text' as const,   label: 'Text field',   sub: 'Name, title, country…',      icon: I.text  },
-                  { type: 'photo' as const,  label: 'Photo zone',   sub: 'Headshot or logo',            icon: I.photo },
-                  { type: 'custom' as const, label: 'Custom field', sub: 'Dropdown, badge, role…',      icon: I.field },
-                  { type: 'label' as const,  label: 'Static text',  sub: 'Fixed text on the card',      icon: I.label },
+                  { type: 'text' as const,   label: 'Text field',   sub: 'Name, title, country…',      icon: <Type size={15} strokeWidth={1.8} />  },
+                  { type: 'photo' as const,  label: 'Photo zone',   sub: 'Headshot or logo',            icon: <Image size={15} strokeWidth={1.8} /> },
+                  { type: 'custom' as const, label: 'Custom field', sub: 'Dropdown, badge, role…',      icon: <ToggleLeft size={15} strokeWidth={1.8} /> },
+                  { type: 'label' as const,  label: 'Static text',  sub: 'Fixed text on the card',      icon: <Tag size={15} strokeWidth={1.8} /> },
                 ].map(item => (
                   <button
                     key={item.type}
@@ -1019,13 +955,13 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                     className="group w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-cream border border-transparent hover:border-border transition text-left"
                   >
                     <span className="h-9 w-9 rounded-lg bg-cream grid place-items-center text-primary group-hover:text-white group-hover:bg-primary transition shrink-0">
-                      <Icon d={item.icon} size={15} sw={1.8} />
+                      {item.icon}
                     </span>
                     <span className="flex-1 min-w-0">
                       <span className="block text-[13px] font-medium">{item.label}</span>
                       <span className="block text-[11px] text-[#0F1F18]/50">{item.sub}</span>
                     </span>
-                    <Icon d={I.plus} size={12} sw={2} />
+                    <Plus size={12} strokeWidth={2} />
                   </button>
                 ))}
               </div>
@@ -1039,14 +975,14 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                 <span className="h-9 w-9 rounded-lg bg-cream grid place-items-center text-primary group-hover:text-white group-hover:bg-primary transition shrink-0">
                   {uploadingImage
                     ? <svg className="animate-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
-                    : <Icon d={I.imgIcon} size={15} sw={1.8} />
+                    : <ImagePlus size={15} strokeWidth={1.8} />
                   }
                 </span>
                 <span className="flex-1 min-w-0">
                   <span className="block text-[13px] font-medium">{uploadingImage ? 'Uploading…' : 'Image'}</span>
                   <span className="block text-[11px] text-[#0F1F18]/50">PNG, JPG, WebP, SVG, GIF</span>
                 </span>
-                <Icon d={I.plus} size={12} sw={2} />
+                <Plus size={12} strokeWidth={2} />
               </button>
 
               {/* Shapes section */}
@@ -1058,18 +994,18 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                 </div>
                 <div className="grid grid-cols-2 gap-1.5">
                   {([
-                    { shapeType: 'rect'     as const, label: 'Rectangle', icon: I.shRect },
-                    { shapeType: 'ellipse'  as const, label: 'Circle',    icon: I.shOval },
-                    { shapeType: 'triangle' as const, label: 'Triangle',  icon: I.shTri  },
-                    { shapeType: 'line'     as const, label: 'Line',      icon: I.shLine },
-                  ] as const).map(item => (
+                    { shapeType: 'rect'     as const, label: 'Rectangle', icon: <Square size={13} strokeWidth={1.8} /> },
+                    { shapeType: 'ellipse'  as const, label: 'Circle',    icon: <Circle size={13} strokeWidth={1.8} /> },
+                    { shapeType: 'triangle' as const, label: 'Triangle',  icon: <Triangle size={13} strokeWidth={1.8} /> },
+                    { shapeType: 'line'     as const, label: 'Line',      icon: <Minus size={13} strokeWidth={1.8} /> },
+                  ] as { shapeType: 'rect' | 'ellipse' | 'triangle' | 'line'; label: string; icon: React.ReactNode }[]).map(item => (
                     <button
                       key={item.shapeType}
                       onClick={() => addShapeZone(item.shapeType)}
                       className="group flex items-center gap-2 p-2 rounded-xl hover:bg-cream border border-transparent hover:border-border transition text-left"
                     >
                       <span className="h-7 w-7 rounded-lg bg-cream grid place-items-center text-primary group-hover:text-white group-hover:bg-primary transition shrink-0">
-                        <Icon d={item.icon} size={13} sw={1.8} />
+                        {item.icon}
                       </span>
                       <span className="text-[12px] font-medium">{item.label}</span>
                     </button>
@@ -1104,12 +1040,12 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                   >
                     {!previewMode && (
                       <div className="flex flex-col gap-0 opacity-0 group-hover:opacity-100 shrink-0">
-                        <button onClick={e => { e.stopPropagation(); moveZoneUp(z.id); }} disabled={realIdx >= zones.length - 1} className="h-4 w-4 rounded grid place-items-center text-[#0F1F18]/40 hover:text-primary disabled:opacity-20"><Icon d={I.up} size={9} sw={2.5} /></button>
-                        <button onClick={e => { e.stopPropagation(); moveZoneDown(z.id); }} disabled={realIdx <= 0} className="h-4 w-4 rounded grid place-items-center text-[#0F1F18]/40 hover:text-primary disabled:opacity-20"><Icon d={I.down} size={9} sw={2.5} /></button>
+                        <button onClick={e => { e.stopPropagation(); moveZoneUp(z.id); }} disabled={realIdx >= zones.length - 1} className="h-4 w-4 rounded grid place-items-center text-[#0F1F18]/40 hover:text-primary disabled:opacity-20"><ChevronUp size={9} strokeWidth={2.5} /></button>
+                        <button onClick={e => { e.stopPropagation(); moveZoneDown(z.id); }} disabled={realIdx <= 0} className="h-4 w-4 rounded grid place-items-center text-[#0F1F18]/40 hover:text-primary disabled:opacity-20"><ChevronDown size={9} strokeWidth={2.5} /></button>
                       </div>
                     )}
                     <span className={`h-6 w-6 rounded-md grid place-items-center shrink-0 ${isSel ? 'text-primary' : 'text-[#0F1F18]/50'}`}>
-                      <Icon d={z.type === 'photo' ? I.photo : z.type === 'custom' ? I.field : z.type === 'label' ? I.label : z.type === 'shape' ? I.shRect : z.type === 'image' ? I.imgIcon : I.text} size={12} />
+                      {z.type === 'photo' ? <Image size={12} strokeWidth={1.8} /> : z.type === 'custom' ? <ToggleLeft size={12} strokeWidth={1.8} /> : z.type === 'label' ? <Tag size={12} strokeWidth={1.8} /> : z.type === 'shape' ? <Square size={12} strokeWidth={1.8} /> : z.type === 'image' ? <ImagePlus size={12} strokeWidth={1.8} /> : <Type size={12} strokeWidth={1.8} />}
                     </span>
                     <span className="flex-1 truncate">{z.label}</span>
                     {z.required && <span className="text-[9px] font-mono px-1 py-px rounded bg-primary/10 text-primary shrink-0">REQ</span>}
@@ -1117,10 +1053,10 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                     {!previewMode && (
                       <div className="opacity-0 group-hover:opacity-100 flex items-center gap-0.5 shrink-0">
                         <button onClick={e => { e.stopPropagation(); updateZone(z.id, { locked: !z.locked }); }} className={`h-6 w-6 rounded-md grid place-items-center ${z.locked ? 'text-warning' : 'text-[#0F1F18]/40 hover:text-[#0F1F18]'}`} title={z.locked ? 'Unlock' : 'Lock'}>
-                          <Icon d={z.locked ? I.lock : I.unlock} size={11} />
+                          {z.locked ? <Lock size={11} strokeWidth={1.8} /> : <LockOpen size={11} strokeWidth={1.8} />}
                         </button>
                         <button onClick={e => { e.stopPropagation(); updateZone(z.id, { hidden: !z.hidden }); }} className="h-6 w-6 rounded-md grid place-items-center text-[#0F1F18]/40 hover:text-[#0F1F18]" title={z.hidden ? 'Show' : 'Hide'}>
-                          <Icon d={z.hidden ? I.eyeOff : I.eye} size={11} />
+                          {z.hidden ? <EyeOff size={11} strokeWidth={1.8} /> : <Eye size={11} strokeWidth={1.8} />}
                         </button>
                       </div>
                     )}
@@ -1406,13 +1342,13 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
 
                       {/* Text align L / C / R */}
                       <div role="group" aria-label="Text alignment" className="flex items-center gap-px">
-                        {([['left', I.al, 'Align left'], ['center', I.ac, 'Align center'], ['right', I.ar, 'Align right']] as [string, string, string][]).map(([v, icon, label]) => (
-                          <button key={v}
-                            aria-label={label} aria-pressed={align === v} title={label}
+                        {([['left', <AlignLeft key="l" size={13} strokeWidth={1.8} />, 'Align left'], ['center', <AlignCenter key="c" size={13} strokeWidth={1.8} />, 'Align center'], ['right', <AlignRight key="r" size={13} strokeWidth={1.8} />, 'Align right']] as [string, React.ReactNode, string][]).map(([v, icon, label]) => (
+                          <button key={v as string}
+                            aria-label={label as string} aria-pressed={align === v} title={label as string}
                             onClick={() => updateZone(selected.id, { align: v as Zone['align'] })}
                             className="h-7 w-7 rounded-lg grid place-items-center transition active:scale-95"
                             style={align === v ? { background: 'rgba(31,77,58,0.1)', color: '#1F4D3A' } : { color: 'rgba(15,31,24,0.5)' }}
-                          ><Icon d={icon} size={13} /></button>
+                          >{icon}</button>
                         ))}
                       </div>
 
@@ -1448,13 +1384,13 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                   {selected.type === 'photo' && (
                     <>
                       <div role="group" aria-label="Photo shape" className="flex items-center gap-px">
-                        {([['circle', I.shOval, 'Circle'], ['rounded', I.shRect, 'Rounded corners'], ['square', I.border, 'Square']] as [string, string, string][]).map(([v, icon, label]) => (
-                          <button key={v}
-                            aria-label={label} aria-pressed={(selected.shape ?? 'circle') === v} title={label}
+                        {([['circle', <Circle key="c" size={13} strokeWidth={1.8} />, 'Circle'], ['rounded', <Square key="r" size={13} strokeWidth={1.8} />, 'Rounded corners'], ['square', <LayoutGrid key="s" size={13} strokeWidth={1.8} />, 'Square']] as [string, React.ReactNode, string][]).map(([v, icon, label]) => (
+                          <button key={v as string}
+                            aria-label={label as string} aria-pressed={(selected.shape ?? 'circle') === v} title={label as string}
                             onClick={() => updateZone(selected.id, { shape: v as Zone['shape'] })}
                             className="h-7 w-7 rounded-lg grid place-items-center transition active:scale-95"
                             style={(selected.shape ?? 'circle') === v ? { background: '#1F4D3A', color: 'white' } : { color: 'rgba(15,31,24,0.55)' }}
-                          ><Icon d={icon} size={13} /></button>
+                          >{icon}</button>
                         ))}
                       </div>
                       {sep}
@@ -1502,14 +1438,14 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                       onClick={() => updateZone(selected.id, { x: Math.round(bgW / 2 - selected.w / 2) }, true)}
                       className="h-7 w-7 rounded-lg grid place-items-center transition hover:bg-[#FAF6EE] active:scale-95"
                       style={{ color: 'rgba(15,31,24,0.65)' }}
-                    ><Icon d={I.centerH} size={13} /></button>
+                    ><AlignHorizontalJustifyCenter size={13} strokeWidth={1.8} /></button>
                     <button
                       aria-label="Center vertically on canvas"
                       title="Center vertically"
                       onClick={() => updateZone(selected.id, { y: Math.round(bgH / 2 - selected.h / 2) }, true)}
                       className="h-7 w-7 rounded-lg grid place-items-center transition hover:bg-[#FAF6EE] active:scale-95"
                       style={{ color: 'rgba(15,31,24,0.65)' }}
-                    ><Icon d={I.centerV} size={13} /></button>
+                    ><AlignVerticalJustifyCenter size={13} strokeWidth={1.8} /></button>
                   </div>
 
                   {sep}
@@ -1522,14 +1458,14 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                       onClick={() => moveZoneUp(selected.id)}
                       className="h-7 w-7 rounded-lg grid place-items-center transition hover:bg-[#FAF6EE] active:scale-95"
                       style={{ color: 'rgba(15,31,24,0.65)' }}
-                    ><Icon d={I.up} size={13} /></button>
+                    ><ChevronUp size={13} strokeWidth={1.8} /></button>
                     <button
                       aria-label="Send backward"
                       title="Send backward  ]"
                       onClick={() => moveZoneDown(selected.id)}
                       className="h-7 w-7 rounded-lg grid place-items-center transition hover:bg-[#FAF6EE] active:scale-95"
                       style={{ color: 'rgba(15,31,24,0.65)' }}
-                    ><Icon d={I.down} size={13} /></button>
+                    ><ChevronDown size={13} strokeWidth={1.8} /></button>
                   </div>
 
                   {sep}
@@ -1541,14 +1477,14 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                     onClick={() => duplicateZone(selected.id)}
                     className="h-7 w-7 rounded-lg grid place-items-center transition hover:bg-[#FAF6EE] active:scale-95"
                     style={{ color: 'rgba(15,31,24,0.65)' }}
-                  ><Icon d={I.dup} size={13} /></button>
+                  ><Copy size={13} strokeWidth={1.8} /></button>
                   <button
                     aria-label="Delete element (⌫)"
                     title="Delete (⌫)"
                     onClick={() => removeZone(selected.id)}
                     className="h-7 w-7 rounded-lg grid place-items-center transition hover:bg-red-50 active:scale-95"
                     style={{ color: '#f87171' }}
-                  ><Icon d={I.trash} size={13} /></button>
+                  ><Trash2 size={13} strokeWidth={1.8} /></button>
 
                 </div>
               </div>
@@ -1564,9 +1500,9 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
 
           {/* Bottom zoom bar — viewport-fixed */}
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white rounded-xl border border-border shadow-soft p-1 z-10">
-            <button onClick={() => setZoom(z => Math.max(0.1, z - 0.1))} className="h-8 w-8 rounded-lg hover:bg-cream grid place-items-center text-[#0F1F18]/70" title="Zoom out (⌘-)"><Icon d={I.zoomout} size={14} /></button>
+            <button onClick={() => setZoom(z => Math.max(0.1, z - 0.1))} className="h-8 w-8 rounded-lg hover:bg-cream grid place-items-center text-[#0F1F18]/70" title="Zoom out (⌘-)"><ZoomOut size={14} strokeWidth={1.8} /></button>
             <button onClick={() => setZoom(1)} className="font-mono text-[12px] px-2 min-w-[60px] text-center hover:bg-cream rounded-lg py-1.5">{Math.round(zoom * 100)}%</button>
-            <button onClick={() => setZoom(z => Math.min(3, z + 0.1))} className="h-8 w-8 rounded-lg hover:bg-cream grid place-items-center text-[#0F1F18]/70" title="Zoom in (⌘+)"><Icon d={I.zoomin} size={14} /></button>
+            <button onClick={() => setZoom(z => Math.min(3, z + 0.1))} className="h-8 w-8 rounded-lg hover:bg-cream grid place-items-center text-[#0F1F18]/70" title="Zoom in (⌘+)"><ZoomIn size={14} strokeWidth={1.8} /></button>
             <span className="h-5 w-px bg-border mx-0.5" />
             <button onClick={fitZoom} className="h-8 px-2.5 rounded-lg hover:bg-cream text-[12px] text-[#0F1F18]/70 font-mono">Fit</button>
             <span className="h-5 w-px bg-border mx-0.5" />
@@ -1574,12 +1510,12 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
               onClick={() => setGrid(g => !g)}
               className={`h-8 px-2.5 rounded-lg flex items-center gap-1.5 text-[12px] transition ${grid ? 'bg-primary/10 text-primary' : 'hover:bg-cream text-[#0F1F18]/70'}`}
               title="Toggle grid (G)"
-            ><Icon d={I.grid} size={12} />Grid</button>
+            ><Grid size={12} strokeWidth={1.8} />Grid</button>
             <button
               onClick={() => setGridSnap(s => !s)}
               className={`h-8 px-2.5 rounded-lg flex items-center gap-1.5 text-[12px] transition ${gridSnap ? 'bg-accent/20 text-[#C9A45E]' : 'hover:bg-cream text-[#0F1F18]/70'}`}
               title="Snap to grid"
-            ><Icon d={I.snap} size={12} />Snap</button>
+            ><Magnet size={12} strokeWidth={1.8} />Snap</button>
             <span className="h-5 w-px bg-border mx-0.5" />
             <span className="text-[10px] font-mono text-[#0F1F18]/35 px-1 select-none hidden sm:block">⎵ pan</span>
           </div>
@@ -1589,7 +1525,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
         {!selected || previewMode ? (
           <aside className="w-[300px] shrink-0 bg-white border-l border-border flex flex-col items-center justify-center p-8 text-center">
             <div className="h-12 w-12 rounded-2xl bg-cream grid place-items-center text-[#0F1F18]/40">
-              <Icon d={previewMode ? I.eye : I.cursor} size={18} />
+              {previewMode ? <Eye size={18} strokeWidth={1.8} /> : <MousePointer2 size={18} strokeWidth={1.8} />}
             </div>
             <div className="mt-3 font-display font-semibold text-[14px]">
               {previewMode ? 'Preview mode' : selectedIds.length > 1 ? `${selectedIds.length} selected` : 'Nothing selected'}
@@ -1610,16 +1546,16 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                 <div className="text-[10.5px] font-mono text-[#0F1F18]/40 tracking-widest mb-1">ALIGN</div>
                 <div className="grid grid-cols-3 gap-1">
                   {([
-                    { axis: 'left' as const,    title: 'Align left edges',    icon: I.alignL  },
-                    { axis: 'centerH' as const, title: 'Align centers (H)',   icon: I.alignCH },
-                    { axis: 'right' as const,   title: 'Align right edges',   icon: I.alignR  },
-                    { axis: 'top' as const,     title: 'Align top edges',     icon: I.alignT  },
-                    { axis: 'middleV' as const, title: 'Align middles (V)',   icon: I.alignMV },
-                    { axis: 'bottom' as const,  title: 'Align bottom edges',  icon: I.alignB  },
-                  ] as const).map(({ axis, title, icon }) => (
+                    { axis: 'left' as const,    title: 'Align left edges',    icon: <AlignStartHorizontal size={15} strokeWidth={1.8} />    },
+                    { axis: 'centerH' as const, title: 'Align centers (H)',   icon: <AlignCenterHorizontal size={15} strokeWidth={1.8} />   },
+                    { axis: 'right' as const,   title: 'Align right edges',   icon: <AlignEndHorizontal size={15} strokeWidth={1.8} />      },
+                    { axis: 'top' as const,     title: 'Align top edges',     icon: <AlignStartVertical size={15} strokeWidth={1.8} />      },
+                    { axis: 'middleV' as const, title: 'Align middles (V)',   icon: <AlignCenterVertical size={15} strokeWidth={1.8} />     },
+                    { axis: 'bottom' as const,  title: 'Align bottom edges',  icon: <AlignEndVertical size={15} strokeWidth={1.8} />        },
+                  ] as { axis: 'left' | 'centerH' | 'right' | 'top' | 'middleV' | 'bottom'; title: string; icon: React.ReactNode }[]).map(({ axis, title, icon }) => (
                     <button key={axis} title={title} onClick={() => alignSelected(axis)}
                       className="h-9 rounded-xl border border-border flex items-center justify-center hover:bg-cream hover:border-primary/40 hover:text-primary text-[#0F1F18]/55 transition">
-                      <Icon d={icon} size={15} />
+                      {icon}
                     </button>
                   ))}
                 </div>
@@ -1630,11 +1566,11 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                     <div className="grid grid-cols-2 gap-1">
                       <button title="Distribute horizontally" onClick={() => distributeSelected('h')}
                         className="h-9 rounded-xl border border-border flex items-center justify-center gap-1.5 text-[11px] hover:bg-cream hover:border-primary/40 hover:text-primary text-[#0F1F18]/55 transition">
-                        <Icon d={I.distH} size={13} />H
+                        <AlignHorizontalSpaceAround size={13} strokeWidth={1.8} />H
                       </button>
                       <button title="Distribute vertically" onClick={() => distributeSelected('v')}
                         className="h-9 rounded-xl border border-border flex items-center justify-center gap-1.5 text-[11px] hover:bg-cream hover:border-primary/40 hover:text-primary text-[#0F1F18]/55 transition">
-                        <Icon d={I.distV} size={13} />V
+                        <AlignVerticalSpaceAround size={13} strokeWidth={1.8} />V
                       </button>
                     </div>
                   </>
@@ -1678,7 +1614,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
               <input ref={newVariantFileRef} type="file" accept="image/png,image/jpeg" className="hidden" onChange={e => setNewVariantFile(e.target.files?.[0] ?? null)} />
               <button onClick={() => newVariantFileRef.current?.click()}
                 className={`w-full h-24 rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition ${newVariantFile ? 'border-primary/50 bg-primary/[0.04] text-primary' : 'border-border hover:border-primary/40 text-[#0F1F18]/40'}`}>
-                {newVariantFile ? (<><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg><span className="text-[12px] font-medium">{newVariantFile.name}</span></>) : (<><Icon d={I.upload} size={20} sw={1.6} /><span className="text-[12.5px]">Upload PNG or JPG</span></>)}
+                {newVariantFile ? (<><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg><span className="text-[12px] font-medium">{newVariantFile.name}</span></>) : (<><Upload size={20} strokeWidth={1.6} /><span className="text-[12.5px]">Upload PNG or JPG</span></>)}
               </button>
             </ModalField>
           </div>
@@ -1741,14 +1677,14 @@ function RightRail({
       {/* Zone header */}
       <div className="p-4 border-b border-border flex items-center gap-2 shrink-0">
         <span className="h-7 w-7 rounded-md grid place-items-center text-white bg-primary shrink-0">
-          <Icon d={selected.type === 'photo' ? I.photo : selected.type === 'custom' ? I.field : selected.type === 'label' ? I.label : selected.type === 'shape' ? I.shRect : selected.type === 'image' ? I.imgIcon : I.text} size={13} />
+          {selected.type === 'photo' ? <Image size={13} strokeWidth={1.8} /> : selected.type === 'custom' ? <ToggleLeft size={13} strokeWidth={1.8} /> : selected.type === 'label' ? <Tag size={13} strokeWidth={1.8} /> : selected.type === 'shape' ? <Square size={13} strokeWidth={1.8} /> : selected.type === 'image' ? <ImagePlus size={13} strokeWidth={1.8} /> : <Type size={13} strokeWidth={1.8} />}
         </span>
         <div className="flex-1 min-w-0">
           <div className="text-[10.5px] font-mono text-[#0F1F18]/45 uppercase tracking-widest">{selected.type} zone</div>
           <div className="text-[13px] font-display font-semibold truncate">{selected.label}</div>
         </div>
-        <button onClick={() => duplicateZone(selected.id)} title="Duplicate (⌘D)" className="h-7 w-7 rounded-md hover:bg-cream grid place-items-center text-[#0F1F18]/55 transition"><Icon d={I.dup} size={13} /></button>
-        <button onClick={() => removeZone(selected.id)} title="Delete (⌫)" className="h-7 w-7 rounded-md hover:bg-rose-50 grid place-items-center text-rose-400 hover:text-rose-500 transition"><Icon d={I.trash} size={13} /></button>
+        <button onClick={() => duplicateZone(selected.id)} title="Duplicate (⌘D)" className="h-7 w-7 rounded-md hover:bg-cream grid place-items-center text-[#0F1F18]/55 transition"><Copy size={13} strokeWidth={1.8} /></button>
+        <button onClick={() => removeZone(selected.id)} title="Delete (⌫)" className="h-7 w-7 rounded-md hover:bg-rose-50 grid place-items-center text-rose-400 hover:text-rose-500 transition"><Trash2 size={13} strokeWidth={1.8} /></button>
       </div>
 
       {/* ── Field ───────────────────────────────────────── */}
@@ -1844,7 +1780,7 @@ function RightRail({
           )}
           <PropRow label="Replace image">
             <label className="flex items-center gap-2 cursor-pointer w-full h-9 px-3 rounded-xl border border-border bg-cream text-[12.5px] hover:bg-white transition">
-              <Icon d={I.upload} size={13} sw={1.8} />
+              <Upload size={13} strokeWidth={1.8} />
               <span>Upload new image…</span>
               <input
                 type="file"
@@ -1881,7 +1817,7 @@ function RightRail({
                   style={{ fontFamily: selected.font }}
                 >
                   <span>{selected.font ?? 'Inter'}</span>
-                  <Icon d={I.down} size={12} />
+                  <ChevronDown size={12} strokeWidth={1.8} />
                 </button>
                 {showFontSearch && (
                   <div className="absolute top-full left-0 right-0 z-50 bg-white border border-border rounded-xl shadow-lift mt-1 overflow-hidden">
@@ -1936,7 +1872,7 @@ function RightRail({
               <Segmented
                 value={selected.align ?? 'left'}
                 onChange={v => upd({ align: v as Zone['align'] })}
-                options={[{ v: 'left', icon: I.al }, { v: 'center', icon: I.ac }, { v: 'right', icon: I.ar }, { v: 'justify', icon: I.aj }]}
+                options={[{ v: 'left', icon: <AlignLeft size={12} strokeWidth={1.8} /> }, { v: 'center', icon: <AlignCenter size={12} strokeWidth={1.8} /> }, { v: 'right', icon: <AlignRight size={12} strokeWidth={1.8} /> }, { v: 'justify', icon: <AlignJustify size={12} strokeWidth={1.8} /> }]}
               />
             </PropRow>
 
@@ -1944,7 +1880,7 @@ function RightRail({
               <Segmented
                 value={selected.verticalAlign ?? 'top'}
                 onChange={v => upd({ verticalAlign: v as Zone['verticalAlign'] })}
-                options={[{ v: 'top', icon: I.vAt }, { v: 'center', icon: I.vAc }, { v: 'bottom', icon: I.vAb }]}
+                options={[{ v: 'top', icon: <AlignStartVertical size={12} strokeWidth={1.8} /> }, { v: 'center', icon: <AlignCenterVertical size={12} strokeWidth={1.8} /> }, { v: 'bottom', icon: <AlignEndVertical size={12} strokeWidth={1.8} /> }]}
               />
             </PropRow>
 
@@ -2070,7 +2006,7 @@ function RightRail({
             title="Lock aspect ratio"
             className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[11.5px] font-mono transition ${aspectLock ? 'bg-primary/10 text-primary border-primary/30' : 'border-border text-[#0F1F18]/50 hover:bg-cream'}`}
           >
-            <Icon d={aspectLock ? I.lock : I.unlock} size={12} />
+            {aspectLock ? <Lock size={12} strokeWidth={1.8} /> : <LockOpen size={12} strokeWidth={1.8} />}
             {aspectLock ? 'Ratio locked' : 'Lock ratio'}
           </button>
           <span className="text-[10.5px] font-mono text-[#0F1F18]/35">{selected.w} : {selected.h}</span>
@@ -2201,7 +2137,7 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, onPointerDown, onH
             />
           ) : (
             <div className="absolute inset-0 grid place-items-center text-white/50 bg-white/5">
-              <Icon d={I.imgIcon} size={32} sw={1.2} />
+              <ImagePlus size={32} strokeWidth={1.2} />
             </div>
           )}
         </div>
@@ -2367,13 +2303,13 @@ function PropToggle({ label, value, onChange }: { label: string; value: boolean;
   );
 }
 
-function Segmented({ value, onChange, options }: { value: string; onChange: (v: string) => void; options: { v: string; label?: string; icon?: string }[] }) {
+function Segmented({ value, onChange, options }: { value: string; onChange: (v: string) => void; options: { v: string; label?: string; icon?: React.ReactNode }[] }) {
   return (
     <div className="flex p-0.5 bg-cream rounded-lg border border-border">
       {options.map(o => (
         <button key={o.v} onClick={() => onChange(o.v)}
           className={`flex-1 h-7 text-[11px] font-medium rounded-md grid place-items-center transition ${value === o.v ? 'bg-white shadow-sm text-[#0F1F18]' : 'text-[#0F1F18]/50 hover:text-[#0F1F18]'}`}>
-          {o.icon ? <Icon d={o.icon} size={12} /> : o.label}
+          {o.icon ?? o.label}
         </button>
       ))}
     </div>
@@ -2420,7 +2356,7 @@ function Modal({ onClose, title, subtitle, children }: { onClose: () => void; ti
             {subtitle && <p className="text-[12.5px] text-[#0F1F18]/50 mt-0.5">{subtitle}</p>}
           </div>
           <button onClick={onClose} className="h-8 w-8 rounded-lg hover:bg-cream grid place-items-center text-[#0F1F18]/50 shrink-0 ml-4">
-            <Icon d={I.close} size={15} />
+            <X size={15} strokeWidth={1.8} />
           </button>
         </div>
         {children}

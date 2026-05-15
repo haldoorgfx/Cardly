@@ -1,7 +1,9 @@
+import React from 'react';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import GeoMap, { type CityPoint } from '@/components/analytics/GeoMap';
+import { Eye, LayoutGrid, Download as DownloadIcon, CheckCircle2 } from 'lucide-react';
 
 function fmtNum(n: number) {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -104,34 +106,34 @@ export default async function AnalyticsPage() {
   }).length;
   const cardGrowth = prev30Cards > 0 ? ((last30Cards - prev30Cards) / prev30Cards) * 100 : (last30Cards > 0 ? 100 : 0);
 
-  const kpis = [
+  const kpis: { label: string; value: string; delta: string; positive: boolean; icon: React.ReactNode }[] = [
     {
       label: 'Page views',
       value: fmtNum(totalViews),
       delta: '+18.4%',
       positive: true,
-      icon: '<circle cx="12" cy="12" r="3"/><path d="M2 12s4-8 10-8 10 8 10 8-4 8-10 8-10-8-10-8z"/>',
+      icon: <Eye size={13} strokeWidth={1.8} color="#1F4D3A" />,
     },
     {
       label: 'Cards generated',
       value: fmtNum(totalCards),
       delta: cardGrowth >= 0 ? `+${cardGrowth.toFixed(1)}%` : `${cardGrowth.toFixed(1)}%`,
       positive: cardGrowth >= 0,
-      icon: '<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>',
+      icon: <LayoutGrid size={13} strokeWidth={1.8} color="#1F4D3A" />,
     },
     {
       label: 'Downloads',
       value: fmtNum(totalDownloads),
       delta: '+31.7%',
       positive: true,
-      icon: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="3" x2="12" y2="15"/>',
+      icon: <DownloadIcon size={13} strokeWidth={1.8} color="#1F4D3A" />,
     },
     {
       label: 'Conversion',
       value: `${conversionPct.toFixed(1)}%`,
       delta: '+3.2pp',
       positive: true,
-      icon: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
+      icon: <CheckCircle2 size={13} strokeWidth={1.8} color="#1F4D3A" />,
     },
   ];
 
@@ -194,9 +196,7 @@ export default async function AnalyticsPage() {
                 className="h-8 px-3 text-[13px] rounded-lg inline-flex items-center gap-2 transition hover:opacity-80"
                 style={{ border: '1px solid #E5E0D4', background: 'white', color: '#3A4A42' }}
               >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="3" x2="12" y2="15"/>
-                </svg>
+                <DownloadIcon size={13} strokeWidth={2} />
                 Export CSV
               </button>
             </div>
@@ -217,7 +217,7 @@ export default async function AnalyticsPage() {
                   className="h-7 w-7 rounded-lg grid place-items-center"
                   style={{ background: 'rgba(31,77,58,0.08)', border: '1px solid rgba(31,77,58,0.12)' }}
                 >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1F4D3A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: k.icon }} />
+                  {k.icon}
                 </div>
               </div>
               <div className="text-[28px] font-display font-bold text-[#0F1F18] leading-none">{k.value}</div>

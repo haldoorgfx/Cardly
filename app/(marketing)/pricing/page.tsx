@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { ChevronLeft, ArrowRight, Check } from 'lucide-react';
 
 const MONTHLY = { pro: 24, studio: 59 };
 const YEARLY  = { pro: 19, studio: 49 };
@@ -40,9 +41,7 @@ export default function PricingPage() {
             href="/"
             className="inline-flex items-center gap-1.5 text-[13px] text-neutral-500 hover:text-neutral-800 transition mb-10"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-              <path d="M19 12H5M11 6l-6 6 6 6" />
-            </svg>
+            <ChevronLeft size={14} strokeWidth={2.2} />
             Back to home
           </Link>
 
@@ -317,9 +316,7 @@ export default function PricingPage() {
               className="h-11 px-6 bg-white text-[#0F1F18] text-[14px] font-semibold rounded-lg hover:bg-neutral-100 transition inline-flex items-center gap-2"
             >
               Get started free
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12h14M13 6l6 6-6 6" />
-              </svg>
+              <ArrowRight size={14} strokeWidth={2.4} />
             </Link>
           </div>
           <p className="mt-6 text-[12px] text-white/25">No credit card required</p>
@@ -351,19 +348,11 @@ const FAQS = [
 ];
 
 function CheckIcon() {
-  return (
-    <svg className="mt-0.5 shrink-0 text-[#1F4D3A]" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-  );
+  return <Check className="mt-0.5 shrink-0 text-[#1F4D3A]" size={13} strokeWidth={2.5} />;
 }
 
 function CheckIconLight() {
-  return (
-    <svg className="mt-0.5 shrink-0" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(232,197,126,0.7)" strokeWidth="2.5" strokeLinecap="round">
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-  );
+  return <Check className="mt-0.5 shrink-0" size={13} strokeWidth={2.5} color="rgba(232,197,126,0.7)" />;
 }
 
 function CompRow({

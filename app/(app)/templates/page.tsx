@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Search, Heart, Plus } from 'lucide-react';
 
 const CATEGORIES = [
   { key: 'all', label: 'All', count: 42 },
@@ -82,9 +83,7 @@ export default function TemplatesPage() {
             </div>
             {/* Search */}
             <div className="relative">
-              <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7A72]/60 pointer-events-none" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>
-              </svg>
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7A72]/60 pointer-events-none" size={13} strokeWidth={2} />
               <input
                 value={search}
                 onChange={e => setSearch(e.target.value)}
@@ -139,9 +138,7 @@ export default function TemplatesPage() {
               className="h-12 w-12 rounded-xl grid place-items-center text-white mb-3 group-hover:scale-110 transition-transform duration-200"
               style={{ background: 'linear-gradient(135deg,#1F4D3A,#E8C57E)', boxShadow: '0 8px 24px rgba(31,77,58,0.25)' }}
             >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
-                <path d="M12 5v14M5 12h14" />
-              </svg>
+              <Plus size={22} strokeWidth={2.4} />
             </div>
             <div className="font-display font-bold text-[15px]">Start blank</div>
             <div className="text-[12px] text-[#0F1F18]/50 mt-1 leading-snug">Upload your own design</div>
@@ -225,9 +222,7 @@ export default function TemplatesPage() {
                   onClick={e => toggleFav(tmpl.id, e)}
                   className={`h-7 w-7 rounded-lg grid place-items-center shrink-0 transition hover:bg-[#FAF6EE] ${favorites.has(tmpl.id) ? 'text-[#E8C57E]' : 'text-[#0F1F18]/25 hover:text-[#0F1F18]/50'}`}
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill={favorites.has(tmpl.id) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                    <path d="M12 21s-7-4.5-9-9.5C1.6 7.7 4 4 7.5 4c2 0 3.5 1 4.5 2.5C13 5 14.5 4 16.5 4 20 4 22.4 7.7 21 11.5c-2 5-9 9.5-9 9.5z"/>
-                  </svg>
+                  <Heart size={14} strokeWidth={2} fill={favorites.has(tmpl.id) ? 'currentColor' : 'none'} />
                 </button>
               </div>
             </Link>

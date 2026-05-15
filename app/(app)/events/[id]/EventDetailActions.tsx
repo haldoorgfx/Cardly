@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import { MoreHorizontal, Pencil, RotateCcw, Archive, Trash2 } from 'lucide-react';
 
 interface Props {
   eventId: string;
@@ -115,9 +116,7 @@ export default function EventDetailActions({ eventId, eventName, status }: Props
           disabled={busy}
           title="More actions"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-            <circle cx="5" cy="12" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="19" cy="12" r="1.5" />
-          </svg>
+          <MoreHorizontal size={14} strokeWidth={1.8} />
           More
         </button>
       </DropdownMenu.Trigger>
@@ -132,9 +131,7 @@ export default function EventDetailActions({ eventId, eventName, status }: Props
             className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[#FAF6EE] cursor-pointer outline-none"
             onSelect={() => setRenaming(true)}
           >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-              <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-            </svg>
+            <Pencil size={13} strokeWidth={1.8} />
             Rename event
           </DropdownMenu.Item>
 
@@ -143,9 +140,7 @@ export default function EventDetailActions({ eventId, eventName, status }: Props
               className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[#FAF6EE] cursor-pointer outline-none text-[#0F1F18]/60"
               onSelect={() => doStatus('draft')}
             >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                <path d="M18.36 6.64A9 9 0 1 1 5.64 17.36" /><path d="M2 12h10" />
-              </svg>
+              <RotateCcw size={13} strokeWidth={1.8} />
               Unpublish
             </DropdownMenu.Item>
           )}
@@ -155,9 +150,7 @@ export default function EventDetailActions({ eventId, eventName, status }: Props
               className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[#FAF6EE] cursor-pointer outline-none text-[#0F1F18]/60"
               onSelect={() => doStatus('archived')}
             >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                <polyline points="21 8 21 21 3 21 3 8" /><rect x="1" y="3" width="22" height="5" /><line x1="10" y1="12" x2="14" y2="12" />
-              </svg>
+              <Archive size={13} strokeWidth={1.8} />
               Archive
             </DropdownMenu.Item>
           )}
@@ -167,9 +160,7 @@ export default function EventDetailActions({ eventId, eventName, status }: Props
               className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[#FAF6EE] cursor-pointer outline-none"
               onSelect={() => doStatus('draft')}
             >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                <polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 .49-3.32" />
-              </svg>
+              <RotateCcw size={13} strokeWidth={1.8} />
               Restore to draft
             </DropdownMenu.Item>
           )}
@@ -180,10 +171,7 @@ export default function EventDetailActions({ eventId, eventName, status }: Props
             className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-red-50 text-red-600 cursor-pointer outline-none"
             onSelect={() => setConfirmDelete(true)}
           >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-              <polyline points="3 6 5 6 21 6" />
-              <path d="M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2" />
-            </svg>
+            <Trash2 size={13} strokeWidth={1.8} />
             Delete event
           </DropdownMenu.Item>
         </DropdownMenu.Content>

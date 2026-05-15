@@ -2,6 +2,8 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import DashboardContent from './DashboardContent';
+import React from 'react';
+import { Upload, Maximize2, Link2 } from 'lucide-react';
 
 const PLAN_LIMITS: Record<string, number> = { free: 1, pro: 10, studio: Infinity };
 
@@ -116,11 +118,11 @@ export default async function DashboardPage() {
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {[
-                  { n: '01', icon: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>', title: 'Upload your design', body: 'Drop your PNG or JPG. Anything you\'d post on social works.' },
-                  { n: '02', icon: '<rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="3 3"/><circle cx="12" cy="12" r="4"/>', title: 'Mark the zones', body: 'Drag rectangles where the attendee\'s name and photo should go.' },
-                  { n: '03', icon: '<path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1 1"/><path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1-1"/>', title: 'Share the link', body: 'Send the public URL anywhere — WhatsApp, email, or a QR on screen.' },
-                ].map((step) => (
+                {([
+                  { n: '01', icon: <Upload size={14} strokeWidth={2} color="#1F4D3A" />, title: 'Upload your design', body: 'Drop your PNG or JPG. Anything you\'d post on social works.' },
+                  { n: '02', icon: <Maximize2 size={14} strokeWidth={2} color="#1F4D3A" />, title: 'Mark the zones', body: 'Drag rectangles where the attendee\'s name and photo should go.' },
+                  { n: '03', icon: <Link2 size={14} strokeWidth={2} color="#1F4D3A" />, title: 'Share the link', body: 'Send the public URL anywhere — WhatsApp, email, or a QR on screen.' },
+                ] as { n: string; icon: React.ReactNode; title: string; body: string }[]).map((step) => (
                   <div
                     key={step.n}
                     className="relative bg-white rounded-2xl p-5"
@@ -129,7 +131,7 @@ export default async function DashboardPage() {
                     <div className="flex items-center justify-between mb-4">
                       <div className="text-[11px] font-mono text-[#6B7A72]/45">{step.n}</div>
                       <div className="h-8 w-8 rounded-lg grid place-items-center" style={{ background: 'rgba(31,77,58,0.08)', border: '1px solid rgba(31,77,58,0.12)' }}>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1F4D3A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: step.icon }} />
+                        {step.icon}
                       </div>
                     </div>
                     <div className="font-display font-bold text-[15px] text-[#0F1F18]">{step.title}</div>
