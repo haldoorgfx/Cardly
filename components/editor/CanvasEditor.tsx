@@ -2148,22 +2148,123 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, onPointerDown, onH
               draggable={false}
             />
           ) : (
-            <div className="absolute inset-0 grid place-items-center text-white/50 bg-white/5">
-              <ImagePlus size={32} strokeWidth={1.2} />
-            </div>
+            /* Image skeleton — grey bg + landscape icon */
+            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block' }}>
+              {/* Background */}
+              <rect width={zone.w} height={zone.h} fill="rgba(107,122,114,0.14)" rx="4" />
+              {/* Hatching */}
+              <defs>
+                <pattern id={`img-hatch-${zone.id}`} width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                  <line x1="0" y1="0" x2="0" y2="10" stroke="rgba(107,122,114,0.06)" strokeWidth="2" />
+                </pattern>
+              </defs>
+              <rect width={zone.w} height={zone.h} fill={`url(#img-hatch-${zone.id})`} rx="4" />
+              {/* Mountain / landscape icon centered */}
+              {(() => {
+                const cx = zone.w / 2, cy = zone.h / 2;
+                const s = Math.min(zone.w, zone.h) * 0.38;
+                const col = 'rgba(107,122,114,0.45)';
+                return (
+                  <g transform={`translate(${cx - s / 2}, ${cy - s / 2})`}>
+                    {/* Frame */}
+                    <rect x={0} y={0} width={s} height={s} rx={s * 0.1} fill="none" stroke={col} strokeWidth={s * 0.05} />
+                    {/* Sun circle */}
+                    <circle cx={s * 0.3} cy={s * 0.32} r={s * 0.12} fill={col} />
+                    {/* Mountains */}
+                    <polygon points={`0,${s} ${s * 0.38},${s * 0.45} ${s * 0.65},${s}`} fill={col} />
+                    <polygon points={`${s * 0.45},${s} ${s * 0.72},${s * 0.38} ${s},${s}`} fill={col} opacity="0.7" />
+                  </g>
+                );
+              })()}
+              {/* Label */}
+              <text
+                x={zone.w / 2} y={zone.h - Math.max(6, zone.h * 0.07)}
+                textAnchor="middle" fill="rgba(107,122,114,0.6)"
+                fontSize={Math.max(9, Math.min(zone.w, zone.h) * 0.08)}
+                fontFamily="Inter, sans-serif" fontWeight="500"
+              >Drop image</text>
+            </svg>
           )}
         </div>
       );
     }
     if (isPhoto) {
+      /* Photo skeleton — grey shape + person silhouette (head + shoulders) */
+      const w = zone.w, h = zone.h;
+      const dim = Math.min(w, h);
+      const headR   = dim * 0.2;
+      const headCx  = w / 2;
+      const headCy  = h * 0.34;
+      const shRx    = dim * 0.34;
+      const shRy    = dim * 0.24;
+      const shCy    = h * 0.72;
+      const labelSz = Math.max(9, dim * 0.08);
+      const col     = 'rgba(107,122,114,0.42)';
+      const colBg   = 'rgba(107,122,114,0.13)';
+      // Clip path id must be unique per zone
+      const clipId  = `photo-clip-${zone.id}`;
+      const bw      = zone.photoBorderWidth ?? 0;
+      const bCol    = zone.photoBorderColor ?? '#ffffff';
       return (
-        <div className="absolute inset-0 grid place-items-center text-white" style={{
-          borderRadius: radius,
-          background: 'rgba(255,255,255,0.06)',
-          backdropFilter: 'blur(2px)',
-          border: (zone.photoBorderWidth ?? 0) > 0 ? `${zone.photoBorderWidth}px solid ${zone.photoBorderColor ?? '#fff'}` : undefined,
-        }}>
-          <div className="font-display font-bold opacity-50" style={{ fontSize: Math.min(zone.w, zone.h) / 3 }}>{zone.sample ?? '+'}</div>
+        <div className="absolute inset-0">
+          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block', overflow: 'visible' }}>
+            <defs>
+              {/* Clip to the zone's shape */}
+              {zone.shape === 'circle'
+                ? <clipPath id={clipId}><ellipse cx={w / 2} cy={h / 2} rx={w / 2 - 1} ry={h / 2 - 1} /></clipPath>
+                : zone.shape === 'rounded'
+                  ? <clipPath id={clipId}><rect x={1} y={1} width={w - 2} height={h - 2} rx={dim * 0.18} /></clipPath>
+                  : <clipPath id={clipId}><rect x={1} y={1} width={w - 2} height={h - 2} rx={3} /></clipPath>
+              }
+              {/* Hatch pattern */}
+              <pattern id={`ph-hatch-${zone.id}`} width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                <line x1="0" y1="0" x2="0" y2="10" stroke="rgba(107,122,114,0.055)" strokeWidth="2" />
+              </pattern>
+            </defs>
+
+            <g clipPath={`url(#${clipId})`}>
+              {/* BG fill */}
+              <rect width={w} height={h} fill={colBg} />
+              <rect width={w} height={h} fill={`url(#ph-hatch-${zone.id})`} />
+
+              {/* Head */}
+              <circle cx={headCx} cy={headCy} r={headR} fill={col} />
+
+              {/* Shoulders — bottom half of ellipse fills downward */}
+              <ellipse cx={w / 2} cy={shCy} rx={shRx} ry={shRy} fill={col} opacity="0.8" />
+
+              {/* Upload arrow + label in the lower-center visible area */}
+              <g transform={`translate(${w / 2}, ${h * 0.53})`}>
+                {/* Camera icon */}
+                <rect x={-dim * 0.1} y={-dim * 0.075} width={dim * 0.2} height={dim * 0.15}
+                  rx={dim * 0.025} fill="none" stroke="rgba(107,122,114,0.55)" strokeWidth={dim * 0.025} />
+                <circle cx={0} cy={0} r={dim * 0.042} fill="rgba(107,122,114,0.55)" />
+                <polygon
+                  points={`${-dim*0.025},${-dim*0.1} ${dim*0.025},${-dim*0.1} 0,${-dim*0.125}`}
+                  fill="rgba(107,122,114,0.45)"
+                />
+              </g>
+
+              {/* "Upload photo" label at bottom */}
+              <text
+                x={w / 2} y={h - Math.max(5, h * 0.06)}
+                textAnchor="middle"
+                fill="rgba(107,122,114,0.65)"
+                fontSize={labelSz}
+                fontFamily="Inter, sans-serif" fontWeight="500"
+              >{zone.placeholder || 'Upload photo'}</text>
+            </g>
+
+            {/* Border ring on top (if set) */}
+            {bw > 0 && (
+              zone.shape === 'circle'
+                ? <ellipse cx={w / 2} cy={h / 2} rx={w / 2 - bw / 2} ry={h / 2 - bw / 2}
+                    fill="none" stroke={bCol} strokeWidth={bw} />
+                : <rect x={bw / 2} y={bw / 2} width={w - bw} height={h - bw}
+                    rx={zone.shape === 'rounded' ? dim * 0.18 : 3}
+                    fill="none" stroke={bCol} strokeWidth={bw} />
+            )}
+          </svg>
         </div>
       );
     }
