@@ -530,9 +530,16 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
   useEffect(() => {
     const SNAP = 8 / zoom;
 
+    const DRAG_THRESHOLD_PX = 5; // must move this many px before it counts as a drag
+
     const onMove = (e: PointerEvent) => {
       const it = interaction.current;
       if (!it) return;
+      // Only count as a drag once the pointer has moved past the dead-zone
+      if (!didMoveRef.current) {
+        const dist = Math.hypot(e.clientX - it.sx, e.clientY - it.sy);
+        if (dist < DRAG_THRESHOLD_PX) return;
+      }
       didMoveRef.current = true;
 
       if (it.mode === 'rotate') {
@@ -1119,27 +1126,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                   className="relative shadow-lift rounded-md"
                   style={{ width: bgW, height: bgH, transform: `scale(${zoom})`, transformOrigin: '0 0', position: 'absolute', top: 0, left: 0 }}
                   onPointerDown={e => e.stopPropagation()}
-                  onDoubleClick={e => {
-                    if (previewMode || e.target !== e.currentTarget) return;
-                    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-                    const cx = Math.round((e.clientX - rect.left) / zoom);
-                    const cy = Math.round((e.clientY - rect.top) / zoom);
-                    const s = bgW / 1080;
-                    const zW = Math.round(400 * s), zH = Math.round(80 * s);
-                    const z: Zone = {
-                      id: 'z' + Math.random().toString(36).slice(2, 7), type: 'text',
-                      label: 'Text field',
-                      x: Math.max(0, Math.min(bgW - zW, cx - Math.round(zW / 2))),
-                      y: Math.max(0, Math.min(bgH - zH, cy - Math.round(zH / 2))),
-                      w: zW, h: zH,
-                      font: 'DM Sans', weight: 700, size: Math.round(48 * s),
-                      color: '#FFFFFF', align: 'center', verticalAlign: 'top',
-                      placeholder: 'Enter text', sample: 'Sample text',
-                      lineHeight: 1.2, letterSpacing: 0, opacity: 100, rotation: 0,
-                    };
-                    pushHistory([...zonesRef.current, z]);
-                    setSelectedIds([z.id]);
-                  }}
+                  onDoubleClick={e => e.stopPropagation()}
                 >
                 {/* Background image */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -2282,8 +2269,11 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, onPointerDown, onH
         transformOrigin: 'center center',
         outline: selected && !previewMode ? `2px solid ${dashColor}` : undefined,
         boxShadow: multiSelected && !previewMode ? `0 0 0 1px ${dashColor}40` : undefined,
+        userSelect: 'none',
+        WebkitUserSelect: 'none',
       }}
       onPointerDown={onPointerDown}
+      onDoubleClick={e => e.stopPropagation()}
     >
       {/* Dashed border when not selected */}
       {!previewMode && !selected && (
