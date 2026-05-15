@@ -125,17 +125,12 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 z-[200] flex items-start justify-center pt-[12vh] px-4">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/40"
-        onClick={onClose}
-      />
-      {/* Panel */}
-      <div className="relative w-full max-w-[560px] bg-white rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] border border-neutral-100 overflow-hidden">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="relative w-full max-w-[560px] bg-white rounded-2xl shadow-[0_8px_40px_rgba(15,31,24,0.18)] border overflow-hidden" style={{ borderColor: '#E5E0D4' }}>
 
         {/* Search input */}
-        <div className="flex items-center gap-3 px-4 py-3 border-b border-neutral-100">
-          <svg className="text-neutral-400 shrink-0" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <div className="flex items-center gap-3 px-4 py-3 border-b" style={{ borderColor: '#E5E0D4' }}>
+          <svg className="text-[#6B7A72] shrink-0" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
           </svg>
           <input
@@ -143,16 +138,17 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
             value={query}
             onChange={e => setQuery(e.target.value)}
             placeholder="Search events, or jump to…"
-            className="flex-1 text-[13px] placeholder-neutral-400 outline-none bg-transparent text-neutral-900"
+            className="flex-1 text-[13px] placeholder-[#6B7A72] outline-none bg-transparent text-[#0F1F18]"
           />
           {loading && (
-            <svg className="animate-spin text-neutral-400 shrink-0" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <svg className="animate-spin text-[#6B7A72] shrink-0" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round"/>
             </svg>
           )}
           <button
             onClick={onClose}
-            className="text-[11px] text-neutral-400 border border-neutral-200 px-1.5 py-0.5 rounded hover:text-neutral-700 transition leading-none"
+            className="text-[11px] text-[#6B7A72] border px-1.5 py-0.5 rounded-md hover:text-[#0F1F18] transition leading-none"
+            style={{ borderColor: '#E5E0D4' }}
           >
             ESC
           </button>
@@ -160,33 +156,33 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
 
         <div className="max-h-[360px] overflow-y-auto">
           {query.trim() && results.length === 0 && !loading && (
-            <div className="px-4 py-10 text-center text-[13px] text-neutral-400">
+            <div className="px-4 py-10 text-center text-[13px] text-[#6B7A72]">
               No events found for &ldquo;{query}&rdquo;
             </div>
           )}
 
           {results.length > 0 && (
             <div className="p-1.5">
-              <div className="px-2.5 py-1.5 text-[10.5px] font-medium text-neutral-400 uppercase tracking-wide">Events</div>
+              <div className="px-2.5 py-1.5 text-[10px] font-mono text-[#6B7A72]/70 uppercase tracking-widest">Events</div>
               {results.map((r, i) => (
                 <button
                   key={r.id}
                   onClick={() => navigate(r)}
                   onMouseEnter={() => setSelected(i)}
-                  className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-md text-left transition-colors ${
-                    i === selected ? 'bg-neutral-100' : 'hover:bg-neutral-50'
+                  className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left transition-colors ${
+                    i === selected ? 'bg-[#F5F5F4]' : 'hover:bg-[#F5F5F4]/60'
                   }`}
                 >
                   <div className="flex-1 min-w-0">
-                    <div className="text-[13px] font-medium text-neutral-900 truncate">{r.name}</div>
-                    <div className="text-[11px] text-neutral-400 font-mono">/{r.slug}</div>
+                    <div className="text-[13px] font-medium text-[#0F1F18] truncate">{r.name}</div>
+                    <div className="text-[11px] text-[#6B7A72] font-mono">/{r.slug}</div>
                   </div>
                   <span className={`text-[10px] px-2 py-0.5 rounded-full border ${
                     r.status === 'published'
                       ? 'border-emerald-200 bg-emerald-50 text-emerald-600'
                       : r.status === 'archived'
                       ? 'border-rose-200 bg-rose-50 text-rose-500'
-                      : 'border-neutral-200 bg-neutral-50 text-neutral-500'
+                      : 'border-amber-200 bg-amber-50 text-amber-600'
                   }`}>
                     {r.status}
                   </span>
@@ -197,21 +193,21 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
 
           {!query.trim() && (
             <div className="p-1.5">
-              <div className="px-2.5 py-1.5 text-[10.5px] font-medium text-neutral-400 uppercase tracking-wide">Quick actions</div>
+              <div className="px-2.5 py-1.5 text-[10px] font-mono text-[#6B7A72]/70 uppercase tracking-widest">Quick actions</div>
               {quickActions.map((a, i) => (
                 <Link
                   key={a.href}
                   href={a.href}
                   onClick={onClose}
-                  className={`flex items-center gap-3 px-2.5 py-2 rounded-md transition-colors ${
-                    i === selected ? 'bg-neutral-100' : 'hover:bg-neutral-50'
+                  className={`flex items-center gap-3 px-2.5 py-2 rounded-xl transition-colors ${
+                    i === selected ? 'bg-[#F5F5F4]' : 'hover:bg-[#F5F5F4]/60'
                   }`}
                 >
-                  <div className="h-6 w-6 rounded border border-neutral-200 bg-neutral-50 grid place-items-center text-neutral-500 shrink-0">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: a.icon }} />
+                  <div className="h-7 w-7 rounded-lg border grid place-items-center text-[#3A4A42] shrink-0" style={{ borderColor: '#E5E0D4', background: '#FAF6EE' }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: a.icon }} />
                   </div>
-                  <span className="text-[13px] text-neutral-700">{a.label}</span>
-                  <svg className="ml-auto text-neutral-300 shrink-0" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                  <span className="text-[13px] text-[#3A4A42]">{a.label}</span>
+                  <svg className="ml-auto text-[#E5E0D4] shrink-0" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
                     <path d="M9 18l6-6-6-6"/>
                   </svg>
                 </Link>
@@ -220,10 +216,10 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
           )}
         </div>
 
-        <div className="border-t border-neutral-100 px-4 py-2 flex items-center gap-4 text-[11px] text-neutral-400">
-          <span><kbd className="border border-neutral-200 px-1 rounded text-[10px]">↑↓</kbd> navigate</span>
-          <span><kbd className="border border-neutral-200 px-1 rounded text-[10px]">↵</kbd> open</span>
-          <span><kbd className="border border-neutral-200 px-1 rounded text-[10px]">ESC</kbd> close</span>
+        <div className="border-t px-4 py-2.5 flex items-center gap-4 text-[11px] text-[#6B7A72]" style={{ borderColor: '#E5E0D4' }}>
+          <span><kbd className="border px-1 rounded text-[10px]" style={{ borderColor: '#E5E0D4' }}>↑↓</kbd> navigate</span>
+          <span><kbd className="border px-1 rounded text-[10px]" style={{ borderColor: '#E5E0D4' }}>↵</kbd> open</span>
+          <span><kbd className="border px-1 rounded text-[10px]" style={{ borderColor: '#E5E0D4' }}>ESC</kbd> close</span>
         </div>
       </div>
     </div>
@@ -232,10 +228,57 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
 
 // ─── Sidebar nav content ──────────────────────────────────────────────────────
 
+function NavItem({
+  href,
+  icon,
+  label,
+  badge,
+  active,
+  onNavigate,
+}: {
+  href: string;
+  icon: string;
+  label: string;
+  badge?: string | null;
+  active: boolean;
+  onNavigate?: () => void;
+}) {
+  return (
+    <li>
+      <Link
+        href={href}
+        onClick={onNavigate}
+        className={`flex items-center gap-3 px-2.5 py-[7px] rounded-lg text-[13.5px] transition-colors ${
+          active
+            ? 'bg-white/[0.1] text-white font-medium'
+            : 'text-white/50 hover:text-white/85 hover:bg-white/[0.06]'
+        }`}
+      >
+        <svg
+          width="15" height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={active ? '2' : '1.7'}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="shrink-0"
+          dangerouslySetInnerHTML={{ __html: icon }}
+        />
+        <span className="flex-1 leading-none">{label}</span>
+        {badge && (
+          <span className="text-[9px] font-mono font-medium text-white/40 bg-white/[0.08] px-1.5 py-0.5 rounded-md tracking-wide">
+            {badge}
+          </span>
+        )}
+      </Link>
+    </li>
+  );
+}
+
 function NavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
   const { profile, eventCount, planLabel } = usePlanCtx();
   const router = useRouter();
-
   const planLimit = profile ? (PLAN_LIMITS[profile.plan] ?? 1) : 1;
 
   const handleSignOut = async () => {
@@ -247,113 +290,91 @@ function NavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: (
   return (
     <>
       {/* Workspace header */}
-      <div className="h-14 flex items-center px-4 border-b border-white/[0.06] shrink-0">
-        <div className="flex items-center gap-2.5 flex-1 min-w-0">
-          <div className="h-7 w-7 rounded-md bg-[#1F4D3A] grid place-items-center shrink-0">
-            <span className="text-[11px] font-bold text-white">
+      <div className="h-16 flex items-center px-4 border-b shrink-0" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div
+            className="h-8 w-8 rounded-lg grid place-items-center shrink-0"
+            style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}
+          >
+            <span className="text-[12px] font-bold text-white">
               {profile?.full_name?.[0]?.toUpperCase() ?? 'C'}
             </span>
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-[13px] font-semibold text-white truncate leading-tight">
+            <div className="text-[14px] font-semibold text-white truncate leading-snug">
               {profile?.full_name ?? 'My workspace'}
             </div>
-            <div className="text-[11px] text-white/35">{planLabel}</div>
+            <div className="text-[11.5px] text-white/40 leading-snug">{planLabel} plan</div>
           </div>
         </div>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-2 py-3 overflow-y-auto">
-        <ul className="space-y-0.5">
-          {NAV_ITEMS.map(item => {
-            const active = item.matchPrefix
-              ? (pathname === item.href || pathname.startsWith('/events'))
-              : pathname === item.href;
-            return (
-              <li key={item.href}>
-                <Link
+      <nav className="flex-1 px-3 py-5 overflow-y-auto space-y-6">
+
+        {/* Main */}
+        <div>
+          <div className="px-2.5 mb-2 text-[10px] font-mono text-white/25 uppercase tracking-widest">Main</div>
+          <ul className="space-y-0.5">
+            {NAV_ITEMS.map(item => {
+              const active = item.matchPrefix
+                ? (pathname === item.href || pathname.startsWith('/events'))
+                : pathname === item.href;
+              return (
+                <NavItem
+                  key={item.href}
                   href={item.href}
-                  onClick={onNavigate}
-                  className={`flex items-center gap-2.5 px-3 py-1.5 rounded-md text-[13px] transition-colors ${
-                    active
-                      ? 'bg-white/[0.08] text-white font-medium'
-                      : 'text-white/45 hover:text-white/80 hover:bg-white/[0.04]'
-                  }`}
-                >
-                  <svg
-                    width="14" height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={active ? '2' : '1.8'}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    dangerouslySetInnerHTML={{ __html: item.icon }}
-                  />
-                  <span>{item.label}</span>
-                  {item.badge && (
-                    <span className="ml-auto text-[9.5px] font-medium text-white/50 bg-white/[0.08] px-1.5 py-0.5 rounded">
-                      {item.badge}
-                    </span>
-                  )}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+                  icon={item.icon}
+                  label={item.label}
+                  badge={item.badge}
+                  active={active}
+                  onNavigate={onNavigate}
+                />
+              );
+            })}
+          </ul>
+        </div>
 
         {/* Divider */}
-        <div className="h-px bg-white/[0.06] my-2 mx-1" />
+        <div className="h-px" style={{ background: 'rgba(255,255,255,0.07)' }} />
 
-        <ul className="space-y-0.5">
-          {WORKSPACE_ITEMS.map(item => {
-            const active = pathname === item.href;
-            return (
-              <li key={item.href}>
-                <Link
+        {/* Workspace */}
+        <div>
+          <div className="px-2.5 mb-2 text-[10px] font-mono text-white/25 uppercase tracking-widest">Workspace</div>
+          <ul className="space-y-0.5">
+            {WORKSPACE_ITEMS.map(item => {
+              const active = pathname === item.href;
+              return (
+                <NavItem
+                  key={item.href}
                   href={item.href}
-                  onClick={onNavigate}
-                  className={`flex items-center gap-2.5 px-3 py-1.5 rounded-md text-[13px] transition-colors ${
-                    active
-                      ? 'bg-white/[0.08] text-white font-medium'
-                      : 'text-white/45 hover:text-white/80 hover:bg-white/[0.04]'
-                  }`}
-                >
-                  <svg
-                    width="14" height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={active ? '2' : '1.8'}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    dangerouslySetInnerHTML={{ __html: item.icon }}
-                  />
-                  {item.label}
-                </Link>
-              </li>
-            );
-          })}
+                  icon={item.icon}
+                  label={item.label}
+                  active={active}
+                  onNavigate={onNavigate}
+                />
+              );
+            })}
 
-          <li>
-            <button
-              onClick={handleSignOut}
-              className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-md text-[13px] text-white/45 hover:text-white/80 hover:bg-white/[0.04] transition text-left"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                <polyline points="16 17 21 12 16 7" />
-                <line x1="21" y1="12" x2="9" y2="12" />
-              </svg>
-              Sign out
-            </button>
-          </li>
-        </ul>
+            <li>
+              <button
+                onClick={handleSignOut}
+                className="w-full flex items-center gap-3 px-2.5 py-[7px] rounded-lg text-[13.5px] text-white/50 hover:text-white/85 hover:bg-white/[0.06] transition text-left"
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" className="shrink-0">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+                <span className="leading-none">Sign out</span>
+              </button>
+            </li>
+          </ul>
+        </div>
       </nav>
 
-      {/* Plan footer — minimal text line, no card */}
-      <div className="px-4 py-3 border-t border-white/[0.06] shrink-0">
+      {/* Plan footer */}
+      <div className="px-4 py-4 border-t shrink-0" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
         {profile?.plan !== 'studio' ? (
           <Link
             href="/pricing"
@@ -361,10 +382,10 @@ function NavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: (
             className="flex items-center justify-between text-[12px] text-white/35 hover:text-white/60 transition"
           >
             <span>{eventCount}/{planLimit === Infinity ? '∞' : planLimit} events used</span>
-            <span className="text-white/50">Upgrade →</span>
+            <span className="text-white/45">Upgrade →</span>
           </Link>
         ) : (
-          <div className="text-[12px] text-white/25">Studio plan · unlimited</div>
+          <div className="text-[12px] text-white/25">{planLabel} plan · unlimited</div>
         )}
       </div>
     </>
@@ -420,7 +441,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener('keydown', handle);
   }, []);
 
-  // Close mobile nav on route change
   useEffect(() => {
     setMobileNavOpen(false);
   }, [pathname]);
@@ -437,10 +457,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <PlanContext.Provider value={ctxValue}>
-      <div className="flex min-h-screen bg-[#F5F5F5]">
+      <div className="flex min-h-screen" style={{ background: '#F5F5F4' }}>
 
-        {/* Desktop sidebar — dark, 232px */}
-        <aside className="hidden md:flex w-[232px] shrink-0 bg-[#0F1F18] flex-col sticky top-0 h-screen">
+        {/* Desktop sidebar — dark, 252px */}
+        <aside className="hidden md:flex w-[252px] shrink-0 flex-col sticky top-0 h-screen" style={{ background: '#0F1F18' }}>
           <NavContent pathname={pathname} />
         </aside>
 
@@ -451,7 +471,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               className="absolute inset-0 bg-black/50"
               onClick={() => setMobileNavOpen(false)}
             />
-            <aside className="absolute left-0 top-0 bottom-0 w-[260px] bg-[#0F1F18] flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.2)] animate-[slideInLeft_200ms_ease-out]">
+            <aside
+              className="absolute left-0 top-0 bottom-0 w-[272px] flex flex-col shadow-[4px_0_32px_rgba(0,0,0,0.25)] animate-[slideInLeft_200ms_ease-out]"
+              style={{ background: '#0F1F18' }}
+            >
               <NavContent pathname={pathname} onNavigate={() => setMobileNavOpen(false)} />
             </aside>
           </div>
@@ -460,12 +483,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         {/* Main column */}
         <main className="flex-1 min-w-0 flex flex-col">
 
-          {/* Topbar — white, border-bottom only, no blur */}
-          <header className="h-14 bg-white border-b border-neutral-100 px-4 md:px-5 flex items-center gap-3 shrink-0 sticky top-0 z-40">
-
+          {/* Topbar — white, border-bottom, warm brand border */}
+          <header
+            className="h-14 bg-white px-4 md:px-5 flex items-center gap-3 shrink-0 sticky top-0 z-40 border-b"
+            style={{ borderColor: '#E5E0D4' }}
+          >
             {/* Mobile hamburger */}
             <button
-              className="md:hidden h-8 w-8 rounded-md hover:bg-neutral-100 grid place-items-center text-neutral-500 shrink-0 transition"
+              className="md:hidden h-8 w-8 rounded-lg hover:bg-[#F5F5F4] grid place-items-center text-[#6B7A72] shrink-0 transition"
               onClick={() => setMobileNavOpen(true)}
               aria-label="Open menu"
             >
@@ -479,21 +504,23 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             {/* Search / CMD+K trigger */}
             <div
               onClick={() => setCmdOpen(true)}
-              className="flex items-center gap-2 h-8 px-3 bg-neutral-50 border border-neutral-200 rounded-md text-[13px] text-neutral-400 cursor-pointer hover:border-neutral-300 transition min-w-[200px] max-w-[280px]"
+              className="flex items-center gap-2 h-8 px-3 rounded-lg text-[13px] text-[#6B7A72] cursor-pointer transition min-w-[200px] max-w-[280px] border"
+              style={{ background: '#FAF6EE', borderColor: '#E5E0D4' }}
             >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="shrink-0">
                 <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
               </svg>
-              <span className="flex-1 text-[13px] text-neutral-400">Search</span>
-              <span className="text-[11px] text-neutral-300 font-mono hidden sm:block">⌘K</span>
+              <span className="flex-1 text-[13px] text-[#6B7A72]/70">Search</span>
+              <span className="text-[11px] text-[#6B7A72]/50 font-mono hidden sm:block">⌘K</span>
             </div>
 
-            {/* Right side actions */}
+            {/* Right side */}
             <div className="flex items-center gap-2 ml-auto">
               {/* New event */}
               <Link
                 href="/events/new"
-                className="hidden sm:inline-flex items-center gap-1.5 h-8 px-3 bg-[#0F1F18] text-white text-[13px] font-medium rounded-md hover:bg-[#1a3028] transition"
+                className="hidden sm:inline-flex items-center gap-1.5 h-8 px-3.5 text-white text-[13px] font-medium rounded-lg transition hover:opacity-90"
+                style={{ background: '#1F4D3A' }}
               >
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round">
                   <path d="M12 5v14M5 12h14" />
@@ -504,7 +531,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               {/* Avatar */}
               <Link
                 href="/settings"
-                className="h-8 w-8 rounded-full bg-[#1F4D3A] grid place-items-center text-white text-[12px] font-semibold shrink-0 hover:opacity-90 transition"
+                className="h-8 w-8 rounded-full grid place-items-center text-white text-[12px] font-semibold shrink-0 hover:opacity-90 transition"
+                style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}
               >
                 {initials}
               </Link>

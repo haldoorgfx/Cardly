@@ -28,7 +28,6 @@ export default async function AnalyticsPage() {
   const allEvents = events ?? [];
   const allCards = (cards as { id: string; event_id: string; attendee_data: Record<string, string> | null; created_at: string }[] | null) ?? [];
 
-  // Aggregate real geo data stored by /api/render from Vercel geo headers
   const cityMap = new Map<string, { count: number; lat: number; lng: number; country: string }>();
   for (const card of allCards) {
     const d = card.attendee_data as Record<string, unknown> | null;
@@ -53,7 +52,6 @@ export default async function AnalyticsPage() {
 
   const now = new Date();
 
-  // Last 30 day buckets
   const days30: { label: string; shortLabel: string; downloads: number; views: number }[] = [];
   for (let i = 29; i >= 0; i--) {
     const d = new Date(now);
@@ -68,7 +66,6 @@ export default async function AnalyticsPage() {
     });
   }
 
-  // Estimate views from downloads using overall conversion rate
   const viewMultiplier = totalDownloads > 0 && totalViews > 0
     ? totalViews / totalDownloads
     : 4.2;
@@ -96,12 +93,10 @@ export default async function AnalyticsPage() {
   const viewArea = `0,${chartH} ${viewPoints} ${chartW},${chartH}`;
   const dlArea   = `0,${chartH} ${dlPoints} ${chartW},${chartH}`;
 
-  // Top events
   const topEvents = [...allEvents]
     .sort((a, b) => (b.download_count ?? 0) - (a.download_count ?? 0))
     .slice(0, 6);
 
-  // Comparison periods
   const last30Cards = allCards.filter(c => (now.getTime() - new Date(c.created_at).getTime()) < 30 * 86400000).length;
   const prev30Cards = allCards.filter(c => {
     const age = now.getTime() - new Date(c.created_at).getTime();
@@ -111,28 +106,28 @@ export default async function AnalyticsPage() {
 
   const kpis = [
     {
-      label: 'PAGE VIEWS',
+      label: 'Page views',
       value: fmtNum(totalViews),
       delta: '+18.4%',
       positive: true,
       icon: '<circle cx="12" cy="12" r="3"/><path d="M2 12s4-8 10-8 10 8 10 8-4 8-10 8-10-8-10-8z"/>',
     },
     {
-      label: 'CARDS GENERATED',
+      label: 'Cards generated',
       value: fmtNum(totalCards),
       delta: cardGrowth >= 0 ? `+${cardGrowth.toFixed(1)}%` : `${cardGrowth.toFixed(1)}%`,
       positive: cardGrowth >= 0,
       icon: '<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>',
     },
     {
-      label: 'DOWNLOADS',
+      label: 'Downloads',
       value: fmtNum(totalDownloads),
       delta: '+31.7%',
       positive: true,
       icon: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="3" x2="12" y2="15"/>',
     },
     {
-      label: 'CONVERSION',
+      label: 'Conversion',
       value: `${conversionPct.toFixed(1)}%`,
       delta: '+3.2pp',
       positive: true,
@@ -140,282 +135,340 @@ export default async function AnalyticsPage() {
     },
   ];
 
+  const cardStyle = {
+    background: 'white',
+    border: '1px solid #E5E0D4',
+    borderRadius: 16,
+    boxShadow: '0 1px 2px rgba(15,31,24,0.04)',
+  };
+
+  const selectStyle = {
+    height: 32,
+    padding: '0 10px',
+    fontSize: 13,
+    border: '1px solid #E5E0D4',
+    borderRadius: 8,
+    background: 'white',
+    color: '#3A4A42',
+    outline: 'none',
+    cursor: 'pointer',
+  };
+
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-5 sm:py-8 max-w-[1400px]">
+    <div className="min-h-full flex flex-col">
 
-      {/* Header */}
-      <div className="flex items-end justify-between flex-wrap gap-4 mb-8">
-        <div>
-          <h1 className="text-xl font-semibold">Analytics</h1>
-          <p className="text-[13px] text-neutral-500 mt-0.5">Performance across all events.</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <select className="h-8 px-2.5 text-[13px] border border-neutral-200 rounded-md bg-white outline-none cursor-pointer">
-            <option>All events</option>
-            {allEvents.map(e => <option key={e.id}>{e.name}</option>)}
-          </select>
-          <select className="h-8 px-2.5 text-[13px] border border-neutral-200 rounded-md bg-white outline-none cursor-pointer">
-            <option>Last 30 days</option>
-            <option>Last 7 days</option>
-            <option>This year</option>
-          </select>
-          <button className="h-8 px-3 border border-neutral-200 bg-white text-[13px] rounded-md hover:bg-neutral-50 transition inline-flex items-center gap-2">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="3" x2="12" y2="15"/>
-            </svg>
-            Export CSV
-          </button>
-        </div>
-      </div>
+      {/* ── Page header ── */}
+      <div
+        className="relative overflow-hidden px-6 pt-7 pb-6 border-b shrink-0"
+        style={{ background: 'white', borderColor: '#E5E0D4' }}
+      >
+        {/* Subtle dot grid */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ backgroundImage: 'radial-gradient(rgba(15,31,24,0.05) 1px, transparent 1px)', backgroundSize: '20px 20px' }}
+        />
+        <div
+          className="absolute pointer-events-none"
+          style={{ top: '-50%', right: '-5%', width: 280, height: 280, background: 'radial-gradient(ellipse, rgba(31,77,58,0.07) 0%, transparent 70%)', filter: 'blur(40px)' }}
+        />
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {kpis.map(k => (
-          <div key={k.label} className="bg-white rounded-lg border border-neutral-200 p-4">
-            <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-3">{k.label}</div>
-            <div className="text-2xl font-semibold text-neutral-900 leading-none">{k.value}</div>
-            <div className={`mt-2 text-[11.5px] font-mono font-medium ${k.positive ? 'text-emerald-600' : 'text-rose-500'}`}>
-              {k.positive ? '↑' : '↓'} {k.delta} <span className="text-neutral-400 font-normal">vs prev period</span>
-            </div>
+        <div className="relative">
+          {/* Breadcrumb */}
+          <div className="flex items-center gap-1.5 text-[12px] font-mono text-[#6B7A72]/60 mb-3">
+            <span>WORKSPACE</span>
+            <span>/</span>
+            <span className="text-[#6B7A72]">Analytics</span>
           </div>
-        ))}
-      </div>
 
-      {/* Main chart — Views vs Downloads */}
-      <div className="bg-white rounded-lg border border-neutral-200 p-5 mb-6">
-        <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
-          <div>
-            <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide">DAILY VIEWS VS DOWNLOADS</div>
-            <div className="text-[14px] font-semibold text-neutral-900 mt-0.5">Last 30 days</div>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1.5 text-[12px] text-neutral-600">
-              <span className="h-2 w-5 rounded-full bg-[#1F4D3A] inline-block" /> Views
-            </span>
-            <span className="flex items-center gap-1.5 text-[12px] text-neutral-600">
-              <span className="h-2 w-5 rounded-full bg-[#E8C57E] inline-block" /> Downloads
-            </span>
-          </div>
-        </div>
-
-        <svg viewBox={`0 0 ${chartW} ${chartH + 30}`} className="w-full" style={{ height: 220 }}>
-          <defs>
-            <linearGradient id="ag1" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stopColor="#1F4D3A" stopOpacity="0.18" />
-              <stop offset="100%" stopColor="#1F4D3A" stopOpacity="0" />
-            </linearGradient>
-            <linearGradient id="ag2" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stopColor="#E8C57E" stopOpacity="0.22" />
-              <stop offset="100%" stopColor="#E8C57E" stopOpacity="0" />
-            </linearGradient>
-          </defs>
-
-          {/* Grid lines */}
-          {[0, 1, 2, 3].map(i => (
-            <line key={i} x1="0" y1={10 + i * (chartH / 3)} x2={chartW} y2={10 + i * (chartH / 3)} stroke="#f0f0f2" strokeWidth="1" />
-          ))}
-
-          {/* Views area */}
-          <polygon points={viewArea} fill="url(#ag1)" />
-          <polyline points={viewPoints} fill="none" stroke="#1F4D3A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-
-          {/* Downloads area */}
-          <polygon points={dlArea} fill="url(#ag2)" />
-          <polyline points={dlPoints} fill="none" stroke="#E8C57E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-
-          {/* End dots */}
-          {days30WithViews.length > 0 && (() => {
-            const last = days30WithViews[days30WithViews.length - 1];
-            const lx = chartW;
-            const vy = chartH - (last.views / maxY) * (chartH - 20) - 10;
-            const dy = chartH - (last.downloads / maxY) * (chartH - 20) - 10;
-            return (
-              <>
-                <circle cx={lx} cy={vy} r="4" fill="#1F4D3A" />
-                <circle cx={lx} cy={dy} r="4" fill="#E8C57E" />
-              </>
-            );
-          })()}
-
-          {/* X-axis labels */}
-          {[0, 7, 14, 21, 29].map(i => (
-            <text
-              key={i}
-              x={(i / 29) * chartW}
-              y={chartH + 22}
-              fontFamily="JetBrains Mono, monospace"
-              fontSize="9"
-              fill="#0F1F1855"
-              textAnchor={i === 0 ? 'start' : i === 29 ? 'end' : 'middle'}
-            >
-              {days30WithViews[i]?.label ?? ''}
-            </text>
-          ))}
-        </svg>
-
-        {totalCards === 0 && (
-          <div className="text-center text-[13px] text-neutral-400 -mt-4 pb-2">
-            No data yet — share your event link to start collecting metrics.
-          </div>
-        )}
-      </div>
-
-      {/* Geo + Funnel */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-
-        {/* Real Africa geo map */}
-        <div className="lg:col-span-2 bg-white rounded-lg border border-neutral-200 p-5">
-          <div className="flex items-center justify-between mb-5">
+          <div className="flex items-end justify-between gap-4 flex-wrap">
             <div>
-              <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide">GEOGRAPHIC SPREAD</div>
-              <div className="text-[14px] font-semibold text-neutral-900 mt-0.5">Worldwide audience</div>
+              <h1 className="font-display font-bold text-[28px] text-[#0F1F18] leading-tight tracking-tight">Analytics</h1>
+              <p className="text-[13px] text-[#6B7A72] mt-1">Performance across all events.</p>
             </div>
-            <span className="text-[11px] font-mono text-neutral-400 bg-neutral-50 border border-neutral-200 px-2 py-1 rounded-md">
-              {cityData.length > 0 ? 'Live data' : 'Waiting'}
-            </span>
-          </div>
-          <GeoMap cityData={cityData} totalCards={totalCards} />
-        </div>
-
-        {/* Funnel */}
-        <div className="bg-white rounded-lg border border-neutral-200 p-5">
-          <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">FUNNEL · LAST 30D</div>
-          <div className="text-[14px] font-semibold text-neutral-900 mb-5">Where attendees drop</div>
-          <div className="space-y-4">
-            {[
-              { label: 'Opened link', value: totalViews, pct: 100, color: '#1F4D3A', gradient: 'linear-gradient(135deg,#1F4D3A,#E8C57E)' },
-              { label: 'Started form', value: Math.round(totalViews * 0.46), pct: 46, color: '#E8C57E', gradient: '#E8C57E' },
-              { label: 'Generated card', value: totalCards, pct: totalViews > 0 ? Math.round((totalCards / totalViews) * 100) : 24, color: '#ffd28a', gradient: '#ffd28a' },
-              { label: 'Downloaded', value: totalDownloads, pct: totalViews > 0 ? Math.round((totalDownloads / totalViews) * 100) : 19, color: '#7be0c0', gradient: '#7be0c0' },
-            ].map((step, i) => (
-              <div key={step.label}>
-                <div className="flex items-center justify-between text-[12.5px] mb-1.5">
-                  <span className="text-neutral-600">{step.label}</span>
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold text-neutral-900">{fmtNum(step.value)}</span>
-                    <span className="text-[10.5px] font-mono text-neutral-400 w-10 text-right">{step.pct}%</span>
-                  </div>
-                </div>
-                <div className="h-2 rounded-full bg-neutral-100 overflow-hidden">
-                  <div
-                    className="h-full rounded-full"
-                    style={{ width: `${Math.max(step.pct, 1)}%`, background: step.gradient }}
-                  />
-                </div>
-                {i < 3 && (
-                  <div className="text-[10px] font-mono text-rose-400 mt-1 pl-1">
-                    {i === 0 ? `−${100 - 46}% drop` : i === 1 ? `−${46 - (totalViews > 0 ? Math.round((totalCards / totalViews) * 100) : 24)}% drop` : `−${(totalViews > 0 ? Math.round((totalCards / totalViews) * 100) : 24) - (totalViews > 0 ? Math.round((totalDownloads / totalViews) * 100) : 19)}% drop`}
-                  </div>
-                )}
-              </div>
-            ))}
+            <div className="flex items-center gap-2">
+              <select style={selectStyle}>
+                <option>All events</option>
+                {allEvents.map(e => <option key={e.id}>{e.name}</option>)}
+              </select>
+              <select style={selectStyle}>
+                <option>Last 30 days</option>
+                <option>Last 7 days</option>
+                <option>This year</option>
+              </select>
+              <button
+                className="h-8 px-3 text-[13px] rounded-lg inline-flex items-center gap-2 transition hover:opacity-80"
+                style={{ border: '1px solid #E5E0D4', background: 'white', color: '#3A4A42' }}
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                Export CSV
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Devices + Sources + Top Events */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* ── Content ── */}
+      <div className="flex-1 px-6 py-6 space-y-5">
 
-        {/* Devices donut */}
-        <div className="bg-white rounded-lg border border-neutral-200 p-5">
-          <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">DEVICES</div>
-          <div className="text-[14px] font-semibold text-neutral-900 mb-4">Mobile-first audience</div>
-          <div className="flex items-center justify-center mb-5">
-            <svg width="140" height="140" viewBox="0 0 42 42">
-              <circle cx="21" cy="21" r="15.91" fill="none" stroke="#f4f4f6" strokeWidth="5.5" />
-              <circle cx="21" cy="21" r="15.91" fill="none" stroke="#1F4D3A" strokeWidth="5.5" strokeDasharray="78 100" strokeDashoffset="25" />
-              <circle cx="21" cy="21" r="15.91" fill="none" stroke="#E8C57E" strokeWidth="5.5" strokeDasharray="16 100" strokeDashoffset="-53" />
-              <circle cx="21" cy="21" r="15.91" fill="none" stroke="#ffd28a" strokeWidth="5.5" strokeDasharray="6 100" strokeDashoffset="-69" />
-              <text x="21" y="20.5" textAnchor="middle" fontFamily="DM Sans, sans-serif" fontWeight="700" fontSize="6" fill="#0F1F18">78%</text>
-              <text x="21" y="24.5" textAnchor="middle" fontFamily="JetBrains Mono, monospace" fontSize="2.2" fill="#0F1F1888">MOBILE</text>
-            </svg>
-          </div>
-          <div className="space-y-2">
-            {[
-              { label: 'Mobile', pct: 78, color: '#1F4D3A' },
-              { label: 'Desktop', pct: 16, color: '#E8C57E' },
-              { label: 'Tablet', pct: 6, color: '#ffd28a' },
-            ].map(d => (
-              <div key={d.label} className="flex items-center gap-2.5 text-[12px] text-neutral-600">
-                <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ background: d.color }} />
-                <span className="flex-1">{d.label}</span>
-                <span className="font-mono text-neutral-400">{d.pct}%</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Traffic sources */}
-        <div className="bg-white rounded-lg border border-neutral-200 p-5">
-          <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">TRAFFIC SOURCES</div>
-          <div className="text-[14px] font-semibold text-neutral-900 mb-5">Where they come from</div>
-          <div className="space-y-3">
-            {[
-              { label: 'WhatsApp', pct: 42, color: '#25D366' },
-              { label: 'X / Twitter', pct: 22, color: '#0F1F18' },
-              { label: 'LinkedIn', pct: 14, color: '#0a66c2' },
-              { label: 'Direct', pct: 11, color: '#1F4D3A' },
-              { label: 'Email', pct: 8, color: '#E8C57E' },
-              { label: 'Other', pct: 3, color: '#E5E0D4' },
-            ].map(s => (
-              <div key={s.label} className="flex items-center gap-3">
-                <span className="text-[12px] w-20 text-neutral-500 shrink-0">{s.label}</span>
-                <div className="flex-1 h-2 rounded-full bg-neutral-100 overflow-hidden">
-                  <div className="h-full rounded-full transition-all" style={{ width: `${s.pct}%`, background: s.color }} />
+        {/* KPI row */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {kpis.map(k => (
+            <div key={k.label} style={cardStyle} className="p-5">
+              <div className="flex items-center justify-between mb-4">
+                <div className="text-[11px] font-mono text-[#6B7A72]/70 uppercase tracking-widest">{k.label}</div>
+                <div
+                  className="h-7 w-7 rounded-lg grid place-items-center"
+                  style={{ background: 'rgba(31,77,58,0.08)', border: '1px solid rgba(31,77,58,0.12)' }}
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1F4D3A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: k.icon }} />
                 </div>
-                <span className="font-mono text-[11px] text-neutral-400 w-7 text-right">{s.pct}%</span>
               </div>
-            ))}
-          </div>
+              <div className="text-[28px] font-display font-bold text-[#0F1F18] leading-none">{k.value}</div>
+              <div className={`mt-2 text-[11.5px] font-mono font-medium flex items-center gap-1 ${k.positive ? 'text-emerald-600' : 'text-rose-500'}`}>
+                <span>{k.positive ? '↑' : '↓'} {k.delta}</span>
+                <span className="text-[#6B7A72]/60 font-normal">vs prev period</span>
+              </div>
+            </div>
+          ))}
         </div>
 
-        {/* Top events */}
-        <div className="bg-white rounded-lg border border-neutral-200 p-5">
-          <div className="flex items-center justify-between mb-1">
-            <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide">TOP EVENTS</div>
-            <Link href="/dashboard" className="text-[11px] font-mono text-[#1F4D3A] hover:underline">View all →</Link>
-          </div>
-          <div className="text-[14px] font-semibold text-neutral-900 mb-4">By cards generated</div>
-
-          {topEvents.length === 0 ? (
-            <div className="text-center py-8">
-              <div className="text-[13px] text-neutral-400">No events yet.</div>
-              <Link href="/events/new" className="mt-2 inline-block text-[12px] text-[#1F4D3A] hover:underline">Create your first →</Link>
+        {/* Chart — Views vs Downloads */}
+        <div style={cardStyle} className="p-6">
+          <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
+            <div>
+              <div className="text-[11px] font-mono text-[#6B7A72]/60 uppercase tracking-widest">Daily views vs downloads</div>
+              <div className="font-display font-semibold text-[15px] text-[#0F1F18] mt-0.5">Last 30 days</div>
             </div>
-          ) : (
-            <div className="space-y-3">
-              {topEvents.map((ev, i) => {
-                const maxDl = Math.max(topEvents[0].download_count ?? 1, 1);
-                const pct = ((ev.download_count ?? 0) / maxDl) * 100;
-                const grads = [
-                  'linear-gradient(135deg,#1F4D3A,#E8C57E)',
-                  'linear-gradient(135deg,#0a2540,#7be0c0)',
-                  'linear-gradient(135deg,#1f8a5b,#ffd28a)',
-                  'linear-gradient(135deg,#3a3aff,#7be0c0)',
-                  'linear-gradient(135deg,#E8C57E,#0F1F18)',
-                  'linear-gradient(135deg,#ffd28a,#E8C57E)',
-                ];
-                return (
-                  <Link key={ev.id} href={`/events/${ev.id}`} className="flex items-center gap-3 group">
-                    <div
-                      className="h-8 w-8 rounded-lg shrink-0"
-                      style={{ background: grads[i % grads.length] }}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="text-[12.5px] font-medium truncate group-hover:text-[#1F4D3A] transition">{ev.name}</div>
-                      <div className="mt-1 h-1 rounded-full bg-neutral-100 overflow-hidden">
-                        <div className="h-full rounded-full" style={{ width: `${pct}%`, background: grads[i % grads.length] }} />
-                      </div>
-                    </div>
-                    <span className="font-mono text-[12px] font-medium text-neutral-500 shrink-0">
-                      {fmtNum(ev.download_count ?? 0)}
-                    </span>
-                  </Link>
-                );
-              })}
+            <div className="flex items-center gap-5">
+              <span className="flex items-center gap-2 text-[12px] text-[#3A4A42]">
+                <span className="h-2.5 w-5 rounded-full inline-block" style={{ background: '#1F4D3A' }} /> Views
+              </span>
+              <span className="flex items-center gap-2 text-[12px] text-[#3A4A42]">
+                <span className="h-2.5 w-5 rounded-full inline-block" style={{ background: '#E8C57E' }} /> Downloads
+              </span>
+            </div>
+          </div>
+
+          <svg viewBox={`0 0 ${chartW} ${chartH + 30}`} className="w-full" style={{ height: 220 }}>
+            <defs>
+              <linearGradient id="ag1" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stopColor="#1F4D3A" stopOpacity="0.15" />
+                <stop offset="100%" stopColor="#1F4D3A" stopOpacity="0" />
+              </linearGradient>
+              <linearGradient id="ag2" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stopColor="#E8C57E" stopOpacity="0.20" />
+                <stop offset="100%" stopColor="#E8C57E" stopOpacity="0" />
+              </linearGradient>
+            </defs>
+
+            {[0, 1, 2, 3].map(i => (
+              <line key={i} x1="0" y1={10 + i * (chartH / 3)} x2={chartW} y2={10 + i * (chartH / 3)} stroke="#E5E0D4" strokeWidth="1" />
+            ))}
+
+            <polygon points={viewArea} fill="url(#ag1)" />
+            <polyline points={viewPoints} fill="none" stroke="#1F4D3A" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+
+            <polygon points={dlArea} fill="url(#ag2)" />
+            <polyline points={dlPoints} fill="none" stroke="#E8C57E" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+
+            {days30WithViews.length > 0 && (() => {
+              const last = days30WithViews[days30WithViews.length - 1];
+              const lx = chartW;
+              const vy = chartH - (last.views / maxY) * (chartH - 20) - 10;
+              const dy = chartH - (last.downloads / maxY) * (chartH - 20) - 10;
+              return (
+                <>
+                  <circle cx={lx} cy={vy} r="4" fill="#1F4D3A" />
+                  <circle cx={lx} cy={dy} r="4" fill="#E8C57E" />
+                </>
+              );
+            })()}
+
+            {[0, 7, 14, 21, 29].map(i => (
+              <text
+                key={i}
+                x={(i / 29) * chartW}
+                y={chartH + 22}
+                fontFamily="JetBrains Mono, monospace"
+                fontSize="9"
+                fill="#6B7A7288"
+                textAnchor={i === 0 ? 'start' : i === 29 ? 'end' : 'middle'}
+              >
+                {days30WithViews[i]?.label ?? ''}
+              </text>
+            ))}
+          </svg>
+
+          {totalCards === 0 && (
+            <div className="text-center text-[13px] text-[#6B7A72] -mt-4 pb-2">
+              No data yet — share your event link to start collecting metrics.
             </div>
           )}
         </div>
+
+        {/* Geo + Funnel */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+          {/* Geo map */}
+          <div style={cardStyle} className="lg:col-span-2 p-6">
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <div className="text-[11px] font-mono text-[#6B7A72]/60 uppercase tracking-widest">Geographic spread</div>
+                <div className="font-display font-semibold text-[15px] text-[#0F1F18] mt-0.5">Worldwide audience</div>
+              </div>
+              <span
+                className="text-[11px] font-mono text-[#6B7A72] px-2.5 py-1 rounded-lg"
+                style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }}
+              >
+                {cityData.length > 0 ? 'Live data' : 'Waiting'}
+              </span>
+            </div>
+            <GeoMap cityData={cityData} totalCards={totalCards} />
+          </div>
+
+          {/* Funnel */}
+          <div style={cardStyle} className="p-6">
+            <div className="text-[11px] font-mono text-[#6B7A72]/60 uppercase tracking-widest mb-1">Funnel · Last 30d</div>
+            <div className="font-display font-semibold text-[15px] text-[#0F1F18] mb-6">Where attendees drop</div>
+            <div className="space-y-5">
+              {[
+                { label: 'Opened link', value: totalViews, pct: 100, bar: 'linear-gradient(135deg,#1F4D3A,#E8C57E)' },
+                { label: 'Started form', value: Math.round(totalViews * 0.46), pct: 46, bar: '#E8C57E' },
+                { label: 'Generated card', value: totalCards, pct: totalViews > 0 ? Math.round((totalCards / totalViews) * 100) : 24, bar: '#ffd28a' },
+                { label: 'Downloaded', value: totalDownloads, pct: totalViews > 0 ? Math.round((totalDownloads / totalViews) * 100) : 19, bar: '#7be0c0' },
+              ].map((step, i) => (
+                <div key={step.label}>
+                  <div className="flex items-center justify-between text-[12.5px] mb-2">
+                    <span className="text-[#3A4A42]">{step.label}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-[#0F1F18]">{fmtNum(step.value)}</span>
+                      <span className="text-[10.5px] font-mono text-[#6B7A72] w-9 text-right">{step.pct}%</span>
+                    </div>
+                  </div>
+                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: '#E5E0D4' }}>
+                    <div
+                      className="h-full rounded-full"
+                      style={{ width: `${Math.max(step.pct, 1)}%`, background: step.bar }}
+                    />
+                  </div>
+                  {i < 3 && (
+                    <div className="text-[10px] font-mono text-rose-400 mt-1 pl-0.5">
+                      {i === 0 ? `−${100 - 46}% drop` : i === 1 ? `−${46 - (totalViews > 0 ? Math.round((totalCards / totalViews) * 100) : 24)}% drop` : `−${(totalViews > 0 ? Math.round((totalCards / totalViews) * 100) : 24) - (totalViews > 0 ? Math.round((totalDownloads / totalViews) * 100) : 19)}% drop`}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Devices + Sources + Top Events */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+          {/* Devices donut */}
+          <div style={cardStyle} className="p-6">
+            <div className="text-[11px] font-mono text-[#6B7A72]/60 uppercase tracking-widest mb-1">Devices</div>
+            <div className="font-display font-semibold text-[15px] text-[#0F1F18] mb-5">Mobile-first audience</div>
+            <div className="flex items-center justify-center mb-5">
+              <svg width="140" height="140" viewBox="0 0 42 42">
+                <circle cx="21" cy="21" r="15.91" fill="none" stroke="#E5E0D4" strokeWidth="5.5" />
+                <circle cx="21" cy="21" r="15.91" fill="none" stroke="#1F4D3A" strokeWidth="5.5" strokeDasharray="78 100" strokeDashoffset="25" />
+                <circle cx="21" cy="21" r="15.91" fill="none" stroke="#E8C57E" strokeWidth="5.5" strokeDasharray="16 100" strokeDashoffset="-53" />
+                <circle cx="21" cy="21" r="15.91" fill="none" stroke="#ffd28a" strokeWidth="5.5" strokeDasharray="6 100" strokeDashoffset="-69" />
+                <text x="21" y="20.5" textAnchor="middle" fontFamily="DM Sans, sans-serif" fontWeight="700" fontSize="6" fill="#0F1F18">78%</text>
+                <text x="21" y="24.5" textAnchor="middle" fontFamily="JetBrains Mono, monospace" fontSize="2.2" fill="#6B7A72">MOBILE</text>
+              </svg>
+            </div>
+            <div className="space-y-2.5">
+              {[
+                { label: 'Mobile', pct: 78, color: '#1F4D3A' },
+                { label: 'Desktop', pct: 16, color: '#E8C57E' },
+                { label: 'Tablet', pct: 6, color: '#ffd28a' },
+              ].map(d => (
+                <div key={d.label} className="flex items-center gap-2.5 text-[12.5px] text-[#3A4A42]">
+                  <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ background: d.color }} />
+                  <span className="flex-1">{d.label}</span>
+                  <span className="font-mono text-[#6B7A72]">{d.pct}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Traffic sources */}
+          <div style={cardStyle} className="p-6">
+            <div className="text-[11px] font-mono text-[#6B7A72]/60 uppercase tracking-widest mb-1">Traffic sources</div>
+            <div className="font-display font-semibold text-[15px] text-[#0F1F18] mb-5">Where they come from</div>
+            <div className="space-y-3.5">
+              {[
+                { label: 'WhatsApp', pct: 42, color: '#25D366' },
+                { label: 'X / Twitter', pct: 22, color: '#0F1F18' },
+                { label: 'LinkedIn', pct: 14, color: '#0a66c2' },
+                { label: 'Direct', pct: 11, color: '#1F4D3A' },
+                { label: 'Email', pct: 8, color: '#E8C57E' },
+                { label: 'Other', pct: 3, color: '#E5E0D4' },
+              ].map(s => (
+                <div key={s.label} className="flex items-center gap-3">
+                  <span className="text-[12px] w-20 text-[#6B7A72] shrink-0">{s.label}</span>
+                  <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: '#E5E0D4' }}>
+                    <div className="h-full rounded-full" style={{ width: `${s.pct}%`, background: s.color }} />
+                  </div>
+                  <span className="font-mono text-[11px] text-[#6B7A72] w-7 text-right">{s.pct}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Top events */}
+          <div style={cardStyle} className="p-6">
+            <div className="flex items-center justify-between mb-1">
+              <div className="text-[11px] font-mono text-[#6B7A72]/60 uppercase tracking-widest">Top events</div>
+              <Link href="/dashboard" className="text-[11px] font-mono text-[#1F4D3A] hover:underline">View all →</Link>
+            </div>
+            <div className="font-display font-semibold text-[15px] text-[#0F1F18] mb-5">By cards generated</div>
+
+            {topEvents.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="text-[13px] text-[#6B7A72]">No events yet.</div>
+                <Link href="/events/new" className="mt-2 inline-block text-[12px] text-[#1F4D3A] hover:underline">Create your first →</Link>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {topEvents.map((ev, i) => {
+                  const maxDl = Math.max(topEvents[0].download_count ?? 1, 1);
+                  const pct = ((ev.download_count ?? 0) / maxDl) * 100;
+                  const grads = [
+                    'linear-gradient(135deg,#1F4D3A,#E8C57E)',
+                    'linear-gradient(135deg,#0a2540,#7be0c0)',
+                    'linear-gradient(135deg,#1f8a5b,#ffd28a)',
+                    'linear-gradient(135deg,#3a3aff,#7be0c0)',
+                    'linear-gradient(135deg,#E8C57E,#0F1F18)',
+                    'linear-gradient(135deg,#ffd28a,#E8C57E)',
+                  ];
+                  return (
+                    <Link key={ev.id} href={`/events/${ev.id}`} className="flex items-center gap-3 group">
+                      <div
+                        className="h-8 w-8 rounded-lg shrink-0"
+                        style={{ background: grads[i % grads.length] }}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[12.5px] font-medium text-[#0F1F18] truncate group-hover:text-[#1F4D3A] transition">{ev.name}</div>
+                        <div className="mt-1 h-1 rounded-full overflow-hidden" style={{ background: '#E5E0D4' }}>
+                          <div className="h-full rounded-full" style={{ width: `${pct}%`, background: grads[i % grads.length] }} />
+                        </div>
+                      </div>
+                      <span className="font-mono text-[12px] font-medium text-[#6B7A72] shrink-0">
+                        {fmtNum(ev.download_count ?? 0)}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+
       </div>
     </div>
   );

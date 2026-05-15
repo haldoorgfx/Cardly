@@ -52,39 +52,58 @@ export default function TemplatesPage() {
   });
 
   return (
-    <div className="min-h-full">
-      {/* Hero section */}
-      <div className="px-8 pt-10 pb-6 border-b border-[#E5E0D4]">
-        <div className="flex items-end justify-between flex-wrap gap-4">
-          <div>
-            <div className="text-[11px] font-mono tracking-widest text-[#0F1F18]/45">TEMPLATES</div>
-            <h1 className="font-display font-bold text-[38px] leading-tight mt-1.5">
-              Start from a{' '}
-              <span style={{ background: 'linear-gradient(135deg,#1F4D3A,#E8C57E)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>
-                proven design.
-              </span>
-            </h1>
-            <p className="text-[14.5px] text-[#0F1F18]/60 mt-2 max-w-[520px]">
-              40+ event card templates designed by Cardly — every one is fully editable, with zones already mapped out.
-            </p>
+    <div className="min-h-full flex flex-col">
+      {/* Page header — same pattern as Analytics + Dashboard */}
+      <div
+        className="relative overflow-hidden px-6 pt-7 pb-6 border-b shrink-0"
+        style={{ background: 'white', borderColor: '#E5E0D4' }}
+      >
+        {/* Dot grid */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ backgroundImage: 'radial-gradient(rgba(15,31,24,0.05) 1px, transparent 1px)', backgroundSize: '20px 20px' }}
+        />
+        <div
+          className="absolute pointer-events-none"
+          style={{ top: '-50%', right: '-5%', width: 260, height: 260, background: 'radial-gradient(ellipse, rgba(31,77,58,0.07) 0%, transparent 70%)', filter: 'blur(40px)' }}
+        />
+
+        <div className="relative">
+          {/* Breadcrumb */}
+          <div className="flex items-center gap-1.5 text-[12px] font-mono text-[#6B7A72]/60 mb-3">
+            <span>WORKSPACE</span>
+            <span>/</span>
+            <span className="text-[#6B7A72]">Templates</span>
           </div>
-          {/* Search */}
-          <div className="relative">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0F1F18]/35 pointer-events-none" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>
-            </svg>
-            <input
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="Search 40+ templates…"
-              className="w-[260px] h-10 pl-9 pr-3 rounded-xl bg-white border border-[#E5E0D4] text-[13.5px] focus:outline-none focus:border-[#1F4D3A]/40 focus:ring-2 focus:ring-[#1F4D3A]/10 transition"
-            />
+
+          <div className="flex items-end justify-between gap-4 flex-wrap">
+            <div>
+              <h1 className="font-display font-bold text-[28px] text-[#0F1F18] leading-tight tracking-tight">
+                Templates
+              </h1>
+              <p className="text-[13px] text-[#6B7A72] mt-1">
+                40+ event card designs — fully editable, zones already mapped.
+              </p>
+            </div>
+            {/* Search */}
+            <div className="relative">
+              <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7A72]/60 pointer-events-none" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>
+              </svg>
+              <input
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="Search 40+ templates…"
+                className="w-[240px] h-8 pl-8 pr-3 rounded-lg text-[13px] focus:outline-none transition"
+                style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18' }}
+              />
+            </div>
           </div>
         </div>
       </div>
 
       {/* Category chips */}
-      <div className="px-8 pt-6 pb-4">
+      <div className="px-6 pt-5 pb-4">
         <div className="flex items-center gap-2 flex-wrap">
           {CATEGORIES.map(cat => (
             <button
@@ -112,7 +131,7 @@ export default function TemplatesPage() {
       </div>
 
       {/* Grid */}
-      <div className="px-8 pb-16">
+      <div className="px-6 pb-16">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
 
           {/* Start blank */}
