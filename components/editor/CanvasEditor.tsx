@@ -8,7 +8,7 @@ import {
   Trash2, Copy, AlignLeft, AlignCenter, AlignRight, AlignJustify,
   ZoomIn, ZoomOut, Grid, MousePointer2, ArrowLeft, CheckCircle2, Globe,
   Undo2, Redo2, Upload, Play, X, Layers, ChevronUp, ChevronDown,
-  Circle, Wand2, HelpCircle, Magnet, Square,
+  Circle, Wand2, HelpCircle, Magnet, Square, Pencil, AlignVerticalJustifyEnd,
   AlignStartHorizontal, AlignCenterHorizontal, AlignEndHorizontal,
   AlignStartVertical, AlignCenterVertical, AlignEndVertical,
   AlignHorizontalSpaceAround, AlignVerticalSpaceAround,
@@ -835,8 +835,22 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
           <span className="text-[#0F1F18]/40 font-mono text-[11px]">Events</span>
           <span className="text-[#0F1F18]/30">/</span>
           {editName
-            ? <input autoFocus value={nameVal} onChange={e => setNameVal(e.target.value)} onBlur={saveName} onKeyDown={e => e.key === 'Enter' && saveName()} className="font-display font-semibold bg-white border border-primary/40 rounded-md px-2 py-0.5 outline-none w-[240px] text-[13px]" />
-            : <button onClick={() => setEditName(true)} className="font-display font-semibold hover:bg-cream rounded-md px-2 py-0.5 text-[13px]">{nameVal}</button>
+            ? <input
+                autoFocus
+                value={nameVal}
+                onChange={e => setNameVal(e.target.value)}
+                onBlur={saveName}
+                onKeyDown={e => { if (e.key === 'Enter') saveName(); if (e.key === 'Escape') setEditName(false); }}
+                className="font-display font-semibold bg-white border border-primary/40 rounded-md px-2 py-0.5 outline-none w-[240px] text-[13px] focus:ring-2 focus:ring-primary/20"
+              />
+            : <button
+                onClick={() => setEditName(true)}
+                title="Click to rename event"
+                className="group flex items-center gap-1.5 font-display font-semibold hover:bg-cream rounded-md px-2 py-0.5 text-[13px] transition"
+              >
+                {nameVal}
+                <Pencil size={11} strokeWidth={2} className="text-[#0F1F18]/30 group-hover:text-primary transition shrink-0" />
+              </button>
           }
         </div>
 
@@ -2062,6 +2076,23 @@ function RightRail({
                 {[12, 18, 24, 32, 48, 64, 96, 128].map(s => (
                   <button key={s} onClick={() => upd({ size: s })} className={`h-6 px-2 text-[10.5px] font-mono rounded-lg border transition ${(selected.size ?? 32) === s ? 'bg-primary text-white border-primary' : 'border-border hover:bg-cream text-[#0F1F18]/55'}`}>{s}</button>
                 ))}
+                {/* Auto-height: expand zone height to fit text at current font size */}
+                <button
+                  title="Resize zone height to fit all text at the current font size"
+                  onClick={() => {
+                    const rawLinesCount = wrapTextLines(
+                      (() => { const raw = selected.sample ?? selected.placeholder ?? ''; const t = selected.textTransform; return t === 'uppercase' ? raw.toUpperCase() : t === 'lowercase' ? raw.toLowerCase() : raw; })(),
+                      selected.w - 16,
+                      selected.size ?? 32
+                    ).length;
+                    const autoH = Math.ceil(rawLinesCount * (selected.size ?? 32) * (selected.lineHeight ?? 1.2)) + 16;
+                    upd({ h: Math.max(selected.h, autoH) });
+                  }}
+                  className="h-6 px-2 text-[10.5px] font-mono rounded-lg border border-dashed transition border-warning/60 text-warning hover:bg-warning/10 flex items-center gap-1"
+                >
+                  <AlignVerticalJustifyEnd size={10} strokeWidth={2} />
+                  Auto-height
+                </button>
               </div>
             </PropRow>
 
@@ -2278,12 +2309,22 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, onPointerDown, onH
     return raw;
   })();
 
-  const lines = (!isPhoto && !isShape && !isImage) ? wrapTextLines(displayText, zone.w - 16, zone.size ?? 32) : [];
+  const rawLines = (!isPhoto && !isShape && !isImage) ? wrapTextLines(displayText, zone.w - 16, zone.size ?? 32) : [];
+
+  // Scale text to always fit zone height in the editor preview
+  // (zone.size stays unchanged — it's used for the final render; we only adjust the preview)
+  const rawTotalH = rawLines.length * (zone.size ?? 32) * (zone.lineHeight ?? 1.2);
+  const previewFitScale = (rawTotalH > 0 && rawTotalH > zone.h) ? zone.h / rawTotalH : 1;
+  const previewSize = (zone.size ?? 32) * previewFitScale;
+  const isTextScaledDown = previewFitScale < 0.98; // true if text had to shrink to fit
+
+  // Recompute line breaks at preview size so wrapping is accurate for what you see
+  const lines = rawLines.length > 0 ? wrapTextLines(displayText, zone.w - 16, previewSize) : [];
 
   const textStyle: React.CSSProperties = {
     fontFamily: zone.font,
     fontWeight: zone.weight,
-    fontSize: zone.size,
+    fontSize: previewSize,
     color: zone.color,
     lineHeight: zone.lineHeight ?? 1.2,
     letterSpacing: zone.letterSpacing ? `${zone.letterSpacing}px` : undefined,
@@ -2457,16 +2498,31 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, onPointerDown, onH
       );
     }
     return (
-      <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: 6, padding: '0 8px' }}>
-        {zone.bgColor && (
-          <div className="absolute inset-0" style={{ background: zone.bgColor, opacity: (zone.bgOpacity ?? 60) / 100, borderRadius: 4 }} />
-        )}
-        <div className="relative h-full" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', justifyContent: zone.verticalAlign === 'bottom' ? 'flex-end' : zone.verticalAlign === 'center' ? 'center' : 'flex-start', alignItems: zone.align === 'center' ? 'center' : zone.align === 'right' ? 'flex-end' : 'flex-start' }}>
-          {lines.map((line, i) => (
-            <div key={i} style={{ ...textStyle, whiteSpace: 'nowrap' }}>{line || ' '}</div>
-          ))}
+      <>
+        <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: 6, padding: '0 8px' }}>
+          {zone.bgColor && (
+            <div className="absolute inset-0" style={{ background: zone.bgColor, opacity: (zone.bgOpacity ?? 60) / 100, borderRadius: 4 }} />
+          )}
+          <div className="relative h-full" style={{ display: 'flex', flexDirection: 'column', justifyContent: zone.verticalAlign === 'bottom' ? 'flex-end' : zone.verticalAlign === 'center' ? 'center' : 'flex-start', alignItems: zone.align === 'center' ? 'center' : zone.align === 'right' ? 'flex-end' : 'flex-start' }}>
+            {lines.map((line, i) => (
+              <div key={i} style={{ ...textStyle, whiteSpace: 'nowrap' }}>{line || ' '}</div>
+            ))}
+          </div>
         </div>
-      </div>
+        {/* Fit badge: shown when text was scaled down to fit the zone height */}
+        {isTextScaledDown && !previewMode && (
+          <div
+            title={'Text scaled to fit (actual: ' + zone.size + 'px). Resize zone height or reduce font size.'}
+            className="absolute pointer-events-none flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-mono font-medium"
+            style={{
+              bottom: -2, right: 0, transform: 'translateY(100%)',
+              background: '#C97A2D', color: '#fff', opacity: 0.9, zIndex: 10,
+            }}
+          >
+            {'↕ fit ' + Math.round(previewFitScale * 100) + '%'}
+          </div>
+        )}
+      </>
     );
   })();
 
