@@ -1045,7 +1045,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
           <div
             ref={stageRef}
             className={`absolute inset-0 overflow-auto${spaceDown ? ' cursor-grab' : ''}`}
-            style={{ backgroundColor: '#EDE9E0', backgroundImage: 'radial-gradient(#C8C2B5 1px, transparent 1px)', backgroundSize: '16px 16px', backgroundAttachment: 'local' }}
+            style={{ backgroundColor: '#F5F1E6', backgroundImage: 'radial-gradient(#C9C3B1 0.8px, transparent 0.8px)', backgroundSize: '14px 14px', backgroundAttachment: 'local' }}
             onPointerDown={e => {
               if (spaceDownRef.current) {
                 isPanning.current = true;
@@ -1116,18 +1116,62 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
 
                 {/* floating toolbar is now viewport-anchored — see stageContainerRef section */}
 
-                {/* Canvas corner brackets */}
+                {/* Canvas corner brackets + dims chip */}
                 {!previewMode && (
                   <>
-                    <div className="absolute -top-7 left-0 right-0 flex items-center justify-between text-[10px] font-mono text-[#0F1F18]/40 pointer-events-none">
-                      <span>{bgW} × {bgH} px</span>
-                      <span>{zones.length} zones · {zones.filter(z => z.required).length} req</span>
+                    {/* Floating dims chip above canvas — "canvas 1080 × 1350 px | 42%" */}
+                    <div className="absolute pointer-events-none" style={{
+                      top: -32, left: '50%', transform: 'translateX(-50%)',
+                      display: 'inline-flex', alignItems: 'center', gap: 6,
+                      padding: '3px 10px',
+                      background: 'rgba(15,31,24,0.72)',
+                      backdropFilter: 'blur(4px)',
+                      borderRadius: 999,
+                      fontFamily: 'JetBrains Mono, monospace',
+                      fontSize: 10, letterSpacing: '0.04em',
+                      color: 'rgba(255,255,255,0.8)',
+                      whiteSpace: 'nowrap',
+                    }}>
+                      canvas {bgW} × {bgH} px
+                      <span style={{ width: 1, height: 10, background: 'rgba(255,255,255,0.2)' }} />
+                      {Math.round(zoom * 100)}%
                     </div>
+
+                    {/* Zone count chip — top right */}
+                    <div className="absolute pointer-events-none" style={{
+                      top: -24, right: 0,
+                      fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
+                      color: 'rgba(15,31,24,0.4)',
+                      whiteSpace: 'nowrap',
+                    }}>
+                      {zones.length} zones · {zones.filter(z => z.required).length} req
+                    </div>
+
+                    {/* Corner brackets */}
                     <span className="absolute -top-1 -left-1 h-3 w-3 border-t border-l border-primary/50 pointer-events-none" />
                     <span className="absolute -top-1 -right-1 h-3 w-3 border-t border-r border-primary/50 pointer-events-none" />
                     <span className="absolute -bottom-1 -left-1 h-3 w-3 border-b border-l border-primary/50 pointer-events-none" />
                     <span className="absolute -bottom-1 -right-1 h-3 w-3 border-b border-r border-primary/50 pointer-events-none" />
                   </>
+                )}
+
+                {/* Empty canvas state */}
+                {zones.length === 0 && !previewMode && (
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 6,
+                      padding: '6px 12px',
+                      background: 'rgba(15,31,24,0.55)',
+                      backdropFilter: 'blur(4px)',
+                      borderRadius: 999,
+                      fontFamily: 'JetBrains Mono, monospace',
+                      fontSize: 11, letterSpacing: '0.08em',
+                      textTransform: 'uppercase' as const,
+                      color: 'rgba(255,255,255,0.7)',
+                    }}>
+                      No zones yet
+                    </div>
+                  </div>
                 )}
 
                 {previewMode && (
