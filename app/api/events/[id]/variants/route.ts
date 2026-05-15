@@ -38,8 +38,48 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const formData = await req.formData();
   const variantName = (formData.get('variant_name') as string | null)?.trim();
   const file = formData.get('file') as File | null;
+  const sourceVariantId = (formData.get('source_variant_id') as string | null)?.trim();
 
   if (!variantName) return NextResponse.json({ error: 'variant_name is required' }, { status: 400 });
+
+  // ── Duplicate mode: copy from an existing variant (no file upload) ──────────
+  if (sourceVariantId && !file) {
+    const { data: source } = await admin
+      .from('event_variants')
+      .select('background_url, background_width, background_height, zones')
+      .eq('id', sourceVariantId)
+      .eq('event_id', id)
+      .single();
+
+    if (!source) return NextResponse.json({ error: 'Source variant not found' }, { status: 404 });
+
+    const variantSlug = variantName
+      .toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').slice(0, 40)
+      + '-' + Math.random().toString(36).slice(2, 6);
+
+    const { data: existingVariants } = await admin
+      .from('event_variants').select('position').eq('event_id', id)
+      .order('position', { ascending: false }).limit(1);
+    const nextPosition = (existingVariants?.[0]?.position ?? -1) + 1;
+
+    const { data: variant, error: dbError } = await admin
+      .from('event_variants')
+      .insert({
+        event_id: id,
+        variant_name: variantName,
+        variant_slug: variantSlug,
+        background_url: source.background_url,
+        background_width: source.background_width,
+        background_height: source.background_height,
+        zones: source.zones,
+        position: nextPosition,
+      })
+      .select().single();
+
+    if (dbError) return NextResponse.json({ error: dbError.message }, { status: 500 });
+    return NextResponse.json(variant);
+  }
+
   if (!file) return NextResponse.json({ error: 'background file is required' }, { status: 400 });
 
   // Generate a slug from the variant name

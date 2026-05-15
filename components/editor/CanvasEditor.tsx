@@ -97,6 +97,7 @@ const I = {
   centerH:     '<line x1="12" y1="5" x2="12" y2="19"/><path d="M5 12h14"/><path d="M5 8h2M5 16h2M17 8h2M17 16h2"/>',
   centerV:     '<line x1="5" y1="12" x2="19" y2="12"/><path d="M12 5v14"/><path d="M8 5v2M16 5v2M8 17v2M16 17v2"/>',
   aspect:      '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><line x1="9" y1="6.5" x2="14" y2="6.5"/><line x1="3" y1="14" x2="3" y2="21"/><path d="M3 21h6M3 17h3"/>',
+  more:        '<circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/>',
   // shape tools
   shRect:   '<rect x="3" y="5" width="18" height="14" rx="2"/>',
   shOval:   '<ellipse cx="12" cy="12" rx="9" ry="6"/>',
@@ -149,6 +150,11 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
   const [newVariantName, setNewVariantName] = useState('');
   const [newVariantFile, setNewVariantFile] = useState<File | null>(null);
   const newVariantFileRef = useRef<HTMLInputElement>(null);
+
+  /* variant management */
+  const [variantMenuId, setVariantMenuId]       = useState<string | null>(null);
+  const [renamingVariantId, setRenamingVariantId] = useState<string | null>(null);
+  const [renameValue, setRenameValue]             = useState('');
 
   /* zones per variant */
   const [variantZonesMap, setVariantZonesMap] = useState<Record<string, Zone[]>>(() => {
@@ -216,6 +222,53 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
     setSelectedIds([]);
     setHistory({ past: [], future: [] });
   }, []);
+
+  /* ── variant management ─────────────────────────────── */
+  const handleRenameVariant = useCallback(async (variantId: string, name: string) => {
+    const trimmed = name.trim();
+    setRenamingVariantId(null);
+    if (!trimmed) return;
+    setVariants(vs => vs.map(v => v.id === variantId ? { ...v, variant_name: trimmed } : v));
+    await fetch(`/api/events/${eventId}/variants/${variantId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ variant_name: trimmed }),
+    });
+  }, [eventId]);
+
+  const handleDeleteVariant = useCallback(async (variantId: string) => {
+    if (variants.length <= 1) return;
+    setVariantMenuId(null);
+    const res = await fetch(`/api/events/${eventId}/variants/${variantId}`, { method: 'DELETE' });
+    if (!res.ok) return;
+    const remaining = variants.filter(v => v.id !== variantId);
+    setVariants(remaining);
+    setVariantZonesMap(m => { const nm = { ...m }; delete nm[variantId]; return nm; });
+    if (activeVariantId === variantId && remaining.length > 0) switchVariant(remaining[0].id);
+  }, [eventId, variants, activeVariantId, switchVariant]);
+
+  const handleDuplicateVariant = useCallback(async (variantId: string) => {
+    setVariantMenuId(null);
+    const source = variants.find(v => v.id === variantId);
+    if (!source) return;
+    const fd = new FormData();
+    fd.append('source_variant_id', variantId);
+    fd.append('variant_name', source.variant_name + ' copy');
+    const res = await fetch(`/api/events/${eventId}/variants`, { method: 'POST', body: fd });
+    if (!res.ok) return;
+    const nv = await res.json() as Variant;
+    const copiedZones = variantZonesMap[variantId] ?? [];
+    nv.zones = copiedZones;
+    setVariants(vs => [...vs, nv]);
+    setVariantZonesMap(m => ({ ...m, [nv.id]: copiedZones }));
+    // Save the copied zones immediately
+    await fetch(`/api/events/${eventId}/variants/${nv.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ zones: copiedZones }),
+    });
+    switchVariant(nv.id);
+  }, [eventId, variants, variantZonesMap, switchVariant]);
 
   /* ── autosave ────────────────────────────────────────── */
   const scheduleSave = useCallback((nextZones: Zone[], variantId: string) => {
@@ -809,21 +862,101 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
       </header>
 
       {/* ── Variant tab bar ──────────────────────────────── */}
-      <div className="h-11 bg-white border-b border-border flex items-center px-4 gap-1.5 shrink-0 z-10 overflow-x-auto">
-        <span className="text-[10.5px] font-mono text-[#0F1F18]/40 mr-1 shrink-0 tracking-widest">VARIANTS</span>
-        {variants.map(v => (
-          <button
-            key={v.id}
-            onClick={() => switchVariant(v.id)}
-            className={`flex items-center gap-1.5 px-3 h-7 rounded-lg text-[12.5px] font-medium transition shrink-0 ${v.id === activeVariantId ? 'bg-primary text-white shadow-sm' : 'text-[#0F1F18]/60 hover:text-[#0F1F18] hover:bg-cream border border-border'}`}
-          >
-            <Icon d={I.layers} size={11} sw={2} />
-            {v.variant_name}
-          </button>
-        ))}
+      <div
+        className="h-11 bg-white border-b border-border flex items-center px-4 gap-1 shrink-0 z-10 overflow-x-auto"
+        onClick={() => setVariantMenuId(null)}
+      >
+        <span className="text-[10.5px] font-mono text-[#0F1F18]/40 mr-1.5 shrink-0 tracking-widest">VARIANTS</span>
+
+        {variants.map(v => {
+          const isActive = v.id === activeVariantId;
+          const isRenaming = renamingVariantId === v.id;
+          return (
+            <div key={v.id} className="relative group/vtab shrink-0 flex items-center">
+              {isRenaming ? (
+                <input
+                  autoFocus
+                  value={renameValue}
+                  onChange={e => setRenameValue(e.target.value)}
+                  onBlur={() => handleRenameVariant(v.id, renameValue)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') handleRenameVariant(v.id, renameValue);
+                    if (e.key === 'Escape') setRenamingVariantId(null);
+                    e.stopPropagation();
+                  }}
+                  onClick={e => e.stopPropagation()}
+                  className="h-7 px-2.5 rounded-lg text-[12.5px] font-medium outline-none w-[130px]"
+                  style={{ border: '2px solid #1F4D3A', background: 'white' }}
+                />
+              ) : (
+                <button
+                  onClick={() => switchVariant(v.id)}
+                  onDoubleClick={() => { setRenamingVariantId(v.id); setRenameValue(v.variant_name); }}
+                  className={`flex items-center gap-1.5 pl-2.5 pr-7 h-7 rounded-lg text-[12.5px] font-medium transition ${
+                    isActive
+                      ? 'bg-[#1F4D3A] text-white shadow-sm'
+                      : 'text-[#0F1F18]/60 hover:text-[#0F1F18] hover:bg-[#FAF6EE] border border-[#E5E0D4]'
+                  }`}
+                >
+                  <Icon d={I.layers} size={11} sw={2} />
+                  {v.variant_name}
+                </button>
+              )}
+
+              {/* 3-dot menu trigger — always visible on active, hover on inactive */}
+              {!isRenaming && (
+                <button
+                  onClick={e => { e.stopPropagation(); setVariantMenuId(variantMenuId === v.id ? null : v.id); }}
+                  title="Variant options"
+                  className={`absolute right-1 h-5 w-5 rounded grid place-items-center transition
+                    ${isActive
+                      ? 'text-white/70 hover:text-white hover:bg-white/20'
+                      : 'text-[#0F1F18]/40 hover:text-[#0F1F18] hover:bg-[#E5E0D4] opacity-0 group-hover/vtab:opacity-100'
+                    }`}
+                >
+                  <Icon d={I.more} size={13} sw={2} />
+                </button>
+              )}
+
+              {/* Dropdown menu */}
+              {variantMenuId === v.id && (
+                <div
+                  className="absolute top-full left-0 mt-1 z-50 bg-white rounded-xl shadow-[0_4px_24px_rgba(15,31,24,0.14)] py-1 w-[168px]"
+                  style={{ border: '1px solid #E5E0D4' }}
+                  onClick={e => e.stopPropagation()}
+                >
+                  <button
+                    onClick={() => { setRenamingVariantId(v.id); setRenameValue(v.variant_name); setVariantMenuId(null); }}
+                    className="w-full text-left px-3 py-2 text-[12.5px] hover:bg-[#FAF6EE] flex items-center gap-2.5 text-[#0F1F18]"
+                  >
+                    <Icon d={I.label} size={13} sw={1.8} />
+                    Rename
+                  </button>
+                  <button
+                    onClick={() => handleDuplicateVariant(v.id)}
+                    className="w-full text-left px-3 py-2 text-[12.5px] hover:bg-[#FAF6EE] flex items-center gap-2.5 text-[#0F1F18]"
+                  >
+                    <Icon d={I.dup} size={13} sw={1.8} />
+                    Duplicate
+                  </button>
+                  <div className="h-px mx-2 my-1" style={{ background: '#E5E0D4' }} />
+                  <button
+                    onClick={() => handleDeleteVariant(v.id)}
+                    disabled={variants.length <= 1}
+                    className="w-full text-left px-3 py-2 text-[12.5px] hover:bg-red-50 flex items-center gap-2.5 text-red-500 disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    <Icon d={I.trash} size={13} sw={1.8} />
+                    Delete variant
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        })}
+
         <button
           onClick={() => setShowAddVariant(true)}
-          className="flex items-center gap-1.5 px-3 h-7 rounded-lg text-[12.5px] font-medium text-[#0F1F18]/50 hover:text-primary hover:bg-primary/[0.08] border border-dashed border-border hover:border-primary/40 transition shrink-0"
+          className="flex items-center gap-1.5 px-3 h-7 rounded-lg text-[12.5px] font-medium text-[#0F1F18]/50 hover:text-[#1F4D3A] hover:bg-[#1F4D3A]/[0.08] border border-dashed border-[#E5E0D4] hover:border-[#1F4D3A]/40 transition shrink-0"
         >
           <Icon d={I.plus} size={13} sw={2.5} />Add variant
         </button>
