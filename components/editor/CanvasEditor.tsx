@@ -863,16 +863,18 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
 
       {/* ── Variant tab bar ──────────────────────────────── */}
       <div
-        className="h-11 bg-white border-b border-border flex items-center px-4 gap-1 shrink-0 z-10 overflow-x-auto"
+        className="h-11 bg-white border-b border-border flex items-center px-4 gap-1.5 shrink-0"
+        style={{ zIndex: 20, position: 'relative' }}
         onClick={() => setVariantMenuId(null)}
       >
-        <span className="text-[10.5px] font-mono text-[#0F1F18]/40 mr-1.5 shrink-0 tracking-widest">VARIANTS</span>
+        <span className="text-[10.5px] font-mono text-[#0F1F18]/40 mr-1 shrink-0 tracking-widest">VARIANTS</span>
 
         {variants.map(v => {
-          const isActive = v.id === activeVariantId;
+          const isActive   = v.id === activeVariantId;
           const isRenaming = renamingVariantId === v.id;
+          const menuOpen   = variantMenuId === v.id;
           return (
-            <div key={v.id} className="relative group/vtab shrink-0 flex items-center">
+            <div key={v.id} className="relative shrink-0">
               {isRenaming ? (
                 <input
                   autoFocus
@@ -889,64 +891,60 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                   style={{ border: '2px solid #1F4D3A', background: 'white' }}
                 />
               ) : (
-                <button
-                  onClick={() => switchVariant(v.id)}
-                  onDoubleClick={() => { setRenamingVariantId(v.id); setRenameValue(v.variant_name); }}
-                  className={`flex items-center gap-1.5 pl-2.5 pr-7 h-7 rounded-lg text-[12.5px] font-medium transition ${
-                    isActive
-                      ? 'bg-[#1F4D3A] text-white shadow-sm'
-                      : 'text-[#0F1F18]/60 hover:text-[#0F1F18] hover:bg-[#FAF6EE] border border-[#E5E0D4]'
-                  }`}
-                >
-                  <Icon d={I.layers} size={11} sw={2} />
-                  {v.variant_name}
-                </button>
-              )}
-
-              {/* 3-dot menu trigger — always visible on active, hover on inactive */}
-              {!isRenaming && (
-                <button
-                  onClick={e => { e.stopPropagation(); setVariantMenuId(variantMenuId === v.id ? null : v.id); }}
-                  title="Variant options"
-                  className={`absolute right-1 h-5 w-5 rounded grid place-items-center transition
-                    ${isActive
-                      ? 'text-white/70 hover:text-white hover:bg-white/20'
-                      : 'text-[#0F1F18]/40 hover:text-[#0F1F18] hover:bg-[#E5E0D4] opacity-0 group-hover/vtab:opacity-100'
+                /* Split button: [tab label | chevron▾] */
+                <div className="flex items-stretch">
+                  <button
+                    onClick={() => switchVariant(v.id)}
+                    onDoubleClick={() => { setRenamingVariantId(v.id); setRenameValue(v.variant_name); }}
+                    className={`flex items-center gap-1.5 pl-2.5 pr-2 h-7 text-[12.5px] font-medium transition rounded-l-lg ${
+                      isActive
+                        ? 'bg-[#1F4D3A] text-white'
+                        : 'bg-white text-[#0F1F18]/65 hover:text-[#0F1F18] hover:bg-[#FAF6EE] border border-r-0 border-[#E5E0D4]'
                     }`}
-                >
-                  <Icon d={I.more} size={13} sw={2} />
-                </button>
+                  >
+                    <Icon d={I.layers} size={11} sw={2} />
+                    {v.variant_name}
+                  </button>
+                  <button
+                    onClick={e => { e.stopPropagation(); setVariantMenuId(menuOpen ? null : v.id); }}
+                    title="Variant options"
+                    className={`h-7 w-6 flex items-center justify-center rounded-r-lg transition ${
+                      isActive
+                        ? 'bg-[#1F4D3A] text-white/60 hover:bg-[#163828] hover:text-white'
+                        : 'bg-white border border-[#E5E0D4] text-[#0F1F18]/35 hover:text-[#0F1F18] hover:bg-[#FAF6EE]'
+                    }`}
+                  >
+                    <Icon d={I.down} size={10} sw={2.5} />
+                  </button>
+                </div>
               )}
 
-              {/* Dropdown menu */}
-              {variantMenuId === v.id && (
+              {/* Dropdown — rendered outside the scroll container, z-index wins */}
+              {menuOpen && (
                 <div
-                  className="absolute top-full left-0 mt-1 z-50 bg-white rounded-xl shadow-[0_4px_24px_rgba(15,31,24,0.14)] py-1 w-[168px]"
-                  style={{ border: '1px solid #E5E0D4' }}
+                  className="absolute left-0 bg-white rounded-xl py-1 w-44"
+                  style={{ top: 'calc(100% + 4px)', border: '1px solid #E5E0D4', boxShadow: '0 8px 24px rgba(15,31,24,0.14)', zIndex: 200 }}
                   onClick={e => e.stopPropagation()}
                 >
                   <button
                     onClick={() => { setRenamingVariantId(v.id); setRenameValue(v.variant_name); setVariantMenuId(null); }}
-                    className="w-full text-left px-3 py-2 text-[12.5px] hover:bg-[#FAF6EE] flex items-center gap-2.5 text-[#0F1F18]"
+                    className="w-full text-left px-3 py-2 text-[12.5px] text-[#0F1F18] hover:bg-[#FAF6EE] flex items-center gap-2.5 rounded-lg mx-0"
                   >
-                    <Icon d={I.label} size={13} sw={1.8} />
-                    Rename
+                    <Icon d={I.label} size={13} sw={1.8} />Rename
                   </button>
                   <button
                     onClick={() => handleDuplicateVariant(v.id)}
-                    className="w-full text-left px-3 py-2 text-[12.5px] hover:bg-[#FAF6EE] flex items-center gap-2.5 text-[#0F1F18]"
+                    className="w-full text-left px-3 py-2 text-[12.5px] text-[#0F1F18] hover:bg-[#FAF6EE] flex items-center gap-2.5"
                   >
-                    <Icon d={I.dup} size={13} sw={1.8} />
-                    Duplicate
+                    <Icon d={I.dup} size={13} sw={1.8} />Duplicate
                   </button>
-                  <div className="h-px mx-2 my-1" style={{ background: '#E5E0D4' }} />
+                  <div className="h-px mx-3 my-1" style={{ background: '#E5E0D4' }} />
                   <button
                     onClick={() => handleDeleteVariant(v.id)}
                     disabled={variants.length <= 1}
-                    className="w-full text-left px-3 py-2 text-[12.5px] hover:bg-red-50 flex items-center gap-2.5 text-red-500 disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="w-full text-left px-3 py-2 text-[12.5px] text-red-500 hover:bg-red-50 flex items-center gap-2.5 disabled:opacity-30 disabled:cursor-not-allowed"
                   >
-                    <Icon d={I.trash} size={13} sw={1.8} />
-                    Delete variant
+                    <Icon d={I.trash} size={13} sw={1.8} />Delete
                   </button>
                 </div>
               )}
@@ -956,7 +954,10 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
 
         <button
           onClick={() => setShowAddVariant(true)}
-          className="flex items-center gap-1.5 px-3 h-7 rounded-lg text-[12.5px] font-medium text-[#0F1F18]/50 hover:text-[#1F4D3A] hover:bg-[#1F4D3A]/[0.08] border border-dashed border-[#E5E0D4] hover:border-[#1F4D3A]/40 transition shrink-0"
+          className="flex items-center gap-1.5 px-3 h-7 rounded-lg text-[12.5px] font-medium transition shrink-0"
+          style={{ color: '#0F1F18', opacity: 0.5, border: '1px dashed #E5E0D4' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '1'; (e.currentTarget as HTMLElement).style.color = '#1F4D3A'; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '0.5'; (e.currentTarget as HTMLElement).style.color = '#0F1F18'; }}
         >
           <Icon d={I.plus} size={13} sw={2.5} />Add variant
         </button>
