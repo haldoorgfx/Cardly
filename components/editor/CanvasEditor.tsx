@@ -1340,58 +1340,70 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
 
                       {sep}
 
-                      {/* Text align L / C / R */}
-                      <div role="group" aria-label="Text alignment" className="flex items-center gap-px">
-                        {([['left', <AlignLeft key="l" size={13} strokeWidth={1.8} />, 'Align left'], ['center', <AlignCenter key="c" size={13} strokeWidth={1.8} />, 'Align center'], ['right', <AlignRight key="r" size={13} strokeWidth={1.8} />, 'Align right']] as [string, React.ReactNode, string][]).map(([v, icon, label]) => (
-                          <button key={v as string}
-                            aria-label={label as string} aria-pressed={align === v} title={label as string}
+                      {/* Text align — letter labels so L/C/R are instantly readable */}
+                      <div role="group" aria-label="Text alignment" className="flex items-center rounded-lg overflow-hidden shrink-0" style={{ border: '1px solid #E5E0D4' }}>
+                        {([['left', 'L', 'Align left'], ['center', 'C', 'Align center'], ['right', 'R', 'Align right']] as [string, string, string][]).map(([v, letter, label]) => (
+                          <button key={v}
+                            aria-label={label} aria-pressed={align === v} title={label}
                             onClick={() => updateZone(selected.id, { align: v as Zone['align'] })}
-                            className="h-7 w-7 rounded-lg grid place-items-center transition active:scale-95"
-                            style={align === v ? { background: 'rgba(31,77,58,0.1)', color: '#1F4D3A' } : { color: 'rgba(15,31,24,0.5)' }}
-                          >{icon}</button>
+                            className="h-7 w-7 flex items-center justify-center text-[11px] font-bold transition active:scale-95 select-none"
+                            style={align === v
+                              ? { background: '#1F4D3A', color: 'white' }
+                              : { background: 'transparent', color: 'rgba(15,31,24,0.45)' }}
+                          >{letter}</button>
                         ))}
                       </div>
 
                       {sep}
 
-                      {/* Text color */}
-                      <div
-                        role="button"
+                      {/* Text color — "A" with colored underline strip (Word / Figma / Canva standard) */}
+                      <label
                         aria-label={`Text color: ${selected.color ?? '#FFFFFF'}`}
                         title={`Text color: ${selected.color ?? '#FFFFFF'}`}
-                        className="relative h-7 w-7 rounded-lg grid place-items-center hover:bg-[#FAF6EE] transition cursor-pointer shrink-0"
+                        className="relative h-7 w-8 rounded-lg flex flex-col items-center justify-center hover:bg-[#FAF6EE] transition cursor-pointer shrink-0 select-none overflow-hidden gap-[2px]"
                       >
+                        <span className="text-[13px] font-bold leading-none pointer-events-none" style={{ color: '#0F1F18' }}>A</span>
                         <div
-                          className="h-5 w-5 rounded-full border-2 border-white overflow-hidden"
-                          style={{ background: selected.color ?? '#FFFFFF', boxShadow: '0 0 0 1.5px #E5E0D4' }}
-                        >
-                          <input
-                            type="color" value={selected.color ?? '#FFFFFF'}
-                            aria-label="Pick text color"
-                            onChange={e => updateZone(selected.id, { color: e.target.value })}
-                            className="absolute inset-0 opacity-0 cursor-pointer w-8 h-8 -top-1.5 -left-1.5"
-                          />
-                        </div>
-                        {/* Underline bar in same color */}
-                        <div className="absolute bottom-1 left-1.5 right-1.5 h-0.5 rounded-full" style={{ background: selected.color ?? '#FFFFFF', outline: '1px solid rgba(0,0,0,0.1)' }} />
-                      </div>
+                          className="w-5 rounded-sm pointer-events-none"
+                          style={{ height: 3, background: selected.color ?? '#FFFFFF', boxShadow: '0 0 0 0.75px rgba(0,0,0,0.2)' }}
+                        />
+                        <input
+                          type="color" value={selected.color ?? '#FFFFFF'}
+                          aria-label="Pick text color"
+                          onChange={e => updateZone(selected.id, { color: e.target.value })}
+                          className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                          style={{ padding: 0 }}
+                        />
+                      </label>
 
                       {sep}
                     </>
                   )}
 
-                  {/* ── PHOTO shape ── */}
+                  {/* ── PHOTO shape — CSS shape previews so circle/rounded/square are visually obvious ── */}
                   {selected.type === 'photo' && (
                     <>
-                      <div role="group" aria-label="Photo shape" className="flex items-center gap-px">
-                        {([['circle', <Circle key="c" size={13} strokeWidth={1.8} />, 'Circle'], ['rounded', <Square key="r" size={13} strokeWidth={1.8} />, 'Rounded corners'], ['square', <LayoutGrid key="s" size={13} strokeWidth={1.8} />, 'Square']] as [string, React.ReactNode, string][]).map(([v, icon, label]) => (
-                          <button key={v as string}
-                            aria-label={label as string} aria-pressed={(selected.shape ?? 'circle') === v} title={label as string}
-                            onClick={() => updateZone(selected.id, { shape: v as Zone['shape'] })}
-                            className="h-7 w-7 rounded-lg grid place-items-center transition active:scale-95"
-                            style={(selected.shape ?? 'circle') === v ? { background: '#1F4D3A', color: 'white' } : { color: 'rgba(15,31,24,0.55)' }}
-                          >{icon}</button>
-                        ))}
+                      <div role="group" aria-label="Photo shape" className="flex items-center gap-1 shrink-0 rounded-lg overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
+                        {([
+                          ['circle',  '9999px', 'Circle'],
+                          ['rounded', '4px',    'Rounded'],
+                          ['square',  '1px',    'Square'],
+                        ] as [string, string, string][]).map(([v, radius, label]) => {
+                          const active = (selected.shape ?? 'circle') === v;
+                          return (
+                            <button key={v}
+                              aria-label={label} aria-pressed={active} title={label}
+                              onClick={() => updateZone(selected.id, { shape: v as Zone['shape'] })}
+                              className="h-7 w-9 flex items-center justify-center transition active:scale-95"
+                              style={active ? { background: '#1F4D3A' } : { background: 'transparent' }}
+                            >
+                              <div style={{
+                                width: 14, height: 14, borderRadius: radius,
+                                border: `2px solid ${active ? 'white' : 'rgba(15,31,24,0.4)'}`,
+                              }} />
+                            </button>
+                          );
+                        })}
                       </div>
                       {sep}
                     </>
