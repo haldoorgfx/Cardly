@@ -109,7 +109,7 @@ export default function AttendeeClient({
   const [croppedAreaPx, setCroppedAreaPx] = useState<Area | null>(null);
 
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
-  const sheetInputRef = useRef<HTMLInputElement | null>(null);
+  const sheetInputRef = useRef<HTMLTextAreaElement | null>(null);
   const cardRef       = useRef<HTMLDivElement>(null);
   const [previewW, setPreviewW]               = useState(375);
   const [measuredHeights, setMeasuredHeights] = useState<Record<string, number>>({});
@@ -500,51 +500,79 @@ export default function AttendeeClient({
         onClick={e=>{e.stopPropagation(); setActiveZoneId(z.id);}}>
 
         {isFilled ? (
-          /* Filled — show real text, active gets gold ring */
+          /* ── Filled: real text + subtle active ring ── */
           <div style={{
             position:'relative',
-            borderRadius:6,
-            outline:isActive?'2.5px solid rgba(232,197,126,0.95)':'none',
-            outlineOffset:'4px',
+            outline: isActive ? '2px solid rgba(232,197,126,0.9)' : 'none',
+            outlineOffset: '3px',
+            borderRadius: 4,
           }}>
+            {/* field label tag above the text — only visible when active */}
+            {isActive && z.label && (
+              <div style={{
+                position:'absolute', bottom:'100%', left:0,
+                marginBottom: Math.max(2, 3*scale),
+                background:'rgba(232,197,126,0.95)',
+                borderRadius: Math.max(3, 4*scale),
+                padding:`${Math.max(1,2*scale)}px ${Math.max(3,5*scale)}px`,
+                whiteSpace:'nowrap',
+                pointerEvents:'none',
+              }}>
+                <span style={{fontSize:Math.max(8,10*scale),fontWeight:700,color:'#0F1F18',fontFamily:'Inter,sans-serif',letterSpacing:'0.01em'}}>
+                  {z.label}
+                </span>
+              </div>
+            )}
             <span style={textStyle}>{typed}</span>
           </div>
         ) : (
-          /* Empty — beautiful frosted glass placeholder */
+          /* ── Empty: frosted pill showing label + pencil ── */
           <div style={{
             borderRadius: Math.max(6, 8*scale),
-            background: isActive ? 'rgba(232,197,126,0.18)' : 'rgba(255,255,255,0.13)',
-            backdropFilter:'blur(10px)',
-            WebkitBackdropFilter:'blur(10px)',
+            background: isActive ? 'rgba(232,197,126,0.15)' : 'rgba(15,31,24,0.55)',
+            backdropFilter:'blur(12px)',
+            WebkitBackdropFilter:'blur(12px)',
             border: isActive
               ? '2px solid rgba(232,197,126,0.85)'
-              : '1.5px solid rgba(255,255,255,0.28)',
-            padding:`${Math.max(4,6*scale)}px ${Math.max(8,10*scale)}px`,
-            display:'flex', alignItems:'center', justifyContent:'space-between', gap:4,
-            transition:'all 0.2s ease',
-            boxShadow: isActive ? '0 0 0 4px rgba(232,197,126,0.15)' : '0 2px 8px rgba(0,0,0,0.08)',
+              : '1.5px solid rgba(255,255,255,0.22)',
+            padding:`${Math.max(5,7*scale)}px ${Math.max(8,11*scale)}px`,
+            display:'flex', flexDirection:'column', gap: Math.max(2, 3*scale),
+            transition:'all 0.18s ease',
+            boxShadow: isActive ? '0 0 0 3px rgba(232,197,126,0.12)' : '0 1px 6px rgba(0,0,0,0.18)',
           }}>
+            {/* Field label title — always visible so attendee knows what to fill */}
+            <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:4}}>
+              <span style={{
+                fontSize: Math.max(8, 10*scale),
+                fontWeight: 700,
+                fontFamily: 'Inter, sans-serif',
+                letterSpacing: '0.03em',
+                color: isActive ? 'rgba(232,197,126,1)' : 'rgba(255,255,255,0.5)',
+                textTransform:'uppercase',
+              }}>
+                {z.label || 'Text'}{z.required ? ' *' : ''}
+              </span>
+              <div style={{
+                background: isActive ? 'rgba(232,197,126,0.85)' : 'rgba(255,255,255,0.18)',
+                borderRadius:'50%',
+                width: Math.max(16, 18*scale),
+                height: Math.max(16, 18*scale),
+                display:'flex', alignItems:'center', justifyContent:'center',
+                flexShrink:0,
+              }}>
+                <Pencil color={isActive?'#0F1F18':'rgba(255,255,255,0.85)'} strokeWidth={2.2}
+                  style={{width:Math.max(7,9*scale),height:'auto'}}/>
+              </div>
+            </div>
+            {/* Placeholder hint */}
             <span style={{
               ...textStyle,
-              opacity: 0.55,
+              fontSize: Math.max(9, (z.size??32)*scale*0.7),
+              opacity: 0.4,
               overflow:'hidden',
               whiteSpace:'nowrap',
               textOverflow:'ellipsis',
-              flex:1,
-            }}>{ghost||'Tap to edit'}</span>
-            {/* Pencil badge */}
-            <div style={{
-              background: isActive ? 'rgba(232,197,126,0.9)' : 'rgba(255,255,255,0.25)',
-              borderRadius:'50%',
-              width: Math.max(18, 20*scale),
-              height: Math.max(18, 20*scale),
-              display:'flex', alignItems:'center', justifyContent:'center',
-              flexShrink:0,
-              transition:'background 0.2s ease',
-            }}>
-              <Pencil color={isActive?'#0F1F18':'rgba(255,255,255,0.9)'} strokeWidth={2}
-                style={{width:Math.max(8,10*scale),height:'auto'}}/>
-            </div>
+            }}>{ghost || (isActive ? 'Start typing…' : 'Tap to fill')}</span>
           </div>
         )}
       </div>
@@ -590,6 +618,30 @@ export default function AttendeeClient({
             })}
           </div>
         </div>
+
+        {/* Field chips — horizontal scroll, one per editable zone */}
+        {editableFields.length > 0 && (
+          <div className="flex items-center gap-2 px-3 pb-1 overflow-x-auto shrink-0" style={{scrollbarWidth:'none'}}>
+            {editableFields.map((f, i) => {
+              const filled = f.type==='photo' ? !!photoFiles[f.id] : !!values[f.id]?.trim();
+              const isAct  = activeZoneId===f.id;
+              return (
+                <button key={f.id} onClick={e=>{e.stopPropagation(); setActiveZoneId(f.id);}}
+                  className="shrink-0 flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-medium transition-all"
+                  style={{
+                    background: isAct  ? '#E8C57E' : filled ? 'rgba(45,122,79,0.35)' : 'rgba(255,255,255,0.1)',
+                    color:      isAct  ? '#0F1F18' : filled ? '#5DD08A'               : 'rgba(255,255,255,0.6)',
+                    border:     isAct  ? 'none'    : filled ? '1px solid rgba(45,122,79,0.5)' : '1px solid rgba(255,255,255,0.14)',
+                    boxShadow:  isAct  ? '0 2px 8px rgba(232,197,126,0.3)' : 'none',
+                  }}>
+                  {filled && <Check size={10} strokeWidth={2.8}/>}
+                  {f.required && !filled && <span style={{color:'rgba(232,197,126,0.7)',fontSize:10}}>·</span>}
+                  {f.label || `Field ${i+1}`}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         {/* Card — fills available space */}
         <div className="flex-1 px-3 pb-2 flex items-center" onClick={e=>e.stopPropagation()}>
@@ -649,15 +701,32 @@ export default function AttendeeClient({
             <div className="px-5 pb-8 pt-2">
               {activeZone && (
                 <>
-                  {/* Field label + close */}
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <span className="text-[10.5px] font-mono tracking-widest" style={{color:'rgba(255,255,255,0.4)'}}>
-                        {(activeZone.label?.toUpperCase()||'FIELD')}{activeZone.required&&<span style={{color:'#E8C57E'}}> *</span>}
-                      </span>
+                  {/* Field header: title + nav */}
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    {/* Label + hint */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="text-[18px] font-bold text-white leading-tight truncate">
+                          {activeZone.label || 'Enter text'}
+                        </h3>
+                        {activeZone.required && (
+                          <span className="shrink-0 text-[9px] font-mono tracking-wider px-1.5 py-0.5 rounded-md"
+                            style={{background:'rgba(232,197,126,0.15)', color:'#E8C57E', border:'1px solid rgba(232,197,126,0.25)'}}>
+                            REQUIRED
+                          </span>
+                        )}
+                      </div>
+                      {activeZone.placeholder && (
+                        <p className="text-[12px] mt-0.5 leading-snug" style={{color:'rgba(255,255,255,0.38)'}}>
+                          {activeZone.placeholder}
+                        </p>
+                      )}
                     </div>
-                    <div className="flex items-center gap-2">
-                      {/* Prev */}
+                    {/* Nav controls */}
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span className="text-[10px] font-mono" style={{color:'rgba(255,255,255,0.25)'}}>
+                        {activeFieldIdx+1}/{editableFields.length}
+                      </span>
                       {hasPrev && (
                         <button onClick={()=>setActiveZoneId(editableFields[activeFieldIdx-1].id)}
                           className="h-8 w-8 rounded-xl grid place-items-center transition"
@@ -665,7 +734,6 @@ export default function AttendeeClient({
                           <ChevronLeft size={14} color="rgba(255,255,255,0.7)" strokeWidth={2.5}/>
                         </button>
                       )}
-                      {/* Next */}
                       {hasNext && (
                         <button onClick={()=>setActiveZoneId(editableFields[activeFieldIdx+1].id)}
                           className="h-8 px-3 rounded-xl flex items-center gap-1 text-[12px] font-semibold transition"
@@ -673,7 +741,6 @@ export default function AttendeeClient({
                           Next<ChevronRight size={13} strokeWidth={2.5}/>
                         </button>
                       )}
-                      {/* Close / Done */}
                       <button onClick={()=>setActiveZoneId(null)}
                         className="h-8 w-8 rounded-xl grid place-items-center transition"
                         style={{background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.12)'}}>
@@ -736,21 +803,47 @@ export default function AttendeeClient({
                         {(activeZone.options as string[]).map(o=><option key={o} value={o} style={{background:'#0F1F18'}}>{o}</option>)}
                       </select>
                     ) : (
-                      <input
-                        ref={sheetInputRef}
-                        type="text"
-                        value={values[activeZone.id]??''}
-                        onChange={e=>setValues(v=>({...v,[activeZone.id]:e.target.value}))}
-                        onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();if(hasNext)setActiveZoneId(editableFields[activeFieldIdx+1].id);else setActiveZoneId(null);}}}
-                        placeholder={activeZone.placeholder||`Enter ${activeZone.label||'text'}…`}
-                        className="w-full h-12 px-4 rounded-xl text-[15px] text-white placeholder-white/30 outline-none transition"
-                        style={{
-                          background:'rgba(255,255,255,0.08)',
-                          border:'1.5px solid rgba(232,197,126,0.5)',
-                          boxShadow:'0 0 0 3px rgba(232,197,126,0.1)',
-                          caretColor:'#E8C57E',
-                        }}
-                      />
+                      <div>
+                        <textarea
+                          ref={sheetInputRef}
+                          value={values[activeZone.id]??''}
+                          onChange={e=>{
+                            const raw = e.target.value;
+                            const val = activeZone.maxChars ? raw.slice(0, activeZone.maxChars) : raw;
+                            setValues(v=>({...v,[activeZone.id]:val}));
+                          }}
+                          onKeyDown={e=>{
+                            if(e.key==='Enter'&&!e.shiftKey){
+                              e.preventDefault();
+                              if(hasNext) setActiveZoneId(editableFields[activeFieldIdx+1].id);
+                              else setActiveZoneId(null);
+                            }
+                          }}
+                          placeholder={activeZone.placeholder||`Enter ${activeZone.label||'text'}…`}
+                          rows={2}
+                          className="w-full px-4 py-3 rounded-xl text-[15px] text-white placeholder-white/30 outline-none resize-none transition"
+                          style={{
+                            background:'rgba(255,255,255,0.08)',
+                            border:'1.5px solid rgba(232,197,126,0.5)',
+                            boxShadow:'0 0 0 3px rgba(232,197,126,0.1)',
+                            caretColor:'#E8C57E',
+                            lineHeight:'1.5',
+                          }}
+                        />
+                        {activeZone.maxChars && (
+                          <div className="flex justify-end mt-1">
+                            <span className="text-[10.5px] font-mono transition-colors" style={{
+                              color: (values[activeZone.id]?.length??0) >= activeZone.maxChars
+                                ? '#E57373'
+                                : (values[activeZone.id]?.length??0) >= activeZone.maxChars * 0.8
+                                  ? '#E8C57E'
+                                  : 'rgba(255,255,255,0.28)',
+                            }}>
+                              {values[activeZone.id]?.length??0}/{activeZone.maxChars}
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     )
                   )}
 
@@ -798,9 +891,12 @@ export default function AttendeeClient({
                 {zones.filter(z=>z.type==='photo').map((z,i,arr)=>(
                   <div key={z.id} className={`p-5 ${i<arr.length-1||textZones.length>0?'border-b border-[#E5E0D4]':''}`}>
                     <div className="flex items-center justify-between mb-3">
-                      <label className="text-[11px] font-mono text-[#6B7A72] tracking-widest">
-                        {(z.label?.toUpperCase()||'PHOTO')}{z.required&&<span className="text-[#C97A2D] ml-0.5">*</span>}
-                      </label>
+                      <div>
+                        <label className="block text-[13.5px] font-semibold text-[#0F1F18]">
+                          {z.label||'Photo'}{z.required&&<span className="text-[#C97A2D] ml-0.5">*</span>}
+                        </label>
+                        {z.placeholder&&<p className="text-[11.5px] text-[#6B7A72] mt-0.5">{z.placeholder}</p>}
+                      </div>
                       {photoUrls[z.id]&&<button onClick={()=>fileInputRefs.current[z.id]?.click()} className="text-[11.5px] text-[#1F4D3A] font-medium hover:underline flex items-center gap-1"><Pencil size={11} strokeWidth={2}/>Change</button>}
                     </div>
                     {photoUrls[z.id]?(
@@ -830,12 +926,16 @@ export default function AttendeeClient({
                 ))}
                 {textZones.map((z,i,arr)=>(
                   <div key={z.id} className={`p-5 ${i<arr.length-1?'border-b border-[#E5E0D4]':''}`}>
-                    <label className="block text-[11px] font-mono text-[#6B7A72] tracking-widest mb-2">
-                      {(z.label||'TEXT').toUpperCase()}{z.required&&<span className="text-[#C97A2D] ml-0.5">*</span>}
-                    </label>
+                    {/* Field label */}
+                    <div className="mb-2">
+                      <label className="block text-[13.5px] font-semibold text-[#0F1F18]">
+                        {z.label||'Text'}{z.required&&<span className="text-[#C97A2D] ml-0.5">*</span>}
+                      </label>
+                      {z.placeholder&&<p className="text-[11.5px] text-[#6B7A72] mt-0.5">{z.placeholder}</p>}
+                    </div>
                     {z.type==='custom'&&z.options?(
                       <select value={values[z.id]??''} onChange={e=>setValues(v=>({...v,[z.id]:e.target.value}))}
-                        className="w-full h-11 px-4 rounded-xl text-[14px] outline-none appearance-none"
+                        className="w-full h-11 px-4 rounded-xl text-[14px] outline-none appearance-none transition"
                         style={{background:'#FAF6EE',border:'1.5px solid #E5E0D4',color:values[z.id]?'#0F1F18':'#6B7A72'}}
                         onFocus={e=>{e.currentTarget.style.borderColor='#1F4D3A';e.currentTarget.style.boxShadow='0 0 0 3px rgba(31,77,58,0.1)';e.currentTarget.style.background='#fff';}}
                         onBlur={e=>{e.currentTarget.style.borderColor='#E5E0D4';e.currentTarget.style.boxShadow='none';e.currentTarget.style.background='#FAF6EE';}}>
@@ -843,12 +943,32 @@ export default function AttendeeClient({
                         {(z.options as string[]).map(o=><option key={o} value={o}>{o}</option>)}
                       </select>
                     ):(
-                      <input type="text" value={values[z.id]??''} onChange={e=>setValues(v=>({...v,[z.id]:e.target.value}))}
-                        placeholder={z.placeholder||`Enter ${z.label||'text'}…`}
-                        className="w-full h-11 px-4 rounded-xl text-[14px] text-[#0F1F18] placeholder-[#6B7A72]/50 outline-none transition"
-                        style={{background:'#FAF6EE',border:'1.5px solid #E5E0D4'}}
-                        onFocus={e=>{e.currentTarget.style.borderColor='#1F4D3A';e.currentTarget.style.boxShadow='0 0 0 3px rgba(31,77,58,0.1)';e.currentTarget.style.background='#fff';}}
-                        onBlur={e=>{e.currentTarget.style.borderColor='#E5E0D4';e.currentTarget.style.boxShadow='none';e.currentTarget.style.background='#FAF6EE';}}/>
+                      <div>
+                        <textarea
+                          value={values[z.id]??''}
+                          onChange={e=>{
+                            const raw=e.target.value;
+                            const val=z.maxChars?raw.slice(0,z.maxChars):raw;
+                            setValues(v=>({...v,[z.id]:val}));
+                          }}
+                          placeholder={z.placeholder||`Enter ${z.label||'text'}…`}
+                          rows={2}
+                          className="w-full px-4 py-2.5 rounded-xl text-[14px] text-[#0F1F18] placeholder-[#6B7A72]/50 outline-none resize-none transition"
+                          style={{background:'#FAF6EE',border:'1.5px solid #E5E0D4',lineHeight:'1.5'}}
+                          onFocus={e=>{e.currentTarget.style.borderColor='#1F4D3A';e.currentTarget.style.boxShadow='0 0 0 3px rgba(31,77,58,0.1)';e.currentTarget.style.background='#fff';}}
+                          onBlur={e=>{e.currentTarget.style.borderColor='#E5E0D4';e.currentTarget.style.boxShadow='none';e.currentTarget.style.background='#FAF6EE';}}
+                        />
+                        {z.maxChars&&(
+                          <div className="flex justify-end mt-1">
+                            <span className="text-[10.5px] font-mono" style={{
+                              color:(values[z.id]?.length??0)>=z.maxChars?'#B8423C'
+                                :(values[z.id]?.length??0)>=z.maxChars*0.8?'#C97A2D':'#6B7A72',
+                            }}>
+                              {values[z.id]?.length??0}/{z.maxChars}
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     )}
                   </div>
                 ))}
@@ -913,8 +1033,9 @@ export default function AttendeeClient({
                   }
                   const typed=values[z.id]??''; const ghost=z.sample||z.placeholder||z.label||'';
                   const jc=z.verticalAlign==='bottom'?'flex-end':z.verticalAlign==='center'?'center':'flex-start';
-                  const ts: CSSProperties={display:'block',fontFamily:z.font,fontWeight:z.weight,fontSize:`${(z.size??32)*scale}px`,color:z.color??'#FFFFFF',lineHeight:z.lineHeight??1.2,textAlign:z.align,letterSpacing:z.letterSpacing?`${z.letterSpacing*scale}px`:undefined,textTransform:z.textTransform as 'none'|'uppercase'|'lowercase'|undefined,wordBreak:'break-word',opacity:typed?1:0.45};
-                  return <div key={z.id} className="absolute overflow-hidden pointer-events-none" style={{left:`${left}%`,top:`${top}%`,width:`${width}%`,minHeight:`${height}%`,display:'flex',flexDirection:'column',justifyContent:jc}}><span style={ts}>{typed||ghost}</span></div>;
+                  const ts: CSSProperties={display:'block',fontFamily:z.font,fontWeight:z.weight,fontSize:`${(z.size??32)*scale}px`,color:z.color??'#FFFFFF',lineHeight:z.lineHeight??1.2,textAlign:z.align,letterSpacing:z.letterSpacing?`${z.letterSpacing*scale}px`:undefined,textTransform:z.textTransform as 'none'|'uppercase'|'lowercase'|undefined,wordBreak:'break-word',opacity:typed?1:0.38};
+                  /* no overflow-hidden so text can grow and push zones below */
+                  return <div key={z.id} className="absolute pointer-events-none" style={{left:`${left}%`,top:`${top}%`,width:`${width}%`,minHeight:`${height}%`,display:'flex',flexDirection:'column',justifyContent:jc}}><span style={ts}>{typed||ghost}</span></div>;
                 })}
               </div>
               <div className="mt-2.5 flex items-center justify-center gap-1.5 text-[10.5px] font-mono text-[#6B7A72]/60">

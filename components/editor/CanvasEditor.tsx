@@ -1884,11 +1884,18 @@ function RightRail({
           </>
         ) : selected.type === 'shape' ? null : (
           <>
+            {/* Field setup guide */}
+            <div className="rounded-lg px-2.5 py-2 text-[10.5px] leading-relaxed space-y-0.5" style={{background:'rgba(31,77,58,0.07)',border:'1px solid rgba(31,77,58,0.15)'}}>
+              <div className="font-semibold text-primary text-[10px] uppercase tracking-wide mb-1">Attendee sees:</div>
+              <div className="text-ink-soft"><span className="font-mono text-primary">Label</span> → field title in the form</div>
+              <div className="text-ink-soft"><span className="font-mono text-primary">Placeholder</span> → hint below the title</div>
+              <div className="text-ink-soft"><span className="font-mono text-primary">Preview text</span> → sample shown on card</div>
+            </div>
             <PropRow label="Placeholder">
-              <input value={selected.placeholder ?? ''} onChange={e => upd({ placeholder: e.target.value })} className="prop-input" placeholder="Shown in the form" />
+              <input value={selected.placeholder ?? ''} onChange={e => upd({ placeholder: e.target.value })} className="prop-input" placeholder="e.g. Enter your full name" />
             </PropRow>
             <PropRow label="Preview text">
-              <input value={selected.sample ?? ''} onChange={e => upd({ sample: e.target.value })} className="prop-input" placeholder="Live preview value" />
+              <input value={selected.sample ?? ''} onChange={e => upd({ sample: e.target.value })} className="prop-input" placeholder="e.g. Mohamed Ali" />
             </PropRow>
             <PropToggle label="Required" value={!!selected.required} onChange={v => upd({ required: v })} />
             {(selected.type === 'text' || selected.type === 'custom') && (
