@@ -2192,16 +2192,16 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, onPointerDown, onH
       /* Photo skeleton — grey shape + person silhouette (head + shoulders) */
       const w = zone.w, h = zone.h;
       const dim = Math.min(w, h);
+      // Shift silhouette up by 10% so label has breathing room at bottom
       const headR   = dim * 0.2;
       const headCx  = w / 2;
-      const headCy  = h * 0.34;
+      const headCy  = h * 0.3;
       const shRx    = dim * 0.34;
       const shRy    = dim * 0.24;
-      const shCy    = h * 0.72;
+      const shCy    = h * 0.62;
       const labelSz = Math.max(9, dim * 0.08);
       const col     = 'rgba(107,122,114,0.42)';
       const colBg   = 'rgba(107,122,114,0.13)';
-      // Clip path id must be unique per zone
       const clipId  = `photo-clip-${zone.id}`;
       const bw      = zone.photoBorderWidth ?? 0;
       const bCol    = zone.photoBorderColor ?? '#ffffff';
@@ -2233,26 +2233,14 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, onPointerDown, onH
               {/* Shoulders — bottom half of ellipse fills downward */}
               <ellipse cx={w / 2} cy={shCy} rx={shRx} ry={shRy} fill={col} opacity="0.8" />
 
-              {/* Upload arrow + label in the lower-center visible area */}
-              <g transform={`translate(${w / 2}, ${h * 0.53})`}>
-                {/* Camera icon */}
-                <rect x={-dim * 0.1} y={-dim * 0.075} width={dim * 0.2} height={dim * 0.15}
-                  rx={dim * 0.025} fill="none" stroke="rgba(107,122,114,0.55)" strokeWidth={dim * 0.025} />
-                <circle cx={0} cy={0} r={dim * 0.042} fill="rgba(107,122,114,0.55)" />
-                <polygon
-                  points={`${-dim*0.025},${-dim*0.1} ${dim*0.025},${-dim*0.1} 0,${-dim*0.125}`}
-                  fill="rgba(107,122,114,0.45)"
-                />
-              </g>
-
-              {/* "Upload photo" label at bottom */}
+              {/* "Upload photo" label — always editor copy, not zone.placeholder */}
               <text
-                x={w / 2} y={h - Math.max(5, h * 0.06)}
+                x={w / 2} y={h - Math.max(6, h * 0.07)}
                 textAnchor="middle"
                 fill="rgba(107,122,114,0.65)"
                 fontSize={labelSz}
                 fontFamily="Inter, sans-serif" fontWeight="500"
-              >{zone.placeholder || 'Upload photo'}</text>
+              >Upload photo</text>
             </g>
 
             {/* Border ring on top (if set) */}

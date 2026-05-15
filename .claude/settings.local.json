@@ -16,7 +16,11 @@
       "PowerShell($content = Get-Content \"C:\\\\Users\\\\Abdillahi Ch\\\\Projects\\\\Cardly\\\\components\\\\editor\\\\CanvasEditor.tsx\" -Raw -Encoding UTF8; $allDiv = \\([regex]::Matches\\($content, '<div[\\\\s>]'\\)\\).Count + \\([regex]::Matches\\($content, '<div$', 'Multiline'\\)\\).Count; Write-Host \"Total <div \\(all types\\): $allDiv\"; \\([regex]::Matches\\($content, '<div[\\\\s>]'\\)\\).Count, \\([regex]::Matches\\($content, '<div$', 'Multiline'\\)\\).Count | ForEach-Object -Begin {$t=@\\('<div[\\\\s>]','<div EOL'\\)} -Process {Write-Host \\(\" {0}: {1}\" -f $t[$i++],$_\\)})",
       "PowerShell($lines = Get-Content \"C:\\\\Users\\\\Abdillahi Ch\\\\Projects\\\\Cardly\\\\components\\\\editor\\\\CanvasEditor.tsx\" -Encoding UTF8; $i = 730; foreach \\($line in $lines[730..870]\\) { $i++; if \\($line -match '<div[\\\\s>]' -or $line -match '<div$'\\) { Write-Host \"L$i : $\\($line.Trim\\(\\)\\)\" } })",
       "Bash(pnpm build *)",
-      "Bash(pnpm dev *)"
+      "Bash(pnpm dev *)",
+      "Bash(git pull *)",
+      "Bash(git -C \"C:/Users/cabda/cardly\" add \"app/\\(app\\)/settings/SettingsClient.tsx\")",
+      "Bash(git -C \"C:/Users/cabda/cardly\" status)",
+      "Bash(npx kill-port *)"
     ]
   }
 }
