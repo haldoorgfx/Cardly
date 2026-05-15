@@ -191,7 +191,9 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
   const [uploadingImage, setUploadingImage] = useState(false);
   const [spaceDown, setSpaceDown] = useState(false);
   const [floatBarPos, setFloatBarPos] = useState<{ left: number; top: number } | null>(null);
+  const [toolbarOffset, setToolbarOffset] = useState({ dx: 0, dy: 0 });
   const stageContainerRef = useRef<HTMLDivElement>(null);
+  const toolbarDragRef    = useRef<{ sx: number; sy: number; odx: number; ody: number } | null>(null);
 
   /* history */
   const [history, setHistory] = useState<HistoryState>({ past: [], future: [] });
@@ -236,6 +238,9 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
     el?.addEventListener('scroll', recalc, { passive: true });
     return () => el?.removeEventListener('scroll', recalc);
   }, [selected, zoom, previewMode]);
+
+  /* reset drag offset when selection changes */
+  useEffect(() => { setToolbarOffset({ dx: 0, dy: 0 }); }, [selected?.id]);
 
   /* ── variant helpers ─────────────────────────────────── */
   const switchVariant = useCallback((id: string) => {
@@ -1260,175 +1265,280 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
           </div>
           </div>
 
-          {/* ── Floating context toolbar — viewport-anchored, always readable ── */}
-          {floatBarPos && selected && !previewMode && (
-            <div
-              className="absolute z-30 pointer-events-none"
-              style={{
-                left: Math.max(8, Math.min(floatBarPos.left, (stageContainerRef.current?.offsetWidth ?? 9999) - 8)),
-                top: Math.max(8, floatBarPos.top),
-                transform: 'translateX(-50%)',
-              }}
-            >
+          {/* ── Floating context toolbar — draggable, viewport-anchored ── */}
+          {floatBarPos && selected && !previewMode && (() => {
+            const finalLeft = floatBarPos.left + toolbarOffset.dx;
+            const finalTop  = Math.max(8, floatBarPos.top  + toolbarOffset.dy);
+            const isBold    = (selected.weight ?? 400) >= 700;
+            const align     = selected.align ?? 'center';
+            const opacity   = selected.opacity ?? 100;
+            const isText    = selected.type === 'text' || selected.type === 'label' || selected.type === 'custom';
+            const sep       = <span className="h-5 w-px shrink-0" style={{ background: '#E5E0D4', margin: '0 3px' }} />;
+            return (
               <div
-                className="pointer-events-auto flex items-center bg-white rounded-2xl shadow-lift"
-                style={{ border: '1px solid #E5E0D4', padding: '4px 8px', gap: 2, whiteSpace: 'nowrap' }}
+                role="toolbar"
+                aria-label={`Format ${selected.label}`}
+                className="absolute z-30"
+                style={{
+                  left: finalLeft,
+                  top: finalTop,
+                  transform: toolbarOffset.dx === 0 ? 'translateX(-50%)' : 'none',
+                  filter: 'drop-shadow(0 8px 24px rgba(15,31,24,0.14)) drop-shadow(0 2px 4px rgba(15,31,24,0.08))',
+                }}
                 onClick={e => e.stopPropagation()}
                 onPointerDown={e => e.stopPropagation()}
               >
-
-                {/* ── TEXT / LABEL / CUSTOM ── */}
-                {(selected.type === 'text' || selected.type === 'label' || selected.type === 'custom') && (
-                  <>
-                    {/* Font */}
-                    <select
-                      value={selected.font ?? 'DM Sans'}
-                      onChange={e => updateZone(selected.id, { font: e.target.value })}
-                      title="Font family"
-                      className="h-7 pl-2 pr-0.5 rounded-lg text-[11.5px] font-medium outline-none hover:bg-[#FAF6EE] cursor-pointer transition"
-                      style={{ maxWidth: 108, background: 'transparent', border: 'none', color: '#0F1F18' }}
-                    >
-                      {FONTS.map(f => <option key={f} value={f}>{f}</option>)}
-                    </select>
-
-                    <span className="h-5 w-px mx-1" style={{ background: '#E5E0D4' }} />
-
-                    {/* Size − N + */}
-                    <div className="flex items-center rounded-lg overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
-                      <button title="Decrease size" onClick={() => updateZone(selected.id, { size: Math.max(8, (selected.size ?? 32) - 2) })}
-                        className="h-7 w-6 flex items-center justify-center hover:bg-[#FAF6EE] text-[#0F1F18]/60 hover:text-[#1F4D3A] transition text-[15px] font-light select-none">−</button>
-                      <input
-                        type="number" min="8" max="400"
-                        value={selected.size ?? 32}
-                        onChange={e => { const v = Number(e.target.value); if (v >= 8) updateZone(selected.id, { size: v }); }}
-                        className="h-7 w-9 text-center text-[11px] font-mono outline-none"
-                        style={{ background: '#FAF6EE', border: 'none', color: '#0F1F18' }}
-                      />
-                      <button title="Increase size" onClick={() => updateZone(selected.id, { size: Math.min(400, (selected.size ?? 32) + 2) })}
-                        className="h-7 w-6 flex items-center justify-center hover:bg-[#FAF6EE] text-[#0F1F18]/60 hover:text-[#1F4D3A] transition text-[15px] font-light select-none">+</button>
-                    </div>
-
-                    <span className="h-5 w-px mx-1" style={{ background: '#E5E0D4' }} />
-
-                    {/* Bold */}
-                    <button
-                      title="Bold"
-                      onClick={() => updateZone(selected.id, { weight: (selected.weight ?? 400) >= 700 ? 400 : 700 })}
-                      className="h-7 w-7 rounded-lg grid place-items-center text-[13px] font-bold transition select-none"
-                      style={(selected.weight ?? 400) >= 700
-                        ? { background: '#1F4D3A', color: 'white' }
-                        : { color: '#0F1F18', opacity: 0.6 }}
-                    >B</button>
-
-                    <span className="h-5 w-px mx-1" style={{ background: '#E5E0D4' }} />
-
-                    {/* Text align L / C / R */}
-                    {([['left', I.al], ['center', I.ac], ['right', I.ar]] as [string, string][]).map(([v, icon]) => (
-                      <button key={v} title={`Align ${v}`}
-                        onClick={() => updateZone(selected.id, { align: v as Zone['align'] })}
-                        className="h-7 w-7 rounded-lg grid place-items-center transition"
-                        style={(selected.align ?? 'center') === v
-                          ? { background: 'rgba(31,77,58,0.1)', color: '#1F4D3A' }
-                          : { color: 'rgba(15,31,24,0.5)' }}
-                      ><Icon d={icon} size={13} /></button>
-                    ))}
-
-                    <span className="h-5 w-px mx-1" style={{ background: '#E5E0D4' }} />
-
-                    {/* Text color swatch */}
-                    <div title="Text color" className="relative h-7 w-7 rounded-lg grid place-items-center hover:bg-[#FAF6EE] transition cursor-pointer">
-                      <div className="h-4 w-4 rounded-full border-2 border-white shadow-sm overflow-hidden" style={{ background: selected.color ?? '#FFFFFF', boxShadow: '0 0 0 1.5px #E5E0D4' }}>
-                        <input type="color" value={selected.color ?? '#FFFFFF'}
-                          onChange={e => updateZone(selected.id, { color: e.target.value })}
-                          className="absolute inset-0 opacity-0 cursor-pointer w-8 h-8 -top-2 -left-2" />
-                      </div>
-                    </div>
-
-                    <span className="h-5 w-px mx-1" style={{ background: '#E5E0D4' }} />
-                  </>
-                )}
-
-                {/* ── PHOTO ── */}
-                {selected.type === 'photo' && (
-                  <>
-                    {([
-                      ['circle',  I.shOval, 'Circle'],
-                      ['rounded', I.shRect, 'Rounded'],
-                      ['square',  I.border, 'Square'],
-                    ] as [string, string, string][]).map(([v, icon, label]) => (
-                      <button key={v} title={label}
-                        onClick={() => updateZone(selected.id, { shape: v as Zone['shape'] })}
-                        className="h-7 w-7 rounded-lg grid place-items-center transition"
-                        style={(selected.shape ?? 'circle') === v
-                          ? { background: '#1F4D3A', color: 'white' }
-                          : { color: 'rgba(15,31,24,0.55)' }}
-                      ><Icon d={icon} size={13} /></button>
-                    ))}
-                    <span className="h-5 w-px mx-1" style={{ background: '#E5E0D4' }} />
-                  </>
-                )}
-
-                {/* ── SHAPE ── */}
-                {selected.type === 'shape' && (
-                  <>
-                    <div title="Fill color" className="relative h-7 w-7 rounded-lg grid place-items-center hover:bg-[#FAF6EE] transition cursor-pointer mx-0.5">
-                      <div className="h-4 w-4 rounded border-2 border-white overflow-hidden" style={{ background: selected.bgColor ?? '#1F4D3A', boxShadow: '0 0 0 1.5px #E5E0D4' }}>
-                        <input type="color" value={selected.bgColor ?? '#1F4D3A'}
-                          onChange={e => updateZone(selected.id, { bgColor: e.target.value })}
-                          className="absolute inset-0 opacity-0 cursor-pointer w-8 h-8 -top-2 -left-2" />
-                      </div>
-                    </div>
-                    <span className="h-5 w-px mx-1" style={{ background: '#E5E0D4' }} />
-                  </>
-                )}
-
-                {/* ── Opacity (all zones) ── */}
-                <div className="flex items-center gap-1.5 px-1">
-                  <span className="text-[10px] font-mono w-7 text-right select-none" style={{ color: 'rgba(15,31,24,0.45)' }}>{selected.opacity ?? 100}%</span>
-                  <input type="range" min="10" max="100" value={selected.opacity ?? 100}
-                    onChange={e => updateZone(selected.id, { opacity: Number(e.target.value) })}
-                    className="w-14 accent-primary cursor-pointer" style={{ height: 3 }} />
+                {/* ── arrow tip pointing down at element ── */}
+                <div className="flex justify-center pointer-events-none" style={{ marginBottom: -1 }}>
+                  <div style={{ width: 10, height: 6, background: 'white', clipPath: 'polygon(50% 100%, 0 0, 100% 0)', border: '1px solid #E5E0D4' }} />
                 </div>
 
-                <span className="h-5 w-px mx-1" style={{ background: '#E5E0D4' }} />
+                <div
+                  className="flex items-center bg-white rounded-2xl"
+                  style={{ border: '1px solid #E5E0D4', padding: '4px 6px', gap: 1, whiteSpace: 'nowrap' }}
+                >
+                  {/* ── Grip / drag handle ── */}
+                  <div
+                    role="button"
+                    aria-label="Drag toolbar to reposition"
+                    title="Drag to move toolbar"
+                    className="h-7 w-5 shrink-0 flex items-center justify-center rounded-lg hover:bg-[#FAF6EE] transition select-none"
+                    style={{ cursor: toolbarDragRef.current ? 'grabbing' : 'grab', color: 'rgba(15,31,24,0.3)' }}
+                    onPointerDown={e => {
+                      e.stopPropagation();
+                      toolbarDragRef.current = { sx: e.clientX, sy: e.clientY, odx: toolbarOffset.dx, ody: toolbarOffset.dy };
+                      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+                    }}
+                    onPointerMove={e => {
+                      if (!toolbarDragRef.current) return;
+                      e.stopPropagation();
+                      setToolbarOffset({
+                        dx: toolbarDragRef.current.odx + e.clientX - toolbarDragRef.current.sx,
+                        dy: toolbarDragRef.current.ody + e.clientY - toolbarDragRef.current.sy,
+                      });
+                    }}
+                    onPointerUp={e => { e.stopPropagation(); toolbarDragRef.current = null; }}
+                  >
+                    {/* 2×3 dot grip */}
+                    <svg width="8" height="12" viewBox="0 0 8 12" fill="currentColor">
+                      <circle cx="2" cy="2"  r="1.2"/><circle cx="6" cy="2"  r="1.2"/>
+                      <circle cx="2" cy="6"  r="1.2"/><circle cx="6" cy="6"  r="1.2"/>
+                      <circle cx="2" cy="10" r="1.2"/><circle cx="6" cy="10" r="1.2"/>
+                    </svg>
+                  </div>
 
-                {/* ── Center H / V ── */}
-                <button title="Center horizontally" onClick={() => updateZone(selected.id, { x: Math.round(bgW / 2 - selected.w / 2) }, true)}
-                  className="h-7 w-7 rounded-lg grid place-items-center transition hover:bg-[#FAF6EE]" style={{ color: 'rgba(15,31,24,0.65)' }}>
-                  <Icon d={I.centerH} size={13} />
-                </button>
-                <button title="Center vertically" onClick={() => updateZone(selected.id, { y: Math.round(bgH / 2 - selected.h / 2) }, true)}
-                  className="h-7 w-7 rounded-lg grid place-items-center transition hover:bg-[#FAF6EE]" style={{ color: 'rgba(15,31,24,0.65)' }}>
-                  <Icon d={I.centerV} size={13} />
-                </button>
+                  {sep}
 
-                <span className="h-5 w-px mx-1" style={{ background: '#E5E0D4' }} />
+                  {/* ── TEXT / LABEL / CUSTOM ── */}
+                  {isText && (
+                    <>
+                      {/* Font family */}
+                      <select
+                        aria-label="Font family"
+                        value={selected.font ?? 'DM Sans'}
+                        onChange={e => updateZone(selected.id, { font: e.target.value })}
+                        title="Font family"
+                        className="h-7 pl-2 pr-0.5 rounded-lg text-[11.5px] font-medium outline-none hover:bg-[#FAF6EE] focus:bg-[#FAF6EE] cursor-pointer transition"
+                        style={{ maxWidth: 110, background: 'transparent', border: 'none', color: '#0F1F18' }}
+                      >
+                        {FONTS.map(f => <option key={f} value={f}>{f}</option>)}
+                      </select>
 
-                {/* ── Layer order ── */}
-                <button title="Bring forward [" onClick={() => moveZoneUp(selected.id)}
-                  className="h-7 w-7 rounded-lg grid place-items-center transition hover:bg-[#FAF6EE]" style={{ color: 'rgba(15,31,24,0.65)' }}>
-                  <Icon d={I.up} size={13} />
-                </button>
-                <button title="Send backward ]" onClick={() => moveZoneDown(selected.id)}
-                  className="h-7 w-7 rounded-lg grid place-items-center transition hover:bg-[#FAF6EE]" style={{ color: 'rgba(15,31,24,0.65)' }}>
-                  <Icon d={I.down} size={13} />
-                </button>
+                      {sep}
 
-                <span className="h-5 w-px mx-1" style={{ background: '#E5E0D4' }} />
+                      {/* Size − N + */}
+                      <div
+                        role="group"
+                        aria-label="Font size"
+                        className="flex items-center rounded-lg overflow-hidden shrink-0"
+                        style={{ border: '1px solid #E5E0D4' }}
+                      >
+                        <button
+                          aria-label="Decrease font size"
+                          title="Decrease font size"
+                          onClick={() => updateZone(selected.id, { size: Math.max(8, (selected.size ?? 32) - 2) })}
+                          className="h-7 w-6 flex items-center justify-center hover:bg-[#FAF6EE] text-[#0F1F18]/60 hover:text-[#1F4D3A] active:bg-[#E8EFEB] transition text-[15px] font-light select-none"
+                        >−</button>
+                        <input
+                          type="number" min="8" max="400"
+                          aria-label="Font size value"
+                          value={selected.size ?? 32}
+                          onChange={e => { const v = Number(e.target.value); if (v >= 8) updateZone(selected.id, { size: v }); }}
+                          className="h-7 w-9 text-center text-[11px] font-mono outline-none"
+                          style={{ background: '#FAF6EE', border: 'none', color: '#0F1F18' }}
+                        />
+                        <button
+                          aria-label="Increase font size"
+                          title="Increase font size"
+                          onClick={() => updateZone(selected.id, { size: Math.min(400, (selected.size ?? 32) + 2) })}
+                          className="h-7 w-6 flex items-center justify-center hover:bg-[#FAF6EE] text-[#0F1F18]/60 hover:text-[#1F4D3A] active:bg-[#E8EFEB] transition text-[15px] font-light select-none"
+                        >+</button>
+                      </div>
 
-                {/* ── Duplicate / Delete ── */}
-                <button title="Duplicate (⌘D)" onClick={() => duplicateZone(selected.id)}
-                  className="h-7 w-7 rounded-lg grid place-items-center transition hover:bg-[#FAF6EE]" style={{ color: 'rgba(15,31,24,0.65)' }}>
-                  <Icon d={I.dup} size={13} />
-                </button>
-                <button title="Delete (⌫)" onClick={() => removeZone(selected.id)}
-                  className="h-7 w-7 rounded-lg grid place-items-center transition hover:bg-red-50" style={{ color: '#f87171' }}>
-                  <Icon d={I.trash} size={13} />
-                </button>
+                      {sep}
 
+                      {/* Bold */}
+                      <button
+                        aria-label="Bold"
+                        aria-pressed={isBold}
+                        title={isBold ? 'Remove bold' : 'Bold'}
+                        onClick={() => updateZone(selected.id, { weight: isBold ? 400 : 700 })}
+                        className="h-7 w-7 rounded-lg grid place-items-center text-[13px] font-bold transition select-none active:scale-95"
+                        style={isBold ? { background: '#1F4D3A', color: 'white' } : { color: '#0F1F18', opacity: 0.6 }}
+                      >B</button>
+
+                      {sep}
+
+                      {/* Text align L / C / R */}
+                      <div role="group" aria-label="Text alignment" className="flex items-center gap-px">
+                        {([['left', I.al, 'Align left'], ['center', I.ac, 'Align center'], ['right', I.ar, 'Align right']] as [string, string, string][]).map(([v, icon, label]) => (
+                          <button key={v}
+                            aria-label={label} aria-pressed={align === v} title={label}
+                            onClick={() => updateZone(selected.id, { align: v as Zone['align'] })}
+                            className="h-7 w-7 rounded-lg grid place-items-center transition active:scale-95"
+                            style={align === v ? { background: 'rgba(31,77,58,0.1)', color: '#1F4D3A' } : { color: 'rgba(15,31,24,0.5)' }}
+                          ><Icon d={icon} size={13} /></button>
+                        ))}
+                      </div>
+
+                      {sep}
+
+                      {/* Text color */}
+                      <div
+                        role="button"
+                        aria-label={`Text color: ${selected.color ?? '#FFFFFF'}`}
+                        title={`Text color: ${selected.color ?? '#FFFFFF'}`}
+                        className="relative h-7 w-7 rounded-lg grid place-items-center hover:bg-[#FAF6EE] transition cursor-pointer shrink-0"
+                      >
+                        <div
+                          className="h-5 w-5 rounded-full border-2 border-white overflow-hidden"
+                          style={{ background: selected.color ?? '#FFFFFF', boxShadow: '0 0 0 1.5px #E5E0D4' }}
+                        >
+                          <input
+                            type="color" value={selected.color ?? '#FFFFFF'}
+                            aria-label="Pick text color"
+                            onChange={e => updateZone(selected.id, { color: e.target.value })}
+                            className="absolute inset-0 opacity-0 cursor-pointer w-8 h-8 -top-1.5 -left-1.5"
+                          />
+                        </div>
+                        {/* Underline bar in same color */}
+                        <div className="absolute bottom-1 left-1.5 right-1.5 h-0.5 rounded-full" style={{ background: selected.color ?? '#FFFFFF', outline: '1px solid rgba(0,0,0,0.1)' }} />
+                      </div>
+
+                      {sep}
+                    </>
+                  )}
+
+                  {/* ── PHOTO shape ── */}
+                  {selected.type === 'photo' && (
+                    <>
+                      <div role="group" aria-label="Photo shape" className="flex items-center gap-px">
+                        {([['circle', I.shOval, 'Circle'], ['rounded', I.shRect, 'Rounded corners'], ['square', I.border, 'Square']] as [string, string, string][]).map(([v, icon, label]) => (
+                          <button key={v}
+                            aria-label={label} aria-pressed={(selected.shape ?? 'circle') === v} title={label}
+                            onClick={() => updateZone(selected.id, { shape: v as Zone['shape'] })}
+                            className="h-7 w-7 rounded-lg grid place-items-center transition active:scale-95"
+                            style={(selected.shape ?? 'circle') === v ? { background: '#1F4D3A', color: 'white' } : { color: 'rgba(15,31,24,0.55)' }}
+                          ><Icon d={icon} size={13} /></button>
+                        ))}
+                      </div>
+                      {sep}
+                    </>
+                  )}
+
+                  {/* ── SHAPE fill color ── */}
+                  {selected.type === 'shape' && (
+                    <>
+                      <div
+                        role="button"
+                        aria-label={`Fill color: ${selected.bgColor ?? '#1F4D3A'}`}
+                        title={`Fill color: ${selected.bgColor ?? '#1F4D3A'}`}
+                        className="relative h-7 w-7 rounded-lg grid place-items-center hover:bg-[#FAF6EE] transition cursor-pointer mx-0.5 shrink-0"
+                      >
+                        <div className="h-5 w-5 rounded border-2 border-white overflow-hidden" style={{ background: selected.bgColor ?? '#1F4D3A', boxShadow: '0 0 0 1.5px #E5E0D4' }}>
+                          <input type="color" value={selected.bgColor ?? '#1F4D3A'}
+                            aria-label="Pick fill color"
+                            onChange={e => updateZone(selected.id, { bgColor: e.target.value })}
+                            className="absolute inset-0 opacity-0 cursor-pointer w-8 h-8 -top-1.5 -left-1.5" />
+                        </div>
+                      </div>
+                      {sep}
+                    </>
+                  )}
+
+                  {/* ── Opacity ── */}
+                  <div role="group" aria-label={`Opacity: ${opacity}%`} className="flex items-center gap-1.5 px-1 shrink-0">
+                    <span className="text-[10px] font-mono w-7 text-right select-none tabular-nums" style={{ color: 'rgba(15,31,24,0.45)' }}>{opacity}%</span>
+                    <input
+                      type="range" min="10" max="100" value={opacity}
+                      aria-label="Opacity"
+                      onChange={e => updateZone(selected.id, { opacity: Number(e.target.value) })}
+                      className="w-14 accent-primary cursor-pointer" style={{ height: 3 }}
+                    />
+                  </div>
+
+                  {sep}
+
+                  {/* ── Center H / V ── */}
+                  <div role="group" aria-label="Center element" className="flex items-center gap-px">
+                    <button
+                      aria-label="Center horizontally on canvas"
+                      title="Center horizontally"
+                      onClick={() => updateZone(selected.id, { x: Math.round(bgW / 2 - selected.w / 2) }, true)}
+                      className="h-7 w-7 rounded-lg grid place-items-center transition hover:bg-[#FAF6EE] active:scale-95"
+                      style={{ color: 'rgba(15,31,24,0.65)' }}
+                    ><Icon d={I.centerH} size={13} /></button>
+                    <button
+                      aria-label="Center vertically on canvas"
+                      title="Center vertically"
+                      onClick={() => updateZone(selected.id, { y: Math.round(bgH / 2 - selected.h / 2) }, true)}
+                      className="h-7 w-7 rounded-lg grid place-items-center transition hover:bg-[#FAF6EE] active:scale-95"
+                      style={{ color: 'rgba(15,31,24,0.65)' }}
+                    ><Icon d={I.centerV} size={13} /></button>
+                  </div>
+
+                  {sep}
+
+                  {/* ── Layer order ── */}
+                  <div role="group" aria-label="Layer order" className="flex items-center gap-px">
+                    <button
+                      aria-label="Bring forward"
+                      title="Bring forward  ["
+                      onClick={() => moveZoneUp(selected.id)}
+                      className="h-7 w-7 rounded-lg grid place-items-center transition hover:bg-[#FAF6EE] active:scale-95"
+                      style={{ color: 'rgba(15,31,24,0.65)' }}
+                    ><Icon d={I.up} size={13} /></button>
+                    <button
+                      aria-label="Send backward"
+                      title="Send backward  ]"
+                      onClick={() => moveZoneDown(selected.id)}
+                      className="h-7 w-7 rounded-lg grid place-items-center transition hover:bg-[#FAF6EE] active:scale-95"
+                      style={{ color: 'rgba(15,31,24,0.65)' }}
+                    ><Icon d={I.down} size={13} /></button>
+                  </div>
+
+                  {sep}
+
+                  {/* ── Duplicate / Delete ── */}
+                  <button
+                    aria-label="Duplicate element (⌘D)"
+                    title="Duplicate (⌘D)"
+                    onClick={() => duplicateZone(selected.id)}
+                    className="h-7 w-7 rounded-lg grid place-items-center transition hover:bg-[#FAF6EE] active:scale-95"
+                    style={{ color: 'rgba(15,31,24,0.65)' }}
+                  ><Icon d={I.dup} size={13} /></button>
+                  <button
+                    aria-label="Delete element (⌫)"
+                    title="Delete (⌫)"
+                    onClick={() => removeZone(selected.id)}
+                    className="h-7 w-7 rounded-lg grid place-items-center transition hover:bg-red-50 active:scale-95"
+                    style={{ color: '#f87171' }}
+                  ><Icon d={I.trash} size={13} /></button>
+
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* Multi-select badge — viewport-fixed, not inside scroll area */}
           {selectedIds.length > 1 && !previewMode && (
