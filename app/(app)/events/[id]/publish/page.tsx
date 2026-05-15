@@ -43,7 +43,7 @@ export default async function PublishPage({ params }: { params: Promise<{ id: st
     return sum + (Array.isArray(v.zones) ? (v.zones as unknown[]).length : 0);
   }, 0) ?? 0;
 
-  const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL}/c/${slug}`;
+  const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/c/${slug}`;
 
   return (
     <PublishClient

@@ -49,7 +49,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
   const variants = (variantsData ?? []) as unknown as Variant[];
   const firstVariant = variants[0];
   const zones = (firstVariant?.zones as unknown as Zone[]) ?? [];
-  const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL}/c/${event.slug}`;
+  const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/c/${event.slug}`;
   const bgW = firstVariant?.background_width ?? 1080;
   const bgH = firstVariant?.background_height ?? 1350;
   const activity = recentCards ?? [];
