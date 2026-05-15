@@ -8,44 +8,73 @@ import type { Zone } from '@/types/database';
 
 const WATERMARK_HEIGHT = 36;
 
-// ── Google Fonts cache: "Family:weight" → absolute path to TTF in /tmp ───────
+// ── Font resolution ────────────────────────────────────────────────────────────
+// Priority order:
+//   1. /public/fonts/<safename>-<weight>.ttf  (bundled at build time — zero latency)
+//   2. /tmp/gf-<safename>-<weight>.ttf        (downloaded from Google Fonts, cached)
+//   3. null → Pango uses system fallback
+//
+// Bundled fonts cover the three families the editor exposes:
+//   DM Sans 400/500/600/700 · Inter 400/500/600/700 · JetBrains Mono 400/500/700
+// Any other font (custom designer choice) falls through to the download path.
+
 const fontCache = new Map<string, string>();
 
-// System fonts that don't need fetching
 const SYSTEM_FONTS = new Set([
   'georgia', 'times new roman', 'times', 'arial', 'helvetica',
   'verdana', 'trebuchet ms', 'courier new', 'courier',
   'sans-serif', 'serif', 'monospace', 'cursive', 'fantasy',
 ]);
 
-/** Returns an absolute path to a TTF file in /tmp, downloading if needed. */
+/** Nearest bundled weight for a given numeric weight. */
+function nearestWeight(available: number[], requested: number): number {
+  return available.reduce((best, w) =>
+    Math.abs(w - requested) < Math.abs(best - requested) ? w : best
+  );
+}
+
+const BUNDLED: Record<string, number[]> = {
+  'dmsans':        [400, 500, 600, 700],
+  'inter':         [400, 500, 600, 700],
+  'jetbrainsmono': [400, 500, 700],
+};
+
+/** Returns an absolute path to a TTF file, downloading from Google if not bundled. */
 async function ensureFontFile(family: string, weight: number): Promise<string | null> {
   const key = `${family}:${weight}`;
   if (fontCache.has(key)) return fontCache.get(key)!;
   if (SYSTEM_FONTS.has(family.toLowerCase())) return null;
 
+  const safeName = family.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+  // ── 1. Bundled font ─────────────────────────────────────────────────────────
+  if (BUNDLED[safeName]) {
+    const w = nearestWeight(BUNDLED[safeName], weight);
+    // process.cwd() is the Next.js project root in both dev and Vercel production
+    const bundledPath = path.join(process.cwd(), 'public', 'fonts', `${safeName}-${w}.ttf`);
+    if (fs.existsSync(bundledPath)) {
+      fontCache.set(key, bundledPath);
+      return bundledPath;
+    }
+  }
+
+  // ── 2. Download from Google Fonts → /tmp (warm-lambda cache) ────────────────
   try {
     const familyParam = family.trim().replace(/\s+/g, '+');
-    const safeName   = family.toLowerCase().replace(/[^a-z0-9]/g, '');
-    const tmpDir     = os.tmpdir();  // /tmp on Vercel Linux
-    const fontPath   = path.join(tmpDir, `gf-${safeName}-${weight}.ttf`);
+    const tmpDir      = os.tmpdir();
+    const fontPath    = path.join(tmpDir, `gf-${safeName}-${weight}.ttf`);
 
-    // Reuse cached file if it already exists on disk (warm lambda)
     if (fs.existsSync(fontPath)) {
       fontCache.set(key, fontPath);
       return fontPath;
     }
 
-    // CSS1 API with an old-browser UA forces Google to respond with a TTF download URL.
-    // Without a UA header, Vercel's Node.js runtime may receive WOFF2 instead, which
-    // breaks the TTF regex and causes Pango to silently fall back to a system font.
     const cssUrl = `https://fonts.googleapis.com/css?family=${familyParam}:${weight}`;
     const cssRes = await fetch(cssUrl, {
       headers: { 'User-Agent': 'Mozilla/5.0 (Linux; U; Android 2.2; en-us) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1' },
     });
     if (cssRes.ok) {
       const css       = await cssRes.text();
-      // Handle quoted/unquoted URLs; match .ttf or .otf
       const fontMatch = css.match(/url\(['"]?(https:\/\/fonts\.gstatic\.com\/[^'")\s]+\.(?:ttf|otf))['"]?\)/i);
       if (fontMatch) {
         const fontRes = await fetch(fontMatch[1]);
@@ -56,11 +85,11 @@ async function ensureFontFile(family: string, weight: number): Promise<string | 
         }
       }
     }
-
-    return null;
   } catch {
-    return null;
+    // fall through to system fallback
   }
+
+  return null;
 }
 
 async function fetchBuffer(url: string): Promise<Buffer> {
@@ -168,6 +197,21 @@ async function compositeText(
   // alpha. No dest-in blend needed; no luminance inversion needed.
   const lineH = zone.lineHeight ?? 1.2;
 
+  // ── Line-height: match CSS `line-height` as closely as possible ──────────────
+  // CSS: each line box = lineH × fontSize.  For N lines → total height = N × lineH × size.
+  // Pango: libvips exposes `spacing` (extra inter-line points on top of the font's own
+  // natural leading).  The font's natural leading ≈ (ascent + descent) / font_units × size.
+  // For the three bundled fonts (DM Sans, Inter, JetBrains Mono) this is consistently
+  // ~1.14–1.20 × size (measured empirically).  We approximate it as 1.15 × size.
+  //
+  // Target inter-line gap (CSS) = (lineH - 1) × size          (gap above+below each line)
+  // Pango natural gap          ≈ (1.15 - 1) × size = 0.15 × size
+  // Extra spacing to add       = (lineH - 1.15) × size
+  //
+  // Clamp to 0 so we never pass negative spacing (which Pango ignores anyway).
+  const FONT_NATURAL_LEADING = 1.15;
+  const spacingPts = Math.max(0, Math.round((lineH - FONT_NATURAL_LEADING) * size));
+
   const textInput: Record<string, unknown> = {
     text: pangoText,
     font: fontDesc,
@@ -175,9 +219,7 @@ async function compositeText(
     align: sharpAlign,
     rgba: true,   // transparent background → text shape lives in alpha channel
     dpi: 72,
-    // Extra inter-line spacing (points) to match CSS lineHeight.
-    // Pango's natural default is ~1.2× em; delta compensates for designer overrides.
-    spacing: Math.round((lineH - 1.2) * size),
+    spacing: spacingPts,
   };
   if (fontFilePath) textInput.fontfile = fontFilePath;
 
