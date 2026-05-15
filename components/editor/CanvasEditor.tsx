@@ -140,6 +140,14 @@ import {
   Triangle, Minus,
 } from 'lucide-react';
 
+// Chrome components (UI only — no logic)
+import MobileFallback from './chrome/MobileFallback';
+import TopBar from './chrome/TopBar';
+import BottomBar from './chrome/BottomBar';
+import VariantsTabs from './chrome/VariantsTabs';
+import LeftRail from './leftRail/LeftRail';
+import RightSidebar, { type RightSidebarMode } from './rightSidebar/RightSidebar';
+
 const CW = 1080;
 const CH = 1350;
 const GRID_SIZE = 60;
@@ -278,7 +286,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
   /* ── mobile detection ──────────────────────────────── */
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 900);
+    const check = () => setIsMobile(window.innerWidth < 768);
     check();
     window.addEventListener("resize", check, { passive: true });
     return () => window.removeEventListener("resize", check);
@@ -953,397 +961,83 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
      RENDER
   ══════════════════════════════════════════════════════ */
 
-  /* ── Mobile gate — canvas editor requires desktop ──── */
+  /* ── Mobile gate — canvas editor requires desktop (<768px) ── */
   if (isMobile) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen px-6 py-12 text-center"
-        style={{ background: "#0F1F18" }}>
-        <div className="h-20 w-20 rounded-3xl grid place-items-center mb-6 mx-auto"
-          style={{ background: "linear-gradient(135deg,#1F4D3A 0%,#2A6A50 60%,#E8C57E 100%)" }}>
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.6" strokeLinecap="round">
-            <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
-          </svg>
-        </div>
-        <h1 className="font-display font-bold text-white text-[24px] leading-tight mb-3">
-          Open on a desktop
-        </h1>
-        <p className="text-[15px] leading-relaxed max-w-[300px] mb-8"
-          style={{ color: "rgba(255,255,255,0.55)" }}>
-          The canvas editor needs a bigger screen. Open this link on a laptop or desktop to design your zones.
-        </p>
-        <a
-          href="/dashboard"
-          className="inline-flex items-center gap-2 h-12 px-6 rounded-2xl font-semibold text-[14px] transition hover:opacity-90"
-          style={{ background: "#1F4D3A", color: "white", boxShadow: "0 8px 24px rgba(31,77,58,0.4)" }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-            <path d="M19 12H5M12 19l-7-7 7-7"/>
-          </svg>
-          Back to dashboard
-        </a>
-        <div className="mt-10 text-[11px] font-mono" style={{ color: "rgba(255,255,255,0.2)" }}>
-          Powered by <span style={{ color: "rgba(232,197,126,0.6)" }}>Cardly</span>
-        </div>
-      </div>
-    );
+    return <MobileFallback eventId={eventId} eventName={nameVal} />;
   }
+
+  // Determine right sidebar mode
+  const sidebarMode: RightSidebarMode = previewMode
+    ? 'preview'
+    : selectedIds.length > 1
+    ? 'multiselect'
+    : selected
+    ? 'zone'
+    : 'event';
 
   return (
     <div className="flex flex-col" style={{ height: '100vh', overflow: 'hidden', background: '#FAF6EE' }}>
 
-      {/* ── Top bar ─────────────────────────────────────── */}
-      <header className="h-14 bg-white border-b border-border flex items-center px-4 gap-3 shrink-0 z-10">
-        <a href="/dashboard" className="h-8 w-8 rounded-lg hover:bg-cream grid place-items-center text-[#0F1F18]/70 shrink-0" title="Back to dashboard">
-          <ArrowLeft size={16} strokeWidth={1.8} />
-        </a>
-        <div className="h-5 w-px bg-border" />
-        <a href="/dashboard" className="flex items-center gap-2 shrink-0">
-          <span className="h-7 w-7 rounded-lg grid place-items-center text-white font-display font-bold text-[13px] bg-primary">C</span>
-        </a>
-        <div className="flex items-center gap-1.5 text-[13px]">
-          <span className="text-[#0F1F18]/40 font-mono text-[11px]">Events</span>
-          <span className="text-[#0F1F18]/30">/</span>
-          {editName
-            ? <input
-                autoFocus
-                value={nameVal}
-                onChange={e => setNameVal(e.target.value)}
-                onBlur={saveName}
-                onKeyDown={e => { if (e.key === 'Enter') saveName(); if (e.key === 'Escape') setEditName(false); }}
-                className="font-display font-semibold bg-white border border-primary/40 rounded-md px-2 py-0.5 outline-none w-[240px] text-[13px] focus:ring-2 focus:ring-primary/20"
-              />
-            : <button
-                onClick={() => setEditName(true)}
-                title="Click to rename event"
-                className="group flex items-center gap-1.5 font-display font-semibold hover:bg-cream rounded-md px-2 py-0.5 text-[13px] transition"
-              >
-                {nameVal}
-                <Pencil size={11} strokeWidth={2} className="text-[#0F1F18]/30 group-hover:text-primary transition shrink-0" />
-              </button>
-          }
-        </div>
+      {/* ── Top Bar ──────────────────────────────────────── */}
+      <TopBar
+        eventId={eventId}
+        nameVal={nameVal}
+        setNameVal={setNameVal}
+        editName={editName}
+        setEditName={setEditName}
+        saveName={saveName}
+        pastLength={history.past.length}
+        futureLength={history.future.length}
+        undo={undo}
+        redo={redo}
+        savedAt={savedAt}
+        previewMode={previewMode}
+        setPreviewMode={setPreviewMode}
+        showShortcuts={showShortcuts}
+        setShowShortcuts={setShowShortcuts}
+        selected={selected}
+        copiedStyle={copiedStyle}
+        styleFlash={styleFlash}
+        copyStyle={copyStyle}
+        pasteStyle={pasteStyle}
+        router={router}
+      />
 
-        <div className="flex-1" />
-
-        {/* Undo / Redo */}
-        <div className="flex items-center gap-0.5">
-          <button title="Undo (⌘Z)" disabled={!history.past.length} onClick={undo} className={`h-8 w-8 rounded-lg grid place-items-center transition ${history.past.length ? 'text-[#0F1F18]/80 hover:bg-cream' : 'text-[#0F1F18]/25'}`}><Undo2 size={15} strokeWidth={1.8} /></button>
-          <button title="Redo (⇧⌘Z)" disabled={!history.future.length} onClick={redo} className={`h-8 w-8 rounded-lg grid place-items-center transition ${history.future.length ? 'text-[#0F1F18]/80 hover:bg-cream' : 'text-[#0F1F18]/25'}`}><Redo2 size={15} strokeWidth={1.8} /></button>
-        </div>
-
-        {/* Saved indicator */}
-        <div className="flex items-center gap-1.5 text-[11.5px] text-[#0F1F18]/50 mx-1 font-mono">
-          <CheckCircle2 size={12} strokeWidth={2.2} />
-          {savedAt}
-        </div>
-
-        {/* Copy / paste style */}
-        {selected && (
-          <div className="flex items-center gap-0.5">
-            <button
-              onClick={copyStyle}
-              title="Copy style (⌘⌥C)"
-              className={`h-8 px-2.5 rounded-lg text-[11.5px] font-mono flex items-center gap-1.5 transition ${styleFlash ? 'bg-primary text-white' : 'hover:bg-cream text-[#0F1F18]/65'}`}
-            >
-              <Wand2 size={13} strokeWidth={1.8} />
-              {styleFlash ? 'Copied!' : 'Copy style'}
-            </button>
-            {copiedStyle && (
-              <button onClick={pasteStyle} title="Paste style (⌘⌥V)" className="h-8 px-2.5 rounded-lg text-[11.5px] font-mono flex items-center gap-1.5 hover:bg-primary/10 hover:text-primary text-[#0F1F18]/65 transition border border-dashed border-primary/30">
-                <Wand2 size={13} strokeWidth={1.8} />
-                Paste style
-              </button>
-            )}
-          </div>
-        )}
-
-        <div className="flex items-center gap-2">
-          {/* Shortcuts */}
-          <button onClick={() => setShowShortcuts(s => !s)} title="Keyboard shortcuts (⌘/)" className="h-8 w-8 rounded-lg grid place-items-center hover:bg-cream text-[#0F1F18]/60 transition">
-            <HelpCircle size={15} strokeWidth={1.8} />
-          </button>
-
-          {/* Preview toggle */}
-          <button
-            onClick={() => setPreviewMode(p => !p)}
-            title="Preview mode (⌘P)"
-            className={`inline-flex items-center gap-1.5 text-[12.5px] px-3 py-1.5 rounded-lg border transition ${previewMode ? 'bg-primary/10 text-primary border-primary/30 font-medium' : 'text-[#0F1F18]/70 border-border hover:bg-cream'}`}
-          >
-            <Eye size={13} strokeWidth={2} />
-            {previewMode ? 'Editing' : 'Preview'}
-          </button>
-
-          <a href={`/events/${eventId}`} className="inline-flex items-center gap-1.5 text-[12.5px] text-[#0F1F18]/80 bg-white border border-border px-3 py-1.5 rounded-lg hover:bg-cream transition">
-            <Play size={13} strokeWidth={2.2} />Test
-          </a>
-          <button
-            onClick={() => router.push(`/events/${eventId}/publish`)}
-            className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-white px-3.5 py-1.5 rounded-lg hover:opacity-95 transition shadow-soft bg-primary"
-          >
-            <Globe size={13} strokeWidth={2.2} />Publish
-          </button>
-        </div>
-      </header>
-
-      {/* ── Variant tab bar ──────────────────────────────── */}
-      <div
-        className="h-11 bg-white border-b border-border flex items-center px-4 gap-1.5 shrink-0"
-        style={{ zIndex: 20, position: 'relative' }}
-        onClick={() => setVariantMenuId(null)}
-      >
-        <span className="text-[10.5px] font-mono text-[#0F1F18]/40 mr-1 shrink-0 tracking-widest">VARIANTS</span>
-
-        {variants.map(v => {
-          const isActive   = v.id === activeVariantId;
-          const isRenaming = renamingVariantId === v.id;
-          const menuOpen   = variantMenuId === v.id;
-          return (
-            <div key={v.id} className="relative shrink-0">
-              {isRenaming ? (
-                <input
-                  autoFocus
-                  value={renameValue}
-                  onChange={e => setRenameValue(e.target.value)}
-                  onBlur={() => handleRenameVariant(v.id, renameValue)}
-                  onKeyDown={e => {
-                    if (e.key === 'Enter') handleRenameVariant(v.id, renameValue);
-                    if (e.key === 'Escape') setRenamingVariantId(null);
-                    e.stopPropagation();
-                  }}
-                  onClick={e => e.stopPropagation()}
-                  className="h-7 px-2.5 rounded-lg text-[12.5px] font-medium outline-none w-[130px]"
-                  style={{ border: '2px solid #1F4D3A', background: 'white' }}
-                />
-              ) : (
-                /* Split button: [tab label | chevron▾] */
-                <div className="flex items-stretch">
-                  <button
-                    onClick={() => switchVariant(v.id)}
-                    onDoubleClick={() => { setRenamingVariantId(v.id); setRenameValue(v.variant_name); }}
-                    className={`flex items-center gap-1.5 pl-2.5 pr-2 h-7 text-[12.5px] font-medium transition rounded-l-lg ${
-                      isActive
-                        ? 'bg-[#1F4D3A] text-white'
-                        : 'bg-white text-[#0F1F18]/65 hover:text-[#0F1F18] hover:bg-[#FAF6EE] border border-r-0 border-[#E5E0D4]'
-                    }`}
-                  >
-                    <Layers size={11} strokeWidth={2} />
-                    {v.variant_name}
-                  </button>
-                  <button
-                    onClick={e => { e.stopPropagation(); setVariantMenuId(menuOpen ? null : v.id); }}
-                    title="Variant options"
-                    className={`h-7 w-6 flex items-center justify-center rounded-r-lg transition ${
-                      isActive
-                        ? 'bg-[#1F4D3A] text-white/60 hover:bg-[#163828] hover:text-white'
-                        : 'bg-white border border-[#E5E0D4] text-[#0F1F18]/35 hover:text-[#0F1F18] hover:bg-[#FAF6EE]'
-                    }`}
-                  >
-                    <ChevronDown size={10} strokeWidth={2.5} />
-                  </button>
-                </div>
-              )}
-
-              {/* Dropdown — rendered outside the scroll container, z-index wins */}
-              {menuOpen && (
-                <div
-                  className="absolute left-0 bg-white rounded-xl py-1 w-44"
-                  style={{ top: 'calc(100% + 4px)', border: '1px solid #E5E0D4', boxShadow: '0 8px 24px rgba(15,31,24,0.14)', zIndex: 200 }}
-                  onClick={e => e.stopPropagation()}
-                >
-                  <button
-                    onClick={() => { setRenamingVariantId(v.id); setRenameValue(v.variant_name); setVariantMenuId(null); }}
-                    className="w-full text-left px-3 py-2 text-[12.5px] text-[#0F1F18] hover:bg-[#FAF6EE] flex items-center gap-2.5 rounded-lg mx-0"
-                  >
-                    <Tag size={13} strokeWidth={1.8} />Rename
-                  </button>
-                  <button
-                    onClick={() => handleDuplicateVariant(v.id)}
-                    className="w-full text-left px-3 py-2 text-[12.5px] text-[#0F1F18] hover:bg-[#FAF6EE] flex items-center gap-2.5"
-                  >
-                    <Copy size={13} strokeWidth={1.8} />Duplicate
-                  </button>
-                  <div className="h-px mx-3 my-1" style={{ background: '#E5E0D4' }} />
-                  <button
-                    onClick={() => handleDeleteVariant(v.id)}
-                    disabled={variants.length <= 1}
-                    className="w-full text-left px-3 py-2 text-[12.5px] text-red-500 hover:bg-red-50 flex items-center gap-2.5 disabled:opacity-30 disabled:cursor-not-allowed"
-                  >
-                    <Trash2 size={13} strokeWidth={1.8} />Delete
-                  </button>
-                </div>
-              )}
-            </div>
-          );
-        })}
-
-        <button
-          onClick={() => setShowAddVariant(true)}
-          className="flex items-center gap-1.5 px-3 h-7 rounded-lg text-[12.5px] font-medium transition shrink-0"
-          style={{ color: '#0F1F18', opacity: 0.5, border: '1px dashed #E5E0D4' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '1'; (e.currentTarget as HTMLElement).style.color = '#1F4D3A'; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '0.5'; (e.currentTarget as HTMLElement).style.color = '#0F1F18'; }}
-        >
-          <Plus size={13} strokeWidth={2.5} />Add variant
-        </button>
-      </div>
+      {/* ── Variant Tabs ─────────────────────────────────── */}
+      <VariantsTabs
+        variants={variants}
+        activeVariantId={activeVariantId}
+        variantZonesMap={variantZonesMap}
+        variantMenuId={variantMenuId}
+        setVariantMenuId={setVariantMenuId}
+        renamingVariantId={renamingVariantId}
+        setRenamingVariantId={setRenamingVariantId}
+        renameValue={renameValue}
+        setRenameValue={setRenameValue}
+        switchVariant={switchVariant}
+        handleRenameVariant={handleRenameVariant}
+        handleDeleteVariant={handleDeleteVariant}
+        handleDuplicateVariant={handleDuplicateVariant}
+        onAddVariant={() => setShowAddVariant(true)}
+      />
 
       <div className="flex-1 flex min-h-0">
 
         {/* ── Left Rail ───────────────────────────────────── */}
-        <aside className="w-[252px] shrink-0 bg-white border-r border-border flex flex-col overflow-y-auto">
-          {!previewMode && (
-            <div className="p-4">
-              <div className="text-[10.5px] font-mono tracking-widest text-[#0F1F18]/40 mb-3">ADD ELEMENT</div>
-
-              {/* Hidden file input for image upload */}
-              <input
-                ref={imageUploadRef}
-                type="file"
-                accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
-                className="hidden"
-                onChange={handleImageUpload}
-              />
-
-              <div className="space-y-1">
-                {[
-                  { type: 'text' as const,   label: 'Text field',   sub: 'Name, title, country…',      icon: <Type size={15} strokeWidth={1.8} />  },
-                  { type: 'photo' as const,  label: 'Photo zone',   sub: 'Headshot or logo',            icon: <Image size={15} strokeWidth={1.8} /> },
-                  { type: 'custom' as const, label: 'Custom field', sub: 'Dropdown, badge, role…',      icon: <ToggleLeft size={15} strokeWidth={1.8} /> },
-                  { type: 'label' as const,  label: 'Static text',  sub: 'Fixed text on the card',      icon: <Tag size={15} strokeWidth={1.8} /> },
-                ].map(item => (
-                  <button
-                    key={item.type}
-                    onClick={() => addZone(item.type)}
-                    className="group w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-cream border border-transparent hover:border-border transition text-left"
-                  >
-                    <span className="h-9 w-9 rounded-lg bg-cream grid place-items-center text-primary group-hover:text-white group-hover:bg-primary transition shrink-0">
-                      {item.icon}
-                    </span>
-                    <span className="flex-1 min-w-0">
-                      <span className="block text-[13px] font-medium">{item.label}</span>
-                      <span className="block text-[11px] text-[#0F1F18]/50">{item.sub}</span>
-                    </span>
-                    <Plus size={12} strokeWidth={2} />
-                  </button>
-                ))}
-              </div>
-
-              {/* Image upload button */}
-              <button
-                onClick={() => imageUploadRef.current?.click()}
-                disabled={uploadingImage}
-                className="group w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-cream border border-transparent hover:border-border transition text-left disabled:opacity-50 mt-1"
-              >
-                <span className="h-9 w-9 rounded-lg bg-cream grid place-items-center text-primary group-hover:text-white group-hover:bg-primary transition shrink-0">
-                  {uploadingImage
-                    ? <svg className="animate-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
-                    : <ImagePlus size={15} strokeWidth={1.8} />
-                  }
-                </span>
-                <span className="flex-1 min-w-0">
-                  <span className="block text-[13px] font-medium">{uploadingImage ? 'Uploading…' : 'Static image'}</span>
-                  <span className="block text-[11px] text-[#0F1F18]/50">Embed PNG, JPG, SVG on the card</span>
-                </span>
-                <Plus size={12} strokeWidth={2} />
-              </button>
-
-              {/* Shapes section */}
-              <div className="mt-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="flex-1 h-px bg-border" />
-                  <span className="text-[10px] font-mono tracking-widest text-[#0F1F18]/35">SHAPES</span>
-                  <div className="flex-1 h-px bg-border" />
-                </div>
-                <div className="grid grid-cols-2 gap-1.5">
-                  {([
-                    { shapeType: 'rect'     as const, label: 'Rectangle', icon: <Square size={13} strokeWidth={1.8} /> },
-                    { shapeType: 'ellipse'  as const, label: 'Circle',    icon: <Circle size={13} strokeWidth={1.8} /> },
-                    { shapeType: 'triangle' as const, label: 'Triangle',  icon: <Triangle size={13} strokeWidth={1.8} /> },
-                    { shapeType: 'line'     as const, label: 'Line',      icon: <Minus size={13} strokeWidth={1.8} /> },
-                  ] as { shapeType: 'rect' | 'ellipse' | 'triangle' | 'line'; label: string; icon: React.ReactNode }[]).map(item => (
-                    <button
-                      key={item.shapeType}
-                      onClick={() => addShapeZone(item.shapeType)}
-                      className="group flex items-center gap-2 p-2 rounded-xl hover:bg-cream border border-transparent hover:border-border transition text-left"
-                    >
-                      <span className="h-7 w-7 rounded-lg bg-cream grid place-items-center text-primary group-hover:text-white group-hover:bg-primary transition shrink-0">
-                        {item.icon}
-                      </span>
-                      <span className="text-[12px] font-medium">{item.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Layers panel */}
-          <div className={previewMode ? 'p-4 flex-1' : 'px-4 pb-4 flex-1'}>
-            <div className="text-[10.5px] font-mono tracking-widest text-[#0F1F18]/40 mb-2 flex items-center justify-between">
-              <span>LAYERS</span>
-              <span className="text-[#0F1F18]/35 font-sans normal-case">{zones.length}</span>
-            </div>
-            <div className="space-y-0.5">
-              {[...zones].reverse().map((z) => {
-                const realIdx = zones.findIndex(x => x.id === z.id);
-                const isSel = selectedIds.includes(z.id) && !previewMode;
-                return (
-                  <div
-                    key={z.id}
-                    onClick={e => {
-                      if (previewMode) return;
-                      if (e.shiftKey) {
-                        setSelectedIds(ids => ids.includes(z.id) ? ids.filter(i => i !== z.id) : [...ids, z.id]);
-                      } else {
-                        setSelectedIds([z.id]);
-                      }
-                    }}
-                    className={`group flex items-center gap-1.5 px-2 py-1.5 rounded-lg cursor-pointer text-[12.5px] ${isSel ? 'bg-primary/10 text-primary' : 'hover:bg-cream text-[#0F1F18]/80'}`}
-                  >
-                    {!previewMode && (
-                      <div className="flex flex-col gap-0 opacity-0 group-hover:opacity-100 shrink-0">
-                        <button onClick={e => { e.stopPropagation(); moveZoneUp(z.id); }} disabled={realIdx >= zones.length - 1} className="h-4 w-4 rounded grid place-items-center text-[#0F1F18]/40 hover:text-primary disabled:opacity-20"><ChevronUp size={9} strokeWidth={2.5} /></button>
-                        <button onClick={e => { e.stopPropagation(); moveZoneDown(z.id); }} disabled={realIdx <= 0} className="h-4 w-4 rounded grid place-items-center text-[#0F1F18]/40 hover:text-primary disabled:opacity-20"><ChevronDown size={9} strokeWidth={2.5} /></button>
-                      </div>
-                    )}
-                    <span className={`h-6 w-6 rounded-md grid place-items-center shrink-0 ${isSel ? 'text-primary' : 'text-[#0F1F18]/50'}`}>
-                      {z.type === 'photo' ? <Image size={12} strokeWidth={1.8} /> : z.type === 'custom' ? <ToggleLeft size={12} strokeWidth={1.8} /> : z.type === 'label' ? <Tag size={12} strokeWidth={1.8} /> : z.type === 'shape' ? <Square size={12} strokeWidth={1.8} /> : z.type === 'image' ? <ImagePlus size={12} strokeWidth={1.8} /> : <Type size={12} strokeWidth={1.8} />}
-                    </span>
-                    <span className="flex-1 truncate">{z.label}</span>
-                    {z.required && <span className="text-[9px] font-mono px-1 py-px rounded bg-primary/10 text-primary shrink-0">REQ</span>}
-                    {(z.rotation ?? 0) !== 0 && <span className="text-[9px] font-mono text-accent shrink-0" title={`${z.rotation}°`}>↻</span>}
-                    {!previewMode && (
-                      <div className="opacity-0 group-hover:opacity-100 flex items-center gap-0.5 shrink-0">
-                        <button onClick={e => { e.stopPropagation(); updateZone(z.id, { locked: !z.locked }); }} className={`h-6 w-6 rounded-md grid place-items-center ${z.locked ? 'text-warning' : 'text-[#0F1F18]/40 hover:text-[#0F1F18]'}`} title={z.locked ? 'Unlock' : 'Lock'}>
-                          {z.locked ? <Lock size={11} strokeWidth={1.8} /> : <LockOpen size={11} strokeWidth={1.8} />}
-                        </button>
-                        <button onClick={e => { e.stopPropagation(); updateZone(z.id, { hidden: !z.hidden }); }} className="h-6 w-6 rounded-md grid place-items-center text-[#0F1F18]/40 hover:text-[#0F1F18]" title={z.hidden ? 'Show' : 'Hide'}>
-                          {z.hidden ? <EyeOff size={11} strokeWidth={1.8} /> : <Eye size={11} strokeWidth={1.8} />}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-              {zones.length === 0 && (
-                <div className="text-center py-6 text-[12px] text-[#0F1F18]/30 font-mono">
-                  No elements yet.
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Background info */}
-          <div className="p-3 border-t border-border shrink-0">
-            <div className="text-[10.5px] font-mono tracking-widest text-[#0F1F18]/40 mb-2">BACKGROUND</div>
-            <div className="flex items-center gap-2.5 rounded-xl border border-border p-2">
-              <div className="h-9 w-9 rounded-md shrink-0 bg-cover bg-center border border-border/50" style={{ backgroundImage: backgroundUrl ? `url(${backgroundUrl})` : undefined, background: backgroundUrl ? undefined : '#EDE9E0' }} />
-              <div className="flex-1 min-w-0">
-                <div className="text-[12px] font-medium truncate">{activeVariant?.variant_name ?? 'Variant'}</div>
-                <div className="text-[10px] font-mono text-[#0F1F18]/45">{bgW} × {bgH} px</div>
-              </div>
-            </div>
-          </div>
-        </aside>
+        <LeftRail
+          previewMode={previewMode}
+          zones={zones}
+          selectedIds={selectedIds}
+          setSelectedIds={setSelectedIds}
+          addZone={addZone}
+          addShapeZone={addShapeZone}
+          moveZoneUp={moveZoneUp}
+          moveZoneDown={moveZoneDown}
+          updateZone={updateZone}
+          uploadingImage={uploadingImage}
+          imageUploadRef={imageUploadRef}
+          handleImageUpload={handleImageUpload}
+        />
 
         {/* ── Stage ───────────────────────────────────────── */}
         <div ref={stageContainerRef} className="flex-1 relative overflow-hidden">
@@ -1755,178 +1449,60 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
             </div>
           )}
 
-          {/* Bottom zoom bar — viewport-fixed */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white rounded-xl border border-border shadow-soft p-1 z-10">
-            <button onClick={() => setZoom(z => Math.max(0.1, z - 0.1))} className="h-8 w-8 rounded-lg hover:bg-cream grid place-items-center text-[#0F1F18]/70" title="Zoom out (⌘-)"><ZoomOut size={14} strokeWidth={1.8} /></button>
-            <button onClick={() => setZoom(1)} className="font-mono text-[12px] px-2 min-w-[60px] text-center hover:bg-cream rounded-lg py-1.5">{Math.round(zoom * 100)}%</button>
-            <button onClick={() => setZoom(z => Math.min(3, z + 0.1))} className="h-8 w-8 rounded-lg hover:bg-cream grid place-items-center text-[#0F1F18]/70" title="Zoom in (⌘+)"><ZoomIn size={14} strokeWidth={1.8} /></button>
-            <span className="h-5 w-px bg-border mx-0.5" />
-            <button onClick={fitZoom} className="h-8 px-2.5 rounded-lg hover:bg-cream text-[12px] text-[#0F1F18]/70 font-mono">Fit</button>
-            <span className="h-5 w-px bg-border mx-0.5" />
-            <button
-              onClick={() => setGrid(g => !g)}
-              className={`h-8 px-2.5 rounded-lg flex items-center gap-1.5 text-[12px] transition ${grid ? 'bg-primary/10 text-primary' : 'hover:bg-cream text-[#0F1F18]/70'}`}
-              title="Toggle grid (G)"
-            ><Grid size={12} strokeWidth={1.8} />Grid</button>
-            <button
-              onClick={() => setGridSnap(s => !s)}
-              className={`h-8 px-2.5 rounded-lg flex items-center gap-1.5 text-[12px] transition ${gridSnap ? 'bg-accent/20 text-[#C9A45E]' : 'hover:bg-cream text-[#0F1F18]/70'}`}
-              title="Snap to grid"
-            ><Magnet size={12} strokeWidth={1.8} />Snap</button>
-            <span className="h-5 w-px bg-border mx-0.5" />
-            <span className="text-[10px] font-mono text-[#0F1F18]/35 px-1 select-none hidden sm:block">⎵ pan</span>
-          </div>
+          {/* Bottom zoom bar */}
+          <BottomBar
+            zoom={zoom}
+            setZoom={setZoom}
+            fitZoom={fitZoom}
+            grid={grid}
+            setGrid={setGrid}
+            gridSnap={gridSnap}
+            setGridSnap={setGridSnap}
+          />
         </div>
 
-        {/* ── Right Rail ──────────────────────────────────── */}
-        {previewMode ? (
-          /* Preview mode message */
-          <aside className="w-[300px] shrink-0 bg-white border-l border-border flex flex-col items-center justify-center p-8 text-center">
-            <div className="h-12 w-12 rounded-2xl bg-cream grid place-items-center text-[#0F1F18]/40">
-              <Eye size={18} strokeWidth={1.8} />
-            </div>
-            <div className="mt-3 font-display font-semibold text-[14px]">Preview mode</div>
-            <p className="text-[12px] text-[#0F1F18]/50 mt-1">Press ⌘P to resume editing.</p>
-          </aside>
-        ) : selectedIds.length > 1 ? (
-          /* Multi-select panel */
-          <aside className="w-[300px] shrink-0 bg-white border-l border-border flex flex-col items-center justify-center p-8 text-center">
-            <div className="h-12 w-12 rounded-2xl bg-cream grid place-items-center text-[#0F1F18]/40">
-              <MousePointer2 size={18} strokeWidth={1.8} />
-            </div>
-            <div className="mt-3 font-display font-semibold text-[14px]">{selectedIds.length} selected</div>
-            <p className="text-[12px] text-[#0F1F18]/50 mt-1">Select a single element to edit its properties.</p>
-            <div className="mt-5 w-full text-left space-y-3">
-              <div className="text-[10.5px] font-mono text-[#0F1F18]/40 tracking-widest mb-1">ALIGN</div>
-              <div className="grid grid-cols-3 gap-1">
-                {([
-                  { axis: 'left' as const,    title: 'Align left edges',    icon: <AlignStartHorizontal size={15} strokeWidth={1.8} />    },
-                  { axis: 'centerH' as const, title: 'Align centers (H)',   icon: <AlignCenterHorizontal size={15} strokeWidth={1.8} />   },
-                  { axis: 'right' as const,   title: 'Align right edges',   icon: <AlignEndHorizontal size={15} strokeWidth={1.8} />      },
-                  { axis: 'top' as const,     title: 'Align top edges',     icon: <AlignStartVertical size={15} strokeWidth={1.8} />      },
-                  { axis: 'middleV' as const, title: 'Align middles (V)',   icon: <AlignCenterVertical size={15} strokeWidth={1.8} />     },
-                  { axis: 'bottom' as const,  title: 'Align bottom edges',  icon: <AlignEndVertical size={15} strokeWidth={1.8} />        },
-                ] as { axis: 'left' | 'centerH' | 'right' | 'top' | 'middleV' | 'bottom'; title: string; icon: React.ReactNode }[]).map(({ axis, title, icon }) => (
-                  <button key={axis} title={title} onClick={() => alignSelected(axis)}
-                    className="h-9 rounded-xl border border-border flex items-center justify-center hover:bg-cream hover:border-primary/40 hover:text-primary text-[#0F1F18]/55 transition">
-                    {icon}
-                  </button>
-                ))}
-              </div>
-              {selectedIds.length >= 3 && (
-                <>
-                  <div className="text-[10.5px] font-mono text-[#0F1F18]/40 tracking-widest mt-2 mb-1">DISTRIBUTE</div>
-                  <div className="grid grid-cols-2 gap-1">
-                    <button title="Distribute horizontally" onClick={() => distributeSelected('h')}
-                      className="h-9 rounded-xl border border-border flex items-center justify-center gap-1.5 text-[11px] hover:bg-cream hover:border-primary/40 hover:text-primary text-[#0F1F18]/55 transition">
-                      <AlignHorizontalSpaceAround size={13} strokeWidth={1.8} />H
-                    </button>
-                    <button title="Distribute vertically" onClick={() => distributeSelected('v')}
-                      className="h-9 rounded-xl border border-border flex items-center justify-center gap-1.5 text-[11px] hover:bg-cream hover:border-primary/40 hover:text-primary text-[#0F1F18]/55 transition">
-                      <AlignVerticalSpaceAround size={13} strokeWidth={1.8} />V
-                    </button>
-                  </div>
-                </>
-              )}
-              <button onClick={removeSelected} className="w-full mt-2 text-[12px] text-rose-500 hover:text-rose-600 font-medium border border-rose-200 hover:bg-rose-50 px-4 py-1.5 rounded-lg transition">
-                Delete {selectedIds.length} elements
-              </button>
-            </div>
-          </aside>
-        ) : !selected ? (
-          /* No-selection: event info panel */
-          <aside className="w-[300px] shrink-0 bg-white border-l border-border flex flex-col overflow-y-auto">
-            {/* Event section */}
-            <div className="p-4 border-b border-border">
-              <div className="text-[10px] font-mono text-[#6B7A72] tracking-widest mb-3">EVENT</div>
-              {/* Name */}
-              <div className="mb-3">
-                <div className="text-[10.5px] text-[#6B7A72] mb-1">Name</div>
-                {editName ? (
-                  <input
-                    autoFocus
-                    value={nameVal}
-                    onChange={e => setNameVal(e.target.value)}
-                    onBlur={saveName}
-                    onKeyDown={e => e.key === 'Enter' && saveName()}
-                    className="w-full h-9 px-2.5 rounded-lg border border-primary/40 text-[13px] font-display font-semibold outline-none bg-white"
-                  />
-                ) : (
-                  <button
-                    onClick={() => setEditName(true)}
-                    className="w-full text-left h-9 px-2.5 rounded-lg border border-border hover:border-primary/40 text-[13px] font-display font-semibold transition group"
-                  >
-                    {nameVal}
-                    <span className="ml-1.5 text-[10px] font-mono font-normal text-[#6B7A72] opacity-0 group-hover:opacity-100 transition">edit</span>
-                  </button>
-                )}
-              </div>
-              {/* Canvas size */}
-              <div className="mb-3">
-                <div className="text-[10.5px] text-[#6B7A72] mb-1">Canvas</div>
-                <div className="h-9 px-2.5 rounded-lg border border-border bg-cream flex items-center text-[12px] font-mono text-[#6B7A72]">{bgW} × {bgH} px</div>
-              </div>
-              {/* Background */}
-              <div className="mb-3">
-                <div className="text-[10.5px] text-[#6B7A72] mb-1">Background</div>
-                <div className="relative rounded-xl overflow-hidden border border-border bg-cream" style={{ height: 90 }}>
-                  {backgroundUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={backgroundUrl} alt="Background" className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-[11px] text-[#6B7A72]">No background</div>
-                  )}
-                  <label className="absolute bottom-1.5 right-1.5 bg-white/90 border border-border rounded-lg px-2 py-0.5 text-[10.5px] font-medium cursor-pointer hover:bg-white transition">
-                    Replace
-                    <input
-                      ref={bgReplaceRef}
-                      type="file"
-                      accept="image/png,image/jpeg,image/webp"
-                      className="hidden"
-                      onChange={handleReplaceBackground}
-                    />
-                  </label>
-                </div>
-              </div>
-              {/* Zone count */}
-              <div className="flex items-center justify-between py-2 px-2.5 rounded-lg bg-cream">
-                <span className="text-[11.5px] text-[#3A4A42]">Zones</span>
-                <span className="font-mono text-[12px] font-semibold text-primary">{zones.length}</span>
-              </div>
-            </div>
-            {/* Shortcuts */}
-            <div className="p-4">
-              <div className="text-[10px] font-mono text-[#6B7A72] tracking-widest mb-3">SHORTCUTS</div>
-              <div className="space-y-1.5">
-                {[['Click','select zone'],['Drag','reposition'],['⌫','delete'],['⌘D','duplicate'],['⌘Z / ⇧⌘Z','undo / redo'],['[ ]','layer order'],['⌘P','preview'],['⌘/','shortcuts'],['G','toggle grid']].map(([k, v]) => (
-                  <div key={k} className="flex justify-between text-[10.5px] font-mono">
-                    <span className="bg-cream px-1.5 py-0.5 rounded text-[#0F1F18]/70">{k}</span>
-                    <span className="text-[#0F1F18]/40">{v}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </aside>
-        ) : (
-          <RightRail
-            selected={selected}
-            bgW={bgW}
-            bgH={bgH}
-            updateZone={updateZone}
-            duplicateZone={duplicateZone}
-            removeZone={removeZone}
-            BRAND_COLORS={BRAND_COLORS}
-            aspectLock={aspectLock}
-            setAspectLock={setAspectLock}
-            eventId={eventId}
-            bringForward={moveZoneDown}
-            sendBack={moveZoneUp}
-            bringToFront={bringToFront}
-            sendToBack={sendToBack}
-            zoneIndex={zones.findIndex(z => z.id === selected?.id)}
-            zoneCount={zones.length}
-          />
-        )}
+        {/* ── Right Sidebar ────────────────────────────────── */}
+        <RightSidebar
+          mode={sidebarMode}
+          nameVal={nameVal}
+          setNameVal={setNameVal}
+          editName={editName}
+          setEditName={setEditName}
+          saveName={saveName}
+          bgW={bgW}
+          bgH={bgH}
+          backgroundUrl={backgroundUrl}
+          bgReplaceRef={bgReplaceRef}
+          handleReplaceBackground={handleReplaceBackground}
+          zones={zones}
+          activeVariant={activeVariant}
+          selectedIds={selectedIds}
+          alignSelected={alignSelected}
+          distributeSelected={distributeSelected}
+          removeSelected={removeSelected}
+        >
+          {/* Zone panel rendered when mode === 'zone' */}
+          {selected && (
+            <RightRail
+              selected={selected}
+              bgW={bgW}
+              bgH={bgH}
+              updateZone={updateZone}
+              duplicateZone={duplicateZone}
+              removeZone={removeZone}
+              BRAND_COLORS={BRAND_COLORS}
+              aspectLock={aspectLock}
+              setAspectLock={setAspectLock}
+              eventId={eventId}
+              bringForward={moveZoneDown}
+              sendBack={moveZoneUp}
+              bringToFront={bringToFront}
+              sendToBack={sendToBack}
+              zoneIndex={zones.findIndex(z => z.id === selected?.id)}
+              zoneCount={zones.length}
+            />
+          )}
+        </RightSidebar>
       </div>
 
       {/* ── Add Variant Modal ───────────────────────────── */}
