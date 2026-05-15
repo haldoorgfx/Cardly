@@ -128,16 +128,11 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Zone, Variant } from '@/types/database';
 import {
-  Type, Image, ImagePlus, ToggleLeft, Tag, Plus, Eye, EyeOff, Lock, LockOpen,
+  Type, Image, ImagePlus, ToggleLeft, Tag, Lock, LockOpen,
   Trash2, Copy, AlignLeft, AlignCenter, AlignRight, AlignJustify,
-  ZoomIn, ZoomOut, Grid, MousePointer2, ArrowLeft, CheckCircle2, Globe,
-  Undo2, Redo2, Upload, Play, X, Layers, ChevronUp, ChevronDown,
-  Circle, Wand2, HelpCircle, Magnet, Square, Pencil, AlignVerticalJustifyEnd,
-  AlignStartHorizontal, AlignCenterHorizontal, AlignEndHorizontal,
+  Upload, X, ChevronUp, ChevronDown, Square, AlignVerticalJustifyEnd,
   AlignStartVertical, AlignCenterVertical, AlignEndVertical,
-  AlignHorizontalSpaceAround, AlignVerticalSpaceAround,
   AlignHorizontalJustifyCenter, AlignVerticalJustifyCenter,
-  Triangle, Minus,
 } from 'lucide-react';
 
 // Chrome components (UI only — no logic)
@@ -1519,7 +1514,6 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
           bgReplaceRef={bgReplaceRef}
           handleReplaceBackground={handleReplaceBackground}
           zones={zones}
-          activeVariant={activeVariant}
           selectedIds={selectedIds}
           alignSelected={alignSelected}
           distributeSelected={distributeSelected}

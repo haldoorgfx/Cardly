@@ -11,7 +11,7 @@
 // it's rendered by CanvasEditor.tsx directly. This component handles the OTHER panels.
 
 import React from 'react';
-import type { Zone, Variant } from '@/types/database';
+import type { Zone } from '@/types/database';
 import {
   Eye, MousePointer2, Upload, Image as ImageIcon,
   AlignStartHorizontal, AlignCenterHorizontal, AlignEndHorizontal,
@@ -33,13 +33,12 @@ interface EventPanelProps {
   bgReplaceRef: React.RefObject<HTMLInputElement>;
   handleReplaceBackground: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
   zones: Zone[];
-  activeVariant: Variant | undefined;
 }
 
 function EventPanel({
   nameVal, setNameVal, editName, setEditName, saveName,
   bgW, bgH, backgroundUrl, bgReplaceRef, handleReplaceBackground,
-  zones, activeVariant,
+  zones,
 }: EventPanelProps) {
   return (
     <aside className="w-[300px] shrink-0 bg-white border-l border-border flex flex-col overflow-y-auto">
@@ -256,7 +255,6 @@ export interface RightSidebarProps {
   bgReplaceRef: React.RefObject<HTMLInputElement>;
   handleReplaceBackground: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
   zones: Zone[];
-  activeVariant: Variant | undefined;
   // MultiSelectPanel props
   selectedIds: string[];
   alignSelected: (axis: 'left' | 'centerH' | 'right' | 'top' | 'middleV' | 'bottom') => void;
@@ -270,7 +268,7 @@ export default function RightSidebar({
   mode,
   nameVal, setNameVal, editName, setEditName, saveName,
   bgW, bgH, backgroundUrl, bgReplaceRef, handleReplaceBackground,
-  zones, activeVariant,
+  zones,
   selectedIds, alignSelected, distributeSelected, removeSelected,
   children,
 }: RightSidebarProps) {
@@ -290,7 +288,6 @@ export default function RightSidebar({
       bgReplaceRef={bgReplaceRef}
       handleReplaceBackground={handleReplaceBackground}
       zones={zones}
-      activeVariant={activeVariant}
     />
   );
 }
