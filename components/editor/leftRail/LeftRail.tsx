@@ -1,221 +1,200 @@
 'use client';
 
-import React from 'react';
-import type { Zone } from '@/types/database';
+import React, { useState } from 'react';
 import {
-  Type, Image, ImagePlus, ToggleLeft, Tag, Plus,
-  Eye, EyeOff, Lock, LockOpen,
-  ChevronUp, ChevronDown, Square, Circle, Triangle, Minus,
+  Type, Camera, ToggleLeft, Tag, ImagePlus, Plus,
+  ChevronRight, ChevronDown, HelpCircle,
+  Square, Circle, Triangle, Minus,
 } from 'lucide-react';
 
 interface LeftRailProps {
   previewMode: boolean;
-  zones: Zone[];
-  selectedIds: string[];
-  setSelectedIds: React.Dispatch<React.SetStateAction<string[]>>;
   addZone: (type: 'text' | 'photo' | 'custom' | 'label') => void;
   addShapeZone: (shapeType: 'rect' | 'ellipse' | 'triangle' | 'line') => void;
-  moveZoneUp: (id: string) => void;
-  moveZoneDown: (id: string) => void;
-  updateZone: (id: string, patch: Partial<Zone>, withHistory?: boolean) => void;
   uploadingImage: boolean;
   imageUploadRef: React.RefObject<HTMLInputElement>;
   handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
+/* ── Element button ──────────────────────────────────────────────── */
+function AddElementBtn({
+  icon, label, sub, onClick, disabled,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  sub: string;
+  onClick: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className="w-full flex items-center gap-2.5 p-2 rounded-md text-left transition-opacity hover:opacity-80 active:scale-[0.99] disabled:opacity-50"
+      style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}
+    >
+      <span
+        className="h-7 w-7 rounded-md grid place-items-center shrink-0"
+        style={{ background: '#E8EFEB', color: '#1F4D3A' }}
+      >
+        {icon}
+      </span>
+      <span className="flex-1 min-w-0">
+        <span className="block text-[12.5px] font-semibold truncate" style={{ color: '#0F1F18', lineHeight: 1.3 }}>{label}</span>
+        <span className="block text-[11px] truncate" style={{ color: '#6B7A72', lineHeight: 1.3 }}>{sub}</span>
+      </span>
+      <Plus size={13} strokeWidth={2} style={{ color: '#6B7A72', opacity: 0.6, flexShrink: 0 }} />
+    </button>
+  );
+}
+
 export default function LeftRail({
-  previewMode, zones, selectedIds, setSelectedIds,
+  previewMode,
   addZone, addShapeZone,
-  moveZoneUp, moveZoneDown, updateZone,
   uploadingImage, imageUploadRef, handleImageUpload,
 }: LeftRailProps) {
+  const [shapesOpen, setShapesOpen] = useState(false);
+
   return (
-    <aside className="w-[252px] shrink-0 bg-white border-r border-border flex flex-col overflow-y-auto">
-
-      {/* ── ADD ELEMENT ────────────────────────────────── */}
+    <aside
+      className="shrink-0 flex flex-col overflow-y-auto"
+      style={{ width: 240, background: '#FAF6EE', borderRight: '1px solid #E5E0D4' }}
+    >
       {!previewMode && (
-        <div className="p-4">
-          <div className="text-[10px] font-mono tracking-widest text-ink/40 mb-3 uppercase">Add Element</div>
+        <>
+          {/* ── Add element ──────────────────────────────── */}
+          <div className="p-3 flex flex-col gap-1.5">
+            <div
+              className="text-[10px] uppercase tracking-[0.1em] mb-1"
+              style={{ fontFamily: 'JetBrains Mono, monospace', color: '#6B7A72' }}
+            >
+              Add element
+            </div>
 
-          {/* Hidden file input for image upload */}
-          <input
-            ref={imageUploadRef}
-            type="file"
-            accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
-            className="hidden"
-            onChange={handleImageUpload}
-          />
+            {/* Hidden file input */}
+            <input
+              ref={imageUploadRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+              className="hidden"
+              onChange={handleImageUpload}
+            />
 
-          <div className="space-y-1">
-            {([
-              { type: 'text'   as const, label: 'Text field',   sub: 'Name, title, country…',   icon: <Type size={15} strokeWidth={1.8} /> },
-              { type: 'photo'  as const, label: 'Photo zone',   sub: 'Headshot or logo',          icon: <Image size={15} strokeWidth={1.8} /> },
-              { type: 'custom' as const, label: 'Custom field', sub: 'Dropdown, badge, role…',    icon: <ToggleLeft size={15} strokeWidth={1.8} /> },
-              { type: 'label'  as const, label: 'Static text',  sub: 'Fixed text on the card',    icon: <Tag size={15} strokeWidth={1.8} /> },
-            ]).map(item => (
-              <button
-                key={item.type}
-                onClick={() => addZone(item.type)}
-                className="group w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-cream border border-transparent hover:border-border transition text-left"
-              >
-                <span className="h-9 w-9 rounded-lg bg-cream grid place-items-center text-primary group-hover:text-white group-hover:bg-primary transition shrink-0">
-                  {item.icon}
-                </span>
-                <span className="flex-1 min-w-0">
-                  <span className="block text-[13px] font-medium">{item.label}</span>
-                  <span className="block text-[11px] text-ink/50">{item.sub}</span>
-                </span>
-                <Plus size={12} strokeWidth={2} className="text-ink/30 shrink-0" />
-              </button>
-            ))}
-
-            {/* Static image upload */}
-            <button
+            <AddElementBtn
+              icon={<Type size={14} strokeWidth={1.8} />}
+              label="Text field"
+              sub="Name, title, country…"
+              onClick={() => addZone('text')}
+            />
+            <AddElementBtn
+              icon={<Camera size={14} strokeWidth={1.8} />}
+              label="Photo zone"
+              sub="Headshot or logo"
+              onClick={() => addZone('photo')}
+            />
+            <AddElementBtn
+              icon={<ToggleLeft size={14} strokeWidth={1.8} />}
+              label="Custom field"
+              sub="Dropdown, badge, role…"
+              onClick={() => addZone('custom')}
+            />
+            <AddElementBtn
+              icon={<Tag size={14} strokeWidth={1.8} />}
+              label="Static text"
+              sub="Fixed text on the card"
+              onClick={() => addZone('label')}
+            />
+            <AddElementBtn
+              icon={
+                uploadingImage
+                  ? <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>
+                  : <ImagePlus size={14} strokeWidth={1.8} />
+              }
+              label={uploadingImage ? 'Uploading…' : 'Image'}
+              sub="PNG · JPG · SVG · GIF"
               onClick={() => imageUploadRef.current?.click()}
               disabled={uploadingImage}
-              className="group w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-cream border border-transparent hover:border-border transition text-left disabled:opacity-50 mt-1"
-            >
-              <span className="h-9 w-9 rounded-lg bg-cream grid place-items-center text-primary group-hover:text-white group-hover:bg-primary transition shrink-0">
-                {uploadingImage
-                  ? <svg className="animate-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
-                  : <ImagePlus size={15} strokeWidth={1.8} />
-                }
-              </span>
-              <span className="flex-1 min-w-0">
-                <span className="block text-[13px] font-medium">{uploadingImage ? 'Uploading…' : 'Static image'}</span>
-                <span className="block text-[11px] text-ink/50">Embed PNG, JPG, SVG on the card</span>
-              </span>
-              <Plus size={12} strokeWidth={2} className="text-ink/30 shrink-0" />
-            </button>
-          </div>
+            />
 
-          {/* Shapes */}
-          <div className="mt-3">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="flex-1 h-px bg-border" />
-              <span className="text-[10px] font-mono tracking-widest text-ink/35 uppercase">Shapes</span>
-              <div className="flex-1 h-px bg-border" />
-            </div>
-            <div className="grid grid-cols-2 gap-1.5">
-              {([
-                { shapeType: 'rect'     as const, label: 'Rectangle', icon: <Square size={13} strokeWidth={1.8} /> },
-                { shapeType: 'ellipse'  as const, label: 'Circle',    icon: <Circle size={13} strokeWidth={1.8} /> },
-                { shapeType: 'triangle' as const, label: 'Triangle',  icon: <Triangle size={13} strokeWidth={1.8} /> },
-                { shapeType: 'line'     as const, label: 'Line',      icon: <Minus size={13} strokeWidth={1.8} /> },
-              ] as { shapeType: 'rect' | 'ellipse' | 'triangle' | 'line'; label: string; icon: React.ReactNode }[]).map(item => (
-                <button
-                  key={item.shapeType}
-                  onClick={() => addShapeZone(item.shapeType)}
-                  className="group flex items-center gap-2 p-2 rounded-xl hover:bg-cream border border-transparent hover:border-border transition text-left"
-                >
-                  <span className="h-7 w-7 rounded-lg bg-cream grid place-items-center text-primary group-hover:text-white group-hover:bg-primary transition shrink-0">
-                    {item.icon}
-                  </span>
-                  <span className="text-[12px] font-medium">{item.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── LAYERS ─────────────────────────────────────── */}
-      <div className={previewMode ? 'p-4 flex-1' : 'px-4 pb-4 flex-1'}>
-        <div className="text-[10px] font-mono tracking-widest text-ink/40 mb-2 flex items-center justify-between uppercase">
-          <span>Layers</span>
-          <span className="text-ink/35 font-sans normal-case text-[11px]">{zones.length}</span>
-        </div>
-
-        <div className="space-y-0.5">
-          {[...zones].reverse().map(z => {
-            const realIdx = zones.findIndex(x => x.id === z.id);
-            const isSel = selectedIds.includes(z.id) && !previewMode;
-            const ZoneIcon = z.type === 'photo' ? Image
-              : z.type === 'custom' ? ToggleLeft
-              : z.type === 'label' ? Tag
-              : z.type === 'shape' ? Square
-              : z.type === 'image' ? ImagePlus
-              : Type;
-
-            return (
-              <div
-                key={z.id}
-                onClick={e => {
-                  if (previewMode) return;
-                  if (e.shiftKey) {
-                    setSelectedIds(ids => ids.includes(z.id) ? ids.filter(i => i !== z.id) : [...ids, z.id]);
-                  } else {
-                    setSelectedIds([z.id]);
-                  }
+            {/* Decorative shapes — collapsible */}
+            <div className="mt-1">
+              <button
+                onClick={() => setShapesOpen(s => !s)}
+                className="w-full flex items-center gap-1.5 px-2 py-1.5 rounded-md transition hover:bg-white"
+                style={{
+                  border: '1px solid #E5E0D4',
+                  background: 'transparent',
+                  fontFamily: 'JetBrains Mono, monospace',
+                  fontSize: 10,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  color: '#3A4A42',
                 }}
-                className={`group flex items-center gap-1.5 px-2 py-1.5 rounded-lg cursor-pointer text-[12.5px] transition ${
-                  isSel ? 'bg-primary/10 text-primary' : 'hover:bg-cream text-ink/80'
-                }`}
               >
-                {/* Layer order arrows */}
-                {!previewMode && (
-                  <div className="flex flex-col gap-0 opacity-0 group-hover:opacity-100 shrink-0 transition">
+                {shapesOpen
+                  ? <ChevronDown size={11} strokeWidth={2} style={{ flexShrink: 0 }} />
+                  : <ChevronRight size={11} strokeWidth={2} style={{ flexShrink: 0 }} />
+                }
+                <Square size={11} strokeWidth={1.8} style={{ flexShrink: 0 }} />
+                <span className="flex-1 text-left">Decorative shapes</span>
+                <span style={{ color: '#6B7A72', fontSize: 10 }}>4</span>
+              </button>
+
+              {shapesOpen && (
+                <div className="mt-1.5 grid grid-cols-2 gap-1">
+                  {([
+                    { s: 'rect'     as const, label: 'Rectangle', icon: <Square size={12} strokeWidth={1.8} /> },
+                    { s: 'ellipse'  as const, label: 'Circle',    icon: <Circle size={12} strokeWidth={1.8} /> },
+                    { s: 'triangle' as const, label: 'Triangle',  icon: <Triangle size={12} strokeWidth={1.8} /> },
+                    { s: 'line'     as const, label: 'Line',      icon: <Minus size={12} strokeWidth={1.8} /> },
+                  ] as { s: 'rect' | 'ellipse' | 'triangle' | 'line'; label: string; icon: React.ReactNode }[]).map(item => (
                     <button
-                      onClick={e => { e.stopPropagation(); moveZoneUp(z.id); }}
-                      disabled={realIdx >= zones.length - 1}
-                      className="h-4 w-4 rounded grid place-items-center text-ink/40 hover:text-primary disabled:opacity-20"
+                      key={item.s}
+                      onClick={() => addShapeZone(item.s)}
+                      className="flex items-center gap-1.5 p-2 rounded-md transition hover:bg-white text-left"
+                      style={{ border: '1px solid #E5E0D4', background: '#FAF6EE' }}
                     >
-                      <ChevronUp size={9} strokeWidth={2.5} />
+                      <span
+                        className="h-6 w-6 rounded grid place-items-center shrink-0"
+                        style={{ background: '#E8EFEB', color: '#1F4D3A' }}
+                      >
+                        {item.icon}
+                      </span>
+                      <span className="text-[11.5px] font-medium" style={{ color: '#0F1F18' }}>
+                        {item.label}
+                      </span>
                     </button>
-                    <button
-                      onClick={e => { e.stopPropagation(); moveZoneDown(z.id); }}
-                      disabled={realIdx <= 0}
-                      className="h-4 w-4 rounded grid place-items-center text-ink/40 hover:text-primary disabled:opacity-20"
-                    >
-                      <ChevronDown size={9} strokeWidth={2.5} />
-                    </button>
-                  </div>
-                )}
-
-                {/* Zone type icon */}
-                <span className={`h-6 w-6 rounded-md grid place-items-center shrink-0 ${isSel ? 'text-primary' : 'text-ink/50'}`}>
-                  <ZoneIcon size={12} strokeWidth={1.8} />
-                </span>
-
-                <span className="flex-1 truncate">{z.label}</span>
-
-                {z.required && (
-                  <span className="text-[9px] font-mono px-1 py-px rounded bg-primary/10 text-primary shrink-0">REQ</span>
-                )}
-                {(z.rotation ?? 0) !== 0 && (
-                  <span className="text-[9px] font-mono text-accent shrink-0" title={`${z.rotation}°`}>↻</span>
-                )}
-
-                {/* Lock / hide buttons */}
-                {!previewMode && (
-                  <div className="opacity-0 group-hover:opacity-100 flex items-center gap-0.5 shrink-0 transition">
-                    <button
-                      onClick={e => { e.stopPropagation(); updateZone(z.id, { locked: !z.locked }); }}
-                      className={`h-6 w-6 rounded-md grid place-items-center transition ${z.locked ? 'text-warning' : 'text-ink/40 hover:text-ink'}`}
-                      title={z.locked ? 'Unlock' : 'Lock'}
-                    >
-                      {z.locked ? <Lock size={11} strokeWidth={1.8} /> : <LockOpen size={11} strokeWidth={1.8} />}
-                    </button>
-                    <button
-                      onClick={e => { e.stopPropagation(); updateZone(z.id, { hidden: !z.hidden }); }}
-                      className="h-6 w-6 rounded-md grid place-items-center text-ink/40 hover:text-ink transition"
-                      title={z.hidden ? 'Show' : 'Hide'}
-                    >
-                      {z.hidden ? <EyeOff size={11} strokeWidth={1.8} /> : <Eye size={11} strokeWidth={1.8} />}
-                    </button>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-
-          {zones.length === 0 && (
-            <div className="text-center py-6 text-[12px] text-ink/30 font-mono">
-              No elements yet.
+                  ))}
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      </div>
+          </div>
+
+          {/* Separator */}
+          <div style={{ height: 1, background: '#E5E0D4', margin: '0 12px' }} />
+
+          {/* Footer hint */}
+          <div className="px-3 py-2 flex items-center gap-2">
+            <button
+              title="Help · ⌘/"
+              className="h-7 w-7 rounded-md grid place-items-center transition hover:bg-white"
+              style={{ border: '1px solid #E5E0D4', color: '#6B7A72', background: 'transparent' }}
+            >
+              <HelpCircle size={13} strokeWidth={1.8} />
+            </button>
+            <span
+              style={{
+                fontFamily: 'JetBrains Mono, monospace',
+                fontSize: 10,
+                color: '#6B7A72',
+                letterSpacing: '0.04em',
+              }}
+            >
+              Drag · drop to canvas
+            </span>
+          </div>
+        </>
+      )}
     </aside>
   );
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ZoomIn, ZoomOut, Grid, Magnet } from 'lucide-react';
+import { ZoomIn, ZoomOut, Grid, Magnet, Maximize2 } from 'lucide-react';
 
 interface BottomBarProps {
   zoom: number;
@@ -17,62 +17,149 @@ export default function BottomBar({
   zoom, setZoom, fitZoom, grid, setGrid, gridSnap, setGridSnap,
 }: BottomBarProps) {
   return (
-    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white rounded-xl border border-border shadow-soft p-1 z-10">
-      <button
-        onClick={() => setZoom(z => Math.max(0.1, z - 0.1))}
-        className="h-8 w-8 rounded-lg hover:bg-cream grid place-items-center text-ink/70 transition"
-        title="Zoom out (⌘-)"
+    <div
+      className="shrink-0 flex items-center px-3 gap-2"
+      style={{
+        height: 40,
+        background: '#FFFFFF',
+        borderTop: '1px solid #E5E0D4',
+      }}
+    >
+      {/* Zoom control — bordered group */}
+      <div
+        className="flex items-center overflow-hidden"
+        style={{
+          height: 28,
+          border: '1px solid #E5E0D4',
+          borderRadius: 6,
+          background: '#FAF6EE',
+        }}
       >
-        <ZoomOut size={14} strokeWidth={1.8} />
-      </button>
+        <button
+          onClick={() => setZoom(z => Math.max(0.1, +(z - 0.1).toFixed(1)))}
+          title="Zoom out (⌘-)"
+          className="flex items-center justify-center transition hover:bg-white"
+          style={{ width: 26, height: 26, color: '#3A4A42', background: 'transparent', border: 'none', cursor: 'pointer' }}
+        >
+          <ZoomOut size={12} strokeWidth={2} />
+        </button>
 
-      <button
-        onClick={() => setZoom(() => 1)}
-        className="font-mono text-[12px] px-2 min-w-[60px] text-center hover:bg-cream rounded-lg py-1.5 text-ink/70 transition"
-        title="Reset to 100%"
-      >
-        {Math.round(zoom * 100)}%
-      </button>
+        <button
+          onClick={() => setZoom(() => 1)}
+          title="Reset to 100%"
+          className="flex items-center justify-center transition hover:bg-white"
+          style={{
+            height: 26,
+            padding: '0 8px',
+            fontFamily: 'JetBrains Mono, monospace',
+            fontSize: 11,
+            fontWeight: 500,
+            color: '#0F1F18',
+            background: 'transparent',
+            border: 'none',
+            borderLeft: '1px solid #E5E0D4',
+            borderRight: '1px solid #E5E0D4',
+            cursor: 'pointer',
+            minWidth: 44,
+            textAlign: 'center',
+          }}
+        >
+          {Math.round(zoom * 100)}%
+        </button>
 
-      <button
-        onClick={() => setZoom(z => Math.min(3, z + 0.1))}
-        className="h-8 w-8 rounded-lg hover:bg-cream grid place-items-center text-ink/70 transition"
-        title="Zoom in (⌘+)"
-      >
-        <ZoomIn size={14} strokeWidth={1.8} />
-      </button>
+        <button
+          onClick={() => setZoom(z => Math.min(3, +(z + 0.1).toFixed(1)))}
+          title="Zoom in (⌘+)"
+          className="flex items-center justify-center transition hover:bg-white"
+          style={{ width: 26, height: 26, color: '#3A4A42', background: 'transparent', border: 'none', cursor: 'pointer' }}
+        >
+          <ZoomIn size={12} strokeWidth={2} />
+        </button>
+      </div>
 
-      <span className="h-5 w-px bg-border mx-0.5" />
-
+      {/* Fit button */}
       <button
         onClick={fitZoom}
-        className="h-8 px-2.5 rounded-lg hover:bg-cream text-[12px] text-ink/70 font-mono transition"
         title="Fit to screen"
+        className="flex items-center gap-1.5 transition hover:bg-[#FAF6EE]"
+        style={{
+          height: 28,
+          padding: '0 10px',
+          background: '#FAF6EE',
+          border: '1px solid #E5E0D4',
+          borderRadius: 6,
+          fontFamily: 'Inter, sans-serif',
+          fontSize: 12,
+          fontWeight: 500,
+          color: '#0F1F18',
+          cursor: 'pointer',
+        }}
       >
-        Fit
+        <Maximize2 size={11} strokeWidth={2} />
+        <span>Fit</span>
       </button>
 
-      <span className="h-5 w-px bg-border mx-0.5" />
+      {/* Divider */}
+      <span style={{ width: 1, height: 18, background: '#E5E0D4', display: 'block' }} />
 
+      {/* Grid toggle chip */}
       <button
         onClick={() => setGrid(g => !g)}
-        className={`h-8 px-2.5 rounded-lg flex items-center gap-1.5 text-[12px] transition ${grid ? 'bg-primary/10 text-primary' : 'hover:bg-cream text-ink/70'}`}
         title="Toggle grid (G)"
+        className="flex items-center gap-1.5 transition"
+        style={{
+          height: 28,
+          padding: '0 10px',
+          background: grid ? '#E8EFEB' : '#FAF6EE',
+          border: grid ? '1px solid rgba(31,77,58,0.18)' : '1px solid #E5E0D4',
+          borderRadius: 6,
+          fontFamily: 'Inter, sans-serif',
+          fontSize: 12,
+          fontWeight: 500,
+          color: grid ? '#1F4D3A' : '#3A4A42',
+          cursor: 'pointer',
+        }}
       >
-        <Grid size={12} strokeWidth={1.8} />Grid
+        <Grid size={12} strokeWidth={1.8} />
+        <span>Grid</span>
       </button>
 
+      {/* Snap toggle chip */}
       <button
         onClick={() => setGridSnap(s => !s)}
-        className={`h-8 px-2.5 rounded-lg flex items-center gap-1.5 text-[12px] transition ${gridSnap ? 'bg-accent/20 text-[#C9A45E]' : 'hover:bg-cream text-ink/70'}`}
         title="Snap to grid"
+        className="flex items-center gap-1.5 transition"
+        style={{
+          height: 28,
+          padding: '0 10px',
+          background: gridSnap ? '#E8EFEB' : '#FAF6EE',
+          border: gridSnap ? '1px solid rgba(31,77,58,0.18)' : '1px solid #E5E0D4',
+          borderRadius: 6,
+          fontFamily: 'Inter, sans-serif',
+          fontSize: 12,
+          fontWeight: 500,
+          color: gridSnap ? '#1F4D3A' : '#3A4A42',
+          cursor: 'pointer',
+        }}
       >
-        <Magnet size={12} strokeWidth={1.8} />Snap
+        <Magnet size={12} strokeWidth={1.8} />
+        <span>Snap</span>
       </button>
 
-      <span className="h-5 w-px bg-border mx-0.5" />
-
-      <span className="text-[10px] font-mono text-ink/35 px-1 select-none hidden sm:block">⎵ pan</span>
+      {/* Spacer + pan hint */}
+      <div className="flex-1" />
+      <span
+        className="hidden sm:flex items-center gap-1.5"
+        style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: '#6B7A72', letterSpacing: '0.04em' }}
+      >
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M18 11V6a2 2 0 0 0-4 0v5"/>
+          <path d="M14 10V4a2 2 0 0 0-4 0v6"/>
+          <path d="M10 10.5V6a2 2 0 0 0-4 0v8"/>
+          <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2a8 8 0 0 1-8-8"/>
+        </svg>
+        <span>space + drag to pan</span>
+      </span>
     </div>
   );
 }

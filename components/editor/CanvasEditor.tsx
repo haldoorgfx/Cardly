@@ -1014,6 +1014,8 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
         handleDeleteVariant={handleDeleteVariant}
         handleDuplicateVariant={handleDuplicateVariant}
         onAddVariant={() => setShowAddVariant(true)}
+        bgW={bgW}
+        bgH={bgH}
       />
 
       <div className="flex-1 flex min-h-0">
@@ -1021,26 +1023,39 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
         {/* ── Left Rail ───────────────────────────────────── */}
         <LeftRail
           previewMode={previewMode}
-          zones={zones}
-          selectedIds={selectedIds}
-          setSelectedIds={setSelectedIds}
           addZone={addZone}
           addShapeZone={addShapeZone}
-          moveZoneUp={moveZoneUp}
-          moveZoneDown={moveZoneDown}
-          updateZone={updateZone}
           uploadingImage={uploadingImage}
           imageUploadRef={imageUploadRef}
           handleImageUpload={handleImageUpload}
         />
 
         {/* ── Stage ───────────────────────────────────────── */}
-        <div ref={stageContainerRef} className="flex-1 relative overflow-hidden">
+        <div ref={stageContainerRef} className="flex-1 flex flex-col overflow-hidden" style={{ position: 'relative' }}>
+          {/* Canvas dims chip — non-scrolling overlay at top of stage */}
+          {!previewMode && (
+            <div style={{
+              position: 'absolute', top: 10, left: '50%', transform: 'translateX(-50%)',
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              padding: '4px 10px',
+              background: '#FFFFFF', border: '1px solid #E5E0D4',
+              borderRadius: 6,
+              fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
+              color: '#3A4A42', letterSpacing: '0.04em',
+              zIndex: 10, pointerEvents: 'none', whiteSpace: 'nowrap',
+            }}>
+              <span style={{ color: '#6B7A72' }}>canvas</span>
+              <span style={{ color: '#0F1F18', fontWeight: 500 }}>{bgW} × {bgH} px</span>
+              <span style={{ width: 1, height: 12, background: '#E5E0D4' }} />
+              <span style={{ color: '#6B7A72' }}>{Math.round(zoom * 100)}%</span>
+            </div>
+          )}
+
           {/* Scrollable canvas area */}
           <div
             ref={stageRef}
-            className={`absolute inset-0 overflow-auto${spaceDown ? ' cursor-grab' : ''}`}
-            style={{ backgroundColor: '#F5F1E6', backgroundImage: 'radial-gradient(#C9C3B1 0.8px, transparent 0.8px)', backgroundSize: '14px 14px', backgroundAttachment: 'local' }}
+            className={`flex-1 overflow-auto${spaceDown ? ' cursor-grab' : ''}`}
+            style={{ position: 'relative', backgroundColor: '#F5F1E6', backgroundImage: 'radial-gradient(#C9C3B1 0.8px, transparent 0.8px)', backgroundSize: '14px 14px', backgroundAttachment: 'local' }}
             onPointerDown={e => {
               if (spaceDownRef.current) {
                 isPanning.current = true;
@@ -1111,38 +1126,9 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
 
                 {/* floating toolbar is now viewport-anchored — see stageContainerRef section */}
 
-                {/* Canvas corner brackets + dims chip */}
+                {/* Corner brackets */}
                 {!previewMode && (
                   <>
-                    {/* Floating dims chip above canvas — "canvas 1080 × 1350 px | 42%" */}
-                    <div className="absolute pointer-events-none" style={{
-                      top: -32, left: '50%', transform: 'translateX(-50%)',
-                      display: 'inline-flex', alignItems: 'center', gap: 6,
-                      padding: '3px 10px',
-                      background: 'rgba(15,31,24,0.72)',
-                      backdropFilter: 'blur(4px)',
-                      borderRadius: 999,
-                      fontFamily: 'JetBrains Mono, monospace',
-                      fontSize: 10, letterSpacing: '0.04em',
-                      color: 'rgba(255,255,255,0.8)',
-                      whiteSpace: 'nowrap',
-                    }}>
-                      canvas {bgW} × {bgH} px
-                      <span style={{ width: 1, height: 10, background: 'rgba(255,255,255,0.2)' }} />
-                      {Math.round(zoom * 100)}%
-                    </div>
-
-                    {/* Zone count chip — top right */}
-                    <div className="absolute pointer-events-none" style={{
-                      top: -24, right: 0,
-                      fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
-                      color: 'rgba(15,31,24,0.4)',
-                      whiteSpace: 'nowrap',
-                    }}>
-                      {zones.length} zones · {zones.filter(z => z.required).length} req
-                    </div>
-
-                    {/* Corner brackets */}
                     <span className="absolute -top-1 -left-1 h-3 w-3 border-t border-l border-primary/50 pointer-events-none" />
                     <span className="absolute -top-1 -right-1 h-3 w-3 border-t border-r border-primary/50 pointer-events-none" />
                     <span className="absolute -bottom-1 -left-1 h-3 w-3 border-b border-l border-primary/50 pointer-events-none" />
@@ -1503,6 +1489,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
         {/* ── Right Sidebar ────────────────────────────────── */}
         <RightSidebar
           mode={sidebarMode}
+          previewMode={previewMode}
           nameVal={nameVal}
           setNameVal={setNameVal}
           editName={editName}
@@ -1515,6 +1502,10 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
           handleReplaceBackground={handleReplaceBackground}
           zones={zones}
           selectedIds={selectedIds}
+          setSelectedIds={setSelectedIds}
+          moveZoneUp={moveZoneUp}
+          moveZoneDown={moveZoneDown}
+          updateZone={updateZone}
           alignSelected={alignSelected}
           distributeSelected={distributeSelected}
           removeSelected={removeSelected}
@@ -1622,48 +1613,82 @@ function RightRail({
 }) {
   const upd = (patch: Partial<Zone>) => updateZone(selected.id, patch);
 
+  // Zone type label
+  const typeLabel = selected.type === 'photo' ? 'Photo zone'
+    : selected.type === 'custom' ? 'Custom field'
+    : selected.type === 'label'  ? 'Static text'
+    : selected.type === 'shape'  ? 'Shape'
+    : selected.type === 'image'  ? 'Image'
+    : 'Text zone';
+  const TypeIcon = selected.type === 'photo' ? Image
+    : selected.type === 'custom' ? ToggleLeft
+    : selected.type === 'label'  ? Tag
+    : selected.type === 'shape'  ? Square
+    : selected.type === 'image'  ? ImagePlus
+    : Type;
+
   return (
-    <aside className="w-[300px] shrink-0 bg-white border-l border-border flex flex-col overflow-y-auto">
-      {/* Zone header */}
-      <div className="p-4 border-b border-border flex items-center gap-2 shrink-0">
-        <span className="h-7 w-7 rounded-md grid place-items-center text-white bg-primary shrink-0">
-          {selected.type === 'photo' ? <Image size={13} strokeWidth={1.8} /> : selected.type === 'custom' ? <ToggleLeft size={13} strokeWidth={1.8} /> : selected.type === 'label' ? <Tag size={13} strokeWidth={1.8} /> : selected.type === 'shape' ? <Square size={13} strokeWidth={1.8} /> : selected.type === 'image' ? <ImagePlus size={13} strokeWidth={1.8} /> : <Type size={13} strokeWidth={1.8} />}
-        </span>
-        <div className="flex-1 min-w-0">
-          <div className="text-[10.5px] font-mono text-[#0F1F18]/45 uppercase tracking-widest">{selected.type} zone</div>
-          <div className="text-[13px] font-display font-semibold truncate">{selected.label}</div>
+    <div className="flex flex-col">
+      {/* ── Sticky zone header (D2.2 design) ─── */}
+      <div style={{
+        padding: '14px 14px 10px',
+        borderBottom: '1px solid #E5E0D4',
+        background: '#FAF6EE',
+        position: 'sticky', top: 0, zIndex: 3,
+      }}>
+        {/* Breadcrumb row */}
+        <div className="flex items-center gap-2 mb-2">
+          <button
+            onClick={() => { /* deselect is handled by clicking canvas */ }}
+            title="Back to Event"
+            style={{
+              width: 22, height: 22, borderRadius: 4,
+              background: '#FFFFFF', border: '1px solid #E5E0D4',
+              color: '#6B7A72', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}
+          >
+            <ChevronDown size={12} strokeWidth={2.2} style={{ transform: 'rotate(90deg)' }} />
+          </button>
+          <div style={{
+            fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
+            color: '#6B7A72', letterSpacing: '0.1em', textTransform: 'uppercase',
+          }}>
+            Event / Attendee
+          </div>
         </div>
-        <button onClick={() => duplicateZone(selected.id)} title="Duplicate (⌘D)" className="h-7 w-7 rounded-md hover:bg-cream grid place-items-center text-[#0F1F18]/55 transition"><Copy size={13} strokeWidth={1.8} /></button>
-        <button onClick={() => removeZone(selected.id)} title="Delete (⌫)" className="h-7 w-7 rounded-md hover:bg-rose-50 grid place-items-center text-rose-400 hover:text-rose-500 transition"><Trash2 size={13} strokeWidth={1.8} /></button>
-      </div>
-      {/* Layer order strip */}
-      <div className="px-4 py-2 border-b border-border flex items-center gap-1 shrink-0">
-        <span className="text-[10px] font-mono text-[#6B7A72] tracking-widest mr-auto">LAYER</span>
-        <button
-          onClick={() => sendToBack(selected.id)}
-          disabled={zoneIndex === 0}
-          title="Send to back"
-          className="h-6 px-2 rounded-md text-[10px] font-mono border border-border hover:bg-cream disabled:opacity-30 disabled:cursor-not-allowed transition text-[#0F1F18]/60"
-        >⇊</button>
-        <button
-          onClick={() => sendBack(selected.id)}
-          disabled={zoneIndex === 0}
-          title="Send backward ([)"
-          className="h-6 px-2 rounded-md text-[10px] font-mono border border-border hover:bg-cream disabled:opacity-30 disabled:cursor-not-allowed transition text-[#0F1F18]/60"
-        >↓</button>
-        <button
-          onClick={() => bringForward(selected.id)}
-          disabled={zoneIndex === zoneCount - 1}
-          title="Bring forward (])"
-          className="h-6 px-2 rounded-md text-[10px] font-mono border border-border hover:bg-cream disabled:opacity-30 disabled:cursor-not-allowed transition text-[#0F1F18]/60"
-        >↑</button>
-        <button
-          onClick={() => bringToFront(selected.id)}
-          disabled={zoneIndex === zoneCount - 1}
-          title="Bring to front"
-          className="h-6 px-2 rounded-md text-[10px] font-mono border border-border hover:bg-cream disabled:opacity-30 disabled:cursor-not-allowed transition text-[#0F1F18]/60"
-        >⇈</button>
-        <span className="ml-1 text-[10px] font-mono text-[#6B7A72]">{zoneIndex + 1}/{zoneCount}</span>
+        {/* Zone identity row */}
+        <div className="flex items-center gap-2">
+          <div style={{
+            width: 22, height: 22, borderRadius: 4,
+            background: '#E8EFEB', color: '#1F4D3A',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0,
+          }}>
+            <TypeIcon size={13} strokeWidth={1.8} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div style={{
+              fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
+              color: '#6B7A72', letterSpacing: '0.1em', textTransform: 'uppercase',
+            }}>
+              {typeLabel}
+            </div>
+            <div style={{
+              fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 15,
+              color: '#0F1F18', letterSpacing: '-0.01em',
+              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+            }}>
+              {selected.label}
+            </div>
+          </div>
+          <div style={{
+            fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
+            color: '#6B7A72', letterSpacing: '0.04em', flexShrink: 0,
+          }}>
+            #{selected.id.slice(-4)}
+          </div>
+        </div>
       </div>
 
       {/* ── Field ───────────────────────────────────────── */}
@@ -2050,11 +2075,85 @@ function RightRail({
         </PropSection>
       )}
 
+      {/* ── Layer order & Actions ─────────────────────── */}
+      <div style={{ padding: '0 14px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {/* Layer order buttons */}
+        <div style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 6, padding: '10px 12px' }}>
+          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: '#6B7A72', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>Layer</div>
+          <div className="flex gap-1.5">
+            {[
+              { fn: () => bringForward(selected.id), title: 'Bring forward · ]', disabled: zoneIndex >= zoneCount - 1, label: '↑ Forward' },
+              { fn: () => sendBack(selected.id),     title: 'Send back · [',     disabled: zoneIndex <= 0,            label: '↓ Back'    },
+              { fn: () => bringToFront(selected.id), title: 'Bring to front · ⇧]', disabled: zoneIndex >= zoneCount - 1, label: '⇈ Front' },
+              { fn: () => sendToBack(selected.id),   title: 'Send to back · ⇧[',  disabled: zoneIndex <= 0,            label: '⇊ Bottom' },
+            ].map((btn, i) => (
+              <button
+                key={i}
+                onClick={btn.fn}
+                disabled={btn.disabled}
+                title={btn.title}
+                style={{
+                  flex: 1, height: 28,
+                  background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 6,
+                  cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontFamily: 'JetBrains Mono, monospace', fontSize: 9.5, color: '#3A4A42',
+                  opacity: btn.disabled ? 0.3 : 1,
+                }}
+              >
+                {btn.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex gap-1.5">
+          <button
+            onClick={() => duplicateZone(selected.id)}
+            style={{
+              flex: 1, height: 32,
+              background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 6,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+              fontFamily: 'JetBrains Mono, monospace', fontSize: 10, textTransform: 'uppercase',
+              letterSpacing: '0.06em', fontWeight: 600, color: '#3A4A42', cursor: 'pointer',
+            }}
+          >
+            <Copy size={13} strokeWidth={1.8} />Duplicate
+          </button>
+          <button
+            onClick={() => upd({ locked: !selected.locked })}
+            style={{
+              flex: 1, height: 32,
+              background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 6,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+              fontFamily: 'JetBrains Mono, monospace', fontSize: 10, textTransform: 'uppercase',
+              letterSpacing: '0.06em', fontWeight: 600, color: '#3A4A42', cursor: 'pointer',
+            }}
+          >
+            {selected.locked ? <Lock size={13} strokeWidth={1.8} /> : <LockOpen size={13} strokeWidth={1.8} />}
+            {selected.locked ? 'Unlock' : 'Lock'}
+          </button>
+          <button
+            onClick={() => removeZone(selected.id)}
+            style={{
+              flex: 1, height: 32,
+              background: '#FFFFFF', border: '1px solid rgba(184,66,60,0.3)', borderRadius: 6,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+              fontFamily: 'JetBrains Mono, monospace', fontSize: 10, textTransform: 'uppercase',
+              letterSpacing: '0.06em', fontWeight: 600, color: '#B8423C', cursor: 'pointer',
+            }}
+          >
+            <Trash2 size={13} strokeWidth={1.8} />Delete
+          </button>
+        </div>
+      </div>
+
       <style>{`
-        .prop-input{width:100%;height:32px;padding:0 10px;border:1px solid #E5E0D4;border-radius:8px;background:#FAF6EE;font-size:12.5px;font-family:'Inter',sans-serif;outline:none;}
-        .prop-input:focus{background:white;outline:2px solid rgba(31,77,58,0.25);outline-offset:-1px;border-color:#1F4D3A;}
+        .prop-input{width:100%;height:32px;padding:0 10px;border:1px solid #E5E0D4;border-radius:6px;background:#FFFFFF;font-size:12.5px;font-family:'Inter',sans-serif;outline:none;}
+        .prop-input:focus{outline:2px solid rgba(31,77,58,0.25);outline-offset:-1px;border-color:#1F4D3A;}
       `}</style>
-    </aside>
+    </div>
   );
 }
 
