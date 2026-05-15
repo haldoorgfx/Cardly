@@ -309,7 +309,7 @@ export default function BrandKitPage() {
                 key={i}
                 onClick={() => setSelectedPair(i)}
                 className={`h-8 px-3.5 rounded-lg text-[12px] font-medium transition ${
-                  selectedPair === i ? 'bg-[#0f0f1a] text-white' : 'bg-white border border-border text-[#0F1F18]/65 hover:bg-cream'
+                  selectedPair === i ? 'bg-[#0F1F18] text-white' : 'bg-white border border-border text-[#0F1F18]/65 hover:bg-cream'
                 }`}
               >
                 {pair.label}

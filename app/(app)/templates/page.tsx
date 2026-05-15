@@ -16,18 +16,18 @@ const CATEGORIES = [
 ];
 
 const TEMPLATES = [
-  { id: 'atf', name: 'Africa Tech Festival', cat: 'conference', catLabel: 'CONFERENCE', badge: 'POPULAR', gradient: 'linear-gradient(155deg,#1b1240,#3a2068 40%,#7a3a9a 80%,#f8a4d8 130%)', t1: "I'm attending", t2: 'Africa Tech Festival.' },
+  { id: 'atf', name: 'Africa Tech Festival', cat: 'conference', catLabel: 'CONFERENCE', badge: 'POPULAR', gradient: 'linear-gradient(155deg,#1b1240,#3a2068 40%,#7a3a9a 80%,#E8C57E 130%)', t1: "I'm attending", t2: 'Africa Tech Festival.' },
   { id: 'sunrise', name: 'Sunrise Hackathon', cat: 'tech', catLabel: 'HACKATHON', badge: 'NEW', gradient: 'linear-gradient(155deg,#0a2540,#1f8a5b 50%,#ffd28a 130%)', t1: 'Building at', t2: "Sunrise '26." },
-  { id: 'studio', name: 'Studio Sessions', cat: 'workshop', catLabel: 'WORKSHOP', badge: null, gradient: 'linear-gradient(155deg,#f8a4d8,#6c63ff 60%,#0f0f1a 130%)', t1: 'See you at', t2: 'Studio Sessions.' },
+  { id: 'studio', name: 'Studio Sessions', cat: 'workshop', catLabel: 'WORKSHOP', badge: null, gradient: 'linear-gradient(155deg,#E8C57E,#1F4D3A 60%,#0F1F18 130%)', t1: 'See you at', t2: 'Studio Sessions.' },
   { id: 'devfest', name: 'Devfest Lagos', cat: 'conference', catLabel: 'CONFERENCE', badge: null, gradient: 'linear-gradient(155deg,#0a2540,#3a3aff 50%,#7be0c0 130%)', t1: 'Going to', t2: 'Devfest Lagos.' },
-  { id: 'gala', name: 'Black Tie Gala', cat: 'conference', catLabel: 'GALA', badge: null, gradient: 'linear-gradient(155deg,#0f0f1a,#3a2068 60%,#ffd28a 130%)', t1: 'Joining the', t2: 'Annual Gala.' },
-  { id: 'pulse', name: 'Pulse Music Fest', cat: 'music', catLabel: 'MUSIC', badge: 'POPULAR', gradient: 'linear-gradient(155deg,#E1306C,#6c63ff 60%,#ffd28a 130%)', t1: 'Front row at', t2: "Pulse '26." },
-  { id: 'founders', name: 'Founders Retreat', cat: 'workshop', catLabel: 'WORKSHOP', badge: null, gradient: 'linear-gradient(155deg,#0a2540,#6c63ff 50%,#f8a4d8 130%)', t1: 'Reset at', t2: 'Founders Retreat.' },
+  { id: 'gala', name: 'Black Tie Gala', cat: 'conference', catLabel: 'GALA', badge: null, gradient: 'linear-gradient(155deg,#0F1F18,#3a2068 60%,#ffd28a 130%)', t1: 'Joining the', t2: 'Annual Gala.' },
+  { id: 'pulse', name: 'Pulse Music Fest', cat: 'music', catLabel: 'MUSIC', badge: 'POPULAR', gradient: 'linear-gradient(155deg,#E1306C,#1F4D3A 60%,#ffd28a 130%)', t1: 'Front row at', t2: "Pulse '26." },
+  { id: 'founders', name: 'Founders Retreat', cat: 'workshop', catLabel: 'WORKSHOP', badge: null, gradient: 'linear-gradient(155deg,#0a2540,#1F4D3A 50%,#E8C57E 130%)', t1: 'Reset at', t2: 'Founders Retreat.' },
   { id: 'run', name: 'Run Lagos 10K', cat: 'sport', catLabel: 'SPORT', badge: null, gradient: 'linear-gradient(155deg,#1f8a5b,#7be0c0 60%,#ffd28a 130%)', t1: 'Running', t2: 'Lagos 10K.' },
   { id: 'sea', name: 'Devs at Sea', cat: 'tech', catLabel: 'CONFERENCE', badge: null, gradient: 'linear-gradient(155deg,#0a2540,#0a66c2 50%,#7be0c0 130%)', t1: 'Sailing with', t2: 'Devs at Sea.' },
-  { id: 'ai', name: 'AI Ethics Webinar', cat: 'webinar', catLabel: 'WEBINAR', badge: 'NEW', gradient: 'linear-gradient(155deg,#0f0f1a,#6c63ff 70%,#f8a4d8 130%)', t1: 'Joining the', t2: 'AI Ethics talk.' },
+  { id: 'ai', name: 'AI Ethics Webinar', cat: 'webinar', catLabel: 'WEBINAR', badge: 'NEW', gradient: 'linear-gradient(155deg,#0F1F18,#1F4D3A 70%,#E8C57E 130%)', t1: 'Joining the', t2: 'AI Ethics talk.' },
   { id: 'faith', name: 'Faith Conference', cat: 'ngo', catLabel: 'RELIGIOUS', badge: null, gradient: 'linear-gradient(155deg,#0a2540,#3a2068 60%,#ffd28a 130%)', t1: 'Attending', t2: "Faith Conf '26." },
-  { id: 'womentech', name: 'Women in Tech Summit', cat: 'tech', catLabel: 'SUMMIT', badge: 'NEW', gradient: 'linear-gradient(155deg,#6c63ff,#f8a4d8 60%,#ffd28a 130%)', t1: 'Speaking at', t2: 'Women in Tech.' },
+  { id: 'womentech', name: 'Women in Tech Summit', cat: 'tech', catLabel: 'SUMMIT', badge: 'NEW', gradient: 'linear-gradient(155deg,#1F4D3A,#E8C57E 60%,#ffd28a 130%)', t1: 'Speaking at', t2: 'Women in Tech.' },
 ];
 
 export default function TemplatesPage() {
@@ -177,7 +177,7 @@ export default function TemplatesPage() {
                 >
                   {tmpl.t1}
                   <br />
-                  <span style={{ background: 'linear-gradient(135deg,#f8a4d8,#ffd28a)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>
+                  <span style={{ background: 'linear-gradient(135deg,#E8C57E,#ffd28a)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>
                     {tmpl.t2}
                   </span>
                 </div>
