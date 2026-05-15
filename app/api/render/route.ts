@@ -416,7 +416,7 @@ async function compositePhoto(
     photoSharp = sharp(await photoSharp.png().toBuffer()).composite([{ input: maskBuf, blend: 'dest-in' }]);
   } else if (shape === 'hexagon') {
     // Pointy-top hexagon polygon
-    const hx = w / 2, hy = h / 2;
+    const hx = w / 2;
     const pts = [
       `${hx},1`, `${w - 1},${h / 4}`, `${w - 1},${3 * h / 4}`,
       `${hx},${h - 1}`, `1,${3 * h / 4}`, `1,${h / 4}`,
@@ -437,7 +437,7 @@ async function compositePhoto(
     if (shape === 'circle') {
       borderSvg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg"><ellipse cx="${w / 2}" cy="${h / 2}" rx="${w / 2 - bw2}" ry="${h / 2 - bw2}" fill="none" stroke="${borderColor}" stroke-width="${borderWidth}"/></svg>`;
     } else if (shape === 'hexagon') {
-      const hx = w / 2, hy = h / 2;
+      const hx = w / 2;
       const pts = [`${hx},${bw2}`, `${w - bw2},${h / 4}`, `${w - bw2},${3 * h / 4}`, `${hx},${h - bw2}`, `${bw2},${3 * h / 4}`, `${bw2},${h / 4}`].join(' ');
       borderSvg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg"><polygon points="${pts}" fill="none" stroke="${borderColor}" stroke-width="${borderWidth}"/></svg>`;
     } else {

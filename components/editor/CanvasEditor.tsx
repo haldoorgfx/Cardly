@@ -7,13 +7,13 @@ import {
   Type, Image, ImagePlus, ToggleLeft, Tag, Plus, Eye, EyeOff, Lock, LockOpen,
   Trash2, Copy, AlignLeft, AlignCenter, AlignRight, AlignJustify,
   ZoomIn, ZoomOut, Grid, MousePointer2, ArrowLeft, CheckCircle2, Globe,
-  Undo2, Redo2, Upload, Play, X, Layers, ChevronUp, ChevronDown, RotateCcw,
-  Circle, Wand2, HelpCircle, Magnet, Square, LayoutGrid,
+  Undo2, Redo2, Upload, Play, X, Layers, ChevronUp, ChevronDown,
+  Circle, Wand2, HelpCircle, Magnet, Square,
   AlignStartHorizontal, AlignCenterHorizontal, AlignEndHorizontal,
   AlignStartVertical, AlignCenterVertical, AlignEndVertical,
   AlignHorizontalSpaceAround, AlignVerticalSpaceAround,
   AlignHorizontalJustifyCenter, AlignVerticalJustifyCenter,
-  MoreHorizontal, Triangle, Minus, GripVertical,
+  Triangle, Minus,
 } from 'lucide-react';
 
 const CW = 1080;
@@ -121,6 +121,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
   const [nameVal, setNameVal]         = useState(eventName);
   const [editName, setEditName]       = useState(false);
   const [savedAt, setSavedAt]         = useState('just now');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [fontSearch, setFontSearch]   = useState('');
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [copiedStyle, setCopiedStyle] = useState<Partial<Zone> | null>(null);
@@ -812,6 +813,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
     setZoom(Math.max(0.18, Math.min(1.4, Math.min((el.clientWidth - pad) / bgW, (el.clientHeight - pad) / bgH))));
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const filteredFonts = FONTS.filter(f => f.toLowerCase().includes(fontSearch.toLowerCase()));
 
   /* ══════════════════════════════════════════════════════
@@ -1724,9 +1726,6 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
             selected={selected}
             bgW={bgW}
             bgH={bgH}
-            fontSearch={fontSearch}
-            setFontSearch={setFontSearch}
-            filteredFonts={filteredFonts}
             updateZone={updateZone}
             duplicateZone={duplicateZone}
             removeZone={removeZone}
@@ -1802,12 +1801,11 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
 const EDITOR_FONTS = ['DM Sans', 'Inter', 'JetBrains Mono'];
 
 function RightRail({
-  selected, bgW, bgH, fontSearch, setFontSearch, filteredFonts,
+  selected, bgW, bgH,
   updateZone, duplicateZone, removeZone, BRAND_COLORS, aspectLock, setAspectLock, eventId,
   bringForward, sendBack, bringToFront, sendToBack, zoneIndex, zoneCount,
 }: {
   selected: Zone; bgW: number; bgH: number;
-  fontSearch: string; setFontSearch: (v: string) => void; filteredFonts: string[];
   updateZone: (id: string, patch: Partial<Zone>, withHistory?: boolean) => void;
   duplicateZone: (id: string) => void;
   removeZone: (id: string) => void;

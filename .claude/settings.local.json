@@ -22,7 +22,8 @@
       "Bash(git -C \"C:/Users/cabda/cardly\" status)",
       "Bash(npx kill-port *)",
       "Bash(cp \"/c/Users/cabda/cardly/.claude/worktrees/stoic-neumann-8ba4bd/app/c/[slug]/AttendeeClient.tsx\" \"/c/Users/cabda/cardly/app/c/[slug]/AttendeeClient.tsx\")",
-      "PowerShell($p = \\(Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue | Where-Object State -eq 'Listen'\\).OwningProcess; if \\($p\\) { Stop-Process -Id $p -Force; Write-Output \"Killed PID $p\" } else { Write-Output \"Port 3000 free\" })"
+      "PowerShell($p = \\(Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue | Where-Object State -eq 'Listen'\\).OwningProcess; if \\($p\\) { Stop-Process -Id $p -Force; Write-Output \"Killed PID $p\" } else { Write-Output \"Port 3000 free\" })",
+      "Bash(npx next *)"
     ]
   }
 }
