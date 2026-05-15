@@ -1267,8 +1267,12 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
 
           {/* ── Floating context toolbar — draggable, viewport-anchored ── */}
           {floatBarPos && selected && !previewMode && (() => {
-            const finalLeft = floatBarPos.left + toolbarOffset.dx;
-            const finalTop  = Math.max(8, floatBarPos.top  + toolbarOffset.dy);
+            const containerW = stageContainerRef.current?.offsetWidth ?? 9999;
+            // Always translateX(-50%) so the toolbar is centered on `left`.
+            // Dragging shifts that center point — no transform switching = no jump.
+            const rawLeft  = floatBarPos.left + toolbarOffset.dx;
+            const finalLeft = Math.max(80, Math.min(rawLeft, containerW - 80));
+            const finalTop  = Math.max(8, floatBarPos.top + toolbarOffset.dy);
             const isBold    = (selected.weight ?? 400) >= 700;
             const align     = selected.align ?? 'center';
             const opacity   = selected.opacity ?? 100;
@@ -1282,7 +1286,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                 style={{
                   left: finalLeft,
                   top: finalTop,
-                  transform: toolbarOffset.dx === 0 ? 'translateX(-50%)' : 'none',
+                  transform: 'translateX(-50%)',   /* always centered — drag just moves the center */
                   filter: 'drop-shadow(0 8px 24px rgba(15,31,24,0.14)) drop-shadow(0 2px 4px rgba(15,31,24,0.08))',
                 }}
                 onClick={e => e.stopPropagation()}
@@ -1302,22 +1306,33 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                     role="button"
                     aria-label="Drag toolbar to reposition"
                     title="Drag to move toolbar"
-                    className="h-7 w-5 shrink-0 flex items-center justify-center rounded-lg hover:bg-[#FAF6EE] transition select-none"
-                    style={{ cursor: toolbarDragRef.current ? 'grabbing' : 'grab', color: 'rgba(15,31,24,0.3)' }}
+                    className="h-7 w-6 shrink-0 flex items-center justify-center rounded-lg hover:bg-[#FAF6EE] transition select-none"
+                    style={{ cursor: 'grab', color: 'rgba(15,31,24,0.3)', touchAction: 'none' }}
                     onPointerDown={e => {
+                      e.preventDefault();
                       e.stopPropagation();
-                      toolbarDragRef.current = { sx: e.clientX, sy: e.clientY, odx: toolbarOffset.dx, ody: toolbarOffset.dy };
+                      // Store drag start + current offset snapshot
+                      toolbarDragRef.current = {
+                        sx: e.clientX, sy: e.clientY,
+                        odx: toolbarOffset.dx, ody: toolbarOffset.dy,
+                      };
                       (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+                      (e.currentTarget as HTMLElement).style.cursor = 'grabbing';
                     }}
                     onPointerMove={e => {
                       if (!toolbarDragRef.current) return;
                       e.stopPropagation();
                       setToolbarOffset({
-                        dx: toolbarDragRef.current.odx + e.clientX - toolbarDragRef.current.sx,
-                        dy: toolbarDragRef.current.ody + e.clientY - toolbarDragRef.current.sy,
+                        dx: toolbarDragRef.current.odx + (e.clientX - toolbarDragRef.current.sx),
+                        dy: toolbarDragRef.current.ody + (e.clientY - toolbarDragRef.current.sy),
                       });
                     }}
-                    onPointerUp={e => { e.stopPropagation(); toolbarDragRef.current = null; }}
+                    onPointerUp={e => {
+                      e.stopPropagation();
+                      toolbarDragRef.current = null;
+                      (e.currentTarget as HTMLElement).style.cursor = 'grab';
+                    }}
+                    onPointerCancel={() => { toolbarDragRef.current = null; }}
                   >
                     {/* 2×3 dot grip */}
                     <svg width="8" height="12" viewBox="0 0 8 12" fill="currentColor">
