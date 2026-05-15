@@ -1116,8 +1116,8 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                   }
                 </span>
                 <span className="flex-1 min-w-0">
-                  <span className="block text-[13px] font-medium">{uploadingImage ? 'Uploading…' : 'Image'}</span>
-                  <span className="block text-[11px] text-[#0F1F18]/50">PNG, JPG, WebP, SVG, GIF</span>
+                  <span className="block text-[13px] font-medium">{uploadingImage ? 'Uploading…' : 'Static image'}</span>
+                  <span className="block text-[11px] text-[#0F1F18]/50">Embed PNG, JPG, SVG on the card</span>
                 </span>
                 <Plus size={12} strokeWidth={2} />
               </button>
@@ -1255,7 +1255,11 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                   ref={canvasInnerRef}
                   className="relative shadow-lift rounded-md"
                   style={{ width: bgW, height: bgH, transform: `scale(${zoom})`, transformOrigin: '0 0', position: 'absolute', top: 0, left: 0 }}
-                  onPointerDown={e => e.stopPropagation()}
+                  onPointerDown={e => {
+                    e.stopPropagation();
+                    // clicking the canvas background (not a zone) deselects
+                    if (e.target === e.currentTarget && !previewMode) setSelectedIds([]);
+                  }}
                   onDoubleClick={e => e.stopPropagation()}
                 >
                 {/* Background image */}
@@ -2468,76 +2472,40 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, onPointerDown, onH
       );
     }
     if (isPhoto) {
-      /* Photo skeleton — grey shape + person silhouette (head + shoulders) */
-      const w = zone.w, h = zone.h;
-      const dim = Math.min(w, h);
-      // Shift silhouette up by 10% so label has breathing room at bottom
-      const headR   = dim * 0.2;
-      const headCx  = w / 2;
-      const headCy  = h * 0.3;
-      const shRx    = dim * 0.34;
-      const shRy    = dim * 0.24;
-      const shCy    = h * 0.62;
-      const labelSz = Math.max(9, dim * 0.08);
-      const col     = 'rgba(107,122,114,0.42)';
-      const colBg   = 'rgba(107,122,114,0.13)';
-      const clipId  = `photo-clip-${zone.id}`;
-      const bw      = zone.photoBorderWidth ?? 0;
-      const bCol    = zone.photoBorderColor ?? '#ffffff';
+      /* Photo placeholder — warm beige bg + Image icon, clipped to zone shape */
+      const iconSize = Math.max(18, Math.min(zone.w, zone.h) * 0.28);
+      const labelSz  = Math.max(9, Math.min(zone.w, zone.h) * 0.08);
+      const bw = zone.photoBorderWidth ?? 0;
+      const bCol = zone.photoBorderColor ?? '#ffffff';
       return (
-        <div className="absolute inset-0">
-          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block', overflow: 'visible' }}>
-            <defs>
-              {/* Clip to the zone's shape */}
-              {zone.shape === 'circle'
-                ? <clipPath id={clipId}><ellipse cx={w / 2} cy={h / 2} rx={w / 2 - 1} ry={h / 2 - 1} /></clipPath>
-                : zone.shape === 'rounded'
-                  ? <clipPath id={clipId}><rect x={1} y={1} width={w - 2} height={h - 2} rx={(zone.cornerRadius ?? 18) / 100 * dim} /></clipPath>
-                  : zone.shape === 'hexagon'
-                    ? <clipPath id={clipId}><polygon points={`${w/2},1 ${w-1},${h/4} ${w-1},${3*h/4} ${w/2},${h-1} 1,${3*h/4} 1,${h/4}`} /></clipPath>
-                    : <clipPath id={clipId}><rect x={1} y={1} width={w - 2} height={h - 2} rx={3} /></clipPath>
-              }
-              {/* Hatch pattern */}
-              <pattern id={`ph-hatch-${zone.id}`} width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-                <line x1="0" y1="0" x2="0" y2="10" stroke="rgba(107,122,114,0.055)" strokeWidth="2" />
-              </pattern>
-            </defs>
-
-            <g clipPath={`url(#${clipId})`}>
-              {/* BG fill */}
-              <rect width={w} height={h} fill={colBg} />
-              <rect width={w} height={h} fill={`url(#ph-hatch-${zone.id})`} />
-
-              {/* Head */}
-              <circle cx={headCx} cy={headCy} r={headR} fill={col} />
-
-              {/* Shoulders — bottom half of ellipse fills downward */}
-              <ellipse cx={w / 2} cy={shCy} rx={shRx} ry={shRy} fill={col} opacity="0.8" />
-
-              {/* "Upload photo" label — always editor copy, not zone.placeholder */}
-              <text
-                x={w / 2} y={h - Math.max(6, h * 0.07)}
-                textAnchor="middle"
-                fill="rgba(107,122,114,0.65)"
-                fontSize={labelSz}
-                fontFamily="Inter, sans-serif" fontWeight="500"
-              >Upload photo</text>
-            </g>
-
-            {/* Border ring on top (if set) */}
-            {bw > 0 && (
-              zone.shape === 'circle'
-                ? <ellipse cx={w / 2} cy={h / 2} rx={w / 2 - bw / 2} ry={h / 2 - bw / 2}
-                    fill="none" stroke={bCol} strokeWidth={bw} />
-                : zone.shape === 'hexagon'
-                  ? <polygon
-                      points={`${w/2},${bw/2} ${w-bw/2},${h/4} ${w-bw/2},${3*h/4} ${w/2},${h-bw/2} ${bw/2},${3*h/4} ${bw/2},${h/4}`}
-                      fill="none" stroke={bCol} strokeWidth={bw} />
-                  : <rect x={bw / 2} y={bw / 2} width={w - bw} height={h - bw}
-                      rx={zone.shape === 'rounded' ? (zone.cornerRadius ?? 18) / 100 * dim : 3}
-                      fill="none" stroke={bCol} strokeWidth={bw} />
-            )}
-          </svg>
+        <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: radius, clipPath: hexClip }}>
+          {/* Warm beige fill */}
+          <div
+            className="w-full h-full flex flex-col items-center justify-center gap-2"
+            style={{ background: '#EDE9E0' }}
+          >
+            <Image size={iconSize} strokeWidth={1.3} color="rgba(107,122,114,0.55)" />
+            <span style={{
+              fontSize: labelSz,
+              color: 'rgba(107,122,114,0.58)',
+              fontFamily: 'Inter, sans-serif',
+              fontWeight: 500,
+              textAlign: 'center',
+              maxWidth: '90%',
+              overflow: 'hidden',
+              whiteSpace: 'nowrap',
+              textOverflow: 'ellipsis',
+            }}>
+              {zone.label || 'Photo zone'}
+            </span>
+          </div>
+          {/* Border ring overlay (if set by designer) */}
+          {bw > 0 && (
+            <div className="absolute inset-0 pointer-events-none" style={{
+              borderRadius: radius,
+              border: `${bw}px solid ${bCol}`,
+            }} />
+          )}
         </div>
       );
     }
