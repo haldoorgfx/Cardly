@@ -195,7 +195,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
               <div className="divide-y divide-neutral-100">
                 {activity.map((card, i) => {
                   const attendeeData = (card.attendee_data ?? {}) as Record<string, string>;
-                  const location = Object.values(attendeeData).find(v => v?.includes(',')) ?? null;
+                  const location = Object.values(attendeeData).find(v => typeof v === 'string' && v.includes(',')) ?? null;
                   return (
                     <div key={card.id} className="flex items-center gap-3 px-5 py-3.5 hover:bg-neutral-50 transition">
                       <div
