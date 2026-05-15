@@ -1,5 +1,129 @@
 'use client';
 
+// ═══════════════════════════════════════════════════════════════════════════
+// CARDLY CANVAS EDITOR — STATE & BEHAVIOR INVENTORY
+// Documented before UI refactor (Step 1). DO NOT remove any of this logic.
+// ───────────────────────────────────────────────────────────────────────────
+//
+// ── Constants ───────────────────────────────────────────────────────────────
+//   CW = 1080                       — canvas baseline width (px)
+//   CH = 1350                       — canvas baseline height (px)
+//   GRID_SIZE = 60                  — snap-to-grid cell size (canvas px)
+//   ROTATE_HANDLE_DIST = 32         — rotate handle distance above zone top
+//
+// ── Props ───────────────────────────────────────────────────────────────────
+//   eventId: string                 — Supabase event UUID (for API calls)
+//   eventName: string               — display name (editable inline)
+//   variants: Variant[]             — initial variant list from server
+//
+// ── State ───────────────────────────────────────────────────────────────────
+//   variants: Variant[]             — line 84  — live variant list
+//   activeVariantId: string         — line 85  — which variant's zones are shown
+//   showAddVariant: boolean         — line 86  — "Add variant" form open
+//   addingVariant: boolean          — line 87  — POST in-flight
+//   newVariantName: string          — line 88  — name input value
+//   newVariantFile: File|null       — line 89  — background file for new variant
+//   variantMenuId: string|null      — line 93  — which variant's context menu is open
+//   renamingVariantId: string|null  — line 94  — inline rename mode
+//   renameValue: string             — line 95  — rename input value
+//   variantZonesMap: Record<string, Zone[]>  — line 98  — zones keyed by variantId
+//   selectedIds: string[]           — line 111 — multi-select zone IDs
+//   zoom: number (default 0.42)     — line 116 — canvas scale factor
+//   grid: boolean                   — line 117 — dotted grid visible
+//   gridSnap: boolean               — line 118 — snap zones to grid
+//   previewMode: boolean            — line 119 — preview-as-attendee mode
+//   snapGuides: SnapGuides          — line 120 — {x?,y?} snap line positions (canvas px)
+//   nameVal: string                 — line 121 — event name input value
+//   editName: boolean               — line 122 — inline event name edit mode
+//   savedAt: string                 — line 123 — "HH:MM" timestamp of last save
+//   fontSearch: string              — line 125 — font picker search query (unused UI)
+//   showShortcuts: boolean          — line 126 — keyboard shortcuts panel open
+//   copiedStyle: Partial<Zone>|null — line 127 — style clipboard (Cmd+Alt+C)
+//   styleFlash: boolean             — line 128 — 1.2s flash after copy style
+//   aspectLock: boolean             — line 129 — lock aspect ratio during resize
+//   uploadingImage: boolean         — line 130 — zone image upload in-flight
+//   spaceDown: boolean              — line 131 — space key held (pan mode)
+//   floatBarPos: {left,top}|null    — line 132 — floating toolbar position
+//   toolbarOffset: {dx,dy}          — line 133 — toolbar drag offset
+//   history: HistoryState           — line 138 — {past: Zone[][], future: Zone[][]}
+//   isMobile: boolean               — line 155 — viewport < 900px
+//
+// ── Refs ────────────────────────────────────────────────────────────────────
+//   stageRef: HTMLDivElement        — line 141 — outer scrollable stage (for zoom/pan scroll)
+//   canvasInnerRef: HTMLDivElement  — line 142 — the artwork div (for position math)
+//   imageUploadRef: HTMLInputElement— line 143 — hidden input for zone image upload
+//   bgReplaceRef: HTMLInputElement  — line 144 — hidden input for background replace
+//   autosaveTimer: ReturnType<setTimeout> — line 145 — debounce timer handle
+//   zonesRef: Zone[]                — line 146 — always-current zones (avoids stale closures in pointer handlers)
+//   didMoveRef: boolean             — line 148 — drag dead-zone guard (5px threshold)
+//   interaction: Interaction|null   — line 149 — active drag/resize/rotate state
+//   isPanning: boolean              — line 150 — space+drag pan in progress
+//   spaceDownRef: boolean           — line 151 — ref mirror of spaceDown state
+//   panStart: {x,y,scrollLeft,scrollTop} — line 152 — pan anchor
+//   stageContainerRef: HTMLDivElement    — line 134 — container for toolbar position calc
+//   toolbarDragRef: drag anchor     — line 135 — toolbar drag state
+//   newVariantFileRef: HTMLInputElement  — line 90  — hidden input for variant background
+//
+// ── Derived (not state) ─────────────────────────────────────────────────────
+//   activeVariant   — line 104 — current Variant object
+//   zones           — line 105 — current variant's Zone[]
+//   bgW             — line 106 — active variant background width (px)
+//   bgH             — line 107 — active variant background height (px)
+//   backgroundUrl   — line 108 — active variant background_url
+//   selectedId      — line 112 — last selectedIds entry
+//   selected        — line 113 — Zone | null for selectedId
+//
+// ── Behaviors ───────────────────────────────────────────────────────────────
+//   switchVariant(id)               — line 195 — switch active variant, clear selection + history
+//   handleRenameVariant(id, name)   — line 202 — PATCH variant_name via API
+//   handleDeleteVariant(id)         — line 214 — DELETE variant via API, switch to next
+//   handleDuplicateVariant(id)      — line 225 — POST duplicate variant, copy zones
+//   scheduleSave(zones, variantId)  — line 249 — 800ms debounce PATCH zones to Supabase
+//   setZonesForVariant(id, zones)   — line 261 — update variantZonesMap for one variant
+//   pushHistory(nextZones)          — line 265 — prepend current to past[], call scheduleSave
+//   updateZone(id, patch, withHist) — line 272 — patch one zone; optionally push history
+//   removeZone(id)                  — line 278 — filter out zone, push history
+//   removeSelected()                — line 283 — filter out all selectedIds, push history
+//   duplicateZone(id)               — line 288 — clone zone at +30,+30 offset, push history (Cmd+D)
+//   moveZoneUp(id)                  — line 296 — swap zone with prev in array (] key)
+//   moveZoneDown(id)                — line 304 — swap zone with next in array ([ key)
+//   bringToFront(id)                — line 312 — move zone to end of array
+//   sendToBack(id)                  — line 319 — move zone to start of array
+//   alignSelected(axis)             — line 327 — align all selected zones (6 axes)
+//   distributeSelected(dir)         — line 345 — evenly space ≥3 selected zones (h or v)
+//   addZone(type)                   — line 369 — add text|photo|custom|label zone, scaled to bgW
+//   addShapeZone(shapeType)         — line 394 — add rect|ellipse|triangle|line shape zone
+//   handleImageUpload(e)            — line 420 — upload file → /api/upload-zone-image → add image zone
+//   handleReplaceBackground(e)      — line 462 — upload file → /api/upload-zone-image → PATCH variant bg
+//   undo()                          — line 495 — Cmd+Z: pop past[], push current to future[]
+//   redo()                          — line 505 — Cmd+Shift+Z: pop future[], push current to past[]
+//   copyStyle()                     — line 516 — Cmd+Alt+C: store non-positional zone props
+//   pasteStyle()                    — line 525 — Cmd+Alt+V: apply copiedStyle to selected
+//   onZonePointerDown(e, zone)      — line 531 — start move interaction; handle Shift for multi-select
+//   onHandlePointerDown(e, zone, dir) — line 558 — start resize interaction (8 dirs: n/s/e/w/ne/nw/se/sw)
+//   onRotatePointerDown(e, zone)    — line 566 — start rotate interaction (angle from zone center)
+//   handleAddVariant()              — line 794 — POST new variant with name + background file
+//   saveName()                      — line 813 — PATCH event name
+//   fitZoom()                       — line 818 — recalculate zoom to fit stage
+//
+// ── useEffects ──────────────────────────────────────────────────────────────
+//   Mobile detection                — line 156 — window.innerWidth < 900 → isMobile
+//   Google Fonts inject             — line 163 — appends <link> to <head> once
+//   Floating toolbar position       — line 173 — computes floatBarPos from selected zone + zoom
+//   Reset toolbar drag offset       — line 192 — clears toolbarOffset on selection change
+//   Global pointermove/pointerup    — line 587 — handles all drag/resize/rotate; updates snap guides
+//   Keyboard shortcuts              — line 714 — Delete, Cmd+Z/Y, Cmd+D/P, arrows, brackets, G, space
+//   Fit zoom on mount/variant change— line 757 — fit canvas to stage on load or variant switch
+//   Scroll-to-zoom (wheel)          — line 770 — Ctrl/Cmd+wheel adjusts zoom
+//   Re-center canvas after zoom     — line 783 — adjusts scrollLeft/scrollTop to keep canvas centered
+//
+// ── Type aliases ────────────────────────────────────────────────────────────
+//   HistoryState = { past: Zone[][], future: Zone[][] }
+//   SnapGuides   = { x?: number, y?: number }
+//   Interaction  = { mode, id, sx, sy, ox, oy, ow, oh, dir?, startMouseAngle?, startRotation?, multiPositions? }
+//
+// ═══════════════════════════════════════════════════════════════════════════
+
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Zone, Variant } from '@/types/database';
