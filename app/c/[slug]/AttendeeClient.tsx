@@ -1101,7 +1101,7 @@ export default function AttendeeClient({
         return (
           <div
             className="fixed inset-0 z-50 flex flex-col"
-            style={{ background: 'rgba(10,20,14,0.97)', backdropFilter: 'blur(8px)' }}
+            style={{ background: 'rgba(10,20,14,0.97)', backdropFilter: 'blur(8px)', height: '100dvh' }}
             onClick={e => e.stopPropagation()}
           >
             {/* Header */}
@@ -1130,8 +1130,8 @@ export default function AttendeeClient({
               </div>
             </div>
 
-            {/* Cropper area */}
-            <div className="flex-1 relative">
+            {/* Cropper area — must have explicit height for react-easy-crop to render */}
+            <div className="relative shrink-0" style={{ height: 'calc(100dvh - 260px)', minHeight: 240 }}>
               <Cropper
                 image={cropTarget.srcUrl}
                 crop={cropPos}
@@ -1144,20 +1144,24 @@ export default function AttendeeClient({
                   setCroppedAreaPx(croppedAreaPixels);
                 }}
                 style={{
-                  containerStyle: { background: 'transparent' },
+                  containerStyle: {
+                    background: 'transparent',
+                    position: 'absolute',
+                    inset: 0,
+                  },
                   cropAreaStyle: {
-                    border: '2px solid rgba(232,197,126,0.9)',
-                    boxShadow: '0 0 0 9999px rgba(10,20,14,0.65)',
+                    border: '3px solid #E8C57E',
+                    boxShadow: '0 0 0 9999px rgba(5,12,8,0.72)',
                   },
                   mediaStyle: {},
                 }}
-                showGrid={false}
+                showGrid
                 zoomWithScroll
               />
             </div>
 
             {/* Zoom slider + actions */}
-            <div className="px-5 pt-4 pb-8 shrink-0">
+            <div className="px-5 pt-4 pb-safe shrink-0" style={{ paddingBottom: 'max(24px, env(safe-area-inset-bottom, 24px))' }}>
               {/* Zoom control */}
               <div className="flex items-center gap-3 mb-5">
                 <button
