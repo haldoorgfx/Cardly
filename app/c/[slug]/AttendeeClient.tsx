@@ -79,6 +79,7 @@ export default function AttendeeClient({
   // All user-editable fields in card-position order (top → bottom)
   const editableFields = [...zones.filter(z => z.type === 'photo' || z.type === 'text' || z.type === 'custom')]
     .sort((a, b) => a.y - b.y || a.x - b.x);
+  const textZones = zones.filter(z => z.type === 'text' || z.type === 'custom');
 
   const activeField   = editableFields[activeIdx] ?? null;
   const requiredZones = zones.filter(z => z.required);
