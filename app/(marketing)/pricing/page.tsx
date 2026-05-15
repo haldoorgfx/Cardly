@@ -14,12 +14,6 @@ export default function PricingPage() {
     <>
       {/* ── Header ── */}
       <section className="relative overflow-hidden" style={{ background: '#FAF6EE' }}>
-        {/* Dot grid */}
-        <div className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: 'radial-gradient(rgba(15,31,24,0.08) 1px, transparent 1px)',
-            backgroundSize: '20px 20px',
-          }} />
         {/* Radial fade */}
         <div className="absolute inset-0 pointer-events-none"
           style={{
@@ -135,22 +129,6 @@ export default function PricingPage() {
 
             {/* ── Pro ── dark treatment ── */}
             <div className="relative flex flex-col p-8 overflow-hidden" style={{ background: '#0F1F18' }}>
-              {/* Mesh glow */}
-              <div className="absolute pointer-events-none"
-                style={{
-                  top: '-30%', left: '50%', transform: 'translateX(-50%)',
-                  width: '300px', height: '300px',
-                  background: 'radial-gradient(ellipse, rgba(232,197,126,0.18) 0%, transparent 70%)',
-                  filter: 'blur(50px)',
-                }} />
-              <div className="absolute pointer-events-none"
-                style={{
-                  bottom: '-20%', right: '-10%',
-                  width: '250px', height: '250px',
-                  background: 'radial-gradient(ellipse, rgba(31,77,58,0.6) 0%, transparent 70%)',
-                  filter: 'blur(40px)',
-                }} />
-
               {/* Dot grid */}
               <div className="absolute inset-0 pointer-events-none"
                 style={{
@@ -312,22 +290,6 @@ export default function PricingPage() {
           background: 'linear-gradient(145deg, #0F1F18 0%, #1a3828 60%, #0F2A1C 100%)',
         }}
       >
-        {/* Mesh blobs */}
-        <div className="absolute pointer-events-none"
-          style={{
-            top: '-20%', left: '50%', transform: 'translateX(-50%)',
-            width: '600px', height: '400px',
-            background: 'radial-gradient(ellipse, rgba(232,197,126,0.18) 0%, transparent 70%)',
-            filter: 'blur(70px)',
-          }} />
-        <div className="absolute pointer-events-none"
-          style={{
-            bottom: '-20%', right: '5%',
-            width: '400px', height: '400px',
-            background: 'radial-gradient(ellipse, rgba(31,77,58,0.7) 0%, transparent 70%)',
-            filter: 'blur(60px)',
-          }} />
-
         {/* Dot grid */}
         <div className="absolute inset-0 pointer-events-none"
           style={{
@@ -337,13 +299,6 @@ export default function PricingPage() {
         <div className="absolute inset-0 pointer-events-none"
           style={{
             background: 'radial-gradient(ellipse 80% 80% at 50% 50%, transparent 40%, rgba(15,31,24,0.8) 100%)',
-          }} />
-
-        {/* Grid lines */}
-        <div className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)',
-            backgroundSize: '80px 80px',
           }} />
 
         <div className="relative max-w-2xl mx-auto px-6">

@@ -150,8 +150,6 @@ export default async function DashboardPage() {
 
       {/* Page header */}
       <div className="relative overflow-hidden px-6 pt-7 pb-6 border-b shrink-0" style={{ background: 'white', borderColor: '#E5E0D4' }}>
-        {/* Dot grid */}
-        <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(rgba(15,31,24,0.05) 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
         {/* Green mesh */}
         <div className="absolute pointer-events-none" style={{ top: '-50%', left: '-5%', width: 300, height: 300, background: 'radial-gradient(ellipse, rgba(31,77,58,0.07) 0%, transparent 70%)', filter: 'blur(40px)' }} />
 

@@ -23,16 +23,6 @@ export default function LoginPage() {
       className="min-h-screen flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden"
       style={{ background: "#FAF6EE" }}
     >
-      {/* Dot grid */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage:
-            "radial-gradient(rgba(15,31,24,0.07) 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
-        }}
-      />
-
       {/* Mesh gradient blob — top right */}
       <div
         className="absolute pointer-events-none"

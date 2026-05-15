@@ -162,11 +162,6 @@ export default async function AnalyticsPage() {
         className="relative overflow-hidden px-6 pt-7 pb-6 border-b shrink-0"
         style={{ background: 'white', borderColor: '#E5E0D4' }}
       >
-        {/* Subtle dot grid */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{ backgroundImage: 'radial-gradient(rgba(15,31,24,0.05) 1px, transparent 1px)', backgroundSize: '20px 20px' }}
-        />
         <div
           className="absolute pointer-events-none"
           style={{ top: '-50%', right: '-5%', width: 280, height: 280, background: 'radial-gradient(ellipse, rgba(31,77,58,0.07) 0%, transparent 70%)', filter: 'blur(40px)' }}

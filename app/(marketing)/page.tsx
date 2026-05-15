@@ -54,9 +54,7 @@ function HeroSection() {
       <div className="absolute pointer-events-none" style={{ top: "-15%", right: "-5%", width: 700, height: 600, background: "radial-gradient(ellipse, rgba(31,77,58,0.09) 0%, transparent 70%)", filter: "blur(90px)" }} />
       <div className="absolute pointer-events-none" style={{ bottom: "-10%", left: "-5%", width: 500, height: 500, background: "radial-gradient(ellipse, rgba(232,197,126,0.1) 0%, transparent 70%)", filter: "blur(80px)" }} />
 
-      <DotGrid opacity={0.055} size={28} />
-
-      {/* Vignette — fades dots at edges */}
+      {/* Vignette — fades edges */}
       <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 90% 80% at 50% 50%, transparent 35%, #FAF6EE 100%)" }} />
 
       <div className="relative max-w-7xl mx-auto px-6 lg:px-10 pt-20 pb-8 lg:pt-28 lg:pb-12">
@@ -298,8 +296,6 @@ function HowItWorksSection() {
   return (
     <section id="how" className="relative py-24 lg:py-32 overflow-hidden border-t border-[#E5E0D4]" style={{ background: "#FAF6EE" }}>
       <DotGrid opacity={0.055} size={24} />
-      <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: "linear-gradient(rgba(15,31,24,0.022) 1px, transparent 1px), linear-gradient(90deg, rgba(15,31,24,0.022) 1px, transparent 1px)", backgroundSize: "80px 80px" }} />
-      <div className="absolute pointer-events-none" style={{ top: "-10%", right: "-5%", width: 500, height: 400, background: "radial-gradient(ellipse, rgba(31,77,58,0.07) 0%, transparent 70%)", filter: "blur(70px)" }} />
 
       <div className="relative max-w-6xl mx-auto px-6 lg:px-10">
         <div className="text-[11px] font-mono text-[#1F4D3A] tracking-widest uppercase mb-3">How it works</div>
@@ -360,9 +356,6 @@ function ShowcaseSection() {
   return (
     <section id="showcase" className="relative py-24 lg:py-32 overflow-hidden" style={{ background: "#0F1F18" }}>
       <DotGrid opacity={0.08} size={24} light />
-      <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)", backgroundSize: "80px 80px" }} />
-      <div className="absolute pointer-events-none" style={{ top: "-20%", left: "20%", width: 600, height: 500, background: "radial-gradient(ellipse, rgba(31,77,58,0.5) 0%, transparent 70%)", filter: "blur(80px)" }} />
-      <div className="absolute pointer-events-none" style={{ bottom: "-20%", right: "10%", width: 400, height: 400, background: "radial-gradient(ellipse, rgba(232,197,126,0.12) 0%, transparent 70%)", filter: "blur(70px)" }} />
       <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 90% 80% at 50% 50%, transparent 40%, rgba(15,31,24,0.7) 100%)" }} />
 
       <div className="relative max-w-6xl mx-auto px-6 lg:px-10">
@@ -427,7 +420,6 @@ function TestimonialSection() {
   return (
     <section className="relative py-24 border-t border-[#E5E0D4] overflow-hidden" style={{ background: "#FAF6EE" }}>
       <div className="absolute pointer-events-none" style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 600, height: 400, background: "radial-gradient(ellipse, rgba(31,77,58,0.07) 0%, transparent 70%)", filter: "blur(80px)" }} />
-      <DotGrid opacity={0.055} size={24} />
       <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 80% 80% at 50% 50%, transparent 50%, #FAF6EE 100%)" }} />
 
       <div className="relative max-w-3xl mx-auto px-6 text-center">
@@ -485,7 +477,6 @@ function PricingSection() {
   return (
     <section className="relative py-24 border-t border-[#E5E0D4] overflow-hidden" style={{ background: "#FAF6EE" }}>
       <DotGrid opacity={0.05} size={24} />
-      <div className="absolute pointer-events-none" style={{ top: "-10%", right: "-5%", width: 500, height: 400, background: "radial-gradient(ellipse, rgba(232,197,126,0.08) 0%, transparent 70%)", filter: "blur(70px)" }} />
 
       <div className="relative max-w-5xl mx-auto px-6 lg:px-10">
         <div className="text-[11px] font-mono text-[#1F4D3A] tracking-widest uppercase mb-3">Pricing</div>
@@ -614,8 +605,6 @@ function FinalCtaSection() {
           style={{ background: "linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #163828 100%)" }}
         >
           <DotGrid opacity={0.08} size={22} light />
-          <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)", backgroundSize: "80px 80px" }} />
-          <div className="absolute pointer-events-none" style={{ top: "-30%", left: "50%", transform: "translateX(-50%)", width: 600, height: 400, background: "radial-gradient(ellipse, rgba(232,197,126,0.2) 0%, transparent 70%)", filter: "blur(60px)" }} />
           <div className="absolute top-0 left-0 right-0 h-px pointer-events-none" style={{ background: "linear-gradient(90deg, transparent, rgba(232,197,126,0.4), transparent)" }} />
 
           <div className="relative">
