@@ -291,7 +291,8 @@ export default function AttendeeClient({
   );
 
   if (screen==='result'&&resultUrl) return (
-    <div className="min-h-screen flex flex-col items-center px-5 pt-8 pb-12" style={{background:'#FAF6EE'}}>
+    <div className="min-h-screen flex flex-col items-center px-4 pb-12"
+      style={{background:'#FAF6EE', paddingTop:'max(28px,env(safe-area-inset-top,28px))'}}>
       <Toast/>
       <div className="w-full max-w-[400px]">
         <div className="flex items-center justify-between mb-5">
@@ -598,13 +599,14 @@ export default function AttendeeClient({
       <div className="md:hidden flex flex-col min-h-screen">
 
         {/* Minimal top bar */}
-        <div className="px-4 pt-6 pb-2 flex items-center justify-between shrink-0">
-          <div>
+        <div className="px-4 flex items-center justify-between shrink-0"
+          style={{ paddingTop: 'max(20px, env(safe-area-inset-top, 20px))', paddingBottom: 8 }}>
+          <div className="flex-1 min-w-0 mr-3">
             <p className="text-[10px] font-mono tracking-widest" style={{color:'rgba(255,255,255,0.35)'}}>GET YOUR CARD</p>
-            <h1 className="text-[14px] font-semibold text-white leading-tight truncate max-w-[220px]">{eventName}</h1>
+            <h1 className="text-[14px] font-semibold text-white leading-tight truncate">{eventName}</h1>
           </div>
           {/* Progress dots */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 shrink-0">
             {editableFields.map((_,i) => {
               const f = editableFields[i];
               const filled = f.type==='photo' ? !!photoFiles[f.id] : !!values[f.id]?.trim();
@@ -621,33 +623,40 @@ export default function AttendeeClient({
 
         {/* Field chips — horizontal scroll, one per editable zone */}
         {editableFields.length > 0 && (
-          <div className="flex items-center gap-2 px-3 pb-1 overflow-x-auto shrink-0" style={{scrollbarWidth:'none'}}>
+          <div className="flex items-center gap-2 px-3 pb-2 pt-1 overflow-x-auto shrink-0"
+            style={{scrollbarWidth:'none', WebkitOverflowScrolling:'touch'} as React.CSSProperties}>
             {editableFields.map((f, i) => {
               const filled = f.type==='photo' ? !!photoFiles[f.id] : !!values[f.id]?.trim();
               const isAct  = activeZoneId===f.id;
               return (
                 <button key={f.id} onClick={e=>{e.stopPropagation(); setActiveZoneId(f.id);}}
-                  className="shrink-0 flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-medium transition-all"
+                  className="shrink-0 flex items-center gap-1.5 rounded-full font-medium transition-all"
                   style={{
+                    padding: '6px 12px',
+                    fontSize: 12,
                     background: isAct  ? '#E8C57E' : filled ? 'rgba(45,122,79,0.35)' : 'rgba(255,255,255,0.1)',
                     color:      isAct  ? '#0F1F18' : filled ? '#5DD08A'               : 'rgba(255,255,255,0.6)',
                     border:     isAct  ? 'none'    : filled ? '1px solid rgba(45,122,79,0.5)' : '1px solid rgba(255,255,255,0.14)',
                     boxShadow:  isAct  ? '0 2px 8px rgba(232,197,126,0.3)' : 'none',
+                    minHeight: 32,
                   }}>
-                  {filled && <Check size={10} strokeWidth={2.8}/>}
-                  {f.required && !filled && <span style={{color:'rgba(232,197,126,0.7)',fontSize:10}}>·</span>}
-                  {f.label || `Field ${i+1}`}
+                  {filled && <Check size={11} strokeWidth={2.8}/>}
+                  {f.required && !filled && <span style={{color:'rgba(232,197,126,0.7)',fontSize:11}}>·</span>}
+                  <span className="truncate max-w-[90px]">{f.label || `Field ${i+1}`}</span>
                 </button>
               );
             })}
           </div>
         )}
 
-        {/* Card — fills available space */}
-        <div className="flex-1 px-3 pb-2 flex items-center" onClick={e=>e.stopPropagation()}>
+        {/* Card — fills available space, but always stays ≥ 28% of screen tall */}
+        <div className="px-3 pb-2 flex items-center justify-center shrink-0"
+          style={{ minHeight: 'min(50vw, 44vh)', flex: '1 1 auto' }}
+          onClick={e=>e.stopPropagation()}>
           <div ref={cardRef} className="w-full relative overflow-hidden rounded-2xl"
             style={{
               aspectRatio:`${backgroundWidth}/${backgroundHeight}`,
+              maxHeight: '44vh',
               boxShadow:'0 24px 64px rgba(0,0,0,0.5), 0 4px 16px rgba(0,0,0,0.3)',
             }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -665,7 +674,7 @@ export default function AttendeeClient({
 
         {/* Generate CTA when all done and sheet closed */}
         {allDone && !sheetOpen && (
-          <div className="px-4 pb-6 shrink-0">
+          <div className="px-4 shrink-0" style={{ paddingBottom: 'max(24px, env(safe-area-inset-bottom, 24px))' }}>
             <button onClick={handleGenerate}
               className="w-full h-14 rounded-2xl font-display font-bold text-[16px] text-white flex items-center justify-center gap-2.5 transition hover:opacity-90"
               style={{background:'#1F4D3A', boxShadow:'0 8px 28px rgba(31,77,58,0.5)'}}>
@@ -698,7 +707,7 @@ export default function AttendeeClient({
               <div className="w-10 h-1 rounded-full" style={{background:'rgba(255,255,255,0.2)'}}/>
             </div>
 
-            <div className="px-5 pb-8 pt-2">
+            <div className="px-5 pt-2" style={{ paddingBottom: 'max(28px, env(safe-area-inset-bottom, 28px))' }}>
               {activeZone && (
                 <>
                   {/* Field header: title + nav */}

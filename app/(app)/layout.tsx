@@ -492,7 +492,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             {/* Search / CMD+K trigger */}
             <div
               onClick={() => setCmdOpen(true)}
-              className="flex items-center gap-2 h-8 px-3 rounded-lg text-[13px] text-[#6B7A72] cursor-pointer transition min-w-[200px] max-w-[280px] border"
+              className="flex items-center gap-2 h-8 px-3 rounded-lg text-[13px] text-[#6B7A72] cursor-pointer transition flex-1 sm:flex-none sm:min-w-[200px] sm:max-w-[280px] max-w-[180px] border"
               style={{ background: '#FAF6EE', borderColor: '#E5E0D4' }}
             >
               <Search size={13} strokeWidth={2} className="shrink-0" />

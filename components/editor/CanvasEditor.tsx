@@ -151,7 +151,16 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
   const spaceDownRef  = useRef(false);
   const panStart      = useRef({ x: 0, y: 0, scrollLeft: 0, scrollTop: 0 });
 
-  /* ── load Google Fonts ───────────────────────────────── */
+  /* ── mobile detection ──────────────────────────────── */
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 900);
+    check();
+    window.addEventListener("resize", check, { passive: true });
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+    /* ── load Google Fonts ───────────────────────────────── */
   useEffect(() => {
     const id = 'cardly-gfonts';
     if (document.getElementById(id)) return;
@@ -819,6 +828,41 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
   /* ══════════════════════════════════════════════════════
      RENDER
   ══════════════════════════════════════════════════════ */
+
+  /* ── Mobile gate — canvas editor requires desktop ──── */
+  if (isMobile) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen px-6 py-12 text-center"
+        style={{ background: "#0F1F18" }}>
+        <div className="h-20 w-20 rounded-3xl grid place-items-center mb-6 mx-auto"
+          style={{ background: "linear-gradient(135deg,#1F4D3A 0%,#2A6A50 60%,#E8C57E 100%)" }}>
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.6" strokeLinecap="round">
+            <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+          </svg>
+        </div>
+        <h1 className="font-display font-bold text-white text-[24px] leading-tight mb-3">
+          Open on a desktop
+        </h1>
+        <p className="text-[15px] leading-relaxed max-w-[300px] mb-8"
+          style={{ color: "rgba(255,255,255,0.55)" }}>
+          The canvas editor needs a bigger screen. Open this link on a laptop or desktop to design your zones.
+        </p>
+        <a
+          href="/dashboard"
+          className="inline-flex items-center gap-2 h-12 px-6 rounded-2xl font-semibold text-[14px] transition hover:opacity-90"
+          style={{ background: "#1F4D3A", color: "white", boxShadow: "0 8px 24px rgba(31,77,58,0.4)" }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+          Back to dashboard
+        </a>
+        <div className="mt-10 text-[11px] font-mono" style={{ color: "rgba(255,255,255,0.2)" }}>
+          Powered by <span style={{ color: "rgba(232,197,126,0.6)" }}>Cardly</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col" style={{ height: '100vh', overflow: 'hidden', background: '#FAF6EE' }}>
 

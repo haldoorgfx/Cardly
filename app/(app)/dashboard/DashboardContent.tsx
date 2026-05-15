@@ -52,18 +52,18 @@ export default function DashboardContent({ events, atLimit }: Props) {
   return (
     <>
       {/* Filter + sort bar */}
-      <div className="flex items-center justify-between gap-4 mb-5 flex-wrap">
+      <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
         {/* Pill tabs — C2 style */}
         <div
-          className="flex items-center gap-1 p-1 rounded-xl"
-          style={{ background: 'white', border: '1px solid #E5E0D4' }}
+          className="flex items-center gap-1 p-1 rounded-xl overflow-x-auto"
+          style={{ background: 'white', border: '1px solid #E5E0D4', scrollbarWidth: 'none' }}
           role="tablist"
         >
           {FILTERS.map(f => (
             <button
               key={f.key}
               onClick={() => setFilter(f.key)}
-              className="text-[13px] font-medium px-3.5 py-1.5 rounded-lg transition"
+              className="shrink-0 text-[13px] font-medium px-3 py-1.5 rounded-lg transition"
               style={filter === f.key
                 ? { background: '#E8EFEB', color: '#0F1F18' }
                 : { color: '#6B7A72' }
