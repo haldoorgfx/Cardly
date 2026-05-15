@@ -17,7 +17,7 @@ export default function LandingPage() {
 /* ─── HERO ──────────────────────────────────────────────────────────── */
 function HeroSection() {
   return (
-    <section className="relative bg-[#0a0a0a] overflow-hidden">
+    <section className="relative overflow-hidden" style={{ background: '#0F1F18' }}>
       {/* Mesh gradient blobs */}
       <div className="absolute inset-0 pointer-events-none">
         <div
@@ -74,7 +74,7 @@ function HeroSection() {
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            "radial-gradient(ellipse 85% 75% at 50% 50%, transparent 40%, #0a0a0a 100%)",
+            "radial-gradient(ellipse 85% 75% at 50% 50%, transparent 40%, #0F1F18 100%)",
         }}
       />
 
@@ -210,7 +210,7 @@ function HeroMockup() {
           style={{
             height: "252px",
             background:
-              "linear-gradient(155deg, #1b1240 0%, #3a2068 50%, #f8a4d8 130%)",
+              "linear-gradient(155deg, #2C1A0F 0%, #6B3A1A 50%, #C97A2D 130%)",
             transform: "rotate(8deg) translateY(16px)",
             border: "1px solid rgba(255,255,255,0.07)",
           }}
@@ -224,7 +224,7 @@ function HeroMockup() {
         className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none"
         style={{
           background:
-            "linear-gradient(to bottom, transparent, #0a0a0a)",
+            "linear-gradient(to bottom, transparent, #0F1F18)",
         }}
       />
     </div>
@@ -288,24 +288,24 @@ const LOGOS = [
 
 function LogoStrip() {
   return (
-    <section className="bg-white border-b border-neutral-100 py-10 overflow-hidden">
+    <section className="bg-[#FAF6EE] border-b border-[#E5E0D4] py-10 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
-        <p className="text-center text-[11px] font-medium text-neutral-400 uppercase tracking-widest mb-6">
+        <p className="text-center text-[11px] font-medium text-[#6B7A72] uppercase tracking-widest mb-6">
           Used by teams behind
         </p>
         <div className="relative overflow-hidden">
           {/* Left fade */}
           <div className="absolute left-0 top-0 bottom-0 w-24 pointer-events-none z-10"
-            style={{ background: "linear-gradient(to right, white, transparent)" }} />
+            style={{ background: "linear-gradient(to right, #FAF6EE, transparent)" }} />
           {/* Right fade */}
           <div className="absolute right-0 top-0 bottom-0 w-24 pointer-events-none z-10"
-            style={{ background: "linear-gradient(to left, white, transparent)" }} />
+            style={{ background: "linear-gradient(to left, #FAF6EE, transparent)" }} />
           <div className="flex items-center gap-14 whitespace-nowrap">
             <div className="flex items-center gap-14 animate-[marquee_28s_linear_infinite]">
               {[...LOGOS, ...LOGOS].map((name, i) => (
                 <span
                   key={i}
-                  className="text-[14px] font-medium text-neutral-400"
+                  className="text-[14px] font-medium text-[#6B7A72]"
                 >
                   {name}
                 </span>
@@ -545,7 +545,7 @@ function FeatureHighlightsSection() {
   ];
 
   return (
-    <section className="relative bg-white py-28 overflow-hidden">
+    <section className="relative py-28 overflow-hidden" style={{ background: '#FAF6EE' }}>
       {/* Subtle dot grid */}
       <div
         className="absolute inset-0 pointer-events-none opacity-40"
@@ -560,7 +560,7 @@ function FeatureHighlightsSection() {
         <div className="text-[11px] font-mono text-[#1F4D3A]/60 tracking-widest uppercase mb-4">
           Built for designers
         </div>
-        <h2 className="text-[28px] md:text-[36px] font-bold text-[#0a0a0a] tracking-tight mb-14">
+        <h2 className="text-[28px] md:text-[36px] font-bold text-[#0F1F18] tracking-tight mb-14">
           Everything you need. Nothing you don&apos;t.
         </h2>
 
@@ -608,7 +608,7 @@ function FeatureHighlightsSection() {
               <h3 className="text-[16px] font-semibold text-[#0F1F18]">
                 {f.title}
               </h3>
-              <p className="mt-2 text-[14px] text-neutral-500 leading-relaxed">
+              <p className="mt-2 text-[14px] text-[#6B7A72] leading-relaxed">
                 {f.body}
               </p>
             </div>
@@ -645,7 +645,7 @@ function TestimonialSection() {
   return (
     <section
       className="relative py-28 overflow-hidden"
-      style={{ background: "#0a0a0a" }}
+      style={{ background: "#0F1F18" }}
     >
       {/* Mesh */}
       <div
@@ -687,7 +687,7 @@ function TestimonialSection() {
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            "radial-gradient(ellipse 80% 80% at 50% 50%, transparent 50%, #0a0a0a 100%)",
+            "radial-gradient(ellipse 80% 80% at 50% 50%, transparent 50%, #0F1F18 100%)",
         }}
       />
 

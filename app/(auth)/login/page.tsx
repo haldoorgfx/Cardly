@@ -152,7 +152,7 @@ export default function LoginPage() {
                   width: 148,
                   height: 196,
                   background:
-                    "linear-gradient(155deg, #1b1240 0%, #3a2068 55%, #f8a4d8 130%)",
+                    "linear-gradient(155deg, #0F2A1C 0%, #1F4D3A 55%, #E8C57E 130%)",
                   border: "1px solid rgba(255,255,255,0.06)",
                   transform: "rotate(-2deg)",
                   opacity: 0.55,

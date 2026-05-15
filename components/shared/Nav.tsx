@@ -22,30 +22,30 @@ export function Nav() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-white border-b border-neutral-100">
+      <header className="sticky top-0 z-40 bg-[#FAF6EE]/80 backdrop-blur-md border-b border-[#E5E0D4]">
         <nav className="max-w-7xl mx-auto flex items-center justify-between px-6 lg:px-10 h-14">
           <Link href="/" className="flex items-center">
-            <span className="font-semibold text-[16px] text-[#0a0a0a]">Cardly</span>
+            <span className="font-semibold text-[16px] text-[#0F1F18]">Cardly</span>
           </Link>
 
-          <ul className="hidden md:flex items-center gap-8 text-[14px] text-neutral-600">
+          <ul className="hidden md:flex items-center gap-8 text-[14px] text-[#3A4A42]">
             <li>
-              <a className="hover:text-neutral-900 transition" href="#how">
+              <a className="hover:text-[#0F1F18] transition" href="#how">
                 How it works
               </a>
             </li>
             <li>
-              <a className="hover:text-neutral-900 transition" href="#showcase">
+              <a className="hover:text-[#0F1F18] transition" href="#showcase">
                 Showcase
               </a>
             </li>
             <li>
-              <Link className="hover:text-neutral-900 transition" href="/pricing">
+              <Link className="hover:text-[#0F1F18] transition" href="/pricing">
                 Pricing
               </Link>
             </li>
             <li>
-              <a className="hover:text-neutral-900 transition" href="#faq">
+              <a className="hover:text-[#0F1F18] transition" href="#faq">
                 FAQ
               </a>
             </li>
@@ -54,13 +54,13 @@ export function Nav() {
           <div className="flex items-center gap-2">
             <Link
               href="/login"
-              className="hidden sm:inline-flex text-[14px] text-neutral-600 hover:text-neutral-900 px-3 py-1.5 transition"
+              className="hidden sm:inline-flex text-[14px] text-[#3A4A42] hover:text-[#0F1F18] px-3 py-1.5 transition"
             >
               Sign in
             </Link>
             <Link
               href="/signup"
-              className="hidden sm:inline-flex items-center gap-1.5 h-8 px-4 bg-[#0a0a0a] text-white text-[13px] font-medium rounded-md hover:bg-neutral-800 transition"
+              className="hidden sm:inline-flex items-center gap-1.5 h-8 px-4 bg-[#1F4D3A] text-white text-[13px] font-medium rounded-md hover:bg-[#163828] transition"
             >
               Get started
             </Link>
@@ -88,11 +88,11 @@ export function Nav() {
             className="absolute inset-0 bg-black/30"
             onClick={() => setOpen(false)}
           />
-          <div className="absolute right-0 top-0 bottom-0 w-[280px] bg-white flex flex-col" style={{ animation: 'slideInRight 200ms ease-out' }}>
+          <div className="absolute right-0 top-0 bottom-0 w-[280px] bg-[#FAF6EE] flex flex-col" style={{ animation: 'slideInRight 200ms ease-out' }}>
             {/* Drawer header */}
-            <div className="flex items-center justify-between px-5 h-14 border-b border-neutral-100">
+            <div className="flex items-center justify-between px-5 h-14 border-b border-[#E5E0D4]">
               <Link href="/" className="flex items-center" onClick={() => setOpen(false)}>
-                <span className="font-semibold text-[16px] text-[#0a0a0a]">Cardly</span>
+                <span className="font-semibold text-[16px] text-[#0F1F18]">Cardly</span>
               </Link>
               <button
                 onClick={() => setOpen(false)}
@@ -116,7 +116,7 @@ export function Nav() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setOpen(false)}
-                  className="flex items-center px-3 py-2.5 rounded-md text-[14px] text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 transition"
+                  className="flex items-center px-3 py-2.5 rounded-md text-[14px] text-[#3A4A42] hover:text-[#0F1F18] hover:bg-[#E8EFEB] transition"
                 >
                   {item.label}
                 </a>
@@ -124,18 +124,18 @@ export function Nav() {
             </nav>
 
             {/* Drawer CTA */}
-            <div className="p-4 border-t border-neutral-100 space-y-2">
+            <div className="p-4 border-t border-[#E5E0D4] space-y-2">
               <Link
                 href="/login"
                 onClick={() => setOpen(false)}
-                className="flex items-center justify-center w-full px-4 py-2 rounded-md border border-neutral-200 text-[14px] font-medium text-neutral-700 hover:bg-neutral-50 transition"
+                className="flex items-center justify-center w-full px-4 py-2 rounded-md border border-[#E5E0D4] text-[14px] font-medium text-[#3A4A42] hover:bg-[#E8EFEB] transition"
               >
                 Sign in
               </Link>
               <Link
                 href="/signup"
                 onClick={() => setOpen(false)}
-                className="flex items-center justify-center w-full h-9 px-4 rounded-md text-[14px] font-medium text-white bg-[#0a0a0a] hover:bg-neutral-800 transition"
+                className="flex items-center justify-center w-full h-9 px-4 rounded-md text-[14px] font-medium text-white bg-[#1F4D3A] hover:bg-[#163828] transition"
               >
                 Get started
               </Link>
