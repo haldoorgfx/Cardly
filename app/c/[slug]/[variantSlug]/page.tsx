@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
-import AttendeeClient from '../AttendeeClient';
+import AttendeeFlow from '../AttendeeFlow';
 import type { Zone } from '@/types/database';
 
 export default async function VariantAttendeePage({
@@ -32,7 +32,7 @@ export default async function VariantAttendeePage({
   if (!variant) notFound();
 
   return (
-    <AttendeeClient
+    <AttendeeFlow
       variantId={variant.id}
       eventName={event.name}
       backgroundUrl={variant.background_url ?? ''}
