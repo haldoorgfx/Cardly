@@ -804,6 +804,37 @@ export default function AttendeeClient({
                       </select>
                     ) : (
                       <div>
+                        {/* ── Live preview strip ─────────────────────────────────────────
+                            Shows the text in the zone's actual font/colour as you type.
+                            Visible even when the full card is hidden behind the keyboard. */}
+                        <div className="mb-3 px-4 py-3 rounded-2xl relative overflow-hidden"
+                          style={{
+                            background: 'rgba(255,255,255,0.05)',
+                            border: '1px solid rgba(255,255,255,0.09)',
+                            minHeight: 52,
+                          }}>
+                          {/* Subtle label */}
+                          <div className="absolute top-2 right-3 text-[9px] font-mono tracking-widest"
+                            style={{color:'rgba(255,255,255,0.2)'}}>PREVIEW</div>
+                          <span style={{
+                            display: 'block',
+                            fontFamily: activeZone.font ?? 'Inter',
+                            fontWeight: activeZone.weight ?? 700,
+                            /* clamp to a readable size in the sheet — never larger than 36px */
+                            fontSize: Math.min(36, Math.max(14, (activeZone.size ?? 32) * (previewW / backgroundWidth) * 2.4)),
+                            color: activeZone.color ?? '#FFFFFF',
+                            textAlign: activeZone.align ?? 'left',
+                            lineHeight: activeZone.lineHeight ?? 1.2,
+                            letterSpacing: activeZone.letterSpacing
+                              ? `${activeZone.letterSpacing}px` : undefined,
+                            textTransform: activeZone.textTransform as 'none'|'uppercase'|'lowercase'|undefined,
+                            wordBreak: 'break-word',
+                            opacity: values[activeZone.id]?.trim() ? 1 : 0.28,
+                            transition: 'opacity 0.15s ease',
+                          }}>
+                            {values[activeZone.id]?.trim() || activeZone.placeholder || activeZone.label || 'Start typing…'}
+                          </span>
+                        </div>
                         <textarea
                           ref={sheetInputRef}
                           value={values[activeZone.id]??''}
