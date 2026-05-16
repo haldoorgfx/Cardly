@@ -1,275 +1,117 @@
-import Link from "next/link";
-import React from "react";
-import { ArrowRight, Upload, Link2, Settings2, Image as ImageIcon, Maximize2, Plus, Minus, Check } from "lucide-react";
+import Link from 'next/link';
+import {
+  ArrowRight, Check, Mic, Heart, Flag, Sun, ShoppingBag, GraduationCap,
+  Layers, Crop, Eye, Share2, Globe, UserX, PenLine, Send,
+  Quote,
+} from 'lucide-react';
+import { DotGrid } from '@/components/marketing/DotGrid';
+import { CardMockup } from '@/components/marketing/CardMockup';
+import { FAQAccordion, type FAQItem } from '@/components/marketing/FAQAccordion';
 
-export default function LandingPage() {
+/* ═══════════════════════════════════════════════════════
+   SECTION 2 — HERO
+═══════════════════════════════════════════════════════ */
+function Hero() {
   return (
-    <>
-      <HeroSection />
-      <LogoStrip />
-      <HowItWorksSection />
-      <ShowcaseSection />
-      <TestimonialSection />
-      <PricingSection />
-      <FaqSection />
-      <FinalCtaSection />
-    </>
-  );
-}
-
-/* ── Shared helpers ─────────────────────────────────────────────────── */
-
-function DotGrid({
-  opacity = 0.06,
-  size = 24,
-  light = false,
-}: {
-  opacity?: number;
-  size?: number;
-  light?: boolean;
-}) {
-  const color = light ? "rgba(255,255,255," : "rgba(15,31,24,";
-  return (
-    <div
-      className="absolute inset-0 pointer-events-none"
-      style={{
-        backgroundImage: `radial-gradient(${color}${opacity}) 1px, transparent 1px)`,
-        backgroundSize: `${size}px ${size}px`,
-      }}
-    />
-  );
-}
-
-function ArrowIcon({ dark }: { dark?: boolean }) {
-  return <ArrowRight size={14} strokeWidth={2.2} color={dark ? "#0F1F18" : "currentColor"} />;
-}
-
-/* ─── HERO ──────────────────────────────────────────────────────────── */
-function HeroSection() {
-  return (
-    <section className="relative overflow-hidden" style={{ background: "#FAF6EE" }}>
+    <section className="relative overflow-hidden">
       {/* Mesh gradient blobs */}
-      <div className="absolute pointer-events-none" style={{ top: "-15%", right: "-5%", width: 700, height: 600, background: "radial-gradient(ellipse, rgba(31,77,58,0.09) 0%, transparent 70%)", filter: "blur(90px)" }} />
-      <div className="absolute pointer-events-none" style={{ bottom: "-10%", left: "-5%", width: 500, height: 500, background: "radial-gradient(ellipse, rgba(232,197,126,0.1) 0%, transparent 70%)", filter: "blur(80px)" }} />
+      <div aria-hidden className="absolute pointer-events-none" style={{ top: '-10%', right: '-5%', width: 700, height: 600, background: 'radial-gradient(ellipse, rgba(31,77,58,0.15) 0%, transparent 70%)', filter: 'blur(100px)' }} />
+      <div aria-hidden className="absolute pointer-events-none" style={{ bottom: '-10%', left: '-5%', width: 500, height: 500, background: 'radial-gradient(ellipse, rgba(232,197,126,0.12) 0%, transparent 70%)', filter: 'blur(80px)' }} />
 
-      {/* Vignette — fades edges */}
-      <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 90% 80% at 50% 50%, transparent 35%, #FAF6EE 100%)" }} />
+      <div className="relative mx-auto max-w-[1200px] px-5 lg:px-10 pt-12 pb-20 lg:pt-20 lg:pb-28 grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
 
-      <div className="relative max-w-7xl mx-auto px-6 lg:px-10 pt-20 pb-8 lg:pt-28 lg:pb-12">
-        <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
-
-          {/* ── Left: copy ── */}
-          <div className="flex-1 min-w-0 text-center lg:text-left">
-            {/* Eyebrow */}
-            <div className="inline-flex items-center gap-2 border border-[#E5E0D4] bg-white text-[12px] font-medium text-[#6B7A72] tracking-widest uppercase px-3 py-1.5 rounded-full">
-              <span className="h-1.5 w-1.5 rounded-full" style={{ background: "#1F4D3A" }} />
-              For event organizers
-            </div>
-
-            {/* Heading */}
-            <h1 className="mt-6 font-display font-bold text-[46px] md:text-[58px] lg:text-[66px] leading-[0.95] tracking-tight text-[#0F1F18]">
-              Personalized event cards,{" "}
-              <span style={{ background: "linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
-                at scale.
-              </span>
-            </h1>
-
-            <p className="mt-6 text-[16px] text-[#6B7A72] leading-relaxed max-w-[480px] mx-auto lg:mx-0">
-              Upload your event design. Define editable zones. Share one link —
-              attendees personalize and download their card in seconds.
-            </p>
-
-            <div className="mt-8 flex items-center gap-3 justify-center lg:justify-start flex-wrap">
-              <Link
-                href="/signup"
-                className="inline-flex items-center gap-2 h-11 px-6 text-white text-[14px] font-semibold rounded-lg hover:opacity-90 transition"
-                style={{ background: "#1F4D3A" }}
-              >
-                Create your first event
-                <ArrowIcon />
-              </Link>
-              <a
-                href="#how"
-                className="inline-flex items-center h-11 px-6 border border-[#E5E0D4] text-[14px] font-medium text-[#3A4A42] rounded-lg hover:bg-[#E8EFEB] transition"
-              >
-                See how it works
-              </a>
-            </div>
-
-            {/* Trust row */}
-            <div className="mt-8 flex items-center gap-5 justify-center lg:justify-start flex-wrap">
-              <span className="text-[13px] text-[#6B7A72] flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                1,000+ events shipped
-              </span>
-              <span className="text-[#C9C3B1]">·</span>
-              <span className="text-[13px] text-[#6B7A72]">No credit card required</span>
-              <span className="text-[#C9C3B1]">·</span>
-              <span className="text-[13px] text-[#6B7A72]">Free to start</span>
-            </div>
+        {/* LEFT — copy */}
+        <div className="order-2 lg:order-1">
+          <div className="font-mono text-[11px] tracking-[0.18em] uppercase mb-5" style={{ color: 'rgba(31,77,58,0.8)' }}>
+            For event teams, brands &amp; campaigns
           </div>
-
-          {/* ── Right: editor + phone visual ── */}
-          <div className="hidden lg:block w-[52%] shrink-0 relative" style={{ height: 460 }}>
-
-            {/* Floating decorations */}
-            <div className="absolute z-30 h-14 w-14 rounded-2xl animate-floatA" style={{ top: 0, right: 20, background: "rgba(232,197,126,0.18)", border: "1px solid rgba(232,197,126,0.35)" }} />
-            <div className="absolute z-30 h-8 w-8 rounded-full animate-floatB" style={{ top: 52, right: 90, background: "linear-gradient(135deg, #1F4D3A, #2A6A50)" }} />
-            <div className="absolute z-30 h-10 w-10 rounded-xl animate-floatA" style={{ bottom: 28, left: 0, background: "rgba(31,77,58,0.12)", border: "1px solid rgba(31,77,58,0.2)", animationDelay: "1s" }} />
-
-            {/* Editor window */}
-            <div
-              className="absolute z-10 rounded-2xl bg-white overflow-hidden"
-              style={{ top: 0, left: 0, right: 112, bottom: 40, border: "1px solid #E5E0D4", boxShadow: "0 28px 80px rgba(15,31,24,0.12)" }}
+          <h1 className="font-display font-bold text-ink leading-[0.96] tracking-[-0.035em] text-[46px] sm:text-[60px] lg:text-[72px]">
+            Every supporter.<br />
+            Every speaker.<br />
+            Every attendee.
+            <span className="text-primary"> Their own branded card.</span>
+          </h1>
+          <p className="mt-6 text-ink-soft text-[17px] lg:text-[19px] leading-[1.55] max-w-[560px]">
+            Cardly turns one design into thousands of personalized shareable cards.
+            Your audience adds their name and photo on their phone — and shares it everywhere.
+          </p>
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <Link
+              href="/signup"
+              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-primary text-cream font-medium hover:bg-primary-dark transition-colors"
             >
-              {/* Window chrome */}
-              <div className="flex items-center gap-2.5 px-4 py-2.5 border-b" style={{ background: "#FAF6EE", borderColor: "#E5E0D4" }}>
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <span className="h-3 w-3 rounded-full bg-[#FF5F57]" />
-                  <span className="h-3 w-3 rounded-full bg-[#FFBD2E]" />
-                  <span className="h-3 w-3 rounded-full bg-[#28CA41]" />
-                </div>
-                <div className="flex-1 h-5 rounded flex items-center justify-center" style={{ background: "white", border: "1px solid #E5E0D4" }}>
-                  <span className="font-mono text-[9px] text-[#6B7A72]/60">cardly.app/edit/aya-summit-26</span>
-                </div>
-                <span className="text-[9px] font-mono text-emerald-600 flex items-center gap-1 shrink-0">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Saved
-                </span>
-              </div>
-
-              {/* Editor body */}
-              <div style={{ display: "grid", gridTemplateColumns: "40px 1fr 120px", height: "calc(100% - 38px)" }}>
-
-                {/* Left toolbar */}
-                <div className="flex flex-col items-center py-3 gap-1.5" style={{ background: "#FAF6EE", borderRight: "1px solid #E5E0D4" }}>
-                  {[
-                    { icon: <ImageIcon size={13} strokeWidth={1.8} />, active: true },
-                    { icon: <Maximize2 size={13} strokeWidth={1.8} />, active: false },
-                    { icon: <Settings2 size={13} strokeWidth={1.8} />, active: false },
-                  ].map((item, i) => (
-                    <button key={i} className="h-8 w-8 rounded-md grid place-items-center shrink-0" style={item.active ? { background: "#1F4D3A", color: "white" } : { color: "#6B7A72" }}>
-                      {item.icon}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Canvas */}
-                <div className="relative overflow-hidden" style={{ background: "radial-gradient(ellipse at 30% 40%, rgba(31,77,58,0.07), rgba(232,197,126,0.04) 60%, #FAF6EE)" }}>
-                  {/* Canvas dot grid */}
-                  <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: "radial-gradient(rgba(15,31,24,0.05) 1px, transparent 1px)", backgroundSize: "14px 14px" }} />
-
-                  {/* Event card on canvas */}
-                  <div className="absolute rounded-xl overflow-hidden" style={{ top: 18, left: 22, right: 20, height: "calc(100% - 36px)", background: "linear-gradient(155deg, #0F1F18 0%, #1F4D3A 55%, #E8C57E 130%)" }}>
-                    <div className="absolute" style={{ top: 12, left: 14, right: 14 }}>
-                      <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 7, fontFamily: "JetBrains Mono", letterSpacing: "0.18em" }}>AYA SUMMIT · 2026</div>
-                      <div style={{ color: "white", fontWeight: 700, fontSize: 17, lineHeight: 1.15, marginTop: 5 }}>I&apos;m attending<br />Aya Summit.</div>
-                    </div>
-
-                    {/* Name zone */}
-                    <div className="absolute animate-zonePulse" style={{ bottom: "22%", left: 14, right: 14, height: 28, border: "1.5px dashed rgba(232,197,126,0.7)", borderRadius: 5 }}>
-                      <span style={{ position: "absolute", top: -8, left: 6, background: "#1F4D3A", color: "white", fontSize: 7, padding: "1px 5px", borderRadius: 3, fontFamily: "JetBrains Mono", letterSpacing: "0.1em" }}>FULL NAME</span>
-                    </div>
-
-                    {/* Photo zone */}
-                    <div style={{ position: "absolute", bottom: "8%", left: 14, width: 28, height: 28, border: "1.5px dashed rgba(232,197,126,0.55)", borderRadius: "50%" }}>
-                      <span style={{ position: "absolute", top: -8, left: "50%", transform: "translateX(-50%)", background: "#1F4D3A", color: "white", fontSize: 7, padding: "1px 5px", borderRadius: 3, fontFamily: "JetBrains Mono", letterSpacing: "0.1em", whiteSpace: "nowrap" }}>PHOTO</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Properties panel */}
-                <div className="overflow-hidden" style={{ background: "white", borderLeft: "1px solid #E5E0D4" }}>
-                  <div className="px-3 pt-3 pb-2 border-b" style={{ borderColor: "#E5E0D4" }}>
-                    <div style={{ fontSize: 8, fontFamily: "JetBrains Mono", color: "#6B7A72", letterSpacing: "0.12em", marginBottom: 8, textTransform: "uppercase" }}>Zone · Full Name</div>
-                    {[["Font", "DM Sans"], ["Size", "28"], ["Weight", "700"]].map(([label, val]) => (
-                      <div key={label} style={{ marginBottom: 7 }}>
-                        <div style={{ fontSize: 8, fontFamily: "JetBrains Mono", color: "#6B7A72", letterSpacing: "0.1em", marginBottom: 3, textTransform: "uppercase" }}>{label}</div>
-                        <div style={{ height: 21, border: "1px solid #E5E0D4", borderRadius: 4, background: "#FAF6EE", fontSize: 11, color: "#0F1F18", display: "flex", alignItems: "center", paddingLeft: 7 }}>{val}</div>
-                      </div>
-                    ))}
-                    <div>
-                      <div style={{ fontSize: 8, fontFamily: "JetBrains Mono", color: "#6B7A72", letterSpacing: "0.1em", marginBottom: 3, textTransform: "uppercase" }}>Align</div>
-                      <div style={{ display: "flex", gap: 3 }}>
-                        {["L", "C", "R"].map((a, i) => (
-                          <div key={a} style={{ flex: 1, height: 21, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 600, background: i === 0 ? "#1F4D3A" : "#FAF6EE", color: i === 0 ? "white" : "#6B7A72", border: i !== 0 ? "1px solid #E5E0D4" : "none" }}>{a}</div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="px-3 pt-3">
-                    <div style={{ fontSize: 8, fontFamily: "JetBrains Mono", color: "#6B7A72", letterSpacing: "0.1em", marginBottom: 6, textTransform: "uppercase" }}>Color</div>
-                    <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-                      {["#FFFFFF", "#0F1F18", "#E8C57E", "#1F4D3A"].map(c => (
-                        <div key={c} style={{ width: 18, height: 18, borderRadius: "50%", background: c, border: "1.5px solid rgba(15,31,24,0.12)" }} />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Phone overlay */}
-            <div className="absolute z-20" style={{ bottom: 0, right: 0, width: 126 }}>
-              <div style={{ border: "5px solid #0F1F18", borderRadius: 22, overflow: "hidden", background: "white", boxShadow: "0 20px 50px rgba(0,0,0,0.28)" }}>
-                <div style={{ height: 14, background: "#0F1F18", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <div style={{ width: 30, height: 3, background: "rgba(255,255,255,0.15)", borderRadius: 2 }} />
-                </div>
-                <div style={{ padding: "8px 8px 10px", background: "#FAF6EE" }}>
-                  <div style={{ borderRadius: 7, height: 58, background: "linear-gradient(155deg, #0F1F18 0%, #1F4D3A 55%, #E8C57E 130%)", marginBottom: 8, padding: "6px 8px" }}>
-                    <div style={{ fontSize: 6, color: "rgba(255,255,255,0.35)", fontFamily: "JetBrains Mono", letterSpacing: "0.15em" }}>AYA SUMMIT</div>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: "white", lineHeight: 1.1, marginTop: 2 }}>Attending<br />Aya Summit.</div>
-                  </div>
-                  {["FULL NAME", "ROLE"].map(label => (
-                    <div key={label} style={{ marginBottom: 5 }}>
-                      <div style={{ fontSize: 6, color: "#6B7A72", fontFamily: "JetBrains Mono", letterSpacing: "0.1em", marginBottom: 2 }}>{label}</div>
-                      <div style={{ height: 16, border: "1px solid #E5E0D4", borderRadius: 4, background: "white" }} />
-                    </div>
-                  ))}
-                  <div style={{ height: 20, borderRadius: 5, background: "#1F4D3A", display: "flex", alignItems: "center", justifyContent: "center", marginTop: 6 }}>
-                    <span style={{ fontSize: 6.5, color: "white", fontFamily: "JetBrains Mono", letterSpacing: "0.08em" }}>GENERATE CARD</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+              Start free <ArrowRight size={16} strokeWidth={2} />
+            </Link>
+            <Link
+              href="/how-it-works"
+              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full border text-ink font-medium hover:border-primary hover:text-primary transition-colors"
+              style={{ borderColor: 'rgba(15,31,24,0.15)' }}
+            >
+              See how it works <ArrowRight size={16} strokeWidth={2} />
+            </Link>
+          </div>
+          <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] text-muted">
+            {['Free for up to 50 cards', 'No credit card', 'Works on every phone'].map(t => (
+              <span key={t} className="inline-flex items-center gap-1.5">
+                <Check size={14} strokeWidth={2.5} className="text-primary" /> {t}
+              </span>
+            ))}
           </div>
         </div>
 
-        <div className="h-12 lg:h-16" />
-      </div>
-    </section>
-  );
-}
+        {/* RIGHT — hero card stack */}
+        <div className="order-1 lg:order-2 relative h-[420px] sm:h-[520px] lg:h-[580px] flex items-center justify-center">
+          {/* Halo glow */}
+          <div aria-hidden className="absolute inset-0 grid place-items-center pointer-events-none">
+            <div style={{ width: 360, height: 360, borderRadius: '50%', background: 'radial-gradient(circle, rgba(31,77,58,0.18), transparent 65%)', filter: 'blur(40px)' }} />
+          </div>
 
-/* ─── LOGO STRIP ─────────────────────────────────────────────────────── */
-const LOGOS = [
-  "GITEX Africa",
-  "Pan-African Youth Forum",
-  "IGAD Summit",
-  "Africa AI Summit",
-  "Africa Tech Festival",
-  "Moonshot ·26",
-  "Lagos Design Week",
-  "DevFest Nairobi",
-];
-
-function LogoStrip() {
-  return (
-    <section className="border-y border-[#E5E0D4] py-9 overflow-hidden" style={{ background: "#FAF6EE" }}>
-      <div className="max-w-7xl mx-auto px-6">
-        <p className="text-center text-[11px] font-mono font-medium text-[#6B7A72] tracking-widest uppercase mb-6">
-          Used by teams behind
-        </p>
-        <div className="relative overflow-hidden">
-          <div className="absolute left-0 top-0 bottom-0 w-24 pointer-events-none z-10" style={{ background: "linear-gradient(to right, #FAF6EE, transparent)" }} />
-          <div className="absolute right-0 top-0 bottom-0 w-24 pointer-events-none z-10" style={{ background: "linear-gradient(to left, #FAF6EE, transparent)" }} />
-          <div className="flex items-center whitespace-nowrap">
-            <div className="flex items-center gap-12 animate-marquee">
-              {[...LOGOS, ...LOGOS].map((name, i) => (
-                <span key={i} className="text-[14px] font-medium text-[#6B7A72]/70">
-                  {name}
-                </span>
-              ))}
+          {/* Back card — speaker */}
+          <div className="absolute" style={{ left: '4%', top: '4%', opacity: 0.7 }}>
+            <div style={{ transform: 'scale(0.72)', transformOrigin: 'top left' }}>
+              <CardMockup
+                width={280} tilt={-8} variant="cream"
+                org="AFRICA TECH FESTIVAL" event="Africa Tech Festival 2026"
+                role="I'M SPEAKING AT" name="Kwame Mensah" initials="KM"
+                title="Product Engineer · Paystack" date="12 MAR 2026" location="LAGOS"
+              />
             </div>
+          </div>
+
+          {/* Back card — NGO (hidden on mobile) */}
+          <div className="hidden sm:block absolute" style={{ right: '4%', bottom: '4%', opacity: 0.7 }}>
+            <div style={{ transform: 'scale(0.65)', transformOrigin: 'bottom right' }}>
+              <CardMockup
+                width={260} tilt={6} variant="duotone"
+                org="UNITED FOR EAST AFRICA" event="United for East Africa"
+                role="I'M VOLUNTEERING AT" name="Liya Tesfaye" initials="LT"
+                title="Campaign Lead" date="OCT 2025" location="ADDIS"
+              />
+            </div>
+          </div>
+
+          {/* Front card — hero */}
+          <div className="absolute inset-0 grid place-items-center">
+            <div style={{ transform: 'rotate(-3deg)', filter: 'drop-shadow(0 30px 50px rgba(15,31,24,0.25))' }} className="floatA">
+              <CardMockup
+                width={300} variant="forest"
+                org="5TH PAN-AFRICAN YOUTH FORUM" event="I'm attending the Youth Forum."
+                role="I'M ATTENDING" name="Aisha Ahmed" initials="AA"
+                title="Climate Policy Lead" date="MAR 2026" location="DJIBOUTI"
+              />
+            </div>
+          </div>
+
+          {/* Live preview pill */}
+          <div className="hidden sm:flex absolute right-4 top-10 items-center gap-2 bg-surface border border-border rounded-full px-3 py-1.5 shadow-soft">
+            <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
+            <span className="font-mono text-[10px] tracking-[0.14em] text-ink-soft uppercase">Live preview</span>
+          </div>
+
+          {/* Shared count pill */}
+          <div className="hidden sm:flex absolute left-4 bottom-14 items-center gap-2 bg-surface border border-border rounded-full px-3 py-1.5 shadow-soft">
+            <Share2 size={12} strokeWidth={2} className="text-primary" />
+            <span className="font-mono text-[10px] tracking-[0.14em] text-ink-soft uppercase">247 shared today</span>
           </div>
         </div>
       </div>
@@ -277,57 +119,39 @@ function LogoStrip() {
   );
 }
 
-/* ─── HOW IT WORKS ───────────────────────────────────────────────────── */
-const HOW_ICONS: React.ReactNode[] = [
-  <Upload key="upload" size={15} strokeWidth={1.8} color="#1F4D3A" />,
-  <Maximize2 key="maximize" size={15} strokeWidth={1.8} color="#1F4D3A" />,
-  <Link2 key="link" size={15} strokeWidth={1.8} color="#1F4D3A" />,
+/* ═══════════════════════════════════════════════════════
+   SECTION 3 — SOCIAL PROOF
+═══════════════════════════════════════════════════════ */
+const ORGS = [
+  { mono: 'AU',   name: 'African Union' },
+  { mono: 'UNDP', name: 'UNDP' },
+  { mono: 'MTN',  name: 'MTN Group' },
+  { mono: 'GIZ',  name: 'GIZ' },
+  { mono: 'PSK',  name: 'Paystack' },
+  { mono: 'AFD',  name: 'Afro Future' },
 ];
 
-const HOW_STEPS = [
-  { n: "01", title: "Upload your design", body: "Drop a PNG or JPG. Bring your own typography, colors, and layout. We don't touch a pixel." },
-  { n: "02", title: "Mark the zones", body: "Drag boxes where attendee info goes. Name, role, company, photo — configure fonts and shapes per zone." },
-  { n: "03", title: "Share one link", body: "Attendees open the link on their phone, fill in their details, and download a ready-to-share PNG in seconds." },
-];
-
-function HowItWorksSection() {
+function SocialProof() {
   return (
-    <section id="how" className="relative py-24 lg:py-32 overflow-hidden border-t border-[#E5E0D4]" style={{ background: "#FAF6EE" }}>
-      <DotGrid opacity={0.055} size={24} />
-
-      <div className="relative max-w-6xl mx-auto px-6 lg:px-10">
-        <div className="text-[11px] font-mono text-[#1F4D3A] tracking-widest uppercase mb-3">How it works</div>
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-16">
-          <h2 className="font-display font-bold text-[32px] lg:text-[38px] text-[#0F1F18] tracking-tight leading-tight">
-            Simple by design.
-          </h2>
-          <a href="#" className="text-[13px] text-[#1F4D3A] font-medium hover:underline shrink-0">
-            Watch the 60-second tour →
-          </a>
+    <section className="border-y border-border" style={{ background: 'rgba(250,246,238,0.4)' }}>
+      <div className="mx-auto max-w-[1200px] px-5 lg:px-10 py-10">
+        <div className="text-center font-mono text-[10px] tracking-[0.22em] text-muted uppercase mb-7">
+          Used for campaigns by
         </div>
-
-        <div className="grid md:grid-cols-3 gap-5">
-          {HOW_STEPS.map((step, i) => (
+        <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-6 text-ink-soft">
+          {ORGS.map((o, i) => (
             <div
-              key={step.n}
-              className="relative bg-white rounded-2xl p-6 hover:-translate-y-1 transition-transform duration-200"
-              style={{ border: "1px solid #E5E0D4", boxShadow: "0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.05)" }}
+              key={o.mono}
+              className={`flex items-center gap-2.5 ${i >= 3 ? 'hidden sm:flex' : ''}`}
+              style={{ opacity: 0.7 }}
             >
-              {/* Gradient top accent line */}
-              <div className="absolute top-0 left-6 right-6 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(31,77,58,0.25), rgba(232,197,126,0.25), transparent)" }} />
-
-              <div className="flex items-start justify-between mb-5">
-                <span className="font-mono text-[11px] text-[#6B7A72]/55">{step.n}</span>
-                <div
-                  className="h-9 w-9 rounded-xl grid place-items-center shrink-0"
-                  style={{ background: "rgba(31,77,58,0.08)", border: "1px solid rgba(31,77,58,0.12)" }}
-                >
-                  {HOW_ICONS[i]}
-                </div>
-              </div>
-
-              <h3 className="font-display font-bold text-[17px] text-[#0F1F18]">{step.title}</h3>
-              <p className="mt-2 text-[14px] text-[#6B7A72] leading-relaxed">{step.body}</p>
+              <span
+                className="w-8 h-8 rounded-full grid place-items-center font-mono text-[10px] tracking-[0.08em] font-semibold"
+                style={{ border: '1px solid rgba(58,74,66,0.3)' }}
+              >
+                {o.mono}
+              </span>
+              <span className="font-display font-semibold text-[15px] tracking-tight">{o.name}</span>
             </div>
           ))}
         </div>
@@ -336,298 +160,575 @@ function HowItWorksSection() {
   );
 }
 
-/* ─── SHOWCASE DARK BAND ─────────────────────────────────────────────── */
-const SHOWCASE_CARDS = [
-  { label: "AFRICA TECH FESTIVAL", heading: "I'm attending\nAfrica Tech Festival.", style: { background: "linear-gradient(155deg, #0a1f14 0%, #1F4D3A 60%, #2A6A50 100%)" } },
-  { label: "IGAD SUMMIT · 2026", heading: "Speaking at\nIGAD Summit.", style: { background: "linear-gradient(150deg, #0F1F18 0%, #1F4D3A 55%, #E8C57E 130%)" } },
-  { label: "DEVFEST NAIROBI", heading: "Building\nwith the community.", style: { background: "linear-gradient(155deg, #163828 0%, #1F4D3A 50%, #2A9E64 110%)" } },
-  { label: "MOONSHOT · 26", heading: "I'm a\nMoonshot delegate.", style: { background: "linear-gradient(155deg, #0F1F18 0%, #2A3020 50%, #E8C57E 130%)" } },
+/* ═══════════════════════════════════════════════════════
+   SECTION 4 — THE PROBLEM
+═══════════════════════════════════════════════════════ */
+const CHAOS_POSTS = [
+  { tag: 'branding chaos', color: '#B8423C', initials: 'JM', caption: 'guys come thru',         text: 'pan african YOUTH forum' },
+  { tag: 'wrong colors',   color: '#C9A45E', initials: 'FK', caption: "see u all there!!",       text: "I'M GOING!!" },
+  { tag: 'low quality',    color: '#6B7A72', initials: 'TO', caption: '📢📢📢',                  text: 'youth forum 2025' },
+  { tag: 'off-brand',      color: '#3A4A42', initials: 'RA', caption: 'we outside',              text: 'djibouti vibes' },
 ];
 
-const STATS = [
-  { value: "38s", label: "avg. card generation time" },
-  { value: "6.2×", label: "more shares than a generic badge" },
-  { value: "0", label: "accounts required for attendees" },
-];
-
-function ShowcaseSection() {
+function Problem() {
+  const angles = [-3, 2, -1.5, 2.5];
   return (
-    <section id="showcase" className="relative py-24 lg:py-32 overflow-hidden" style={{ background: "#0F1F18" }}>
-      <DotGrid opacity={0.08} size={24} light />
-      <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 90% 80% at 50% 50%, transparent 40%, rgba(15,31,24,0.7) 100%)" }} />
-
-      <div className="relative max-w-6xl mx-auto px-6 lg:px-10">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14">
-          <div>
-            <div className="text-[11px] font-mono text-white/30 tracking-widest uppercase mb-3">Showcase</div>
-            <h2 className="font-display font-bold text-[32px] lg:text-[40px] text-white tracking-tight leading-tight">
-              Your design.<br />Their identity.
-            </h2>
+    <section className="relative">
+      <div className="mx-auto max-w-[1200px] px-5 lg:px-10 py-20 lg:py-28">
+        <div className="max-w-[720px] mx-auto text-center">
+          <div className="font-mono text-[11px] tracking-[0.22em] uppercase mb-5" style={{ color: 'rgba(184,66,60,0.9)' }}>
+            The problem
           </div>
-          <p className="text-[14px] text-white/40 leading-relaxed max-w-[300px]">
-            Every attendee walks away with a card that actually looks like your event — not a generic template.
+          <h2 className="font-display font-bold text-ink text-[38px] sm:text-[50px] lg:text-[60px] leading-[1.0] tracking-[-0.035em]">
+            You need every attendee to share.{' '}
+            <span className="text-ink-soft">They never do.</span>
+          </h2>
+          <p className="mt-6 text-ink-soft text-[17px] lg:text-[18px] leading-[1.6]">
+            You spend months planning a campaign. You design beautiful brand assets.
+            Then the day comes — and your attendees post about it however they want,
+            if they post at all. The &ldquo;social media kit&rdquo; you sent in WhatsApp? Half-opened, mostly ignored.
           </p>
         </div>
 
-        {/* Card grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {SHOWCASE_CARDS.map((card, i) => (
+        <div className="mt-14 grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-[1000px] mx-auto">
+          {CHAOS_POSTS.map((p, i) => (
             <div
               key={i}
-              className="relative rounded-2xl overflow-hidden"
-              style={{ aspectRatio: "3/4", ...card.style }}
+              className="relative bg-surface border border-border rounded-2xl p-4 shadow-soft"
+              style={{ transform: `rotate(${angles[i]}deg)` }}
             >
-              <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: "radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)", backgroundSize: "12px 12px" }} />
-              <div className="absolute inset-0 p-4 flex flex-col justify-between">
-                <div>
-                  <div style={{ fontSize: 8, fontFamily: "JetBrains Mono", color: "rgba(255,255,255,0.35)", letterSpacing: "0.18em" }}>{card.label}</div>
-                  <div style={{ marginTop: 8, fontSize: 14, fontWeight: 700, color: "white", lineHeight: 1.2 }}>
-                    {card.heading.split("\n").map((line, j) => (
-                      <span key={j}>{line}{j < card.heading.split("\n").length - 1 && <br />}</span>
-                    ))}
-                  </div>
+              <div className="flex items-center gap-2 mb-3">
+                <div
+                  className="w-8 h-8 rounded-full grid place-items-center text-cream font-display text-[11px] font-semibold"
+                  style={{ background: p.color }}
+                >
+                  {p.initials}
                 </div>
-                <div className="flex items-center gap-2">
-                  <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(255,255,255,0.15)", border: "1.5px solid rgba(255,255,255,0.2)" }} />
-                  <div>
-                    <div style={{ height: 6, width: 56, background: "rgba(255,255,255,0.3)", borderRadius: 3, marginBottom: 3 }} />
-                    <div style={{ height: 4, width: 40, background: "rgba(255,255,255,0.15)", borderRadius: 2 }} />
-                  </div>
-                </div>
+                <div className="font-display text-[13px] font-semibold text-ink">@user_{i + 12}</div>
               </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Stats row */}
-        <div className="mt-14 grid grid-cols-3 overflow-hidden rounded-2xl" style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
-          {STATS.map((s, i) => (
-            <div key={i} className="px-8 py-7 text-center" style={{ background: "rgba(255,255,255,0.03)", borderRight: i < 2 ? "1px solid rgba(255,255,255,0.06)" : "none" }}>
-              <div className="font-display font-bold text-[40px] leading-none text-white tracking-tight">{s.value}</div>
-              <div className="mt-2 text-[13px] text-white/35">{s.label}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ─── TESTIMONIAL ────────────────────────────────────────────────────── */
-function TestimonialSection() {
-  return (
-    <section className="relative py-24 border-t border-[#E5E0D4] overflow-hidden" style={{ background: "#FAF6EE" }}>
-      <div className="absolute pointer-events-none" style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 600, height: 400, background: "radial-gradient(ellipse, rgba(31,77,58,0.07) 0%, transparent 70%)", filter: "blur(80px)" }} />
-      <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 80% 80% at 50% 50%, transparent 50%, #FAF6EE 100%)" }} />
-
-      <div className="relative max-w-3xl mx-auto px-6 text-center">
-        <div className="font-display font-bold text-[80px] leading-none text-[#E5E0D4] select-none mb-2" aria-hidden>&ldquo;</div>
-        <blockquote className="font-display font-semibold text-[24px] md:text-[30px] text-[#0F1F18] leading-snug tracking-tight -mt-6">
-          Cardly let our identity actually travel with every attendee. Each share felt like the festival had designed it personally.
-        </blockquote>
-        <figcaption className="mt-8 inline-flex items-center gap-3">
-          <span className="h-10 w-10 rounded-full shrink-0" style={{ background: "linear-gradient(135deg, #1F4D3A, #E8C57E)" }} />
-          <div className="text-left">
-            <div className="text-[14px] font-semibold text-[#0F1F18]">Ifeoma Adesanya</div>
-            <div className="text-[13px] text-[#6B7A72]">Brand Lead · Africa Tech Festival</div>
-          </div>
-        </figcaption>
-      </div>
-    </section>
-  );
-}
-
-/* ─── PRICING ────────────────────────────────────────────────────────── */
-const PLANS = [
-  {
-    name: "Free",
-    price: "$0",
-    period: "forever",
-    desc: "Try Cardly for your first event.",
-    features: ["1 event", "Unlimited attendees", "All zone types", "Cardly watermark on cards"],
-    cta: "Get started",
-    href: "/signup",
-    highlight: false,
-  },
-  {
-    name: "Pro",
-    price: "$19",
-    period: "/ month",
-    desc: "For active event organizers.",
-    features: ["10 events / month", "Unlimited attendees", "No watermark", "Download analytics"],
-    cta: "Start Pro",
-    href: "/signup?plan=pro",
-    highlight: true,
-  },
-  {
-    name: "Studio",
-    price: "$49",
-    period: "/ month",
-    desc: "For agencies and large events.",
-    features: ["Unlimited events", "Unlimited attendees", "No watermark", "Priority support"],
-    cta: "Start Studio",
-    href: "/signup?plan=studio",
-    highlight: false,
-  },
-];
-
-function PricingSection() {
-  return (
-    <section className="relative py-24 border-t border-[#E5E0D4] overflow-hidden" style={{ background: "#FAF6EE" }}>
-      <DotGrid opacity={0.05} size={24} />
-
-      <div className="relative max-w-5xl mx-auto px-6 lg:px-10">
-        <div className="text-[11px] font-mono text-[#1F4D3A] tracking-widest uppercase mb-3">Pricing</div>
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-14">
-          <h2 className="font-display font-bold text-[32px] lg:text-[38px] text-[#0F1F18] tracking-tight">
-            Simple, transparent pricing.
-          </h2>
-          <Link href="/pricing" className="text-[13px] text-[#1F4D3A] font-medium hover:underline shrink-0">
-            Compare all features →
-          </Link>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-5 items-start">
-          {PLANS.map((plan) => (
-            <div
-              key={plan.name}
-              className="relative rounded-2xl p-7"
-              style={plan.highlight
-                ? { background: "#0F1F18", border: "1px solid rgba(255,255,255,0.06)", boxShadow: "0 4px 24px rgba(15,31,24,0.2)" }
-                : { background: "white", border: "1px solid #E5E0D4", boxShadow: "0 1px 2px rgba(15,31,24,0.04)" }
-              }
-            >
-              {plan.highlight && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <span className="text-[10px] font-mono font-medium px-3 py-1 rounded-full" style={{ background: "linear-gradient(135deg, #1F4D3A, #2A6A50)", color: "white", letterSpacing: "0.1em" }}>
-                    MOST POPULAR
+              <div
+                className="aspect-square rounded-lg mb-3 relative overflow-hidden"
+                style={{ background: `linear-gradient(${[120,40,200,310][i]}deg, ${p.color}, ${p.color}aa)` }}
+              >
+                <div
+                  className="absolute inset-2 border-2 border-dashed rounded-md grid place-items-center"
+                  style={{ borderColor: 'rgba(250,246,238,0.4)' }}
+                >
+                  <span className="font-display text-cream text-[14px] sm:text-[18px] font-bold tracking-tight text-center px-2 leading-tight opacity-80">
+                    {p.text}
                   </span>
                 </div>
-              )}
-
-              <div className={`text-[12px] font-medium mb-3 ${plan.highlight ? "text-white/40" : "text-[#6B7A72]"}`}>{plan.name}</div>
-
-              <div className="flex items-baseline gap-1 mb-1">
-                <span className={`font-display font-bold text-[38px] leading-none tracking-tight ${plan.highlight ? "text-white" : "text-[#0F1F18]"}`}>{plan.price}</span>
-                <span className={`text-[14px] ${plan.highlight ? "text-white/40" : "text-[#6B7A72]"}`}>{plan.period}</span>
+                <span
+                  className="absolute top-1.5 right-1.5 font-mono text-[9px] tracking-[0.16em] uppercase px-1.5 py-0.5 rounded text-cream"
+                  style={{ background: 'rgba(15,31,24,0.55)' }}
+                >
+                  {p.tag}
+                </span>
               </div>
-              <p className={`text-[13px] mb-7 ${plan.highlight ? "text-white/45" : "text-[#6B7A72]"}`}>{plan.desc}</p>
+              <div className="text-[12px] text-ink-soft truncate">{p.caption}</div>
+            </div>
+          ))}
+        </div>
 
-              <ul className="space-y-3 mb-8">
-                {plan.features.map((f) => (
-                  <li key={f} className="flex items-center gap-2.5">
-                    <div className="h-5 w-5 rounded-full grid place-items-center shrink-0"
-                      style={plan.highlight
-                        ? { background: "rgba(31,77,58,0.5)", border: "1px solid rgba(31,77,58,0.8)" }
-                        : { background: "rgba(31,77,58,0.08)", border: "1px solid rgba(31,77,58,0.15)" }
-                      }
-                    >
-                      <Check size={9} strokeWidth={3} color={plan.highlight ? "#a8d5a2" : "#1F4D3A"} />
+        <div className="mt-8 text-center font-mono text-[11px] tracking-[0.18em] text-muted uppercase">
+          → Four supporters. Four different brands.
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 5 — THE SOLUTION
+═══════════════════════════════════════════════════════ */
+const SOLUTION_STEPS = [
+  { n: '01', icon: <PenLine size={20} strokeWidth={1.8} />, title: 'Design', body: 'Upload your campaign artwork. Mark editable zones for name, photo, role.' },
+  { n: '02', icon: <Send size={20} strokeWidth={1.8} />,    title: 'Publish', body: 'One link. WhatsApp, email, or QR. No accounts. No app downloads.' },
+  { n: '03', icon: <Share2 size={20} strokeWidth={1.8} />, title: 'Attendees share', body: 'Personalized card in 30 seconds. One tap to Instagram, WhatsApp, X.' },
+];
+
+function Solution() {
+  return (
+    <section className="relative overflow-hidden border-y border-border" style={{ background: 'rgba(232,239,235,0.3)' }}>
+      <div aria-hidden className="absolute pointer-events-none" style={{ top: '20%', left: '-10%', width: 600, height: 600, background: 'radial-gradient(ellipse, rgba(31,77,58,0.08) 0%, transparent 70%)', filter: 'blur(80px)' }} />
+
+      <div className="relative mx-auto max-w-[1200px] px-5 lg:px-10 py-20 lg:py-28 grid lg:grid-cols-[1fr_1.05fr] gap-12 lg:gap-16 items-center">
+        <div>
+          <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-5">The fix</div>
+          <h2 className="font-display font-bold text-ink text-[36px] sm:text-[48px] lg:text-[58px] leading-[1.0] tracking-[-0.035em]">
+            One design. Thousands of personalized versions.{' '}
+            <span className="text-primary">Zero designer hours.</span>
+          </h2>
+          <p className="mt-6 text-ink-soft text-[17px] lg:text-[18px] leading-[1.6] max-w-[540px]">
+            Upload your campaign design once. Mark which parts should be filled in by attendees — name, photo, role, whatever you need. Share the link. Watch your audience generate their own branded share cards in under 30 seconds.
+          </p>
+        </div>
+
+        <div className="grid gap-4">
+          {SOLUTION_STEPS.map((s, i) => (
+            <div key={s.n} className="relative">
+              <div
+                className="relative bg-surface border border-border rounded-2xl p-5 sm:p-6 flex items-start gap-4 sm:gap-5 hover:border-primary/40 hover:shadow-soft transition-all"
+              >
+                <div className="absolute top-4 right-5 font-mono text-[10px] tracking-[0.18em] text-muted uppercase">
+                  STEP {s.n}
+                </div>
+                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl grid place-items-center bg-primary-soft text-primary shrink-0">
+                  {s.icon}
+                </div>
+                <div className="pt-0.5 pr-12">
+                  <div className="font-display text-[20px] sm:text-[22px] font-semibold text-ink tracking-tight">{s.title}</div>
+                  <p className="text-ink-soft text-[14px] sm:text-[15px] mt-1.5 leading-[1.55]">{s.body}</p>
+                </div>
+              </div>
+              {i < SOLUTION_STEPS.length - 1 && (
+                <div className="absolute -bottom-3 left-9 sm:left-10 z-10">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1F4D3A" strokeWidth="2" strokeLinecap="round">
+                    <path d="M12 4v16M6 14l6 6 6-6" />
+                  </svg>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 6 — USE CASES GRID
+═══════════════════════════════════════════════════════ */
+const USE_CASE_CARDS = [
+  { label: 'Conferences',            icon: <Mic size={18} strokeWidth={1.8} />,         title: 'Conference attendees and speakers',              body: 'Every speaker, sponsor, and attendee gets their own branded variant of your event card.',                        variant: 'forest' as const, org: 'AFRICA TECH FESTIVAL',      event: 'Africa Tech Festival', role: "I'M SPEAKING AT",  name: 'Kwame Mensah', initials: 'KM', title2: 'Product Engineer' },
+  { label: 'NGOs',                   icon: <Heart size={18} strokeWidth={1.8} />,        title: 'Awareness and fundraising campaigns',             body: 'Your supporters announce they\'re backing your cause — branded to your campaign.',                              variant: 'cream'  as const, org: 'PAN-AFRICAN CLIMATE',       event: 'I stand for the climate.', role: "I'M SUPPORTING",  name: 'Fatou Diop',   initials: 'FD', title2: 'Supporter, Dakar' },
+  { label: 'Political campaigns',    icon: <Flag size={18} strokeWidth={1.8} />,         title: 'Endorsement and rally cards',                    body: 'Volunteers, endorsers, and supporters generate cards that look professional and personal at once.',               variant: 'duotone'as const, org: 'UNITED FOR EAST AFRICA',    event: "I'm with the movement.", role: "I'M ENDORSING",   name: 'Liya Tesfaye', initials: 'LT', title2: 'Volunteer Captain' },
+  { label: 'Religious organizations',icon: <Sun size={18} strokeWidth={1.8} />,          title: 'Event registration and community drives',        body: 'Members announce attendance at your conference, fast, or fundraiser.',                                           variant: 'gold'   as const, org: 'GLOBAL HALAL SUMMIT',       event: 'Global Halal Summit',  role: "I'M ATTENDING",   name: 'Yusuf Bello',  initials: 'YB', title2: 'Delegate, Kano' },
+  { label: 'Brand activations',      icon: <ShoppingBag size={18} strokeWidth={1.8} />, title: 'Product launches and store openings',            body: 'Your customers and partners share branded launch announcements that drive real reach.',                           variant: 'forest' as const, org: 'MTN BRAND ACTIVATION',      event: 'MTN 5G is here.',      role: "I'M CELEBRATING", name: 'Chidinma O.',  initials: 'CO', title2: 'MTN Ambassador' },
+  { label: 'Educational institutions',icon: <GraduationCap size={18} strokeWidth={1.8} />,title: 'Graduations, alumni, and scholarship campaigns',body: 'Graduates, alumni, and scholarship recipients each get their own moment to share.',                              variant: 'cream'  as const, org: 'UNIVERSITY OF NAIROBI',     event: 'Class of 2026.',       role: 'I JUST GRADUATED',name: 'Wanjiku Kariuki',initials: 'WK', title2: 'BSc Computer Science' },
+];
+
+function UseCasesGrid() {
+  return (
+    <section id="use-cases" className="relative">
+      <div className="mx-auto max-w-[1200px] px-5 lg:px-10 py-20 lg:py-28">
+        <div className="max-w-[760px] mb-12 lg:mb-16">
+          <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-5">Who it&apos;s for</div>
+          <h2 className="font-display font-bold text-ink text-[34px] sm:text-[44px] lg:text-[52px] leading-[1.02] tracking-[-0.03em]">
+            Built for the campaign you&apos;re running this quarter.
+          </h2>
+          <p className="mt-5 text-ink-soft text-[17px] lg:text-[18px] leading-[1.55] max-w-[640px]">
+            Six campaign types we&apos;ve shipped cards for. Your audience, your brand, in their hands.
+          </p>
+        </div>
+
+        <div className="grid sm:grid-cols-2 gap-4 lg:gap-5">
+          {USE_CASE_CARDS.map((c, i) => (
+            <article
+              key={i}
+              className="relative bg-surface border border-border rounded-2xl p-6 lg:p-7 flex gap-5 lg:gap-6 hover:border-primary/30 hover:shadow-lift transition-all group"
+            >
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2.5 mb-4">
+                  <span className="w-9 h-9 rounded-full bg-primary-soft text-primary grid place-items-center shrink-0">
+                    {c.icon}
+                  </span>
+                  <span className="font-mono text-[10px] tracking-[0.2em] text-primary uppercase">{c.label}</span>
+                </div>
+                <h3 className="font-display font-semibold text-ink text-[19px] lg:text-[22px] leading-[1.15] tracking-[-0.02em]">
+                  {c.title}
+                </h3>
+                <p className="text-ink-soft text-[14px] lg:text-[15px] mt-2.5 leading-[1.55]">{c.body}</p>
+                <Link
+                  href="/use-cases"
+                  className="mt-5 inline-flex items-center gap-1.5 text-primary font-medium text-[13px] hover:gap-2.5 transition-all"
+                >
+                  See example <ArrowRight size={14} strokeWidth={2} />
+                </Link>
+              </div>
+              <div className="shrink-0 self-center hidden sm:block">
+                <CardMockup
+                  width={110}
+                  variant={c.variant}
+                  org={c.org}
+                  event={c.event}
+                  role={c.role}
+                  name={c.name}
+                  initials={c.initials}
+                  title={c.title2}
+                  date="2026"
+                  location="AFRICA"
+                />
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 7 — HOW IT WORKS (landing summary)
+═══════════════════════════════════════════════════════ */
+const HOW_STEPS = [
+  { n: '01', title: 'Upload your design', body: 'Drop in any design from Canva, Figma, Illustrator — any PNG or JPG works. Cardly handles any aspect ratio, portrait or landscape.', caption: 'Works at any aspect ratio.' },
+  { n: '02', title: 'Mark editable zones', body: 'Click to add text fields, photo zones, dropdowns, and custom fields. Different roles? Add variants — Attendee, Speaker, Sponsor.', caption: 'Each zone is one tap to edit.' },
+  { n: '03', title: 'Share the link', body: 'Send one link via WhatsApp, email, or QR code. Attendees open it on their phone, type their name, upload a photo, and download in under 30 seconds.', caption: 'No app downloads. No accounts.' },
+];
+
+function HowItWorks() {
+  return (
+    <section id="how" className="relative">
+      <DotGrid opacity={0.05} />
+      <div className="relative mx-auto max-w-[1200px] px-5 lg:px-10 py-20 lg:py-28">
+        <div className="max-w-[760px] mb-14 lg:mb-20">
+          <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-5">How it works</div>
+          <h2 className="font-display font-bold text-ink text-[34px] sm:text-[44px] lg:text-[52px] leading-[1.02] tracking-[-0.03em]">
+            Three steps. About ten minutes.
+          </h2>
+        </div>
+
+        <div className="space-y-16 lg:space-y-24">
+          {HOW_STEPS.map((s, i) => (
+            <div
+              key={s.n}
+              className={`grid lg:grid-cols-2 gap-10 lg:gap-16 items-center ${i % 2 === 1 ? 'lg:[&>*:first-child]:order-2' : ''}`}
+            >
+              <div>
+                <div className="font-mono text-[10px] tracking-[0.22em] text-muted uppercase">Step {s.n}</div>
+                <h3 className="mt-3 font-display font-bold text-ink text-[28px] sm:text-[34px] lg:text-[38px] leading-[1.05] tracking-[-0.02em]">
+                  {s.title}
+                </h3>
+                <p className="mt-4 text-ink-soft text-[16px] lg:text-[17px] leading-[1.6] max-w-[520px]">{s.body}</p>
+                <div className="mt-5 inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.14em] uppercase text-primary">
+                  <span className="w-5 h-px bg-primary" />
+                  {s.caption}
+                </div>
+              </div>
+              {/* Editor / phone visual */}
+              <div
+                className="relative bg-surface rounded-2xl border border-border overflow-hidden"
+                style={{ boxShadow: '0 20px 60px rgba(15,31,24,0.1)', minHeight: 260 }}
+              >
+                <div className="h-9 bg-cream border-b border-border flex items-center gap-1.5 px-3.5">
+                  {[0,1,2].map(j => <span key={j} className="w-2.5 h-2.5 rounded-full bg-ink/10" />)}
+                  <div className="ml-3 font-mono text-[10px] tracking-[0.12em] text-muted">cardly.app · editor</div>
+                </div>
+                <div className="grid place-items-center p-8" style={{ background: 'radial-gradient(circle at center, #F1E9D6 0%, #FAF6EE 70%)', minHeight: 220 }}>
+                  {i === 2 ? (
+                    /* Phone mock for step 3 */
+                    <div className="relative mx-auto bg-ink rounded-[28px] p-1.5" style={{ width: 160 }}>
+                      <div className="rounded-[22px] overflow-hidden bg-cream" style={{ height: 280 }}>
+                        <div className="h-5 bg-ink rounded-b-xl mx-auto w-16 -mt-px" />
+                        <div className="px-3 pt-2 pb-3">
+                          <div className="font-mono text-[7px] tracking-[0.18em] text-muted uppercase mb-1">cardly.app/y2025</div>
+                          <div className="font-display text-[11px] text-ink font-semibold leading-tight mb-2">Get your card for the Youth Forum.</div>
+                          <CardMockup width={130} variant="forest" org="YOUTH FORUM" event="I'm attending." role="I'M ATTENDING" name="Aisha Ahmed" initials="AA" title="Climate Lead" date="2026" location="DJI" />
+                          <div className="mt-2 space-y-1.5">
+                            {['Your name', 'Your role'].map(l => (
+                              <div key={l} className="bg-surface border border-border rounded-md px-2 py-1.5">
+                                <div className="font-mono text-[7px] tracking-[0.14em] text-muted uppercase">{l}</div>
+                                <div className="text-[10px] text-ink mt-0.5">{l === 'Your name' ? 'Aisha Ahmed' : 'Climate Lead'}</div>
+                              </div>
+                            ))}
+                            <div className="h-7 rounded-md bg-primary flex items-center justify-center mt-1">
+                              <span className="font-mono text-[7px] text-cream tracking-[0.1em] uppercase">Download my card</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <span className={`text-[13px] ${plan.highlight ? "text-white/65" : "text-[#3A4A42]"}`}>{f}</span>
+                  ) : (
+                    /* Editor mock for steps 1 & 2 */
+                    <div className="relative">
+                      <CardMockup width={150} variant="forest" org="5TH PAN-AFRICAN YOUTH FORUM" event="I'm attending." role="I'M ATTENDING" name="Aisha Ahmed" initials="AA" title="Climate Lead" date="2026" location="DJI" />
+                      {i === 1 && (
+                        <>
+                          {[
+                            { style: { top: 14, left: 10, right: 10, height: 14 }, label: 'ORG' },
+                            { style: { top: 34, left: 10, right: 10, height: 24 }, label: 'EVENT' },
+                            { style: { bottom: 46, left: 10, width: 30, height: 30, borderRadius: '50%' }, label: 'PHOTO' },
+                            { style: { bottom: 54, left: 46, right: 10, height: 12 }, label: 'NAME' },
+                          ].map(({ style, label }) => (
+                            <div key={label} className="absolute" style={style}>
+                              <div
+                                className="absolute inset-0 border-2 border-dashed pointer-events-none"
+                                style={{ borderColor: '#E8C57E', borderRadius: style.borderRadius || 4, background: 'rgba(232,197,126,0.12)' }}
+                              />
+                              <span className="absolute -top-3 left-0 font-mono text-[7px] tracking-[0.14em] uppercase px-1 rounded text-ink" style={{ background: '#E8C57E' }}>
+                                {label}
+                              </span>
+                            </div>
+                          ))}
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-16 lg:mt-20 flex justify-center">
+          <Link
+            href="/how-it-works"
+            className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-primary text-cream font-medium hover:bg-primary-dark transition-colors"
+          >
+            Full walkthrough <ArrowRight size={16} strokeWidth={2} />
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 8 — FEATURES (dark band)
+═══════════════════════════════════════════════════════ */
+const FEATURES = [
+  { label: 'VARIANTS',     icon: <Layers size={20} strokeWidth={1.8} />,     title: 'One event, multiple roles',        body: 'Attendees, speakers, sponsors — each gets their own card layout from a single design.' },
+  { label: 'PHOTO CROP',   icon: <Crop size={20} strokeWidth={1.8} />,       title: 'Smart photo cropping',             body: 'Matches your zone shape — circle, square, hexagon, rounded — automatically.' },
+  { label: 'LIVE PREVIEW', icon: <Eye size={20} strokeWidth={1.8} />,        title: 'What they see is what they get',   body: 'Attendees see their card update as they type. No surprises at download.' },
+  { label: 'SHARE BUILT-IN',icon: <Share2 size={20} strokeWidth={1.8} />,   title: 'One tap to every platform',        body: 'Instagram Stories, WhatsApp Status, X, Facebook — with caption suggestions.' },
+  { label: 'AFRICA-FIRST', icon: <Globe size={20} strokeWidth={1.8} />,      title: 'Built for how Africa scrolls',     body: 'Low-bandwidth networks, mobile-first phones, WhatsApp-first sharing.' },
+  { label: 'NO ACCOUNTS',  icon: <UserX size={20} strokeWidth={1.8} />,      title: 'Attendees never sign up',          body: 'They tap the link, make their card, move on. No friction. No funnel.' },
+];
+
+function Features() {
+  return (
+    <section className="bg-primary text-cream relative overflow-hidden">
+      <div aria-hidden className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #E8C57E 1px, transparent 0)', backgroundSize: '32px 32px' }} />
+      <div className="relative mx-auto max-w-[1200px] px-5 lg:px-10 py-20 lg:py-28">
+        <div className="max-w-[760px] mb-12 lg:mb-16">
+          <div className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase mb-5">What&apos;s inside</div>
+          <h2 className="font-display font-bold text-cream text-[34px] sm:text-[44px] lg:text-[52px] leading-[1.02] tracking-[-0.03em]">
+            Built like a serious tool. Used like a link.
+          </h2>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px rounded-2xl overflow-hidden border" style={{ background: 'rgba(250,246,238,0.1)', borderColor: 'rgba(250,246,238,0.15)' }}>
+          {FEATURES.map((f, i) => (
+            <div key={i} className="bg-primary p-6 lg:p-7 hover:bg-primary-dark transition-colors">
+              <div className="flex items-center gap-3 mb-5">
+                <span className="w-10 h-10 rounded-lg grid place-items-center border" style={{ background: 'rgba(250,246,238,0.1)', color: '#E8C57E', borderColor: 'rgba(250,246,238,0.15)' }}>
+                  {f.icon}
+                </span>
+                <span className="font-mono text-[10px] tracking-[0.22em] uppercase" style={{ color: '#E8C57E' }}>{f.label}</span>
+              </div>
+              <h3 className="font-display font-semibold text-cream text-[20px] lg:text-[22px] tracking-[-0.02em] leading-[1.15]">{f.title}</h3>
+              <p className="mt-2.5 text-[14px] lg:text-[15px] leading-[1.55]" style={{ color: 'rgba(250,246,238,0.7)' }}>{f.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 9 — PRICING TEASER
+═══════════════════════════════════════════════════════ */
+const PRICE_TIERS = [
+  { name: 'Free',   price: '$0',  period: '',       blurb: 'For small campaigns and trials',              features: ['1 event', 'Up to 50 cards', 'Cardly watermark', 'Email support'],                                      cta: 'Start free',        href: '/signup',           primary: false },
+  { name: 'Pro',    price: '$29', period: '/month', blurb: 'For most organizers',                         features: ['5 events', 'Unlimited cards', 'No watermark', '3 variants per event', 'Basic analytics'],             cta: 'Start Pro trial',   href: '/signup?plan=pro',  primary: true,  badge: 'Most popular' },
+  { name: 'Studio', price: '$99', period: '/month', blurb: 'For agencies and large campaigns',            features: ['Unlimited events', 'Unlimited cards', 'Unlimited variants', 'Brand kit', 'Team accounts', 'Priority support'], cta: 'Start Studio', href: '/signup?plan=studio', primary: false },
+];
+
+function PricingTeaser() {
+  return (
+    <section id="pricing" className="relative">
+      <DotGrid opacity={0.05} />
+      <div className="relative mx-auto max-w-[1200px] px-5 lg:px-10 py-20 lg:py-28">
+        <div className="max-w-[760px] mb-12 lg:mb-16">
+          <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-5">Pricing</div>
+          <h2 className="font-display font-bold text-ink text-[34px] sm:text-[44px] lg:text-[52px] leading-[1.02] tracking-[-0.03em]">
+            Pay only when you grow.
+          </h2>
+          <p className="mt-5 text-ink-soft text-[17px] lg:text-[18px] leading-[1.55]">
+            Start free. Upgrade when your campaign goes bigger than 50 cards.
+          </p>
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-5">
+          {PRICE_TIERS.map((t) => (
+            <div
+              key={t.name}
+              className={`relative rounded-3xl p-7 lg:p-8 flex flex-col ${t.primary ? 'shadow-xl' : 'border border-border'}`}
+              style={t.primary
+                ? { background: '#1F4D3A', color: '#FAF6EE', boxShadow: '0 20px 60px rgba(31,77,58,0.25)' }
+                : { background: '#FFFFFF' }
+              }
+            >
+              {t.badge && (
+                <div className="absolute -top-3 right-7 inline-flex items-center gap-1.5 font-mono text-[10px] tracking-[0.16em] uppercase bg-accent text-primary-dark px-2.5 py-1 rounded-full font-semibold">
+                  {t.badge}
+                </div>
+              )}
+              <div className={`font-display text-[14px] font-medium tracking-tight ${t.primary ? 'text-accent' : 'text-primary'}`}>
+                {t.name}
+              </div>
+              <div className="mt-4 flex items-baseline gap-1.5">
+                <span className={`font-display font-bold tracking-[-0.03em] text-[44px] leading-none ${t.primary ? 'text-cream' : 'text-ink'}`}>
+                  {t.price}
+                </span>
+                {t.period && <span className={`text-[14px] ${t.primary ? 'text-cream/65' : 'text-muted'}`}>{t.period}</span>}
+              </div>
+              <div className={`mt-1.5 text-[14px] ${t.primary ? 'text-cream/75' : 'text-ink-soft'}`}>{t.blurb}</div>
+
+              <ul className="mt-7 space-y-3 flex-1">
+                {t.features.map(f => (
+                  <li key={f} className={`flex items-start gap-2.5 text-[14px] ${t.primary ? 'text-cream/90' : 'text-ink-soft'}`}>
+                    <span className={t.primary ? 'text-accent' : 'text-primary'}>
+                      <Check size={15} strokeWidth={2.5} />
+                    </span>
+                    {f}
                   </li>
                 ))}
               </ul>
 
               <Link
-                href={plan.href}
-                className="block w-full text-center h-10 rounded-lg text-[13px] font-semibold transition hover:opacity-90 leading-10"
-                style={plan.highlight
-                  ? { background: "#1F4D3A", color: "white" }
-                  : { background: "#FAF6EE", border: "1px solid #E5E0D4", color: "#0F1F18" }
-                }
+                href={t.href}
+                className={`mt-8 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full font-medium text-[14px] transition-colors ${
+                  t.primary ? 'bg-accent text-primary-dark hover:bg-accent-dark' : 'bg-ink text-cream hover:bg-primary'
+                }`}
               >
-                {plan.cta}
+                {t.cta} <ArrowRight size={14} strokeWidth={2} />
               </Link>
             </div>
           ))}
+        </div>
+
+        <div className="mt-10 text-center">
+          <Link
+            href="/pricing"
+            className="inline-flex items-center gap-1.5 text-primary font-medium text-[14px] hover:gap-2.5 transition-all"
+          >
+            See full pricing details <ArrowRight size={14} strokeWidth={2} />
+          </Link>
         </div>
       </div>
     </section>
   );
 }
 
-/* ─── FAQ ────────────────────────────────────────────────────────────── */
-const FAQS = [
-  { q: "Who is Cardly for?", a: "Cardly is built for event organizers and designers who want to give attendees a personalized social card — without the manual back-and-forth. It works for conferences, summits, festivals, and corporate events of any size." },
-  { q: "What file formats does Cardly support?", a: "You upload your event design as a PNG or JPG. Any resolution works, but we recommend at least 1080×1350px for best quality. Attendees download their personalized card as a PNG." },
-  { q: "Do attendees need an account?", a: "No. Attendees open your shareable link on their phone, fill in their details, and download their card — no sign-up, no app required." },
-  { q: "Can I use my own fonts?", a: "Any font available on Google Fonts can be configured per zone. Font, size, weight, color, and alignment are all zone-level settings you control in the editor." },
-  { q: "What is the watermark on the Free plan?", a: 'On the Free plan, generated cards include a small "Made with Cardly" label at the bottom. Upgrade to Pro or Studio to remove it entirely.' },
+/* ═══════════════════════════════════════════════════════
+   SECTION 10 — TESTIMONIAL
+═══════════════════════════════════════════════════════ */
+function Testimonial() {
+  return (
+    <section className="relative border-y border-border overflow-hidden">
+      <div aria-hidden className="absolute pointer-events-none inset-0 grid place-items-center">
+        <div style={{ width: 600, height: 400, background: 'radial-gradient(ellipse, rgba(31,77,58,0.07) 0%, transparent 70%)', filter: 'blur(80px)' }} />
+      </div>
+      <div className="relative mx-auto max-w-[860px] px-5 lg:px-10 py-20 lg:py-24 text-center">
+        <div className="text-accent mx-auto mb-6 inline-flex">
+          <Quote size={40} strokeWidth={1.5} style={{ fill: 'currentColor' }} />
+        </div>
+        <blockquote className="font-display font-medium text-ink text-[26px] sm:text-[32px] lg:text-[38px] leading-[1.2] tracking-[-0.02em] italic">
+          &ldquo;Cardly let us turn 600 attendees into 600 brand ambassadors. The reach
+          was far beyond what we expected — and the visual identity stayed locked the whole way.&rdquo;
+        </blockquote>
+        <figcaption className="mt-8 flex items-center justify-center gap-3">
+          <div
+            className="h-10 w-10 rounded-full shrink-0 grid place-items-center font-display font-semibold text-primary-dark text-[13px]"
+            style={{ background: 'radial-gradient(120% 120% at 30% 25%, #f3e4c1 0%, #c9a45e 55%, #8a6f3a 100%)' }}
+          >
+            AY
+          </div>
+          <div className="text-left">
+            <div className="text-[14px] font-semibold text-ink">Amara Yusuf</div>
+            <div className="text-[12px] text-muted font-mono tracking-[0.12em] uppercase">Comms Lead · Pan-African Climate Summit</div>
+          </div>
+        </figcaption>
+        <p className="mt-3 font-mono text-[10px] tracking-[0.18em] uppercase text-muted">[placeholder — replace with real quote]</p>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 11 — FAQ
+═══════════════════════════════════════════════════════ */
+const LANDING_FAQS: FAQItem[] = [
+  { q: 'Do attendees need to sign up?', a: 'No. Attendees never create an account. They tap your link, fill in their name, upload a photo if your card has one, and download. The whole flow takes under 30 seconds.' },
+  { q: 'What file formats can I upload as my design?', a: 'PNG and JPG. Export from Canva, Figma, Illustrator, or Photoshop. Cardly works at any aspect ratio — portrait Instagram cards, landscape Twitter cards, square LinkedIn cards.' },
+  { q: 'Can I have different cards for different roles?', a: 'Yes. Pro and Studio plans support variants — Attendee, Speaker, Sponsor, Volunteer. Each variant can have its own copy, badge, or layout, all generated from the same base design.' },
+  { q: 'Can attendees crop their photos?', a: 'Yes. Cardly auto-crops to your zone shape (circle, square, hexagon, rounded) and lets attendees pinch-zoom and reposition before downloading.' },
+  { q: 'Where can attendees share their card?', a: 'Anywhere. The download button is followed by one-tap share buttons for Instagram Stories, WhatsApp Status, X, Facebook, and LinkedIn — each with a suggested caption you can pre-write.' },
+  { q: 'How is Cardly different from Canva templates?', a: 'Canva templates need every attendee to open Canva, learn the editor, find the right file, and re-save. Cardly is one link — they tap, type, download, share. Most attendees finish in under a minute.' },
+  { q: 'What languages does Cardly support?', a: 'Editor UI ships in English, French, Arabic, and Swahili. The attendee form accepts any Unicode text — you can write your card prompts in any language.' },
+  { q: 'Can I see analytics on who downloaded their card?', a: 'Pro and Studio plans include a dashboard with download count, share-platform breakdown, top sharers, and time-of-day patterns. No personal data is collected from attendees.' },
 ];
 
-function FaqSection() {
+function FAQSection() {
   return (
-    <section id="faq" className="relative py-24 border-t border-[#E5E0D4] overflow-hidden" style={{ background: "#FAF6EE" }}>
-      <DotGrid opacity={0.05} size={24} />
+    <section id="faq" className="relative">
+      <DotGrid opacity={0.05} />
+      <div className="relative mx-auto max-w-[920px] px-5 lg:px-10 py-20 lg:py-28">
+        <div className="mb-10 lg:mb-14 text-center">
+          <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-5">FAQ</div>
+          <h2 className="font-display font-bold text-ink text-[34px] sm:text-[42px] lg:text-[48px] leading-[1.02] tracking-[-0.03em]">
+            Questions we get every week.
+          </h2>
+        </div>
+        <FAQAccordion items={LANDING_FAQS} defaultOpen={0} />
+      </div>
+    </section>
+  );
+}
 
-      <div className="relative max-w-3xl mx-auto px-6 lg:px-10">
-        <div className="text-[11px] font-mono text-[#1F4D3A] tracking-widest uppercase mb-3">FAQ</div>
-        <h2 className="font-display font-bold text-[32px] text-[#0F1F18] tracking-tight mb-12">Common questions.</h2>
-
-        <div className="divide-y divide-[#E5E0D4]">
-          {FAQS.map((faq) => (
-            <details key={faq.q} className="group py-5">
-              <summary className="flex items-center justify-between gap-6 cursor-pointer [&::-webkit-details-marker]:hidden list-none">
-                <span className="font-display font-medium text-[16px] text-[#0F1F18]">{faq.q}</span>
-                <span className="h-7 w-7 rounded-full grid place-items-center shrink-0 transition-colors" style={{ background: "#F0EDE6" }}>
-                  <Plus size={12} strokeWidth={2.2} color="#6B7A72" className="group-open:hidden" />
-                  <Minus size={12} strokeWidth={2.2} color="#1F4D3A" className="hidden group-open:block" />
-                </span>
-              </summary>
-              <p className="mt-4 text-[14px] text-[#6B7A72] leading-relaxed pr-12">{faq.a}</p>
-            </details>
-          ))}
+/* ═══════════════════════════════════════════════════════
+   SECTION 12 — FINAL CTA
+═══════════════════════════════════════════════════════ */
+function FinalCTA() {
+  return (
+    <section className="relative overflow-hidden">
+      <div aria-hidden className="absolute pointer-events-none" style={{ top: '-40%', left: '50%', transform: 'translateX(-50%)', width: 640, height: 640, borderRadius: '50%', background: 'radial-gradient(circle, rgba(232,197,126,0.22), transparent 65%)', filter: 'blur(40px)' }} />
+      <DotGrid opacity={0.05} />
+      <div className="relative mx-auto max-w-[920px] px-5 lg:px-10 py-24 lg:py-32 text-center">
+        <h2 className="font-display font-bold text-ink text-[44px] sm:text-[58px] lg:text-[72px] leading-[0.98] tracking-[-0.035em]">
+          Start your first campaign today.
+        </h2>
+        <p className="mt-6 text-ink-soft text-[18px] lg:text-[19px] leading-[1.55] max-w-[640px] mx-auto">
+          Free for up to 50 cards. No credit card. Most users have their first card ready in under five minutes.
+        </p>
+        <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+          <Link
+            href="/signup"
+            className="inline-flex items-center gap-2 px-7 py-4 rounded-full bg-primary text-cream font-medium text-[16px] hover:bg-primary-dark transition-colors"
+          >
+            Start free <ArrowRight size={17} strokeWidth={2} />
+          </Link>
+          <Link
+            href="/use-cases"
+            className="inline-flex items-center gap-2 text-ink underline decoration-ink/30 underline-offset-4 hover:decoration-primary hover:text-primary transition-colors text-[15px]"
+          >
+            See a live example <ArrowRight size={14} strokeWidth={2} />
+          </Link>
         </div>
       </div>
     </section>
   );
 }
 
-/* ─── FINAL CTA ──────────────────────────────────────────────────────── */
-function FinalCtaSection() {
+/* ═══════════════════════════════════════════════════════
+   PAGE ASSEMBLY
+═══════════════════════════════════════════════════════ */
+export default function LandingPage() {
   return (
-    <section className="relative py-16 border-t border-[#E5E0D4] overflow-hidden" style={{ background: "#FAF6EE" }}>
-      <DotGrid opacity={0.05} size={24} />
-
-      <div className="relative max-w-5xl mx-auto px-6 lg:px-10">
-        {/* Rounded gradient card */}
-        <div
-          className="relative rounded-3xl overflow-hidden text-center px-8 py-20"
-          style={{ background: "linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #163828 100%)" }}
-        >
-          <DotGrid opacity={0.08} size={22} light />
-          <div className="absolute top-0 left-0 right-0 h-px pointer-events-none" style={{ background: "linear-gradient(90deg, transparent, rgba(232,197,126,0.4), transparent)" }} />
-
-          <div className="relative">
-            <div className="text-[11px] font-mono text-white/30 tracking-widest uppercase mb-5">Get started</div>
-            <h2 className="font-display font-bold text-[32px] md:text-[44px] text-white tracking-tight leading-tight">
-              Ready to ship your first card?
-            </h2>
-            <p className="mt-4 text-[15px] text-white/45 leading-relaxed max-w-md mx-auto">
-              Set up an event in under five minutes. Free forever for your first event.
-            </p>
-            <div className="mt-9 flex items-center justify-center gap-3 flex-wrap">
-              <Link
-                href="/signup"
-                className="inline-flex items-center gap-2 h-11 px-7 bg-white text-[#0F1F18] text-[14px] font-semibold rounded-lg hover:bg-neutral-100 transition"
-              >
-                Get started free
-                <ArrowIcon dark />
-              </Link>
-              <Link
-                href="/pricing"
-                className="inline-flex items-center h-11 px-7 border border-white/20 text-white/65 text-[14px] font-medium rounded-lg hover:bg-white/[0.07] hover:text-white/90 transition"
-              >
-                View pricing
-              </Link>
-            </div>
-            <p className="mt-7 text-[12px] text-white/25 font-mono tracking-widest">
-              NO CREDIT CARD REQUIRED · CANCEL ANYTIME
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
+    <>
+      <Hero />
+      <SocialProof />
+      <Problem />
+      <Solution />
+      <UseCasesGrid />
+      <HowItWorks />
+      <Features />
+      <PricingTeaser />
+      <Testimonial />
+      <FAQSection />
+      <FinalCTA />
+    </>
   );
 }
