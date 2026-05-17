@@ -24,17 +24,15 @@ function Hero() {
         {/* LEFT — copy */}
         <div className="order-2 lg:order-1">
           <div className="font-mono text-[11px] tracking-[0.18em] uppercase mb-5" style={{ color: 'rgba(31,77,58,0.8)' }}>
-            For event teams, brands &amp; campaigns
+            Built for campaigns worth remembering
           </div>
-          <h1 className="font-display font-bold text-ink leading-[0.96] tracking-[-0.035em] text-[46px] sm:text-[60px] lg:text-[72px]">
-            Every supporter.<br />
-            Every speaker.<br />
-            Every attendee.
-            <span className="text-primary"> Their own branded card.</span>
+          <h1 className="font-display font-bold text-ink leading-[0.97] tracking-[-0.035em] text-[48px] sm:text-[64px] lg:text-[76px]">
+            Make every person{' '}
+            <span className="text-primary">proud to be there.</span>
           </h1>
-          <p className="mt-6 text-ink-soft text-[17px] lg:text-[19px] leading-[1.55] max-w-[560px]">
-            Cardly turns one design into thousands of personalized shareable cards.
-            Your audience adds their name and photo on their phone — and shares it everywhere.
+          <p className="mt-6 text-ink-soft text-[17px] lg:text-[19px] leading-[1.55] max-w-[480px]">
+            One design. Every attendee gets a personalized card that feels made
+            just for them — ready to share in 30 seconds.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
