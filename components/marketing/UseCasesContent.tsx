@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import {
   Mic, Heart, Flag, Sun, ShoppingBag, GraduationCap,
   ArrowRight, Quote,
@@ -273,12 +274,12 @@ function UseCaseSection({ u }: { u: UseCase }) {
             </div>
 
             <div className="relative mt-8 flex items-center gap-4">
-              <a
+              <Link
                 href="/signup"
                 className="inline-flex items-center gap-2 text-primary font-medium text-[14px] hover:gap-3 transition-all"
               >
                 See template <ArrowRight size={14} strokeWidth={2} />
-              </a>
+              </Link>
               <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-muted">
                 {u.template}
               </span>

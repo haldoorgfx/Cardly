@@ -4,7 +4,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import QRCode from 'qrcode';
-import { Pencil, Download, TrendingUp, ChevronRight, Image, Type } from 'lucide-react';
+import { Pencil, Download, TrendingUp, ChevronRight, Image as ImageIcon, Type } from 'lucide-react';
 import CopyButton from '@/components/shared/CopyButton';
 import EventDetailActions from './EventDetailActions';
 import CardPreviewClient from './CardPreviewClient';
@@ -317,7 +317,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                 {zones.map(z => (
                   <div key={z.id} className="flex items-center gap-2.5 text-[13px]">
                     <span className="h-6 w-6 rounded-md bg-neutral-50 border border-neutral-200 grid place-items-center text-[#1F4D3A] shrink-0">
-                      {z.type === 'photo' ? <Image size={12} strokeWidth={1.8} /> : <Type size={12} strokeWidth={1.8} />}
+                      {z.type === 'photo' ? <ImageIcon size={12} strokeWidth={1.8} /> : <Type size={12} strokeWidth={1.8} />}
                     </span>
                     <span className="flex-1 truncate">{z.label}</span>
                     {z.required && <span className="text-[10px] font-mono text-[#1F4D3A] bg-[#1F4D3A]/10 px-1.5 py-0.5 rounded">REQ</span>}
@@ -357,7 +357,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
             </div>
           </div>
 
-          <Link href="/analytics" className="flex items-center gap-3 bg-white rounded-lg border border-neutral-200 p-4 hover:bg-neutral-50 transition group">
+          <Link href="/dashboard" className="flex items-center gap-3 bg-white rounded-lg border border-neutral-200 p-4 hover:bg-neutral-50 transition group">
             <div className="h-9 w-9 rounded-md grid place-items-center bg-[#1F4D3A] text-white shrink-0">
               <TrendingUp size={15} strokeWidth={2} />
             </div>

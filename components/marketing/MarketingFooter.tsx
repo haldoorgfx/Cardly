@@ -54,13 +54,15 @@ export function MarketingFooter() {
             </p>
             <div className="flex items-center gap-2.5 mt-6">
               {[
-                { Icon: Globe,         label: 'LinkedIn'    },
-                { Icon: MessageCircle, label: 'X / Twitter' },
-                { Icon: Camera,        label: 'Instagram'   },
-              ].map(({ Icon, label }) => (
+                { Icon: Globe,         label: 'LinkedIn',    href: 'https://linkedin.com/company/cardly-app' },
+                { Icon: MessageCircle, label: 'X / Twitter', href: 'https://x.com/cardlyapp' },
+                { Icon: Camera,        label: 'Instagram',   href: 'https://instagram.com/cardlyapp' },
+              ].map(({ Icon, label, href }) => (
                 <a
                   key={label}
-                  href="#"
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   aria-label={label}
                   className="w-9 h-9 grid place-items-center rounded-full transition-colors border border-white/15 hover:bg-white/10 hover:border-white/30"
                 >

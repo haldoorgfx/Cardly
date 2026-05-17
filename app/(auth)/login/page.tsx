@@ -119,12 +119,12 @@ export default function LoginPage() {
               <label className="text-[13px] font-medium text-[#3A4A42]">
                 Password
               </label>
-              <a
-                href="#"
-                className="text-[12px] text-[#6B7A72] hover:text-[#1F4D3A] transition"
+              <span
+                className="text-[12px] text-[#6B7A72] cursor-default select-none"
+                title="Password reset coming soon"
               >
                 Forgot password?
-              </a>
+              </span>
             </div>
             <input
               name="password"
@@ -162,13 +162,13 @@ export default function LoginPage() {
       {/* Footer */}
       <p className="relative mt-8 text-center text-[12px] text-[#6B7A72]">
         © 2026 Cardly ·{" "}
-        <a href="#" className="hover:text-[#3A4A42] transition">
+        <Link href="/privacy" className="hover:text-[#3A4A42] transition">
           Privacy
-        </a>{" "}
+        </Link>{" "}
         ·{" "}
-        <a href="#" className="hover:text-[#3A4A42] transition">
+        <Link href="/terms" className="hover:text-[#3A4A42] transition">
           Terms
-        </a>
+        </Link>
       </p>
     </div>
   );

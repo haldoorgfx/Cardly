@@ -16,7 +16,7 @@ const FEATURED = {
   excerpt:
     'Every major conference spends thousands on keynote speakers and venue branding. Then every attendee posts a personal photo with no context. We fixed that.',
   readTime: '6 min read',
-  slug: '#',
+  slug: '/blog/attendee-share-cards-africa',
 };
 
 const POSTS = [
@@ -24,9 +24,9 @@ const POSTS = [
     category: 'Design',
     date: 'May 8, 2026',
     title: 'The zone system: how Cardly cards stay on-brand at any scale',
-    excerpt: 'Behind every personalized card is a coordinate system. Here\'s how we built zones to give designers control without blocking attendees.',
+    excerpt: "Behind every personalized card is a coordinate system. Here's how we built zones to give designers control without blocking attendees.",
     readTime: '5 min read',
-    slug: '#',
+    slug: '/blog/zone-system-on-brand',
   },
   {
     category: 'Campaigns',
@@ -34,7 +34,7 @@ const POSTS = [
     title: 'Lessons from 247,000 cards: what makes a campaign go wide',
     excerpt: 'We analysed share patterns across every campaign on Cardly. Two things consistently predict whether a card gets shared or sits in a download folder.',
     readTime: '8 min read',
-    slug: '#',
+    slug: '/blog/247k-cards-campaign-lessons',
   },
   {
     category: 'Product',
@@ -42,7 +42,7 @@ const POSTS = [
     title: 'Introducing card variants: run multiple designs from one event link',
     excerpt: 'VIP tiers. Sponsor packages. Language editions. Variants let you serve every audience segment from the same campaign without duplicating your setup.',
     readTime: '4 min read',
-    slug: '#',
+    slug: '/blog/card-variants',
   },
   {
     category: 'Africa',
@@ -50,23 +50,23 @@ const POSTS = [
     title: 'Building for WhatsApp first: lessons from East African campaigns',
     excerpt: 'The social graph in East Africa routes through WhatsApp. We rebuilt our share flow to treat WhatsApp as a first-class surface instead of an afterthought.',
     readTime: '7 min read',
-    slug: '#',
+    slug: '/blog/whatsapp-first-east-africa',
   },
   {
     category: 'Design',
     date: 'Mar 28, 2026',
     title: 'Design systems for events: why organizers should think like brand managers',
-    excerpt: 'A conference is a brand activation. Most organizers manage it like a logistics operation. Here\'s the mindset shift that changes everything.',
+    excerpt: "A conference is a brand activation. Most organizers manage it like a logistics operation. Here's the mindset shift that changes everything.",
     readTime: '6 min read',
-    slug: '#',
+    slug: '/blog/design-systems-for-events',
   },
   {
     category: 'Product',
     date: 'Mar 14, 2026',
     title: 'Cardly is now available in 8 countries',
-    excerpt: 'We quietly expanded storage regions and currency support. Here\'s what changed and which markets are now fully supported.',
+    excerpt: "We quietly expanded storage regions and currency support. Here's what changed and which markets are now fully supported.",
     readTime: '3 min read',
-    slug: '#',
+    slug: '/blog/8-countries',
   },
 ];
 

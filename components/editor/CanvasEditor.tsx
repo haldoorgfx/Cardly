@@ -128,7 +128,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Zone, Variant } from '@/types/database';
 import {
-  Type, Image, ImagePlus, ToggleLeft, Tag, Lock, LockOpen,
+  Type, Image as ImageIcon, ImagePlus, ToggleLeft, Tag, Lock, LockOpen,
   Trash2, Copy, AlignLeft, AlignCenter, AlignRight, AlignJustify,
   Upload, X, ChevronUp, ChevronDown, Square, AlignVerticalJustifyEnd,
   AlignStartVertical, AlignCenterVertical, AlignEndVertical,
@@ -1672,7 +1672,7 @@ function RightRail({
     : selected.type === 'shape'  ? 'Shape'
     : selected.type === 'image'  ? 'Image'
     : 'Text zone';
-  const TypeIcon = selected.type === 'photo' ? Image
+  const TypeIcon = selected.type === 'photo' ? ImageIcon
     : selected.type === 'custom' ? ToggleLeft
     : selected.type === 'label'  ? Tag
     : selected.type === 'shape'  ? Square
@@ -2373,7 +2373,7 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, onPointerDown, onH
             className="w-full h-full flex flex-col items-center justify-center gap-2"
             style={{ background: '#EDE9E0' }}
           >
-            <Image size={iconSize} strokeWidth={1.3} color="rgba(107,122,114,0.55)" />
+            <ImageIcon size={iconSize} strokeWidth={1.3} color="rgba(107,122,114,0.55)" />
             <span style={{
               fontSize: labelSz,
               color: 'rgba(107,122,114,0.58)',

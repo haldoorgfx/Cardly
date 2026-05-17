@@ -178,13 +178,13 @@ export default function SignupPage() {
 
           <p className="text-[12px] text-[#6B7A72] text-center leading-relaxed">
             By creating an account you agree to our{" "}
-            <a href="#" className="text-[#3A4A42] hover:underline">
+            <Link href="/terms" className="text-[#3A4A42] hover:underline">
               Terms
-            </a>{" "}
+            </Link>{" "}
             and{" "}
-            <a href="#" className="text-[#3A4A42] hover:underline">
+            <Link href="/privacy" className="text-[#3A4A42] hover:underline">
               Privacy Policy
-            </a>
+            </Link>
             .
           </p>
         </form>
@@ -193,13 +193,13 @@ export default function SignupPage() {
       {/* Footer */}
       <p className="relative mt-8 text-center text-[12px] text-[#6B7A72]">
         © 2026 Cardly ·{" "}
-        <a href="#" className="hover:text-[#3A4A42] transition">
+        <Link href="/privacy" className="hover:text-[#3A4A42] transition">
           Privacy
-        </a>{" "}
+        </Link>{" "}
         ·{" "}
-        <a href="#" className="hover:text-[#3A4A42] transition">
+        <Link href="/terms" className="hover:text-[#3A4A42] transition">
           Terms
-        </a>
+        </Link>
       </p>
     </div>
   );
