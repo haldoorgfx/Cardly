@@ -5,7 +5,7 @@ import Reveal from '@/components/marketing/Reveal';
 export const metadata = {
   title: 'About — Cardly',
   description:
-    'Built in Djibouti for the world. Cardly is designing the tool organizers wished existed — Africa-first, mobile-first, link-first.',
+    'Cardly is designing the tool organizers wished existed — Africa-first, mobile-first, link-first.',
 };
 
 /* ── Shared ──────────────────────────────────────────────── */
@@ -67,9 +67,6 @@ function FounderPortrait() {
             Founder &amp; CEO
           </div>
           <div className="font-display font-semibold text-cream text-[20px] tracking-tight mt-1">Adam Hassan</div>
-          <div className="font-mono text-[10px] tracking-[0.14em] uppercase mt-1" style={{ color: 'rgba(250,246,238,0.65)' }}>
-            Djibouti
-          </div>
         </div>
       </div>
       <div className="font-mono text-[9px] tracking-[0.18em] uppercase mt-3 text-center" style={{ color: 'rgba(107,122,114,0.7)' }}>
@@ -109,8 +106,8 @@ function AboutHero() {
         <div>
           <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-5">About Cardly</div>
           <h1 className="font-display font-bold text-ink text-[44px] sm:text-[60px] lg:text-[78px] leading-[0.94] tracking-[-0.035em]">
-            Built in Djibouti.{' '}
-            <span className="text-primary">For the world.</span>
+            Built for Africa.{' '}
+            <span className="text-primary">Used by the world.</span>
           </h1>
           <p className="mt-6 text-ink-soft text-[18px] lg:text-[20px] leading-[1.55] max-w-[540px]">
             Cardly is a small team designing the tool we wished existed when we ran
@@ -147,9 +144,9 @@ function AboutHero() {
 /* ── Founder story ───────────────────────────────────────── */
 function FounderStory() {
   const paras = [
-    "I spent six years running communications for events across East Africa. Every campaign hit the same wall: we’d spend months on the design system, brand the venue, hire the keynote — and on the day, every attendee posted their own off-brand selfie with our hashtag. The reach we paid for in sponsorship dollars and ticket sales evaporated in the noise of a thousand mismatched posts.",
-    "The tools available either asked attendees to download an app, learn an editor, or sign up for an account. None of that survives contact with WhatsApp on a Friday night. The few products that worked were built for North American conferences — they didn’t understand low-bandwidth networks, mobile-first audiences, or the particular weight an African event hashtag carries.",
-    "Cardly is the tool I wished existed in 2019. It’s built in Djibouti, for organizers running campaigns across Africa, the Middle East, and increasingly the world. It’s a flat link. It works on a feature phone if it has to. And when the day comes, every supporter, speaker and attendee has their own branded moment to share.",
+    "I spent six years running communications for events across East Africa. Every campaign hit the same wall: we'd spend months on the design system, brand the venue, hire the keynote — and on the day, every attendee posted their own off-brand selfie with our hashtag. The reach we paid for in sponsorship dollars and ticket sales evaporated in the noise of a thousand mismatched posts.",
+    "The tools available either asked attendees to download an app, learn an editor, or sign up for an account. None of that survives contact with WhatsApp on a Friday night. The few products that worked were built for North American conferences — they didn't understand low-bandwidth networks, mobile-first audiences, or the particular weight an African event hashtag carries.",
+    "Cardly is the tool I wished existed in 2019. It's built for organizers running campaigns across Africa, the Middle East, and increasingly the world. It's a flat link. It works on a feature phone if it has to. And when the day comes, every supporter, speaker and attendee has their own branded moment to share.",
   ];
 
   return (
@@ -185,7 +182,7 @@ function FounderStory() {
             <div className="font-display font-semibold text-ink text-[15px] tracking-tight">Adam Hassan</div>
             <div className="font-mono text-[10px] tracking-[0.16em] uppercase text-muted mt-0.5">Founder &amp; CEO · Cardly</div>
           </div>
-          <div className="ml-auto font-display italic text-muted text-[14px]">Djibouti, 2024</div>
+          <div className="ml-auto font-display italic text-muted text-[14px]">Africa, 2024</div>
         </div>
       </div>
     </section>
@@ -205,13 +202,13 @@ function Values() {
       label: 'Product',
       icon: <Share2 size={20} strokeWidth={1.8} />,
       title: 'The link is the product.',
-      body: 'No accounts, no apps, no funnels for the attendees. One tap is the bar. If we ever raise that bar by a millimeter, something’s gone wrong.',
+      body: 'No accounts, no apps, no funnels for the attendees. One tap is the bar. If we ever raise that bar by a millimeter, something's gone wrong.',
     },
     {
       label: 'Brand',
       icon: <Layers size={20} strokeWidth={1.8} />,
       title: 'Consistency at scale.',
-      body: 'Your design system survives 10,000 supporters posting from 40 phones. That’s the whole reason we built this.',
+      body: 'Your design system survives 10,000 supporters posting from 40 phones. That's the whole reason we built this.',
     },
   ];
 
@@ -275,7 +272,7 @@ function Values() {
 /* ── Team ────────────────────────────────────────────────── */
 function Team() {
   const team = [
-    { name: 'Adam Hassan', role: 'Founder · CEO', initials: 'AH', location: 'Djibouti', active: true },
+    { name: 'Adam Hassan', role: 'Founder · CEO', initials: 'AH', location: 'Africa', active: true },
     { name: 'Open role', role: 'Founding Engineer', initials: '?', location: 'Remote · Africa', active: false },
     { name: 'Open role', role: 'Designer', initials: '?', location: 'Remote · Africa', active: false },
     { name: 'Open role', role: 'Community', initials: '?', location: 'Remote · Africa', active: false },
@@ -347,8 +344,8 @@ function Team() {
 /* ── Press ───────────────────────────────────────────────── */
 function Press() {
   const mentions = [
-    { who: 'Disrupt Africa', date: 'MAR 2026', quote: "A small Djibouti-based team is quietly fixing the most common comms failure on the continent’s event circuit." },
-    { who: 'TechCabal', date: 'APR 2026', quote: "Cardly’s WhatsApp-first share flow is exactly the kind of design African startups should be exporting." },
+    { who: 'Disrupt Africa', date: 'MAR 2026', quote: "A small African team is quietly fixing the most common comms failure on the continent's event circuit." },
+    { who: 'TechCabal', date: 'APR 2026', quote: "Cardly's WhatsApp-first share flow is exactly the kind of design African startups should be exporting." },
     { who: 'Rest of World', date: 'MAY 2026', quote: 'Built for low-bandwidth, mobile-first audiences — and increasingly used by global brands running campaigns there.' },
   ];
 
@@ -376,22 +373,6 @@ function Press() {
         </div>
       </div>
     </section>
-  );
-}
-
-/* ── Djibouti flag (inline) ──────────────────────────────── */
-function DjiboutiFlagBadge() {
-  return (
-    <span className="inline-flex items-center gap-1" aria-hidden>
-      <span
-        className="inline-block w-3 h-2 rounded-sm"
-        style={{ background: 'linear-gradient(to bottom, #6AB04C 33%, #FFFFFF 33% 66%, #44A5E0 66%)' }}
-      />
-      <span
-        className="inline-block w-2 h-2"
-        style={{ background: '#D62828', clipPath: 'polygon(0 0, 100% 50%, 0 100%)' }}
-      />
-    </span>
   );
 }
 
@@ -438,10 +419,6 @@ function ChatCTA() {
           >
             Try the product first <ArrowRight size={14} strokeWidth={2} />
           </Link>
-        </div>
-        <div className="mt-12 flex items-center justify-center gap-2 font-mono text-[10px] tracking-[0.22em] uppercase text-muted">
-          <DjiboutiFlagBadge />
-          Made in Djibouti
         </div>
       </div>
     </section>
