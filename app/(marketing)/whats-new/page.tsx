@@ -1,5 +1,5 @@
 import Reveal from '@/components/marketing/Reveal';
-import { NewsletterForm } from './NewsletterForm';
+import { NewsCTAClient } from './NewsCTAClient';
 
 export const metadata = {
   title: "What's New — Cardly",
@@ -246,37 +246,12 @@ function ChangelogEntries() {
   );
 }
 
-/* ── Newsletter CTA ──────────────────────────────────────── */
-function NewsCTA() {
-  return (
-    <section className="bg-primary text-cream relative overflow-hidden">
-      <div
-        aria-hidden
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(232,197,126,0.10) 1px, transparent 1px)',
-          backgroundSize: '32px 32px',
-        }}
-      />
-      <div className="relative mx-auto max-w-[760px] px-5 lg:px-10 py-16 lg:py-20 text-center">
-        <h2 className="font-display font-bold text-cream text-[30px] sm:text-[40px] lg:text-[48px] leading-[1.02] tracking-[-0.035em]">
-          Get release notes by email.
-        </h2>
-        <p className="mt-4 text-[15px] lg:text-[16px] leading-[1.55] max-w-[460px] mx-auto" style={{ color: 'rgba(250,246,238,0.75)' }}>
-          One email per major release. Never more. Unsubscribe in one click.
-        </p>
-        <NewsletterForm />
-      </div>
-    </section>
-  );
-}
-
 export default function WhatsNewPage() {
   return (
     <>
       <ChangelogHero />
       <ChangelogEntries />
-      <Reveal><NewsCTA /></Reveal>
+      <NewsCTAClient />
     </>
   );
 }

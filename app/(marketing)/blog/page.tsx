@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import Reveal from '@/components/marketing/Reveal';
-import { NewsletterForm } from './NewsletterForm';
+import { NewsletterSectionClient } from './NewsletterSectionClient';
 
 export const metadata = {
   title: 'Blog — Cardly',
@@ -264,33 +264,13 @@ function PostGrid() {
   );
 }
 
-/* ── Newsletter CTA ──────────────────────────────────────── */
-function Newsletter() {
-  return (
-    <section style={{ borderTop: '1px solid #E5E0D4' }}>
-      <Reveal>
-        <div className="mx-auto max-w-[680px] px-5 py-16 lg:py-20 text-center">
-          <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-4">Stay in the loop</div>
-          <h2 className="font-display font-bold text-ink text-[30px] sm:text-[38px] lg:text-[44px] leading-[1.02] tracking-[-0.03em] mb-4">
-            New posts, straight to you.
-          </h2>
-          <p className="text-ink-soft text-[15px] leading-[1.6] mb-7 max-w-[440px] mx-auto">
-            No spam. One email when we publish something worth reading. Unsubscribe any time.
-          </p>
-          <NewsletterForm />
-        </div>
-      </Reveal>
-    </section>
-  );
-}
-
 export default function BlogPage() {
   return (
     <>
       <BlogHero />
       <FeaturedPost />
       <PostGrid />
-      <Newsletter />
+      <NewsletterSectionClient />
     </>
   );
 }
