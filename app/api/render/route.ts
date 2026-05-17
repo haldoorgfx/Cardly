@@ -104,6 +104,60 @@ function applyTextTransform(text: string, transform?: string): string {
   return text;
 }
 
+/** Parse any CSS color string → { r, g, b, a }.
+ *  Handles: #RGB  #RRGGBB  #RRGGBBAA  rgb(…)  rgba(…)  hsl(…) (best-effort).
+ *  Falls back to opaque white if the format is unrecognised.
+ */
+function parseColor(color: string): { r: number; g: number; b: number; a: number } {
+  const s = (color ?? '').trim();
+
+  // ── rgba?(r, g, b[, a]) ───────────────────────────────────────────────────
+  const rgbaMatch = s.match(
+    /rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+))?\s*\)/
+  );
+  if (rgbaMatch) {
+    return {
+      r: Math.min(255, parseInt(rgbaMatch[1], 10)) || 0,
+      g: Math.min(255, parseInt(rgbaMatch[2], 10)) || 0,
+      b: Math.min(255, parseInt(rgbaMatch[3], 10)) || 0,
+      a: rgbaMatch[4] !== undefined ? Math.min(1, parseFloat(rgbaMatch[4])) : 1,
+    };
+  }
+
+  // ── hex ───────────────────────────────────────────────────────────────────
+  const hex = s.replace(/^#/, '');
+  if (/^[0-9a-fA-F]+$/.test(hex)) {
+    if (hex.length === 3) {
+      return {
+        r: parseInt(hex[0] + hex[0], 16),
+        g: parseInt(hex[1] + hex[1], 16),
+        b: parseInt(hex[2] + hex[2], 16),
+        a: 1,
+      };
+    }
+    if (hex.length === 6) {
+      return {
+        r: parseInt(hex.slice(0, 2), 16),
+        g: parseInt(hex.slice(2, 4), 16),
+        b: parseInt(hex.slice(4, 6), 16),
+        a: 1,
+      };
+    }
+    if (hex.length === 8) {
+      return {
+        r: parseInt(hex.slice(0, 2), 16),
+        g: parseInt(hex.slice(2, 4), 16),
+        b: parseInt(hex.slice(4, 6), 16),
+        a: parseInt(hex.slice(6, 8), 16) / 255,
+      };
+    }
+  }
+
+  // ── fallback: opaque white ────────────────────────────────────────────────
+  console.warn('[render] Unrecognised color format, falling back to white:', s);
+  return { r: 255, g: 255, b: 255, a: 1 };
+}
+
 // ── Pango weight tokens ───────────────────────────────────────────────────────
 function pangoWeight(w: number): string {
   if (w >= 900) return 'Heavy';
@@ -243,25 +297,24 @@ async function compositeText(
     .raw()
     .toBuffer();   // 1 byte per pixel — pure alpha mask
 
-  // Parse target color
-  const hexCol = color.replace('#', '').padEnd(6, '0');
-  const cr = parseInt(hexCol.slice(0, 2), 16) || 0;
-  const cg = parseInt(hexCol.slice(2, 4), 16) || 0;
-  const cb = parseInt(hexCol.slice(4, 6), 16) || 0;
+  // Parse target color — handles #rrggbb, #rrggbbAA, rgba(), rgb()
+  const { r: cr, g: cg, b: cb, a: ca } = parseColor(color);
 
-  // Build RGBA: flat target color + Pango alpha mask (1 byte/px, no ambiguity)
+  // Build RGBA: flat target color × CSS alpha × Pango text-shape alpha
+  // ca (CSS color alpha) is multiplied into the per-pixel alpha so that
+  // e.g. rgba(255,255,255,0.65) produces 65%-opaque white text.
   const newPixels = Buffer.alloc(textW * textH * 4);
   for (let px = 0; px < textW * textH; px++) {
     newPixels[px * 4]     = cr;
     newPixels[px * 4 + 1] = cg;
     newPixels[px * 4 + 2] = cb;
-    newPixels[px * 4 + 3] = alphaRaw[px] ?? 0;
+    newPixels[px * 4 + 3] = Math.round((alphaRaw[px] ?? 0) * ca);
   }
 
   // Diagnostic
   let greyDark = 0, greyMin = 255, greyMax = 0;
   for (let px = 0; px < alphaRaw.length; px++) {
-    const v = alphaRaw[px];
+    const v = alphaRaw[px] ?? 0;
     if (v > 0) greyDark++;
     if (v < greyMin) greyMin = v;
     if (v > greyMax) greyMax = v;

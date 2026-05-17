@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>L6 — Mobile Nav & Footer · Cardly</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      html, body {
+        background: #ECE6D7;
+        color: #0F1F18;
+        font-family: "Inter", system-ui, sans-serif;
+        margin: 0; padding: 0;
+        -webkit-font-smoothing: antialiased;
+      }
+      .font-display { font-family: "DM Sans", sans-serif; letter-spacing: -0.03em; }
+      .font-mono { font-family: "JetBrains Mono", monospace; }
+
+      .viewport-frame {
+        position: relative;
+        background: #FAF6EE;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow:
+          0 30px 60px -20px rgba(15, 31, 24, 0.25),
+          0 10px 20px -10px rgba(15, 31, 24, 0.18),
+          inset 0 0 0 1px rgba(15, 31, 24, 0.06);
+      }
+      .viewport-chrome {
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 28px;
+        background: linear-gradient(to bottom, #F1E9D6, #ECE2CB);
+        border-bottom: 1px solid rgba(15, 31, 24, 0.08);
+        display: flex; align-items: center;
+        padding: 0 12px;
+        gap: 6px;
+        z-index: 2;
+      }
+      .viewport-chrome .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(15,31,24,0.15); }
+      .viewport-chrome .url {
+        margin-left: 10px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        color: #6B7A72;
+        text-transform: uppercase;
+      }
+      .viewport-frame iframe {
+        display: block;
+        border: 0;
+        background: #FAF6EE;
+        margin-top: 28px;
+      }
+      .phone-label {
+        position: absolute;
+        left: 0; right: 0; bottom: -36px;
+        text-align: center;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: #6B7A72;
+      }
+    </style>
+
+    <script
+      src="https://unpkg.com/react@18.3.1/umd/react.development.js"
+      integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"
+      integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"
+      integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel" src="ios-frame.jsx"></script>
+    <script type="text/babel" src="design-canvas.jsx"></script>
+    <script type="text/babel">
+      const { DesignCanvas, DCSection, DCArtboard, IOSDevice } = window;
+
+      function PhoneShowcase({ src, caption }) {
+        // Inside iOS frame: width 402, height 874 default. Iframe fills.
+        return (
+          <div className="relative" style={{ width: 402 }}>
+            <IOSDevice width={402} height={874}>
+              <iframe
+                src={src}
+                title={caption}
+                style={{
+                  width: 402,
+                  height: 874,
+                  border: 0,
+                  background: "#FAF6EE",
+                  display: "block",
+                }}
+                scrolling="no"
+              />
+            </IOSDevice>
+            <div className="phone-label">{caption}</div>
+          </div>
+        );
+      }
+
+      function FooterFrame({ width, height, label }) {
+        return (
+          <div className="viewport-frame" style={{ width, height }}>
+            <div className="viewport-chrome">
+              <span className="dot" />
+              <span className="dot" />
+              <span className="dot" />
+              <span className="url">cardly.app · footer · {label}</span>
+            </div>
+            <iframe
+              src="footer-showcase.html"
+              title={`Footer · ${label}`}
+              style={{ width, height: height - 28 }}
+              scrolling="no"
+            />
+          </div>
+        );
+      }
+
+      function App() {
+        return (
+          <DesignCanvas
+            title="L6 — Mobile Nav & Footer"
+            subtitle="Shared chrome · mobile-only menu overlay · footer at three widths"
+          >
+            <DCSection
+              id="mobile-nav"
+              title="Mobile navigation"
+              subtitle="402px iPhone frames · closed (nav rail) on left, open (full-screen overlay) on right"
+            >
+              <DCArtboard
+                id="nav-closed"
+                label="Closed · hamburger rail"
+                width={460}
+                height={950}
+              >
+                <div style={{ padding: "20px 28px 56px", display: "grid", placeItems: "center" }}>
+                  <PhoneShowcase src="about-page.html" caption="cardly.app/about · 402px" />
+                </div>
+              </DCArtboard>
+
+              <DCArtboard
+                id="nav-open"
+                label="Open · full-screen overlay"
+                width={460}
+                height={950}
+              >
+                <div style={{ padding: "20px 28px 56px", display: "grid", placeItems: "center" }}>
+                  <PhoneShowcase src="about-page.html?nav=open" caption="cardly.app/about · menu open" />
+                </div>
+              </DCArtboard>
+            </DCSection>
+
+            <DCSection
+              id="footer"
+              title="Footer · responsive"
+              subtitle="Four-column on desktop, two-column on tablet, stacked on mobile"
+            >
+              <DCArtboard
+                id="footer-desktop"
+                label="Desktop · 1280 px"
+                width={1304}
+                height={430}
+              >
+                <div style={{ padding: 12 }}>
+                  <FooterFrame width={1280} height={400} label="desktop" />
+                </div>
+              </DCArtboard>
+
+              <DCArtboard
+                id="footer-tablet"
+                label="Tablet · 768 px"
+                width={792}
+                height={620}
+              >
+                <div style={{ padding: 12 }}>
+                  <FooterFrame width={768} height={590} label="tablet" />
+                </div>
+              </DCArtboard>
+
+              <DCArtboard
+                id="footer-mobile"
+                label="Mobile · 375 px"
+                width={399}
+                height={1060}
+              >
+                <div style={{ padding: 12 }}>
+                  <FooterFrame width={375} height={1030} label="mobile" />
+                </div>
+              </DCArtboard>
+            </DCSection>
+          </DesignCanvas>
+        );
+      }
+
+      ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    </script>
+  </body>
+</html>

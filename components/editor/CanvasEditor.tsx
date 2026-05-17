@@ -255,6 +255,8 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
   const [styleFlash, setStyleFlash]   = useState(false);
   const [aspectLock, setAspectLock]   = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [applyingTemplateId, setApplyingTemplateId] = useState<string | null>(null);
+  const [applyingBg, setApplyingBg] = useState(false);
   const [spaceDown, setSpaceDown] = useState(false);
   const [floatBarPos, setFloatBarPos] = useState<{ left: number; top: number } | null>(null);
   const [toolbarOffset, setToolbarOffset] = useState({ dx: 0, dy: 0 });
@@ -617,6 +619,52 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
       console.error('[replace-background]', err);
     }
   }, [eventId, activeVariantId]);
+
+  const onApplyTemplate = useCallback(async (templateId: string) => {
+    if (!activeVariantId) return;
+    setApplyingTemplateId(templateId);
+    try {
+      const res = await fetch('/api/apply-template-bg', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ variantId: activeVariantId, templateId }),
+      });
+      if (!res.ok) throw new Error('Failed to apply template');
+      const { backgroundUrl: newUrl, width, height } = await res.json() as { backgroundUrl: string; width: number; height: number };
+      setVariants(vs => vs.map(v =>
+        v.id === activeVariantId
+          ? { ...v, background_url: newUrl, background_width: width, background_height: height }
+          : v
+      ));
+    } catch (err) {
+      console.error('[apply-template]', err);
+    } finally {
+      setApplyingTemplateId(null);
+    }
+  }, [activeVariantId]);
+
+  const onApplyBackground = useCallback(async (value: string) => {
+    if (!activeVariantId) return;
+    setApplyingBg(true);
+    try {
+      const res = await fetch('/api/apply-solid-bg', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ variantId: activeVariantId, value }),
+      });
+      if (!res.ok) throw new Error('Failed to apply background');
+      const { backgroundUrl: newUrl, width, height } = await res.json() as { backgroundUrl: string; width: number; height: number };
+      setVariants(vs => vs.map(v =>
+        v.id === activeVariantId
+          ? { ...v, background_url: newUrl, background_width: width, background_height: height }
+          : v
+      ));
+    } catch (err) {
+      console.error('[apply-solid-bg]', err);
+    } finally {
+      setApplyingBg(false);
+    }
+  }, [activeVariantId]);
 
   /* ── undo / redo ─────────────────────────────────────── */
   const undo = useCallback(() => {
@@ -1028,6 +1076,16 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
           uploadingImage={uploadingImage}
           imageUploadRef={imageUploadRef}
           handleImageUpload={handleImageUpload}
+          zones={zones}
+          selectedIds={selectedIds}
+          setSelectedIds={setSelectedIds}
+          moveZoneUp={moveZoneUp}
+          moveZoneDown={moveZoneDown}
+          updateZone={updateZone}
+          onApplyTemplate={onApplyTemplate}
+          applyingTemplateId={applyingTemplateId}
+          onApplyBackground={onApplyBackground}
+          applyingBg={applyingBg}
         />
 
         {/* ── Stage ───────────────────────────────────────── */}
@@ -1489,7 +1547,6 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
         {/* ── Right Sidebar ────────────────────────────────── */}
         <RightSidebar
           mode={sidebarMode}
-          previewMode={previewMode}
           nameVal={nameVal}
           setNameVal={setNameVal}
           editName={editName}
@@ -1500,12 +1557,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
           backgroundUrl={backgroundUrl}
           bgReplaceRef={bgReplaceRef}
           handleReplaceBackground={handleReplaceBackground}
-          zones={zones}
           selectedIds={selectedIds}
-          setSelectedIds={setSelectedIds}
-          moveZoneUp={moveZoneUp}
-          moveZoneDown={moveZoneDown}
-          updateZone={updateZone}
           alignSelected={alignSelected}
           distributeSelected={distributeSelected}
           removeSelected={removeSelected}

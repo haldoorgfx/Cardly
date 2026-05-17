@@ -279,8 +279,24 @@ function NavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: (
 
   return (
     <>
+      {/* Cardly logo — back to landing page */}
+      <Link
+        href="/"
+        onClick={onNavigate}
+        className="h-14 px-4 flex items-center gap-2.5 shrink-0 transition-opacity hover:opacity-80"
+        style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}
+      >
+        <span
+          className="inline-block w-6 h-6 rounded-md shrink-0"
+          style={{ background: 'linear-gradient(135deg, #FAF6EE 0%, #E8C57E 100%)' }}
+        />
+        <span className="font-display text-[19px] font-bold tracking-tight text-white">
+          Cardly
+        </span>
+      </Link>
+
       {/* Workspace header */}
-      <div className="h-16 flex items-center px-4 border-b shrink-0" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
+      <div className="h-14 flex items-center px-4 border-b shrink-0" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <div
             className="h-8 w-8 rounded-lg grid place-items-center shrink-0"

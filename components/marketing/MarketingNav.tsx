@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { ArrowRight, Menu, X } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { ArrowRight, Menu, X, LayoutDashboard, LogOut } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
+import type { User } from '@supabase/supabase-js';
 
 /* ── Djibouti flag badge ─────────────────────────────── */
 function DjiboutiFlag() {
@@ -32,6 +34,31 @@ function LogoMark() {
   );
 }
 
+/* ── User avatar (initials) ──────────────────────────── */
+function UserAvatar({ user }: { user: User }) {
+  const initials = (user.user_metadata?.full_name as string | undefined)
+    ? (user.user_metadata.full_name as string)
+        .split(' ')
+        .slice(0, 2)
+        .map((n: string) => n[0])
+        .join('')
+        .toUpperCase()
+    : (user.email ?? 'U')[0].toUpperCase();
+
+  return (
+    <div
+      className="w-8 h-8 rounded-full grid place-items-center font-display font-semibold text-[13px] shrink-0"
+      style={{
+        background: 'linear-gradient(135deg, #E8C57E 0%, #C9A45E 100%)',
+        color: '#163828',
+      }}
+      title={user.email}
+    >
+      {initials}
+    </div>
+  );
+}
+
 const NAV_LINKS = [
   { label: 'Use cases',    href: '/use-cases' },
   { label: 'How it works', href: '/how-it-works' },
@@ -46,7 +73,15 @@ const MOBILE_LINKS = [
 ];
 
 /* ── Mobile full-screen overlay ─────────────────────── */
-function MobileOverlay({ onClose }: { onClose: () => void }) {
+function MobileOverlay({
+  onClose,
+  user,
+  onSignOut,
+}: {
+  onClose: () => void;
+  user: User | null;
+  onSignOut: () => void;
+}) {
   return (
     <div className="md:hidden fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
       {/* Background */}
@@ -82,9 +117,7 @@ function MobileOverlay({ onClose }: { onClose: () => void }) {
 
         {/* Links */}
         <div className="px-5 pt-6 pb-10 flex-1 flex flex-col">
-          <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-muted mb-5">
-            Menu
-          </div>
+          <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-muted mb-5">Menu</div>
           <nav className="flex flex-col">
             {MOBILE_LINKS.map(({ label, href }) => (
               <Link
@@ -100,33 +133,67 @@ function MobileOverlay({ onClose }: { onClose: () => void }) {
                 </span>
               </Link>
             ))}
+            {user && (
+              <Link
+                href="/dashboard"
+                onClick={onClose}
+                className="group flex items-center justify-between py-5 border-b font-display font-semibold text-ink text-[30px] tracking-[-0.025em] hover:text-primary transition-colors"
+                style={{ borderColor: 'rgba(229,224,212,0.7)' }}
+              >
+                Dashboard
+                <span className="text-primary translate-x-0 group-hover:translate-x-1 transition-transform">
+                  <ArrowRight size={20} strokeWidth={2} />
+                </span>
+              </Link>
+            )}
           </nav>
 
           {/* CTAs */}
           <div className="mt-8 grid gap-3">
-            <Link
-              href="/signup"
-              onClick={onClose}
-              className="inline-flex items-center justify-between px-5 py-4 rounded-full bg-primary text-cream font-medium transition hover:bg-primary-dark"
-            >
-              Start free
-              <ArrowRight size={16} strokeWidth={2} />
-            </Link>
-            <Link
-              href="/login"
-              onClick={onClose}
-              className="inline-flex items-center justify-center gap-2 px-5 py-4 rounded-full border text-ink font-medium hover:border-primary hover:text-primary transition-colors"
-              style={{ borderColor: 'rgba(15,31,24,0.15)' }}
-            >
-              Sign in
-            </Link>
+            {user ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  onClick={onClose}
+                  className="inline-flex items-center justify-between px-5 py-4 rounded-full bg-primary text-cream font-medium transition hover:bg-primary-dark"
+                >
+                  Go to dashboard
+                  <LayoutDashboard size={16} strokeWidth={2} />
+                </Link>
+                <button
+                  onClick={() => { onSignOut(); onClose(); }}
+                  className="inline-flex items-center justify-center gap-2 px-5 py-4 rounded-full border text-ink font-medium hover:border-primary hover:text-primary transition-colors"
+                  style={{ borderColor: 'rgba(15,31,24,0.15)' }}
+                >
+                  <LogOut size={15} strokeWidth={2} />
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/signup"
+                  onClick={onClose}
+                  className="inline-flex items-center justify-between px-5 py-4 rounded-full bg-primary text-cream font-medium transition hover:bg-primary-dark"
+                >
+                  Start free
+                  <ArrowRight size={16} strokeWidth={2} />
+                </Link>
+                <Link
+                  href="/login"
+                  onClick={onClose}
+                  className="inline-flex items-center justify-center gap-2 px-5 py-4 rounded-full border text-ink font-medium hover:border-primary hover:text-primary transition-colors"
+                  style={{ borderColor: 'rgba(15,31,24,0.15)' }}
+                >
+                  Sign in
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Footer strip */}
           <div className="mt-auto pt-10 flex items-center justify-between">
-            <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-muted">
-              cardly.app
-            </div>
+            <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-muted">cardly.app</div>
             <div className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.22em] uppercase text-primary">
               <DjiboutiFlag />
               Made in Djibouti
@@ -141,14 +208,49 @@ function MobileOverlay({ onClose }: { onClose: () => void }) {
 /* ── Main nav ────────────────────────────────────────── */
 export function MarketingNav() {
   const [open, setOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
-  useEffect(() => { setOpen(false); }, [pathname]);
+  /* ── Auth state ── */
+  useEffect(() => {
+    const supabase = createClient();
+
+    // Get initial session
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user ?? null);
+    });
+
+    // Subscribe to changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => { setOpen(false); setUserMenuOpen(false); }, [pathname]);
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [open]);
+
+  // Close user menu on outside click
+  useEffect(() => {
+    if (!userMenuOpen) return;
+    const handler = () => setUserMenuOpen(false);
+    document.addEventListener('click', handler);
+    return () => document.removeEventListener('click', handler);
+  }, [userMenuOpen]);
+
+  async function handleSignOut() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    setUser(null);
+    router.push('/');
+  }
 
   return (
     <>
@@ -160,9 +262,7 @@ export function MarketingNav() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
             <LogoMark />
-            <span className="font-display text-[22px] font-bold tracking-tight text-primary">
-              Cardly
-            </span>
+            <span className="font-display text-[22px] font-bold tracking-tight text-primary">Cardly</span>
           </Link>
 
           {/* Desktop nav */}
@@ -179,19 +279,77 @@ export function MarketingNav() {
             ))}
           </nav>
 
-          {/* Desktop CTAs */}
-          <div className="hidden md:flex items-center gap-2">
-            <Link href="/login" className="px-3 py-2 text-[14px] text-ink-soft hover:text-primary transition-colors">
-              Sign in
-            </Link>
-            <Link
-              href="/signup"
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-primary text-cream text-[14px] font-medium hover:bg-primary-dark transition-colors"
-            >
-              Start free
-              <ArrowRight size={15} strokeWidth={2} />
-            </Link>
-          </div>
+          {/* Desktop CTAs — signed out */}
+          {!user && (
+            <div className="hidden md:flex items-center gap-2">
+              <Link href="/login" className="px-3 py-2 text-[14px] text-ink-soft hover:text-primary transition-colors">
+                Sign in
+              </Link>
+              <Link
+                href="/signup"
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-primary text-cream text-[14px] font-medium hover:bg-primary-dark transition-colors"
+              >
+                Start free
+                <ArrowRight size={15} strokeWidth={2} />
+              </Link>
+            </div>
+          )}
+
+          {/* Desktop CTAs — signed in */}
+          {user && (
+            <div className="hidden md:flex items-center gap-2">
+              {/* User avatar + dropdown */}
+              <div className="relative">
+                <button
+                  onClick={(e) => { e.stopPropagation(); setUserMenuOpen(v => !v); }}
+                  className="flex items-center gap-2 pl-1 pr-3 py-1 rounded-full transition-colors hover:bg-primary-soft"
+                  aria-label="User menu"
+                >
+                  <UserAvatar user={user} />
+                  <span className="text-[13px] font-medium text-ink-soft">
+                    {(user.user_metadata?.full_name as string | undefined)?.split(' ')[0] ?? 'Account'}
+                  </span>
+                </button>
+
+                {userMenuOpen && (
+                  <div
+                    className="absolute right-0 top-full mt-2 w-52 bg-surface rounded-xl overflow-hidden"
+                    style={{ border: '1px solid #E5E0D4', boxShadow: '0 8px 24px rgba(15,31,24,0.10)' }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="px-4 py-3" style={{ borderBottom: '1px solid #E5E0D4' }}>
+                      <div className="text-[13px] font-medium text-ink truncate">
+                        {(user.user_metadata?.full_name as string | undefined) ?? 'Account'}
+                      </div>
+                      <div className="text-[12px] text-muted truncate">{user.email}</div>
+                    </div>
+                    <Link
+                      href="/dashboard"
+                      className="flex items-center gap-2.5 px-4 py-3 text-[13px] text-ink-soft hover:bg-primary-soft hover:text-primary transition-colors"
+                    >
+                      <LayoutDashboard size={14} strokeWidth={2} />
+                      Dashboard
+                    </Link>
+                    <Link
+                      href="/settings"
+                      className="flex items-center gap-2.5 px-4 py-3 text-[13px] text-ink-soft hover:bg-primary-soft hover:text-primary transition-colors"
+                      style={{ borderTop: '1px solid rgba(229,224,212,0.6)' }}
+                    >
+                      Settings
+                    </Link>
+                    <button
+                      onClick={handleSignOut}
+                      className="w-full flex items-center gap-2.5 px-4 py-3 text-[13px] text-left transition-colors hover:bg-red-50 hover:text-red-600"
+                      style={{ borderTop: '1px solid #E5E0D4', color: '#B8423C' }}
+                    >
+                      <LogOut size={14} strokeWidth={2} />
+                      Sign out
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Hamburger */}
           <button
@@ -204,7 +362,13 @@ export function MarketingNav() {
         </div>
       </header>
 
-      {open && <MobileOverlay onClose={() => setOpen(false)} />}
+      {open && (
+        <MobileOverlay
+          onClose={() => setOpen(false)}
+          user={user}
+          onSignOut={handleSignOut}
+        />
+      )}
     </>
   );
 }
