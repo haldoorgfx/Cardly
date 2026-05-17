@@ -13,8 +13,7 @@ export function Footer() {
               <span className="font-display font-bold text-[17px]">Cardly</span>
             </Link>
             <p className="mt-4 text-[14px] text-brand-ink/60 max-w-sm leading-relaxed">
-              Designer-native attendance cards. Built in Lagos, used across the
-              continent and beyond.
+              Designer-native attendance cards. Built in Djibouti.
             </p>
             <div className="mt-6 flex items-center gap-2">
               <span className="text-[12px] font-mono text-brand-ink/40">
@@ -39,19 +38,19 @@ export function Footer() {
                   </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-brand-primary transition">
-                    Analytics
-                  </a>
+                  <Link href="/how-it-works" className="hover:text-brand-primary transition">
+                    How it works
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-brand-primary transition">
-                    Embeds
-                  </a>
+                  <Link href="/use-cases" className="hover:text-brand-primary transition">
+                    Use cases
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-brand-primary transition">
-                    Changelog
-                  </a>
+                  <Link href="/pricing" className="hover:text-brand-primary transition">
+                    Pricing
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -61,24 +60,14 @@ export function Footer() {
               </div>
               <ul className="space-y-2.5 text-[14px] text-brand-ink/80">
                 <li>
-                  <a href="#" className="hover:text-brand-primary transition">
+                  <Link href="/about" className="hover:text-brand-primary transition">
                     About
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-brand-primary transition">
-                    Customers
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-brand-primary transition">
-                    Careers
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-brand-primary transition">
+                  <Link href="/contact" className="hover:text-brand-primary transition">
                     Contact
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -88,24 +77,14 @@ export function Footer() {
               </div>
               <ul className="space-y-2.5 text-[14px] text-brand-ink/80">
                 <li>
-                  <a href="#" className="hover:text-brand-primary transition">
+                  <Link href="/privacy" className="hover:text-brand-primary transition">
                     Privacy
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-brand-primary transition">
+                  <Link href="/terms" className="hover:text-brand-primary transition">
                     Terms
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-brand-primary transition">
-                    DPA
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-brand-primary transition">
-                    Security
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -113,18 +92,7 @@ export function Footer() {
         </div>
 
         <div className="mt-12 flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-brand-border text-[12px] font-mono text-brand-ink/50">
-          <span>© 2026 Cardly Labs. Built with care in Lagos · Nairobi · Cape Town.</span>
-          <div className="flex items-center gap-4">
-            <a href="#" className="hover:text-brand-ink transition">
-              Twitter
-            </a>
-            <a href="#" className="hover:text-brand-ink transition">
-              Instagram
-            </a>
-            <a href="#" className="hover:text-brand-ink transition">
-              LinkedIn
-            </a>
-          </div>
+          <span>© 2026 Cardly. Made in Djibouti.</span>
         </div>
       </div>
     </footer>

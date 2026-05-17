@@ -7,7 +7,6 @@ export default function LandingPage() {
       <LogoStrip />
       <HowItWorksSection />
       <ShowcaseSection />
-      <TestimonialSection />
       <PricingTeaserSection />
       <FaqSection />
       <FinalCtaSection />
@@ -74,29 +73,6 @@ function HeroSection() {
               </a>
             </div>
 
-            {/* trust row */}
-            <div className="mt-10 flex items-center gap-6 text-[13px] text-brand-ink/60">
-              <div className="flex items-center gap-2">
-                <div className="flex -space-x-2">
-                  {[
-                    "linear-gradient(135deg,#6c63ff,#f8a4d8)",
-                    "linear-gradient(135deg,#f8a4d8,#ffd28a)",
-                    "linear-gradient(135deg,#7be0c0,#6c63ff)",
-                    "linear-gradient(135deg,#ffd28a,#f8a4d8)",
-                  ].map((bg, i) => (
-                    <span
-                      key={i}
-                      className="h-7 w-7 rounded-full border-2 border-white"
-                      style={{ background: bg }}
-                    />
-                  ))}
-                </div>
-                <span>
-                  <strong className="text-brand-ink">12,400+</strong> cards
-                  generated this month
-                </span>
-              </div>
-            </div>
           </div>
 
           {/* Visual: Editor + Phone */}
@@ -317,33 +293,27 @@ function HeroSection() {
   );
 }
 
-/* ─── LOGO STRIP ─────────────────────────────────────────────────────── */
-const LOGOS = [
-  { text: "GITEX Africa", cls: "font-display font-bold" },
-  { text: "Pan-African Youth Forum", cls: "font-display italic" },
-  { text: "▲ IGAD Summit", cls: "font-mono" },
-  { text: "Africa AI", cls: "font-display font-extrabold uppercase tracking-widest" },
-  { text: "Africa Tech Festival", cls: "font-display" },
-  { text: "Moonshot ·26", cls: "font-mono uppercase" },
-  { text: "Lagos Design Week", cls: "font-display font-bold" },
-  { text: "DevFest Nairobi", cls: "font-display italic" },
-];
-
+/* ─── EARLY ACCESS BANNER ─────────────────────────────────────────────── */
 function LogoStrip() {
   return (
     <section className="border-y border-brand-border bg-brand-offwhite/70">
       <div className="max-w-7xl mx-auto px-6 lg:px-10 py-10">
-        <div className="text-center text-[12px] tracking-[0.18em] font-mono text-brand-ink/50 mb-6">
-          USED BY TEAMS BEHIND
-        </div>
-        <div className="marquee overflow-hidden">
-          <div className="marquee-track flex items-center gap-12 whitespace-nowrap text-brand-ink/50 text-xl">
-            {[...LOGOS, ...LOGOS].map((logo, i) => (
-              <span key={i} className={logo.cls}>
-                {logo.text}
-              </span>
-            ))}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div>
+            <div className="text-[11px] tracking-[0.18em] font-mono text-brand-primary mb-2">
+              EARLY ACCESS
+            </div>
+            <p className="font-display font-semibold text-[20px] sm:text-[22px] text-brand-ink">
+              The first 50 organizers get founding-member pricing, locked for life.
+            </p>
           </div>
+          <Link
+            href="/signup"
+            className="shrink-0 inline-flex items-center gap-2 text-[14px] font-medium text-white grad-bg px-5 py-3 rounded-2xl hover:opacity-95 transition whitespace-nowrap"
+          >
+            Claim your spot
+            <ArrowIcon />
+          </Link>
         </div>
       </div>
     </section>
@@ -632,65 +602,14 @@ function ShowcaseSection() {
           ))}
         </div>
 
-        {/* stats */}
-        <div className="mt-14 grid grid-cols-3 gap-4 max-w-3xl">
-          {[
-            { value: "38s", label: "average attendee fill-time" },
-            { value: "6.2×", label: "more social shares vs. PDF kits" },
-            { value: "0", label: "design files leaked to attendees" },
-          ].map((stat) => (
-            <div key={stat.value}>
-              <div className="font-display font-bold text-[40px] grad-text leading-none">
-                {stat.value}
-              </div>
-              <div className="mt-2 text-[13px] text-white/60">{stat.label}</div>
-            </div>
-          ))}
+        <div className="mt-14 text-white/50 text-[13px] font-mono">
+          Built for events from 50 to 50,000 attendees. Your design file stays yours — attendees never see it.
         </div>
       </div>
     </section>
   );
 }
 
-/* ─── TESTIMONIAL ────────────────────────────────────────────────────── */
-function TestimonialSection() {
-  return (
-    <section className="py-24">
-      <div className="max-w-4xl mx-auto px-6 lg:px-10">
-        <figure className="relative">
-          <svg
-            className="absolute -top-6 -left-2 text-brand-primary/20"
-            width="60"
-            height="60"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-          >
-            <path d="M9 7c-3 0-5 2-5 5v5h5v-5H7c0-2 1-3 2-3V7zm9 0c-3 0-5 2-5 5v5h5v-5h-2c0-2 1-3 2-3V7z" />
-          </svg>
-          <blockquote className="font-display text-[28px] sm:text-[34px] leading-[1.25] text-brand-ink font-medium text-balance">
-            Cardly let our identity actually travel with our attendees. Every
-            share felt like the festival had designed it.{" "}
-            <span className="grad-text">Which is the point.</span>
-          </blockquote>
-          <figcaption className="mt-8 flex items-center gap-3">
-            <span
-              className="h-11 w-11 rounded-full shrink-0"
-              style={{
-                background: "linear-gradient(135deg,#6c63ff,#f8a4d8)",
-              }}
-            />
-            <div>
-              <div className="font-display font-semibold">Ifeoma Adesanya</div>
-              <div className="text-[13px] text-brand-ink/60">
-                Brand Lead · Africa Tech Festival
-              </div>
-            </div>
-          </figcaption>
-        </figure>
-      </div>
-    </section>
-  );
-}
 
 /* ─── PRICING TEASER ─────────────────────────────────────────────────── */
 function PricingTeaserSection() {
@@ -775,9 +694,9 @@ function PricingTeaserSection() {
             <ul className="mt-6 space-y-2.5 text-[14px] text-brand-ink/80 flex-1">
               {[
                 "10 active events",
-                "No watermark · custom domain",
-                "Downloads + region analytics",
-                "WhatsApp & Instagram share kits",
+                "No watermark · custom event URL",
+                "Download analytics",
+                "WhatsApp & social share buttons",
               ].map((f) => (
                 <li key={f} className="flex gap-2">
                   <span className="mt-1 h-1.5 w-1.5 rounded-full grad-bg shrink-0" />
@@ -810,9 +729,9 @@ function PricingTeaserSection() {
             <ul className="mt-6 space-y-2.5 text-[14px] text-brand-ink/80 flex-1">
               {[
                 "Unlimited events",
-                "Client workspaces & roles",
-                "White-label · removed branding",
-                "Priority support · SLA",
+                "No watermark",
+                "Priority support",
+                "Team features coming soon",
               ].map((f) => (
                 <li key={f} className="flex gap-2">
                   <span className="mt-1 h-1.5 w-1.5 rounded-full bg-brand-ink shrink-0" />
@@ -837,19 +756,19 @@ function PricingTeaserSection() {
 const FAQS = [
   {
     q: "Do attendees need an account?",
-    a: "No. They open your link, type their name and role, drop a photo if your zones need one, hit generate. Average fill-time is 38 seconds.",
+    a: "No. They open your link, fill in their name and role, upload a photo if your design needs one, and tap Generate. No app download, no login.",
   },
   {
-    q: "What file formats can I upload as a designer?",
-    a: "Today: PNG or JPG, up to 4096px on the long edge. Export at 2x for crisp social shares. SVG and animated formats are on the roadmap.",
+    q: "What file formats can I upload?",
+    a: "PNG or JPG, up to 4096px on the long edge. Export at 2× from Figma or Illustrator for crisp results on retina screens. SVG support is on the roadmap.",
   },
   {
-    q: "Can I use my own fonts in editable zones?",
-    a: "Yes. Upload any .ttf/.otf/.woff2 to the event and it's available across all zones. Or pick from 1,400+ Google Fonts inside the editor.",
+    q: "Does the attendee experience work on mobile?",
+    a: "Yes — that's the main use case. The attendee page is built for 375px screens first. Works on iOS Safari and Android Chrome without any app download.",
   },
   {
-    q: "Do you store attendee data?",
-    a: "Only what an attendee types on your form. You can opt to collect emails (with their consent) and export a CSV — or run cards completely anonymously.",
+    q: "Do you store attendee photos and data?",
+    a: "We store the name, role, and photo the attendee submits — only what's needed to generate their card. We don't sell it or use it for marketing.",
   },
 ];
 
