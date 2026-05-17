@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight, Check, Send, Plus } from 'lucide-react';
 import { CardMockup } from '@/components/marketing/CardMockup';
+import Reveal from '@/components/marketing/Reveal';
 
 export const metadata = {
   title: 'How It Works — Cardly',
@@ -681,13 +682,16 @@ export default function HowItWorksPage() {
 
       {/* Step rows */}
       {STEPS.map((s, i) => (
-        <StepRow key={s.n} step={s} mock={getMock(s.n)} reverse={i % 2 === 1} />
+        <Reveal key={s.n} delay={i * 100}>
+          <StepRow step={s} mock={getMock(s.n)} reverse={i % 2 === 1} />
+        </Reveal>
       ))}
 
       {/* Video demo */}
-      <VideoDemo />
+      <Reveal><VideoDemo /></Reveal>
 
       {/* Final CTA */}
+      <Reveal>
       <section className="relative overflow-hidden" style={{ borderTop: '1px solid #E5E0D4' }}>
         <div
           aria-hidden
@@ -730,6 +734,7 @@ export default function HowItWorksPage() {
           </div>
         </div>
       </section>
+      </Reveal>
     </>
   );
 }

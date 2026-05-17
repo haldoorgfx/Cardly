@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ArrowRight, Globe, Share2, Layers } from 'lucide-react';
+import Reveal from '@/components/marketing/Reveal';
 
 export const metadata = {
   title: 'About — Cardly',
@@ -160,12 +161,13 @@ function FounderStory() {
         </h2>
         <div className="mt-9 space-y-6 text-ink text-[18px] lg:text-[19px] leading-[1.7]">
           {paras.map((p, i) => (
-            <p
-              key={i}
-              className={i === 0 ? 'first-letter:font-display first-letter:font-bold first-letter:text-[52px] first-letter:text-primary first-letter:float-left first-letter:mr-3 first-letter:leading-[0.85] first-letter:mt-1' : ''}
-            >
-              {p}
-            </p>
+            <Reveal key={i} delay={i * 60} distance={16}>
+              <p
+                className={i === 0 ? 'first-letter:font-display first-letter:font-bold first-letter:text-[52px] first-letter:text-primary first-letter:float-left first-letter:mr-3 first-letter:leading-[0.85] first-letter:mt-1' : ''}
+              >
+                {p}
+              </p>
+            </Reveal>
           ))}
         </div>
 
@@ -224,22 +226,24 @@ function Values() {
         }}
       />
       <div className="relative mx-auto max-w-[1200px] px-5 lg:px-10 py-20 lg:py-28">
-        <div className="max-w-[760px] mb-14 lg:mb-16">
-          <div className="font-mono text-[11px] tracking-[0.22em] uppercase mb-5" style={{ color: '#E8C57E' }}>
-            What Cardly stands for
+        <Reveal>
+          <div className="max-w-[760px] mb-14 lg:mb-16">
+            <div className="font-mono text-[11px] tracking-[0.22em] uppercase mb-5" style={{ color: '#E8C57E' }}>
+              What Cardly stands for
+            </div>
+            <h2 className="font-display font-bold text-cream text-[34px] sm:text-[44px] lg:text-[52px] leading-[1.02] tracking-[-0.035em]">
+              Three things we&rsquo;ll never water down.
+            </h2>
           </div>
-          <h2 className="font-display font-bold text-cream text-[34px] sm:text-[44px] lg:text-[52px] leading-[1.02] tracking-[-0.035em]">
-            Three things we&rsquo;ll never water down.
-          </h2>
-        </div>
+        </Reveal>
         <div
           className="grid lg:grid-cols-3 rounded-2xl overflow-hidden"
           style={{ gap: '1px', background: 'rgba(250,246,238,0.10)', border: '1px solid rgba(250,246,238,0.15)' }}
         >
           {values.map((v, i) => (
+            <Reveal key={i} delay={i * 90}>
             <div
-              key={i}
-              className="flex flex-col p-7 lg:p-8 transition-colors"
+              className="flex flex-col p-7 lg:p-8 transition-colors h-full"
               style={{ background: '#1F4D3A' }}
             >
               <div className="flex items-center justify-between mb-6">
@@ -260,6 +264,7 @@ function Values() {
                 {v.body}
               </p>
             </div>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -448,11 +453,11 @@ export default function AboutPage() {
   return (
     <>
       <AboutHero />
-      <FounderStory />
+      <Reveal><FounderStory /></Reveal>
       <Values />
-      <Team />
-      <Press />
-      <ChatCTA />
+      <Reveal><Team /></Reveal>
+      <Reveal><Press /></Reveal>
+      <Reveal><ChatCTA /></Reveal>
     </>
   );
 }

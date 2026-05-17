@@ -7,6 +7,7 @@ import {
 import { DotGrid } from '@/components/marketing/DotGrid';
 import { CardMockup } from '@/components/marketing/CardMockup';
 import { FAQAccordion, type FAQItem } from '@/components/marketing/FAQAccordion';
+import Reveal from '@/components/marketing/Reveal';
 
 /* ═══════════════════════════════════════════════════════
    SECTION 2 — HERO
@@ -312,20 +313,22 @@ function UseCasesGrid() {
   return (
     <section id="use-cases" className="relative">
       <div className="mx-auto max-w-[1200px] px-5 lg:px-10 py-20 lg:py-28">
-        <div className="max-w-[760px] mb-12 lg:mb-16">
-          <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-5">Who it&apos;s for</div>
-          <h2 className="font-display font-bold text-ink text-[34px] sm:text-[44px] lg:text-[52px] leading-[1.02] tracking-[-0.03em]">
-            Built for the campaign you&apos;re running this quarter.
-          </h2>
-          <p className="mt-5 text-ink-soft text-[17px] lg:text-[18px] leading-[1.55] max-w-[640px]">
-            Six campaign types we&apos;ve shipped cards for. Your audience, your brand, in their hands.
-          </p>
-        </div>
+        <Reveal>
+          <div className="max-w-[760px] mb-12 lg:mb-16">
+            <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-5">Who it&apos;s for</div>
+            <h2 className="font-display font-bold text-ink text-[34px] sm:text-[44px] lg:text-[52px] leading-[1.02] tracking-[-0.03em]">
+              Built for the campaign you&apos;re running this quarter.
+            </h2>
+            <p className="mt-5 text-ink-soft text-[17px] lg:text-[18px] leading-[1.55] max-w-[640px]">
+              Six campaign types we&apos;ve shipped cards for. Your audience, your brand, in their hands.
+            </p>
+          </div>
+        </Reveal>
 
         <div className="grid sm:grid-cols-2 gap-4 lg:gap-5">
           {USE_CASE_CARDS.map((c, i) => (
+            <Reveal key={i} delay={i * 90}>
             <article
-              key={i}
               className="relative bg-surface border border-border rounded-2xl p-6 lg:p-7 flex gap-5 lg:gap-6 hover:border-primary/30 hover:shadow-lift transition-all group"
             >
               <div className="flex-1 min-w-0">
@@ -361,6 +364,7 @@ function UseCasesGrid() {
                 />
               </div>
             </article>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -501,15 +505,18 @@ function Features() {
     <section className="bg-primary text-cream relative overflow-hidden">
       <div aria-hidden className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #E8C57E 1px, transparent 0)', backgroundSize: '32px 32px' }} />
       <div className="relative mx-auto max-w-[1200px] px-5 lg:px-10 py-20 lg:py-28">
-        <div className="max-w-[760px] mb-12 lg:mb-16">
-          <div className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase mb-5">What&apos;s inside</div>
-          <h2 className="font-display font-bold text-cream text-[34px] sm:text-[44px] lg:text-[52px] leading-[1.02] tracking-[-0.03em]">
-            Built like a serious tool. Used like a link.
-          </h2>
-        </div>
+        <Reveal>
+          <div className="max-w-[760px] mb-12 lg:mb-16">
+            <div className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase mb-5">What&apos;s inside</div>
+            <h2 className="font-display font-bold text-cream text-[34px] sm:text-[44px] lg:text-[52px] leading-[1.02] tracking-[-0.03em]">
+              Built like a serious tool. Used like a link.
+            </h2>
+          </div>
+        </Reveal>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px rounded-2xl overflow-hidden border" style={{ background: 'rgba(250,246,238,0.1)', borderColor: 'rgba(250,246,238,0.15)' }}>
           {FEATURES.map((f, i) => (
-            <div key={i} className="bg-primary p-6 lg:p-7 hover:bg-primary-dark transition-colors">
+            <Reveal key={i} delay={i * 80}>
+            <div className="bg-primary p-6 lg:p-7 hover:bg-primary-dark transition-colors h-full">
               <div className="flex items-center gap-3 mb-5">
                 <span className="w-10 h-10 rounded-lg grid place-items-center border" style={{ background: 'rgba(250,246,238,0.1)', color: '#E8C57E', borderColor: 'rgba(250,246,238,0.15)' }}>
                   {f.icon}
@@ -519,6 +526,7 @@ function Features() {
               <h3 className="font-display font-semibold text-cream text-[20px] lg:text-[22px] tracking-[-0.02em] leading-[1.15]">{f.title}</h3>
               <p className="mt-2.5 text-[14px] lg:text-[15px] leading-[1.55]" style={{ color: 'rgba(250,246,238,0.7)' }}>{f.body}</p>
             </div>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -540,21 +548,23 @@ function PricingTeaser() {
     <section id="pricing" className="relative">
       <DotGrid opacity={0.05} />
       <div className="relative mx-auto max-w-[1200px] px-5 lg:px-10 py-20 lg:py-28">
-        <div className="max-w-[760px] mb-12 lg:mb-16">
-          <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-5">Pricing</div>
-          <h2 className="font-display font-bold text-ink text-[34px] sm:text-[44px] lg:text-[52px] leading-[1.02] tracking-[-0.03em]">
-            Pay only when you grow.
-          </h2>
-          <p className="mt-5 text-ink-soft text-[17px] lg:text-[18px] leading-[1.55]">
-            Start free. Upgrade when your campaign goes bigger than 50 cards.
-          </p>
-        </div>
+        <Reveal>
+          <div className="max-w-[760px] mb-12 lg:mb-16">
+            <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-5">Pricing</div>
+            <h2 className="font-display font-bold text-ink text-[34px] sm:text-[44px] lg:text-[52px] leading-[1.02] tracking-[-0.03em]">
+              Pay only when you grow.
+            </h2>
+            <p className="mt-5 text-ink-soft text-[17px] lg:text-[18px] leading-[1.55]">
+              Start free. Upgrade when your campaign goes bigger than 50 cards.
+            </p>
+          </div>
+        </Reveal>
 
         <div className="grid lg:grid-cols-3 gap-5">
-          {PRICE_TIERS.map((t) => (
+          {PRICE_TIERS.map((t, i) => (
+            <Reveal key={t.name} delay={i * 100}>
             <div
-              key={t.name}
-              className={`relative rounded-3xl p-7 lg:p-8 flex flex-col ${t.primary ? 'shadow-xl' : 'border border-border'}`}
+              className={`relative rounded-3xl p-7 lg:p-8 flex flex-col h-full ${t.primary ? 'shadow-xl' : 'border border-border'}`}
               style={t.primary
                 ? { background: '#1F4D3A', color: '#FAF6EE', boxShadow: '0 20px 60px rgba(31,77,58,0.25)' }
                 : { background: '#FFFFFF' }
@@ -596,6 +606,7 @@ function PricingTeaser() {
                 {t.cta} <ArrowRight size={14} strokeWidth={2} />
               </Link>
             </div>
+            </Reveal>
           ))}
         </div>
 
@@ -720,15 +731,15 @@ export default function LandingPage() {
     <>
       <Hero />
       <SocialProof />
-      <Problem />
-      <Solution />
+      <Reveal><Problem /></Reveal>
+      <Reveal><Solution /></Reveal>
       <UseCasesGrid />
-      <HowItWorks />
+      <Reveal><HowItWorks /></Reveal>
       <Features />
       <PricingTeaser />
-      <Testimonial />
-      <FAQSection />
-      <FinalCTA />
+      <Reveal><Testimonial /></Reveal>
+      <Reveal><FAQSection /></Reveal>
+      <Reveal><FinalCTA /></Reveal>
     </>
   );
 }

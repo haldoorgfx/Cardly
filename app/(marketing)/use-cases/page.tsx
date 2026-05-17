@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { UseCasesContent } from '@/components/marketing/UseCasesContent';
+import Reveal from '@/components/marketing/Reveal';
 
 export const metadata = {
   title: 'Use Cases — Cardly',
@@ -52,6 +53,7 @@ function UseCasesHero() {
         </div>
 
         {/* Metric strip */}
+        <Reveal>
         <div
           className="mt-10 lg:mt-14 grid grid-cols-2 sm:grid-cols-4 rounded-2xl overflow-hidden"
           style={{ border: '1px solid #E5E0D4', gap: '1px', background: '#E5E0D4' }}
@@ -74,6 +76,7 @@ function UseCasesHero() {
             </div>
           ))}
         </div>
+        </Reveal>
       </div>
     </section>
   );
@@ -126,7 +129,7 @@ export default function UseCasesPage() {
     <>
       <UseCasesHero />
       <UseCasesContent />
-      <NotFoundCTA />
+      <Reveal><NotFoundCTA /></Reveal>
     </>
   );
 }

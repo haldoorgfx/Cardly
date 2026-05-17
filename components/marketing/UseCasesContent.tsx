@@ -6,6 +6,7 @@ import {
   ArrowRight, Quote,
 } from 'lucide-react';
 import { CardMockup, CardVariant } from '@/components/marketing/CardMockup';
+import Reveal from '@/components/marketing/Reveal';
 
 /* ── Types ───────────────────────────────────────────────── */
 interface CardData {
@@ -202,25 +203,28 @@ function UseCaseSection({ u }: { u: UseCase }) {
     <section>
       <div className="mx-auto max-w-[1200px] px-5 lg:px-10 py-16 lg:py-24">
         {/* Header */}
-        <div className="max-w-[820px] mb-12 lg:mb-16">
-          <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-5 inline-flex items-center gap-2">
-            <span className="w-7 h-7 rounded-full bg-primary-soft text-primary grid place-items-center shrink-0">
-              {u.icon}
-            </span>
-            {u.label}
+        <Reveal>
+          <div className="max-w-[820px] mb-12 lg:mb-16">
+            <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-5 inline-flex items-center gap-2">
+              <span className="w-7 h-7 rounded-full bg-primary-soft text-primary grid place-items-center shrink-0">
+                {u.icon}
+              </span>
+              {u.label}
+            </div>
+            <h2 className="font-display font-bold text-ink text-[32px] sm:text-[42px] lg:text-[52px] leading-[1.02] tracking-[-0.03em]">
+              {u.headline}
+            </h2>
+            <p className="mt-5 text-ink-soft text-[16px] lg:text-[18px] leading-[1.6]">
+              {u.intro}
+            </p>
           </div>
-          <h2 className="font-display font-bold text-ink text-[32px] sm:text-[42px] lg:text-[52px] leading-[1.02] tracking-[-0.03em]">
-            {u.headline}
-          </h2>
-          <p className="mt-5 text-ink-soft text-[16px] lg:text-[18px] leading-[1.6]">
-            {u.intro}
-          </p>
-        </div>
+        </Reveal>
 
         {/* Two-col layout */}
         <div className="grid lg:grid-cols-[1.05fr_1fr] gap-10 lg:gap-16 items-start">
 
           {/* LEFT — card fan */}
+          <Reveal delay={0}>
           <div
             className="relative rounded-3xl overflow-hidden p-6 sm:p-8 lg:p-10"
             style={{
@@ -280,8 +284,10 @@ function UseCaseSection({ u }: { u: UseCase }) {
               </span>
             </div>
           </div>
+          </Reveal>
 
           {/* RIGHT — problems + quote */}
+          <Reveal delay={120}>
           <div>
             <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-muted mb-5">
               What Cardly fixes
@@ -318,6 +324,7 @@ function UseCaseSection({ u }: { u: UseCase }) {
               </div>
             </figure>
           </div>
+          </Reveal>
         </div>
       </div>
     </section>

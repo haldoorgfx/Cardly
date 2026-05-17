@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Check, ChevronDown, ArrowRight } from 'lucide-react';
 import { FAQAccordion, FAQItem } from '@/components/marketing/FAQAccordion';
+import Reveal from '@/components/marketing/Reveal';
 
 /* ── Data ────────────────────────────────────────────────── */
 interface Plan {
@@ -477,8 +478,10 @@ export function PricingContent() {
       <section>
         <div className="mx-auto max-w-[1200px] px-5 lg:px-10 py-10 lg:py-12">
           <div className="grid lg:grid-cols-3 gap-5 items-stretch">
-            {PLANS.map((p) => (
-              <PlanCard key={p.id} plan={p} billing={billing} />
+            {PLANS.map((p, i) => (
+              <Reveal key={p.id} delay={i * 100}>
+                <PlanCard plan={p} billing={billing} />
+              </Reveal>
             ))}
           </div>
 
@@ -495,6 +498,7 @@ export function PricingContent() {
       </section>
 
       {/* ── Trust strip ── */}
+      <Reveal>
       <section className="bg-cream">
         <div className="mx-auto max-w-[1200px] px-5 lg:px-10 py-14 lg:py-16">
           <div
@@ -521,11 +525,13 @@ export function PricingContent() {
           </div>
         </div>
       </section>
+      </Reveal>
 
       {/* ── Comparison table ── */}
-      <ComparisonTable />
+      <Reveal><ComparisonTable /></Reveal>
 
       {/* ── Pricing FAQ ── */}
+      <Reveal>
       <section style={{ borderTop: '1px solid #E5E0D4' }}>
         <div className="mx-auto max-w-[920px] px-5 lg:px-10 py-20 lg:py-24">
           <div className="mb-10 lg:mb-12">
@@ -539,8 +545,10 @@ export function PricingContent() {
           <FAQAccordion items={PRICING_FAQS} />
         </div>
       </section>
+      </Reveal>
 
       {/* ── Final CTA ── */}
+      <Reveal>
       <section className="relative overflow-hidden" style={{ borderTop: '1px solid #E5E0D4' }}>
         <div
           aria-hidden
@@ -583,6 +591,7 @@ export function PricingContent() {
           </div>
         </div>
       </section>
+      </Reveal>
     </>
   );
 }
