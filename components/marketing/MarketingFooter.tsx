@@ -1,22 +1,6 @@
 import Link from 'next/link';
 import { Globe, MessageCircle, Camera } from 'lucide-react';
 
-/* ── Djibouti flag badge ─────────────────────── */
-function DjiboutiFlag() {
-  return (
-    <span className="inline-flex items-center gap-1" aria-hidden>
-      <span
-        className="inline-block w-3 h-2 rounded-sm"
-        style={{ background: 'linear-gradient(to bottom, #6AB04C 33%, #FFFFFF 33% 66%, #44A5E0 66%)' }}
-      />
-      <span
-        className="inline-block w-2 h-2"
-        style={{ background: '#D62828', clipPath: 'polygon(0 0, 100% 50%, 0 100%)' }}
-      />
-    </span>
-  );
-}
-
 const FOOTER_COLS = [
   {
     title: 'Product',
@@ -24,25 +8,25 @@ const FOOTER_COLS = [
       { label: 'Use cases',    href: '/use-cases' },
       { label: 'How it works', href: '/how-it-works' },
       { label: 'Pricing',      href: '/pricing' },
-      { label: "What's new",   href: '#' },
+      { label: "What's new",   href: '/whats-new' },
     ],
   },
   {
     title: 'Company',
     links: [
       { label: 'About',    href: '/about' },
-      { label: 'Blog',     href: '#' },
-      { label: 'Contact',  href: 'mailto:hello@cardly.app' },
-      { label: 'Partners', href: '#' },
+      { label: 'Blog',     href: '/blog' },
+      { label: 'Contact',  href: '/contact' },
+      { label: 'Partners', href: '/partners' },
     ],
   },
   {
     title: 'Resources',
     links: [
-      { label: 'Help center', href: '#' },
-      { label: 'Privacy',     href: '#' },
-      { label: 'Terms',       href: '#' },
-      { label: 'Status',      href: '#' },
+      { label: 'Help center', href: '/help' },
+      { label: 'Privacy',     href: '/privacy' },
+      { label: 'Terms',       href: '/terms' },
+      { label: 'Status',      href: '/status' },
     ],
   },
 ];
@@ -134,8 +118,7 @@ export function MarketingFooter() {
             className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.22em] uppercase px-3 py-1.5 rounded-full"
             style={{ color: '#E8C57E', background: 'rgba(250,246,238,0.05)', border: '1px solid rgba(250,246,238,0.15)' }}
           >
-            <DjiboutiFlag />
-            Made in Djibouti
+            Built for Africa
           </div>
         </div>
       </div>

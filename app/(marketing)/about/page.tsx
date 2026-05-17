@@ -202,13 +202,13 @@ function Values() {
       label: 'Product',
       icon: <Share2 size={20} strokeWidth={1.8} />,
       title: 'The link is the product.',
-      body: 'No accounts, no apps, no funnels for the attendees. One tap is the bar. If we ever raise that bar by a millimeter, something's gone wrong.',
+      body: "No accounts, no apps, no funnels for the attendees. One tap is the bar. If we ever raise that bar by a millimeter, something’s gone wrong.",
     },
     {
       label: 'Brand',
       icon: <Layers size={20} strokeWidth={1.8} />,
       title: 'Consistency at scale.',
-      body: 'Your design system survives 10,000 supporters posting from 40 phones. That's the whole reason we built this.',
+      body: "Your design system survives 10,000 supporters posting from 40 phones. That's the whole reason we built this.",
     },
   ];
 

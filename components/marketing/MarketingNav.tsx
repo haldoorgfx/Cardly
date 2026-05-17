@@ -7,22 +7,6 @@ import { ArrowRight, Menu, X, LayoutDashboard, LogOut } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
 
-/* ── Djibouti flag badge ─────────────────────────────── */
-function DjiboutiFlag() {
-  return (
-    <span className="inline-flex items-center gap-1" aria-hidden>
-      <span
-        className="inline-block w-3 h-2 rounded-sm"
-        style={{ background: 'linear-gradient(to bottom, #6AB04C 33%, #FFFFFF 33% 66%, #44A5E0 66%)' }}
-      />
-      <span
-        className="inline-block w-2 h-2"
-        style={{ background: '#D62828', clipPath: 'polygon(0 0, 100% 50%, 0 100%)' }}
-      />
-    </span>
-  );
-}
-
 /* ── Cardly logo mark ────────────────────────────────── */
 function LogoMark() {
   return (
@@ -195,8 +179,7 @@ function MobileOverlay({
           <div className="mt-auto pt-10 flex items-center justify-between">
             <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-muted">cardly.app</div>
             <div className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.22em] uppercase text-primary">
-              <DjiboutiFlag />
-              Made in Djibouti
+              Built for Africa
             </div>
           </div>
         </div>
