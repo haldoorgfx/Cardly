@@ -43,15 +43,10 @@ export async function canCreateEvent(userId: string): Promise<boolean> {
 }
 
 export async function canCreateVariant(userId: string): Promise<boolean> {
-  const admin = createAdminClient();
   const plan = await getUserPlan(userId);
   const limit = PLANS[plan].variants;
   if (limit === null) return true;
-
-  // Count distinct variants across all user events
-  // variants column is a jsonb array on events — count total zones of type 'variant'
-  // For now, variants = events with more than one background (future feature placeholder)
-  // Return true for now; wire properly when variant API route is built
+  // Variant counting will be wired when the variant API route is built
   return true;
 }
 
