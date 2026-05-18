@@ -34,9 +34,10 @@ export default async function BillingPage({
     ? new Date(profile.current_period_end).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
     : null;
 
+  const cycle = profile?.billing_cycle;
   const PLAN_PRICES: Record<string, string> = {
-    pro: '$19/mo',
-    studio: '$49/mo',
+    pro:    cycle === 'annual' ? '$15/mo' : '$19/mo',
+    studio: cycle === 'annual' ? '$39/mo' : '$49/mo',
     free: '$0',
   };
 
@@ -102,7 +103,7 @@ export default async function BillingPage({
               {plan !== 'free' && periodEnd && (
                 <div className="text-right shrink-0">
                   <div className="font-mono text-[10px] tracking-[0.14em] text-[#6B7A72] uppercase mb-1">
-                    {profile?.cancel_at_period_end ? 'Cancels' : isTrialing ? 'Trial ends' : 'Renews'}
+                    {isTrialing ? 'Trial ends' : profile?.cancel_at_period_end ? 'Cancels' : 'Renews'}
                   </div>
                   <div className="text-[13px] font-medium text-[#0F1F18]">{periodEnd}</div>
                 </div>

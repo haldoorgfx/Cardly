@@ -22,7 +22,7 @@ type EventResult = {
   slug: string;
 };
 
-const PLAN_LIMITS: Record<string, number> = { free: 1, pro: 10, studio: Infinity };
+const PLAN_LIMITS: Record<string, number> = { free: 1, pro: Infinity, studio: Infinity };
 
 const NAV_ITEMS = [
   {
@@ -384,7 +384,7 @@ function NavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: (
       <div className="px-4 py-4 border-t shrink-0" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
         {profile?.plan !== 'studio' ? (
           <Link
-            href="/pricing"
+            href="/settings/billing"
             onClick={onNavigate}
             className="flex items-center justify-between text-[12px] text-white/35 hover:text-white/60 transition"
           >
