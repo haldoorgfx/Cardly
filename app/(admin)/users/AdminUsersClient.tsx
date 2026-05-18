@@ -59,10 +59,6 @@ export default function AdminUsersClient({ users, actorRole, currentUserId }: Pr
     });
   }
 
-  const roleOptions = actorRole === "super_admin"
-    ? ["user", "admin", "super_admin"]
-    : ["user"];
-
   return (
     <div>
       <div className="flex items-center justify-between mb-6">

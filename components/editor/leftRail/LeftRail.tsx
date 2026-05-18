@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import type { Zone } from '@/types/database';
 import {
-  Type, Camera, Tag, Plus, ChevronRight, ChevronDown, ChevronUp,
+  Type, Camera, Tag, ChevronRight, ChevronDown, ChevronUp,
   Square, Circle, Triangle, Minus, LayoutGrid, LayoutTemplate,
   Palette, ImageIcon, Eye, EyeOff, Lock, LockOpen, Upload,
   ListFilter, Loader2, Check,
