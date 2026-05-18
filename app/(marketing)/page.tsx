@@ -50,7 +50,7 @@ function Hero() {
             </Link>
           </div>
           <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] text-muted">
-            {['Free for up to 50 cards', 'No credit card', 'Works on every phone'].map(t => (
+            {['Free for up to 50 cards', '14-day free trial on Pro', 'Cancel anytime'].map(t => (
               <span key={t} className="inline-flex items-center gap-1.5">
                 <Check size={14} strokeWidth={2.5} className="text-primary" /> {t}
               </span>

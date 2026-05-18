@@ -52,7 +52,7 @@ const PLANS: Plan[] = [
       'Multi-language attendee form',
       'Basic analytics dashboard',
     ],
-    cta: 'Start Pro trial',
+    cta: 'Start 14-day free trial',
     style: 'primary',
     badge: 'Most popular',
   },
@@ -72,7 +72,7 @@ const PLANS: Plan[] = [
       'CSV exports + webhook events',
       'Priority support · 99.9% SLA',
     ],
-    cta: 'Start Studio trial',
+    cta: 'Start 14-day free trial',
     style: 'default',
   },
 ];
@@ -498,6 +498,27 @@ export function PricingContent() {
       {/* ── Plan cards ── */}
       <section>
         <div className="mx-auto max-w-[1200px] px-5 lg:px-10 py-10 lg:py-12">
+
+          {/* Trial callout banner */}
+          <div
+            className="mb-8 rounded-2xl px-6 py-4 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-center"
+            style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 100%)' }}
+          >
+            <div className="flex items-center gap-2 text-[#FAF6EE]">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E8C57E" strokeWidth="2" strokeLinecap="round">
+                <circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />
+              </svg>
+              <span className="font-display font-semibold text-[15px]">14 days free on Pro &amp; Studio</span>
+            </div>
+            <div className="flex items-center gap-x-5 gap-y-1 flex-wrap justify-center font-mono text-[11px] tracking-[0.14em] uppercase" style={{ color: 'rgba(250,246,238,0.7)' }}>
+              <span>No card required</span>
+              <span style={{ color: 'rgba(250,246,238,0.3)' }}>·</span>
+              <span>Cancel anytime</span>
+              <span style={{ color: 'rgba(250,246,238,0.3)' }}>·</span>
+              <span>Instant access</span>
+            </div>
+          </div>
+
           <div className="grid lg:grid-cols-3 gap-5 items-stretch">
             {PLANS.map((p, i) => (
               <Reveal key={p.id} delay={i * 100}>
@@ -507,11 +528,16 @@ export function PricingContent() {
           </div>
 
           {/* Trust microcopy */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[13px] text-muted">
-            {['Cancel anytime', 'No setup fees', '14-day trial on paid plans', 'Cards live forever'].map((t) => (
-              <span key={t} className="inline-flex items-center gap-1.5">
-                <Check size={14} strokeWidth={2.5} />
-                {t}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[13px]" style={{ color: '#6B7A72' }}>
+            {[
+              { label: 'Cancel anytime, no questions asked', highlight: true },
+              { label: 'No credit card during trial', highlight: false },
+              { label: 'No setup fees', highlight: false },
+              { label: 'Cards live forever even after cancel', highlight: false },
+            ].map(({ label, highlight }) => (
+              <span key={label} className="inline-flex items-center gap-1.5" style={highlight ? { color: '#1F4D3A', fontWeight: 500 } : {}}>
+                <Check size={14} strokeWidth={2.5} style={{ color: '#1F4D3A' }} />
+                {label}
               </span>
             ))}
           </div>
@@ -590,11 +616,11 @@ export function PricingContent() {
         />
         <div className="relative mx-auto max-w-[900px] px-5 lg:px-10 py-20 lg:py-24 text-center">
           <h2 className="font-display font-bold text-ink text-[40px] sm:text-[54px] lg:text-[68px] leading-[0.98] tracking-[-0.035em]">
-            Start free. Upgrade when you&rsquo;re ready.
+            Start free. 14 days on us when you&rsquo;re ready.
           </h2>
           <p className="mt-5 text-ink-soft text-[17px] lg:text-[18px] leading-[1.55] max-w-[560px] mx-auto">
-            Most teams ship their first campaign on the Free plan, then upgrade the
-            day they hit 50 cards.
+            Start on the Free plan and trial Pro or Studio for 14 days — no credit card required.
+            Cancel anytime, no questions asked.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link
