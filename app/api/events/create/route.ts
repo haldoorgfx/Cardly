@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { canCreateEvent } from '@/lib/billing/can';
 
 function generateSlug(name: string): string {
   const base = name
@@ -12,8 +13,6 @@ function generateSlug(name: string): string {
   return `${base}-${suffix}`;
 }
 
-const PLAN_LIMITS: Record<string, number> = { free: 1, pro: 10, studio: Infinity };
-
 export async function POST(req: NextRequest) {
   // Auth check with user client
   const supabase = createClient();
@@ -24,19 +23,9 @@ export async function POST(req: NextRequest) {
   const admin = createAdminClient();
 
   // Check plan limits
-  const { data: profile } = await admin.from('profiles').select('plan').eq('id', user.id).single();
-  const plan = profile?.plan ?? 'free';
-  const limit = PLAN_LIMITS[plan] ?? 1;
-
-  if (limit !== Infinity) {
-    const { count } = await admin
-      .from('events')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id)
-      .neq('status', 'archived');
-    if ((count ?? 0) >= limit) {
-      return NextResponse.json({ error: 'PLAN_LIMIT', plan, limit }, { status: 403 });
-    }
+  const allowed = await canCreateEvent(user.id);
+  if (!allowed) {
+    return NextResponse.json({ error: 'PLAN_LIMIT' }, { status: 402 });
   }
 
   const formData = await req.formData();

@@ -1,6 +1,8 @@
 export type Plan = "free" | "pro" | "studio";
 export type EventStatus = "draft" | "published" | "archived";
 export type ZoneType = "text" | "photo" | "custom";
+export type SubscriptionStatus = "active" | "trialing" | "past_due" | "canceled" | "incomplete" | "none";
+export type BillingCycle = "monthly" | "annual" | "none";
 
 export interface Zone {
   id: string;
@@ -45,6 +47,20 @@ export interface Database {
           full_name: string | null;
           plan: Plan;
           created_at: string;
+          // billing columns (added in migration 004)
+          stripe_customer_id: string | null;
+          stripe_subscription_id: string | null;
+          subscription_status: SubscriptionStatus;
+          billing_cycle: BillingCycle;
+          current_period_end: string | null;
+          cancel_at_period_end: boolean;
+          cards_this_month: number;
+          cards_month_start: string;
+          // settings columns (added in migration 003)
+          role: string;
+          avatar_url: string | null;
+          notify_downloads: boolean;
+          notify_views: boolean;
         };
         Insert: {
           id: string;
@@ -52,11 +68,35 @@ export interface Database {
           full_name?: string | null;
           plan?: Plan;
           created_at?: string;
+          stripe_customer_id?: string | null;
+          stripe_subscription_id?: string | null;
+          subscription_status?: SubscriptionStatus;
+          billing_cycle?: BillingCycle;
+          current_period_end?: string | null;
+          cancel_at_period_end?: boolean;
+          cards_this_month?: number;
+          cards_month_start?: string;
+          role?: string;
+          avatar_url?: string | null;
+          notify_downloads?: boolean;
+          notify_views?: boolean;
         };
         Update: {
           email?: string | null;
           full_name?: string | null;
           plan?: Plan;
+          stripe_customer_id?: string | null;
+          stripe_subscription_id?: string | null;
+          subscription_status?: SubscriptionStatus;
+          billing_cycle?: BillingCycle;
+          current_period_end?: string | null;
+          cancel_at_period_end?: boolean;
+          cards_this_month?: number;
+          cards_month_start?: string;
+          role?: string;
+          avatar_url?: string | null;
+          notify_downloads?: boolean;
+          notify_views?: boolean;
         };
         Relationships: [];
       };
@@ -150,7 +190,10 @@ export interface Database {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      increment_cards_this_month: {
+        Args: { user_id: string };
+        Returns: undefined;
+      };
     };
     Enums: {
       [_ in never]: never;

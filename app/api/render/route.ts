@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import sharp from 'sharp';
 import type { Zone } from '@/types/database';
+import { canGenerateCard, incrementCardsThisMonth } from '@/lib/billing/can';
+import { PLANS } from '@/lib/billing/plans';
 
 const WATERMARK_HEIGHT = 40;
 
@@ -126,14 +128,13 @@ export async function POST(req: NextRequest) {
 
   if (!event) return NextResponse.json({ error: 'Event not found' }, { status: 404 });
 
-  // Check user plan for watermark
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('plan')
-    .eq('id', event.user_id)
-    .single();
+  // Check card generation limit for the event owner
+  const { allowed, plan } = await canGenerateCard(event.user_id);
+  if (!allowed) {
+    return NextResponse.json({ error: 'CARD_LIMIT_REACHED' }, { status: 402 });
+  }
 
-  const needsWatermark = !profile || profile.plan === 'free';
+  const needsWatermark = PLANS[plan].watermark;
 
   const zones = (event.zones as unknown as Zone[]) ?? [];
   const fields: Record<string, string> = fieldsJson ? JSON.parse(fieldsJson) : {};
@@ -171,17 +172,18 @@ export async function POST(req: NextRequest) {
 
   const outputBuffer = await pipeline.png({ quality: 90 }).toBuffer();
 
-  // Save record (fire-and-forget — don't block the response)
+  // Save record and counters (fire-and-forget — don't block the response)
   const attendeeName = Object.values(fields)[0] ?? 'Anonymous';
-  supabase.from('generated_cards').insert({
-    event_id: eventId,
-    attendee_name: attendeeName,
-    attendee_data: fields,
-    output_url: null,
-  }).then(() => {
-    // Also increment download count
-    supabase.from('events').update({ download_count: (event.download_count ?? 0) + 1 }).eq('id', eventId);
-  });
+  Promise.all([
+    supabase.from('generated_cards').insert({
+      event_id: eventId,
+      attendee_name: attendeeName,
+      attendee_data: fields,
+      output_url: null,
+    }),
+    supabase.from('events').update({ download_count: (event.download_count ?? 0) + 1 }).eq('id', eventId),
+    incrementCardsThisMonth(event.user_id),
+  ]).catch(() => { /* non-critical */ });
 
   return new Response(outputBuffer as unknown as BodyInit, {
     status: 200,

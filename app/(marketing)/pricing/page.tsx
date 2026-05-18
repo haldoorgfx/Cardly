@@ -1,14 +1,46 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import type { Plan } from '@/lib/billing/plans';
 
-const MONTHLY = { pro: 24, studio: 59 };
-const YEARLY  = { pro: 19, studio: 49 };
+// Monthly prices; annual = ~20% off billed as one payment
+const MONTHLY = { pro: 19, studio: 49 };
+const ANNUAL_YEARLY = { pro: 180, studio: 468 };     // total per year
+const ANNUAL_MONTHLY = { pro: 15, studio: 39 };       // displayed per-month equivalent
 
 export default function PricingPage() {
   const [yearly, setYearly] = useState(true);
-  const prices = yearly ? YEARLY : MONTHLY;
+  const [isPending, startTransition] = useTransition();
+  const [loadingPlan, setLoadingPlan] = useState<Plan | null>(null);
+  const router = useRouter();
+
+  const prices = yearly ? ANNUAL_MONTHLY : MONTHLY;
+
+  function handleCheckout(plan: Plan) {
+    setLoadingPlan(plan);
+    startTransition(async () => {
+      const res = await fetch('/api/billing/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan, billingCycle: yearly ? 'annual' : 'monthly' }),
+      });
+
+      if (res.status === 401) {
+        // Not logged in — send to signup with return intent
+        router.push(`/signup?redirect=/pricing`);
+        return;
+      }
+
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setLoadingPlan(null);
+      }
+    });
+  }
 
   return (
     <>
@@ -64,7 +96,7 @@ export default function PricingPage() {
             </Link>
             <ul className="mt-7 space-y-3 text-[14px] text-[#0f0f1a]/80">
               <li className="flex gap-2.5"><Chk />1 active event</li>
-              <li className="flex gap-2.5"><Chk />Up to 100 attendee cards</li>
+              <li className="flex gap-2.5"><Chk />50 attendee cards / month</li>
               <li className="flex gap-2.5"><Chk />PNG export</li>
               <li className="flex gap-2.5"><Chk />Basic analytics</li>
               <li className="flex gap-2.5 text-[#0f0f1a]/45"><span className="mt-0.5">&bull;</span>Cardly watermark on cards</li>
@@ -85,16 +117,24 @@ export default function PricingPage() {
                   <span className="font-display font-bold text-[44px] leading-none">${prices.pro}</span>
                   <span className="text-[#0f0f1a]/50 text-[14px] mb-1.5">/month</span>
                 </div>
-                {yearly && <div className="text-[12px] font-mono text-[#0f0f1a]/45 mt-1.5">Billed annually &middot; ${prices.pro * 12}/yr</div>}
+                {yearly && (
+                  <div className="text-[12px] font-mono text-[#0f0f1a]/45 mt-1.5">
+                    Billed annually &middot; ${ANNUAL_YEARLY.pro}/yr
+                  </div>
+                )}
               </div>
-              <Link href="/signup" className="block text-center py-3 rounded-xl grad-bg text-white font-medium text-[14px] hover:opacity-95 transition">
-                Start 14-day trial
-              </Link>
+              <button
+                onClick={() => handleCheckout('pro')}
+                disabled={isPending}
+                className="block w-full text-center py-3 rounded-xl grad-bg text-white font-medium text-[14px] hover:opacity-95 transition disabled:opacity-60 disabled:cursor-wait"
+              >
+                {loadingPlan === 'pro' ? 'Loading…' : 'Start 14-day trial'}
+              </button>
               <ul className="mt-7 space-y-3 text-[14px] text-[#0f0f1a]/80">
-                <li className="flex gap-2.5"><Chk />10 active events</li>
-                <li className="flex gap-2.5"><Chk />Up to 5,000 cards / event</li>
+                <li className="flex gap-2.5"><Chk />Unlimited active events</li>
+                <li className="flex gap-2.5"><Chk />500 cards / month</li>
                 <li className="flex gap-2.5"><Chk /><b>No watermark</b></li>
-                <li className="flex gap-2.5"><Chk />Custom event URL</li>
+                <li className="flex gap-2.5"><Chk />5 card variants per event</li>
                 <li className="flex gap-2.5"><Chk />Download analytics</li>
               </ul>
             </div>
@@ -113,16 +153,24 @@ export default function PricingPage() {
                   <span className="font-display font-bold text-[44px] leading-none">${prices.studio}</span>
                   <span className="text-white/50 text-[14px] mb-1.5">/month</span>
                 </div>
-                {yearly && <div className="text-[12px] font-mono text-white/40 mt-1.5">Billed annually &middot; ${prices.studio * 12}/yr</div>}
+                {yearly && (
+                  <div className="text-[12px] font-mono text-white/40 mt-1.5">
+                    Billed annually &middot; ${ANNUAL_YEARLY.studio}/yr
+                  </div>
+                )}
               </div>
-              <a href="mailto:hello@cardly.app" className="block text-center py-3 rounded-xl bg-white text-[#0f0f1a] font-medium text-[14px] hover:bg-white/90 transition">
-                Talk to sales
-              </a>
+              <button
+                onClick={() => handleCheckout('studio')}
+                disabled={isPending}
+                className="block w-full text-center py-3 rounded-xl bg-white text-[#0f0f1a] font-medium text-[14px] hover:bg-white/90 transition disabled:opacity-60 disabled:cursor-wait"
+              >
+                {loadingPlan === 'studio' ? 'Loading…' : 'Start 14-day trial'}
+              </button>
               <ul className="mt-7 space-y-3 text-[14px] text-white/85">
                 <li className="flex gap-2.5"><Chk pink />Unlimited events</li>
-                <li className="flex gap-2.5"><Chk pink />Unlimited attendee cards</li>
+                <li className="flex gap-2.5"><Chk pink />5,000 cards / month</li>
                 <li className="flex gap-2.5"><Chk pink /><b>No watermark</b></li>
-                <li className="flex gap-2.5"><Chk pink />Advanced analytics</li>
+                <li className="flex gap-2.5"><Chk pink />Unlimited card variants</li>
                 <li className="flex gap-2.5"><Chk pink />Priority support + onboarding</li>
               </ul>
             </div>
@@ -151,12 +199,12 @@ export default function PricingPage() {
               </tr>
             </thead>
             <tbody>
-              <CompRow label="Active events"    free="1"      pro="10"       studio="Unlimited" last={false} />
-              <CompRow label="Cards per event"  free="100"    pro="5,000"    studio="Unlimited" last={false} />
-              <CompRow label="Watermark removed" free=""      pro="check"    studio="check"     last={false} />
-              <CompRow label="Custom event URL" free=""       pro="check"    studio="check"     last={false} />
-              <CompRow label="Analytics"        free="Basic"  pro="Advanced" studio="Advanced"  last={false} />
-              <CompRow label="Priority support" free=""       pro=""         studio="check"     last />
+              <CompRow label="Active events"     free="1"         pro="Unlimited" studio="Unlimited" last={false} />
+              <CompRow label="Cards / month"     free="50"        pro="500"       studio="5,000"     last={false} />
+              <CompRow label="Card variants"     free="1"         pro="5"         studio="Unlimited" last={false} />
+              <CompRow label="Watermark removed" free=""          pro="check"     studio="check"     last={false} />
+              <CompRow label="Analytics"         free="Basic"     pro="Advanced"  studio="Advanced"  last={false} />
+              <CompRow label="Priority support"  free=""          pro=""          studio="check"     last />
             </tbody>
           </table>
         </div>
@@ -169,10 +217,10 @@ export default function PricingPage() {
           <h2 className="font-display font-bold text-[36px] leading-tight">Questions, briefly answered.</h2>
         </div>
         <div className="space-y-3">
-          <FaqItem q='What counts as one "event"?' a="One event = one design + one public link. You can keep an event open indefinitely — cards generated by attendees don't count as new events." />
+          <FaqItem q='What counts as one "event"?' a="One event = one design + one public link. You can keep an event open indefinitely." />
           <FaqItem q="Do attendees need an account?" a="No. The link is the product — attendees open it on their phone, fill in their info, and download. No login, no friction." />
           <FaqItem q="Can I change plans later?" a="Anytime. Upgrades take effect immediately, downgrades at the end of the billing cycle." />
-          <FaqItem q="When does billing start?" a="We're finalizing payment setup. For now, email hello@cardly.app to arrange Pro or Studio access early. We'll notify all signups when self-serve billing is ready." />
+          <FaqItem q="How does the card limit work?" a="The limit resets every 30 days from the date you subscribed. Free tier allows 50 cards/month, Pro 500, Studio 5,000." />
           <FaqItem q="Is there an education or NGO discount?" a="Yes — 50% off any paid plan. Email us with proof of your organization and we'll set it up." />
         </div>
       </section>
