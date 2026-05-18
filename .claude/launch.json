@@ -6,7 +6,9 @@
       "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
       "runtimeArgs": [
         "C:\\Users\\cabda\\cardly\\node_modules\\next\\dist\\bin\\next",
-        "dev"
+        "dev",
+        "--cwd",
+        "C:\\Users\\cabda\\cardly"
       ],
       "port": 3000,
       "autoPort": false

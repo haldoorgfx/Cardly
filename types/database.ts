@@ -1,5 +1,6 @@
 export type Plan = "free" | "pro" | "studio";
 export type EventStatus = "draft" | "published" | "archived";
+export type UserRole = "user" | "admin" | "super_admin";
 export type ZoneType = "text" | "photo" | "custom" | "label" | "shape" | "image";
 
 export interface Zone {
@@ -84,7 +85,11 @@ export interface Database {
           email: string | null;
           full_name: string | null;
           plan: Plan;
+          role: UserRole;
+          avatar_url: string | null;
           brand_kit: Json | null;
+          notify_downloads: boolean;
+          notify_views: boolean;
           created_at: string;
         };
         Insert: {
@@ -92,14 +97,22 @@ export interface Database {
           email?: string | null;
           full_name?: string | null;
           plan?: Plan;
+          role?: UserRole;
+          avatar_url?: string | null;
           brand_kit?: Json | null;
+          notify_downloads?: boolean;
+          notify_views?: boolean;
           created_at?: string;
         };
         Update: {
           email?: string | null;
           full_name?: string | null;
           plan?: Plan;
+          role?: UserRole;
+          avatar_url?: string | null;
           brand_kit?: Json | null;
+          notify_downloads?: boolean;
+          notify_views?: boolean;
         };
         Relationships: [];
       };

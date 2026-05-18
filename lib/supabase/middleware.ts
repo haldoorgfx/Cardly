@@ -38,7 +38,8 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/templates") ||
     request.nextUrl.pathname.startsWith("/brand") ||
     request.nextUrl.pathname.startsWith("/settings") ||
-    request.nextUrl.pathname.startsWith("/team");
+    request.nextUrl.pathname.startsWith("/team") ||
+    request.nextUrl.pathname.startsWith("/admin");
 
   if (isProtected && !user) {
     const url = request.nextUrl.clone();
@@ -49,7 +50,8 @@ export async function updateSession(request: NextRequest) {
   // Redirect logged-in users away from auth pages
   const isAuthPage =
     request.nextUrl.pathname === "/login" ||
-    request.nextUrl.pathname === "/signup";
+    request.nextUrl.pathname === "/signup" ||
+    request.nextUrl.pathname === "/forgot-password";
 
   if (isAuthPage && user) {
     const url = request.nextUrl.clone();

@@ -257,6 +257,8 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
   const [uploadingImage, setUploadingImage] = useState(false);
   const [applyingTemplateId, setApplyingTemplateId] = useState<string | null>(null);
   const [applyingBg, setApplyingBg] = useState(false);
+  const [brandAssets, setBrandAssets] = useState<string[]>([]);
+  const [uploadingBrandAsset, setUploadingBrandAsset] = useState(false);
   const [spaceDown, setSpaceDown] = useState(false);
   const [floatBarPos, setFloatBarPos] = useState<{ left: number; top: number } | null>(null);
   const [toolbarOffset, setToolbarOffset] = useState({ dx: 0, dy: 0 });
@@ -270,6 +272,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
   const stageRef       = useRef<HTMLDivElement>(null);
   const canvasInnerRef  = useRef<HTMLDivElement>(null);
   const imageUploadRef  = useRef<HTMLInputElement>(null);
+  const brandUploadRef  = useRef<HTMLInputElement>(null);
   const bgReplaceRef  = useRef<HTMLInputElement>(null);
   const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const zonesRef      = useRef(zones);
@@ -296,6 +299,16 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
     const link = document.createElement('link');
     link.id = id; link.rel = 'stylesheet'; link.href = GOOGLE_FONTS_URL;
     document.head.appendChild(link);
+  }, []);
+
+  /* ── load brand kit assets ───────────────────────────── */
+  useEffect(() => {
+    fetch('/api/brand')
+      .then(r => r.ok ? r.json() : {})
+      .then((kit: Record<string, unknown>) => {
+        if (Array.isArray(kit.assets)) setBrandAssets(kit.assets as string[]);
+      })
+      .catch(() => {});
   }, []);
 
   /* ── floating toolbar position ───────────────────────── */
@@ -587,6 +600,52 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
       setUploadingImage(false);
     }
   }, [eventId, bgW, bgH, pushHistory]);
+
+  const handleBrandUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (brandUploadRef.current) brandUploadRef.current.value = '';
+    setUploadingBrandAsset(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('eventId', eventId);
+      const res = await fetch('/api/upload-zone-image', { method: 'POST', body: fd });
+      if (!res.ok) return;
+      const { url } = await res.json() as { url: string };
+      setBrandAssets(prev => {
+        const next = [...prev, url];
+        fetch('/api/brand', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ assets: next }),
+        }).catch(() => {});
+        return next;
+      });
+    } catch (err) {
+      console.error('[brand upload]', err);
+    } finally {
+      setUploadingBrandAsset(false);
+    }
+  }, [eventId]);
+
+  const addBrandAssetToCanvas = useCallback((url: string) => {
+    const s = bgW / 1080;
+    const iW = Math.round(300 * s);
+    const iH = Math.round(300 * s);
+    const z: Zone = {
+      id:       'z' + Math.random().toString(36).slice(2, 7),
+      type:     'image',
+      label:    'Brand asset',
+      x:        Math.round(bgW / 2 - iW / 2),
+      y:        Math.round(bgH / 2 - iH / 2),
+      w:        iW, h: iH,
+      imageUrl: url,
+      opacity:  100, rotation: 0, required: false,
+    };
+    pushHistory([...zonesRef.current, z]);
+    setSelectedIds([z.id]);
+  }, [bgW, bgH, pushHistory]);
 
   const handleReplaceBackground = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -1086,6 +1145,11 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
           applyingTemplateId={applyingTemplateId}
           onApplyBackground={onApplyBackground}
           applyingBg={applyingBg}
+          brandAssets={brandAssets}
+          brandUploadRef={brandUploadRef}
+          handleBrandUpload={handleBrandUpload}
+          uploadingBrandAsset={uploadingBrandAsset}
+          addBrandAssetToCanvas={addBrandAssetToCanvas}
         />
 
         {/* ── Stage ───────────────────────────────────────── */}
@@ -1173,6 +1237,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
                   <ZoneEl
                     key={z.id}
                     zone={z}
+                    zoom={zoom}
                     selected={selectedIds.includes(z.id) && !previewMode}
                     multiSelected={selectedIds.length > 1 && selectedIds.includes(z.id)}
                     previewMode={previewMode}
@@ -2212,8 +2277,8 @@ function RightRail({
 /* ══════════════════════════════════════════════════════════
    ZONE ELEMENT
 ══════════════════════════════════════════════════════════ */
-function ZoneEl({ zone, selected, multiSelected, previewMode, onPointerDown, onHandle, onRotate }: {
-  zone: Zone; selected: boolean; multiSelected: boolean; previewMode: boolean;
+function ZoneEl({ zone, selected, multiSelected, previewMode, zoom, onPointerDown, onHandle, onRotate }: {
+  zone: Zone; selected: boolean; multiSelected: boolean; previewMode: boolean; zoom: number;
   onPointerDown: (e: React.PointerEvent) => void;
   onHandle: (e: React.PointerEvent, dir: string) => void;
   onRotate: (e: React.PointerEvent) => void;
@@ -2467,14 +2532,15 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, onPointerDown, onH
         </span>
       )}
 
-      {/* Rotation handle */}
+      {/* Rotation handle — sizes scale inversely with zoom so they're always 14px on screen */}
       {selected && !previewMode && (
         <>
           {/* Stem line */}
           <div className="absolute pointer-events-none" style={{
-            width: 1, height: ROTATE_HANDLE_DIST,
+            width: 1 / zoom,
+            height: ROTATE_HANDLE_DIST / zoom,
             background: dashColor,
-            left: zone.w / 2 - 0.5,
+            left: zone.w / 2 - 0.5 / zoom,
             bottom: '100%',
           }} />
           {/* Circle handle */}
@@ -2483,14 +2549,14 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, onPointerDown, onH
             title="Drag to rotate (⇧ = snap 15°)"
             style={{
               position: 'absolute',
-              width: 14, height: 14,
+              width: 14 / zoom, height: 14 / zoom,
               borderRadius: 999,
               background: 'white',
-              border: `2px solid ${dashColor}`,
-              bottom: `calc(100% + ${ROTATE_HANDLE_DIST}px)`,
-              left: zone.w / 2 - 7,
+              border: `${2 / zoom}px solid ${dashColor}`,
+              bottom: `calc(100% + ${ROTATE_HANDLE_DIST / zoom}px)`,
+              left: zone.w / 2 - 7 / zoom,
               cursor: 'grab',
-              boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
+              boxShadow: `0 ${1/zoom}px ${4/zoom}px rgba(0,0,0,0.2)`,
               zIndex: 10,
             }}
           />
@@ -2501,9 +2567,9 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, onPointerDown, onH
       {selected && !previewMode && (
         <>
           {(['nw','n','ne','e','se','s','sw','w'] as const).map(dir => (
-            <HandleEl key={dir} dir={dir} round={isPhoto && zone.shape === 'circle'} color={dashColor} onPointerDown={e => onHandle(e, dir)} />
+            <HandleEl key={dir} dir={dir} round={isPhoto && zone.shape === 'circle'} color={dashColor} zoom={zoom} onPointerDown={e => onHandle(e, dir)} />
           ))}
-          <span className="absolute font-mono text-[9.5px] text-white px-1.5 py-0.5 rounded whitespace-nowrap pointer-events-none" style={{ background: dashColor, bottom: -26, left: '50%', transform: 'translateX(-50%)' }}>
+          <span className="absolute font-mono text-white whitespace-nowrap pointer-events-none" style={{ fontSize: 9.5 / zoom, background: dashColor, bottom: -26 / zoom, left: '50%', transform: 'translateX(-50%)', padding: `${2/zoom}px ${6/zoom}px`, borderRadius: 4/zoom }}>
             {zone.w} × {zone.h}{rotation !== 0 ? ` · ${rotation}°` : ''}
           </span>
         </>
@@ -2512,23 +2578,42 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, onPointerDown, onH
   );
 }
 
-const HANDLE_POS: Record<string, React.CSSProperties> = {
-  nw: { top: -7,   left: -7,              cursor: 'nwse-resize' },
-  n:  { top: -7,   left: '50%', marginLeft: -6, cursor: 'ns-resize'   },
-  ne: { top: -7,   right: -7,             cursor: 'nesw-resize' },
-  e:  { top: '50%',right: -7,  marginTop: -6,   cursor: 'ew-resize'   },
-  se: { bottom: -7,right: -7,             cursor: 'nwse-resize' },
-  s:  { bottom: -7,left: '50%',marginLeft: -6,  cursor: 'ns-resize'   },
-  sw: { bottom: -7,left: -7,              cursor: 'nesw-resize' },
-  w:  { top: '50%',left: -7,  marginTop: -6,    cursor: 'ew-resize'   },
+const HANDLE_CURSORS: Record<string, string> = {
+  nw: 'nwse-resize', n: 'ns-resize', ne: 'nesw-resize', e: 'ew-resize',
+  se: 'nwse-resize', s: 'ns-resize', sw: 'nesw-resize', w: 'ew-resize',
 };
 
-function HandleEl({ dir, round, color, onPointerDown }: { dir: string; round: boolean; color: string; onPointerDown: (e: React.PointerEvent) => void }) {
+function HandleEl({ dir, round, color, zoom, onPointerDown }: {
+  dir: string; round: boolean; color: string; zoom: number;
+  onPointerDown: (e: React.PointerEvent) => void;
+}) {
+  /* Always 12×12 px on screen regardless of canvas zoom */
+  const sz  = 12 / zoom;
+  const h   = sz / 2;
+  const bw  = 2 / zoom;
+
+  const pos: React.CSSProperties = {};
+  if      (dir.includes('n')) { pos.top    = -h; }
+  else if (dir.includes('s')) { pos.bottom = -h; }
+  else                         { pos.top = '50%'; pos.marginTop = -h; }
+  if      (dir.includes('w')) { pos.left   = -h; }
+  else if (dir.includes('e')) { pos.right  = -h; }
+  else                         { pos.left = '50%'; pos.marginLeft = -h; }
+
   return (
     <span
       data-handle={dir}
       onPointerDown={onPointerDown}
-      style={{ position: 'absolute', width: 12, height: 12, background: 'white', border: `2px solid ${color}`, borderRadius: round ? 999 : 3, boxShadow: '0 1px 3px rgba(0,0,0,0.2)', ...HANDLE_POS[dir] }}
+      style={{
+        position: 'absolute',
+        width: sz, height: sz,
+        background: 'white',
+        border: `${bw}px solid ${color}`,
+        borderRadius: round ? 999 : 3 / zoom,
+        boxShadow: `0 ${1/zoom}px ${3/zoom}px rgba(0,0,0,0.25)`,
+        cursor: HANDLE_CURSORS[dir],
+        ...pos,
+      }}
     />
   );
 }

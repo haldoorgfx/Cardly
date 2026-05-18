@@ -60,29 +60,39 @@ const SHORTCUTS = [
   { keys:['G'],            label:'Toggle grid' },
 ];
 
-/* ── Element add button ──────────────────────────────────────── */
+/* ── Element add button — compact toolbox style ──────────────── */
 function AddBtn({
-  icon, label, sub, onClick, disabled,
-}: { icon:React.ReactNode; label:string; sub:string; onClick:()=>void; disabled?:boolean }) {
+  icon, label, onClick, disabled,
+}: { icon:React.ReactNode; label:string; onClick:()=>void; disabled?:boolean }) {
+  const [hover, setHover] = useState(false);
   return (
     <button
       onClick={onClick} disabled={disabled}
+      onMouseEnter={()=>setHover(true)} onMouseLeave={()=>setHover(false)}
       style={{
-        width:'100%', display:'flex', alignItems:'center', gap:8, padding:'6px 8px',
-        background:T.surface, border:`1px solid ${T.border}`, borderRadius:6,
-        cursor:disabled?'not-allowed':'pointer', opacity:disabled?0.5:1, textAlign:'left',
+        width:'100%', display:'flex', alignItems:'center', gap:7, padding:'7px 9px',
+        background: hover && !disabled ? T.primarySoft : T.surface,
+        border:`1px solid ${hover && !disabled ? 'rgba(31,77,58,0.25)' : T.border}`,
+        borderRadius:7,
+        cursor:disabled?'not-allowed':'pointer',
+        opacity:disabled?0.5:1, textAlign:'left',
+        transition:'background 0.1s, border-color 0.1s',
       }}
     >
       <span style={{
-        width:26, height:26, borderRadius:5, flexShrink:0,
-        background:T.primarySoft, color:T.primary,
+        width:30, height:30, borderRadius:6, flexShrink:0,
+        background: hover && !disabled ? T.primary : T.cream,
+        color: hover && !disabled ? '#fff' : T.primary,
         display:'flex', alignItems:'center', justifyContent:'center',
+        transition:'background 0.1s, color 0.1s',
+        boxShadow: hover && !disabled ? '0 2px 6px rgba(31,77,58,0.25)' : 'none',
       }}>{icon}</span>
-      <span style={{ flex:1, minWidth:0 }}>
-        <span style={{ display:'block', fontFamily:'Inter,sans-serif', fontSize:12, fontWeight:600, color:T.ink, lineHeight:1.3, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{label}</span>
-        <span style={{ display:'block', fontFamily:'Inter,sans-serif', fontSize:10.5, color:T.muted, lineHeight:1.3 }}>{sub}</span>
-      </span>
-      <Plus size={12} strokeWidth={2} style={{ color:T.muted, opacity:0.5, flexShrink:0 }} />
+      <span style={{
+        fontFamily:'Inter,sans-serif', fontSize:12.5, fontWeight:600,
+        color: hover && !disabled ? T.primary : T.ink,
+        lineHeight:1, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis',
+        flex:1, minWidth:0, transition:'color 0.1s',
+      }}>{label}</span>
     </button>
   );
 }
@@ -270,15 +280,14 @@ function ElementsPanel({
 
           <input ref={imageUploadRef} type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" style={{ display:'none' }} onChange={handleImageUpload} />
 
-          <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
-            <AddBtn icon={<Type size={12} strokeWidth={1.8}/>} label="Text field" sub="Name, title, org…" onClick={()=>addZone('text')}/>
-            <AddBtn icon={<Camera size={12} strokeWidth={1.8}/>} label="Photo zone" sub="Headshot or logo" onClick={()=>addZone('photo')}/>
-            <AddBtn icon={<ListFilter size={12} strokeWidth={1.8}/>} label="Select field" sub="Dropdown, role, badge…" onClick={()=>addZone('custom')}/>
-            <AddBtn icon={<Tag size={12} strokeWidth={1.8}/>} label="Static text" sub="Fixed text on card" onClick={()=>addZone('label')}/>
+          <div style={{ display:'flex', flexDirection:'column', gap:3 }}>
+            <AddBtn icon={<Type size={14} strokeWidth={1.8}/>} label="Text field" onClick={()=>addZone('text')}/>
+            <AddBtn icon={<Camera size={14} strokeWidth={1.8}/>} label="Photo zone" onClick={()=>addZone('photo')}/>
+            <AddBtn icon={<ListFilter size={14} strokeWidth={1.8}/>} label="Select field" onClick={()=>addZone('custom')}/>
+            <AddBtn icon={<Tag size={14} strokeWidth={1.8}/>} label="Static text" onClick={()=>addZone('label')}/>
             <AddBtn
-              icon={uploadingImage ? <Loader2 size={12} strokeWidth={2} className="animate-spin"/> : <Upload size={12} strokeWidth={1.8}/>}
-              label={uploadingImage?'Uploading…':'Upload'}
-              sub="PNG · JPG · SVG · GIF"
+              icon={uploadingImage ? <Loader2 size={14} strokeWidth={2} className="animate-spin"/> : <Upload size={14} strokeWidth={1.8}/>}
+              label={uploadingImage ? 'Uploading…' : 'Upload image'}
               onClick={()=>imageUploadRef.current?.click()}
               disabled={uploadingImage}
             />
@@ -415,9 +424,13 @@ function TemplatesPanel({
 
 /* ── Brand Kit panel ─────────────────────────────────────────── */
 function BrandPanel({
-  imageUploadRef,
+  brandUploadRef, handleBrandUpload, brandAssets, addBrandAssetToCanvas, uploadingBrandAsset,
 }:{
-  imageUploadRef:React.RefObject<HTMLInputElement>;
+  brandUploadRef: React.RefObject<HTMLInputElement>;
+  handleBrandUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  brandAssets: string[];
+  addBrandAssetToCanvas: (url: string) => void;
+  uploadingBrandAsset: boolean;
 }) {
   const [copied, setCopied] = useState<string|null>(null);
 
@@ -450,16 +463,11 @@ function BrandPanel({
                 background:c,
                 border:`1.5px solid ${c==='#FFFFFF'||c==='#FAF6EE'?T.borderStrong:'transparent'}`,
                 boxShadow:'0 1px 4px rgba(0,0,0,0.15)',
-                cursor:'pointer', flexShrink:0, padding:0,
-                outline:'none',
+                cursor:'pointer', flexShrink:0, padding:0, outline:'none',
               }}
             >
               {copied===c && (
-                <span style={{
-                  position:'absolute', inset:0, borderRadius:5,
-                  background:'rgba(0,0,0,0.55)',
-                  display:'flex', alignItems:'center', justifyContent:'center',
-                }}>
+                <span style={{ position:'absolute', inset:0, borderRadius:5, background:'rgba(0,0,0,0.55)', display:'flex', alignItems:'center', justifyContent:'center' }}>
                   <Check size={10} strokeWidth={2.5} style={{ color:'white' }}/>
                 </span>
               )}
@@ -475,24 +483,75 @@ function BrandPanel({
 
       <div style={{ height:1, background:T.border, margin:'8px 10px' }}/>
 
-      {/* Logo upload */}
+      {/* Assets */}
       <div style={{ padding:'4px 10px 12px', display:'flex', flexDirection:'column', gap:8 }}>
-        <div style={{ fontFamily:'JetBrains Mono,monospace', fontSize:9, letterSpacing:'0.08em', textTransform:'uppercase', color:T.muted }}>Assets</div>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+          <div style={{ fontFamily:'JetBrains Mono,monospace', fontSize:9, letterSpacing:'0.08em', textTransform:'uppercase', color:T.muted }}>Assets</div>
+          {brandAssets.length > 0 && (
+            <span style={{ fontFamily:'JetBrains Mono,monospace', fontSize:9, color:T.muted }}>{brandAssets.length}</span>
+          )}
+        </div>
+
+        {/* Upload button */}
+        <input
+          ref={brandUploadRef}
+          type="file"
+          accept="image/png,image/jpeg,image/webp,image/svg+xml,image/gif"
+          style={{ display:'none' }}
+          onChange={handleBrandUpload}
+        />
         <button
-          onClick={()=>imageUploadRef.current?.click()}
+          onClick={()=>brandUploadRef.current?.click()}
+          disabled={uploadingBrandAsset}
           style={{
             display:'flex', alignItems:'center', gap:7, padding:'8px 10px',
-            background:T.surface, border:`1.5px dashed ${T.borderStrong}`, borderRadius:6, cursor:'pointer',
+            background:T.surface, border:`1.5px dashed ${T.borderStrong}`, borderRadius:6,
+            cursor: uploadingBrandAsset ? 'wait' : 'pointer',
+            opacity: uploadingBrandAsset ? 0.6 : 1,
           }}
         >
           <span style={{ width:24, height:24, borderRadius:5, background:T.primarySoft, color:T.primary, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-            <Upload size={12} strokeWidth={2}/>
+            {uploadingBrandAsset
+              ? <Loader2 size={12} strokeWidth={2} className="animate-spin"/>
+              : <Upload size={12} strokeWidth={2}/>}
           </span>
-          <span style={{ fontFamily:'Inter,sans-serif', fontSize:11.5, fontWeight:600, color:T.ink }}>Upload logo / asset</span>
+          <span style={{ fontFamily:'Inter,sans-serif', fontSize:11.5, fontWeight:600, color:T.ink }}>
+            {uploadingBrandAsset ? 'Uploading…' : 'Upload logo / asset'}
+          </span>
         </button>
-        <div style={{ fontFamily:'Inter,sans-serif', fontSize:10.5, color:T.muted, lineHeight:1.4 }}>
-          Uploaded assets appear on the canvas as image zones you can resize and reposition.
-        </div>
+
+        {/* Saved assets gallery */}
+        {brandAssets.length > 0 ? (
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:5 }}>
+            {brandAssets.map((url, i) => (
+              <button
+                key={i}
+                onClick={()=>addBrandAssetToCanvas(url)}
+                title="Click to add to canvas"
+                style={{
+                  aspectRatio:'1', borderRadius:6, overflow:'hidden', padding:0,
+                  border:`1.5px solid ${T.border}`, background:T.cream,
+                  cursor:'pointer', position:'relative',
+                }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={url} alt="" style={{ width:'100%', height:'100%', objectFit:'contain', display:'block' }}/>
+                <span style={{
+                  position:'absolute', inset:0, background:'rgba(31,77,58,0)', borderRadius:5,
+                  display:'flex', alignItems:'center', justifyContent:'center',
+                  transition:'background 0.15s',
+                }}
+                  onMouseEnter={e=>(e.currentTarget.style.background='rgba(31,77,58,0.12)')}
+                  onMouseLeave={e=>(e.currentTarget.style.background='rgba(31,77,58,0)')}
+                />
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div style={{ fontFamily:'Inter,sans-serif', fontSize:10.5, color:T.muted, lineHeight:1.4 }}>
+            Upload logos, icons, or any image. Saved assets appear here and can be added to any card.
+          </div>
+        )}
       </div>
     </div>
   );
@@ -665,6 +724,12 @@ export interface LeftRailProps {
   // Background
   onApplyBackground: (value:string) => void;
   applyingBg: boolean;
+  // Brand kit
+  brandAssets: string[];
+  brandUploadRef: React.RefObject<HTMLInputElement>;
+  handleBrandUpload: (e:React.ChangeEvent<HTMLInputElement>) => void;
+  uploadingBrandAsset: boolean;
+  addBrandAssetToCanvas: (url:string) => void;
 }
 
 export default function LeftRail({
@@ -673,6 +738,7 @@ export default function LeftRail({
   zones, selectedIds, setSelectedIds, moveZoneUp, moveZoneDown, updateZone,
   onApplyTemplate, applyingTemplateId,
   onApplyBackground, applyingBg,
+  brandAssets, brandUploadRef, handleBrandUpload, uploadingBrandAsset, addBrandAssetToCanvas,
 }:LeftRailProps) {
   const [tab, setTab] = useState<LeftTab>('elements');
 
@@ -731,7 +797,13 @@ export default function LeftRail({
         )}
 
         {tab==='brand' && (
-          <BrandPanel imageUploadRef={imageUploadRef}/>
+          <BrandPanel
+            brandUploadRef={brandUploadRef}
+            handleBrandUpload={handleBrandUpload}
+            brandAssets={brandAssets}
+            addBrandAssetToCanvas={addBrandAssetToCanvas}
+            uploadingBrandAsset={uploadingBrandAsset}
+          />
         )}
 
         {tab==='background' && (
