@@ -1,56 +1,104 @@
-import { ContactFormClient } from './ContactFormClient';
-
-export const metadata = {
-  title: 'Contact — Cardly',
-  description:
-    'Get in touch with the Cardly team. Support, partnerships, press — we read every message.',
-};
-
-/* ── Hero ────────────────────────────────────────────────── */
-function ContactHero() {
-  return (
-    <section
-      className="relative overflow-hidden border-b"
-      style={{ borderColor: '#E5E0D4' }}
-    >
-      <div
-        aria-hidden
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: [
-            'radial-gradient(65% 55% at 10% 0%, rgba(31,77,58,0.09), transparent 65%)',
-            'radial-gradient(50% 45% at 90% 100%, rgba(232,197,126,0.11), transparent 65%)',
-          ].join(', '),
-        }}
-      />
-      <div
-        aria-hidden
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: 'radial-gradient(rgba(15,31,24,0.045) 1px, transparent 1px)',
-          backgroundSize: '24px 24px',
-        }}
-      />
-      <div className="relative mx-auto max-w-[1200px] px-5 lg:px-10 pt-14 lg:pt-20 pb-12 lg:pb-16">
-        <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-5">
-          Contact
-        </div>
-        <h1 className="font-display font-bold text-ink text-[44px] sm:text-[60px] lg:text-[72px] leading-[0.95] tracking-[-0.035em] max-w-[700px]">
-          We read every message.
-        </h1>
-        <p className="mt-5 text-ink-soft text-[17px] lg:text-[18px] leading-[1.55] max-w-[520px]">
-          Support, partnerships, press — drop us a line. We reply within one business day, usually faster.
-        </p>
-      </div>
-    </section>
-  );
-}
-
 export default function ContactPage() {
   return (
     <>
-      <ContactHero />
-      <ContactFormClient />
+      <section className="max-w-[820px] mx-auto px-6 pt-20 pb-28">
+        <div className="text-[11px] tracking-[0.18em] font-mono text-brand-primary mb-4">
+          CONTACT
+        </div>
+        <h1 className="font-display font-bold text-[48px] sm:text-[56px] leading-[1.02] mb-5">
+          Get in touch.
+        </h1>
+        <p className="text-[17px] text-brand-ink/65 max-w-[480px] leading-relaxed mb-14">
+          We reply within 24 hours, usually faster.
+        </p>
+
+        <div className="grid sm:grid-cols-2 gap-5">
+          {/* Email */}
+          <a
+            href="mailto:hello@cardly.app"
+            className="group rounded-2xl border border-brand-border bg-white p-7 hover:shadow-lift hover:border-brand-primary/30 transition"
+          >
+            <div className="h-10 w-10 rounded-xl bg-brand-offwhite grid place-items-center text-brand-primary mb-5 group-hover:grad-bg group-hover:text-white transition">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                <polyline points="22,6 12,13 2,6" />
+              </svg>
+            </div>
+            <div className="font-display font-semibold text-[17px] mb-1">
+              Email
+            </div>
+            <div className="font-mono text-[14px] text-brand-primary">
+              hello@cardly.app
+            </div>
+            <div className="mt-2 text-[13px] text-brand-ink/50">
+              For general questions, feedback, and support.
+            </div>
+          </a>
+
+          {/* WhatsApp */}
+          <a
+            href="https://wa.me/message/cardly"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group rounded-2xl border border-brand-border bg-white p-7 hover:shadow-lift hover:border-brand-primary/30 transition"
+          >
+            <div className="h-10 w-10 rounded-xl bg-brand-offwhite grid place-items-center text-brand-primary mb-5 group-hover:grad-bg group-hover:text-white transition">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+            </div>
+            <div className="font-display font-semibold text-[17px] mb-1">
+              WhatsApp
+            </div>
+            <div className="font-mono text-[14px] text-brand-primary">
+              Message us directly
+            </div>
+            <div className="mt-2 text-[13px] text-brand-ink/50">
+              For quick questions and demo requests.
+            </div>
+          </a>
+        </div>
+
+        {/* Use cases for contact */}
+        <div className="mt-12 rounded-2xl bg-brand-offwhite border border-brand-border p-7">
+          <div className="font-mono text-[11px] tracking-widest text-brand-ink/40 mb-4">
+            GOOD REASONS TO REACH OUT
+          </div>
+          <ul className="space-y-2.5 text-[15px] text-brand-ink/70">
+            {[
+              "You want to set up a Pro or Studio account",
+              "You have a specific event coming up and want to make sure Cardly can handle it",
+              "Something broke and you need help urgently",
+              "You have feedback on the product — we read all of it",
+              "You're an NGO or educational organization and want to discuss pricing",
+              "You want to collaborate (design, engineering, growth)",
+            ].map((item) => (
+              <li key={item} className="flex gap-2.5">
+                <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-brand-primary shrink-0" />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
     </>
   );
 }

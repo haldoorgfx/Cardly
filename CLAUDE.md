@@ -17,7 +17,7 @@ Cardly is a SaaS tool that lets event organizers and designers create personaliz
 
 **MVP scope:** static image cards only. No video, no animation, no team accounts, no marketplace.
 
-**Edge over competitors (Premagic, CrowdCard):** designer-native. The designer uploads their own design — no template constraints. Built for Africa-first event ecosystem.
+**Edge over competitors (Premagic, CrowdCard):** designer-native. The designer uploads their own design — no template constraints. Built for event organizers and designers worldwide.
 
 ---
 

@@ -1,210 +1,189 @@
-import { ArrowRight } from 'lucide-react';
-import Reveal from '@/components/marketing/Reveal';
-
-export const metadata = {
-  title: 'Terms of Service — Cardly',
-  description:
-    'The rules for using Cardly. Straightforward, no legalese.',
-};
-
-const LAST_UPDATED = 'May 2026';
-
-const SECTIONS = [
-  {
-    id: 'using',
-    title: 'Using Cardly',
-    body: [
-      'By using Cardly, you agree to these terms. You must be at least 16 years old and capable of entering a binding agreement in your jurisdiction.',
-      'You are responsible for maintaining the security of your account credentials. Notify us immediately at hello@cardly.app if you believe your account has been compromised.',
-      'You must not use Cardly in a way that violates applicable laws, infringes on others\' intellectual property, or interferes with the operation of the service.',
-    ],
-  },
-  {
-    id: 'plans',
-    title: 'Plans and billing',
-    body: [
-      'Cardly offers a Free plan and paid plans (Pro, Studio). Paid plans are billed monthly or annually depending on the option you choose at signup.',
-      'Upgrades take effect immediately. Downgrades take effect at the end of the current billing period.',
-      'Refunds are available within 7 days of a charge if the service did not perform as described. Contact billing@cardly.app.',
-      'We may change pricing with 30 days\' notice. Existing subscribers on annual plans are protected until renewal.',
-    ],
-  },
-  {
-    id: 'content',
-    title: 'Your content',
-    body: [
-      'You own the designs, images, and event configurations you upload to Cardly. We don\'t claim ownership of your content.',
-      'By uploading content, you grant Cardly a limited license to store, process, and display it solely for the purpose of operating the service for you.',
-      'You must have the rights to any content you upload. You may not upload content that is obscene, defamatory, or that infringes third-party intellectual property.',
-      'We may remove content that violates these terms without prior notice.',
-    ],
-  },
-  {
-    id: 'acceptable',
-    title: 'Acceptable use',
-    body: [
-      'Cardly is for creating legitimate event attendee share cards. Do not use it to generate spam, run phishing campaigns, impersonate other organizations, or distribute harmful content.',
-      'Do not attempt to reverse-engineer, scrape, or overload the platform. Do not share API keys or embed the render endpoint in ways that circumvent per-account limits.',
-      'Violations may result in immediate account suspension without refund.',
-    ],
-  },
-  {
-    id: 'ip',
-    title: 'Intellectual property',
-    body: [
-      'Cardly, the Cardly wordmark, and the product interface are owned by Cardly Labs. You may not use our brand assets without written permission.',
-      'Feedback and suggestions you provide may be used to improve the product. We won\'t claim ownership of any IP you develop independently.',
-    ],
-  },
-  {
-    id: 'liability',
-    title: 'Liability and disclaimers',
-    body: [
-      'Cardly is provided "as is." We do not warrant that the service will be error-free or always available.',
-      'To the maximum extent permitted by law, Cardly\'s liability is limited to the amount you paid in the 12 months prior to the claim.',
-      'We are not responsible for losses caused by attendee-submitted content, third-party platform changes (e.g., social media algorithm shifts), or events outside our control.',
-    ],
-  },
-  {
-    id: 'termination',
-    title: 'Termination',
-    body: [
-      'You may cancel your account at any time from Settings. Your data will be retained for 30 days before deletion, giving you time to export.',
-      'We may suspend or terminate accounts that violate these terms. We will provide notice except in cases of serious or repeated violations.',
-      'On termination, your license to use the service ends. Our rights to anonymized aggregate data survive termination.',
-    ],
-  },
-  {
-    id: 'changes',
-    title: 'Changes to these terms',
-    body: [
-      'We may update these terms. If changes are material, we will notify you via email or a prominent notice in the app at least 14 days before they take effect.',
-      'Continued use after changes take effect constitutes acceptance.',
-    ],
-  },
-];
-
-/* ── Hero ────────────────────────────────────────────────── */
-function TermsHero() {
-  return (
-    <section
-      className="relative overflow-hidden border-b"
-      style={{ borderColor: '#E5E0D4' }}
-    >
-      <div
-        aria-hidden
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: [
-            'radial-gradient(60% 55% at 10% 0%, rgba(31,77,58,0.08), transparent 65%)',
-            'radial-gradient(50% 45% at 90% 100%, rgba(232,197,126,0.10), transparent 65%)',
-          ].join(', '),
-        }}
-      />
-      <div
-        aria-hidden
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: 'radial-gradient(rgba(15,31,24,0.045) 1px, transparent 1px)',
-          backgroundSize: '24px 24px',
-        }}
-      />
-      <div className="relative mx-auto max-w-[1200px] px-5 lg:px-10 pt-14 lg:pt-20 pb-12 lg:pb-16">
-        <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-5">
-          Legal
-        </div>
-        <h1 className="font-display font-bold text-ink text-[42px] sm:text-[56px] lg:text-[68px] leading-[0.95] tracking-[-0.035em] max-w-[760px]">
-          Terms of Service
-        </h1>
-        <p className="mt-5 text-ink-soft text-[17px] lg:text-[18px] leading-[1.55] max-w-[560px]">
-          Plain language. No surprises. Last updated{' '}
-          <span className="text-ink font-medium">{LAST_UPDATED}</span>.
-        </p>
-
-        <div className="mt-8 flex flex-wrap gap-2">
-          {SECTIONS.map((s) => (
-            <a
-              key={s.id}
-              href={`#${s.id}`}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium transition-colors hover:bg-primary hover:text-cream"
-              style={{ border: '1px solid #E5E0D4', color: '#3A4A42' }}
-            >
-              {s.title}
-            </a>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ── Content ─────────────────────────────────────────────── */
-function TermsContent() {
-  return (
-    <div className="mx-auto max-w-[1200px] px-5 lg:px-10 py-14 lg:py-20 grid lg:grid-cols-[220px_1fr] gap-12 lg:gap-20 items-start">
-      <aside className="hidden lg:block sticky top-24">
-        <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-muted mb-4">Contents</div>
-        <nav className="space-y-1">
-          {SECTIONS.map((s) => (
-            <a
-              key={s.id}
-              href={`#${s.id}`}
-              className="block text-[13px] text-ink-soft hover:text-primary transition-colors py-1 border-l-2 pl-3"
-              style={{ borderColor: 'rgba(229,224,212,0.6)' }}
-            >
-              {s.title}
-            </a>
-          ))}
-        </nav>
-      </aside>
-
-      <div className="space-y-12 lg:space-y-14">
-        {SECTIONS.map((s, i) => (
-          <Reveal key={s.id} delay={i * 40} distance={16}>
-            <section id={s.id} className="scroll-mt-28">
-              <h2 className="font-display font-bold text-ink text-[24px] sm:text-[28px] tracking-[-0.025em] mb-5">
-                {s.title}
-              </h2>
-              <div className="space-y-4">
-                {s.body.map((para, j) => (
-                  <p key={j} className="text-ink-soft text-[15px] lg:text-[16px] leading-[1.7]">
-                    {para}
-                  </p>
-                ))}
-              </div>
-            </section>
-          </Reveal>
-        ))}
-
-        <div className="h-px" style={{ background: '#E5E0D4' }} />
-
-        <Reveal>
-          <div
-            className="rounded-2xl p-6 lg:p-7"
-            style={{ background: 'rgba(31,77,58,0.05)', border: '1px solid rgba(31,77,58,0.12)' }}
-          >
-            <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-primary mb-3">Have a question?</div>
-            <p className="text-ink-soft text-[15px] leading-[1.6] mb-4">
-              If you have questions about these terms, email us. We prefer clarity over fine print.
-            </p>
-            <a
-              href="mailto:hello@cardly.app"
-              className="inline-flex items-center gap-2 text-primary font-medium text-[14px] hover:underline"
-            >
-              hello@cardly.app <ArrowRight size={14} strokeWidth={2} />
-            </a>
-          </div>
-        </Reveal>
-      </div>
-    </div>
-  );
-}
-
 export default function TermsPage() {
   return (
     <>
-      <TermsHero />
-      <TermsContent />
+      <section className="max-w-[820px] mx-auto px-6 pt-20 pb-28">
+        <div className="text-[11px] tracking-[0.18em] font-mono text-brand-primary mb-4">
+          LEGAL
+        </div>
+        <h1 className="font-display font-bold text-[40px] sm:text-[48px] leading-[1.05] mb-3">
+          Terms of Service
+        </h1>
+        <p className="text-[13px] font-mono text-brand-ink/45 mb-10">
+          Last updated: May 2026
+        </p>
+
+        <div className="space-y-10 text-[16px] text-brand-ink/75 leading-[1.8]">
+          <section>
+            <h2 className="font-display font-bold text-[22px] text-brand-ink mb-3">
+              Acceptance
+            </h2>
+            <p>
+              By creating an account or using Cardly, you agree to these terms.
+              If you&apos;re using Cardly on behalf of an organization, you
+              confirm you have authority to accept these terms for that
+              organization.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="font-display font-bold text-[22px] text-brand-ink mb-3">
+              What Cardly is
+            </h2>
+            <p>
+              Cardly is a tool that lets designers upload event card designs and
+              generate a personalized version for each attendee. You own your
+              design files. We provide the software that makes them
+              personalizable.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="font-display font-bold text-[22px] text-brand-ink mb-3">
+              Your account
+            </h2>
+            <ul className="list-disc pl-5 space-y-1.5 text-[15px]">
+              <li>You are responsible for keeping your login details secure.</li>
+              <li>
+                You are responsible for everything that happens under your
+                account.
+              </li>
+              <li>
+                One account per person. Do not share accounts across
+                organizations.
+              </li>
+              <li>
+                You must be 16 or older to create an account. If you are younger,
+                a parent or guardian must agree to these terms on your behalf.
+              </li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="font-display font-bold text-[22px] text-brand-ink mb-3">
+              Acceptable use
+            </h2>
+            <p className="mb-3">You may not use Cardly to:</p>
+            <ul className="list-disc pl-5 space-y-1.5 text-[15px]">
+              <li>
+                Upload designs that infringe on someone else&apos;s copyright or
+                trademark
+              </li>
+              <li>
+                Create cards that impersonate a real person or organization
+              </li>
+              <li>
+                Run spam campaigns — do not share your event link without the
+                recipient&apos;s permission
+              </li>
+              <li>Upload illegal content of any kind</li>
+              <li>
+                Attempt to access other users&apos; data or reverse-engineer the
+                platform
+              </li>
+            </ul>
+            <p className="mt-4">
+              If we find a violation, we&apos;ll give you notice where possible.
+              Serious violations may result in immediate account termination.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="font-display font-bold text-[22px] text-brand-ink mb-3">
+              Intellectual property
+            </h2>
+            <p>
+              <strong>Your designs are yours.</strong> When you upload a design
+              to Cardly, you keep full ownership. We don&apos;t claim any rights
+              to your artwork, brand assets, or design files.
+            </p>
+            <p className="mt-3">
+              <strong>The platform is ours.</strong> The Cardly software, editor,
+              and infrastructure belong to us. You may not copy, reverse-engineer,
+              or redistribute any part of the platform.
+            </p>
+            <p className="mt-3">
+              By uploading a design, you grant Cardly a limited license to
+              process and serve it for the purpose of generating attendee cards.
+              We do not share your designs with anyone except attendees you send
+              the link to, and even then, attendees see only the rendered output
+              — not your source file.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="font-display font-bold text-[22px] text-brand-ink mb-3">
+              Plans and payment
+            </h2>
+            <p>
+              The Free plan is free forever. Paid plans (Pro and Studio) are
+              available by subscription. Current pricing is listed at
+              cardly.app/pricing. Prices may change; we will give you at least
+              30 days&apos; notice before changing the price of an active
+              subscription.
+            </p>
+            <p className="mt-3">
+              If you are on a paid plan and downgrade or cancel, access continues
+              until the end of the billing period. No partial refunds for unused
+              time.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="font-display font-bold text-[22px] text-brand-ink mb-3">
+              Cancellation and deletion
+            </h2>
+            <p>
+              You can cancel anytime from your account settings. After
+              cancellation, your account reverts to the Free plan. If you want to
+              delete your account and all associated data permanently, email
+              hello@cardly.app.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="font-display font-bold text-[22px] text-brand-ink mb-3">
+              Warranty and liability
+            </h2>
+            <p>
+              Cardly is provided &ldquo;as is.&rdquo; We try hard to keep it
+              working, but we cannot guarantee 100% uptime. We are not liable for
+              any lost data or business impact caused by service interruptions.
+            </p>
+            <p className="mt-3">
+              We are not responsible for how you or your attendees use the cards
+              generated by Cardly. You are responsible for ensuring the designs
+              you upload don&apos;t violate any laws or third-party rights.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="font-display font-bold text-[22px] text-brand-ink mb-3">
+              Changes to these terms
+            </h2>
+            <p>
+              We may update these terms as the product evolves. If we make
+              material changes, we&apos;ll email you at least 14 days before
+              they take effect. Continued use after that date means acceptance.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="font-display font-bold text-[22px] text-brand-ink mb-3">
+              Contact
+            </h2>
+            <p>
+              Questions about these terms:{" "}
+              <a
+                href="mailto:hello@cardly.app"
+                className="text-brand-primary hover:underline"
+              >
+                hello@cardly.app
+              </a>
+              .
+            </p>
+          </section>
+        </div>
+      </section>
     </>
   );
 }
