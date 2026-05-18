@@ -13,12 +13,12 @@ const FEATURES: { icon: React.ReactNode; label: string }[] = [
 
 export default function TeamPage() {
   return (
-    <div className="min-h-full flex flex-col">
+    <div className="min-h-full flex flex-col" style={{ background: '#FAF6EE' }}>
 
       {/* Page header */}
       <div
         className="relative overflow-hidden px-6 pt-7 pb-6 border-b shrink-0"
-        style={{ background: 'white', borderColor: '#E5E0D4' }}
+        style={{ background: '#FAF6EE', borderColor: '#E5E0D4' }}
       >
         <div
           className="absolute pointer-events-none"
@@ -105,13 +105,13 @@ export default function TeamPage() {
               {/* CTA row */}
               <div className="flex items-center gap-4">
                 <Link
-                  href="/pricing"
+                  href="/settings/billing"
                   className="inline-flex items-center gap-2 h-9 px-5 text-[13px] font-semibold text-white rounded-lg hover:opacity-90 transition"
-                  style={{ background: 'linear-gradient(135deg, #1F4D3A, #E8C57E)' }}
+                  style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }}
                 >
-                  Upgrade to Studio →
+                  Start Studio trial →
                 </Link>
-                <span className="text-[12px] text-[#6B7A72]">From $49/mo · cancel anytime</span>
+                <span className="text-[12px] text-[#6B7A72]">14 days free · $49/mo after · cancel anytime</span>
               </div>
             </div>
           </div>
