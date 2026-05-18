@@ -178,14 +178,19 @@ function PlanCard({ plan, billing }: { plan: Plan; billing: 'monthly' | 'yearly'
   function handleCheckout() {
     if (plan.id === 'free') { router.push('/signup'); return; }
     startTransition(async () => {
-      const res = await fetch('/api/billing/create-checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan: plan.id, billingCycle: billing === 'yearly' ? 'annual' : 'monthly' }),
-      });
-      if (res.status === 401) { router.push(`/signup?redirect=/pricing`); return; }
-      const data = await res.json();
-      if (data.url) window.location.href = data.url;
+      try {
+        const res = await fetch('/api/billing/create-checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ plan: plan.id, billingCycle: billing === 'yearly' ? 'annual' : 'monthly' }),
+        });
+        if (res.status === 401) { router.push(`/signup?redirect=/pricing`); return; }
+        if (!res.ok) { router.push('/signup'); return; }
+        const data = await res.json();
+        if (data.url) window.location.href = data.url;
+      } catch {
+        router.push('/signup');
+      }
     });
   }
 
