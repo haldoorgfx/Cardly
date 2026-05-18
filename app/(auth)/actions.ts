@@ -23,11 +23,12 @@ export async function signIn(formData: FormData) {
 export async function signUp(formData: FormData) {
   const supabase = createClient();
 
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email: formData.get("email") as string,
     password: formData.get("password") as string,
     options: {
       data: { full_name: formData.get("full_name") as string },
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/auth/callback`,
     },
   });
 
@@ -36,6 +37,12 @@ export async function signUp(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
+
+  // If email confirmation is enabled, session is null — send to check-email page
+  if (!data.session) {
+    redirect("/signup/check-email");
+  }
+
   redirect("/dashboard");
 }
 
