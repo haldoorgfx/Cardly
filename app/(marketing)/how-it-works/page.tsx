@@ -54,7 +54,7 @@ const STEPS = [
             cardly.app/c/
           </div>
           <div className="font-mono text-[15px] font-medium text-brand-ink">
-            africa-tech-festival-26
+            web-summit-26
           </div>
         </div>
         <div className="h-14 w-14 rounded-lg bg-white border border-brand-border grid place-items-center shrink-0">
@@ -95,12 +95,12 @@ const STEPS = [
         <div className="text-center">
           <div className="h-8 w-24 rounded-lg bg-white border border-brand-border mb-2 grid place-items-center">
             <span className="font-mono text-[9px] text-brand-ink/60">
-              Amara Diallo
+              Sofia Reyes
             </span>
           </div>
           <div className="h-8 w-24 rounded-lg bg-white border border-brand-border grid place-items-center">
             <span className="font-mono text-[9px] text-brand-ink/60">
-              Delegate · Senegal
+              Product Manager
             </span>
           </div>
         </div>

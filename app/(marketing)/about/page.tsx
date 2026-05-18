@@ -9,9 +9,9 @@ export default function AboutPage() {
           ABOUT
         </div>
         <h1 className="font-display font-bold text-[48px] sm:text-[60px] leading-[1.02] tracking-tight text-balance">
-          Built in Djibouti.
+          Built for every event
           <br />
-          <span className="grad-text">For the world.</span>
+          <span className="grad-text">everywhere.</span>
         </h1>
       </section>
 
@@ -19,10 +19,10 @@ export default function AboutPage() {
       <section className="max-w-[900px] mx-auto px-6 pb-16">
         <div className="prose-like space-y-6 text-[17px] text-brand-ink/75 leading-[1.75]">
           <p>
-            I kept seeing the same problem at events across East Africa. An
-            organizer hires a designer to make beautiful "I&apos;m attending"
-            social cards. The design is done. It looks great. Then the question
-            comes: how do 400 attendees get their own version?
+            I kept seeing the same problem at events. An organizer hires a
+            designer to make beautiful &ldquo;I&apos;m attending&rdquo; social
+            cards. The design is done. It looks great. Then the question comes:
+            how do 400 attendees get their own version?
           </p>
           <p>
             The answer, every time, was the same: a Canva template, a Dropbox
@@ -63,8 +63,8 @@ export default function AboutPage() {
               body: "Your design file never becomes our template. You own your craft. We make it shareable without touching a pixel.",
             },
             {
-              title: "Mobile-first, always",
-              body: "Most of our users' attendees are opening links on Android phones on 4G. That's the device we build for first.",
+              title: "Works anywhere",
+              body: "Built to run on any device, any connection speed. The attendee experience works on a phone in a conference hall or a slow hotel Wi-Fi.",
             },
             {
               title: "Honest software",
@@ -101,9 +101,9 @@ export default function AboutPage() {
             </div>
             <div className="font-display font-bold text-[22px]">Abdalla</div>
             <p className="mt-2 text-[15px] text-brand-ink/65 leading-relaxed">
-              Based in Djibouti. Building Cardly alone for now. If you&apos;re
-              interested in working on this — as a designer, engineer, or growth
-              person — email me.
+              Building Cardly alone for now. If you&apos;re interested in
+              working on this — as a designer, engineer, or growth person —
+              email me.
             </p>
             <a
               href="mailto:hello@cardly.app"

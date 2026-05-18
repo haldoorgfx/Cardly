@@ -93,7 +93,7 @@ function HeroSection() {
                     <span className="h-2.5 w-2.5 rounded-full bg-[#27c83f]" />
                   </div>
                   <div className="text-[11px] font-mono text-brand-ink/50">
-                    cardly.app/edit/aya-summit-26
+                    cardly.app/edit/web-summit-26
                   </div>
                   <div className="text-[11px] font-medium text-brand-primary">
                     ● Saved
@@ -155,13 +155,13 @@ function HeroSection() {
                         }}
                       />
                       <div className="absolute top-3 left-4 right-4 flex items-center justify-between text-white/80 text-[9px] font-mono tracking-widest">
-                        <span>AFRICA · TECH · FESTIVAL</span>
+                        <span>GLOBAL · TECH · SUMMIT</span>
                         <span>NOV 14–16 · 26</span>
                       </div>
                       <div className="absolute top-9 left-4 right-4 text-white font-display font-bold text-[16px] leading-tight">
                         I&apos;m attending
                         <br />
-                        Africa Tech Festival.
+                        Tech Summit 2026.
                       </div>
                       <div className="zone absolute bottom-4 left-4 h-14 w-14 rounded-full border-[1.5px] border-dashed border-brand-primary bg-white/10 backdrop-blur-sm">
                         <span className="absolute -top-5 left-0 text-[9px] font-mono text-brand-primary bg-white px-1.5 py-0.5 rounded">
@@ -224,7 +224,7 @@ function HeroSection() {
                   <div className="h-full w-full flex flex-col">
                     <div className="px-3 pt-7 pb-2 flex items-center gap-1.5 text-[8px] font-mono text-brand-ink/60">
                       <span className="h-3.5 w-3.5 rounded grad-bg" />
-                      AFRICA TECH FESTIVAL
+                      TECH SUMMIT 2026
                     </div>
                     <div
                       className="mx-3 rounded-xl overflow-hidden relative aspect-[3/4]"
@@ -234,13 +234,13 @@ function HeroSection() {
                       }}
                     >
                       <div className="absolute top-2 left-2 right-2 flex items-center justify-between text-white/80 text-[6px] font-mono tracking-widest">
-                        <span>AFRICA · TECH · FESTIVAL</span>
+                        <span>GLOBAL · TECH · SUMMIT</span>
                         <span>NOV 14–16</span>
                       </div>
                       <div className="absolute top-6 left-2 right-2 text-white font-display font-bold text-[10px] leading-tight">
                         I&apos;m attending
                         <br />
-                        Africa Tech Festival.
+                        Tech Summit 2026.
                       </div>
                       <div
                         className="absolute bottom-2 left-2 h-9 w-9 rounded-full overflow-hidden"
@@ -250,15 +250,15 @@ function HeroSection() {
                         }}
                       >
                         <span className="absolute inset-0 grid place-items-center text-white font-display font-bold text-[10px]">
-                          AO
+                          JL
                         </span>
                       </div>
                       <div className="absolute bottom-3 left-12 right-2 text-white">
                         <div className="font-display font-semibold text-[8px] leading-tight">
-                          Adaeze Okonkwo
+                          Jordan Lee
                         </div>
                         <div className="font-mono text-[6px] opacity-80">
-                          Lead Designer · Flutterwave
+                          Lead Designer · Figma
                         </div>
                       </div>
                     </div>
@@ -267,14 +267,14 @@ function HeroSection() {
                         Full name
                       </div>
                       <div className="h-6 rounded-md border border-brand-border px-2 flex items-center font-display font-medium">
-                        Adaeze Okonkwo
+                        Jordan Lee
                         <span className="caret ml-0.5 w-px h-2.5 bg-brand-primary inline-block" />
                       </div>
                       <div className="text-brand-ink/50 font-medium pt-1">
                         Role · Company
                       </div>
                       <div className="h-6 rounded-md border border-brand-border px-2 flex items-center font-display">
-                        Lead Designer · Flutterwave
+                        Lead Designer · Figma
                       </div>
                     </div>
                     <div className="mt-auto p-3">
@@ -467,42 +467,42 @@ function HowItWorksSection() {
 const CARDS = [
   {
     bg: "linear-gradient(160deg,#1b1240,#4b2d7a)",
-    label: "GITEX·AFRICA",
+    label: "WEB·SUMMIT·26",
     year: "·26",
-    title: "I'm at GITEX Africa.",
+    title: "I'm at Web Summit.",
     avatarBg: "linear-gradient(135deg,#ffd28a,#f8a4d8)",
-    name: "Kwame Mensah",
-    role: "CTO · MTN Group",
+    name: "Jordan Lee",
+    role: "CTO · Stripe",
     textColor: "text-white",
   },
   {
     bg: "linear-gradient(160deg,#fff,#ffe7f3)",
-    label: "LAGOS·DESIGN·WEEK",
+    label: "DESIGN·WEEK·BERLIN",
     year: "",
-    title: "Speaking at\nLagos Design Week.",
+    title: "Speaking at\nDesign Week Berlin.",
     avatarBg: "linear-gradient(135deg,#6c63ff,#f8a4d8)",
-    name: "Zola Khumalo",
+    name: "Sofia Chen",
     role: "Design Director",
     textColor: "text-brand-ink",
   },
   {
     bg: "linear-gradient(160deg,#0a3d2e,#1f8a5b)",
-    label: "PAN-AFRICAN YOUTH FORUM '26",
+    label: "GLOBAL YOUTH SUMMIT '26",
     year: "",
-    title: "Pan-African\nYouth Forum '26",
+    title: "Global\nYouth Summit '26",
     avatarBg: "linear-gradient(135deg,#f8a4d8,#ffd28a)",
-    name: "Amara Diallo",
-    role: "Delegate · Senegal",
+    name: "Priya Sharma",
+    role: "Delegate · India",
     textColor: "text-white",
   },
   {
     bg: "linear-gradient(160deg,#6c63ff,#f8a4d8)",
-    label: "AFRICA·AI·SUMMIT",
+    label: "GLOBAL·AI·SUMMIT",
     year: "",
     title: "I'M\nBUILDING\nWITH AI.",
     avatarBg: "",
-    name: "Tendai Moyo",
-    role: "Founder · Lelapa AI",
+    name: "Marcus Kim",
+    role: "Founder · Atlas AI",
     textColor: "text-white",
   },
 ];

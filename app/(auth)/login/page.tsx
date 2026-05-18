@@ -212,8 +212,8 @@ function AuthVisual() {
             className="absolute top-4 left-4 right-4 flex items-center justify-between text-white/80 font-mono"
             style={{ fontSize: 8, letterSpacing: "0.18em" }}
           >
-            <span>AFRICA · TECH · FESTIVAL</span>
-            <span>LAGOS</span>
+            <span>GLOBAL · TECH · SUMMIT</span>
+            <span>2026</span>
           </div>
           <div
             className="absolute top-12 left-4 right-4 text-white font-display font-bold leading-[0.98]"
@@ -229,7 +229,7 @@ function AuthVisual() {
                 color: "transparent",
               }}
             >
-              Africa Tech Festival.
+              Tech Summit 2026.
             </span>
           </div>
           <div className="absolute bottom-4 left-4 right-4 flex items-end gap-3">
@@ -239,17 +239,17 @@ function AuthVisual() {
                 background: "linear-gradient(135deg,#ffd28a,#f8a4d8)",
               }}
             >
-              AO
+              JL
             </div>
             <div className="flex-1 min-w-0 text-white pb-1">
               <div className="font-display font-bold text-[16px] leading-tight truncate">
-                Adaeze Okonkwo
+                Jordan Lee
               </div>
               <div
                 className="font-mono opacity-80 truncate"
                 style={{ fontSize: 9 }}
               >
-                Lead Designer · Flutterwave
+                Lead Designer · Figma
               </div>
             </div>
           </div>
@@ -264,9 +264,9 @@ function AuthVisual() {
         </div>
         <div className="mt-3 flex items-center gap-3 text-white/70 text-[12px] font-mono tracking-wide">
           <div className="h-8 w-8 rounded-full bg-white/20 grid place-items-center text-white text-[11px] font-display font-bold shrink-0">
-            KM
+            MK
           </div>
-          <div>KWAME MENSAH · ORGANIZER · GHANA TECH WEEK</div>
+          <div>MARCUS KIM · ORGANIZER · WEB SUMMIT</div>
         </div>
       </div>
     </div>

@@ -14,7 +14,7 @@ A real checklist for a real launch. Check every box yourself, on a real phone, b
 - [ ] `/contact` page exists and loads
 - [ ] Contact email (hello@cardly.app) actually receives email — test it
 - [ ] WhatsApp number on `/contact` is your real number
-- [ ] Footer city is correct (Djibouti, not Lagos)
+- [ ] Footer copy is accurate and up to date
 - [ ] No fake stats on the landing page
 - [ ] Pricing page only lists features that are built
 

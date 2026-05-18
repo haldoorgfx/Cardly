@@ -9,7 +9,7 @@ export default function ContactPage() {
           Get in touch.
         </h1>
         <p className="text-[17px] text-brand-ink/65 max-w-[480px] leading-relaxed mb-14">
-          Based in Djibouti. We reply within 24 hours, usually faster.
+          We reply within 24 hours, usually faster.
         </p>
 
         <div className="grid sm:grid-cols-2 gap-5">
@@ -46,7 +46,7 @@ export default function ContactPage() {
 
           {/* WhatsApp */}
           <a
-            href="https://wa.me/25377000000"
+            href="https://wa.me/message/cardly"
             target="_blank"
             rel="noopener noreferrer"
             className="group rounded-2xl border border-brand-border bg-white p-7 hover:shadow-lift hover:border-brand-primary/30 transition"

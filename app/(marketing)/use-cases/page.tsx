@@ -7,14 +7,14 @@ const USE_CASES = [
     textColor: "text-white",
     scenarios: [
       {
-        event: "Africa Tech Festival 2026",
+        event: "TechCrunch Disrupt 2026",
         description:
-          'Speakers get a branded "I\'m speaking at ATF" card. Attendees get an "I\'m attending" version with their name and company. Both versions, one design, one link per audience segment.',
+          'Speakers get a branded "I\'m speaking at Disrupt" card. Attendees get an "I\'m attending" version with their name and company. Both versions, one design, one link per audience segment.',
       },
       {
-        event: "GITEX Africa",
+        event: "Web Summit",
         description:
-          "300 exhibitors, 4,000 registered attendees. The design team uploads one card template, sets two zones (name + company), and shares the link in the confirmation email. Cards are downloaded before the event opens.",
+          "70,000 registered attendees. The design team uploads one card template, sets two zones (name + company), and shares the link in the confirmation email. Cards are downloaded before the event opens.",
       },
     ],
   },
@@ -24,14 +24,14 @@ const USE_CASES = [
     textColor: "text-white",
     scenarios: [
       {
-        event: "Pan-African Youth Forum",
+        event: "Global Youth Summit",
         description:
-          "Delegates from 30 countries, each with a different title (Delegate, Observer, Facilitator). One card design, one zone for role — each person fills in their own. No manual editing by the organizer.",
+          "Delegates from 60 countries, each with a different title (Delegate, Observer, Facilitator). One card design, one zone for role — each person fills in their own. No manual editing by the organizer.",
       },
       {
         event: "University Entrepreneurship Summit",
         description:
-          "Student organizers with zero design budget. They use a Canva-exported PNG as the background, define a photo zone and name zone, publish, and paste the link into WhatsApp groups.",
+          "Student organizers with zero design budget. They use a Figma-exported PNG as the background, define a photo zone and name zone, publish, and paste the link into the event group chat.",
       },
     ],
   },
@@ -41,12 +41,12 @@ const USE_CASES = [
     textColor: "text-white",
     scenarios: [
       {
-        event: "Lagos Design Week",
+        event: "Milan Design Week",
         description:
           "The festival's visual identity is already designed — bold typography, specific Pantone colors. Cardly lets that identity extend to every attendee's social post, without giving attendees access to the source files.",
       },
       {
-        event: "Nairobi Film Festival",
+        event: "Tribeca Film Festival",
         description:
           "Film fans share that they're attending specific screenings. The card design changes per screening; the zone for the film title is editable. Organic social reach, zero extra work from the marketing team.",
       },
@@ -58,14 +58,14 @@ const USE_CASES = [
     textColor: "text-white",
     scenarios: [
       {
-        event: "IGAD Summit",
+        event: "G20 Business Forum",
         description:
           "Official delegate cards with country flags and ministry titles. The design follows protocol guidelines — Cardly just makes each delegate's name and role personalized without reprinting anything.",
       },
       {
         event: "Brand Activation Campaign",
         description:
-          "A telecom running a regional campaign gives supporters a branded card to share on Instagram. The campaign team tracks how many cards were generated per city from the analytics dashboard.",
+          "A global brand running a product launch campaign gives supporters a branded card to share on Instagram. The campaign team tracks how many cards were generated per market from the analytics dashboard.",
       },
     ],
   },
@@ -80,9 +80,9 @@ const USE_CASES = [
           "Supporters share a card showing their pledge: their name, their city, their commitment. The organizer defined the zones; each supporter fills in their own version in 30 seconds.",
       },
       {
-        event: "Women in Tech Africa",
+        event: "Women in Tech Global",
         description:
-          "Conference attendees get a card template designed by the organization's in-house designer. No template tool involved — the designer's Figma export becomes the card background.",
+          "Conference attendees get a card template designed by the organization's in-house designer. No template tool involved — the designer's export becomes the card background.",
       },
     ],
   },
@@ -92,7 +92,7 @@ const USE_CASES = [
     textColor: "text-white",
     scenarios: [
       {
-        event: "African Innovation Awards",
+        event: "Global Innovation Awards",
         description:
           "Nominees share a card announcing their nomination. Winners get a different card — same event, two published links. The design team controls which version each group gets.",
       },

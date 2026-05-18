@@ -13,7 +13,7 @@ export function Footer() {
               <span className="font-display font-bold text-[17px]">Cardly</span>
             </Link>
             <p className="mt-4 text-[14px] text-brand-ink/60 max-w-sm leading-relaxed">
-              Designer-native attendance cards. Built in Djibouti.
+              Designer-native attendance cards for events worldwide.
             </p>
             <div className="mt-6 flex items-center gap-2">
               <span className="text-[12px] font-mono text-brand-ink/40">
@@ -92,7 +92,7 @@ export function Footer() {
         </div>
 
         <div className="mt-12 flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-brand-border text-[12px] font-mono text-brand-ink/50">
-          <span>© 2026 Cardly. Made in Djibouti.</span>
+          <span>© 2026 Cardly.</span>
         </div>
       </div>
     </footer>
