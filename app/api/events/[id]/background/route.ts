@@ -37,7 +37,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   const { error: patchError } = await admin
     .from('events')
-    .update({ background_url: backgroundUrl })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .update({ background_url: backgroundUrl } as any)
     .eq('id', id)
     .eq('user_id', user.id);
 
