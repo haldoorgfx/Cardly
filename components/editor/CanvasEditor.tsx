@@ -63,10 +63,30 @@ export default function CanvasEditor({ eventId, eventName, backgroundUrl, initia
   const [editName, setEditName] = useState(false);
   const [savedAt, setSavedAt] = useState('just now');
   const [history, setHistory] = useState<HistoryState>({ past: [], future: [] });
+  const [bgUrl, setBgUrl] = useState(backgroundUrl);
+  const [uploading, setUploading] = useState(false);
   const stageRef = useRef<HTMLDivElement>(null);
+  const bgInputRef = useRef<HTMLInputElement>(null);
   const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const zonesRef = useRef(zones);
   zonesRef.current = zones;
+
+  const handleBgUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    const fd = new FormData();
+    fd.append('file', file);
+    const res = await fetch(`/api/events/${eventId}/background`, { method: 'POST', body: fd });
+    const json = await res.json();
+    if (res.ok) {
+      setBgUrl(json.background_url);
+    } else {
+      alert(json.error ?? 'Upload failed');
+    }
+    setUploading(false);
+    e.target.value = '';
+  }, [eventId]);
 
   const selected = zones.find(z => z.id === selectedId) ?? null;
 
@@ -364,12 +384,29 @@ export default function CanvasEditor({ eventId, eventName, backgroundUrl, initia
           <div className="mt-auto p-3 border-t border-[#e5e5ea]">
             <div className="text-[11px] font-mono tracking-widest text-[#0f0f1a]/40 mb-2">BACKGROUND</div>
             <div className="flex items-center gap-3 rounded-xl border border-[#e5e5ea] p-2.5">
-              <div className="h-9 w-9 rounded-md shrink-0 bg-cover bg-center" style={{ backgroundImage: `url(${backgroundUrl})` }} />
+              <div className="h-9 w-9 rounded-md shrink-0 bg-cover bg-center" style={{ backgroundImage: `url(${bgUrl})` }} />
               <div className="flex-1 min-w-0">
                 <div className="text-[12px] font-medium truncate">Design background</div>
                 <div className="text-[10px] font-mono text-[#0f0f1a]/45">{CW} × {CH}</div>
               </div>
+              <button
+                onClick={() => bgInputRef.current?.click()}
+                disabled={uploading}
+                title="Replace background"
+                className="h-7 w-7 rounded-md grid place-items-center text-[#0f0f1a]/50 hover:bg-[#fafafa] hover:text-[#6c63ff] disabled:opacity-40 transition shrink-0"
+              >
+                {uploading
+                  ? <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12a9 9 0 1 1-6.22-8.56"/></svg>
+                  : <Icon d={I.upload} size={14} />}
+              </button>
             </div>
+            <input
+              ref={bgInputRef}
+              type="file"
+              accept="image/png,image/jpeg"
+              className="hidden"
+              onChange={handleBgUpload}
+            />
           </div>
         </aside>
 
@@ -388,7 +425,7 @@ export default function CanvasEditor({ eventId, eventName, backgroundUrl, initia
             >
               {/* Background image */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={backgroundUrl} alt="" className="absolute inset-0 w-full h-full object-cover rounded-md" draggable={false} />
+              <img src={bgUrl} alt="" className="absolute inset-0 w-full h-full object-cover rounded-md" draggable={false} />
 
               {/* Grid overlay */}
               {grid && (
