@@ -3,8 +3,7 @@ import { stripe } from '@/lib/billing/stripe';
 import { syncSubscription, handleCustomerDeleted } from '@/lib/billing/sync';
 import type Stripe from 'stripe';
 
-// Next.js: disable body parsing so we can verify the raw signature
-export const config = { api: { bodyParser: false } };
+export const runtime = 'nodejs';
 
 const HANDLED_EVENTS = new Set([
   'customer.subscription.created',
