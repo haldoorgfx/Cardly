@@ -4,8 +4,14 @@
     {
       "name": "Cardly Dev Server",
       "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
-      "runtimeArgs": ["node_modules/next/dist/bin/next", "dev"],
-      "port": 3000
+      "runtimeArgs": [
+        "C:\\Users\\cabda\\cardly\\node_modules\\next\\dist\\bin\\next",
+        "dev",
+        "--cwd",
+        "C:\\Users\\cabda\\cardly"
+      ],
+      "port": 3000,
+      "autoPort": false
     }
   ]
 }

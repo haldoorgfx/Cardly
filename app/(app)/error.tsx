@@ -11,9 +11,9 @@ export default function AppError({ error, reset }: { error: Error & { digest?: s
   return (
     <div className="flex-1 grid place-items-center px-6 py-16">
       <div className="text-center max-w-[400px]">
-        <div className="text-[11px] font-mono tracking-widest text-[#0f0f1a]/40 mb-4">ERROR</div>
+        <div className="text-[11px] font-mono tracking-widest text-[#0F1F18]/40 mb-4">ERROR</div>
         <h2 className="font-display font-bold text-[28px] leading-tight">Something went wrong.</h2>
-        <p className="text-[14px] text-[#0f0f1a]/60 mt-3 leading-relaxed">
+        <p className="text-[14px] text-[#0F1F18]/60 mt-3 leading-relaxed">
           An unexpected error occurred. Try refreshing, or go back to the dashboard.
         </p>
         <div className="mt-7 flex items-center justify-center gap-3">
@@ -25,7 +25,7 @@ export default function AppError({ error, reset }: { error: Error & { digest?: s
           </button>
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 h-10 px-5 rounded-xl border border-[#e5e5ea] text-[13.5px] font-medium hover:bg-white transition"
+            className="inline-flex items-center gap-2 h-10 px-5 rounded-xl border border-[#E5E0D4] text-[13.5px] font-medium hover:bg-white transition"
           >
             Dashboard
           </Link>

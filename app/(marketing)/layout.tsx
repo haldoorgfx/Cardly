@@ -1,5 +1,5 @@
-import { Nav } from "@/components/shared/Nav";
-import { Footer } from "@/components/shared/Footer";
+import { MarketingNav } from '@/components/marketing/MarketingNav';
+import { MarketingFooter } from '@/components/marketing/MarketingFooter';
 
 export default function MarketingLayout({
   children,
@@ -8,9 +8,9 @@ export default function MarketingLayout({
 }) {
   return (
     <>
-      <Nav />
+      <MarketingNav />
       <main>{children}</main>
-      <Footer />
+      <MarketingFooter />
     </>
   );
 }

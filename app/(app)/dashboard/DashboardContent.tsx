@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { LayoutGrid, List, Search, Plus } from 'lucide-react';
 import EventCard from './EventCard';
 import type { Database } from '@/types/database';
 
@@ -41,25 +42,40 @@ export default function DashboardContent({ events, atLimit }: Props) {
     });
 
   const showNewTile = !atLimit && filter !== 'archived';
+  const FILTERS: { key: Filter; label: string }[] = [
+    { key: 'all', label: 'All' },
+    { key: 'active', label: 'Active' },
+    { key: 'draft', label: 'Draft' },
+    { key: 'archived', label: 'Archived' },
+  ];
 
   return (
     <>
       {/* Filter + sort bar */}
-      <div className="mt-9 flex items-center justify-between flex-wrap gap-3">
-        {/* Filter tabs */}
-        <div className="flex items-center gap-1 p-1 rounded-xl bg-white border border-[#e5e5ea]">
-          {(['all', 'active', 'draft', 'archived'] as Filter[]).map(f => (
+      <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
+        {/* Pill tabs — C2 style */}
+        <div
+          className="flex items-center gap-1 p-1 rounded-xl overflow-x-auto"
+          style={{ background: 'white', border: '1px solid #E5E0D4', scrollbarWidth: 'none' }}
+          role="tablist"
+        >
+          {FILTERS.map(f => (
             <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`text-[13px] font-medium px-3.5 py-1.5 rounded-lg transition capitalize ${
-                filter === f
-                  ? 'bg-[#fafafa] text-[#0f0f1a]'
-                  : 'text-[#0f0f1a]/60 hover:text-[#0f0f1a]'
-              }`}
+              key={f.key}
+              onClick={() => setFilter(f.key)}
+              className="shrink-0 text-[13px] font-medium px-3 py-1.5 rounded-lg transition"
+              style={filter === f.key
+                ? { background: '#E8EFEB', color: '#0F1F18' }
+                : { color: '#6B7A72' }
+              }
             >
-              {f === 'all' ? 'All' : f === 'active' ? 'Active' : f === 'draft' ? 'Draft' : 'Archived'}
-              <span className="ml-1.5 text-[#0f0f1a]/40 font-mono text-[11px]">{counts[f]}</span>
+              {f.label}
+              <span
+                className="ml-1.5 text-[11px] font-mono"
+                style={{ color: filter === f.key ? '#3A4A42' : '#6B7A72' }}
+              >
+                {counts[f.key]}
+              </span>
             </button>
           ))}
         </div>
@@ -69,38 +85,31 @@ export default function DashboardContent({ events, atLimit }: Props) {
           <select
             value={sort}
             onChange={e => setSort(e.target.value as SortKey)}
-            className="text-[13px] text-[#0f0f1a]/70 bg-white border border-[#e5e5ea] px-3 py-2 rounded-xl hover:bg-[#fafafa] transition outline-none cursor-pointer"
+            className="h-8 text-[12px] rounded-lg px-2.5 cursor-pointer outline-none transition"
+            style={{ background: 'white', border: '1px solid #E5E0D4', color: '#3A4A42' }}
           >
-            <option value="recent">Sort: Most recent</option>
-            <option value="downloads">Sort: Downloads</option>
-            <option value="views">Sort: Views</option>
+            <option value="recent">Most recent</option>
+            <option value="downloads">Downloads</option>
+            <option value="views">Views</option>
           </select>
 
-          <div className="flex items-center bg-white border border-[#e5e5ea] rounded-xl p-1">
+          {/* Grid / list toggle */}
+          <div className="flex items-center rounded-xl overflow-hidden" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
             <button
               onClick={() => setView('grid')}
-              className={`h-7 w-7 rounded-lg grid place-items-center transition ${
-                view === 'grid' ? 'bg-[#fafafa] text-[#0f0f1a]' : 'text-[#0f0f1a]/40 hover:text-[#0f0f1a]'
-              }`}
+              className="h-8 w-8 grid place-items-center transition"
+              style={view === 'grid' ? { background: '#E8EFEB', color: '#0F1F18' } : { color: '#6B7A72' }}
               title="Grid view"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
-                <rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" />
-              </svg>
+              <LayoutGrid size={13} strokeWidth={1.8} />
             </button>
             <button
               onClick={() => setView('list')}
-              className={`h-7 w-7 rounded-lg grid place-items-center transition ${
-                view === 'list' ? 'bg-[#fafafa] text-[#0f0f1a]' : 'text-[#0f0f1a]/40 hover:text-[#0f0f1a]'
-              }`}
+              className="h-8 w-8 grid place-items-center transition border-l"
+              style={view === 'list' ? { background: '#E8EFEB', color: '#0F1F18', borderColor: '#E5E0D4' } : { color: '#6B7A72', borderColor: '#E5E0D4' }}
               title="List view"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                <line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" />
-                <line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" />
-                <line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" />
-              </svg>
+              <List size={13} strokeWidth={1.8} />
             </button>
           </div>
         </div>
@@ -108,20 +117,22 @@ export default function DashboardContent({ events, atLimit }: Props) {
 
       {/* Empty filter state */}
       {filtered.length === 0 && !showNewTile ? (
-        <div className="mt-10 rounded-2xl border border-dashed border-[#e5e5ea] bg-white p-12 text-center">
-          <div className="mx-auto h-12 w-12 rounded-2xl bg-[#fafafa] grid place-items-center text-[#0f0f1a]/40">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-              <circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3" />
-            </svg>
+        <div
+          className="rounded-2xl border border-dashed p-12 text-center"
+          style={{ borderColor: '#E5E0D4', background: 'white' }}
+        >
+          <div className="mx-auto h-11 w-11 rounded-xl grid place-items-center mb-4" style={{ background: '#E8EFEB' }}>
+            <Search size={18} strokeWidth={1.8} color="#1F4D3A" />
           </div>
-          <div className="mt-4 font-display font-semibold">No events match that filter.</div>
-          <p className="text-[14px] text-[#0f0f1a]/55 mt-1">Switch the filter, or create a new event.</p>
+          <div className="font-display font-semibold text-[15px] text-[#0F1F18]">No events match that filter.</div>
+          <p className="text-[13px] text-[#6B7A72] mt-1">Switch the filter or clear your search.</p>
         </div>
       ) : (
-        <div className={`mt-6 ${view === 'grid'
-          ? 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5'
-          : 'flex flex-col gap-3'
-        }`}>
+        <div className={
+          view === 'grid'
+            ? 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4'
+            : 'flex flex-col gap-2'
+        }>
           {filtered.map(event => (
             <EventCard key={event.id} event={event} compact={view === 'list'} />
           ))}
@@ -131,28 +142,36 @@ export default function DashboardContent({ events, atLimit }: Props) {
             view === 'list' ? (
               <Link
                 href="/events/new"
-                className="group flex items-center gap-4 bg-white rounded-2xl border-2 border-dashed border-[#e5e5ea] hover:border-[#6c63ff]/40 hover:bg-[#fafafa] transition px-5 py-4"
+                className="flex items-center gap-3 rounded-xl border border-dashed px-4 py-3 text-[13px] font-medium transition hover:opacity-80"
+                style={{ borderColor: 'rgba(31,77,58,0.3)', color: '#1F4D3A', background: 'rgba(31,77,58,0.02)' }}
               >
-                <div className="h-10 w-10 rounded-xl grid place-items-center text-white shrink-0" style={{ background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)' }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
-                    <path d="M12 5v14M5 12h14" />
-                  </svg>
+                <div
+                  className="h-7 w-7 rounded-lg grid place-items-center shrink-0 text-white"
+                  style={{ background: '#1F4D3A' }}
+                >
+                  <Plus size={11} strokeWidth={2.8} />
                 </div>
-                <span className="font-display font-semibold text-[14px] text-[#0f0f1a]/60 group-hover:text-[#6c63ff] transition">Create a new event</span>
+                New event
               </Link>
             ) : (
               <Link
                 href="/events/new"
-                className="group rounded-2xl border-2 border-dashed border-[#e5e5ea] hover:border-[#6c63ff]/40 hover:bg-white transition flex flex-col items-center justify-center gap-3 p-8 text-center"
-                style={{ minHeight: 280 }}
+                className="group rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-3 text-center p-6 transition hover:border-opacity-60"
+                style={{ minHeight: 220, borderColor: 'rgba(31,77,58,0.25)', background: 'rgba(31,77,58,0.015)' }}
               >
-                <div className="h-14 w-14 rounded-2xl grid place-items-center text-white group-hover:scale-105 transition" style={{ background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)', boxShadow: '0 8px 24px rgba(108,99,255,0.25)' }}>
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
-                    <path d="M12 5v14M5 12h14" />
-                  </svg>
+                <div
+                  className="h-14 w-14 rounded-2xl grid place-items-center text-white group-hover:scale-105 transition-transform"
+                  style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)', boxShadow: '0 8px 20px rgba(31,77,58,0.3)' }}
+                >
+                  <Plus size={22} strokeWidth={2.4} />
                 </div>
-                <div className="font-display font-semibold text-[16px]">Create a new event</div>
-                <div className="text-[13px] text-[#0f0f1a]/55 max-w-[220px]">Upload your design and ship a share link in minutes.</div>
+                <div>
+                  <div className="font-display font-semibold text-[15px] text-[#0F1F18]">Create a new event</div>
+                  <div className="text-[13px] text-[#6B7A72] mt-1 max-w-[200px] leading-snug">
+                    Upload your design and ship a share link in under five minutes.
+                  </div>
+                </div>
+                <div className="text-[11px] font-mono text-[#1F4D3A]">⌘ N to start</div>
               </Link>
             )
           )}

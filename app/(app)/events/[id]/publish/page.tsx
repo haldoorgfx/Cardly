@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import PublishClient from './PublishClient';
@@ -13,7 +15,7 @@ export default async function PublishPage({ params }: { params: Promise<{ id: st
 
   const { data: event } = await admin
     .from('events')
-    .select('*')
+    .select('id, name, slug, status')
     .eq('id', id)
     .eq('user_id', user.id)
     .single();
@@ -31,8 +33,19 @@ export default async function PublishPage({ params }: { params: Promise<{ id: st
     if (updated) slug = updated.slug;
   }
 
-  const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL}/c/${slug}`;
-  const zones = (event.zones as unknown as Zone[]) ?? [];
+  // Get total zones from all variants
+  const { data: variants } = await admin
+    .from('event_variants')
+    .select('zones, background_url, background_width, background_height')
+    .eq('event_id', id)
+    .order('position', { ascending: true });
+
+  const firstVariant = variants?.[0];
+  const zonesCount = variants?.reduce((sum, v) => {
+    return sum + (Array.isArray(v.zones) ? (v.zones as unknown[]).length : 0);
+  }, 0) ?? 0;
+
+  const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/c/${slug}`;
 
   return (
     <PublishClient
@@ -40,8 +53,11 @@ export default async function PublishPage({ params }: { params: Promise<{ id: st
       eventName={event.name}
       shareUrl={shareUrl}
       slug={slug}
-      zonesCount={zones.length}
-      backgroundUrl={event.background_url ?? ''}
+      zonesCount={zonesCount}
+      backgroundUrl={firstVariant?.background_url ?? ''}
+      zones={(firstVariant?.zones as unknown as Zone[]) ?? []}
+      bgW={firstVariant?.background_width ?? 1080}
+      bgH={firstVariant?.background_height ?? 1350}
     />
   );
 }

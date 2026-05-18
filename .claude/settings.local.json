@@ -8,10 +8,24 @@
       "mcp__Claude_in_Chrome__tabs_context_mcp",
       "mcp__Claude_in_Chrome__browser_batch",
       "mcp__Claude_Preview__preview_start",
-      "Bash(cmd /c \"cd C:\\\\Users\\\\cabda\\\\cardly && pnpm tsc --noEmit 2>&1\")",
-      "Bash(cd \"C:\\\\Users\\\\cabda\\\\cardly\\\\.clone\\\\worktrees\\\\nostalgic-dewdney-51f3cd\")",
-      "Bash(node -e \"const s = require\\('stripe'\\); console.log\\(s.LATEST_API_VERSION\\)\")",
-      "Bash(node -e \"const s = require\\('C:/Users/cabda/cardly/.claude/worktrees/nostalgic-dewdney-51f3cd/node_modules/stripe'\\); console.log\\(s.LATEST_API_VERSION\\)\")"
+      "mcp__Claude_in_Chrome__computer",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(npx tsc *)",
+      "PowerShell($content = Get-Content \"C:\\\\Users\\\\Abdillahi Ch\\\\Projects\\\\Cardly\\\\components\\\\editor\\\\CanvasEditor.tsx\" -Raw -Encoding UTF8; $allDiv = \\([regex]::Matches\\($content, '<div[\\\\s>]'\\)\\).Count + \\([regex]::Matches\\($content, '<div$', 'Multiline'\\)\\).Count; Write-Host \"Total <div \\(all types\\): $allDiv\"; \\([regex]::Matches\\($content, '<div[\\\\s>]'\\)\\).Count, \\([regex]::Matches\\($content, '<div$', 'Multiline'\\)\\).Count | ForEach-Object -Begin {$t=@\\('<div[\\\\s>]','<div EOL'\\)} -Process {Write-Host \\(\" {0}: {1}\" -f $t[$i++],$_\\)})",
+      "PowerShell($lines = Get-Content \"C:\\\\Users\\\\Abdillahi Ch\\\\Projects\\\\Cardly\\\\components\\\\editor\\\\CanvasEditor.tsx\" -Encoding UTF8; $i = 730; foreach \\($line in $lines[730..870]\\) { $i++; if \\($line -match '<div[\\\\s>]' -or $line -match '<div$'\\) { Write-Host \"L$i : $\\($line.Trim\\(\\)\\)\" } })",
+      "Bash(pnpm build *)",
+      "Bash(pnpm dev *)",
+      "Bash(git pull *)",
+      "Bash(git -C \"C:/Users/cabda/cardly\" add \"app/\\(app\\)/settings/SettingsClient.tsx\")",
+      "Bash(git -C \"C:/Users/cabda/cardly\" status)",
+      "Bash(npx kill-port *)",
+      "Bash(cp \"/c/Users/cabda/cardly/.claude/worktrees/stoic-neumann-8ba4bd/app/c/[slug]/AttendeeClient.tsx\" \"/c/Users/cabda/cardly/app/c/[slug]/AttendeeClient.tsx\")",
+      "PowerShell($p = \\(Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue | Where-Object State -eq 'Listen'\\).OwningProcess; if \\($p\\) { Stop-Process -Id $p -Force; Write-Output \"Killed PID $p\" } else { Write-Output \"Port 3000 free\" })",
+      "Bash(npx next *)",
+      "Bash(node -e ' *)",
+      "Bash(git checkout *)"
     ]
   }
 }

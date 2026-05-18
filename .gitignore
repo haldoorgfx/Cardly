@@ -34,3 +34,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+.vercel
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# Local test render outputs
+test-*.png

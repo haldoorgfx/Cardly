@@ -23,7 +23,7 @@ Cardly is a SaaS tool that lets event organizers and designers create personaliz
 
 ## Design Handoff
 
-The folder `cardly-handoff/cardly/project/` contains 13 HTML prototypes exported from Claude Design. **These are the source of truth for all UI.**
+The folder `cardly-handoff/cardly/project/` contains 13 HTML prototypes exported from Claude Design. **These are the source of truth for LAYOUT, STRUCTURE, SPACING, TYPE SIZES, ANIMATIONS, AND COMPONENT ANATOMY.**
 
 Files to read:
 - A1 Landing Page.html
@@ -39,36 +39,68 @@ Files to read:
 - E2 Preview State.html
 - E3 Success.html
 
-**Rule:** Read the HTML files directly. Match colors, spacing, fonts, shadows, animations exactly. No reinterpretation. No "I think this looks better."
+**Rule:** Read the HTML files directly. Match layout, spacing, type sizes, animations, component structure exactly. No reinterpretation.
+
+**IMPORTANT — Colors in the HTML files are OUTDATED.** The HTML uses an old purple/pink palette (`#6c63ff` / `#f8a4d8`). Ignore those colors. The current brand is forest + cream (see Brand System section below and BRAND.md).
 
 ---
 
-## Brand System (pulled from the HTML — do not change)
+## Brand System (see BRAND.md for full details — this is the summary)
+
+**Direction:** Forest + Cream. Editorial, African-modern, designer-grade. Quiet confidence. The brand frames the user's event design — it never competes with it.
 
 **Colors**
-- Primary: `#6c63ff`
-- Secondary: `#f8a4d8`
-- Ink: `#0f0f1a`
-- Off-white: `#fafafa`
-- Border: `#e5e5ea`
-- Gradient: `linear-gradient(135deg, #6c63ff 0%, #f8a4d8 100%)`
+- Primary: `#1F4D3A` (deep forest green)
+- Primary dark: `#163828`
+- Primary soft: `#E8EFEB`
+- Accent: `#E8C57E` (warm cream-gold, used sparingly)
+- Accent dark: `#C9A45E`
+- Ink: `#0F1F18` (text)
+- Ink soft: `#3A4A42`
+- Muted: `#6B7A72`
+- Cream: `#FAF6EE` (app background, NOT pure white)
+- Surface: `#FFFFFF` (cards, modals, inputs)
+- Border: `#E5E0D4` (warm beige, NOT cool grey)
+- Border strong: `#C9C3B1`
 
-**Typography**
+**Functional**
+- Success: `#2D7A4F`
+- Warning: `#C97A2D`
+- Danger: `#B8423C`
+- Info: `#3A6B8C`
+
+**Gradient (hero, illustrations, premium tier only)**
+`linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)`
+
+**Typography (unchanged)**
 - Display: DM Sans (headings, letter-spacing -0.02em)
 - Sans: Inter (body, UI)
 - Mono: JetBrains Mono (labels, IDs, code)
 
 **Shadows**
-- `soft`: `0 1px 2px rgba(15,15,26,0.04), 0 8px 24px rgba(15,15,26,0.06)`
-- `lift`: `0 4px 12px rgba(15,15,26,0.06), 0 24px 60px rgba(108,99,255,0.12)`
+- soft: `0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)`
+- lift: `0 4px 12px rgba(15,31,24,0.08), 0 24px 60px rgba(31,77,58,0.12)`
+- focus: `0 0 0 3px rgba(31,77,58,0.15)`
 
-**Animations**
+**Animations (unchanged — keep keyframes from HTML)**
 - `floatA` / `floatB` — hero floaters
 - `zonePulse` — editor zone outlines
 - `marquee` — logo strip
 - `blink` — caret
 
-Port the full Tailwind config from `A1 Landing Page.html` into `tailwind.config.ts`.
+**Retired (never use again)**
+- `#6c63ff` (old purple)
+- `#f8a4d8` (old pink)
+- `#fafafa` (replaced by warm cream `#FAF6EE`)
+- `#e5e5ea` (replaced by warm border `#E5E0D4`)
+- Old purple/pink 135deg gradient
+
+**Sources of truth (in order of priority)**
+1. BRAND.md (most detailed)
+2. This section in CLAUDE.md (summary)
+3. Tailwind config (implementation)
+
+The HTML files in `cardly-handoff/cardly/project/` are layout/structure reference only. Their colors are OUTDATED — use BRAND.md for all color decisions, not the HTML.
 
 ---
 
@@ -174,7 +206,7 @@ create table generated_cards (
     "label": "Full Name",
     "x": 100, "y": 200, "w": 400, "h": 60,
     "font": "Inter", "size": 32, "weight": 600,
-    "color": "#0f0f1a", "align": "center",
+    "color": "#0F1F18", "align": "center",
     "required": true,
     "placeholder": "Your name"
   },
@@ -200,13 +232,13 @@ create table generated_cards (
 
 ### Phase 1 — Foundation
 1. `pnpm create next-app` with TypeScript + Tailwind + App Router
-2. Port the full Tailwind config from the HTML
+2. Port the Tailwind config — USE COLORS FROM BRAND.md, NOT FROM THE HTML FILES. Pull the layout, spacing, fonts, keyframes from the HTML; pull all colors from BRAND.md.
 3. Set up Supabase project; output `.env.local.example`
 4. Install shadcn primitives listed above
 5. Write the migration SQL
 6. Build auth (signup, login, logout, protected routes via middleware)
-7. Build the marketing nav + footer
-8. Build A1 Landing Page
+7. Build the marketing nav + footer (forest green primary, cream background)
+8. Build A1 Landing Page (re-skin in forest+cream, NOT the old purple/pink from the HTML)
 
 **STOP. Wait for human review before continuing.**
 
@@ -214,7 +246,7 @@ create table generated_cards (
 9. Dashboard (C1 empty + C2 list, conditional on event count)
 10. D1 Upload Design → upload to Supabase storage → create event row
 11. C3 Event Detail page
-12. D2 Canvas Editor — port the existing React component from the HTML. Wire it to save `zones` to the database with **800ms debounced auto-save**. Keep undo/redo.
+12. D2 Canvas Editor — port the existing React component from the HTML. Wire it to save `zones` to the database with **800ms debounced auto-save**. Keep undo/redo. Re-skin zone outlines and handles to forest green.
 13. D3 Publish & Share — generate slug (`event-name-xxxx`), mark as published, show link + QR
 
 **STOP. Wait for human review.**
@@ -242,9 +274,9 @@ create table generated_cards (
 
 ## Critical Rules
 
-1. **Match the design exactly.** Pull color, spacing, font sizes, shadows from the HTML files. No interpretation.
+1. **Match LAYOUT exactly, REPLACE COLORS.** Pull spacing, font sizes, animations, component structure from the HTML files. Pull all colors from BRAND.md only.
 2. **Mobile attendee experience is non-negotiable.** Test E1 at 375px viewport. One-thumb operable. No tiny tap targets.
-3. **Port the canvas editor, do not rewrite.** D2 already has working drag/resize/zoom logic in React.
+3. **Port the canvas editor, do not rewrite.** D2 already has working drag/resize/zoom logic in React. Re-skin colors only.
 4. **Server-side image rendering only.** Never use html2canvas or browser-based rendering. Use `sharp` in API route.
 5. **Watermark logic:** "Made with Cardly" bottom-center, small, semi-transparent. Only on free tier output.
 6. **Slug format:** `lowercase-event-name-xxxx` where `xxxx` is a 4-char random suffix.
@@ -286,5 +318,6 @@ The human (Abdalla) is a designer, not a backend engineer. When you explain thin
 - Switching to Pages Router
 - Using browser-based image rendering (html2canvas, dom-to-image, etc.)
 - Skipping the design files and "improving" the UI from memory
+- Using the OLD colors from the HTML files (#6c63ff, #f8a4d8, #fafafa, #e5e5ea) anywhere in the codebase
 - Adding features beyond MVP scope (templates marketplace, team accounts, video output, AI features)
 - Running ahead of the Build Order without human review at each STOP point

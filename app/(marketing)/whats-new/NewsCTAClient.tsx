@@ -1,0 +1,48 @@
+'use client';
+
+import { ArrowRight } from 'lucide-react';
+
+export function NewsCTAClient() {
+  return (
+    <section className="bg-primary text-cream relative overflow-hidden">
+      <div
+        aria-hidden
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage:
+            'radial-gradient(circle at 1px 1px, rgba(232,197,126,0.10) 1px, transparent 1px)',
+          backgroundSize: '32px 32px',
+        }}
+      />
+      <div className="relative mx-auto max-w-[760px] px-5 lg:px-10 py-16 lg:py-20 text-center">
+        <h2 className="font-display font-bold text-cream text-[30px] sm:text-[40px] lg:text-[48px] leading-[1.02] tracking-[-0.035em]">
+          Get release notes by email.
+        </h2>
+        <p
+          className="mt-4 text-[15px] lg:text-[16px] leading-[1.55] max-w-[460px] mx-auto"
+          style={{ color: 'rgba(250,246,238,0.75)' }}
+        >
+          One email per major release. Never more. Unsubscribe in one click.
+        </p>
+        <form
+          onSubmit={e => e.preventDefault()}
+          className="mt-7 flex flex-col sm:flex-row gap-3 max-w-[400px] mx-auto"
+        >
+          <input
+            type="email"
+            required
+            placeholder="your@email.com"
+            className="flex-1 px-4 py-3 rounded-full text-[14px] text-ink placeholder:text-muted outline-none"
+            style={{ background: '#FFFFFF', border: '1px solid transparent' }}
+          />
+          <button
+            type="submit"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-medium text-[14px] transition-colors bg-accent text-primary-dark hover:bg-accent-dark shrink-0"
+          >
+            Subscribe <ArrowRight size={14} strokeWidth={2} />
+          </button>
+        </form>
+      </div>
+    </section>
+  );
+}

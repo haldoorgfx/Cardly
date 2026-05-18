@@ -9,50 +9,72 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        brand: {
-          primary: "#6c63ff",
-          secondary: "#f8a4d8",
-          ink: "#0f0f1a",
-          offwhite: "#fafafa",
-          border: "#e5e5ea",
-        },
+        // Brand
+        primary:       "#1F4D3A",
+        "primary-dark":"#163828",
+        "primary-soft":"#E8EFEB",
+        accent:        "#E8C57E",
+        "accent-dark": "#C9A45E",
+        // Neutral
+        ink:           "#0F1F18",
+        "ink-soft":    "#3A4A42",
+        muted:         "#6B7A72",
+        cream:         "#FAF6EE",
+        surface:       "#FFFFFF",
+        border:        "#E5E0D4",
+        "border-strong":"#C9C3B1",
+        // Functional
+        success:       "#2D7A4F",
+        warning:       "#C97A2D",
+        danger:        "#B8423C",
+        info:          "#3A6B8C",
       },
       fontFamily: {
         display: ['"DM Sans"', "system-ui", "sans-serif"],
-        sans: ["Inter", "system-ui", "sans-serif"],
-        mono: ['"JetBrains Mono"', "monospace"],
+        sans:    ["Inter", "system-ui", "sans-serif"],
+        mono:    ['"JetBrains Mono"', "monospace"],
       },
       boxShadow: {
-        soft: "0 1px 2px rgba(15,15,26,0.04), 0 8px 24px rgba(15,15,26,0.06)",
-        lift: "0 4px 12px rgba(15,15,26,0.06), 0 24px 60px rgba(108,99,255,0.12)",
+        soft:  "0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)",
+        lift:  "0 4px 12px rgba(15,31,24,0.08), 0 24px 60px rgba(31,77,58,0.12)",
+        focus: "0 0 0 3px rgba(31,77,58,0.15)",
       },
       keyframes: {
         floatA: {
           "0%, 100%": { transform: "translateY(0) rotate(0deg)" },
-          "50%": { transform: "translateY(-10px) rotate(2deg)" },
+          "50%":      { transform: "translateY(-10px) rotate(2deg)" },
         },
         floatB: {
           "0%, 100%": { transform: "translateY(0) rotate(0deg)" },
-          "50%": { transform: "translateY(10px) rotate(-2deg)" },
+          "50%":      { transform: "translateY(10px) rotate(-2deg)" },
         },
         marquee: {
           from: { transform: "translateX(0)" },
-          to: { transform: "translateX(-50%)" },
+          to:   { transform: "translateX(-50%)" },
         },
         blink: {
           "50%": { opacity: "0" },
         },
         zonePulse: {
-          "0%, 100%": { boxShadow: "0 0 0 0 rgba(108,99,255,0.25)" },
-          "50%": { boxShadow: "0 0 0 6px rgba(108,99,255,0)" },
+          "0%, 100%": { boxShadow: "0 0 0 0 rgba(31,77,58,0.25)" },
+          "50%":      { boxShadow: "0 0 0 6px rgba(31,77,58,0)" },
+        },
+        slideInLeft: {
+          from: { transform: "translateX(-100%)" },
+          to:   { transform: "translateX(0)" },
+        },
+        slideInRight: {
+          from: { transform: "translateX(100%)" },
+          to:   { transform: "translateX(0)" },
         },
       },
       animation: {
-        floatA: "floatA 8s ease-in-out infinite",
-        floatB: "floatB 9s ease-in-out infinite",
-        marquee: "marquee 38s linear infinite",
-        blink: "blink 1s steps(1) infinite",
-        zonePulse: "zonePulse 2.4s ease-in-out infinite",
+        floatA:      "floatA 8s ease-in-out infinite",
+        floatB:      "floatB 9s ease-in-out infinite",
+        marquee:     "marquee 38s linear infinite",
+        blink:       "blink 1s steps(1) infinite",
+        zonePulse:   "zonePulse 2.4s ease-in-out infinite",
+        slideInLeft: "slideInLeft 200ms ease-out",
       },
     },
   },

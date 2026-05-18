@@ -153,7 +153,7 @@ export default function HowItWorksPage() {
       {/* Steps */}
       <section className="max-w-[1240px] mx-auto px-6 pb-24">
         <div className="space-y-5">
-          {STEPS.map((step, i) => (
+          {STEPS.map((step) => (
             <div
               key={step.number}
               className="rounded-3xl border border-brand-border bg-white p-8 lg:p-10 grid lg:grid-cols-[1fr_340px] gap-10 items-start"

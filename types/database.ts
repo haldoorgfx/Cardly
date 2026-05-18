@@ -1,6 +1,7 @@
 export type Plan = "free" | "pro" | "studio";
 export type EventStatus = "draft" | "published" | "archived";
-export type ZoneType = "text" | "photo" | "custom";
+export type UserRole = "user" | "admin" | "super_admin";
+export type ZoneType = "text" | "photo" | "custom" | "label" | "shape" | "image";
 export type SubscriptionStatus = "active" | "trialing" | "past_due" | "canceled" | "incomplete" | "none";
 export type BillingCycle = "monthly" | "annual" | "none";
 
@@ -17,16 +18,56 @@ export interface Zone {
   size?: number;
   weight?: number;
   color?: string;
-  align?: "left" | "center" | "right";
+  align?: "left" | "center" | "right" | "justify";
+  verticalAlign?: "top" | "center" | "bottom";
   placeholder?: string;
   sample?: string;
   options?: string[];
   // photo fields
-  shape?: "circle" | "square" | "rounded";
+  shape?: "circle" | "square" | "rounded" | "hexagon";
+  cornerRadius?: number;
+  // text styling extras
+  lineHeight?: number;
+  letterSpacing?: number;
+  textTransform?: 'none' | 'uppercase' | 'lowercase';
+  // text effects
+  strokeColor?: string;
+  strokeWidth?: number;
+  shadowColor?: string;
+  shadowBlur?: number;
+  shadowX?: number;
+  shadowY?: number;
+  // appearance
+  opacity?: number;
+  rotation?: number;
+  bgColor?: string;
+  bgOpacity?: number;
+  // photo extras
+  photoBorderColor?: string;
+  photoBorderWidth?: number;
+  // shape zone
+  shapeType?: 'rect' | 'ellipse' | 'triangle' | 'line';
+  // image zone
+  imageUrl?: string;
+  // text field constraints
+  maxChars?: number;
   // state flags
   required?: boolean;
   hidden?: boolean;
   locked?: boolean;
+}
+
+export interface Variant {
+  id: string;
+  event_id: string;
+  variant_name: string;
+  variant_slug: string;
+  background_url: string | null;
+  background_width: number | null;
+  background_height: number | null;
+  zones: Zone[];
+  position: number;
+  created_at: string;
 }
 
 export type Json =
@@ -46,8 +87,13 @@ export interface Database {
           email: string | null;
           full_name: string | null;
           plan: Plan;
+          role: UserRole;
+          avatar_url: string | null;
+          brand_kit: Json | null;
+          notify_downloads: boolean;
+          notify_views: boolean;
           created_at: string;
-          // billing columns (added in migration 004)
+          // billing columns (migration 004)
           stripe_customer_id: string | null;
           stripe_subscription_id: string | null;
           subscription_status: SubscriptionStatus;
@@ -56,17 +102,17 @@ export interface Database {
           cancel_at_period_end: boolean;
           cards_this_month: number;
           cards_month_start: string;
-          // settings columns (added in migration 003)
-          role: string;
-          avatar_url: string | null;
-          notify_downloads: boolean;
-          notify_views: boolean;
         };
         Insert: {
           id: string;
           email?: string | null;
           full_name?: string | null;
           plan?: Plan;
+          role?: UserRole;
+          avatar_url?: string | null;
+          brand_kit?: Json | null;
+          notify_downloads?: boolean;
+          notify_views?: boolean;
           created_at?: string;
           stripe_customer_id?: string | null;
           stripe_subscription_id?: string | null;
@@ -76,15 +122,16 @@ export interface Database {
           cancel_at_period_end?: boolean;
           cards_this_month?: number;
           cards_month_start?: string;
-          role?: string;
-          avatar_url?: string | null;
-          notify_downloads?: boolean;
-          notify_views?: boolean;
         };
         Update: {
           email?: string | null;
           full_name?: string | null;
           plan?: Plan;
+          role?: UserRole;
+          avatar_url?: string | null;
+          brand_kit?: Json | null;
+          notify_downloads?: boolean;
+          notify_views?: boolean;
           stripe_customer_id?: string | null;
           stripe_subscription_id?: string | null;
           subscription_status?: SubscriptionStatus;
@@ -93,10 +140,6 @@ export interface Database {
           cancel_at_period_end?: boolean;
           cards_this_month?: number;
           cards_month_start?: string;
-          role?: string;
-          avatar_url?: string | null;
-          notify_downloads?: boolean;
-          notify_views?: boolean;
         };
         Relationships: [];
       };
@@ -153,10 +196,55 @@ export interface Database {
           }
         ];
       };
+      event_variants: {
+        Row: {
+          id: string;
+          event_id: string;
+          variant_name: string;
+          variant_slug: string;
+          background_url: string | null;
+          background_width: number | null;
+          background_height: number | null;
+          zones: Json;
+          position: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          event_id: string;
+          variant_name: string;
+          variant_slug: string;
+          background_url?: string | null;
+          background_width?: number | null;
+          background_height?: number | null;
+          zones?: Json;
+          position?: number;
+          created_at?: string;
+        };
+        Update: {
+          variant_name?: string;
+          variant_slug?: string;
+          background_url?: string | null;
+          background_width?: number | null;
+          background_height?: number | null;
+          zones?: Json;
+          position?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "event_variants_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
       generated_cards: {
         Row: {
           id: string;
           event_id: string;
+          variant_id: string | null;
           attendee_name: string | null;
           attendee_data: Json | null;
           output_url: string | null;
@@ -165,12 +253,14 @@ export interface Database {
         Insert: {
           id?: string;
           event_id: string;
+          variant_id?: string | null;
           attendee_name?: string | null;
           attendee_data?: Json | null;
           output_url?: string | null;
           created_at?: string;
         };
         Update: {
+          variant_id?: string | null;
           attendee_name?: string | null;
           attendee_data?: Json | null;
           output_url?: string | null;

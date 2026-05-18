@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import { MoreHorizontal, Pencil, RotateCcw, Archive, Trash2 } from 'lucide-react';
 
 interface Props {
   eventId: string;
@@ -60,7 +61,7 @@ export default function EventDetailActions({ eventId, eventName, status }: Props
         <span className="text-[13px] text-red-700 font-medium">Delete &ldquo;{eventName}&rdquo;?</span>
         <button
           onClick={() => setConfirmDelete(false)}
-          className="text-[13px] text-[#0f0f1a]/60 hover:text-[#0f0f1a] px-2 py-1 rounded-lg hover:bg-white/60 transition"
+          className="text-[13px] text-[#0F1F18]/60 hover:text-[#0F1F18] px-2 py-1 rounded-lg hover:bg-white/60 transition"
         >
           Cancel
         </button>
@@ -87,19 +88,19 @@ export default function EventDetailActions({ eventId, eventName, status }: Props
             if (e.key === 'Enter') doRename();
             if (e.key === 'Escape') { setRenaming(false); setNameVal(eventName); }
           }}
-          className="font-display font-semibold text-[22px] bg-[#6c63ff]/5 border border-[#6c63ff]/30 rounded-xl px-3 py-1.5 outline-none focus:ring-2 focus:ring-[#6c63ff]/30 min-w-[240px]"
+          className="font-display font-semibold text-[22px] bg-[#1F4D3A]/5 border border-[#1F4D3A]/30 rounded-xl px-3 py-1.5 outline-none focus:ring-2 focus:ring-[#1F4D3A]/30 min-w-[240px]"
         />
         <button
           onClick={doRename}
           disabled={busy}
           className="text-[13px] font-semibold text-white px-3 py-1.5 rounded-lg hover:opacity-90 transition"
-          style={{ background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)' }}
+          style={{ background: 'linear-gradient(135deg,#1F4D3A,#2A6A50)' }}
         >
           Save
         </button>
         <button
           onClick={() => { setRenaming(false); setNameVal(eventName); }}
-          className="text-[13px] text-[#0f0f1a]/60 px-3 py-1.5 rounded-lg hover:bg-[#fafafa] border border-[#e5e5ea] transition"
+          className="text-[13px] text-[#0F1F18]/60 px-3 py-1.5 rounded-lg hover:bg-[#FAF6EE] border border-[#E5E0D4] transition"
         >
           Cancel
         </button>
@@ -111,65 +112,55 @@ export default function EventDetailActions({ eventId, eventName, status }: Props
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
         <button
-          className="inline-flex items-center gap-2 text-[13px] text-[#0f0f1a]/70 bg-white border border-[#e5e5ea] px-3 py-2 rounded-xl hover:bg-[#fafafa] transition disabled:opacity-50"
+          className="inline-flex items-center gap-2 text-[13px] text-[#0F1F18]/70 bg-white border border-[#E5E0D4] px-3 py-2 rounded-xl hover:bg-[#FAF6EE] transition disabled:opacity-50"
           disabled={busy}
           title="More actions"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-            <circle cx="5" cy="12" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="19" cy="12" r="1.5" />
-          </svg>
+          <MoreHorizontal size={14} strokeWidth={1.8} />
           More
         </button>
       </DropdownMenu.Trigger>
 
       <DropdownMenu.Portal>
         <DropdownMenu.Content
-          className="z-50 min-w-[192px] bg-white rounded-xl border border-[#e5e5ea] shadow-lift p-1 text-[13px]"
+          className="z-50 min-w-[192px] bg-white rounded-xl border border-[#E5E0D4] shadow-lift p-1 text-[13px]"
           align="end"
           sideOffset={4}
         >
           <DropdownMenu.Item
-            className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[#fafafa] cursor-pointer outline-none"
+            className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[#FAF6EE] cursor-pointer outline-none"
             onSelect={() => setRenaming(true)}
           >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-              <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-            </svg>
+            <Pencil size={13} strokeWidth={1.8} />
             Rename event
           </DropdownMenu.Item>
 
           {status === 'published' && (
             <DropdownMenu.Item
-              className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[#fafafa] cursor-pointer outline-none text-[#0f0f1a]/60"
+              className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[#FAF6EE] cursor-pointer outline-none text-[#0F1F18]/60"
               onSelect={() => doStatus('draft')}
             >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                <path d="M18.36 6.64A9 9 0 1 1 5.64 17.36" /><path d="M2 12h10" />
-              </svg>
+              <RotateCcw size={13} strokeWidth={1.8} />
               Unpublish
             </DropdownMenu.Item>
           )}
 
           {status === 'draft' && (
             <DropdownMenu.Item
-              className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[#fafafa] cursor-pointer outline-none text-[#0f0f1a]/60"
+              className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[#FAF6EE] cursor-pointer outline-none text-[#0F1F18]/60"
               onSelect={() => doStatus('archived')}
             >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                <polyline points="21 8 21 21 3 21 3 8" /><rect x="1" y="3" width="22" height="5" /><line x1="10" y1="12" x2="14" y2="12" />
-              </svg>
+              <Archive size={13} strokeWidth={1.8} />
               Archive
             </DropdownMenu.Item>
           )}
 
           {status === 'archived' && (
             <DropdownMenu.Item
-              className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[#fafafa] cursor-pointer outline-none"
+              className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[#FAF6EE] cursor-pointer outline-none"
               onSelect={() => doStatus('draft')}
             >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                <polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 .49-3.32" />
-              </svg>
+              <RotateCcw size={13} strokeWidth={1.8} />
               Restore to draft
             </DropdownMenu.Item>
           )}
@@ -180,10 +171,7 @@ export default function EventDetailActions({ eventId, eventName, status }: Props
             className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-red-50 text-red-600 cursor-pointer outline-none"
             onSelect={() => setConfirmDelete(true)}
           >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-              <polyline points="3 6 5 6 21 6" />
-              <path d="M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2" />
-            </svg>
+            <Trash2 size={13} strokeWidth={1.8} />
             Delete event
           </DropdownMenu.Item>
         </DropdownMenu.Content>

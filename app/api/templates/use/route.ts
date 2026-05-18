@@ -1,0 +1,165 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
+import sharp from 'sharp';
+import type { Zone } from '@/types/database';
+import {
+  buildSVG,
+  TEMPLATE_CONFIGS,
+  W, H,
+  ZONE_PHOTO, ZONE_NAME, ZONE_TITLE, ZONE_ORG,
+} from '@/lib/templates/svgs';
+
+/* ── Helpers ──────────────────────────────────────────── */
+function generateSlug(name: string): string {
+  const base = name
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .slice(0, 40);
+  return `${base}-${Math.random().toString(36).slice(2, 6)}`;
+}
+
+const PLAN_LIMITS: Record<string, number> = { free: 1, pro: 10, studio: Infinity };
+
+/* ── Zone factory — positions match shared SVG constants ─ */
+function getZones(accent: string, light: boolean): Zone[] {
+  const nameColor  = light ? '#1A1A1A'              : '#FFFFFF';
+  const titleColor = light ? 'rgba(0,0,0,0.55)'    : 'rgba(255,255,255,0.65)';
+  const orgColor   = light ? 'rgba(0,0,0,0.40)'    : (accent.startsWith('rgba') ? 'rgba(255,255,255,0.45)' : `${accent}BB`);
+
+  return [
+    {
+      id: 'z-photo',
+      type: 'photo',
+      label: 'Headshot',
+      x: ZONE_PHOTO.x,
+      y: ZONE_PHOTO.y,
+      w: ZONE_PHOTO.w,
+      h: ZONE_PHOTO.h,
+      shape: 'circle',
+      photoBorderColor: accent,
+      photoBorderWidth: 4,
+    },
+    {
+      id: 'z-name',
+      type: 'text',
+      label: 'Full Name',
+      x: ZONE_NAME.x,
+      y: ZONE_NAME.y,
+      w: ZONE_NAME.w,
+      h: ZONE_NAME.h,
+      font: 'DM Sans',
+      size: 56,
+      weight: 700,
+      color: nameColor,
+      align: 'center',
+      required: true,
+      placeholder: 'Your name',
+      lineHeight: 1.1,
+      letterSpacing: -1,
+    },
+    {
+      id: 'z-title',
+      type: 'text',
+      label: 'Title / Role',
+      x: ZONE_TITLE.x,
+      y: ZONE_TITLE.y,
+      w: ZONE_TITLE.w,
+      h: ZONE_TITLE.h,
+      font: 'Inter',
+      size: 26,
+      weight: 400,
+      color: titleColor,
+      align: 'center',
+      placeholder: 'Your title or role',
+      lineHeight: 1.2,
+    },
+    {
+      id: 'z-org',
+      type: 'text',
+      label: 'Organization',
+      x: ZONE_ORG.x,
+      y: ZONE_ORG.y,
+      w: ZONE_ORG.w,
+      h: ZONE_ORG.h,
+      font: 'Inter',
+      size: 22,
+      weight: 400,
+      color: orgColor,
+      align: 'center',
+      placeholder: 'Your organization',
+      lineHeight: 1.2,
+    },
+  ];
+}
+
+/* ── Route ────────────────────────────────────────────── */
+export async function POST(req: NextRequest) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const body = await req.json() as { templateId?: string };
+  const config = body.templateId ? TEMPLATE_CONFIGS[body.templateId] : null;
+  if (!config) return NextResponse.json({ error: 'Unknown template' }, { status: 400 });
+
+  const admin = createAdminClient();
+
+  /* Plan limit */
+  const { data: profile } = await admin.from('profiles').select('plan').eq('id', user.id).single();
+  const plan = profile?.plan ?? 'free';
+  const limit = PLAN_LIMITS[plan] ?? 1;
+  if (limit !== Infinity) {
+    const { count } = await admin
+      .from('events')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .neq('status', 'archived');
+    if ((count ?? 0) >= limit) {
+      return NextResponse.json({ error: 'PLAN_LIMIT', plan, limit }, { status: 403 });
+    }
+  }
+
+  /* Build SVG (background + baked static text) → PNG via sharp */
+  const svgStr = buildSVG(body.templateId!, config.text);
+  const pngBuf = await sharp(Buffer.from(svgStr)).png().toBuffer();
+
+  /* Upload background PNG to Supabase storage */
+  const storagePath = `${user.id}/template-${body.templateId}-${Date.now()}.png`;
+  const { error: uploadErr } = await admin.storage
+    .from('event-backgrounds')
+    .upload(storagePath, pngBuf, { contentType: 'image/png', upsert: false });
+  if (uploadErr) return NextResponse.json({ error: uploadErr.message }, { status: 500 });
+
+  const { data: urlData } = admin.storage.from('event-backgrounds').getPublicUrl(storagePath);
+
+  /* Create event row */
+  const slug = generateSlug(config.name);
+  const { data: event, error: evErr } = await admin
+    .from('events')
+    .insert({ user_id: user.id, name: config.name, slug, status: 'draft' })
+    .select()
+    .single();
+  if (evErr) return NextResponse.json({ error: evErr.message }, { status: 500 });
+
+  /* Zones — positions from shared lib/templates/svgs.ts constants */
+  const zones = getZones(config.accent, config.light ?? false);
+
+  /* Create variant */
+  const { error: varErr } = await admin
+    .from('event_variants')
+    .insert({
+      event_id: event.id,
+      variant_name: 'Attendee',
+      variant_slug: 'attendee',
+      background_url: urlData.publicUrl,
+      background_width: W,
+      background_height: H,
+      zones: zones as unknown as import('@/types/database').Json,
+      position: 0,
+    });
+  if (varErr) return NextResponse.json({ error: varErr.message }, { status: 500 });
+
+  return NextResponse.json({ id: event.id });
+}

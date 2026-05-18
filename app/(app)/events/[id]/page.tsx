@@ -1,9 +1,37 @@
+export const dynamic = 'force-dynamic';
+
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import QRCode from 'qrcode';
+import { Pencil, Download, TrendingUp, ChevronRight, Image as ImageIcon, Type } from 'lucide-react';
 import CopyButton from '@/components/shared/CopyButton';
 import EventDetailActions from './EventDetailActions';
-import type { Zone } from '@/types/database';
+import CardPreviewClient from './CardPreviewClient';
+import type { Zone, Variant } from '@/types/database';
+
+function timeAgo(dateStr: string) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return `${Math.floor(hrs / 24)}d ago`;
+}
+
+function getInitials(name: string | null) {
+  if (!name) return '?';
+  return name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+}
+
+const AVATAR_COLORS = [
+  '#1F4D3A',
+  '#2A6A50',
+  '#163828',
+  '#3A6B8C',
+  '#0F1F18',
+];
 
 export default async function EventDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -12,179 +40,333 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
   if (!user) redirect('/login');
 
   const admin = createAdminClient();
-  const { data: event } = await admin
-    .from('events')
-    .select('*')
-    .eq('id', id)
-    .eq('user_id', user.id)
-    .single();
+  const [{ data: event }, { data: variantsData }, { data: recentCards }] = await Promise.all([
+    admin.from('events').select('*').eq('id', id).eq('user_id', user.id).single(),
+    admin.from('event_variants').select('*').eq('event_id', id).order('position', { ascending: true }),
+    admin.from('generated_cards').select('id, attendee_name, attendee_data, created_at').eq('event_id', id).order('created_at', { ascending: false }).limit(8),
+  ]);
 
   if (!event) redirect('/dashboard');
 
-  const zones = (event.zones as unknown as Zone[]) ?? [];
-  const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL}/c/${event.slug}`;
-  const bgW = event.background_width ?? 1080;
-  const bgH = event.background_height ?? 1350;
+  const variants = (variantsData ?? []) as unknown as Variant[];
+  const firstVariant = variants[0];
+  const zones = (firstVariant?.zones as unknown as Zone[]) ?? [];
+  const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/c/${event.slug}`;
+  const bgW = firstVariant?.background_width ?? 1080;
+  const bgH = firstVariant?.background_height ?? 1350;
+  const activity = recentCards ?? [];
+
+  const conversionPct = event.view_count > 0
+    ? Math.round((event.download_count / event.view_count) * 100)
+    : 0;
+
+  const qrDataUrl = event.status === 'published'
+    ? await QRCode.toDataURL(shareUrl, {
+        width: 180,
+        margin: 2,
+        color: { dark: '#0F1F18', light: '#ffffff' },
+        errorCorrectionLevel: 'M',
+      })
+    : null;
 
   return (
-    <div className="px-8 py-8 max-w-[1200px]">
+    <div className="px-4 sm:px-6 lg:px-8 py-5 sm:py-8 max-w-[1200px]">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-[12px] font-mono text-[#0f0f1a]/40 mb-6">
-        <Link href="/dashboard" className="hover:text-[#0f0f1a]">Events</Link>
+      <div className="flex items-center gap-2 text-[12px] text-neutral-500 mb-6">
+        <Link href="/dashboard" className="hover:text-neutral-700">Events</Link>
         <span>/</span>
-        <span className="text-[#0f0f1a]/70">{event.name}</span>
+        <span className="text-neutral-700 truncate max-w-[240px]">{event.name}</span>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left: preview */}
+        {/* Left: preview + stats + activity */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white rounded-2xl border border-[#e5e5ea] overflow-hidden shadow-soft">
-            <div className="p-6 border-b border-[#e5e5ea] flex items-center justify-between flex-wrap gap-3">
+          {/* Preview card */}
+          <div className="bg-white rounded-lg border border-neutral-200 overflow-hidden">
+            <div className="p-6 border-b border-neutral-200 flex items-center justify-between flex-wrap gap-3">
               <div>
-                <h1 className="font-display font-bold text-[24px]">{event.name}</h1>
-                <div className="flex items-center gap-3 mt-1">
+                <h1 className="text-xl font-semibold">{event.name}</h1>
+                <div className="flex items-center gap-3 mt-1.5">
                   {event.status === 'published' ? (
                     <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-1 rounded-full">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Published
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
+                    </span>
+                  ) : event.status === 'archived' ? (
+                    <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-neutral-500 bg-neutral-100 px-2 py-1 rounded-full">
+                      <span className="h-1.5 w-1.5 rounded-full bg-neutral-400" /> Archived
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-amber-700 bg-amber-50 px-2 py-1 rounded-full">
                       <span className="h-1.5 w-1.5 rounded-full bg-amber-500" /> Draft
                     </span>
                   )}
-                  <span className="text-[12px] font-mono text-[#0f0f1a]/40">{zones.length} zones defined</span>
+                  <span className="text-[12px] text-neutral-400">{variants.length} variant{variants.length !== 1 ? 's' : ''}</span>
+                  <span className="text-[12px] text-neutral-400">{zones.length} zones</span>
+                  <span className="text-[12px] text-neutral-400">/{event.slug}</span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <EventDetailActions
-                  eventId={id}
-                  eventName={event.name}
-                  status={event.status}
-                />
+                <EventDetailActions eventId={id} eventName={event.name} status={event.status} />
                 <Link
                   href={`/events/${id}/edit`}
-                  className="inline-flex items-center gap-1.5 text-[13px] text-[#0f0f1a]/80 bg-white border border-[#e5e5ea] px-3 py-2 rounded-xl hover:bg-[#fafafa] transition"
+                  className="inline-flex items-center gap-1.5 h-8 px-3 border border-neutral-200 bg-white text-[13px] rounded-md hover:bg-neutral-50 transition"
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                    <path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                  </svg>
+                  <Pencil size={14} strokeWidth={1.8} />
                   Edit zones
                 </Link>
                 <Link
                   href={`/events/${id}/publish`}
-                  className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-white px-3 py-2 rounded-xl hover:opacity-95 transition"
-                  style={{ background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)' }}
+                  className="inline-flex items-center gap-1.5 h-8 px-3 bg-[#0F1F18] text-white text-[13px] font-medium rounded-md hover:bg-neutral-800 transition"
                 >
-                  {event.status === 'published' ? 'Share' : 'Publish'}
+                  {event.status === 'published' ? 'Share →' : 'Publish →'}
                 </Link>
               </div>
             </div>
 
-            {/* Preview with zone overlays */}
-            {event.background_url && (
-              <div className="relative overflow-hidden bg-[#0f0f1a]" style={{ aspectRatio: `${bgW}/${bgH}`, maxHeight: 480 }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={event.background_url} alt={event.name} className="w-full h-full object-contain" />
-                {zones.map(z => (
-                  <div
-                    key={z.id}
-                    className="absolute border-2 border-[#6c63ff]/70"
-                    style={{
-                      left: `${(z.x / bgW) * 100}%`,
-                      top: `${(z.y / bgH) * 100}%`,
-                      width: `${(z.w / bgW) * 100}%`,
-                      height: `${(z.h / bgH) * 100}%`,
-                      borderRadius: z.type === 'photo' && z.shape === 'circle' ? '50%' : z.type === 'photo' && z.shape === 'rounded' ? '20%' : 4,
-                    }}
-                  />
+            {firstVariant?.background_url && (
+              <CardPreviewClient
+                backgroundUrl={firstVariant.background_url}
+                bgW={bgW}
+                bgH={bgH}
+                zones={zones}
+                eventName={event.name}
+                maxHeight={460}
+              />
+            )}
+
+            {/* Variants strip */}
+            {variants.length > 1 && (
+              <div className="px-6 py-3 border-t border-neutral-200 flex items-center gap-2 flex-wrap">
+                <span className="text-xs font-medium text-neutral-500 uppercase tracking-wide mr-1">Variants</span>
+                {variants.map(v => (
+                  <span key={v.id} className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#1F4D3A] bg-[#1F4D3A]/8 px-2 py-1 rounded-full">
+                    {v.variant_name}
+                    <span className="text-neutral-400">· {(v.zones as Zone[]).length} zones</span>
+                  </span>
                 ))}
               </div>
             )}
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-white rounded-2xl border border-[#e5e5ea] p-5">
-              <div className="text-[12px] font-mono text-[#0f0f1a]/50">DOWNLOADS</div>
-              <div className="mt-2 font-display font-bold text-[32px] leading-none">{event.download_count.toLocaleString()}</div>
+          {/* Stats row */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="bg-white rounded-lg border border-neutral-200 p-5">
+              <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide">Page Views</div>
+              <div className="mt-2 text-2xl font-semibold leading-none">{event.view_count.toLocaleString()}</div>
+              <div className="mt-2 h-1 rounded-full bg-neutral-100 overflow-hidden">
+                <div className="h-full bg-[#1F4D3A]" style={{ width: '60%' }} />
+              </div>
             </div>
-            <div className="bg-white rounded-2xl border border-[#e5e5ea] p-5">
-              <div className="text-[12px] font-mono text-[#0f0f1a]/50">VIEWS</div>
-              <div className="mt-2 font-display font-bold text-[32px] leading-none">{event.view_count.toLocaleString()}</div>
+            <div className="bg-white rounded-lg border border-neutral-200 p-5">
+              <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide">Downloads</div>
+              <div className="mt-2 text-2xl font-semibold leading-none">{event.download_count.toLocaleString()}</div>
+              <svg className="mt-2 w-full" height="24" viewBox="0 0 160 24" preserveAspectRatio="none" fill="none">
+                <path d="M0,20 L20,16 L40,18 L60,10 L80,14 L100,6 L120,9 L140,3 L160,5" stroke="#1F4D3A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </div>
+            <div className="bg-white rounded-lg border border-neutral-200 p-5">
+              <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide">Conversion</div>
+              <div className="mt-2 text-2xl font-semibold leading-none">{conversionPct}%</div>
+              <div className="mt-2 text-[11px] text-neutral-400">views → downloads</div>
+            </div>
+          </div>
+
+          {/* Activity feed */}
+          <div className="bg-white rounded-lg border border-neutral-200 overflow-hidden">
+            <div className="px-5 py-4 border-b border-neutral-200 flex items-center justify-between">
+              <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide">Recent Activity</div>
+              {activity.length > 0 && (
+                <span className="flex items-center gap-1.5 text-[11px] text-emerald-600">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  {activity.length} recent
+                </span>
+              )}
+            </div>
+            {activity.length === 0 ? (
+              <div className="px-5 py-10 text-center">
+                <div className="text-[13px] text-neutral-400">No cards generated yet.</div>
+                {event.status === 'published' ? (
+                  <div className="mt-1 text-[12.5px] text-neutral-400">Share the link to start seeing activity here.</div>
+                ) : (
+                  <Link href={`/events/${id}/publish`} className="mt-3 inline-block text-[13px] text-[#1F4D3A] font-medium hover:underline">
+                    Publish to start →
+                  </Link>
+                )}
+              </div>
+            ) : (
+              <div className="divide-y divide-neutral-100">
+                {activity.map((card, i) => {
+                  const attendeeData = (card.attendee_data ?? {}) as Record<string, string>;
+                  const location = Object.values(attendeeData).find(v => typeof v === 'string' && v.includes(',')) ?? null;
+                  return (
+                    <div key={card.id} className="flex items-center gap-3 px-5 py-3.5 hover:bg-neutral-50 transition">
+                      <div
+                        className="h-9 w-9 rounded-full grid place-items-center text-white text-[12px] font-bold shrink-0"
+                        style={{ background: AVATAR_COLORS[i % AVATAR_COLORS.length] }}
+                      >
+                        {getInitials(card.attendee_name)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[13.5px] font-medium truncate">{card.attendee_name ?? 'Anonymous'}</div>
+                        {location && <div className="text-[11.5px] text-neutral-400 truncate">{location}</div>}
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="text-[11px] text-neutral-400">{timeAgo(card.created_at)}</span>
+                        <span className="inline-flex items-center gap-1 text-[10px] text-[#1F4D3A] bg-[#1F4D3A]/8 px-1.5 py-0.5 rounded-md">
+                          card
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Right: share + zones */}
+        {/* Right: share + zones + info */}
         <div className="space-y-4">
+          {/* Share link */}
           {event.status === 'published' ? (
-            <div className="bg-white rounded-2xl border border-[#e5e5ea] p-5 shadow-soft">
-              <div className="text-[11px] font-mono tracking-widest text-[#0f0f1a]/45 mb-3">SHARE LINK</div>
-              <div className="flex items-center gap-2 bg-[#fafafa] rounded-xl border border-[#e5e5ea] px-3 py-2.5">
-                <span className="text-[12px] font-mono text-[#0f0f1a]/70 flex-1 truncate">{shareUrl}</span>
+            <div className="bg-white rounded-lg border border-neutral-200 p-5">
+              <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-3">Share Link</div>
+              <div className="flex items-center gap-2 font-mono text-[13px] text-neutral-600 bg-neutral-50 border border-neutral-200 rounded-md px-3 py-2 mb-3">
+                <span className="flex-1 truncate">{shareUrl}</span>
                 <CopyButton text={shareUrl} />
               </div>
-              <div className="mt-4 flex gap-2">
+              <div className="grid grid-cols-3 gap-2 mb-4">
                 <a
                   href={`https://wa.me/?text=${encodeURIComponent(`Get your personalized card: ${shareUrl}`)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 text-center py-2 rounded-xl text-[13px] font-medium text-white"
+                  target="_blank" rel="noopener noreferrer"
+                  className="py-2 rounded-md text-[12px] font-medium text-white text-center"
                   style={{ background: '#25D366' }}
                 >
                   WhatsApp
                 </a>
                 <a
                   href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Get your personalized card: ${shareUrl}`)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 text-center py-2 rounded-xl text-[13px] font-medium text-white bg-black"
+                  target="_blank" rel="noopener noreferrer"
+                  className="py-2 rounded-md text-[12px] font-medium text-white text-center bg-black"
                 >
                   X
                 </a>
+                <a
+                  href={shareUrl}
+                  target="_blank" rel="noopener noreferrer"
+                  className="py-2 rounded-md text-[12px] font-medium text-center border border-neutral-200 hover:bg-neutral-50 transition"
+                >
+                  Preview ↗
+                </a>
               </div>
+
+              {qrDataUrl && (
+                <div className="border-t border-neutral-200 pt-4">
+                  <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-3">QR Code · Display on screen or print</div>
+                  <div className="border border-neutral-200 rounded-lg p-4">
+                    <div className="flex items-center gap-4">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={qrDataUrl}
+                        alt="QR code for attendee link"
+                        className="w-20 h-20 rounded-md border border-neutral-200"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[12.5px] font-medium">Scan to personalise</div>
+                        <div className="text-[11.5px] text-neutral-500 mt-0.5 leading-snug">
+                          Show this QR on stage, in emails, or on printed materials.
+                        </div>
+                        <a
+                          href={qrDataUrl}
+                          download={`${event.slug}-qr.png`}
+                          className="mt-2 inline-flex items-center gap-1 text-[11.5px] text-[#1F4D3A] font-medium hover:underline"
+                        >
+                          <Download size={11} strokeWidth={2.2} />
+                          Download PNG
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
-            <div className="bg-white rounded-2xl border border-[#e5e5ea] p-5">
-              <div className="text-[11px] font-mono tracking-widest text-[#0f0f1a]/45 mb-3">READY TO SHARE?</div>
-              <p className="text-[13px] text-[#0f0f1a]/60 mb-4">Publish to get a shareable link for attendees.</p>
+            <div className="bg-white rounded-lg border border-neutral-200 p-5">
+              <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-3">Ready to Share?</div>
+              <p className="text-[13px] text-neutral-500 mb-4">Publish to get a shareable link for attendees.</p>
               <Link
                 href={`/events/${id}/publish`}
-                className="w-full py-2.5 rounded-xl text-[13.5px] font-semibold text-white text-center block hover:opacity-95"
-                style={{ background: 'linear-gradient(135deg,#6c63ff,#f8a4d8)' }}
+                className="w-full h-8 px-3 bg-[#0F1F18] text-white text-[13px] font-medium rounded-md hover:bg-neutral-800 transition flex items-center justify-center"
               >
-                Publish & share →
+                Publish &amp; share →
               </Link>
             </div>
           )}
 
-          <div className="bg-white rounded-2xl border border-[#e5e5ea] p-5">
-            <div className="text-[11px] font-mono tracking-widest text-[#0f0f1a]/45 mb-3">ZONES ({zones.length})</div>
+          {/* Zones (from first variant) */}
+          <div className="bg-white rounded-lg border border-neutral-200 p-5">
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide">Zones ({zones.length})</div>
+              <Link href={`/events/${id}/edit`} className="text-[11px] text-[#1F4D3A] hover:underline">Edit →</Link>
+            </div>
             {zones.length === 0 ? (
-              <div className="text-[13px] text-[#0f0f1a]/50 text-center py-4">
-                No zones. <Link href={`/events/${id}/edit`} className="text-[#6c63ff] font-medium">Open editor →</Link>
+              <div className="text-[13px] text-neutral-400 text-center py-4">
+                No zones. <Link href={`/events/${id}/edit`} className="text-[#1F4D3A] font-medium">Open editor →</Link>
               </div>
             ) : (
               <div className="space-y-2">
                 {zones.map(z => (
-                  <div key={z.id} className="flex items-center gap-2 text-[13px]">
-                    <span className="h-6 w-6 rounded-md bg-[#fafafa] grid place-items-center text-[#6c63ff] shrink-0">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                        {z.type === 'photo' ? (
-                          <><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></>
-                        ) : (
-                          <path d="M4 7V4h16v3M9 20h6M12 4v16" />
-                        )}
-                      </svg>
+                  <div key={z.id} className="flex items-center gap-2.5 text-[13px]">
+                    <span className="h-6 w-6 rounded-md bg-neutral-50 border border-neutral-200 grid place-items-center text-[#1F4D3A] shrink-0">
+                      {z.type === 'photo' ? <ImageIcon size={12} strokeWidth={1.8} /> : <Type size={12} strokeWidth={1.8} />}
                     </span>
                     <span className="flex-1 truncate">{z.label}</span>
-                    {z.required && <span className="text-[10px] font-mono text-[#6c63ff] bg-[#6c63ff]/10 px-1.5 py-0.5 rounded">REQ</span>}
+                    {z.required && <span className="text-[10px] font-mono text-[#1F4D3A] bg-[#1F4D3A]/10 px-1.5 py-0.5 rounded">REQ</span>}
+                    <span className="text-[10px] font-mono text-neutral-400">{z.type}</span>
                   </div>
                 ))}
               </div>
             )}
           </div>
+
+          {/* Event info */}
+          <div className="bg-white rounded-lg border border-neutral-200 p-5">
+            <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-3">Event Info</div>
+            <div className="space-y-2.5 text-[13px]">
+              <div className="flex items-center justify-between">
+                <span className="text-neutral-500">Status</span>
+                <span className={`font-medium ${event.status === 'published' ? 'text-emerald-600' : event.status === 'archived' ? 'text-neutral-400' : 'text-amber-600'}`}>
+                  {event.status === 'published' ? 'Live' : event.status === 'archived' ? 'Archived' : 'Draft'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-neutral-500">Slug</span>
+                <span className="font-mono text-[12px] text-neutral-600">/{event.slug}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-neutral-500">Format</span>
+                <span className="font-mono text-[12px]">{bgW} × {bgH}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-neutral-500">Variants</span>
+                <span className="font-mono text-[12px]">{variants.length}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-neutral-500">Created</span>
+                <span className="text-[12px] text-neutral-500">{new Date(event.created_at).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+              </div>
+            </div>
+          </div>
+
+          <Link href="/dashboard" className="flex items-center gap-3 bg-white rounded-lg border border-neutral-200 p-4 hover:bg-neutral-50 transition group">
+            <div className="h-9 w-9 rounded-md grid place-items-center bg-[#1F4D3A] text-white shrink-0">
+              <TrendingUp size={15} strokeWidth={2} />
+            </div>
+            <div className="flex-1">
+              <div className="text-[13px] font-medium">View full analytics</div>
+              <div className="text-[11.5px] text-neutral-400">All events · charts · funnel</div>
+            </div>
+            <ChevronRight className="text-neutral-300 group-hover:text-neutral-500 transition" size={14} strokeWidth={2} />
+          </Link>
         </div>
       </div>
     </div>
