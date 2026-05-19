@@ -253,10 +253,10 @@ function NavItem({
       <Link
         href={href}
         onClick={onNavigate}
-        className={`flex items-center gap-3 px-2.5 py-[7px] rounded-lg text-[13.5px] transition-colors ${
+        className={`flex items-center gap-3 py-[7px] rounded-lg text-[13.5px] transition-colors border-l-2 ${
           active
-            ? 'bg-white/[0.1] text-white font-medium'
-            : 'text-white/50 hover:text-white/85 hover:bg-white/[0.06]'
+            ? 'border-[#E8C57E] bg-white/[0.1] text-white font-medium pl-[8px] pr-2.5'
+            : 'border-transparent px-2.5 text-white/50 hover:text-white/85 hover:bg-white/[0.06]'
         }`}
       >
         <span className="shrink-0">{icon}</span>
@@ -272,7 +272,7 @@ function NavItem({
 }
 
 function NavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
-  const { profile, eventCount, planLabel } = usePlanCtx();
+  const { profile, eventCount, planPct } = usePlanCtx();
   const router = useRouter();
   const planLimit = profile ? (PLAN_LIMITS[profile.plan] ?? 1) : 1;
 
@@ -304,7 +304,7 @@ function NavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: (
       <div className="h-14 flex items-center px-4 border-b shrink-0" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <div
-            className="h-8 w-8 rounded-lg grid place-items-center shrink-0"
+            className="h-8 w-8 rounded-lg grid place-items-center shrink-0 ring-1 ring-white/20"
             style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}
           >
             <span className="text-[12px] font-bold text-white">
@@ -315,7 +315,15 @@ function NavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: (
             <div className="text-[14px] font-semibold text-white truncate leading-snug">
               {profile?.full_name ?? 'My workspace'}
             </div>
-            <div className="text-[11.5px] text-white/40 leading-snug">{planLabel} plan</div>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              {profile?.plan === 'pro' ? (
+                <span className="font-mono text-[9px] tracking-[0.1em] uppercase px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(232,197,126,0.2)', color: '#C9A45E' }}>PRO</span>
+              ) : profile?.plan === 'studio' ? (
+                <span className="font-mono text-[9px] tracking-[0.1em] uppercase px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(31,77,58,0.8)', color: '#FAF6EE' }}>STUDIO</span>
+              ) : (
+                <span className="font-mono text-[9px] tracking-[0.1em] uppercase px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.4)' }}>FREE</span>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -366,34 +374,46 @@ function NavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: (
                 />
               );
             })}
-
-            <li>
-              <button
-                onClick={handleSignOut}
-                className="w-full flex items-center gap-3 px-2.5 py-[7px] rounded-lg text-[13.5px] text-white/50 hover:text-white/85 hover:bg-white/[0.06] transition text-left"
-              >
-                <LogOut size={15} strokeWidth={1.7} className="shrink-0" />
-                <span className="leading-none">Sign out</span>
-              </button>
-            </li>
           </ul>
         </div>
       </nav>
 
-      {/* Plan footer */}
-      <div className="px-4 py-4 border-t shrink-0" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
-        {profile?.plan !== 'studio' ? (
-          <Link
-            href="/settings/billing"
-            onClick={onNavigate}
-            className="flex items-center justify-between text-[12px] text-white/35 hover:text-white/60 transition"
-          >
-            <span>{eventCount}/{planLimit === Infinity ? '∞' : planLimit} events used</span>
-            <span className="text-white/45">Upgrade →</span>
-          </Link>
-        ) : (
-          <div className="text-[12px] text-white/25">{planLabel} plan · unlimited</div>
-        )}
+      {/* Usage progress mini-card */}
+      <div className="px-3 pb-2 shrink-0">
+        <div className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}>
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] font-mono text-white/30 uppercase tracking-widest">Events</span>
+            <span className="text-[10px] font-mono text-white/40">
+              {eventCount}&nbsp;/&nbsp;{planLimit === Infinity ? '∞' : planLimit}
+            </span>
+          </div>
+          <div className="h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
+            <div
+              className="h-full rounded-full transition-all duration-500"
+              style={{ width: `${planPct}%`, background: planPct >= 90 ? '#C97A2D' : '#E8C57E' }}
+            />
+          </div>
+          {profile?.plan !== 'studio' && (
+            <Link
+              href="/settings/billing"
+              onClick={onNavigate}
+              className="block mt-2 text-[10px] font-mono text-white/30 hover:text-white/55 transition-colors"
+            >
+              Upgrade for more →
+            </Link>
+          )}
+        </div>
+      </div>
+
+      {/* Sign out — visually separated */}
+      <div className="px-3 py-2 shrink-0 border-t" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
+        <button
+          onClick={handleSignOut}
+          className="w-full flex items-center gap-3 px-2.5 py-[7px] rounded-lg text-[13.5px] text-white/40 hover:text-white/70 hover:bg-white/[0.06] transition-colors text-left"
+        >
+          <LogOut size={15} strokeWidth={1.7} className="shrink-0" />
+          <span className="leading-none">Sign out</span>
+        </button>
       </div>
     </>
   );

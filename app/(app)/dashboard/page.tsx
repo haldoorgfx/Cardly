@@ -30,7 +30,7 @@ export default async function DashboardPage() {
   const activeCount = allEvents.filter(e => e.status === 'published').length;
   const totalDownloads = allEvents.reduce((s, e) => s + e.download_count, 0);
   const totalViews = allEvents.reduce((s, e) => s + e.view_count, 0);
-  const firstName = profile?.full_name?.split(' ')[0] ?? 'there';
+  const firstName = profile?.full_name?.split(' ')[0] ?? '';
 
   // ─── C1: Empty state ───────────────────────────────────────────────────────
   if (isEmpty) {
@@ -53,7 +53,7 @@ export default async function DashboardPage() {
               </svg>
             </div>
             <div className="relative flex-1 min-w-0">
-              <div className="font-display font-bold text-[16px] text-[#0F1F18]">Welcome to Cardly, {firstName} 👋</div>
+              <div className="font-display font-bold text-[16px] text-[#0F1F18]">{firstName ? `Welcome back, ${firstName} 👋` : 'Welcome to Cardly 👋'}</div>
               <div className="text-[13px] text-[#6B7A72] mt-0.5">
                 You&apos;re on the <span className="font-medium text-[#0F1F18]">{plan.charAt(0).toUpperCase() + plan.slice(1)}</span> plan. Let&apos;s set up your first event.
               </div>
@@ -89,15 +89,15 @@ export default async function DashboardPage() {
                       <path d="M12 5v14M5 12h14" />
                     </svg>
                   </div>
-                  <h2 className="font-display font-bold text-[32px] text-[#0F1F18] leading-tight tracking-tight">
+                  <h2 className="font-display font-bold text-[36px] text-[#0F1F18] leading-tight tracking-tight">
                     Create your first event
                   </h2>
                   <p className="mt-3 text-[15px] text-[#6B7A72] max-w-[420px] mx-auto leading-relaxed">
                     Upload your design, mark the editable zones, share the link. Attendees personalize their own card.
                   </p>
                   <div
-                    className="mt-7 inline-flex items-center gap-2 h-12 px-7 rounded-xl text-white font-display font-semibold text-[15px] transition hover:opacity-90"
-                    style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)', boxShadow: '0 8px 24px rgba(31,77,58,0.35)' }}
+                    className="mt-7 inline-flex items-center gap-2 h-12 px-7 rounded-xl text-white font-display font-semibold text-[15px] transition-colors hover:bg-[#163828]"
+                    style={{ background: '#1F4D3A' }}
                   >
                     Upload a design
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
@@ -127,8 +127,8 @@ export default async function DashboardPage() {
                 ] as { n: string; icon: React.ReactNode; title: string; body: string }[]).map((step) => (
                   <div
                     key={step.n}
-                    className="relative bg-white rounded-2xl p-5"
-                    style={{ border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}
+                    className="relative bg-white rounded-2xl p-5 shadow-soft transition-all duration-200 hover:shadow-lift"
+                    style={{ border: '1px solid #E5E0D4' }}
                   >
                     <div className="flex items-center justify-between mb-4">
                       <div className="text-[11px] font-mono text-[#6B7A72]/45">{step.n}</div>
