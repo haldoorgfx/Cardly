@@ -490,7 +490,7 @@ export default function HowItWorksPage() {
 
       {/* Step rows — alternating left/right */}
       {STEPS.map((s, i) => {
-        const mocks = [<MockStep1 />, <MockStep2 />, <MockStep3 />, <MockStep4 />];
+        const mocks = [<MockStep1 key="1" />, <MockStep2 key="2" />, <MockStep3 key="3" />, <MockStep4 key="4" />];
         const reverse = i % 2 === 1;
         return (
           <section key={s.n} id={`step-${s.n}`} className="relative">
