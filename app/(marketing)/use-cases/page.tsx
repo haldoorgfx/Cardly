@@ -170,7 +170,7 @@ export default function UseCasesPage() {
         <div className="max-w-2xl">
           <div className="text-[11px] tracking-[0.18em] font-mono text-brand-primary mb-4">USE CASES</div>
           <h1 className="font-display font-bold text-[48px] sm:text-[60px] leading-[1.02] tracking-tight">
-            Cardly works for every kind of campaign.
+            Karta works for every kind of campaign.
           </h1>
           <p className="mt-5 text-[17px] text-brand-ink/65 max-w-[520px] leading-relaxed">
             Conferences, NGOs, political campaigns, brands, religious organizations, universities — any campaign where people want to share they&apos;re part of something.
@@ -218,7 +218,7 @@ export default function UseCasesPage() {
 
           {/* Problems solved */}
           <div className="bg-white p-8 lg:p-10">
-            <div className="font-mono text-[10px] tracking-[0.2em] text-brand-primary uppercase mb-5">Problems Cardly solves</div>
+            <div className="font-mono text-[10px] tracking-[0.2em] text-brand-primary uppercase mb-5">Problems Karta solves</div>
             <ul className="grid sm:grid-cols-2 gap-3">
               {tab.problems.map(p => (
                 <li key={p} className="flex items-start gap-3 text-[14px] text-brand-ink/75 leading-relaxed">
@@ -264,11 +264,11 @@ export default function UseCasesPage() {
               Don&apos;t see your use case?
             </h2>
             <p className="mt-2 text-[16px] text-brand-ink/65">
-              Email us — if your campaign has a design and needs people to share it, Cardly can probably do it.
+              Email us — if your campaign has a design and needs people to share it, Karta can probably do it.
             </p>
           </div>
           <div className="flex gap-3 shrink-0 flex-wrap">
-            <a href="mailto:hello@cardly.app"
+            <a href="mailto:hello@cre8so.com"
               className="inline-flex items-center gap-2 text-[14px] font-medium text-brand-ink border border-brand-border rounded-xl px-5 py-3 hover:bg-white transition">
               Email us
             </a>

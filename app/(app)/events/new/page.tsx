@@ -88,7 +88,7 @@ export default function NewEventPage() {
               <ChevronLeft size={16} strokeWidth={2} />
             </Link>
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-[16px] text-[#0a0a0a]">Cardly</span>
+              <span className="font-semibold text-[16px] text-[#0a0a0a]">Karta</span>
               <span className="text-neutral-300">·</span>
               <input
                 value={eventName}

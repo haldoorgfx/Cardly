@@ -31,7 +31,7 @@ export function Footer() {
           {/* Brand column */}
           <div className="col-span-2 md:col-span-1">
             <Link href="/">
-              <span className="font-display font-semibold text-[18px] text-[#0F1F18] tracking-tight">Cardly</span>
+              <span className="font-display font-semibold text-[18px] text-[#0F1F18] tracking-tight">Karta</span>
             </Link>
             <p className="mt-3 text-[13px] text-[#6B7A72] leading-relaxed max-w-[200px]">
               Personalized event cards for every attendee, at any scale.
@@ -66,7 +66,7 @@ export function Footer() {
 
         {/* Bottom row */}
         <div className="mt-7 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <span className="text-[12px] text-[#6B7A72]">© 2026 Cardly Labs · Made with care in Lagos</span>
+          <span className="text-[12px] text-[#6B7A72]">© 2026 Karta · Made with care in Lagos</span>
           <div className="flex items-center gap-5">
             <a href="#" className="text-[#6B7A72] hover:text-[#3A4A42] transition" aria-label="Twitter / X">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">

@@ -1,7 +1,7 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════════════════
-// CARDLY CANVAS EDITOR — STATE & BEHAVIOR INVENTORY
+// KARTA CANVAS EDITOR — STATE & BEHAVIOR INVENTORY
 // Documented before UI refactor (Step 1). DO NOT remove any of this logic.
 // ───────────────────────────────────────────────────────────────────────────
 //

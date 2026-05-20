@@ -127,7 +127,7 @@ export default function ArrivalScreen({
             fontSize: 11, color: '#6B7A72',
             letterSpacing: '0.04em', textAlign: 'center',
           }}>
-            powered by <span style={{ color: '#0F1F18', fontWeight: 500 }}>cardly</span>
+            powered by <span style={{ color: '#0F1F18', fontWeight: 500 }}>karta</span>
           </div>
         </div>
       </div>
@@ -143,7 +143,7 @@ export default function ArrivalScreen({
             fontFamily: 'JetBrains Mono, monospace',
             fontSize: 11, color: '#6B7A72', letterSpacing: '0.04em',
           }}>
-            powered by <span style={{ color: '#0F1F18', fontWeight: 500 }}>cardly</span>
+            powered by <span style={{ color: '#0F1F18', fontWeight: 500 }}>karta</span>
           </div>
         </div>
 

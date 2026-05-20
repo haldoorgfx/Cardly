@@ -141,7 +141,7 @@ export default async function BillingPage({
               {[
                 limits.events === null ? 'Unlimited active events' : `${limits.events} active event`,
                 `${limits.cardsPerMonth} cards / month`,
-                limits.watermark ? 'Cardly watermark on cards' : 'No Cardly watermark',
+                limits.watermark ? 'Karta watermark on cards' : 'No Karta watermark',
               ].map(f => (
                 <li key={f} className="flex items-center gap-2.5 text-[13px] text-[#3A4A42]">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1F4D3A" strokeWidth="2.5" strokeLinecap="round">

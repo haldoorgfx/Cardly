@@ -138,14 +138,14 @@ export function staticText(c: TextCfg): string {
     ${esc(c.hashtag)}
   </text>
 
-  <!-- ── CARDLY WATERMARK ── -->
+  <!-- ── KARTA WATERMARK ── -->
   <text x="${W - 60}" y="${H - 48}"
     text-anchor="end"
     font-family="'Courier New', Courier, monospace"
     font-size="22"
     fill="${c.light ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.15)'}"
     letter-spacing="5">
-    MADE WITH CARDLY
+    MADE WITH KARTA
   </text>`;
 }
 

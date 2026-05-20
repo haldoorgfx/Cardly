@@ -86,7 +86,7 @@ async function compositePhoto(base: sharp.Sharp, zone: Zone, photoBuffer: Buffer
 }
 
 async function addWatermark(base: sharp.Sharp, canvasW: number, canvasH: number): Promise<sharp.Sharp> {
-  const text = 'Made with Cardly';
+  const text = 'Made with Karta';
   const svg = `<svg width="${canvasW}" height="${WATERMARK_HEIGHT}" xmlns="http://www.w3.org/2000/svg">
     <rect width="${canvasW}" height="${WATERMARK_HEIGHT}" fill="rgba(0,0,0,0.35)"/>
     <text

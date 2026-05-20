@@ -53,14 +53,14 @@ export default function AboutPage() {
         <div className="relative mx-auto max-w-[1200px] px-5 lg:px-10 pt-16 lg:pt-24 pb-16 lg:pb-24 grid lg:grid-cols-[1.2fr_1fr] gap-12 lg:gap-16 items-center">
           <div>
             <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-5">
-              About Cardly
+              About Karta
             </div>
             <h1 className="font-display font-bold text-ink text-[42px] sm:text-[58px] lg:text-[72px] leading-[0.94] tracking-tight">
               Built in Djibouti.{' '}
               <span className="text-primary">For the world.</span>
             </h1>
             <p className="mt-6 text-ink-soft text-[17px] lg:text-[19px] leading-[1.55] max-w-[520px]">
-              Cardly is the tool we wished existed when we ran campaigns ourselves.
+              Karta is the tool we wished existed when we ran campaigns ourselves.
               Built Africa-first — but the problem is global.
             </p>
             {/* Stats */}
@@ -95,7 +95,7 @@ export default function AboutPage() {
               The answer, every time, was the same: a Canva template, a Dropbox link, and a voice note explaining how to edit it. Half the attendees couldn&apos;t figure it out. The other half did it wrong. The designer ended up making 80 individual versions manually, the night before the event.
             </p>
             <p>
-              Cardly is the fix. You upload your design — the real one, the one your designer spent time on — mark which parts attendees can personalize, and share one link. Attendees open it on their phone, fill in their name, upload a photo, and download their own version in under a minute. No Canva. No voice notes. No designer doing it manually at midnight.
+              Karta is the fix. You upload your design — the real one, the one your designer spent time on — mark which parts attendees can personalize, and share one link. Attendees open it on their phone, fill in their name, upload a photo, and download their own version in under a minute. No Canva. No voice notes. No designer doing it manually at midnight.
             </p>
             <p>
               Built in Djibouti, for organizers running campaigns across Africa, the Middle East, and increasingly the world. One flat link. Works on any phone. And when the day comes, every supporter, speaker and attendee has their own branded moment to share.
@@ -108,7 +108,7 @@ export default function AboutPage() {
             </div>
             <div>
               <div className="font-display font-semibold text-ink text-[15px] tracking-tight">Abdalla</div>
-              <div className="font-mono text-[10px] tracking-[0.16em] uppercase text-muted mt-0.5">Founder · Cardly</div>
+              <div className="font-mono text-[10px] tracking-[0.16em] uppercase text-muted mt-0.5">Founder · Karta</div>
             </div>
             <div className="ml-auto font-display italic text-muted text-[14px]">Djibouti, 2024</div>
           </div>
@@ -122,7 +122,7 @@ export default function AboutPage() {
         <div className="relative mx-auto max-w-[1200px] px-5 lg:px-10 py-20 lg:py-28">
           <div className="max-w-[760px] mb-14 lg:mb-16">
             <div className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase mb-5">
-              What Cardly stands for
+              What Karta stands for
             </div>
             <h2 className="font-display font-bold text-cream text-[32px] sm:text-[42px] lg:text-[48px] leading-[1.02] tracking-tight">
               Three things we&apos;ll never water down.
@@ -178,10 +178,10 @@ export default function AboutPage() {
                 A small team. A clear remit.
               </h2>
               <p className="mt-4 text-ink-soft text-[16px] lg:text-[17px] leading-[1.6]">
-                Building Cardly alone for now. If you&apos;ve worked on African campaigns and want to build the tool you wish existed — let&apos;s talk.
+                Building Karta alone for now. If you&apos;ve worked on African campaigns and want to build the tool you wish existed — let&apos;s talk.
               </p>
             </div>
-            <a href="mailto:hello@cardly.app"
+            <a href="mailto:hello@cre8so.com"
               className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-primary text-cream font-medium text-[14px] hover:bg-primary-dark transition-colors">
               Get in touch <ArrowRight size={14} />
             </a>
@@ -212,7 +212,7 @@ export default function AboutPage() {
                 <div className="font-mono text-[10px] tracking-[0.14em] uppercase text-primary mt-1.5">{m.role}</div>
                 <div className="mt-1 text-[12px] text-muted">{m.location}</div>
                 {!m.active && (
-                  <a href="mailto:hello@cardly.app" className="mt-4 inline-flex items-center gap-1.5 text-[12px] font-medium text-primary">
+                  <a href="mailto:hello@cre8so.com" className="mt-4 inline-flex items-center gap-1.5 text-[12px] font-medium text-primary">
                     Apply <ArrowRight size={12} />
                   </a>
                 )}
@@ -238,7 +238,7 @@ export default function AboutPage() {
               {
                 who: 'TechCabal',
                 date: 'APR 2026',
-                quote: 'Cardly\'s WhatsApp-first share flow is exactly the kind of design African startups should be exporting.',
+                quote: 'Karta\'s WhatsApp-first share flow is exactly the kind of design African startups should be exporting.',
               },
               {
                 who: 'Rest of World',
@@ -272,9 +272,9 @@ export default function AboutPage() {
             Especially the hard problems.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <a href="mailto:hello@cardly.app"
+            <a href="mailto:hello@cre8so.com"
               className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-primary text-cream font-medium hover:bg-primary-dark transition-colors">
-              hello@cardly.app <ArrowRight size={16} />
+              hello@cre8so.com <ArrowRight size={16} />
             </a>
             <Link href="/signup"
               className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full border border-border text-ink font-medium hover:border-primary hover:text-primary transition-colors">

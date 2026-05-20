@@ -3,9 +3,9 @@ import { ArrowRight, Globe, Zap, Users, BarChart3 } from 'lucide-react';
 import Reveal from '@/components/marketing/Reveal';
 
 export const metadata = {
-  title: 'Partners — Cardly',
+  title: 'Partners — Karta',
   description:
-    'Grow your event business with Cardly. Reseller, integration, and co-marketing programs for agencies and platforms.',
+    'Grow your event business with Karta. Reseller, integration, and co-marketing programs for agencies and platforms.',
 };
 
 const PROGRAMS = [
@@ -13,7 +13,7 @@ const PROGRAMS = [
     icon: <Users size={22} strokeWidth={1.8} />,
     tag: '01 · Reseller',
     title: 'Reseller program',
-    desc: 'Sell Cardly to your event clients under your own brand. You manage the relationship; we power the product. Revenue share from day one.',
+    desc: 'Sell Karta to your event clients under your own brand. You manage the relationship; we power the product. Revenue share from day one.',
     points: [
       'White-label attendee pages (Studio tier)',
       'Dedicated account manager',
@@ -25,11 +25,11 @@ const PROGRAMS = [
     icon: <Zap size={22} strokeWidth={1.8} />,
     tag: '02 · Integration',
     title: 'Integration partner',
-    desc: 'Connect Cardly to your event platform, ticketing system, or CRM. We provide API access and co-marketing support to reach shared audiences.',
+    desc: 'Connect Karta to your event platform, ticketing system, or CRM. We provide API access and co-marketing support to reach shared audiences.',
     points: [
       'Full API access on Pro/Studio',
       'Webhook support for real-time card events',
-      'Listed in the Cardly integrations directory',
+      'Listed in the Karta integrations directory',
       'Joint launch announcement',
     ],
   },
@@ -88,7 +88,7 @@ function PartnersHero() {
             Partners
           </div>
           <h1 className="font-display font-bold text-ink text-[44px] sm:text-[60px] lg:text-[78px] leading-[0.95] tracking-[-0.035em]">
-            Grow with Cardly.{' '}
+            Grow with Karta.{' '}
             <span className="text-primary">We grow with you.</span>
           </h1>
           <p className="mt-6 text-ink-soft text-[18px] lg:text-[20px] leading-[1.55] max-w-[620px]">
@@ -98,7 +98,7 @@ function PartnersHero() {
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <a
-              href="mailto:partners@cardly.app"
+              href="mailto:partners@cre8so.com"
               className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full font-medium transition-colors bg-primary text-cream hover:bg-primary-dark"
             >
               Apply to partner <ArrowRight size={16} strokeWidth={2} />
@@ -261,7 +261,7 @@ function WhyPartner() {
         <Reveal>
           <div className="max-w-[680px] mb-12">
             <div className="font-mono text-[11px] tracking-[0.22em] uppercase mb-4" style={{ color: '#E8C57E' }}>
-              Why Cardly
+              Why Karta
             </div>
             <h2 className="font-display font-bold text-cream text-[32px] sm:text-[42px] lg:text-[50px] leading-[1.02] tracking-[-0.035em]">
               Partner with a team that&apos;s serious about this.
@@ -316,10 +316,10 @@ function PartnerCTA() {
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <a
-            href="mailto:partners@cardly.app"
+            href="mailto:partners@cre8so.com"
             className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-medium transition-colors bg-primary text-cream hover:bg-primary-dark"
           >
-            partners@cardly.app <ArrowRight size={16} strokeWidth={2} />
+            partners@cre8so.com <ArrowRight size={16} strokeWidth={2} />
           </a>
           <Link
             href="/contact"

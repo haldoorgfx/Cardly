@@ -64,7 +64,7 @@ export default function EventBrandStrip({ eventName, compact = false }: Props) {
           letterSpacing: '0.04em',
           marginTop: 2,
         }}>
-          powered by cardly
+          powered by karta
         </div>
       </div>
     </div>

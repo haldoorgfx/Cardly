@@ -115,8 +115,8 @@ export default function PrivacyPage() {
               events, you can do that from the dashboard.
             </p>
             <p className="mt-3">
-              If you are an attendee who submitted data through a Cardly event
-              and want that data removed, email us at hello@cardly.app with the
+              If you are an attendee who submitted data through a Karta event
+              and want that data removed, email us at hello@cre8so.com with the
               event name.
             </p>
           </section>
@@ -128,10 +128,10 @@ export default function PrivacyPage() {
             <p>
               Privacy questions:{" "}
               <a
-                href="mailto:hello@cardly.app"
+                href="mailto:hello@cre8so.com"
                 className="text-brand-primary hover:underline"
               >
-                hello@cardly.app
+                hello@cre8so.com
               </a>
               . We&apos;re a small team and we reply to every message.
             </p>

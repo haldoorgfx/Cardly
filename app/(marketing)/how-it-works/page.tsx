@@ -6,7 +6,7 @@ const STEPS = [
     n: 1,
     short: 'Upload your design',
     duration: '~2 min',
-    title: 'Drop in any design. Cardly handles the rest.',
+    title: 'Drop in any design. Karta handles the rest.',
     body: 'Export from Canva, Figma, Illustrator, Photoshop — anywhere. PNG or JPG, any aspect ratio. We auto-detect the canvas size and place it on the editor at the right scale.',
     bullets: [
       'PNG / JPG · up to 20 MB',
@@ -33,9 +33,9 @@ const STEPS = [
     short: 'Publish your link',
     duration: '~30 sec',
     title: 'One link. WhatsApp, email, QR. No accounts.',
-    body: "Cardly generates a short URL and a QR code for your campaign. Share it however your audience already shares — WhatsApp groups, email blasts, printed flyers, event signage. Attendees never sign up.",
+    body: "Karta generates a short URL and a QR code for your campaign. Share it however your audience already shares — WhatsApp groups, email blasts, printed flyers, event signage. Attendees never sign up.",
     bullets: [
-      'Short URL · cardly.app/your-slug',
+      'Short URL · karta.cre8so.com/your-slug',
       'QR code · downloadable PNG and SVG',
       'Embed code · drop into any website',
       'No attendee account, no app download',
@@ -119,7 +119,7 @@ function ZoneOverlay({ x, y, w, h, label, circle = false }: {
 
 function MockStep1() {
   return (
-    <AppChrome url="cardly.app/editor · new event" height={380}>
+    <AppChrome url="karta.cre8so.com/editor · new event" height={380}>
       <div className="grid h-full" style={{ gridTemplateColumns: '170px 1fr' }}>
         <aside className="bg-cream/60 border-r border-border p-3 flex flex-col gap-2">
           <div className="font-mono text-[9px] tracking-[0.18em] text-muted uppercase mb-1">Event setup</div>
@@ -165,7 +165,7 @@ function MockStep1() {
 
 function MockStep2() {
   return (
-    <AppChrome url="cardly.app/editor · 5th pan-african youth forum" height={380}>
+    <AppChrome url="karta.cre8so.com/editor · 5th pan-african youth forum" height={380}>
       <div className="grid h-full" style={{ gridTemplateColumns: '160px 1fr 165px' }}>
         <aside className="bg-cream/60 border-r border-border p-3 flex flex-col gap-2">
           <div className="font-mono text-[9px] tracking-[0.18em] text-muted uppercase">Zones · 5</div>
@@ -250,14 +250,14 @@ function MockStep3() {
     ['Copy link', '#6B7A72'],
   ];
   return (
-    <AppChrome url="cardly.app/editor · publish" height={380}>
+    <AppChrome url="karta.cre8so.com/editor · publish" height={380}>
       <div className="grid h-full" style={{ gridTemplateColumns: '1fr 240px' }}>
         <div className="p-5 flex flex-col gap-3.5">
           <div className="font-mono text-[9px] tracking-[0.22em] uppercase text-primary">Your link is live</div>
           <div className="font-display font-bold text-ink text-[18px] tracking-tight leading-tight">5th Pan-African Youth Forum</div>
           <div className="bg-cream border border-border rounded-xl p-3 flex items-center justify-between gap-3">
             <div className="font-mono text-[11px] text-ink truncate">
-              <span className="text-muted">cardly.app/</span>y2025
+              <span className="text-muted">karta.cre8so.com/</span>y2025
             </div>
             <div className="text-[10px] bg-primary text-cream px-3 py-1.5 rounded-full font-medium inline-flex items-center gap-1.5">
               <Check size={10} /> Copied
@@ -337,7 +337,7 @@ function MockStep4() {
     ['Yusuf Bello', 'YB', '14 sh.'],
   ];
   return (
-    <AppChrome url="cardly.app/dashboard · 5th pan-african youth forum" height={380}>
+    <AppChrome url="karta.cre8so.com/dashboard · 5th pan-african youth forum" height={380}>
       <div className="grid h-full" style={{ gridTemplateColumns: '1fr 190px' }}>
         <div className="p-4 flex flex-col gap-3 overflow-hidden">
           <div className="flex items-baseline justify-between">

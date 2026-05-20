@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { Globe, MessageCircle, Camera } from 'lucide-react';
 
 const FOOTER_COLS = [
   {
@@ -46,30 +45,12 @@ export function MarketingFooter() {
                 style={{ background: 'linear-gradient(135deg, #FAF6EE 0%, #E8C57E 100%)' }}
               />
               <span className="font-display text-[24px] font-bold tracking-tight text-cream">
-                Cardly
+                Karta
               </span>
             </div>
             <p style={{ color: 'rgba(250,246,238,0.65)' }} className="text-[14px] leading-[1.55] max-w-[280px]">
               Personalized share cards for every campaign.
             </p>
-            <div className="flex items-center gap-2.5 mt-6">
-              {[
-                { Icon: Globe,         label: 'LinkedIn',    href: 'https://linkedin.com/company/cardly-app' },
-                { Icon: MessageCircle, label: 'X / Twitter', href: 'https://x.com/cardlyapp' },
-                { Icon: Camera,        label: 'Instagram',   href: 'https://instagram.com/cardlyapp' },
-              ].map(({ Icon, label, href }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  className="w-9 h-9 grid place-items-center rounded-full transition-colors border border-white/15 hover:bg-white/10 hover:border-white/30"
-                >
-                  <Icon size={15} strokeWidth={1.8} />
-                </a>
-              ))}
-            </div>
           </div>
 
           {/* Link columns */}
@@ -114,7 +95,7 @@ export function MarketingFooter() {
           style={{ borderTop: '1px solid rgba(250,246,238,0.1)' }}
         >
           <div style={{ color: 'rgba(250,246,238,0.55)' }} className="text-[13px]">
-            © 2026 Cardly. Built with care for organizers everywhere.
+            © 2026 Karta. Built with care for organizers everywhere.
           </div>
           <div
             className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.22em] uppercase px-3 py-1.5 rounded-full"

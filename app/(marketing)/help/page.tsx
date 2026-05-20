@@ -3,9 +3,9 @@ import { ArrowRight, BookOpen, Layers, CreditCard, Share2, Zap, HelpCircle } fro
 import Reveal from '@/components/marketing/Reveal';
 
 export const metadata = {
-  title: 'Help Center — Cardly',
+  title: 'Help Center — Karta',
   description:
-    'Guides and answers for Cardly — getting started, the editor, sharing, billing, and more.',
+    'Guides and answers for Karta — getting started, the editor, sharing, billing, and more.',
 };
 
 const CATEGORIES = [
@@ -48,7 +48,7 @@ const CATEGORIES = [
 ];
 
 const POPULAR = [
-  { title: 'How do I remove the "Made with Cardly" watermark?', category: 'Billing' },
+  { title: 'How do I remove the "Made with Karta" watermark?', category: 'Billing' },
   { title: 'Can attendees edit their card after downloading?', category: 'Sharing' },
   { title: 'What image size should I upload as the background?', category: 'Getting started' },
   { title: 'How do I set a photo zone to circle crop?', category: 'Editor' },
@@ -89,7 +89,7 @@ function HelpHero() {
           How can we help?
         </h1>
         <p className="mt-5 text-ink-soft text-[17px] lg:text-[18px] leading-[1.55] max-w-[500px] mx-auto">
-          Guides, answers, and everything you need to run a successful campaign with Cardly.
+          Guides, answers, and everything you need to run a successful campaign with Karta.
         </p>
 
         {/* Decorative search bar — links to contact */}
@@ -240,7 +240,7 @@ function ContactCTA() {
         </p>
         <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
           <a
-            href="mailto:hello@cardly.app"
+            href="mailto:hello@cre8so.com"
             className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full font-medium transition-colors bg-accent text-primary-dark hover:bg-accent-dark"
           >
             Email us <ArrowRight size={16} strokeWidth={2} />

@@ -71,7 +71,7 @@ export default function MobileFallback({ eventId, eventName, variantSlug }: Mobi
           <span style={{
             fontFamily: 'JetBrains Mono, monospace', fontSize: 11,
             color: '#6B7A72', letterSpacing: '0.06em',
-          }}>cardly</span>
+          }}>karta</span>
         </a>
         <span style={{
           fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
@@ -227,7 +227,7 @@ export default function MobileFallback({ eventId, eventName, variantSlug }: Mobi
           fontFamily: 'JetBrains Mono, monospace', fontSize: 11,
           color: '#6B7A72', letterSpacing: '0.04em',
         }}>
-          powered by <span style={{ color: '#0F1F18', fontWeight: 500 }}>cardly</span>
+          powered by <span style={{ color: '#0F1F18', fontWeight: 500 }}>karta</span>
         </div>
       </div>
     </div>

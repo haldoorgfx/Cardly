@@ -30,7 +30,7 @@ const PLANS: Plan[] = [
     features: [
       '1 active event',
       'Up to 50 cards generated',
-      'Cardly watermark on attendee cards',
+      'Karta watermark on attendee cards',
       'Standard photo crop shapes',
       'Email support',
     ],
@@ -46,7 +46,7 @@ const PLANS: Plan[] = [
     features: [
       '5 active events',
       'Unlimited cards generated',
-      'No Cardly watermark',
+      'No Karta watermark',
       'Up to 3 variants per event',
       'Custom share captions',
       'Multi-language attendee form',
@@ -144,7 +144,7 @@ const PRICING_FAQS: FAQItem[] = [
   { q: 'What happens to my cards if I downgrade?', a: 'Cards already generated stay live forever — your attendees can always re-download what they made. New cards generated after a downgrade follow the limits of the new plan.' },
   { q: 'Do you offer discounts for nonprofits, students, or political campaigns?', a: 'Yes. Registered nonprofits get 40% off Pro and Studio. Verified educational institutions get 30% off. Email us with a letterhead or domain proof and we\'ll set you up within 24 hours.' },
   { q: "What's a 'card'? Does each download count?", a: 'One card = one attendee submitting the form and downloading their personalized version. If the same attendee re-downloads, that\'s still one card. We count unique generations, not file taps.' },
-  { q: 'Can I pay annually by bank transfer or mobile money?', a: 'Yes. Studio annual plans accept SWIFT bank transfer (USD/EUR/GBP), M-Pesa, MTN MoMo, and Paystack. Email billing@cardly.app to set it up.' },
+  { q: 'Can I pay annually by bank transfer or mobile money?', a: 'Yes. Studio annual plans accept SWIFT bank transfer (USD/EUR/GBP), M-Pesa, MTN MoMo, and Paystack. Email billing@cre8so.com to set it up.' },
   { q: 'Do you have an enterprise plan?', a: 'Studio is our top tier and works for almost everyone. If you need volume seat licensing, custom MSA, or SSO via SAML, email us and we\'ll cut a custom Studio agreement — but the feature surface is the same.' },
   { q: 'Can I get a refund?', a: 'Yes — within the first 14 days of a paid plan, no questions asked. After that, we\'ll prorate any unused billing cycle if you cancel mid-cycle.' },
 ];
@@ -630,7 +630,7 @@ export function PricingContent() {
               Start free <ArrowRight size={16} strokeWidth={2} />
             </Link>
             <a
-              href="mailto:hello@cardly.app"
+              href="mailto:hello@cre8so.com"
               className="inline-flex items-center gap-2 text-ink underline decoration-ink/30 underline-offset-4 hover:decoration-primary hover:text-primary transition-colors text-[15px]"
             >
               Talk to sales <ArrowRight size={14} strokeWidth={2} />

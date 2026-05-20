@@ -53,7 +53,7 @@ export default async function DashboardPage() {
               </svg>
             </div>
             <div className="relative flex-1 min-w-0">
-              <div className="font-display font-bold text-[16px] text-[#0F1F18]">{firstName ? `Welcome back, ${firstName} 👋` : 'Welcome to Cardly 👋'}</div>
+              <div className="font-display font-bold text-[16px] text-[#0F1F18]">{firstName ? `Welcome back, ${firstName} 👋` : 'Welcome to Karta 👋'}</div>
               <div className="text-[13px] text-[#6B7A72] mt-0.5">
                 You&apos;re on the <span className="font-medium text-[#0F1F18]">{plan.charAt(0).toUpperCase() + plan.slice(1)}</span> plan. Let&apos;s set up your first event.
               </div>

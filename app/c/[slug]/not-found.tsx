@@ -27,12 +27,12 @@ export default function AttendeeNotFound() {
             className="inline-flex items-center h-10 px-5 rounded-xl text-[13.5px] font-medium text-white transition hover:opacity-90"
             style={{ background: '#1F4D3A' }}
           >
-            Cardly home
+            Karta home
           </Link>
         </div>
 
         <p className="mt-6 text-[12px] text-[#0F1F18]/30">
-          Made with Cardly · cardly.app
+          Made with Karta · karta.cre8so.com
         </p>
       </div>
     </div>

@@ -2,9 +2,9 @@ import Reveal from '@/components/marketing/Reveal';
 import { NewsCTAClient } from './NewsCTAClient';
 
 export const metadata = {
-  title: "What's New — Cardly",
+  title: "What's New — Karta",
   description:
-    "A running changelog of everything shipped at Cardly. New features, improvements, and fixes.",
+    "A running changelog of everything shipped at Karta. New features, improvements, and fixes.",
 };
 
 type TagType = 'New' | 'Improved' | 'Fix' | 'Breaking';
@@ -101,7 +101,7 @@ const CHANGELOG: ChangeEntry[] = [
     version: 'v1.0.0',
     date: 'Mar 1, 2026',
     headline: 'Initial launch',
-    summary: 'Cardly is live. Designers can upload a background, define text and photo zones, publish a campaign link, and let attendees generate their own personalized cards.',
+    summary: 'Karta is live. Designers can upload a background, define text and photo zones, publish a campaign link, and let attendees generate their own personalized cards.',
     changes: [
       { tag: 'New', text: 'Upload design background (PNG/JPG, up to 20MB)' },
       { tag: 'New', text: 'Text zones and photo zones with drag/resize editor' },
@@ -143,7 +143,7 @@ function ChangelogHero() {
           Changelog
         </div>
         <h1 className="font-display font-bold text-ink text-[44px] sm:text-[60px] lg:text-[68px] leading-[0.95] tracking-[-0.035em] max-w-[760px]">
-          What&rsquo;s new in Cardly
+          What&rsquo;s new in Karta
         </h1>
         <p className="mt-5 text-ink-soft text-[17px] lg:text-[18px] leading-[1.55] max-w-[520px]">
           Every feature, fix, and improvement — documented as it ships.

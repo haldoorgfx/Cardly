@@ -56,7 +56,7 @@ export default function TopBar({
 
       <div className="h-5 w-px bg-border shrink-0" />
 
-      {/* Cardly mark */}
+      {/* Karta mark */}
       <a href="/dashboard" className="shrink-0">
         <span className="h-7 w-7 rounded-lg grid place-items-center text-white font-display font-bold text-[13px] bg-primary">C</span>
       </a>

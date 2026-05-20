@@ -29,7 +29,7 @@ export default function BrandKitPage() {
   const [primaryColor, setPrimaryColor] = useState('#1F4D3A');
   const [secondaryColor, setSecondaryColor] = useState('#E8C57E');
   const [selectedPair, setSelectedPair] = useState(0);
-  const [footerText, setFooterText] = useState('Made with Cardly');
+  const [footerText, setFooterText] = useState('Made with Karta');
   const [logos, setLogos] = useState<Logos>({});
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -205,7 +205,7 @@ export default function BrandKitPage() {
                   ) : (
                     <div className="text-center">
                       <div className="h-10 w-10 rounded-xl mx-auto mb-2 grid place-items-center text-white text-[13px] font-display font-bold opacity-40 bg-primary">C</div>
-                      <div className={`font-display font-bold text-[15px] opacity-30 ${textColor}`}>cardly.</div>
+                      <div className={`font-display font-bold text-[15px] opacity-30 ${textColor}`}>karta.</div>
                       <div className={`mt-2 text-[11px] ${textColor} opacity-40`}>Click to upload</div>
                     </div>
                   )}
@@ -371,7 +371,7 @@ export default function BrandKitPage() {
               />
             </div>
             <p className="text-[12.5px] text-[#0F1F18]/50 mb-4">
-              Instead of <span className="font-mono text-[#0F1F18]/70">cardly.app/c/slug</span>, attendees visit <span className="font-mono text-[#0F1F18]/70">cards.yourbrand.com/slug</span>.
+              Instead of <span className="font-mono text-[#0F1F18]/70">karta.cre8so.com/c/slug</span>, attendees visit <span className="font-mono text-[#0F1F18]/70">cards.yourbrand.com/slug</span>.
             </p>
             <Link
               href="/pricing"
@@ -400,7 +400,7 @@ export default function BrandKitPage() {
             <div className="mt-3 rounded-xl overflow-hidden">
               <div className="h-24 rounded-t-xl" style={{ background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }} />
               <div className="py-2 px-3 bg-cream border border-t-0 border-border rounded-b-xl flex items-center justify-center">
-                <span className="text-[11px] font-mono text-[#0F1F18]/40">{footerText || 'Made with Cardly'}</span>
+                <span className="text-[11px] font-mono text-[#0F1F18]/40">{footerText || 'Made with Karta'}</span>
               </div>
             </div>
             <p className="mt-3 text-[11.5px] text-[#0F1F18]/45">

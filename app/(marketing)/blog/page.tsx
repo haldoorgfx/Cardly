@@ -4,9 +4,9 @@ import Reveal from '@/components/marketing/Reveal';
 import { NewsletterSectionClient } from './NewsletterSectionClient';
 
 export const metadata = {
-  title: 'Blog — Cardly',
+  title: 'Blog — Karta',
   description:
-    'Thoughts on campaigns, design, and building for Africa. Published by the Cardly team.',
+    'Thoughts on campaigns, design, and building for Africa. Published by the Karta team.',
 };
 
 const FEATURED = {
@@ -23,7 +23,7 @@ const POSTS = [
   {
     category: 'Design',
     date: 'May 8, 2026',
-    title: 'The zone system: how Cardly cards stay on-brand at any scale',
+    title: 'The zone system: how Karta cards stay on-brand at any scale',
     excerpt: "Behind every personalized card is a coordinate system. Here's how we built zones to give designers control without blocking attendees.",
     readTime: '5 min read',
     slug: '/blog/zone-system-on-brand',
@@ -32,7 +32,7 @@ const POSTS = [
     category: 'Campaigns',
     date: 'Apr 30, 2026',
     title: 'Lessons from 247,000 cards: what makes a campaign go wide',
-    excerpt: 'We analysed share patterns across every campaign on Cardly. Two things consistently predict whether a card gets shared or sits in a download folder.',
+    excerpt: 'We analysed share patterns across every campaign on Karta. Two things consistently predict whether a card gets shared or sits in a download folder.',
     readTime: '8 min read',
     slug: '/blog/247k-cards-campaign-lessons',
   },
@@ -63,7 +63,7 @@ const POSTS = [
   {
     category: 'Product',
     date: 'Mar 14, 2026',
-    title: 'Cardly is now available in 8 countries',
+    title: 'Karta is now available in 8 countries',
     excerpt: "We quietly expanded storage regions and currency support. Here's what changed and which markets are now fully supported.",
     readTime: '3 min read',
     slug: '/blog/8-countries',
@@ -106,7 +106,7 @@ function BlogHero() {
           <span className="text-primary">design, and Africa.</span>
         </h1>
         <p className="mt-5 text-ink-soft text-[17px] lg:text-[18px] leading-[1.55] max-w-[520px]">
-          Published by the Cardly team. No growth-hacking fluff — just what we&apos;re learning building the product.
+          Published by the Karta team. No growth-hacking fluff — just what we&apos;re learning building the product.
         </p>
 
         {/* Category filter (decorative for now) */}

@@ -26,7 +26,7 @@ export function Nav() {
       <header className="sticky top-0 z-40 bg-[#FAF6EE]/80 backdrop-blur-md border-b border-[#E5E0D4]">
         <nav className="max-w-7xl mx-auto flex items-center justify-between px-6 lg:px-10 h-14">
           <Link href="/" className="flex items-center">
-            <span className="font-semibold text-[16px] text-[#0F1F18]">Cardly</span>
+            <span className="font-semibold text-[16px] text-[#0F1F18]">Karta</span>
           </Link>
 
           <ul className="hidden md:flex items-center gap-8 text-[14px] text-[#3A4A42]">
@@ -89,7 +89,7 @@ export function Nav() {
             {/* Drawer header */}
             <div className="flex items-center justify-between px-5 h-14 border-b border-[#E5E0D4]">
               <Link href="/" className="flex items-center" onClick={() => setOpen(false)}>
-                <span className="font-semibold text-[16px] text-[#0F1F18]">Cardly</span>
+                <span className="font-semibold text-[16px] text-[#0F1F18]">Karta</span>
               </Link>
               <button
                 onClick={() => setOpen(false)}

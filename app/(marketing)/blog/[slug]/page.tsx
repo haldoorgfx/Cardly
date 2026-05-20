@@ -2,8 +2,8 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
 export const metadata = {
-  title: 'Article — Cardly Blog',
-  description: 'Read the full article on the Cardly blog.',
+  title: 'Article — Karta Blog',
+  description: 'Read the full article on the Karta blog.',
 };
 
 export default function BlogArticlePage() {
@@ -55,7 +55,7 @@ export default function BlogArticlePage() {
               Browse all posts <ArrowRight size={14} strokeWidth={2} />
             </Link>
             <a
-              href="mailto:hello@cardly.app"
+              href="mailto:hello@cre8so.com"
               className="inline-flex items-center gap-2 px-5 py-3 rounded-full font-medium text-[14px] transition-colors text-ink"
               style={{ border: '1px solid rgba(15,31,24,0.15)' }}
             >

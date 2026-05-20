@@ -15,7 +15,7 @@ export default function ContactPage() {
         <div className="grid sm:grid-cols-2 gap-5">
           {/* Email */}
           <a
-            href="mailto:hello@cardly.app"
+            href="mailto:hello@cre8so.com"
             className="group rounded-2xl border border-brand-border bg-white p-7 hover:shadow-lift hover:border-brand-primary/30 transition"
           >
             <div className="h-10 w-10 rounded-xl bg-brand-offwhite grid place-items-center text-brand-primary mb-5 group-hover:grad-bg group-hover:text-white transition">
@@ -37,7 +37,7 @@ export default function ContactPage() {
               Email
             </div>
             <div className="font-mono text-[14px] text-brand-primary">
-              hello@cardly.app
+              hello@cre8so.com
             </div>
             <div className="mt-2 text-[13px] text-brand-ink/50">
               For general questions, feedback, and support.
@@ -46,7 +46,7 @@ export default function ContactPage() {
 
           {/* WhatsApp */}
           <a
-            href="https://wa.me/message/cardly"
+            href="#"
             target="_blank"
             rel="noopener noreferrer"
             className="group rounded-2xl border border-brand-border bg-white p-7 hover:shadow-lift hover:border-brand-primary/30 transition"
@@ -85,7 +85,7 @@ export default function ContactPage() {
           <ul className="space-y-2.5 text-[15px] text-brand-ink/70">
             {[
               "You want to set up a Pro or Studio account",
-              "You have a specific event coming up and want to make sure Cardly can handle it",
+              "You have a specific event coming up and want to make sure Karta can handle it",
               "Something broke and you need help urgently",
               "You have feedback on the product — we read all of it",
               "You're an NGO or educational organization and want to discuss pricing",

@@ -284,7 +284,7 @@ function NavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: (
 
   return (
     <>
-      {/* Cardly logo — back to landing page */}
+      {/* Karta logo — back to landing page */}
       <Link
         href="/"
         onClick={onNavigate}
@@ -296,7 +296,7 @@ function NavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: (
           style={{ background: 'linear-gradient(135deg, #FAF6EE 0%, #E8C57E 100%)' }}
         />
         <span className="font-display text-[19px] font-bold tracking-tight text-white">
-          Cardly
+          Karta
         </span>
       </Link>
 

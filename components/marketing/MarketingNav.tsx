@@ -7,7 +7,7 @@ import { ArrowRight, Menu, X, LayoutDashboard, LogOut } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
 
-/* ── Cardly logo mark ────────────────────────────────── */
+/* ── Karta logo mark ────────────────────────────────── */
 function LogoMark() {
   return (
     <span
@@ -88,7 +88,7 @@ function MobileOverlay({
         <div className="h-[68px] px-5 flex items-center justify-between">
           <Link href="/" onClick={onClose} className="flex items-center gap-2">
             <LogoMark />
-            <span className="font-display text-[22px] font-bold tracking-tight text-primary">Cardly</span>
+            <span className="font-display text-[22px] font-bold tracking-tight text-primary">Karta</span>
           </Link>
           <button
             onClick={onClose}
@@ -177,7 +177,7 @@ function MobileOverlay({
 
           {/* Footer strip */}
           <div className="mt-auto pt-10 flex items-center justify-between">
-            <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-muted">cardly.app</div>
+            <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-muted">karta.cre8so.com</div>
             <div className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.22em] uppercase text-primary">
               Built for Africa
             </div>
@@ -245,7 +245,7 @@ export function MarketingNav() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
             <LogoMark />
-            <span className="font-display text-[22px] font-bold tracking-tight text-primary">Cardly</span>
+            <span className="font-display text-[22px] font-bold tracking-tight text-primary">Karta</span>
           </Link>
 
           {/* Desktop nav */}

@@ -33,7 +33,7 @@ export default function ForgotPasswordPage() {
 
       <div className="relative mb-8">
         <Link href="/">
-          <span className="text-[22px] font-semibold text-[#0F1F18] tracking-tight">Cardly</span>
+          <span className="text-[22px] font-semibold text-[#0F1F18] tracking-tight">Karta</span>
         </Link>
       </div>
 
@@ -97,7 +97,7 @@ export default function ForgotPasswordPage() {
       </div>
 
       <p className="relative mt-8 text-center text-[12px] text-[#6B7A72]">
-        © 2026 Cardly ·{" "}
+        © 2026 Karta ·{" "}
         <Link href="/privacy" className="hover:text-[#3A4A42] transition">Privacy</Link>
         {" · "}
         <Link href="/terms" className="hover:text-[#3A4A42] transition">Terms</Link>

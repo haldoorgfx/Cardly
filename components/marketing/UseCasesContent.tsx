@@ -43,7 +43,7 @@ const USE_CASES: UseCase[] = [
     icon: <Mic size={16} strokeWidth={1.8} />,
     headline: 'Make every speaker, sponsor and attendee a poster for your event.',
     intro:
-      'Conferences are won on the timeline. Cardly turns your speaker grid, sponsor deck, and ticket-holder list into 2,000 individual posts — each on-brand, each personal.',
+      'Conferences are won on the timeline. Karta turns your speaker grid, sponsor deck, and ticket-holder list into 2,000 individual posts — each on-brand, each personal.',
     cards: [
       { variant: 'forest', org: 'AFRICA TECH FESTIVAL', event: 'Africa Tech Festival 2026', role: "I'M SPEAKING AT", name: 'Kwame Mensah', initials: 'KM', title: 'Product Engineer · Paystack', date: '12 MAR 2026', location: 'LAGOS', tilt: -4 },
       { variant: 'cream',  org: 'AFRICA TECH FESTIVAL', event: "I'll see you in Lagos.", role: "I'M ATTENDING", name: 'Zainab Okafor', initials: 'ZO', title: 'Backend Engineer · Flutterwave', date: '12 MAR 2026', location: 'LAGOS', tilt: 3 },
@@ -55,16 +55,16 @@ const USE_CASES: UseCase[] = [
       'Sponsors got visibility you promised. The assets they shared looked like clipart.',
       "Designer queue is full and your event starts Thursday.",
     ],
-    quote: { text: "We sent 1,800 speakers a Cardly link and saw 1,400 posts in the first 48 hours. The hashtag trended in three cities.", who: 'Festival Producer · Africa Tech Festival' },
+    quote: { text: "We sent 1,800 speakers a Karta link and saw 1,400 posts in the first 48 hours. The hashtag trended in three cities.", who: 'Festival Producer · Africa Tech Festival' },
     template: 'Tech summit template · 3 variants',
   },
   {
     id: 'ngos',
     label: 'NGOs',
     icon: <Heart size={16} strokeWidth={1.8} />,
-    headline: 'Awareness needs faces. Cardly gives every supporter one.',
+    headline: 'Awareness needs faces. Karta gives every supporter one.',
     intro:
-      'When the cause matters, the people backing it should be visible. Cardly cards turn donors, volunteers and supporters into a wall of branded portraits.',
+      'When the cause matters, the people backing it should be visible. Karta cards turn donors, volunteers and supporters into a wall of branded portraits.',
     cards: [
       { variant: 'duotone', org: 'PAN-AFRICAN CLIMATE', event: 'I stand for the climate.', role: "I'M SUPPORTING", name: 'Fatou Diop', initials: 'FD', title: 'Climate Researcher · Dakar', date: 'EARTH DAY', location: 'GLOBAL', tilt: -4 },
       { variant: 'forest',  org: 'WATER FOR EAST AFRICA', event: 'Clean water. Every village.', role: "I'M VOLUNTEERING", name: 'Esther Mwangi', initials: 'EM', title: 'Field Volunteer · Nairobi', date: 'JUL 2026', location: 'TURKANA', tilt: 3 },
@@ -85,7 +85,7 @@ const USE_CASES: UseCase[] = [
     icon: <Flag size={16} strokeWidth={1.8} />,
     headline: 'Endorsements that look professional. Posts that scale to thousands.',
     intro:
-      'Rallies. Endorsements. Voter mobilization. Each requires a different card — same brand, different message. Cardly variants do exactly that.',
+      'Rallies. Endorsements. Voter mobilization. Each requires a different card — same brand, different message. Karta variants do exactly that.',
     cards: [
       { variant: 'forest',  org: 'UNITED FOR EAST AFRICA', event: "I'm with the movement.", role: "I'M ENDORSING", name: 'Liya Tesfaye', initials: 'LT', title: 'Volunteer Captain · Addis', date: 'OCT 2025', location: 'ADDIS', tilt: -4 },
       { variant: 'gold',    org: 'UNITED FOR EAST AFRICA', event: "I'll be at the rally.", role: "I'M ATTENDING", name: 'Samuel Okello', initials: 'SO', title: 'Supporter · Kampala', date: '14 OCT 2025', location: 'KAMPALA', tilt: 2 },
@@ -97,7 +97,7 @@ const USE_CASES: UseCase[] = [
       'Rally attendance posts are your second wave of reach.',
       'Each region needs its own variant. Same brand. Different message.',
     ],
-    quote: { text: "We shipped one Cardly link per region. 22 regions, 22 variants — and the central comms team didn't have to design any of them.", who: 'Field Director · East Africa Campaign' },
+    quote: { text: "We shipped one Karta link per region. 22 regions, 22 variants — and the central comms team didn't have to design any of them.", who: 'Field Director · East Africa Campaign' },
     template: 'Campaign rally template · 4 variants',
   },
   {
@@ -106,7 +106,7 @@ const USE_CASES: UseCase[] = [
     icon: <Sun size={16} strokeWidth={1.8} />,
     headline: 'Programs and events your community actually shares.',
     intro:
-      "Mosques, churches, temples, fellowships. Cardly cards let members announce attendance, fundraising and registration — without leaving WhatsApp.",
+      "Mosques, churches, temples, fellowships. Karta cards let members announce attendance, fundraising and registration — without leaving WhatsApp.",
     cards: [
       { variant: 'gold',   org: 'GLOBAL HALAL SUMMIT', event: 'Global Halal Summit', role: "I'M ATTENDING", name: 'Yusuf Bello', initials: 'YB', title: 'Delegate · Kano', date: '18 JUL 2026', location: 'ISTANBUL', tilt: -4 },
       { variant: 'forest', org: 'REDEEMER YOUTH CONFERENCE', event: 'Youth Conference 2026', role: "I'M GOING", name: 'Chika Nwosu', initials: 'CN', title: 'Youth Member · Lagos', date: '22–24 AUG', location: 'LAGOS', tilt: 3 },
@@ -127,7 +127,7 @@ const USE_CASES: UseCase[] = [
     icon: <ShoppingBag size={16} strokeWidth={1.8} />,
     headline: 'Customers do the launching for you. You just give them the asset.',
     intro:
-      "Product launches, store openings, sponsorships. Cardly turns the people excited about your brand into the people advertising your brand.",
+      "Product launches, store openings, sponsorships. Karta turns the people excited about your brand into the people advertising your brand.",
     cards: [
       { variant: 'forest',  org: 'MTN BRAND ACTIVATION', event: 'MTN 5G is here.', role: "I'M CELEBRATING", name: 'Chidinma O.', initials: 'CO', title: 'MTN Ambassador', date: '01 SEP 2026', location: 'ACCRA', tilt: -4 },
       { variant: 'duotone', org: 'GLOVO LAUNCH · KIGALI', event: 'First delivery, on us.', role: "I'M ORDERING", name: 'Patrick Niyonsenga', initials: 'PN', title: 'Glovo Founding Customer', date: 'LAUNCH WEEK', location: 'KIGALI', tilt: 3 },
@@ -139,7 +139,7 @@ const USE_CASES: UseCase[] = [
       "Store openings need local faces — not the same hero graphic everywhere.",
       "Sponsorship visibility you paid for, finally lands on someone's feed.",
     ],
-    quote: { text: "We had 4,500 customers post a Cardly card in launch week. Our paid media team called it the cheapest UGC engine they've ever bought.", who: 'CMO · Pan-African Fintech' },
+    quote: { text: "We had 4,500 customers post a Karta card in launch week. Our paid media team called it the cheapest UGC engine they've ever bought.", who: 'CMO · Pan-African Fintech' },
     template: 'Product launch template · 4 variants',
   },
   {
@@ -148,7 +148,7 @@ const USE_CASES: UseCase[] = [
     icon: <GraduationCap size={16} strokeWidth={1.8} />,
     headline: 'Graduations, alumni, scholarships — moments people want to share.',
     intro:
-      "Schools and universities sit on the best UGC moments in the calendar — and almost never harvest them. Cardly is how you turn graduations and class reunions into reach.",
+      "Schools and universities sit on the best UGC moments in the calendar — and almost never harvest them. Karta is how you turn graduations and class reunions into reach.",
     cards: [
       { variant: 'cream',  org: 'UNIVERSITY OF NAIROBI', event: 'Class of 2026.', role: 'I JUST GRADUATED', name: 'Wanjiku Kariuki', initials: 'WK', title: 'BSc Computer Science', date: 'DEC 2026', location: 'NAIROBI', tilt: -4 },
       { variant: 'forest', org: 'MASTERCARD FOUNDATION SCHOLARS', event: "I'm a Mastercard Scholar.", role: "I'M A RECIPIENT", name: 'Joseph Mensah', initials: 'JM', title: 'Cohort 2026 · Ashesi', date: 'AUG 2026', location: 'ACCRA', tilt: 3 },
@@ -160,7 +160,7 @@ const USE_CASES: UseCase[] = [
       "Scholarship recipients become advocates if you let them.",
       "Class-of-X cards are the gateway to a 20-year relationship.",
     ],
-    quote: { text: "We launched Cardly with our December graduation. 60% of graduates posted a card. The alumni office is calling it the most-engaged campaign in a decade.", who: 'Director of Communications · University of Nairobi' },
+    quote: { text: "We launched Karta with our December graduation. 60% of graduates posted a card. The alumni office is calling it the most-engaged campaign in a decade.", who: 'Director of Communications · University of Nairobi' },
     template: 'Graduation template · 3 variants',
   },
 ];
@@ -291,7 +291,7 @@ function UseCaseSection({ u }: { u: UseCase }) {
           <Reveal delay={120}>
           <div>
             <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-muted mb-5">
-              What Cardly fixes
+              What Karta fixes
             </div>
             <ol className="space-y-5">
               {u.problems.map((p, i) => (

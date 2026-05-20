@@ -546,7 +546,7 @@ export default function SettingsClient({ profile, userId }: Props) {
                 <div className="flex items-start justify-between gap-6">
                   <div>
                     <div className="text-[13.5px] font-semibold text-[#0F1F18] mb-1">Sign out</div>
-                    <div className="text-[13px] text-[#6B7A72]">Sign out of Cardly on this device.</div>
+                    <div className="text-[13px] text-[#6B7A72]">Sign out of Karta on this device.</div>
                   </div>
                   <button type="button" onClick={() => signOut()}
                     className="shrink-0 h-8 px-4 rounded-lg text-[13px] font-medium border transition hover:bg-[#F5F5F4]"
