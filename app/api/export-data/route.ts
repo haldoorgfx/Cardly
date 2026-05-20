@@ -24,7 +24,7 @@ export async function GET() {
     status: 200,
     headers: {
       'Content-Type': 'application/json',
-      'Content-Disposition': 'attachment; filename="cardly-data-export.json"',
+      'Content-Disposition': 'attachment; filename="karta-data-export.json"',
     },
   });
 }

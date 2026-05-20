@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Cardly — Your design. Their personalization. One link.",
+  metadataBase: new URL("https://karta.cre8so.com"),
+  title: "Karta — Your design. Their personalization. One link.",
   description:
     "Upload your event design, define editable zones, and share one link. Attendees personalize and download their own version.",
 };

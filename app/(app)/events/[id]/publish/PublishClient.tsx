@@ -260,7 +260,7 @@ export default function PublishClient({
     if (!qrDataUrl) return;
     const a = document.createElement('a');
     a.href = qrDataUrl;
-    a.download = `cardly-qr-${slug}.png`;
+    a.download = `karta-qr-${slug}.png`;
     a.click();
   }, [qrDataUrl, slug]);
 

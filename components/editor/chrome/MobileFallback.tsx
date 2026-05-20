@@ -169,7 +169,7 @@ export default function MobileFallback({ eventId, eventName, variantSlug }: Mobi
               <div style={{
                 fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
                 color: '#6B7A72', letterSpacing: '0.04em', marginTop: 2,
-              }}>cardly.io/events/{eventId.slice(0, 8)}</div>
+              }}>karta.cre8so.com/events/{eventId.slice(0, 8)}</div>
             </div>
           </div>
 
