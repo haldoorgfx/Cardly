@@ -294,7 +294,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
 
     /* ── load Google Fonts ───────────────────────────────── */
   useEffect(() => {
-    const id = 'cardly-gfonts';
+    const id = 'karta-gfonts';
     if (document.getElementById(id)) return;
     const link = document.createElement('link');
     link.id = id; link.rel = 'stylesheet'; link.href = GOOGLE_FONTS_URL;

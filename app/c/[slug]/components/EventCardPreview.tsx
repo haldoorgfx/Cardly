@@ -77,7 +77,7 @@ export default function EventCardPreview({
       families.get(z.font)!.add(z.weight ?? 400);
     }
     if (!families.size) return;
-    const id = 'cardly-preview-gfonts';
+    const id = 'karta-preview-gfonts';
     if (document.getElementById(id)) return;
     const params = Array.from(families.entries())
       .map(([f, ws]) => `family=${f.replace(/\s+/g, '+')}:wght@${Array.from(ws).sort().join(';')}`)
