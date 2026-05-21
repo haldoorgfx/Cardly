@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { Quote } from 'lucide-react';
 import type { TestimonialContent } from '@/lib/cms/types';
 

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { requirePermission } from '@/lib/auth/guards';
 import { CONTENT_EDIT } from '@/lib/auth/permissions';
 import { listPages } from '@/lib/cms/queries';
-import { Eye, FileText, Globe } from 'lucide-react';
+import { Eye, FileText, Globe, Pencil } from 'lucide-react';
 
 export const metadata = { title: 'Content — Cardly Admin' };
 export const dynamic = 'force-dynamic';
@@ -68,6 +68,12 @@ export default async function ContentAdminPage() {
                 <StatusBadge status={page.status} />
               </div>
               <div className="flex items-center gap-2">
+                <Link
+                  href={`/admin/content/${page.id}/edit`}
+                  className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-[#1F4D3A] text-white text-[12px] hover:bg-[#163828] transition-colors"
+                >
+                  <Pencil size={12} /> Edit
+                </Link>
                 <Link
                   href={`/admin/content/${page.id}/preview`}
                   className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-[#E5E0D4] text-[12px] text-[#3A4A42] hover:bg-[#FAF6EE] transition-colors"

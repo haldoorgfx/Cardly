@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import type { LogoStripContent } from '@/lib/cms/types';
 
 interface LogoStripBlockProps {

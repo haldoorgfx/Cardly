@@ -23,7 +23,7 @@ import type {
   NavItem,
   PageSnapshot,
 } from './types';
-import type { Json } from '@/types/database';
+import type { Json, Database } from '@/types/database';
 
 // ── Pages ─────────────────────────────────────────────────────────────────────
 
@@ -173,12 +173,15 @@ export async function setPageBlocks(
 /** Update the content of a single block. */
 export async function updateBlock(
   blockId: string,
-  content: BlockContent,
+  params: { content?: BlockContent; position?: number },
 ): Promise<CmsBlock> {
   const supabase = await createAdminClient();
+  const updateData: Database['public']['Tables']['cms_blocks']['Update'] = {};
+  if (params.content !== undefined) updateData.content = params.content as unknown as Json;
+  if (params.position !== undefined) updateData.position = params.position;
   const { data, error } = await supabase
     .from('cms_blocks')
-    .update({ content: content as unknown as Json })
+    .update(updateData)
     .eq('id', blockId)
     .select()
     .single();
