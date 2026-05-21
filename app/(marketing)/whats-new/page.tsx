@@ -1,3 +1,4 @@
+import { createClient } from '@/lib/supabase/server';
 import Reveal from '@/components/marketing/Reveal';
 import { NewsCTAClient } from './NewsCTAClient';
 
@@ -7,114 +8,37 @@ export const metadata = {
     "A running changelog of everything shipped at Karta. New features, improvements, and fixes.",
 };
 
-type TagType = 'New' | 'Improved' | 'Fix' | 'Breaking';
+export const dynamic = 'force-dynamic';
 
-const TAG_STYLES: Record<TagType, { bg: string; color: string }> = {
-  'New':      { bg: 'rgba(31,77,58,0.10)',   color: '#1F4D3A' },
-  'Improved': { bg: 'rgba(58,107,140,0.10)', color: '#3A6B8C' },
-  'Fix':      { bg: 'rgba(201,122,45,0.10)', color: '#C97A2D' },
-  'Breaking': { bg: 'rgba(184,66,60,0.10)',  color: '#B8423C' },
+type EntryType = 'added' | 'fixed' | 'improved' | 'removed' | 'security';
+
+const TYPE_STYLES: Record<EntryType, { bg: string; color: string; label: string }> = {
+  added:    { bg: 'rgba(31,77,58,0.10)',    color: '#1F4D3A', label: 'New'      },
+  improved: { bg: 'rgba(58,107,140,0.10)',  color: '#3A6B8C', label: 'Improved' },
+  fixed:    { bg: 'rgba(201,122,45,0.10)',  color: '#C97A2D', label: 'Fix'      },
+  removed:  { bg: 'rgba(107,122,114,0.10)', color: '#6B7A72', label: 'Removed'  },
+  security: { bg: 'rgba(184,66,60,0.10)',   color: '#B8423C', label: 'Security' },
 };
 
-interface ChangeEntry {
-  version: string;
-  date: string;
-  headline: string;
-  summary: string;
-  changes: { tag: TagType; text: string }[];
+interface DBEntry {
+  id: string;
+  version: string | null;
+  title: string;
+  description: string;
+  type: EntryType;
+  published_at: string | null;
+  created_at: string;
 }
 
-const CHANGELOG: ChangeEntry[] = [
-  {
-    version: 'v1.4.0',
-    date: 'May 14, 2026',
-    headline: 'Card variants — run multiple designs from one event',
-    summary: 'You can now create multiple card variants under a single event. Each variant gets its own design, zone layout, and slug. Useful for VIP tiers, sponsor packages, and language editions.',
-    changes: [
-      { tag: 'New',      text: 'Variants tab in the editor — add, rename, and reorder variants' },
-      { tag: 'New',      text: 'Variant picker on the attendee page (when more than one variant is active)' },
-      { tag: 'New',      text: 'Per-variant analytics: views, downloads, completion rate' },
-      { tag: 'Improved', text: 'Event detail page redesigned to show all variants at a glance' },
-      { tag: 'Improved', text: 'Publish flow updated — publish individual variants or all at once' },
-    ],
-  },
-  {
-    version: 'v1.3.2',
-    date: 'May 3, 2026',
-    headline: 'Performance improvements and mobile fixes',
-    summary: 'A focused release on attendee page performance. Card generation is 35% faster on average, and the mobile photo crop modal is completely rebuilt.',
-    changes: [
-      { tag: 'Improved', text: 'PNG rendering is 35% faster — moved to a warmed-up render pool' },
-      { tag: 'Improved', text: 'Photo crop modal rebuilt — smoother on iOS Safari and Android Chrome' },
-      { tag: 'Fix',      text: 'Fixed a rare case where circle crop produced a square output on some Android devices' },
-      { tag: 'Fix',      text: 'Fixed font loading delay on attendee pages served in high-latency regions' },
-    ],
-  },
-  {
-    version: 'v1.3.0',
-    date: 'Apr 22, 2026',
-    headline: 'Analytics dashboard',
-    summary: 'Designers can now see view counts, download counts, and completion rates per event — live, without needing to refresh.',
-    changes: [
-      { tag: 'New',      text: 'Analytics tab on every event detail page' },
-      { tag: 'New',      text: 'Geo distribution map (country-level, anonymous)' },
-      { tag: 'New',      text: 'Completion rate metric: how many viewers started vs. finished a card' },
-      { tag: 'Improved', text: 'View and download counts now update in real-time on the dashboard' },
-    ],
-  },
-  {
-    version: 'v1.2.1',
-    date: 'Apr 10, 2026',
-    headline: 'Bug fixes',
-    summary: 'Small fixes following the v1.2.0 launch.',
-    changes: [
-      { tag: 'Fix', text: 'Corrected zone coordinate serialization — zones shifted after save on some canvas sizes' },
-      { tag: 'Fix', text: 'Watermark no longer appears on Studio plan downloads' },
-      { tag: 'Fix', text: 'Publish page QR code now uses the correct campaign URL' },
-    ],
-  },
-  {
-    version: 'v1.2.0',
-    date: 'Apr 2, 2026',
-    headline: 'Brand kit and custom colors',
-    summary: 'Studio plan users can now define a brand kit — primary color, secondary color, and default fonts — that pre-fills the editor for new events.',
-    changes: [
-      { tag: 'New',      text: 'Brand kit settings page (Studio)' },
-      { tag: 'New',      text: 'Color picker in the zone editor for text zones' },
-      { tag: 'New',      text: 'Font selector now supports Google Fonts (30 most popular)' },
-      { tag: 'Improved', text: 'Onboarding flow simplified — skips zones step if you load a template' },
-    ],
-  },
-  {
-    version: 'v1.1.0',
-    date: 'Mar 19, 2026',
-    headline: 'Undo / redo and keyboard shortcuts',
-    summary: 'The canvas editor now has full undo/redo support with 50 history steps. Plus a set of keyboard shortcuts to speed up the editing flow.',
-    changes: [
-      { tag: 'New',      text: 'Undo/redo — Cmd/Ctrl+Z and Cmd/Ctrl+Shift+Z, up to 50 steps' },
-      { tag: 'New',      text: 'Keyboard shortcuts: Delete to remove selected zone, Escape to deselect' },
-      { tag: 'New',      text: 'Arrow keys nudge selected zone by 1px (hold Shift for 10px)' },
-      { tag: 'Improved', text: 'Zone handles are now easier to grab on small zones' },
-    ],
-  },
-  {
-    version: 'v1.0.0',
-    date: 'Mar 1, 2026',
-    headline: 'Initial launch',
-    summary: 'Karta is live. Designers can upload a background, define text and photo zones, publish a campaign link, and let attendees generate their own personalized cards.',
-    changes: [
-      { tag: 'New', text: 'Upload design background (PNG/JPG, up to 20MB)' },
-      { tag: 'New', text: 'Text zones and photo zones with drag/resize editor' },
-      { tag: 'New', text: 'Publish campaign — get a link and a QR code' },
-      { tag: 'New', text: 'Attendee page — mobile-first, no account required' },
-      { tag: 'New', text: 'PNG card generation with sharp on the server side' },
-      { tag: 'New', text: 'Free plan watermark, Pro plan watermark-free' },
-    ],
-  },
-];
+function formatDate(iso: string | null) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleDateString('en-GB', {
+    day: 'numeric', month: 'long', year: 'numeric',
+  });
+}
 
-/* ── Hero ────────────────────────────────────────────────── */
-function ChangelogHero() {
+/* ── Hero ─────────────────────────────────────────────────────────────── */
+function ChangelogHero({ latest }: { latest?: DBEntry }) {
   return (
     <section
       className="relative overflow-hidden border-b"
@@ -150,23 +74,34 @@ function ChangelogHero() {
           Subscribe below to get notified about major releases.
         </p>
 
-        {/* Subscribe pill */}
-        <Reveal>
-          <div className="mt-8 inline-flex items-center gap-3 px-5 py-3 rounded-full" style={{ background: 'rgba(31,77,58,0.07)', border: '1px solid rgba(31,77,58,0.15)' }}>
-            <span className="w-2 h-2 rounded-full bg-primary shrink-0" />
-            <span className="text-[13px] text-ink-soft">
-              Latest: <span className="text-ink font-medium">{CHANGELOG[0].headline}</span>
-            </span>
-            <span className="font-mono text-[10px] tracking-[0.14em] uppercase text-muted">{CHANGELOG[0].date}</span>
-          </div>
-        </Reveal>
+        {latest && (
+          <Reveal>
+            <div className="mt-8 inline-flex items-center gap-3 px-5 py-3 rounded-full" style={{ background: 'rgba(31,77,58,0.07)', border: '1px solid rgba(31,77,58,0.15)' }}>
+              <span className="w-2 h-2 rounded-full bg-primary shrink-0" />
+              <span className="text-[13px] text-ink-soft">
+                Latest: <span className="text-ink font-medium">{latest.title}</span>
+              </span>
+              <span className="font-mono text-[10px] tracking-[0.14em] uppercase text-muted">
+                {formatDate(latest.published_at ?? latest.created_at)}
+              </span>
+            </div>
+          </Reveal>
+        )}
       </div>
     </section>
   );
 }
 
-/* ── Changelog entries ───────────────────────────────────── */
-function ChangelogEntries() {
+/* ── Entry list ───────────────────────────────────────────────────────── */
+function ChangelogEntries({ entries }: { entries: DBEntry[] }) {
+  if (entries.length === 0) {
+    return (
+      <section className="mx-auto max-w-[1200px] px-5 lg:px-10 py-20 text-center text-[15px] text-muted">
+        No releases published yet. Check back soon.
+      </section>
+    );
+  }
+
   return (
     <section className="mx-auto max-w-[1200px] px-5 lg:px-10 py-14 lg:py-20 grid lg:grid-cols-[160px_1fr] gap-10 lg:gap-16 items-start">
 
@@ -174,83 +109,95 @@ function ChangelogEntries() {
       <aside className="hidden lg:block sticky top-24">
         <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-muted mb-4">Releases</div>
         <nav className="space-y-2">
-          {CHANGELOG.map((entry) => (
-            <a
-              key={entry.version}
-              href={`#${entry.version}`}
-              className="block py-1 border-l-2 pl-3 transition-colors hover:text-primary"
-              style={{ borderColor: 'rgba(229,224,212,0.7)', color: '#6B7A72', fontSize: '13px' }}
-            >
-              <span className="font-mono font-medium">{entry.version}</span>
-              <div className="font-mono text-[10px] tracking-[0.10em] mt-0.5" style={{ color: 'rgba(107,122,114,0.6)' }}>
-                {entry.date}
-              </div>
-            </a>
-          ))}
+          {entries.map((entry) => {
+            const anchor = entry.version ?? entry.id.slice(0, 8);
+            return (
+              <a
+                key={entry.id}
+                href={`#${anchor}`}
+                className="block py-1 border-l-2 pl-3 transition-colors hover:text-primary"
+                style={{ borderColor: 'rgba(229,224,212,0.7)', color: '#6B7A72', fontSize: '13px' }}
+              >
+                <span className="font-mono font-medium">{entry.version ?? '—'}</span>
+                <div className="font-mono text-[10px] tracking-[0.10em] mt-0.5" style={{ color: 'rgba(107,122,114,0.6)' }}>
+                  {formatDate(entry.published_at ?? entry.created_at)}
+                </div>
+              </a>
+            );
+          })}
         </nav>
       </aside>
 
       {/* Entries */}
       <div className="space-y-12 lg:space-y-14">
-        {CHANGELOG.map((entry, i) => (
-          <Reveal key={entry.version} delay={i * 50} distance={16}>
-            <article id={entry.version} className="scroll-mt-28">
-              {/* Version header */}
-              <div className="flex flex-wrap items-center gap-3 mb-5">
-                <span
-                  className="font-mono font-bold text-[13px] tracking-[-0.01em] px-3 py-1 rounded-lg"
-                  style={{ background: '#1F4D3A', color: '#FAF6EE' }}
-                >
-                  {entry.version}
-                </span>
-                <span className="font-mono text-[11px] tracking-[0.14em] uppercase text-muted">
-                  {entry.date}
-                </span>
-              </div>
+        {entries.map((entry, i) => {
+          const anchor = entry.version ?? entry.id.slice(0, 8);
+          const style = TYPE_STYLES[entry.type] ?? TYPE_STYLES.added;
+          return (
+            <Reveal key={entry.id} delay={i * 50} distance={16}>
+              <article id={anchor} className="scroll-mt-28">
+                {/* Header */}
+                <div className="flex flex-wrap items-center gap-3 mb-5">
+                  {entry.version && (
+                    <span
+                      className="font-mono font-bold text-[13px] tracking-[-0.01em] px-3 py-1 rounded-lg"
+                      style={{ background: '#1F4D3A', color: '#FAF6EE' }}
+                    >
+                      {entry.version}
+                    </span>
+                  )}
+                  <span className="font-mono text-[11px] tracking-[0.14em] uppercase text-muted">
+                    {formatDate(entry.published_at ?? entry.created_at)}
+                  </span>
+                </div>
 
-              <h2 className="font-display font-bold text-ink text-[22px] sm:text-[26px] lg:text-[28px] tracking-[-0.025em] leading-[1.1] mb-3">
-                {entry.headline}
-              </h2>
-              <p className="text-ink-soft text-[15px] lg:text-[16px] leading-[1.7] mb-6">
-                {entry.summary}
-              </p>
+                <h2 className="font-display font-bold text-ink text-[22px] sm:text-[26px] lg:text-[28px] tracking-[-0.025em] leading-[1.1] mb-3">
+                  {entry.title}
+                </h2>
+                <p className="text-ink-soft text-[15px] lg:text-[16px] leading-[1.7] mb-6">
+                  {entry.description}
+                </p>
 
-              {/* Change list */}
-              <div
-                className="rounded-xl overflow-hidden"
-                style={{ border: '1px solid #E5E0D4' }}
-              >
-                {entry.changes.map((change, j) => (
+                {/* Type tag */}
+                <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
                   <div
-                    key={j}
-                    className="flex items-start gap-3 px-5 py-3.5 bg-surface"
-                    style={j < entry.changes.length - 1 ? { borderBottom: '1px solid #E5E0D4' } : {}}
+                    className="flex items-center gap-3 px-5 py-3.5 bg-surface"
                   >
                     <span
-                      className="inline-flex items-center px-2 py-0.5 rounded-full font-mono text-[9px] tracking-[0.16em] uppercase shrink-0 mt-0.5"
-                      style={{ ...TAG_STYLES[change.tag] }}
+                      className="inline-flex items-center px-2 py-0.5 rounded-full font-mono text-[9px] tracking-[0.16em] uppercase shrink-0"
+                      style={style}
                     >
-                      {change.tag}
+                      {style.label}
                     </span>
                     <span className="text-ink-soft text-[13px] lg:text-[14px] leading-[1.55]">
-                      {change.text}
+                      {entry.title}
                     </span>
                   </div>
-                ))}
-              </div>
-            </article>
-          </Reveal>
-        ))}
+                </div>
+              </article>
+            </Reveal>
+          );
+        })}
       </div>
     </section>
   );
 }
 
-export default function WhatsNewPage() {
+/* ── Page ─────────────────────────────────────────────────────────────── */
+export default async function WhatsNewPage() {
+  const supabase = createClient();
+  const { data } = await supabase
+    .from('changelog_entries')
+    .select('id, version, title, description, type, published_at, created_at')
+    .eq('published', true)
+    .order('published_at', { ascending: false, nullsFirst: false });
+
+  const entries = (data ?? []) as DBEntry[];
+
   return (
     <>
-      <ChangelogHero />
-      <ChangelogEntries />
+      <ChangelogHero latest={entries[0]} />
+      <ChangelogEntries entries={entries} />
       <NewsCTAClient />
     </>
   );
