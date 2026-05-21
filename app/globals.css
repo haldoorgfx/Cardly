@@ -28,9 +28,9 @@
 
   html,
   body {
-    font-family: "Inter", system-ui, sans-serif;
-    color: #0F1F18;
-    background: #FAF6EE;
+    font-family: var(--theme-font-body, "Inter"), system-ui, sans-serif;
+    color: var(--theme-ink, #0F1F18);
+    background: var(--theme-cream, #FAF6EE);
     -webkit-font-smoothing: antialiased;
   }
 
@@ -41,26 +41,26 @@
 
 @layer components {
   .font-display {
-    font-family: "DM Sans", system-ui, sans-serif;
+    font-family: var(--theme-font-display, "DM Sans"), system-ui, sans-serif;
     letter-spacing: -0.02em;
   }
 
-  /* Forest → cream-gold gradient */
+  /* Forest → cream-gold gradient (reads from theme vars, falls back to Karta defaults) */
   .grad-text {
-    background: linear-gradient(135deg, #1F4D3A 0%, #E8C57E 100%);
+    background: linear-gradient(135deg, var(--theme-primary, #1F4D3A) 0%, var(--theme-accent, #E8C57E) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
 
   .grad-bg {
-    background: linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%);
+    background: var(--theme-grad-hero, linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%));
   }
 
   .grad-border {
     background:
       linear-gradient(#fff, #fff) padding-box,
-      linear-gradient(135deg, #1F4D3A 0%, #E8C57E 100%) border-box;
+      linear-gradient(135deg, var(--theme-primary, #1F4D3A) 0%, var(--theme-accent, #E8C57E) 100%) border-box;
     border: 1.5px solid transparent;
   }
 

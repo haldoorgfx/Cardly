@@ -9,25 +9,26 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Brand
-        primary:       "#1F4D3A",
-        "primary-dark":"#163828",
-        "primary-soft":"#E8EFEB",
-        accent:        "#E8C57E",
-        "accent-dark": "#C9A45E",
+        // Brand — reads from CSS vars (injected by ThemeProvider); hardcoded values are fallbacks
+        primary:        "var(--theme-primary,     #1F4D3A)",
+        "primary-dark": "var(--theme-primary-dark,#163828)",
+        "primary-soft": "var(--theme-primary-soft,#E8EFEB)",
+        accent:         "var(--theme-accent,      #E8C57E)",
+        "accent-dark":  "var(--theme-accent-dark, #C9A45E)",
         // Neutral
-        ink:           "#0F1F18",
-        "ink-soft":    "#3A4A42",
-        muted:         "#6B7A72",
-        cream:         "#FAF6EE",
-        surface:       "#FFFFFF",
-        border:        "#E5E0D4",
+        ink:            "var(--theme-ink,         #0F1F18)",
+        "ink-soft":     "var(--theme-ink-soft,    #3A4A42)",
+        muted:          "var(--theme-muted,        #6B7A72)",
+        cream:          "var(--theme-cream,        #FAF6EE)",
+        // Static — not theme-able
+        surface:        "#FFFFFF",
+        border:         "#E5E0D4",
         "border-strong":"#C9C3B1",
         // Functional
-        success:       "#2D7A4F",
-        warning:       "#C97A2D",
-        danger:        "#B8423C",
-        info:          "#3A6B8C",
+        success:        "#2D7A4F",
+        warning:        "#C97A2D",
+        danger:         "#B8423C",
+        info:           "#3A6B8C",
       },
       fontFamily: {
         display: ['"DM Sans"', "system-ui", "sans-serif"],
