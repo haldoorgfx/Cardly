@@ -153,6 +153,7 @@ export interface FeaturesGridContent {
 export interface StepItem {
   step: number;
   icon?: string;
+  short?: string;
   title: string;
   body: string;
   duration?: string;
