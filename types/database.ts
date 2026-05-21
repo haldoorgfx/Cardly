@@ -275,6 +275,106 @@ export interface Database {
           }
         ];
       };
+      site_settings: {
+        Row: {
+          id: number;
+          brand_name: string;
+          logo_url: string | null;
+          favicon_url: string | null;
+          colors: Json;
+          fonts: Json;
+          gradients: Json;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          id?: number;
+          brand_name?: string;
+          logo_url?: string | null;
+          favicon_url?: string | null;
+          colors?: Json;
+          fonts?: Json;
+          gradients?: Json;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          brand_name?: string;
+          logo_url?: string | null;
+          favicon_url?: string | null;
+          colors?: Json;
+          fonts?: Json;
+          gradients?: Json;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [];
+      };
+      changelog_entries: {
+        Row: {
+          id: string;
+          version: string | null;
+          title: string;
+          description: string;
+          type: 'added' | 'fixed' | 'improved' | 'removed' | 'security';
+          published: boolean;
+          published_at: string | null;
+          created_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          version?: string | null;
+          title: string;
+          description: string;
+          type: 'added' | 'fixed' | 'improved' | 'removed' | 'security';
+          published?: boolean;
+          published_at?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          version?: string | null;
+          title?: string;
+          description?: string;
+          type?: 'added' | 'fixed' | 'improved' | 'removed' | 'security';
+          published?: boolean;
+          published_at?: string | null;
+          created_by?: string | null;
+        };
+        Relationships: [];
+      };
+      audit_log: {
+        Row: {
+          id: string;
+          actor_id: string | null;
+          actor_email: string | null;
+          action: string;
+          entity_type: string | null;
+          entity_id: string | null;
+          changes: Json | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          actor_id?: string | null;
+          actor_email?: string | null;
+          action: string;
+          entity_type?: string | null;
+          entity_id?: string | null;
+          changes?: Json | null;
+          created_at?: string;
+        };
+        Update: {
+          actor_id?: string | null;
+          actor_email?: string | null;
+          action?: string;
+          entity_type?: string | null;
+          entity_id?: string | null;
+          changes?: Json | null;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;
