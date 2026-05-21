@@ -1,0 +1,44 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Eye } from 'lucide-react';
+
+interface Props {
+  userId: string;
+  userName: string;
+}
+
+export function ImpersonateButton({ userId, userName }: Props) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  async function start() {
+    if (!confirm(`View app as "${userName}"?\n\nA banner will appear so you can exit at any time.`)) return;
+    setLoading(true);
+    const res = await fetch('/api/admin/impersonate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId }),
+    });
+    if (res.ok) {
+      router.push('/dashboard');
+    } else {
+      const json = await res.json();
+      alert(json.error ?? 'Failed to start impersonation.');
+    }
+    setLoading(false);
+  }
+
+  return (
+    <button
+      onClick={start}
+      disabled={loading}
+      className="inline-flex items-center gap-2 h-9 px-4 text-[13px] font-semibold rounded-xl border transition hover:bg-[#FAF6EE] disabled:opacity-50"
+      style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}
+    >
+      <Eye size={14} strokeWidth={2} />
+      {loading ? 'Starting…' : 'View as user'}
+    </button>
+  );
+}

@@ -8,6 +8,7 @@ import {
   LayoutGrid, TrendingUp, LayoutTemplate, Palette,
   Settings2, Users, LogOut, Menu, Search, Plus, ChevronRight, CreditCard,
   BookOpen, ScrollText, ShieldCheck, BarChart2, CalendarSearch, Receipt, Images, FileText,
+  Flag, Eye, X,
 } from 'lucide-react';
 
 type Profile = {
@@ -15,6 +16,14 @@ type Profile = {
   email: string | null;
   plan: string;
   role: string;
+};
+
+type ImpersonatedUser = {
+  id: string;
+  full_name: string | null;
+  email: string | null;
+  plan: string;
+  eventCount: number;
 };
 
 type EventResult = {
@@ -130,6 +139,11 @@ const SUPER_ADMIN_ITEMS = [
     href: '/admin/billing',
     label: 'Billing',
     icon: <Receipt size={15} strokeWidth={1.8} />,
+  },
+  {
+    href: '/admin/flags',
+    label: 'Feature Flags',
+    icon: <Flag size={15} strokeWidth={1.8} />,
   },
 ];
 
@@ -455,6 +469,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [eventCount, setEventCount] = useState(0);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
+  const [impersonating, setImpersonating] = useState<ImpersonatedUser | null>(null);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -468,6 +483,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       });
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Check for active impersonation session
+  useEffect(() => {
+    const cookieVal = document.cookie.split('; ').find(r => r.startsWith('karta_impersonating='))?.split('=')[1];
+    if (!cookieVal) { setImpersonating(null); return; }
+    fetch('/api/admin/impersonate')
+      .then(r => r.json())
+      .then(d => setImpersonating(d.impersonating ?? null));
+  }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function exitImpersonation() {
+    await fetch('/api/admin/impersonate', { method: 'DELETE' });
+    setImpersonating(null);
+    router.push('/admin/users');
+  }
 
   useEffect(() => {
     const handle = (e: KeyboardEvent) => {
@@ -518,6 +548,23 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         {/* Main column */}
         <main className="flex-1 min-w-0 flex flex-col">
+          {/* Impersonation banner */}
+          {impersonating && (
+            <div className="w-full flex items-center justify-between gap-3 px-4 py-2.5 shrink-0 z-50"
+              style={{ background: '#C97A2D', color: 'white' }}>
+              <div className="flex items-center gap-2 text-[13px] font-medium">
+                <Eye size={14} strokeWidth={2} />
+                Viewing as <strong>{impersonating.full_name ?? impersonating.email}</strong>
+                <span className="opacity-70 text-[11px]">({impersonating.email})</span>
+              </div>
+              <button
+                onClick={exitImpersonation}
+                className="inline-flex items-center gap-1.5 h-7 px-3 text-[12px] font-semibold rounded-lg bg-white/20 hover:bg-white/30 transition"
+              >
+                <X size={11} strokeWidth={2.5} /> Exit
+              </button>
+            </div>
+          )}
           <header className="h-14 bg-white px-4 md:px-5 flex items-center gap-3 shrink-0 sticky top-0 z-40 border-b"
             style={{ borderColor: '#E5E0D4' }}>
             <button className="md:hidden h-8 w-8 rounded-lg hover:bg-[#F5F5F4] grid place-items-center text-[#6B7A72] shrink-0 transition"

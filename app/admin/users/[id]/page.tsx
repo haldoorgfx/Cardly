@@ -1,9 +1,11 @@
 import { requirePermission } from '@/lib/auth/guards';
-import { USER_VIEW } from '@/lib/auth/permissions';
+import { USER_VIEW, IMPERSONATE } from '@/lib/auth/permissions';
+import { ROLE_PERMISSIONS } from '@/lib/auth/permissions';
 import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getUserEventCount, getUserCardCount } from '@/lib/admin/queries';
+import { ImpersonateButton } from './ImpersonateButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,7 +30,8 @@ function Field({ label, value }: { label: string; value: React.ReactNode }) {
 }
 
 export default async function UserDetailPage({ params }: { params: { id: string } }) {
-  await requirePermission(USER_VIEW);
+  const sessionUser = await requirePermission(USER_VIEW);
+  const canImpersonate = (ROLE_PERMISSIONS[sessionUser.role as keyof typeof ROLE_PERMISSIONS] ?? []).includes(IMPERSONATE);
 
   const adminClient = createAdminClient();
   const { data: profile } = await adminClient
@@ -78,18 +81,25 @@ export default async function UserDetailPage({ params }: { params: { id: string 
           style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}>
           {profile.full_name?.[0]?.toUpperCase() ?? profile.email?.[0]?.toUpperCase() ?? '?'}
         </div>
-        <div>
-          <h1 className="font-display font-bold text-[26px] text-[#0F1F18] tracking-tight">
-            {profile.full_name ?? '(no name)'}
-          </h1>
-          <div className="text-[13px] font-mono text-[#6B7A72] mt-0.5">{profile.email}</div>
-          <div className="flex items-center gap-2 mt-2.5">
-            <Badge style={planStyle}>{profile.plan}</Badge>
-            <Badge style={roleStyle}>{profile.role}</Badge>
-            {profile.suspended && (
-              <Badge style={{ background: 'rgba(184,66,60,0.10)', color: '#B8423C' }}>
-                suspended
-              </Badge>
+        <div className="flex-1">
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <h1 className="font-display font-bold text-[26px] text-[#0F1F18] tracking-tight">
+                {profile.full_name ?? '(no name)'}
+              </h1>
+              <div className="text-[13px] font-mono text-[#6B7A72] mt-0.5">{profile.email}</div>
+              <div className="flex items-center gap-2 mt-2.5">
+                <Badge style={planStyle}>{profile.plan}</Badge>
+                <Badge style={roleStyle}>{profile.role}</Badge>
+                {profile.suspended && (
+                  <Badge style={{ background: 'rgba(184,66,60,0.10)', color: '#B8423C' }}>
+                    suspended
+                  </Badge>
+                )}
+              </div>
+            </div>
+            {canImpersonate && (
+              <ImpersonateButton userId={profile.id} userName={profile.full_name ?? profile.email ?? profile.id} />
             )}
           </div>
         </div>
