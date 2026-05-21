@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Eye, Plus, Trash2, GripVertical, ChevronDown, ChevronRight, Save, Globe, FileText, Loader2 } from 'lucide-react';
 import type { CmsPageWithBlocks, CmsBlock, BlockType } from '@/lib/cms/types';
+import { WysiwygEditor } from '@/components/cms/editor/WysiwygEditor';
 
 // ── Block type list ───────────────────────────────────────────────────────────
 
@@ -73,7 +74,13 @@ function FieldEditor({
   }
 
   if (typeof value === 'string') {
-    const isLong = value.length > 80 || name.toLowerCase().includes('body') || name.toLowerCase().includes('text') || name.toLowerCase().includes('content');
+    // HTML/rich text fields → WYSIWYG editor
+    const isHtml = name === 'html' || name === 'body' || name === 'content' || value.includes('<');
+    if (isHtml) {
+      return <WysiwygEditor value={value} onChange={onChange as (v: string) => void} minHeight={180} />;
+    }
+    // Long plain text → textarea
+    const isLong = value.length > 80 || name.toLowerCase().includes('answer') || name.toLowerCase().includes('subtext') || name.toLowerCase().includes('description') || name.toLowerCase().includes('blurb');
     if (isLong) {
       return (
         <textarea
@@ -84,6 +91,7 @@ function FieldEditor({
         />
       );
     }
+    // Short plain text → single line
     return (
       <input
         type="text"
