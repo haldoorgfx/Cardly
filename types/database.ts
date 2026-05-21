@@ -1,6 +1,6 @@
 export type Plan = "free" | "pro" | "studio";
 export type EventStatus = "draft" | "published" | "archived";
-export type UserRole = "user" | "admin" | "super_admin";
+export type UserRole = "user" | "studio" | "admin" | "super_admin";
 export type ZoneType = "text" | "photo" | "custom" | "label" | "shape" | "image";
 export type SubscriptionStatus = "active" | "trialing" | "past_due" | "canceled" | "incomplete" | "none";
 export type BillingCycle = "monthly" | "annual" | "none";
