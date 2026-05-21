@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Search, Heart, Plus, Loader2 } from 'lucide-react';
+import { Search, Heart, Plus, Loader2, Star } from 'lucide-react';
 import { buildSVG, TEMPLATE_CONFIGS, OVERLAY, W, H } from '@/lib/templates/svgs';
 
 /* ─────────────────────────────────────────────────────────────
@@ -229,6 +229,19 @@ export default function TemplatesPage() {
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState('');
 
+  // DB-backed platform templates
+  const [dbTemplates, setDbTemplates] = useState<{
+    id: string; name: string; category: string | null;
+    thumbnail_url: string | null; min_plan: string; featured: boolean;
+  }[]>([]);
+
+  useEffect(() => {
+    fetch('/api/templates/published')
+      .then(r => r.json())
+      .then(d => { if (d.templates) setDbTemplates(d.templates); })
+      .catch(() => {});
+  }, []);
+
   const toggleFav = (id: string, e: React.MouseEvent) => {
     e.preventDefault(); e.stopPropagation();
     setFavorites(prev => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n; });
@@ -380,6 +393,52 @@ export default function TemplatesPage() {
           <div className="text-center py-16">
             <div className="text-[14px] text-[#0F1F18]/40">No templates match your search.</div>
             <button onClick={() => { setSearch(''); setActiveCategory('all'); }} className="mt-3 text-[13px] text-[#1F4D3A] hover:underline">Clear filters</button>
+          </div>
+        )}
+
+        {/* ── Platform templates (DB-backed) ──────────────────── */}
+        {dbTemplates.length > 0 && (
+          <div className="mt-12">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="h-px flex-1 bg-[#E5E0D4]" />
+              <span className="text-[10px] font-mono text-[#6B7A72] uppercase tracking-widest">Platform templates</span>
+              <div className="h-px flex-1 bg-[#E5E0D4]" />
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              {dbTemplates.map(t => (
+                <div key={t.id} className="group relative rounded-2xl border border-[#E5E0D4] overflow-hidden bg-white cursor-pointer hover:border-[#1F4D3A]/40 transition-colors"
+                  onClick={e => openTemplate(`db:${t.id}`, e as React.MouseEvent)}>
+                  <div className="aspect-[4/3] bg-[#FAF6EE] relative overflow-hidden">
+                    {t.thumbnail_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={t.thumbnail_url} alt={t.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                    ) : (
+                      <div className="absolute inset-0 grid place-items-center text-[#6B7A72]">
+                        <svg className="w-8 h-8 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M4.5 19.5h15M3.75 6.75h16.5" />
+                        </svg>
+                      </div>
+                    )}
+                    {t.featured && (
+                      <div className="absolute top-2 right-2 bg-[#E8C57E] rounded-full p-1">
+                        <Star size={9} strokeWidth={2} className="text-[#0F1F18]" fill="currentColor" />
+                      </div>
+                    )}
+                    {loading === `db:${t.id}` && (
+                      <div className="absolute inset-0 bg-white/70 grid place-items-center">
+                        <Loader2 size={20} strokeWidth={2} className="animate-spin text-[#1F4D3A]" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-3">
+                    <div className="font-medium text-[13px] text-[#0F1F18] truncate">{t.name}</div>
+                    {t.category && (
+                      <div className="text-[10px] font-mono text-[#6B7A72] uppercase tracking-wide mt-0.5">{t.category}</div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
