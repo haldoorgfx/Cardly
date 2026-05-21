@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import {
   LayoutGrid, TrendingUp, LayoutTemplate, Palette,
   Settings2, Users, LogOut, Menu, Search, Plus, ChevronRight, CreditCard,
-  BookOpen, ScrollText, ShieldCheck,
+  BookOpen, ScrollText, ShieldCheck, BarChart2, CalendarSearch, Receipt,
 } from 'lucide-react';
 
 type Profile = {
@@ -75,6 +75,7 @@ const WORKSPACE_ITEMS = [
   },
 ];
 
+// Available to both admin and super_admin
 const ADMIN_ITEMS = [
   {
     href: '/admin/theme',
@@ -95,6 +96,30 @@ const ADMIN_ITEMS = [
     href: '/admin/users',
     label: 'Users',
     icon: <Users size={15} strokeWidth={1.8} />,
+  },
+  {
+    href: '/admin/analytics',
+    label: 'Analytics',
+    icon: <BarChart2 size={15} strokeWidth={1.8} />,
+  },
+];
+
+// Elevated — super_admin only
+const SUPER_ADMIN_ITEMS = [
+  {
+    href: '/admin/templates',
+    label: 'Templates',
+    icon: <LayoutTemplate size={15} strokeWidth={1.8} />,
+  },
+  {
+    href: '/admin/events',
+    label: 'Event Oversight',
+    icon: <CalendarSearch size={15} strokeWidth={1.8} />,
+  },
+  {
+    href: '/admin/billing',
+    label: 'Billing',
+    icon: <Receipt size={15} strokeWidth={1.8} />,
   },
 ];
 
@@ -257,6 +282,7 @@ function NavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: (
   const router = useRouter();
   const planLimit = profile ? (PLAN_LIMITS[profile.plan] ?? 1) : 1;
   const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
+  const isSuperAdmin = profile?.role === 'super_admin';
 
   const handleSignOut = async () => {
     const supabase = createClient();
@@ -339,7 +365,7 @@ function NavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: (
           </ul>
         </div>
 
-        {/* Admin section — only for admin+ */}
+        {/* Platform section — only for admin+ */}
         {isAdmin && (
           <>
             <div className="h-px" style={{ background: 'rgba(255,255,255,0.07)' }} />
@@ -349,6 +375,10 @@ function NavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: (
               </div>
               <ul className="space-y-0.5">
                 {ADMIN_ITEMS.map(item => (
+                  <NavItem key={item.href} href={item.href} icon={item.icon} label={item.label}
+                    active={pathname.startsWith(item.href)} onNavigate={onNavigate} />
+                ))}
+                {isSuperAdmin && SUPER_ADMIN_ITEMS.map(item => (
                   <NavItem key={item.href} href={item.href} icon={item.icon} label={item.label}
                     active={pathname.startsWith(item.href)} onNavigate={onNavigate} />
                 ))}

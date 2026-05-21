@@ -1,7 +1,6 @@
-import { requirePermission } from '@/lib/auth/guards';
+import { requirePermission, getSessionUser } from '@/lib/auth/guards';
 import { USER_VIEW } from '@/lib/auth/permissions';
-import { createAdminClient } from '@/lib/supabase/server';
-import { getSessionUser } from '@/lib/auth/guards';
+import { listUsers } from '@/lib/admin/queries';
 import { UsersAdminClient } from './UsersAdminClient';
 
 export const metadata = { title: 'Users — Karta Admin' };
@@ -9,6 +8,9 @@ export const dynamic = 'force-dynamic';
 
 interface SearchParams {
   q?: string;
+  role?: string;
+  plan?: string;
+  status?: string;
   page?: string;
 }
 
@@ -20,28 +22,23 @@ export default async function UsersAdminPage({
   searchParams: SearchParams;
 }) {
   await requirePermission(USER_VIEW);
-
   const currentUser = await getSessionUser();
-  const page   = Math.max(1, parseInt(searchParams.page ?? '1', 10));
-  const offset = (page - 1) * PAGE_SIZE;
 
-  const adminClient = createAdminClient();
+  const page = Math.max(1, parseInt(searchParams.page ?? '1', 10));
 
-  let query = adminClient
-    .from('profiles')
-    .select('id, email, full_name, role, plan, created_at', { count: 'exact' })
-    .order('created_at', { ascending: false })
-    .range(offset, offset + PAGE_SIZE - 1);
+  const { users, total } = await listUsers({
+    search: searchParams.q?.trim(),
+    role:   searchParams.role,
+    plan:   searchParams.plan,
+    status: searchParams.status as 'active' | 'suspended' | undefined,
+    page,
+    pageSize: PAGE_SIZE,
+  });
 
-  if (searchParams.q?.trim()) {
-    query = query.ilike('email', `%${searchParams.q.trim()}%`);
-  }
-
-  const { data: users, count } = await query;
-  const totalPages = Math.ceil((count ?? 0) / PAGE_SIZE);
+  const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
-    <div className="p-6 lg:p-10 max-w-[1000px]">
+    <div className="p-6 lg:p-10 max-w-[1100px]">
       <div className="mb-8">
         <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#6B7A72] mb-2">
           Admin · Users
@@ -50,18 +47,23 @@ export default async function UsersAdminPage({
           Users
         </h1>
         <p className="mt-1.5 text-[14px] text-[#6B7A72]">
-          Search users and manage roles. Full user management (suspend, delete, filters) is in Phase 2.
+          Search, filter, manage roles, suspend, and delete accounts.
         </p>
       </div>
 
       <UsersAdminClient
-        users={(users ?? []) as UserRow[]}
-        count={count ?? 0}
+        users={users as UserRow[]}
+        total={total}
         page={page}
         totalPages={totalPages}
         currentUserId={currentUser?.id ?? ''}
         actorRole={currentUser?.role ?? 'admin'}
-        defaultQ={searchParams.q ?? ''}
+        defaultFilters={{
+          q:      searchParams.q      ?? '',
+          role:   searchParams.role   ?? '',
+          plan:   searchParams.plan   ?? '',
+          status: searchParams.status ?? '',
+        }}
       />
     </div>
   );
@@ -74,4 +76,6 @@ export interface UserRow {
   role: string;
   plan: string;
   created_at: string;
+  suspended: boolean;
+  suspended_reason: string | null;
 }

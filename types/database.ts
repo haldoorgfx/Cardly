@@ -1,6 +1,8 @@
 export type Plan = "free" | "pro" | "studio";
 export type EventStatus = "draft" | "published" | "archived";
+export type ModerationStatus = "ok" | "flagged" | "removed";
 export type UserRole = "user" | "studio" | "admin" | "super_admin";
+export type MinPlan = "free" | "pro" | "studio";
 export type ZoneType = "text" | "photo" | "custom" | "label" | "shape" | "image";
 export type SubscriptionStatus = "active" | "trialing" | "past_due" | "canceled" | "incomplete" | "none";
 export type BillingCycle = "monthly" | "annual" | "none";
@@ -102,6 +104,10 @@ export interface Database {
           cancel_at_period_end: boolean;
           cards_this_month: number;
           cards_month_start: string;
+          // suspension (migration 006)
+          suspended: boolean;
+          suspended_at: string | null;
+          suspended_reason: string | null;
         };
         Insert: {
           id: string;
@@ -122,6 +128,9 @@ export interface Database {
           cancel_at_period_end?: boolean;
           cards_this_month?: number;
           cards_month_start?: string;
+          suspended?: boolean;
+          suspended_at?: string | null;
+          suspended_reason?: string | null;
         };
         Update: {
           email?: string | null;
@@ -140,6 +149,9 @@ export interface Database {
           cancel_at_period_end?: boolean;
           cards_this_month?: number;
           cards_month_start?: string;
+          suspended?: boolean;
+          suspended_at?: string | null;
+          suspended_reason?: string | null;
         };
         Relationships: [];
       };
@@ -154,6 +166,7 @@ export interface Database {
           background_height: number | null;
           zones: Json;
           status: EventStatus;
+          moderation_status: ModerationStatus;
           view_count: number;
           download_count: number;
           created_at: string;
@@ -169,6 +182,7 @@ export interface Database {
           background_height?: number | null;
           zones?: Json;
           status?: EventStatus;
+          moderation_status?: ModerationStatus;
           view_count?: number;
           download_count?: number;
           created_at?: string;
@@ -182,6 +196,7 @@ export interface Database {
           background_height?: number | null;
           zones?: Json;
           status?: EventStatus;
+          moderation_status?: ModerationStatus;
           view_count?: number;
           download_count?: number;
           updated_at?: string;
@@ -341,6 +356,52 @@ export interface Database {
           published?: boolean;
           published_at?: string | null;
           created_by?: string | null;
+        };
+        Relationships: [];
+      };
+      templates: {
+        Row: {
+          id: string;
+          name: string;
+          category: string | null;
+          thumbnail_url: string | null;
+          background_url: string | null;
+          dimensions: Json | null;
+          zones: Json;
+          min_plan: MinPlan;
+          featured: boolean;
+          published: boolean;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          category?: string | null;
+          thumbnail_url?: string | null;
+          background_url?: string | null;
+          dimensions?: Json | null;
+          zones?: Json;
+          min_plan?: MinPlan;
+          featured?: boolean;
+          published?: boolean;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          name?: string;
+          category?: string | null;
+          thumbnail_url?: string | null;
+          background_url?: string | null;
+          dimensions?: Json | null;
+          zones?: Json;
+          min_plan?: MinPlan;
+          featured?: boolean;
+          published?: boolean;
+          created_by?: string | null;
+          updated_at?: string;
         };
         Relationships: [];
       };
