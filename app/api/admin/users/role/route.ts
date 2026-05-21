@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getAuthorizedUser, hasPermission } from '@/lib/auth/guards';
+import { getAuthorizedUser } from '@/lib/auth/guards';
 import { USER_ROLE_CHANGE } from '@/lib/auth/permissions';
 import { createAdminClient } from '@/lib/supabase/server';
 import { logAudit } from '@/lib/audit/log';

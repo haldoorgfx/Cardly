@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import {
   LayoutGrid, TrendingUp, LayoutTemplate, Palette,
   Settings2, Users, LogOut, Menu, Search, Plus, ChevronRight, CreditCard,
-  BookOpen, ScrollText, ShieldCheck, BarChart2, CalendarSearch, Receipt,
+  BookOpen, ScrollText, ShieldCheck, BarChart2, CalendarSearch, Receipt, Images,
 } from 'lucide-react';
 
 type Profile = {
@@ -101,6 +101,11 @@ const ADMIN_ITEMS = [
     href: '/admin/analytics',
     label: 'Analytics',
     icon: <BarChart2 size={15} strokeWidth={1.8} />,
+  },
+  {
+    href: '/admin/media',
+    label: 'Media Library',
+    icon: <Images size={15} strokeWidth={1.8} />,
   },
 ];
 

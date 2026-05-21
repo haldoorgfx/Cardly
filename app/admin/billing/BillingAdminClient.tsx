@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Search, Loader2, Gift, FileText, RotateCcw, X, AlertTriangle, ChevronDown } from 'lucide-react';
+import { Search, Loader2, Gift, FileText, RotateCcw, X } from 'lucide-react';
 import type { BillingUserRow } from './page';
 
 const PLAN_STYLES: Record<string, { bg: string; color: string }> = {

@@ -54,6 +54,7 @@ const ADMIN_PERMISSIONS: Permission[] = [
   AUDIT_VIEW,
   USER_VIEW,
   USER_ROLE_CHANGE, // admin: only user↔studio (enforced at API route level)
+  CONTENT_EDIT,    // [3] — CMS page/block/navigation/media editing
 ];
 
 /** super_admin gets everything admin has, plus destructive/elevated ops */

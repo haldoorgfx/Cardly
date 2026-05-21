@@ -436,6 +436,156 @@ export interface Database {
         };
         Relationships: [];
       };
+      // ── CMS tables (migration 007) ───────────────────────────────
+      cms_pages: {
+        Row: {
+          id: string;
+          slug: string;
+          title: string;
+          status: 'draft' | 'published';
+          seo: Json;
+          published_version: number | null;
+          created_by: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          slug: string;
+          title: string;
+          status?: 'draft' | 'published';
+          seo?: Json;
+          published_version?: number | null;
+          created_by?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          slug?: string;
+          title?: string;
+          status?: 'draft' | 'published';
+          seo?: Json;
+          published_version?: number | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      cms_blocks: {
+        Row: {
+          id: string;
+          page_id: string;
+          type: string;
+          content: Json;
+          position: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          page_id: string;
+          type: string;
+          content?: Json;
+          position?: number;
+          created_at?: string;
+        };
+        Update: {
+          type?: string;
+          content?: Json;
+          position?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "cms_blocks_page_id_fkey";
+            columns: ["page_id"];
+            isOneToOne: false;
+            referencedRelation: "cms_pages";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      cms_navigation: {
+        Row: {
+          id: string;
+          location: 'header' | 'footer';
+          items: Json;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          location: 'header' | 'footer';
+          items?: Json;
+          updated_at?: string;
+        };
+        Update: {
+          location?: 'header' | 'footer';
+          items?: Json;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      cms_media: {
+        Row: {
+          id: string;
+          url: string;
+          filename: string | null;
+          alt: string | null;
+          width: number | null;
+          height: number | null;
+          size_bytes: number | null;
+          mime: string | null;
+          uploaded_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          url: string;
+          filename?: string | null;
+          alt?: string | null;
+          width?: number | null;
+          height?: number | null;
+          size_bytes?: number | null;
+          mime?: string | null;
+          uploaded_by?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          url?: string;
+          filename?: string | null;
+          alt?: string | null;
+          width?: number | null;
+          height?: number | null;
+          size_bytes?: number | null;
+          mime?: string | null;
+        };
+        Relationships: [];
+      };
+      cms_page_versions: {
+        Row: {
+          id: string;
+          page_id: string;
+          version_num: number;
+          snapshot: Json;
+          created_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          page_id: string;
+          version_num?: number;
+          snapshot: Json;
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          snapshot?: Json;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "cms_page_versions_page_id_fkey";
+            columns: ["page_id"];
+            isOneToOne: false;
+            referencedRelation: "cms_pages";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
