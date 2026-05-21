@@ -5,8 +5,9 @@ import { BlockRenderer } from '@/components/cms/blocks';
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
-  const page = await getPageBySlug('home');
-  if (!page) notFound();
+  // adminMode=true bypasses RLS; status check below enforces published-only
+  const page = await getPageBySlug('home', true);
+  if (!page || page.status !== 'published') notFound();
 
   return (
     <>
