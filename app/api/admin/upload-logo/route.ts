@@ -47,6 +47,7 @@ export async function POST(request: Request) {
   }
 
   // Derive extension from MIME type
+  const variant = (formData.get('variant') as string | null) ?? 'color';
   const extMap: Record<string, string> = {
     'image/png':     'png',
     'image/jpeg':    'jpg',
@@ -54,7 +55,9 @@ export async function POST(request: Request) {
     'image/svg+xml': 'svg',
   };
   const ext = extMap[file.type] ?? 'png';
-  const path = `logo.${ext}`;
+  // variant='color' → logo.png  (colored, for light backgrounds)
+  // variant='light' → logo-light.png  (white, for dark backgrounds)
+  const path = variant === 'light' ? `logo-light.${ext}` : `logo.${ext}`;
 
   const arrayBuffer = await file.arrayBuffer();
   const { error: upErr } = await admin.storage

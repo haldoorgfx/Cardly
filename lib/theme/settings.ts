@@ -32,23 +32,25 @@ export interface ThemeGradients {
 }
 
 export interface SiteSettings {
-  id:          number;
-  brand_name:  string;
-  logo_url:    string | null;
-  favicon_url: string | null;
-  colors:      ThemeColors;
-  fonts:       ThemeFonts;
-  gradients:   ThemeGradients;
-  updated_at:  string;
-  updated_by:  string | null;
+  id:             number;
+  brand_name:     string;
+  logo_url:       string | null;  // colored logo — for light backgrounds (marketing nav)
+  logo_light_url: string | null;  // white/light logo — for dark backgrounds (sidebar)
+  favicon_url:    string | null;
+  colors:         ThemeColors;
+  fonts:          ThemeFonts;
+  gradients:      ThemeGradients;
+  updated_at:     string;
+  updated_by:     string | null;
 }
 
 /** Karta's locked default values — used as fallback and as CSS var fallbacks */
 export const DEFAULT_SETTINGS: SiteSettings = {
-  id:          1,
-  brand_name:  'Karta',
-  logo_url:    null,
-  favicon_url: null,
+  id:             1,
+  brand_name:     'Karta',
+  logo_url:       null,
+  logo_light_url: null,
+  favicon_url:    null,
   colors: {
     primary:     '#1F4D3A',
     primaryDark: '#163828',
@@ -89,10 +91,11 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     if (error || !data) return DEFAULT_SETTINGS;
 
     return {
-      id:          data.id,
-      brand_name:  data.brand_name,
-      logo_url:    data.logo_url,
-      favicon_url: data.favicon_url,
+      id:             data.id,
+      brand_name:     data.brand_name,
+      logo_url:       data.logo_url,
+      logo_light_url: data.logo_light_url ?? null,
+      favicon_url:    data.favicon_url,
       colors:      { ...DEFAULT_SETTINGS.colors,    ...(data.colors    as Partial<ThemeColors>)    },
       fonts:       { ...DEFAULT_SETTINGS.fonts,     ...(data.fonts     as Partial<ThemeFonts>)     },
       gradients:   { ...DEFAULT_SETTINGS.gradients, ...(data.gradients as Partial<ThemeGradients>) },

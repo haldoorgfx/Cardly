@@ -28,40 +28,121 @@ const COLOR_LABELS: { key: keyof ThemeColors; label: string; desc: string }[] = 
 type SaveState = 'idle' | 'saving' | 'saved' | 'error';
 type UploadState = 'idle' | 'uploading' | 'done' | 'error';
 
+function LogoUploadCard({
+  label,
+  description,
+  previewBg,
+  previewTextColor,
+  url,
+  onUploaded,
+  onRemove,
+  variant,
+}: {
+  label: string;
+  description: string;
+  previewBg: string;
+  previewTextColor: string;
+  url: string | null;
+  onUploaded: (url: string) => void;
+  onRemove: () => void;
+  variant: 'color' | 'light';
+}) {
+  const [state, setState] = useState<UploadState>('idle');
+  const [error, setError] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setState('uploading');
+    setError('');
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('variant', variant);
+      const res = await fetch('/api/admin/upload-logo', { method: 'POST', body: fd });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? 'Upload failed');
+      onUploaded(json.url);
+      setState('done');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Upload failed');
+      setState('error');
+    }
+    if (inputRef.current) inputRef.current.value = '';
+  }, [variant, onUploaded]);
+
+  return (
+    <div className="flex-1 min-w-0 rounded-xl border overflow-hidden" style={{ borderColor: '#E5E0D4' }}>
+      {/* Preview */}
+      <div
+        className="h-[80px] flex items-center justify-center"
+        style={{ background: previewBg }}
+      >
+        {url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={url} alt={label} className="max-h-[48px] max-w-[160px] object-contain" />
+        ) : (
+          <div className="flex flex-col items-center gap-1">
+            <Image size={16} strokeWidth={1.5} style={{ color: previewTextColor }} />
+            <span className="text-[10px] font-mono" style={{ color: previewTextColor }}>No logo</span>
+          </div>
+        )}
+      </div>
+
+      {/* Controls */}
+      <div className="p-3 space-y-2" style={{ background: '#FAF6EE' }}>
+        <div className="text-[12px] font-semibold text-[#0F1F18]">{label}</div>
+        <div className="text-[11px] text-[#6B7A72] leading-snug">{description}</div>
+        <div className="flex items-center gap-2 pt-1">
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/svg+xml"
+            className="hidden"
+            onChange={handleUpload}
+          />
+          <button
+            onClick={() => inputRef.current?.click()}
+            disabled={state === 'uploading'}
+            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border text-[12px] font-medium transition hover:border-[#1F4D3A] hover:text-[#1F4D3A] disabled:opacity-50 bg-white"
+            style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}
+          >
+            {state === 'uploading'
+              ? <Loader2 size={11} strokeWidth={2} className="animate-spin" />
+              : <Upload size={11} strokeWidth={2} />}
+            {state === 'uploading' ? 'Uploading…' : 'Upload'}
+          </button>
+          {url && (
+            <button
+              onClick={onRemove}
+              className="inline-flex items-center gap-1 h-8 px-2.5 rounded-lg border text-[12px] transition hover:border-red-300 hover:text-red-500 bg-white"
+              style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}
+            >
+              <X size={11} strokeWidth={2} /> Remove
+            </button>
+          )}
+        </div>
+        {state === 'done' && (
+          <div className="flex items-center gap-1 text-[11px] text-emerald-600">
+            <Check size={11} strokeWidth={2.5} /> Uploaded — save to apply
+          </div>
+        )}
+        {state === 'error' && (
+          <div className="flex items-center gap-1 text-[11px] text-red-500">
+            <AlertCircle size={11} strokeWidth={2} /> {error}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function ThemeEditorClient({ settings }: Props) {
   const [form, setForm] = useState<SiteSettings>(settings);
   const [saveState, setSaveState] = useState<SaveState>('idle');
   const [errorMsg, setErrorMsg] = useState('');
-  const [uploadState, setUploadState] = useState<UploadState>('idle');
-  const [uploadError, setUploadError] = useState('');
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleLogoUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploadState('uploading');
-    setUploadError('');
-
-    try {
-      const fd = new FormData();
-      fd.append('file', file);
-
-      const res = await fetch('/api/admin/upload-logo', { method: 'POST', body: fd });
-      const json = await res.json();
-
-      if (!res.ok) throw new Error(json.error ?? 'Upload failed');
-
-      setForm(f => ({ ...f, logo_url: json.url }));
-      setUploadState('done');
-    } catch (err) {
-      setUploadError(err instanceof Error ? err.message : 'Upload failed');
-      setUploadState('error');
-    }
-
-    // Reset so the same file can be re-selected
-    if (fileInputRef.current) fileInputRef.current.value = '';
-  }, []);
 
   const save = useCallback(async () => {
     setSaveState('saving');
@@ -71,11 +152,12 @@ export function ThemeEditorClient({ settings }: Props) {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          brand_name: form.brand_name,
-          logo_url:   form.logo_url,
-          colors:     form.colors,
-          fonts:      form.fonts,
-          gradients:  form.gradients,
+          brand_name:     form.brand_name,
+          logo_url:       form.logo_url,
+          logo_light_url: form.logo_light_url,
+          colors:         form.colors,
+          fonts:          form.fonts,
+          gradients:      form.gradients,
         }),
       });
       if (!res.ok) {
@@ -117,93 +199,37 @@ export function ThemeEditorClient({ settings }: Props) {
         </p>
       </section>
 
-      {/* Logo upload */}
+      {/* Logo upload — two variants */}
       <section className="bg-white rounded-2xl border p-6" style={{ borderColor: '#E5E0D4' }}>
         <h2 className="font-display font-semibold text-[15px] text-[#0F1F18] mb-1">Logo</h2>
         <p className="text-[12px] text-[#6B7A72] mb-5">
-          When set, the logo replaces the brand name in the sidebar. Use a transparent PNG or SVG for best results.
+          Upload two variants — one for light backgrounds (front page), one for dark backgrounds (sidebar). Use transparent PNG or SVG.
         </p>
 
-        {/* Preview + upload button */}
-        <div className="flex items-center gap-4">
-          {/* Preview box */}
-          <div
-            className="h-[72px] w-[160px] rounded-xl border flex items-center justify-center shrink-0 overflow-hidden"
-            style={{ borderColor: '#E5E0D4', background: '#0F1F18' }}
-          >
-            {form.logo_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={form.logo_url}
-                alt="Logo preview"
-                className="max-h-[52px] max-w-[136px] object-contain"
-              />
-            ) : (
-              <div className="flex flex-col items-center gap-1">
-                <Image size={18} strokeWidth={1.5} style={{ color: 'rgba(255,255,255,0.2)' }} />
-                <span className="text-[10px] font-mono" style={{ color: 'rgba(255,255,255,0.2)' }}>No logo</span>
-              </div>
-            )}
-          </div>
-
-          {/* Actions */}
-          <div className="flex-1 space-y-2">
-            <div className="flex items-center gap-2">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/png,image/jpeg,image/webp,image/svg+xml"
-                className="hidden"
-                onChange={handleLogoUpload}
-              />
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploadState === 'uploading'}
-                className="inline-flex items-center gap-2 h-9 px-4 rounded-lg border text-[13px] font-medium transition hover:border-[#1F4D3A] hover:text-[#1F4D3A] disabled:opacity-50"
-                style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}
-              >
-                {uploadState === 'uploading' ? (
-                  <Loader2 size={13} strokeWidth={2} className="animate-spin" />
-                ) : (
-                  <Upload size={13} strokeWidth={2} />
-                )}
-                {uploadState === 'uploading' ? 'Uploading…' : 'Upload logo'}
-              </button>
-
-              {form.logo_url && (
-                <button
-                  onClick={() => { setForm(f => ({ ...f, logo_url: null })); setUploadState('idle'); }}
-                  className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border text-[13px] transition hover:border-red-300 hover:text-red-500"
-                  style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}
-                >
-                  <X size={13} strokeWidth={2} />
-                  Remove
-                </button>
-              )}
-            </div>
-
-            {uploadState === 'done' && (
-              <div className="flex items-center gap-1.5 text-[12px] text-emerald-600">
-                <Check size={12} strokeWidth={2.5} />
-                Uploaded — click Save changes to apply
-              </div>
-            )}
-            {uploadState === 'error' && (
-              <div className="flex items-center gap-1.5 text-[12px] text-red-500">
-                <AlertCircle size={12} strokeWidth={2} />
-                {uploadError}
-              </div>
-            )}
-
-            <p className="text-[11px] text-[#6B7A72]">PNG, JPG, WebP, or SVG · max 2 MB</p>
-          </div>
+        <div className="flex gap-4">
+          <LogoUploadCard
+            label="Colored logo"
+            description="Shown on the front page and marketing nav (light cream background)."
+            previewBg="#FAF6EE"
+            previewTextColor="rgba(15,31,24,0.2)"
+            url={form.logo_url}
+            variant="color"
+            onUploaded={url => setForm(f => ({ ...f, logo_url: url }))}
+            onRemove={() => setForm(f => ({ ...f, logo_url: null }))}
+          />
+          <LogoUploadCard
+            label="White / light logo"
+            description="Shown in the sidebar and admin panel (dark background)."
+            previewBg="#0F1F18"
+            previewTextColor="rgba(255,255,255,0.2)"
+            url={form.logo_light_url}
+            variant="light"
+            onUploaded={url => setForm(f => ({ ...f, logo_light_url: url }))}
+            onRemove={() => setForm(f => ({ ...f, logo_light_url: null }))}
+          />
         </div>
 
-        {/* Dark background note */}
-        <div className="mt-4 flex items-start gap-2 text-[11px] text-[#6B7A72] rounded-lg px-3 py-2.5" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }}>
-          <span className="shrink-0 mt-0.5">💡</span>
-          The sidebar background is dark (<code className="font-mono text-[10px]">#0F1F18</code>). Use a white or light-coloured logo for best contrast.
-        </div>
+        <p className="mt-4 text-[11px] text-[#6B7A72]">PNG, JPG, WebP, or SVG · max 2 MB each</p>
       </section>
 
       {/* Colors */}

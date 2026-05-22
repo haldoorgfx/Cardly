@@ -500,7 +500,7 @@ type PlanCtx = {
   initials: string;
   planPct: number;
   planLabel: string;
-  logoUrl: string | null;
+  logoUrl: string | null;       // white/light logo — for dark sidebar bg
 };
 
 const PlanContext = createContext<PlanCtx>({ profile: null, eventCount: 0, initials: '?', planPct: 0, planLabel: 'Free', logoUrl: null });
@@ -527,11 +527,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       Promise.all([
         supabase.from('profiles').select('full_name, email, plan, role').eq('id', data.user.id).single(),
         supabase.from('events').select('id', { count: 'exact', head: true }).eq('user_id', data.user.id).neq('status', 'archived'),
-        supabase.from('site_settings').select('logo_url').eq('id', 1).single(),
+        supabase.from('site_settings').select('logo_light_url').eq('id', 1).single(),
       ]).then(([{ data: p }, { count }, { data: s }]) => {
         setProfile(p);
         setEventCount(count ?? 0);
-        setLogoUrl(s?.logo_url ?? null);
+        setLogoUrl((s as { logo_light_url?: string | null } | null)?.logo_light_url ?? null);
       });
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps

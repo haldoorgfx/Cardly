@@ -34,6 +34,7 @@ export async function PATCH(request: Request) {
   type SettingsUpdate = {
     brand_name?: string;
     logo_url?: string | null;
+    logo_light_url?: string | null;
     favicon_url?: string | null;
     colors?: import('@/types/database').Json;
     fonts?: import('@/types/database').Json;
@@ -42,9 +43,10 @@ export async function PATCH(request: Request) {
     updated_at?: string;
   };
   const update: SettingsUpdate = { updated_by: user.id, updated_at: new Date().toISOString() };
-  if ('brand_name'  in body) update.brand_name  = body.brand_name  as string;
-  if ('logo_url'    in body) update.logo_url     = body.logo_url    as string | null;
-  if ('favicon_url' in body) update.favicon_url  = body.favicon_url as string | null;
+  if ('brand_name'     in body) update.brand_name     = body.brand_name     as string;
+  if ('logo_url'       in body) update.logo_url       = body.logo_url       as string | null;
+  if ('logo_light_url' in body) update.logo_light_url = body.logo_light_url as string | null;
+  if ('favicon_url'    in body) update.favicon_url    = body.favicon_url    as string | null;
   if ('colors'      in body) update.colors       = body.colors      as import('@/types/database').Json;
   if ('fonts'       in body) update.fonts        = body.fonts       as import('@/types/database').Json;
   if ('gradients'   in body) update.gradients    = body.gradients   as import('@/types/database').Json;
