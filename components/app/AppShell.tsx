@@ -311,7 +311,7 @@ function NavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: (
   const handleSignOut = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
-    router.push('/login');
+    window.location.href = '/login';
   };
 
   return (

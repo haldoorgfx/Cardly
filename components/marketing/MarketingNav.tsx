@@ -231,8 +231,7 @@ export function MarketingNav() {
   async function handleSignOut() {
     const supabase = createClient();
     await supabase.auth.signOut();
-    setUser(null);
-    router.push('/');
+    window.location.href = '/';
   }
 
   return (
