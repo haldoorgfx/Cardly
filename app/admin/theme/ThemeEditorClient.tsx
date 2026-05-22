@@ -3,7 +3,6 @@
 import { useState, useCallback, useRef } from 'react';
 import type { SiteSettings, ThemeColors } from '@/lib/theme/settings';
 import { Check, Loader2, AlertCircle, Upload, X, Image } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
 
 interface Props {
   settings: SiteSettings;
@@ -41,39 +40,19 @@ export function ThemeEditorClient({ settings }: Props) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const allowed = ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'];
-    if (!allowed.includes(file.type)) {
-      setUploadError('Only PNG, JPG, WebP, or SVG files are allowed.');
-      setUploadState('error');
-      return;
-    }
-    if (file.size > 2 * 1024 * 1024) {
-      setUploadError('File must be under 2 MB.');
-      setUploadState('error');
-      return;
-    }
-
     setUploadState('uploading');
     setUploadError('');
 
     try {
-      const supabase = createClient();
-      const ext = file.name.split('.').pop() ?? 'png';
-      const path = `logo.${ext}`;
+      const fd = new FormData();
+      fd.append('file', file);
 
-      const { error: upErr } = await supabase.storage
-        .from('brand-assets')
-        .upload(path, file, { upsert: true, contentType: file.type });
+      const res = await fetch('/api/admin/upload-logo', { method: 'POST', body: fd });
+      const json = await res.json();
 
-      if (upErr) throw new Error(upErr.message);
+      if (!res.ok) throw new Error(json.error ?? 'Upload failed');
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('brand-assets')
-        .getPublicUrl(path);
-
-      // Bust cache so img tag refreshes even if filename is the same
-      const bustedUrl = `${publicUrl}?t=${Date.now()}`;
-      setForm(f => ({ ...f, logo_url: bustedUrl }));
+      setForm(f => ({ ...f, logo_url: json.url }));
       setUploadState('done');
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : 'Upload failed');
