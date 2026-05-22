@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import type { SiteSettings, ThemeColors } from '@/lib/theme/settings';
-import { Check, Loader2, AlertCircle, Upload } from 'lucide-react';
+import { Check, Loader2, AlertCircle, Upload, X, Image } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 
 interface Props {
   settings: SiteSettings;
@@ -26,11 +27,62 @@ const COLOR_LABELS: { key: keyof ThemeColors; label: string; desc: string }[] = 
 ];
 
 type SaveState = 'idle' | 'saving' | 'saved' | 'error';
+type UploadState = 'idle' | 'uploading' | 'done' | 'error';
 
 export function ThemeEditorClient({ settings }: Props) {
   const [form, setForm] = useState<SiteSettings>(settings);
   const [saveState, setSaveState] = useState<SaveState>('idle');
   const [errorMsg, setErrorMsg] = useState('');
+  const [uploadState, setUploadState] = useState<UploadState>('idle');
+  const [uploadError, setUploadError] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleLogoUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const allowed = ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'];
+    if (!allowed.includes(file.type)) {
+      setUploadError('Only PNG, JPG, WebP, or SVG files are allowed.');
+      setUploadState('error');
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setUploadError('File must be under 2 MB.');
+      setUploadState('error');
+      return;
+    }
+
+    setUploadState('uploading');
+    setUploadError('');
+
+    try {
+      const supabase = createClient();
+      const ext = file.name.split('.').pop() ?? 'png';
+      const path = `logo.${ext}`;
+
+      const { error: upErr } = await supabase.storage
+        .from('brand-assets')
+        .upload(path, file, { upsert: true, contentType: file.type });
+
+      if (upErr) throw new Error(upErr.message);
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('brand-assets')
+        .getPublicUrl(path);
+
+      // Bust cache so img tag refreshes even if filename is the same
+      const bustedUrl = `${publicUrl}?t=${Date.now()}`;
+      setForm(f => ({ ...f, logo_url: bustedUrl }));
+      setUploadState('done');
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : 'Upload failed');
+      setUploadState('error');
+    }
+
+    // Reset so the same file can be re-selected
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }, []);
 
   const save = useCallback(async () => {
     setSaveState('saving');
@@ -82,33 +134,96 @@ export function ThemeEditorClient({ settings }: Props) {
           placeholder="Karta"
         />
         <p className="mt-2 text-[12px] text-[#6B7A72]">
-          Shown in the nav, footer, and browser tab title.
+          Shown in the nav when no logo is set, and in the browser tab title.
         </p>
       </section>
 
-      {/* Logo */}
+      {/* Logo upload */}
       <section className="bg-white rounded-2xl border p-6" style={{ borderColor: '#E5E0D4' }}>
-        <h2 className="font-display font-semibold text-[15px] text-[#0F1F18] mb-1">Logo URL</h2>
-        <p className="text-[12px] text-[#6B7A72] mb-4">
-          Upload a logo to the <code className="font-mono text-[11px]">brand-assets</code> bucket in Supabase Storage, then paste the public URL here.
+        <h2 className="font-display font-semibold text-[15px] text-[#0F1F18] mb-1">Logo</h2>
+        <p className="text-[12px] text-[#6B7A72] mb-5">
+          When set, the logo replaces the brand name in the sidebar. Use a transparent PNG or SVG for best results.
         </p>
-        <div className="flex items-center gap-3">
-          {form.logo_url && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={form.logo_url} alt="Logo preview" className="h-10 w-auto rounded-lg border object-contain" style={{ borderColor: '#E5E0D4' }} />
-          )}
-          {!form.logo_url && (
-            <div className="h-10 w-10 rounded-lg border grid place-items-center" style={{ borderColor: '#E5E0D4', background: '#FAF6EE' }}>
-              <Upload size={14} strokeWidth={1.8} className="text-[#6B7A72]" />
+
+        {/* Preview + upload button */}
+        <div className="flex items-center gap-4">
+          {/* Preview box */}
+          <div
+            className="h-[72px] w-[160px] rounded-xl border flex items-center justify-center shrink-0 overflow-hidden"
+            style={{ borderColor: '#E5E0D4', background: '#0F1F18' }}
+          >
+            {form.logo_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={form.logo_url}
+                alt="Logo preview"
+                className="max-h-[52px] max-w-[136px] object-contain"
+              />
+            ) : (
+              <div className="flex flex-col items-center gap-1">
+                <Image size={18} strokeWidth={1.5} style={{ color: 'rgba(255,255,255,0.2)' }} />
+                <span className="text-[10px] font-mono" style={{ color: 'rgba(255,255,255,0.2)' }}>No logo</span>
+              </div>
+            )}
+          </div>
+
+          {/* Actions */}
+          <div className="flex-1 space-y-2">
+            <div className="flex items-center gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                className="hidden"
+                onChange={handleLogoUpload}
+              />
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadState === 'uploading'}
+                className="inline-flex items-center gap-2 h-9 px-4 rounded-lg border text-[13px] font-medium transition hover:border-[#1F4D3A] hover:text-[#1F4D3A] disabled:opacity-50"
+                style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}
+              >
+                {uploadState === 'uploading' ? (
+                  <Loader2 size={13} strokeWidth={2} className="animate-spin" />
+                ) : (
+                  <Upload size={13} strokeWidth={2} />
+                )}
+                {uploadState === 'uploading' ? 'Uploading…' : 'Upload logo'}
+              </button>
+
+              {form.logo_url && (
+                <button
+                  onClick={() => { setForm(f => ({ ...f, logo_url: null })); setUploadState('idle'); }}
+                  className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border text-[13px] transition hover:border-red-300 hover:text-red-500"
+                  style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}
+                >
+                  <X size={13} strokeWidth={2} />
+                  Remove
+                </button>
+              )}
             </div>
-          )}
-          <input
-            value={form.logo_url ?? ''}
-            onChange={e => setForm(f => ({ ...f, logo_url: e.target.value || null }))}
-            className="flex-1 h-10 px-3 rounded-lg border text-[13px] font-mono outline-none focus:ring-2 focus:ring-[#1F4D3A]/20 focus:border-[#1F4D3A]/40 transition"
-            style={{ borderColor: '#E5E0D4' }}
-            placeholder="https://…/brand-assets/logo.png"
-          />
+
+            {uploadState === 'done' && (
+              <div className="flex items-center gap-1.5 text-[12px] text-emerald-600">
+                <Check size={12} strokeWidth={2.5} />
+                Uploaded — click Save changes to apply
+              </div>
+            )}
+            {uploadState === 'error' && (
+              <div className="flex items-center gap-1.5 text-[12px] text-red-500">
+                <AlertCircle size={12} strokeWidth={2} />
+                {uploadError}
+              </div>
+            )}
+
+            <p className="text-[11px] text-[#6B7A72]">PNG, JPG, WebP, or SVG · max 2 MB</p>
+          </div>
+        </div>
+
+        {/* Dark background note */}
+        <div className="mt-4 flex items-start gap-2 text-[11px] text-[#6B7A72] rounded-lg px-3 py-2.5" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }}>
+          <span className="shrink-0 mt-0.5">💡</span>
+          The sidebar background is dark (<code className="font-mono text-[10px]">#0F1F18</code>). Use a white or light-coloured logo for best contrast.
         </div>
       </section>
 

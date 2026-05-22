@@ -125,7 +125,7 @@ function NavItem({ href, icon, label, badge, active, onNavigate }: {
 // ─── User sidebar content ─────────────────────────────────────────────────────
 
 function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
-  const { profile, eventCount, planPct } = usePlanCtx();
+  const { profile, eventCount, planPct, logoUrl } = usePlanCtx();
   const planLimit = profile ? (PLAN_LIMITS[profile.plan] ?? 1) : 1;
   const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
 
@@ -141,9 +141,16 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
       <Link href="/" onClick={onNavigate}
         className="h-14 px-4 flex items-center gap-2.5 shrink-0 transition-opacity hover:opacity-80"
         style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-        <span className="inline-block w-6 h-6 rounded-md shrink-0"
-          style={{ background: 'linear-gradient(135deg, #FAF6EE 0%, #E8C57E 100%)' }} />
-        <span className="font-display text-[19px] font-bold tracking-tight text-white">Karta</span>
+        {logoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={logoUrl} alt="Logo" className="max-h-[32px] max-w-[140px] object-contain" />
+        ) : (
+          <>
+            <span className="inline-block w-6 h-6 rounded-md shrink-0"
+              style={{ background: 'linear-gradient(135deg, #FAF6EE 0%, #E8C57E 100%)' }} />
+            <span className="font-display text-[19px] font-bold tracking-tight text-white">Karta</span>
+          </>
+        )}
       </Link>
 
       {/* Workspace header */}
@@ -261,7 +268,7 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
 // ─── Admin sidebar content ────────────────────────────────────────────────────
 
 function AdminNavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
-  const { profile } = usePlanCtx();
+  const { profile, logoUrl } = usePlanCtx();
   const isSuperAdmin = profile?.role === 'super_admin';
 
   const handleSignOut = async () => {
@@ -274,11 +281,18 @@ function AdminNavContent({ pathname, onNavigate }: { pathname: string; onNavigat
     <>
       {/* Header */}
       <div className="h-14 px-4 flex items-center gap-3 shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-        <div className="h-7 w-7 rounded-lg grid place-items-center shrink-0"
-          style={{ background: 'rgba(232,197,126,0.15)' }}>
-          <ShieldCheck size={14} strokeWidth={1.8} style={{ color: '#E8C57E' }} />
-        </div>
-        <span className="font-display text-[16px] font-bold tracking-tight text-white">Admin Panel</span>
+        {logoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={logoUrl} alt="Logo" className="max-h-[28px] max-w-[100px] object-contain" />
+        ) : (
+          <div className="h-7 w-7 rounded-lg grid place-items-center shrink-0"
+            style={{ background: 'rgba(232,197,126,0.15)' }}>
+            <ShieldCheck size={14} strokeWidth={1.8} style={{ color: '#E8C57E' }} />
+          </div>
+        )}
+        <span className="font-display text-[14px] font-bold tracking-tight" style={{ color: 'rgba(232,197,126,0.7)' }}>
+          Admin Panel
+        </span>
       </div>
 
       {/* Back to app */}
@@ -486,9 +500,10 @@ type PlanCtx = {
   initials: string;
   planPct: number;
   planLabel: string;
+  logoUrl: string | null;
 };
 
-const PlanContext = createContext<PlanCtx>({ profile: null, eventCount: 0, initials: '?', planPct: 0, planLabel: 'Free' });
+const PlanContext = createContext<PlanCtx>({ profile: null, eventCount: 0, initials: '?', planPct: 0, planLabel: 'Free', logoUrl: null });
 function usePlanCtx() { return useContext(PlanContext); }
 
 // ─── AppShell ─────────────────────────────────────────────────────────────────
@@ -502,6 +517,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
   const [impersonating, setImpersonating] = useState<ImpersonatedUser | null>(null);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
   const isAdminRoute = pathname.startsWith('/admin');
 
@@ -511,9 +527,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       Promise.all([
         supabase.from('profiles').select('full_name, email, plan, role').eq('id', data.user.id).single(),
         supabase.from('events').select('id', { count: 'exact', head: true }).eq('user_id', data.user.id).neq('status', 'archived'),
-      ]).then(([{ data: p }, { count }]) => {
+        supabase.from('site_settings').select('logo_url').eq('id', 1).single(),
+      ]).then(([{ data: p }, { count }, { data: s }]) => {
         setProfile(p);
         setEventCount(count ?? 0);
+        setLogoUrl(s?.logo_url ?? null);
       });
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -553,7 +571,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const planPct = planLimit === Infinity ? 50 : Math.min((eventCount / planLimit) * 100, 100);
   const planLabel = profile?.plan === 'studio' ? 'Studio' : profile?.plan === 'pro' ? 'Pro' : 'Free';
 
-  const ctxValue: PlanCtx = { profile, eventCount, initials, planPct, planLabel };
+  const ctxValue: PlanCtx = { profile, eventCount, initials, planPct, planLabel, logoUrl };
 
   const isFullScreen = /\/events\/[^/]+\/(edit|publish)/.test(pathname);
   if (isFullScreen) return <>{children}</>;
