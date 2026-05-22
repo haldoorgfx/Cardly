@@ -144,16 +144,6 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
         <span className="inline-block w-6 h-6 rounded-md shrink-0"
           style={{ background: 'linear-gradient(135deg, #FAF6EE 0%, #E8C57E 100%)' }} />
         <span className="font-display text-[19px] font-bold tracking-tight text-white">Karta</span>
-        {isAdmin && (
-          <Link
-            href="/admin/analytics"
-            onClick={e => e.stopPropagation()}
-            className="ml-auto font-mono text-[9px] tracking-[0.16em] uppercase px-1.5 py-0.5 rounded-md shrink-0 transition-opacity hover:opacity-70"
-            style={{ background: 'rgba(232,197,126,0.15)', color: '#E8C57E' }}
-          >
-            Admin
-          </Link>
-        )}
       </Link>
 
       {/* Workspace header */}
@@ -235,6 +225,26 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
           )}
         </div>
       </div>
+
+      {/* Admin panel entry — only for admins */}
+      {isAdmin && (
+        <div className="px-3 pb-2 shrink-0">
+          <Link
+            href="/admin/analytics"
+            onClick={onNavigate}
+            className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[12.5px] transition-colors group"
+            style={{ background: 'rgba(232,197,126,0.07)', border: '1px solid rgba(232,197,126,0.12)' }}
+          >
+            <div className="h-6 w-6 rounded-md grid place-items-center shrink-0"
+              style={{ background: 'rgba(232,197,126,0.12)' }}>
+              <ShieldCheck size={12} strokeWidth={1.8} style={{ color: '#E8C57E' }} />
+            </div>
+            <span className="flex-1 leading-none" style={{ color: 'rgba(232,197,126,0.6)' }}>Admin panel</span>
+            <ArrowLeft size={12} strokeWidth={2} className="rotate-180 shrink-0 transition-transform group-hover:translate-x-0.5"
+              style={{ color: 'rgba(232,197,126,0.35)' }} />
+          </Link>
+        </div>
+      )}
 
       {/* Sign out */}
       <div className="px-3 py-2 shrink-0 border-t" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
