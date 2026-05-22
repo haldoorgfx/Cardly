@@ -32,6 +32,7 @@
     color: var(--theme-ink, #0F1F18);
     background: var(--theme-cream, #FAF6EE);
     -webkit-font-smoothing: antialiased;
+    scroll-behavior: smooth;
   }
 
   * {

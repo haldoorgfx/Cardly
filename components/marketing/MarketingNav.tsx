@@ -44,15 +44,15 @@ function UserAvatar({ user }: { user: User }) {
 }
 
 const NAV_LINKS = [
-  { label: 'Use cases',    href: '/use-cases' },
-  { label: 'How it works', href: '/how-it-works' },
-  { label: 'Pricing',      href: '/pricing' },
+  { label: 'Use cases',    href: '/#use-cases' },
+  { label: 'How it works', href: '/#how' },
+  { label: 'Pricing',      href: '/#pricing' },
 ];
 
 const MOBILE_LINKS = [
-  { label: 'Use cases',    href: '/use-cases' },
-  { label: 'How it works', href: '/how-it-works' },
-  { label: 'Pricing',      href: '/pricing' },
+  { label: 'Use cases',    href: '/#use-cases' },
+  { label: 'How it works', href: '/#how' },
+  { label: 'Pricing',      href: '/#pricing' },
   { label: 'About',        href: '/about' },
 ];
 
@@ -274,7 +274,6 @@ export function MarketingNav() {
                 key={href}
                 href={href}
                 className="hover:text-primary transition-colors"
-                style={{ color: pathname.startsWith(href) ? '#1F4D3A' : undefined }}
               >
                 {label}
               </Link>

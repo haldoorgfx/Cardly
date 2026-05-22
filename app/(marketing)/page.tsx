@@ -42,7 +42,7 @@ function Hero() {
               Start free <ArrowRight size={16} strokeWidth={2} />
             </Link>
             <Link
-              href="/how-it-works"
+              href="#how"
               className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full border text-ink font-medium hover:border-primary hover:text-primary transition-colors"
               style={{ borderColor: 'rgba(15,31,24,0.15)' }}
             >
@@ -406,10 +406,10 @@ function HowItWorks() {
 
         <div className="mt-12 flex justify-center">
           <Link
-            href="/how-it-works"
+            href="/signup"
             className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-primary text-cream font-medium hover:bg-primary-dark transition-colors"
           >
-            Full walkthrough <ArrowRight size={16} strokeWidth={2} />
+            Start free <ArrowRight size={16} strokeWidth={2} />
           </Link>
         </div>
       </div>
@@ -641,10 +641,10 @@ function FinalCTA() {
             Start free <ArrowRight size={17} strokeWidth={2} />
           </Link>
           <Link
-            href="/use-cases"
+            href="#use-cases"
             className="inline-flex items-center gap-2 text-ink underline decoration-ink/30 underline-offset-4 hover:decoration-primary hover:text-primary transition-colors text-[15px]"
           >
-            See a live example <ArrowRight size={14} strokeWidth={2} />
+            See use cases <ArrowRight size={14} strokeWidth={2} />
           </Link>
         </div>
       </div>
