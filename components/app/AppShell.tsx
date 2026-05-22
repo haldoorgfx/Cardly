@@ -7,7 +7,8 @@ import { createClient } from '@/lib/supabase/client';
 import {
   LayoutGrid, TrendingUp, LayoutTemplate, Palette,
   Settings2, Users, LogOut, Menu, Search, Plus, ChevronRight, CreditCard,
-  BarChart2, FileText, Eye, X,
+  BarChart2, FileText, Eye, X, ArrowLeft, ShieldCheck,
+  Flag, Image, ScrollText, Sliders, Gavel,
 } from 'lucide-react';
 
 type Profile = {
@@ -34,151 +35,310 @@ type EventResult = {
 
 const PLAN_LIMITS: Record<string, number> = { free: 1, pro: Infinity, studio: Infinity };
 
+// ─── User nav ─────────────────────────────────────────────────────────────────
+
 const NAV_ITEMS = [
-  {
-    href: '/dashboard',
-    label: 'Events',
-    icon: <LayoutGrid size={15} strokeWidth={1.8} />,
-    badge: null,
-    matchPrefix: true,
-  },
-  {
-    href: '/analytics',
-    label: 'Analytics',
-    icon: <TrendingUp size={15} strokeWidth={1.8} />,
-    badge: null,
-    matchPrefix: false,
-  },
-  {
-    href: '/templates',
-    label: 'Templates',
-    icon: <LayoutTemplate size={15} strokeWidth={1.8} />,
-    badge: 'NEW',
-    matchPrefix: false,
-  },
-  {
-    href: '/brand',
-    label: 'Brand kit',
-    icon: <Palette size={15} strokeWidth={1.8} />,
-    badge: null,
-    matchPrefix: false,
-  },
+  { href: '/dashboard', label: 'Events',    icon: <LayoutGrid size={15} strokeWidth={1.8} />, badge: null, matchPrefix: true },
+  { href: '/analytics', label: 'Analytics', icon: <TrendingUp size={15} strokeWidth={1.8} />, badge: null, matchPrefix: false },
+  { href: '/templates', label: 'Templates', icon: <LayoutTemplate size={15} strokeWidth={1.8} />, badge: 'NEW', matchPrefix: false },
+  { href: '/brand',     label: 'Brand kit', icon: <Palette size={15} strokeWidth={1.8} />, badge: null, matchPrefix: false },
 ];
 
 const WORKSPACE_ITEMS = [
-  {
-    href: '/settings',
-    label: 'Settings',
-    icon: <Settings2 size={15} strokeWidth={1.8} />,
-  },
-  {
-    href: '/settings/billing',
-    label: 'Billing',
-    icon: <CreditCard size={15} strokeWidth={1.8} />,
-  },
-  {
-    href: '/team',
-    label: 'Team',
-    icon: <Users size={15} strokeWidth={1.8} />,
-  },
+  { href: '/settings',         label: 'Settings', icon: <Settings2 size={15} strokeWidth={1.8} /> },
+  { href: '/settings/billing', label: 'Billing',  icon: <CreditCard size={15} strokeWidth={1.8} /> },
+  { href: '/team',             label: 'Team',     icon: <Users size={15} strokeWidth={1.8} /> },
 ];
 
-// ─── Admin grouped nav ────────────────────────────────────────────────────────
+// ─── Admin nav ────────────────────────────────────────────────────────────────
 
-type AdminGroupItem = { href: string; label: string; superAdminOnly?: boolean };
-type AdminGroupDef = { label: string; icon: React.ReactNode; items: AdminGroupItem[] };
+type AdminNavSection = {
+  label: string;
+  items: { href: string; label: string; icon: React.ReactNode; superAdminOnly?: boolean }[];
+};
 
-const ADMIN_GROUPS: AdminGroupDef[] = [
+const ADMIN_SECTIONS: AdminNavSection[] = [
   {
-    // Users + their audit trail — both are account management
-    label: 'Users & Access',
-    icon: <Users size={15} strokeWidth={1.8} />,
+    label: 'Overview',
     items: [
-      { href: '/admin/users', label: 'Accounts' },
-      { href: '/admin/audit', label: 'Activity Log' },
+      { href: '/admin/analytics', label: 'Platform Stats', icon: <BarChart2 size={14} strokeWidth={1.8} /> },
     ],
   },
   {
-    // Everything published to the public-facing site
-    label: 'Publishing',
-    icon: <FileText size={15} strokeWidth={1.8} />,
+    label: 'Users',
     items: [
-      { href: '/admin/content',   label: 'Pages' },
-      { href: '/admin/media',     label: 'Media' },
-      { href: '/admin/changelog', label: 'Changelog' },
+      { href: '/admin/users', label: 'Accounts',     icon: <Users size={14} strokeWidth={1.8} /> },
+      { href: '/admin/audit', label: 'Activity Log', icon: <ScrollText size={14} strokeWidth={1.8} /> },
     ],
   },
   {
-    // Shapes the product experience itself
+    label: 'Content',
+    items: [
+      { href: '/admin/content',   label: 'Pages',     icon: <FileText size={14} strokeWidth={1.8} /> },
+      { href: '/admin/media',     label: 'Media',     icon: <Image size={14} strokeWidth={1.8} /> },
+      { href: '/admin/changelog', label: 'Changelog', icon: <ScrollText size={14} strokeWidth={1.8} /> },
+    ],
+  },
+  {
     label: 'Product',
-    icon: <LayoutTemplate size={15} strokeWidth={1.8} />,
     items: [
-      { href: '/admin/templates', label: 'Templates',    superAdminOnly: true },
-      { href: '/admin/theme',     label: 'Appearance' },
-      { href: '/admin/flags',     label: 'Feature Flags', superAdminOnly: true },
+      { href: '/admin/theme',     label: 'Appearance',    icon: <Sliders size={14} strokeWidth={1.8} /> },
+      { href: '/admin/templates', label: 'Templates',     icon: <LayoutTemplate size={14} strokeWidth={1.8} />, superAdminOnly: true },
+      { href: '/admin/flags',     label: 'Feature Flags', icon: <Flag size={14} strokeWidth={1.8} />,          superAdminOnly: true },
     ],
   },
   {
-    // Business health — distinct from user's own Analytics / Billing
     label: 'Business',
-    icon: <BarChart2 size={15} strokeWidth={1.8} />,
     items: [
-      { href: '/admin/analytics', label: 'Platform Stats' },
-      { href: '/admin/events',    label: 'Moderation',    superAdminOnly: true },
-      { href: '/admin/billing',   label: 'Revenue',       superAdminOnly: true },
+      { href: '/admin/billing', label: 'Revenue',    icon: <CreditCard size={14} strokeWidth={1.8} />, superAdminOnly: true },
+      { href: '/admin/events',  label: 'Moderation', icon: <Gavel size={14} strokeWidth={1.8} />,      superAdminOnly: true },
     ],
   },
 ];
 
-function AdminNavGroup({
-  group, pathname, isSuperAdmin, onNavigate,
-}: {
-  group: AdminGroupDef; pathname: string; isSuperAdmin: boolean; onNavigate?: () => void;
+// ─── Shared nav item ──────────────────────────────────────────────────────────
+
+function NavItem({ href, icon, label, badge, active, onNavigate }: {
+  href: string; icon: React.ReactNode; label: string;
+  badge?: string | null; active: boolean; onNavigate?: () => void;
 }) {
-  const visibleItems = group.items.filter(i => isSuperAdmin || !i.superAdminOnly);
-  const isAnyActive = visibleItems.some(i => pathname.startsWith(i.href));
-  const [open, setOpen] = useState(isAnyActive);
-  useEffect(() => { if (isAnyActive) setOpen(true); }, [isAnyActive]);
-
-  if (visibleItems.length === 0) return null;
-
   return (
     <li>
-      <button
-        onClick={() => setOpen(o => !o)}
-        className={`w-full flex items-center gap-3 px-2.5 py-[7px] rounded-lg text-[13.5px] transition-colors text-left ${
-          isAnyActive ? 'text-white/90 bg-white/[0.08]' : 'text-white/45 hover:text-white/70 hover:bg-white/[0.05]'
-        }`}
-      >
-        <span className="shrink-0">{group.icon}</span>
-        <span className="flex-1 leading-none">{group.label}</span>
-        <ChevronRight
-          size={11} strokeWidth={2.2}
-          className={`shrink-0 transition-transform duration-200 ${open ? 'rotate-90' : ''}`}
-          style={{ color: 'rgba(255,255,255,0.25)' }}
-        />
-      </button>
-
-      {open && (
-        <ul className="mt-0.5 ml-[30px] space-y-0.5 border-l" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
-          {visibleItems.map(item => (
-            <li key={item.href}>
-              <Link
-                href={item.href}
-                onClick={onNavigate}
-                className={`block pl-3 pr-2 py-[6px] rounded-r-lg text-[12.5px] transition-colors ${
-                  pathname.startsWith(item.href)
-                    ? 'text-white/90 bg-white/[0.07]'
-                    : 'text-white/35 hover:text-white/60 hover:bg-white/[0.04]'
-                }`}
-              >
-                {item.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
+      <Link href={href} onClick={onNavigate}
+        className={`flex items-center gap-3 py-[7px] rounded-lg text-[13.5px] transition-colors border-l-2 ${
+          active
+            ? 'border-[#E8C57E] bg-white/[0.1] text-white font-medium pl-[8px] pr-2.5'
+            : 'border-transparent px-2.5 text-white/50 hover:text-white/85 hover:bg-white/[0.06]'
+        }`}>
+        <span className="shrink-0">{icon}</span>
+        <span className="flex-1 leading-none">{label}</span>
+        {badge && (
+          <span className="text-[9px] font-mono font-medium text-white/40 bg-white/[0.08] px-1.5 py-0.5 rounded-md tracking-wide">
+            {badge}
+          </span>
+        )}
+      </Link>
     </li>
+  );
+}
+
+// ─── User sidebar content ─────────────────────────────────────────────────────
+
+function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
+  const { profile, eventCount, planPct } = usePlanCtx();
+  const planLimit = profile ? (PLAN_LIMITS[profile.plan] ?? 1) : 1;
+  const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
+
+  const handleSignOut = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    window.location.href = '/login';
+  };
+
+  return (
+    <>
+      {/* Logo */}
+      <Link href="/" onClick={onNavigate}
+        className="h-14 px-4 flex items-center gap-2.5 shrink-0 transition-opacity hover:opacity-80"
+        style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+        <span className="inline-block w-6 h-6 rounded-md shrink-0"
+          style={{ background: 'linear-gradient(135deg, #FAF6EE 0%, #E8C57E 100%)' }} />
+        <span className="font-display text-[19px] font-bold tracking-tight text-white">Karta</span>
+        {isAdmin && (
+          <Link
+            href="/admin/analytics"
+            onClick={e => e.stopPropagation()}
+            className="ml-auto font-mono text-[9px] tracking-[0.16em] uppercase px-1.5 py-0.5 rounded-md shrink-0 transition-opacity hover:opacity-70"
+            style={{ background: 'rgba(232,197,126,0.15)', color: '#E8C57E' }}
+          >
+            Admin
+          </Link>
+        )}
+      </Link>
+
+      {/* Workspace header */}
+      <div className="h-14 flex items-center px-4 border-b shrink-0" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div className="h-8 w-8 rounded-lg grid place-items-center shrink-0 ring-1 ring-white/20"
+            style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}>
+            <span className="text-[12px] font-bold text-white">
+              {profile?.full_name?.[0]?.toUpperCase() ?? 'K'}
+            </span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[14px] font-semibold text-white truncate leading-snug">
+              {profile?.full_name ?? 'My workspace'}
+            </div>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              {profile?.plan === 'pro' ? (
+                <span className="font-mono text-[9px] tracking-[0.1em] uppercase px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(232,197,126,0.2)', color: '#C9A45E' }}>PRO</span>
+              ) : profile?.plan === 'studio' ? (
+                <span className="font-mono text-[9px] tracking-[0.1em] uppercase px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(31,77,58,0.8)', color: '#FAF6EE' }}>STUDIO</span>
+              ) : (
+                <span className="font-mono text-[9px] tracking-[0.1em] uppercase px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.4)' }}>FREE</span>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Nav */}
+      <nav className="flex-1 px-3 py-5 overflow-y-auto space-y-5">
+        {/* Main */}
+        <div>
+          <div className="px-2.5 mb-2 text-[10px] font-mono text-white/25 uppercase tracking-widest">Main</div>
+          <ul className="space-y-0.5">
+            {NAV_ITEMS.map(item => {
+              const active = item.matchPrefix
+                ? (pathname === item.href || pathname.startsWith('/events'))
+                : pathname === item.href;
+              return (
+                <NavItem key={item.href} href={item.href} icon={item.icon} label={item.label}
+                  badge={item.badge} active={active} onNavigate={onNavigate} />
+              );
+            })}
+          </ul>
+        </div>
+
+        <div className="h-px" style={{ background: 'rgba(255,255,255,0.07)' }} />
+
+        {/* Workspace */}
+        <div>
+          <div className="px-2.5 mb-2 text-[10px] font-mono text-white/25 uppercase tracking-widest">Workspace</div>
+          <ul className="space-y-0.5">
+            {WORKSPACE_ITEMS.map(item => (
+              <NavItem key={item.href} href={item.href} icon={item.icon} label={item.label}
+                active={pathname === item.href} onNavigate={onNavigate} />
+            ))}
+          </ul>
+        </div>
+      </nav>
+
+      {/* Usage mini-card */}
+      <div className="px-3 pb-2 shrink-0">
+        <div className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}>
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] font-mono text-white/30 uppercase tracking-widest">Events</span>
+            <span className="text-[10px] font-mono text-white/40">
+              {eventCount}&nbsp;/&nbsp;{planLimit === Infinity ? '∞' : planLimit}
+            </span>
+          </div>
+          <div className="h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
+            <div className="h-full rounded-full transition-all duration-500"
+              style={{ width: `${planPct}%`, background: planPct >= 90 ? '#C97A2D' : '#E8C57E' }} />
+          </div>
+          {profile?.plan !== 'studio' && (
+            <Link href="/settings/billing" onClick={onNavigate}
+              className="block mt-2 text-[10px] font-mono text-white/30 hover:text-white/55 transition-colors">
+              Upgrade for more →
+            </Link>
+          )}
+        </div>
+      </div>
+
+      {/* Sign out */}
+      <div className="px-3 py-2 shrink-0 border-t" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
+        <button onClick={handleSignOut}
+          className="w-full flex items-center gap-3 px-2.5 py-[7px] rounded-lg text-[13.5px] text-white/40 hover:text-white/70 hover:bg-white/[0.06] transition-colors text-left">
+          <LogOut size={15} strokeWidth={1.7} className="shrink-0" />
+          <span className="leading-none">Sign out</span>
+        </button>
+      </div>
+    </>
+  );
+}
+
+// ─── Admin sidebar content ────────────────────────────────────────────────────
+
+function AdminNavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
+  const { profile } = usePlanCtx();
+  const isSuperAdmin = profile?.role === 'super_admin';
+
+  const handleSignOut = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    window.location.href = '/login';
+  };
+
+  return (
+    <>
+      {/* Header */}
+      <div className="h-14 px-4 flex items-center gap-3 shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+        <div className="h-7 w-7 rounded-lg grid place-items-center shrink-0"
+          style={{ background: 'rgba(232,197,126,0.15)' }}>
+          <ShieldCheck size={14} strokeWidth={1.8} style={{ color: '#E8C57E' }} />
+        </div>
+        <span className="font-display text-[16px] font-bold tracking-tight text-white">Admin Panel</span>
+      </div>
+
+      {/* Back to app */}
+      <div className="px-3 pt-3 shrink-0">
+        <Link
+          href="/dashboard"
+          onClick={onNavigate}
+          className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-[12.5px] text-white/35 hover:text-white/65 hover:bg-white/[0.05] transition-colors"
+        >
+          <ArrowLeft size={13} strokeWidth={2} className="shrink-0" />
+          Back to workspace
+        </Link>
+      </div>
+
+      <div className="mx-3 mt-2 h-px" style={{ background: 'rgba(255,255,255,0.07)' }} />
+
+      {/* Admin nav — flat sections */}
+      <nav className="flex-1 px-3 py-4 overflow-y-auto space-y-5">
+        {ADMIN_SECTIONS.map(section => {
+          const visibleItems = section.items.filter(i => isSuperAdmin || !i.superAdminOnly);
+          if (visibleItems.length === 0) return null;
+          return (
+            <div key={section.label}>
+              <div className="px-2.5 mb-1.5 text-[10px] font-mono uppercase tracking-widest"
+                style={{ color: 'rgba(232,197,126,0.4)' }}>
+                {section.label}
+              </div>
+              <ul className="space-y-0.5">
+                {visibleItems.map(item => (
+                  <NavItem
+                    key={item.href}
+                    href={item.href}
+                    icon={item.icon}
+                    label={item.label}
+                    active={pathname.startsWith(item.href)}
+                    onNavigate={onNavigate}
+                  />
+                ))}
+              </ul>
+            </div>
+          );
+        })}
+      </nav>
+
+      {/* Admin identity */}
+      <div className="px-3 pb-2 shrink-0">
+        <div className="rounded-xl px-3 py-2.5 flex items-center gap-2.5"
+          style={{ background: 'rgba(232,197,126,0.06)', border: '1px solid rgba(232,197,126,0.12)' }}>
+          <div className="h-7 w-7 rounded-full grid place-items-center shrink-0 text-[11px] font-bold"
+            style={{ background: 'rgba(232,197,126,0.15)', color: '#E8C57E' }}>
+            {profile?.full_name?.[0]?.toUpperCase() ?? 'A'}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[12px] font-medium text-white/70 truncate">{profile?.full_name ?? 'Admin'}</div>
+            <div className="text-[10px] font-mono" style={{ color: 'rgba(232,197,126,0.5)' }}>
+              {isSuperAdmin ? 'Super admin' : 'Admin'}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Sign out */}
+      <div className="px-3 py-2 shrink-0 border-t" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
+        <button onClick={handleSignOut}
+          className="w-full flex items-center gap-3 px-2.5 py-[7px] rounded-lg text-[13.5px] text-white/40 hover:text-white/70 hover:bg-white/[0.06] transition-colors text-left">
+          <LogOut size={15} strokeWidth={1.7} className="shrink-0" />
+          <span className="leading-none">Sign out</span>
+        </button>
+      </div>
+    </>
   );
 }
 
@@ -308,179 +468,6 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
   );
 }
 
-// ─── Nav item ─────────────────────────────────────────────────────────────────
-
-function NavItem({ href, icon, label, badge, active, onNavigate }: {
-  href: string; icon: React.ReactNode; label: string;
-  badge?: string | null; active: boolean; onNavigate?: () => void;
-}) {
-  return (
-    <li>
-      <Link href={href} onClick={onNavigate}
-        className={`flex items-center gap-3 py-[7px] rounded-lg text-[13.5px] transition-colors border-l-2 ${
-          active
-            ? 'border-[#E8C57E] bg-white/[0.1] text-white font-medium pl-[8px] pr-2.5'
-            : 'border-transparent px-2.5 text-white/50 hover:text-white/85 hover:bg-white/[0.06]'
-        }`}>
-        <span className="shrink-0">{icon}</span>
-        <span className="flex-1 leading-none">{label}</span>
-        {badge && (
-          <span className="text-[9px] font-mono font-medium text-white/40 bg-white/[0.08] px-1.5 py-0.5 rounded-md tracking-wide">
-            {badge}
-          </span>
-        )}
-      </Link>
-    </li>
-  );
-}
-
-// ─── Sidebar nav content ──────────────────────────────────────────────────────
-
-function NavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
-  const { profile, eventCount, planPct } = usePlanCtx();
-  const planLimit = profile ? (PLAN_LIMITS[profile.plan] ?? 1) : 1;
-  const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
-  const isSuperAdmin = profile?.role === 'super_admin';
-
-  const handleSignOut = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    window.location.href = '/login';
-  };
-
-  return (
-    <>
-      {/* Logo */}
-      <Link href="/" onClick={onNavigate}
-        className="h-14 px-4 flex items-center gap-2.5 shrink-0 transition-opacity hover:opacity-80"
-        style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-        <span className="inline-block w-6 h-6 rounded-md shrink-0"
-          style={{ background: 'linear-gradient(135deg, #FAF6EE 0%, #E8C57E 100%)' }} />
-        <span className="font-display text-[19px] font-bold tracking-tight text-white">Karta</span>
-        {isAdmin && (
-          <span className="ml-auto font-mono text-[9px] tracking-[0.16em] uppercase px-1.5 py-0.5 rounded-md shrink-0"
-            style={{ background: 'rgba(232,197,126,0.15)', color: '#E8C57E' }}>
-            Admin
-          </span>
-        )}
-      </Link>
-
-      {/* Workspace header */}
-      <div className="h-14 flex items-center px-4 border-b shrink-0" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
-        <div className="flex items-center gap-3 flex-1 min-w-0">
-          <div className="h-8 w-8 rounded-lg grid place-items-center shrink-0 ring-1 ring-white/20"
-            style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}>
-            <span className="text-[12px] font-bold text-white">
-              {profile?.full_name?.[0]?.toUpperCase() ?? 'K'}
-            </span>
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-[14px] font-semibold text-white truncate leading-snug">
-              {profile?.full_name ?? 'My workspace'}
-            </div>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              {profile?.plan === 'pro' ? (
-                <span className="font-mono text-[9px] tracking-[0.1em] uppercase px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(232,197,126,0.2)', color: '#C9A45E' }}>PRO</span>
-              ) : profile?.plan === 'studio' ? (
-                <span className="font-mono text-[9px] tracking-[0.1em] uppercase px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(31,77,58,0.8)', color: '#FAF6EE' }}>STUDIO</span>
-              ) : (
-                <span className="font-mono text-[9px] tracking-[0.1em] uppercase px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.4)' }}>FREE</span>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Nav */}
-      <nav className="flex-1 px-3 py-5 overflow-y-auto space-y-5">
-
-        {/* Main */}
-        <div>
-          <div className="px-2.5 mb-2 text-[10px] font-mono text-white/25 uppercase tracking-widest">Main</div>
-          <ul className="space-y-0.5">
-            {NAV_ITEMS.map(item => {
-              const active = item.matchPrefix
-                ? (pathname === item.href || pathname.startsWith('/events'))
-                : pathname === item.href;
-              return (
-                <NavItem key={item.href} href={item.href} icon={item.icon} label={item.label}
-                  badge={item.badge} active={active} onNavigate={onNavigate} />
-              );
-            })}
-          </ul>
-        </div>
-
-        <div className="h-px" style={{ background: 'rgba(255,255,255,0.07)' }} />
-
-        {/* Workspace */}
-        <div>
-          <div className="px-2.5 mb-2 text-[10px] font-mono text-white/25 uppercase tracking-widest">Workspace</div>
-          <ul className="space-y-0.5">
-            {WORKSPACE_ITEMS.map(item => (
-              <NavItem key={item.href} href={item.href} icon={item.icon} label={item.label}
-                active={pathname === item.href} onNavigate={onNavigate} />
-            ))}
-          </ul>
-        </div>
-
-        {/* Platform section — only for admin+ */}
-        {isAdmin && (
-          <>
-            <div className="h-px" style={{ background: 'rgba(255,255,255,0.07)' }} />
-            <div>
-              <div className="px-2.5 mb-2 text-[10px] font-mono uppercase tracking-widest" style={{ color: 'rgba(232,197,126,0.5)' }}>
-                Platform
-              </div>
-              <ul className="space-y-0.5">
-                {ADMIN_GROUPS.map(group => (
-                  <AdminNavGroup
-                    key={group.label}
-                    group={group}
-                    pathname={pathname}
-                    isSuperAdmin={isSuperAdmin}
-                    onNavigate={onNavigate}
-                  />
-                ))}
-              </ul>
-            </div>
-          </>
-        )}
-      </nav>
-
-      {/* Usage mini-card */}
-      <div className="px-3 pb-2 shrink-0">
-        <div className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}>
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-mono text-white/30 uppercase tracking-widest">Events</span>
-            <span className="text-[10px] font-mono text-white/40">
-              {eventCount}&nbsp;/&nbsp;{planLimit === Infinity ? '∞' : planLimit}
-            </span>
-          </div>
-          <div className="h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
-            <div className="h-full rounded-full transition-all duration-500"
-              style={{ width: `${planPct}%`, background: planPct >= 90 ? '#C97A2D' : '#E8C57E' }} />
-          </div>
-          {profile?.plan !== 'studio' && (
-            <Link href="/settings/billing" onClick={onNavigate}
-              className="block mt-2 text-[10px] font-mono text-white/30 hover:text-white/55 transition-colors">
-              Upgrade for more →
-            </Link>
-          )}
-        </div>
-      </div>
-
-      {/* Sign out */}
-      <div className="px-3 py-2 shrink-0 border-t" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
-        <button onClick={handleSignOut}
-          className="w-full flex items-center gap-3 px-2.5 py-[7px] rounded-lg text-[13.5px] text-white/40 hover:text-white/70 hover:bg-white/[0.06] transition-colors text-left">
-          <LogOut size={15} strokeWidth={1.7} className="shrink-0" />
-          <span className="leading-none">Sign out</span>
-        </button>
-      </div>
-    </>
-  );
-}
-
 // ─── Context ──────────────────────────────────────────────────────────────────
 
 type PlanCtx = {
@@ -506,6 +493,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [cmdOpen, setCmdOpen] = useState(false);
   const [impersonating, setImpersonating] = useState<ImpersonatedUser | null>(null);
 
+  const isAdminRoute = pathname.startsWith('/admin');
+
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) { router.push('/login'); return; }
@@ -519,7 +508,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Check for active impersonation session
   useEffect(() => {
     const cookieVal = document.cookie.split('; ').find(r => r.startsWith('karta_impersonating='))?.split('=')[1];
     if (!cookieVal) { setImpersonating(null); return; }
@@ -557,9 +545,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   const ctxValue: PlanCtx = { profile, eventCount, initials, planPct, planLabel };
 
-  // Editor & publish routes are full-screen — bypass all chrome
   const isFullScreen = /\/events\/[^/]+\/(edit|publish)/.test(pathname);
   if (isFullScreen) return <>{children}</>;
+
+  const SidebarContent = isAdminRoute ? AdminNavContent : UserNavContent;
 
   return (
     <PlanContext.Provider value={ctxValue}>
@@ -567,7 +556,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         {/* Desktop sidebar */}
         <aside className="hidden md:flex w-[252px] shrink-0 flex-col sticky top-0 h-screen" style={{ background: '#0F1F18' }}>
-          <NavContent pathname={pathname} />
+          <SidebarContent pathname={pathname} />
         </aside>
 
         {/* Mobile drawer */}
@@ -576,14 +565,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <div className="absolute inset-0 bg-black/50" onClick={() => setMobileNavOpen(false)} />
             <aside className="absolute left-0 top-0 bottom-0 w-[272px] flex flex-col shadow-[4px_0_32px_rgba(0,0,0,0.25)] animate-[slideInLeft_200ms_ease-out]"
               style={{ background: '#0F1F18' }}>
-              <NavContent pathname={pathname} onNavigate={() => setMobileNavOpen(false)} />
+              <SidebarContent pathname={pathname} onNavigate={() => setMobileNavOpen(false)} />
             </aside>
           </div>
         )}
 
         {/* Main column */}
         <main className="flex-1 min-w-0 flex flex-col">
-          {/* Impersonation banner */}
           {impersonating && (
             <div className="w-full flex items-center justify-between gap-3 px-4 py-2.5 shrink-0 z-50"
               style={{ background: '#C97A2D', color: 'white' }}>
@@ -600,6 +588,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </button>
             </div>
           )}
+
           <header className="h-14 bg-white px-4 md:px-5 flex items-center gap-3 shrink-0 sticky top-0 z-40 border-b"
             style={{ borderColor: '#E5E0D4' }}>
             <button className="md:hidden h-8 w-8 rounded-lg hover:bg-[#F5F5F4] grid place-items-center text-[#6B7A72] shrink-0 transition"
@@ -616,11 +605,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
 
             <div className="flex items-center gap-2 ml-auto">
-              <Link href="/events/new"
-                className="hidden sm:inline-flex items-center gap-1.5 h-8 px-3.5 text-white text-[13px] font-medium rounded-lg transition hover:opacity-90"
-                style={{ background: '#1F4D3A' }}>
-                <Plus size={11} strokeWidth={2.8} />New event
-              </Link>
+              {!isAdminRoute && (
+                <Link href="/events/new"
+                  className="hidden sm:inline-flex items-center gap-1.5 h-8 px-3.5 text-white text-[13px] font-medium rounded-lg transition hover:opacity-90"
+                  style={{ background: '#1F4D3A' }}>
+                  <Plus size={11} strokeWidth={2.8} />New event
+                </Link>
+              )}
               <Link href="/settings"
                 className="h-8 w-8 rounded-full grid place-items-center text-white text-[12px] font-semibold shrink-0 hover:opacity-90 transition"
                 style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}>
