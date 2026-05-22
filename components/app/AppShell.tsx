@@ -7,8 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import {
   LayoutGrid, TrendingUp, LayoutTemplate, Palette,
   Settings2, Users, LogOut, Menu, Search, Plus, ChevronRight, CreditCard,
-  BookOpen, ScrollText, ShieldCheck, BarChart2, CalendarSearch, Receipt, Images, FileText,
-  Flag, Eye, X,
+  BarChart2, FileText, Eye, X,
 } from 'lucide-react';
 
 type Profile = {
@@ -84,68 +83,104 @@ const WORKSPACE_ITEMS = [
   },
 ];
 
-// Available to both admin and super_admin
-const ADMIN_ITEMS = [
+// ─── Admin grouped nav ────────────────────────────────────────────────────────
+
+type AdminGroupItem = { href: string; label: string; superAdminOnly?: boolean };
+type AdminGroupDef = { label: string; icon: React.ReactNode; items: AdminGroupItem[] };
+
+const ADMIN_GROUPS: AdminGroupDef[] = [
   {
-    href: '/admin/theme',
-    label: 'Theme & Brand',
-    icon: <ShieldCheck size={15} strokeWidth={1.8} />,
-  },
-  {
-    href: '/admin/changelog',
-    label: 'Changelog',
-    icon: <BookOpen size={15} strokeWidth={1.8} />,
-  },
-  {
-    href: '/admin/audit',
-    label: 'Audit Log',
-    icon: <ScrollText size={15} strokeWidth={1.8} />,
-  },
-  {
-    href: '/admin/users',
-    label: 'Users',
+    // Users + their audit trail — both are account management
+    label: 'Users & Access',
     icon: <Users size={15} strokeWidth={1.8} />,
+    items: [
+      { href: '/admin/users', label: 'Accounts' },
+      { href: '/admin/audit', label: 'Activity Log' },
+    ],
   },
   {
-    href: '/admin/analytics',
-    label: 'Analytics',
-    icon: <BarChart2 size={15} strokeWidth={1.8} />,
-  },
-  {
-    href: '/admin/media',
-    label: 'Media Library',
-    icon: <Images size={15} strokeWidth={1.8} />,
-  },
-  {
-    href: '/admin/content',
-    label: 'Content',
+    // Everything published to the public-facing site
+    label: 'Publishing',
     icon: <FileText size={15} strokeWidth={1.8} />,
+    items: [
+      { href: '/admin/content',   label: 'Pages' },
+      { href: '/admin/media',     label: 'Media' },
+      { href: '/admin/changelog', label: 'Changelog' },
+    ],
+  },
+  {
+    // Shapes the product experience itself
+    label: 'Product',
+    icon: <LayoutTemplate size={15} strokeWidth={1.8} />,
+    items: [
+      { href: '/admin/templates', label: 'Templates',    superAdminOnly: true },
+      { href: '/admin/theme',     label: 'Appearance' },
+      { href: '/admin/flags',     label: 'Feature Flags', superAdminOnly: true },
+    ],
+  },
+  {
+    // Business health — distinct from user's own Analytics / Billing
+    label: 'Business',
+    icon: <BarChart2 size={15} strokeWidth={1.8} />,
+    items: [
+      { href: '/admin/analytics', label: 'Platform Stats' },
+      { href: '/admin/events',    label: 'Moderation',    superAdminOnly: true },
+      { href: '/admin/billing',   label: 'Revenue',       superAdminOnly: true },
+    ],
   },
 ];
 
-// Elevated — super_admin only
-const SUPER_ADMIN_ITEMS = [
-  {
-    href: '/admin/templates',
-    label: 'Templates',
-    icon: <LayoutTemplate size={15} strokeWidth={1.8} />,
-  },
-  {
-    href: '/admin/events',
-    label: 'Event Oversight',
-    icon: <CalendarSearch size={15} strokeWidth={1.8} />,
-  },
-  {
-    href: '/admin/billing',
-    label: 'Billing',
-    icon: <Receipt size={15} strokeWidth={1.8} />,
-  },
-  {
-    href: '/admin/flags',
-    label: 'Feature Flags',
-    icon: <Flag size={15} strokeWidth={1.8} />,
-  },
-];
+function AdminNavGroup({
+  group, pathname, isSuperAdmin, onNavigate,
+}: {
+  group: AdminGroupDef; pathname: string; isSuperAdmin: boolean; onNavigate?: () => void;
+}) {
+  const visibleItems = group.items.filter(i => isSuperAdmin || !i.superAdminOnly);
+  if (visibleItems.length === 0) return null;
+
+  const isAnyActive = visibleItems.some(i => pathname.startsWith(i.href));
+  const [open, setOpen] = useState(isAnyActive);
+  useEffect(() => { if (isAnyActive) setOpen(true); }, [isAnyActive]);
+
+  return (
+    <li>
+      <button
+        onClick={() => setOpen(o => !o)}
+        className={`w-full flex items-center gap-3 px-2.5 py-[7px] rounded-lg text-[13.5px] transition-colors text-left ${
+          isAnyActive ? 'text-white/90 bg-white/[0.08]' : 'text-white/45 hover:text-white/70 hover:bg-white/[0.05]'
+        }`}
+      >
+        <span className="shrink-0">{group.icon}</span>
+        <span className="flex-1 leading-none">{group.label}</span>
+        <ChevronRight
+          size={11} strokeWidth={2.2}
+          className={`shrink-0 transition-transform duration-200 ${open ? 'rotate-90' : ''}`}
+          style={{ color: 'rgba(255,255,255,0.25)' }}
+        />
+      </button>
+
+      {open && (
+        <ul className="mt-0.5 ml-[30px] space-y-0.5 border-l" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+          {visibleItems.map(item => (
+            <li key={item.href}>
+              <Link
+                href={item.href}
+                onClick={onNavigate}
+                className={`block pl-3 pr-2 py-[6px] rounded-r-lg text-[12.5px] transition-colors ${
+                  pathname.startsWith(item.href)
+                    ? 'text-white/90 bg-white/[0.07]'
+                    : 'text-white/35 hover:text-white/60 hover:bg-white/[0.04]'
+                }`}
+              >
+                {item.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+}
 
 // ─── Command palette ──────────────────────────────────────────────────────────
 
@@ -398,13 +433,14 @@ function NavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: (
                 Platform
               </div>
               <ul className="space-y-0.5">
-                {ADMIN_ITEMS.map(item => (
-                  <NavItem key={item.href} href={item.href} icon={item.icon} label={item.label}
-                    active={pathname.startsWith(item.href)} onNavigate={onNavigate} />
-                ))}
-                {isSuperAdmin && SUPER_ADMIN_ITEMS.map(item => (
-                  <NavItem key={item.href} href={item.href} icon={item.icon} label={item.label}
-                    active={pathname.startsWith(item.href)} onNavigate={onNavigate} />
+                {ADMIN_GROUPS.map(group => (
+                  <AdminNavGroup
+                    key={group.label}
+                    group={group}
+                    pathname={pathname}
+                    isSuperAdmin={isSuperAdmin}
+                    onNavigate={onNavigate}
+                  />
                 ))}
               </ul>
             </div>

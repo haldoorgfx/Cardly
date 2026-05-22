@@ -85,10 +85,15 @@ export default async function BillingPage({
                       <span className="h-1.5 w-1.5 rounded-full bg-[#2D7A4F]" />
                       {isTrialing ? '14-day trial' : 'Active'}
                     </span>
-                  ) : (
+                  ) : plan === 'free' ? (
                     <span className="inline-flex items-center gap-1.5 text-[12px] font-medium px-2.5 py-1 rounded-full"
                       style={{ background: '#F5F5F4', color: '#6B7A72', border: '1px solid #E5E0D4' }}>
                       Free plan
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 text-[12px] font-medium px-2.5 py-1 rounded-full"
+                      style={{ background: '#FFF7ED', color: '#C97A2D', border: '1px solid #FBD5A0' }}>
+                      Subscription inactive
                     </span>
                   )}
                   {profile?.billing_cycle && profile.billing_cycle !== 'none' && (
