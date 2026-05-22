@@ -1,229 +1,264 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowRight, Mail, MessageSquare, Handshake, Bug } from 'lucide-react';
-import Reveal from '@/components/marketing/Reveal';
+import { Send, Mail, MessageCircle, Clock, Check, ArrowRight, Loader2 } from 'lucide-react';
 
 const TOPICS = [
-  { value: 'general',      label: 'General question' },
-  { value: 'support',      label: 'Technical support' },
-  { value: 'billing',      label: 'Billing / plans' },
-  { value: 'partnership',  label: 'Partnership' },
-  { value: 'press',        label: 'Press inquiry' },
-  { value: 'other',        label: 'Something else' },
+  { value: 'General question',     label: 'General question' },
+  { value: 'Technical support',    label: 'Technical support' },
+  { value: 'Billing / plans',      label: 'Billing / plans' },
+  { value: 'Partnership',          label: 'Partnership' },
+  { value: 'Demo request',         label: 'Demo request' },
+  { value: 'Press inquiry',        label: 'Press inquiry' },
+  { value: 'Something else',       label: 'Something else' },
 ];
 
-const CONTACTS = [
+const SIDEBAR = [
   {
-    icon: <Mail size={20} strokeWidth={1.8} />,
-    title: 'General',
+    icon: <Mail size={18} strokeWidth={1.8} />,
+    title: 'Email',
     value: 'hello@cre8so.com',
     href: 'mailto:hello@cre8so.com',
-    desc: 'Questions, feedback, anything.',
+    desc: 'We reply within 24 hours.',
   },
   {
-    icon: <Bug size={20} strokeWidth={1.8} />,
-    title: 'Support',
-    value: 'support@cre8so.com',
-    href: 'mailto:support@cre8so.com',
-    desc: 'Technical issues and bug reports.',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+      </svg>
+    ),
+    title: 'WhatsApp',
+    value: 'Message us directly',
+    href: 'https://wa.me/message/PLACEHOLDER',
+    desc: 'For quick questions and demos.',
   },
   {
-    icon: <Handshake size={20} strokeWidth={1.8} />,
-    title: 'Partnerships',
-    value: 'partners@cre8so.com',
-    href: 'mailto:partners@cre8so.com',
-    desc: 'Integrations, reseller, co-marketing.',
-  },
-  {
-    icon: <MessageSquare size={20} strokeWidth={1.8} />,
-    title: 'Press',
-    value: 'press@cre8so.com',
-    href: 'mailto:press@cre8so.com',
-    desc: 'Media inquiries and assets.',
+    icon: <Clock size={18} strokeWidth={1.8} />,
+    title: 'Office hours',
+    value: 'Mon – Fri',
+    href: null,
+    desc: '9:00 AM – 6:00 PM (WAT)',
   },
 ];
 
-export function ContactFormClient() {
-  const [submitted, setSubmitted] = useState(false);
-  const [topic, setTopic] = useState('');
+const INPUT_CLASS = `
+  w-full px-4 py-3 rounded-xl text-[14px] text-[#0F1F18] placeholder:text-[#6B7A72]
+  outline-none transition-all duration-150
+  focus:ring-2 focus:ring-[#1F4D3A]/15 focus:border-[#1F4D3A]/40
+`.trim();
 
-  function handleSubmit(e: React.FormEvent) {
+const INPUT_STYLE = {
+  background: '#FFFFFF',
+  border: '1px solid #E5E0D4',
+  boxShadow: '0 1px 2px rgba(15,31,24,0.04)',
+};
+
+export function ContactFormClient() {
+  const [form, setForm] = useState({ name: '', email: '', topic: '', message: '' });
+  const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+    setForm(f => ({ ...f, [k]: e.target.value }));
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSubmitted(true);
+    setState('sending');
+    setErrorMsg('');
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) {
+        const j = await res.json();
+        throw new Error(j.error ?? 'Something went wrong');
+      }
+      setState('sent');
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : 'Something went wrong');
+      setState('error');
+    }
   }
 
   return (
-    <section className="mx-auto max-w-[1200px] px-5 lg:px-10 py-14 lg:py-20 grid lg:grid-cols-[1fr_380px] gap-12 lg:gap-16 items-start">
+    <div className="grid lg:grid-cols-[1fr_340px] gap-8 lg:gap-12 items-start">
 
-      {/* Form */}
-      <div>
-        <Reveal>
-          <div className="mb-8">
-            <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-2">Send a message</div>
-            <h2 className="font-display font-bold text-ink text-[28px] sm:text-[34px] tracking-[-0.03em]">
-              Tell us what&apos;s on your mind
-            </h2>
-          </div>
-        </Reveal>
-
-        {submitted ? (
-          <Reveal>
+      {/* ── Left: Form ─────────────────────────────────────────────────── */}
+      <div
+        className="rounded-2xl p-7 lg:p-9"
+        style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', boxShadow: '0 1px 3px rgba(15,31,24,0.05)' }}
+      >
+        {state === 'sent' ? (
+          /* Success state */
+          <div className="py-12 flex flex-col items-center text-center">
             <div
-              className="rounded-2xl px-8 py-12 text-center"
-              style={{ background: 'rgba(45,122,79,0.06)', border: '1px solid rgba(45,122,79,0.18)' }}
+              className="h-16 w-16 rounded-2xl grid place-items-center mb-6"
+              style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}
             >
-              <div className="w-12 h-12 rounded-full bg-primary grid place-items-center mx-auto mb-4">
-                <ArrowRight size={20} strokeWidth={2} className="text-cream" />
-              </div>
-              <div className="font-display font-bold text-ink text-[22px] tracking-tight mb-2">Message sent</div>
-              <p className="text-ink-soft text-[15px] leading-[1.6] max-w-[400px] mx-auto">
-                We&apos;ll get back to you within one business day. Check your inbox for a confirmation.
-              </p>
+              <Check size={28} strokeWidth={2.5} className="text-white" />
             </div>
-          </Reveal>
+            <h3 className="font-display font-bold text-[24px] text-[#0F1F18] tracking-tight mb-2">
+              Message sent
+            </h3>
+            <p className="text-[15px] text-[#6B7A72] leading-relaxed max-w-[360px]">
+              We&apos;ll get back to you within one business day. Check your inbox for a confirmation.
+            </p>
+            <button
+              onClick={() => { setForm({ name: '', email: '', topic: '', message: '' }); setState('idle'); }}
+              className="mt-8 inline-flex items-center gap-2 text-[13px] font-medium text-[#1F4D3A] hover:underline"
+            >
+              <ArrowRight size={13} strokeWidth={2} className="rotate-180" />
+              Send another message
+            </button>
+          </div>
         ) : (
-          <Reveal delay={60}>
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Name + email */}
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-mono text-[10px] tracking-[0.18em] uppercase text-muted mb-2">
-                    Your name
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Adam Hassan"
-                    className="w-full px-4 py-3 rounded-xl text-[14px] text-ink placeholder:text-muted transition-shadow outline-none"
-                    style={{
-                      background: '#FFFFFF',
-                      border: '1px solid #E5E0D4',
-                      boxShadow: '0 1px 2px rgba(15,31,24,0.04)',
-                    }}
-                  />
-                </div>
-                <div>
-                  <label className="block font-mono text-[10px] tracking-[0.18em] uppercase text-muted mb-2">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="you@example.com"
-                    className="w-full px-4 py-3 rounded-xl text-[14px] text-ink placeholder:text-muted transition-shadow outline-none"
-                    style={{
-                      background: '#FFFFFF',
-                      border: '1px solid #E5E0D4',
-                      boxShadow: '0 1px 2px rgba(15,31,24,0.04)',
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Topic */}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Name + Email */}
+            <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <label className="block font-mono text-[10px] tracking-[0.18em] uppercase text-muted mb-2">
-                  Topic
+                <label className="block text-[11px] font-mono tracking-[0.16em] uppercase text-[#6B7A72] mb-2">
+                  Full name
                 </label>
-                <select
-                  value={topic}
-                  onChange={e => setTopic(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl text-[14px] text-ink transition-shadow outline-none appearance-none"
-                  style={{
-                    background: '#FFFFFF',
-                    border: '1px solid #E5E0D4',
-                    boxShadow: '0 1px 2px rgba(15,31,24,0.04)',
-                    color: topic ? '#0F1F18' : '#6B7A72',
-                  }}
-                >
-                  <option value="" disabled>Select a topic…</option>
-                  {TOPICS.map(t => (
-                    <option key={t.value} value={t.value}>{t.label}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Message */}
-              <div>
-                <label className="block font-mono text-[10px] tracking-[0.18em] uppercase text-muted mb-2">
-                  Message
-                </label>
-                <textarea
+                <input
+                  type="text"
                   required
-                  rows={6}
-                  placeholder="Describe your question or issue in as much detail as you like…"
-                  className="w-full px-4 py-3 rounded-xl text-[14px] text-ink placeholder:text-muted resize-none outline-none"
-                  style={{
-                    background: '#FFFFFF',
-                    border: '1px solid #E5E0D4',
-                    boxShadow: '0 1px 2px rgba(15,31,24,0.04)',
-                  }}
+                  value={form.name}
+                  onChange={set('name')}
+                  placeholder="Amina Hassan"
+                  className={INPUT_CLASS}
+                  style={INPUT_STYLE}
                 />
               </div>
+              <div>
+                <label className="block text-[11px] font-mono tracking-[0.16em] uppercase text-[#6B7A72] mb-2">
+                  Work email
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={form.email}
+                  onChange={set('email')}
+                  placeholder="you@company.com"
+                  className={INPUT_CLASS}
+                  style={INPUT_STYLE}
+                />
+              </div>
+            </div>
 
-              <button
-                type="submit"
-                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-medium text-[14px] transition-colors bg-primary text-cream hover:bg-primary-dark"
+            {/* Topic */}
+            <div>
+              <label className="block text-[11px] font-mono tracking-[0.16em] uppercase text-[#6B7A72] mb-2">
+                Topic
+              </label>
+              <select
+                value={form.topic}
+                onChange={set('topic')}
+                className={INPUT_CLASS + ' appearance-none'}
+                style={{ ...INPUT_STYLE, color: form.topic ? '#0F1F18' : '#6B7A72' }}
               >
-                Send message <ArrowRight size={15} strokeWidth={2} />
-              </button>
-            </form>
-          </Reveal>
+                <option value="">How can we help?</option>
+                {TOPICS.map(t => (
+                  <option key={t.value} value={t.value}>{t.label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Message */}
+            <div>
+              <label className="block text-[11px] font-mono tracking-[0.16em] uppercase text-[#6B7A72] mb-2">
+                Message
+              </label>
+              <textarea
+                required
+                rows={6}
+                value={form.message}
+                onChange={set('message')}
+                placeholder="Tell us more…"
+                className={INPUT_CLASS + ' resize-none'}
+                style={INPUT_STYLE}
+              />
+            </div>
+
+            {/* Error */}
+            {state === 'error' && (
+              <p className="text-[13px] text-red-500">{errorMsg}</p>
+            )}
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={state === 'sending'}
+              className="inline-flex items-center gap-2.5 h-12 px-7 rounded-xl text-white text-[14px] font-semibold transition hover:opacity-90 disabled:opacity-60"
+              style={{ background: '#1F4D3A' }}
+            >
+              {state === 'sending' ? (
+                <Loader2 size={15} strokeWidth={2} className="animate-spin" />
+              ) : (
+                <Send size={14} strokeWidth={2} />
+              )}
+              {state === 'sending' ? 'Sending…' : 'Send message'}
+            </button>
+          </form>
         )}
       </div>
 
-      {/* Sidebar */}
-      <aside>
-        <Reveal delay={100}>
-          <div className="mb-6">
-            <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-2">Direct contacts</div>
-            <h3 className="font-display font-bold text-ink text-[20px] tracking-tight">
-              Reach the right team
-            </h3>
-          </div>
-        </Reveal>
+      {/* ── Right: Sidebar ──────────────────────────────────────────────── */}
+      <aside className="space-y-3 lg:pt-1">
 
-        <div className="space-y-3">
-          {CONTACTS.map((c, i) => (
-            <Reveal key={c.title} delay={120 + i * 60}>
-              <a
-                href={c.href}
-                className="flex items-start gap-4 p-4 rounded-xl bg-surface hover:bg-cream transition-colors group"
-                style={{ border: '1px solid #E5E0D4' }}
+        {SIDEBAR.map(item => {
+          const inner = (
+            <div
+              className="flex items-start gap-4 p-4 rounded-2xl transition-all"
+              style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}
+            >
+              <div
+                className="h-10 w-10 rounded-xl grid place-items-center shrink-0"
+                style={{ background: 'rgba(31,77,58,0.07)', color: '#1F4D3A' }}
               >
-                <div
-                  className="w-10 h-10 rounded-lg grid place-items-center shrink-0 text-primary"
-                  style={{ background: 'rgba(31,77,58,0.07)', border: '1px solid rgba(31,77,58,0.10)' }}
-                >
-                  {c.icon}
+                {item.icon}
+              </div>
+              <div className="min-w-0">
+                <div className="text-[11px] font-mono tracking-[0.14em] uppercase text-[#6B7A72] mb-0.5">
+                  {item.title}
                 </div>
-                <div className="min-w-0">
-                  <div className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted mb-0.5">{c.title}</div>
-                  <div className="font-medium text-ink text-[13px] group-hover:text-primary transition-colors truncate">{c.value}</div>
-                  <div className="text-muted text-[12px] mt-0.5">{c.desc}</div>
+                <div className="text-[14px] font-semibold text-[#0F1F18] truncate">
+                  {item.value}
                 </div>
-              </a>
-            </Reveal>
-          ))}
+                <div className="text-[12px] text-[#6B7A72] mt-0.5">{item.desc}</div>
+              </div>
+            </div>
+          );
+
+          return item.href ? (
+            <a key={item.title} href={item.href} target={item.href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer"
+              className="block group hover:scale-[1.01] transition-transform duration-150">
+              {inner}
+            </a>
+          ) : (
+            <div key={item.title}>{inner}</div>
+          );
+        })}
+
+        {/* Response time */}
+        <div
+          className="rounded-2xl px-5 py-4 mt-2"
+          style={{ background: 'rgba(31,77,58,0.05)', border: '1px solid rgba(31,77,58,0.10)' }}
+        >
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="h-1.5 w-1.5 rounded-full shrink-0" style={{ background: '#2D7A4F' }} />
+            <span className="text-[10px] font-mono tracking-[0.16em] uppercase" style={{ color: '#1F4D3A' }}>
+              Response time
+            </span>
+          </div>
+          <p className="text-[13px] leading-relaxed text-[#3A4A42]">
+            We aim to reply within <span className="font-semibold text-[#0F1F18]">1 business day</span>.
+            For urgent issues, include &quot;urgent&quot; in your subject line.
+          </p>
         </div>
 
-        {/* Response time callout */}
-        <Reveal delay={360}>
-          <div
-            className="mt-5 rounded-xl p-4"
-            style={{ background: 'rgba(31,77,58,0.05)', border: '1px solid rgba(31,77,58,0.10)' }}
-          >
-            <div className="flex items-center gap-2 mb-1.5">
-              <span className="w-2 h-2 rounded-full bg-primary shrink-0" />
-              <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-primary">Response time</span>
-            </div>
-            <p className="text-ink-soft text-[13px] leading-[1.55]">
-              We aim to reply within <span className="text-ink font-medium">1 business day</span>. For urgent issues, include &quot;urgent&quot; in your subject line.
-            </p>
-          </div>
-        </Reveal>
       </aside>
-    </section>
+    </div>
   );
 }
