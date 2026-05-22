@@ -1,6 +1,8 @@
 export type Plan = "free" | "pro" | "studio";
 export type EventStatus = "draft" | "published" | "archived";
-export type UserRole = "user" | "admin" | "super_admin";
+export type ModerationStatus = "ok" | "flagged" | "removed";
+export type UserRole = "user" | "studio" | "admin" | "super_admin";
+export type MinPlan = "free" | "pro" | "studio";
 export type ZoneType = "text" | "photo" | "custom" | "label" | "shape" | "image";
 export type SubscriptionStatus = "active" | "trialing" | "past_due" | "canceled" | "incomplete" | "none";
 export type BillingCycle = "monthly" | "annual" | "none";
@@ -102,6 +104,10 @@ export interface Database {
           cancel_at_period_end: boolean;
           cards_this_month: number;
           cards_month_start: string;
+          // suspension (migration 006)
+          suspended: boolean;
+          suspended_at: string | null;
+          suspended_reason: string | null;
         };
         Insert: {
           id: string;
@@ -122,6 +128,9 @@ export interface Database {
           cancel_at_period_end?: boolean;
           cards_this_month?: number;
           cards_month_start?: string;
+          suspended?: boolean;
+          suspended_at?: string | null;
+          suspended_reason?: string | null;
         };
         Update: {
           email?: string | null;
@@ -140,6 +149,9 @@ export interface Database {
           cancel_at_period_end?: boolean;
           cards_this_month?: number;
           cards_month_start?: string;
+          suspended?: boolean;
+          suspended_at?: string | null;
+          suspended_reason?: string | null;
         };
         Relationships: [];
       };
@@ -154,6 +166,7 @@ export interface Database {
           background_height: number | null;
           zones: Json;
           status: EventStatus;
+          moderation_status: ModerationStatus;
           view_count: number;
           download_count: number;
           created_at: string;
@@ -169,6 +182,7 @@ export interface Database {
           background_height?: number | null;
           zones?: Json;
           status?: EventStatus;
+          moderation_status?: ModerationStatus;
           view_count?: number;
           download_count?: number;
           created_at?: string;
@@ -182,6 +196,7 @@ export interface Database {
           background_height?: number | null;
           zones?: Json;
           status?: EventStatus;
+          moderation_status?: ModerationStatus;
           view_count?: number;
           download_count?: number;
           updated_at?: string;
@@ -271,6 +286,302 @@ export interface Database {
             columns: ["event_id"];
             isOneToOne: false;
             referencedRelation: "events";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      site_settings: {
+        Row: {
+          id: number;
+          brand_name: string;
+          logo_url: string | null;
+          favicon_url: string | null;
+          colors: Json;
+          fonts: Json;
+          gradients: Json;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          id?: number;
+          brand_name?: string;
+          logo_url?: string | null;
+          favicon_url?: string | null;
+          colors?: Json;
+          fonts?: Json;
+          gradients?: Json;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          brand_name?: string;
+          logo_url?: string | null;
+          favicon_url?: string | null;
+          colors?: Json;
+          fonts?: Json;
+          gradients?: Json;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [];
+      };
+      changelog_entries: {
+        Row: {
+          id: string;
+          version: string | null;
+          title: string;
+          description: string;
+          type: 'added' | 'fixed' | 'improved' | 'removed' | 'security';
+          published: boolean;
+          published_at: string | null;
+          created_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          version?: string | null;
+          title: string;
+          description: string;
+          type: 'added' | 'fixed' | 'improved' | 'removed' | 'security';
+          published?: boolean;
+          published_at?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          version?: string | null;
+          title?: string;
+          description?: string;
+          type?: 'added' | 'fixed' | 'improved' | 'removed' | 'security';
+          published?: boolean;
+          published_at?: string | null;
+          created_by?: string | null;
+        };
+        Relationships: [];
+      };
+      templates: {
+        Row: {
+          id: string;
+          name: string;
+          category: string | null;
+          thumbnail_url: string | null;
+          background_url: string | null;
+          dimensions: Json | null;
+          zones: Json;
+          min_plan: MinPlan;
+          featured: boolean;
+          published: boolean;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          category?: string | null;
+          thumbnail_url?: string | null;
+          background_url?: string | null;
+          dimensions?: Json | null;
+          zones?: Json;
+          min_plan?: MinPlan;
+          featured?: boolean;
+          published?: boolean;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          name?: string;
+          category?: string | null;
+          thumbnail_url?: string | null;
+          background_url?: string | null;
+          dimensions?: Json | null;
+          zones?: Json;
+          min_plan?: MinPlan;
+          featured?: boolean;
+          published?: boolean;
+          created_by?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      audit_log: {
+        Row: {
+          id: string;
+          actor_id: string | null;
+          actor_email: string | null;
+          action: string;
+          entity_type: string | null;
+          entity_id: string | null;
+          changes: Json | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          actor_id?: string | null;
+          actor_email?: string | null;
+          action: string;
+          entity_type?: string | null;
+          entity_id?: string | null;
+          changes?: Json | null;
+          created_at?: string;
+        };
+        Update: {
+          actor_id?: string | null;
+          actor_email?: string | null;
+          action?: string;
+          entity_type?: string | null;
+          entity_id?: string | null;
+          changes?: Json | null;
+        };
+        Relationships: [];
+      };
+      // ── CMS tables (migration 007) ───────────────────────────────
+      cms_pages: {
+        Row: {
+          id: string;
+          slug: string;
+          title: string;
+          status: 'draft' | 'published';
+          seo: Json;
+          published_version: number | null;
+          created_by: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          slug: string;
+          title: string;
+          status?: 'draft' | 'published';
+          seo?: Json;
+          published_version?: number | null;
+          created_by?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          slug?: string;
+          title?: string;
+          status?: 'draft' | 'published';
+          seo?: Json;
+          published_version?: number | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      cms_blocks: {
+        Row: {
+          id: string;
+          page_id: string;
+          type: string;
+          content: Json;
+          position: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          page_id: string;
+          type: string;
+          content?: Json;
+          position?: number;
+          created_at?: string;
+        };
+        Update: {
+          type?: string;
+          content?: Json;
+          position?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "cms_blocks_page_id_fkey";
+            columns: ["page_id"];
+            isOneToOne: false;
+            referencedRelation: "cms_pages";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      cms_navigation: {
+        Row: {
+          id: string;
+          location: 'header' | 'footer';
+          items: Json;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          location: 'header' | 'footer';
+          items?: Json;
+          updated_at?: string;
+        };
+        Update: {
+          location?: 'header' | 'footer';
+          items?: Json;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      cms_media: {
+        Row: {
+          id: string;
+          url: string;
+          filename: string | null;
+          alt: string | null;
+          width: number | null;
+          height: number | null;
+          size_bytes: number | null;
+          mime: string | null;
+          uploaded_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          url: string;
+          filename?: string | null;
+          alt?: string | null;
+          width?: number | null;
+          height?: number | null;
+          size_bytes?: number | null;
+          mime?: string | null;
+          uploaded_by?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          url?: string;
+          filename?: string | null;
+          alt?: string | null;
+          width?: number | null;
+          height?: number | null;
+          size_bytes?: number | null;
+          mime?: string | null;
+        };
+        Relationships: [];
+      };
+      cms_page_versions: {
+        Row: {
+          id: string;
+          page_id: string;
+          version_num: number;
+          snapshot: Json;
+          created_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          page_id: string;
+          version_num?: number;
+          snapshot: Json;
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          snapshot?: Json;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "cms_page_versions_page_id_fkey";
+            columns: ["page_id"];
+            isOneToOne: false;
+            referencedRelation: "cms_pages";
             referencedColumns: ["id"];
           }
         ];

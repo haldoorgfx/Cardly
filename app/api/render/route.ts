@@ -4,6 +4,8 @@ import sharp from 'sharp';
 import type { Zone } from '@/types/database';
 import { canGenerateCard, incrementCardsThisMonth } from '@/lib/billing/can';
 import { PLANS } from '@/lib/billing/plans';
+import { fireWebhooks } from '@/lib/webhooks';
+import { maybeSendDownloadMilestone } from '@/lib/email';
 
 const WATERMARK_HEIGHT = 40;
 
@@ -86,7 +88,7 @@ async function compositePhoto(base: sharp.Sharp, zone: Zone, photoBuffer: Buffer
 }
 
 async function addWatermark(base: sharp.Sharp, canvasW: number, canvasH: number): Promise<sharp.Sharp> {
-  const text = 'Made with Cardly';
+  const text = 'Made with Karta';
   const svg = `<svg width="${canvasW}" height="${WATERMARK_HEIGHT}" xmlns="http://www.w3.org/2000/svg">
     <rect width="${canvasW}" height="${WATERMARK_HEIGHT}" fill="rgba(0,0,0,0.35)"/>
     <text
@@ -174,6 +176,8 @@ export async function POST(req: NextRequest) {
 
   // Save record and counters (fire-and-forget — don't block the response)
   const attendeeName = Object.values(fields)[0] ?? 'Anonymous';
+  const newDownloadCount = (event.download_count ?? 0) + 1;
+
   Promise.all([
     supabase.from('generated_cards').insert({
       event_id: eventId,
@@ -181,9 +185,39 @@ export async function POST(req: NextRequest) {
       attendee_data: fields,
       output_url: null,
     }),
-    supabase.from('events').update({ download_count: (event.download_count ?? 0) + 1 }).eq('id', eventId),
+    supabase.from('events').update({ download_count: newDownloadCount }).eq('id', eventId),
     incrementCardsThisMonth(event.user_id),
-  ]).catch(() => { /* non-critical */ });
+  ])
+    .then(async () => {
+      // Fire webhooks + notification emails after DB writes complete
+      const { data: owner } = await supabase
+        .from('profiles')
+        .select('email, notify_downloads')
+        .eq('id', event.user_id)
+        .single();
+
+      const { data: eventRow } = await supabase
+        .from('events')
+        .select('name')
+        .eq('id', eventId)
+        .single();
+
+      await Promise.allSettled([
+        fireWebhooks(event.user_id, 'card.generated', {
+          event_id: eventId,
+          attendee_name: attendeeName,
+          download_count: newDownloadCount,
+        }),
+        maybeSendDownloadMilestone({
+          to: owner?.email ?? '',
+          eventName: eventRow?.name ?? '',
+          eventId,
+          downloadCount: newDownloadCount,
+          notifyEnabled: owner?.notify_downloads ?? true,
+        }),
+      ]);
+    })
+    .catch(() => { /* non-critical */ });
 
   return new Response(outputBuffer as unknown as BodyInit, {
     status: 200,

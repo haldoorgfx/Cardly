@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { signOut, resetPassword, deleteAccount, updatePassword, updateEmail, signOutAllDevices } from '@/app/(auth)/actions';
 import { Check, Mail, ArrowRight, Minus } from 'lucide-react';
+import { DeveloperTab } from './DeveloperTab';
 
 interface Profile {
   full_name: string | null;
@@ -21,7 +22,7 @@ interface Props {
   userId: string;
 }
 
-const TABS = ['Profile', 'Security', 'Notifications', 'Account'] as const;
+const TABS = ['Profile', 'Security', 'Notifications', 'Developer', 'Account'] as const;
 type Tab = typeof TABS[number];
 
 const PLANS: Record<string, { label: string; limit: string; features: { text: string; included: boolean }[] }> = {
@@ -538,6 +539,11 @@ export default function SettingsClient({ profile, userId }: Props) {
             </div>
           )}
 
+          {/* ─── Developer ───────────────────────────────────────── */}
+          {activeTab === 'Developer' && (
+            <DeveloperTab plan={profile?.plan ?? 'free'} />
+          )}
+
           {/* ─── Account ──────────────────────────────────────────── */}
           {activeTab === 'Account' && (
             <div className="space-y-4">
@@ -546,7 +552,7 @@ export default function SettingsClient({ profile, userId }: Props) {
                 <div className="flex items-start justify-between gap-6">
                   <div>
                     <div className="text-[13.5px] font-semibold text-[#0F1F18] mb-1">Sign out</div>
-                    <div className="text-[13px] text-[#6B7A72]">Sign out of Cardly on this device.</div>
+                    <div className="text-[13px] text-[#6B7A72]">Sign out of Karta on this device.</div>
                   </div>
                   <button type="button" onClick={() => signOut()}
                     className="shrink-0 h-8 px-4 rounded-lg text-[13px] font-medium border transition hover:bg-[#F5F5F4]"
