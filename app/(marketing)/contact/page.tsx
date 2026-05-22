@@ -14,9 +14,7 @@ const REASONS = [
 export default function ContactPage() {
   return (
     <div style={{ background: '#FAF6EE' }}>
-
-      {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <section className="mx-auto max-w-[1100px] px-5 lg:px-10 pt-20 pb-14">
+      <section className="mx-auto max-w-[1100px] px-5 lg:px-10 pt-20 pb-20">
 
         {/* Eyebrow */}
         <div className="inline-flex items-center gap-2 mb-6">
@@ -24,37 +22,34 @@ export default function ContactPage() {
           <span className="font-mono text-[11px] tracking-[0.22em] uppercase text-[#1F4D3A]">Contact</span>
         </div>
 
-        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-14">
-          <div>
-            <h1 className="font-display font-bold text-[52px] sm:text-[64px] leading-[0.95] tracking-[-0.03em] text-[#0F1F18]">
-              Let&apos;s talk.
-            </h1>
-            <p className="mt-5 text-[17px] text-[#6B7A72] max-w-[440px] leading-relaxed">
-              We&apos;re here to help. Send a message and we&apos;ll get back to you — usually within a few hours.
-            </p>
-          </div>
+        {/* Headline */}
+        <h1 className="font-display font-bold text-[52px] sm:text-[68px] leading-[0.95] tracking-[-0.03em] text-[#0F1F18] mb-4">
+          Let&apos;s talk.
+        </h1>
+        <p className="text-[17px] text-[#6B7A72] max-w-[480px] leading-relaxed mb-14">
+          We&apos;re here to help. Send a message and we&apos;ll get back to you — usually within a few hours.
+        </p>
 
-          {/* Good reasons strip */}
-          <div
-            className="lg:max-w-[340px] rounded-2xl px-5 py-4 shrink-0"
-            style={{ background: 'rgba(31,77,58,0.05)', border: '1px solid rgba(31,77,58,0.10)' }}
-          >
-            <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#1F4D3A]/60 mb-3">
-              Good reasons to reach out
-            </div>
-            <ul className="space-y-2">
-              {REASONS.map(r => (
-                <li key={r} className="flex items-start gap-2.5 text-[13px] text-[#3A4A42] leading-snug">
-                  <span className="mt-[5px] h-1.5 w-1.5 rounded-full bg-[#1F4D3A]/40 shrink-0" />
-                  {r}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-
-        {/* ── Form + sidebar ── */}
+        {/* Form + sidebar */}
         <ContactFormClient />
+
+        {/* Good reasons — below the fold, extra info */}
+        <div className="mt-16 pt-12" style={{ borderTop: '1px solid #E5E0D4' }}>
+          <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#6B7A72] mb-5">
+            Good reasons to reach out
+          </div>
+          <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {REASONS.map(r => (
+              <li key={r}
+                className="flex items-start gap-3 rounded-xl px-4 py-3 text-[13px] text-[#3A4A42] leading-snug"
+                style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}
+              >
+                <span className="mt-[5px] h-1.5 w-1.5 rounded-full bg-[#1F4D3A]/40 shrink-0" />
+                {r}
+              </li>
+            ))}
+          </ul>
+        </div>
 
       </section>
     </div>

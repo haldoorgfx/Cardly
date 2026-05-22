@@ -28,8 +28,8 @@ const SIDEBAR = [
       </svg>
     ),
     title: 'WhatsApp',
-    value: 'Message us directly',
-    href: 'https://wa.me/message/PLACEHOLDER',
+    value: '+253 77 040 907',
+    href: 'https://wa.me/25377040907',
     desc: 'For quick questions and demos.',
   },
   {
