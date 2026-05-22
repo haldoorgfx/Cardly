@@ -61,10 +61,12 @@ function MobileOverlay({
   onClose,
   user,
   onSignOut,
+  logoUrl,
 }: {
   onClose: () => void;
   user: User | null;
   onSignOut: () => void;
+  logoUrl: string | null;
 }) {
   return (
     <div className="md:hidden fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
@@ -87,8 +89,15 @@ function MobileOverlay({
         {/* Header row */}
         <div className="h-[68px] px-5 flex items-center justify-between">
           <Link href="/" onClick={onClose} className="flex items-center gap-2">
-            <LogoMark />
-            <span className="font-display text-[22px] font-bold tracking-tight text-primary">Karta</span>
+            {logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={logoUrl} alt="Logo" className="max-h-[28px] max-w-[120px] object-contain" />
+            ) : (
+              <>
+                <LogoMark />
+                <span className="font-display text-[22px] font-bold tracking-tight text-primary">Karta</span>
+              </>
+            )}
           </Link>
           <button
             onClick={onClose}
@@ -193,18 +202,23 @@ export function MarketingNav() {
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const pathname = usePathname();
 
-  /* ── Auth state ── */
+  /* ── Auth + logo state ── */
   useEffect(() => {
     const supabase = createClient();
 
-    // Get initial session
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user ?? null);
+    // Get initial session + logo in parallel
+    Promise.all([
+      supabase.auth.getUser(),
+      supabase.from('site_settings').select('logo_url').eq('id', 1).single(),
+    ]).then(([{ data: authData }, { data: settings }]) => {
+      setUser(authData.user ?? null);
+      setLogoUrl(settings?.logo_url ?? null);
     });
 
-    // Subscribe to changes
+    // Subscribe to auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
@@ -242,8 +256,15 @@ export function MarketingNav() {
         <div className="mx-auto max-w-[1200px] px-5 lg:px-10 h-[68px] flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <LogoMark />
-            <span className="font-display text-[22px] font-bold tracking-tight text-primary">Karta</span>
+            {logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={logoUrl} alt="Logo" className="max-h-[32px] max-w-[140px] object-contain" />
+            ) : (
+              <>
+                <LogoMark />
+                <span className="font-display text-[22px] font-bold tracking-tight text-primary">Karta</span>
+              </>
+            )}
           </Link>
 
           {/* Desktop nav */}
@@ -348,6 +369,7 @@ export function MarketingNav() {
           onClose={() => setOpen(false)}
           user={user}
           onSignOut={handleSignOut}
+          logoUrl={logoUrl}
         />
       )}
     </>
