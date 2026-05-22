@@ -136,11 +136,11 @@ function AdminNavGroup({
   group: AdminGroupDef; pathname: string; isSuperAdmin: boolean; onNavigate?: () => void;
 }) {
   const visibleItems = group.items.filter(i => isSuperAdmin || !i.superAdminOnly);
-  if (visibleItems.length === 0) return null;
-
   const isAnyActive = visibleItems.some(i => pathname.startsWith(i.href));
   const [open, setOpen] = useState(isAnyActive);
   useEffect(() => { if (isAnyActive) setOpen(true); }, [isAnyActive]);
+
+  if (visibleItems.length === 0) return null;
 
   return (
     <li>
@@ -338,7 +338,6 @@ function NavItem({ href, icon, label, badge, active, onNavigate }: {
 
 function NavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
   const { profile, eventCount, planPct } = usePlanCtx();
-  const router = useRouter();
   const planLimit = profile ? (PLAN_LIMITS[profile.plan] ?? 1) : 1;
   const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
   const isSuperAdmin = profile?.role === 'super_admin';
