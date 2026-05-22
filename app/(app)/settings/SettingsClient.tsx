@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { signOut, resetPassword, deleteAccount, updatePassword, updateEmail, signOutAllDevices } from '@/app/(auth)/actions';
 import { Check, Mail, ArrowRight, Minus } from 'lucide-react';
+import { DeveloperTab } from './DeveloperTab';
 
 interface Profile {
   full_name: string | null;
@@ -21,7 +22,7 @@ interface Props {
   userId: string;
 }
 
-const TABS = ['Profile', 'Security', 'Notifications', 'Account'] as const;
+const TABS = ['Profile', 'Security', 'Notifications', 'Developer', 'Account'] as const;
 type Tab = typeof TABS[number];
 
 const PLANS: Record<string, { label: string; limit: string; features: { text: string; included: boolean }[] }> = {
@@ -536,6 +537,11 @@ export default function SettingsClient({ profile, userId }: Props) {
                 Preferences are saved. Email delivery requires SMTP configuration — contact support to enable.
               </div>
             </div>
+          )}
+
+          {/* ─── Developer ───────────────────────────────────────── */}
+          {activeTab === 'Developer' && (
+            <DeveloperTab plan={profile?.plan ?? 'free'} />
           )}
 
           {/* ─── Account ──────────────────────────────────────────── */}

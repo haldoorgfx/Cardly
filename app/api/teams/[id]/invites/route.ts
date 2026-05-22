@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getMyTeam, getTeamMembers, getTeamInvites, createInvite } from '@/lib/teams/queries';
 import { PLANS } from '@/lib/billing/plans';
+import { sendTeamInviteEmail } from '@/lib/email';
 
 // POST /api/teams/[id]/invites — send an invite
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
@@ -39,5 +40,17 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   }
 
   const invite = await createInvite(params.id, email.trim().toLowerCase(), role as 'admin' | 'member', user.id);
+
+  // Send invite email (fire-and-forget)
+  const { data: inviterProfile } = await supabase.from('profiles').select('full_name, email').eq('id', user.id).single();
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+  sendTeamInviteEmail({
+    to: email.trim().toLowerCase(),
+    teamName: team.name,
+    inviterName: inviterProfile?.full_name ?? inviterProfile?.email ?? 'Someone',
+    acceptUrl: `${appUrl}/team/invite/${invite.token}`,
+    role,
+  }).catch(() => {});
+
   return NextResponse.json(invite, { status: 201 });
 }
