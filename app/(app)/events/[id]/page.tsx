@@ -4,7 +4,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import QRCode from 'qrcode';
-import { Pencil, Download, TrendingUp, ChevronRight, Image as ImageIcon, Type } from 'lucide-react';
+import { Pencil, Download, TrendingUp, ChevronRight, Image as ImageIcon, Type, FileDown } from 'lucide-react';
 import CopyButton from '@/components/shared/CopyButton';
 import EventDetailActions from './EventDetailActions';
 import CardPreviewClient from './CardPreviewClient';
@@ -175,12 +175,25 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
           <div className="bg-white rounded-lg border border-neutral-200 overflow-hidden">
             <div className="px-5 py-4 border-b border-neutral-200 flex items-center justify-between">
               <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide">Recent Activity</div>
-              {activity.length > 0 && (
-                <span className="flex items-center gap-1.5 text-[11px] text-emerald-600">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  {activity.length} recent
-                </span>
-              )}
+              <div className="flex items-center gap-3">
+                {activity.length > 0 && (
+                  <span className="flex items-center gap-1.5 text-[11px] text-emerald-600">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    {activity.length} recent
+                  </span>
+                )}
+                {event.download_count > 0 && (
+                  <a
+                    href={`/api/events/${id}/export`}
+                    download
+                    className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md border text-[12px] font-medium transition hover:bg-neutral-50"
+                    style={{ borderColor: '#E5E0D4', color: '#1F4D3A' }}
+                  >
+                    <FileDown size={12} strokeWidth={2.2} />
+                    Export CSV
+                  </a>
+                )}
+              </div>
             </div>
             {activity.length === 0 ? (
               <div className="px-5 py-10 text-center">
