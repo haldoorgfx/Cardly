@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Send, Mail, MessageCircle, Clock, Check, ArrowRight, Loader2 } from 'lucide-react';
+import { Send, Mail, Clock, Check, ArrowRight, Loader2 } from 'lucide-react';
 
 const TOPICS = [
   { value: 'General question',     label: 'General question' },
