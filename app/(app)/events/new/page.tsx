@@ -67,8 +67,8 @@ export default function NewEventPage() {
 
       const res = await fetch('/api/events/create', { method: 'POST', body: formData });
       const data = await res.json();
-      if (res.status === 403 && data.error === 'PLAN_LIMIT') {
-        throw new Error(`You've reached the ${data.limit}-event limit on the free plan. Upgrade to create more events.`);
+      if (res.status === 402 && data.error === 'PLAN_LIMIT') {
+        throw new Error(`You've reached the event limit on your current plan. Upgrade to create more events.`);
       }
       if (!res.ok) throw new Error(data.error ?? 'Upload failed');
       router.push(`/events/${data.id}/edit`);

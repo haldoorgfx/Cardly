@@ -295,6 +295,7 @@ export interface Database {
           id: number;
           brand_name: string;
           logo_url: string | null;
+          logo_light_url: string | null;
           favicon_url: string | null;
           colors: Json;
           fonts: Json;
@@ -306,6 +307,7 @@ export interface Database {
           id?: number;
           brand_name?: string;
           logo_url?: string | null;
+          logo_light_url?: string | null;
           favicon_url?: string | null;
           colors?: Json;
           fonts?: Json;
@@ -316,6 +318,7 @@ export interface Database {
         Update: {
           brand_name?: string;
           logo_url?: string | null;
+          logo_light_url?: string | null;
           favicon_url?: string | null;
           colors?: Json;
           fonts?: Json;

@@ -115,20 +115,29 @@ export async function POST(req: NextRequest) {
   const supabase = createAdminClient();
 
   const formData = await req.formData();
-  const eventId = formData.get('eventId') as string;
+  const variantId = formData.get('variantId') as string;
   const fieldsJson = formData.get('fields') as string;
 
-  if (!eventId) return NextResponse.json({ error: 'Missing eventId' }, { status: 400 });
+  if (!variantId) return NextResponse.json({ error: 'Missing variantId' }, { status: 400 });
 
-  // Fetch event (public, no auth required)
+  // Fetch the variant (has background + zones)
+  const { data: variant } = await supabase
+    .from('event_variants')
+    .select('id, event_id, background_url, background_width, background_height, zones')
+    .eq('id', variantId)
+    .single();
+
+  if (!variant) return NextResponse.json({ error: 'Variant not found' }, { status: 404 });
+
+  // Fetch the parent event (for status check, user_id, download_count)
   const { data: event } = await supabase
     .from('events')
-    .select('id, background_url, background_width, background_height, zones, status, user_id, download_count')
-    .eq('id', eventId)
+    .select('id, status, user_id, download_count')
+    .eq('id', variant.event_id)
     .eq('status', 'published')
     .single();
 
-  if (!event) return NextResponse.json({ error: 'Event not found' }, { status: 404 });
+  if (!event) return NextResponse.json({ error: 'Event not found or not published' }, { status: 404 });
 
   // Check card generation limit for the event owner
   const { allowed, plan } = await canGenerateCard(event.user_id);
@@ -138,13 +147,14 @@ export async function POST(req: NextRequest) {
 
   const needsWatermark = PLANS[plan].watermark;
 
-  const zones = (event.zones as unknown as Zone[]) ?? [];
+  const zones = (variant.zones as unknown as Zone[]) ?? [];
   const fields: Record<string, string> = fieldsJson ? JSON.parse(fieldsJson) : {};
-  const canvasW = event.background_width ?? 1080;
-  const canvasH = event.background_height ?? 1350;
+  const canvasW = variant.background_width ?? 1080;
+  const canvasH = variant.background_height ?? 1350;
+  const eventId = event.id;
 
   // Download background
-  const bgBuffer = await fetchBuffer(event.background_url!);
+  const bgBuffer = await fetchBuffer(variant.background_url!);
 
   // Start sharp pipeline
   let pipeline = sharp(bgBuffer).resize(canvasW, canvasH, { fit: 'fill' });
@@ -181,6 +191,7 @@ export async function POST(req: NextRequest) {
   Promise.all([
     supabase.from('generated_cards').insert({
       event_id: eventId,
+      variant_id: variantId,
       attendee_name: attendeeName,
       attendee_data: fields,
       output_url: null,

@@ -86,5 +86,21 @@ export async function POST(req: NextRequest) {
 
   if (dbError) return NextResponse.json({ error: dbError.message }, { status: 500 });
 
+  // Create the default variant (required — attendee page and canvas editor both expect at least one)
+  const { error: variantError } = await admin
+    .from('event_variants')
+    .insert({
+      event_id: event.id,
+      variant_name: 'Default',
+      variant_slug: 'default',
+      background_url: backgroundUrl,
+      background_width: w || null,
+      background_height: h || null,
+      zones: [],
+      position: 0,
+    });
+
+  if (variantError) return NextResponse.json({ error: variantError.message }, { status: 500 });
+
   return NextResponse.json({ id: event.id, slug: event.slug });
 }
