@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import React, { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Check, ChevronDown, ArrowRight } from 'lucide-react';
@@ -355,8 +355,8 @@ function ComparisonTable() {
             </thead>
             <tbody>
               {COMPARISON_GROUPS.map((g, gi) => (
-                <>
-                  <tr key={`g-${gi}`} style={{ background: 'rgba(250,246,238,0.4)' }}>
+                <React.Fragment key={`g-${gi}`}>
+                  <tr style={{ background: 'rgba(250,246,238,0.4)' }}>
                     <td
                       colSpan={4}
                       className="py-3 px-5 lg:px-7 font-mono text-[10px] tracking-[0.22em] uppercase text-primary"
@@ -381,7 +381,7 @@ function ComparisonTable() {
                       </td>
                     </tr>
                   ))}
-                </>
+                </React.Fragment>
               ))}
             </tbody>
           </table>
