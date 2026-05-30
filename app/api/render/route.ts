@@ -110,6 +110,11 @@ async function buildTextOp(zone: Zone, text: string, canvasW: number, canvasH: n
   if (align === 'center') { textAnchor = 'middle'; x = zW / 2; }
   if (align === 'right')  { textAnchor = 'end';    x = zW - 8; }
 
+  // Detect Arabic / RTL script so we can fall back to an Arabic-capable font and
+  // render right-to-left. The bundled Latin fonts (DM Sans/Inter) have no Arabic
+  // glyphs, so without this Arabic input renders as missing-glyph boxes.
+  const hasArabic = /[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]/.test(text);
+
   // Wrap text — leave 8px horizontal padding each side
   const lines   = wrapLines(text, zW - 16, size);
   const lineH   = size * 1.3;                   // 1.3 × font-size line-height
@@ -118,12 +123,17 @@ async function buildTextOp(zone: Zone, text: string, canvasW: number, canvasH: n
   // Vertically center the text block within the zone
   const startY  = Math.max(size, (zH - totalH) / 2 + size * 0.85);
 
-  // Only embed the font if we have it bundled
-  const fontCSS = getFontFaceCSS(family, weight);
+  // Embed the chosen font, plus the Arabic font as a per-glyph fallback when needed.
+  let fontCSS = getFontFaceCSS(family, weight);
+  const familyStack = hasArabic
+    ? `${xmlEscape(family)}, 'Noto Sans Arabic', sans-serif`
+    : `${xmlEscape(family)}, sans-serif`;
+  if (hasArabic) fontCSS += getFontFaceCSS('Noto Sans Arabic', weight);
+  const dirAttr = hasArabic ? ' direction="rtl"' : '';
 
   const textEls = lines.map((line, i) => {
     const y = (startY + i * lineH).toFixed(1);
-    return `<text x="${x}" y="${y}" font-family="${xmlEscape(family)}, sans-serif" font-size="${size}" font-weight="${weight}" fill="${xmlEscape(color)}" text-anchor="${textAnchor}" letter-spacing="${letterSpacing}">${xmlEscape(line)}</text>`;
+    return `<text x="${x}" y="${y}" font-family="${familyStack}" font-size="${size}" font-weight="${weight}" fill="${xmlEscape(color)}" text-anchor="${textAnchor}"${dirAttr} letter-spacing="${letterSpacing}">${xmlEscape(line)}</text>`;
   }).join('\n  ');
 
   const svg = `<svg width="${zW}" height="${zH}" xmlns="http://www.w3.org/2000/svg">
