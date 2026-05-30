@@ -15,14 +15,19 @@ async function fetchBuffer(url: string): Promise<Buffer> {
   return Buffer.from(await res.arrayBuffer());
 }
 
-async function compositeText(base: sharp.Sharp, zone: Zone, text: string, canvasW: number, canvasH: number): Promise<sharp.Sharp> {
+// sharp's .composite() does NOT accumulate across calls — the last call wins.
+// So each helper returns a SINGLE composite operation, and the caller collects
+// them all into one array applied in a single .composite() call.
+type Op = sharp.OverlayOptions;
+
+async function buildTextOp(zone: Zone, text: string, canvasW: number, canvasH: number): Promise<Op> {
   const font = zone.font ?? 'sans-serif';
   const size = zone.size ?? 32;
   const weight = zone.weight ?? 400;
   const color = zone.color ?? '#FFFFFF';
   const align = zone.align ?? 'left';
+  const letterSpacing = zone.letterSpacing ?? 0;
 
-  // Build SVG text overlay
   const svgWidth = zone.w;
   const svgHeight = zone.h;
 
@@ -35,27 +40,27 @@ async function compositeText(base: sharp.Sharp, zone: Zone, text: string, canvas
   const svg = `<svg width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg">
     <text
       x="${x}"
-      y="${svgHeight * 0.75}"
+      y="${svgHeight * 0.72}"
       font-family="${font}, sans-serif"
       font-size="${size}"
       font-weight="${weight}"
       fill="${color}"
       text-anchor="${textAnchor}"
+      letter-spacing="${letterSpacing}"
       dominant-baseline="auto"
     >${escapedText}</text>
   </svg>`;
 
-  const svgBuf = Buffer.from(svg);
-  const overlay = await sharp(svgBuf).png().toBuffer();
+  const overlay = await sharp(Buffer.from(svg)).png().toBuffer();
 
-  return base.composite([{
+  return {
     input: overlay,
-    left: Math.max(0, Math.min(zone.x, canvasW - zone.w)),
-    top: Math.max(0, Math.min(zone.y, canvasH - zone.h)),
-  }]);
+    left: Math.max(0, Math.min(Math.round(zone.x), canvasW - zone.w)),
+    top: Math.max(0, Math.min(Math.round(zone.y), canvasH - zone.h)),
+  };
 }
 
-async function compositePhoto(base: sharp.Sharp, zone: Zone, photoBuffer: Buffer, canvasW: number, canvasH: number): Promise<sharp.Sharp> {
+async function buildPhotoOp(zone: Zone, photoBuffer: Buffer, canvasW: number, canvasH: number): Promise<Op> {
   const w = Math.max(1, zone.w);
   const h = Math.max(1, zone.h);
   const shape = zone.shape ?? 'square';
@@ -63,7 +68,6 @@ async function compositePhoto(base: sharp.Sharp, zone: Zone, photoBuffer: Buffer
   let photoSharp = sharp(photoBuffer).resize(w, h, { fit: 'cover', position: 'center' });
 
   if (shape === 'circle') {
-    // Create circular mask
     const mask = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
       <ellipse cx="${w / 2}" cy="${h / 2}" rx="${w / 2}" ry="${h / 2}" fill="white"/>
     </svg>`;
@@ -80,14 +84,14 @@ async function compositePhoto(base: sharp.Sharp, zone: Zone, photoBuffer: Buffer
 
   const photoBuf = await photoSharp.png().toBuffer();
 
-  return base.composite([{
+  return {
     input: photoBuf,
-    left: Math.max(0, Math.min(zone.x, canvasW - w)),
-    top: Math.max(0, Math.min(zone.y, canvasH - h)),
-  }]);
+    left: Math.max(0, Math.min(Math.round(zone.x), canvasW - w)),
+    top: Math.max(0, Math.min(Math.round(zone.y), canvasH - h)),
+  };
 }
 
-async function addWatermark(base: sharp.Sharp, canvasW: number, canvasH: number): Promise<sharp.Sharp> {
+async function buildWatermarkOp(canvasW: number, canvasH: number): Promise<Op> {
   const text = 'Made with Karta';
   const svg = `<svg width="${canvasW}" height="${WATERMARK_HEIGHT}" xmlns="http://www.w3.org/2000/svg">
     <rect width="${canvasW}" height="${WATERMARK_HEIGHT}" fill="rgba(0,0,0,0.35)"/>
@@ -104,11 +108,11 @@ async function addWatermark(base: sharp.Sharp, canvasW: number, canvasH: number)
   </svg>`;
   const svgBuf = await sharp(Buffer.from(svg)).png().toBuffer();
 
-  return base.composite([{
+  return {
     input: svgBuf,
     left: 0,
     top: canvasH - WATERMARK_HEIGHT,
-  }]);
+  };
 }
 
 export async function POST(req: NextRequest) {
@@ -156,33 +160,38 @@ export async function POST(req: NextRequest) {
   // Download background
   const bgBuffer = await fetchBuffer(variant.background_url!);
 
-  // Start sharp pipeline
-  let pipeline = sharp(bgBuffer).resize(canvasW, canvasH, { fit: 'fill' });
+  // Collect every overlay into ONE array. sharp's .composite() does not
+  // accumulate across calls, so all zones + watermark must go in a single call,
+  // applied in z-order (array order = bottom-to-top, matching the editor).
+  const ops: Op[] = [];
 
-  // Composite zones
   for (const zone of zones) {
     if (zone.hidden) continue;
 
     if (zone.type === 'text' || zone.type === 'custom') {
       const text = fields[zone.id];
       if (text?.trim()) {
-        pipeline = await compositeText(pipeline, zone, text, canvasW, canvasH);
+        ops.push(await buildTextOp(zone, text, canvasW, canvasH));
       }
     } else if (zone.type === 'photo') {
       const photoFile = formData.get(`photo_${zone.id}`) as File | null;
       if (photoFile) {
         const photoBuf = Buffer.from(await photoFile.arrayBuffer());
-        pipeline = await compositePhoto(pipeline, zone, photoBuf, canvasW, canvasH);
+        ops.push(await buildPhotoOp(zone, photoBuf, canvasW, canvasH));
       }
     }
   }
 
-  // Watermark
+  // Watermark goes on top, last
   if (needsWatermark) {
-    pipeline = await addWatermark(pipeline, canvasW, canvasH);
+    ops.push(await buildWatermarkOp(canvasW, canvasH));
   }
 
-  const outputBuffer = await pipeline.png({ quality: 90 }).toBuffer();
+  const outputBuffer = await sharp(bgBuffer)
+    .resize(canvasW, canvasH, { fit: 'fill' })
+    .composite(ops)
+    .png({ quality: 90 })
+    .toBuffer();
 
   // Save record and counters (fire-and-forget — don't block the response)
   const attendeeName = Object.values(fields)[0] ?? 'Anonymous';
