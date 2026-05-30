@@ -188,7 +188,7 @@ function MobileOverlay({
           <div className="mt-auto pt-10 flex items-center justify-between">
             <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-muted">karta.cre8so.com</div>
             <div className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.22em] uppercase text-primary">
-              Built for Africa
+              Built for the world
             </div>
           </div>
         </div>

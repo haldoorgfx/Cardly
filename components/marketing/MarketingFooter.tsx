@@ -97,12 +97,6 @@ export function MarketingFooter() {
           <div style={{ color: 'rgba(250,246,238,0.55)' }} className="text-[13px]">
             © 2026 Karta. Built with care for organizers everywhere.
           </div>
-          <div
-            className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.22em] uppercase px-3 py-1.5 rounded-full"
-            style={{ color: '#E8C57E', background: 'rgba(250,246,238,0.05)', border: '1px solid rgba(250,246,238,0.15)' }}
-          >
-            Built for Africa
-          </div>
         </div>
       </div>
     </footer>
