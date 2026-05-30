@@ -277,40 +277,48 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Download background
-  const bgBuffer = await fetchBuffer(variant.background_url!);
+  // Download background + build composites — wrap the whole pipeline so a
+  // bad background URL or sharp failure returns a clean JSON error, not a 500.
+  let outputBuffer: Buffer;
+  try {
+    const bgBuffer = await fetchBuffer(variant.background_url!);
 
-  // Collect every overlay into ONE array. sharp's .composite() does not
-  // accumulate across calls, so all zones + watermark must go in a single call,
-  // applied in z-order (array order = bottom-to-top, matching the editor).
-  const ops: Op[] = [];
+    // Collect every overlay into ONE array. sharp's .composite() does not
+    // accumulate across calls, so all zones + watermark must go in a single call,
+    // applied in z-order (array order = bottom-to-top, matching the editor).
+    const ops: Op[] = [];
 
-  for (const zone of zones) {
-    if (zone.hidden) continue;
+    for (const zone of zones) {
+      if (zone.hidden) continue;
 
-    if (zone.type === 'text' || zone.type === 'custom') {
-      const text = fields[zone.id];
-      if (text?.trim()) {
-        ops.push(await buildTextOp(zone, text, canvasW, canvasH));
-      }
-    } else if (zone.type === 'photo') {
-      const photoBuf = photoBuffers[zone.id];
-      if (photoBuf) {
-        ops.push(await buildPhotoOp(zone, photoBuf, canvasW, canvasH));
+      if (zone.type === 'text' || zone.type === 'custom') {
+        const text = fields[zone.id];
+        if (text?.trim()) {
+          ops.push(await buildTextOp(zone, text, canvasW, canvasH));
+        }
+      } else if (zone.type === 'photo') {
+        const photoBuf = photoBuffers[zone.id];
+        if (photoBuf) {
+          ops.push(await buildPhotoOp(zone, photoBuf, canvasW, canvasH));
+        }
       }
     }
-  }
 
-  // Watermark goes on top, last
-  if (needsWatermark) {
-    ops.push(await buildWatermarkOp(canvasW, canvasH));
-  }
+    // Watermark goes on top, last
+    if (needsWatermark) {
+      ops.push(await buildWatermarkOp(canvasW, canvasH));
+    }
 
-  const outputBuffer = await sharp(bgBuffer)
-    .resize(canvasW, canvasH, { fit: 'fill' })
-    .composite(ops)
-    .png({ quality: 90 })
-    .toBuffer();
+    outputBuffer = await sharp(bgBuffer)
+      .resize(canvasW, canvasH, { fit: 'fill' })
+      .composite(ops)
+      .png({ quality: 90 })
+      .toBuffer();
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Render failed';
+    console.error('[render]', msg);
+    return NextResponse.json({ error: 'RENDER_FAILED', detail: msg }, { status: 500 });
+  }
 
   // Save record and counters. AWAIT these — on serverless the function can
   // freeze right after the response is sent, dropping any detached promises,
