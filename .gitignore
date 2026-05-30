@@ -42,3 +42,6 @@ next-env.d.ts
 
 # Local test render outputs
 test-*.png
+
+# QA test credentials (local only)
+.qa-creds.json
