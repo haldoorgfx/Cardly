@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import sharp from 'sharp';
+import fs from 'fs';
+import path from 'path';
 import type { Zone } from '@/types/database';
 import { canGenerateCard, incrementCardsThisMonth } from '@/lib/billing/can';
 import { PLANS } from '@/lib/billing/plans';
@@ -9,9 +11,84 @@ import { maybeSendDownloadMilestone } from '@/lib/email';
 
 const WATERMARK_HEIGHT = 40;
 
+// ── Font embedding ────────────────────────────────────────────────────────────
+// Fonts in public/fonts/ are base64-embedded into each SVG so librsvg
+// (used by sharp) renders them correctly on Vercel without fontconfig setup.
+// Other fonts (Poppins, Montserrat, etc.) fall back to the system sans-serif.
+
+const BUNDLED_FONTS: Record<string, Record<number, string>> = {
+  'DM Sans':        { 400: 'dmsans-400.ttf', 500: 'dmsans-500.ttf', 600: 'dmsans-600.ttf', 700: 'dmsans-700.ttf' },
+  'Inter':          { 400: 'inter-400.ttf',   500: 'inter-500.ttf',  600: 'inter-600.ttf',  700: 'inter-700.ttf'  },
+  'JetBrains Mono': { 400: 'jetbrainsmono-400.ttf', 500: 'jetbrainsmono-500.ttf', 700: 'jetbrainsmono-700.ttf'   },
+};
+
+// Lazy, module-level cache — populated on first use, shared across requests.
+const fontB64Cache = new Map<string, string>();
+
+/** Returns the @font-face CSS for a given family + weight, or '' if not bundled. */
+function getFontFaceCSS(family: string, weight: number): string {
+  const weights = BUNDLED_FONTS[family];
+  if (!weights) return '';
+
+  // Snap to the closest available weight
+  const snapped = Object.keys(weights).map(Number).reduce((a, b) =>
+    Math.abs(b - weight) < Math.abs(a - weight) ? b : a,
+  );
+
+  const cacheKey = `${family}:${snapped}`;
+  if (!fontB64Cache.has(cacheKey)) {
+    try {
+      const file = path.join(process.cwd(), 'public', 'fonts', weights[snapped]);
+      fontB64Cache.set(cacheKey, fs.readFileSync(file).toString('base64'));
+    } catch {
+      return ''; // font file not found — fall back to system font
+    }
+  }
+  const b64 = fontB64Cache.get(cacheKey)!;
+  // Escaped family name for CSS string safety
+  const safeName = family.replace(/'/g, "\\'");
+  return `@font-face{font-family:'${safeName}';font-weight:${snapped};font-style:normal;src:url('data:font/truetype;base64,${b64}')format('truetype');}`;
+}
+
+// ── Text wrapping ─────────────────────────────────────────────────────────────
+/**
+ * Splits `text` into lines that fit within `maxWidth` pixels.
+ * Uses an approximate char-width of 0.58 × fontSize (conservative for DM Sans/Inter).
+ * Word-boundary aware — won't split mid-word unless the word itself is wider than the zone.
+ */
+function wrapLines(text: string, maxWidth: number, fontSize: number): string[] {
+  const charW = fontSize * 0.58;
+  const maxChars = Math.max(1, Math.floor(maxWidth / charW));
+  const words = text.split(/\s+/).filter(Boolean);
+  if (!words.length) return [''];
+
+  const lines: string[] = [];
+  let current = '';
+  for (const word of words) {
+    const candidate = current ? `${current} ${word}` : word;
+    if (candidate.length > maxChars && current) {
+      lines.push(current);
+      current = word;
+    } else {
+      current = candidate;
+    }
+  }
+  if (current) lines.push(current);
+  return lines;
+}
+
+/** Escape XML special characters for safe embedding in SVG text content. */
+function xmlEscape(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 async function fetchBuffer(url: string): Promise<Buffer> {
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.status}`);
+  if (!res.ok) throw new Error(`Failed to fetch background image (${res.status})`);
   return Buffer.from(await res.arrayBuffer());
 }
 
@@ -21,42 +98,48 @@ async function fetchBuffer(url: string): Promise<Buffer> {
 type Op = sharp.OverlayOptions;
 
 async function buildTextOp(zone: Zone, text: string, canvasW: number, canvasH: number): Promise<Op> {
-  const font = zone.font ?? 'sans-serif';
-  const size = zone.size ?? 32;
+  const family = zone.font ?? 'Inter';
+  const size   = zone.size   ?? 32;
   const weight = zone.weight ?? 400;
-  const color = zone.color ?? '#FFFFFF';
-  const align = zone.align ?? 'left';
+  const color  = zone.color  ?? '#FFFFFF';
+  const align  = zone.align  ?? 'left';
   const letterSpacing = zone.letterSpacing ?? 0;
 
-  const svgWidth = zone.w;
-  const svgHeight = zone.h;
+  const zW = zone.w;
+  const zH = zone.h;
 
   let textAnchor = 'start';
   let x = 8;
-  if (align === 'center') { textAnchor = 'middle'; x = svgWidth / 2; }
-  if (align === 'right') { textAnchor = 'end'; x = svgWidth - 8; }
+  if (align === 'center') { textAnchor = 'middle'; x = zW / 2; }
+  if (align === 'right')  { textAnchor = 'end';    x = zW - 8; }
 
-  const escapedText = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  const svg = `<svg width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg">
-    <text
-      x="${x}"
-      y="${svgHeight * 0.72}"
-      font-family="${font}, sans-serif"
-      font-size="${size}"
-      font-weight="${weight}"
-      fill="${color}"
-      text-anchor="${textAnchor}"
-      letter-spacing="${letterSpacing}"
-      dominant-baseline="auto"
-    >${escapedText}</text>
-  </svg>`;
+  // Wrap text — leave 8px horizontal padding each side
+  const lines   = wrapLines(text, zW - 16, size);
+  const lineH   = size * 1.3;                   // 1.3 × font-size line-height
+  const totalH  = lines.length * lineH;
+
+  // Vertically center the text block within the zone
+  const startY  = Math.max(size, (zH - totalH) / 2 + size * 0.85);
+
+  // Only embed the font if we have it bundled
+  const fontCSS = getFontFaceCSS(family, weight);
+
+  const textEls = lines.map((line, i) => {
+    const y = (startY + i * lineH).toFixed(1);
+    return `<text x="${x}" y="${y}" font-family="${xmlEscape(family)}, sans-serif" font-size="${size}" font-weight="${weight}" fill="${xmlEscape(color)}" text-anchor="${textAnchor}" letter-spacing="${letterSpacing}">${xmlEscape(line)}</text>`;
+  }).join('\n  ');
+
+  const svg = `<svg width="${zW}" height="${zH}" xmlns="http://www.w3.org/2000/svg">
+  ${fontCSS ? `<defs><style>${fontCSS}</style></defs>` : ''}
+  ${textEls}
+</svg>`;
 
   const overlay = await sharp(Buffer.from(svg)).png().toBuffer();
 
   return {
     input: overlay,
     left: Math.max(0, Math.min(Math.round(zone.x), canvasW - zone.w)),
-    top: Math.max(0, Math.min(Math.round(zone.y), canvasH - zone.h)),
+    top:  Math.max(0, Math.min(Math.round(zone.y), canvasH - zone.h)),
   };
 }
 
@@ -92,20 +175,12 @@ async function buildPhotoOp(zone: Zone, photoBuffer: Buffer, canvasW: number, ca
 }
 
 async function buildWatermarkOp(canvasW: number, canvasH: number): Promise<Op> {
-  const text = 'Made with Karta';
+  const fontCSS = getFontFaceCSS('Inter', 500);
   const svg = `<svg width="${canvasW}" height="${WATERMARK_HEIGHT}" xmlns="http://www.w3.org/2000/svg">
-    <rect width="${canvasW}" height="${WATERMARK_HEIGHT}" fill="rgba(0,0,0,0.35)"/>
-    <text
-      x="${canvasW / 2}"
-      y="${WATERMARK_HEIGHT * 0.7}"
-      font-family="Inter, sans-serif"
-      font-size="20"
-      font-weight="500"
-      fill="rgba(255,255,255,0.7)"
-      text-anchor="middle"
-      dominant-baseline="auto"
-    >${text}</text>
-  </svg>`;
+  ${fontCSS ? `<defs><style>${fontCSS}</style></defs>` : ''}
+  <rect width="${canvasW}" height="${WATERMARK_HEIGHT}" fill="rgba(0,0,0,0.35)"/>
+  <text x="${canvasW / 2}" y="${(WATERMARK_HEIGHT * 0.7).toFixed(1)}" font-family="Inter, sans-serif" font-size="20" font-weight="500" fill="rgba(255,255,255,0.7)" text-anchor="middle">Made with Karta</text>
+</svg>`;
   const svgBuf = await sharp(Buffer.from(svg)).png().toBuffer();
 
   return {
