@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
   if (!event) return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
 
   // Update the variant's background
-  await admin
+  const { error: updateError } = await admin
     .from('event_variants')
     .update({
       background_url: template.background_url,
@@ -70,6 +70,8 @@ export async function POST(req: NextRequest) {
       background_height: height,
     })
     .eq('id', variantId);
+
+  if (updateError) return NextResponse.json({ error: updateError.message }, { status: 500 });
 
   return NextResponse.json({
     backgroundUrl: template.background_url,

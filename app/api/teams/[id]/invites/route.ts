@@ -15,6 +15,14 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     return NextResponse.json({ error: 'Not your team.' }, { status: 403 });
   }
 
+  // Only the owner or an admin member may invite (inviting consumes paid seats)
+  const members = await getTeamMembers(params.id);
+  const me = members.find(m => m.user_id === user.id);
+  const isOwnerOrAdmin = team.owner_id === user.id || me?.role === 'owner' || me?.role === 'admin';
+  if (!isOwnerOrAdmin) {
+    return NextResponse.json({ error: 'Only team admins can invite members.' }, { status: 403 });
+  }
+
   const { email, role = 'member' } = await req.json();
   if (!email?.trim()) return NextResponse.json({ error: 'Email is required.' }, { status: 400 });
   if (!['admin', 'member'].includes(role)) {
@@ -30,10 +38,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const plan = (profile?.plan ?? 'free') as 'free' | 'pro' | 'studio';
   const seatLimit = PLANS[plan].teamSeats;
 
-  const [members, invites] = await Promise.all([
-    getTeamMembers(params.id),
-    getTeamInvites(params.id),
-  ]);
+  const invites = await getTeamInvites(params.id);
   const pendingCount = invites.filter(i => !i.accepted_at).length;
   if (members.length + pendingCount >= seatLimit) {
     return NextResponse.json({ error: `Seat limit reached (${seatLimit} seats on ${plan} plan).` }, { status: 402 });

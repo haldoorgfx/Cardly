@@ -101,8 +101,10 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json() as { templateId?: string };
-  const config = body.templateId ? TEMPLATE_CONFIGS[body.templateId] : null;
-  if (!config) return NextResponse.json({ error: 'Unknown template' }, { status: 400 });
+  const templateId = body.templateId ?? '';
+  const isDbTemplate = templateId.startsWith('db:');
+  const config = !isDbTemplate ? TEMPLATE_CONFIGS[templateId] : null;
+  if (!isDbTemplate && !config) return NextResponse.json({ error: 'Unknown template' }, { status: 400 });
 
   const admin = createAdminClient();
 
@@ -117,12 +119,59 @@ export async function POST(req: NextRequest) {
       .eq('user_id', user.id)
       .neq('status', 'archived');
     if ((count ?? 0) >= limit) {
-      return NextResponse.json({ error: 'PLAN_LIMIT', plan, limit }, { status: 403 });
+      return NextResponse.json({ error: 'PLAN_LIMIT', plan, limit }, { status: 402 });
     }
   }
 
+  /* ── DB-backed (admin-managed) template path ────────────────── */
+  if (isDbTemplate) {
+    const dbId = templateId.slice(3);
+    const { data: tpl } = await admin
+      .from('templates')
+      .select('name, background_url, dimensions, zones, min_plan, published')
+      .eq('id', dbId)
+      .eq('published', true)
+      .single();
+
+    if (!tpl) return NextResponse.json({ error: 'Template not found' }, { status: 404 });
+
+    // Enforce the template's minimum plan
+    const planRank: Record<string, number> = { free: 0, pro: 1, studio: 2 };
+    if ((planRank[plan] ?? 0) < (planRank[tpl.min_plan] ?? 0)) {
+      return NextResponse.json({ error: 'PLAN_LIMIT', plan, limit }, { status: 402 });
+    }
+
+    const dims = (tpl.dimensions as { width?: number; height?: number } | null) ?? {};
+    const slug = generateSlug(tpl.name);
+    const { data: event, error: evErr } = await admin
+      .from('events')
+      .insert({ user_id: user.id, name: tpl.name, slug, status: 'draft' })
+      .select()
+      .single();
+    if (evErr) return NextResponse.json({ error: evErr.message }, { status: 500 });
+
+    const { error: varErr } = await admin
+      .from('event_variants')
+      .insert({
+        event_id: event.id,
+        variant_name: 'Attendee',
+        variant_slug: 'attendee',
+        background_url: tpl.background_url,
+        background_width: dims.width ?? W,
+        background_height: dims.height ?? H,
+        zones: tpl.zones ?? [],
+        position: 0,
+      });
+    if (varErr) return NextResponse.json({ error: varErr.message }, { status: 500 });
+
+    return NextResponse.json({ id: event.id });
+  }
+
+  /* ── Built-in (code-defined) template path ──────────────────── */
+  if (!config) return NextResponse.json({ error: 'Unknown template' }, { status: 400 });
+
   /* Build SVG (background + baked static text) → PNG via sharp */
-  const svgStr = buildSVG(body.templateId!, config.text);
+  const svgStr = buildSVG(templateId, config.text);
   const pngBuf = await sharp(Buffer.from(svgStr)).png().toBuffer();
 
   /* Upload background PNG to Supabase storage */

@@ -257,8 +257,8 @@ export default function TemplatesPage() {
         body: JSON.stringify({ templateId }),
       });
       const data = await res.json() as { id?:string; error?:string; plan?:string; limit?:number };
-      if (res.status === 403 && data.error === 'PLAN_LIMIT')
-        throw new Error(`You've reached the ${data.limit}-event limit on the free plan. Upgrade to Pro.`);
+      if (res.status === 402 && data.error === 'PLAN_LIMIT')
+        throw new Error(`You've reached the ${data.limit}-event limit on the ${data.plan ?? 'free'} plan. Upgrade for more.`);
       if (!res.ok) throw new Error(data.error ?? 'Something went wrong');
       router.push(`/events/${data.id}/edit`);
     } catch (err) {

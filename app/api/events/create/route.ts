@@ -52,14 +52,22 @@ export async function POST(req: NextRequest) {
   const uint8 = new Uint8Array(arrayBuffer);
   let w = 0, h = 0;
   if (file.type === 'image/jpeg') {
-    let i = 0;
+    // Proper JPEG parser — skip each marker's APPn data segment by its length
+    let i = 2; // skip SOI (FF D8)
     while (i < uint8.length - 8) {
-      if (uint8[i] === 0xFF && uint8[i + 1] >= 0xC0 && uint8[i + 1] <= 0xCF && uint8[i + 1] !== 0xC4 && uint8[i + 1] !== 0xC8) {
+      if (uint8[i] !== 0xFF) break;
+      const marker = uint8[i + 1];
+      // SOF markers carry the dimensions: C0-C3, C5-C7, C9-CB, CD-CF
+      if ((marker >= 0xC0 && marker <= 0xC3) ||
+          (marker >= 0xC5 && marker <= 0xC7) ||
+          (marker >= 0xC9 && marker <= 0xCB) ||
+          (marker >= 0xCD && marker <= 0xCF)) {
         h = (uint8[i + 5] << 8) | uint8[i + 6];
         w = (uint8[i + 7] << 8) | uint8[i + 8];
         break;
       }
-      i++;
+      const len = (uint8[i + 2] << 8) | uint8[i + 3];
+      i += 2 + len;
     }
   } else if (file.type === 'image/png') {
     if (uint8.length > 24) {

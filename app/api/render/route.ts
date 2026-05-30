@@ -115,12 +115,44 @@ async function buildWatermarkOp(canvasW: number, canvasH: number): Promise<Op> {
   };
 }
 
+/** Decode a `data:image/...;base64,XXXX` data URL (or a bare base64 string) to a Buffer. */
+function decodeDataUrl(dataUrl: string): Buffer | null {
+  if (!dataUrl) return null;
+  const comma = dataUrl.indexOf(',');
+  const b64 = comma >= 0 && dataUrl.slice(0, comma).includes('base64') ? dataUrl.slice(comma + 1) : dataUrl;
+  try { return Buffer.from(b64, 'base64'); } catch { return null; }
+}
+
 export async function POST(req: NextRequest) {
   const supabase = createAdminClient();
 
-  const formData = await req.formData();
-  const variantId = formData.get('variantId') as string;
-  const fieldsJson = formData.get('fields') as string;
+  // The attendee page POSTs multipart/form-data (photo files); the developer
+  // API (/api/v1/render) POSTs application/json with a base64 photoDataUrl.
+  // Support both.
+  const contentType = req.headers.get('content-type') ?? '';
+  const isJson = contentType.includes('application/json');
+
+  let variantId: string;
+  let fields: Record<string, string> = {};
+  // zoneId → photo Buffer
+  const photoBuffers: Record<string, Buffer> = {};
+  // For JSON callers, a single photoDataUrl is mapped to the first photo zone.
+  let jsonPhotoBuffer: Buffer | null = null;
+  let formData: FormData | null = null;
+
+  if (isJson) {
+    const body = await req.json().catch(() => ({})) as {
+      variantId?: string; fields?: Record<string, string>; photoDataUrl?: string;
+    };
+    variantId = body.variantId ?? '';
+    fields = body.fields ?? {};
+    if (body.photoDataUrl) jsonPhotoBuffer = decodeDataUrl(body.photoDataUrl);
+  } else {
+    formData = await req.formData();
+    variantId = (formData.get('variantId') as string) ?? '';
+    const fieldsJson = formData.get('fields') as string;
+    fields = fieldsJson ? JSON.parse(fieldsJson) : {};
+  }
 
   if (!variantId) return NextResponse.json({ error: 'Missing variantId' }, { status: 400 });
 
@@ -152,10 +184,23 @@ export async function POST(req: NextRequest) {
   const needsWatermark = PLANS[plan].watermark;
 
   const zones = (variant.zones as unknown as Zone[]) ?? [];
-  const fields: Record<string, string> = fieldsJson ? JSON.parse(fieldsJson) : {};
   const canvasW = variant.background_width ?? 1080;
   const canvasH = variant.background_height ?? 1350;
   const eventId = event.id;
+
+  // Resolve photo buffers per zone. Multipart: photo_<zoneId> files.
+  // JSON: a single photoDataUrl mapped to the first photo zone.
+  const firstPhotoZoneId = zones.find(z => z.type === 'photo' && !z.hidden)?.id;
+  if (jsonPhotoBuffer && firstPhotoZoneId) {
+    photoBuffers[firstPhotoZoneId] = jsonPhotoBuffer;
+  }
+  if (formData) {
+    for (const zone of zones) {
+      if (zone.type !== 'photo') continue;
+      const photoFile = formData.get(`photo_${zone.id}`) as File | null;
+      if (photoFile) photoBuffers[zone.id] = Buffer.from(await photoFile.arrayBuffer());
+    }
+  }
 
   // Download background
   const bgBuffer = await fetchBuffer(variant.background_url!);
@@ -174,9 +219,8 @@ export async function POST(req: NextRequest) {
         ops.push(await buildTextOp(zone, text, canvasW, canvasH));
       }
     } else if (zone.type === 'photo') {
-      const photoFile = formData.get(`photo_${zone.id}`) as File | null;
-      if (photoFile) {
-        const photoBuf = Buffer.from(await photoFile.arrayBuffer());
+      const photoBuf = photoBuffers[zone.id];
+      if (photoBuf) {
         ops.push(await buildPhotoOp(zone, photoBuf, canvasW, canvasH));
       }
     }
@@ -193,11 +237,13 @@ export async function POST(req: NextRequest) {
     .png({ quality: 90 })
     .toBuffer();
 
-  // Save record and counters (fire-and-forget — don't block the response)
+  // Save record and counters. AWAIT these — on serverless the function can
+  // freeze right after the response is sent, dropping any detached promises,
+  // which would silently lose download counts and generated_cards rows.
   const attendeeName = Object.values(fields)[0] ?? 'Anonymous';
   const newDownloadCount = (event.download_count ?? 0) + 1;
 
-  Promise.all([
+  await Promise.allSettled([
     supabase.from('generated_cards').insert({
       event_id: eventId,
       variant_id: variantId,
@@ -207,22 +253,15 @@ export async function POST(req: NextRequest) {
     }),
     supabase.from('events').update({ download_count: newDownloadCount }).eq('id', eventId),
     incrementCardsThisMonth(event.user_id),
+  ]);
+
+  // Webhooks + notification emails are best-effort — don't block the PNG response.
+  Promise.all([
+    supabase.from('profiles').select('email, notify_downloads').eq('id', event.user_id).single(),
+    supabase.from('events').select('name').eq('id', eventId).single(),
   ])
-    .then(async () => {
-      // Fire webhooks + notification emails after DB writes complete
-      const { data: owner } = await supabase
-        .from('profiles')
-        .select('email, notify_downloads')
-        .eq('id', event.user_id)
-        .single();
-
-      const { data: eventRow } = await supabase
-        .from('events')
-        .select('name')
-        .eq('id', eventId)
-        .single();
-
-      await Promise.allSettled([
+    .then(([{ data: owner }, { data: eventRow }]) =>
+      Promise.allSettled([
         fireWebhooks(event.user_id, 'card.generated', {
           event_id: eventId,
           attendee_name: attendeeName,
@@ -235,8 +274,8 @@ export async function POST(req: NextRequest) {
           downloadCount: newDownloadCount,
           notifyEnabled: owner?.notify_downloads ?? true,
         }),
-      ]);
-    })
+      ]),
+    )
     .catch(() => { /* non-critical */ });
 
   return new Response(outputBuffer as unknown as BodyInit, {

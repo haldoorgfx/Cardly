@@ -108,32 +108,40 @@ export default async function AnalyticsPage() {
   }).length;
   const cardGrowth = prev30Cards > 0 ? ((last30Cards - prev30Cards) / prev30Cards) * 100 : (last30Cards > 0 ? 100 : 0);
 
-  const kpis: { label: string; value: string; delta: string; positive: boolean; icon: React.ReactNode }[] = [
+  // Only "Cards generated" has a real period-over-period delta (we store created_at
+  // per card). Views/downloads/conversion are stored as running totals with no
+  // historical snapshots, so we show an honest "all-time" subtitle instead of a
+  // fabricated percentage.
+  const kpis: { label: string; value: string; delta: string | null; sub: string; positive: boolean; icon: React.ReactNode }[] = [
     {
       label: 'Page views',
       value: fmtNum(totalViews),
-      delta: '+18.4%',
+      delta: null,
+      sub: 'all-time',
       positive: true,
       icon: <Eye size={13} strokeWidth={1.8} color="#1F4D3A" />,
     },
     {
       label: 'Cards generated',
       value: fmtNum(totalCards),
-      delta: cardGrowth >= 0 ? `+${cardGrowth.toFixed(1)}%` : `${cardGrowth.toFixed(1)}%`,
+      delta: totalCards > 0 ? (cardGrowth >= 0 ? `+${cardGrowth.toFixed(1)}%` : `${cardGrowth.toFixed(1)}%`) : null,
+      sub: 'vs prev 30 days',
       positive: cardGrowth >= 0,
       icon: <LayoutGrid size={13} strokeWidth={1.8} color="#1F4D3A" />,
     },
     {
       label: 'Downloads',
       value: fmtNum(totalDownloads),
-      delta: '+31.7%',
+      delta: null,
+      sub: 'all-time',
       positive: true,
       icon: <DownloadIcon size={13} strokeWidth={1.8} color="#1F4D3A" />,
     },
     {
       label: 'Conversion',
       value: `${conversionPct.toFixed(1)}%`,
-      delta: '+3.2pp',
+      delta: null,
+      sub: 'views → downloads',
       positive: true,
       icon: <CheckCircle2 size={13} strokeWidth={1.8} color="#1F4D3A" />,
     },
@@ -144,18 +152,6 @@ export default async function AnalyticsPage() {
     border: '1px solid #E5E0D4',
     borderRadius: 16,
     boxShadow: '0 1px 2px rgba(15,31,24,0.04)',
-  };
-
-  const selectStyle = {
-    height: 32,
-    padding: '0 10px',
-    fontSize: 13,
-    border: '1px solid #E5E0D4',
-    borderRadius: 8,
-    background: 'white',
-    color: '#3A4A42',
-    outline: 'none',
-    cursor: 'pointer',
   };
 
   return (
@@ -185,22 +181,14 @@ export default async function AnalyticsPage() {
               <p className="text-[13px] text-[#6B7A72] mt-1">Performance across all events.</p>
             </div>
             <div className="flex items-center gap-2">
-              <select style={selectStyle}>
-                <option>All events</option>
-                {allEvents.map(e => <option key={e.id}>{e.name}</option>)}
-              </select>
-              <select style={selectStyle}>
-                <option>Last 30 days</option>
-                <option>Last 7 days</option>
-                <option>This year</option>
-              </select>
-              <button
+              <a
+                href="/api/export-data"
                 className="h-8 px-3 text-[13px] rounded-lg inline-flex items-center gap-2 transition hover:opacity-80"
                 style={{ border: '1px solid #E5E0D4', background: 'white', color: '#3A4A42' }}
               >
                 <DownloadIcon size={13} strokeWidth={2} />
-                Export CSV
-              </button>
+                Export data
+              </a>
             </div>
           </div>
         </div>
@@ -223,9 +211,11 @@ export default async function AnalyticsPage() {
                 </div>
               </div>
               <div className="text-[28px] font-display font-bold text-[#0F1F18] leading-none">{k.value}</div>
-              <div className={`mt-2 text-[11.5px] font-mono font-medium flex items-center gap-1 ${k.positive ? 'text-emerald-600' : 'text-rose-500'}`}>
-                <span>{k.positive ? '↑' : '↓'} {k.delta}</span>
-                <span className="text-[#6B7A72]/60 font-normal">vs prev period</span>
+              <div className="mt-2 text-[11.5px] font-mono font-medium flex items-center gap-1">
+                {k.delta && (
+                  <span className={k.positive ? 'text-emerald-600' : 'text-rose-500'}>{k.positive ? '↑' : '↓'} {k.delta}</span>
+                )}
+                <span className="text-[#6B7A72]/60 font-normal">{k.sub}</span>
               </div>
             </div>
           ))}
@@ -240,7 +230,7 @@ export default async function AnalyticsPage() {
             </div>
             <div className="flex items-center gap-5">
               <span className="flex items-center gap-2 text-[12px] text-[#3A4A42]">
-                <span className="h-2.5 w-5 rounded-full inline-block" style={{ background: '#1F4D3A' }} /> Views
+                <span className="h-2.5 w-5 rounded-full inline-block" style={{ background: '#1F4D3A' }} /> Views <span className="text-[#6B7A72]/60">(est.)</span>
               </span>
               <span className="flex items-center gap-2 text-[12px] text-[#3A4A42]">
                 <span className="h-2.5 w-5 rounded-full inline-block" style={{ background: '#E8C57E' }} /> Downloads
@@ -366,7 +356,10 @@ export default async function AnalyticsPage() {
 
           {/* Devices donut */}
           <div style={cardStyle} className="p-6">
-            <div className="text-[11px] font-mono text-[#6B7A72]/60 uppercase tracking-widest mb-1">Devices</div>
+            <div className="flex items-center justify-between mb-1">
+              <div className="text-[11px] font-mono text-[#6B7A72]/60 uppercase tracking-widest">Devices</div>
+              <span className="text-[9px] font-mono tracking-widest uppercase px-1.5 py-0.5 rounded" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#6B7A72' }}>Sample</span>
+            </div>
             <div className="font-display font-semibold text-[15px] text-[#0F1F18] mb-5">Mobile-first audience</div>
             <div className="flex items-center justify-center mb-5">
               <svg width="140" height="140" viewBox="0 0 42 42">
@@ -395,7 +388,10 @@ export default async function AnalyticsPage() {
 
           {/* Traffic sources */}
           <div style={cardStyle} className="p-6">
-            <div className="text-[11px] font-mono text-[#6B7A72]/60 uppercase tracking-widest mb-1">Traffic sources</div>
+            <div className="flex items-center justify-between mb-1">
+              <div className="text-[11px] font-mono text-[#6B7A72]/60 uppercase tracking-widest">Traffic sources</div>
+              <span className="text-[9px] font-mono tracking-widest uppercase px-1.5 py-0.5 rounded" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#6B7A72' }}>Sample</span>
+            </div>
             <div className="font-display font-semibold text-[15px] text-[#0F1F18] mb-5">Where they come from</div>
             <div className="space-y-3.5">
               {[

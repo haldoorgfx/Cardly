@@ -33,6 +33,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (key in body) patch[key] = body[key];
   }
 
+  // Normalize slug if provided
+  if (typeof patch.slug === 'string') {
+    const normalized = patch.slug
+      .toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').slice(0, 60);
+    if (!normalized) return NextResponse.json({ error: 'Invalid slug' }, { status: 400 });
+    patch.slug = normalized;
+  }
+
   const admin = createAdminClient();
   const { data, error } = await admin
     .from('events')
@@ -43,7 +51,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    // Unique slug collision
+    if (error.code === '23505') return NextResponse.json({ error: 'That slug is already taken' }, { status: 409 });
+    // No row updated (not found / not owned)
+    if (error.code === 'PGRST116') return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
   return NextResponse.json(data);
 }
 

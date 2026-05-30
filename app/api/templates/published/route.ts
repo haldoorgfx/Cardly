@@ -1,39 +1,24 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-import { createAdminClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
 
-const PLAN_ORDER: Record<string, number> = { free: 0, pro: 1, studio: 2 };
-
-// GET /api/templates/published — returns DB-backed templates the current user can access
-// Authenticated; filters by user's plan tier.
+/**
+ * GET /api/templates/published
+ * Returns admin-managed templates that have been published, for the
+ * "Platform templates" section of the user-facing /templates page.
+ */
 export async function GET() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ templates: [] });
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('plan')
-    .eq('id', user.id)
-    .single();
-
-  const userPlanLevel = PLAN_ORDER[profile?.plan ?? 'free'] ?? 0;
-
-  const adminClient = createAdminClient();
-  const { data: templates, error } = await adminClient
+  const admin = createAdminClient();
+  const { data, error } = await admin
     .from('templates')
     .select('id, name, category, thumbnail_url, min_plan, featured')
     .eq('published', true)
     .order('featured', { ascending: false })
     .order('created_at', { ascending: false });
 
-  if (error || !templates) return NextResponse.json({ templates: [] });
-
-  // Filter by min_plan access
-  const accessible = templates.filter(t => {
-    const needed = PLAN_ORDER[t.min_plan] ?? 0;
-    return userPlanLevel >= needed;
-  });
-
-  return NextResponse.json({ templates: accessible });
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ templates: data ?? [] });
 }

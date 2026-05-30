@@ -52,7 +52,7 @@ export default function BrandKitPage() {
       .then(data => {
         if (data.primaryColor) setPrimaryColor(data.primaryColor);
         if (data.secondaryColor) setSecondaryColor(data.secondaryColor);
-        if (typeof data.fontPair === 'number') setSelectedPair(data.fontPair);
+        if (typeof data.fontPair === 'number' && data.fontPair >= 0 && data.fontPair < TYPE_PAIRS.length) setSelectedPair(data.fontPair);
         if (data.footerText) setFooterText(data.footerText);
         if (data.logos) setLogos(data.logos);
       })
