@@ -19,6 +19,8 @@ export async function GET() {
     .order('featured', { ascending: false })
     .order('created_at', { ascending: false });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  // Degrade gracefully — a transient schema-cache miss or empty table should
+  // never break the user-facing templates grid (it has its own built-in set).
+  if (error) return NextResponse.json({ templates: [] });
   return NextResponse.json({ templates: data ?? [] });
 }
