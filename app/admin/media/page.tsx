@@ -3,7 +3,7 @@ import { CONTENT_EDIT } from '@/lib/auth/permissions';
 import { listMedia } from '@/lib/cms/queries';
 import { MediaLibraryClient } from './MediaLibraryClient';
 
-export const metadata = { title: 'Media Library — Cardly Admin' };
+export const metadata = { title: 'Media Library — Karta Admin' };
 export const dynamic = 'force-dynamic';
 
 const PAGE_SIZE = 48;
