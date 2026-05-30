@@ -97,6 +97,17 @@ export function MarketingFooter() {
           <div style={{ color: 'rgba(250,246,238,0.55)' }} className="text-[13px]">
             © 2026 Karta. Built with care for organizers everywhere.
           </div>
+          <Link
+            href="/status"
+            className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.22em] uppercase px-3 py-1.5 rounded-full transition-colors hover:bg-[rgba(250,246,238,0.1)]"
+            style={{ color: 'rgba(250,246,238,0.75)', background: 'rgba(250,246,238,0.05)', border: '1px solid rgba(250,246,238,0.15)' }}
+          >
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full rounded-full opacity-75 animate-ping" style={{ background: '#2D7A4F' }} />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full" style={{ background: '#2D7A4F' }} />
+            </span>
+            All systems operational
+          </Link>
         </div>
       </div>
     </footer>
