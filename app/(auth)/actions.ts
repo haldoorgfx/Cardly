@@ -13,7 +13,14 @@ export async function signIn(formData: FormData) {
   });
 
   if (error) {
-    return { error: error.message };
+    // Map technical Supabase codes to human copy
+    const msgMap: Record<string, string> = {
+      'Invalid login credentials':    'Incorrect email or password.',
+      'Email not confirmed':          'Please confirm your email address before signing in.',
+      'Too many requests':            'Too many attempts. Please wait a minute and try again.',
+    };
+    const human = msgMap[error.message] ?? error.message;
+    return { error: human };
   }
 
   revalidatePath("/", "layout");

@@ -157,7 +157,7 @@ export default function SettingsClient({ profile, userId }: Props) {
       .from('avatars')
       .upload(path, file, { upsert: true, contentType: file.type });
     if (uploadError) {
-      showBanner('error', 'Avatar upload failed: ' + uploadError.message);
+      showBanner('error', 'Photo upload failed. Please try a different image (JPG or PNG, under 5 MB).');
       setAvatarUploading(false);
       return;
     }

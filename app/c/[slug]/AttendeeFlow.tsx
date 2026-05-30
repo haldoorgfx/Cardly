@@ -160,7 +160,13 @@ export default function AttendeeFlow({
       const res = await fetch('/api/render', { method: 'POST', body: fd });
       if (!res.ok) {
         const d = await res.json().catch(() => ({}));
-        throw new Error(d.error ?? 'Generation failed');
+        // Map machine error codes to human copy
+        const errorMap: Record<string, string> = {
+          CARD_LIMIT_REACHED: "This event has reached its card limit for the month. Please contact the organiser.",
+          RENDER_FAILED:      "We couldn't generate your card right now. Please try again in a moment.",
+          PLAN_LIMIT:         "This event has reached its limit. Please contact the organiser.",
+        };
+        throw new Error(errorMap[d.error] ?? d.detail ?? 'Something went wrong. Please try again.');
       }
       const blob = await res.blob();
       setResultUrl(URL.createObjectURL(blob));
