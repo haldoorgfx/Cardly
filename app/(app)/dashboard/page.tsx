@@ -6,8 +6,7 @@ import Link from 'next/link';
 import DashboardContent from './DashboardContent';
 import React from 'react';
 import { Upload, Maximize2, Link2, TrendingUp, Download, Eye, Zap } from 'lucide-react';
-
-const PLAN_LIMITS: Record<string, number> = { free: 1, pro: 10, studio: Infinity };
+import { PLANS, type Plan } from '@/lib/billing/plans';
 
 export default async function DashboardPage() {
   const supabase = createClient();
@@ -22,10 +21,14 @@ export default async function DashboardPage() {
 
   const allEvents = events ?? [];
   const isEmpty = allEvents.length === 0;
-  const plan = profile?.plan ?? 'free';
-  const limit = PLAN_LIMITS[plan] ?? 1;
+  const plan = (profile?.plan ?? 'free') as Plan;
+  const planName = plan.charAt(0).toUpperCase() + plan.slice(1);
+  // Canonical limits from billing config — events: null means UNLIMITED.
+  // Note: read .events off the resolved plan config; don't `?? free` the value
+  // itself, or a legitimate null (unlimited) would collapse to the free limit.
+  const limit = (PLANS[plan] ?? PLANS.free).events;
   const nonArchivedCount = allEvents.filter(e => e.status !== 'archived').length;
-  const atLimit = limit !== Infinity && nonArchivedCount >= limit;
+  const atLimit = limit !== null && nonArchivedCount >= limit;
 
   const activeCount = allEvents.filter(e => e.status === 'published').length;
   const draftCount = allEvents.filter(e => e.status === 'draft').length;
@@ -190,43 +193,42 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* ── Stat cards ── */}
-      <div className="px-6 lg:px-8 pb-6">
+      {/* ── Slim metric strip (glanceable, doesn't bury the events) ── */}
+      <div className="px-6 lg:px-8 pb-5">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {stats.map(stat => (
             <div
               key={stat.label}
-              className="bg-white rounded-2xl p-5"
+              className="bg-white rounded-xl flex items-center gap-3 px-4 py-3"
               style={{ border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}
             >
-              <div className="flex items-center justify-between mb-3">
-                <div className="text-[11px] font-mono tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>{stat.label}</div>
-                <div className="h-7 w-7 rounded-lg grid place-items-center" style={{ background: stat.bg, color: stat.color }}>
-                  {stat.icon}
+              <div className="h-9 w-9 rounded-lg grid place-items-center shrink-0" style={{ background: stat.bg, color: stat.color }}>
+                {stat.icon}
+              </div>
+              <div className="min-w-0">
+                <div className="font-display font-bold text-[20px] leading-none tracking-tight" style={{ color: stat.color === '#1F4D3A' ? '#0F1F18' : stat.color }}>
+                  {stat.value}
                 </div>
+                <div className="text-[11px] mt-1 truncate" style={{ color: '#6B7A72' }}>{stat.label}</div>
               </div>
-              <div className="font-display font-bold text-[28px] leading-none tracking-tight" style={{ color: stat.color === '#1F4D3A' ? '#0F1F18' : stat.color }}>
-                {stat.value}
-              </div>
-              <div className="text-[12px] mt-1.5" style={{ color: '#6B7A72' }}>{stat.sub}</div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* ── Plan limit warning ── */}
+      {/* ── Plan limit warning (only when genuinely at the plan's limit) ── */}
       {atLimit && (
         <div className="mx-6 lg:mx-8 mb-4 flex items-center gap-2 text-[13px] text-amber-700 bg-amber-50 border border-amber-200 px-4 py-2.5 rounded-xl">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
             <line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
           </svg>
-          You&apos;ve reached the {limit}-event limit on the Free plan.
+          You&apos;ve reached the {limit}-event limit on the {planName} plan.
           <Link href="/pricing" className="ml-auto font-semibold text-[#1F4D3A] hover:underline">Upgrade →</Link>
         </div>
       )}
 
-      {/* ── Events section ── */}
+      {/* ── Events section (the hero of the dashboard) ── */}
       <div className="px-6 lg:px-8 pb-8">
         <div className="flex items-center justify-between mb-4">
           <div>

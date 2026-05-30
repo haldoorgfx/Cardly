@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef, useCallback, createContext, useCont
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { PLANS } from '@/lib/billing/plans';
 import {
   LayoutGrid, TrendingUp, LayoutTemplate, Palette,
   Settings2, Users, LogOut, Menu, Search, Plus, ChevronRight, CreditCard,
@@ -33,7 +34,13 @@ type EventResult = {
   slug: string;
 };
 
-const PLAN_LIMITS: Record<string, number> = { free: 1, pro: Infinity, studio: Infinity };
+// Derived from the canonical billing config (events: null = unlimited) so the
+// sidebar limit can never drift from the real plan limits.
+const PLAN_LIMITS: Record<string, number> = {
+  free:   PLANS.free.events   ?? Infinity,
+  pro:    PLANS.pro.events    ?? Infinity,
+  studio: PLANS.studio.events ?? Infinity,
+};
 
 // ─── User nav ─────────────────────────────────────────────────────────────────
 
