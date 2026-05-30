@@ -3,7 +3,6 @@ export const dynamic = 'force-dynamic';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import PublishClient from './PublishClient';
-import type { Zone } from '@/types/database';
 
 export default async function PublishPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -45,7 +44,9 @@ export default async function PublishPage({ params }: { params: Promise<{ id: st
     return sum + (Array.isArray(v.zones) ? (v.zones as unknown[]).length : 0);
   }, 0) ?? 0;
 
-  const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/c/${slug}`;
+  // Trim trailing slash so NEXT_PUBLIC_APP_URL=https://karta.cre8so.com/ doesn't produce a double //
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000').replace(/\/+$/, '');
+  const shareUrl = `${appUrl}/c/${slug}`;
 
   return (
     <PublishClient
@@ -55,7 +56,6 @@ export default async function PublishPage({ params }: { params: Promise<{ id: st
       slug={slug}
       zonesCount={zonesCount}
       backgroundUrl={firstVariant?.background_url ?? ''}
-      zones={(firstVariant?.zones as unknown as Zone[]) ?? []}
       bgW={firstVariant?.background_width ?? 1080}
       bgH={firstVariant?.background_height ?? 1350}
     />

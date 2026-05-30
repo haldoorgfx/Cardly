@@ -23,6 +23,14 @@ interface Props {
 export default function ArrivalScreen({
   eventName, backgroundUrl, backgroundWidth, backgroundHeight, zones, onStart,
 }: Props) {
+  // Pre-fill the arrival preview with zone placeholder values so the card looks
+  // filled and real rather than showing raw zone outlines.
+  const demoValues = Object.fromEntries(
+    zones
+      .filter(z => (z.type === 'text' || z.type === 'custom') && !z.hidden)
+      .map(z => [z.id, z.placeholder ?? z.label ?? '']),
+  );
+
   return (
     <div
       className="relative min-h-screen overflow-hidden"
@@ -58,7 +66,7 @@ export default function ArrivalScreen({
               backgroundWidth={backgroundWidth}
               backgroundHeight={backgroundHeight}
               zones={zones}
-              values={{}}
+              values={demoValues}
               photoUrls={{}}
               style={{
                 borderRadius: 18,

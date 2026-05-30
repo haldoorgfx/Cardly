@@ -3,8 +3,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import QRCode from 'qrcode';
-import CardPreviewClient from '../CardPreviewClient';
-import type { Zone } from '@/types/database';
 
 /* ── Design tokens ─────────────────────────────────────────────── */
 const PT = {
@@ -91,50 +89,6 @@ const Brand = {
   ),
 };
 
-/* ── Generative QR display (decorative — real QR downloaded via library) ── */
-function QRMark({ size = 196 }: { size?: number }) {
-  const N = 25;
-  const data: boolean[] = [];
-  for (let i = 0; i < N * N; i++) {
-    const x = i % N, y = (i / N) | 0;
-    const finder = (x < 7 && y < 7) || (x > N - 8 && y < 7) || (x < 7 && y > N - 8);
-    if (finder) {
-      const inFinder = ((x === 0 || x === 6) && y >= 0 && y <= 6)
-        || ((x >= 0 && x <= 6) && (y === 0 || y === 6))
-        || ((x === N - 7 || x === N - 1) && y >= 0 && y <= 6)
-        || ((x >= N - 7 && x <= N - 1) && (y === 0 || y === 6))
-        || ((x === 0 || x === 6) && y >= N - 7 && y <= N - 1)
-        || ((x >= 0 && x <= 6) && (y === N - 7 || y === N - 1));
-      const center = (x >= 2 && x <= 4 && y >= 2 && y <= 4)
-        || (x >= N - 5 && x <= N - 3 && y >= 2 && y <= 4)
-        || (x >= 2 && x <= 4 && y >= N - 5 && y <= N - 3);
-      data.push(inFinder || center);
-      continue;
-    }
-    const v = (Math.sin(x * 13.7 + y * 7.31) * 10000) % 1;
-    data.push(Math.abs(v) > 0.55);
-  }
-  const cell = size / N;
-  return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      <rect width={size} height={size} fill={PT.surface} />
-      {data.map((on, i) => on ? (
-        <rect key={i}
-          x={(i % N) * cell} y={((i / N) | 0) * cell}
-          width={cell + 0.4} height={cell + 0.4}
-          fill={PT.ink} rx={cell * 0.18} />
-      ) : null)}
-      <g transform={`translate(${size / 2 - 16}, ${size / 2 - 16})`}>
-        <rect x="-6" y="-6" width="44" height="44" rx="8" fill={PT.surface} />
-        <rect x="0" y="0" width="32" height="32" rx="8" fill={PT.primary} />
-        <text x="16" y="22" textAnchor="middle"
-          fontFamily="DM Sans, sans-serif" fontWeight="700" fontSize="14"
-          fill={PT.accent}>cl</text>
-      </g>
-    </svg>
-  );
-}
-
 /* ── PreviewArt (fallback when no backgroundUrl) ─────────────── */
 function PreviewArt() {
   return (
@@ -212,7 +166,6 @@ interface Props {
   slug: string;
   zonesCount: number;
   backgroundUrl: string;
-  zones: Zone[];
   bgW: number;
   bgH: number;
 }
@@ -220,19 +173,23 @@ interface Props {
 /* ── Main component ────────────────────────────────────────────── */
 export default function PublishClient({
   eventId, eventName, shareUrl, slug,
-  zonesCount, backgroundUrl, zones, bgW, bgH,
+  zonesCount, backgroundUrl, bgW, bgH,
 }: Props) {
   const [copied, setCopied] = useState(false);
   const [captionCopied, setCaptionCopied] = useState(false);
   const [embedCopied, setEmbedCopied] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState('');
+  const [qrSvgString, setQrSvgString] = useState('');
   const [activeSize, setActiveSize] = useState<'mobile' | 'tablet' | 'custom'>('mobile');
 
   useEffect(() => {
-    QRCode.toDataURL(shareUrl, {
-      width: 1024, margin: 2,
-      color: { dark: '#0F1F18', light: '#ffffff' },
-    }).then(setQrDataUrl);
+    Promise.all([
+      QRCode.toDataURL(shareUrl, { width: 1024, margin: 2, color: { dark: '#0F1F18', light: '#ffffff' } }),
+      QRCode.toString(shareUrl, { type: 'svg', margin: 2, color: { dark: '#0F1F18', light: '#ffffff' } } as Parameters<typeof QRCode.toString>[1]),
+    ]).then(([dataUrl, svgStr]) => {
+      setQrDataUrl(dataUrl);
+      setQrSvgString(svgStr);
+    });
   }, [shareUrl]);
 
   const caption = `Get your personalized card for ${eventName} — just add your name and photo. 30 seconds.`;
@@ -263,6 +220,17 @@ export default function PublishClient({
     a.download = `karta-qr-${slug}.png`;
     a.click();
   }, [qrDataUrl, slug]);
+
+  const handleDownloadSVG = useCallback(() => {
+    if (!qrSvgString) return;
+    const blob = new Blob([qrSvgString], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `karta-qr-${slug}.svg`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [qrSvgString, slug]);
 
   const embedSizes = {
     mobile: { w: 375, h: 812 },
@@ -337,9 +305,9 @@ export default function PublishClient({
       </div>
 
       {/* ── Main scroll area ──────────────────────────────────────── */}
-      <div style={{
+      <div className="px-4 sm:px-8" style={{
         maxWidth: 1100, width: '100%', margin: '0 auto',
-        padding: '8px 32px 48px',
+        paddingTop: 8, paddingBottom: 48,
         display: 'flex', flexDirection: 'column', gap: 20,
       }}>
 
@@ -428,7 +396,7 @@ export default function PublishClient({
         </div>
 
         {/* ── Share + QR row ───────────────────────────────────────── */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 20 }}>
+        <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
 
           {/* Share link panel */}
           <Panel label="Share link" action={
@@ -552,12 +520,42 @@ export default function PublishClient({
               <span>1024 × 1024</span>
             </span>
           }>
+            {/* Real QR code with brand logo in center */}
             <div style={{ display: 'flex', justifyContent: 'center', padding: '6px 0 10px' }}>
               <div style={{
                 padding: 14, background: PT.surface,
                 border: `1px solid ${PT.border}`, borderRadius: 12,
+                position: 'relative', display: 'inline-flex',
               }}>
-                <QRMark size={196} />
+                {qrDataUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={qrDataUrl} alt="QR code" width={192} height={192} style={{ display: 'block', borderRadius: 4 }} />
+                ) : (
+                  <div style={{
+                    width: 192, height: 192, borderRadius: 4,
+                    background: '#F0EDE8', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: PT.muted }}>generating…</span>
+                  </div>
+                )}
+                {/* Brand logo overlay — always visible */}
+                <div style={{
+                  position: 'absolute', left: '50%', top: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: 44, height: 44,
+                  background: PT.surface, borderRadius: 10,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  boxShadow: `0 0 0 4px ${PT.surface}`,
+                }}>
+                  <div style={{
+                    width: 34, height: 34,
+                    background: PT.primary, borderRadius: 8,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 16,
+                    color: PT.accent, letterSpacing: '-0.02em',
+                    boxShadow: '0 2px 8px rgba(31,77,58,0.35)',
+                  }}>K</div>
+                </div>
               </div>
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
@@ -577,15 +575,15 @@ export default function PublishClient({
                 <span>Download PNG</span>
               </button>
               <button
-                onClick={handleDownloadQR}
-                disabled={!qrDataUrl}
+                onClick={handleDownloadSVG}
+                disabled={!qrSvgString}
                 style={{
                   height: 40, padding: '0 14px',
                   background: PT.surface, color: PT.ink,
                   border: `1px solid ${PT.border}`, borderRadius: 6,
                   fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13,
                   display: 'inline-flex', alignItems: 'center', gap: 6,
-                  cursor: qrDataUrl ? 'pointer' : 'not-allowed', opacity: qrDataUrl ? 1 : 0.5,
+                  cursor: qrSvgString ? 'pointer' : 'not-allowed', opacity: qrSvgString ? 1 : 0.5,
                 }}
               >
                 <span>SVG</span>
@@ -675,7 +673,7 @@ export default function PublishClient({
         </Panel>
 
         {/* ── Preview + Next steps row ──────────────────────────────── */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: 20 }}>
+        <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
 
           {/* Attendee preview panel */}
           <Panel label="Attendee preview" action={
@@ -698,30 +696,78 @@ export default function PublishClient({
             <div style={{
               background: PT.cream, border: `1px solid ${PT.border}`,
               borderRadius: 10, padding: '20px 16px',
-              display: 'flex', justifyContent: 'center',
+              display: 'flex', justifyContent: 'center', alignItems: 'flex-start',
             }}>
-              {/* Phone frame */}
+              {/* Phone frame — screen is sized to the card's exact aspect ratio so
+                  there is never any white space below the card. */}
               <div style={{
-                width: 156, height: 280,
-                background: PT.ink, borderRadius: 18, padding: 6,
-                boxShadow: '0 12px 32px rgba(15,31,24,0.16)',
+                width: 158,
+                background: '#0F1218',
+                borderRadius: 24, padding: '0 5px',
+                boxShadow: '0 16px 48px rgba(15,31,24,0.28), inset 0 0 0 1px rgba(255,255,255,0.06)',
+                display: 'flex', flexDirection: 'column',
               }}>
+                {/* Status bar chrome */}
                 <div style={{
-                  width: '100%', height: '100%',
-                  borderRadius: 13, overflow: 'hidden',
-                  position: 'relative', background: PT.cream,
+                  height: 28, display: 'flex', alignItems: 'center',
+                  justifyContent: 'space-between', padding: '0 14px',
+                }}>
+                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.8)', letterSpacing: '0.01em' }}>9:41</span>
+                  <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                    {/* Signal bars */}
+                    {[3, 4, 5, 6].map((h, i) => (
+                      <div key={i} style={{ width: 2.5, height: h, borderRadius: 1, background: i < 3 ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.3)' }} />
+                    ))}
+                    {/* WiFi */}
+                    <svg width="12" height="9" viewBox="0 0 12 9" fill="none" style={{ marginLeft: 2 }}>
+                      <path d="M6 7.5a1 1 0 1 0 0 2 1 1 0 0 0 0-2z" fill="rgba(255,255,255,0.85)" />
+                      <path d="M2.5 5C3.8 3.8 5 3.2 6 3.2c1 0 2.2.6 3.5 1.8" stroke="rgba(255,255,255,0.75)" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+                      <path d="M.5 2.8C2.2 1.1 4 .2 6 .2s3.8.9 5.5 2.6" stroke="rgba(255,255,255,0.45)" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+                    </svg>
+                    {/* Battery */}
+                    <div style={{ display: 'flex', alignItems: 'center', marginLeft: 2 }}>
+                      <div style={{ width: 18, height: 9, borderRadius: 2.5, border: '1.5px solid rgba(255,255,255,0.6)', position: 'relative', overflow: 'hidden' }}>
+                        <div style={{ position: 'absolute', left: 1.5, top: 1.5, bottom: 1.5, width: '80%', background: 'rgba(255,255,255,0.85)', borderRadius: 1 }} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card screen — aspect ratio matches the card exactly, no white gaps */}
+                <div style={{
+                  width: '100%',
+                  aspectRatio: `${bgW} / ${bgH}`,
+                  borderRadius: 6, overflow: 'hidden',
+                  position: 'relative', background: '#000',
                 }}>
                   {backgroundUrl ? (
-                    <CardPreviewClient
-                      backgroundUrl={backgroundUrl}
-                      bgW={bgW} bgH={bgH}
-                      zones={zones}
-                      eventName={eventName}
-                      maxHeight={268}
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={backgroundUrl}
+                      alt={eventName}
+                      style={{ width: '100%', height: '100%', objectFit: 'fill', display: 'block' }}
                     />
                   ) : (
                     <PreviewArt />
                   )}
+                </div>
+
+                {/* Arrival screen CTA bar — shows what the attendee sees below the card */}
+                <div style={{
+                  background: PT.primary,
+                  padding: '10px 12px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                  borderRadius: '0 0 0 0',
+                }}>
+                  <span style={{
+                    fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 10,
+                    color: '#FAF6EE', letterSpacing: '-0.01em',
+                  }}>Create my card  →</span>
+                </div>
+
+                {/* Home indicator */}
+                <div style={{ height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ width: 44, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.25)' }} />
                 </div>
               </div>
             </div>
