@@ -59,8 +59,6 @@ export async function POST(req: NextRequest) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      // Trusted internal header — the render route reads this to bypass cookie auth
-      'X-Internal-User-Id': userId,
     },
     body,
   });

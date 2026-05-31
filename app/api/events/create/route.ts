@@ -34,6 +34,14 @@ export async function POST(req: NextRequest) {
 
   if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 });
 
+  const ALLOWED_TYPES = ['image/jpeg', 'image/png'];
+  if (!ALLOWED_TYPES.includes(file.type)) {
+    return NextResponse.json({ error: 'Only JPEG and PNG files are allowed' }, { status: 400 });
+  }
+  if (file.size > 20 * 1024 * 1024) {
+    return NextResponse.json({ error: 'File is too large. Maximum size is 20 MB' }, { status: 400 });
+  }
+
   const ext = file.type === 'image/png' ? 'png' : 'jpg';
   const path = `${user.id}/${Date.now()}.${ext}`;
 
@@ -108,7 +116,12 @@ export async function POST(req: NextRequest) {
       position: 0,
     });
 
-  if (variantError) return NextResponse.json({ error: variantError.message }, { status: 500 });
+  if (variantError) {
+    // Clean up orphaned storage file and event row before returning the error
+    try { await admin.storage.from('event-backgrounds').remove([path]); } catch { /* best-effort */ }
+    try { await admin.from('events').delete().eq('id', event.id); } catch { /* best-effort */ }
+    return NextResponse.json({ error: variantError.message }, { status: 500 });
+  }
 
   return NextResponse.json({ id: event.id, slug: event.slug });
 }

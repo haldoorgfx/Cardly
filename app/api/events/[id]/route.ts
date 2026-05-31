@@ -61,6 +61,12 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   return NextResponse.json(data);
 }
 
+function extractStoragePath(publicUrl: string, bucket: string): string | null {
+  const marker = `/${bucket}/`;
+  const idx = publicUrl.indexOf(marker);
+  return idx >= 0 ? publicUrl.slice(idx + marker.length) : null;
+}
+
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = createClient();
@@ -68,6 +74,13 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const admin = createAdminClient();
+
+  // Collect all storage paths before deleting the event
+  const { data: variants } = await admin
+    .from('event_variants')
+    .select('background_url')
+    .eq('event_id', id);
+
   const { error } = await admin
     .from('events')
     .delete()
@@ -75,5 +88,16 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     .eq('user_id', user.id);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Best-effort: remove background files from storage (don't block response on failure)
+  if (variants && variants.length > 0) {
+    const paths = variants
+      .map(v => v.background_url ? extractStoragePath(v.background_url, 'event-backgrounds') : null)
+      .filter((p): p is string => p !== null);
+    if (paths.length > 0) {
+      try { await admin.storage.from('event-backgrounds').remove(paths); } catch { /* best-effort */ }
+    }
+  }
+
   return NextResponse.json({ ok: true });
 }

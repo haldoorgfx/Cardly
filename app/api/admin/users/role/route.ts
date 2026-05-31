@@ -56,6 +56,14 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
 
+  // Non-super_admin cannot change the role of another admin or super_admin
+  if (user.role !== 'super_admin' && (before.role === 'admin' || before.role === 'super_admin')) {
+    return NextResponse.json(
+      { error: `Only a super_admin can change the role of a ${before.role}` },
+      { status: 403 }
+    );
+  }
+
   // Apply the change
   const { data: after, error } = await adminClient
     .from('profiles')

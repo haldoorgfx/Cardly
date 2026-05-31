@@ -82,6 +82,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   if (!file) return NextResponse.json({ error: 'background file is required' }, { status: 400 });
 
+  const ALLOWED_TYPES = ['image/jpeg', 'image/png'];
+  if (!ALLOWED_TYPES.includes(file.type)) {
+    return NextResponse.json({ error: 'Only JPEG and PNG files are allowed' }, { status: 400 });
+  }
+  if (file.size > 20 * 1024 * 1024) {
+    return NextResponse.json({ error: 'File is too large. Maximum size is 20 MB' }, { status: 400 });
+  }
+
   // Generate a slug from the variant name
   const variantSlug = variantName
     .toLowerCase()
@@ -158,6 +166,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     .select()
     .single();
 
-  if (dbError) return NextResponse.json({ error: dbError.message }, { status: 500 });
+  if (dbError) {
+    try { await admin.storage.from('event-backgrounds').remove([path]); } catch { /* best-effort */ }
+    return NextResponse.json({ error: dbError.message }, { status: 500 });
+  }
   return NextResponse.json(variant);
 }

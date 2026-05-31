@@ -4,6 +4,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { getSessionUser } from '@/lib/auth/guards';
 import { IMPERSONATE } from '@/lib/auth/permissions';
 import { ROLE_PERMISSIONS } from '@/lib/auth/permissions';
+import { logAudit } from '@/lib/audit/log';
 
 function canImpersonate(role: string): boolean {
   return (ROLE_PERMISSIONS[role as keyof typeof ROLE_PERMISSIONS] ?? []).includes(IMPERSONATE);
@@ -73,6 +74,10 @@ export async function POST(req: NextRequest) {
   const { data: target } = await db.from('profiles').select('id, full_name, email').eq('id', userId).single();
   if (!target) return NextResponse.json({ error: 'User not found.' }, { status: 404 });
 
+  await logAudit(sessionUser, 'impersonate.start', 'profile', userId, {
+    after: { target_email: target.email, target_name: target.full_name },
+  });
+
   const res = NextResponse.json({ ok: true });
   res.cookies.set('karta_impersonating', userId, {
     httpOnly: false, // readable by AppShell client-side
@@ -84,10 +89,16 @@ export async function POST(req: NextRequest) {
 }
 
 // DELETE /api/admin/impersonate — stop impersonating
-export async function DELETE() {
+export async function DELETE(req: NextRequest) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const sessionUser = await getSessionUser();
+  if (sessionUser) {
+    const targetId = req.cookies.get('karta_impersonating')?.value;
+    await logAudit(sessionUser, 'impersonate.stop', 'profile', targetId ?? undefined);
+  }
 
   const res = NextResponse.json({ ok: true });
   res.cookies.set('karta_impersonating', '', { path: '/', maxAge: 0 });

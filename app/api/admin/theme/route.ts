@@ -14,6 +14,44 @@ export async function GET() {
   return NextResponse.json(settings);
 }
 
+// Validate CSS values to prevent style-tag breakout (stored XSS)
+const COLOR_RE = /^#[0-9a-fA-F]{3,8}$/;
+const FONT_NAME_RE = /^[\w\s,'"-]+$/; // family names: letters, spaces, quotes, hyphens
+const GRADIENT_UNSAFE_RE = /[<>{}]/;  // characters that could break out of :root{...}
+
+function validateThemeColors(colors: unknown): string | null {
+  if (!colors || typeof colors !== 'object') return null;
+  const c = colors as Record<string, unknown>;
+  for (const [key, val] of Object.entries(c)) {
+    if (typeof val !== 'string' || !COLOR_RE.test(val)) {
+      return `Invalid color value for "${key}": must be a hex color (e.g. #1F4D3A)`;
+    }
+  }
+  return null;
+}
+
+function validateThemeFonts(fonts: unknown): string | null {
+  if (!fonts || typeof fonts !== 'object') return null;
+  const f = fonts as Record<string, unknown>;
+  for (const [key, val] of Object.entries(f)) {
+    if (typeof val !== 'string' || !FONT_NAME_RE.test(val)) {
+      return `Invalid font value for "${key}": only letters, spaces, quotes, and hyphens are allowed`;
+    }
+  }
+  return null;
+}
+
+function validateThemeGradients(gradients: unknown): string | null {
+  if (!gradients || typeof gradients !== 'object') return null;
+  const g = gradients as Record<string, unknown>;
+  for (const [key, val] of Object.entries(g)) {
+    if (typeof val !== 'string' || GRADIENT_UNSAFE_RE.test(val)) {
+      return `Invalid gradient value for "${key}": contains disallowed characters`;
+    }
+  }
+  return null;
+}
+
 // PATCH /api/admin/theme — update settings
 export async function PATCH(request: Request) {
   const result = await getAuthorizedUser(THEME_EDIT);
@@ -25,6 +63,20 @@ export async function PATCH(request: Request) {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+  }
+
+  // Validate CSS values before storing to prevent style-tag breakout
+  if ('colors' in body) {
+    const err = validateThemeColors(body.colors);
+    if (err) return NextResponse.json({ error: err }, { status: 400 });
+  }
+  if ('fonts' in body) {
+    const err = validateThemeFonts(body.fonts);
+    if (err) return NextResponse.json({ error: err }, { status: 400 });
+  }
+  if ('gradients' in body) {
+    const err = validateThemeGradients(body.gradients);
+    if (err) return NextResponse.json({ error: err }, { status: 400 });
   }
 
   // Read current state for audit diff
