@@ -6,7 +6,10 @@ import { LayoutGrid, List, Search, Plus } from 'lucide-react';
 import EventCard from './EventCard';
 import type { Database } from '@/types/database';
 
-type Event = Database['public']['Tables']['events']['Row'];
+type EventRow = Database['public']['Tables']['events']['Row'];
+type Event = Pick<EventRow, 'id' | 'name' | 'slug' | 'status' | 'view_count' | 'download_count' | 'updated_at'> & {
+  event_variants?: Array<{ id: string; background_url: string | null; zones: import('@/types/database').Json; position: number }> | null;
+};
 type Filter = 'all' | 'active' | 'draft' | 'archived';
 type SortKey = 'recent' | 'downloads' | 'views';
 

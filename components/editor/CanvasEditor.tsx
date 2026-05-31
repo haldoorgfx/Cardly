@@ -832,7 +832,20 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
 
     const DRAG_THRESHOLD_PX = 5; // must move this many px before it counts as a drag
 
+    let rafId: number | null = null;
+    let pendingEvent: PointerEvent | null = null;
+
+    // RAF-throttled wrapper — runs processMove at most once per animation frame
     const onMove = (e: PointerEvent) => {
+      pendingEvent = e;
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        if (pendingEvent) { processMove(pendingEvent); pendingEvent = null; }
+      });
+    };
+
+    const processMove = (e: PointerEvent) => {
       const it = interaction.current;
       if (!it) return;
       // Only count as a drag once the pointer has moved past the dead-zone
@@ -939,6 +952,8 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
     };
 
     const onUp = () => {
+      if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
+      pendingEvent = null;
       if (interaction.current && didMoveRef.current) {
         setHistory(h => ({ past: [...h.past.slice(-50), zonesRef.current], future: [] }));
       }
@@ -950,7 +965,11 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
 
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onUp);
-    return () => { window.removeEventListener('pointermove', onMove); window.removeEventListener('pointerup', onUp); };
+    return () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      if (rafId !== null) cancelAnimationFrame(rafId);
+    };
   }, [zoom, updateZone, bgW, bgH, gridSnap, activeVariantId, setZonesForVariant, aspectLock]);
 
   /* ── keyboard shortcuts ──────────────────────────────── */
