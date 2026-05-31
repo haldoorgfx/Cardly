@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import sharp from 'sharp';
-import fs from 'fs';
 import path from 'path';
 import type { Zone } from '@/types/database';
 import { canGenerateCard, incrementCardsThisMonth } from '@/lib/billing/can';
@@ -10,88 +9,32 @@ import { fireWebhooks } from '@/lib/webhooks';
 import { maybeSendDownloadMilestone } from '@/lib/email';
 
 const WATERMARK_HEIGHT = 40;
+const FONTS_DIR = path.join(process.cwd(), 'public', 'fonts');
 
-// ── Fontconfig setup ──────────────────────────────────────────────────────────
-// librsvg (used by sharp to render SVG) ignores @font-face data URIs — it
-// resolves font-family names exclusively through fontconfig. On Vercel the
-// system has no brand fonts, so we copy the TTFs from public/fonts/ to /tmp
-// and point fontconfig at that directory via FONTCONFIG_FILE. This runs once
-// per Lambda cold-start; warm starts skip it because the files already exist.
+// ── Font file resolution ──────────────────────────────────────────────────────
+// Sharp's text input accepts a `fontfile` path that is loaded directly by Pango —
+// no fontconfig, no SVG, no base64. This is the only approach that works on Vercel.
 
-const FONTS_TMP = '/tmp/karta-fonts';
-let fontsReady = false;
+const FAMILY_MAP: Record<string, string> = {
+  'DM Sans':       'dmsans',
+  'Inter':         'inter',
+  'JetBrains Mono':'jetbrainsmono',
+};
 
-function setupFonts(): void {
-  if (fontsReady) return;
-
-  fs.mkdirSync(FONTS_TMP, { recursive: true });
-  fs.mkdirSync(`${FONTS_TMP}/cache`, { recursive: true });
-
-  const srcDir = path.join(process.cwd(), 'public', 'fonts');
-  const files = [
-    'dmsans-400.ttf', 'dmsans-500.ttf', 'dmsans-600.ttf', 'dmsans-700.ttf',
-    'inter-400.ttf',  'inter-500.ttf',  'inter-600.ttf',  'inter-700.ttf',
-    'jetbrainsmono-400.ttf', 'jetbrainsmono-500.ttf', 'jetbrainsmono-700.ttf',
-    'notosansarabic-400.ttf', 'notosansarabic-700.ttf',
-  ];
-  for (const f of files) {
-    const dst = path.join(FONTS_TMP, f);
-    if (!fs.existsSync(dst)) {
-      fs.copyFileSync(path.join(srcDir, f), dst);
-    }
+function resolveFontFile(family: string, weight: number, arabic: boolean): string {
+  if (arabic) {
+    return path.join(FONTS_DIR, weight >= 600 ? 'notosansarabic-700.ttf' : 'notosansarabic-400.ttf');
   }
-
-  // Minimal fonts.conf: register the directory and set a writable cache dir.
-  const conf = `<?xml version="1.0"?>
-<!DOCTYPE fontconfig SYSTEM "fonts.dtd">
-<fontconfig>
-  <dir>${FONTS_TMP}</dir>
-  <cachedir>${FONTS_TMP}/cache</cachedir>
-</fontconfig>`;
-  fs.writeFileSync(path.join(FONTS_TMP, 'fonts.conf'), conf);
-
-  // FONTCONFIG_FILE → fontconfig reads this exact file instead of the system default.
-  // Must be set before the first librsvg/Pango call inside the process.
-  process.env.FONTCONFIG_FILE = path.join(FONTS_TMP, 'fonts.conf');
-  process.env.FONTCONFIG_PATH = FONTS_TMP;
-
-  fontsReady = true;
+  const base = FAMILY_MAP[family] ?? 'inter';
+  const available = base === 'jetbrainsmono' ? [400, 500, 700] : [400, 500, 600, 700];
+  const snapped = available.reduce((a, b) =>
+    Math.abs(b - weight) < Math.abs(a - weight) ? b : a);
+  return path.join(FONTS_DIR, `${base}-${snapped}.ttf`);
 }
 
-// ── Text wrapping ─────────────────────────────────────────────────────────────
-/**
- * Splits `text` into lines that fit within `maxWidth` pixels.
- * Uses an approximate char-width of 0.58 × fontSize (conservative for DM Sans/Inter).
- * Word-boundary aware — won't split mid-word unless the word itself is wider than the zone.
- */
-function wrapLines(text: string, maxWidth: number, fontSize: number): string[] {
-  const charW = fontSize * 0.58;
-  const maxChars = Math.max(1, Math.floor(maxWidth / charW));
-  const words = text.split(/\s+/).filter(Boolean);
-  if (!words.length) return [''];
-
-  const lines: string[] = [];
-  let current = '';
-  for (const word of words) {
-    const candidate = current ? `${current} ${word}` : word;
-    if (candidate.length > maxChars && current) {
-      lines.push(current);
-      current = word;
-    } else {
-      current = candidate;
-    }
-  }
-  if (current) lines.push(current);
-  return lines;
-}
-
-/** Escape XML special characters for safe embedding in SVG text content. */
-function xmlEscape(s: string): string {
-  return s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+/** Escape text for embedding inside a Pango markup span (content only, not attributes). */
+function pangoEscape(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 async function fetchBuffer(url: string): Promise<Buffer> {
@@ -106,57 +49,55 @@ async function fetchBuffer(url: string): Promise<Buffer> {
 type Op = sharp.OverlayOptions;
 
 async function buildTextOp(zone: Zone, text: string, canvasW: number, canvasH: number): Promise<Op> {
-  const family = zone.font ?? 'Inter';
+  const family = zone.font   ?? 'Inter';
   const size   = zone.size   ?? 32;
   const weight = zone.weight ?? 400;
   const color  = zone.color  ?? '#FFFFFF';
   const align  = zone.align  ?? 'left';
-  const letterSpacing = zone.letterSpacing ?? 0;
 
   const zW = zone.w;
   const zH = zone.h;
 
-  let textAnchor = 'start';
-  let x = 8;
-  if (align === 'center') { textAnchor = 'middle'; x = zW / 2; }
-  if (align === 'right')  { textAnchor = 'end';    x = zW - 8; }
-
-  // Detect Arabic / RTL script so we can fall back to an Arabic-capable font and
-  // render right-to-left. The bundled Latin fonts (DM Sans/Inter) have no Arabic
-  // glyphs, so without this Arabic input renders as missing-glyph boxes.
+  // Arabic / RTL detection — route to Noto Sans Arabic which covers the script.
   const hasArabic = /[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]/.test(text);
+  const fontfile  = resolveFontFile(family, weight, hasArabic);
 
-  // Wrap text — leave 8px horizontal padding each side
-  const lines   = wrapLines(text, zW - 16, size);
-  const lineH   = size * 1.3;                   // 1.3 × font-size line-height
-  const totalH  = lines.length * lineH;
+  // Pango markup: foreground= sets colour; size=Npt scales to N pixels at dpi 72.
+  // Only the text content needs escaping — color comes from our own zone config.
+  const safeColor = /^#[0-9a-fA-F]{3,8}$/.test(color) ? color : '#FFFFFF';
+  const pangoText = `<span foreground="${safeColor}" size="${size}pt">${pangoEscape(text)}</span>`;
 
-  // Vertically center the text block within the zone
-  const startY  = Math.max(size, (zH - totalH) / 2 + size * 0.85);
+  // fontfile= loads the TTF directly into Pango — no fontconfig, no SVG, no base64.
+  const sharpAlign = align === 'center' ? 'centre' : align as 'left' | 'right';
+  const textBuf = await sharp({
+    text: {
+      text: pangoText,
+      fontfile,
+      width: zW - 16,   // sharp wraps at this pixel width (8 px padding each side)
+      dpi: 72,          // 1 pt = 1 px; keeps font sizes consistent with the editor
+      rgba: true,
+      align: sharpAlign,
+    },
+  }).png().toBuffer();
 
-  // fontconfig (set up by setupFonts()) resolves font-family names directly from
-  // the TTFs in /tmp/karta-fonts — no @font-face needed in the SVG.
-  // Arabic text: use Noto Sans Arabic and enable RTL direction.
-  const familyStack = hasArabic
-    ? `'Noto Sans Arabic', sans-serif`
-    : `'${xmlEscape(family)}', sans-serif`;
-  const dirAttr = hasArabic ? ' direction="rtl"' : '';
+  // Composite the rendered text block centred inside a zone-sized transparent canvas
+  // so the final composite step always receives a buffer with the exact zone dimensions.
+  const { width: tW = 0, height: tH = 0 } = await sharp(textBuf).metadata();
+  const leftInZone = align === 'center'
+    ? Math.max(0, Math.floor((zW - tW) / 2))
+    : align === 'right'
+    ? Math.max(0, zW - tW - 8)
+    : 8;
+  const topInZone = Math.max(0, Math.floor((zH - tH) / 2));
 
-  const textEls = lines.map((line, i) => {
-    const y = (startY + i * lineH).toFixed(1);
-    return `<text x="${x}" y="${y}" font-family="${familyStack}" font-size="${size}" font-weight="${weight}" fill="${xmlEscape(color)}" text-anchor="${textAnchor}"${dirAttr} letter-spacing="${letterSpacing}">${xmlEscape(line)}</text>`;
-  }).join('\n  ');
-
-  const svg = `<svg width="${zW}" height="${zH}" xmlns="http://www.w3.org/2000/svg">
-  ${textEls}
-</svg>`;
-
-  const overlay = await sharp(Buffer.from(svg)).png().toBuffer();
+  const zoneCanvas = await sharp({
+    create: { width: zW, height: zH, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } },
+  }).composite([{ input: textBuf, left: leftInZone, top: topInZone }]).png().toBuffer();
 
   return {
-    input: overlay,
-    left: Math.max(0, Math.min(Math.round(zone.x), canvasW - zone.w)),
-    top:  Math.max(0, Math.min(Math.round(zone.y), canvasH - zone.h)),
+    input: zoneCanvas,
+    left: Math.max(0, Math.min(Math.round(zone.x), canvasW - zW)),
+    top:  Math.max(0, Math.min(Math.round(zone.y), canvasH - zH)),
   };
 }
 
@@ -192,17 +133,30 @@ async function buildPhotoOp(zone: Zone, photoBuffer: Buffer, canvasW: number, ca
 }
 
 async function buildWatermarkOp(canvasW: number, canvasH: number): Promise<Op> {
-  const svg = `<svg width="${canvasW}" height="${WATERMARK_HEIGHT}" xmlns="http://www.w3.org/2000/svg">
-  <rect width="${canvasW}" height="${WATERMARK_HEIGHT}" fill="rgba(0,0,0,0.35)"/>
-  <text x="${canvasW / 2}" y="${(WATERMARK_HEIGHT * 0.7).toFixed(1)}" font-family="'Inter', sans-serif" font-size="20" font-weight="500" fill="rgba(255,255,255,0.7)" text-anchor="middle">Made with Karta</text>
-</svg>`;
-  const svgBuf = await sharp(Buffer.from(svg)).png().toBuffer();
+  const fontfile = path.join(FONTS_DIR, 'inter-500.ttf');
 
-  return {
-    input: svgBuf,
-    left: 0,
-    top: canvasH - WATERMARK_HEIGHT,
-  };
+  const textBuf = await sharp({
+    text: {
+      text: '<span foreground="#ffffff" size="14pt">Made with Karta</span>',
+      fontfile,
+      dpi: 72,
+      rgba: true,
+      align: 'centre',
+    },
+  }).png().toBuffer();
+
+  const { width: tW = 0, height: tH = 0 } = await sharp(textBuf).metadata();
+
+  // Dark semi-transparent bar with text centred on it
+  const bar = await sharp({
+    create: { width: canvasW, height: WATERMARK_HEIGHT, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 90 } },
+  }).composite([{
+    input: textBuf,
+    left: Math.max(0, Math.floor((canvasW - tW) / 2)),
+    top:  Math.max(0, Math.floor((WATERMARK_HEIGHT - tH) / 2)),
+  }]).png().toBuffer();
+
+  return { input: bar, left: 0, top: canvasH - WATERMARK_HEIGHT };
 }
 
 /** Decode a `data:image/...;base64,XXXX` data URL (or a bare base64 string) to a Buffer. */
@@ -214,10 +168,6 @@ function decodeDataUrl(dataUrl: string): Buffer | null {
 }
 
 export async function POST(req: NextRequest) {
-  // Copy TTFs to /tmp and set FONTCONFIG_FILE before any sharp SVG call.
-  // Must run before the first librsvg/Pango invocation in this process.
-  setupFonts();
-
   const supabase = createAdminClient();
 
   // The attendee page POSTs multipart/form-data (photo files); the developer
