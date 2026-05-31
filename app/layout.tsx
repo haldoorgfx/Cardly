@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/lib/theme/ThemeProvider";
 import { CookieConsent } from "@/components/shared/CookieConsent";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://karta.cre8so.com"),
@@ -51,6 +52,7 @@ export default function RootLayout({
       <body className="antialiased">
         <ThemeProvider>{children}</ThemeProvider>
         <CookieConsent />
+        <Analytics />
       </body>
     </html>
   );

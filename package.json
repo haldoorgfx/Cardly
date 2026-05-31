@@ -3,7 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "pnpm": {
-    "onlyBuiltDependencies": ["@sentry/cli", "sharp"]
+    "onlyBuiltDependencies": [
+      "@sentry/cli",
+      "@node-rs/argon2",
+      "@node-rs/bcrypt",
+      "sharp",
+      "unrs-resolver"
+    ]
   },
   "scripts": {
     "dev": "next dev",
@@ -22,6 +28,7 @@
     "@sentry/nextjs": "^10.55.0",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.105.4",
+    "@vercel/analytics": "^2.0.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.14.0",
@@ -50,13 +57,5 @@
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   },
-  "packageManager": "pnpm@9.15.9",
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "unrs-resolver",
-      "sharp",
-      "@node-rs/argon2",
-      "@node-rs/bcrypt"
-    ]
-  }
+  "packageManager": "pnpm@9.15.9"
 }
