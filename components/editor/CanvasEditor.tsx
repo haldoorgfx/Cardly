@@ -125,6 +125,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { fetchWithRetry } from '@/lib/utils/fetch-retry';
 import { useRouter } from 'next/navigation';
 import type { Zone, Variant } from '@/types/database';
 import {
@@ -391,12 +392,20 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
   const scheduleSave = useCallback((nextZones: Zone[], variantId: string) => {
     if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
     autosaveTimer.current = setTimeout(async () => {
-      await fetch(`/api/events/${eventId}/variants/${variantId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ zones: nextZones }),
-      });
-      setSavedAt(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+      try {
+        await fetchWithRetry(
+          `/api/events/${eventId}/variants/${variantId}`,
+          {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ zones: nextZones }),
+          },
+          { attempts: 3, baseDelay: 1000 },
+        );
+        setSavedAt(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+      } catch {
+        // Silent — next edit will trigger another save attempt
+      }
     }, 800);
   }, [eventId]);
 

@@ -12,6 +12,7 @@
  */
 
 import { useState, useCallback } from 'react';
+import { fetchWithRetry } from '@/lib/utils/fetch-retry';
 import type { Zone } from '@/types/database';
 import type { Area } from 'react-easy-crop';
 
@@ -161,7 +162,7 @@ export default function AttendeeFlow({
       for (const [zoneId, file] of Object.entries(photoFiles)) {
         fd.append(`photo_${zoneId}`, file);
       }
-      const res = await fetch('/api/render', { method: 'POST', body: fd });
+      const res = await fetchWithRetry('/api/render', { method: 'POST', body: fd }, { attempts: 3, baseDelay: 1500 });
       if (!res.ok) {
         const d = await res.json().catch(() => ({}));
         // Map machine error codes to human copy

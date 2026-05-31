@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { fetchWithRetry } from '@/lib/utils/fetch-retry';
 import Link from 'next/link';
 import { ChevronLeft, Upload, Check, ArrowRight } from 'lucide-react';
 
@@ -65,7 +66,7 @@ export default function NewEventPage() {
       formData.append('file', file);
       formData.append('name', name);
 
-      const res = await fetch('/api/events/create', { method: 'POST', body: formData });
+      const res = await fetchWithRetry('/api/events/create', { method: 'POST', body: formData }, { attempts: 3, baseDelay: 1000 });
       const data = await res.json();
       if (res.status === 402 && data.error === 'PLAN_LIMIT') {
         throw new Error(`You've reached the event limit on your current plan. Upgrade to create more events.`);
