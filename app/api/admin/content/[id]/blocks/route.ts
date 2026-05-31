@@ -1,90 +1,74 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requirePermission } from '@/lib/auth/guards';
+import { getAuthorizedUser } from '@/lib/auth/guards';
 import { CONTENT_EDIT } from '@/lib/auth/permissions';
 import { getPageById, addBlock, updateBlock } from '@/lib/cms/queries';
+import { logAudit } from '@/lib/audit/log';
 
 interface RouteParams {
   params: { id: string };
 }
 
 export async function GET(_req: NextRequest, { params }: RouteParams) {
+  const auth = await getAuthorizedUser(CONTENT_EDIT);
+  if ('error' in auth) return auth.error;
+
+  const { id } = params;
   try {
-    await requirePermission(CONTENT_EDIT);
-
-    const { id } = params;
     const page = await getPageById(id);
-
-    if (!page) {
-      return NextResponse.json({ error: 'Page not found' }, { status: 404 });
-    }
-
+    if (!page) return NextResponse.json({ error: 'Page not found' }, { status: 404 });
     return NextResponse.json(page.blocks ?? []);
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Internal server error';
-    const status = message.toLowerCase().includes('permission') ? 403 : 500;
-    return NextResponse.json({ error: message }, { status });
+    return NextResponse.json({ error: err instanceof Error ? err.message : 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function POST(req: NextRequest, { params }: RouteParams) {
+  const auth = await getAuthorizedUser(CONTENT_EDIT);
+  if ('error' in auth) return auth.error;
+  const { user } = auth;
+
+  const { id: pageId } = params;
+  let body: { type: string; content: object; position: number };
+  try { body = await req.json(); }
+  catch { return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }); }
+
+  const { type, content, position } = body;
+  if (!type || content === undefined || position === undefined) {
+    return NextResponse.json({ error: 'type, content, and position are required' }, { status: 400 });
+  }
+
   try {
-    await requirePermission(CONTENT_EDIT);
-
-    const { id: pageId } = params;
-    const body = await req.json();
-
-    const { type, content, position } = body as {
-      type: string;
-      content: object;
-      position: number;
-    };
-
-    if (!type || content === undefined || position === undefined) {
-      return NextResponse.json(
-        { error: 'type, content, and position are required' },
-        { status: 400 }
-      );
-    }
-
     const block = await addBlock(
       pageId,
       type as import('@/lib/cms/types').BlockType,
       content as unknown as import('@/lib/cms/types').BlockContent,
       position,
     );
-
+    await logAudit(user, 'content.block_add', 'cms_blocks', block.id ?? pageId, { after: { type, position } });
     return NextResponse.json(block, { status: 201 });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Internal server error';
-    const status = message.toLowerCase().includes('permission') ? 403 : 500;
-    return NextResponse.json({ error: message }, { status });
+    return NextResponse.json({ error: err instanceof Error ? err.message : 'Internal server error' }, { status: 500 });
   }
 }
 
-export async function PUT(req: NextRequest) {
+export async function PUT(req: NextRequest, { params }: RouteParams) {
+  const auth = await getAuthorizedUser(CONTENT_EDIT);
+  if ('error' in auth) return auth.error;
+  const { user } = auth;
+
+  let body: { order: Array<{ id: string; position: number }> };
+  try { body = await req.json(); }
+  catch { return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }); }
+
+  if (!Array.isArray(body.order)) {
+    return NextResponse.json({ error: 'order must be an array of { id, position }' }, { status: 400 });
+  }
+
   try {
-    await requirePermission(CONTENT_EDIT);
-
-    const body = await req.json();
-    const { order } = body as {
-      order: Array<{ id: string; position: number }>;
-    };
-
-    if (!Array.isArray(order)) {
-      return NextResponse.json(
-        { error: 'order must be an array of { id, position }' },
-        { status: 400 }
-      );
-    }
-
-    await Promise.all(
-      order.map(({ id, position }) => updateBlock(id, { position }))
-    );
-
+    await Promise.all(body.order.map(({ id, position }) => updateBlock(id, { position })));
+    await logAudit(user, 'content.blocks_reorder', 'cms_pages', params.id, { after: { count: body.order.length } });
     return NextResponse.json({ success: true });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Internal server error';
-    const status = message.toLowerCase().includes('permission') ? 403 : 500;
-    return NextResponse.json({ error: message }, { status });
+    return NextResponse.json({ error: err instanceof Error ? err.message : 'Internal server error' }, { status: 500 });
   }
 }

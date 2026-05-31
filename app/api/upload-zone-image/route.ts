@@ -12,7 +12,8 @@ export async function POST(req: NextRequest) {
 
   if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 });
 
-  const allowed = ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml', 'image/gif'];
+  // SVG excluded — scripts inside SVG execute when served inline from a public CDN origin
+  const allowed = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
   if (!allowed.includes(file.type)) {
     return NextResponse.json({ error: 'Unsupported file type' }, { status: 400 });
   }

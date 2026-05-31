@@ -3,6 +3,7 @@ import { getAuthorizedUser } from '@/lib/auth/guards';
 import { CONTENT_EDIT } from '@/lib/auth/permissions';
 import { listMedia, insertMedia } from '@/lib/cms/queries';
 import { createAdminClient } from '@/lib/supabase/server';
+import { logAudit } from '@/lib/audit/log';
 
 // GET /api/admin/media?limit=48&offset=0&search=...
 export async function GET(request: Request) {
@@ -46,10 +47,11 @@ export async function POST(request: Request) {
   const altText = (formData.get('alt') as string | null) ?? '';
 
   // Validate type
-  const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
+  // SVG excluded — scripts inside SVG execute when served inline from a public CDN origin
+  const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
   if (!allowedMimes.includes(blob.type)) {
     return NextResponse.json(
-      { error: 'Only JPEG, PNG, WebP, GIF and SVG files are allowed' },
+      { error: 'Only JPEG, PNG, WebP and GIF files are allowed' },
       { status: 400 },
     );
   }
@@ -87,6 +89,9 @@ export async function POST(request: Request) {
       sizeBytes: blob.size,
       mime: blob.type,
       uploadedBy: user.id,
+    });
+    await logAudit(user, 'media.upload', 'cms_media', media.id ?? storagePath, {
+      after: { filename: blob.name, mime: blob.type, sizeBytes: blob.size, url: publicUrl },
     });
     return NextResponse.json({ media }, { status: 201 });
   } catch (err) {
