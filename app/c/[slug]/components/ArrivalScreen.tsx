@@ -267,6 +267,20 @@ export default function ArrivalScreen({
         </div>
       </div>
 
+      {/* Abuse report — bottom-right, unobtrusive */}
+      <div style={{ position: 'fixed', bottom: 16, right: 16, zIndex: 10 }}>
+        <a
+          href={`mailto:abuse@karta.cre8so.com?subject=Report+event`}
+          style={{
+            fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72',
+            textDecoration: 'none', opacity: 0.7,
+          }}
+          title="Report this event"
+        >
+          Report event
+        </a>
+      </div>
+
       <style>{`
         @keyframes cardFloat {
           0%, 100% { transform: translateY(0px); }
