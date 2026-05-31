@@ -75,7 +75,20 @@ function pangoEscape(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+const ALLOWED_STORAGE_HOST = process.env.NEXT_PUBLIC_SUPABASE_URL
+  ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname
+  : null;
+
 async function fetchBuffer(url: string): Promise<Buffer> {
+  // SSRF guard — only fetch from our own Supabase storage origin
+  try {
+    const parsed = new URL(url);
+    if (ALLOWED_STORAGE_HOST && parsed.hostname !== ALLOWED_STORAGE_HOST) {
+      throw new Error('Background image must be hosted on Karta storage');
+    }
+  } catch (e) {
+    throw new Error(e instanceof Error ? e.message : 'Invalid background URL');
+  }
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Failed to fetch background image (${res.status})`);
   return Buffer.from(await res.arrayBuffer());
