@@ -92,6 +92,7 @@ export default function AttendeeFlow({
   const [isGenerating, setIsGenerating] = useState(false);
   const [resultUrl, setResultUrl]       = useState<string | null>(null);
   const [generateError, setGenerateError] = useState('');
+  const [cardId, setCardId]             = useState<string | null>(null);
   // One UUID per form session — prevents double-taps from creating duplicate cards.
   // Regenerated when the user goes back to edit so a re-submit is treated as new.
   const [idempotencyKey, setIdempotencyKey] = useState(() => crypto.randomUUID());
@@ -175,6 +176,9 @@ export default function AttendeeFlow({
         throw new Error(errorMap[d.error] ?? d.detail ?? 'Something went wrong. Please try again.');
       }
       const blob = await res.blob();
+      // Read the card ID header before consuming the body
+      const returnedCardId = res.headers.get('X-Card-Id');
+      if (returnedCardId) setCardId(returnedCardId);
       setResultUrl(URL.createObjectURL(blob));
       setScreen('preview');
     } catch (e: unknown) {
@@ -257,8 +261,9 @@ export default function AttendeeFlow({
       backgroundWidth={backgroundWidth}
       backgroundHeight={backgroundHeight}
       resultUrl={resultUrl}
+      cardId={cardId}
       onDownload={handleDownload}
-      onEdit={() => { setIdempotencyKey(crypto.randomUUID()); setScreen('details'); }}
+      onEdit={() => { setIdempotencyKey(crypto.randomUUID()); setCardId(null); setScreen('details'); }}
     />
   );
 

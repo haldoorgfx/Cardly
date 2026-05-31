@@ -6,13 +6,14 @@
  * Mobile: single column. Desktop: two-column.
  */
 
-import { Download, ArrowLeft, Copy, Link } from 'lucide-react';
+import { Download, ArrowLeft, Copy, Link, Share2 } from 'lucide-react';
 
 interface Props {
   eventName: string;
   backgroundWidth: number;
   backgroundHeight: number;
   resultUrl: string;
+  cardId?: string | null;
   onDownload: () => void;
   onEdit: () => void;
 }
@@ -114,9 +115,14 @@ function ShareCircle({ icon, label, onClick }: { icon: React.ReactNode; label: s
 
 /* ── THE SCREEN ──────────────────────────────────────────────────────────── */
 export default function PreviewDownloadScreen({
-  eventName, backgroundWidth, backgroundHeight, resultUrl, onDownload, onEdit,
+  eventName, backgroundWidth, backgroundHeight, resultUrl, cardId, onDownload, onEdit,
 }: Props) {
   const pageUrl = typeof window !== 'undefined' ? window.location.href : '';
+
+  // Permanent re-download link using the stored card ID
+  const permanentUrl = cardId && typeof window !== 'undefined'
+    ? `${window.location.origin}${window.location.pathname}/card/${cardId}`
+    : null;
 
   const handleShare = (platform: string) => {
     const text = encodeURIComponent(`I'm attending ${eventName}! Get your personalized card:`);
@@ -131,20 +137,63 @@ export default function PreviewDownloadScreen({
     if (targets[platform]) window.open(targets[platform], '_blank', 'noopener,noreferrer');
   };
 
+  // Native share with the actual PNG file attached — works on iOS/Android
+  const handleNativeShare = async () => {
+    try {
+      const response = await fetch(resultUrl);
+      const blob     = await response.blob();
+      const file     = new File([blob], `${eventName.toLowerCase().replace(/\s+/g, '-')}-card.png`, { type: 'image/png' });
+      const shareData = { files: [file], text: `I'm attending ${eventName}!` };
+      if (navigator.canShare?.(shareData)) {
+        await navigator.share(shareData);
+      } else if (navigator.share) {
+        await navigator.share({ text: `I'm attending ${eventName}! ${pageUrl}` });
+      }
+    } catch { /* user cancelled or not supported */ }
+  };
+
   const handleCopyLink = async () => {
     try { await navigator.clipboard.writeText(pageUrl); } catch { /* ignore */ }
   };
 
+  const handleCopyPermanentLink = async () => {
+    if (!permanentUrl) return;
+    try { await navigator.clipboard.writeText(permanentUrl); } catch { /* ignore */ }
+  };
+
   const shareRow = (
     <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+      {/* Native share first — attaches the actual PNG on iOS/Android */}
+      <ShareCircle icon={<Share2 size={20} strokeWidth={1.8}/>} label="Share image" onClick={handleNativeShare}/>
       <ShareCircle icon={<WhatsAppIcon/>} label="Share on WhatsApp" onClick={() => handleShare('whatsapp')}/>
-      <ShareCircle icon={<InstagramIcon/>} label="Share on Instagram" onClick={() => handleShare('instagram')}/>
       <ShareCircle icon={<XIcon/>} label="Post on X" onClick={() => handleShare('x')}/>
       <ShareCircle icon={<FacebookIcon/>} label="Share on Facebook" onClick={() => handleShare('facebook')}/>
       <ShareCircle icon={<LinkedInIcon/>} label="Share on LinkedIn" onClick={() => handleShare('linkedin')}/>
       <ShareCircle icon={<Copy size={20} strokeWidth={1.8}/>} label="Copy link" onClick={handleCopyLink}/>
     </div>
   );
+
+  const permanentLinkRow = permanentUrl ? (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 8,
+      background: '#F0F5F2', borderRadius: 10, padding: '10px 14px',
+    }}>
+      <Link size={14} strokeWidth={2} style={{ color: '#1F4D3A', flexShrink: 0 }}/>
+      <span style={{ fontSize: 12, color: '#3A4A42', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        Save this link to re-download your card anytime
+      </span>
+      <button
+        onClick={handleCopyPermanentLink}
+        style={{
+          flexShrink: 0, background: '#1F4D3A', color: '#fff',
+          border: 'none', borderRadius: 7, padding: '5px 12px',
+          fontSize: 11, fontWeight: 600, cursor: 'pointer',
+        }}
+      >
+        Copy
+      </button>
+    </div>
+  ) : null;
 
   // Determine aspect ratio for result display
   const aspect = backgroundWidth && backgroundHeight ? backgroundWidth / backgroundHeight : 4 / 5;
@@ -227,6 +276,9 @@ export default function PreviewDownloadScreen({
               {shareRow}
             </div>
           </div>
+
+          {/* Permanent re-download link */}
+          {permanentLinkRow}
         </div>
       </div>
 
@@ -333,7 +385,7 @@ export default function PreviewDownloadScreen({
             {shareRow}
           </div>
 
-          {/* Copy link text */}
+          {/* Copy event link */}
           <button
             onClick={handleCopyLink}
             style={{
@@ -345,6 +397,11 @@ export default function PreviewDownloadScreen({
           >
             <Link size={13} strokeWidth={2}/> Copy event link
           </button>
+
+          {/* Permanent re-download link */}
+          {permanentLinkRow && (
+            <div style={{ maxWidth: 380 }}>{permanentLinkRow}</div>
+          )}
         </div>
       </div>
 

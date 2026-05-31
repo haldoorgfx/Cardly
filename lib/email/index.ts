@@ -98,6 +98,33 @@ export async function maybeSendDownloadMilestone(opts: {
   );
 }
 
+/** Notify the event owner when their monthly card cap is hit. */
+export async function sendCapReachedEmail(opts: {
+  to: string;
+  eventId: string;
+}): Promise<void> {
+  if (!opts.to) return;
+  const upgradeUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com'}/settings#billing`;
+  await sendEmail(
+    opts.to,
+    `Your card limit has been reached`,
+    wrap(`
+      <h1 style="margin:0 0 8px;font-size:26px;font-weight:700;letter-spacing:-0.02em">
+        Monthly card limit reached
+      </h1>
+      <p style="margin:0 0 16px;font-size:14px;color:#6B7A72;line-height:1.6">
+        Your event has reached its card limit for this month. New attendees won&apos;t be able
+        to generate cards until the limit resets or you upgrade your plan.
+      </p>
+      <p style="margin:0 0 16px;font-size:14px;color:#6B7A72;line-height:1.6">
+        Upgrade to <strong style="color:#1F4D3A">Pro</strong> or
+        <strong style="color:#1F4D3A">Studio</strong> for a higher limit.
+      </p>
+      ${btn(upgradeUrl, 'Upgrade plan →')}
+    `),
+  );
+}
+
 /** Send a notification when an event is published. */
 export async function sendEventPublishedEmail(opts: {
   to: string;

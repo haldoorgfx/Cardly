@@ -8,7 +8,7 @@ import type { Zone } from '@/types/database';
 import { canGenerateCard, incrementCardsThisMonth } from '@/lib/billing/can';
 import { PLANS } from '@/lib/billing/plans';
 import { fireWebhooks } from '@/lib/webhooks';
-import { maybeSendDownloadMilestone } from '@/lib/email';
+import { maybeSendDownloadMilestone, sendCapReachedEmail } from '@/lib/email';
 // Font bytes embedded directly in the JS bundle — guaranteed present in every
 // Vercel serverless function regardless of file-tracing or CDN behaviour.
 import { FONT_DATA } from '@/lib/fonts/embedded-font-data';
@@ -310,6 +310,13 @@ export async function POST(req: NextRequest) {
   // Check card generation limit for the event owner
   const { allowed, plan } = await canGenerateCard(event.user_id);
   if (!allowed) {
+    // Notify the owner (best-effort) when their cap is hit
+    supabase.from('profiles').select('email, notify_downloads').eq('id', event.user_id).single()
+      .then(({ data: owner }) => {
+        if (owner?.notify_downloads !== false) {
+          sendCapReachedEmail({ to: owner?.email ?? '', eventId: event.id });
+        }
+      });
     return NextResponse.json({ error: 'CARD_LIMIT_REACHED' }, { status: 402 });
   }
 
@@ -399,18 +406,21 @@ export async function POST(req: NextRequest) {
     ? null
     : supabase.storage.from('generated-cards').getPublicUrl(cardPath).data.publicUrl;
 
-  // Save record and counters. AWAIT these — on serverless the function can
-  // freeze right after the response is sent, dropping any detached promises,
-  // which would silently lose download counts and generated_cards rows.
+  // Insert generated_cards first (separate from other ops) so we can return the ID
+  // to the client as X-Card-Id — enables the attendee to get a permanent re-download link.
+  const { data: cardRow } = await supabase.from('generated_cards').insert({
+    event_id: eventId,
+    variant_id: variantId,
+    attendee_name: attendeeName,
+    attendee_data: fields,
+    output_url: outputUrl,
+    ...(idempotencyKey ? { idempotency_key: idempotencyKey } : {}),
+  }).select('id').single();
+
+  const cardId = cardRow?.id ?? null;
+
+  // Fire counters — AWAIT so the function doesn't freeze before they land.
   await Promise.allSettled([
-    supabase.from('generated_cards').insert({
-      event_id: eventId,
-      variant_id: variantId,
-      attendee_name: attendeeName,
-      attendee_data: fields,
-      output_url: outputUrl,
-      ...(idempotencyKey ? { idempotency_key: idempotencyKey } : {}),
-    }),
     supabase.from('events').update({ download_count: newDownloadCount }).eq('id', eventId),
     incrementCardsThisMonth(event.user_id),
   ]);
@@ -444,6 +454,8 @@ export async function POST(req: NextRequest) {
       'Content-Type': 'image/png',
       'Content-Disposition': 'attachment; filename="card.png"',
       'Cache-Control': 'no-store',
+      // Client reads this to build a permanent re-download URL
+      ...(cardId ? { 'X-Card-Id': cardId } : {}),
     },
   });
 }
