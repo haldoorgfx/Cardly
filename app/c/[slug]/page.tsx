@@ -1,10 +1,46 @@
 export const dynamic = 'force-dynamic';
 
+import type { Metadata } from 'next';
 import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import AttendeeFlow from './AttendeeFlow';
 import VariantPickerClient from './VariantPickerClient';
 import type { Zone, Variant } from '@/types/database';
+
+export async function generateMetadata(
+  { params }: { params: Promise<{ slug: string }> }
+): Promise<Metadata> {
+  const { slug } = await params;
+  const admin = createAdminClient();
+  const { data: event } = await admin
+    .from('events')
+    .select('name')
+    .eq('slug', slug)
+    .eq('status', 'published')
+    .single();
+
+  if (!event) return {};
+
+  const title = `${event.name} — Get your personalized card`;
+  const description = `You're invited to ${event.name}. Add your name and photo, then download your personalized card in seconds.`;
+
+  return {
+    title: event.name,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `https://karta.cre8so.com/c/${slug}`,
+      type: 'website',
+      images: [{ url: '/og-default.png', width: 1200, height: 630, alt: event.name }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
+  };
+}
 
 export default async function AttendeePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

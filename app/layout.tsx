@@ -5,9 +5,28 @@ import { CookieConsent } from "@/components/shared/CookieConsent";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://karta.cre8so.com"),
-  title: "Karta — Your design. Their personalization. One link.",
+  title: {
+    default: "Karta — Your design. Their personalization. One link.",
+    template: "%s — Karta",
+  },
   description:
     "Upload your event design, define editable zones, and share one link. Attendees personalize and download their own version.",
+  openGraph: {
+    type: "website",
+    siteName: "Karta",
+    title: "Karta — Your design. Their personalization. One link.",
+    description:
+      "Upload your event design, define editable zones, and share one link. Attendees personalize and download their own version.",
+    url: "https://karta.cre8so.com",
+    images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "Karta" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Karta — Your design. Their personalization. One link.",
+    description:
+      "Upload your event design, define editable zones, and share one link. Attendees personalize and download their own version.",
+    images: ["/og-default.png"],
+  },
 };
 
 export default function RootLayout({
