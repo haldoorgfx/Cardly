@@ -1,35 +1,54 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import sharp from 'sharp';
+import fs from 'fs';
 import path from 'path';
 import type { Zone } from '@/types/database';
 import { canGenerateCard, incrementCardsThisMonth } from '@/lib/billing/can';
 import { PLANS } from '@/lib/billing/plans';
 import { fireWebhooks } from '@/lib/webhooks';
 import { maybeSendDownloadMilestone } from '@/lib/email';
+// Font bytes embedded directly in the JS bundle — guaranteed present in every
+// Vercel serverless function regardless of file-tracing or CDN behaviour.
+import { FONT_DATA } from '@/lib/fonts/embedded-font-data';
 
 const WATERMARK_HEIGHT = 40;
-const FONTS_DIR = path.join(process.cwd(), 'public', 'fonts');
+const TMP_FONTS = '/tmp/karta-fonts';
+let fontsWritten = false;
 
-// ── Font file resolution ──────────────────────────────────────────────────────
-// Sharp's text input accepts a `fontfile` path that is loaded directly by Pango —
-// no fontconfig, no SVG, no base64. This is the only approach that works on Vercel.
+// ── Font setup ────────────────────────────────────────────────────────────────
+// Write fonts from the JS bundle to /tmp once per cold-start, then pass those
+// paths to sharp's `fontfile` parameter which loads them directly into Pango.
+
+function ensureFonts(): void {
+  if (fontsWritten) return;
+  fs.mkdirSync(TMP_FONTS, { recursive: true });
+  for (const [key, b64] of Object.entries(FONT_DATA)) {
+    const dst = path.join(TMP_FONTS, `${key}.ttf`);
+    if (!fs.existsSync(dst)) {
+      fs.writeFileSync(dst, Buffer.from(b64, 'base64'));
+    }
+  }
+  fontsWritten = true;
+}
 
 const FAMILY_MAP: Record<string, string> = {
-  'DM Sans':       'dmsans',
-  'Inter':         'inter',
-  'JetBrains Mono':'jetbrainsmono',
+  'DM Sans':        'dmsans',
+  'Inter':          'inter',
+  'JetBrains Mono': 'jetbrainsmono',
 };
 
 function resolveFontFile(family: string, weight: number, arabic: boolean): string {
+  ensureFonts();
   if (arabic) {
-    return path.join(FONTS_DIR, weight >= 600 ? 'notosansarabic-700.ttf' : 'notosansarabic-400.ttf');
+    const w = weight >= 600 ? 700 : 400;
+    return path.join(TMP_FONTS, `notosansarabic-${w}.ttf`);
   }
   const base = FAMILY_MAP[family] ?? 'inter';
   const available = base === 'jetbrainsmono' ? [400, 500, 700] : [400, 500, 600, 700];
   const snapped = available.reduce((a, b) =>
     Math.abs(b - weight) < Math.abs(a - weight) ? b : a);
-  return path.join(FONTS_DIR, `${base}-${snapped}.ttf`);
+  return path.join(TMP_FONTS, `${base}-${snapped}.ttf`);
 }
 
 /** Escape text for embedding inside a Pango markup span (content only, not attributes). */
@@ -133,7 +152,8 @@ async function buildPhotoOp(zone: Zone, photoBuffer: Buffer, canvasW: number, ca
 }
 
 async function buildWatermarkOp(canvasW: number, canvasH: number): Promise<Op> {
-  const fontfile = path.join(FONTS_DIR, 'inter-500.ttf');
+  ensureFonts();
+  const fontfile = path.join(TMP_FONTS, 'inter-500.ttf');
 
   const textBuf = await sharp({
     text: {
