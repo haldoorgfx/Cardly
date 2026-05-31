@@ -228,18 +228,36 @@ export async function POST(req: NextRequest) {
   let jsonPhotoBuffer: Buffer | null = null;
   let formData: FormData | null = null;
 
+  let idempotencyKey: string | null = null;
+
   if (isJson) {
     const body = await req.json().catch(() => ({})) as {
-      variantId?: string; fields?: Record<string, string>; photoDataUrl?: string;
+      variantId?: string; fields?: Record<string, string>; photoDataUrl?: string; idempotencyKey?: string;
     };
     variantId = body.variantId ?? '';
     fields = body.fields ?? {};
+    idempotencyKey = body.idempotencyKey ?? null;
     if (body.photoDataUrl) jsonPhotoBuffer = decodeDataUrl(body.photoDataUrl);
   } else {
     formData = await req.formData();
     variantId = (formData.get('variantId') as string) ?? '';
     const fieldsJson = formData.get('fields') as string;
     fields = fieldsJson ? JSON.parse(fieldsJson) : {};
+    idempotencyKey = (formData.get('idempotencyKey') as string | null) ?? null;
+  }
+
+  // Idempotency check — if this key was already rendered, return 409 immediately.
+  // The client still holds the blob from the first successful render, so it can
+  // show a friendly message without double-counting the cap.
+  if (idempotencyKey) {
+    const { data: existing } = await supabase
+      .from('generated_cards')
+      .select('id')
+      .eq('idempotency_key', idempotencyKey)
+      .maybeSingle();
+    if (existing) {
+      return NextResponse.json({ error: 'DUPLICATE_SUBMISSION' }, { status: 409 });
+    }
   }
 
   if (!variantId) return NextResponse.json({ error: 'Missing variantId' }, { status: 400 });
@@ -372,6 +390,7 @@ export async function POST(req: NextRequest) {
       attendee_name: attendeeName,
       attendee_data: fields,
       output_url: outputUrl,
+      ...(idempotencyKey ? { idempotency_key: idempotencyKey } : {}),
     }),
     supabase.from('events').update({ download_count: newDownloadCount }).eq('id', eventId),
     incrementCardsThisMonth(event.user_id),

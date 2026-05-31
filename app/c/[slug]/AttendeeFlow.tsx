@@ -91,6 +91,9 @@ export default function AttendeeFlow({
   const [isGenerating, setIsGenerating] = useState(false);
   const [resultUrl, setResultUrl]       = useState<string | null>(null);
   const [generateError, setGenerateError] = useState('');
+  // One UUID per form session — prevents double-taps from creating duplicate cards.
+  // Regenerated when the user goes back to edit so a re-submit is treated as new.
+  const [idempotencyKey, setIdempotencyKey] = useState(() => crypto.randomUUID());
 
   /* ── Derived ──────────────────────────────────────────────────────────── */
   const editableZones = zones
@@ -154,6 +157,7 @@ export default function AttendeeFlow({
       const fd = new FormData();
       fd.append('variantId', variantId);
       fd.append('fields', JSON.stringify(values));
+      fd.append('idempotencyKey', idempotencyKey);
       for (const [zoneId, file] of Object.entries(photoFiles)) {
         fd.append(`photo_${zoneId}`, file);
       }
@@ -162,9 +166,10 @@ export default function AttendeeFlow({
         const d = await res.json().catch(() => ({}));
         // Map machine error codes to human copy
         const errorMap: Record<string, string> = {
-          CARD_LIMIT_REACHED: "This event has reached its card limit for the month. Please contact the organiser.",
-          RENDER_FAILED:      "We couldn't generate your card right now. Please try again in a moment.",
-          PLAN_LIMIT:         "This event has reached its limit. Please contact the organiser.",
+          CARD_LIMIT_REACHED:   "This event has reached its card limit for the month. Please contact the organiser.",
+          RENDER_FAILED:        "We couldn't generate your card right now. Please try again in a moment.",
+          PLAN_LIMIT:           "This event has reached its limit. Please contact the organiser.",
+          DUPLICATE_SUBMISSION: "Your card is already being generated. Please wait a moment.",
         };
         throw new Error(errorMap[d.error] ?? d.detail ?? 'Something went wrong. Please try again.');
       }
@@ -177,7 +182,7 @@ export default function AttendeeFlow({
       setIsGenerating(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [variantId, values, photoFiles]);
+  }, [variantId, values, photoFiles, idempotencyKey]);
 
   /* ── Download card ────────────────────────────────────────────────────── */
   const handleDownload = useCallback(() => {
@@ -252,7 +257,7 @@ export default function AttendeeFlow({
       backgroundHeight={backgroundHeight}
       resultUrl={resultUrl}
       onDownload={handleDownload}
-      onEdit={() => setScreen('details')}
+      onEdit={() => { setIdempotencyKey(crypto.randomUUID()); setScreen('details'); }}
     />
   );
 

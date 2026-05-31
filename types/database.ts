@@ -263,6 +263,7 @@ export interface Database {
           attendee_name: string | null;
           attendee_data: Json | null;
           output_url: string | null;
+          idempotency_key: string | null;
           created_at: string;
         };
         Insert: {
@@ -272,6 +273,7 @@ export interface Database {
           attendee_name?: string | null;
           attendee_data?: Json | null;
           output_url?: string | null;
+          idempotency_key?: string | null;
           created_at?: string;
         };
         Update: {
@@ -279,6 +281,7 @@ export interface Database {
           attendee_name?: string | null;
           attendee_data?: Json | null;
           output_url?: string | null;
+          idempotency_key?: string | null;
         };
         Relationships: [
           {
