@@ -69,6 +69,7 @@ export async function POST(request: Request) {
     .upload(storagePath, arrayBuffer, {
       contentType: blob.type,
       upsert: false,
+      cacheControl: '31536000',
     });
 
   if (uploadError) {

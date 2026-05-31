@@ -28,7 +28,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   const { error: uploadError } = await admin.storage
     .from('event-backgrounds')
-    .upload(path, file, { contentType: file.type, upsert: false });
+    .upload(path, file, { contentType: file.type, upsert: false, cacheControl: '31536000' });
 
   if (uploadError) return NextResponse.json({ error: uploadError.message }, { status: 500 });
 

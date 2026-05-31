@@ -375,7 +375,7 @@ export async function POST(req: NextRequest) {
   await supabase.storage.createBucket('generated-cards', { public: true }).catch(() => {});
   const { error: uploadErr } = await supabase.storage
     .from('generated-cards')
-    .upload(cardPath, outputBuffer, { contentType: 'image/png', upsert: false });
+    .upload(cardPath, outputBuffer, { contentType: 'image/png', upsert: false, cacheControl: '31536000' });
   const outputUrl = uploadErr
     ? null
     : supabase.storage.from('generated-cards').getPublicUrl(cardPath).data.publicUrl;

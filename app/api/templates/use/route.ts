@@ -178,7 +178,7 @@ export async function POST(req: NextRequest) {
   const storagePath = `${user.id}/template-${body.templateId}-${Date.now()}.png`;
   const { error: uploadErr } = await admin.storage
     .from('event-backgrounds')
-    .upload(storagePath, pngBuf, { contentType: 'image/png', upsert: false });
+    .upload(storagePath, pngBuf, { contentType: 'image/png', upsert: false, cacheControl: '31536000' });
   if (uploadErr) return NextResponse.json({ error: uploadErr.message }, { status: 500 });
 
   const { data: urlData } = admin.storage.from('event-backgrounds').getPublicUrl(storagePath);
