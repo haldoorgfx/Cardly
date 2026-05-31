@@ -22,9 +22,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'No file provided' }, { status: 400 });
   }
 
-  const allowed = ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'];
+  const allowed = ['image/png', 'image/jpeg', 'image/webp'];
   if (!allowed.includes(file.type)) {
-    return NextResponse.json({ error: 'Only PNG, JPG, WebP, or SVG files allowed' }, { status: 400 });
+    return NextResponse.json({ error: 'Only PNG, JPG, or WebP files allowed' }, { status: 400 });
   }
   if (file.size > 2 * 1024 * 1024) {
     return NextResponse.json({ error: 'File must be under 2 MB' }, { status: 400 });
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     const { error: createErr } = await admin.storage.createBucket(BUCKET, {
       public: true,
       fileSizeLimit: 2 * 1024 * 1024,
-      allowedMimeTypes: allowed,
+      allowedMimeTypes: ['image/png', 'image/jpeg', 'image/webp'],
     });
     if (createErr) {
       return NextResponse.json({ error: `Could not create bucket: ${createErr.message}` }, { status: 500 });
@@ -49,10 +49,9 @@ export async function POST(request: Request) {
   // Derive extension from MIME type
   const variant = (formData.get('variant') as string | null) ?? 'color';
   const extMap: Record<string, string> = {
-    'image/png':     'png',
-    'image/jpeg':    'jpg',
-    'image/webp':    'webp',
-    'image/svg+xml': 'svg',
+    'image/png':  'png',
+    'image/jpeg': 'jpg',
+    'image/webp': 'webp',
   };
   const ext = extMap[file.type] ?? 'png';
   // variant='color' → logo.png  (colored, for light backgrounds)
