@@ -5,6 +5,21 @@ import sharp from 'sharp';
 import fs from 'fs';
 import path from 'path';
 import type { Zone } from '@/types/database';
+
+// Zod schema for a single zone — lenient (passthrough) so unknown future fields survive.
+const ZoneSchema = z.object({
+  id:     z.string(),
+  type:   z.enum(['text', 'photo', 'custom']),
+  x: z.number(), y: z.number(), w: z.number(), h: z.number(),
+}).passthrough();
+
+function parseZones(raw: unknown): Zone[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.flatMap(item => {
+    const result = ZoneSchema.safeParse(item);
+    return result.success ? [result.data as unknown as Zone] : [];
+  });
+}
 import { canGenerateCard, incrementCardsThisMonth } from '@/lib/billing/can';
 import { PLANS } from '@/lib/billing/plans';
 import { fireWebhooks } from '@/lib/webhooks';
@@ -335,7 +350,7 @@ export async function POST(req: NextRequest) {
 
   const needsWatermark = PLANS[plan].watermark;
 
-  const zones = (variant.zones as unknown as Zone[]) ?? [];
+  const zones = parseZones(variant.zones);
   const canvasW = variant.background_width ?? 1080;
   const canvasH = variant.background_height ?? 1350;
   const eventId = event.id;
