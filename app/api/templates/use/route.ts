@@ -9,17 +9,7 @@ import {
   ZONE_PHOTO, ZONE_NAME, ZONE_TITLE, ZONE_ORG,
 } from '@/lib/templates/svgs';
 import { PLANS, type Plan } from '@/lib/billing/plans';
-
-/* ── Helpers ──────────────────────────────────────────── */
-function generateSlug(name: string): string {
-  const base = name
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .trim()
-    .replace(/\s+/g, '-')
-    .slice(0, 40);
-  return `${base}-${crypto.randomUUID().slice(0, 6)}`;
-}
+import { generateSlug } from '@/lib/slug';
 
 /* ── Zone factory — positions match shared SVG constants ─ */
 function getZones(accent: string, light: boolean): Zone[] {
@@ -141,13 +131,17 @@ export async function POST(req: NextRequest) {
     }
 
     const dims = (tpl.dimensions as { width?: number; height?: number } | null) ?? {};
-    const slug = generateSlug(tpl.name);
-    const { data: event, error: evErr } = await admin
-      .from('events')
-      .insert({ user_id: user.id, name: tpl.name, slug, status: 'draft' })
-      .select()
-      .single();
-    if (evErr) return NextResponse.json({ error: evErr.message }, { status: 500 });
+    let event: { id: string } | null = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const { data, error: evErr } = await admin
+        .from('events')
+        .insert({ user_id: user.id, name: tpl.name, slug: generateSlug(tpl.name), status: 'draft' })
+        .select('id')
+        .single();
+      if (!evErr) { event = data; break; }
+      if (evErr.code !== '23505') return NextResponse.json({ error: evErr.message }, { status: 500 });
+    }
+    if (!event) return NextResponse.json({ error: 'Could not generate a unique slug' }, { status: 500 });
 
     const { error: varErr } = await admin
       .from('event_variants')
@@ -182,14 +176,18 @@ export async function POST(req: NextRequest) {
 
   const { data: urlData } = admin.storage.from('event-backgrounds').getPublicUrl(storagePath);
 
-  /* Create event row */
-  const slug = generateSlug(config.name);
-  const { data: event, error: evErr } = await admin
-    .from('events')
-    .insert({ user_id: user.id, name: config.name, slug, status: 'draft' })
-    .select()
-    .single();
-  if (evErr) return NextResponse.json({ error: evErr.message }, { status: 500 });
+  /* Create event row — retry on slug collision */
+  let event: { id: string } | null = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const { data, error: evErr } = await admin
+      .from('events')
+      .insert({ user_id: user.id, name: config.name, slug: generateSlug(config.name), status: 'draft' })
+      .select('id')
+      .single();
+    if (!evErr) { event = data; break; }
+    if (evErr.code !== '23505') return NextResponse.json({ error: evErr.message }, { status: 500 });
+  }
+  if (!event) return NextResponse.json({ error: 'Could not generate a unique slug' }, { status: 500 });
 
   /* Zones — positions from shared lib/templates/svgs.ts constants */
   const zones = getZones(config.accent, config.light ?? false);

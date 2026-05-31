@@ -1,17 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { canCreateEvent } from '@/lib/billing/can';
-
-function generateSlug(name: string): string {
-  const base = name
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .trim()
-    .replace(/\s+/g, '-')
-    .slice(0, 40);
-  const suffix = crypto.randomUUID().slice(0, 6);
-  return `${base}-${suffix}`;
-}
+import { generateSlug } from '@/lib/slug';
 
 export async function POST(req: NextRequest) {
   // Auth check with user client
@@ -84,23 +74,28 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const slug = generateSlug(name);
-  const { data: event, error: dbError } = await admin
-    .from('events')
-    .insert({
-      user_id: user.id,
-      name,
-      slug,
-      background_url: backgroundUrl,
-      background_width: w || null,
-      background_height: h || null,
-      zones: [],
-      status: 'draft',
-    })
-    .select()
-    .single();
-
-  if (dbError) return NextResponse.json({ error: dbError.message }, { status: 500 });
+  // Retry up to 3 times on slug collision (error code 23505 = unique_violation)
+  let event: { id: string; slug: string } | null = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const slug = generateSlug(name);
+    const { data, error: dbError } = await admin
+      .from('events')
+      .insert({
+        user_id: user.id,
+        name,
+        slug,
+        background_url: backgroundUrl,
+        background_width: w || null,
+        background_height: h || null,
+        zones: [],
+        status: 'draft',
+      })
+      .select('id, slug')
+      .single();
+    if (!dbError) { event = data; break; }
+    if (dbError.code !== '23505') return NextResponse.json({ error: dbError.message }, { status: 500 });
+  }
+  if (!event) return NextResponse.json({ error: 'Could not generate a unique slug' }, { status: 500 });
 
   // Create the default variant (required — attendee page and canvas editor both expect at least one)
   const { error: variantError } = await admin
