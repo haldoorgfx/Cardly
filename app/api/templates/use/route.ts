@@ -17,7 +17,7 @@ function generateSlug(name: string): string {
     .trim()
     .replace(/\s+/g, '-')
     .slice(0, 40);
-  return `${base}-${Math.random().toString(36).slice(2, 6)}`;
+  return `${base}-${crypto.randomUUID().slice(0, 6)}`;
 }
 
 const PLAN_LIMITS: Record<string, number> = { free: 1, pro: 10, studio: Infinity };

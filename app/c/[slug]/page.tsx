@@ -5,6 +5,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import AttendeeFlow from './AttendeeFlow';
 import VariantPickerClient from './VariantPickerClient';
+import { ViewTracker } from './components/ViewTracker';
 import type { Zone, Variant } from '@/types/database';
 
 export async function generateMetadata(
@@ -55,9 +56,8 @@ export default async function AttendeePage({ params }: { params: Promise<{ slug:
 
   if (!event) notFound();
 
-  // Atomic view count increment via RPC (avoids read-modify-write race)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (admin as any).rpc('increment_view_count', { p_event_id: event.id }).then(() => {});
+  // View count is incremented client-side via ViewTracker (sessionStorage dedup)
+  // so a single user refreshing the page only counts once per session.
 
   const { data: variantsData } = await admin
     .from('event_variants')
@@ -73,23 +73,29 @@ export default async function AttendeePage({ params }: { params: Promise<{ slug:
   if (variants.length === 1) {
     const v = variants[0];
     return (
-      <AttendeeFlow
-        variantId={v.id}
-        eventName={event.name}
-        backgroundUrl={v.background_url ?? ''}
-        backgroundWidth={v.background_width ?? 1080}
-        backgroundHeight={v.background_height ?? 1350}
-        zones={(v.zones as unknown as Zone[]) ?? []}
-      />
+      <>
+        <ViewTracker eventId={event.id} />
+        <AttendeeFlow
+          variantId={v.id}
+          eventName={event.name}
+          backgroundUrl={v.background_url ?? ''}
+          backgroundWidth={v.background_width ?? 1080}
+          backgroundHeight={v.background_height ?? 1350}
+          zones={(v.zones as unknown as Zone[]) ?? []}
+        />
+      </>
     );
   }
 
   // Multiple variants — show the picker
   return (
-    <VariantPickerClient
-      eventName={event.name}
-      eventSlug={event.slug}
-      variants={variants}
-    />
+    <>
+      <ViewTracker eventId={event.id} />
+      <VariantPickerClient
+        eventName={event.name}
+        eventSlug={event.slug}
+        variants={variants}
+      />
+    </>
   );
 }

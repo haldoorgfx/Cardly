@@ -28,16 +28,29 @@ export async function PATCH(
     if (key in body) patch[key] = body[key];
   }
 
-  const { data, error } = await admin
+  // Optimistic concurrency: if caller sends updated_at, reject if the row
+  // has been modified since then — prevents last-write-wins on concurrent edits.
+  const expectedUpdatedAt: string | undefined = body.updated_at;
+  let query = admin
     .from('event_variants')
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .update(patch as any)
+    .update({ ...patch as any, updated_at: new Date().toISOString() })
     .eq('id', variantId)
-    .eq('event_id', id)
-    .select()
-    .single();
+    .eq('event_id', id);
+
+  if (expectedUpdatedAt) {
+    query = query.eq('updated_at', expectedUpdatedAt);
+  }
+
+  const { data, error } = await query.select().single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (!data) {
+    return NextResponse.json(
+      { error: 'Conflict: this variant was modified by another session. Please refresh.' },
+      { status: 409 }
+    );
+  }
   return NextResponse.json(data);
 }
 

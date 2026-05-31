@@ -223,6 +223,7 @@ export interface Database {
           zones: Json;
           position: number;
           created_at: string;
+          updated_at: string;
         };
         Insert: {
           id?: string;
@@ -235,6 +236,7 @@ export interface Database {
           zones?: Json;
           position?: number;
           created_at?: string;
+          updated_at?: string;
         };
         Update: {
           variant_name?: string;
@@ -244,6 +246,7 @@ export interface Database {
           background_height?: number | null;
           zones?: Json;
           position?: number;
+          updated_at?: string;
         };
         Relationships: [
           {

@@ -9,7 +9,7 @@ function generateSlug(name: string): string {
     .trim()
     .replace(/\s+/g, '-')
     .slice(0, 40);
-  const suffix = Math.random().toString(36).slice(2, 6);
+  const suffix = crypto.randomUUID().slice(0, 6);
   return `${base}-${suffix}`;
 }
 

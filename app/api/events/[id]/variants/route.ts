@@ -55,7 +55,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     const variantSlug = variantName
       .toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').slice(0, 40)
-      + '-' + Math.random().toString(36).slice(2, 6);
+      + '-' + crypto.randomUUID().slice(0, 6);
 
     const { data: existingVariants } = await admin
       .from('event_variants').select('position').eq('event_id', id)
