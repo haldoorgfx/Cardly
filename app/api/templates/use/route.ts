@@ -8,6 +8,7 @@ import {
   W, H,
   ZONE_PHOTO, ZONE_NAME, ZONE_TITLE, ZONE_ORG,
 } from '@/lib/templates/svgs';
+import { PLANS, type Plan } from '@/lib/billing/plans';
 
 /* ── Helpers ──────────────────────────────────────────── */
 function generateSlug(name: string): string {
@@ -19,8 +20,6 @@ function generateSlug(name: string): string {
     .slice(0, 40);
   return `${base}-${crypto.randomUUID().slice(0, 6)}`;
 }
-
-const PLAN_LIMITS: Record<string, number> = { free: 1, pro: 10, studio: Infinity };
 
 /* ── Zone factory — positions match shared SVG constants ─ */
 function getZones(accent: string, light: boolean): Zone[] {
@@ -110,16 +109,16 @@ export async function POST(req: NextRequest) {
 
   /* Plan limit */
   const { data: profile } = await admin.from('profiles').select('plan').eq('id', user.id).single();
-  const plan = profile?.plan ?? 'free';
-  const limit = PLAN_LIMITS[plan] ?? 1;
-  if (limit !== Infinity) {
+  const plan = (profile?.plan ?? 'free') as Plan;
+  const eventLimit = PLANS[plan]?.events ?? PLANS.free.events;
+  if (eventLimit !== null) {
     const { count } = await admin
       .from('events')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', user.id)
       .neq('status', 'archived');
-    if ((count ?? 0) >= limit) {
-      return NextResponse.json({ error: 'PLAN_LIMIT', plan, limit }, { status: 402 });
+    if ((count ?? 0) >= eventLimit) {
+      return NextResponse.json({ error: 'PLAN_LIMIT', plan, limit: eventLimit }, { status: 402 });
     }
   }
 
@@ -138,7 +137,7 @@ export async function POST(req: NextRequest) {
     // Enforce the template's minimum plan
     const planRank: Record<string, number> = { free: 0, pro: 1, studio: 2 };
     if ((planRank[plan] ?? 0) < (planRank[tpl.min_plan] ?? 0)) {
-      return NextResponse.json({ error: 'PLAN_LIMIT', plan, limit }, { status: 402 });
+      return NextResponse.json({ error: 'PLAN_LIMIT', plan }, { status: 402 });
     }
 
     const dims = (tpl.dimensions as { width?: number; height?: number } | null) ?? {};
