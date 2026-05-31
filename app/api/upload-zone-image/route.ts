@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import sharp from 'sharp';
 
 export async function POST(req: NextRequest) {
   const supabase = createClient();
@@ -22,13 +23,26 @@ export async function POST(req: NextRequest) {
   }
 
   const admin = createAdminClient();
-  const ext = file.name.split('.').pop() ?? 'png';
   const folder = eventId ? `${user.id}/${eventId}` : `${user.id}/assets`;
+
+  // Normalize EXIF orientation so the image displays correctly in the canvas
+  // and in the renderer. GIF passes through unchanged (sharp doesn't rotate GIFs).
+  let uploadBytes: Buffer;
+  let uploadMime = file.type;
+  if (file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/webp') {
+    uploadBytes = await sharp(Buffer.from(await file.arrayBuffer())).rotate().toBuffer();
+  } else {
+    uploadBytes = Buffer.from(await file.arrayBuffer());
+  }
+
+  // Always store as PNG after EXIF normalization (ensures consistent format)
+  const ext = file.type === 'image/gif' ? 'gif' : 'png';
+  if (file.type !== 'image/gif') uploadMime = 'image/png';
   const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${ext}`;
 
   const { error: uploadError } = await admin.storage
     .from('event-backgrounds')
-    .upload(path, file, { contentType: file.type, upsert: false, cacheControl: '31536000' });
+    .upload(path, uploadBytes, { contentType: uploadMime, upsert: false, cacheControl: '31536000' });
 
   if (uploadError) return NextResponse.json({ error: uploadError.message }, { status: 500 });
 
