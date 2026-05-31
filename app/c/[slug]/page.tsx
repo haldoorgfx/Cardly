@@ -77,6 +77,7 @@ export default async function AttendeePage({ params }: { params: Promise<{ slug:
         <ViewTracker eventId={event.id} />
         <AttendeeFlow
           variantId={v.id}
+          eventId={event.id}
           eventName={event.name}
           backgroundUrl={v.background_url ?? ''}
           backgroundWidth={v.background_width ?? 1080}
