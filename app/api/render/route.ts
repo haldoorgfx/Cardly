@@ -1,26 +1,56 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import sharp from 'sharp';
+import fs from 'fs';
+import path from 'path';
 import type { Zone } from '@/types/database';
 import { canGenerateCard, incrementCardsThisMonth } from '@/lib/billing/can';
 import { PLANS } from '@/lib/billing/plans';
 import { fireWebhooks } from '@/lib/webhooks';
 import { maybeSendDownloadMilestone } from '@/lib/email';
-// Base64-encoded TTFs, generated from public/fonts/. Imported as a module so
-// webpack bundles the bytes INTO the serverless function — unlike public/ files,
-// which Vercel does not include in the function and which fs cannot read at runtime.
-import EMBEDDED_FONTS from '@/lib/fonts/embedded-fonts.json';
 
 const WATERMARK_HEIGHT = 40;
 
 // ── Font embedding ────────────────────────────────────────────────────────────
-// Each text SVG embeds the font as a base64 @font-face data URI so librsvg
-// (sharp's SVG renderer) draws the real brand fonts. Fonts not in the bundle
-// (Poppins, Montserrat, etc.) fall back to the closest bundled family.
+// Read TTF files from public/fonts/ using fs.readFileSync so the raw bytes are
+// available regardless of how webpack handles large assets. public/ is always
+// deployed on Vercel and readable via process.cwd() at serverless runtime.
+// Fonts are read once at module initialisation and cached as base64 strings.
 
-const FONTS = EMBEDDED_FONTS as Record<string, Record<string, string>>;
+function readFontB64(filename: string): string {
+  try {
+    return fs.readFileSync(path.join(process.cwd(), 'public', 'fonts', filename)).toString('base64');
+  } catch {
+    return '';
+  }
+}
 
-// Cache the assembled @font-face CSS per family+weight (the base64 string never changes).
+// family name → weight → base64 TTF string
+const FONTS: Record<string, Record<number, string>> = {
+  'DM Sans': {
+    400: readFontB64('dmsans-400.ttf'),
+    500: readFontB64('dmsans-500.ttf'),
+    600: readFontB64('dmsans-600.ttf'),
+    700: readFontB64('dmsans-700.ttf'),
+  },
+  'Inter': {
+    400: readFontB64('inter-400.ttf'),
+    500: readFontB64('inter-500.ttf'),
+    600: readFontB64('inter-600.ttf'),
+    700: readFontB64('inter-700.ttf'),
+  },
+  'JetBrains Mono': {
+    400: readFontB64('jetbrainsmono-400.ttf'),
+    500: readFontB64('jetbrainsmono-500.ttf'),
+    700: readFontB64('jetbrainsmono-700.ttf'),
+  },
+  'Noto Sans Arabic': {
+    400: readFontB64('notosansarabic-400.ttf'),
+    700: readFontB64('notosansarabic-700.ttf'),
+  },
+};
+
+// Cache the assembled @font-face CSS block per family+weight.
 const fontFaceCache = new Map<string, string>();
 
 /** Returns the @font-face CSS for a given family + weight, or '' if not bundled. */
@@ -38,11 +68,11 @@ function getFontFaceCSS(family: string, weight: number): string {
   const cached = fontFaceCache.get(cacheKey);
   if (cached !== undefined) return cached;
 
-  const b64 = weights[String(snapped)];
+  const b64 = weights[snapped];
   if (!b64) { fontFaceCache.set(cacheKey, ''); return ''; }
 
   const safeName = family.replace(/'/g, "\\'");
-  const css = `@font-face{font-family:'${safeName}';font-weight:${snapped};font-style:normal;src:url('data:font/truetype;base64,${b64}')format('truetype');}`;
+  const css = `@font-face { font-family: '${safeName}'; font-weight: ${snapped}; font-style: normal; src: url('data:font/truetype;base64,${b64}') format('truetype'); }`;
   fontFaceCache.set(cacheKey, css);
   return css;
 }
