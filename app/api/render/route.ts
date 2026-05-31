@@ -144,7 +144,10 @@ async function buildPhotoOp(zone: Zone, photoBuffer: Buffer, canvasW: number, ca
   const h = Math.max(1, zone.h);
   const shape = zone.shape ?? 'square';
 
-  let photoSharp = sharp(photoBuffer).resize(w, h, { fit: 'cover', position: 'center' });
+  // .rotate() with no args reads the EXIF Orientation tag and applies the
+  // correct rotation before any other operation, then strips the tag.
+  // Without this, iPhone photos (EXIF orientation 6) render sideways in the card.
+  let photoSharp = sharp(photoBuffer).rotate().resize(w, h, { fit: 'cover', position: 'center' });
 
   if (shape === 'circle') {
     const mask = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
