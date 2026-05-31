@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/lib/theme/ThemeProvider";
+import { CookieConsent } from "@/components/shared/CookieConsent";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://karta.cre8so.com"),
@@ -30,6 +31,7 @@ export default function RootLayout({
       </head>
       <body className="antialiased">
         <ThemeProvider>{children}</ThemeProvider>
+        <CookieConsent />
       </body>
     </html>
   );

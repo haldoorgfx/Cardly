@@ -9,7 +9,7 @@ import {
   LayoutGrid, TrendingUp, LayoutTemplate, Palette,
   Settings2, Users, LogOut, Menu, Search, Plus, ChevronRight, CreditCard,
   BarChart2, FileText, Eye, X, ArrowLeft, ShieldCheck,
-  Flag, Image, ScrollText, Sliders, Gavel,
+  Flag, Image as ImageIcon, ScrollText, Sliders, Gavel,
 } from 'lucide-react';
 
 type Profile = {
@@ -82,7 +82,7 @@ const ADMIN_SECTIONS: AdminNavSection[] = [
     label: 'Content',
     items: [
       { href: '/admin/content',   label: 'Pages',     icon: <FileText size={14} strokeWidth={1.8} /> },
-      { href: '/admin/media',     label: 'Media',     icon: <Image size={14} strokeWidth={1.8} /> },
+      { href: '/admin/media',     label: 'Media',     icon: <ImageIcon size={14} strokeWidth={1.8} /> },
       { href: '/admin/changelog', label: 'Changelog', icon: <ScrollText size={14} strokeWidth={1.8} /> },
     ],
   },

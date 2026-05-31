@@ -69,6 +69,7 @@ function TextInput({
         type="text"
         value={value}
         placeholder={zone.placeholder || zone.label || ''}
+        maxLength={200}
         onChange={e => onChange(e.target.value)}
         style={{
           display: 'block', width: '100%', height: 56,
@@ -99,6 +100,7 @@ function TextAreaInput({
       <textarea
         value={value}
         placeholder={zone.placeholder || zone.label || ''}
+        maxLength={500}
         onChange={e => onChange(e.target.value)}
         rows={3}
         style={{
@@ -134,7 +136,13 @@ function PhotoInput({
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) onSelect(file);
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Photo is too large. Please choose an image under 10 MB.');
+      e.target.value = '';
+      return;
+    }
+    onSelect(file);
     e.target.value = '';
   };
 

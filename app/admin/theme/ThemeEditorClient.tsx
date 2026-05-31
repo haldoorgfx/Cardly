@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef } from 'react';
 import type { SiteSettings, ThemeColors } from '@/lib/theme/settings';
-import { Check, Loader2, AlertCircle, Upload, X, Image } from 'lucide-react';
+import { Check, Loader2, AlertCircle, Upload, X, Image as ImageIcon } from 'lucide-react';
 
 interface Props {
   settings: SiteSettings;
@@ -84,7 +84,7 @@ function LogoUploadCard({
           <img src={url} alt={label} className="max-h-[48px] max-w-[160px] object-contain" />
         ) : (
           <div className="flex flex-col items-center gap-1">
-            <Image size={16} strokeWidth={1.5} style={{ color: previewTextColor }} />
+            <ImageIcon size={16} strokeWidth={1.5} style={{ color: previewTextColor }} />
             <span className="text-[10px] font-mono" style={{ color: previewTextColor }}>No logo</span>
           </div>
         )}

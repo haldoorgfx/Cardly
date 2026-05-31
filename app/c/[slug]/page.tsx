@@ -19,12 +19,9 @@ export default async function AttendeePage({ params }: { params: Promise<{ slug:
 
   if (!event) notFound();
 
-  // Increment view count (fire-and-forget)
-  admin
-    .from('events')
-    .update({ view_count: (event.view_count ?? 0) + 1 })
-    .eq('id', event.id)
-    .then(() => {});
+  // Atomic view count increment via RPC (avoids read-modify-write race)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (admin as any).rpc('increment_view_count', { p_event_id: event.id }).then(() => {});
 
   const { data: variantsData } = await admin
     .from('event_variants')

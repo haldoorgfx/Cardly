@@ -14,6 +14,24 @@ import { FONT_DATA } from '@/lib/fonts/embedded-font-data';
 
 const WATERMARK_HEIGHT = 40;
 const TMP_FONTS = '/tmp/karta-fonts';
+const MAX_PHOTO_BYTES = 10 * 1024 * 1024; // 10 MB
+const MAX_FIELD_CHARS = 500;
+
+// ── Per-IP rate limiter ───────────────────────────────────────────────────────
+// In-memory sliding window: 10 renders per IP per 60 s.
+// Not distributed (each Lambda instance has its own bucket) but stops trivial abuse.
+const rlMap = new Map<string, { count: number; resetAt: number }>();
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = rlMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    rlMap.set(ip, { count: 1, resetAt: now + 60_000 });
+    return false;
+  }
+  if (entry.count >= 10) return true;
+  entry.count++;
+  return false;
+}
 let fontsWritten = false;
 
 // ── Font setup ────────────────────────────────────────────────────────────────
@@ -188,6 +206,12 @@ function decodeDataUrl(dataUrl: string): Buffer | null {
 }
 
 export async function POST(req: NextRequest) {
+  // Rate limit by IP — stops trivial abuse of this public endpoint
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+  if (isRateLimited(ip)) {
+    return NextResponse.json({ error: 'Too many requests. Please wait a minute and try again.' }, { status: 429 });
+  }
+
   const supabase = createAdminClient();
 
   // The attendee page POSTs multipart/form-data (photo files); the developer
@@ -219,6 +243,13 @@ export async function POST(req: NextRequest) {
   }
 
   if (!variantId) return NextResponse.json({ error: 'Missing variantId' }, { status: 400 });
+
+  // Cap field values — prevents giant text payloads from blowing up the SVG renderer
+  for (const key of Object.keys(fields)) {
+    if (typeof fields[key] === 'string' && fields[key].length > MAX_FIELD_CHARS) {
+      fields[key] = fields[key].slice(0, MAX_FIELD_CHARS);
+    }
+  }
 
   // Fetch the variant (has background + zones)
   const { data: variant } = await supabase
@@ -262,7 +293,15 @@ export async function POST(req: NextRequest) {
     for (const zone of zones) {
       if (zone.type !== 'photo') continue;
       const photoFile = formData.get(`photo_${zone.id}`) as File | null;
-      if (photoFile) photoBuffers[zone.id] = Buffer.from(await photoFile.arrayBuffer());
+      if (!photoFile) continue;
+      if (photoFile.size > MAX_PHOTO_BYTES) {
+        return NextResponse.json({ error: 'Photo is too large. Maximum size is 10 MB.' }, { status: 400 });
+      }
+      const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+      if (!allowed.includes(photoFile.type)) {
+        return NextResponse.json({ error: 'Photo must be a JPEG, PNG, or WebP image.' }, { status: 400 });
+      }
+      photoBuffers[zone.id] = Buffer.from(await photoFile.arrayBuffer());
     }
   }
 
@@ -309,19 +348,30 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'RENDER_FAILED', detail: msg }, { status: 500 });
   }
 
+  // Persist the generated PNG so attendees can recover their card later.
+  // Ensure the bucket exists first (idempotent — no-op if already there).
+  const attendeeName = Object.values(fields)[0] ?? 'Anonymous';
+  const newDownloadCount = (event.download_count ?? 0) + 1;
+  const cardPath = `${eventId}/${crypto.randomUUID()}.png`;
+
+  await supabase.storage.createBucket('generated-cards', { public: true }).catch(() => {});
+  const { error: uploadErr } = await supabase.storage
+    .from('generated-cards')
+    .upload(cardPath, outputBuffer, { contentType: 'image/png', upsert: false });
+  const outputUrl = uploadErr
+    ? null
+    : supabase.storage.from('generated-cards').getPublicUrl(cardPath).data.publicUrl;
+
   // Save record and counters. AWAIT these — on serverless the function can
   // freeze right after the response is sent, dropping any detached promises,
   // which would silently lose download counts and generated_cards rows.
-  const attendeeName = Object.values(fields)[0] ?? 'Anonymous';
-  const newDownloadCount = (event.download_count ?? 0) + 1;
-
   await Promise.allSettled([
     supabase.from('generated_cards').insert({
       event_id: eventId,
       variant_id: variantId,
       attendee_name: attendeeName,
       attendee_data: fields,
-      output_url: null,
+      output_url: outputUrl,
     }),
     supabase.from('events').update({ download_count: newDownloadCount }).eq('id', eventId),
     incrementCardsThisMonth(event.user_id),
