@@ -11,70 +11,51 @@ import { maybeSendDownloadMilestone } from '@/lib/email';
 
 const WATERMARK_HEIGHT = 40;
 
-// ── Font embedding ────────────────────────────────────────────────────────────
-// Read TTF files from public/fonts/ using fs.readFileSync so the raw bytes are
-// available regardless of how webpack handles large assets. public/ is always
-// deployed on Vercel and readable via process.cwd() at serverless runtime.
-// Fonts are read once at module initialisation and cached as base64 strings.
+// ── Fontconfig setup ──────────────────────────────────────────────────────────
+// librsvg (used by sharp to render SVG) ignores @font-face data URIs — it
+// resolves font-family names exclusively through fontconfig. On Vercel the
+// system has no brand fonts, so we copy the TTFs from public/fonts/ to /tmp
+// and point fontconfig at that directory via FONTCONFIG_FILE. This runs once
+// per Lambda cold-start; warm starts skip it because the files already exist.
 
-function readFontB64(filename: string): string {
-  try {
-    return fs.readFileSync(path.join(process.cwd(), 'public', 'fonts', filename)).toString('base64');
-  } catch {
-    return '';
+const FONTS_TMP = '/tmp/karta-fonts';
+let fontsReady = false;
+
+function setupFonts(): void {
+  if (fontsReady) return;
+
+  fs.mkdirSync(FONTS_TMP, { recursive: true });
+  fs.mkdirSync(`${FONTS_TMP}/cache`, { recursive: true });
+
+  const srcDir = path.join(process.cwd(), 'public', 'fonts');
+  const files = [
+    'dmsans-400.ttf', 'dmsans-500.ttf', 'dmsans-600.ttf', 'dmsans-700.ttf',
+    'inter-400.ttf',  'inter-500.ttf',  'inter-600.ttf',  'inter-700.ttf',
+    'jetbrainsmono-400.ttf', 'jetbrainsmono-500.ttf', 'jetbrainsmono-700.ttf',
+    'notosansarabic-400.ttf', 'notosansarabic-700.ttf',
+  ];
+  for (const f of files) {
+    const dst = path.join(FONTS_TMP, f);
+    if (!fs.existsSync(dst)) {
+      fs.copyFileSync(path.join(srcDir, f), dst);
+    }
   }
-}
 
-// family name → weight → base64 TTF string
-const FONTS: Record<string, Record<number, string>> = {
-  'DM Sans': {
-    400: readFontB64('dmsans-400.ttf'),
-    500: readFontB64('dmsans-500.ttf'),
-    600: readFontB64('dmsans-600.ttf'),
-    700: readFontB64('dmsans-700.ttf'),
-  },
-  'Inter': {
-    400: readFontB64('inter-400.ttf'),
-    500: readFontB64('inter-500.ttf'),
-    600: readFontB64('inter-600.ttf'),
-    700: readFontB64('inter-700.ttf'),
-  },
-  'JetBrains Mono': {
-    400: readFontB64('jetbrainsmono-400.ttf'),
-    500: readFontB64('jetbrainsmono-500.ttf'),
-    700: readFontB64('jetbrainsmono-700.ttf'),
-  },
-  'Noto Sans Arabic': {
-    400: readFontB64('notosansarabic-400.ttf'),
-    700: readFontB64('notosansarabic-700.ttf'),
-  },
-};
+  // Minimal fonts.conf: register the directory and set a writable cache dir.
+  const conf = `<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "fonts.dtd">
+<fontconfig>
+  <dir>${FONTS_TMP}</dir>
+  <cachedir>${FONTS_TMP}/cache</cachedir>
+</fontconfig>`;
+  fs.writeFileSync(path.join(FONTS_TMP, 'fonts.conf'), conf);
 
-// Cache the assembled @font-face CSS block per family+weight.
-const fontFaceCache = new Map<string, string>();
+  // FONTCONFIG_FILE → fontconfig reads this exact file instead of the system default.
+  // Must be set before the first librsvg/Pango call inside the process.
+  process.env.FONTCONFIG_FILE = path.join(FONTS_TMP, 'fonts.conf');
+  process.env.FONTCONFIG_PATH = FONTS_TMP;
 
-/** Returns the @font-face CSS for a given family + weight, or '' if not bundled. */
-function getFontFaceCSS(family: string, weight: number): string {
-  const weights = FONTS[family];
-  if (!weights) return '';
-
-  // Snap to the closest available weight
-  const available = Object.keys(weights).map(Number);
-  const snapped = available.reduce((a, b) =>
-    Math.abs(b - weight) < Math.abs(a - weight) ? b : a,
-  );
-
-  const cacheKey = `${family}:${snapped}`;
-  const cached = fontFaceCache.get(cacheKey);
-  if (cached !== undefined) return cached;
-
-  const b64 = weights[snapped];
-  if (!b64) { fontFaceCache.set(cacheKey, ''); return ''; }
-
-  const safeName = family.replace(/'/g, "\\'");
-  const css = `@font-face { font-family: '${safeName}'; font-weight: ${snapped}; font-style: normal; src: url('data:font/truetype;base64,${b64}') format('truetype'); }`;
-  fontFaceCache.set(cacheKey, css);
-  return css;
+  fontsReady = true;
 }
 
 // ── Text wrapping ─────────────────────────────────────────────────────────────
@@ -153,12 +134,12 @@ async function buildTextOp(zone: Zone, text: string, canvasW: number, canvasH: n
   // Vertically center the text block within the zone
   const startY  = Math.max(size, (zH - totalH) / 2 + size * 0.85);
 
-  // Embed the chosen font, plus the Arabic font as a per-glyph fallback when needed.
-  let fontCSS = getFontFaceCSS(family, weight);
+  // fontconfig (set up by setupFonts()) resolves font-family names directly from
+  // the TTFs in /tmp/karta-fonts — no @font-face needed in the SVG.
+  // Arabic text: use Noto Sans Arabic and enable RTL direction.
   const familyStack = hasArabic
-    ? `${xmlEscape(family)}, 'Noto Sans Arabic', sans-serif`
-    : `${xmlEscape(family)}, sans-serif`;
-  if (hasArabic) fontCSS += getFontFaceCSS('Noto Sans Arabic', weight);
+    ? `'Noto Sans Arabic', sans-serif`
+    : `'${xmlEscape(family)}', sans-serif`;
   const dirAttr = hasArabic ? ' direction="rtl"' : '';
 
   const textEls = lines.map((line, i) => {
@@ -167,7 +148,6 @@ async function buildTextOp(zone: Zone, text: string, canvasW: number, canvasH: n
   }).join('\n  ');
 
   const svg = `<svg width="${zW}" height="${zH}" xmlns="http://www.w3.org/2000/svg">
-  ${fontCSS ? `<defs><style>${fontCSS}</style></defs>` : ''}
   ${textEls}
 </svg>`;
 
@@ -212,11 +192,9 @@ async function buildPhotoOp(zone: Zone, photoBuffer: Buffer, canvasW: number, ca
 }
 
 async function buildWatermarkOp(canvasW: number, canvasH: number): Promise<Op> {
-  const fontCSS = getFontFaceCSS('Inter', 500);
   const svg = `<svg width="${canvasW}" height="${WATERMARK_HEIGHT}" xmlns="http://www.w3.org/2000/svg">
-  ${fontCSS ? `<defs><style>${fontCSS}</style></defs>` : ''}
   <rect width="${canvasW}" height="${WATERMARK_HEIGHT}" fill="rgba(0,0,0,0.35)"/>
-  <text x="${canvasW / 2}" y="${(WATERMARK_HEIGHT * 0.7).toFixed(1)}" font-family="Inter, sans-serif" font-size="20" font-weight="500" fill="rgba(255,255,255,0.7)" text-anchor="middle">Made with Karta</text>
+  <text x="${canvasW / 2}" y="${(WATERMARK_HEIGHT * 0.7).toFixed(1)}" font-family="'Inter', sans-serif" font-size="20" font-weight="500" fill="rgba(255,255,255,0.7)" text-anchor="middle">Made with Karta</text>
 </svg>`;
   const svgBuf = await sharp(Buffer.from(svg)).png().toBuffer();
 
@@ -236,6 +214,10 @@ function decodeDataUrl(dataUrl: string): Buffer | null {
 }
 
 export async function POST(req: NextRequest) {
+  // Copy TTFs to /tmp and set FONTCONFIG_FILE before any sharp SVG call.
+  // Must run before the first librsvg/Pango invocation in this process.
+  setupFonts();
+
   const supabase = createAdminClient();
 
   // The attendee page POSTs multipart/form-data (photo files); the developer
