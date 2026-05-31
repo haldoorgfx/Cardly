@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { createAdminClient } from '@/lib/supabase/server';
 import sharp from 'sharp';
 import fs from 'fs';
@@ -231,18 +232,33 @@ export async function POST(req: NextRequest) {
   let idempotencyKey: string | null = null;
 
   if (isJson) {
-    const body = await req.json().catch(() => ({})) as {
-      variantId?: string; fields?: Record<string, string>; photoDataUrl?: string; idempotencyKey?: string;
-    };
-    variantId = body.variantId ?? '';
-    fields = body.fields ?? {};
-    idempotencyKey = body.idempotencyKey ?? null;
-    if (body.photoDataUrl) jsonPhotoBuffer = decodeDataUrl(body.photoDataUrl);
+    const JsonBodySchema = z.object({
+      variantId:       z.string().optional(),
+      fields:          z.record(z.string(), z.string()).optional(),
+      photoDataUrl:    z.string().optional(),
+      idempotencyKey:  z.string().optional(),
+    });
+    const raw = await req.json().catch(() => ({}));
+    const body = JsonBodySchema.safeParse(raw);
+    if (!body.success) {
+      return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+    }
+    variantId = body.data.variantId ?? '';
+    fields = body.data.fields ?? {};
+    idempotencyKey = body.data.idempotencyKey ?? null;
+    if (body.data.photoDataUrl) jsonPhotoBuffer = decodeDataUrl(body.data.photoDataUrl);
   } else {
     formData = await req.formData();
     variantId = (formData.get('variantId') as string) ?? '';
     const fieldsJson = formData.get('fields') as string;
-    fields = fieldsJson ? JSON.parse(fieldsJson) : {};
+    try {
+      const parsed = fieldsJson ? JSON.parse(fieldsJson) : {};
+      // Validate: must be a flat object of string values
+      const FieldsSchema = z.record(z.string(), z.string());
+      fields = FieldsSchema.parse(parsed);
+    } catch {
+      return NextResponse.json({ error: 'Invalid fields payload' }, { status: 400 });
+    }
     idempotencyKey = (formData.get('idempotencyKey') as string | null) ?? null;
   }
 

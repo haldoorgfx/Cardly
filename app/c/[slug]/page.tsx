@@ -61,7 +61,7 @@ export default async function AttendeePage({ params }: { params: Promise<{ slug:
 
   const { data: variantsData } = await admin
     .from('event_variants')
-    .select('*')
+    .select('id, variant_name, variant_slug, background_url, background_width, background_height, zones, position')
     .eq('event_id', event.id)
     .order('position', { ascending: true });
 

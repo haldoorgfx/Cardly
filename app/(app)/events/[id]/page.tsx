@@ -41,8 +41,8 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
 
   const admin = createAdminClient();
   const [{ data: event }, { data: variantsData }, { data: recentCards }] = await Promise.all([
-    admin.from('events').select('*').eq('id', id).eq('user_id', user.id).single(),
-    admin.from('event_variants').select('*').eq('event_id', id).order('position', { ascending: true }),
+    admin.from('events').select('id, name, slug, status, view_count, download_count, user_id, created_at').eq('id', id).eq('user_id', user.id).single(),
+    admin.from('event_variants').select('id, variant_name, variant_slug, background_url, background_width, background_height, zones, position').eq('event_id', id).order('position', { ascending: true }),
     admin.from('generated_cards').select('id, attendee_name, attendee_data, created_at').eq('event_id', id).order('created_at', { ascending: false }).limit(8),
   ]);
 
