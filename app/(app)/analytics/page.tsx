@@ -25,7 +25,7 @@ export default async function AnalyticsPage() {
   const [{ data: events }, { data: cards }] = await Promise.all([
     admin.from('events').select('id, name, view_count, download_count, status').eq('user_id', user.id).order('download_count', { ascending: false }),
     eventIds.length > 0
-      ? admin.from('generated_cards').select('id, event_id, attendee_data, created_at').in('event_id', eventIds).order('created_at', { ascending: false })
+      ? admin.from('generated_cards').select('id, event_id, attendee_data, created_at').in('event_id', eventIds).order('created_at', { ascending: false }).limit(1000)
       : Promise.resolve({ data: [] }),
   ]);
 
