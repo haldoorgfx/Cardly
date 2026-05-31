@@ -8,6 +8,8 @@ import {
 import { DotGrid } from '@/components/marketing/DotGrid';
 import { FAQAccordion, type FAQItem } from '@/components/marketing/FAQAccordion';
 import Reveal from '@/components/marketing/Reveal';
+import { Testimonials } from '@/components/marketing/Testimonials';
+import { StatsBar } from '@/components/marketing/StatsBar';
 
 /* ═══════════════════════════════════════════════════════
    SECTION 2 — HERO
@@ -555,37 +557,6 @@ function PricingTeaser() {
 /* ═══════════════════════════════════════════════════════
    SECTION 10 — TESTIMONIAL
 ═══════════════════════════════════════════════════════ */
-function Testimonial() {
-  return (
-    <section className="relative border-y border-border overflow-hidden">
-      <div aria-hidden className="absolute pointer-events-none inset-0 grid place-items-center">
-        <div style={{ width: 600, height: 400, background: 'radial-gradient(ellipse, rgba(31,77,58,0.07) 0%, transparent 70%)', filter: 'blur(80px)' }} />
-      </div>
-      <div className="relative mx-auto max-w-[860px] px-5 lg:px-10 py-20 lg:py-24 text-center">
-        <div className="text-accent mx-auto mb-6 inline-flex">
-          <Quote size={40} strokeWidth={1.5} style={{ fill: 'currentColor' }} />
-        </div>
-        <blockquote className="font-display font-medium text-ink text-[26px] sm:text-[32px] lg:text-[38px] leading-[1.2] tracking-[-0.02em] italic">
-          &ldquo;Karta let us turn 600 attendees into 600 brand ambassadors. The reach
-          was far beyond what we expected — and the visual identity stayed locked the whole way.&rdquo;
-        </blockquote>
-        <figcaption className="mt-8 flex items-center justify-center gap-3">
-          <div
-            className="h-10 w-10 rounded-full shrink-0 grid place-items-center font-display font-semibold text-primary-dark text-[13px]"
-            style={{ background: 'radial-gradient(120% 120% at 30% 25%, #f3e4c1 0%, #c9a45e 55%, #8a6f3a 100%)' }}
-          >
-            AY
-          </div>
-          <div className="text-left">
-            <div className="text-[14px] font-semibold text-ink">Amara Yusuf</div>
-            <div className="text-[12px] text-muted font-mono tracking-[0.12em] uppercase">Comms Lead · Pan-African Climate Summit</div>
-          </div>
-        </figcaption>
-        <p className="mt-3 font-mono text-[10px] tracking-[0.18em] uppercase text-muted">[placeholder — replace with real quote]</p>
-      </div>
-    </section>
-  );
-}
 
 /* ═══════════════════════════════════════════════════════
    SECTION 11 — FAQ
@@ -655,18 +626,19 @@ function FinalCTA() {
 /* ═══════════════════════════════════════════════════════
    PAGE ASSEMBLY
 ═══════════════════════════════════════════════════════ */
-export default function LandingPage() {
+export default async function LandingPage() {
   return (
     <>
       <Hero />
       <SocialProof />
+      <StatsBar />
       <Reveal><Problem /></Reveal>
       <Reveal><Solution /></Reveal>
       <UseCasesGrid />
       <Reveal><HowItWorks /></Reveal>
       <Features />
       <PricingTeaser />
-      <Reveal><Testimonial /></Reveal>
+      <Reveal><Testimonials /></Reveal>
       <Reveal><FAQSection /></Reveal>
       <Reveal><FinalCTA /></Reveal>
     </>
