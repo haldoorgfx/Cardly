@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { EventManageNav } from '@/components/events/EventManageNav';
+import { PromoCodesManager } from '@/components/events/PromoCodesManager';
 
 interface Props { params: { id: string } }
 
@@ -12,12 +13,10 @@ export default async function PromoCodesPage({ params }: Props) {
   if (!user) redirect('/login');
 
   const admin = createAdminClient();
-  const { data: event } = await admin
-    .from('events')
-    .select('id, name, slug')
-    .eq('id', params.id)
-    .eq('user_id', user.id)
-    .single();
+  const [{ data: event }, { data: codes }] = await Promise.all([
+    admin.from('events').select('id, name, slug').eq('id', params.id).eq('user_id', user.id).single(),
+    admin.from('promo_codes').select('*').eq('event_id', params.id).order('created_at', { ascending: false }),
+  ]);
 
   if (!event) redirect('/dashboard');
 
@@ -33,18 +32,8 @@ export default async function PromoCodesPage({ params }: Props) {
             Create discount codes — percent or fixed, with usage limits and date windows.
           </p>
         </div>
-        {/* Phase 1.9 — promo code CRUD built here */}
-        <div
-          className="rounded-2xl flex items-center justify-center py-20 text-center"
-          style={{ background: 'white', border: '1px solid #E5E0D4' }}
-        >
-          <div>
-            <div className="font-mono text-[11px] tracking-widest uppercase mb-2" style={{ color: '#6B7A72' }}>Phase 1.9</div>
-            <div className="text-[14px]" style={{ color: '#3A4A42' }}>
-              % and fixed discounts · usage caps · valid date range
-            </div>
-          </div>
-        </div>
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+        <PromoCodesManager eventId={params.id} initialCodes={(codes ?? []) as any} />
       </div>
     </div>
   );
