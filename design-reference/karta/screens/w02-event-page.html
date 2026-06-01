@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W02 · Public Event Page (Organizer Preview)</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .prevbar { height: 52px; background: var(--forest); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; color: #fff; }
+  .prevbar .l { display: flex; align-items: center; gap: 12px; font-family: var(--body); font-size: 13px; color: rgba(255,255,255,0.8); }
+  .prevbar .l .eye { display: inline-flex; align-items: center; gap: 7px; font-weight: 500; color: #fff; }
+  .prevbar .r { display: flex; gap: 10px; }
+
+  .hero { width: 100%; height: 420px; position: relative; overflow: hidden; }
+  .hero .scrim-b { position: absolute; inset: 0; }
+  .hero .cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 40px; display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
+  .hero .cap .titlewrap { max-width: 1000px; margin: 0 auto; width: 100%; display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
+  .hero h1 { font-family: var(--display); font-weight: 400; font-size: 36px; letter-spacing: -0.025em; color: #fff; line-height: 1.1; }
+  .hero .by { font-family: var(--body); font-size: 16px; color: var(--gold); margin-top: 8px; }
+  .hero .dl { font-family: var(--mono); font-size: 14px; color: rgba(255,255,255,0.85); text-align: right; line-height: 1.7; }
+
+  .layout { display: grid; grid-template-columns: 1fr 320px; gap: 56px; max-width: 1000px; margin: 48px auto 96px; padding: 0 40px; align-items: start; }
+  .meta-strip { font-family: var(--mono); font-size: 14px; color: var(--ink-soft); display: flex; flex-wrap: wrap; gap: 6px 12px; padding-bottom: 28px; border-bottom: 1px solid var(--cream-border); }
+  .meta-strip .sep { color: var(--cream-border); }
+  .sec-h { font-family: var(--display); font-weight: 400; font-size: 22px; color: var(--forest); letter-spacing: -0.015em; }
+  .block { margin-top: 40px; }
+
+  .spk-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 20px; }
+  .spk { border-radius: var(--r-card); overflow: hidden; }
+  .spk .ph { width: 100%; aspect-ratio: 1; position: relative; }
+  .spk .nm { position: absolute; left: 12px; bottom: 10px; z-index:2; font-family: var(--display); font-weight: 500; font-size: 15px; color: #fff; }
+  .spk .role { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 8px; }
+
+  .mini-grid { margin-top: 20px; border: 1px solid var(--cream-border); border-radius: var(--r-card); overflow: hidden; }
+  .mini-row { display: grid; grid-template-columns: 80px 1fr; border-bottom: 1px solid var(--cream-border); }
+  .mini-row:last-child { border-bottom: none; }
+  .mini-row .tm { padding: 16px; font-family: var(--mono); font-size: 13px; color: var(--ink-muted); border-right: 1px solid var(--cream-border); }
+  .mini-row .ss { padding: 14px 16px; }
+  .mini-row .ss .tt { font-family: var(--body); font-weight: 500; font-size: 14px; color: var(--ink); border-left: 3px solid var(--gold); padding-left: 12px; }
+  .mini-row .ss .sp { font-family: var(--body); font-size: 12px; color: var(--ink-muted); padding-left: 15px; margin-top: 2px; }
+
+  .reg { position: sticky; top: 88px; padding: 24px; box-shadow: var(--e1); }
+  .reg .price { font-family: var(--mono); font-weight: 500; font-size: 28px; color: var(--forest); }
+  .reg .tk { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--cream-border); }
+  .reg .tk:first-of-type { border-top: 1px solid var(--cream-border); margin-top: 18px; }
+  .reg .tk .nm { font-family: var(--body); font-weight: 500; font-size: 14px; }
+  .reg .tk .pr { font-family: var(--mono); font-size: 15px; color: var(--forest); }
+  .radio { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--cream-border); flex: none; }
+  .radio.on { border-color: var(--forest); box-shadow: inset 0 0 0 4px var(--forest); }
+
+  @media (max-width: 900px){
+    .hero { height: 300px; }
+    .hero h1 { font-size: 26px; }
+    .hero .cap { padding: 24px; }
+    .hero .cap .titlewrap { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .hero .dl { text-align: left; }
+    .layout { grid-template-columns: 1fr; gap: 0; }
+    .reg { position: static; margin-top: 40px; }
+    .spk-grid { grid-template-columns: repeat(2,1fr); }
+    .prevbar { padding: 0 16px; }
+    .prevbar .l span:last-child { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="prevbar">
+  <div class="l">
+    <span class="eye"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>Preview as attendee</span>
+    <span>— this is how AfriTech Summit 2026 appears to the public</span>
+  </div>
+  <div class="r">
+    <button class="btn btn-ghost-gold btn-sm">Edit page</button>
+    <button class="btn btn-gold btn-sm">Publish</button>
+  </div>
+</div>
+
+<div class="hero ph" style="--h:158;">
+  <div class="scrim-b"></div>
+  <div class="cap">
+    <div class="titlewrap">
+      <div>
+        <h1>AfriTech Summit 2026</h1>
+        <div class="by">by Karta Studio</div>
+      </div>
+      <div class="dl">12–14 March 2026<br>Djibouti City · Palais du Peuple</div>
+    </div>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="content">
+    <div class="meta-strip">
+      <span>12 Mar · 09:00</span><span class="sep">·</span>
+      <span>Palais du Peuple, Djibouti</span><span class="sep">·</span>
+      <span>300 capacity</span><span class="sep">·</span>
+      <span>180 registered</span>
+    </div>
+
+    <div class="block">
+      <div class="sec-h">About this event</div>
+      <p class="t-body" style="color:var(--ink-soft); margin-top:14px; text-wrap:pretty;">Three days where the Horn of Africa's builders, founders, and designers gather on the Red Sea coast. Keynotes from operators who've scaled across the continent, hands-on workshops, and the kind of hallway conversations that turn into companies. Every attendee leaves with a personalized Karta Card — proof you were in the room.</p>
+    </div>
+
+    <div class="block">
+      <div class="sec-h">Speaking at AfriTech Summit</div>
+      <div class="spk-grid">
+        <div class="spk"><div class="ph" style="--h:30;"><div class="scrim-b" style="position:absolute;inset:0;"></div><div class="nm">Amina Osman</div></div><div class="role">Founder, Sahel Pay</div></div>
+        <div class="spk"><div class="ph" style="--h:200;"><div class="scrim-b" style="position:absolute;inset:0;"></div><div class="nm">Faisal Karim</div></div><div class="role">VP Eng, Andela</div></div>
+        <div class="spk"><div class="ph" style="--h:265;"><div class="scrim-b" style="position:absolute;inset:0;"></div><div class="nm">Leila Haddad</div></div><div class="role">Design Lead, Flutterwave</div></div>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="sec-h">Agenda</div>
+      <div class="mini-grid">
+        <div class="mini-row"><div class="tm">09:00</div><div class="ss"><div class="tt">Opening keynote — Building for the next billion</div><div class="sp">Amina Osman · Main Stage</div></div></div>
+        <div class="mini-row"><div class="tm">10:30</div><div class="ss"><div class="tt">Scaling engineering across borders</div><div class="sp">Faisal Karim · Track A</div></div></div>
+        <div class="mini-row"><div class="tm">13:00</div><div class="ss"><div class="tt">Design systems workshop</div><div class="sp">Leila Haddad · Workshop Room</div></div></div>
+      </div>
+      <a href="#" style="display:inline-block; margin-top:16px; font-family:var(--body); font-size:14px; font-weight:600; color:var(--gold-hover); text-decoration:none;">See full agenda →</a>
+    </div>
+  </div>
+
+  <aside>
+    <div class="card reg">
+      <div class="t-caption" style="color:var(--ink-muted); text-transform:uppercase;">From</div>
+      <div class="price">$25</div>
+      <div class="tk"><div style="display:flex; gap:12px; align-items:center;"><span class="radio on"></span><div class="nm">General admission</div></div><span class="pr">$25</span></div>
+      <div class="tk"><div style="display:flex; gap:12px; align-items:center;"><span class="radio"></span><div class="nm">VIP package</div></div><span class="pr">$80</span></div>
+      <div class="tk" style="border-bottom:none;"><div style="display:flex; gap:12px; align-items:center;"><span class="radio"></span><div class="nm">Student</div></div><span class="pr" style="color:var(--gold-hover)">Free</span></div>
+      <button class="btn btn-forest btn-lg" style="width:100%; margin-top:18px;">Register now</button>
+      <div class="t-body-sm" style="color:var(--ink-muted); text-align:center; margin-top:12px;"><span class="mono">237</span> people registered</div>
+    </div>
+  </aside>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W26 · Virtual Session Player</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  body { overflow-x: hidden; }
+  .player { display: grid; grid-template-columns: 65fr 35fr; height: calc(100vh - 64px); }
+
+  /* video */
+  .video { background: #07120c; position: relative; display: flex; flex-direction: column; }
+  .video .brandstrip { position: absolute; top: 0; left: 0; right: 0; padding: 14px 20px; z-index: 3; font-family: var(--display); font-weight: 600; font-size: 13px; color: var(--gold); letter-spacing: 0.04em; background: linear-gradient(to bottom, rgba(0,0,0,0.45), transparent); }
+  .video .stage { flex: 1; position: relative; overflow: hidden; }
+  .video .stage .ph { position: absolute; inset: 0; }
+  .video .live { position: absolute; top: 14px; right: 18px; z-index: 3; display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 12px; color: #fff; }
+  .video .live .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--error); animation: pulse 1.4s infinite; }
+  @keyframes pulse { 0%,100%{ box-shadow:0 0 0 0 rgba(184,66,60,.6);} 50%{ box-shadow:0 0 0 5px rgba(184,66,60,0);} }
+  .play { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: 64px; height: 64px; border-radius: 50%; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 3; cursor: pointer; }
+  .play svg { width: 24px; height: 24px; fill: #fff; margin-left: 3px; }
+  .controls { height: 48px; background: rgba(7,18,12,0.95); display: flex; align-items: center; gap: 16px; padding: 0 18px; flex: none; }
+  .controls svg { width: 18px; height: 18px; stroke: rgba(255,255,255,0.85); fill: none; stroke-width: 2; cursor: pointer; }
+  .controls .scrub { flex: 1; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.2); position: relative; }
+  .controls .scrub .f { position: absolute; left: 0; top: 0; bottom: 0; width: 42%; background: var(--gold); border-radius: 2px; }
+  .controls .tt { font-family: var(--mono); font-size: 12px; color: rgba(255,255,255,0.7); }
+  .controls .q { font-family: var(--mono); font-size: 11px; color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.25); border-radius: 4px; padding: 2px 6px; }
+
+  /* side panel */
+  .side { background: var(--cream-soft); border-left: 1px solid var(--cream-border); display: flex; flex-direction: column; min-height: 0; }
+  .side .tabs { display: flex; border-bottom: 1px solid var(--cream-border); flex: none; }
+  .side .tab { flex: 1; padding: 14px 0; text-align: center; font-family: var(--body); font-weight: 500; font-size: 13px; color: var(--ink-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .side .tab.active { color: var(--forest); border-bottom-color: var(--gold); }
+  .side .qlist { flex: 1; overflow-y: auto; padding: 16px; }
+  .qcard { display: flex; gap: 12px; padding: 14px; border: 1px solid var(--cream-border); border-radius: var(--r-card); background: var(--cream-surface); margin-bottom: 10px; }
+  .qcard.featured { border-left: 2px solid var(--gold); }
+  .qcard .fl { font-family: var(--body); font-size: 10px; color: var(--gold-hover); margin-bottom: 4px; }
+  .qcard .up { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; flex: none; width: 32px; }
+  .qcard .up .ar { width: 28px; height: 28px; border-radius: var(--r-btn); border: 1px solid var(--cream-border); display: flex; align-items: center; justify-content: center; }
+  .qcard .up .ar svg { width: 13px; height: 13px; stroke: var(--ink-soft); fill: none; stroke-width: 2; }
+  .qcard .up.on .ar { background: var(--forest); border-color: var(--forest); } .qcard .up.on .ar svg { stroke: #fff; }
+  .qcard .up .n { font-family: var(--mono); font-weight: 500; font-size: 12px; color: var(--forest); }
+  .qcard .qt { font-family: var(--body); font-size: 13px; color: var(--ink); line-height: 1.45; }
+  .qcard .qs { font-family: var(--body); font-size: 11px; color: var(--ink-muted); margin-top: 5px; }
+  .side .ask { flex: none; padding: 14px 16px; border-top: 1px solid var(--cream-border); display: flex; gap: 10px; }
+  .side .ask input { flex: 1; border: 1px solid var(--cream-border); border-radius: var(--r-pill); padding: 10px 14px; font-family: var(--body); font-size: 13px; background: var(--cream-surface); }
+  .side .ask .s { width: 38px; height: 38px; border-radius: 50%; background: var(--forest); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; flex: none; }
+  .side .ask .s svg { width: 15px; height: 15px; stroke: #fff; fill: none; stroke-width: 2; }
+
+  /* below */
+  .below { max-width: 1000px; margin: 40px auto 80px; padding: 0 40px; }
+  .infostrip { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; flex-wrap: wrap; padding-bottom: 28px; border-bottom: 1px solid var(--cream-border); }
+  .infostrip h2 { font-family: var(--display); font-weight: 400; font-size: 22px; color: var(--forest); letter-spacing: -0.015em; }
+  .infostrip .spk { display: flex; gap: 16px; margin-top: 12px; }
+  .infostrip .spk .p { display: flex; align-items: center; gap: 8px; }
+  .infostrip .spk .ph { width: 32px; height: 32px; border-radius: 50%; }
+  .infostrip .spk .nm { font-family: var(--body); font-size: 13px; color: var(--ink-soft); }
+  .infostrip p { font-family: var(--body); font-size: 15px; color: var(--ink-soft); margin-top: 14px; max-width: 560px; line-height: 1.55; }
+  .rel-h { font-family: var(--display); font-weight: 400; font-size: 20px; color: var(--forest); margin: 40px 0 18px; }
+  .rel { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+  .rcard { border: 1px solid var(--cream-border); border-radius: var(--r-card); overflow: hidden; background: var(--cream-surface); cursor: pointer; }
+  .rcard .ph { width: 100%; aspect-ratio: 16/9; }
+  .rcard .b { padding: 12px 14px; }
+  .rcard .t { font-family: var(--body); font-weight: 500; font-size: 14px; color: var(--forest); }
+  .rcard .m { font-family: var(--mono); font-size: 12px; color: var(--ink-muted); margin-top: 4px; }
+
+  @media (max-width:860px){
+    .player { grid-template-columns: 1fr; height: auto; }
+    .video .stage { height: 230px; }
+    .side { height: 420px; }
+    .rel { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links"><a href="w06-discovery.html">Discover</a><a href="w13-speakers.html">Speakers</a><a href="w10-schedule.html">Schedule</a><a href="w11-networking.html">Network</a></div>
+  <div class="right"><div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div><button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button></div>
+</nav>
+
+<div class="player">
+  <div class="video">
+    <div class="brandstrip">AfriTech Summit 2026 · Main Stage</div>
+    <div class="stage">
+      <div class="ph" style="--h:158;"></div>
+      <div class="live"><span class="pulse"></span>LIVE · 243 watching</div>
+      <div class="play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+    </div>
+    <div class="controls">
+      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M11 5L6 9H3v6h3l5 4V5zM15 9a3 3 0 010 6"/></svg>
+      <div class="scrub"><div class="f"></div></div>
+      <span class="tt">24:18 / 58:00</span>
+      <span class="q">1080p</span>
+      <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 00-2 2v3M16 3h3a2 2 0 012 2v3M8 21H5a2 2 0 01-2-2v-3M16 21h3a2 2 0 002-2v-3"/></svg>
+    </div>
+  </div>
+
+  <aside class="side">
+    <div class="tabs">
+      <div class="tab active">Q&A (12)</div>
+      <div class="tab">Chat</div>
+      <div class="tab">People</div>
+    </div>
+    <div class="qlist" id="qlist"></div>
+    <div class="ask">
+      <input placeholder="Ask a question…">
+      <button class="s"><svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
+    </div>
+  </aside>
+</div>
+
+<div class="below">
+  <div class="infostrip">
+    <div>
+      <h2>Opening keynote — Building for the next billion</h2>
+      <div class="spk">
+        <div class="p"><div class="ph" style="--h:30;"></div><span class="nm">Amina Osman</span></div>
+        <div class="p"><div class="ph" style="--h:200;"></div><span class="nm">Faisal Karim</span></div>
+      </div>
+      <p>A look at what it actually takes to build products for the next billion users — offline-first design, payments rails, and the operational realities of scaling across borders in emerging markets.</p>
+    </div>
+    <button class="btn btn-ghost-forest btn-md">Add to agenda</button>
+  </div>
+
+  <div class="rel-h">Related sessions</div>
+  <div class="rel">
+    <div class="rcard"><div class="ph" style="--h:265;"></div><div class="b"><div class="t">Design systems workshop</div><div class="m">13:00 · Workshop Room</div></div></div>
+    <div class="rcard"><div class="ph" style="--h:95;"></div><div class="b"><div class="t">Scaling across borders</div><div class="m">10:30 · Track A</div></div></div>
+    <div class="rcard"><div class="ph" style="--h:340;"></div><div class="b"><div class="t">Fireside: Fundraising in 2026</div><div class="m">15:30 · Track B</div></div></div>
+  </div>
+</div>
+
+<script>
+  const qs=[
+    [24,'Will the slides be shared after the session?','Leila H. · 2m ago',true],
+    [18,'What markets are you prioritizing for the offline-first rollout?','Anonymous · 5m ago',false],
+    [11,'How do you balance compliance across four different regulators?','Faisal K. · 8m ago',false],
+  ];
+  document.getElementById('qlist').innerHTML=qs.map((q,i)=>`
+    <div class="qcard ${q[3]?'featured':''}">
+      <div class="up ${i===0?'on':''}"><div class="ar"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12l7-7 7 7"/></svg></div><div class="n">${q[0]}</div></div>
+      <div>${q[3]?'<div class="fl">★ Featured by moderator</div>':''}<div class="qt">${q[1]}</div><div class="qs">${q[2]}</div></div>
+    </div>`).join('');
+  document.querySelectorAll('.up').forEach(u=>u.onclick=()=>{ const n=u.querySelector('.n'); const on=u.classList.toggle('on'); n.textContent=+n.textContent+(on?1:-1); });
+  document.querySelectorAll('.side .tab').forEach(t=>t.onclick=()=>{document.querySelector('.side .tab.active')?.classList.remove('active');t.classList.add('active');});
+  document.querySelector('.play').onclick=function(){ this.style.display='none'; };
+</script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W01 · Organizer Dashboard</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .strip { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 14px; padding: 18px 24px; }
+  .strip .seg { font-family: var(--body); font-size: 14px; color: var(--ink-soft); }
+  .strip .seg .n { font-family: var(--mono); font-weight: 500; color: var(--ink); }
+  .strip .sep { color: var(--cream-border); }
+  .thumb { width: 40px; height: 40px; border-radius: var(--r-card); flex: none; }
+  .ev-cell { display: flex; align-items: center; gap: 12px; }
+  .ev-cell .nm { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--forest); }
+  .ev-cell .sub { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 1px; }
+  .act { width: 28px; height: 28px; border-radius: var(--r-btn); display: inline-flex; align-items: center; justify-content: center; color: var(--ink-muted); }
+  .act:hover { background: var(--cream-soft); }
+  .actionneeded { margin-top: 28px; padding: 18px 22px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .actionneeded .txt { font-family: var(--body); font-size: 14px; color: var(--ink-soft); }
+  .gold-link { color: var(--gold-hover); font-weight: 600; text-decoration: none; font-family: var(--body); font-size: 14px; white-space: nowrap; }
+  .gold-link:hover { color: var(--gold); }
+  @media (max-width:900px){ .col-hide { display: none; } .strip { gap:6px 10px; } }
+</style>
+</head>
+<body>
+
+<div class="dashnav">
+  <div style="display:flex; align-items:center; gap:18px;">
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+    <div class="crumb"><b style="font-family:var(--display); font-weight:600; font-size:18px; color:var(--forest);">Karta</b>&nbsp;&nbsp;/&nbsp;&nbsp;My Events</div>
+  </div>
+  <div style="display:flex; align-items:center; gap:18px;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="1.7"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0"/></svg>
+    <div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div>
+  </div>
+</div>
+
+<div class="dash">
+  <aside class="sidebar">
+    <div class="side-item active"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Events</div>
+    <div class="side-item"><svg viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l4-4 3 3 5-6"/></svg>Analytics</div>
+    <div class="side-item"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="10" r="2.3"/><path d="M3 20c0-3 2.7-5 6-5s6 2 6 5"/></svg>Team</div>
+    <div class="side-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 00-.1-1l2-1.5-2-3.4-2.3 1a7 7 0 00-1.7-1l-.3-2.5H10l-.3 2.5a7 7 0 00-1.7 1l-2.3-1-2 3.4 2 1.5a7 7 0 000 2l-2 1.5 2 3.4 2.3-1a7 7 0 001.7 1l.3 2.5h3.8l.3-2.5a7 7 0 001.7-1l2.3 1 2-3.4-2-1.5c.1-.3.1-.7.1-1z"/></svg>Settings</div>
+    <div class="side-label">Organizer Tools</div>
+    <div class="side-item"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Billing</div>
+    <div style="flex:1;"></div>
+    <span class="pill" style="background:var(--forest-soft); color:var(--forest); margin:0 12px; align-self:flex-start; font-family:var(--mono); font-weight:500;">Pro plan</span>
+  </aside>
+
+  <main class="main">
+    <h1 class="t-display-lg" style="color:var(--forest); margin-bottom:24px;">My Events</h1>
+
+    <div class="card strip">
+      <span class="seg"><span class="n">12</span> events total</span>
+      <span class="sep">·</span>
+      <span class="seg"><span class="n">2,847</span> registrations</span>
+      <span class="sep">·</span>
+      <span class="seg"><span class="n">$14,200</span> revenue</span>
+      <span class="sep">·</span>
+      <span class="seg"><span class="n">94%</span> check-in rate</span>
+    </div>
+
+    <div style="margin-top:28px; overflow-x:auto;">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th class="col-hide">Date</th>
+            <th>Tickets</th>
+            <th>Revenue</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="ev-cell">
+                <div class="ph thumb" style="--h:158;"></div>
+                <div><div class="nm">AfriTech Summit 2026</div><div class="sub">Karta Studio</div></div>
+              </div>
+            </td>
+            <td class="col-hide"><span class="t-num-sm" style="color:var(--ink-muted)">12 Mar 2026</span></td>
+            <td><span class="t-num-sm"><span style="color:var(--forest); font-weight:500;">234</span><span style="color:var(--ink-muted)">/300</span></span></td>
+            <td><span class="t-num-md" style="color:var(--forest); font-weight:500;">$4,750</span></td>
+            <td><span class="pill pill-live"><span class="dot" style="background:var(--success)"></span>Live</span></td>
+            <td><span class="act">⋯</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="ev-cell">
+                <div class="ph thumb" style="--h:18;"></div>
+                <div><div class="nm">Sunset Sounds Festival</div><div class="sub">Blue Note DJ</div></div>
+              </div>
+            </td>
+            <td class="col-hide"><span class="t-num-sm" style="color:var(--ink-muted)">14 Mar 2026</span></td>
+            <td><span class="t-num-sm"><span style="color:var(--forest); font-weight:500;">1,180</span><span style="color:var(--ink-muted)">/1,500</span></span></td>
+            <td><span class="t-num-md" style="color:var(--forest); font-weight:500;">$5,900</span></td>
+            <td><span class="pill pill-live"><span class="dot" style="background:var(--success)"></span>Live</span></td>
+            <td><span class="act">⋯</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="ev-cell">
+                <div class="ph thumb" style="--h:265;"></div>
+                <div><div class="nm">Founders Breakfast</div><div class="sub">Karta Studio</div></div>
+              </div>
+            </td>
+            <td class="col-hide"><span class="t-num-sm" style="color:var(--ink-muted)">18 Mar 2026</span></td>
+            <td><span class="t-num-sm"><span style="color:var(--forest); font-weight:500;">42</span><span style="color:var(--ink-muted)">/80</span></span></td>
+            <td><span class="t-num-md" style="color:var(--forest); font-weight:500;">$630</span></td>
+            <td><span class="pill pill-draft">Draft</span></td>
+            <td><span class="act">⋯</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="ev-cell">
+                <div class="ph thumb" style="--h:95;"></div>
+                <div><div class="nm">Coastal Run 10K</div><div class="sub">City Council</div></div>
+              </div>
+            </td>
+            <td class="col-hide"><span class="t-num-sm" style="color:var(--ink-muted)">22 Mar 2026</span></td>
+            <td><span class="t-num-sm"><span style="color:var(--forest); font-weight:500;">560</span><span style="color:var(--ink-muted)">/600</span></span></td>
+            <td><span class="t-num-md" style="color:var(--forest); font-weight:500;">$2,920</span></td>
+            <td><span class="pill pill-live"><span class="dot" style="background:var(--success)"></span>Live</span></td>
+            <td><span class="act">⋯</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="ev-cell">
+                <div class="ph thumb" style="--h:340;"></div>
+                <div><div class="nm">Red Sea Food Fair</div><div class="sub">City Council</div></div>
+              </div>
+            </td>
+            <td class="col-hide"><span class="t-num-sm" style="color:var(--ink-muted)">30 Mar 2026</span></td>
+            <td><span class="t-num-sm"><span style="color:var(--ink-muted)">0/400</span></span></td>
+            <td><span class="t-num-md" style="color:var(--ink-muted); font-weight:500;">$0</span></td>
+            <td><span class="pill pill-draft">Draft</span></td>
+            <td><span class="act">⋯</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="ev-cell">
+                <div class="ph thumb" style="--h:280;"></div>
+                <div><div class="nm">Design in the Horn 2025</div><div class="sub">Karta Studio</div></div>
+              </div>
+            </td>
+            <td class="col-hide"><span class="t-num-sm" style="color:var(--ink-muted)">28 Nov 2025</span></td>
+            <td><span class="t-num-sm"><span style="color:var(--ink-muted)">300/300</span></span></td>
+            <td><span class="t-num-md" style="color:var(--forest); font-weight:500;">$6,000</span></td>
+            <td><span class="pill pill-ended">Ended</span></td>
+            <td><span class="act">⋯</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card-soft actionneeded">
+      <div class="txt"><b style="font-family:var(--mono); color:var(--ink);">3</b> registrations need approval&nbsp; ·&nbsp; <b style="font-family:var(--mono); color:var(--ink);">14</b> check-in QR codes not opened&nbsp; ·&nbsp; <b style="font-family:var(--mono); color:var(--ink);">1</b> speaker hasn't confirmed.</div>
+      <a href="#" class="gold-link">Review all →</a>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

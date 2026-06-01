@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Karta · UI Kit</title>
+<link rel="stylesheet" href="karta/karta.css">
+<style>
+  body { background: #ECE7DC; color: var(--ink); padding: 56px 40px 96px; }
+  .page { max-width: 1280px; margin: 0 auto; }
+  header.top { display: flex; align-items: flex-end; justify-content: space-between; padding-bottom: 28px; border-bottom: 1px solid var(--cream-border); margin-bottom: 8px; flex-wrap: wrap; gap: 16px; }
+  .wm { font-family: var(--display); font-weight: 600; font-size: 24px; color: var(--forest); }
+  .wm b { color: var(--gold-hover); }
+  .lead { font-family: var(--body); font-size: 15px; color: var(--ink-muted); max-width: 540px; margin-top: 10px; }
+  .count { font-family: var(--mono); font-size: 13px; color: var(--ink-muted); }
+
+  .secrow { margin-top: 56px; }
+  .seclabel { font-family: var(--body); font-weight: 500; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 4px; }
+  .sectitle { font-family: var(--display); font-weight: 400; font-size: 24px; color: var(--forest); letter-spacing: -0.015em; }
+  .secdesc { font-family: var(--body); font-size: 14px; color: var(--ink-muted); margin-top: 6px; max-width: 620px; }
+
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; margin-top: 28px; }
+  .grid.three { grid-template-columns: repeat(3, 1fr); }
+
+  .frame { display: block; text-decoration: none; color: inherit; border-radius: 10px; overflow: hidden; background: #fff; border: 1px solid var(--cream-border); box-shadow: 0 1px 3px rgba(15,31,24,0.06); transition: box-shadow .18s, transform .18s; }
+  .frame:hover { box-shadow: 0 10px 30px rgba(15,31,24,0.12); transform: translateY(-3px); }
+  .chrome { height: 38px; background: #F4F0E8; border-bottom: 1px solid var(--cream-border); display: flex; align-items: center; gap: 8px; padding: 0 14px; }
+  .lights { display: flex; gap: 6px; }
+  .lights i { width: 11px; height: 11px; border-radius: 50%; display: block; }
+  .urlbar { flex: 1; height: 22px; background: #fff; border: 1px solid var(--cream-border); border-radius: var(--r-pill); display: flex; align-items: center; padding: 0 12px; font-family: var(--mono); font-size: 11px; color: var(--ink-muted); margin-left: 6px; }
+  .thumb { position: relative; overflow: hidden; background: var(--cream-canvas); height: 300px; }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
+  .cap { display: flex; align-items: baseline; gap: 10px; padding: 14px 16px; border-top: 1px solid var(--cream-border); }
+  .cap .no { font-family: var(--mono); font-size: 12px; color: var(--gold-hover); font-weight: 500; }
+  .cap .nm { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--ink); }
+  .cap .arr { margin-left: auto; color: var(--ink-muted); }
+
+  @media (max-width: 900px){
+    body { padding: 32px 18px 64px; }
+    .grid, .grid.three { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="top">
+    <div>
+      <div class="wm">K<b>a</b>rta</div>
+      <div class="lead">A full-stack event platform with one viral differentiator — a personalized Karta Card at registration. Twelve responsive web screens plus the design system, on one warm cream canvas.</div>
+    </div>
+    <div class="count">13 artifacts · v1.0</div>
+  </header>
+
+  <!-- Foundations -->
+  <section class="secrow">
+    <div class="seclabel">Foundations</div>
+    <div class="sectitle">Design system</div>
+    <div class="secdesc">Forest, gold and cream. DM Sans display · Inter body · JetBrains Mono for every number. The source of truth for all ten screens.</div>
+    <div class="grid">
+      <a class="frame" href="karta/screens/00-design-system.html" target="_blank">
+        <div class="chrome"><div class="lights"><i style="background:#E5837B"></i><i style="background:#E8C57E"></i><i style="background:#8FC3A0"></i></div><div class="urlbar">karta.app / design-system</div></div>
+        <div class="thumb"><img loading="lazy" src="screenshots/th/ds.png" alt="Design System"></div>
+        <div class="cap"><span class="no">DS</span><span class="nm">Design System</span><span class="arr">↗</span></div>
+      </a>
+      <a class="frame" href="karta/screens/w09-card-reveal.html" target="_blank">
+        <div class="chrome"><div class="lights"><i style="background:#E5837B"></i><i style="background:#E8C57E"></i><i style="background:#8FC3A0"></i></div><div class="urlbar">karta.app / card</div></div>
+        <div class="thumb"><img loading="lazy" src="screenshots/th/w09.png" alt="Karta Card Reveal"></div>
+        <div class="cap"><span class="no">W09</span><span class="nm">Karta Card Reveal — the signature moment</span><span class="arr">↗</span></div>
+      </a>
+    </div>
+  </section>
+
+  <!-- Organizer -->
+  <section class="secrow">
+    <div class="seclabel">Organizer dashboard</div>
+    <div class="sectitle">Running the event</div>
+    <div class="secdesc">Data is everything, decoration is nothing. Hairline borders, tabular numbers, clean bands. One filled CTA per section.</div>
+    <div class="grid three" id="organizer"></div>
+  </section>
+
+  <!-- Attendee -->
+  <section class="secrow">
+    <div class="seclabel">Attendee experience</div>
+    <div class="sectitle">Inside the event</div>
+    <div class="secdesc">Photography-first, Airbnb anatomy. The same cream canvas, fully responsive from 1440 down to 375.</div>
+    <div class="grid three" id="attendee"></div>
+  </section>
+</div>
+
+<script>
+  const organizer=[
+    ['W01','Organizer Dashboard','w01-dashboard.html','w01'],
+    ['W02','Public Event Page · Preview','w02-event-page.html','w02'],
+    ['W03','Registration Management','w03-registrations.html','w03'],
+    ['W04','Agenda Builder','w04-agenda-builder.html','w04'],
+    ['W05','Analytics','w05-analytics.html','w05'],
+  ];
+  const attendee=[
+    ['W06','Event Discovery','w06-discovery.html','w06'],
+    ['W07','Public Event Page','w07-event-page.html','w07'],
+    ['W08','Registration Flow','w08-registration.html','w08'],
+    ['W09','Karta Card Reveal','w09-card-reveal.html','w09'],
+    ['W10','Schedule','w10-schedule.html','w10'],
+    ['W11','Networking','w11-networking.html','w11'],
+    ['W12','My Tickets','w12-tickets.html','w12'],
+  ];
+  function card(s){
+    return `<a class="frame" href="karta/screens/${s[2]}" target="_blank">
+      <div class="chrome"><div class="lights"><i style="background:#E5837B"></i><i style="background:#E8C57E"></i><i style="background:#8FC3A0"></i></div><div class="urlbar">karta.app / ${s[2].replace('.html','')}</div></div>
+      <div class="thumb"><img loading="lazy" src="screenshots/th/${s[3]}.png" alt="${s[1]}"></div>
+      <div class="cap"><span class="no">${s[0]}</span><span class="nm">${s[1]}</span><span class="arr">↗</span></div>
+    </a>`;
+  }
+  document.getElementById('organizer').innerHTML=organizer.map(card).join('');
+  document.getElementById('attendee').innerHTML=attendee.map(card).join('');
+</script>
+</body>
+</html>

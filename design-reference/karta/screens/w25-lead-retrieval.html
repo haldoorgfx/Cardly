@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W25 · Lead Retrieval Scanner</title>
+<link rel="stylesheet" href="../karta.css">
+<style>
+  html,body { background: #0a1812; }
+  .wrap { min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; gap: 32px; padding: 40px 20px; flex-wrap: wrap; }
+  .phone { width: 375px; height: 760px; background: var(--forest-dark); border-radius: 32px; overflow: hidden; position: relative; display: flex; flex-direction: column; box-shadow: 0 24px 60px rgba(0,0,0,0.5); border: 1px solid rgba(232,197,126,0.12); }
+  .label { font-family: var(--body); font-size: 12px; font-weight: 500; color: rgba(232,197,126,0.7); text-align: center; margin-bottom: 12px; letter-spacing: 0.04em; }
+
+  .topstrip { height: 56px; flex: none; background: var(--forest-surface); display: flex; align-items: center; justify-content: space-between; padding: 0 18px; }
+  .topstrip .exit { font-family: var(--body); font-size: 13px; color: rgba(255,255,255,0.6); }
+  .topstrip .lg { font-family: var(--display); font-weight: 600; font-size: 14px; color: #fff; }
+  .topstrip .leads { font-family: var(--mono); font-size: 13px; color: var(--gold); }
+
+  /* scanner state */
+  .scanner { flex: 1; display: flex; flex-direction: column; padding: 24px; }
+  .viewport { height: 55%; border-radius: var(--r-card); position: relative; overflow: hidden; background:
+      radial-gradient(ellipse at 50% 40%, rgba(31,77,58,0.5), transparent 70%), #0b1a13; }
+  .bracket { position: absolute; width: 28px; height: 28px; border: 3px solid var(--gold); }
+  .bracket.tl { top: 18px; left: 18px; border-right: none; border-bottom: none; }
+  .bracket.tr { top: 18px; right: 18px; border-left: none; border-bottom: none; }
+  .bracket.bl { bottom: 18px; left: 18px; border-right: none; border-top: none; }
+  .bracket.br { bottom: 18px; right: 18px; border-left: none; border-top: none; }
+  .scanline { position: absolute; left: 18px; right: 18px; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); top: 18px; animation: scan 2.4s ease-in-out infinite; box-shadow: 0 0 12px rgba(232,197,126,0.6); }
+  @keyframes scan { 0%,100% { top: 24px; } 50% { top: calc(100% - 24px); } }
+  .fakeqr { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: 110px; height: 110px; opacity: .25;
+    background: conic-gradient(from 0deg, #fff 0 25%, transparent 0 50%, #fff 0 75%, transparent 0); background-size: 22px 22px; border-radius: 8px; }
+  .hint { font-family: var(--body); font-size: 14px; color: #fff; text-align: center; margin-top: 22px; }
+
+  /* result state */
+  .result { flex: 1; padding: 28px 24px; display: flex; flex-direction: column; overflow-y: auto; }
+  .result .pic { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 16px; box-shadow: 0 0 0 2px var(--gold); }
+  .result .nm { font-family: var(--display); font-weight: 500; font-size: 24px; color: #fff; text-align: center; }
+  .result .rc { font-family: var(--body); font-size: 15px; color: rgba(255,255,255,0.6); text-align: center; margin-top: 4px; }
+  .result .tags { display: flex; gap: 8px; justify-content: center; margin: 14px 0; flex-wrap: wrap; }
+  .result .tag { height: 26px; padding: 0 12px; display: inline-flex; align-items: center; border-radius: var(--r-pill); background: rgba(232,239,235,0.1); color: rgba(255,255,255,0.75); font-family: var(--body); font-size: 12px; font-weight: 500; }
+  .result .att { font-family: var(--mono); font-size: 12px; color: rgba(255,255,255,0.55); text-align: center; }
+  .result textarea { width: 100%; background: var(--forest-card); border: 1px solid rgba(232,197,126,0.2); border-radius: var(--r-card); padding: 12px 14px; font-family: var(--body); font-size: 14px; color: #fff; margin-top: 20px; resize: none; min-height: 64px; }
+  .result textarea::placeholder { color: rgba(255,255,255,0.4); }
+  .result textarea:focus { outline: none; border-color: var(--gold); }
+  .ratingrow { display: flex; gap: 10px; margin-top: 16px; }
+  .ratepill { flex: 1; height: 40px; border-radius: var(--r-pill); border: 1px solid rgba(255,255,255,0.16); background: transparent; color: rgba(255,255,255,0.7); font-family: var(--body); font-weight: 500; font-size: 14px; cursor: pointer; }
+  .ratepill.hot.on { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+  .ratepill.warm.on { background: var(--forest-surface); color: #fff; border-color: var(--forest-surface); }
+  .ratepill.cold.on { background: rgba(232,239,235,0.12); color: #fff; }
+  .savebtn { width: 100%; height: 48px; margin-top: 20px; border-radius: var(--r-pill); background: var(--gold); color: var(--ink); border: none; font-family: var(--display); font-weight: 500; font-size: 16px; cursor: pointer; }
+  .scanmore { text-align: center; font-family: var(--body); font-size: 14px; color: rgba(232,197,126,0.8); margin-top: 16px; cursor: pointer; }
+  .greenflash { position: absolute; inset: 0; background: var(--success); opacity: 0; pointer-events: none; z-index: 50; }
+  .greenflash.go { animation: flash .5s ease; }
+  @keyframes flash { 0%{opacity:.85;} 100%{opacity:0;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div>
+    <div class="label">SCANNING STATE</div>
+    <div class="phone">
+      <div class="topstrip">
+        <span class="exit">← Exit</span>
+        <span class="lg">Flutterwave</span>
+        <span class="leads"><span class="mono">12</span> leads</span>
+      </div>
+      <div class="scanner">
+        <div class="viewport">
+          <div class="fakeqr"></div>
+          <div class="bracket tl"></div><div class="bracket tr"></div><div class="bracket bl"></div><div class="bracket br"></div>
+          <div class="scanline"></div>
+        </div>
+        <div class="hint">Point at attendee QR code</div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="label">SCAN RESULT STATE</div>
+    <div class="phone">
+      <div class="topstrip">
+        <span class="exit">← Exit</span>
+        <span class="lg">Flutterwave</span>
+        <span class="leads"><span class="mono">13</span> leads</span>
+      </div>
+      <div class="result">
+        <div class="ph pic" style="--h:30;"></div>
+        <div class="nm">Amina Osman</div>
+        <div class="rc">Founder & CEO, Sahel Pay</div>
+        <div class="tags"><span class="tag">Fintech</span><span class="tag">Payments</span><span class="tag">Hiring</span></div>
+        <div class="att">Attending: <span class="mono">3</span> sessions</div>
+        <textarea placeholder="Add a note about this lead…">Interested in the mobile-money SDK. Follow up re: API credits.</textarea>
+        <div class="ratingrow">
+          <button class="ratepill hot on">Hot</button>
+          <button class="ratepill warm">Warm</button>
+          <button class="ratepill cold">Cold</button>
+        </div>
+        <button class="savebtn">Save lead ✓</button>
+        <div class="scanmore">Scan another</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script>
+  document.querySelectorAll('.ratingrow').forEach(row=>{
+    row.querySelectorAll('.ratepill').forEach(p=>p.onclick=()=>{ row.querySelectorAll('.ratepill').forEach(x=>x.classList.remove('on')); p.classList.add('on'); });
+  });
+</script>
+</body>
+</html>

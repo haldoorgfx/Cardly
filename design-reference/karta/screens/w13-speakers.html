@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W13 · Speaker Directory</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .head { padding: 40px 0 18px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  .head h1 { font-family: var(--display); font-weight: 400; font-size: 32px; color: var(--forest); letter-spacing: -0.02em; }
+  .head .sub { font-family: var(--body); font-size: 16px; color: var(--ink-muted); margin-top: 4px; }
+  .head .sub b { font-family: var(--mono); font-weight: 500; color: var(--ink); }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .searchwrap { margin: 8px 0 28px; }
+
+  /* featured */
+  .featured { height: 520px; border-radius: var(--r-card); position: relative; overflow: hidden; }
+  .featured .scrim-b { position: absolute; inset: 0; }
+  .featured .badge { position: absolute; top: 20px; right: 20px; z-index: 3; background: var(--cream-surface); color: var(--forest); padding: 7px 14px; border-radius: var(--r-pill); font-family: var(--body); font-weight: 500; font-size: 12px; }
+  .featured .cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 40px; z-index: 2; }
+  .featured h2 { font-family: var(--display); font-weight: 400; font-size: 28px; color: #fff; letter-spacing: -0.02em; }
+  .featured .rc { font-family: var(--body); font-size: 16px; color: var(--gold); margin-top: 6px; }
+  .featured .kp { display: inline-flex; align-items: center; gap: 7px; margin-top: 14px; height: 28px; padding: 0 14px; border-radius: var(--r-pill); border: 1px solid var(--gold); color: var(--gold); font-family: var(--body); font-size: 12px; font-weight: 500; }
+
+  .sec-h { font-family: var(--display); font-weight: 500; font-size: 20px; color: var(--ink); margin: 44px 0 18px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .scard { border-radius: var(--r-card); overflow: hidden; border: 1px solid var(--cream-border); background: var(--cream-surface); cursor: pointer; transition: border-color .15s; }
+  .scard:hover { border-color: var(--gold); }
+  .scard .ph { width: 100%; aspect-ratio: 3/4; }
+  .scard .strip { padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .scard .nm { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--forest); }
+  .scard .role { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 2px; }
+  .scard .cnt { font-family: var(--mono); font-size: 11px; color: var(--ink-muted); white-space: nowrap; }
+
+  @media (max-width:1000px){ .grid { grid-template-columns: repeat(2,1fr); } }
+  @media (max-width:640px){ .grid { grid-template-columns: 1fr; } .featured { height: 380px; } .head h1 { font-size: 26px; } }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links"><a href="w06-discovery.html">Discover</a><a href="#" style="color:var(--forest)">Speakers</a><a href="w10-schedule.html">Schedule</a><a href="w11-networking.html">Network</a></div>
+  <div class="right"><div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div><button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button></div>
+</nav>
+
+<div class="container">
+  <div class="head">
+    <div>
+      <h1>Speakers</h1>
+      <div class="sub"><b>47</b> speakers across 3 days</div>
+    </div>
+    <div class="filters">
+      <div class="chip active">All</div><div class="chip">Keynote</div><div class="chip">Workshop</div><div class="chip">Panel</div><div class="chip">Fireside</div>
+    </div>
+  </div>
+
+  <div class="search searchwrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input placeholder="Search speakers by name, company, or topic…"></div>
+
+  <a class="featured ph" style="--h:30; text-decoration:none; display:block;" href="w14-speaker-profile.html">
+    <div class="scrim-b"></div>
+    <div class="badge"><span class="mono">3</span> sessions</div>
+    <div class="cap">
+      <h2>Amina Osman</h2>
+      <div class="rc">Founder & CEO, Sahel Pay</div>
+      <div class="kp">Keynote · Main Stage</div>
+    </div>
+  </a>
+
+  <div class="sec-h">All speakers</div>
+  <div class="grid" id="grid"></div>
+  <div style="height:80px;"></div>
+</div>
+
+<script>
+  const sp=[
+    ['Faisal Karim','VP Engineering, Andela',200,2],
+    ['Leila Haddad','Design Lead, Flutterwave',265,3],
+    ['Omar Farah','Founder, Red Sea Tech',95,1],
+    ['Samuel Okoro','Staff Engineer, Paystack',158,2],
+    ['Hana Bekele','Independent Designer',18,1],
+    ['Mariam Diallo','Product Manager, Sahel Pay',340,2],
+    ['Kwame Mensah','Professor, U. of Ghana',120,1],
+    ['Nadia Saleh','Partner, Horn Ventures',50,2],
+    ['Yusuf Ahmed','CTO, Cargo.io',230,1],
+  ];
+  document.getElementById('grid').innerHTML = sp.map(s=>`
+    <a class="scard cardly-edge" href="w14-speaker-profile.html" style="text-decoration:none;">
+      <div class="ph" style="--h:${s[2]};"></div>
+      <div class="strip">
+        <div><div class="nm">${s[0]}</div><div class="role">${s[1]}</div></div>
+        <div class="cnt">${s[3]} session${s[3]>1?'s':''}</div>
+      </div>
+    </a>`).join('');
+  document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{document.querySelector('.chip.active')?.classList.remove('active');c.classList.add('active');});
+</script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W17 · Feedback & Rating</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .wrap { max-width: 680px; margin: 48px auto 96px; padding: 0 40px; }
+  .head h1 { font-family: var(--display); font-weight: 400; font-size: 28px; color: var(--forest); letter-spacing: -0.02em; }
+  .head .sub { font-family: var(--body); font-size: 16px; color: var(--ink-muted); margin-top: 6px; }
+
+  .block { margin-top: 44px; }
+  .sec-h { font-family: var(--display); font-weight: 400; font-size: 22px; color: var(--forest); }
+
+  .stars { display: flex; gap: 12px; margin-top: 18px; }
+  .star { cursor: pointer; }
+  .star svg { width: 40px; height: 40px; fill: none; stroke: var(--gold); stroke-width: 1.5; transition: fill .12s; }
+  .star.on svg { fill: var(--gold); }
+  .stars.sm { gap: 6px; }
+  .stars.sm .star svg { width: 22px; height: 22px; }
+
+  textarea.fb { width: 100%; border: 1px solid var(--cream-border); border-radius: var(--r-input); padding: 14px 16px; font-family: var(--body); font-size: 15px; color: var(--ink); margin-top: 16px; background: var(--cream-surface); resize: vertical; min-height: 90px; }
+  textarea.fb:focus { outline: none; border-color: var(--gold); }
+  .thanks { font-family: var(--body); font-size: 16px; color: var(--ink-muted); margin-top: 16px; }
+
+  .srow { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--cream-border); flex-wrap: wrap; }
+  .srow .tt { font-family: var(--body); font-weight: 500; font-size: 15px; color: var(--forest); }
+  .srow .right { display: flex; align-items: center; gap: 14px; }
+  .skip { font-family: var(--body); font-size: 13px; color: var(--ink-muted); cursor: pointer; }
+  .check { color: var(--forest); display: none; }
+  .srow.rated .check { display: inline; }
+  .srow.rated .skip { display: none; }
+
+  .pills { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+  .hpill { height: 40px; padding: 0 18px; display: inline-flex; align-items: center; border-radius: var(--r-pill); border: 1px solid var(--cream-border); background: var(--cream-surface); font-family: var(--body); font-size: 14px; font-weight: 500; color: var(--ink-soft); cursor: pointer; transition: all .15s; }
+  .hpill.on { background: var(--forest); border-color: var(--forest); color: #fff; }
+
+  .submit { display: flex; flex-direction: column; align-items: center; margin-top: 48px; }
+  .submit .btn { width: 280px; }
+  .submit .later { font-family: var(--body); font-size: 14px; color: var(--ink-muted); margin-top: 14px; cursor: pointer; }
+
+  @media (max-width:600px){ .submit .btn { width: 100%; } }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links"><a href="w06-discovery.html">Discover</a><a href="w13-speakers.html">Speakers</a><a href="w10-schedule.html">Schedule</a><a href="w11-networking.html">Network</a></div>
+  <div class="right"><div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div><button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button></div>
+</nav>
+
+<div class="wrap">
+  <div class="head">
+    <h1>How was AfriTech Summit?</h1>
+    <div class="sub">Your feedback helps organizers improve.</div>
+  </div>
+
+  <div class="block">
+    <div class="sec-h">Rate the event</div>
+    <div class="stars" id="bigstars"></div>
+    <div id="bigthanks" style="display:none;">
+      <div class="thanks">Thanks — tell us more (optional)</div>
+      <textarea class="fb" placeholder="What stood out? What could be better?"></textarea>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="sec-h" style="font-size:20px;">Sessions you attended</div>
+    <div id="sessions"></div>
+  </div>
+
+  <div class="block">
+    <div class="sec-h" style="font-size:20px;">What was the best part?</div>
+    <div class="pills" id="pills">
+      <div class="hpill">The speakers</div>
+      <div class="hpill">The networking</div>
+      <div class="hpill">The sessions</div>
+      <div class="hpill">The venue</div>
+      <div class="hpill">The Karta Card 😄</div>
+    </div>
+  </div>
+
+  <div class="submit">
+    <button class="btn btn-forest btn-lg">Submit feedback</button>
+    <span class="later">Skip for now</span>
+  </div>
+</div>
+
+<script>
+  const starSvg='<svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.1 1.2 6L12 16.9 6.6 19.4l1.2-6L3.3 9.3l6.1-.7L12 3z"/></svg>';
+  function makeStars(host, count, preset){
+    for(let i=0;i<count;i++){ const s=document.createElement('div'); s.className='star'+(i<preset?' on':''); s.innerHTML=starSvg;
+      s.onclick=()=>{ [...host.children].forEach((c,j)=>c.classList.toggle('on', j<=i)); host.dataset.val=i+1; if(host.id==='bigstars') document.getElementById('bigthanks').style.display='block'; if(host.dataset.session!==undefined) host.closest('.srow').classList.add('rated'); };
+      host.appendChild(s);
+    }
+  }
+  makeStars(document.getElementById('bigstars'),5,4);
+
+  const sessions=[['Opening keynote — Building for the next billion',5],['Design systems workshop',0],['Scaling engineering across borders',0],['Fireside: Fundraising in 2026',4]];
+  const sc=document.getElementById('sessions');
+  sessions.forEach((s,idx)=>{
+    const row=document.createElement('div'); row.className='srow'+(s[1]>0?' rated':'');
+    row.innerHTML=`<div class="tt">${s[0]}</div><div class="right"><div class="stars sm" data-session="${idx}"></div><span class="skip">Skip</span><span class="check">✓</span></div>`;
+    sc.appendChild(row);
+    makeStars(row.querySelector('.stars'),5,s[1]);
+  });
+
+  document.querySelectorAll('#pills .hpill').forEach(p=>p.onclick=()=>p.classList.toggle('on'));
+  document.querySelector('.later').onclick=()=>{};
+</script>
+</body>
+</html>

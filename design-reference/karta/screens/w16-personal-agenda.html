@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W16 · Personal Agenda</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .head { padding: 40px 0 8px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  .head h1 { font-family: var(--display); font-weight: 400; font-size: 28px; color: var(--forest); letter-spacing: -0.02em; }
+  .head .sub { font-family: var(--body); font-size: 16px; color: var(--ink-muted); margin-top: 4px; }
+  .head .sub b { font-family: var(--mono); font-weight: 500; color: var(--ink); }
+
+  .daytabs { display: flex; gap: 4px; border-bottom: 1px solid var(--cream-border); margin-top: 24px; }
+  .daytab { padding: 12px 18px; font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--ink-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .daytab.active { color: var(--forest); border-bottom-color: var(--gold); }
+
+  .agenda { max-width: 760px; margin-top: 28px; }
+  .arow { display: grid; grid-template-columns: 64px 1fr; gap: 18px; }
+  .time-col { position: relative; padding-top: 18px; }
+  .time-col .tm { font-family: var(--mono); font-weight: 500; font-size: 15px; color: var(--forest); }
+  .time-col::before { content: ""; position: absolute; left: 50%; top: 44px; bottom: -8px; width: 2px; background: var(--gold); opacity: .35; }
+  .arow:last-child .time-col::before { display: none; }
+  .acard { border: 1px solid var(--cream-border); border-radius: var(--r-card); background: var(--cream-surface); padding: 16px 18px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+  .acard .tt { font-family: var(--display); font-weight: 500; font-size: 16px; color: var(--forest); }
+  .acard .meta { font-family: var(--body); font-size: 14px; color: var(--ink-muted); margin-top: 3px; }
+  .acard .track { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; height: 24px; padding: 0 10px; border-radius: var(--r-pill); background: var(--cream-soft); font-family: var(--body); font-size: 11px; font-weight: 500; color: var(--ink-soft); }
+  .rm { color: var(--ink-muted); font-family: var(--body); font-size: 13px; cursor: pointer; opacity: 0; transition: opacity .15s; white-space: nowrap; }
+  .acard:hover .rm { opacity: 1; }
+  .conflict { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 10px; border-radius: var(--r-pill); border: 1px solid var(--cream-border); background: rgba(201,164,94,0.12); color: var(--gold-hover); font-family: var(--mono); font-size: 11px; margin: 0 0 14px 0; }
+
+  @media (max-width:600px){ .head h1 { font-size: 24px; } .arow { grid-template-columns: 52px 1fr; gap: 12px; } }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links"><a href="w06-discovery.html">Discover</a><a href="w13-speakers.html">Speakers</a><a href="w10-schedule.html" style="color:var(--forest)">Schedule</a><a href="w11-networking.html">Network</a></div>
+  <div class="right"><div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div><button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button></div>
+</nav>
+
+<div class="container">
+  <div class="head">
+    <div>
+      <h1>My Agenda — AfriTech Summit 2026</h1>
+      <div class="sub"><b>14</b> sessions saved across 3 days</div>
+    </div>
+    <a href="w10-schedule.html" class="btn btn-ghost-forest btn-md" style="text-decoration:none;">Add more sessions</a>
+  </div>
+
+  <div class="daytabs">
+    <div class="daytab active">Thu 12</div><div class="daytab">Fri 13</div><div class="daytab">Sat 14</div>
+  </div>
+
+  <div class="agenda">
+    <div class="arow">
+      <div class="time-col"><div class="tm">09:00</div></div>
+      <div>
+        <div class="acard">
+          <div><div class="tt">Opening keynote — Building for the next billion</div><div class="meta">Amina Osman · Main Stage</div><span class="track"><span class="dot" style="background:var(--forest)"></span>Engineering</span></div>
+          <span class="rm">Remove ×</span>
+        </div>
+      </div>
+    </div>
+    <div class="arow">
+      <div class="time-col"><div class="tm">10:30</div></div>
+      <div>
+        <div class="acard">
+          <div><div class="tt">Type & layout fundamentals</div><div class="meta">Leila Haddad · Studio</div><span class="track"><span class="dot" style="background:var(--gold)"></span>Design</span></div>
+          <span class="rm">Remove ×</span>
+        </div>
+        <div class="conflict">Conflict · two sessions overlap at 10:30</div>
+        <div class="acard">
+          <div><div class="tt">Scaling engineering across borders</div><div class="meta">Faisal Karim · Track A</div><span class="track"><span class="dot" style="background:var(--forest)"></span>Engineering</span></div>
+          <span class="rm">Remove ×</span>
+        </div>
+      </div>
+    </div>
+    <div class="arow">
+      <div class="time-col"><div class="tm">13:00</div></div>
+      <div>
+        <div class="acard">
+          <div><div class="tt">Design systems workshop</div><div class="meta">Leila Haddad · Workshop Room</div><span class="track"><span class="dot" style="background:var(--gold)"></span>Design</span></div>
+          <span class="rm">Remove ×</span>
+        </div>
+      </div>
+    </div>
+    <div class="arow">
+      <div class="time-col"><div class="tm">15:30</div></div>
+      <div>
+        <div class="acard">
+          <div><div class="tt">Fireside: Fundraising in 2026</div><div class="meta">Amina Osman · Track B</div><span class="track"><span class="dot" style="background:#8A6FB0"></span>Business</span></div>
+          <span class="rm">Remove ×</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="height:80px;"></div>
+</div>
+
+<script>
+  document.querySelectorAll('.rm').forEach(r=>r.onclick=()=>{ const card=r.closest('.acard'); card.style.opacity=.4; r.textContent='Removed'; });
+  document.querySelectorAll('.daytab').forEach(d=>d.onclick=()=>{document.querySelector('.daytab.active')?.classList.remove('active');d.classList.add('active');});
+</script>
+</body>
+</html>

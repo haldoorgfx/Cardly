@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W22 · Q&A Moderation</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  body { overflow: hidden; }
+  .mod { display: grid; grid-template-columns: 440px 1fr; height: calc(100vh - 64px); }
+
+  .queue { border-right: 1px solid var(--cream-border); display: flex; flex-direction: column; }
+  .queue .top { padding: 20px 24px 12px; }
+  .queue .top h2 { font-family: var(--display); font-weight: 500; font-size: 18px; color: var(--forest); }
+  .queue .top .sub { font-family: var(--mono); font-size: 12px; color: var(--ink-muted); margin-top: 4px; }
+  .ftabs { display: flex; gap: 4px; padding: 0 24px 12px; border-bottom: 1px solid var(--cream-border); }
+  .ftab { padding: 6px 12px; border-radius: var(--r-btn); font-family: var(--body); font-size: 13px; font-weight: 500; color: var(--ink-muted); cursor: pointer; }
+  .ftab.active { background: var(--forest-soft); color: var(--forest); }
+  .qlist { overflow-y: auto; flex: 1; padding: 16px 24px; }
+
+  .qrow { display: flex; gap: 14px; padding: 14px; border: 1px solid var(--cream-border); border-radius: var(--r-card); background: var(--cream-surface); margin-bottom: 12px; }
+  .qrow.answered { opacity: .55; }
+  .qrow .votes { font-family: var(--mono); font-weight: 500; font-size: 16px; color: var(--forest); flex: none; width: 28px; text-align: center; }
+  .qrow .qb { flex: 1; min-width: 0; }
+  .qrow .qt { font-family: var(--body); font-size: 14px; color: var(--ink); line-height: 1.45; }
+  .qrow .qs { font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-top: 6px; }
+  .qrow .acts { display: flex; gap: 8px; margin-top: 10px; }
+  .iconbtn { width: 30px; height: 30px; border-radius: var(--r-btn); border: 1px solid var(--cream-border); background: var(--cream-surface); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .iconbtn svg { width: 15px; height: 15px; stroke: var(--ink-muted); fill: none; stroke-width: 1.8; }
+  .iconbtn.star.on { background: var(--gold); border-color: var(--gold); } .iconbtn.star.on svg { stroke: var(--ink); fill: var(--ink); }
+  .iconbtn.ans.on { background: var(--forest); border-color: var(--forest); } .iconbtn.ans.on svg { stroke: #fff; }
+  .answered-pill { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 10px; border-radius: var(--r-pill); background: var(--forest-soft); color: var(--forest); font-family: var(--body); font-size: 11px; font-weight: 500; }
+
+  .status { padding: 32px 40px; overflow-y: auto; }
+  .status .live { display: inline-flex; align-items: center; gap: 8px; font-family: var(--display); font-weight: 500; font-size: 16px; color: var(--forest); }
+  .status .live .pulse { width: 9px; height: 9px; border-radius: 50%; background: var(--forest); animation: pulse 1.4s infinite; }
+  @keyframes pulse { 0%,100%{ box-shadow:0 0 0 0 rgba(31,77,58,.4);} 50%{ box-shadow:0 0 0 6px rgba(31,77,58,0);} }
+  .status .nums { font-family: var(--mono); font-size: 14px; color: var(--ink-muted); margin-top: 10px; }
+  .pollcard { margin-top: 28px; padding: 22px; }
+  .pollcard h3 { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--forest); }
+  .pres { margin-top: 14px; }
+  .pres .row { margin-bottom: 12px; }
+  .pres .top2 { display: flex; justify-content: space-between; font-family: var(--body); font-size: 13px; color: var(--ink-soft); margin-bottom: 5px; }
+  .pres .top2 .p { font-family: var(--mono); font-weight: 500; color: var(--forest); }
+  .track { height: 8px; border-radius: 999px; background: var(--cream-soft); overflow: hidden; }
+  .track .f { height: 100%; background: var(--forest); border-radius: 999px; }
+  .ctas { display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap; }
+  .botctas { display: flex; gap: 10px; margin-top: 18px; }
+
+  @media (max-width:860px){ .mod { grid-template-columns: 1fr; } .status { display: none; } }
+</style>
+</head>
+<body>
+
+<nav class="dashnav">
+  <div style="display:flex; align-items:center; gap:18px;">
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+    <div class="crumb"><b>Karta</b>&nbsp;&nbsp;/&nbsp;&nbsp;AfriTech Summit&nbsp;&nbsp;/&nbsp;&nbsp;Q&amp;A Moderation</div>
+  </div>
+  <div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div>
+</nav>
+
+<div class="mod">
+  <aside class="queue">
+    <div class="top">
+      <h2>Q&A — Design Systems Workshop</h2>
+      <div class="sub">23 questions · sorted by votes</div>
+    </div>
+    <div class="ftabs">
+      <div class="ftab active">All</div><div class="ftab">Pending</div><div class="ftab">Answered</div><div class="ftab">Hidden</div>
+    </div>
+    <div class="qlist" id="qlist"></div>
+  </aside>
+
+  <section class="status">
+    <div class="live"><span class="pulse"></span>Session live</div>
+    <div class="nums">47 min remaining · 234 attendees · 23 questions</div>
+
+    <div class="card pollcard">
+      <h3>Active poll — Biggest blocker to adopting a design system?</h3>
+      <div class="pres">
+        <div class="row"><div class="top2"><span>Buy-in from leadership</span><span class="p">46%</span></div><div class="track"><div class="f" style="width:46%"></div></div></div>
+        <div class="row"><div class="top2"><span>Engineering bandwidth</span><span class="p">31%</span></div><div class="track"><div class="f" style="width:31%"></div></div></div>
+        <div class="row"><div class="top2"><span>Designer–developer handoff</span><span class="p">15%</span></div><div class="track"><div class="f" style="width:15%"></div></div></div>
+        <div class="row"><div class="top2"><span>Tooling & infrastructure</span><span class="p">8%</span></div><div class="track"><div class="f" style="width:8%"></div></div></div>
+      </div>
+      <button class="btn btn-ghost-forest btn-sm" style="margin-top:8px;">Close poll</button>
+    </div>
+
+    <div class="ctas">
+      <button class="btn btn-forest btn-md">Launch new poll</button>
+    </div>
+    <div class="botctas">
+      <button class="btn btn-ghost-forest btn-sm">End Q&A</button>
+      <button class="btn btn-ghost-forest btn-sm">Download questions CSV</button>
+    </div>
+  </section>
+</div>
+
+<script>
+  const qs=[
+    [42,'How do you handle versioning when multiple teams consume the same token package?','Amina O. · 4m ago',false,false],
+    [38,'CSS variables vs a build-time token system like Style Dictionary?','Anonymous · 7m ago',false,false],
+    [27,'Semantic token names or literal ones for a small team just starting out?','Faisal K. · 11m ago',true,false],
+    [19,'How do you get designers and engineers to agree on the spacing scale?','Leila H. · 15m ago',false,false],
+    [12,'Advice for migrating a legacy product to a token system incrementally?','Anonymous · 18m ago',false,false],
+  ];
+  document.getElementById('qlist').innerHTML=qs.map((q,i)=>`
+    <div class="qrow ${q[4]?'answered':''}">
+      <div class="votes">${q[0]}</div>
+      <div class="qb">
+        <div class="qt">${q[1]}</div>
+        <div class="qs">${q[2]}</div>
+        <div class="acts">
+          <div class="iconbtn star ${q[3]?'on':''}" title="Feature"><svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.1 1.2 6L12 16.9 6.6 19.4l1.2-6L3.3 9.3l6.1-.7L12 3z"/></svg></div>
+          <div class="iconbtn ans ${q[4]?'on':''}" title="Answered"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>
+          <div class="iconbtn hide" title="Hide"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></div>
+        </div>
+      </div>
+    </div>`).join('');
+  document.querySelectorAll('.iconbtn.star').forEach(b=>b.onclick=()=>b.classList.toggle('on'));
+  document.querySelectorAll('.iconbtn.ans').forEach(b=>b.onclick=()=>{b.classList.toggle('on');b.closest('.qrow').classList.toggle('answered');});
+  document.querySelectorAll('.iconbtn.hide').forEach(b=>b.onclick=()=>{b.closest('.qrow').style.display='none';});
+  document.querySelectorAll('.ftab').forEach(t=>t.onclick=()=>{document.querySelector('.ftab.active')?.classList.remove('active');t.classList.add('active');});
+</script>
+</body>
+</html>

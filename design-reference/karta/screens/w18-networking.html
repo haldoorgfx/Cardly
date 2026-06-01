@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W18 · Networking — People Discovery</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .head { padding: 40px 0 16px; }
+  .head h1 { font-family: var(--display); font-weight: 400; font-size: 28px; color: var(--forest); letter-spacing: -0.02em; }
+  .head .sub { font-family: var(--body); font-size: 16px; color: var(--ink-muted); margin-top: 4px; }
+  .head .sub b { font-family: var(--mono); font-weight: 500; color: var(--ink); }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 18px; }
+
+  .seclabel { font-family: var(--body); font-weight: 500; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gold-hover); margin: 40px 0 16px; }
+
+  .matchrail { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; }
+  .mcard { flex: none; width: 240px; border-radius: var(--r-card); background: var(--cream-surface); border: 1px solid var(--cream-border); overflow: hidden; transition: box-shadow .15s; }
+  .mcard:hover { box-shadow: 0 0 0 1.5px rgba(232,197,126,0.5); }
+  .mcard .ph { width: 100%; aspect-ratio: 16/9; }
+  .mcard .b { padding: 14px 16px 16px; }
+  .mcard .nm { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--forest); }
+  .mcard .role { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 1px; }
+  .mcard .hr { height: 1px; background: var(--gold); opacity: .4; margin: 12px 0; }
+  .mcard .why { font-family: var(--body); font-style: italic; font-size: 11px; color: var(--gold-hover); }
+  .mcard .reason { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 3px; line-height: 1.45; }
+  .mcard .btn { margin-top: 14px; }
+
+  .searchwrap { margin: 40px 0 24px; }
+
+  .people { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; }
+  .pcard { border: 1px solid var(--cream-border); border-radius: var(--r-card); background: var(--cream-surface); padding: 22px 18px; text-align: center; }
+  .pcard .pav { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 12px; }
+  .pcard .nm { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--forest); }
+  .pcard .role { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 2px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 12px 0; }
+  .tag { height: 24px; padding: 0 10px; display: inline-flex; align-items: center; border-radius: var(--r-pill); background: var(--forest-soft); color: var(--forest); font-family: var(--body); font-size: 11px; font-weight: 500; }
+  .mutual { font-family: var(--mono); font-size: 11px; color: var(--ink-muted); margin-top: 8px; }
+  .connect.done { background: var(--forest-soft) !important; color: var(--forest) !important; border-color: var(--forest-soft) !important; }
+
+  @media (max-width:1000px){ .people { grid-template-columns: repeat(2,1fr); } }
+  @media (max-width:600px){ .people { grid-template-columns: 1fr; } .head h1 { font-size: 24px; } }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links"><a href="w06-discovery.html">Discover</a><a href="w13-speakers.html">Speakers</a><a href="w10-schedule.html">Schedule</a><a href="#" style="color:var(--forest)">Network</a></div>
+  <div class="right"><div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div><button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button></div>
+</nav>
+
+<div class="container">
+  <div class="head">
+    <h1>People at AfriTech Summit 2026</h1>
+    <div class="sub"><b>247</b> attendees are networking</div>
+    <div class="filters">
+      <div class="chip active">All</div><div class="chip">Founders</div><div class="chip">Investors</div><div class="chip">Engineers</div><div class="chip">Designers</div><div class="chip">Students</div>
+    </div>
+  </div>
+
+  <div class="seclabel">Suggested for you</div>
+  <div class="matchrail no-scrollbar" id="matchrail"></div>
+
+  <div class="search searchwrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input placeholder="Search by name, company, interest…"></div>
+
+  <div class="people" id="people"></div>
+  <div style="height:80px;"></div>
+</div>
+
+<script>
+  const matches=[
+    ['Faisal Karim','VP Eng, Andela',200,'Both building fintech in East Africa. Both attending the Payments session tomorrow.'],
+    ['Nadia Saleh','Partner, Horn Ventures',50,'She invests in seed-stage fintech — your stage and sector exactly.'],
+    ['Omar Farah','Founder, Red Sea Tech',265,'Both Djibouti-based founders raising in 2026. Worth comparing notes.'],
+    ['Leila Haddad','Design Lead, Flutterwave',95,'You both saved the design systems workshop and follow the Design track.'],
+  ];
+  document.getElementById('matchrail').innerHTML=matches.map(m=>`
+    <div class="mcard">
+      <div class="ph" style="--h:${m[2]};"></div>
+      <div class="b">
+        <div class="nm">${m[0]}</div><div class="role">${m[1]}</div>
+        <div class="hr"></div>
+        <div class="why">Why meet?</div>
+        <div class="reason">${m[3]}</div>
+        <button class="btn btn-ghost-forest btn-sm connect">Connect</button>
+      </div>
+    </div>`).join('');
+
+  const people=[
+    ['Amina Osman','Founder, Sahel Pay',30,['Fintech','Hiring'],'2 mutual'],
+    ['Samuel Okoro','Staff Eng, Paystack',158,['Infra','Go'],''],
+    ['Hana Bekele','Designer',18,['Branding','Type'],'1 mutual'],
+    ['Yonas Tesfaye','Student, ASTU',120,['Frontend'],''],
+    ['Mariam Diallo','PM, Sahel Pay',340,['Product'],'3 mutual'],
+    ['Yusuf Ahmed','CTO, Cargo.io',230,['Logistics','Hiring'],''],
+  ];
+  document.getElementById('people').innerHTML=people.map(p=>`
+    <div class="pcard">
+      <div class="ph pav" style="--h:${p[2]};"></div>
+      <div class="nm">${p[0]}</div><div class="role">${p[1]}</div>
+      <div class="tags">${p[3].map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      ${p[4]?`<div class="mutual">${p[4]} connections</div>`:''}
+      <button class="btn btn-ghost-forest btn-sm connect" style="margin-top:12px;">Connect</button>
+    </div>`).join('');
+
+  document.addEventListener('click',e=>{ const b=e.target.closest('.connect'); if(b){ if(b.classList.contains('done')){b.classList.remove('done');b.textContent='Connect';}else{b.classList.add('done');b.textContent='Requested ✓';} }});
+  document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{document.querySelector('.chip.active')?.classList.remove('active');c.classList.add('active');});
+</script>
+</body>
+</html>

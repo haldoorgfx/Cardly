@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W05 · Analytics</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .pagehead { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
+  .rangepill { height: 38px; padding: 0 16px; border: 1px solid var(--cream-border); border-radius: var(--r-pill); background: var(--cream-surface); display: inline-flex; align-items: center; gap: 8px; font-family: var(--body); font-size: 14px; color: var(--ink-soft); cursor: pointer; }
+  .asec { margin-top: 56px; }
+  .asec .ah { font-family: var(--display); font-weight: 400; font-size: 22px; color: var(--forest); letter-spacing: -0.015em; margin-bottom: 20px; }
+  .insight { font-family: var(--body); font-size: 15px; color: var(--ink-muted); margin-top: 18px; max-width: 720px; text-wrap: pretty; }
+  .chartbox { width: 100%; height: 220px; }
+  .toprow { background: var(--forest-soft); }
+  .leaders { max-width: 520px; margin-top: 8px; }
+  .leaders .leader { padding: 11px 0; }
+  .leaders .total { border-top: 1px solid var(--cream-border); margin-top: 6px; padding-top: 16px; }
+  .leaders .total .lab { font-weight: 600; font-family: var(--display); }
+  .leaders .total .amt { font-size: 20px; }
+  .viral { max-width: 760px; }
+  .viral .big { font-family: var(--mono); font-weight: 500; font-size: 28px; color: var(--forest); }
+  @media (max-width:900px){ .col-hide{ display:none; } }
+</style>
+</head>
+<body>
+
+<div class="dashnav">
+  <div style="display:flex; align-items:center; gap:18px;">
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+    <div class="crumb"><b>Karta</b>&nbsp;&nbsp;/&nbsp;&nbsp;AfriTech Summit&nbsp;&nbsp;/&nbsp;&nbsp;Analytics</div>
+  </div>
+  <div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div>
+</div>
+
+<div class="dash">
+  <aside class="sidebar">
+    <div class="side-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Events</div>
+    <div class="side-item"><svg viewBox="0 0 24 24"><path d="M16 11l2 2 4-4M3 20c0-3 2.7-5 6-5s6 2 6 5M9 12a4 4 0 100-8 4 4 0 000 8z"/></svg>Registrations</div>
+    <div class="side-item active"><svg viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l4-4 3 3 5-6"/></svg>Analytics</div>
+    <div class="side-item"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="10" r="2.3"/><path d="M3 20c0-3 2.7-5 6-5s6 2 6 5"/></svg>Team</div>
+    <div class="side-label">Organizer Tools</div>
+    <div class="side-item"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Billing</div>
+    <div style="flex:1;"></div>
+    <span class="pill" style="background:var(--forest-soft); color:var(--forest); margin:0 12px; align-self:flex-start; font-family:var(--mono); font-weight:500;">Pro plan</span>
+  </aside>
+
+  <main class="main" style="max-width:920px;">
+    <div class="pagehead">
+      <h1 class="t-display-lg" style="color:var(--forest);">Analytics — AfriTech Summit 2026</h1>
+      <div class="rangepill">Last 90 days <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+    </div>
+
+    <!-- Registrations -->
+    <div class="asec" style="margin-top:32px;">
+      <div class="ah">Registrations</div>
+      <svg class="chartbox" viewBox="0 0 800 220" preserveAspectRatio="none">
+        <line x1="40" y1="190" x2="800" y2="190" stroke="#E5E0D4" stroke-width="1"/>
+        <line x1="40" y1="10" x2="40" y2="190" stroke="#E5E0D4" stroke-width="1"/>
+        <polyline fill="none" stroke="#1F4D3A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+          points="40,180 130,176 220,170 310,160 400,150 470,128 540,96 600,70 660,46 720,30 770,22"/>
+        <circle cx="770" cy="22" r="5" fill="#E8C57E" stroke="#FAF6EE" stroke-width="2"/>
+      </svg>
+      <div style="display:flex; justify-content:space-between; max-width:760px; margin-top:6px; font-family:var(--mono); font-size:11px; color:var(--ink-muted);">
+        <span>Dec</span><span>Jan</span><span>Feb</span><span>Mar</span>
+      </div>
+      <p class="insight">72% of registrations came in the 14 days before the event. Consider a sharper early-bird deadline next time.</p>
+    </div>
+
+    <!-- Sessions -->
+    <div class="asec">
+      <div class="ah">Sessions</div>
+      <table class="tbl">
+        <thead><tr><th>Session</th><th>Registered</th><th class="col-hide">Attended</th><th>Rating</th><th class="col-hide">Feedback</th></tr></thead>
+        <tbody>
+          <tr class="toprow"><td><span class="t-body-sm" style="font-weight:500; color:var(--forest)">Opening keynote — Building for the next billion</span></td><td><span class="t-num-sm">237</span></td><td class="col-hide"><span class="t-num-sm">221</span></td><td><span class="t-num-sm" style="color:var(--gold-hover)">4.9★</span></td><td class="col-hide"><span class="t-num-sm" style="color:var(--ink-muted)">86 notes</span></td></tr>
+          <tr><td><span class="t-body-sm" style="color:var(--ink)">Scaling engineering across borders</span></td><td><span class="t-num-sm">148</span></td><td class="col-hide"><span class="t-num-sm">132</span></td><td><span class="t-num-sm">4.6★</span></td><td class="col-hide"><span class="t-num-sm" style="color:var(--ink-muted)">41 notes</span></td></tr>
+          <tr><td><span class="t-body-sm" style="color:var(--ink)">Design systems workshop</span></td><td><span class="t-num-sm">60</span></td><td class="col-hide"><span class="t-num-sm">58</span></td><td><span class="t-num-sm">4.8★</span></td><td class="col-hide"><span class="t-num-sm" style="color:var(--ink-muted)">52 notes</span></td></tr>
+          <tr><td><span class="t-body-sm" style="color:var(--ink)">Go-to-market in the Horn</span></td><td><span class="t-num-sm">112</span></td><td class="col-hide"><span class="t-num-sm">94</span></td><td><span class="t-num-sm">4.3★</span></td><td class="col-hide"><span class="t-num-sm" style="color:var(--ink-muted)">28 notes</span></td></tr>
+          <tr><td><span class="t-body-sm" style="color:var(--ink)">Fireside: Fundraising in 2026</span></td><td><span class="t-num-sm">96</span></td><td class="col-hide"><span class="t-num-sm">71</span></td><td><span class="t-num-sm">4.1★</span></td><td class="col-hide"><span class="t-num-sm" style="color:var(--ink-muted)">19 notes</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Revenue -->
+    <div class="asec">
+      <div class="ah">Revenue</div>
+      <div class="leaders">
+        <div class="leader"><span class="lab">Early bird tickets</span><span class="fill"></span><span class="amt">$3,200</span></div>
+        <div class="leader"><span class="lab">General admission</span><span class="fill"></span><span class="amt">$8,400</span></div>
+        <div class="leader"><span class="lab">VIP packages</span><span class="fill"></span><span class="amt">$2,600</span></div>
+        <div class="leader total"><span class="lab">Total</span><span class="fill"></span><span class="amt">$14,200</span></div>
+      </div>
+    </div>
+
+    <!-- Karta Card virality -->
+    <div class="asec">
+      <div class="ah">Karta Card sharing</div>
+      <div class="viral">
+        <p class="t-body" style="color:var(--ink-soft); text-wrap:pretty;"><span class="mono" style="color:var(--forest); font-weight:500;">198</span> of <span class="mono" style="color:var(--forest); font-weight:500;">237</span> attendees (<span class="mono" style="color:var(--gold-hover); font-weight:500;">84%</span>) downloaded their card. <span class="mono" style="color:var(--forest); font-weight:500;">127</span> cards were shared to social media:</p>
+        <div class="leaders" style="margin-top:16px;">
+          <div class="leader"><span class="lab">WhatsApp</span><span class="fill"></span><span class="amt">89</span></div>
+          <div class="leader"><span class="lab">Instagram</span><span class="fill"></span><span class="amt">24</span></div>
+          <div class="leader"><span class="lab">LinkedIn</span><span class="fill"></span><span class="amt">14</span></div>
+        </div>
+        <p class="insight" style="margin-top:20px;">This metric exists nowhere else in event tech. Every shared card put AfriTech Summit in front of an average of 340 new people — the cheapest acquisition channel you have.</p>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+</body>
+</html>

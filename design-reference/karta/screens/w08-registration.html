@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W08 · Registration Flow</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .wrap { max-width: 1000px; margin: 40px auto 96px; padding: 0 40px; display: grid; grid-template-columns: 1fr 320px; gap: 48px; align-items: start; }
+  .steps { display: flex; align-items: center; gap: 10px; margin-bottom: 32px; }
+  .step { display: flex; align-items: center; gap: 10px; }
+  .step .num { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--cream-border); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 12px; color: var(--ink-muted); flex: none; }
+  .step.active .num { background: var(--forest); border-color: var(--forest); color: #fff; }
+  .step.done .num { background: var(--forest-soft); border-color: var(--forest); color: var(--forest); }
+  .step .lab { font-family: var(--body); font-size: 13px; font-weight: 500; color: var(--ink-muted); white-space: nowrap; }
+  .step.active .lab, .step.done .lab { color: var(--forest); }
+  .step .bar { width: 28px; height: 1px; background: var(--cream-border); }
+
+  .pane { display: none; }
+  .pane.active { display: block; }
+  .h2 { font-family: var(--display); font-weight: 400; font-size: 28px; color: var(--forest); letter-spacing: -0.02em; margin-bottom: 6px; }
+  .sub { font-family: var(--body); font-size: 14px; color: var(--ink-muted); margin-bottom: 24px; }
+
+  .tk { display: flex; align-items: center; gap: 16px; padding: 18px; border: 1px solid var(--cream-border); border-radius: var(--r-card); background: var(--cream-surface); cursor: pointer; margin-bottom: 12px; transition: border-color .15s; }
+  .tk.sel { border-color: var(--forest); box-shadow: inset 0 0 0 1px var(--forest); }
+  .tk .radio { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--cream-border); flex: none; }
+  .tk.sel .radio { border-color: var(--forest); box-shadow: inset 0 0 0 5px var(--forest); }
+  .tk .nm { font-family: var(--display); font-weight: 500; font-size: 16px; color: var(--ink); }
+  .tk .ds { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 2px; }
+  .tk .pr { margin-left: auto; font-family: var(--mono); font-weight: 500; font-size: 18px; color: var(--forest); }
+
+  .field { margin-bottom: 18px; }
+  .field label { display: block; font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-bottom: 6px; }
+  .field input { width: 100%; border: 1px solid var(--cream-border); border-radius: var(--r-input); padding: 12px 14px; font-family: var(--body); font-size: 15px; color: var(--ink); background: var(--cream-surface); }
+  .field input:focus { outline: none; border-color: var(--gold); }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  .photozone { border: 1.5px dashed var(--cream-border); border-radius: var(--r-card); height: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: border-color .15s; background: var(--cream-surface); }
+  .photozone:hover { border-color: var(--gold); }
+  .photozone svg { width: 26px; height: 26px; stroke: var(--ink-muted); fill: none; stroke-width: 1.6; }
+  .photozone.filled { border-style: solid; }
+  .photoprev { width: 80px; height: 80px; border-radius: 50%; }
+
+  .paybadge { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 12px; color: var(--ink-muted); margin-bottom: 18px; }
+
+  /* card personalization live preview */
+  .cardlive { width: 100%; max-width: 320px; aspect-ratio: 5/7; border-radius: var(--r-card); position: relative; overflow: hidden; margin: 0 auto; }
+  .cardlive .inner { position: absolute; inset: 0; padding: 22px; display: flex; flex-direction: column; }
+  .cardlive .ev { font-family: var(--display); font-weight: 600; font-size: 14px; color: var(--gold); letter-spacing: 0.02em; }
+  .cardlive .pic { width: 92px; height: 92px; border-radius: 50%; border: 2px solid var(--gold); margin: auto auto 16px; }
+  .cardlive .nm { font-family: var(--display); font-weight: 500; font-size: 24px; color: #fff; text-align: center; }
+  .cardlive .meta { font-family: var(--mono); font-size: 12px; color: var(--gold); text-align: center; margin-top: 4px; }
+  .swatches { display: flex; gap: 10px; margin-top: 14px; }
+  .sw { width: 34px; height: 34px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
+  .sw.on { border-color: var(--ink); }
+
+  /* summary */
+  .summary { position: sticky; top: 40px; padding: 24px; }
+  .sumrow { display: flex; justify-content: space-between; padding: 10px 0; font-family: var(--body); font-size: 14px; color: var(--ink-soft); }
+  .sumrow .v { font-family: var(--mono); color: var(--ink); }
+  .sumtotal { border-top: 1px solid var(--cream-border); margin-top: 8px; padding-top: 14px; display: flex; justify-content: space-between; align-items: baseline; }
+  .sumtotal .v { font-family: var(--mono); font-weight: 500; font-size: 22px; color: var(--forest); }
+  .evmini { display: flex; gap: 12px; align-items: center; padding-bottom: 16px; border-bottom: 1px solid var(--cream-border); margin-bottom: 8px; }
+  .evmini .ph { width: 48px; height: 48px; border-radius: var(--r-card); flex: none; }
+
+  .nav { display: flex; justify-content: space-between; margin-top: 32px; gap: 12px; }
+
+  @media (max-width: 900px){
+    .wrap { grid-template-columns: 1fr; gap: 0; margin-bottom: 40px; }
+    .summary { position: static; margin-bottom: 28px; order: -1; }
+    .steps .lab { display: none; }
+    .row2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links"><a href="#">Discover</a><a href="#">My tickets</a><a href="#">Schedule</a><a href="#">Network</a></div>
+  <div class="right">
+    <div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div>
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div>
+    <div class="steps">
+      <div class="step active" data-s="0"><span class="num">1</span><span class="lab">Ticket</span></div>
+      <div class="bar"></div>
+      <div class="step" data-s="1"><span class="num">2</span><span class="lab">Details</span></div>
+      <div class="bar"></div>
+      <div class="step" data-s="2"><span class="num">3</span><span class="lab">Payment</span></div>
+      <div class="bar"></div>
+      <div class="step" data-s="3"><span class="num">4</span><span class="lab">Your card</span></div>
+    </div>
+
+    <!-- Step 1: Ticket -->
+    <div class="pane active" data-pane="0">
+      <div class="h2">Choose your ticket</div>
+      <div class="sub">AfriTech Summit 2026 · 12–14 March · Djibouti City</div>
+      <div class="tk sel" data-price="25" data-name="General admission"><span class="radio"></span><div><div class="nm">General admission</div><div class="ds">All keynotes & tracks, 3 days</div></div><span class="pr">$25</span></div>
+      <div class="tk" data-price="80" data-name="VIP package"><span class="radio"></span><div><div class="nm">VIP package</div><div class="ds">Front row, speaker dinner, lounge</div></div><span class="pr">$80</span></div>
+      <div class="tk" data-price="0" data-name="Student"><span class="radio"></span><div><div class="nm">Student</div><div class="ds">Valid student ID required at door</div></div><span class="pr" style="color:var(--gold-hover)">Free</span></div>
+    </div>
+
+    <!-- Step 2: Details -->
+    <div class="pane" data-pane="1">
+      <div class="h2">Your details</div>
+      <div class="sub">This is how you'll appear on the attendee list and your Karta Card.</div>
+      <div class="field"><label>Full name</label><input id="f-name" value="Amina Osman" oninput="syncCard()"></div>
+      <div class="field"><label>Email</label><input id="f-email" value="amina.osman@sahelpay.co"></div>
+      <div class="row2">
+        <div class="field"><label>Company / role</label><input id="f-role" value="Founder, Sahel Pay" oninput="syncCard()"></div>
+        <div class="field"><label>City</label><input value="Djibouti City"></div>
+      </div>
+      <div class="field">
+        <label>Add your photo — appears on your Karta Card</label>
+        <div class="photozone" id="pz" onclick="fillPhoto()">
+          <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M21 17l-5-5-4 4-2-2-4 4"/></svg>
+          <div class="t-body-sm" style="color:var(--ink-muted)">Click to add your photo</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Payment -->
+    <div class="pane" data-pane="2">
+      <div class="h2">Payment</div>
+      <div class="sub">Secured by Karta Pay. You won't be charged until you confirm.</div>
+      <div class="paybadge"><span class="dot" style="background:var(--success)"></span> Encrypted · PCI-DSS</div>
+      <div class="field"><label>Card number</label><input value="4242 4242 4242 4242"></div>
+      <div class="row2">
+        <div class="field"><label>Expiry</label><input value="08 / 27"></div>
+        <div class="field"><label>CVC</label><input value="123"></div>
+      </div>
+      <div class="field"><label>Name on card</label><input value="Amina Osman"></div>
+    </div>
+
+    <!-- Step 4: Card personalization -->
+    <div class="pane" data-pane="3">
+      <div class="h2">Personalize your card</div>
+      <div class="sub">Pick an accent. Your Karta Card generates the moment you confirm.</div>
+      <div class="swatches">
+        <div class="sw on" style="background:linear-gradient(135deg,#1F4D3A,#0D1F17)" data-h="158"></div>
+        <div class="sw" style="background:linear-gradient(135deg,#3a2a55,#14101f)" data-h="270"></div>
+        <div class="sw" style="background:linear-gradient(135deg,#5a3320,#1f120c)" data-h="25"></div>
+        <div class="sw" style="background:linear-gradient(135deg,#1e3a55,#0c1420)" data-h="210"></div>
+      </div>
+      <p class="t-body-sm" style="color:var(--ink-muted); margin-top:20px; max-width:380px;">The gold frame, your name and ticket tier are locked to the AfriTech Summit template. Everything else is yours.</p>
+    </div>
+
+    <div class="nav">
+      <button class="btn btn-ghost-forest btn-lg" id="back" style="visibility:hidden;">← Back</button>
+      <button class="btn btn-forest btn-lg" id="next" style="margin-left:auto;">Continue →</button>
+    </div>
+  </div>
+
+  <!-- summary / live card -->
+  <aside>
+    <div class="card summary" id="sumCard">
+      <div class="evmini">
+        <div class="ph" style="--h:158;"></div>
+        <div><div style="font-family:var(--display); font-weight:500; font-size:15px; color:var(--ink);">AfriTech Summit 2026</div><div class="t-num-sm" style="color:var(--ink-muted); margin-top:2px;">12 Mar · Djibouti</div></div>
+      </div>
+      <div class="sumrow"><span id="s-tname">General admission</span><span class="v" id="s-tprice">$25.00</span></div>
+      <div class="sumrow"><span>Service fee</span><span class="v">$1.50</span></div>
+      <div class="sumtotal"><span style="font-family:var(--display); font-weight:500; color:var(--ink);">Total</span><span class="v" id="s-total">$26.50</span></div>
+    </div>
+
+    <div class="card summary" id="liveWrap" style="display:none; padding:24px;">
+      <div class="t-caption" style="color:var(--ink-muted); text-transform:uppercase; text-align:center; margin-bottom:16px;">Live preview</div>
+      <div class="cardlive mesh-dark" id="cardlive">
+        <div class="inner">
+          <div class="ev">AfriTech Summit 2026</div>
+          <div class="pic ph" style="--h:158;"></div>
+          <div class="nm" id="c-name">Amina Osman</div>
+          <div class="meta" id="c-role">Founder, Sahel Pay · #198</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script>
+  let step=0, price=25;
+  const panes=[...document.querySelectorAll('.pane')];
+  const stepsEls=[...document.querySelectorAll('.step')];
+  const back=document.getElementById('back'), next=document.getElementById('next');
+  const sumCard=document.getElementById('sumCard'), liveWrap=document.getElementById('liveWrap');
+
+  function render(){
+    panes.forEach((p,i)=>p.classList.toggle('active', i===step));
+    stepsEls.forEach((s,i)=>{ s.classList.toggle('active', i===step); s.classList.toggle('done', i<step); });
+    back.style.visibility = step===0 ? 'hidden':'visible';
+    next.textContent = step===3 ? 'Confirm & generate card →' : 'Continue →';
+    liveWrap.style.display = step===3 ? 'block':'none';
+    sumCard.style.display = step===3 ? 'none':'block';
+  }
+  next.onclick=()=>{ if(step<3){ step++; render(); } else { window.location.href='w09-card-reveal.html'; } };
+  back.onclick=()=>{ if(step>0){ step--; render(); } };
+
+  // ticket select
+  document.querySelectorAll('.tk').forEach(tk=>tk.onclick=()=>{
+    document.querySelectorAll('.tk').forEach(t=>t.classList.remove('sel'));
+    tk.classList.add('sel');
+    price=+tk.dataset.price;
+    document.getElementById('s-tname').textContent=tk.dataset.name;
+    document.getElementById('s-tprice').textContent='$'+price.toFixed(2);
+    document.getElementById('s-total').textContent='$'+(price+1.5).toFixed(2);
+  });
+
+  function fillPhoto(){
+    const pz=document.getElementById('pz');
+    pz.classList.add('filled');
+    pz.innerHTML='<div class="photoprev ph" style="--h:158;"></div><div class="t-body-sm" style="color:var(--forest)">Photo added ✓</div>';
+  }
+  function syncCard(){
+    document.getElementById('c-name').textContent=document.getElementById('f-name').value||'Your name';
+    document.getElementById('c-role').textContent=(document.getElementById('f-role').value||'Attendee')+' · #198';
+  }
+  document.querySelectorAll('.sw').forEach(s=>s.onclick=()=>{
+    document.querySelectorAll('.sw').forEach(x=>x.classList.remove('on')); s.classList.add('on');
+    document.getElementById('cardlive').style.setProperty('--h', s.dataset.h);
+  });
+  render();
+</script>
+</body>
+</html>
