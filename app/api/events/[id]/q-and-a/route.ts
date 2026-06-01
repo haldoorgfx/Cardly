@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { z } from 'zod';
+import { sendQAAnsweredEmail } from '@/lib/email';
 
 const AskSchema = z.object({
   registration_id: z.string().uuid().optional(),
@@ -77,6 +78,30 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Fire-and-forget: notify the asker when their question is marked answered
+  if (status === 'answered' && data?.registration_id) {
+    (async () => {
+      const [{ data: event }, { data: reg }] = await Promise.all([
+        admin.from('events').select('name, slug').eq('id', params.id).single(),
+        admin
+          .from('registrations')
+          .select('attendee_name, attendee_email')
+          .eq('id', data.registration_id!)
+          .single(),
+      ]);
+      if (!event || !reg) return;
+      await sendQAAnsweredEmail({
+        to: reg.attendee_email,
+        attendeeName: reg.attendee_name,
+        question: data.question,
+        eventName: event.name,
+        eventSlug: event.slug,
+        registrationId: data.registration_id!,
+      });
+    })().catch(() => {});
+  }
+
   return NextResponse.json({ question: data });
 }
 

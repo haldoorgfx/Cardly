@@ -178,3 +178,126 @@ export async function sendTeamInviteEmail(opts: {
     `),
   );
 }
+
+// ─── Networking emails ────────────────────────────────────────────────────────
+
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+
+/** Notify an attendee that someone wants to connect with them. */
+export async function sendConnectionRequestEmail(opts: {
+  to: string;
+  recipientName: string;
+  requesterName: string;
+  eventName: string;
+  eventSlug: string;
+  registrationId: string;
+}): Promise<void> {
+  const peopleUrl = `${APP_URL}/e/${opts.eventSlug}/people?reg=${opts.registrationId}`;
+  await sendEmail(
+    opts.to,
+    `${opts.requesterName} wants to connect at ${opts.eventName}`,
+    wrap(`
+      <h1 style="margin:0 0 8px;font-size:24px;font-weight:700;letter-spacing:-0.02em">
+        New connection request
+      </h1>
+      <p style="margin:0 0 16px;font-size:14px;color:#6B7A72;line-height:1.6">
+        Hi ${opts.recipientName},<br><br>
+        <strong style="color:#0F1F18">${opts.requesterName}</strong> wants to connect with you
+        at <strong style="color:#0F1F18">${opts.eventName}</strong>.
+        Visit the People tab to accept or ignore.
+      </p>
+      ${btn(peopleUrl, 'View connection request →')}
+    `),
+  );
+}
+
+/** Notify the requester that their connection request was accepted. */
+export async function sendConnectionAcceptedEmail(opts: {
+  to: string;
+  requesterName: string;
+  acceptorName: string;
+  eventName: string;
+  eventSlug: string;
+  registrationId: string;
+}): Promise<void> {
+  const messagesUrl = `${APP_URL}/e/${opts.eventSlug}/messages?reg=${opts.registrationId}`;
+  await sendEmail(
+    opts.to,
+    `${opts.acceptorName} accepted your connection at ${opts.eventName}`,
+    wrap(`
+      <h1 style="margin:0 0 8px;font-size:24px;font-weight:700;letter-spacing:-0.02em">
+        You&apos;re connected!
+      </h1>
+      <p style="margin:0 0 16px;font-size:14px;color:#6B7A72;line-height:1.6">
+        Hi ${opts.requesterName},<br><br>
+        <strong style="color:#0F1F18">${opts.acceptorName}</strong> accepted your connection
+        request at <strong style="color:#0F1F18">${opts.eventName}</strong>.
+        Send them a message to start the conversation.
+      </p>
+      ${btn(messagesUrl, 'Send a message →')}
+    `),
+  );
+}
+
+/** Notify an attendee that they have a new message. Sent once per new thread only. */
+export async function sendNewMessageEmail(opts: {
+  to: string;
+  recipientName: string;
+  senderName: string;
+  eventName: string;
+  eventSlug: string;
+  registrationId: string;
+  preview: string;
+}): Promise<void> {
+  const messagesUrl = `${APP_URL}/e/${opts.eventSlug}/messages?reg=${opts.registrationId}`;
+  const preview = opts.preview.length > 120 ? opts.preview.slice(0, 117) + '…' : opts.preview;
+  await sendEmail(
+    opts.to,
+    `New message from ${opts.senderName} at ${opts.eventName}`,
+    wrap(`
+      <h1 style="margin:0 0 8px;font-size:24px;font-weight:700;letter-spacing:-0.02em">
+        New message
+      </h1>
+      <p style="margin:0 0 16px;font-size:14px;color:#6B7A72;line-height:1.6">
+        Hi ${opts.recipientName},<br><br>
+        <strong style="color:#0F1F18">${opts.senderName}</strong> sent you a message
+        at <strong style="color:#0F1F18">${opts.eventName}</strong>.
+      </p>
+      <div style="background:#FAF6EE;border-left:3px solid #1F4D3A;border-radius:4px;padding:14px 16px;font-size:13.5px;color:#3A4A42;line-height:1.6;margin-bottom:4px">
+        ${preview}
+      </div>
+      ${btn(messagesUrl, 'Reply →')}
+    `),
+  );
+}
+
+/** Notify an attendee that their Q&A question was answered. */
+export async function sendQAAnsweredEmail(opts: {
+  to: string;
+  attendeeName: string;
+  question: string;
+  eventName: string;
+  eventSlug: string;
+  registrationId: string;
+}): Promise<void> {
+  const qaUrl = `${APP_URL}/e/${opts.eventSlug}/q-and-a?reg=${opts.registrationId}`;
+  const questionPreview = opts.question.length > 140 ? opts.question.slice(0, 137) + '…' : opts.question;
+  await sendEmail(
+    opts.to,
+    `Your question was answered at ${opts.eventName}`,
+    wrap(`
+      <h1 style="margin:0 0 8px;font-size:24px;font-weight:700;letter-spacing:-0.02em">
+        Your question was answered ✅
+      </h1>
+      <p style="margin:0 0 16px;font-size:14px;color:#6B7A72;line-height:1.6">
+        Hi ${opts.attendeeName},<br><br>
+        The organiser has answered your question at
+        <strong style="color:#0F1F18">${opts.eventName}</strong>.
+      </p>
+      <div style="background:#FAF6EE;border-left:3px solid #1F4D3A;border-radius:4px;padding:14px 16px;font-size:13.5px;color:#3A4A42;line-height:1.6;margin-bottom:4px">
+        &ldquo;${questionPreview}&rdquo;
+      </div>
+      ${btn(qaUrl, 'See the answer →')}
+    `),
+  );
+}

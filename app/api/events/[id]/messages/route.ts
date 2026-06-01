@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { z } from 'zod';
+import { sendNewMessageEmail } from '@/lib/email';
 
 const SendSchema = z.object({
   sender_id: z.string().uuid(),
@@ -166,7 +167,9 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     .select('id', { count: 'exact', head: true })
     .eq('thread_id', thread.id);
 
-  if ((count ?? 0) <= 1) {
+  const isFirstMessage = (count ?? 0) <= 1;
+
+  if (isFirstMessage) {
     await admin.from('leaderboard_points').insert({
       event_id: params.id,
       registration_id: sender_id,
@@ -174,6 +177,30 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       points: 5,
       ref_id: thread.id,
     });
+
+    // Fire-and-forget: notify recipient on the first message in a new thread
+    (async () => {
+      const [{ data: event }, { data: regs }] = await Promise.all([
+        admin.from('events').select('name, slug').eq('id', params.id).single(),
+        admin
+          .from('registrations')
+          .select('id, attendee_name, attendee_email')
+          .in('id', [sender_id, recipient_id]),
+      ]);
+      if (!event || !regs) return;
+      const sender = regs.find(r => r.id === sender_id);
+      const recipient = regs.find(r => r.id === recipient_id);
+      if (!sender || !recipient) return;
+      await sendNewMessageEmail({
+        to: recipient.attendee_email,
+        recipientName: recipient.attendee_name,
+        senderName: sender.attendee_name,
+        eventName: event.name,
+        eventSlug: event.slug,
+        registrationId: recipient_id,
+        preview: content,
+      });
+    })().catch(() => {});
   }
 
   return NextResponse.json({ message, thread_id: thread.id }, { status: 201 });
