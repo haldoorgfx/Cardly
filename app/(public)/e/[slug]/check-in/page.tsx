@@ -1,24 +1,53 @@
 export const dynamic = 'force-dynamic';
 
-interface Props {
-  params: { slug: string };
-}
+import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
+import { QRScanner } from '@/components/check-in/QRScanner';
 
-// Phase 1.8 — QR scanner (mobile-optimized, dark canvas) built here
-export default function CheckInPage({ params }: Props) {
+interface Props { params: { slug: string } }
+
+export default async function CheckInPage({ params }: Props) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect(`/login?next=/e/${params.slug}/check-in`);
+
+  const admin = createAdminClient();
+
+  // Resolve event by custom_slug or event slug
+  const { data: eventPage } = await admin
+    .from('event_pages')
+    .select('event_id, title, events!inner(id, slug, name, user_id, status)')
+    .or(`custom_slug.eq.${params.slug},events.slug.eq.${params.slug}`)
+    .single();
+
+  if (!eventPage) redirect('/events');
+
+  const event = eventPage.events as unknown as { id: string; slug: string; name: string; user_id: string; status: string };
+
+  // Only the event owner can access the check-in scanner
+  if (event.user_id !== user.id) redirect('/dashboard');
+
+  // Get check-in stats
+  const [{ count: totalCount }, { count: checkedInCount }] = await Promise.all([
+    admin
+      .from('registrations')
+      .select('*', { count: 'exact', head: true })
+      .eq('event_id', event.id)
+      .in('status', ['confirmed', 'checked_in']),
+    admin
+      .from('registrations')
+      .select('*', { count: 'exact', head: true })
+      .eq('event_id', event.id)
+      .eq('status', 'checked_in'),
+  ]);
+
   return (
-    <div
-      className="min-h-screen flex items-center justify-center"
-      style={{ background: '#0A0F0C' }}
-    >
-      <div className="text-center px-5">
-        <div className="font-mono text-[11px] tracking-widest uppercase mb-2" style={{ color: 'rgba(232,197,126,0.6)' }}>
-          Phase 1.8 · /e/{params.slug}/check-in
-        </div>
-        <div className="text-[15px]" style={{ color: 'rgba(255,255,255,0.5)' }}>
-          QR camera scanner — dark canvas, mobile-first
-        </div>
-      </div>
-    </div>
+    <QRScanner
+      eventId={event.id}
+      eventSlug={event.slug}
+      eventName={event.name}
+      totalRegistrations={totalCount ?? 0}
+      initialCheckedIn={checkedInCount ?? 0}
+    />
   );
 }
