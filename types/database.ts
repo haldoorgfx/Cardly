@@ -1,3 +1,49 @@
+// ── Phase 3: Networking, Q&A, Polls types ────────────────────────────────────
+export type ConnectionStatus = "pending" | "accepted" | "declined";
+export type QAStatus = "pending" | "answered" | "hidden";
+export type LeaderboardAction = "session_attend" | "connection_made" | "question_asked" | "poll_voted" | "feedback_given" | "card_shared";
+
+export interface QAQuestion {
+  id: string;
+  event_id: string;
+  session_id: string | null;
+  registration_id: string | null;
+  question: string;
+  is_anonymous: boolean;
+  upvotes_count: number;
+  status: QAStatus;
+  is_featured: boolean;
+  created_at: string;
+  // joined
+  registrations?: { attendee_name: string } | null;
+}
+
+export interface Poll {
+  id: string;
+  event_id: string;
+  session_id: string | null;
+  question: string;
+  is_active: boolean;
+  is_closed: boolean;
+  created_at: string;
+  poll_options?: PollOption[];
+}
+
+export interface PollOption {
+  id: string;
+  poll_id: string;
+  text: string;
+  votes_count: number;
+  position: number;
+}
+
+export interface LeaderboardEntry {
+  registration_id: string;
+  attendee_name: string;
+  total_points: number;
+  rank: number;
+}
+
 // ── Phase 2: Speakers, sessions, agenda types ─────────────────────────────────
 export type SpeakerType = "keynote" | "speaker" | "panelist" | "workshop" | "mc";
 export type SessionType = "talk" | "keynote" | "workshop" | "panel" | "fireside" | "lightning" | "break";
@@ -1068,6 +1114,61 @@ export interface Database {
         };
         Relationships: [];
       };
+      // ── Phase 3: Networking, Q&A, Polls (migration 021) ─────────────
+      attendee_connections: {
+        Row: { id: string; event_id: string; requester_id: string; recipient_id: string; status: string; created_at: string; updated_at: string };
+        Insert: { id?: string; event_id: string; requester_id: string; recipient_id: string; status?: string; created_at?: string; updated_at?: string };
+        Update: { status?: string; updated_at?: string };
+        Relationships: [];
+      };
+      message_threads: {
+        Row: { id: string; event_id: string; participant_a: string; participant_b: string; last_message_at: string | null; created_at: string };
+        Insert: { id?: string; event_id: string; participant_a: string; participant_b: string; last_message_at?: string | null; created_at?: string };
+        Update: { last_message_at?: string | null };
+        Relationships: [];
+      };
+      messages: {
+        Row: { id: string; thread_id: string; sender_id: string; content: string; read_at: string | null; created_at: string };
+        Insert: { id?: string; thread_id: string; sender_id: string; content: string; read_at?: string | null; created_at?: string };
+        Update: { read_at?: string | null };
+        Relationships: [];
+      };
+      qa_questions: {
+        Row: { id: string; event_id: string; session_id: string | null; registration_id: string | null; question: string; is_anonymous: boolean; upvotes_count: number; status: string; is_featured: boolean; created_at: string };
+        Insert: { id?: string; event_id: string; session_id?: string | null; registration_id?: string | null; question: string; is_anonymous?: boolean; upvotes_count?: number; status?: string; is_featured?: boolean; created_at?: string };
+        Update: { status?: string; is_featured?: boolean; upvotes_count?: number };
+        Relationships: [];
+      };
+      qa_upvotes: {
+        Row: { question_id: string; registration_id: string; created_at: string };
+        Insert: { question_id: string; registration_id: string; created_at?: string };
+        Update: Record<string, never>;
+        Relationships: [];
+      };
+      polls: {
+        Row: { id: string; event_id: string; session_id: string | null; organizer_id: string | null; question: string; is_active: boolean; is_closed: boolean; created_at: string };
+        Insert: { id?: string; event_id: string; session_id?: string | null; organizer_id?: string | null; question: string; is_active?: boolean; is_closed?: boolean; created_at?: string };
+        Update: { question?: string; is_active?: boolean; is_closed?: boolean };
+        Relationships: [];
+      };
+      poll_options: {
+        Row: { id: string; poll_id: string; text: string; votes_count: number; position: number };
+        Insert: { id?: string; poll_id: string; text: string; votes_count?: number; position?: number };
+        Update: { text?: string; votes_count?: number; position?: number };
+        Relationships: [];
+      };
+      poll_votes: {
+        Row: { poll_id: string; option_id: string; registration_id: string; created_at: string };
+        Insert: { poll_id: string; option_id: string; registration_id: string; created_at?: string };
+        Update: Record<string, never>;
+        Relationships: [];
+      };
+      leaderboard_points: {
+        Row: { id: string; event_id: string; registration_id: string; action_type: string; points: number; ref_id: string | null; created_at: string };
+        Insert: { id?: string; event_id: string; registration_id: string; action_type: string; points?: number; ref_id?: string | null; created_at?: string };
+        Update: Record<string, never>;
+        Relationships: [];
+      };
       // ── Phase 2: Speakers, sessions, agenda (migration 020) ──────────
       tracks: {
         Row: { id: string; event_id: string; name: string; color: string; position: number };
@@ -1160,6 +1261,14 @@ export interface Database {
       };
       increment_checkin_session_count: {
         Args: { p_event_id: string };
+        Returns: undefined;
+      };
+      toggle_qa_upvote: {
+        Args: { p_question_id: string; p_registration_id: string };
+        Returns: boolean;
+      };
+      cast_poll_vote: {
+        Args: { p_poll_id: string; p_option_id: string; p_registration_id: string };
         Returns: undefined;
       };
     };
