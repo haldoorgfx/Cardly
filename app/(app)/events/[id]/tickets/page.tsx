@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { EventManageNav } from '@/components/events/EventManageNav';
+import { TicketTypesManager } from '@/components/events/TicketTypesManager';
 
 interface Props { params: { id: string } }
 
@@ -12,39 +13,29 @@ export default async function TicketsPage({ params }: Props) {
   if (!user) redirect('/login');
 
   const admin = createAdminClient();
-  const { data: event } = await admin
-    .from('events')
-    .select('id, name, slug')
-    .eq('id', params.id)
-    .eq('user_id', user.id)
-    .single();
+  const [{ data: event }, { data: tickets }] = await Promise.all([
+    admin.from('events').select('id, name, slug').eq('id', params.id).eq('user_id', user.id).single(),
+    admin.from('ticket_types').select('*').eq('event_id', params.id).order('position'),
+  ]);
 
   if (!event) redirect('/dashboard');
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
       <EventManageNav eventId={params.id} eventName={event.name} active="tickets" />
-      <div className="max-w-[800px] mx-auto px-6 py-8">
+      <div className="max-w-[760px] mx-auto px-6 py-8 pb-24">
         <div className="mb-6">
-          <h1 className="font-display font-semibold text-[24px]" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
+          <h1
+            className="font-display font-semibold text-[24px]"
+            style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}
+          >
             Ticket types
           </h1>
           <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>
-            Create free and paid ticket tiers. Set quantities and sale windows.
+            Create free and paid ticket tiers. Quantity caps are enforced — overselling is prevented at the database level.
           </p>
         </div>
-        {/* Phase 1.3 — ticket CRUD built here */}
-        <div
-          className="rounded-2xl flex items-center justify-center py-20 text-center"
-          style={{ background: 'white', border: '1px solid #E5E0D4' }}
-        >
-          <div>
-            <div className="font-mono text-[11px] tracking-widest uppercase mb-2" style={{ color: '#6B7A72' }}>Phase 1.3</div>
-            <div className="text-[14px]" style={{ color: '#3A4A42' }}>
-              Create, edit, reorder ticket types · quantity caps · sale windows
-            </div>
-          </div>
-        </div>
+        <TicketTypesManager eventId={params.id} initialTickets={tickets ?? []} />
       </div>
     </div>
   );
