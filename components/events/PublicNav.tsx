@@ -26,6 +26,8 @@ export function PublicNav({ eventSlug, eventName }: PublicNavProps = {}) {
     { href: `/e/${eventSlug}`, label: 'Info' },
     { href: `/e/${eventSlug}/schedule`, label: 'Schedule' },
     { href: `/e/${eventSlug}/speakers`, label: 'Speakers' },
+    { href: `/e/${eventSlug}/people`, label: 'People' },
+    { href: `/e/${eventSlug}/q-and-a`, label: 'Q&A' },
   ] : [
     { href: '/events', label: 'Events' },
     { href: '/how-it-works', label: 'How it works' },
