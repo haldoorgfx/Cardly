@@ -25,6 +25,8 @@ interface Props {
   isPaidReturn: boolean;
   paymentIntentId: string | null;
   redirectStatus: string | null;
+  txRef: string | null;
+  isFlutterwaveReturn: boolean;
 }
 
 // Karta card confetti — only fires when enabled (i.e., phase === 'done')
@@ -67,7 +69,7 @@ function useConfetti(enabled: boolean) {
 
 type Phase = 'verifying' | 'card' | 'done';
 
-export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, variant, isPaidReturn, paymentIntentId, redirectStatus }: Props) {
+export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, variant, isPaidReturn, paymentIntentId, redirectStatus, txRef, isFlutterwaveReturn }: Props) {
   // Determine initial phase:
   // - Paid return: start at 'verifying' (check PI status) → 'card' → 'done'
   // - Free (card already generated or in sessionStorage): 'done'
@@ -161,31 +163,44 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
     } catch { /* ignore */ }
   }, [registration.qr_code_token]);
 
-  // Verify payment on paid return
+  // Verify payment on paid return (Stripe or Flutterwave)
   useEffect(() => {
-    if (!isPaidReturn || !paymentIntentId) return;
+    if (!isPaidReturn) return;
 
     async function verify() {
-      const res = await fetch('/api/payments/confirm-intent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ payment_intent_id: paymentIntentId, qr_code_token: registration.qr_code_token }),
-      });
-      const data = await res.json();
-      setPaymentStatus(data.status);
+      let status = 'failed';
 
-      if (data.status === 'succeeded') {
-        // Move to card step if variant available
-        setPhase(variant ? 'card' : 'done');
-      } else if (data.status === 'processing') {
-        // Poll again in 3 seconds
-        setTimeout(verify, 3000);
-      } else {
-        setPhase('done'); // failed — still show QR so they can contact organiser
+      if (paymentIntentId) {
+        // Stripe verification
+        const res = await fetch('/api/payments/confirm-intent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ payment_intent_id: paymentIntentId, qr_code_token: registration.qr_code_token }),
+        });
+        const data = await res.json();
+        status = data.status === 'succeeded' ? 'succeeded' : data.status;
+        if (data.status === 'processing') {
+          setPaymentStatus('processing');
+          setTimeout(verify, 3000);
+          return;
+        }
+      } else if (isFlutterwaveReturn && txRef) {
+        // Flutterwave verification — use URL tx_ref
+        const res = await fetch('/api/payments/flutterwave-confirm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tx_ref: txRef }),
+        });
+        const data = await res.json();
+        status = data.status === 'successful' ? 'succeeded' : 'failed';
       }
+
+      setPaymentStatus(status);
+      setPhase(status === 'succeeded' ? (variant ? 'card' : 'done') : 'done');
     }
+
     verify();
-  }, [isPaidReturn, paymentIntentId, registration.qr_code_token, variant]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isPaidReturn, paymentIntentId, isFlutterwaveReturn, txRef, registration.qr_code_token, variant]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleDownload() {
     if (!cardDataUrl) return;

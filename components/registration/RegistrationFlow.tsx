@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { CardZoneFill } from './CardZoneFill';
 import { PhotoCropModal } from './PhotoCropModal';
 import { StripePaymentStep } from './StripePaymentStep';
+import { WaafiPayStep } from './WaafiPayStep';
 import type { Database, Zone } from '@/types/database';
 
 type TicketRow = Database['public']['Tables']['ticket_types']['Row'];
@@ -52,11 +53,13 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
   const [phone, setPhone] = useState('');
   const [customFieldValues, setCustomFieldValues] = useState<Record<string, string>>({});
 
-  // Step 2 (paid) — Stripe payment state
+  // Step 2 (paid) — payment state (shared across processors)
   const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [pendingRegId, setPendingRegId] = useState<string | null>(null);
   const [pendingRegToken, setPendingRegToken] = useState<string | null>(null);
   const [paymentAmount, setPaymentAmount] = useState(0);
   const [paymentCurrency, setPaymentCurrency] = useState('USD');
+  const [paymentProcessor, setPaymentProcessor] = useState<'stripe' | 'flutterwave' | 'waafipay' | 'free'>('stripe');
   const [creatingPayment, setCreatingPayment] = useState(false);
 
   // Step 2 (free) — card zones
@@ -135,10 +138,19 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
             setSubmitError(data.detail ?? data.error ?? 'Registration failed');
             return;
           }
-          setClientSecret(data.client_secret);
+
+          // Flutterwave: redirect immediately
+          if (data.payment_processor === 'flutterwave' && data.redirect_url) {
+            window.location.href = data.redirect_url;
+            return;
+          }
+
+          setPaymentProcessor(data.payment_processor ?? 'stripe');
+          setClientSecret(data.client_secret ?? null);
+          setPendingRegId(data.registration_id);
           setPendingRegToken(data.qr_code_token);
-          setPaymentAmount(data.amount);
-          setPaymentCurrency(data.currency);
+          setPaymentAmount(data.amount ?? 0);
+          setPaymentCurrency(data.currency ?? 'USD');
         } catch {
           setSubmitError('Could not set up payment. Please try again.');
           return;
@@ -418,15 +430,38 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
             )}
 
             {/* Step 2 — Payment (paid) or Card personalisation (free) */}
-            {step === 2 && isPaid && clientSecret && pendingRegToken && (
-              <StripePaymentStep
-                clientSecret={clientSecret}
-                returnUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/e/${eventSlug}/register/confirm?reg=${pendingRegToken}`}
-                amount={paymentAmount}
-                currency={paymentCurrency}
-                eventTitle={page.title}
-                ticketName={selectedTicket?.name ?? 'Ticket'}
-              />
+            {step === 2 && isPaid && pendingRegToken && (
+              <>
+                {paymentProcessor === 'stripe' && clientSecret && (
+                  <StripePaymentStep
+                    clientSecret={clientSecret}
+                    returnUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/e/${eventSlug}/register/confirm?reg=${pendingRegToken}`}
+                    amount={paymentAmount}
+                    currency={paymentCurrency}
+                    eventTitle={page.title}
+                    ticketName={selectedTicket?.name ?? 'Ticket'}
+                  />
+                )}
+                {paymentProcessor === 'waafipay' && pendingRegId && (
+                  <WaafiPayStep
+                    registrationId={pendingRegId}
+                    qrToken={pendingRegToken}
+                    amount={paymentAmount}
+                    currency={paymentCurrency}
+                    eventTitle={page.title}
+                    ticketName={selectedTicket?.name ?? 'Ticket'}
+                    onSuccess={(token) => router.push(`/e/${eventSlug}/register/confirm?reg=${token}`)}
+                  />
+                )}
+                {paymentProcessor === 'flutterwave' && (
+                  <div className="text-center py-8">
+                    <svg className="animate-spin mx-auto mb-3" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1F4D3A" strokeWidth="2.5">
+                      <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
+                    </svg>
+                    <p className="text-[14px]" style={{ color: '#6B7A72' }}>Redirecting to Flutterwave…</p>
+                  </div>
+                )}
+              </>
             )}
 
             {step === 2 && !isPaid && (

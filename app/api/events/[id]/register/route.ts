@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { sendRegistrationConfirmEmail } from '@/lib/registration/email';
 import { createTicketPaymentIntent } from '@/lib/payments/stripe';
+import { initFlutterwavePayment, isFlutterwaveCurrency, type FlutterwaveCurrency } from '@/lib/payments/flutterwave';
+import { isWaafiPayCurrency } from '@/lib/payments/waafipay';
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   const admin = createAdminClient();
@@ -125,7 +127,63 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     variantId = firstVariant?.id ?? null;
   }
 
-  // 8a. For paid tickets: create Stripe PaymentIntent
+  // 8a. For paid tickets: route to correct payment processor
+  const processor = (eventPage as { payment_processor?: string }).payment_processor ?? 'stripe';
+
+  // Determine processor by event setting AND currency compatibility
+  const effectiveProcessor = (() => {
+    if (isFree) return 'free';
+    if (processor === 'flutterwave' || isFlutterwaveCurrency(ticket.currency)) return 'flutterwave';
+    if (processor === 'waafipay' || isWaafiPayCurrency(ticket.currency)) return 'waafipay';
+    return 'stripe';
+  })();
+
+  if (!isFree && effectiveProcessor === 'flutterwave') {
+    try {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+      const eventSlugHdr = req.headers.get('x-event-slug') ?? params.id;
+      const fwResult = await initFlutterwavePayment({
+        amount:        ticket.price,
+        currency:      ticket.currency as FlutterwaveCurrency,
+        txRef:         registration.qr_code_token,
+        customerEmail: registration.attendee_email,
+        customerName:  registration.attendee_name,
+        customerPhone: registration.attendee_phone ?? undefined,
+        redirectUrl:   `${appUrl}/e/${eventSlugHdr}/register/confirm?reg=${registration.qr_code_token}&processor=flutterwave`,
+        meta: { registration_id: registration.id, event_id: params.id },
+      });
+      return NextResponse.json({
+        registration_id:   registration.id,
+        qr_code_token:     registration.qr_code_token,
+        variant_id:        variantId,
+        event_id:          params.id,
+        payment_status:    'pending',
+        payment_required:  true,
+        payment_processor: 'flutterwave',
+        redirect_url:      fwResult.link,
+      }, { status: 201 });
+    } catch (err) {
+      await admin.from('registrations').delete().eq('id', registration.id);
+      return NextResponse.json({ error: 'Flutterwave setup failed', detail: err instanceof Error ? err.message : 'Unknown' }, { status: 500 });
+    }
+  }
+
+  if (!isFree && effectiveProcessor === 'waafipay') {
+    // WaafiPay: registration created; client collects phone number and charges inline
+    return NextResponse.json({
+      registration_id:   registration.id,
+      qr_code_token:     registration.qr_code_token,
+      variant_id:        variantId,
+      event_id:          params.id,
+      payment_status:    'pending',
+      payment_required:  true,
+      payment_processor: 'waafipay',
+      amount:            ticket.price,
+      currency:          ticket.currency,
+      ticket_name:       ticket.name,
+    }, { status: 201 });
+  }
+
   if (!isFree) {
     let clientSecret: string | null = null;
     try {

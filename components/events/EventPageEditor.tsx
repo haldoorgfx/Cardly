@@ -47,8 +47,8 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
   const [maxCapacity, setMaxCapacity] = useState(existing?.max_capacity?.toString() ?? '');
   const [isPublic, setIsPublic] = useState(existing?.is_public ?? true);
   const [customSlug, setCustomSlug] = useState(existing?.custom_slug ?? '');
-  const [paymentProcessor, setPaymentProcessor] = useState<'stripe' | 'flutterwave' | 'free'>(
-    (existing?.payment_processor as 'stripe' | 'flutterwave' | 'free') ?? 'stripe'
+  const [paymentProcessor, setPaymentProcessor] = useState<'stripe' | 'flutterwave' | 'waafipay' | 'free'>(
+    (existing?.payment_processor as 'stripe' | 'flutterwave' | 'waafipay' | 'free') ?? 'stripe'
   );
   const [organizerName, setOrganizerName] = useState(existing?.organizer_name ?? '');
   const [seoTitle, setSeoTitle] = useState(existing?.seo_title ?? '');
@@ -407,9 +407,10 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
           Choose how attendees pay for paid tickets. Free events always skip payment.
         </p>
         {[
-          { value: 'stripe', label: 'Stripe', desc: 'Credit/debit cards worldwide. Recommended.' },
-          { value: 'flutterwave', label: 'Flutterwave', desc: 'NGN, KES, GHS, ZAR and more African currencies.' },
-          { value: 'free', label: 'Free only', desc: 'No payment collection — all tickets must be free.' },
+          { value: 'stripe',       label: 'Stripe',       desc: 'Credit/debit cards worldwide. Recommended for international events.' },
+          { value: 'flutterwave',  label: 'Flutterwave',  desc: 'NGN, KES, GHS, ZAR and more African currencies. Hosted redirect checkout.' },
+          { value: 'waafipay',     label: 'WaafiPay',     desc: 'EVC Plus, eDahab, Somtel and Djibouti mobile money. Best for Somalia & Djibouti.' },
+          { value: 'free',         label: 'Free only',    desc: 'No payment collection — all tickets must be free.' },
         ].map(opt => (
           <button
             key={opt.value}

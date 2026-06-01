@@ -1,7 +1,7 @@
 // ── Phase 1: Event registration types ────────────────────────────────────────
 export type RegistrationStatus = "pending" | "confirmed" | "checked_in" | "cancelled" | "refunded";
 export type PaymentStatus = "free" | "pending" | "paid" | "refunded" | "failed";
-export type PaymentProcessor = "stripe" | "flutterwave" | "free";
+export type PaymentProcessor = "stripe" | "flutterwave" | "waafipay" | "free";
 export type FieldType = "text" | "textarea" | "select" | "checkbox" | "radio" | "phone" | "url";
 export type DiscountType = "percent" | "fixed";
 
@@ -642,6 +642,7 @@ export interface Database {
           organizer_avatar_url?: string | null;
           updated_at?: string;
         };
+        // Note: payment_processor check constraint updated in migration 018 to include 'waafipay'
         Relationships: [
           {
             foreignKeyName: "event_pages_event_id_fkey";

@@ -7,7 +7,7 @@ import type { Zone } from '@/types/database';
 
 interface Props {
   params: { slug: string };
-  searchParams: { reg?: string; payment_intent?: string; redirect_status?: string };
+  searchParams: { reg?: string; payment_intent?: string; redirect_status?: string; processor?: string };
 }
 
 export default async function RegisterConfirmPage({ params, searchParams }: Props) {
@@ -53,7 +53,9 @@ export default async function RegisterConfirmPage({ params, searchParams }: Prop
     }
   }
 
-  const isPaidReturn = !!searchParams.payment_intent;
+  const isStripeReturn = !!searchParams.payment_intent;
+  const isFlutterwaveReturn = searchParams.processor === 'flutterwave';
+  const isPaidReturn = isStripeReturn || isFlutterwaveReturn;
 
   return (
     <ConfirmPage
@@ -65,6 +67,8 @@ export default async function RegisterConfirmPage({ params, searchParams }: Prop
       isPaidReturn={isPaidReturn}
       paymentIntentId={searchParams.payment_intent ?? null}
       redirectStatus={searchParams.redirect_status ?? null}
+      txRef={searchParams.reg ?? null}
+      isFlutterwaveReturn={isFlutterwaveReturn}
     />
   );
 }
