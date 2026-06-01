@@ -37,7 +37,7 @@ function Avatar({ name, size = 40 }: { name: string; size?: number }) {
   );
 }
 
-export default function MessagingClient({ registrationId, initialThreads }: Props) {
+export default function MessagingClient({ eventId, registrationId, initialThreads }: Props) {
   const [threads, setThreads] = useState(initialThreads);
   const [activeThread, setActiveThread] = useState<ThreadSummary | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -51,7 +51,9 @@ export default function MessagingClient({ registrationId, initialThreads }: Prop
   }, [messages]);
 
   const loadMessages = async (threadId: string) => {
-    const res = await fetch(`/api/threads/${threadId}`);
+    const res = await fetch(
+      `/api/events/${eventId}/messages?registration_id=${registrationId}&thread_id=${threadId}`
+    );
     const data = await res.json() as { messages: Message[] };
     setMessages(data.messages ?? []);
   };
@@ -68,14 +70,22 @@ export default function MessagingClient({ registrationId, initialThreads }: Prop
     const content = input.trim();
     setInput('');
     try {
-      const res = await fetch(`/api/threads/${activeThread.id}`, {
+      const res = await fetch(`/api/events/${eventId}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sender_id: registrationId, content }),
+        body: JSON.stringify({
+          sender_id: registrationId,
+          recipient_id: activeThread.other_participant_id,
+          content,
+        }),
       });
       const data = await res.json() as { message: Message };
       setMessages(prev => [...prev, data.message]);
-      setThreads(prev => prev.map(t => t.id === activeThread.id ? { ...t, last_message_at: new Date().toISOString() } : t));
+      setThreads(prev =>
+        prev.map(t =>
+          t.id === activeThread.id ? { ...t, last_message_at: new Date().toISOString() } : t
+        )
+      );
     } finally {
       setSending(false);
     }
