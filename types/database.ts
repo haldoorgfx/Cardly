@@ -1169,6 +1169,12 @@ export interface Database {
         Update: Record<string, never>;
         Relationships: [];
       };
+      match_suggestions: {
+        Row: { id: string; event_id: string; registration_id: string; matched_registration_id: string; score: number; reason: string; created_at: string };
+        Insert: { id?: string; event_id: string; registration_id: string; matched_registration_id: string; score?: number; reason?: string; created_at?: string };
+        Update: { score?: number; reason?: string };
+        Relationships: [];
+      };
       // ── Phase 2: Speakers, sessions, agenda (migration 020) ──────────
       tracks: {
         Row: { id: string; event_id: string; name: string; color: string; position: number };
