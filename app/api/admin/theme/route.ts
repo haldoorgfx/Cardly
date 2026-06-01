@@ -17,7 +17,7 @@ export async function GET() {
 // Validate CSS values to prevent style-tag breakout (stored XSS)
 const COLOR_RE = /^#[0-9a-fA-F]{3,8}$/;
 const FONT_NAME_RE = /^[\w\s,'"-]+$/; // family names: letters, spaces, quotes, hyphens
-const GRADIENT_UNSAFE_RE = /[<>{}]/;  // characters that could break out of :root{...}
+const GRADIENT_UNSAFE_RE = /[<>{};@*]|url\(/i;  // characters that could break out of :root{...} or inject CSS url()
 
 function validateThemeColors(colors: unknown): string | null {
   if (!colors || typeof colors !== 'object') return null;

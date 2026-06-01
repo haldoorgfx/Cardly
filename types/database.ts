@@ -1,3 +1,114 @@
+// ── Phase 1: Event registration types ────────────────────────────────────────
+export type RegistrationStatus = "pending" | "confirmed" | "checked_in" | "cancelled" | "refunded";
+export type PaymentStatus = "free" | "pending" | "paid" | "refunded" | "failed";
+export type PaymentProcessor = "stripe" | "flutterwave" | "waafipay" | "free";
+export type FieldType = "text" | "textarea" | "select" | "checkbox" | "radio" | "phone" | "url";
+export type DiscountType = "percent" | "fixed";
+
+export interface EventPage {
+  id: string;
+  event_id: string;
+  variant_id: string | null;
+  title: string;
+  tagline: string | null;
+  description: string | null;
+  cover_image_url: string | null;
+  venue_name: string | null;
+  venue_address: string | null;
+  venue_lat: number | null;
+  venue_lng: number | null;
+  starts_at: string;
+  ends_at: string;
+  timezone: string;
+  is_online: boolean;
+  online_url: string | null;
+  registration_deadline: string | null;
+  max_capacity: number | null;
+  is_public: boolean;
+  custom_slug: string | null;
+  seo_title: string | null;
+  seo_description: string | null;
+  payment_processor: PaymentProcessor;
+  organizer_name: string | null;
+  organizer_avatar_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TicketType {
+  id: string;
+  event_id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  currency: string;
+  quantity: number | null;
+  quantity_sold: number;
+  sales_start: string | null;
+  sales_end: string | null;
+  min_per_order: number;
+  max_per_order: number;
+  is_visible: boolean;
+  position: number;
+  created_at: string;
+}
+
+export interface Registration {
+  id: string;
+  event_id: string;
+  ticket_type_id: string | null;
+  attendee_name: string;
+  attendee_email: string;
+  attendee_phone: string | null;
+  custom_fields: Record<string, unknown>;
+  status: RegistrationStatus;
+  payment_status: PaymentStatus;
+  stripe_payment_intent_id: string | null;
+  flutterwave_tx_ref: string | null;
+  amount_paid: number;
+  currency: string;
+  qr_code_token: string;
+  checked_in_at: string | null;
+  checked_in_by: string | null;
+  karta_card_url: string | null;
+  karta_card_zone_data: Record<string, unknown> | null;
+  source: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface RegistrationFormField {
+  id: string;
+  event_id: string;
+  label: string;
+  field_type: FieldType;
+  options: string[] | null;
+  is_required: boolean;
+  position: number;
+}
+
+export interface PromoCode {
+  id: string;
+  event_id: string;
+  code: string;
+  discount_type: DiscountType;
+  discount_value: number;
+  max_uses: number | null;
+  uses_count: number;
+  valid_from: string | null;
+  valid_until: string | null;
+  applies_to: string[] | null;
+  created_at: string;
+}
+
+export interface CheckInSession {
+  id: string;
+  event_id: string;
+  operator_id: string | null;
+  started_at: string;
+  check_ins_count: number;
+}
+
 export type Plan = "free" | "pro" | "studio";
 export type EventStatus = "draft" | "published" | "archived";
 export type ModerationStatus = "ok" | "flagged" | "removed";
@@ -445,6 +556,348 @@ export interface Database {
         };
         Relationships: [];
       };
+      // ── Phase 1: Event registration tables (migration 017) ─────────
+      event_pages: {
+        Row: {
+          id: string;
+          event_id: string;
+          variant_id: string | null;
+          title: string;
+          tagline: string | null;
+          description: string | null;
+          cover_image_url: string | null;
+          venue_name: string | null;
+          venue_address: string | null;
+          venue_lat: number | null;
+          venue_lng: number | null;
+          starts_at: string;
+          ends_at: string;
+          timezone: string;
+          is_online: boolean;
+          online_url: string | null;
+          registration_deadline: string | null;
+          max_capacity: number | null;
+          is_public: boolean;
+          custom_slug: string | null;
+          seo_title: string | null;
+          seo_description: string | null;
+          payment_processor: PaymentProcessor;
+          organizer_name: string | null;
+          organizer_avatar_url: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          event_id: string;
+          variant_id?: string | null;
+          title: string;
+          tagline?: string | null;
+          description?: string | null;
+          cover_image_url?: string | null;
+          venue_name?: string | null;
+          venue_address?: string | null;
+          venue_lat?: number | null;
+          venue_lng?: number | null;
+          starts_at: string;
+          ends_at: string;
+          timezone?: string;
+          is_online?: boolean;
+          online_url?: string | null;
+          registration_deadline?: string | null;
+          max_capacity?: number | null;
+          is_public?: boolean;
+          custom_slug?: string | null;
+          seo_title?: string | null;
+          seo_description?: string | null;
+          payment_processor?: PaymentProcessor;
+          organizer_name?: string | null;
+          organizer_avatar_url?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          variant_id?: string | null;
+          title?: string;
+          tagline?: string | null;
+          description?: string | null;
+          cover_image_url?: string | null;
+          venue_name?: string | null;
+          venue_address?: string | null;
+          venue_lat?: number | null;
+          venue_lng?: number | null;
+          starts_at?: string;
+          ends_at?: string;
+          timezone?: string;
+          is_online?: boolean;
+          online_url?: string | null;
+          registration_deadline?: string | null;
+          max_capacity?: number | null;
+          is_public?: boolean;
+          custom_slug?: string | null;
+          seo_title?: string | null;
+          seo_description?: string | null;
+          payment_processor?: PaymentProcessor;
+          organizer_name?: string | null;
+          organizer_avatar_url?: string | null;
+          updated_at?: string;
+        };
+        // Note: payment_processor check constraint updated in migration 018 to include 'waafipay'
+        Relationships: [
+          {
+            foreignKeyName: "event_pages_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      ticket_types: {
+        Row: {
+          id: string;
+          event_id: string;
+          name: string;
+          description: string | null;
+          price: number;
+          currency: string;
+          quantity: number | null;
+          quantity_sold: number;
+          sales_start: string | null;
+          sales_end: string | null;
+          min_per_order: number;
+          max_per_order: number;
+          is_visible: boolean;
+          position: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          event_id: string;
+          name: string;
+          description?: string | null;
+          price?: number;
+          currency?: string;
+          quantity?: number | null;
+          quantity_sold?: number;
+          sales_start?: string | null;
+          sales_end?: string | null;
+          min_per_order?: number;
+          max_per_order?: number;
+          is_visible?: boolean;
+          position?: number;
+          created_at?: string;
+        };
+        Update: {
+          name?: string;
+          description?: string | null;
+          price?: number;
+          currency?: string;
+          quantity?: number | null;
+          quantity_sold?: number;
+          sales_start?: string | null;
+          sales_end?: string | null;
+          min_per_order?: number;
+          max_per_order?: number;
+          is_visible?: boolean;
+          position?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "ticket_types_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      registrations: {
+        Row: {
+          id: string;
+          event_id: string;
+          ticket_type_id: string | null;
+          attendee_name: string;
+          attendee_email: string;
+          attendee_phone: string | null;
+          custom_fields: Json;
+          status: RegistrationStatus;
+          payment_status: PaymentStatus;
+          stripe_payment_intent_id: string | null;
+          flutterwave_tx_ref: string | null;
+          amount_paid: number;
+          currency: string;
+          qr_code_token: string;
+          checked_in_at: string | null;
+          checked_in_by: string | null;
+          karta_card_url: string | null;
+          karta_card_zone_data: Json | null;
+          source: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          event_id: string;
+          ticket_type_id?: string | null;
+          attendee_name: string;
+          attendee_email: string;
+          attendee_phone?: string | null;
+          custom_fields?: Json;
+          status?: RegistrationStatus;
+          payment_status?: PaymentStatus;
+          stripe_payment_intent_id?: string | null;
+          flutterwave_tx_ref?: string | null;
+          amount_paid?: number;
+          currency?: string;
+          qr_code_token?: string;
+          checked_in_at?: string | null;
+          checked_in_by?: string | null;
+          karta_card_url?: string | null;
+          karta_card_zone_data?: Json | null;
+          source?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          ticket_type_id?: string | null;
+          attendee_name?: string;
+          attendee_email?: string;
+          attendee_phone?: string | null;
+          custom_fields?: Json;
+          status?: RegistrationStatus;
+          payment_status?: PaymentStatus;
+          stripe_payment_intent_id?: string | null;
+          flutterwave_tx_ref?: string | null;
+          amount_paid?: number;
+          currency?: string;
+          checked_in_at?: string | null;
+          checked_in_by?: string | null;
+          karta_card_url?: string | null;
+          karta_card_zone_data?: Json | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "registrations_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      registration_form_fields: {
+        Row: {
+          id: string;
+          event_id: string;
+          label: string;
+          field_type: FieldType;
+          options: Json | null;
+          is_required: boolean;
+          position: number;
+        };
+        Insert: {
+          id?: string;
+          event_id: string;
+          label: string;
+          field_type: FieldType;
+          options?: Json | null;
+          is_required?: boolean;
+          position?: number;
+        };
+        Update: {
+          label?: string;
+          field_type?: FieldType;
+          options?: Json | null;
+          is_required?: boolean;
+          position?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "reg_form_fields_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      promo_codes: {
+        Row: {
+          id: string;
+          event_id: string;
+          code: string;
+          discount_type: DiscountType;
+          discount_value: number;
+          max_uses: number | null;
+          uses_count: number;
+          valid_from: string | null;
+          valid_until: string | null;
+          applies_to: Json | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          event_id: string;
+          code: string;
+          discount_type: DiscountType;
+          discount_value: number;
+          max_uses?: number | null;
+          uses_count?: number;
+          valid_from?: string | null;
+          valid_until?: string | null;
+          applies_to?: Json | null;
+          created_at?: string;
+        };
+        Update: {
+          code?: string;
+          discount_type?: DiscountType;
+          discount_value?: number;
+          max_uses?: number | null;
+          uses_count?: number;
+          valid_from?: string | null;
+          valid_until?: string | null;
+          applies_to?: Json | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "promo_codes_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      check_in_sessions: {
+        Row: {
+          id: string;
+          event_id: string;
+          operator_id: string | null;
+          started_at: string;
+          check_ins_count: number;
+        };
+        Insert: {
+          id?: string;
+          event_id: string;
+          operator_id?: string | null;
+          started_at?: string;
+          check_ins_count?: number;
+        };
+        Update: {
+          check_ins_count?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "check_in_sessions_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
       // ── CMS tables (migration 007) ───────────────────────────────
       cms_pages: {
         Row: {
@@ -602,6 +1055,18 @@ export interface Database {
     Functions: {
       increment_cards_this_month: {
         Args: { user_id: string };
+        Returns: undefined;
+      };
+      increment_ticket_quantity_sold: {
+        Args: { ticket_id: string; qty: number };
+        Returns: undefined;
+      };
+      increment_promo_code_uses: {
+        Args: { code_id: string };
+        Returns: undefined;
+      };
+      increment_checkin_session_count: {
+        Args: { p_event_id: string };
         Returns: undefined;
       };
     };

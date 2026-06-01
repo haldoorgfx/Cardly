@@ -18,16 +18,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid variant' }, { status: 400 });
   }
 
-  const allowed = ['image/png', 'image/svg+xml', 'image/jpeg'];
+  const allowed = ['image/png', 'image/jpeg', 'image/webp'];
   if (!allowed.includes(file.type)) {
-    return NextResponse.json({ error: 'Only PNG, SVG, and JPG are supported' }, { status: 400 });
+    return NextResponse.json({ error: 'Only PNG, JPG, and WebP are supported' }, { status: 400 });
   }
 
   if (file.size > 5 * 1024 * 1024) {
     return NextResponse.json({ error: 'File must be under 5 MB' }, { status: 400 });
   }
 
-  const ext = file.type === 'image/svg+xml' ? 'svg' : file.type === 'image/jpeg' ? 'jpg' : 'png';
+  const ext = file.type === 'image/jpeg' ? 'jpg' : file.type === 'image/webp' ? 'webp' : 'png';
   const path = `brand/${user.id}/logo-${variant}.${ext}`;
   const bytes = await file.arrayBuffer();
 

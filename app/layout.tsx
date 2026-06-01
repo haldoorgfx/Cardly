@@ -48,6 +48,51 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
           rel="stylesheet"
         />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@graph': [
+                {
+                  '@type': 'Organization',
+                  '@id': 'https://karta.cre8so.com/#organization',
+                  name: 'Karta',
+                  url: 'https://karta.cre8so.com',
+                  logo: 'https://karta.cre8so.com/og-default.png',
+                  sameAs: [],
+                },
+                {
+                  '@type': 'WebSite',
+                  '@id': 'https://karta.cre8so.com/#website',
+                  url: 'https://karta.cre8so.com',
+                  name: 'Karta',
+                  description: 'Upload your event design, define editable zones, and share one link. Attendees personalize and download their own card.',
+                  publisher: { '@id': 'https://karta.cre8so.com/#organization' },
+                  potentialAction: {
+                    '@type': 'SearchAction',
+                    target: 'https://karta.cre8so.com/?s={search_term_string}',
+                    'query-input': 'required name=search_term_string',
+                  },
+                },
+                {
+                  '@type': 'SoftwareApplication',
+                  name: 'Karta',
+                  applicationCategory: 'BusinessApplication',
+                  operatingSystem: 'Web',
+                  url: 'https://karta.cre8so.com',
+                  offers: {
+                    '@type': 'Offer',
+                    price: '0',
+                    priceCurrency: 'USD',
+                    description: 'Free plan available. Pro from $29/month.',
+                  },
+                  publisher: { '@id': 'https://karta.cre8so.com/#organization' },
+                },
+              ],
+            }),
+          }}
+        />
       </head>
       <body className="antialiased">
         <ThemeProvider>{children}</ThemeProvider>

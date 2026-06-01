@@ -1,0 +1,59 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { verifyFlutterwaveTransaction } from '@/lib/payments/flutterwave';
+import { createAdminClient } from '@/lib/supabase/server';
+
+export async function POST(req: NextRequest) {
+  // Verify Flutterwave webhook hash
+  const hash = req.headers.get('verif-hash');
+  const expectedHash = process.env.FLUTTERWAVE_WEBHOOK_HASH;
+  if (!expectedHash || hash !== expectedHash) {
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+  }
+
+  let body: { event: string; data: { id: number; tx_ref: string; status: string; amount: number; currency: string } };
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+  }
+
+  if (body.event !== 'charge.completed') {
+    return NextResponse.json({ received: true }); // ignore other events
+  }
+
+  const { tx_ref, status, id: txId } = body.data;
+  if (!tx_ref) return NextResponse.json({ error: 'Missing tx_ref' }, { status: 400 });
+
+  const admin = createAdminClient();
+
+  if (status === 'successful') {
+    // Verify the transaction independently (don't trust webhook body alone)
+    try {
+      const verification = await verifyFlutterwaveTransaction(String(txId));
+      if (verification.data?.status !== 'successful') {
+        console.warn('[FW webhook] verification failed for tx', txId);
+        return NextResponse.json({ received: true });
+      }
+    } catch (err) {
+      console.error('[FW webhook] verification error:', err);
+      return NextResponse.json({ received: true });
+    }
+
+    // tx_ref = qr_code_token
+    const { error } = await admin
+      .from('registrations')
+      .update({ payment_status: 'paid', status: 'confirmed', updated_at: new Date().toISOString() })
+      .eq('qr_code_token', tx_ref)
+      .eq('payment_status', 'pending'); // idempotent guard
+
+    if (error) console.error('[FW webhook] DB update failed:', error.message);
+  } else if (status === 'failed') {
+    await admin
+      .from('registrations')
+      .update({ payment_status: 'failed', updated_at: new Date().toISOString() })
+      .eq('qr_code_token', tx_ref)
+      .eq('payment_status', 'pending');
+  }
+
+  return NextResponse.json({ received: true });
+}

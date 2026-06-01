@@ -2,15 +2,16 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "Cardly Dev Server",
+      "name": "Karta Phase1 Dev",
       "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
       "runtimeArgs": [
-        "C:\\Users\\cabda\\cardly\\node_modules\\next\\dist\\bin\\next",
+        "C:\\Users\\cabda\\cardly\\.claude\\worktrees\\hungry-hellman-26c7dc\\node_modules\\next\\dist\\bin\\next",
         "dev",
-        "--cwd",
-        "C:\\Users\\cabda\\cardly"
+        "-p",
+        "3001"
       ],
-      "port": 3000,
+      "cwd": "C:\\Users\\cabda\\cardly\\.claude\\worktrees\\hungry-hellman-26c7dc",
+      "port": 3001,
       "autoPort": false
     }
   ]

@@ -34,6 +34,7 @@ export default async function VariantAttendeePage({
   return (
     <AttendeeFlow
       variantId={variant.id}
+      eventId={event.id}
       eventName={event.name}
       backgroundUrl={variant.background_url ?? ''}
       backgroundWidth={variant.background_width ?? 1080}

@@ -8,19 +8,8 @@ import {
   W, H,
   ZONE_PHOTO, ZONE_NAME, ZONE_TITLE, ZONE_ORG,
 } from '@/lib/templates/svgs';
-
-/* ── Helpers ──────────────────────────────────────────── */
-function generateSlug(name: string): string {
-  const base = name
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .trim()
-    .replace(/\s+/g, '-')
-    .slice(0, 40);
-  return `${base}-${crypto.randomUUID().slice(0, 6)}`;
-}
-
-const PLAN_LIMITS: Record<string, number> = { free: 1, pro: 10, studio: Infinity };
+import { PLANS, type Plan } from '@/lib/billing/plans';
+import { generateSlug } from '@/lib/slug';
 
 /* ── Zone factory — positions match shared SVG constants ─ */
 function getZones(accent: string, light: boolean): Zone[] {
@@ -110,16 +99,16 @@ export async function POST(req: NextRequest) {
 
   /* Plan limit */
   const { data: profile } = await admin.from('profiles').select('plan').eq('id', user.id).single();
-  const plan = profile?.plan ?? 'free';
-  const limit = PLAN_LIMITS[plan] ?? 1;
-  if (limit !== Infinity) {
+  const plan = (profile?.plan ?? 'free') as Plan;
+  const eventLimit = PLANS[plan]?.events ?? PLANS.free.events;
+  if (eventLimit !== null) {
     const { count } = await admin
       .from('events')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', user.id)
       .neq('status', 'archived');
-    if ((count ?? 0) >= limit) {
-      return NextResponse.json({ error: 'PLAN_LIMIT', plan, limit }, { status: 402 });
+    if ((count ?? 0) >= eventLimit) {
+      return NextResponse.json({ error: 'PLAN_LIMIT', plan, limit: eventLimit }, { status: 402 });
     }
   }
 
@@ -138,17 +127,21 @@ export async function POST(req: NextRequest) {
     // Enforce the template's minimum plan
     const planRank: Record<string, number> = { free: 0, pro: 1, studio: 2 };
     if ((planRank[plan] ?? 0) < (planRank[tpl.min_plan] ?? 0)) {
-      return NextResponse.json({ error: 'PLAN_LIMIT', plan, limit }, { status: 402 });
+      return NextResponse.json({ error: 'PLAN_LIMIT', plan }, { status: 402 });
     }
 
     const dims = (tpl.dimensions as { width?: number; height?: number } | null) ?? {};
-    const slug = generateSlug(tpl.name);
-    const { data: event, error: evErr } = await admin
-      .from('events')
-      .insert({ user_id: user.id, name: tpl.name, slug, status: 'draft' })
-      .select()
-      .single();
-    if (evErr) return NextResponse.json({ error: evErr.message }, { status: 500 });
+    let event: { id: string } | null = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const { data, error: evErr } = await admin
+        .from('events')
+        .insert({ user_id: user.id, name: tpl.name, slug: generateSlug(tpl.name), status: 'draft' })
+        .select('id')
+        .single();
+      if (!evErr) { event = data; break; }
+      if (evErr.code !== '23505') return NextResponse.json({ error: evErr.message }, { status: 500 });
+    }
+    if (!event) return NextResponse.json({ error: 'Could not generate a unique slug' }, { status: 500 });
 
     const { error: varErr } = await admin
       .from('event_variants')
@@ -183,14 +176,18 @@ export async function POST(req: NextRequest) {
 
   const { data: urlData } = admin.storage.from('event-backgrounds').getPublicUrl(storagePath);
 
-  /* Create event row */
-  const slug = generateSlug(config.name);
-  const { data: event, error: evErr } = await admin
-    .from('events')
-    .insert({ user_id: user.id, name: config.name, slug, status: 'draft' })
-    .select()
-    .single();
-  if (evErr) return NextResponse.json({ error: evErr.message }, { status: 500 });
+  /* Create event row — retry on slug collision */
+  let event: { id: string } | null = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const { data, error: evErr } = await admin
+      .from('events')
+      .insert({ user_id: user.id, name: config.name, slug: generateSlug(config.name), status: 'draft' })
+      .select('id')
+      .single();
+    if (!evErr) { event = data; break; }
+    if (evErr.code !== '23505') return NextResponse.json({ error: evErr.message }, { status: 500 });
+  }
+  if (!event) return NextResponse.json({ error: 'Could not generate a unique slug' }, { status: 500 });
 
   /* Zones — positions from shared lib/templates/svgs.ts constants */
   const zones = getZones(config.accent, config.light ?? false);

@@ -38,10 +38,10 @@ const PLANS: Record<string, { label: string; limit: string; features: { text: st
   },
   pro: {
     label: 'Pro',
-    limit: '10 events',
+    limit: 'Unlimited events',
     features: [
-      { text: '10 active events', included: true },
-      { text: 'Unlimited attendees', included: true },
+      { text: 'Unlimited active events', included: true },
+      { text: '500 cards/month', included: true },
       { text: 'No watermark', included: true },
       { text: 'Download analytics', included: true },
     ],

@@ -12,22 +12,23 @@ export async function GET() {
     admin.from('events').select('id, name, slug, status, view_count, download_count, created_at, updated_at').eq('user_id', user.id),
   ]);
 
-  // generated_cards link to events, not directly to the user — count across the user's events
+  // generated_cards link to events, not directly to the user — fetch full rows for GDPR completeness
   const eventIds = (events ?? []).map(e => e.id);
-  let cardsCount = 0;
+  let generatedCards: Array<{ id: string; event_id: string; attendee_name: string | null; attendee_data: unknown; output_url: string | null; created_at: string }> = [];
   if (eventIds.length > 0) {
-    const { count } = await admin
+    const { data: cards } = await admin
       .from('generated_cards')
-      .select('id', { count: 'exact', head: true })
-      .in('event_id', eventIds);
-    cardsCount = count ?? 0;
+      .select('id, event_id, attendee_name, attendee_data, output_url, created_at')
+      .in('event_id', eventIds)
+      .order('created_at', { ascending: false });
+    generatedCards = cards ?? [];
   }
 
   const exportPayload = {
     exported_at: new Date().toISOString(),
     profile: { id: user.id, ...profile },
     events: events ?? [],
-    generated_cards_count: cardsCount,
+    generated_cards: generatedCards,
   };
 
   return new Response(JSON.stringify(exportPayload, null, 2), {

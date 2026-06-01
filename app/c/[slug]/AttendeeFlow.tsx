@@ -24,6 +24,7 @@ import SuccessShareScreen  from './components/SuccessShareScreen';
 
 export interface AttendeeFlowProps {
   variantId: string;
+  eventId: string;
   eventName: string;
   backgroundUrl: string;
   backgroundWidth: number;
@@ -70,7 +71,7 @@ async function getCroppedBlob(imageSrc: string, crop: Area): Promise<Blob> {
 }
 
 export default function AttendeeFlow({
-  variantId, eventName, backgroundUrl, backgroundWidth, backgroundHeight, zones,
+  variantId, eventId, eventName, backgroundUrl, backgroundWidth, backgroundHeight, zones,
 }: AttendeeFlowProps) {
 
   /* ── Screen state ─────────────────────────────────────────────────────── */
@@ -203,6 +204,7 @@ export default function AttendeeFlow({
 
   if (screen === 'arrival') return (
     <ArrivalScreen
+      eventId={eventId}
       eventName={eventName}
       backgroundUrl={backgroundUrl}
       backgroundWidth={backgroundWidth}

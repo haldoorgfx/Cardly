@@ -8,7 +8,7 @@ import { MoreVertical, Eye, Pencil, ChevronRight, Link as LinkIcon, RotateCcw, A
 import type { Database, Json } from '@/types/database';
 
 type EventRow = Database['public']['Tables']['events']['Row'];
-type Event = EventRow & {
+type Event = Pick<EventRow, 'id' | 'name' | 'slug' | 'status' | 'view_count' | 'download_count' | 'updated_at'> & {
   event_variants?: Array<{ id: string; background_url: string | null; zones: Json; position: number }> | null;
 };
 

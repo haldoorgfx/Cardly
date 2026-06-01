@@ -1,0 +1,56 @@
+export function formatEventDateRange(
+  startsAt: string,
+  endsAt: string,
+  timezone: string
+): { date: string; time: string; endTime: string } {
+  const start = new Date(startsAt);
+  const end = new Date(endsAt);
+
+  const tz = timezone || 'UTC';
+
+  const dateFmt = new Intl.DateTimeFormat('en-US', {
+    weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', timeZone: tz,
+  });
+  const timeFmt = new Intl.DateTimeFormat('en-US', {
+    hour: 'numeric', minute: '2-digit', hour12: true, timeZone: tz,
+  });
+
+  return {
+    date: dateFmt.format(start),
+    time: timeFmt.format(start),
+    endTime: timeFmt.format(end),
+  };
+}
+
+export function formatShortDate(isoString: string, timezone = 'UTC'): string {
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short', day: 'numeric', year: 'numeric', timeZone: timezone,
+  }).format(new Date(isoString));
+}
+
+export function formatMinPrice(tickets: { price: number; is_visible: boolean }[]): string {
+  const visible = tickets.filter(t => t.is_visible);
+  if (visible.length === 0) return 'Free';
+  const paid = visible.filter(t => t.price > 0);
+  if (paid.length === 0) return 'Free';
+  const min = Math.min(...paid.map(t => t.price));
+  return `From $${min % 1 === 0 ? min : min.toFixed(2)}`;
+}
+
+export const TIMEZONES = [
+  { value: 'UTC', label: 'UTC' },
+  { value: 'Africa/Nairobi', label: 'Nairobi (EAT)' },
+  { value: 'Africa/Lagos', label: 'Lagos (WAT)' },
+  { value: 'Africa/Johannesburg', label: 'Johannesburg (SAST)' },
+  { value: 'Africa/Cairo', label: 'Cairo (EET)' },
+  { value: 'Africa/Accra', label: 'Accra (GMT)' },
+  { value: 'Africa/Djibouti', label: 'Djibouti (EAT)' },
+  { value: 'Africa/Dar_es_Salaam', label: 'Dar es Salaam (EAT)' },
+  { value: 'Africa/Abidjan', label: 'Abidjan (GMT)' },
+  { value: 'Europe/London', label: 'London (GMT/BST)' },
+  { value: 'Europe/Paris', label: 'Paris (CET)' },
+  { value: 'America/New_York', label: 'New York (ET)' },
+  { value: 'America/Los_Angeles', label: 'Los Angeles (PT)' },
+  { value: 'Asia/Dubai', label: 'Dubai (GST)' },
+  { value: 'Asia/Singapore', label: 'Singapore (SGT)' },
+];

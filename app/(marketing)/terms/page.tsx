@@ -108,6 +108,17 @@ export default function TermsPage() {
               the link to, and even then, attendees see only the rendered output
               — not your source file.
             </p>
+            <p className="mt-3">
+              <strong>Attendee photos.</strong> When an attendee uploads a photo
+              to personalize their card, they grant Karta a limited, royalty-free
+              license to composite that photo into their card image and store the
+              resulting PNG for re-download purposes. Attendees confirm they have
+              the right to use the photo they upload. We do not share attendee
+              photos with anyone, use them for advertising, or train AI models on
+              them. Attendees may request deletion of their photo and generated
+              card by contacting us at{' '}
+              <a href="mailto:privacy@cre8so.com" className="underline">privacy@cre8so.com</a>.
+            </p>
           </section>
 
           <section>

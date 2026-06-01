@@ -6,12 +6,49 @@
  * Mobile: single-column stack. Desktop (lg+): two-column 60/40.
  */
 
+import { useState } from 'react';
 import { ShieldCheck, Sparkles, Clock, ArrowRight } from 'lucide-react';
 import type { Zone } from '@/types/database';
 import EventBrandStrip from './EventBrandStrip';
 import EventCardPreview from './EventCardPreview';
 
+function ReportButton({ eventId }: { eventId: string }) {
+  const [state, setState] = useState<'idle' | 'sent' | 'error'>('idle');
+
+  const handleReport = async () => {
+    if (state !== 'idle') return;
+    try {
+      await fetch('/api/report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ eventId }),
+      });
+      setState('sent');
+    } catch {
+      setState('error');
+    }
+  };
+
+  return (
+    <div style={{ position: 'fixed', bottom: 16, right: 16, zIndex: 10 }}>
+      <button
+        onClick={handleReport}
+        disabled={state !== 'idle'}
+        style={{
+          fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72',
+          background: 'none', border: 'none', padding: 0,
+          cursor: state === 'idle' ? 'pointer' : 'default', opacity: 0.7,
+        }}
+        title="Report this event"
+      >
+        {state === 'sent' ? 'Reported — thank you' : state === 'error' ? 'Could not report' : 'Report event'}
+      </button>
+    </div>
+  );
+}
+
 interface Props {
+  eventId: string;
   eventName: string;
   backgroundUrl: string;
   backgroundWidth: number;
@@ -21,7 +58,7 @@ interface Props {
 }
 
 export default function ArrivalScreen({
-  eventName, backgroundUrl, backgroundWidth, backgroundHeight, zones, onStart,
+  eventId, eventName, backgroundUrl, backgroundWidth, backgroundHeight, zones, onStart,
 }: Props) {
   // Pre-fill the arrival preview with zone placeholder values so the card looks
   // filled and real rather than showing raw zone outlines.
@@ -268,18 +305,7 @@ export default function ArrivalScreen({
       </div>
 
       {/* Abuse report — bottom-right, unobtrusive */}
-      <div style={{ position: 'fixed', bottom: 16, right: 16, zIndex: 10 }}>
-        <a
-          href={`mailto:abuse@karta.cre8so.com?subject=Report+event`}
-          style={{
-            fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72',
-            textDecoration: 'none', opacity: 0.7,
-          }}
-          title="Report this event"
-        >
-          Report event
-        </a>
-      </div>
+      <ReportButton eventId={eventId} />
 
       <style>{`
         @keyframes cardFloat {
