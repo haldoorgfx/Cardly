@@ -30,10 +30,12 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Protect all app routes
+  // Protect all app routes.
+  // Note: /events (exact) is the public discovery feed — allow through.
+  // /e/* are public event pages — not protected.
   const isProtected =
     request.nextUrl.pathname.startsWith("/dashboard") ||
-    request.nextUrl.pathname.startsWith("/events") ||
+    (/^\/events(\/|$)/.test(request.nextUrl.pathname) && request.nextUrl.pathname !== "/events") ||
     request.nextUrl.pathname.startsWith("/analytics") ||
     request.nextUrl.pathname.startsWith("/templates") ||
     request.nextUrl.pathname.startsWith("/brand") ||

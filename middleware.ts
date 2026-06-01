@@ -12,6 +12,8 @@ export async function middleware(request: NextRequest) {
   // Skip role/suspension checks for fully public routes
   const isPublicRoute =
     pathname.startsWith("/c/") ||       // attendee public pages
+    pathname.startsWith("/e/") ||       // public event pages (Phase 1)
+    pathname === "/events" ||           // public event discovery feed (Phase 1)
     pathname.startsWith("/auth") ||
     pathname === "/suspended" ||
     pathname === "/" ||
