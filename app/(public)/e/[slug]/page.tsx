@@ -1,33 +1,84 @@
 export const dynamic = 'force-dynamic';
 
+import { notFound } from 'next/navigation';
+import { createAdminClient } from '@/lib/supabase/server';
+import { formatEventDateRange, formatMinPrice } from '@/lib/events/format';
+import { PublicEventPageClient } from '@/components/events/PublicEventPageClient';
+import type { Metadata } from 'next';
+
 interface Props {
   params: { slug: string };
 }
 
-export async function generateMetadata({ params }: Props) {
+async function resolveEventPage(slug: string) {
+  const admin = createAdminClient();
+
+  // 1. Try custom_slug first
+  const { data: byCustomSlug } = await admin
+    .from('event_pages')
+    .select('*')
+    .eq('custom_slug', slug)
+    .eq('is_public', true)
+    .single();
+  if (byCustomSlug) return byCustomSlug;
+
+  // 2. Fallback: look up events.slug → event_pages
+  const { data: event } = await admin
+    .from('events')
+    .select('id')
+    .eq('slug', slug)
+    .single();
+  if (!event) return null;
+
+  const { data: byEventSlug } = await admin
+    .from('event_pages')
+    .select('*')
+    .eq('event_id', event.id)
+    .eq('is_public', true)
+    .single();
+  return byEventSlug ?? null;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const page = await resolveEventPage(params.slug);
+  if (!page) return { title: 'Event — Karta' };
   return {
-    title: `Event — Karta`,
-    description: `Register and get your personalized Karta Card.`,
+    title: page.seo_title ?? `${page.title} — Karta`,
+    description: page.seo_description ?? page.tagline ?? undefined,
+    openGraph: {
+      title: page.seo_title ?? page.title,
+      description: page.seo_description ?? page.tagline ?? undefined,
+      images: page.cover_image_url ? [{ url: page.cover_image_url }] : [],
+    },
   };
 }
 
-// Phase 1.2 — full public event page built here
-export default function PublicEventPage({ params }: Props) {
+export default async function PublicEventPage({ params }: Props) {
+  const page = await resolveEventPage(params.slug);
+  if (!page) notFound();
+
+  const admin = createAdminClient();
+  const { data: tickets } = await admin
+    .from('ticket_types')
+    .select('*')
+    .eq('event_id', page.event_id)
+    .eq('is_visible', true)
+    .order('position');
+
+  const allTickets = tickets ?? [];
+  const { date, time, endTime } = formatEventDateRange(page.starts_at, page.ends_at, page.timezone);
+  const minPrice = formatMinPrice(allTickets);
+  const registrationSlug = params.slug;
+
   return (
-    <div className="max-w-[1000px] mx-auto px-5 py-12">
-      <div
-        className="rounded-2xl flex items-center justify-center py-24 text-center"
-        style={{ background: 'white', border: '1px solid #E5E0D4' }}
-      >
-        <div>
-          <div className="font-mono text-[11px] tracking-widest uppercase mb-2" style={{ color: '#6B7A72' }}>
-            Phase 1.2 · /e/{params.slug}
-          </div>
-          <div className="text-[15px]" style={{ color: '#3A4A42' }}>
-            Full-bleed hero event page with ticket cards and registration CTA
-          </div>
-        </div>
-      </div>
-    </div>
+    <PublicEventPageClient
+      page={page}
+      tickets={allTickets}
+      dateStr={date}
+      timeStr={time}
+      endTimeStr={endTime}
+      minPrice={minPrice}
+      registrationSlug={registrationSlug}
+    />
   );
 }
