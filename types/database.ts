@@ -1056,6 +1056,14 @@ export interface Database {
         Args: { user_id: string };
         Returns: undefined;
       };
+      increment_ticket_quantity_sold: {
+        Args: { ticket_id: string; qty: number };
+        Returns: undefined;
+      };
+      increment_promo_code_uses: {
+        Args: { code_id: string };
+        Returns: undefined;
+      };
     };
     Enums: {
       [_ in never]: never;
