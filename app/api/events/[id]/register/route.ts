@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { sendRegistrationConfirmEmail } from '@/lib/registration/email';
+import { createTicketPaymentIntent } from '@/lib/payments/stripe';
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   const admin = createAdminClient();
@@ -86,7 +87,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       attendee_email: attendee_email.trim().toLowerCase(),
       attendee_phone: attendee_phone?.trim() || null,
       custom_fields: custom_fields ?? {},
-      status: 'confirmed',
+      status: isFree ? 'confirmed' : 'pending',
       payment_status: isFree ? 'free' : 'pending',
       amount_paid: isFree ? 0 : ticket.price,
       currency: ticket.currency,
@@ -99,14 +100,13 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     return NextResponse.json({ error: regError.message }, { status: 500 });
   }
 
-  // 6. Atomically increment ticket quantity sold
-  if (ticket.quantity !== null) {
+  // 6. Atomically increment ticket quantity sold (free tickets only — paid increment after payment)
+  if (ticket.quantity !== null && isFree) {
     const { error: incrError } = await admin.rpc('increment_ticket_quantity_sold', {
       ticket_id: ticket_type_id,
       qty: 1,
     });
     if (incrError) {
-      // Ticket just sold out — clean up registration and return error
       await admin.from('registrations').delete().eq('id', registration.id);
       return NextResponse.json({ error: 'TICKET_SOLD_OUT', detail: 'This ticket just sold out' }, { status: 409 });
     }
@@ -125,28 +125,65 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     variantId = firstVariant?.id ?? null;
   }
 
-  // 8. Send confirmation email (best-effort, non-blocking)
-  if (isFree) {
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
-    const eventSlug = req.headers.get('x-event-slug') ?? params.id;
-    sendRegistrationConfirmEmail({
-      to: registration.attendee_email,
-      attendeeName: registration.attendee_name,
-      eventTitle: eventPage.title,
-      eventDate: new Date(eventPage.starts_at).toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric', year: 'numeric', timeZone: eventPage.timezone }),
-      eventVenue: eventPage.is_online ? 'Online' : (eventPage.venue_name ?? eventPage.venue_address ?? 'See event page'),
-      qrCodeUrl: `${appUrl}/api/qr/${registration.qr_code_token}`,
-      kartaCardUrl: null, // populated after card generation
-      eventSlug,
-      ticketType: ticket.name,
-    }).catch(() => { /* non-blocking */ });
+  // 8a. For paid tickets: create Stripe PaymentIntent
+  if (!isFree) {
+    let clientSecret: string | null = null;
+    try {
+      const amountInCents = Math.round(ticket.price * 100);
+      const pi = await createTicketPaymentIntent({
+        amount: amountInCents,
+        currency: ticket.currency,
+        registrationId: registration.id,
+        eventId: params.id,
+        attendeeEmail: registration.attendee_email,
+      });
+      clientSecret = pi.client_secret;
+      // Save PI id to registration
+      await admin
+        .from('registrations')
+        .update({ stripe_payment_intent_id: pi.id })
+        .eq('id', registration.id);
+    } catch (err) {
+      // Clean up pending registration if PI creation fails
+      await admin.from('registrations').delete().eq('id', registration.id);
+      return NextResponse.json({ error: 'Payment setup failed', detail: err instanceof Error ? err.message : 'Unknown error' }, { status: 500 });
+    }
+
+    return NextResponse.json({
+      registration_id: registration.id,
+      qr_code_token: registration.qr_code_token,
+      variant_id: variantId,
+      event_id: params.id,
+      payment_status: 'pending',
+      payment_required: true,
+      client_secret: clientSecret,
+      amount: ticket.price,
+      currency: ticket.currency,
+      ticket_name: ticket.name,
+    }, { status: 201 });
   }
+
+  // 8b. Free ticket: send confirmation email (best-effort, non-blocking)
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+  const eventSlug = req.headers.get('x-event-slug') ?? params.id;
+  sendRegistrationConfirmEmail({
+    to: registration.attendee_email,
+    attendeeName: registration.attendee_name,
+    eventTitle: eventPage.title,
+    eventDate: new Date(eventPage.starts_at).toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric', year: 'numeric', timeZone: eventPage.timezone }),
+    eventVenue: eventPage.is_online ? 'Online' : (eventPage.venue_name ?? eventPage.venue_address ?? 'See event page'),
+    qrCodeUrl: `${appUrl}/api/qr/${registration.qr_code_token}`,
+    kartaCardUrl: null,
+    eventSlug,
+    ticketType: ticket.name,
+  }).catch(() => { /* non-blocking */ });
 
   return NextResponse.json({
     registration_id: registration.id,
     qr_code_token: registration.qr_code_token,
     variant_id: variantId,
     event_id: params.id,
-    payment_status: registration.payment_status,
+    payment_status: 'free',
+    payment_required: false,
   }, { status: 201 });
 }

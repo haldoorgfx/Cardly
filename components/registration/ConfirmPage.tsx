@@ -1,21 +1,36 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Download, Share2, Check } from 'lucide-react';
-import type { Database } from '@/types/database';
+import { useEffect, useState, useCallback } from 'react';
+import { Download, Share2, Check, ChevronRight } from 'lucide-react';
+import { CardZoneFill } from './CardZoneFill';
+import { PhotoCropModal } from './PhotoCropModal';
+import type { Database, Zone } from '@/types/database';
 
 type RegRow = Database['public']['Tables']['registrations']['Row'];
+
+interface Variant {
+  id: string;
+  zones: Zone[];
+  background_url: string | null;
+  background_width: number | null;
+  background_height: number | null;
+}
 
 interface Props {
   registration: RegRow;
   eventTitle: string;
   eventSlug: string;
   ticketName: string | null;
+  variant: Variant | null;
+  isPaidReturn: boolean;
+  paymentIntentId: string | null;
+  redirectStatus: string | null;
 }
 
-// Karta card confetti
-function useConfetti() {
+// Karta card confetti — only fires when enabled (i.e., phase === 'done')
+function useConfetti(enabled: boolean) {
   useEffect(() => {
+    if (!enabled) return;
     const colors = ['#E8C57E', '#C9A45E', '#1F4D3A', '#2D7A4F', '#F5E9CC'];
     const container = document.getElementById('confetti-stage');
     if (!container) return;
@@ -47,21 +62,130 @@ function useConfetti() {
     document.head.appendChild(style);
     particles.forEach(p => container.appendChild(p));
     return () => { particles.forEach(p => p.remove()); style.remove(); };
-  }, []);
+  }, [enabled]);
 }
 
-export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName }: Props) {
-  useConfetti();
+type Phase = 'verifying' | 'card' | 'done';
+
+export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, variant, isPaidReturn, paymentIntentId, redirectStatus }: Props) {
+  // Determine initial phase:
+  // - Paid return: start at 'verifying' (check PI status) → 'card' → 'done'
+  // - Free (card already generated or in sessionStorage): 'done'
+  // - Free (no card): 'card' → 'done'
+  const hasCard = !!registration.karta_card_url;
+  const initialPhase: Phase = isPaidReturn ? 'verifying' : (hasCard ? 'done' : (variant ? 'card' : 'done'));
+
+  const [phase, setPhase] = useState<Phase>(initialPhase);
+  const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
   const [cardDataUrl, setCardDataUrl] = useState<string | null>(null);
   const [downloaded, setDownloaded] = useState(false);
 
+  // Card step state (for post-payment personalisation)
+  const [zoneValues, setZoneValues] = useState<Record<string, string>>(() => {
+    const saved = registration.karta_card_zone_data as Record<string, string> | null;
+    return saved ?? {};
+  });
+  const [photoFiles, setPhotoFiles] = useState<Record<string, File>>({});
+  const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({});
+  const [cropTarget, setCropTarget] = useState<{ zone: Zone; srcUrl: string; file: File } | null>(null);
+  const [cardZoneErrors, setCardZoneErrors] = useState<Record<string, string>>({});
+  const [generatingCard, setGeneratingCard] = useState(false);
+  const [cardError, setCardError] = useState('');
+
+  const handlePhotoSelect = useCallback((zone: Zone, file: File, srcUrl: string) => {
+    setCropTarget({ zone, srcUrl, file });
+  }, []);
+
+  const handleCropConfirm = useCallback((file: File, previewUrl: string) => {
+    if (!cropTarget) return;
+    setPhotoFiles(p => ({ ...p, [cropTarget.zone.id]: file }));
+    setPhotoUrls(p => ({ ...p, [cropTarget.zone.id]: previewUrl }));
+    setCropTarget(null);
+  }, [cropTarget]);
+
+  const handlePhotoClear = useCallback((zoneId: string) => {
+    setPhotoFiles(p => { const n = { ...p }; delete n[zoneId]; return n; });
+    setPhotoUrls(p => { const n = { ...p }; delete n[zoneId]; return n; });
+  }, []);
+
+  async function handleGenerateCard() {
+    if (!variant) { setPhase('done'); return; }
+    setGeneratingCard(true);
+    setCardError('');
+    try {
+      const enriched = { ...zoneValues };
+      const firstText = variant.zones.find(z => z.type === 'text' && !z.hidden);
+      if (firstText && !enriched[firstText.id]) {
+        enriched[firstText.id] = registration.attendee_name;
+      }
+
+      const fd = new FormData();
+      fd.append('variantId', variant.id);
+      fd.append('fields', JSON.stringify(enriched));
+      fd.append('idempotencyKey', `reg-${registration.id}-card`);
+      for (const [zoneId, file] of Object.entries(photoFiles)) {
+        fd.append(`photo_${zoneId}`, file);
+      }
+
+      const res = await fetch('/api/render', { method: 'POST', body: fd });
+      if (res.ok) {
+        const cardId = res.headers.get('x-card-id');
+        const blob = await res.blob();
+        const dataUrl = await blobToDataUrl(blob);
+        setCardDataUrl(dataUrl);
+        try { sessionStorage.setItem(`card_${registration.qr_code_token}`, dataUrl); } catch { /* ignore */ }
+
+        fetch(`/api/events/${registration.event_id}/registrations`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            registrationId: registration.id,
+            karta_card_zone_data: enriched,
+            karta_card_url: cardId ? `/c/${eventSlug}/card/${cardId}` : null,
+          }),
+        }).catch(() => {});
+      }
+      setPhase('done');
+    } catch (err) {
+      setCardError(err instanceof Error ? err.message : 'Card generation failed');
+    } finally {
+      setGeneratingCard(false);
+    }
+  }
+
+  // Retrieve card from sessionStorage on mount
   useEffect(() => {
-    // Retrieve card from sessionStorage
     try {
       const stored = sessionStorage.getItem(`card_${registration.qr_code_token}`);
       if (stored) setCardDataUrl(stored);
     } catch { /* ignore */ }
   }, [registration.qr_code_token]);
+
+  // Verify payment on paid return
+  useEffect(() => {
+    if (!isPaidReturn || !paymentIntentId) return;
+
+    async function verify() {
+      const res = await fetch('/api/payments/confirm-intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ payment_intent_id: paymentIntentId, qr_code_token: registration.qr_code_token }),
+      });
+      const data = await res.json();
+      setPaymentStatus(data.status);
+
+      if (data.status === 'succeeded') {
+        // Move to card step if variant available
+        setPhase(variant ? 'card' : 'done');
+      } else if (data.status === 'processing') {
+        // Poll again in 3 seconds
+        setTimeout(verify, 3000);
+      } else {
+        setPhase('done'); // failed — still show QR so they can contact organiser
+      }
+    }
+    verify();
+  }, [isPaidReturn, paymentIntentId, registration.qr_code_token, variant]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleDownload() {
     if (!cardDataUrl) return;
@@ -85,6 +209,8 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName }:
       await navigator.clipboard.writeText(url);
     }
   }
+
+  useConfetti(phase === 'done');
 
   const shareLinks = [
     {
@@ -119,6 +245,104 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName }:
     },
   ];
 
+  // ── Phase: verifying payment ──────────────────────────────────
+  if (phase === 'verifying') {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0A0F0C' }}>
+        <div className="text-center">
+          <svg className="animate-spin mx-auto mb-4" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#E8C57E" strokeWidth="2.5">
+            <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
+          </svg>
+          <p className="text-[14px]" style={{ color: 'rgba(255,255,255,0.5)' }}>Confirming your payment…</p>
+          {paymentStatus === 'processing' && (
+            <p className="text-[12px] mt-2" style={{ color: 'rgba(255,255,255,0.3)' }}>Your bank is processing the payment. This usually takes a few seconds.</p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // ── Phase: card personalisation (post-payment) ────────────────
+  if (phase === 'card' && variant) {
+    return (
+      <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
+        <div className="max-w-[760px] mx-auto px-5 py-10 pb-32">
+          <div className="mb-2 flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#2D7A4F' }} />
+            <span className="text-[12px] font-medium uppercase tracking-[0.12em]" style={{ color: '#2D7A4F' }}>
+              Payment confirmed
+            </span>
+          </div>
+          <h1 className="font-display font-semibold text-[26px] mb-2" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
+            Personalise your Karta Card
+          </h1>
+          <p className="text-[14px] mb-8" style={{ color: '#6B7A72' }}>
+            One last step — your personalised card will be generated when you confirm.
+          </p>
+
+          <CardZoneFill
+            zones={variant.zones}
+            values={zoneValues}
+            photoUrls={photoUrls}
+            errors={cardZoneErrors}
+            onChange={(id, v) => setZoneValues(p => ({ ...p, [id]: v }))}
+            onPhotoSelect={handlePhotoSelect}
+            onPhotoClear={handlePhotoClear}
+            backgroundUrl={variant.background_url}
+            backgroundWidth={variant.background_width}
+            backgroundHeight={variant.background_height}
+          />
+
+          {cardError && (
+            <div className="mt-4 px-4 py-3 rounded-xl text-[14px]" style={{ background: 'rgba(184,66,60,0.08)', color: '#B8423C' }}>
+              {cardError}
+            </div>
+          )}
+        </div>
+
+        {/* Bottom bar */}
+        <div
+          className="fixed bottom-0 left-0 right-0 flex items-center justify-between gap-4 px-5 py-4 z-30"
+          style={{ background: 'white', borderTop: '1px solid #E5E0D4', boxShadow: '0 -4px 16px rgba(15,31,24,0.06)' }}
+        >
+          <button
+            onClick={() => setPhase('done')}
+            className="text-[13px] font-medium transition"
+            style={{ color: '#6B7A72' }}
+          >
+            Skip for now
+          </button>
+          <button
+            onClick={handleGenerateCard}
+            disabled={generatingCard}
+            className="flex items-center gap-2 h-11 px-6 rounded-xl text-white font-semibold text-[14px] transition hover:opacity-90 disabled:opacity-60"
+            style={{ background: '#1F4D3A' }}
+          >
+            {generatingCard ? (
+              <>
+                <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
+                </svg>
+                Generating…
+              </>
+            ) : (
+              <>Generate my card <ChevronRight size={15} strokeWidth={2} /></>
+            )}
+          </button>
+        </div>
+
+        {cropTarget && (
+          <PhotoCropModal
+            target={cropTarget}
+            onConfirm={handleCropConfirm}
+            onCancel={() => setCropTarget(null)}
+          />
+        )}
+      </div>
+    );
+  }
+
+  // ── Phase: done (QR + card + share) ──────────────────────────
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center px-5 py-16 relative overflow-hidden"
@@ -272,4 +496,13 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName }:
       `}</style>
     </div>
   );
+}
+
+async function blobToDataUrl(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
 }

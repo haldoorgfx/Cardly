@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { CardZoneFill } from './CardZoneFill';
 import { PhotoCropModal } from './PhotoCropModal';
+import { StripePaymentStep } from './StripePaymentStep';
 import type { Database, Zone } from '@/types/database';
 
 type TicketRow = Database['public']['Tables']['ticket_types']['Row'];
@@ -51,7 +52,14 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
   const [phone, setPhone] = useState('');
   const [customFieldValues, setCustomFieldValues] = useState<Record<string, string>>({});
 
-  // Step 2 — card zones
+  // Step 2 (paid) — Stripe payment state
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [pendingRegToken, setPendingRegToken] = useState<string | null>(null);
+  const [paymentAmount, setPaymentAmount] = useState(0);
+  const [paymentCurrency, setPaymentCurrency] = useState('USD');
+  const [creatingPayment, setCreatingPayment] = useState(false);
+
+  // Step 2 (free) — card zones
   const [zoneValues, setZoneValues] = useState<Record<string, string>>({});
   const [photoFiles, setPhotoFiles] = useState<Record<string, File>>({});
   const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({});
@@ -63,7 +71,13 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
   const [submitting, setSubmitting] = useState(false);
 
   const selectedTicket = tickets.find(t => t.id === selectedTicketId);
+  const isPaid = (selectedTicket?.price ?? 0) > 0;
   const isSoldOut = (t: TicketRow) => t.quantity !== null && t.quantity_sold >= t.quantity;
+
+  // Dynamic steps: paid = Ticket/Details/Payment, free = Ticket/Details/Your card
+  const STEPS = isPaid
+    ? [{ label: 'Ticket' }, { label: 'Details' }, { label: 'Payment' }]
+    : [{ label: 'Ticket' }, { label: 'Details' }, { label: 'Your card' }];
 
   // ── Validation ───────────────────────────────────────────────
   function validateDetails(): boolean {
@@ -96,8 +110,44 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
   }
 
   // ── Navigation ───────────────────────────────────────────────
-  function handleNext() {
-    if (step === 1 && !validateDetails()) return;
+  async function handleNext() {
+    if (step === 1) {
+      if (!validateDetails()) return;
+
+      if (isPaid && selectedTicket) {
+        // Paid: create registration + PaymentIntent now so we have a clientSecret
+        setCreatingPayment(true);
+        setSubmitError('');
+        try {
+          const res = await fetch(`/api/events/${eventId}/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              attendee_name: name.trim(),
+              attendee_email: email.trim().toLowerCase(),
+              attendee_phone: phone.trim() || undefined,
+              ticket_type_id: selectedTicketId,
+              custom_fields: customFieldValues,
+            }),
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            setSubmitError(data.detail ?? data.error ?? 'Registration failed');
+            return;
+          }
+          setClientSecret(data.client_secret);
+          setPendingRegToken(data.qr_code_token);
+          setPaymentAmount(data.amount);
+          setPaymentCurrency(data.currency);
+        } catch {
+          setSubmitError('Could not set up payment. Please try again.');
+          return;
+        } finally {
+          setCreatingPayment(false);
+        }
+      }
+    }
+
     setStep(s => Math.min(s + 1, STEPS.length - 1));
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -367,8 +417,19 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
               </div>
             )}
 
-            {/* Step 2 — Card personalisation */}
-            {step === 2 && (
+            {/* Step 2 — Payment (paid) or Card personalisation (free) */}
+            {step === 2 && isPaid && clientSecret && pendingRegToken && (
+              <StripePaymentStep
+                clientSecret={clientSecret}
+                returnUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/e/${eventSlug}/register/confirm?reg=${pendingRegToken}`}
+                amount={paymentAmount}
+                currency={paymentCurrency}
+                eventTitle={page.title}
+                ticketName={selectedTicket?.name ?? 'Ticket'}
+              />
+            )}
+
+            {step === 2 && !isPaid && (
               <div>
                 <h2 className="font-display font-semibold text-[22px] mb-2" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
                   Personalise your card
@@ -454,49 +515,60 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
           </div>
         </div>
 
-        {/* ── Bottom nav bar ── */}
-        <div
-          className="fixed bottom-0 left-0 right-0 flex items-center justify-between gap-4 px-4 sm:px-6 py-4 z-30"
-          style={{ background: 'white', borderTop: '1px solid #E5E0D4', boxShadow: '0 -4px 16px rgba(15,31,24,0.06)' }}
-        >
-          <button
-            onClick={handleBack}
-            className={`flex items-center gap-1.5 h-11 px-4 rounded-xl text-[14px] font-medium border transition ${step === 0 ? 'invisible' : ''}`}
-            style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}
+        {/* ── Bottom nav bar — hidden on paid step 2 (Stripe has its own submit) ── */}
+        {!(step === 2 && isPaid) && (
+          <div
+            className="fixed bottom-0 left-0 right-0 flex items-center justify-between gap-4 px-4 sm:px-6 py-4 z-30"
+            style={{ background: 'white', borderTop: '1px solid #E5E0D4', boxShadow: '0 -4px 16px rgba(15,31,24,0.06)' }}
           >
-            <ChevronLeft size={16} strokeWidth={2} />
-            Back
-          </button>
+            <button
+              onClick={handleBack}
+              className={`flex items-center gap-1.5 h-11 px-4 rounded-xl text-[14px] font-medium border transition ${step === 0 ? 'invisible' : ''}`}
+              style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}
+            >
+              <ChevronLeft size={16} strokeWidth={2} />
+              Back
+            </button>
 
-          {step < STEPS.length - 1 ? (
-            <button
-              onClick={handleNext}
-              className="flex items-center gap-1.5 h-11 px-6 rounded-xl text-white text-[14px] font-semibold transition hover:opacity-90"
-              style={{ background: '#1F4D3A' }}
-            >
-              Continue
-              <ChevronRight size={16} strokeWidth={2} />
-            </button>
-          ) : (
-            <button
-              onClick={handleSubmit}
-              disabled={submitting}
-              className="flex items-center gap-2 h-11 px-6 rounded-xl text-white text-[15px] font-semibold transition hover:opacity-90 disabled:opacity-60"
-              style={{ background: '#1F4D3A' }}
-            >
-              {submitting ? (
-                <>
-                  <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
-                  </svg>
-                  Generating your card…
-                </>
-              ) : (
-                'Confirm & get my card →'
-              )}
-            </button>
-          )}
-        </div>
+            {step < STEPS.length - 1 ? (
+              <button
+                onClick={handleNext}
+                disabled={creatingPayment}
+                className="flex items-center gap-1.5 h-11 px-6 rounded-xl text-white text-[14px] font-semibold transition hover:opacity-90 disabled:opacity-60"
+                style={{ background: '#1F4D3A' }}
+              >
+                {creatingPayment ? (
+                  <>
+                    <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
+                    </svg>
+                    Setting up…
+                  </>
+                ) : (
+                  <>Continue <ChevronRight size={16} strokeWidth={2} /></>
+                )}
+              </button>
+            ) : (
+              <button
+                onClick={handleSubmit}
+                disabled={submitting}
+                className="flex items-center gap-2 h-11 px-6 rounded-xl text-white text-[15px] font-semibold transition hover:opacity-90 disabled:opacity-60"
+                style={{ background: '#1F4D3A' }}
+              >
+                {submitting ? (
+                  <>
+                    <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
+                    </svg>
+                    Generating your card…
+                  </>
+                ) : (
+                  'Confirm & get my card →'
+                )}
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Photo crop modal */}
