@@ -42,12 +42,18 @@ export async function canCreateEvent(userId: string): Promise<boolean> {
   return (count ?? 0) < limit;
 }
 
-export async function canCreateVariant(userId: string): Promise<boolean> {
+export async function canCreateVariant(userId: string, eventId: string): Promise<boolean> {
   const plan = await getUserPlan(userId);
   const limit = PLANS[plan].variants;
   if (limit === null) return true;
-  // Variant counting will be wired when the variant API route is built
-  return true;
+
+  const admin = createAdminClient();
+  const { count } = await admin
+    .from('event_variants')
+    .select('id', { count: 'exact', head: true })
+    .eq('event_id', eventId);
+
+  return (count ?? 0) < limit;
 }
 
 export async function canGenerateCard(userId: string): Promise<{ allowed: boolean; plan: Plan }> {

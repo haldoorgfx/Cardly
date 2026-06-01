@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { canCreateVariant } from '@/lib/billing/can';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -34,6 +35,15 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   // Verify the event belongs to the user
   const { data: event } = await admin.from('events').select('id').eq('id', id).eq('user_id', user.id).single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+  // Enforce per-plan variant limit
+  const allowed = await canCreateVariant(user.id, id);
+  if (!allowed) {
+    return NextResponse.json(
+      { error: 'VARIANT_LIMIT_REACHED', message: 'Upgrade your plan to create more variants.' },
+      { status: 402 }
+    );
+  }
 
   const formData = await req.formData();
   const variantName = (formData.get('variant_name') as string | null)?.trim();
