@@ -1,3 +1,53 @@
+// ── Phase 2: Speakers, sessions, agenda types ─────────────────────────────────
+export type SpeakerType = "keynote" | "speaker" | "panelist" | "workshop" | "mc";
+export type SessionType = "talk" | "keynote" | "workshop" | "panel" | "fireside" | "lightning" | "break";
+
+export interface Track {
+  id: string;
+  event_id: string;
+  name: string;
+  color: string;
+  position: number;
+}
+
+export interface Speaker {
+  id: string;
+  event_id: string;
+  name: string;
+  headline: string | null;
+  bio: string | null;
+  photo_url: string | null;
+  company: string | null;
+  role: string | null;
+  linkedin_url: string | null;
+  twitter_url: string | null;
+  website_url: string | null;
+  speaker_type: SpeakerType;
+  is_featured: boolean;
+  position: number;
+  created_at: string;
+}
+
+export interface Session {
+  id: string;
+  event_id: string;
+  track_id: string | null;
+  title: string;
+  description: string | null;
+  session_type: SessionType;
+  starts_at: string;
+  ends_at: string;
+  room: string | null;
+  capacity: number | null;
+  registrations_count: number;
+  is_published: boolean;
+  position: number;
+  created_at: string;
+  // joined fields
+  tracks?: Track | null;
+  session_speakers?: { speaker_id: string; position: number; speakers: Speaker | null }[];
+}
+
 // ── Phase 1: Event registration types ────────────────────────────────────────
 export type RegistrationStatus = "pending" | "confirmed" | "checked_in" | "cancelled" | "refunded";
 export type PaymentStatus = "free" | "pending" | "paid" | "refunded" | "failed";
@@ -1016,6 +1066,49 @@ export interface Database {
           size_bytes?: number | null;
           mime?: string | null;
         };
+        Relationships: [];
+      };
+      // ── Phase 2: Speakers, sessions, agenda (migration 020) ──────────
+      tracks: {
+        Row: { id: string; event_id: string; name: string; color: string; position: number };
+        Insert: { id?: string; event_id: string; name: string; color?: string; position?: number };
+        Update: { name?: string; color?: string; position?: number };
+        Relationships: [];
+      };
+      speakers: {
+        Row: { id: string; event_id: string; name: string; headline: string | null; bio: string | null; photo_url: string | null; company: string | null; role: string | null; linkedin_url: string | null; twitter_url: string | null; website_url: string | null; speaker_type: string; is_featured: boolean; position: number; created_at: string };
+        Insert: { id?: string; event_id: string; name: string; headline?: string | null; bio?: string | null; photo_url?: string | null; company?: string | null; role?: string | null; linkedin_url?: string | null; twitter_url?: string | null; website_url?: string | null; speaker_type?: string; is_featured?: boolean; position?: number; created_at?: string };
+        Update: { name?: string; headline?: string | null; bio?: string | null; photo_url?: string | null; company?: string | null; role?: string | null; linkedin_url?: string | null; twitter_url?: string | null; website_url?: string | null; speaker_type?: string; is_featured?: boolean; position?: number };
+        Relationships: [];
+      };
+      sessions: {
+        Row: { id: string; event_id: string; track_id: string | null; title: string; description: string | null; session_type: string; starts_at: string; ends_at: string; room: string | null; capacity: number | null; registrations_count: number; is_published: boolean; position: number; created_at: string };
+        Insert: { id?: string; event_id: string; track_id?: string | null; title: string; description?: string | null; session_type?: string; starts_at: string; ends_at: string; room?: string | null; capacity?: number | null; registrations_count?: number; is_published?: boolean; position?: number; created_at?: string };
+        Update: { track_id?: string | null; title?: string; description?: string | null; session_type?: string; starts_at?: string; ends_at?: string; room?: string | null; capacity?: number | null; is_published?: boolean; position?: number };
+        Relationships: [];
+      };
+      session_speakers: {
+        Row: { session_id: string; speaker_id: string; position: number };
+        Insert: { session_id: string; speaker_id: string; position?: number };
+        Update: { position?: number };
+        Relationships: [];
+      };
+      attendee_agendas: {
+        Row: { id: string; registration_id: string; session_id: string; created_at: string };
+        Insert: { id?: string; registration_id: string; session_id: string; created_at?: string };
+        Update: Record<string, never>;
+        Relationships: [];
+      };
+      session_ratings: {
+        Row: { id: string; registration_id: string; session_id: string; rating: number; created_at: string };
+        Insert: { id?: string; registration_id: string; session_id: string; rating: number; created_at?: string };
+        Update: { rating?: number };
+        Relationships: [];
+      };
+      event_feedback: {
+        Row: { id: string; registration_id: string; event_id: string; overall_rating: number | null; highlights: string[] | null; comment: string | null; created_at: string };
+        Insert: { id?: string; registration_id: string; event_id: string; overall_rating?: number | null; highlights?: string[] | null; comment?: string | null; created_at?: string };
+        Update: { overall_rating?: number | null; highlights?: string[] | null; comment?: string | null };
         Relationships: [];
       };
       cms_page_versions: {

@@ -7,7 +7,12 @@ import { createClient } from '@/lib/supabase/client';
 import { useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 
-export function PublicNav() {
+interface PublicNavProps {
+  eventSlug?: string;
+  eventName?: string;
+}
+
+export function PublicNav({ eventSlug, eventName }: PublicNavProps = {}) {
   const pathname = usePathname();
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -17,7 +22,11 @@ export function PublicNav() {
     supabase.auth.getUser().then(({ data }) => setUser(data.user ?? null));
   }, []);
 
-  const links = [
+  const links = eventSlug ? [
+    { href: `/e/${eventSlug}`, label: 'Info' },
+    { href: `/e/${eventSlug}/schedule`, label: 'Schedule' },
+    { href: `/e/${eventSlug}/speakers`, label: 'Speakers' },
+  ] : [
     { href: '/events', label: 'Events' },
     { href: '/how-it-works', label: 'How it works' },
     { href: '/pricing', label: 'Pricing' },
@@ -35,13 +44,19 @@ export function PublicNav() {
     >
       <div className="max-w-[1120px] mx-auto h-full px-5 flex items-center gap-6">
         {/* Wordmark */}
-        <Link href="/" className="flex items-center gap-1.5 shrink-0 hover:opacity-80 transition-opacity">
-          <span
-            className="font-display font-semibold text-[19px] tracking-tight"
-            style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}
-          >
-            Kart<span style={{ color: '#E8C57E' }}>a</span>
-          </span>
+        <Link href={eventSlug ? `/e/${eventSlug}` : '/'} className="flex items-center gap-1.5 shrink-0 hover:opacity-80 transition-opacity">
+          {eventName ? (
+            <span className="font-display font-medium text-[16px] truncate max-w-[160px]" style={{ color: '#0F1F18' }}>
+              {eventName}
+            </span>
+          ) : (
+            <span
+              className="font-display font-semibold text-[19px] tracking-tight"
+              style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}
+            >
+              Kart<span style={{ color: '#E8C57E' }}>a</span>
+            </span>
+          )}
         </Link>
 
         {/* Desktop nav links */}

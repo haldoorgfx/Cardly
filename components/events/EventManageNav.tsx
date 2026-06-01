@@ -6,7 +6,7 @@ import { ChevronRight } from 'lucide-react';
 interface Props {
   eventId: string;
   eventName: string;
-  active: 'overview' | 'event-page' | 'tickets' | 'form' | 'registrations' | 'promo-codes' | 'analytics';
+  active: 'overview' | 'event-page' | 'tickets' | 'form' | 'speakers' | 'sessions' | 'registrations' | 'promo-codes' | 'analytics';
 }
 
 const TABS = [
@@ -14,6 +14,8 @@ const TABS = [
   { key: 'event-page',    label: 'Event page',      href: (id: string) => `/events/${id}/event-page` },
   { key: 'tickets',       label: 'Tickets',         href: (id: string) => `/events/${id}/tickets` },
   { key: 'form',          label: 'Form',            href: (id: string) => `/events/${id}/form` },
+  { key: 'speakers',      label: 'Speakers',        href: (id: string) => `/events/${id}/speakers` },
+  { key: 'sessions',      label: 'Sessions',        href: (id: string) => `/events/${id}/sessions` },
   { key: 'registrations', label: 'Registrations',   href: (id: string) => `/events/${id}/registrations` },
   { key: 'promo-codes',   label: 'Promo codes',     href: (id: string) => `/events/${id}/promo-codes` },
   { key: 'analytics',     label: 'Analytics',       href: (id: string) => `/events/${id}/analytics` },
