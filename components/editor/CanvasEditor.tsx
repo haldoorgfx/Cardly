@@ -216,6 +216,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
   const [newVariantName, setNewVariantName] = useState('');
   const [newVariantFile, setNewVariantFile] = useState<File | null>(null);
   const newVariantFileRef = useRef<HTMLInputElement>(null);
+  const [variantLimitHit, setVariantLimitHit] = useState(false);
 
   /* variant management */
   const [variantMenuId, setVariantMenuId]       = useState<string | null>(null);
@@ -1056,11 +1057,16 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
   const handleAddVariant = async () => {
     if (!newVariantName.trim() || !newVariantFile) return;
     setAddingVariant(true);
+    setVariantLimitHit(false);
     try {
       const fd = new FormData();
       fd.append('variant_name', newVariantName.trim());
       fd.append('file', newVariantFile);
       const res = await fetch(`/api/events/${eventId}/variants`, { method: 'POST', body: fd });
+      if (res.status === 402) {
+        setVariantLimitHit(true);
+        return;
+      }
       if (!res.ok) throw new Error('failed');
       const nv = await res.json() as Variant;
       nv.zones = [];
@@ -1681,29 +1687,51 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
 
       {/* ── Add Variant Modal ───────────────────────────── */}
       {showAddVariant && (
-        <Modal onClose={() => setShowAddVariant(false)} title="Add variant" subtitle="A new card type, e.g. Speaker, Sponsor, Exhibitor">
-          <div className="space-y-4">
-            <ModalField label="Variant name">
-              <input autoFocus type="text" placeholder="e.g. Speaker" value={newVariantName}
-                onChange={e => setNewVariantName(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleAddVariant()}
-                className="w-full h-10 px-3 rounded-xl border border-border text-[13.5px] outline-none focus:border-primary transition" />
-            </ModalField>
-            <ModalField label="Background design">
-              <input ref={newVariantFileRef} type="file" accept="image/png,image/jpeg" className="hidden" onChange={e => setNewVariantFile(e.target.files?.[0] ?? null)} />
-              <button onClick={() => newVariantFileRef.current?.click()}
-                className={`w-full h-24 rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition ${newVariantFile ? 'border-primary/50 bg-primary/[0.04] text-primary' : 'border-border hover:border-primary/40 text-[#0F1F18]/40'}`}>
-                {newVariantFile ? (<><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg><span className="text-[12px] font-medium">{newVariantFile.name}</span></>) : (<><Upload size={20} strokeWidth={1.6} /><span className="text-[12.5px]">Upload PNG or JPG</span></>)}
-              </button>
-            </ModalField>
-          </div>
-          <div className="flex gap-2 mt-6">
-            <button onClick={() => setShowAddVariant(false)} className="flex-1 h-10 rounded-xl border border-border text-[13px] hover:bg-cream transition">Cancel</button>
-            <button onClick={handleAddVariant} disabled={!newVariantName.trim() || !newVariantFile || addingVariant}
-              className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white transition disabled:opacity-40 bg-primary">
-              {addingVariant ? 'Creating…' : 'Create variant'}
-            </button>
-          </div>
+        <Modal onClose={() => { setShowAddVariant(false); setVariantLimitHit(false); }} title="Add variant" subtitle="A new card type, e.g. Speaker, Sponsor, Exhibitor">
+          {variantLimitHit ? (
+            <div className="space-y-4">
+              <div className="rounded-xl p-4 flex gap-3" style={{ background: '#FEF3C7', border: '1px solid #F59E0B33' }}>
+                <span style={{ fontSize: 20 }}>🔒</span>
+                <div>
+                  <p className="text-[13.5px] font-semibold mb-1" style={{ color: '#92400E' }}>Variant limit reached</p>
+                  <p className="text-[12.5px] leading-relaxed" style={{ color: '#92400E' }}>
+                    Your plan only allows a limited number of variants per event. Upgrade to Pro for 5 variants, or Studio for unlimited.
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-2 mt-2">
+                <button onClick={() => { setShowAddVariant(false); setVariantLimitHit(false); }} className="flex-1 h-10 rounded-xl border border-border text-[13px] hover:bg-cream transition">Cancel</button>
+                <a href="/settings#billing" className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white bg-primary flex items-center justify-center transition hover:opacity-90">
+                  Upgrade plan →
+                </a>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="space-y-4">
+                <ModalField label="Variant name">
+                  <input autoFocus type="text" placeholder="e.g. Speaker" value={newVariantName}
+                    onChange={e => setNewVariantName(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleAddVariant()}
+                    className="w-full h-10 px-3 rounded-xl border border-border text-[13.5px] outline-none focus:border-primary transition" />
+                </ModalField>
+                <ModalField label="Background design">
+                  <input ref={newVariantFileRef} type="file" accept="image/png,image/jpeg" className="hidden" onChange={e => setNewVariantFile(e.target.files?.[0] ?? null)} />
+                  <button onClick={() => newVariantFileRef.current?.click()}
+                    className={`w-full h-24 rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition ${newVariantFile ? 'border-primary/50 bg-primary/[0.04] text-primary' : 'border-border hover:border-primary/40 text-[#0F1F18]/40'}`}>
+                    {newVariantFile ? (<><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg><span className="text-[12px] font-medium">{newVariantFile.name}</span></>) : (<><Upload size={20} strokeWidth={1.6} /><span className="text-[12.5px]">Upload PNG or JPG</span></>)}
+                  </button>
+                </ModalField>
+              </div>
+              <div className="flex gap-2 mt-6">
+                <button onClick={() => setShowAddVariant(false)} className="flex-1 h-10 rounded-xl border border-border text-[13px] hover:bg-cream transition">Cancel</button>
+                <button onClick={handleAddVariant} disabled={!newVariantName.trim() || !newVariantFile || addingVariant}
+                  className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white transition disabled:opacity-40 bg-primary">
+                  {addingVariant ? 'Creating…' : 'Create variant'}
+                </button>
+              </div>
+            </>
+          )}
         </Modal>
       )}
 
