@@ -44,7 +44,6 @@ export default async function CheckInPage({ params }: Props) {
   return (
     <QRScanner
       eventId={event.id}
-      eventSlug={event.slug}
       eventName={event.name}
       totalRegistrations={totalCount ?? 0}
       initialCheckedIn={checkedInCount ?? 0}

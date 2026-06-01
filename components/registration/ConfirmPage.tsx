@@ -69,7 +69,7 @@ function useConfetti(enabled: boolean) {
 
 type Phase = 'verifying' | 'card' | 'done';
 
-export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, variant, isPaidReturn, paymentIntentId, redirectStatus, txRef, isFlutterwaveReturn }: Props) {
+export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, variant, isPaidReturn, paymentIntentId, txRef, isFlutterwaveReturn }: Props) {
   // Determine initial phase:
   // - Paid return: start at 'verifying' (check PI status) → 'card' → 'done'
   // - Free (card already generated or in sessionStorage): 'done'
@@ -90,7 +90,7 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
   const [photoFiles, setPhotoFiles] = useState<Record<string, File>>({});
   const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({});
   const [cropTarget, setCropTarget] = useState<{ zone: Zone; srcUrl: string; file: File } | null>(null);
-  const [cardZoneErrors, setCardZoneErrors] = useState<Record<string, string>>({});
+  const [cardZoneErrors] = useState<Record<string, string>>({});
   const [generatingCard, setGeneratingCard] = useState(false);
   const [cardError, setCardError] = useState('');
 

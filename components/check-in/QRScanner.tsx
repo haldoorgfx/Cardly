@@ -12,7 +12,6 @@ type ScanResult =
 
 interface Props {
   eventId: string;
-  eventSlug: string;
   eventName: string;
   totalRegistrations: number;
   initialCheckedIn: number;
@@ -33,7 +32,7 @@ function beep(type: 'ok' | 'warn' | 'err') {
   } catch {}
 }
 
-export function QRScanner({ eventId, eventSlug, eventName, totalRegistrations, initialCheckedIn }: Props) {
+export function QRScanner({ eventId, eventName, totalRegistrations, initialCheckedIn }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const readerRef = useRef<BrowserMultiFormatReader | null>(null);
   const controlsRef = useRef<IScannerControls | null>(null);

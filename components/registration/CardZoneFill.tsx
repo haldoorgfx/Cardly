@@ -27,20 +27,12 @@ export function CardZoneFill({
   const scale = backgroundWidth ? PREVIEW_W / backgroundWidth : 1;
   const previewH = backgroundHeight ? backgroundHeight * scale : PREVIEW_W * (7 / 5);
 
-  function handleFileChange(zone: Zone, e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const srcUrl = URL.createObjectURL(file);
-    onPhotoSelect(zone, file, srcUrl);
-    e.target.value = '';
-  }
-
   return (
     <div className="flex flex-col lg:flex-row gap-6">
       {/* ── Form fields ── */}
       <div className="flex-1 min-w-0 space-y-4">
         <p className="text-[13px]" style={{ color: '#6B7A72' }}>
-          Personalise your card. It'll be generated when you confirm.
+          Personalise your card. It&apos;ll be generated when you confirm.
         </p>
         {inputZones.map(zone => {
           const err = errors[zone.id];

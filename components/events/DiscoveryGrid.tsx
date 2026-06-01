@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Calendar, MapPin, Globe } from 'lucide-react';
+import { MapPin, Globe } from 'lucide-react';
 import { formatShortDate } from '@/lib/events/format';
 
 type PageWithSlug = {

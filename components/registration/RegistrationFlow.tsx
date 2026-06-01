@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useId } from 'react';
+import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { CardZoneFill } from './CardZoneFill';
@@ -31,18 +31,10 @@ interface Props {
   preselectedTicketId?: string;
 }
 
-// Steps for free flow: 0=ticket, 1=details, 2=card
-const STEPS = [
-  { label: 'Ticket' },
-  { label: 'Details' },
-  { label: 'Your card' },
-];
-
 type CropTarget = { zone: Zone; srcUrl: string; file: File };
 
 export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields, variant, preselectedTicketId }: Props) {
   const router = useRouter();
-  const idempotencyKey = useId();
 
   const [step, setStep] = useState(0);
   const [selectedTicketId, setSelectedTicketId] = useState(preselectedTicketId ?? tickets[0]?.id ?? '');

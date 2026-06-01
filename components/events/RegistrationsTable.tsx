@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { Search, Download, QrCode, CheckCircle2, Clock, XCircle, RotateCcw, ExternalLink } from 'lucide-react';
+import { Search, Download, CheckCircle2, Clock, XCircle, RotateCcw, ExternalLink } from 'lucide-react';
 
 type Status = 'pending' | 'confirmed' | 'checked_in' | 'cancelled' | 'refunded';
 type PaymentStatus = 'free' | 'pending' | 'paid' | 'refunded' | 'failed';
