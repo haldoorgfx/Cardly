@@ -2,9 +2,9 @@ export const dynamic = 'force-dynamic';
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { Network, Settings2 } from 'lucide-react';
+import { Settings2 } from 'lucide-react';
 import {
-  PageShell, Btn, StatCards, GateNotice, Panel, AreaChart, Toggle, SectionLabel,
+  PageShell, Btn, StatCards, GateNotice, Panel, AreaChart, Toggle,
 } from '@/components/dashboard/ui';
 
 interface Props { params: Promise<{ id: string }> }

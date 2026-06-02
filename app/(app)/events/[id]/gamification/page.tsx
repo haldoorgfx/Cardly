@@ -2,8 +2,8 @@ export const dynamic = 'force-dynamic';
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { Settings2, Trophy, Zap, ScanLine, Network, MessageSquare, CalendarDays } from 'lucide-react';
-import { PageShell, Btn, GateNotice, Panel, ProgressBar, SectionLabel } from '@/components/dashboard/ui';
+import { Settings2, Trophy, ScanLine, Network, MessageSquare, CalendarDays } from 'lucide-react';
+import { PageShell, Btn, GateNotice, Panel, ProgressBar } from '@/components/dashboard/ui';
 
 interface Props { params: Promise<{ id: string }> }
 

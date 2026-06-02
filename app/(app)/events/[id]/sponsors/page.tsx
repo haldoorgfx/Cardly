@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { Briefcase, Download, Plus } from 'lucide-react';
+import { Download, Plus } from 'lucide-react';
 import { PageShell, Btn, StatCards, GateNotice, SectionLabel, Pill, ProgressBar } from '@/components/dashboard/ui';
 
 interface Props { params: Promise<{ id: string }> }

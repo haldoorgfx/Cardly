@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { Settings2, Video, Users, Eye, MessageSquare, Clock } from 'lucide-react';
-import { PageShell, Btn, StatCards, GateNotice, Panel, SectionLabel, Pill } from '@/components/dashboard/ui';
+import { PageShell, Btn, GateNotice, Panel, Pill } from '@/components/dashboard/ui';
 
 interface Props { params: Promise<{ id: string }> }
 

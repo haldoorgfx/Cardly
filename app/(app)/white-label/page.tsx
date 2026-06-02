@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { CheckCircle2 } from 'lucide-react';
-import { PageShell, Btn, Panel, Toggle, SectionLabel, Pill } from '@/components/dashboard/ui';
+import { PageShell, Btn, Panel, Toggle, Pill } from '@/components/dashboard/ui';
 
 export default function WhiteLabelPage() {
   const [toggles, setToggles] = useState({

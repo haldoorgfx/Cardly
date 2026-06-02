@@ -1,5 +1,5 @@
 import { Key, Copy, Trash2, Info } from 'lucide-react';
-import { PageShell, Btn, Table, Row, Cell, Pill, SectionLabel } from '@/components/dashboard/ui';
+import { PageShell, Btn, Table, Row, Cell, Pill } from '@/components/dashboard/ui';
 
 const MOCK_KEYS = [
   { name: 'Production', key: 'krt_live_sk_••••••••••••••••••••••••••••XkZ3', scope: ['Read', 'Write'], lastUsed: '2 hours ago', created: 'Jan 12, 2025' },
