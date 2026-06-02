@@ -1,294 +1,847 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
 
-function FounderPortrait() {
+export const metadata: Metadata = {
+  title: 'About Karta — The Event Platform',
+  description:
+    'Karta started as a social card tool for event attendees. Then organizers asked for tickets. Then check-in. Then agenda. We built the whole platform. The Karta Card is still the feature nobody else has.',
+  openGraph: {
+    title: 'About Karta',
+    description:
+      'Karta started as a social card tool for event attendees. Then organizers asked for tickets. Then check-in. Then agenda. We built the whole platform. The Karta Card is still the feature nobody else has.',
+    url: 'https://karta.cre8so.com/about',
+    siteName: 'Karta',
+    type: 'website',
+  },
+};
+
+// ─── colours ────────────────────────────────────────────────────────────────
+const C = {
+  primary:      '#1F4D3A',
+  primaryDark:  '#163828',
+  primarySoft:  '#E8EFEB',
+  accent:       '#E8C57E',
+  accentDark:   '#C9A45E',
+  ink:          '#0F1F18',
+  inkSoft:      '#3A4A42',
+  muted:        '#6B7A72',
+  cream:        '#FAF6EE',
+  surface:      '#FFFFFF',
+  border:       '#E5E0D4',
+} as const;
+
+// ─── small helper icon components ────────────────────────────────────────────
+function CheckIcon({ color }: { color: string }) {
   return (
-    <div className="relative" style={{ width: 300 }}>
-      <div className="relative overflow-hidden rounded-3xl border border-border" style={{
-        aspectRatio: '4 / 5',
-        background: 'linear-gradient(165deg, #163828 0%, #1F4D3A 55%, #2A6A50 100%)',
-        boxShadow: '0 30px 60px -20px rgba(15,31,24,0.45), 0 12px 24px -12px rgba(15,31,24,0.35)',
-      }}>
-        {/* dot grid */}
-        <div aria-hidden className="absolute inset-0 opacity-[0.18]"
-          style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #E8C57E 1px, transparent 0)', backgroundSize: '20px 20px' }} />
-        {/* stylized portrait */}
-        <svg viewBox="0 0 300 375" preserveAspectRatio="xMidYMid meet" className="absolute inset-0 w-full h-full" aria-hidden>
-          <defs>
-            <radialGradient id="halo" cx="50%" cy="35%" r="50%">
-              <stop offset="0%" stopColor="rgba(232, 197, 126, 0.5)" />
-              <stop offset="100%" stopColor="rgba(232, 197, 126, 0)" />
-            </radialGradient>
-            <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#F3E4C1" />
-              <stop offset="100%" stopColor="#C9A45E" />
-            </linearGradient>
-          </defs>
-          <rect width="300" height="375" fill="url(#halo)" />
-          <path d="M 20 375 Q 20 260 90 242 L 210 242 Q 280 260 280 375 Z" fill="#0F1F18" opacity="0.55" />
-          <path d="M 50 375 Q 60 275 110 260 L 190 260 Q 240 275 250 375 Z" fill="#163828" />
-          <circle cx="150" cy="168" r="72" fill="url(#skin)" />
-          <circle cx="150" cy="186" r="65" fill="rgba(15,31,24,0.06)" />
-        </svg>
-        {/* caption */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 lg:p-5"
-          style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.4), transparent)', backdropFilter: 'blur(4px)' }}>
-          <div className="font-mono text-[9px] tracking-[0.22em] uppercase text-accent">Founder</div>
-          <div className="font-display font-semibold text-cream text-[18px] tracking-tight mt-1">Abdalla</div>
-          <div className="font-mono text-[10px] tracking-[0.14em] uppercase mt-1" style={{ color: 'rgba(250,246,238,0.65)' }}>Djibouti</div>
-        </div>
-      </div>
-      <div className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted/70 mt-3 text-center">
-        [placeholder — replace with founder photo]
-      </div>
-    </div>
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+      <circle cx="7" cy="7" r="7" fill={color} fillOpacity="0.15" />
+      <path d="M3.5 7l2.5 2.5L10.5 4" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
 
+function CrossIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+      <circle cx="7" cy="7" r="7" fill={C.muted} fillOpacity="0.12" />
+      <path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke={C.muted} strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function SparkleIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+      <path d="M8 1l1.5 4.5L14 7l-4.5 1.5L8 13l-1.5-4.5L2 7l4.5-1.5z" fill={C.accent} />
+    </svg>
+  );
+}
+
+// ─── page ────────────────────────────────────────────────────────────────────
 export default function AboutPage() {
   return (
     <>
-      {/* Hero */}
-      <section className="relative overflow-hidden border-b border-border">
-        <div className="relative mx-auto max-w-[1200px] px-5 lg:px-10 pt-16 lg:pt-24 pb-16 lg:pb-24 grid lg:grid-cols-[1.2fr_1fr] gap-12 lg:gap-16 items-center">
-          <div>
-            <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-5">
-              About Karta
-            </div>
-            <h1 className="font-display font-bold text-ink text-[42px] sm:text-[58px] lg:text-[72px] leading-[0.94] tracking-tight">
-              Built in Djibouti.{' '}
-              <span className="text-primary">For the world.</span>
-            </h1>
-            <p className="mt-6 text-ink-soft text-[17px] lg:text-[19px] leading-[1.55] max-w-[520px]">
-              Karta is the tool we wished existed when we ran campaigns ourselves.
-              Built Africa-first — but the problem is global.
+      {/* ── SECTION 1 — HERO ───────────────────────────────────────────────── */}
+      <section
+        style={{ background: C.cream, position: 'relative', overflow: 'hidden' }}
+        className="border-b"
+      >
+        {/* mesh background */}
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: [
+              `radial-gradient(ellipse 70% 60% at 20% -10%, rgba(31,77,58,0.10) 0%, transparent 70%)`,
+              `radial-gradient(ellipse 50% 50% at 80% 110%, rgba(232,197,126,0.13) 0%, transparent 65%)`,
+            ].join(', '),
+            pointerEvents: 'none',
+          }}
+        />
+
+        <div
+          style={{ maxWidth: 860, margin: '0 auto', padding: '88px 20px 96px', position: 'relative', textAlign: 'center' }}
+        >
+          {/* overline */}
+          <p
+            style={{
+              fontFamily: '"JetBrains Mono", monospace',
+              fontSize: 11,
+              letterSpacing: '0.22em',
+              textTransform: 'uppercase',
+              color: C.primary,
+              marginBottom: 20,
+            }}
+          >
+            Our story
+          </p>
+
+          {/* H1 */}
+          <h1
+            style={{
+              fontFamily: '"DM Sans", sans-serif',
+              fontWeight: 700,
+              fontSize: 'clamp(40px, 6vw, 64px)',
+              lineHeight: 1.0,
+              letterSpacing: '-0.02em',
+              color: C.primary,
+              margin: '0 auto',
+              maxWidth: 760,
+            }}
+          >
+            We started with a card. We built a platform.
+          </h1>
+
+          {/* sub */}
+          <p
+            style={{
+              fontSize: 18,
+              color: C.inkSoft,
+              lineHeight: 1.6,
+              marginTop: 24,
+              maxWidth: 620,
+              marginLeft: 'auto',
+              marginRight: 'auto',
+            }}
+          >
+            Karta launched with one idea: every event attendee deserves a personalized card worth
+            sharing. Three years and a few hundred thousand cards later, organizers kept asking for
+            more. So we built the platform underneath.
+          </p>
+        </div>
+      </section>
+
+      {/* ── SECTION 2 — PLATFORM ORIGIN STORY ─────────────────────────────── */}
+      <section style={{ background: C.cream }}>
+        <div
+          style={{
+            maxWidth: 1160,
+            margin: '0 auto',
+            padding: '80px 20px',
+            display: 'grid',
+            gap: 56,
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            alignItems: 'start',
+          }}
+        >
+          {/* Left — narrative */}
+          <div style={{ maxWidth: 520 }}>
+            <h2
+              style={{
+                fontFamily: '"DM Sans", sans-serif',
+                fontWeight: 700,
+                fontSize: 'clamp(30px, 4vw, 38px)',
+                letterSpacing: '-0.02em',
+                lineHeight: 1.05,
+                color: C.primary,
+                marginBottom: 28,
+              }}
+            >
+              One tool became the whole toolkit.
+            </h2>
+
+            {[
+              `In 2023, we built a simple tool: upload your event design, add your name and photo, download your personalized card. Organizers loved it. Attendees shared it. It worked.`,
+              `Then the requests came in. "Can you add ticket sales?" "Can attendees check in with QR codes?" "We need an agenda page our speakers can share." Each ask was reasonable. Each ask was something their existing tools didn't do well together.`,
+              `So we built it. Registration. Paid ticketing. A public event page. Multi-track agenda. Speaker directory. QR check-in. Attendee networking. Live Q&A. Analytics. One platform, one link.`,
+            ].map((para, i) => (
+              <p
+                key={i}
+                style={{
+                  fontSize: 15,
+                  color: C.inkSoft,
+                  lineHeight: 1.65,
+                  marginBottom: 18,
+                }}
+              >
+                {para}
+              </p>
+            ))}
+
+            {/* emphasized para */}
+            <p
+              style={{
+                fontSize: 15,
+                color: C.ink,
+                lineHeight: 1.65,
+                fontWeight: 500,
+              }}
+            >
+              The Karta Card never went away. It became the differentiator — the feature no
+              competitor has copied, the moment that turns every registration into a share.
             </p>
-            {/* Stats */}
-            <div className="mt-8 grid grid-cols-3 gap-px rounded-2xl overflow-hidden border border-border max-w-[440px]"
-              style={{ background: '#E5E0D4' }}>
-              {([['2024', 'Founded'], ['8', 'Countries served'], ['1', 'Coffee per feature']] as [string, string][]).map(([n, l], i) => (
-                <div key={i} className="bg-cream px-4 py-3.5">
-                  <div className="font-display font-bold text-primary text-[22px] tracking-[-0.03em] leading-none">{n}</div>
-                  <div className="mt-1.5 font-mono text-[9px] tracking-[0.16em] uppercase text-muted">{l}</div>
+          </div>
+
+          {/* Right — platform feature card */}
+          <div
+            style={{
+              borderRadius: 16,
+              padding: '28px 28px 24px',
+              background: 'linear-gradient(135deg, #1F4D3A 0%, #163828 100%)',
+            }}
+          >
+            <p
+              style={{
+                fontFamily: '"JetBrains Mono", monospace',
+                fontSize: 11,
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                color: 'rgba(250,246,238,0.65)',
+                marginBottom: 20,
+              }}
+            >
+              What Karta does today
+            </p>
+
+            {/* 3×3 chip grid */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: 8,
+              }}
+            >
+              {[
+                'Registration',
+                'Agenda',
+                'Speakers',
+                'QR Check-in',
+                'Networking',
+                'Live Q&A',
+                'Gamification',
+                'Sponsor Tools',
+                'Analytics',
+              ].map((feature) => (
+                <div
+                  key={feature}
+                  style={{
+                    background: 'rgba(255,255,255,0.07)',
+                    border: '1px solid rgba(255,255,255,0.10)',
+                    borderRadius: 8,
+                    padding: '7px 10px',
+                    fontSize: 13,
+                    color: 'rgba(250,246,238,0.90)',
+                    textAlign: 'center',
+                  }}
+                >
+                  {feature}
                 </div>
               ))}
             </div>
-          </div>
-          <div className="justify-self-center lg:justify-self-end">
-            <FounderPortrait />
-          </div>
-        </div>
-      </section>
 
-      {/* Founder story */}
-      <section className="relative">
-        <div className="mx-auto max-w-[760px] px-5 lg:px-10 py-20 lg:py-28">
-          <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-5">The story</div>
-          <h2 className="font-display font-bold text-ink text-[32px] sm:text-[42px] lg:text-[48px] leading-[1.0] tracking-tight">
-            A tool I wish I&apos;d had.
-          </h2>
-          <div className="mt-9 space-y-6 text-ink text-[17px] lg:text-[18px] leading-[1.7]">
-            <p>
-              I kept seeing the same problem at events. An organizer hires a designer to make beautiful &ldquo;I&apos;m attending&rdquo; social cards. The design is done. It looks great. Then the question comes: how do 400 attendees get their own version?
-            </p>
-            <p>
-              The answer, every time, was the same: a Canva template, a Dropbox link, and a voice note explaining how to edit it. Half the attendees couldn&apos;t figure it out. The other half did it wrong. The designer ended up making 80 individual versions manually, the night before the event.
-            </p>
-            <p>
-              Karta is the fix. You upload your design — the real one, the one your designer spent time on — mark which parts attendees can personalize, and share one link. Attendees open it on their phone, fill in their name, upload a photo, and download their own version in under a minute. No Canva. No voice notes. No designer doing it manually at midnight.
-            </p>
-            <p>
-              Built in Djibouti, for organizers running campaigns across Africa, the Middle East, and increasingly the world. One flat link. Works on any phone. And when the day comes, every supporter, speaker and attendee has their own branded moment to share.
-            </p>
-          </div>
-          <div className="mt-10 flex items-center gap-4 pt-7 border-t border-border">
-            <div className="w-12 h-12 rounded-full grid place-items-center font-display font-semibold"
-              style={{ background: 'radial-gradient(120% 120% at 30% 25%, #f3e4c1 0%, #c9a45e 55%, #8a6f3a 100%)', color: '#163828' }}>
-              A
-            </div>
-            <div>
-              <div className="font-display font-semibold text-ink text-[15px] tracking-tight">Abdalla</div>
-              <div className="font-mono text-[10px] tracking-[0.16em] uppercase text-muted mt-0.5">Founder · Karta</div>
-            </div>
-            <div className="ml-auto font-display italic text-muted text-[14px]">Djibouti, 2024</div>
-          </div>
-        </div>
-      </section>
-
-      {/* Values — dark section */}
-      <section className="relative bg-primary text-cream overflow-hidden">
-        <div aria-hidden className="absolute inset-0 opacity-[0.06]"
-          style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #E8C57E 1px, transparent 0)', backgroundSize: '32px 32px' }} />
-        <div className="relative mx-auto max-w-[1200px] px-5 lg:px-10 py-20 lg:py-28">
-          <div className="max-w-[760px] mb-14 lg:mb-16">
-            <div className="font-mono text-[11px] tracking-[0.22em] text-accent uppercase mb-5">
-              What Karta stands for
-            </div>
-            <h2 className="font-display font-bold text-cream text-[32px] sm:text-[42px] lg:text-[48px] leading-[1.02] tracking-tight">
-              Three things we&apos;ll never water down.
-            </h2>
-          </div>
-          <div className="grid lg:grid-cols-3 gap-px rounded-2xl overflow-hidden border" style={{ background: 'rgba(255,255,255,0.10)', borderColor: 'rgba(255,255,255,0.15)' }}>
-            {[
-              {
-                label: 'Design',
-                title: 'African-modern, not African-themed.',
-                body: 'We design for how Africa actually scrolls — fast feeds, WhatsApp Status, mobile-first phones. Not a stereotyped version of it.',
-              },
-              {
-                label: 'Product',
-                title: 'The link is the product.',
-                body: 'No accounts, no apps, no funnels for the attendees. One tap is the bar. If we ever raise that bar by a millimeter, something has gone wrong.',
-              },
-              {
-                label: 'Brand',
-                title: 'Consistency at scale.',
-                body: 'Your design system survives 10,000 supporters posting from 40 phones. That\'s the whole reason we built this.',
-              },
-            ].map((v, i) => (
-              <div key={i} className="bg-primary hover:bg-primary-dark transition-colors p-7 lg:p-8 flex flex-col">
-                <div className="flex items-center justify-between mb-6">
-                  <span className="w-11 h-11 rounded-lg grid place-items-center border"
-                    style={{ background: 'rgba(255,255,255,0.10)', borderColor: 'rgba(255,255,255,0.15)', color: '#E8C57E' }}>
-                    <span className="font-mono text-[13px] font-semibold">{String(i + 1).padStart(2, '0')}</span>
-                  </span>
-                  <span className="font-mono text-[10px] tracking-[0.22em] text-accent uppercase">
-                    {v.label}
-                  </span>
-                </div>
-                <h3 className="font-display font-semibold text-cream text-[20px] lg:text-[24px] tracking-tight leading-[1.1]">
-                  {v.title}
-                </h3>
-                <p className="mt-3 text-[15px] leading-[1.6]" style={{ color: 'rgba(250,246,238,0.70)' }}>
-                  {v.body}
-                </p>
+            {/* Karta Card highlight */}
+            <div
+              style={{
+                borderTop: '1px solid rgba(232,197,126,0.30)',
+                marginTop: 16,
+                paddingTop: 16,
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: 10,
+              }}
+            >
+              <SparkleIcon />
+              <div>
+                <span
+                  style={{
+                    fontFamily: '"DM Sans", sans-serif',
+                    fontWeight: 600,
+                    fontSize: 14,
+                    color: C.accent,
+                    display: 'block',
+                    marginBottom: 2,
+                  }}
+                >
+                  Karta Card
+                </span>
+                <span
+                  style={{
+                    fontSize: 13,
+                    color: 'rgba(250,246,238,0.65)',
+                    lineHeight: 1.5,
+                  }}
+                >
+                  Personalized for every attendee. Included on every plan.
+                </span>
               </div>
-            ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Team */}
-      <section className="relative">
-        <div className="mx-auto max-w-[1200px] px-5 lg:px-10 py-20 lg:py-24">
-          <div className="flex flex-wrap items-end justify-between gap-6 mb-10 lg:mb-12">
-            <div className="max-w-[600px]">
-              <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-5">Team</div>
-              <h2 className="font-display font-bold text-ink text-[30px] sm:text-[40px] lg:text-[44px] leading-[1.02] tracking-tight">
-                A small team. A clear remit.
-              </h2>
-              <p className="mt-4 text-ink-soft text-[16px] lg:text-[17px] leading-[1.6]">
-                Building Karta alone for now. If you&apos;ve worked on African campaigns and want to build the tool you wish existed — let&apos;s talk.
+      {/* ── SECTION 3 — THE DIFFERENTIATOR ────────────────────────────────── */}
+      <section
+        style={{
+          background: 'rgba(232,239,235,0.40)',
+          borderTop: `1px solid rgba(229,224,212,0.70)`,
+          borderBottom: `1px solid rgba(229,224,212,0.70)`,
+        }}
+      >
+        <div
+          style={{
+            maxWidth: 1160,
+            margin: '0 auto',
+            padding: '80px 20px',
+            display: 'grid',
+            gap: 56,
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            alignItems: 'center',
+          }}
+        >
+          {/* Left — comparison cards */}
+          <div style={{ display: 'flex', gap: 14, alignItems: 'stretch' }}>
+            {/* Card A — Other platforms */}
+            <div
+              style={{
+                flex: 1,
+                background: C.surface,
+                border: `1px solid ${C.border}`,
+                borderRadius: 14,
+                padding: '20px 16px',
+              }}
+            >
+              <p
+                style={{
+                  fontFamily: '"JetBrains Mono", monospace',
+                  fontSize: 10,
+                  letterSpacing: '0.20em',
+                  textTransform: 'uppercase',
+                  color: C.muted,
+                  marginBottom: 16,
+                }}
+              >
+                Other platforms
               </p>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {[
+                  { label: 'Registration', yes: true },
+                  { label: 'Tickets',      yes: true },
+                  { label: 'Agenda',       yes: true },
+                  { label: 'Check-in',     yes: true },
+                  { label: 'Karta Card',   yes: false },
+                ].map(({ label, yes }) => (
+                  <li key={label} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: yes ? C.inkSoft : C.muted }}>
+                    {yes ? <CheckIcon color={C.muted} /> : <CrossIcon />}
+                    {label}
+                  </li>
+                ))}
+              </ul>
             </div>
-            <a href="mailto:hello@cre8so.com"
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-primary text-cream font-medium text-[14px] hover:bg-primary-dark transition-colors">
-              Get in touch <ArrowRight size={14} />
-            </a>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[
-              { name: 'Abdalla', role: 'Founder', initials: 'A', location: 'Djibouti', active: true },
-              { name: 'Open role', role: 'Founding Engineer', initials: '+', location: 'Remote · Africa', active: false },
-              { name: 'Open role', role: 'Designer', initials: '+', location: 'Remote · Africa', active: false },
-              { name: 'Open role', role: 'Community', initials: '+', location: 'Remote · Africa', active: false },
-            ].map((m, i) => (
-              <div key={i} className="bg-surface border border-border rounded-2xl p-6 flex flex-col">
-                {m.active ? (
-                  <div className="w-14 h-14 rounded-full grid place-items-center font-display font-semibold text-[18px]"
+
+            {/* Card B — Karta */}
+            <div
+              style={{
+                flex: 1,
+                background: 'linear-gradient(135deg, #1F4D3A 0%, #163828 100%)',
+                border: `1.5px solid ${C.accentDark}`,
+                borderRadius: 14,
+                padding: '20px 16px',
+              }}
+            >
+              <p
+                style={{
+                  fontFamily: '"JetBrains Mono", monospace',
+                  fontSize: 10,
+                  letterSpacing: '0.20em',
+                  textTransform: 'uppercase',
+                  color: C.accent,
+                  marginBottom: 16,
+                }}
+              >
+                Karta
+              </p>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {[
+                  { label: 'Registration', gold: false },
+                  { label: 'Tickets',      gold: false },
+                  { label: 'Agenda',       gold: false },
+                  { label: 'Check-in',     gold: false },
+                  { label: 'Karta Card',   gold: true  },
+                ].map(({ label, gold }) => (
+                  <li
+                    key={label}
                     style={{
-                      background: 'radial-gradient(120% 120% at 30% 25%, #f3e4c1 0%, #c9a45e 55%, #8a6f3a 100%)',
-                      color: '#163828',
-                      boxShadow: '0 0 0 3px rgba(232, 197, 126, 0.25)',
-                    }}>
-                    {m.initials}
-                  </div>
-                ) : (
-                  <div className="w-14 h-14 rounded-full grid place-items-center font-display font-semibold text-[22px] text-primary border-2 border-dashed border-primary/30">
-                    +
-                  </div>
-                )}
-                <div className="mt-4 font-display font-semibold text-ink text-[16px] tracking-tight">{m.name}</div>
-                <div className="font-mono text-[10px] tracking-[0.14em] uppercase text-primary mt-1.5">{m.role}</div>
-                <div className="mt-1 text-[12px] text-muted">{m.location}</div>
-                {!m.active && (
-                  <a href="mailto:hello@cre8so.com" className="mt-4 inline-flex items-center gap-1.5 text-[12px] font-medium text-primary">
-                    Apply <ArrowRight size={12} />
-                  </a>
-                )}
-              </div>
-            ))}
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      fontSize: 13,
+                      color: gold ? C.accent : 'rgba(250,246,238,0.85)',
+                      fontWeight: gold ? 600 : 400,
+                    }}
+                  >
+                    <CheckIcon color={gold ? C.accent : 'rgba(250,246,238,0.70)'} />
+                    {label}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-        </div>
-      </section>
 
-      {/* Press / mentions */}
-      <section className="border-y border-border" style={{ background: 'rgba(250,246,238,0.4)' }}>
-        <div className="mx-auto max-w-[1200px] px-5 lg:px-10 py-16 lg:py-20">
-          <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-8 text-center">
-            Talked about in
-          </div>
-          <div className="grid md:grid-cols-3 gap-4 lg:gap-5">
-            {[
-              {
-                who: 'Disrupt Africa',
-                date: 'MAR 2026',
-                quote: 'A small Djibouti-based team is quietly fixing the most common comms failure on the continent\'s event circuit.',
-              },
-              {
-                who: 'TechCabal',
-                date: 'APR 2026',
-                quote: 'Karta\'s WhatsApp-first share flow is exactly the kind of design African startups should be exporting.',
-              },
-              {
-                who: 'Rest of World',
-                date: 'MAY 2026',
-                quote: 'Built for low-bandwidth, mobile-first audiences — and increasingly used by global brands running campaigns there.',
-              },
-            ].map((m, i) => (
-              <article key={i} className="bg-surface border border-border rounded-2xl p-6 lg:p-7">
-                <div className="flex items-center justify-between mb-5">
-                  <div className="font-display font-bold text-ink text-[17px] tracking-tight">{m.who}</div>
-                  <div className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted">{m.date}</div>
-                </div>
-                <blockquote className="text-ink-soft text-[14px] lg:text-[15px] leading-[1.6] italic">
-                  &ldquo;{m.quote}&rdquo;
-                </blockquote>
-                <div className="mt-4 font-mono text-[9px] tracking-[0.18em] uppercase text-muted/70">[placeholder]</div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
+          {/* Right — text */}
+          <div>
+            {/* gold pill overline */}
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                background: 'rgba(232,197,126,0.14)',
+                border: `1px solid rgba(232,197,126,0.35)`,
+                borderRadius: 99,
+                padding: '4px 12px',
+                fontFamily: '"JetBrains Mono", monospace',
+                fontSize: 11,
+                letterSpacing: '0.16em',
+                textTransform: 'uppercase' as const,
+                color: C.accentDark,
+                marginBottom: 20,
+              }}
+            >
+              The Karta difference
+            </div>
 
-      {/* CTA */}
-      <section className="relative overflow-hidden pb-28">
-        <div className="relative mx-auto max-w-[860px] px-5 lg:px-10 py-20 lg:py-24 text-center">
-          <h2 className="font-display font-bold text-ink text-[36px] sm:text-[50px] lg:text-[60px] leading-[0.98] tracking-tight">
-            Want to talk?
-          </h2>
-          <p className="mt-5 text-ink-soft text-[16px] lg:text-[18px] leading-[1.55] max-w-[520px] mx-auto">
-            We read every email. Press, partnerships, weird ideas, hard problems.
-            Especially the hard problems.
-          </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <a href="mailto:hello@cre8so.com"
-              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-primary text-cream font-medium hover:bg-primary-dark transition-colors">
-              hello@cre8so.com <ArrowRight size={16} />
-            </a>
-            <Link href="/signup"
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full border border-border text-ink font-medium hover:border-primary hover:text-primary transition-colors">
-              Try the product first <ArrowRight size={14} />
+            <h2
+              style={{
+                fontFamily: '"DM Sans", sans-serif',
+                fontWeight: 700,
+                fontSize: 'clamp(26px, 3.5vw, 34px)',
+                letterSpacing: '-0.02em',
+                lineHeight: 1.1,
+                color: C.primary,
+                marginBottom: 20,
+              }}
+            >
+              Eventbrite handles registration. Only Karta gives every attendee a card worth sharing.
+            </h2>
+
+            <p style={{ fontSize: 15, color: C.inkSoft, lineHeight: 1.65, marginBottom: 14 }}>
+              When someone registers on Eventbrite, they get a confirmation email. When they register
+              on Karta, they get a personalized card — their photo, their name, your event brand —
+              ready to post on Instagram or send on WhatsApp.
+            </p>
+
+            <p style={{ fontSize: 15, color: C.inkSoft, lineHeight: 1.65, marginBottom: 20 }}>
+              That card is organic reach. 740 cards shared at one summit meant 11,000 potential new
+              event attendees saw the brand that week. No ad budget. No influencer. Just a card worth
+              sharing.
+            </p>
+
+            <Link
+              href="/how-it-works"
+              style={{
+                fontSize: 15,
+                fontWeight: 500,
+                color: C.accentDark,
+                textDecoration: 'none',
+              }}
+            >
+              See how the card works →
             </Link>
           </div>
-          {/* Made in Djibouti flag */}
-          <div className="mt-12 flex items-center justify-center gap-2 font-mono text-[10px] tracking-[0.22em] uppercase text-muted">
-            <span aria-hidden className="inline-flex items-center gap-1">
-              <span className="inline-block w-3 h-2 rounded-sm" style={{ background: 'linear-gradient(to bottom, #6AB04C 33%, #FFFFFF 33% 66%, #44A5E0 66%)' }} />
-              <span className="inline-block w-2 h-2" style={{ background: '#D62828', clipPath: 'polygon(0 0, 100% 50%, 0 100%)' }} />
-            </span>
-            Made in Djibouti
+        </div>
+      </section>
+
+      {/* ── SECTION 4 — VALUES ────────────────────────────────────────────── */}
+      <section style={{ background: C.cream, padding: '80px 20px' }}>
+        {/* header */}
+        <div style={{ textAlign: 'center', marginBottom: 48 }}>
+          <p
+            style={{
+              fontFamily: '"JetBrains Mono", monospace',
+              fontSize: 11,
+              letterSpacing: '0.22em',
+              textTransform: 'uppercase',
+              color: C.primary,
+              marginBottom: 14,
+            }}
+          >
+            What we believe
+          </p>
+          <h2
+            style={{
+              fontFamily: '"DM Sans", sans-serif',
+              fontWeight: 700,
+              fontSize: 'clamp(28px, 4vw, 40px)',
+              letterSpacing: '-0.02em',
+              lineHeight: 1.05,
+              color: C.ink,
+            }}
+          >
+            Three things we don&apos;t compromise on.
+          </h2>
+        </div>
+
+        {/* cards grid */}
+        <div
+          style={{
+            maxWidth: 1060,
+            margin: '0 auto',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: 20,
+          }}
+        >
+          {[
+            {
+              title: 'Design first',
+              body: 'Events should be beautiful. The platform should get out of the way of the designer\'s vision. We never ship anything we wouldn\'t use ourselves.',
+            },
+            {
+              title: 'Built for Africa',
+              body: 'We built Karta for how events actually run in Africa — mobile-first, offline-capable, M-Pesa ready, WhatsApp-native. That said, anyone can use it anywhere.',
+            },
+            {
+              title: 'Organizer-grade',
+              body: 'We talk to event organizers every week. Every feature ships because a real organizer needed it. We don\'t build features to fill a pricing page.',
+            },
+          ].map((v, i) => (
+            <div
+              key={i}
+              style={{
+                background: C.surface,
+                border: `1px solid ${C.border}`,
+                borderRadius: 16,
+                padding: 28,
+              }}
+            >
+              <h3
+                style={{
+                  fontFamily: '"DM Sans", sans-serif',
+                  fontWeight: 600,
+                  fontSize: 18,
+                  color: C.ink,
+                  letterSpacing: '-0.01em',
+                  marginBottom: 12,
+                }}
+              >
+                {v.title}
+              </h3>
+              <p style={{ fontSize: 15, color: C.inkSoft, lineHeight: 1.65 }}>{v.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── SECTION 5 — TEAM ──────────────────────────────────────────────── */}
+      <section style={{ background: C.cream, padding: '64px 20px' }}>
+        <div style={{ maxWidth: 1060, margin: '0 auto' }}>
+          <h2
+            style={{
+              fontFamily: '"DM Sans", sans-serif',
+              fontWeight: 700,
+              fontSize: 32,
+              letterSpacing: '-0.02em',
+              color: C.primary,
+              marginBottom: 8,
+            }}
+          >
+            The team.
+          </h2>
+          <p style={{ fontSize: 15, color: C.muted, marginBottom: 40 }}>Small, focused, shipping fast.</p>
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+              gap: 20,
+            }}
+          >
+            {/* Abdalla */}
+            <div
+              style={{
+                background: C.surface,
+                border: `1px solid ${C.border}`,
+                borderRadius: 14,
+                padding: 24,
+                textAlign: 'center',
+              }}
+            >
+              <div
+                style={{
+                  width: 64,
+                  height: 64,
+                  borderRadius: '50%',
+                  background: `linear-gradient(135deg, ${C.primary} 0%, ${C.accent} 100%)`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontFamily: '"DM Sans", sans-serif',
+                  fontWeight: 600,
+                  fontSize: 20,
+                  color: C.cream,
+                  margin: '0 auto 14px',
+                }}
+              >
+                AY
+              </div>
+              <p
+                style={{
+                  fontFamily: '"DM Sans", sans-serif',
+                  fontWeight: 600,
+                  fontSize: 15,
+                  color: C.ink,
+                  marginBottom: 4,
+                }}
+              >
+                Abdalla Yusuf
+              </p>
+              <p
+                style={{
+                  fontFamily: '"JetBrains Mono", monospace',
+                  fontSize: 11,
+                  letterSpacing: '0.12em',
+                  textTransform: 'uppercase',
+                  color: C.muted,
+                }}
+              >
+                Founder &amp; CEO
+              </p>
+            </div>
+
+            {/* Open roles */}
+            {[
+              { role: 'Product Designer',     initials: '—' },
+              { role: 'Full-stack Engineer',  initials: '—' },
+              { role: 'Growth',               initials: '—' },
+            ].map(({ role, initials }) => (
+              <Link
+                key={role}
+                href="/contact"
+                style={{ textDecoration: 'none' }}
+              >
+                <div
+                  style={{
+                    background: C.surface,
+                    border: `1.5px dashed ${C.border}`,
+                    borderRadius: 14,
+                    padding: 24,
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    transition: 'border-color 0.15s',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 64,
+                      height: 64,
+                      borderRadius: '50%',
+                      border: `1.5px dashed ${C.border}`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontFamily: '"DM Sans", sans-serif',
+                      fontWeight: 600,
+                      fontSize: 20,
+                      color: C.muted,
+                      margin: '0 auto 14px',
+                    }}
+                  >
+                    {initials}
+                  </div>
+                  <p
+                    style={{
+                      fontFamily: '"DM Sans", sans-serif',
+                      fontWeight: 600,
+                      fontSize: 15,
+                      color: C.muted,
+                      marginBottom: 4,
+                    }}
+                  >
+                    Open role
+                  </p>
+                  <p
+                    style={{
+                      fontFamily: '"JetBrains Mono", monospace',
+                      fontSize: 11,
+                      letterSpacing: '0.12em',
+                      textTransform: 'uppercase',
+                      color: C.muted,
+                      opacity: 0.7,
+                    }}
+                  >
+                    {role}
+                  </p>
+                </div>
+              </Link>
+            ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── SECTION 6 — PRESS ─────────────────────────────────────────────── */}
+      <section
+        style={{
+          borderTop: `1px solid ${C.border}`,
+          background: C.cream,
+          padding: '56px 20px 40px',
+        }}
+      >
+        <div style={{ maxWidth: 800, margin: '0 auto', textAlign: 'center' }}>
+          <p
+            style={{
+              fontFamily: '"JetBrains Mono", monospace',
+              fontSize: 11,
+              letterSpacing: '0.22em',
+              textTransform: 'uppercase',
+              color: C.muted,
+              marginBottom: 28,
+            }}
+          >
+            As seen in
+          </p>
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              gap: '8px 40px',
+            }}
+          >
+            {['Disrupt Africa', 'TechCabal', 'Rest of World'].map((name) => (
+              <span
+                key={name}
+                style={{
+                  fontFamily: '"DM Sans", sans-serif',
+                  fontWeight: 600,
+                  fontSize: 18,
+                  color: `rgba(15,31,24,0.40)`,
+                }}
+              >
+                {name}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION 7 — FINAL CTA ─────────────────────────────────────────── */}
+      <section
+        style={{
+          background: `linear-gradient(135deg, ${C.primary} 0%, #2A6A50 60%, ${C.accent} 100%)`,
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        {/* mesh overlay */}
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: [
+              `radial-gradient(ellipse 60% 60% at 10% 120%, rgba(31,77,58,0.60) 0%, transparent 65%)`,
+              `radial-gradient(ellipse 40% 40% at 90% -20%, rgba(232,197,126,0.20) 0%, transparent 60%)`,
+            ].join(', '),
+            pointerEvents: 'none',
+          }}
+        />
+
+        <div
+          style={{
+            maxWidth: 720,
+            margin: '0 auto',
+            padding: '88px 20px 80px',
+            textAlign: 'center',
+            position: 'relative',
+          }}
+        >
+          <h2
+            style={{
+              fontFamily: '"DM Sans", sans-serif',
+              fontWeight: 700,
+              fontSize: 'clamp(30px, 5vw, 48px)',
+              letterSpacing: '-0.02em',
+              lineHeight: 1.05,
+              color: C.cream,
+              marginBottom: 16,
+            }}
+          >
+            Build the event your attendees will talk about.
+          </h2>
+
+          <p
+            style={{
+              fontSize: 17,
+              color: 'rgba(250,246,238,0.80)',
+              lineHeight: 1.6,
+              maxWidth: 480,
+              margin: '0 auto 36px',
+            }}
+          >
+            It takes 10 minutes to set up. Everything else is just running a great event.
+          </p>
+
+          {/* CTAs */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 12 }}>
+            <Link
+              href="/signup"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '13px 28px',
+                borderRadius: 99,
+                background: C.accent,
+                color: C.primaryDark,
+                fontWeight: 600,
+                fontSize: 15,
+                textDecoration: 'none',
+              }}
+            >
+              Start free →
+            </Link>
+            <Link
+              href="/contact"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '13px 28px',
+                borderRadius: 99,
+                border: `1.5px solid rgba(250,246,238,0.40)`,
+                color: C.cream,
+                fontWeight: 500,
+                fontSize: 15,
+                textDecoration: 'none',
+              }}
+            >
+              Talk to us →
+            </Link>
+          </div>
+
+          {/* footer note */}
+          <p
+            style={{
+              marginTop: 40,
+              fontFamily: '"JetBrains Mono", monospace',
+              fontSize: 11,
+              letterSpacing: '0.18em',
+              color: 'rgba(250,246,238,0.40)',
+            }}
+          >
+            Made in Djibouti 🇩🇯 · karta.cre8so.com
+          </p>
         </div>
       </section>
     </>

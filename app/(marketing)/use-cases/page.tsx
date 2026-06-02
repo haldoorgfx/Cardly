@@ -1,281 +1,377 @@
-'use client';
-
+import type { Metadata } from 'next';
+import type { LucideProps } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
-import { Mic2, Heart, Vote, Church, Zap, GraduationCap, ArrowRight, Check } from 'lucide-react';
+import {
+  LayoutGrid,
+  Network,
+  Users,
+  Briefcase,
+  Sun,
+  ArrowRight,
+  Check,
+} from 'lucide-react';
+import type { ForwardRefExoticComponent, RefAttributes } from 'react';
 
-type Example = { event: string; badge: string; name: string; role: string; date: string };
-type Tab = {
-  id: string;
-  label: string;
-  iconName: string;
-  headline: string;
-  blurb: string;
-  color: string;
-  problems: string[];
-  examples: Example[];
+export const metadata: Metadata = {
+  title: 'Use Cases — Karta Event Platform',
+  description:
+    'From tech conferences to NGO campaigns, political rallies to African summits — Karta handles every type of event with full registration, agenda, networking, and the Karta Card.',
 };
 
-const TABS: Tab[] = [
+/* ─── Topo SVG lines ─────────────────────────────────────────────── */
+
+function TopoLines({ stroke = '#E8C57E', opacity = 0.12 }) {
+  return (
+    <svg
+      aria-hidden
+      className="absolute inset-0 w-full h-full pointer-events-none"
+      viewBox="0 0 320 150"
+      preserveAspectRatio="xMidYMid slice"
+      fill="none"
+    >
+      <path d="M-20 120 Q60 95 130 105 Q200 115 260 90 Q300 75 340 80" stroke={stroke} strokeWidth="1" opacity={opacity} />
+      <path d="M-20 100 Q50 75 120 88 Q190 100 255 72 Q295 55 340 62" stroke={stroke} strokeWidth="1" opacity={opacity} />
+      <path d="M-20 80 Q40 58 110 70 Q180 82 250 52 Q292 35 340 44" stroke={stroke} strokeWidth="1" opacity={opacity} />
+      <path d="M-20 60 Q35 40 105 52 Q170 64 245 34 Q288 16 340 26" stroke={stroke} strokeWidth="1" opacity={opacity} />
+      <path d="M-20 140 Q70 118 140 126 Q210 134 270 108 Q308 94 340 98" stroke={stroke} strokeWidth="1" opacity={opacity} />
+    </svg>
+  );
+}
+
+/* ─── Use case cards ─────────────────────────────────────────────── */
+
+type LucideIcon = ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>>;
+
+type UseCase = {
+  id: string;
+  title: string;
+  Icon: LucideIcon;
+  gradient: string;
+  glow: string;
+  body: string;
+  features: string[];
+};
+
+const USE_CASES: UseCase[] = [
   {
-    id: 'conferences',
-    label: 'Conferences',
-    iconName: 'mic',
-    headline: 'Conference attendees and speakers.',
-    blurb: 'Every speaker, sponsor, and attendee gets their own branded variant of your event card — one design, multiple roles, one link per segment.',
-    color: 'linear-gradient(135deg,#1F4D3A 0%,#2A6A50 100%)',
-    problems: [
-      "Speakers want a card that says \"I'm speaking at\" — not \"I'm attending\"",
-      'Attendees each need their own name and company on the card',
-      "Organizers can't manually make 500 individual cards",
-      'The WhatsApp Canva template gets used incorrectly by half the recipients',
-    ],
-    examples: [
-      { event: 'Africa Tech Festival 2026', badge: "I'M SPEAKING AT", name: 'Kwame Mensah', role: 'Product Engineer · Paystack', date: '12 MAR 2026 · LAGOS' },
-      { event: '5th Pan-African Youth Forum', badge: "I'M ATTENDING", name: 'Aisha Ahmed', role: 'Climate Policy Lead', date: 'NOV 2025 · DJIBOUTI' },
+    id: 'tech-conferences',
+    title: 'Tech Conferences',
+    Icon: LayoutGrid,
+    gradient: 'linear-gradient(135deg, #163828 0%, #1F4D3A 60%, #2A6A50 100%)',
+    glow: 'radial-gradient(60% 80% at 90% 10%, rgba(232,197,126,0.3), transparent 60%)',
+    body: 'Multi-track agendas, speaker directories, startup networking.',
+    features: [
+      'Multi-track agenda builder',
+      'Speaker directory & portals',
+      'Attendee networking + AI matching',
+      'Live Q&A during sessions',
+      'Real-time analytics',
     ],
   },
   {
-    id: 'ngos',
-    label: 'NGOs',
-    iconName: 'heart',
-    headline: 'Awareness and fundraising campaigns.',
-    blurb: "Your supporters announce they're backing your cause — branded to your campaign. One link shared in a WhatsApp group becomes hundreds of authentic posts.",
-    color: 'linear-gradient(135deg,#163828 0%,#1F4D3A 100%)',
-    problems: [
-      'Supporters post off-brand content that undermines campaign messaging',
-      'Designing individual supporter cards is not scalable',
-      "Canva templates require accounts and editing skills most supporters don't have",
-      'No way to track how many people are sharing campaign content',
-    ],
-    examples: [
-      { event: 'United for East Africa', badge: "I'M SUPPORTING", name: 'Liya Tesfaye', role: 'Campaign Lead', date: 'OCT 2025 · ADDIS ABABA' },
-      { event: 'Pan-African Climate Summit', badge: "I'M PLEDGING", name: 'Omar Diallo', role: 'Environmental Advocate', date: 'JAN 2026 · DAKAR' },
+    id: 'ngo-campaigns',
+    title: 'NGO Campaigns',
+    Icon: Network,
+    gradient: 'linear-gradient(150deg, #1F4D3A 0%, #2A6A50 60%, #3E7E5E 100%)',
+    glow: 'radial-gradient(70% 70% at 10% 90%, rgba(232,197,126,0.26), transparent 60%)',
+    body: 'Supporter cards, awareness drives, fundraising registration.',
+    features: [
+      'Free + donation-based registration',
+      'Personalized supporter Karta Cards',
+      'Volunteer coordination',
+      'Email notifications',
+      '40% NGO discount on Pro/Studio',
     ],
   },
   {
-    id: 'political',
-    label: 'Political',
-    iconName: 'vote',
-    headline: 'Endorsement and rally cards.',
-    blurb: 'Volunteers, endorsers, and supporters generate cards that look professional and personal at once — consistent branding across thousands of organic posts.',
-    color: 'linear-gradient(135deg,#1F4D3A 0%,#E8C57E 100%)',
-    problems: [
-      'Volunteer cards look amateurish and hurt credibility',
-      'Endorsers need a card with their name, not a generic one',
-      "Campaign teams can't track how many supporters are sharing",
-      'Inconsistent messaging dilutes the campaign image on social media',
-    ],
-    examples: [
-      { event: 'National Youth Rally 2026', badge: "I'M VOTING", name: 'Fatima Hassan', role: 'Community Organizer', date: 'MAR 2026 · NAIROBI' },
-      { event: 'Change Campaign', badge: 'I ENDORSE', name: 'James Mwangi', role: 'Ward Representative', date: 'APR 2026 · KAMPALA' },
+    id: 'political-events',
+    title: 'Political Events',
+    Icon: Users,
+    gradient: 'linear-gradient(120deg, #163828 0%, #1F4D3A 60%, #1F4D3A 100%)',
+    glow: 'radial-gradient(60% 90% at 80% 100%, rgba(201,164,94,0.3), transparent 55%)',
+    body: 'Rally registration, volunteer coordination, endorsement cards.',
+    features: [
+      'Rally & town hall registration',
+      'Endorsement Karta Cards for supporters',
+      'Volunteer sign-up flows',
+      'QR check-in at venue gates',
+      'Card sharing drives organic reach',
     ],
   },
   {
-    id: 'religious',
-    label: 'Religious',
-    iconName: 'church',
-    headline: 'Event registration and community drives.',
-    blurb: 'Members announce attendance at your conference, fast, or fundraiser. Cards respect your visual identity and go straight to WhatsApp Status.',
-    color: 'linear-gradient(135deg,#163828 0%,#2A6A50 100%)',
-    problems: [
-      "Members want to share they're attending but don't know how to make it look good",
-      'Different events (conferences, charity drives, fasts) need different card designs',
-      'Community WhatsApp groups share blurry, off-brand announcements',
-      'No consistent visual identity across member-generated posts',
-    ],
-    examples: [
-      { event: 'Global Halal Summit 2026', badge: "I'M ATTENDING", name: 'Mariam Al-Rashid', role: 'Community Leader', date: 'FEB 2026 · DUBAI' },
-      { event: 'East Africa Christian Forum', badge: "I'M PARTICIPATING", name: 'Samuel Kipkoech', role: 'Youth Pastor', date: 'JUN 2026 · KIGALI' },
+    id: 'corporate-events',
+    title: 'Corporate Events',
+    Icon: Briefcase,
+    gradient: 'linear-gradient(130deg, #1F4D3A 0%, #2A6A50 55%, #C9A45E 100%)',
+    glow: 'radial-gradient(55% 80% at 95% 50%, rgba(232,197,126,0.34), transparent 55%)',
+    body: 'Brand activations, product launches, lead retrieval for sponsors.',
+    features: [
+      'Paid + complimentary ticket tiers',
+      'Sponsor booths & lead retrieval',
+      'Branded Karta Cards per product line',
+      'Executive speaker directory',
+      'Revenue & attendance analytics',
     ],
   },
   {
-    id: 'brand',
-    label: 'Brand',
-    iconName: 'zap',
-    headline: 'Product launches and store openings.',
-    blurb: "Your customers and partners share branded launch announcements that drive real organic reach — all from one design your team uploads once.",
-    color: 'linear-gradient(135deg,#0F1F18 0%,#1F4D3A 100%)',
-    problems: [
-      'UGC from customers looks off-brand and inconsistent',
-      'Partners and ambassadors post without brand guidelines',
-      "Marketing team can't scale individual card creation for thousands of customers",
-      'Launch buzz fades because sharing is too complicated for most people',
-    ],
-    examples: [
-      { event: 'MTN Brand Activation 2026', badge: "I'M PART OF", name: 'Ife Adeyemi', role: 'Brand Ambassador', date: 'MAY 2026 · LAGOS' },
-      { event: 'Safaricom Product Launch', badge: "I'M LAUNCHING", name: 'Wanjiru Kariuki', role: 'Product Team', date: 'APR 2026 · NAIROBI' },
-    ],
-  },
-  {
-    id: 'education',
-    label: 'Education',
-    iconName: 'graduation',
-    headline: 'Graduations, alumni, and scholarship campaigns.',
-    blurb: 'Graduates, alumni, and scholarship recipients each get their own moment to share — on the day that matters most to them.',
-    color: 'linear-gradient(135deg,#1F4D3A 0%,#163828 100%)',
-    problems: [
-      'Graduation cards are made manually by the comms team — one per student',
-      'Alumni events get low social engagement because sharing is too much effort',
-      "Scholarship announcements don't reach the audience they deserve",
-      'University branding breaks down when students make their own announcement graphics',
-    ],
-    examples: [
-      { event: 'University of Nairobi Class of 2026', badge: "I'M GRADUATING", name: 'Diana Otieno', role: 'BSc Computer Science', date: 'JUL 2026 · NAIROBI' },
-      { event: 'ALX Africa Scholarship', badge: "I'M A SCHOLAR", name: 'Moussa Coulibaly', role: 'Software Engineering Cohort', date: '2026 · BAMAKO' },
+    id: 'religious-organizations',
+    title: 'Religious Organizations',
+    Icon: Sun,
+    gradient: 'linear-gradient(160deg, #163828 0%, #1F4D3A 55%, #2A6A50 100%)',
+    glow: 'radial-gradient(70% 70% at 30% 20%, rgba(232,197,126,0.28), transparent 60%)',
+    body: 'Community conferences, Ramadan iftar events, charity drives.',
+    features: [
+      'Free community registration',
+      'Charity drive fundraising',
+      'Session scheduling for multi-day programs',
+      'Community networking directory',
+      'Personalized attendee cards',
     ],
   },
 ];
 
-function TabIcon({ name, size = 15 }: { name: string; size?: number }) {
-  const props = { size, strokeWidth: 1.8 };
-  if (name === 'mic') return <Mic2 {...props} />;
-  if (name === 'heart') return <Heart {...props} />;
-  if (name === 'vote') return <Vote {...props} />;
-  if (name === 'church') return <Church {...props} />;
-  if (name === 'zap') return <Zap {...props} />;
-  return <GraduationCap {...props} />;
-}
-
-function CardMock({ example, color }: { example: Example; color: string }) {
-  const initials = example.name.split(' ').map(w => w[0]).join('');
+function UseCaseCard({ uc }: { uc: UseCase }) {
+  const { Icon } = uc;
   return (
-    <div className="rounded-2xl overflow-hidden w-full max-w-[200px] shrink-0" style={{ background: color, boxShadow: '0 8px 24px rgba(15,31,24,0.2)' }}>
-      <div className="p-4">
-        <div className="font-mono text-[8px] tracking-[0.2em] text-white/60 uppercase mb-2">{example.event}</div>
-        <div className="font-mono text-[9px] tracking-[0.14em] text-white/90 uppercase mb-3 border border-white/20 inline-block px-2 py-0.5 rounded-full">{example.badge}</div>
-        <div className="flex items-center gap-2 mt-3">
-          <div className="h-8 w-8 rounded-full bg-white/20 shrink-0 grid place-items-center">
-            <span className="text-[9px] font-bold text-white">{initials}</span>
-          </div>
-          <div>
-            <div className="font-display font-bold text-[11px] text-white leading-tight">{example.name}</div>
-            <div className="font-mono text-[8px] text-white/60 leading-tight mt-0.5">{example.role}</div>
-          </div>
+    <div className="bg-white border border-[#E5E0D4] rounded-2xl overflow-hidden flex flex-col">
+      {/* Cover */}
+      <div
+        className="relative h-[150px] overflow-hidden flex items-end p-4"
+        style={{ background: uc.gradient }}
+      >
+        <TopoLines />
+        {/* Gold glow overlay */}
+        <div
+          aria-hidden
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: uc.glow }}
+        />
+        {/* Icon bottom-right */}
+        <div className="absolute bottom-3 right-3 pointer-events-none opacity-[0.28]">
+          <Icon size={48} strokeWidth={1} className="text-[#FAF6EE]" />
         </div>
-        <div className="mt-3 pt-3 border-t border-white/10 font-mono text-[8px] text-white/50">{example.date}</div>
+      </div>
+
+      {/* Body */}
+      <div className="p-6 flex flex-col flex-1 gap-3">
+        <h3 className="font-display text-[18px] font-semibold text-[#1F4D3A] tracking-tight">
+          {uc.title}
+        </h3>
+        <p className="text-[#3A4A42] text-[14px] leading-[1.55]">{uc.body}</p>
+
+        {/* Feature list */}
+        <ul className="mt-1 flex flex-col gap-1.5">
+          {uc.features.map((f) => (
+            <li key={f} className="flex items-start gap-2 text-[13px] text-[#3A4A42]">
+              <Check size={13} strokeWidth={2.5} className="text-[#1F4D3A] mt-0.5 shrink-0" />
+              {f}
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
 }
 
-export default function UseCasesPage() {
-  const [active, setActive] = useState('conferences');
-  const tab = TABS.find(t => t.id === active)!;
+function AfricanSummitsCard() {
+  return (
+    <div
+      className="group rounded-2xl overflow-hidden flex flex-col relative"
+      style={{ background: 'linear-gradient(160deg, #163828 0%, #1F4D3A 100%)' }}
+    >
+      {/* Gold radial overlay */}
+      <div
+        aria-hidden
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(65% 75% at 85% 15%, rgba(232,197,126,0.28), transparent 60%)',
+        }}
+      />
 
+      {/* Cover area */}
+      <div className="relative h-[150px] overflow-hidden flex items-end p-6">
+        <TopoLines stroke="#E8C57E" opacity={0.14} />
+        {/* "Built for Africa" badge */}
+        <div
+          className="relative z-10 inline-flex items-center gap-1.5 font-mono text-[10px] font-semibold tracking-[0.16em] uppercase px-2.5 py-1 rounded-full"
+          style={{ background: '#E8C57E', color: '#163828' }}
+        >
+          {/* Djibouti flag — simplified inline */}
+          <span className="inline-flex overflow-hidden rounded-sm" style={{ width: 14, height: 10 }}>
+            <span style={{ width: 7, background: '#12aef5', display: 'inline-block', height: '100%' }} />
+            <span
+              style={{
+                width: 7,
+                display: 'inline-block',
+                height: '100%',
+                background: 'linear-gradient(to bottom, #12aef5 50%, #6ab23e 50%)',
+              }}
+            />
+          </span>
+          Built for Africa
+        </div>
+      </div>
+
+      {/* Body */}
+      <div className="relative p-6 pt-0 flex flex-col flex-1 gap-3">
+        <h3
+          className="font-display text-[18px] font-semibold tracking-tight"
+          style={{ color: '#E8C57E' }}
+        >
+          African Summits
+        </h3>
+        <p className="text-[#FAF6EE]/80 text-[14px] leading-[1.55]">
+          Mobile-first, WhatsApp-native, Flutterwave payments. Built for how Africa events run.
+        </p>
+        <ul className="mt-1 flex flex-col gap-1.5">
+          {[
+            'Flutterwave + M-Pesa payments',
+            'WhatsApp-native card sharing',
+            'Offline QR check-in',
+            'Swahili, French, Arabic form support',
+            'Local pricing and discounts',
+          ].map((f) => (
+            <li key={f} className="flex items-start gap-2 text-[13px] text-[#FAF6EE]/75">
+              <Check
+                size={13}
+                strokeWidth={2.5}
+                style={{ color: '#E8C57E', marginTop: 2, flexShrink: 0 }}
+              />
+              {f}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Page ───────────────────────────────────────────────────────── */
+
+export default function UseCasesPage() {
   return (
     <>
-      {/* Hero */}
-      <section className="max-w-[1240px] mx-auto px-6 pt-20 pb-12">
-        <div className="max-w-2xl">
-          <div className="text-[11px] tracking-[0.18em] font-mono text-brand-primary mb-4">USE CASES</div>
-          <h1 className="font-display font-bold text-[48px] sm:text-[60px] leading-[1.02] tracking-tight">
-            Karta works for every kind of campaign.
+      {/* ── SECTION 1 · Hero ── */}
+      <section className="relative overflow-hidden border-b border-[#E5E0D4]">
+        {/* Mesh background */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(ellipse 70% 60% at 10% 50%, rgba(31,77,58,0.07) 0%, transparent 70%), radial-gradient(ellipse 55% 55% at 90% 20%, rgba(232,197,126,0.10) 0%, transparent 65%)',
+          }}
+        />
+
+        <div className="relative mx-auto max-w-[1200px] px-5 lg:px-10 pt-16 lg:pt-24 pb-12 lg:pb-16">
+          <div className="font-mono text-[11px] tracking-[0.22em] uppercase text-[#1F4D3A] mb-5">
+            Use cases
+          </div>
+
+          <h1
+            className="font-display font-bold text-[#1F4D3A] leading-[1.02] tracking-tight max-w-[820px]"
+            style={{ fontSize: 'clamp(36px, 5.5vw, 56px)' }}
+          >
+            Whatever you&apos;re organizing, Karta handles it.
           </h1>
-          <p className="mt-5 text-[17px] text-brand-ink/65 max-w-[520px] leading-relaxed">
-            Conferences, NGOs, political campaigns, brands, religious organizations, universities — any campaign where people want to share they&apos;re part of something.
+
+          <p className="mt-5 text-[#3A4A42] text-[16px] lg:text-[18px] leading-[1.55] max-w-[600px]">
+            One platform for every type of event — with full registration, agenda, check-in,
+            networking, and the Karta Card for every attendee.
           </p>
         </div>
       </section>
 
-      {/* Tab nav */}
-      <section className="max-w-[1240px] mx-auto px-6 pb-8">
-        <div className="flex flex-wrap gap-2">
-          {TABS.map(t => (
-            <button
-              key={t.id}
-              onClick={() => setActive(t.id)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-[13px] font-medium transition-all"
-              style={active === t.id
-                ? { background: '#1F4D3A', color: '#FAF6EE' }
-                : { background: '#FFFFFF', color: '#3A4A42', border: '1px solid #E5E0D4' }}
-            >
-              <TabIcon name={t.iconName} />
-              {t.label}
-            </button>
+      {/* ── SECTION 2 · 6-card grid ── */}
+      <section className="mx-auto max-w-[1200px] px-5 lg:px-10 py-14 lg:py-20">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5">
+          {USE_CASES.map((uc) => (
+            <UseCaseCard key={uc.id} uc={uc} />
           ))}
+          {/* Card 6 — African Summits */}
+          <AfricanSummitsCard />
         </div>
       </section>
 
-      {/* Active tab content */}
-      <section className="max-w-[1240px] mx-auto px-6 pb-16">
-        <div className="rounded-3xl overflow-hidden border" style={{ borderColor: '#E5E0D4' }}>
-          {/* Header */}
-          <div className="p-8 lg:p-10 flex flex-col lg:flex-row gap-8 lg:gap-12 items-start" style={{ background: tab.color }}>
-            <div className="flex-1">
-              <div className="font-mono text-[10px] tracking-[0.2em] text-white/60 uppercase mb-3">{tab.label}</div>
-              <h2 className="font-display font-bold text-[28px] sm:text-[36px] text-white leading-tight tracking-tight">
-                {tab.headline}
+      {/* ── SECTION 3 · Platform callout strip ── */}
+      <section className="border-y border-[#E5E0D4] bg-white">
+        <div className="mx-auto max-w-[1200px] px-5 lg:px-10 py-14">
+          <div className="flex flex-col lg:flex-row gap-10 lg:gap-16 items-start lg:items-center">
+            {/* Left */}
+            <div className="lg:w-[300px] shrink-0">
+              <h2
+                className="font-display font-bold text-[#0F1F18] leading-tight tracking-tight"
+                style={{ fontSize: 'clamp(26px, 3.5vw, 36px)' }}
+              >
+                Every use case. One platform.
               </h2>
-              <p className="mt-3 text-[16px] text-white/75 leading-relaxed max-w-[480px]">{tab.blurb}</p>
+              <Link
+                href="/pricing"
+                className="mt-5 inline-flex items-center gap-2 text-[#1F4D3A] font-medium text-[14px] hover:underline"
+              >
+                See the full platform <ArrowRight size={14} />
+              </Link>
             </div>
-            <div className="flex gap-3 shrink-0 flex-wrap lg:flex-nowrap">
-              {tab.examples.map(ex => (
-                <CardMock key={ex.name} example={ex} color="rgba(255,255,255,0.12)" />
-              ))}
-            </div>
-          </div>
 
-          {/* Problems solved */}
-          <div className="bg-white p-8 lg:p-10">
-            <div className="font-mono text-[10px] tracking-[0.2em] text-brand-primary uppercase mb-5">Problems Karta solves</div>
-            <ul className="grid sm:grid-cols-2 gap-3">
-              {tab.problems.map(p => (
-                <li key={p} className="flex items-start gap-3 text-[14px] text-brand-ink/75 leading-relaxed">
-                  <span className="mt-0.5 shrink-0 h-5 w-5 rounded-full grid place-items-center" style={{ background: '#E8EFEB' }}>
-                    <Check size={11} strokeWidth={2.5} style={{ color: '#1F4D3A' }} />
-                  </span>
-                  {p}
-                </li>
+            {/* Right: 3 pillars */}
+            <div className="flex-1 grid sm:grid-cols-3 gap-5">
+              {[
+                {
+                  Icon: LayoutGrid,
+                  label: 'Registration',
+                  desc: 'Ticket tiers, forms, payments, and instant confirmation.',
+                },
+                {
+                  Icon: Users,
+                  label: 'Agenda + Check-in',
+                  desc: 'Multi-track schedules, QR check-in, live session tracking.',
+                },
+                {
+                  Icon: Network,
+                  label: 'Karta Card',
+                  desc: 'Every attendee gets a personalized card, ready to share.',
+                },
+              ].map(({ Icon, label, desc }) => (
+                <div key={label} className="flex flex-col gap-2.5">
+                  <div
+                    className="w-9 h-9 rounded-lg grid place-items-center"
+                    style={{ background: '#E8EFEB' }}
+                  >
+                    <Icon size={17} strokeWidth={1.8} className="text-[#1F4D3A]" />
+                  </div>
+                  <div className="font-display font-semibold text-[15px] text-[#0F1F18]">
+                    {label}
+                  </div>
+                  <p className="text-[#6B7A72] text-[13px] leading-[1.5]">{desc}</p>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* All use case thumbnails */}
-      <section className="max-w-[1240px] mx-auto px-6 pb-16">
-        <div className="font-mono text-[10px] tracking-[0.2em] text-brand-ink/40 uppercase mb-5">All use cases</div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          {TABS.map(t => (
-            <button
-              key={t.id}
-              onClick={() => setActive(t.id)}
-              className="rounded-2xl p-4 text-left transition-all border hover:shadow-md"
-              style={active === t.id
-                ? { background: '#1F4D3A', color: '#FAF6EE', borderColor: '#1F4D3A' }
-                : { background: '#FFFFFF', color: '#3A4A42', borderColor: '#E5E0D4' }}
+      {/* ── SECTION 4 · Final CTA ── */}
+      <section
+        style={{ background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 60%, #2A6A50 100%)' }}
+      >
+        <div className="mx-auto max-w-[900px] px-5 lg:px-10 py-20 lg:py-28 text-center">
+          <h2
+            className="font-display font-bold leading-[1.0] tracking-tight text-[#FAF6EE]"
+            style={{ fontSize: 'clamp(30px, 5vw, 48px)' }}
+          >
+            Start with your next event.
+          </h2>
+          <p className="mt-5 text-[#FAF6EE]/70 text-[16px] lg:text-[18px] leading-[1.55] max-w-[460px] mx-auto">
+            Everything you need, nothing you don&apos;t. Set up in 10 minutes.
+          </p>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <Link
+              href="/signup"
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-medium transition-opacity hover:opacity-90"
+              style={{ background: '#E8C57E', color: '#163828' }}
             >
-              <div className="mb-2" style={{ color: active === t.id ? '#E8C57E' : '#1F4D3A' }}>
-                <TabIcon name={t.iconName} />
-              </div>
-              <div className="font-display font-semibold text-[13px] leading-tight">{t.label}</div>
-            </button>
-          ))}
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="max-w-[1240px] mx-auto px-6 pb-28">
-        <div className="rounded-3xl p-10 lg:p-14 flex flex-col sm:flex-row items-center justify-between gap-8"
-          style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }}>
-          <div>
-            <h2 className="font-display font-bold text-[28px] sm:text-[32px] text-brand-ink">
-              Don&apos;t see your use case?
-            </h2>
-            <p className="mt-2 text-[16px] text-brand-ink/65">
-              Email us — if your campaign has a design and needs people to share it, Karta can probably do it.
-            </p>
-          </div>
-          <div className="flex gap-3 shrink-0 flex-wrap">
-            <a href="mailto:hello@cre8so.com"
-              className="inline-flex items-center gap-2 text-[14px] font-medium text-brand-ink border border-brand-border rounded-xl px-5 py-3 hover:bg-white transition">
-              Email us
-            </a>
-            <Link href="/signup"
-              className="inline-flex items-center gap-2 text-[14px] font-semibold text-white rounded-xl px-5 py-3 hover:opacity-90 transition"
-              style={{ background: '#1F4D3A' }}>
-              Try it free <ArrowRight size={14} strokeWidth={2} />
+              Start free <ArrowRight size={16} />
             </Link>
           </div>
         </div>

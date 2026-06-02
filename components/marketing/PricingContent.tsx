@@ -1,22 +1,40 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Check, ChevronDown, ArrowRight } from 'lucide-react';
-import { FAQAccordion, FAQItem } from '@/components/marketing/FAQAccordion';
-import Reveal from '@/components/marketing/Reveal';
+import { Check, ChevronDown, ArrowRight, Star } from 'lucide-react';
 
-/* ── Data ────────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────
+   Brand tokens (inline — no Tailwind custom colours needed)
+───────────────────────────────────────────────────────────── */
+const C = {
+  primary:      '#1F4D3A',
+  primaryDark:  '#163828',
+  primarySoft:  '#E8EFEB',
+  accent:       '#E8C57E',
+  accentDark:   '#C9A45E',
+  ink:          '#0F1F18',
+  inkSoft:      '#3A4A42',
+  muted:        '#6B7A72',
+  cream:        '#FAF6EE',
+  surface:      '#FFFFFF',
+  border:       '#E5E0D4',
+  borderStrong: '#C9C3B1',
+  success:      '#2D7A4F',
+};
+
+/* ─────────────────────────────────────────────────────────────
+   Plan data
+───────────────────────────────────────────────────────────── */
 interface Plan {
-  id: string;
+  id: 'free' | 'pro' | 'studio';
   name: string;
   price: { monthly: number; yearly: number };
   blurb: string;
-  headline: string;
-  features: string[];
+  headline?: string;
+  features: Array<string | { label: string; section: true }>;
   cta: string;
-  style: 'default' | 'primary';
+  style: 'ghost' | 'primary';
   badge?: string;
 }
 
@@ -25,358 +43,530 @@ const PLANS: Plan[] = [
     id: 'free',
     name: 'Free',
     price: { monthly: 0, yearly: 0 },
-    blurb: 'For small campaigns and trials.',
-    headline: 'Get a feel for it.',
+    blurb: 'For trying Karta.',
     features: [
       '1 active event',
-      'Up to 50 cards generated',
-      'Karta watermark on attendee cards',
-      'Standard photo crop shapes',
-      'Email support',
+      'Up to 50 registrations',
+      'Basic event page',
+      'QR check-in',
+      'Karta Card for every attendee',
+      'Karta watermark on cards',
     ],
     cta: 'Start free',
-    style: 'default',
+    style: 'ghost',
   },
   {
     id: 'pro',
     name: 'Pro',
-    price: { monthly: 29, yearly: 23 },
-    blurb: 'For most organizers running real campaigns.',
-    headline: 'When your campaign goes public.',
+    price: { monthly: 19, yearly: 15 },
+    blurb: 'For organizers running real events.',
+    headline: 'When your event goes public.',
     features: [
-      'Unlimited active events',
-      '500 cards/month',
-      'No Karta watermark',
-      'Up to 5 variants per event',
-      'Custom share captions',
-      'Multi-language form (coming soon)',
-      'Basic analytics dashboard',
+      'Unlimited events',
+      'Up to 500 registrations/month',
+      'Full agenda builder',
+      'Speaker directory',
+      'Attendee networking + 1:1 messaging',
+      'Remove Karta watermark',
+      'Email notifications',
+      'Basic analytics',
     ],
-    cta: 'Start 14-day free trial',
+    cta: 'Start Pro',
     style: 'primary',
     badge: 'Most popular',
   },
   {
     id: 'studio',
     name: 'Studio',
-    price: { monthly: 99, yearly: 79 },
-    blurb: 'For agencies, large campaigns and brand teams.',
-    headline: 'When the campaign is the brand.',
+    price: { monthly: 49, yearly: 39 },
+    blurb: 'For agencies and large events.',
+    headline: 'The whole platform, unlocked.',
     features: [
-      'Unlimited events',
-      '5,000 cards/month',
-      'Unlimited variants per event',
-      'Brand kit (fonts, colors, logos)',
-      'Custom domain (coming soon)',
-      'Team accounts · up to 10 seats',
-      'CSV exports + webhook events',
-      'Priority support · 99.9% SLA',
+      { label: 'Everything in Pro, plus:', section: true },
+      'Unlimited registrations',
+      'AI matchmaking',
+      'Live Q&A & Polls',
+      'Gamification & leaderboard',
+      'Sponsor tools & lead retrieval',
+      'Multiple brand kits + 3 team seats',
+      'API access',
+      'Priority support',
     ],
-    cta: 'Start 14-day free trial',
-    style: 'default',
+    cta: 'Start Studio',
+    style: 'ghost',
   },
 ];
 
-type ComparisonCell = string | boolean;
+/* ─────────────────────────────────────────────────────────────
+   Comparison table data
+───────────────────────────────────────────────────────────── */
+type Cell = string | boolean;
 interface ComparisonGroup {
   title: string;
-  rows: [string, ComparisonCell, ComparisonCell, ComparisonCell][];
+  rows: [string, Cell, Cell, Cell][];
 }
 
 const COMPARISON_GROUPS: ComparisonGroup[] = [
   {
-    title: 'Campaigns',
+    title: 'Registration & ticketing',
     rows: [
-      ['Active events', '1', 'Unlimited', 'Unlimited'],
-      ['Cards per month', '50', '500', '5,000'],
-      ['Variants per event', '1', '5', 'Unlimited'],
-      ['Watermark removed', false, true, true],
+      ['Active events',                         '1',         'Unlimited',  'Unlimited'],
+      ['Registrations',                          '50',        '500 / mo',   'Unlimited'],
+      ['Free & paid tickets',                    true,        true,         true],
+      ['Early-bird, VIP & promo codes',          false,       true,         true],
+      ['Custom registration forms',              false,       true,         true],
+      ['Stripe, Flutterwave, Paystack, M-Pesa',  true,        true,         true],
     ],
   },
   {
-    title: 'Design & brand',
+    title: 'Event experience',
     rows: [
-      ['Any aspect ratio (1:1, 4:5, 16:9)', true, true, true],
-      ['Smart photo crop shapes', true, true, true],
-      ['Brand kit (fonts, colors, logos)', false, false, true],
-      ['Custom domain (coming soon)', false, false, false],
-      ['White-labeled attendee page', false, false, true],
+      ['Public event page',            true,  true,  true],
+      ['QR check-in (offline-ready)',  true,  true,  true],
+      ['Multi-track agenda builder',   false, true,  true],
+      ['Speaker directory & portals',  false, true,  true],
+      ['Live Q&A & polls',             false, false, true],
+      ['Gamification & leaderboard',   false, false, true],
     ],
   },
   {
-    title: 'Attendee experience',
+    title: 'Networking',
     rows: [
-      ['Live preview as they type', true, true, true],
-      ['Pinch-zoom & reposition photo', true, true, true],
-      ['One-tap share to IG / WhatsApp / X', true, true, true],
-      ['Custom share captions', false, true, true],
-      ['Multi-language form (coming soon)', false, false, false],
-      ['Card download as PNG', true, true, true],
-      ['Card download as video — coming soon', false, false, false],
+      ['Attendee profiles & directory',   false, true,  true],
+      ['1:1 messaging',                   false, true,  true],
+      ['AI matchmaking suggestions',      false, false, true],
     ],
   },
   {
-    title: 'Analytics',
+    title: 'The Karta Card',
     rows: [
-      ['Total cards generated', true, true, true],
-      ['Share platform breakdown', false, true, true],
-      ['Top sharers', false, true, true],
-      ['Time-of-day patterns', false, true, true],
-      ['CSV export', false, false, true],
-      ['Webhook events', false, false, true],
+      ['Personalized card for every attendee',   true,  true,  true],
+      ['Variants (attendee / speaker / sponsor)', true,  true,  true],
+      ['Remove Karta watermark',                  false, true,  true],
+      ['Multiple brand kits',                     false, false, true],
+      ['Card download as animated video',         false, false, true],
+    ],
+  },
+  {
+    title: 'Sponsors & analytics',
+    rows: [
+      ['Basic analytics',                    false, true,  true],
+      ['Registration funnel & card virality', false, true,  true],
+      ['Sponsor tools & lead retrieval',      false, false, true],
+      ['CSV export',                          false, false, true],
+      ['API access & webhooks',               false, false, true],
     ],
   },
   {
     title: 'Team & support',
     rows: [
-      ['Team members', '1', '1', '10'],
-      ['Roles & permissions', false, false, true],
-      ['Audit log', false, false, true],
-      ['Email support', true, true, true],
-      ['Priority support · 99.9% SLA', false, false, true],
+      ['Team seats',                    '1',   '1',   '3'],
+      ['Email support',                 true,  true,  true],
+      ['Priority support',              false, false, true],
       ['Onboarding call with our team', false, false, true],
     ],
   },
 ];
 
-const PRICING_FAQS: FAQItem[] = [
-  { q: 'Can I switch plans anytime?', a: 'Yes. Upgrade and the change takes effect immediately, prorated for the rest of your billing cycle. Downgrade and the change takes effect at the end of your current cycle.' },
-  { q: 'What happens to my cards if I downgrade?', a: 'Cards already generated stay live forever — your attendees can always re-download what they made. New cards generated after a downgrade follow the limits of the new plan.' },
-  { q: 'Do you offer discounts for nonprofits, students, or political campaigns?', a: 'Yes. Registered nonprofits get 40% off Pro and Studio. Verified educational institutions get 30% off. Email us with a letterhead or domain proof and we\'ll set you up within 24 hours.' },
-  { q: "What's a 'card'? Does each download count?", a: 'One card = one attendee submitting the form and downloading their personalized version. If the same attendee re-downloads, that\'s still one card. We count unique generations, not file taps.' },
-  { q: 'Can I pay annually by bank transfer or mobile money?', a: 'Yes. Studio annual plans accept SWIFT bank transfer (USD/EUR/GBP), M-Pesa, MTN MoMo, and Paystack. Email billing@cre8so.com to set it up.' },
-  { q: 'Do you have an enterprise plan?', a: 'Studio is our top tier and works for almost everyone. If you need volume seat licensing, custom MSA, or SSO via SAML, email us and we\'ll cut a custom Studio agreement — but the feature surface is the same.' },
-  { q: 'Can I get a refund?', a: 'Yes — within the first 14 days of a paid plan, no questions asked. After that, we\'ll prorate any unused billing cycle if you cancel mid-cycle.' },
+/* ─────────────────────────────────────────────────────────────
+   FAQ data
+───────────────────────────────────────────────────────────── */
+interface FAQ { q: string; a: string }
+
+const FAQS: FAQ[] = [
+  {
+    q: 'Can I switch plans anytime?',
+    a: 'Yes. Upgrade and the change takes effect immediately, prorated for the rest of your billing cycle. Downgrade and it kicks in at the end of the current period — your data and events stay untouched.',
+  },
+  {
+    q: 'What happens to my event if I downgrade?',
+    a: 'Your event pages, registrations and the cards your attendees generated stay live forever. Once you drop below the plan limits, you\'ll be prompted to archive older events before creating new ones.',
+  },
+  {
+    q: 'Do you offer discounts for nonprofits, students, or political campaigns?',
+    a: 'Yes. Registered nonprofits get 40% off Pro and Studio. Verified educational institutions get 30% off. Email us with a letterhead or domain proof and we\'ll set you up within 24 hours.',
+  },
+  {
+    q: 'What counts as a registration?',
+    a: 'One registration = one attendee signing up for your event. Each registrant automatically gets their personalized Karta Card. Re-downloads by the same person don\'t count as new registrations.',
+  },
+  {
+    q: 'Can I pay annually by bank transfer or mobile money?',
+    a: 'Yes. Studio annual plans accept SWIFT bank transfer (USD/EUR/GBP), M-Pesa, MTN MoMo, and Paystack. Email billing@karta.co to set it up.',
+  },
+  {
+    q: 'Do you have an enterprise plan?',
+    a: 'Studio is our top tier and works for almost everyone. If you need volume seat licensing, custom MSA, or SSO via SAML, email us and we\'ll cut a custom Studio agreement — the feature surface is the same.',
+  },
+  {
+    q: 'Can I get a refund?',
+    a: 'Yes — within the first 14 days of a paid plan, no questions asked. After that we\'ll prorate any unused billing period if you cancel mid-cycle.',
+  },
 ];
 
-/* ── Cell value helper ───────────────────────────────────── */
-function CellValue({ value, isProCol }: { value: ComparisonCell; isProCol?: boolean }) {
+/* ─────────────────────────────────────────────────────────────
+   Small helpers
+───────────────────────────────────────────────────────────── */
+function CellValue({ value, isProCol }: { value: Cell; isProCol?: boolean }) {
   if (value === true) {
     return (
-      <span style={{ color: isProCol ? '#1F4D3A' : '#2D7A4F' }}>
-        <Check size={18} strokeWidth={2.5} />
+      <span style={{ color: isProCol ? C.primary : C.success, display: 'inline-flex', justifyContent: 'center' }}>
+        <Check size={17} strokeWidth={2.5} />
       </span>
     );
   }
   if (value === false) {
-    return <span style={{ color: 'rgba(107,122,114,0.4)' }}>—</span>;
+    return <span style={{ color: 'rgba(107,122,114,0.45)' }}>—</span>;
   }
   return (
-    <span className="font-display font-medium text-[14px] tracking-tight text-ink">
+    <span style={{ fontFamily: 'var(--font-dm-sans, DM Sans, sans-serif)', fontWeight: 500, fontSize: 14, color: C.ink }}>
       {value}
     </span>
   );
 }
 
-/* ── Plan card ───────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────
+   PlanCard
+───────────────────────────────────────────────────────────── */
 function PlanCard({ plan, billing }: { plan: Plan; billing: 'monthly' | 'yearly' }) {
   const isPrimary = plan.style === 'primary';
   const price = plan.price[billing];
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
+  const yearlyAnnual = plan.price.yearly * 12;
 
-  function handleCheckout() {
-    if (plan.id === 'free') { router.push('/signup'); return; }
-    startTransition(async () => {
-      try {
-        const res = await fetch('/api/billing/create-checkout', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ plan: plan.id, billingCycle: billing === 'yearly' ? 'annual' : 'monthly' }),
-        });
-        if (res.status === 401) { router.push(`/signup?redirect=/pricing`); return; }
-        if (!res.ok) { router.push('/signup'); return; }
-        const data = await res.json();
-        if (data.url) window.location.href = data.url;
-      } catch {
-        router.push('/signup');
+  const cardStyle: React.CSSProperties = isPrimary
+    ? {
+        background: C.primary,
+        color: C.cream,
+        boxShadow: '0 20px 60px rgba(31,77,58,0.25), 0 6px 16px rgba(31,77,58,0.14)',
+        borderRadius: 24,
+        padding: '28px',
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'relative',
       }
-    });
-  }
+    : {
+        background: C.surface,
+        border: `1px solid ${C.border}`,
+        borderRadius: 24,
+        padding: '28px',
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'relative',
+      };
+
+  const ctaStyle: React.CSSProperties = (() => {
+    if (plan.id === 'free')    return { background: C.ink,       color: C.cream };
+    if (plan.id === 'pro')     return { background: C.accent,    color: C.primaryDark };
+    return                            { background: C.ink,       color: C.cream };
+  })();
+
+  const ctaHover = plan.id === 'pro' ? C.accentDark : C.primary;
 
   return (
-    <div
-      className="relative rounded-3xl p-7 lg:p-8 flex flex-col"
-      style={
-        isPrimary
-          ? { background: '#1F4D3A', color: '#FAF6EE', boxShadow: '0 20px 60px rgba(31,77,58,0.25), 0 6px 16px rgba(31,77,58,0.15)' }
-          : { background: '#FFFFFF', border: '1px solid #E5E0D4' }
-      }
-    >
+    <div style={cardStyle}>
       {/* Badge */}
       {plan.badge && (
         <div
-          className="absolute -top-3 right-7 inline-flex items-center gap-1.5 font-mono text-[10px] tracking-[0.16em] uppercase px-2.5 py-1 rounded-full font-semibold"
-          style={{ background: '#E8C57E', color: '#163828' }}
+          style={{
+            position: 'absolute',
+            top: -12,
+            right: 28,
+            background: C.accent,
+            color: C.primaryDark,
+            fontFamily: 'var(--font-jetbrains-mono, monospace)',
+            fontSize: 10,
+            letterSpacing: '0.16em',
+            textTransform: 'uppercase',
+            fontWeight: 600,
+            padding: '4px 10px',
+            borderRadius: 999,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+          }}
         >
+          <Star size={10} fill={C.primaryDark} strokeWidth={0} />
           {plan.badge}
         </div>
       )}
 
       {/* Plan name */}
-      <div
-        className="font-display text-[14px] font-medium tracking-tight"
-        style={{ color: isPrimary ? '#E8C57E' : '#1F4D3A' }}
-      >
+      <div style={{
+        fontFamily: 'var(--font-dm-sans, DM Sans, sans-serif)',
+        fontSize: 14,
+        fontWeight: 500,
+        letterSpacing: '-0.01em',
+        color: isPrimary ? C.accent : C.primary,
+      }}>
         {plan.name}
       </div>
 
       {/* Headline */}
-      <div
-        className="mt-1 font-display text-[16px] tracking-tight"
-        style={{ color: isPrimary ? 'rgba(250,246,238,0.85)' : '#0F1F18' }}
-      >
-        {plan.headline}
-      </div>
+      {plan.headline && (
+        <div style={{
+          marginTop: 4,
+          fontFamily: 'var(--font-dm-sans, DM Sans, sans-serif)',
+          fontSize: 16,
+          letterSpacing: '-0.015em',
+          color: isPrimary ? 'rgba(250,246,238,0.82)' : C.ink,
+        }}>
+          {plan.headline}
+        </div>
+      )}
 
       {/* Price */}
-      <div className="mt-5 flex items-baseline gap-1.5">
-        <span
-          className="font-display font-bold tracking-[-0.03em] text-[48px] leading-none"
-          style={{ color: isPrimary ? '#FAF6EE' : '#0F1F18' }}
-        >
+      <div style={{ marginTop: plan.headline ? 20 : 8, display: 'flex', alignItems: 'baseline', gap: 6 }}>
+        <span style={{
+          fontFamily: 'var(--font-dm-sans, DM Sans, sans-serif)',
+          fontWeight: 700,
+          fontSize: 48,
+          lineHeight: 1,
+          letterSpacing: '-0.03em',
+          color: isPrimary ? C.cream : C.ink,
+        }}>
           ${price}
         </span>
-        <span
-          className="text-[14px]"
-          style={{ color: isPrimary ? 'rgba(250,246,238,0.65)' : '#6B7A72' }}
-        >
+        <span style={{ fontSize: 14, color: isPrimary ? 'rgba(250,246,238,0.6)' : C.muted }}>
           /month
         </span>
       </div>
 
       {/* Billing note */}
-      <div
-        className="mt-1.5 font-mono text-[10px] tracking-[0.16em] uppercase"
-        style={{ color: isPrimary ? 'rgba(250,246,238,0.55)' : '#6B7A72' }}
-      >
-        {billing === 'yearly' ? `Billed $${price * 12} yearly` : 'Billed monthly'}
-        {plan.id !== 'free' && billing === 'yearly' && ' · save 20%'}
+      <div style={{
+        marginTop: 6,
+        fontFamily: 'var(--font-jetbrains-mono, monospace)',
+        fontSize: 10,
+        letterSpacing: '0.16em',
+        textTransform: 'uppercase',
+        color: isPrimary ? 'rgba(250,246,238,0.5)' : C.muted,
+      }}>
+        {billing === 'yearly' && plan.id !== 'free'
+          ? `Billed $${yearlyAnnual} yearly · save 20%`
+          : 'Billed monthly'}
       </div>
 
       {/* Blurb */}
-      <div
-        className="mt-3 text-[14px]"
-        style={{ color: isPrimary ? 'rgba(250,246,238,0.75)' : '#3A4A42' }}
-      >
+      <div style={{
+        marginTop: 12,
+        fontSize: 14,
+        color: isPrimary ? 'rgba(250,246,238,0.72)' : C.inkSoft,
+      }}>
         {plan.blurb}
       </div>
 
       {/* Divider */}
-      <div
-        className="my-6"
-        style={{ height: 1, background: isPrimary ? 'rgba(250,246,238,0.12)' : '#E5E0D4' }}
-      />
+      <div style={{
+        margin: '24px 0',
+        height: 1,
+        background: isPrimary ? 'rgba(250,246,238,0.1)' : C.border,
+      }} />
 
       {/* Features */}
-      <ul className="space-y-3 flex-1">
-        {plan.features.map((f, i) => (
-          <li
-            key={i}
-            className="flex items-start gap-2.5 text-[14px]"
-            style={{ color: isPrimary ? 'rgba(250,246,238,0.90)' : '#3A4A42' }}
-          >
-            <span className="mt-0.5 shrink-0" style={{ color: isPrimary ? '#E8C57E' : '#1F4D3A' }}>
-              <Check size={15} strokeWidth={2.5} />
-            </span>
-            {f}
-          </li>
-        ))}
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0, flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {plan.features.map((f, i) => {
+          if (typeof f === 'object' && 'section' in f) {
+            return (
+              <li key={i} style={{
+                fontFamily: 'var(--font-jetbrains-mono, monospace)',
+                fontSize: 10,
+                letterSpacing: '0.16em',
+                textTransform: 'uppercase',
+                color: isPrimary ? 'rgba(250,246,238,0.45)' : C.muted,
+                marginTop: 4,
+              }}>
+                {f.label}
+              </li>
+            );
+          }
+          return (
+            <li key={i} style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: 10,
+              fontSize: 14,
+              color: isPrimary ? 'rgba(250,246,238,0.88)' : C.inkSoft,
+            }}>
+              <span style={{ marginTop: 2, flexShrink: 0, color: isPrimary ? C.accent : C.primary }}>
+                <Check size={14} strokeWidth={2.5} />
+              </span>
+              {f as string}
+            </li>
+          );
+        })}
       </ul>
 
       {/* CTA */}
-      <button
-        onClick={handleCheckout}
-        disabled={isPending}
-        className="mt-8 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full font-medium text-[14px] transition-colors disabled:opacity-60 disabled:cursor-wait"
-        style={
-          isPrimary
-            ? { background: '#E8C57E', color: '#163828' }
-            : { background: '#0F1F18', color: '#FAF6EE' }
-        }
-        onMouseEnter={e => {
-          if (!isPending) (e.currentTarget as HTMLButtonElement).style.background = isPrimary ? '#C9A45E' : '#1F4D3A';
+      <Link
+        href="/signup"
+        style={{
+          marginTop: 32,
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 8,
+          padding: '12px 20px',
+          borderRadius: 999,
+          fontWeight: 500,
+          fontSize: 14,
+          textDecoration: 'none',
+          transition: 'background 0.15s',
+          ...ctaStyle,
         }}
-        onMouseLeave={e => {
-          (e.currentTarget as HTMLButtonElement).style.background = isPrimary ? '#E8C57E' : '#0F1F18';
-        }}
+        onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = ctaHover; (e.currentTarget as HTMLAnchorElement).style.color = C.cream; }}
+        onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = ctaStyle.background as string; (e.currentTarget as HTMLAnchorElement).style.color = ctaStyle.color as string; }}
       >
-        {isPending ? 'Loading…' : <>{plan.cta} <ArrowRight size={14} strokeWidth={2} /></>}
-      </button>
+        {plan.cta}
+        <ArrowRight size={14} strokeWidth={2} />
+      </Link>
     </div>
   );
 }
 
-/* ── Comparison table ────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────
+   Section 3 — TrustStrip
+───────────────────────────────────────────────────────────── */
+const TRUST_TILES: [string, string][] = [
+  ['14-day refund',      'No questions. Cancel within 14 days for a full refund.'],
+  ['Cards live forever', 'Even if you cancel — your attendee links never expire.'],
+  ['40% off for NGOs',   'Verified nonprofits and registered campaigns get a discount.'],
+  ['Pay how you want',   'Card, M-Pesa, MoMo, Paystack, SWIFT — we accept it.'],
+];
+
+function TrustStrip() {
+  return (
+    <section style={{ background: C.cream, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '56px 20px' }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: 1,
+            background: C.border,
+            border: `1px solid ${C.border}`,
+            borderRadius: 16,
+            overflow: 'hidden',
+          }}
+          className="lg:grid-cols-4"
+        >
+          {TRUST_TILES.map(([title, body]) => (
+            <div key={title} style={{ background: C.cream, padding: '20px 24px' }}>
+              <div style={{
+                fontFamily: 'var(--font-dm-sans, DM Sans, sans-serif)',
+                fontWeight: 600,
+                fontSize: 18,
+                letterSpacing: '-0.015em',
+                color: C.ink,
+              }}>
+                {title}
+              </div>
+              <div style={{ marginTop: 8, fontSize: 13, lineHeight: 1.55, color: C.inkSoft }}>
+                {body}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Section 4 — ComparisonTable
+───────────────────────────────────────────────────────────── */
 function ComparisonTable() {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <section style={{ borderTop: '1px solid #E5E0D4' }}>
-      <div className="mx-auto max-w-[1100px] px-5 lg:px-10 py-16 lg:py-20">
-        <div className="text-center mb-10 lg:mb-12">
-          <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-4">
+    <section style={{ borderTop: `1px solid ${C.border}` }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '64px 20px' }}>
+        {/* Header */}
+        <div style={{ textAlign: 'center', marginBottom: 48 }}>
+          <div style={{
+            fontFamily: 'var(--font-jetbrains-mono, monospace)',
+            fontSize: 11,
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            color: C.primary,
+            marginBottom: 16,
+          }}>
             Full comparison
           </div>
-          <h2 className="font-display font-bold text-ink text-[30px] sm:text-[40px] lg:text-[48px] leading-[1.02] tracking-[-0.035em]">
+          <h2 style={{
+            fontFamily: 'var(--font-dm-sans, DM Sans, sans-serif)',
+            fontWeight: 700,
+            fontSize: 'clamp(28px, 4vw, 44px)',
+            lineHeight: 1.04,
+            letterSpacing: '-0.03em',
+            color: C.ink,
+            margin: 0,
+          }}>
             Compare every feature, side by side.
           </h2>
         </div>
 
-        <div
-          className="relative bg-surface rounded-2xl overflow-hidden"
-          style={{
-            border: '1px solid #E5E0D4',
-            maxHeight: expanded ? undefined : 480,
-          }}
-        >
-          <table className="w-full text-left">
-            <thead
-              className="sticky top-0"
-              style={{ background: 'rgba(250,246,238,0.9)', borderBottom: '1px solid #E5E0D4', backdropFilter: 'blur(8px)' }}
-            >
+        {/* Table wrapper */}
+        <div style={{
+          position: 'relative',
+          background: C.surface,
+          border: `1px solid ${C.border}`,
+          borderRadius: 16,
+          overflow: 'hidden',
+          maxHeight: expanded ? undefined : 480,
+        }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+            <thead style={{
+              position: 'sticky',
+              top: 0,
+              background: 'rgba(250,246,238,0.92)',
+              backdropFilter: 'blur(8px)',
+              borderBottom: `1px solid ${C.border}`,
+            }}>
               <tr>
-                <th className="py-4 px-5 lg:px-7 font-mono text-[10px] tracking-[0.22em] uppercase text-muted w-[40%] sm:w-auto">
+                <th style={{ padding: '16px 28px', fontFamily: 'var(--font-jetbrains-mono, monospace)', fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: C.muted, width: '40%' }}>
                   Feature
                 </th>
-                <th className="py-4 px-3 lg:px-5 text-center font-display text-[14px] font-semibold text-ink">
+                <th style={{ padding: '16px 12px', textAlign: 'center', fontFamily: 'var(--font-dm-sans, DM Sans, sans-serif)', fontSize: 14, fontWeight: 600, color: C.ink }}>
                   Free
                 </th>
-                <th
-                  className="py-4 px-3 lg:px-5 text-center font-display text-[14px] font-semibold text-primary"
-                  style={{ background: 'rgba(232,239,235,0.4)' }}
-                >
+                <th style={{ padding: '16px 12px', textAlign: 'center', fontFamily: 'var(--font-dm-sans, DM Sans, sans-serif)', fontSize: 14, fontWeight: 600, color: C.primary, background: 'rgba(232,239,235,0.35)' }}>
                   Pro
                 </th>
-                <th className="py-4 px-3 lg:px-5 text-center font-display text-[14px] font-semibold text-ink">
+                <th style={{ padding: '16px 12px', textAlign: 'center', fontFamily: 'var(--font-dm-sans, DM Sans, sans-serif)', fontSize: 14, fontWeight: 600, color: C.ink }}>
                   Studio
                 </th>
               </tr>
             </thead>
             <tbody>
-              {COMPARISON_GROUPS.map((g, gi) => (
+              {COMPARISON_GROUPS.map((group, gi) => (
                 <React.Fragment key={`g-${gi}`}>
-                  <tr style={{ background: 'rgba(250,246,238,0.4)' }}>
+                  <tr style={{ background: 'rgba(250,246,238,0.45)' }}>
                     <td
                       colSpan={4}
-                      className="py-3 px-5 lg:px-7 font-mono text-[10px] tracking-[0.22em] uppercase text-primary"
-                      style={{ borderTop: '1px solid #E5E0D4' }}
+                      style={{
+                        padding: '12px 28px',
+                        fontFamily: 'var(--font-jetbrains-mono, monospace)',
+                        fontSize: 10,
+                        letterSpacing: '0.22em',
+                        textTransform: 'uppercase',
+                        color: C.primary,
+                        borderTop: `1px solid ${C.border}`,
+                      }}
                     >
-                      {g.title}
+                      {group.title}
                     </td>
                   </tr>
-                  {g.rows.map(([label, free, pro, studio], ri) => (
-                    <tr key={`r-${gi}-${ri}`} style={{ borderTop: '1px solid rgba(229,224,212,0.6)' }}>
-                      <td className="py-3.5 px-5 lg:px-7 text-[14px] text-ink-soft leading-tight">
+                  {group.rows.map(([label, free, pro, studio], ri) => (
+                    <tr key={`r-${gi}-${ri}`} style={{ borderTop: `1px solid rgba(229,224,212,0.55)` }}>
+                      <td style={{ padding: '14px 28px', fontSize: 14, color: C.inkSoft, lineHeight: 1.4 }}>
                         {label}
                       </td>
-                      <td className="py-3.5 px-3 lg:px-5 text-center">
+                      <td style={{ padding: '14px 12px', textAlign: 'center' }}>
                         <CellValue value={free} />
                       </td>
-                      <td className="py-3.5 px-3 lg:px-5 text-center" style={{ background: 'rgba(232,239,235,0.3)' }}>
+                      <td style={{ padding: '14px 12px', textAlign: 'center', background: 'rgba(232,239,235,0.28)' }}>
                         <CellValue value={pro} isProCol />
                       </td>
-                      <td className="py-3.5 px-3 lg:px-5 text-center">
+                      <td style={{ padding: '14px 12px', textAlign: 'center' }}>
                         <CellValue value={studio} />
                       </td>
                     </tr>
@@ -386,27 +576,45 @@ function ComparisonTable() {
             </tbody>
           </table>
 
-          {/* Fade mask */}
+          {/* Fade overlay */}
           {!expanded && (
             <div
               aria-hidden
-              className="absolute inset-x-0 bottom-0 h-32 pointer-events-none"
-              style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0), #FFFFFF 85%)' }}
+              style={{
+                position: 'absolute',
+                inset: '0 0 0 0',
+                top: 'auto',
+                height: 120,
+                background: `linear-gradient(to bottom, rgba(255,255,255,0), ${C.surface} 88%)`,
+                pointerEvents: 'none',
+              }}
             />
           )}
         </div>
 
-        <div className="mt-6 text-center">
+        {/* Toggle */}
+        <div style={{ marginTop: 24, textAlign: 'center' }}>
           <button
             onClick={() => setExpanded(!expanded)}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-medium text-[14px] transition-colors bg-surface text-ink hover:text-primary"
-            style={{ border: '1px solid #E5E0D4' }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '10px 20px',
+              borderRadius: 999,
+              border: `1px solid ${C.border}`,
+              background: C.surface,
+              color: C.ink,
+              fontWeight: 500,
+              fontSize: 14,
+              cursor: 'pointer',
+            }}
           >
             {expanded ? 'Collapse comparison' : 'Show all features'}
             <ChevronDown
               size={15}
               strokeWidth={2}
-              style={{ transform: expanded ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }}
+              style={{ transform: expanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}
             />
           </button>
         </div>
@@ -415,76 +623,208 @@ function ComparisonTable() {
   );
 }
 
-/* ── Main export ─────────────────────────────────────────── */
-export function PricingContent() {
+/* ─────────────────────────────────────────────────────────────
+   Section 5 — FAQ Accordion
+───────────────────────────────────────────────────────────── */
+function PricingFAQ() {
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
+
+  return (
+    <section style={{ borderTop: `1px solid ${C.border}` }}>
+      <div style={{ maxWidth: 920, margin: '0 auto', padding: '80px 20px' }}>
+        <div style={{ marginBottom: 48 }}>
+          <div style={{
+            fontFamily: 'var(--font-jetbrains-mono, monospace)',
+            fontSize: 11,
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            color: C.primary,
+            marginBottom: 16,
+          }}>
+            Pricing FAQ
+          </div>
+          <h2 style={{
+            fontFamily: 'var(--font-dm-sans, DM Sans, sans-serif)',
+            fontWeight: 700,
+            fontSize: 'clamp(26px, 3.5vw, 38px)',
+            lineHeight: 1.06,
+            letterSpacing: '-0.03em',
+            color: C.ink,
+            margin: 0,
+          }}>
+            Money questions, answered.
+          </h2>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          {FAQS.map((faq, i) => {
+            const isOpen = openIdx === i;
+            return (
+              <div
+                key={i}
+                style={{ borderTop: `1px solid ${C.border}`, ...(i === FAQS.length - 1 ? { borderBottom: `1px solid ${C.border}` } : {}) }}
+              >
+                <button
+                  onClick={() => setOpenIdx(isOpen ? null : i)}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 16,
+                    padding: '20px 0',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                  }}
+                >
+                  <span style={{
+                    fontFamily: 'var(--font-dm-sans, DM Sans, sans-serif)',
+                    fontWeight: 500,
+                    fontSize: 16,
+                    color: C.ink,
+                    letterSpacing: '-0.01em',
+                  }}>
+                    {faq.q}
+                  </span>
+                  <ChevronDown
+                    size={18}
+                    strokeWidth={2}
+                    style={{
+                      flexShrink: 0,
+                      color: C.muted,
+                      transform: isOpen ? 'rotate(180deg)' : 'none',
+                      transition: 'transform 0.2s',
+                    }}
+                  />
+                </button>
+                {isOpen && (
+                  <div style={{
+                    padding: '0 0 20px',
+                    fontSize: 15,
+                    lineHeight: 1.65,
+                    color: C.inkSoft,
+                  }}>
+                    {faq.a}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Main export — default (matches page.tsx import)
+───────────────────────────────────────────────────────────── */
+export default function PricingContent() {
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('yearly');
 
   return (
     <>
-      {/* ── Hero ── */}
+      {/* ── Section 1: Hero ─────────────────────────────────── */}
       <section
-        className="relative overflow-hidden border-b"
-        style={{ borderColor: '#E5E0D4' }}
+        style={{
+          position: 'relative',
+          overflow: 'hidden',
+          borderBottom: `1px solid ${C.border}`,
+        }}
       >
+        {/* Mesh background */}
         <div
           aria-hidden
-          className="absolute inset-0 pointer-events-none"
           style={{
+            position: 'absolute',
+            inset: 0,
+            pointerEvents: 'none',
             backgroundImage: [
-              'radial-gradient(70% 55% at 15% 0%, rgba(31,77,58,0.09), transparent 65%)',
-              'radial-gradient(50% 50% at 85% 95%, rgba(232,197,126,0.13), transparent 65%)',
+              'radial-gradient(60% 50% at 15% 25%, rgba(31,77,58,0.18), transparent 60%)',
+              'radial-gradient(50% 45% at 85% 80%, rgba(232,197,126,0.22), transparent 60%)',
             ].join(', '),
           }}
         />
-        <div
-          aria-hidden
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: 'radial-gradient(rgba(15,31,24,0.045) 1px, transparent 1px)',
-            backgroundSize: '24px 24px',
-          }}
-        />
 
-        <div className="relative mx-auto max-w-[1100px] px-5 lg:px-10 pt-16 lg:pt-24 pb-10 lg:pb-14 text-center">
-          <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-5">
+        <div style={{ position: 'relative', maxWidth: 1100, margin: '0 auto', padding: 'clamp(64px, 8vw, 96px) 20px 48px', textAlign: 'center' }}>
+          {/* Overline */}
+          <div style={{
+            fontFamily: 'var(--font-jetbrains-mono, monospace)',
+            fontSize: 11,
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            color: C.primary,
+            marginBottom: 20,
+          }}>
             Pricing
           </div>
-          <h1 className="font-display font-bold text-ink text-[44px] sm:text-[60px] lg:text-[76px] leading-[0.95] tracking-[-0.035em] max-w-[880px] mx-auto">
+
+          {/* H1 */}
+          <h1 style={{
+            fontFamily: 'var(--font-dm-sans, DM Sans, sans-serif)',
+            fontWeight: 700,
+            fontSize: 'clamp(40px, 6.5vw, 72px)',
+            lineHeight: 0.97,
+            letterSpacing: '-0.035em',
+            color: C.primary,
+            maxWidth: 880,
+            margin: '0 auto',
+          }}>
             Simple pricing.{' '}
-            <span className="text-primary">Pay only when you grow.</span>
+            <span style={{ color: C.ink }}>Pay only when you grow.</span>
           </h1>
-          <p className="mt-6 text-ink-soft text-[17px] lg:text-[19px] leading-[1.55] max-w-[640px] mx-auto">
-            Start free with up to 50 cards. Upgrade the day your campaign goes bigger.
+
+          {/* Subheading */}
+          <p style={{
+            marginTop: 24,
+            fontSize: 'clamp(15px, 1.8vw, 18px)',
+            lineHeight: 1.6,
+            color: C.inkSoft,
+            maxWidth: 640,
+            marginLeft: 'auto',
+            marginRight: 'auto',
+          }}>
+            Start free with up to 50 registrations. Upgrade the day your event goes bigger.
             Cancel anytime. No setup fees, no contract.
           </p>
 
           {/* Billing toggle */}
-          <div
-            className="mt-9 inline-flex items-center gap-1 p-1 rounded-full"
-            style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}
-          >
+          <div style={{ marginTop: 36, display: 'inline-flex', alignItems: 'center', gap: 4, padding: 4, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 999 }}>
             {(['monthly', 'yearly'] as const).map((id) => {
               const isActive = billing === id;
               return (
                 <button
                   key={id}
                   onClick={() => setBilling(id)}
-                  className="relative px-5 py-2.5 rounded-full text-[13px] font-medium transition-colors"
                   style={{
-                    background: isActive ? '#1F4D3A' : 'transparent',
-                    color: isActive ? '#FAF6EE' : '#3A4A42',
+                    padding: '10px 20px',
+                    borderRadius: 999,
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: 13,
+                    fontWeight: 500,
+                    background: isActive ? C.primary : 'transparent',
+                    color: isActive ? C.cream : C.inkSoft,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    transition: 'background 0.15s, color 0.15s',
                   }}
                 >
                   {id === 'monthly' ? 'Monthly' : 'Yearly'}
                   {id === 'yearly' && (
-                    <span
-                      className="ml-2 text-[10px] font-mono tracking-[0.14em] uppercase px-1.5 py-0.5 rounded"
-                      style={
-                        isActive
-                          ? { background: '#E8C57E', color: '#163828' }
-                          : { background: '#E8EFEB', color: '#1F4D3A' }
-                      }
-                    >
+                    <span style={{
+                      fontFamily: 'var(--font-jetbrains-mono, monospace)',
+                      fontSize: 10,
+                      letterSpacing: '0.12em',
+                      textTransform: 'uppercase',
+                      padding: '2px 6px',
+                      borderRadius: 4,
+                      background: isActive ? C.accent : C.primarySoft,
+                      color: isActive ? C.primaryDark : C.primary,
+                    }}>
                       −20%
                     </span>
                   )}
@@ -495,48 +835,28 @@ export function PricingContent() {
         </div>
       </section>
 
-      {/* ── Plan cards ── */}
+      {/* ── Section 2: Plan cards ───────────────────────────── */}
       <section>
-        <div className="mx-auto max-w-[1200px] px-5 lg:px-10 py-10 lg:py-12">
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '48px 20px' }}>
 
-          {/* Trial callout banner */}
-          <div
-            className="mb-8 rounded-2xl px-6 py-4 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-center"
-            style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 100%)' }}
-          >
-            <div className="flex items-center gap-2 text-[#FAF6EE]">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E8C57E" strokeWidth="2" strokeLinecap="round">
-                <circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />
-              </svg>
-              <span className="font-display font-semibold text-[15px]">14 days free on Pro &amp; Studio</span>
-            </div>
-            <div className="flex items-center gap-x-5 gap-y-1 flex-wrap justify-center font-mono text-[11px] tracking-[0.14em] uppercase" style={{ color: 'rgba(250,246,238,0.7)' }}>
-              <span>No card required</span>
-              <span style={{ color: 'rgba(250,246,238,0.3)' }}>·</span>
-              <span>Cancel anytime</span>
-              <span style={{ color: 'rgba(250,246,238,0.3)' }}>·</span>
-              <span>Instant access</span>
-            </div>
-          </div>
-
-          <div className="grid lg:grid-cols-3 gap-5 items-stretch">
-            {PLANS.map((p, i) => (
-              <Reveal key={p.id} delay={i * 100}>
-                <PlanCard plan={p} billing={billing} />
-              </Reveal>
+          {/* Plan grid */}
+          <div style={{ display: 'grid', gap: 20, gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}
+            className="lg:grid-cols-3">
+            {PLANS.map((plan) => (
+              <PlanCard key={plan.id} plan={plan} billing={billing} />
             ))}
           </div>
 
-          {/* Trust microcopy */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[13px]" style={{ color: '#6B7A72' }}>
+          {/* Trust chips */}
+          <div style={{ marginTop: 32, display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: '8px 24px' }}>
             {[
-              { label: 'Cancel anytime, no questions asked', highlight: true },
-              { label: 'No credit card during trial', highlight: false },
-              { label: 'No setup fees', highlight: false },
-              { label: 'Cards live forever even after cancel', highlight: false },
-            ].map(({ label, highlight }) => (
-              <span key={label} className="inline-flex items-center gap-1.5" style={highlight ? { color: '#1F4D3A', fontWeight: 500 } : {}}>
-                <Check size={14} strokeWidth={2.5} style={{ color: '#1F4D3A' }} />
+              'Cancel anytime',
+              'No setup fees',
+              '14-day trial on paid plans',
+              'Cards live forever',
+            ].map((label) => (
+              <span key={label} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, color: C.muted }}>
+                <Check size={13} strokeWidth={2.5} style={{ color: C.primary }} />
                 {label}
               </span>
             ))}
@@ -544,101 +864,88 @@ export function PricingContent() {
         </div>
       </section>
 
-      {/* ── Trust strip ── */}
-      <Reveal>
-      <section className="bg-cream">
-        <div className="mx-auto max-w-[1200px] px-5 lg:px-10 py-14 lg:py-16">
-          <div
-            className="grid grid-cols-2 lg:grid-cols-4 rounded-2xl overflow-hidden"
-            style={{ gap: '1px', background: '#E5E0D4', border: '1px solid #E5E0D4' }}
-          >
-            {(
-              [
-                ['14-day refund', 'No questions. Cancel within 14 days for a full refund.'],
-                ['Cards live forever', 'Even if you cancel — your attendee links never expire.'],
-                ['40% off for NGOs', 'Verified nonprofits and registered campaigns get a discount.'],
-                ['Pay how you want', 'Card, M-Pesa, MoMo, Paystack, SWIFT — we accept it.'],
-              ] as [string, string][]
-            ).map(([t, b]) => (
-              <div key={t} className="bg-cream p-5 lg:p-6">
-                <div className="font-display font-semibold text-ink text-[18px] lg:text-[20px] tracking-tight">
-                  {t}
-                </div>
-                <div className="mt-2 text-ink-soft text-[13px] lg:text-[14px] leading-[1.5]">
-                  {b}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-      </Reveal>
+      {/* ── Section 3: Trust strip ──────────────────────────── */}
+      <TrustStrip />
 
-      {/* ── Comparison table ── */}
-      <Reveal><ComparisonTable /></Reveal>
+      {/* ── Section 4: Comparison table ─────────────────────── */}
+      <ComparisonTable />
 
-      {/* ── Pricing FAQ ── */}
-      <Reveal>
-      <section style={{ borderTop: '1px solid #E5E0D4' }}>
-        <div className="mx-auto max-w-[920px] px-5 lg:px-10 py-20 lg:py-24">
-          <div className="mb-10 lg:mb-12">
-            <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-4">
-              Pricing FAQ
-            </div>
-            <h2 className="font-display font-bold text-ink text-[28px] sm:text-[36px] lg:text-[42px] leading-[1.05] tracking-[-0.03em]">
-              Money questions, answered.
-            </h2>
-          </div>
-          <FAQAccordion items={PRICING_FAQS} />
-        </div>
-      </section>
-      </Reveal>
+      {/* ── Section 5: FAQ ──────────────────────────────────── */}
+      <PricingFAQ />
 
-      {/* ── Final CTA ── */}
-      <Reveal>
-      <section className="relative overflow-hidden" style={{ borderTop: '1px solid #E5E0D4' }}>
+      {/* ── Section 6: Bottom CTA ───────────────────────────── */}
+      <section style={{ borderTop: `1px solid ${C.border}`, position: 'relative', overflow: 'hidden' }}>
         <div
           aria-hidden
-          className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: [
-              'radial-gradient(65% 55% at 50% 110%, rgba(31,77,58,0.09), transparent 65%)',
-            ].join(', '),
+            position: 'absolute',
+            inset: 0,
+            pointerEvents: 'none',
+            backgroundImage: 'radial-gradient(65% 55% at 50% 110%, rgba(31,77,58,0.08), transparent 65%)',
           }}
         />
-        <div
-          aria-hidden
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: 'radial-gradient(rgba(15,31,24,0.04) 1px, transparent 1px)',
-            backgroundSize: '24px 24px',
-          }}
-        />
-        <div className="relative mx-auto max-w-[900px] px-5 lg:px-10 py-20 lg:py-24 text-center">
-          <h2 className="font-display font-bold text-ink text-[40px] sm:text-[54px] lg:text-[68px] leading-[0.98] tracking-[-0.035em]">
-            Start free. 14 days on us when you&rsquo;re ready.
+        <div style={{ position: 'relative', maxWidth: 900, margin: '0 auto', padding: '80px 20px', textAlign: 'center' }}>
+          <h2 style={{
+            fontFamily: 'var(--font-dm-sans, DM Sans, sans-serif)',
+            fontWeight: 700,
+            fontSize: 'clamp(36px, 5vw, 62px)',
+            lineHeight: 1.0,
+            letterSpacing: '-0.035em',
+            color: C.ink,
+            margin: 0,
+          }}>
+            Start free. Upgrade when you&rsquo;re ready.
           </h2>
-          <p className="mt-5 text-ink-soft text-[17px] lg:text-[18px] leading-[1.55] max-w-[560px] mx-auto">
-            Start on the Free plan and trial Pro or Studio for 14 days — no credit card required.
-            Cancel anytime, no questions asked.
+          <p style={{
+            marginTop: 20,
+            fontSize: 'clamp(15px, 1.7vw, 17px)',
+            lineHeight: 1.6,
+            color: C.inkSoft,
+            maxWidth: 540,
+            marginLeft: 'auto',
+            marginRight: 'auto',
+          }}>
+            Most teams ship their first event on the Free plan, then upgrade the day they pass
+            50 registrations.
           </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <div style={{ marginTop: 32, display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
             <Link
               href="/signup"
-              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-medium transition-colors bg-primary text-cream hover:bg-primary-dark"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '14px 28px',
+                borderRadius: 999,
+                background: C.primary,
+                color: C.cream,
+                fontWeight: 500,
+                fontSize: 15,
+                textDecoration: 'none',
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = C.primaryDark; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = C.primary; }}
             >
               Start free <ArrowRight size={16} strokeWidth={2} />
             </Link>
-            <a
-              href="mailto:hello@cre8so.com"
-              className="inline-flex items-center gap-2 text-ink underline decoration-ink/30 underline-offset-4 hover:decoration-primary hover:text-primary transition-colors text-[15px]"
+            <Link
+              href="/contact"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                fontSize: 15,
+                color: C.ink,
+                textDecoration: 'underline',
+                textDecorationColor: 'rgba(15,31,24,0.3)',
+                textUnderlineOffset: 4,
+              }}
             >
               Talk to sales <ArrowRight size={14} strokeWidth={2} />
-            </a>
+            </Link>
           </div>
         </div>
       </section>
-      </Reveal>
     </>
   );
 }
