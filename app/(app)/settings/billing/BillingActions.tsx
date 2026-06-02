@@ -37,10 +37,12 @@ export default function BillingActions({
   plan,
   hasPortal,
   isTrialing,
+  compact = false,
 }: {
   plan: Plan;
   hasPortal: boolean;
   isTrialing: boolean;
+  compact?: boolean;
 }) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -71,15 +73,28 @@ export default function BillingActions({
   }
 
   if (plan !== 'free') {
+    if (compact) {
+      return (
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 flex-1 px-3 py-2 rounded-xl border text-[13px]"
+            style={{ background: '#FAF6EE', borderColor: '#E5E0D4', color: '#3A4A42' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7A72" strokeWidth="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+            <span className="font-mono">•••• 4242</span>
+          </div>
+          <button onClick={openPortal} disabled={isPending}
+            className="h-9 px-4 rounded-xl text-[13px] font-medium border transition-colors hover:bg-[#FAF6EE] disabled:opacity-50"
+            style={{ borderColor: '#E5E0D4', color: '#0F1F18', background: '#fff' }}>
+            {isPending ? 'Loading…' : 'Update'}
+          </button>
+        </div>
+      );
+    }
     return (
       <div className="mt-4">
         {hasPortal && (
-          <button
-            onClick={openPortal}
-            disabled={isPending}
+          <button onClick={openPortal} disabled={isPending}
             className="mt-4 inline-flex items-center gap-2 h-9 px-4 rounded-xl text-[13px] font-medium transition-colors disabled:opacity-50"
-            style={{ background: '#fff', border: '1px solid #E5E0D4', color: '#0F1F18' }}
-          >
+            style={{ background: '#fff', border: '1px solid #E5E0D4', color: '#0F1F18' }}>
             {isPending ? 'Loading…' : 'Manage billing →'}
           </button>
         )}

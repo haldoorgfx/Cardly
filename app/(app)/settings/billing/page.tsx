@@ -1,7 +1,9 @@
 import { redirect } from 'next/navigation';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { PLANS } from '@/lib/billing/plans';
+import { Download } from 'lucide-react';
 import BillingActions from './BillingActions';
+import BillingInvoices from './BillingInvoices';
 
 export default async function BillingPage({
   searchParams,
@@ -17,18 +19,18 @@ export default async function BillingPage({
   const admin = createAdminClient();
   const { data: profile } = await admin
     .from('profiles')
-    .select('plan, subscription_status, billing_cycle, current_period_end, cancel_at_period_end, cards_this_month, stripe_customer_id')
+    .select('plan, subscription_status, billing_cycle, current_period_end, cancel_at_period_end, cards_this_month, stripe_customer_id, email')
     .eq('id', user.id)
     .single();
 
-  const plan = (profile?.plan ?? 'free') as 'free' | 'pro' | 'studio';
-  const limits = PLANS[plan];
-  const cardsUsed = profile?.cards_this_month ?? 0;
-  const cardPct = Math.min((cardsUsed / limits.cardsPerMonth) * 100, 100);
-  const status = profile?.subscription_status ?? 'none';
-  const isTrialing = status === 'trialing';
-  const isActive = status === 'active' || isTrialing;
-  const hasPortal = !!profile?.stripe_customer_id;
+  const plan        = (profile?.plan ?? 'free') as 'free' | 'pro' | 'studio';
+  const limits      = PLANS[plan];
+  const cardsUsed   = profile?.cards_this_month ?? 0;
+  const cardPct     = Math.min((cardsUsed / limits.cardsPerMonth) * 100, 100);
+  const status      = profile?.subscription_status ?? 'none';
+  const isTrialing  = status === 'trialing';
+  const isActive    = status === 'active' || isTrialing;
+  const hasPortal   = !!profile?.stripe_customer_id;
 
   const periodEnd = profile?.current_period_end
     ? new Date(profile.current_period_end).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -38,29 +40,40 @@ export default async function BillingPage({
   const PLAN_PRICES: Record<string, string> = {
     pro:    cycle === 'annual' ? '$15/mo' : '$19/mo',
     studio: cycle === 'annual' ? '$39/mo' : '$49/mo',
-    free: '$0',
+    free:   '$0',
   };
 
   return (
-    <div className="min-h-full p-8 lg:p-10" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[640px]">
+    <div className="min-h-full" style={{ background: '#FAF6EE' }}>
 
-        {/* Header */}
-        <div className="mb-8">
-          <div className="font-mono text-[11px] tracking-[0.18em] text-[#1F4D3A] uppercase mb-1">Workspace</div>
-          <h1 className="font-display font-bold text-[28px] text-[#0F1F18] tracking-tight">Billing</h1>
-          <p className="text-[14px] text-[#6B7A72] mt-1">Manage your plan, usage, and subscription.</p>
+      {/* ── Header ─────────────────────────────────────────────────────────── */}
+      <div className="border-b px-6 pt-7 pb-6" style={{ background: 'white', borderColor: '#E5E0D4' }}>
+        <div className="max-w-[760px] mx-auto flex items-end justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="font-display font-bold text-[28px] text-[#0F1F18] tracking-tight">Billing</h1>
+            <p className="text-[13px] mt-0.5" style={{ color: '#6B7A72' }}>Manage your plan and payment method</p>
+          </div>
+          {plan !== 'studio' && (
+            <a href="/pricing"
+              className="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-[13px] font-semibold transition"
+              style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
+              + Upgrade to Studio
+            </a>
+          )}
         </div>
+      </div>
+
+      <div className="max-w-[760px] mx-auto px-6 py-8 space-y-6">
 
         {/* Success banner */}
         {checkout === 'success' && (
-          <div className="mb-6 rounded-2xl border border-[#A8D5B5] bg-[#F0FAF4] px-5 py-4 flex items-center gap-3">
+          <div className="rounded-2xl border border-[#A8D5B5] bg-[#F0FAF4] px-5 py-4 flex items-center gap-3">
             <span className="h-2 w-2 rounded-full bg-[#2D7A4F] shrink-0" />
             <p className="text-[14px] text-[#1F4D3A] font-medium">Payment successful — your plan has been updated.</p>
           </div>
         )}
 
-        {/* Current plan card */}
+        {/* Current plan + payment method */}
         <div className="rounded-2xl bg-white border overflow-hidden" style={{ borderColor: '#E5E0D4' }}>
 
           {/* Plan header */}
@@ -76,8 +89,6 @@ export default async function BillingPage({
                     <span className="text-[13px] text-[#6B7A72]">{PLAN_PRICES[plan]}</span>
                   )}
                 </div>
-
-                {/* Status pill */}
                 <div className="mt-2.5 flex items-center gap-2">
                   {isActive ? (
                     <span className="inline-flex items-center gap-1.5 text-[12px] font-medium px-2.5 py-1 rounded-full"
@@ -103,8 +114,6 @@ export default async function BillingPage({
                   )}
                 </div>
               </div>
-
-              {/* Renewal date */}
               {plan !== 'free' && periodEnd && (
                 <div className="text-right shrink-0">
                   <div className="font-mono text-[10px] tracking-[0.14em] text-[#6B7A72] uppercase mb-1">
@@ -120,27 +129,24 @@ export default async function BillingPage({
           <div className="p-6 border-b" style={{ borderColor: '#E5E0D4' }}>
             <div className="font-mono text-[10px] tracking-[0.18em] text-[#6B7A72] uppercase mb-4">Usage this month</div>
             <div className="flex items-center justify-between text-[13px] mb-2">
-              <span className="text-[#3A4A42]">Cards generated</span>
-              <span className="font-mono font-medium text-[#0F1F18]">{cardsUsed} <span className="text-[#6B7A72] font-normal">/ {limits.cardsPerMonth}</span></span>
+              <span className="text-[#3A4A42]">Registrations this month</span>
+              <span className="font-mono font-medium text-[#0F1F18]">
+                {cardsUsed} <span className="text-[#6B7A72] font-normal">/ {limits.cardsPerMonth}</span>
+              </span>
             </div>
             <div className="h-1.5 rounded-full overflow-hidden" style={{ background: '#E5E0D4' }}>
-              <div
-                className="h-full rounded-full transition-all duration-500"
-                style={{
-                  width: `${cardPct}%`,
-                  background: cardPct >= 90 ? '#DC2626' : 'linear-gradient(90deg, #1F4D3A, #2D7A4F)',
-                }}
-              />
+              <div className="h-full rounded-full transition-all duration-500"
+                style={{ width: `${cardPct}%`, background: cardPct >= 90 ? '#DC2626' : 'linear-gradient(90deg,#1F4D3A,#2D7A4F)' }} />
             </div>
             {cardPct >= 90 && (
               <p className="mt-2 text-[12px] font-mono" style={{ color: cardPct >= 100 ? '#DC2626' : '#B45309' }}>
-                {cardPct >= 100 ? 'Limit reached — upgrade to generate more cards.' : 'Approaching monthly limit.'}
+                {cardPct >= 100 ? 'Limit reached — upgrade to generate more.' : 'Approaching monthly limit.'}
               </p>
             )}
           </div>
 
-          {/* Features */}
-          <div className="px-6 py-5">
+          {/* Features list */}
+          <div className="px-6 py-5 border-b" style={{ borderColor: '#E5E0D4' }}>
             <div className="font-mono text-[10px] tracking-[0.18em] text-[#6B7A72] uppercase mb-3">Included in your plan</div>
             <ul className="space-y-2">
               {[
@@ -157,10 +163,34 @@ export default async function BillingPage({
               ))}
             </ul>
           </div>
+
+          {/* Payment method */}
+          {hasPortal && (
+            <div className="px-6 py-5">
+              <div className="font-mono text-[10px] tracking-[0.18em] text-[#6B7A72] uppercase mb-3">Payment method</div>
+              <BillingActions plan={plan} hasPortal={hasPortal} isTrialing={isTrialing} compact />
+            </div>
+          )}
         </div>
 
-        {/* Actions */}
-        <BillingActions plan={plan} hasPortal={hasPortal} isTrialing={isTrialing} />
+        {/* Actions (upgrade/manage) */}
+        {!hasPortal && (
+          <BillingActions plan={plan} hasPortal={hasPortal} isTrialing={isTrialing} />
+        )}
+
+        {/* Invoices */}
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <div className="font-mono text-[10px] tracking-[0.18em] text-[#6B7A72] uppercase">Invoices</div>
+            {hasPortal && (
+              <a href="/api/billing/portal" className="text-[12px] font-medium hover:underline" style={{ color: '#1F4D3A' }}>
+                <Download size={12} strokeWidth={2} className="inline mr-1" />
+                Download all
+              </a>
+            )}
+          </div>
+          <BillingInvoices hasPortal={hasPortal} plan={plan} />
+        </div>
 
       </div>
     </div>

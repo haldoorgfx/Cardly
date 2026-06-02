@@ -2,7 +2,6 @@ export const dynamic = 'force-dynamic';
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { EventManageNav } from '@/components/events/EventManageNav';
 import { EventPageEditor } from '@/components/events/EventPageEditor';
 
 interface Props { params: { id: string } }
@@ -29,7 +28,6 @@ export default async function EventPageEditorPage({ params }: Props) {
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <EventManageNav eventId={params.id} eventName={event.name} active="event-page" />
       <EventPageEditor
         eventId={params.id}
         eventSlug={event.slug}

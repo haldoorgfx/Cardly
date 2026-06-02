@@ -5,7 +5,7 @@ export const metadata: Metadata = { title: 'Analytics' };
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { EventManageNav } from '@/components/events/EventManageNav';
+import { Download } from 'lucide-react';
 import { EventAnalyticsView } from '@/components/events/EventAnalyticsView';
 
 interface Props { params: { id: string } }
@@ -18,14 +18,13 @@ export default async function EventAnalyticsPage({ params }: Props) {
   const admin = createAdminClient();
   const { data: event } = await admin
     .from('events')
-    .select('id, name, slug')
+    .select('id, name, slug, status, view_count')
     .eq('id', params.id)
     .eq('user_id', user.id)
     .single();
 
   if (!event) redirect('/dashboard');
 
-  // Fetch all registrations for this event (for analytics we want full data, capped at 1000)
   const { data: regs } = await admin
     .from('registrations')
     .select('created_at, status, amount_paid, currency, karta_card_url, ticket_type_id, ticket_types(name, currency)')
@@ -36,7 +35,7 @@ export default async function EventAnalyticsPage({ params }: Props) {
 
   const allRegs = regs ?? [];
 
-  // ── Daily registrations ────────────────────────────────────────────────────
+  // Daily registrations
   const dailyMap = new Map<string, number>();
   for (const r of allRegs) {
     const day = r.created_at.slice(0, 10);
@@ -46,12 +45,12 @@ export default async function EventAnalyticsPage({ params }: Props) {
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([date, count]) => ({ date, count }));
 
-  // ── Revenue by ticket type ─────────────────────────────────────────────────
+  // Revenue by ticket type
   const revenueMap = new Map<string, { name: string; revenue: number; count: number; currency: string }>();
   for (const r of allRegs) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ticket = (r.ticket_types as any) as { name: string; currency: string } | null;
-    const key = r.ticket_type_id ?? 'free';
+    const key  = r.ticket_type_id ?? 'free';
     const name = ticket?.name ?? 'Free / General';
     if (!revenueMap.has(key)) revenueMap.set(key, { name, revenue: 0, count: 0, currency: r.currency });
     const entry = revenueMap.get(key)!;
@@ -60,25 +59,60 @@ export default async function EventAnalyticsPage({ params }: Props) {
   }
   const ticketRevenue = Array.from(revenueMap.values()).sort((a, b) => b.revenue - a.revenue);
 
-  const totalRevenue = allRegs.reduce((s, r) => s + Number(r.amount_paid ?? 0), 0);
-  const revenueCurrency = allRegs.find(r => r.amount_paid > 0)?.currency ?? 'USD';
+  const totalRevenue    = allRegs.reduce((s, r) => s + Number(r.amount_paid ?? 0), 0);
+  const revenueCurrency = allRegs.find(r => Number(r.amount_paid) > 0)?.currency ?? 'USD';
   const checkInCount    = allRegs.filter(r => r.status === 'checked_in').length;
   const cardDownloaded  = allRegs.filter(r => r.karta_card_url).length;
 
+  const statusDot: Record<string, string> = {
+    published: '#2D7A4F', draft: '#C9A45E', archived: '#6B7A72',
+  };
+  const statusLabel: Record<string, string> = {
+    published: 'live', draft: 'draft', archived: 'archived',
+  };
+
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <EventManageNav eventId={params.id} eventName={event.name} active="analytics" />
-      <div className="max-w-[900px] mx-auto px-6 py-8">
-        <div className="mb-6">
-          <h1 className="font-display font-semibold text-[24px]" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>
-            Analytics
-          </h1>
-          <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>
-            Registration metrics, revenue by ticket type, check-in rate, and card download rate.
-          </p>
-        </div>
 
+      {/* ── Page header ─────────────────────────────────────────────────────── */}
+      <div className="border-b px-6 pt-7 pb-5" style={{ background: 'white', borderColor: '#E5E0D4' }}>
+        <div className="max-w-[1100px] mx-auto flex items-end justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="font-display font-bold text-[26px] text-[#0F1F18] tracking-tight leading-tight">Analytics</h1>
+            <div className="flex items-center gap-2 mt-1" style={{ fontSize: 13, color: '#6B7A72' }}>
+              <span>{event.name}</span>
+              {event.status && (
+                <>
+                  <span>·</span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full" style={{ background: statusDot[event.status] ?? '#6B7A72' }} />
+                    {statusLabel[event.status] ?? event.status}
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="h-8 px-3 rounded-lg flex items-center gap-1.5 border text-[12.5px] font-medium"
+              style={{ background: '#FAF6EE', borderColor: '#E5E0D4', color: '#3A4A42' }}>
+              Last 30 days
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5L5 6.5L8 3.5" stroke="#6B7A72" strokeWidth="1.5" strokeLinecap="round"/></svg>
+            </span>
+            <a href={`/api/events/${params.id}/export`} download
+              className="h-8 px-3 rounded-lg text-[12.5px] font-medium flex items-center gap-1.5 border transition hover:bg-[#FAF6EE]"
+              style={{ borderColor: '#E5E0D4', color: '#1F4D3A' }}>
+              <Download size={13} strokeWidth={2} /> Export
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Content ─────────────────────────────────────────────────────────── */}
+      <div className="max-w-[1100px] mx-auto px-6 py-7">
         <EventAnalyticsView
+          eventName={event.name}
+          eventStatus={event.status}
+          viewCount={event.view_count ?? 0}
           dailyRegistrations={dailyRegistrations}
           ticketRevenue={ticketRevenue}
           totalRegistrations={allRegs.length}

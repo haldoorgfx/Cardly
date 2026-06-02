@@ -2,7 +2,6 @@ export const dynamic = 'force-dynamic';
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { EventManageNav } from '@/components/events/EventManageNav';
 import QAModerationClient from '@/components/qa/QAModerationClient';
 
 interface Props { params: { id: string } }
@@ -30,10 +29,9 @@ export default async function QAModerationPage({ params }: Props) {
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <EventManageNav eventId={params.id} eventName={event.name} active="q-and-a" />
       <div className="max-w-[1100px] mx-auto px-6 py-8">
         <div className="mb-6">
-          <h1 className="font-display font-semibold text-[24px]" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>Q&amp;A</h1>
+          <h1 className="font-display font-semibold text-[24px]" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>Q&amp;A &amp; Polls</h1>
           <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>Moderate live questions from attendees.</p>
         </div>
         <QAModerationClient
