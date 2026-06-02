@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { PublicNav } from '@/components/events/PublicNav';
+import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 
 interface Props { params: { slug: string }; searchParams: { reg?: string } }
 
@@ -11,15 +12,10 @@ interface LeaderboardEntry { rank: number; registration_id: string; attendee_nam
 export default async function LeaderboardPage({ params, searchParams }: Props) {
   const admin = createAdminClient();
 
-  const { data: eventPage } = await admin
-    .from('event_pages')
-    .select('event_id, title, events!inner(id, slug, name)')
-    .or(`custom_slug.eq.${params.slug},events.slug.eq.${params.slug}`)
-    .eq('is_public', true)
-    .single();
-
-  if (!eventPage) notFound();
-  const event = eventPage.events as unknown as { id: string; slug: string; name: string };
+  const resolved = await resolvePublicSlug(params.slug);
+  if (!resolved) notFound();
+  const { eventPageTitle, event } = resolved;
+  const eventPage = { title: eventPageTitle };
 
   // Aggregate points
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

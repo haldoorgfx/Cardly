@@ -13,16 +13,29 @@ export default async function CheckInPage({ params }: Props) {
 
   const admin = createAdminClient();
 
-  // Resolve event by custom_slug or event slug
-  const { data: eventPage } = await admin
+  // Resolve event by custom_slug or events.slug (two-step; cross-table .or() doesn't work in PostgREST)
+  const { data: byCustom } = await admin
     .from('event_pages')
-    .select('event_id, title, events!inner(id, slug, name, user_id, status)')
-    .or(`custom_slug.eq.${params.slug},events.slug.eq.${params.slug}`)
+    .select('event_id')
+    .eq('custom_slug', params.slug)
     .single();
 
-  if (!eventPage) redirect('/events');
+  const eventId = byCustom?.event_id ?? (await admin
+    .from('events')
+    .select('id')
+    .eq('slug', params.slug)
+    .single()
+    .then(r => r.data?.id));
 
-  const event = eventPage.events as unknown as { id: string; slug: string; name: string; user_id: string; status: string };
+  if (!eventId) redirect('/events');
+
+  const { data: event } = await admin
+    .from('events')
+    .select('id, slug, name, user_id, status')
+    .eq('id', eventId)
+    .single();
+
+  if (!event) redirect('/events');
 
   // Only the event owner can access the check-in scanner
   if (event.user_id !== user.id) redirect('/dashboard');

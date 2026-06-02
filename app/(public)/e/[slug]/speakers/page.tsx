@@ -4,22 +4,17 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { PublicNav } from '@/components/events/PublicNav';
 import SpeakerDirectoryClient from '@/components/events/SpeakerDirectoryClient';
+import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 
 interface Props { params: { slug: string } }
 
 export default async function PublicSpeakersPage({ params }: Props) {
   const admin = createAdminClient();
 
-  const { data: eventPage } = await admin
-    .from('event_pages')
-    .select('event_id, title, events!inner(id, slug, name, status)')
-    .or(`custom_slug.eq.${params.slug},events.slug.eq.${params.slug}`)
-    .eq('is_public', true)
-    .single();
-
-  if (!eventPage) notFound();
-
-  const event = eventPage.events as unknown as { id: string; slug: string; name: string };
+  const resolved = await resolvePublicSlug(params.slug);
+  if (!resolved) notFound();
+  const { eventPageTitle, event } = resolved;
+  const eventPage = { title: eventPageTitle };
 
   const { data: speakers } = await admin
     .from('speakers')

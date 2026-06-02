@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { notFound, redirect } from 'next/navigation';
 import { PublicNav } from '@/components/events/PublicNav';
 import PersonalAgendaClient from '@/components/events/PersonalAgendaClient';
+import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 
 interface Props { params: { slug: string }; searchParams: { reg?: string } }
 
@@ -12,16 +13,10 @@ export default async function MyAgendaPage({ params, searchParams }: Props) {
 
   const admin = createAdminClient();
 
-  const { data: eventPage } = await admin
-    .from('event_pages')
-    .select('event_id, title, starts_at, ends_at, timezone, events!inner(id, slug, name)')
-    .or(`custom_slug.eq.${params.slug},events.slug.eq.${params.slug}`)
-    .eq('is_public', true)
-    .single();
-
-  if (!eventPage) notFound();
-
-  const event = eventPage.events as unknown as { id: string; slug: string; name: string };
+  const resolved = await resolvePublicSlug(params.slug);
+  if (!resolved) notFound();
+  const { eventPageTitle, event } = resolved;
+  const eventPage = { title: eventPageTitle };
 
   const { data: agendaRows } = await admin
     .from('attendee_agendas')
