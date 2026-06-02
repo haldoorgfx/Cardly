@@ -8,7 +8,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import DashboardContent from './DashboardContent';
 import React from 'react';
-import { Upload, Maximize2, Link2, TrendingUp, Download, Eye, Zap } from 'lucide-react';
+import { TrendingUp, Download, Eye, Zap, CalendarDays, Ticket, LayoutGrid } from 'lucide-react';
 import { PLANS, type Plan } from '@/lib/billing/plans';
 
 export default async function DashboardPage() {
@@ -42,79 +42,43 @@ export default async function DashboardPage() {
 
   // ─── C1: Empty state ───────────────────────────────────────────────────────
   if (isEmpty) {
+    const steps = [
+      { n: '01', icon: <CalendarDays size={18} strokeWidth={1.8} />, title: 'Set up your event', body: 'Name, date, venue, and a cover photo. The essentials.' },
+      { n: '02', icon: <Ticket size={18} strokeWidth={1.8} />, title: 'Add tickets & registration', body: 'Free or paid, with a custom form for attendees.' },
+      { n: '03', icon: <LayoutGrid size={18} strokeWidth={1.8} />, title: 'Build your agenda', body: 'Sessions, speakers, schedule — and a Karta Card for every attendee.' },
+    ] as { n: string; icon: React.ReactNode; title: string; body: string }[];
+
     return (
-      <div className="min-h-full flex flex-col" style={{ background: '#F5F5F4' }}>
-        {/* Welcome banner */}
-        <div className="mx-6 mt-6">
-          <div
-            className="relative rounded-2xl p-5 flex items-center gap-5 overflow-hidden"
-            style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}
-          >
-            <div className="absolute pointer-events-none" style={{ top: '-60%', right: '-5%', width: 200, height: 200, background: 'radial-gradient(ellipse, rgba(31,77,58,0.1) 0%, transparent 70%)', filter: 'blur(30px)' }} />
-            <div className="h-12 w-12 rounded-xl grid place-items-center shrink-0" style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 2l2.4 7.4L22 12l-7.6 2.6L12 22l-2.4-7.4L2 12l7.6-2.6z" />
-              </svg>
-            </div>
-            <div className="relative flex-1 min-w-0">
-              <div className="font-display font-bold text-[16px] text-[#0F1F18]">{firstName ? `Welcome back, ${firstName} 👋` : 'Welcome to Karta 👋'}</div>
-              <div className="text-[13px] text-[#6B7A72] mt-0.5">
-                You&apos;re on the <span className="font-medium text-[#0F1F18]">{plan.charAt(0).toUpperCase() + plan.slice(1)}</span> plan. Let&apos;s set up your first event.
-              </div>
-            </div>
+      <div className="min-h-full flex flex-col items-center justify-center px-6 py-16" style={{ background: '#FAF6EE' }}>
+        <div className="max-w-[840px] w-full mx-auto text-center">
+          <div className="inline-grid place-items-center w-14 h-14 rounded-2xl mb-6 text-[#1F4D3A]"
+            style={{ background: '#E8EFEB' }}>
+            <CalendarDays size={26} strokeWidth={1.7} />
           </div>
-        </div>
-
-        {/* Main empty state */}
-        <div className="flex-1 px-6 pt-6 pb-10">
-          <div className="max-w-[860px] mx-auto">
-            <Link href="/events/new" className="group block">
-              <div className="relative rounded-3xl border-2 border-dashed text-center px-10 py-16 overflow-hidden transition-colors" style={{ borderColor: 'rgba(31,77,58,0.25)', background: 'rgba(31,77,58,0.02)' }}>
-                <div className="absolute top-8 left-14 h-16 w-16 rounded-2xl opacity-60 -rotate-12 group-hover:rotate-0 transition-transform duration-300" style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }} />
-                <div className="absolute top-10 right-16 h-10 w-10 rounded-full opacity-50" style={{ background: 'linear-gradient(135deg, #E8C57E, rgba(232,197,126,0.4))' }} />
-                <div className="absolute bottom-10 left-24 h-9 w-9 rounded-full border-2 opacity-30" style={{ borderColor: '#1F4D3A' }} />
-                <div className="absolute bottom-10 right-20 h-14 w-14 rounded-xl opacity-40 rotate-12 group-hover:-rotate-0 transition-transform duration-300" style={{ background: 'linear-gradient(135deg, rgba(31,77,58,0.4), rgba(42,106,80,0.3))' }} />
-                <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(rgba(31,77,58,0.06) 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
-                <div className="relative">
-                  <div className="inline-flex h-16 w-16 rounded-2xl grid place-items-center text-white mb-5 group-hover:scale-110 transition-transform duration-200" style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)', boxShadow: '0 12px 30px rgba(31,77,58,0.35)' }}>
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
-                  </div>
-                  <h2 className="font-display font-bold text-[36px] text-[#0F1F18] leading-tight tracking-tight">Create your first event</h2>
-                  <p className="mt-3 text-[15px] text-[#6B7A72] max-w-[420px] mx-auto leading-relaxed">Upload your design, mark the editable zones, share the link. Attendees personalize their own card.</p>
-                  <div className="mt-7 inline-flex items-center gap-2 h-12 px-7 rounded-xl text-white font-display font-semibold text-[15px] transition-colors hover:bg-[#163828]" style={{ background: '#1F4D3A' }}>
-                    Upload a design
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-                  </div>
-                  <div className="mt-4 text-[11px] font-mono text-[#6B7A72]/50 tracking-widest uppercase">PNG or JPG · Up to 10 MB</div>
+          <h1 className="font-display text-[30px] font-semibold text-[#1F4D3A] tracking-[-0.02em]">Create your first event</h1>
+          <p className="mt-3 text-[#6B7A72] text-[15px] leading-[1.6] max-w-[480px] mx-auto">
+            Set up your event page, add tickets, build your agenda, and get your personalized Karta Card ready for every attendee.
+          </p>
+          <div className="mt-10 grid sm:grid-cols-3 gap-4 text-left">
+            {steps.map(s => (
+              <div key={s.n} className="bg-white rounded-2xl border p-5" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="w-9 h-9 rounded-lg grid place-items-center text-[#1F4D3A]" style={{ background: '#E8EFEB' }}>
+                    {s.icon}
+                  </span>
+                  <span className="font-mono text-[11px] text-[#6B7A72]/50">{s.n}</span>
                 </div>
+                <div className="font-display text-[15px] font-semibold text-[#0F1F18] tracking-tight">{s.title}</div>
+                <p className="text-[13px] text-[#6B7A72] mt-1.5 leading-[1.5]">{s.body}</p>
               </div>
-            </Link>
-
-            <div className="mt-10">
-              <div className="flex items-center justify-between mb-5">
-                <div>
-                  <div className="text-[11px] font-mono text-[#6B7A72]/50 tracking-widest uppercase">Get started</div>
-                  <h3 className="font-display font-bold text-[20px] text-[#0F1F18] mt-1">How it works in 60 seconds</h3>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {([
-                  { n: '01', icon: <Upload size={14} strokeWidth={2} color="#1F4D3A" />, title: 'Upload your design', body: 'Drop your PNG or JPG. Anything you\'d post on social works.' },
-                  { n: '02', icon: <Maximize2 size={14} strokeWidth={2} color="#1F4D3A" />, title: 'Mark the zones', body: 'Drag rectangles where the attendee\'s name and photo should go.' },
-                  { n: '03', icon: <Link2 size={14} strokeWidth={2} color="#1F4D3A" />, title: 'Share the link', body: 'Send the public URL anywhere — WhatsApp, email, or a QR on screen.' },
-                ] as { n: string; icon: React.ReactNode; title: string; body: string }[]).map((step) => (
-                  <div key={step.n} className="relative bg-white rounded-2xl p-5 shadow-soft transition-all duration-200 hover:shadow-lift" style={{ border: '1px solid #E5E0D4' }}>
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="text-[11px] font-mono text-[#6B7A72]/45">{step.n}</div>
-                      <div className="h-8 w-8 rounded-lg grid place-items-center" style={{ background: 'rgba(31,77,58,0.08)', border: '1px solid rgba(31,77,58,0.12)' }}>{step.icon}</div>
-                    </div>
-                    <div className="font-display font-bold text-[15px] text-[#0F1F18]">{step.title}</div>
-                    <p className="text-[13px] text-[#6B7A72] mt-1.5 leading-relaxed">{step.body}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+            ))}
           </div>
+          <Link href="/events/new"
+            className="mt-10 inline-flex items-center gap-2 px-6 py-3.5 rounded-lg text-white font-medium transition hover:bg-[#163828]"
+            style={{ background: '#1F4D3A' }}>
+            Create your first event
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+          </Link>
         </div>
       </div>
     );
