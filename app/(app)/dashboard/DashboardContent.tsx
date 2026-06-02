@@ -2,191 +2,129 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { LayoutGrid, List, Search, Plus } from 'lucide-react';
-import EventCard from './EventCard';
+import { Search, Plus } from 'lucide-react';
+import EventRow from './EventCard';
 import type { Database } from '@/types/database';
 
-type EventRow = Database['public']['Tables']['events']['Row'];
-type Event = Pick<EventRow, 'id' | 'name' | 'slug' | 'status' | 'view_count' | 'download_count' | 'updated_at' | 'starts_at' | 'venue_name'> & {
-  event_variants?: Array<{ id: string; background_url: string | null; zones: import('@/types/database').Json; position: number }> | null;
+type EventRowType = Database['public']['Tables']['events']['Row'];
+type Event = Pick<EventRowType, 'id' | 'name' | 'slug' | 'status' | 'view_count' | 'download_count' | 'updated_at'> & {
+  event_pages?: Array<{ starts_at: string | null; venue_name: string | null }> | null;
 };
-type Filter = 'all' | 'active' | 'draft' | 'archived';
+type Filter  = 'all' | 'active' | 'draft' | 'archived';
 type SortKey = 'recent' | 'registrations' | 'revenue';
 
 interface Props {
-  events: Event[];
-  atLimit: boolean;
+  events:      Event[];
+  atLimit:     boolean;
   regsByEvent: Record<string, { count: number; revenue: number }>;
 }
 
+const FILTERS: { key: Filter; label: string }[] = [
+  { key: 'all',      label: 'All' },
+  { key: 'active',   label: 'Active' },
+  { key: 'draft',    label: 'Draft' },
+  { key: 'archived', label: 'Archived' },
+];
+
 export default function DashboardContent({ events, atLimit, regsByEvent }: Props) {
   const [filter, setFilter] = useState<Filter>('all');
-  const [sort, setSort] = useState<SortKey>('recent');
-  const [view, setView] = useState<'grid' | 'list'>('list');
+  const [sort,   setSort]   = useState<SortKey>('recent');
 
   const counts = {
-    all: events.length,
-    active: events.filter(e => e.status === 'published').length,
-    draft: events.filter(e => e.status === 'draft').length,
+    all:      events.length,
+    active:   events.filter(e => e.status === 'published').length,
+    draft:    events.filter(e => e.status === 'draft').length,
     archived: events.filter(e => e.status === 'archived').length,
   };
 
   const filtered = events
     .filter(e => {
-      if (filter === 'all') return true;
-      if (filter === 'active') return e.status === 'published';
-      if (filter === 'draft') return e.status === 'draft';
+      if (filter === 'all')      return true;
+      if (filter === 'active')   return e.status === 'published';
+      if (filter === 'draft')    return e.status === 'draft';
       if (filter === 'archived') return e.status === 'archived';
       return true;
     })
     .sort((a, b) => {
-      if (sort === 'registrations') return (regsByEvent[b.id]?.count ?? 0) - (regsByEvent[a.id]?.count ?? 0);
-      if (sort === 'revenue') return (regsByEvent[b.id]?.revenue ?? 0) - (regsByEvent[a.id]?.revenue ?? 0);
+      if (sort === 'registrations') return (regsByEvent[b.id]?.count   ?? 0) - (regsByEvent[a.id]?.count   ?? 0);
+      if (sort === 'revenue')       return (regsByEvent[b.id]?.revenue ?? 0) - (regsByEvent[a.id]?.revenue ?? 0);
       return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
     });
 
-  const showNewTile = !atLimit && filter !== 'archived';
-  const FILTERS: { key: Filter; label: string }[] = [
-    { key: 'all', label: 'All' },
-    { key: 'active', label: 'Active' },
-    { key: 'draft', label: 'Draft' },
-    { key: 'archived', label: 'Archived' },
-  ];
-
   return (
-    <>
-      {/* Filter + sort bar */}
-      <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
-        {/* Pill tabs — C2 style */}
-        <div
-          className="flex items-center gap-1 p-1 rounded-xl overflow-x-auto"
-          style={{ background: 'white', border: '1px solid #E5E0D4', scrollbarWidth: 'none' }}
-          role="tablist"
-        >
+    <div className="bg-white rounded-2xl border overflow-hidden" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
+
+      {/* Toolbar */}
+      <div className="flex items-center justify-between gap-3 px-4 py-3 border-b flex-wrap" style={{ borderColor: '#E5E0D4' }}>
+        <div className="flex items-center gap-0.5" role="tablist">
           {FILTERS.map(f => (
             <button
               key={f.key}
               onClick={() => setFilter(f.key)}
-              className="shrink-0 text-[13px] font-medium px-3 py-1.5 rounded-lg transition"
-              style={filter === f.key
-                ? { background: '#E8EFEB', color: '#0F1F18' }
-                : { color: '#6B7A72' }
-              }
+              role="tab"
+              aria-selected={filter === f.key}
+              className="h-7 px-3 rounded-lg text-[12.5px] font-medium transition"
+              style={filter === f.key ? { background: '#E8EFEB', color: '#0F1F18' } : { color: '#6B7A72' }}
             >
               {f.label}
-              <span
-                className="ml-1.5 text-[11px] font-mono"
-                style={{ color: filter === f.key ? '#3A4A42' : '#6B7A72' }}
-              >
+              <span className="ml-1.5 font-mono text-[11px]" style={{ color: filter === f.key ? '#3A4A42' : '#6B7A72' }}>
                 {counts[f.key]}
               </span>
             </button>
           ))}
         </div>
 
-        {/* Sort + view toggle */}
-        <div className="flex items-center gap-2">
-          <select
-            value={sort}
-            onChange={e => setSort(e.target.value as SortKey)}
-            className="h-8 text-[12px] rounded-lg px-2.5 cursor-pointer outline-none transition"
-            style={{ background: 'white', border: '1px solid #E5E0D4', color: '#3A4A42' }}
-          >
-            <option value="recent">Most recent</option>
-            <option value="registrations">Most registrations</option>
-            <option value="revenue">Most revenue</option>
-          </select>
-
-          {/* Grid / list toggle */}
-          <div className="flex items-center rounded-xl overflow-hidden" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-            <button
-              onClick={() => setView('grid')}
-              className="h-8 w-8 grid place-items-center transition"
-              style={view === 'grid' ? { background: '#E8EFEB', color: '#0F1F18' } : { color: '#6B7A72' }}
-              title="Grid view"
-            >
-              <LayoutGrid size={13} strokeWidth={1.8} />
-            </button>
-            <button
-              onClick={() => setView('list')}
-              className="h-8 w-8 grid place-items-center transition border-l"
-              style={view === 'list' ? { background: '#E8EFEB', color: '#0F1F18', borderColor: '#E5E0D4' } : { color: '#6B7A72', borderColor: '#E5E0D4' }}
-              title="List view"
-            >
-              <List size={13} strokeWidth={1.8} />
-            </button>
-          </div>
-        </div>
+        <select
+          value={sort}
+          onChange={e => setSort(e.target.value as SortKey)}
+          className="h-7 text-[12px] rounded-lg px-2.5 cursor-pointer outline-none"
+          style={{ background: 'white', border: '1px solid #E5E0D4', color: '#3A4A42' }}
+        >
+          <option value="recent">Most recent</option>
+          <option value="registrations">Most registrations</option>
+          <option value="revenue">Most revenue</option>
+        </select>
       </div>
 
-      {/* Empty filter state */}
-      {filtered.length === 0 && !showNewTile ? (
-        <div
-          className="rounded-2xl border border-dashed p-12 text-center"
-          style={{ borderColor: '#E5E0D4', background: 'white' }}
-        >
-          <div className="mx-auto h-11 w-11 rounded-xl grid place-items-center mb-4" style={{ background: '#E8EFEB' }}>
-            <Search size={18} strokeWidth={1.8} color="#1F4D3A" />
+      {/* Column headers */}
+      <div className="hidden md:grid px-5 py-2 border-b" style={{ borderColor: '#F0EDE7', gridTemplateColumns: '1fr 90px 110px 70px 80px 160px' }}>
+        {['Event', 'Status', 'Date', 'Reg.', 'Revenue', ''].map((h, i) => (
+          <div key={i} className="font-mono text-[10px] tracking-[0.1em] uppercase text-[#6B7A72]">{h}</div>
+        ))}
+      </div>
+
+      {/* Rows */}
+      {filtered.length === 0 ? (
+        <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
+          <div className="h-10 w-10 rounded-xl grid place-items-center" style={{ background: '#E8EFEB' }}>
+            <Search size={16} strokeWidth={1.8} color="#1F4D3A" />
           </div>
-          <div className="font-display font-semibold text-[15px] text-[#0F1F18]">No events match that filter.</div>
-          <p className="text-[13px] text-[#6B7A72] mt-1">Switch the filter or clear your search.</p>
+          <div>
+            <div className="font-display font-semibold text-[14px] text-[#0F1F18]">No events match this filter</div>
+            <p className="text-[13px] text-[#6B7A72] mt-0.5">Switch the filter above to see more.</p>
+          </div>
         </div>
       ) : (
-        <div className={
-          view === 'grid'
-            ? 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4'
-            : 'flex flex-col gap-2'
-        }>
+        <div className="divide-y" style={{ borderColor: '#F0EDE7' }}>
           {filtered.map(event => (
-            <EventCard
+            <EventRow
               key={event.id}
               event={event}
-              compact={view === 'list'}
-              regCount={regsByEvent[event.id]?.count ?? 0}
+              regCount={regsByEvent[event.id]?.count   ?? 0}
               revenue={regsByEvent[event.id]?.revenue ?? 0}
             />
           ))}
-
-          {/* New event tile */}
-          {showNewTile && (
-            view === 'list' ? (
-              <Link
-                href="/events/new"
-                className="flex items-center gap-3 rounded-xl border border-dashed px-4 py-3 text-[13px] font-medium transition hover:opacity-80"
-                style={{ borderColor: 'rgba(31,77,58,0.3)', color: '#1F4D3A', background: 'rgba(31,77,58,0.02)' }}
-              >
-                <div
-                  className="h-7 w-7 rounded-lg grid place-items-center shrink-0 text-white"
-                  style={{ background: '#1F4D3A' }}
-                >
-                  <Plus size={11} strokeWidth={2.8} />
-                </div>
-                New event
-              </Link>
-            ) : (
-              <Link
-                href="/events/new"
-                className="group rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-3 text-center p-6 transition hover:border-opacity-60"
-                style={{ minHeight: 220, borderColor: 'rgba(31,77,58,0.25)', background: 'rgba(31,77,58,0.015)' }}
-              >
-                <div
-                  className="h-14 w-14 rounded-2xl grid place-items-center text-white group-hover:scale-105 transition-transform"
-                  style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)', boxShadow: '0 8px 20px rgba(31,77,58,0.3)' }}
-                >
-                  <Plus size={22} strokeWidth={2.4} />
-                </div>
-                <div>
-                  <div className="font-display font-semibold text-[15px] text-[#0F1F18]">Create a new event</div>
-                  <div className="text-[13px] text-[#6B7A72] mt-1 max-w-[200px] leading-snug">
-                    Upload your design and ship a share link in under five minutes.
-                  </div>
-                </div>
-                <div className="text-[11px] font-mono text-[#1F4D3A]">⌘ N to start</div>
-              </Link>
-            )
-          )}
         </div>
       )}
-    </>
+
+      {/* Footer */}
+      {!atLimit && filter !== 'archived' && (
+        <div className="px-5 py-3 border-t" style={{ borderColor: '#F0EDE7' }}>
+          <Link href="/events/new" className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-[#1F4D3A] hover:underline">
+            <Plus size={13} strokeWidth={2.4} /> Create a new event
+          </Link>
+        </div>
+      )}
+    </div>
   );
 }
