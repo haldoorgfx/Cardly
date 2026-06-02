@@ -2,257 +2,350 @@
 
 import { useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { fetchWithRetry } from '@/lib/utils/fetch-retry';
 import Link from 'next/link';
-import { ChevronLeft, Upload, Check, ArrowRight } from 'lucide-react';
+import { fetchWithRetry } from '@/lib/utils/fetch-retry';
+import { ArrowLeft, ArrowRight, CalendarDays, MapPin, Wifi, LayoutGrid, Image, Clock } from 'lucide-react';
+
+type Step = 1 | 2;
+type SetupChoice = 'hub' | 'card' | 'later';
 
 export default function NewEventPage() {
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
-  const [eventName, setEventName] = useState('');
-  const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [dims, setDims] = useState<{ w: number; h: number } | null>(null);
-  const [dragging, setDragging] = useState(false);
-  const [uploading, setUploading] = useState(false);
+
+  // Step 1 — basics
+  const [name, setName] = useState('');
+  const [startsAt, setStartsAt] = useState('');
+  const [endsAt, setEndsAt] = useState('');
+  const [venue, setVenue] = useState('');
+  const [isOnline, setIsOnline] = useState(false);
+
+  // Step 2 — setup choice
+  const [choice, setChoice] = useState<SetupChoice>('hub');
+  const [cardFile, setCardFile] = useState<File | null>(null);
+  const [cardPreview, setCardPreview] = useState<string | null>(null);
+
+  const [step, setStep] = useState<Step>(1);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleFile = useCallback((f: File) => {
-    if (!f.type.match(/image\/(png|jpeg)/)) {
-      setError('Only PNG and JPG files are supported.');
-      return;
-    }
-    if (f.size > 20 * 1024 * 1024) {
-      setError('File must be under 20MB.');
-      return;
-    }
+  const handleCardFile = useCallback((f: File) => {
+    if (!f.type.match(/image\/(png|jpeg)/)) { setError('Only PNG and JPG files are supported.'); return; }
+    if (f.size > 20 * 1024 * 1024) { setError('File must be under 20 MB.'); return; }
     setError('');
-    setFile(f);
-    const url = URL.createObjectURL(f);
-    setPreview(url);
-    const img = new Image();
-    img.onload = () => setDims({ w: img.naturalWidth, h: img.naturalHeight });
-    img.src = url;
+    setCardFile(f);
+    setCardPreview(URL.createObjectURL(f));
   }, []);
 
-  const onDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setDragging(false);
-    const f = e.dataTransfer.files[0];
-    if (f) handleFile(f);
-  }, [handleFile]);
-
-  const formatSize = (bytes: number) => {
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
-
-  const aspectLabel = () => {
-    if (!dims) return '';
-    const ratio = dims.w / dims.h;
-    if (Math.abs(ratio - 4 / 5) < 0.05) return '4 : 5 (portrait)';
-    if (Math.abs(ratio - 1) < 0.05) return '1 : 1 (square)';
-    if (Math.abs(ratio - 9 / 16) < 0.05) return '9 : 16 (tall)';
-    return `${dims.w} : ${dims.h}`;
-  };
-
-  const handleContinue = async () => {
-    if (!file) return;
-    setUploading(true);
+  async function handleCreate() {
+    setLoading(true);
     setError('');
     try {
-      const name = eventName.trim() || file.name.replace(/\.[^.]+$/, '');
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('name', name);
-
-      const res = await fetchWithRetry('/api/events/create', { method: 'POST', body: formData }, { attempts: 3, baseDelay: 1000 });
-      const data = await res.json();
-      if (res.status === 402 && data.error === 'PLAN_LIMIT') {
-        throw new Error(`You've reached the event limit on your current plan. Upgrade to create more events.`);
+      if (choice === 'card') {
+        // Old card-upload flow
+        if (!cardFile) { setError('Please upload a card design image.'); setLoading(false); return; }
+        const formData = new FormData();
+        formData.append('file', cardFile);
+        formData.append('name', name.trim() || cardFile.name.replace(/\.[^.]+$/, ''));
+        if (startsAt) formData.append('starts_at', startsAt);
+        if (endsAt) formData.append('ends_at', endsAt);
+        const res = await fetchWithRetry('/api/events/create', { method: 'POST', body: formData }, { attempts: 3, baseDelay: 1000 });
+        const data = await res.json();
+        if (res.status === 402 && data.error === 'PLAN_LIMIT') throw new Error('Event limit reached on your plan. Upgrade to create more events.');
+        if (!res.ok) throw new Error(data.error ?? 'Upload failed');
+        router.push(`/events/${data.id}/edit`);
+      } else {
+        // Full event hub or later — create basic event
+        const res = await fetch('/api/events/create-basic', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: name.trim() || 'Untitled Event',
+            starts_at: startsAt || null,
+            ends_at: endsAt || null,
+            venue_name: isOnline ? null : (venue.trim() || null),
+            is_online: isOnline,
+          }),
+        });
+        const data = await res.json();
+        if (res.status === 402) throw new Error('Event limit reached on your plan. Upgrade to create more events.');
+        if (!res.ok) throw new Error(data.error ?? 'Failed to create event');
+        router.push(`/events/${data.id}`);
       }
-      if (!res.ok) throw new Error(data.error ?? 'Upload failed');
-      router.push(`/events/${data.id}/edit`);
-    } catch (e: unknown) {
+    } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong');
-      setUploading(false);
+      setLoading(false);
     }
-  };
+  }
+
+  const canProceed = name.trim().length > 0;
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex flex-col">
+    <div className="min-h-screen" style={{ background: '#FAF6EE', backgroundImage: 'radial-gradient(circle, rgba(15,31,24,0.04) 1px, transparent 1px)', backgroundSize: '24px 24px' }}>
       {/* Header */}
-      <header className="bg-white border-b border-neutral-100">
-        <div className="max-w-[1200px] mx-auto px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link href="/dashboard" className="h-8 w-8 rounded-md hover:bg-neutral-100 grid place-items-center text-neutral-500 transition">
-              <ChevronLeft size={16} strokeWidth={2} />
-            </Link>
-            <div className="flex items-center gap-2">
-              <span className="font-semibold text-[16px] text-[#0a0a0a]">Karta</span>
-              <span className="text-neutral-300">·</span>
-              <input
-                value={eventName}
-                onChange={e => setEventName(e.target.value)}
-                placeholder="Event name"
-                className="text-[14px] bg-transparent outline-none border-b border-dashed border-transparent hover:border-neutral-300 focus:border-neutral-500 px-1 w-28 sm:w-48 transition"
-              />
+      <header className="h-14 bg-white border-b flex items-center px-6 gap-4" style={{ borderColor: '#E5E0D4' }}>
+        <Link href="/dashboard" className="h-8 w-8 rounded-lg border grid place-items-center transition hover:bg-[#FAF6EE]" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
+          <ArrowLeft size={15} strokeWidth={2} />
+        </Link>
+        <span className="font-display font-medium text-[15px]" style={{ color: '#1F4D3A' }}>Create event</span>
+        {/* Step indicator */}
+        <div className="flex items-center gap-2 ml-auto">
+          {([1, 2] as const).map(s => (
+            <div key={s} className="flex items-center gap-2">
+              <div
+                className="h-6 w-6 rounded-full grid place-items-center text-[11px] font-mono font-medium transition"
+                style={step >= s
+                  ? { background: '#1F4D3A', color: 'white' }
+                  : { background: '#E5E0D4', color: '#6B7A72' }}
+              >
+                {s}
+              </div>
+              {s < 2 && <div className="w-8 h-px" style={{ background: step > s ? '#1F4D3A' : '#E5E0D4' }} />}
             </div>
-          </div>
-
-          {/* Stepper */}
-          <div className="hidden md:flex items-center gap-2 text-[13px]">
-            <div className="flex items-center gap-2 text-[#0a0a0a]">
-              <span className="w-6 h-6 rounded-full bg-[#0a0a0a] grid place-items-center text-[11px] font-semibold text-white">1</span>
-              <span className="font-medium">Upload</span>
-            </div>
-            <div className="w-8 h-px bg-neutral-200" />
-            <div className="flex items-center gap-2 text-neutral-400">
-              <span className="w-6 h-6 rounded-full bg-neutral-100 border border-neutral-200 grid place-items-center text-[11px] font-semibold text-neutral-400">2</span>
-              <span>Define zones</span>
-            </div>
-            <div className="w-8 h-px bg-neutral-200" />
-            <div className="flex items-center gap-2 text-neutral-400">
-              <span className="w-6 h-6 rounded-full bg-neutral-100 border border-neutral-200 grid place-items-center text-[11px] font-semibold text-neutral-400">3</span>
-              <span>Publish</span>
-            </div>
-          </div>
-
-          <div className="w-[88px]" />
+          ))}
+          <span className="ml-2 text-[12px] font-mono" style={{ color: '#6B7A72' }}>
+            {step === 1 ? 'Basics' : 'Setup'}
+          </span>
         </div>
       </header>
 
-      <main className="flex-1 flex flex-col items-center px-6 py-8">
-        <div className="w-full max-w-[680px]">
-          <div className="mb-6">
-            <h1 className="text-xl font-semibold text-[#0a0a0a]">Upload your design</h1>
-            <p className="text-[13px] text-neutral-500 mt-1">Anything you&apos;d post on Instagram works. We&apos;ll place editable zones on top.</p>
+      <main className="max-w-[580px] mx-auto px-6 py-12">
+        {error && (
+          <div className="mb-6 px-4 py-3 rounded-lg text-[13px]" style={{ background: 'rgba(184,66,60,0.08)', border: '1px solid rgba(184,66,60,0.2)', color: '#B8423C' }}>
+            {error}
           </div>
+        )}
 
-          {error && (
-            <div className="mb-4 px-4 py-3 rounded-md bg-red-50 border border-red-200 text-[13px] text-red-700">{error}</div>
-          )}
+        {/* ── Step 1 — Event basics ─────────────────────────────── */}
+        {step === 1 && (
+          <div>
+            <h1 className="font-display font-medium text-[28px] mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+              Create your event
+            </h1>
+            <p className="text-[14px] mb-8" style={{ color: '#6B7A72' }}>
+              Give your event a name and the key details. Everything else can be added later.
+            </p>
 
-          {!preview ? (
-            <div
-              onDragOver={e => { e.preventDefault(); setDragging(true); }}
-              onDragEnter={e => { e.preventDefault(); setDragging(true); }}
-              onDragLeave={() => setDragging(false)}
-              onDrop={onDrop}
-              onClick={() => fileRef.current?.click()}
-              className={`relative rounded-lg border-2 border-dashed cursor-pointer transition-colors duration-150 ${
-                dragging
-                  ? 'border-neutral-400 bg-neutral-50'
-                  : 'border-neutral-300 bg-white hover:border-neutral-400'
-              }`}
-            >
-              <div className="px-5 py-14 sm:py-20 text-center">
-                {/* Upload icon */}
-                <div className="inline-flex items-center justify-center h-12 w-12 rounded-lg bg-neutral-100 mb-5 text-neutral-500">
-                  <Upload size={22} strokeWidth={2} />
-                </div>
-
-                <div className="text-lg font-semibold text-[#0a0a0a]">
-                  {dragging ? 'Release to upload' : 'Upload a design'}
-                </div>
-                <div className="text-[13px] text-neutral-500 mt-1.5">
-                  Drag and drop, or{' '}
-                  <span className="text-[#0a0a0a] underline underline-offset-2 decoration-neutral-400">
-                    browse files
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-center gap-2 flex-wrap mt-6">
-                  {[
-                    { label: 'PNG · JPG' },
-                    { label: 'Up to 20 MB' },
-                    { label: '4:5 · 1:1 · 9:16' },
-                  ].map(({ label }) => (
-                    <span key={label} className="inline-flex items-center text-[12px] px-2.5 py-1 rounded-md bg-neutral-100 border border-neutral-200 text-neutral-500">
-                      {label}
-                    </span>
-                  ))}
-                </div>
+            <div className="space-y-5">
+              {/* Event name */}
+              <div>
+                <label className="block text-[12px] font-medium mb-1.5" style={{ color: '#3A4A42' }}>
+                  Event name <span style={{ color: '#B8423C' }}>*</span>
+                </label>
+                <input
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  placeholder="e.g. AfriTech Summit 2026"
+                  autoFocus
+                  className="w-full h-11 px-4 rounded-lg text-[14px] outline-none transition"
+                  style={{ background: 'white', border: `1px solid ${name.trim() ? '#1F4D3A' : '#E5E0D4'}`, color: '#0F1F18' }}
+                  onKeyDown={e => { if (e.key === 'Enter' && canProceed) setStep(2); }}
+                />
               </div>
-            </div>
-          ) : (
-            <div className="bg-white rounded-lg border border-neutral-200 p-5">
-              <div className="flex items-center justify-between mb-4">
+
+              {/* Dates */}
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <div className="text-[13px] font-medium text-[#0a0a0a]">{file?.name}</div>
-                  {dims && (
-                    <div className="text-[12px] text-neutral-400 mt-0.5">
-                      {dims.w} × {dims.h} · {aspectLabel()} · {formatSize(file?.size ?? 0)}
-                    </div>
-                  )}
+                  <label className="block text-[12px] font-medium mb-1.5 flex items-center gap-1.5" style={{ color: '#3A4A42' }}>
+                    <CalendarDays size={12} strokeWidth={2} />
+                    Start
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={startsAt}
+                    onChange={e => setStartsAt(e.target.value)}
+                    className="w-full h-11 px-3 rounded-lg text-[13px] font-mono outline-none transition"
+                    style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
+                  />
                 </div>
-                <button onClick={() => { setFile(null); setPreview(null); setDims(null); }} className="text-[13px] text-neutral-500 hover:text-[#0a0a0a] transition">Replace</button>
-              </div>
-              <div className="grid grid-cols-12 gap-4">
-                <div className="col-span-12 md:col-span-7 rounded-md overflow-hidden bg-neutral-100 border border-neutral-200" style={{ aspectRatio: '4/5' }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={preview} alt="Preview" className="w-full h-full object-cover" />
-                </div>
-                <div className="col-span-12 md:col-span-5 space-y-2.5">
-                  <div className="p-3 rounded-md bg-emerald-50 border border-emerald-200">
-                    <div className="flex items-center gap-2 text-[13px] font-medium text-emerald-700">
-                      <Check size={13} strokeWidth={2.4} />
-                      Looks great
-                    </div>
-                    <div className="text-[12px] text-emerald-700/80 mt-1">Ready for zone editing. Click Continue to add editable fields.</div>
-                  </div>
-                  {dims && (
-                    <>
-                      {[
-                        { k: 'Dimensions', v: `${dims.w} × ${dims.h} px` },
-                        { k: 'Aspect', v: aspectLabel() },
-                        { k: 'File size', v: formatSize(file?.size ?? 0) },
-                      ].map(row => (
-                        <div key={row.k} className="flex items-center justify-between px-3 py-2 rounded-md bg-neutral-50 border border-neutral-100">
-                          <div className="text-[12px] text-neutral-500">{row.k}</div>
-                          <div className="text-[12px] font-medium text-[#0a0a0a]">{row.v}</div>
-                        </div>
-                      ))}
-                    </>
-                  )}
+                <div>
+                  <label className="block text-[12px] font-medium mb-1.5 flex items-center gap-1.5" style={{ color: '#3A4A42' }}>
+                    <Clock size={12} strokeWidth={2} />
+                    End
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={endsAt}
+                    onChange={e => setEndsAt(e.target.value)}
+                    className="w-full h-11 px-3 rounded-lg text-[13px] font-mono outline-none transition"
+                    style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
+                  />
                 </div>
               </div>
+
+              {/* Location */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-[12px] font-medium flex items-center gap-1.5" style={{ color: '#3A4A42' }}>
+                    <MapPin size={12} strokeWidth={2} />
+                    Location
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setIsOnline(v => !v)}
+                    className="flex items-center gap-1.5 text-[12px] font-medium transition"
+                    style={{ color: isOnline ? '#1F4D3A' : '#6B7A72' }}
+                  >
+                    <Wifi size={12} strokeWidth={2} />
+                    {isOnline ? 'Online event' : 'Mark as online'}
+                  </button>
+                </div>
+                <input
+                  value={venue}
+                  onChange={e => setVenue(e.target.value)}
+                  placeholder={isOnline ? 'Online — link shared after registration' : 'Venue name or address'}
+                  disabled={isOnline}
+                  className="w-full h-11 px-4 rounded-lg text-[14px] outline-none transition"
+                  style={{
+                    background: isOnline ? '#F0EDE8' : 'white',
+                    border: '1px solid #E5E0D4',
+                    color: isOnline ? '#6B7A72' : '#0F1F18',
+                  }}
+                />
+              </div>
             </div>
-          )}
 
-          <input ref={fileRef} type="file" accept="image/png,image/jpeg" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
-
-          {/* Event name field (below upload zone) */}
-          {preview && (
-            <div className="mt-4">
-              <label className="block text-[13px] font-medium text-neutral-700 mb-1.5">Event name</label>
-              <input
-                value={eventName}
-                onChange={e => setEventName(e.target.value)}
-                placeholder="e.g. Design Week Lagos 2026"
-                className="w-full h-9 border border-neutral-200 rounded-md bg-white px-3 text-[14px] outline-none focus:border-neutral-400 focus:ring-2 focus:ring-neutral-100 transition"
-              />
-            </div>
-          )}
-
-          <div className="mt-6 flex items-center justify-between">
-            <Link href="/dashboard" className="text-[13px] text-neutral-500 hover:text-[#0a0a0a] transition">← Back</Link>
-            <button
-              disabled={!file || uploading}
-              onClick={handleContinue}
-              className={`h-9 px-4 rounded-md font-medium text-[14px] inline-flex items-center gap-2 transition ${
-                file && !uploading
-                  ? 'bg-[#0F1F18] text-white hover:bg-neutral-800'
-                  : 'bg-neutral-200 text-neutral-400 cursor-not-allowed'
-              }`}
-            >
-              {uploading ? 'Uploading…' : 'Continue to canvas'}
-              {!uploading && (
+            <div className="flex justify-end mt-8">
+              <button
+                onClick={() => canProceed && setStep(2)}
+                disabled={!canProceed}
+                className="inline-flex items-center gap-2 h-11 px-6 rounded-lg font-display font-medium text-[14px] text-white transition"
+                style={{ background: canProceed ? '#1F4D3A' : '#E5E0D4', color: canProceed ? 'white' : '#6B7A72' }}
+              >
+                Continue
                 <ArrowRight size={14} strokeWidth={2.2} />
-              )}
-            </button>
+              </button>
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* ── Step 2 — Setup choice ─────────────────────────────── */}
+        {step === 2 && (
+          <div>
+            <button onClick={() => setStep(1)} className="flex items-center gap-2 text-[13px] mb-6 transition hover:text-[#1F4D3A]" style={{ color: '#6B7A72' }}>
+              <ArrowLeft size={13} strokeWidth={2} />
+              Back
+            </button>
+
+            <h1 className="font-display font-medium text-[28px] mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+              How would you like to start?
+            </h1>
+            <p className="text-[14px] mb-8" style={{ color: '#6B7A72' }}>
+              Creating <strong style={{ color: '#0F1F18', fontFamily: 'var(--font-dm-sans, DM Sans, sans-serif)' }}>{name}</strong>. Choose your starting point — you can change anything later.
+            </p>
+
+            <div className="space-y-3">
+              {/* Full event hub */}
+              <button
+                onClick={() => setChoice('hub')}
+                className="w-full text-left rounded-xl p-5 transition"
+                style={{
+                  background: choice === 'hub' ? '#E8EFEB' : 'white',
+                  border: `1px solid ${choice === 'hub' ? '#1F4D3A' : '#E5E0D4'}`,
+                }}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="h-10 w-10 rounded-lg grid place-items-center shrink-0 mt-0.5" style={{ background: choice === 'hub' ? '#1F4D3A' : '#E8EFEB', color: choice === 'hub' ? 'white' : '#1F4D3A' }}>
+                    <LayoutGrid size={18} strokeWidth={1.8} />
+                  </div>
+                  <div>
+                    <div className="font-display font-medium text-[15px] mb-1" style={{ color: '#0F1F18' }}>
+                      Set up the full event hub
+                      <span className="ml-2 text-[10px] font-mono font-medium px-2 py-0.5 rounded-full" style={{ background: '#1F4D3A', color: '#E8C57E' }}>Recommended</span>
+                    </div>
+                    <p className="text-[13px]" style={{ color: '#6B7A72' }}>
+                      Tickets, registration form, agenda, speakers, networking, Q&A, analytics — the full platform.
+                    </p>
+                  </div>
+                </div>
+              </button>
+
+              {/* Card design first */}
+              <button
+                onClick={() => setChoice('card')}
+                className="w-full text-left rounded-xl p-5 transition"
+                style={{
+                  background: choice === 'card' ? '#E8EFEB' : 'white',
+                  border: `1px solid ${choice === 'card' ? '#1F4D3A' : '#E5E0D4'}`,
+                }}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="h-10 w-10 rounded-lg grid place-items-center shrink-0 mt-0.5" style={{ background: choice === 'card' ? '#1F4D3A' : '#E8EFEB', color: choice === 'card' ? 'white' : '#1F4D3A' }}>
+                    <Image size={18} strokeWidth={1.8} />
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-display font-medium text-[15px] mb-1" style={{ color: '#0F1F18' }}>
+                      Upload a Karta Card design first
+                    </div>
+                    <p className="text-[13px]" style={{ color: '#6B7A72' }}>
+                      Upload your card design image and go straight to the canvas editor to define zones.
+                    </p>
+                  </div>
+                </div>
+
+                {/* File upload — only shown when card is selected */}
+                {choice === 'card' && (
+                  <div className="mt-4 pt-4" style={{ borderTop: '1px solid #E5E0D4' }}>
+                    {!cardPreview ? (
+                      <div
+                        onClick={() => fileRef.current?.click()}
+                        className="rounded-lg border-2 border-dashed p-6 text-center cursor-pointer transition"
+                        style={{ borderColor: 'rgba(31,77,58,0.25)', background: 'rgba(31,77,58,0.02)' }}
+                      >
+                        <p className="text-[13px]" style={{ color: '#1F4D3A' }}>
+                          Click to upload PNG or JPG · Up to 20 MB
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-3">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={cardPreview} alt="Card preview" className="h-16 w-16 rounded-lg object-cover border" style={{ borderColor: '#E5E0D4' }} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[13px] font-medium truncate" style={{ color: '#0F1F18' }}>{cardFile?.name}</p>
+                        </div>
+                        <button onClick={e => { e.stopPropagation(); setCardFile(null); setCardPreview(null); }} className="text-[12px]" style={{ color: '#6B7A72' }}>Remove</button>
+                      </div>
+                    )}
+                    <input ref={fileRef} type="file" accept="image/png,image/jpeg" className="hidden"
+                      onChange={e => { const f = e.target.files?.[0]; if (f) handleCardFile(f); }} />
+                  </div>
+                )}
+              </button>
+
+              {/* Set up later */}
+              <button
+                onClick={() => setChoice('later')}
+                className="w-full text-left rounded-xl p-4 transition"
+                style={{
+                  background: choice === 'later' ? '#E8EFEB' : 'white',
+                  border: `1px solid ${choice === 'later' ? '#1F4D3A' : '#E5E0D4'}`,
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="h-3 w-3 rounded-full border-2 shrink-0" style={{ borderColor: choice === 'later' ? '#1F4D3A' : '#C9C3B1', background: choice === 'later' ? '#1F4D3A' : 'transparent' }} />
+                  <div>
+                    <span className="font-display font-medium text-[14px]" style={{ color: '#0F1F18' }}>I&apos;ll set up later</span>
+                    <span className="text-[13px] ml-2" style={{ color: '#6B7A72' }}>Just create the event.</span>
+                  </div>
+                </div>
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between mt-8">
+              <Link href="/dashboard" className="text-[13px]" style={{ color: '#6B7A72' }}>
+                Cancel
+              </Link>
+              <button
+                onClick={handleCreate}
+                disabled={loading || (choice === 'card' && !cardFile)}
+                className="inline-flex items-center gap-2 h-11 px-7 rounded-lg font-display font-medium text-[14px] text-white transition disabled:opacity-50"
+                style={{ background: '#1F4D3A' }}
+              >
+                {loading ? 'Creating…' : 'Create event →'}
+              </button>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
