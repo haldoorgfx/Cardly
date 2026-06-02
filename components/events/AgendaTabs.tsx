@@ -10,8 +10,9 @@ interface Props {
 }
 
 const TABS = [
-  { key: 'agenda',    label: 'Sessions', segment: 'agenda' },
-  { key: 'speakers',  label: 'Speakers', segment: 'speakers' },
+  { key: 'agenda',    label: 'Agenda',    segment: 'agenda' },
+  { key: 'sessions',  label: 'Sessions',  segment: 'sessions' },
+  { key: 'speakers',  label: 'Speakers',  segment: 'speakers' },
 ] as const;
 
 export function AgendaTabs({ eventId, eventName }: Props) {
