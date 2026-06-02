@@ -29,7 +29,7 @@ export default async function PollsPage({ params, searchParams }: Props) {
 
   // My votes
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let myVotes: Record<string, string> = {};
+  const myVotes: Record<string, string> = {};
   if (searchParams.reg) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: votes } = await (admin as any)

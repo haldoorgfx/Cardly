@@ -37,7 +37,7 @@ export default function QandAClient({ eventId, registrationId, initialQuestions,
       const nowUpvoted = data.upvoted;
       setUpvotedIds(prev => {
         const next = new Set(prev);
-        nowUpvoted ? next.add(qId) : next.delete(qId);
+        if (nowUpvoted) { next.add(qId); } else { next.delete(qId); }
         return next;
       });
       setQuestions(prev =>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Search, UserCheck, Clock, UserPlus, Sparkles, Loader2 } from 'lucide-react';
 
 interface Person {
@@ -60,13 +60,9 @@ export default function PeopleDiscoveryClient({ eventId, registrationId, initial
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
   const [connecting, setConnecting] = useState<string | null>(null);
-  const [suggestions, setSuggestions] = useState<MatchSuggestion[]>([]);
-  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
-  const [suggestionsLoaded, setSuggestionsLoaded] = useState(false);
-
-  useEffect(() => {
-    // AI matching is not yet enabled — skip the fetch
-  }, [filter, registrationId, eventId, suggestionsLoaded]);
+  // AI matching coming soon — these will become useState once ANTHROPIC_API_KEY is live
+  const suggestions: MatchSuggestion[] = [];
+  const loadingSuggestions = false;
 
   const filtered = people.filter(p => {
     if (filter === 'suggested') return false;
