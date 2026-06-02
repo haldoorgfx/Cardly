@@ -7,11 +7,11 @@ import EventCard from './EventCard';
 import type { Database } from '@/types/database';
 
 type EventRow = Database['public']['Tables']['events']['Row'];
-type Event = Pick<EventRow, 'id' | 'name' | 'slug' | 'status' | 'view_count' | 'download_count' | 'updated_at'> & {
+type Event = Pick<EventRow, 'id' | 'name' | 'slug' | 'status' | 'view_count' | 'download_count' | 'updated_at' | 'starts_at' | 'venue_name'> & {
   event_variants?: Array<{ id: string; background_url: string | null; zones: import('@/types/database').Json; position: number }> | null;
 };
 type Filter = 'all' | 'active' | 'draft' | 'archived';
-type SortKey = 'recent' | 'downloads' | 'views';
+type SortKey = 'recent' | 'registrations' | 'revenue';
 
 interface Props {
   events: Event[];
@@ -22,7 +22,7 @@ interface Props {
 export default function DashboardContent({ events, atLimit, regsByEvent }: Props) {
   const [filter, setFilter] = useState<Filter>('all');
   const [sort, setSort] = useState<SortKey>('recent');
-  const [view, setView] = useState<'grid' | 'list'>('grid');
+  const [view, setView] = useState<'grid' | 'list'>('list');
 
   const counts = {
     all: events.length,
@@ -40,8 +40,8 @@ export default function DashboardContent({ events, atLimit, regsByEvent }: Props
       return true;
     })
     .sort((a, b) => {
-      if (sort === 'downloads') return b.download_count - a.download_count;
-      if (sort === 'views') return b.view_count - a.view_count;
+      if (sort === 'registrations') return (regsByEvent[b.id]?.count ?? 0) - (regsByEvent[a.id]?.count ?? 0);
+      if (sort === 'revenue') return (regsByEvent[b.id]?.revenue ?? 0) - (regsByEvent[a.id]?.revenue ?? 0);
       return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
     });
 
@@ -93,8 +93,8 @@ export default function DashboardContent({ events, atLimit, regsByEvent }: Props
             style={{ background: 'white', border: '1px solid #E5E0D4', color: '#3A4A42' }}
           >
             <option value="recent">Most recent</option>
-            <option value="downloads">Downloads</option>
-            <option value="views">Views</option>
+            <option value="registrations">Most registrations</option>
+            <option value="revenue">Most revenue</option>
           </select>
 
           {/* Grid / list toggle */}

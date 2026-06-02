@@ -18,7 +18,7 @@ export default async function DashboardPage() {
 
   const admin = createAdminClient();
   const [{ data: events }, { data: profile }] = await Promise.all([
-    admin.from('events').select('id, name, slug, status, view_count, download_count, updated_at, event_variants(id, background_url, zones, position)').eq('user_id', user.id).order('updated_at', { ascending: false }),
+    admin.from('events').select('id, name, slug, status, view_count, download_count, updated_at, starts_at, venue_name, event_variants(id, background_url, zones, position)').eq('user_id', user.id).order('updated_at', { ascending: false }),
     admin.from('profiles').select('plan, full_name').eq('id', user.id).single(),
   ]);
 
@@ -102,6 +102,17 @@ export default async function DashboardPage() {
   }
   const totalCards = allEvents.reduce((s, e) => s + (e.download_count ?? 0), 0);
   const firstLiveEvent = allEvents.find(e => e.status === 'published');
+
+  // Attention strip — events needing action
+  const attentionItems: { id: string; name: string; reason: string; href: string }[] = [];
+  for (const e of allEvents) {
+    if (e.status === 'draft') {
+      attentionItems.push({ id: e.id, name: e.name, reason: 'Draft — publish to open registration', href: `/events/${e.id}` });
+    } else if (e.status === 'published' && (regsByEvent[e.id]?.count ?? 0) === 0) {
+      attentionItems.push({ id: e.id, name: e.name, reason: 'No registrations yet', href: `/events/${e.id}` });
+    }
+    if (attentionItems.length >= 3) break;
+  }
 
   // ─── C2: Dashboard with metrics + events ──────────────────────────────────
   const stats = [
@@ -200,6 +211,29 @@ export default async function DashboardPage() {
           ))}
         </div>
       </div>
+
+      {/* ── Attention strip ── */}
+      {attentionItems.length > 0 && (
+        <div className="px-6 lg:px-8 pb-4">
+          <div className="rounded-xl border divide-y" style={{ borderColor: '#E5E0D4', background: 'white', divideColor: '#E5E0D4' }}>
+            <div className="px-4 py-2.5 flex items-center gap-2">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C97A2D" strokeWidth="2" strokeLinecap="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+              <span className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#C97A2D]">Needs attention</span>
+            </div>
+            {attentionItems.map(item => (
+              <div key={item.id} className="px-4 py-2.5 flex items-center justify-between gap-4">
+                <div className="min-w-0">
+                  <span className="text-[13px] font-medium text-[#0F1F18] truncate">{item.name}</span>
+                  <span className="text-[12px] text-[#6B7A72] ml-2">{item.reason}</span>
+                </div>
+                <Link href={item.href} className="text-[12px] font-medium text-[#1F4D3A] hover:underline shrink-0">Take action →</Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ── Plan limit warning (only when genuinely at the plan's limit) ── */}
       {atLimit && (
