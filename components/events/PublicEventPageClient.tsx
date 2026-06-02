@@ -161,8 +161,8 @@ export function PublicEventPageClient({
 
         {/* Two-column layout */}
         <div
-          className="grid gap-14 py-10"
-          style={{ gridTemplateColumns: '1fr 340px', alignItems: 'start' }}
+          className="grid gap-8 py-10 lg:grid-cols-[1fr_340px]"
+          style={{ alignItems: 'start' }}
         >
           {/* ── Content column ──────────────────────────────────── */}
           <div className="min-w-0">

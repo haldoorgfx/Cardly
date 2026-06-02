@@ -107,7 +107,11 @@ export default function MessagingClient({ eventId, registrationId, initialThread
         </div>
         <div className="flex-1 overflow-y-auto">
           {threads.length === 0 ? (
-            <div className="px-5 py-8 text-center text-[13px]" style={{ color: '#6B7A72' }}>No messages yet.</div>
+            <div className="px-5 py-12 text-center">
+              <div className="text-[28px] mb-2">💬</div>
+              <p className="text-[13px] font-medium mb-1" style={{ color: '#0F1F18' }}>No messages yet</p>
+              <p className="text-[12px]" style={{ color: '#6B7A72' }}>Connect with attendees to start a conversation.</p>
+            </div>
           ) : threads.map(thread => (
             <button
               key={thread.id}

@@ -60,6 +60,7 @@ export default function PeopleDiscoveryClient({ eventId, registrationId, initial
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
   const [connecting, setConnecting] = useState<string | null>(null);
+  const [connectError, setConnectError] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<MatchSuggestion[]>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const [suggestionsLoaded, setSuggestionsLoaded] = useState(false);
@@ -91,13 +92,17 @@ export default function PeopleDiscoveryClient({ eventId, registrationId, initial
   const handleConnect = async (personId: string) => {
     if (!registrationId) return;
     setConnecting(personId);
+    setConnectError(null);
     try {
-      await fetch(`/api/events/${eventId}/connections`, {
+      const res = await fetch(`/api/events/${eventId}/connections`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ requester_id: registrationId, recipient_id: personId }),
       });
+      if (!res.ok) throw new Error('Failed to send connection request');
       setPeople(prev => prev.map(p => p.id === personId ? { ...p, connection_status: 'pending' } : p));
+    } catch {
+      setConnectError('Could not send request. Please try again.');
     } finally {
       setConnecting(null);
     }
@@ -145,6 +150,10 @@ export default function PeopleDiscoveryClient({ eventId, registrationId, initial
           ))}
         </div>
       </div>
+
+      {connectError && (
+        <p className="text-[12px] mb-3" style={{ color: '#B8423C' }}>{connectError}</p>
+      )}
 
       {/* Suggested view */}
       {filter === 'suggested' && (

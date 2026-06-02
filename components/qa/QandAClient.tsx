@@ -98,8 +98,17 @@ export default function QandAClient({ eventId, registrationId, initialQuestions,
 
       {/* Questions */}
       {filtered.length === 0 ? (
-        <div className="rounded-2xl py-12 text-center" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-          <p className="text-[14px]" style={{ color: '#6B7A72' }}>No questions yet. Be the first to ask.</p>
+        <div
+          className="rounded-2xl py-14 text-center"
+          style={{ background: 'white', border: '1px solid #E5E0D4' }}
+        >
+          <div className="text-[32px] mb-3">💬</div>
+          <p className="text-[14px] font-medium mb-1" style={{ color: '#0F1F18' }}>
+            No questions yet
+          </p>
+          <p className="text-[13px]" style={{ color: '#6B7A72' }}>
+            Be the first to ask something.
+          </p>
         </div>
       ) : (
         <div className="space-y-3">
