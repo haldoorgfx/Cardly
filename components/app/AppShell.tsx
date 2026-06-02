@@ -11,6 +11,7 @@ import {
   BarChart2, FileText, Eye, X, ArrowLeft, ShieldCheck,
   Flag, Image as ImageIcon, ScrollText, Sliders, Gavel,
   Home, Layout, CalendarDays, Globe, MessageSquare, IdCard,
+  Ticket, User, Network, Briefcase, Video, Lock, ScanLine,
 } from 'lucide-react';
 
 type Profile = {
@@ -55,17 +56,54 @@ function getEventIdFromPath(pathname: string): string | null {
 
 type EventInfo = { id: string; name: string; status: string; slug: string } | null;
 
-const EVENT_NAV_SECTIONS = [
+const NAV_PLAN_LEVEL: Record<string, number> = { free: 0, pro: 1, studio: 2 };
+const NAV_PLAN_LABEL: Record<string, string> = { pro: 'Pro', studio: 'Studio' };
+
+type NavItemDef = {
+  id: string;
+  label: string;
+  icon: React.ReactNode;
+  segment: string;
+  minPlan?: 'pro' | 'studio';
+};
+
+const EVENT_NAV_SECTIONS: { title: string | null; items: NavItemDef[] }[] = [
   {
-    title: null,
+    title: 'Manage',
     items: [
-      { id: 'overview',      label: 'Overview',      icon: <Home size={15} strokeWidth={1.8} />,           segment: '' },
-      { id: 'registrations', label: 'Registrations', icon: <Users size={15} strokeWidth={1.8} />,          segment: 'registrations' },
-      { id: 'event-page',    label: 'Event page',    icon: <Layout size={15} strokeWidth={1.8} />,         segment: 'event-page' },
-      { id: 'agenda',        label: 'Agenda',        icon: <CalendarDays size={15} strokeWidth={1.8} />,   segment: 'agenda' },
-      { id: 'engagement',    label: 'Engagement',    icon: <MessageSquare size={15} strokeWidth={1.8} />,  segment: 'engagement' },
-      { id: 'analytics',     label: 'Analytics',     icon: <BarChart2 size={15} strokeWidth={1.8} />,      segment: 'analytics' },
-      { id: 'karta-card',    label: 'Karta Card',    icon: <IdCard size={15} strokeWidth={1.8} />,         segment: 'edit' },
+      { id: 'overview',      label: 'Overview',      icon: <Home size={15} strokeWidth={1.8} />,         segment: '' },
+      { id: 'event-page',    label: 'Event Page',    icon: <Layout size={15} strokeWidth={1.8} />,       segment: 'event-page' },
+      { id: 'tickets',       label: 'Tickets',       icon: <Ticket size={15} strokeWidth={1.8} />,       segment: 'tickets' },
+      { id: 'registrations', label: 'Registrations', icon: <Users size={15} strokeWidth={1.8} />,        segment: 'registrations' },
+      { id: 'check-in',      label: 'Check-in',      icon: <ScanLine size={15} strokeWidth={1.8} />,     segment: 'check-in' },
+    ],
+  },
+  {
+    title: 'Programme',
+    items: [
+      { id: 'agenda',    label: 'Agenda',    icon: <CalendarDays size={15} strokeWidth={1.8} />, segment: 'agenda' },
+      { id: 'speakers',  label: 'Speakers',  icon: <User size={15} strokeWidth={1.8} />,        segment: 'speakers' },
+    ],
+  },
+  {
+    title: 'Engagement',
+    items: [
+      { id: 'networking', label: 'Networking',  icon: <Network size={15} strokeWidth={1.8} />,       segment: 'engagement', minPlan: 'pro' },
+      { id: 'q-and-a',    label: 'Q&A & Polls', icon: <MessageSquare size={15} strokeWidth={1.8} />, segment: 'engagement', minPlan: 'pro' },
+    ],
+  },
+  {
+    title: 'Partners',
+    items: [
+      { id: 'sponsors', label: 'Sponsors', icon: <Briefcase size={15} strokeWidth={1.8} />, segment: 'engagement', minPlan: 'studio' },
+      { id: 'virtual',  label: 'Virtual',  icon: <Video size={15} strokeWidth={1.8} />,     segment: 'engagement', minPlan: 'studio' },
+    ],
+  },
+  {
+    title: 'Insights',
+    items: [
+      { id: 'analytics',  label: 'Analytics',  icon: <BarChart2 size={15} strokeWidth={1.8} />, segment: 'analytics' },
+      { id: 'karta-card', label: 'Karta Card',  icon: <IdCard size={15} strokeWidth={1.8} />,   segment: 'edit' },
     ],
   },
 ];
@@ -138,23 +176,33 @@ const ADMIN_SECTIONS: AdminNavSection[] = [
 
 // ─── Shared nav item ──────────────────────────────────────────────────────────
 
-function NavItem({ href, icon, label, badge, active, onNavigate }: {
+function NavItem({ href, icon, label, badge, active, locked, planLabel, onNavigate }: {
   href: string; icon: React.ReactNode; label: string;
-  badge?: string | null; active: boolean; onNavigate?: () => void;
+  badge?: string | null; active: boolean;
+  locked?: boolean; planLabel?: string;
+  onNavigate?: () => void;
 }) {
   return (
     <li>
-      <Link href={href} onClick={onNavigate}
+      <Link href={href} onClick={locked ? undefined : onNavigate}
         className={`flex items-center gap-3 py-[7px] rounded-lg text-[13.5px] transition-colors border-l-2 ${
           active
             ? 'border-[#E8C57E] bg-white/[0.1] text-white font-medium pl-[8px] pr-2.5'
-            : 'border-transparent px-2.5 text-white/50 hover:text-white/85 hover:bg-white/[0.06]'
+            : locked
+              ? 'border-transparent px-2.5 text-white/25 cursor-not-allowed pointer-events-none'
+              : 'border-transparent px-2.5 text-white/50 hover:text-white/85 hover:bg-white/[0.06]'
         }`}>
         <span className="shrink-0">{icon}</span>
         <span className="flex-1 leading-none">{label}</span>
-        {badge && (
+        {badge && !locked && (
           <span className="text-[9px] font-mono font-medium text-white/40 bg-white/[0.08] px-1.5 py-0.5 rounded-md tracking-wide">
             {badge}
+          </span>
+        )}
+        {locked && planLabel && (
+          <span className="inline-flex items-center gap-0.5 text-[8px] font-mono tracking-[0.1em] uppercase px-1.5 py-0.5 rounded font-semibold shrink-0"
+            style={{ background: 'rgba(232,197,126,0.15)', color: '#C9A45E' }}>
+            <Lock size={8} strokeWidth={2} /> {planLabel}
           </span>
         )}
       </Link>
@@ -411,7 +459,8 @@ function AdminNavContent({ pathname, onNavigate }: { pathname: string; onNavigat
 function EventNavContent({ pathname, eventId, onNavigate }: {
   pathname: string; eventId: string; onNavigate?: () => void;
 }) {
-  const { logoUrl } = usePlanCtx();
+  const { logoUrl, profile } = usePlanCtx();
+  const userPlanLevel = NAV_PLAN_LEVEL[profile?.plan ?? 'free'] ?? 0;
   const [event, setEvent] = useState<EventInfo>(null);
   const supabase = createClient();
 
@@ -469,21 +518,26 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
       {/* Event nav */}
       <nav className="flex-1 px-3 py-3 overflow-y-auto">
         {EVENT_NAV_SECTIONS.map((section, si) => (
-          <div key={si} className="mb-4">
+          <div key={si} className="mb-3">
             {section.title && (
-              <div className="px-2.5 mb-1.5 text-[10px] font-mono text-white/25 uppercase tracking-widest">
+              <div className="px-2.5 pt-2 pb-1 text-[9.5px] font-mono text-white/25 uppercase tracking-widest">
                 {section.title}
               </div>
             )}
             <ul className="space-y-0.5">
               {section.items.map(item => {
+                const locked = item.minPlan
+                  ? userPlanLevel < (NAV_PLAN_LEVEL[item.minPlan] ?? 0)
+                  : false;
                 const href = item.segment === ''
                   ? `/events/${eventId}`
                   : `/events/${eventId}/${item.segment}`;
-                const active = activeSegment === item.segment;
+                const active = !locked && activeSegment === item.segment;
                 return (
                   <NavItem key={item.id} href={href} icon={item.icon} label={item.label}
-                    active={active} onNavigate={onNavigate} />
+                    active={active} locked={locked}
+                    planLabel={item.minPlan ? NAV_PLAN_LABEL[item.minPlan] : undefined}
+                    onNavigate={onNavigate} />
                 );
               })}
             </ul>

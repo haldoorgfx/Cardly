@@ -17,7 +17,7 @@ type SortKey = 'recent' | 'registrations' | 'revenue';
 interface Props {
   events:      Event[];
   atLimit:     boolean;
-  regsByEvent: Record<string, { count: number; revenue: number }>;
+  regsByEvent: Record<string, { count: number; revenue: number; checkedIn: number }>;
   draftCount:  number;
   activeCount: number;
 }
@@ -105,8 +105,9 @@ export default function DashboardContent({ events, atLimit, regsByEvent }: Props
                 key={event.id}
                 event={event}
                 index={i}
-                regCount={regsByEvent[event.id]?.count   ?? 0}
-                revenue={regsByEvent[event.id]?.revenue ?? 0}
+                regCount={regsByEvent[event.id]?.count    ?? 0}
+                revenue={regsByEvent[event.id]?.revenue   ?? 0}
+                checkedIn={regsByEvent[event.id]?.checkedIn ?? 0}
               />
             ))}
           </div>

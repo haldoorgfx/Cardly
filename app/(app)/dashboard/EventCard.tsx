@@ -14,10 +14,11 @@ type Event = Pick<EventRowType, 'id' | 'name' | 'slug' | 'status' | 'view_count'
 };
 
 interface Props {
-  event:    Event;
-  index:    number;
-  regCount: number;
-  revenue:  number;
+  event:     Event;
+  index:     number;
+  regCount:  number;
+  revenue:   number;
+  checkedIn: number;
 }
 
 // Forest-branded gradients — one per slot, cycles
@@ -39,7 +40,7 @@ function formatDate(iso: string | null | undefined) {
   return new Date(iso).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-export default function EventCard({ event, index, regCount, revenue }: Props) {
+export default function EventCard({ event, index, regCount, revenue, checkedIn }: Props) {
   const router = useRouter();
   const [renaming,      setRenaming]      = useState(false);
   const [nameVal,       setNameVal]       = useState(event.name);
@@ -47,6 +48,7 @@ export default function EventCard({ event, index, regCount, revenue }: Props) {
   const [busy,          setBusy]          = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const checkinRate = regCount > 0 ? Math.round((checkedIn / regCount) * 100) : 0;
   const isLive     = event.status === 'published';
   const isDraft    = event.status === 'draft';
   const isArchived = event.status === 'archived';
@@ -206,6 +208,10 @@ export default function EventCard({ event, index, regCount, revenue }: Props) {
           {!isDraft && revenue > 0 && (
             <><span className="text-[#E5E0D4]">·</span>
             <span><span className="text-[#1F4D3A] font-semibold">${revenue.toLocaleString()}</span></span></>
+          )}
+          {checkinRate > 0 && (
+            <><span className="text-[#E5E0D4]">·</span>
+            <span><span className="text-[#1F4D3A] font-semibold">{checkinRate}%</span> check-in</span></>
           )}
         </div>
 

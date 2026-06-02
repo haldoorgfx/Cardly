@@ -77,19 +77,20 @@ export default async function DashboardPage() {
 
   // ─── Registrations + revenue ───────────────────────────────────────────────
   const eventIds = allEvents.map(e => e.id);
-  const regsByEvent: Record<string, { count: number; revenue: number }> = {};
+  const regsByEvent: Record<string, { count: number; revenue: number; checkedIn: number }> = {};
   let totalRegistrations = 0;
   let totalRevenue = 0;
   if (eventIds.length > 0) {
     const { data: regs } = await admin
       .from('registrations')
-      .select('event_id, amount_paid')
+      .select('event_id, amount_paid, status')
       .in('event_id', eventIds)
       .in('status', ['confirmed', 'checked_in']);
     for (const r of regs ?? []) {
-      if (!regsByEvent[r.event_id]) regsByEvent[r.event_id] = { count: 0, revenue: 0 };
+      if (!regsByEvent[r.event_id]) regsByEvent[r.event_id] = { count: 0, revenue: 0, checkedIn: 0 };
       regsByEvent[r.event_id].count   += 1;
       regsByEvent[r.event_id].revenue += Number(r.amount_paid ?? 0);
+      if (r.status === 'checked_in') regsByEvent[r.event_id].checkedIn += 1;
       totalRegistrations += 1;
       totalRevenue       += Number(r.amount_paid ?? 0);
     }

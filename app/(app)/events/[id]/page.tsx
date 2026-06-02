@@ -4,8 +4,11 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import {
-  Pencil, Users, ArrowRight, Globe, ScanLine, FileDown,
+  Pencil, Users, ArrowRight, ScanLine, FileDown,
+  Layout, Ticket, LayoutGrid, User, Network, MessageSquare,
+  Briefcase, BarChart2, IdCard, Video, Lock, Sparkles,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import CopyButton from '@/components/shared/CopyButton';
 import EventDetailActions from './EventDetailActions';
 import type { Zone, Variant } from '@/types/database';
@@ -33,6 +36,34 @@ const STATUS_STYLE = {
   archived:  { label: 'Archived', cls: 'bg-[#FAF6EE] text-[#6B7A72] border-[#E5E0D4]',     dot: '#6B7A72', pulse: false },
 };
 
+const PLAN_LEVEL: Record<string, number> = { free: 0, pro: 1, studio: 2 };
+const PLAN_LABEL: Record<string, string> = { pro: 'Pro', studio: 'Studio' };
+
+type FeatureCard = {
+  id: string;
+  label: string;
+  Icon: LucideIcon;
+  desc: string;
+  segment: string | null;
+  minPlan: 'pro' | 'studio' | null;
+  gold: boolean;
+};
+
+const FEATURE_CARDS: FeatureCard[] = [
+  { id: 'event-page',    label: 'Event Page',    Icon: Layout,        desc: 'Edit your public event page',                segment: 'event-page',    minPlan: null,      gold: false },
+  { id: 'tickets',       label: 'Tickets',       Icon: Ticket,        desc: 'Manage ticket types and pricing',            segment: 'tickets',       minPlan: null,      gold: false },
+  { id: 'registrations', label: 'Registrations', Icon: Users,         desc: 'View and manage attendees',                 segment: 'registrations', minPlan: null,      gold: false },
+  { id: 'agenda',        label: 'Agenda',         Icon: LayoutGrid,    desc: 'Build your event schedule',                 segment: 'agenda',        minPlan: null,      gold: false },
+  { id: 'speakers',      label: 'Speakers',       Icon: User,          desc: 'Manage speakers and sessions',              segment: 'speakers',      minPlan: null,      gold: false },
+  { id: 'check-in',      label: 'Check-in',       Icon: ScanLine,      desc: 'Scan attendees at the door',                segment: 'check-in',      minPlan: null,      gold: false },
+  { id: 'networking',    label: 'Networking',     Icon: Network,       desc: 'Attendee connections and matchmaking',      segment: null,            minPlan: 'pro',     gold: false },
+  { id: 'q-and-a',       label: 'Q&A & Polls',    Icon: MessageSquare, desc: 'Live session engagement',                   segment: 'engagement',    minPlan: 'pro',     gold: false },
+  { id: 'sponsors',      label: 'Sponsors',       Icon: Briefcase,     desc: 'Manage sponsors and exhibitors',            segment: null,            minPlan: 'studio',  gold: false },
+  { id: 'analytics',     label: 'Analytics',      Icon: BarChart2,     desc: 'Registration funnel and engagement data',   segment: 'analytics',     minPlan: null,      gold: false },
+  { id: 'karta-card',    label: 'Karta Card',     Icon: IdCard,        desc: 'The personalised card every attendee gets', segment: 'edit',          minPlan: null,      gold: true  },
+  { id: 'virtual',       label: 'Virtual',        Icon: Video,         desc: 'Stream sessions online',                    segment: null,            minPlan: 'studio',  gold: false },
+];
+
 export default async function EventDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = createClient();
@@ -41,13 +72,22 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
 
   const admin = createAdminClient();
 
-  const [{ data: event }, { data: variantsData }, { data: recentRegs }, { data: revData }, { count: regCount }, { count: checkedInCount }] = await Promise.all([
+  const [
+    { data: event },
+    { data: variantsData },
+    { data: recentRegs },
+    { data: revData },
+    { count: regCount },
+    { count: checkedInCount },
+    { data: profileData },
+  ] = await Promise.all([
     admin.from('events').select('id, name, slug, status, view_count, download_count, user_id, created_at').eq('id', id).eq('user_id', user.id).single(),
     admin.from('event_variants').select('id, variant_name, variant_slug, background_url, background_width, background_height, zones, position').eq('event_id', id).order('position', { ascending: true }),
     admin.from('registrations').select('id, attendee_name, status, created_at').eq('event_id', id).order('created_at', { ascending: false }).limit(5),
     admin.from('registrations').select('amount_paid').eq('event_id', id).in('status', ['confirmed', 'checked_in']),
     admin.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', id).in('status', ['confirmed', 'checked_in']),
     admin.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', id).eq('status', 'checked_in'),
+    admin.from('profiles').select('plan').eq('id', user.id).single(),
   ]);
 
   if (!event) redirect('/dashboard');
@@ -62,9 +102,11 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
   const checkedIn = checkedInCount ?? 0;
   const checkInRate = registrations > 0 ? Math.round((checkedIn / registrations) * 100) : 0;
 
+  const userPlan = profileData?.plan ?? 'free';
+  const userPlanLevel = PLAN_LEVEL[userPlan] ?? 0;
+
   const st = STATUS_STYLE[event.status as keyof typeof STATUS_STYLE] ?? STATUS_STYLE.draft;
 
-  // Action banners
   const actionItems: { text: string; cta: string; href: string; accent?: boolean }[] = [];
   if (event.status === 'draft') {
     actionItems.push({ text: 'This event is still a draft — publish it to open registration.', cta: 'Publish event', href: `/events/${id}/publish`, accent: true });
@@ -162,135 +204,161 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
           </div>
         )}
 
-        {/* ── Main content: recent registrations + quick links ── */}
-        <div className="grid lg:grid-cols-[1fr_320px] gap-6">
+        {/* ── Feature cards grid ── */}
+        <div>
+          <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#6B7A72] mb-3">Manage this event</div>
+          <div className="grid sm:grid-cols-2 gap-4">
+            {FEATURE_CARDS.map(card => {
+              const locked = card.minPlan
+                ? userPlanLevel < (PLAN_LEVEL[card.minPlan] ?? 0)
+                : false;
+              const href = !locked && card.segment
+                ? `/events/${id}/${card.segment}`
+                : null;
 
-          {/* Recent registrations */}
-          <div className="bg-white rounded-2xl border overflow-hidden" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
-            <div className="px-5 py-4 border-b flex items-center justify-between" style={{ borderColor: '#E5E0D4' }}>
-              <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#6B7A72]">Recent registrations</div>
-              <div className="flex items-center gap-3">
-                {registrations > 0 && (
-                  <span className="flex items-center gap-1.5 text-[11px] text-emerald-600">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    {registrations} total
-                  </span>
-                )}
-                {registrations > 0 && (
-                  <a href={`/api/events/${id}/export`} download
-                    className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-lg border text-[12px] font-medium transition hover:bg-[#FAF6EE]"
-                    style={{ borderColor: '#E5E0D4', color: '#1F4D3A' }}>
-                    <FileDown size={12} strokeWidth={2.2} />
-                    Export
-                  </a>
-                )}
-              </div>
-            </div>
-
-            {(recentRegs ?? []).length === 0 ? (
-              <div className="px-5 py-10 text-center">
-                <div className="text-[13px] text-[#6B7A72]">No registrations yet.</div>
-                {event.status === 'published' ? (
-                  <div className="mt-1 text-[12.5px] text-[#6B7A72]">Share the link to start seeing activity.</div>
-                ) : (
-                  <Link href={`/events/${id}/publish`} className="mt-3 inline-block text-[13px] text-[#1F4D3A] font-medium hover:underline">
-                    Publish to start →
-                  </Link>
-                )}
-              </div>
-            ) : (
-              <>
-                <div className="divide-y" style={{ borderColor: '#F0EDE7' }}>
-                  {(recentRegs ?? []).map((reg, i) => (
-                      <div key={reg.id} className="flex items-center gap-3 px-5 py-3 hover:bg-[#FAF6EE] transition">
-                        <div className="h-8 w-8 rounded-full grid place-items-center text-white text-[11px] font-bold shrink-0"
-                          style={{ background: AVATAR_COLORS[i % AVATAR_COLORS.length] }}>
-                          {getInitials(reg.attendee_name)}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-[13px] font-medium text-[#0F1F18] truncate">{reg.attendee_name ?? 'Anonymous'}</div>
-                        </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                          {reg.status === 'checked_in' && (
-                            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(45,122,79,0.1)', color: '#2D7A4F' }}>Checked in</span>
-                          )}
-                          <span className="text-[11px] text-[#6B7A72]">{timeAgo(reg.created_at)}</span>
-                        </div>
-                      </div>
-                  ))}
-                </div>
-                {registrations > 5 && (
-                  <div className="px-5 py-3 border-t" style={{ borderColor: '#F0EDE7' }}>
-                    <Link href={`/events/${id}/registrations`} className="text-[12.5px] font-medium text-[#1F4D3A] hover:underline inline-flex items-center gap-1">
-                      View all {registrations} registrations <ArrowRight size={12} strokeWidth={2} />
-                    </Link>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-
-          {/* Quick links */}
-          <div className="space-y-3">
-            {[
-              {
-                label: 'View all registrations',
-                desc: 'Attendee list, check-in status, exports.',
-                href: `/events/${id}/registrations`,
-                icon: <Users size={18} strokeWidth={1.7} />,
-              },
-              {
-                label: 'Edit event page',
-                desc: 'Public page, date, venue, description.',
-                href: `/events/${id}/event-page`,
-                icon: <Globe size={18} strokeWidth={1.7} />,
-              },
-              {
-                label: 'Open check-in',
-                desc: 'QR scanner for attendees at the door.',
-                href: `/events/${id}/check-in`,
-                icon: <ScanLine size={18} strokeWidth={1.7} />,
-              },
-            ].map(card => (
-              <Link key={card.label} href={card.href}
-                className="group flex items-start gap-3 bg-white rounded-2xl border p-4 transition-all hover:-translate-y-0.5 hover:border-[#1F4D3A]/40"
-                style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)', textDecoration: 'none' }}>
-                <span className="w-9 h-9 rounded-xl grid place-items-center shrink-0 mt-0.5" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
-                  {card.icon}
+              const iconEl = (
+                <span className="w-10 h-10 rounded-xl grid place-items-center shrink-0"
+                  style={card.gold
+                    ? { background: 'rgba(232,197,126,0.25)', color: '#C9A45E' }
+                    : { background: '#E8EFEB', color: '#1F4D3A' }}>
+                  <card.Icon size={20} strokeWidth={1.7} />
                 </span>
-                <div className="flex-1 min-w-0">
-                  <div className="font-display text-[14px] font-semibold text-[#0F1F18]">{card.label}</div>
-                  <p className="text-[12px] text-[#6B7A72] mt-0.5 leading-snug">{card.desc}</p>
-                </div>
-                <ArrowRight size={14} strokeWidth={2} className="shrink-0 mt-1 text-[#C9C3B1] group-hover:text-[#1F4D3A] transition-colors" />
-              </Link>
-            ))}
+              );
 
-            {/* Share link */}
-            {event.status === 'published' && (
-              <div className="bg-white rounded-2xl border p-4 space-y-3" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
-                <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#6B7A72]">Share link</div>
-                <div className="flex items-center gap-2 font-mono text-[11px] text-[#3A4A42] bg-[#FAF6EE] border rounded-lg px-3 py-2"
-                  style={{ borderColor: '#E5E0D4' }}>
-                  <span className="flex-1 truncate">{shareUrl}</span>
-                  <CopyButton text={shareUrl} />
-                </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <a href={`https://wa.me/?text=${encodeURIComponent(`Get your personalised card: ${shareUrl}`)}`}
-                    target="_blank" rel="noopener noreferrer"
-                    className="py-1.5 rounded-lg text-[11px] font-medium text-white text-center transition hover:opacity-90"
-                    style={{ background: '#25D366' }}>WhatsApp</a>
-                  <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Get your personalised card: ${shareUrl}`)}`}
-                    target="_blank" rel="noopener noreferrer"
-                    className="py-1.5 rounded-lg text-[11px] font-medium text-white text-center bg-black transition hover:opacity-90">X</a>
-                  <a href={shareUrl} target="_blank" rel="noopener noreferrer"
-                    className="py-1.5 rounded-lg text-[11px] font-medium text-center border transition hover:bg-[#FAF6EE]"
-                    style={{ borderColor: '#E5E0D4', color: '#1F4D3A' }}>Preview ↗</a>
-                </div>
-              </div>
-            )}
+              const badge = locked && card.minPlan ? (
+                <span className="inline-flex items-center gap-1 font-mono text-[9px] tracking-[0.12em] uppercase px-1.5 py-1 rounded font-semibold shrink-0"
+                  style={{ background: 'rgba(232,197,126,0.2)', color: '#C9A45E' }}>
+                  <Lock size={9} strokeWidth={2} /> {PLAN_LABEL[card.minPlan]}
+                </span>
+              ) : null;
+
+              const body = (
+                <>
+                  <div className="flex items-start justify-between mb-3">
+                    {iconEl}
+                    {badge}
+                  </div>
+                  <div className="font-display text-[15px] font-semibold tracking-tight flex items-center gap-1.5"
+                    style={{ color: card.gold ? '#C9A45E' : '#0F1F18' }}>
+                    {card.label}
+                    {card.gold && <Sparkles size={11} strokeWidth={1.8} style={{ color: '#C9A45E' }} />}
+                  </div>
+                  <p className="text-[13px] mt-1 leading-[1.5]" style={{ color: '#3A4A42' }}>{card.desc}</p>
+                </>
+              );
+
+              const baseStyle = card.gold
+                ? { background: 'linear-gradient(135deg, rgba(232,197,126,0.16), rgba(31,77,58,0.06))', borderColor: 'rgba(232,197,126,0.6)' }
+                : { background: 'white', borderColor: '#E5E0D4' };
+
+              if (!href) {
+                return (
+                  <div key={card.id} className="rounded-2xl border p-5"
+                    style={{ ...baseStyle, opacity: locked ? 0.6 : 1 }}>
+                    {body}
+                  </div>
+                );
+              }
+
+              return (
+                <Link key={card.id} href={href}
+                  className="group rounded-2xl border p-5 block transition-all hover:-translate-y-0.5"
+                  style={{ ...baseStyle, textDecoration: 'none' }}>
+                  {body}
+                </Link>
+              );
+            })}
           </div>
         </div>
+
+        {/* ── Recent registrations ── */}
+        <div className="bg-white rounded-2xl border overflow-hidden" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
+          <div className="px-5 py-4 border-b flex items-center justify-between" style={{ borderColor: '#E5E0D4' }}>
+            <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#6B7A72]">Recent registrations</div>
+            <div className="flex items-center gap-3">
+              {registrations > 0 && (
+                <span className="flex items-center gap-1.5 text-[11px] text-emerald-600">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  {registrations} total
+                </span>
+              )}
+              {registrations > 0 && (
+                <a href={`/api/events/${id}/export`} download
+                  className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-lg border text-[12px] font-medium transition hover:bg-[#FAF6EE]"
+                  style={{ borderColor: '#E5E0D4', color: '#1F4D3A' }}>
+                  <FileDown size={12} strokeWidth={2.2} />
+                  Export
+                </a>
+              )}
+            </div>
+          </div>
+
+          {(recentRegs ?? []).length === 0 ? (
+            <div className="px-5 py-10 text-center">
+              <div className="text-[13px] text-[#6B7A72]">No registrations yet.</div>
+              {event.status === 'published' ? (
+                <div className="mt-1 text-[12.5px] text-[#6B7A72]">Share the link to start seeing activity.</div>
+              ) : (
+                <Link href={`/events/${id}/publish`} className="mt-3 inline-block text-[13px] text-[#1F4D3A] font-medium hover:underline">
+                  Publish to start →
+                </Link>
+              )}
+            </div>
+          ) : (
+            <>
+              <div className="divide-y" style={{ borderColor: '#F0EDE7' }}>
+                {(recentRegs ?? []).map((reg, i) => (
+                  <div key={reg.id} className="flex items-center gap-3 px-5 py-3 hover:bg-[#FAF6EE] transition">
+                    <div className="h-8 w-8 rounded-full grid place-items-center text-white text-[11px] font-bold shrink-0"
+                      style={{ background: AVATAR_COLORS[i % AVATAR_COLORS.length] }}>
+                      {getInitials(reg.attendee_name)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[13px] font-medium text-[#0F1F18] truncate">{reg.attendee_name ?? 'Anonymous'}</div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {reg.status === 'checked_in' && (
+                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(45,122,79,0.1)', color: '#2D7A4F' }}>Checked in</span>
+                      )}
+                      <span className="text-[11px] text-[#6B7A72]">{timeAgo(reg.created_at)}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {registrations > 5 && (
+                <div className="px-5 py-3 border-t" style={{ borderColor: '#F0EDE7' }}>
+                  <Link href={`/events/${id}/registrations`} className="text-[12.5px] font-medium text-[#1F4D3A] hover:underline inline-flex items-center gap-1">
+                    View all {registrations} registrations <ArrowRight size={12} strokeWidth={2} />
+                  </Link>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* ── Share link ── */}
+        {event.status === 'published' && (
+          <div className="bg-white rounded-2xl border p-4 space-y-3" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
+            <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#6B7A72]">Share link</div>
+            <div className="flex items-center gap-2 font-mono text-[11px] text-[#3A4A42] bg-[#FAF6EE] border rounded-lg px-3 py-2"
+              style={{ borderColor: '#E5E0D4' }}>
+              <span className="flex-1 truncate">{shareUrl}</span>
+              <CopyButton text={shareUrl} />
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <a href={`https://wa.me/?text=${encodeURIComponent(`Get your personalised card: ${shareUrl}`)}`}
+                target="_blank" rel="noopener noreferrer"
+                className="py-1.5 rounded-lg text-[11px] font-medium text-white text-center transition hover:opacity-90"
+                style={{ background: '#25D366' }}>WhatsApp</a>
+              <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Get your personalised card: ${shareUrl}`)}`}
+                target="_blank" rel="noopener noreferrer"
+                className="py-1.5 rounded-lg text-[11px] font-medium text-white text-center bg-black transition hover:opacity-90">X</a>
+              <a href={shareUrl} target="_blank" rel="noopener noreferrer"
+                className="py-1.5 rounded-lg text-[11px] font-medium text-center border transition hover:bg-[#FAF6EE]"
+                style={{ borderColor: '#E5E0D4', color: '#1F4D3A' }}>Preview ↗</a>
+            </div>
+          </div>
+        )}
 
       </div>
     </div>
