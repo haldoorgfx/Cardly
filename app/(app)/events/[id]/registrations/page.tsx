@@ -40,7 +40,7 @@ export default async function RegistrationsPage({ params }: Props) {
 
       <div className="max-w-[1100px] mx-auto px-6 py-8">
         <div className="mb-6">
-          <h1 className="font-display font-semibold text-[24px]" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
+          <h1 className="font-display font-semibold text-[24px]" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>
             Attendees
           </h1>
           <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>

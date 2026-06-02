@@ -27,7 +27,7 @@ export default async function TicketsPage({ params }: Props) {
         <div className="mb-6">
           <h1
             className="font-display font-semibold text-[24px]"
-            style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}
+            style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}
           >
             Ticket types
           </h1>
