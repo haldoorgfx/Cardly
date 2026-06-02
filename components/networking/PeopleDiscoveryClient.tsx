@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, UserCheck, Clock, UserPlus, Sparkles, Loader2 } from 'lucide-react';
 
 interface Person {
@@ -60,9 +60,23 @@ export default function PeopleDiscoveryClient({ eventId, registrationId, initial
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
   const [connecting, setConnecting] = useState<string | null>(null);
-  // AI matching coming soon — these will become useState once ANTHROPIC_API_KEY is live
-  const suggestions: MatchSuggestion[] = [];
-  const loadingSuggestions = false;
+  const [suggestions, setSuggestions] = useState<MatchSuggestion[]>([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  const [suggestionsLoaded, setSuggestionsLoaded] = useState(false);
+
+  useEffect(() => {
+    if (filter === 'suggested' && registrationId && !suggestionsLoaded) {
+      setLoadingSuggestions(true);
+      fetch(`/api/events/${eventId}/matches?registration_id=${registrationId}`)
+        .then(r => r.json())
+        .then((data: { matches: MatchSuggestion[] }) => {
+          setSuggestions(data.matches ?? []);
+          setSuggestionsLoaded(true);
+        })
+        .catch(() => setSuggestions([]))
+        .finally(() => setLoadingSuggestions(false));
+    }
+  }, [filter, registrationId, eventId, suggestionsLoaded]);
 
   const filtered = people.filter(p => {
     if (filter === 'suggested') return false;
@@ -142,9 +156,9 @@ export default function PeopleDiscoveryClient({ eventId, registrationId, initial
             </div>
           ) : suggestions.length === 0 ? (
             <div className="rounded-2xl py-16 text-center" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-              <Sparkles size={24} className="mx-auto mb-3" style={{ color: '#E8C57E' }} />
-              <p className="text-[14px] font-medium mb-1" style={{ color: '#0F1F18' }}>AI matching — coming soon</p>
-              <p className="text-[13px]" style={{ color: '#6B7A72' }}>We&apos;ll suggest the best people for you to meet based on your profile.</p>
+              <Sparkles size={24} className="mx-auto mb-3" style={{ color: '#6B7A72' }} />
+              <p className="text-[14px] font-medium mb-1" style={{ color: '#0F1F18' }}>No suggestions yet</p>
+              <p className="text-[13px]" style={{ color: '#6B7A72' }}>Check back once more attendees have registered.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
