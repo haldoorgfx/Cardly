@@ -8,7 +8,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import DashboardContent from './DashboardContent';
 import React from 'react';
-import { TrendingUp, Download, Eye, Zap, CalendarDays, Ticket, LayoutGrid } from 'lucide-react';
+import { CalendarDays, Ticket, LayoutGrid, Users, ScanLine, IdCard, DollarSign, Plus } from 'lucide-react';
 import { PLANS, type Plan } from '@/lib/billing/plans';
 
 export default async function DashboardPage() {
@@ -35,9 +35,6 @@ export default async function DashboardPage() {
 
   const activeCount = allEvents.filter(e => e.status === 'published').length;
   const draftCount = allEvents.filter(e => e.status === 'draft').length;
-  const totalDownloads = allEvents.reduce((s, e) => s + (e.download_count ?? 0), 0);
-  const totalViews = allEvents.reduce((s, e) => s + (e.view_count ?? 0), 0);
-  const conversion = totalViews > 0 ? Math.round((totalDownloads / totalViews) * 100) : 0;
   const firstName = profile?.full_name?.split(' ')[0] ?? '';
 
   // ─── C1: Empty state ───────────────────────────────────────────────────────
@@ -84,39 +81,61 @@ export default async function DashboardPage() {
     );
   }
 
+  // ─── Fetch registrations for all events ───────────────────────────────────
+  const eventIds = allEvents.map(e => e.id);
+  const regsByEvent: Record<string, { count: number; revenue: number }> = {};
+  let totalRegistrations = 0;
+  let totalRevenue = 0;
+  if (eventIds.length > 0) {
+    const { data: regs } = await admin
+      .from('registrations')
+      .select('event_id, amount_paid')
+      .in('event_id', eventIds)
+      .in('status', ['confirmed', 'checked_in']);
+    for (const r of regs ?? []) {
+      if (!regsByEvent[r.event_id]) regsByEvent[r.event_id] = { count: 0, revenue: 0 };
+      regsByEvent[r.event_id].count += 1;
+      regsByEvent[r.event_id].revenue += Number(r.amount_paid ?? 0);
+      totalRegistrations += 1;
+      totalRevenue += Number(r.amount_paid ?? 0);
+    }
+  }
+  const totalCards = allEvents.reduce((s, e) => s + (e.download_count ?? 0), 0);
+  const firstLiveEvent = allEvents.find(e => e.status === 'published');
+
   // ─── C2: Dashboard with metrics + events ──────────────────────────────────
   const stats = [
     {
       label: 'Active events',
       value: activeCount,
-      sub: draftCount > 0 ? `${draftCount} draft` : 'All published',
-      icon: <Zap size={16} strokeWidth={1.8} />,
+      sub: draftCount > 0 ? `${draftCount} in draft` : 'All published',
+      icon: <CalendarDays size={16} strokeWidth={1.8} />,
       color: '#1F4D3A',
       bg: 'rgba(31,77,58,0.07)',
     },
     {
-      label: 'Total downloads',
-      value: totalDownloads.toLocaleString(),
+      label: 'Registrations',
+      value: totalRegistrations.toLocaleString(),
+      sub: 'Total confirmed',
+      icon: <Users size={16} strokeWidth={1.8} />,
+      color: '#1F4D3A',
+      bg: 'rgba(31,77,58,0.07)',
+    },
+    {
+      label: 'Revenue',
+      value: totalRevenue > 0 ? '$' + totalRevenue.toLocaleString() : '$0',
+      sub: 'Collected',
+      icon: <DollarSign size={16} strokeWidth={1.8} />,
+      color: '#1F4D3A',
+      bg: 'rgba(31,77,58,0.07)',
+    },
+    {
+      label: 'Karta cards',
+      value: totalCards.toLocaleString(),
       sub: 'Cards generated',
-      icon: <Download size={16} strokeWidth={1.8} />,
+      icon: <IdCard size={16} strokeWidth={1.8} />,
       color: '#1F4D3A',
       bg: 'rgba(31,77,58,0.07)',
-    },
-    {
-      label: 'Total views',
-      value: totalViews.toLocaleString(),
-      sub: 'Attendee page opens',
-      icon: <Eye size={16} strokeWidth={1.8} />,
-      color: '#1F4D3A',
-      bg: 'rgba(31,77,58,0.07)',
-    },
-    {
-      label: 'Conversion',
-      value: `${conversion}%`,
-      sub: 'Views → downloads',
-      icon: <TrendingUp size={16} strokeWidth={1.8} />,
-      color: conversion >= 60 ? '#2D7A4F' : conversion >= 30 ? '#C97A2D' : '#6B7A72',
-      bg: conversion >= 60 ? 'rgba(45,122,79,0.08)' : 'rgba(31,77,58,0.07)',
     },
   ];
 
@@ -124,7 +143,7 @@ export default async function DashboardPage() {
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
 
       {/* ── Header ── */}
-      <div className="px-6 lg:px-8 pt-8 pb-6">
+      <div className="px-6 lg:px-8 pt-8 pb-4">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <div className="font-mono text-[11px] tracking-[0.18em] text-[#6B7A72] uppercase mb-1">Workspace</div>
@@ -133,30 +152,29 @@ export default async function DashboardPage() {
             </h1>
             <p className="text-[14px] text-[#6B7A72] mt-1">
               {activeCount > 0
-                ? `${activeCount} event${activeCount !== 1 ? 's' : ''} live · ${totalDownloads.toLocaleString()} cards generated`
+                ? `${activeCount} event${activeCount !== 1 ? 's' : ''} live · ${totalRegistrations.toLocaleString()} registration${totalRegistrations !== 1 ? 's' : ''}`
                 : 'No events published yet'}
             </p>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <Link
-              href="/analytics"
-              className="inline-flex items-center gap-1.5 h-9 px-3.5 text-[13px] font-medium rounded-lg border transition hover:border-[#1F4D3A] hover:text-[#1F4D3A]"
-              style={{ borderColor: '#E5E0D4', color: '#3A4A42', background: 'white' }}
-            >
-              <TrendingUp size={13} strokeWidth={2} />
-              Analytics
+        </div>
+      </div>
+
+      {/* ── Quick actions strip ── */}
+      <div className="px-6 lg:px-8 pb-4">
+        <div className="flex flex-wrap items-center gap-2.5">
+          {!atLimit && (
+            <Link href="/events/new" className="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-white text-[13.5px] font-medium transition hover:opacity-90" style={{ background: '#1F4D3A' }}>
+              <Plus size={15} strokeWidth={2.2} /> New event
             </Link>
-            {!atLimit && (
-              <Link
-                href="/events/new"
-                className="inline-flex items-center gap-1.5 h-9 px-4 text-white text-[13px] font-semibold rounded-lg transition hover:opacity-90"
-                style={{ background: '#1F4D3A' }}
-              >
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
-                New event
-              </Link>
-            )}
-          </div>
+          )}
+          <Link href="/analytics" className="inline-flex items-center gap-2 h-9 px-4 rounded-lg border text-[13.5px] font-medium transition hover:border-[#1F4D3A]/40 hover:text-[#1F4D3A]" style={{ borderColor: '#E5E0D4', color: '#3A4A42', background: 'white' }}>
+            <Users size={15} strokeWidth={1.8} /> View registrations
+          </Link>
+          {firstLiveEvent && (
+            <Link href={`/events/${firstLiveEvent.id}/check-in`} className="inline-flex items-center gap-2 h-9 px-4 rounded-lg border text-[13.5px] font-medium transition hover:border-[#1F4D3A]/40 hover:text-[#1F4D3A]" style={{ borderColor: '#E5E0D4', color: '#3A4A42', background: 'white' }}>
+              <ScanLine size={15} strokeWidth={1.8} /> Check-in scanner
+            </Link>
+          )}
         </div>
       </div>
 
@@ -173,7 +191,7 @@ export default async function DashboardPage() {
                 {stat.icon}
               </div>
               <div className="min-w-0">
-                <div className="font-display font-bold text-[20px] leading-none tracking-tight" style={{ color: stat.color === '#1F4D3A' ? '#0F1F18' : stat.color }}>
+                <div className="font-display font-bold text-[20px] leading-none tracking-tight" style={{ color: '#0F1F18' }}>
                   {stat.value}
                 </div>
                 <div className="text-[11px] mt-1 truncate" style={{ color: '#6B7A72' }}>{stat.label}</div>
@@ -205,7 +223,7 @@ export default async function DashboardPage() {
             <Link href="/pricing" className="text-[12px] font-medium text-[#1F4D3A] hover:underline">Upgrade for more →</Link>
           )}
         </div>
-        <DashboardContent events={allEvents} atLimit={atLimit} />
+        <DashboardContent events={allEvents} atLimit={atLimit} regsByEvent={regsByEvent} />
       </div>
 
     </div>

@@ -15,6 +15,8 @@ type Event = Pick<EventRow, 'id' | 'name' | 'slug' | 'status' | 'view_count' | '
 interface Props {
   event: Event;
   compact?: boolean;
+  regCount?: number;
+  revenue?: number;
 }
 
 function StatusBadge({ status }: { status: string }) {
@@ -37,7 +39,7 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-export default function EventCard({ event, compact = false }: Props) {
+export default function EventCard({ event, compact = false, regCount, revenue }: Props) {
   const router = useRouter();
   const [renaming, setRenaming] = useState(false);
   const [nameVal, setNameVal] = useState(event.name);
@@ -300,8 +302,8 @@ export default function EventCard({ event, compact = false }: Props) {
         {/* Stats */}
         {!isDraft && (
           <div className="hidden sm:flex items-center gap-4 text-[12px] text-[#6B7A72]">
-            <span>{event.download_count.toLocaleString()} downloads</span>
-            <span>{event.view_count.toLocaleString()} views</span>
+            <span>{(regCount ?? 0) > 0 ? `${regCount} registered` : `${event.download_count.toLocaleString()} cards`}</span>
+            {revenue != null && revenue > 0 && <span>${revenue.toLocaleString()}</span>}
           </div>
         )}
 
@@ -389,11 +391,15 @@ export default function EventCard({ event, compact = false }: Props) {
 
         <div className="mt-3 flex items-center justify-between text-[12px] text-[#6B7A72]">
           {isDraft ? (
-            <Link href={`/events/${event.id}/edit`} className="text-[#1F4D3A] font-medium hover:underline text-[12px]">
-              {zonesCount === 0 ? 'Set up zones →' : 'Continue setup →'}
+            <Link href={`/events/${event.id}`} className="text-[#1F4D3A] font-medium hover:underline text-[12px]">
+              Continue setup →
             </Link>
           ) : (
-            <span>{event.download_count.toLocaleString()} downloads · {event.view_count.toLocaleString()} views</span>
+            <span>
+              {(regCount ?? 0) > 0
+                ? `${regCount} registered${revenue && revenue > 0 ? ` · $${revenue.toLocaleString()}` : ''}`
+                : `${event.download_count.toLocaleString()} cards generated`}
+            </span>
           )}
           <span className="text-[#6B7A72]/60">{updatedAgo}</span>
         </div>

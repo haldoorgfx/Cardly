@@ -16,9 +16,10 @@ type SortKey = 'recent' | 'downloads' | 'views';
 interface Props {
   events: Event[];
   atLimit: boolean;
+  regsByEvent: Record<string, { count: number; revenue: number }>;
 }
 
-export default function DashboardContent({ events, atLimit }: Props) {
+export default function DashboardContent({ events, atLimit, regsByEvent }: Props) {
   const [filter, setFilter] = useState<Filter>('all');
   const [sort, setSort] = useState<SortKey>('recent');
   const [view, setView] = useState<'grid' | 'list'>('grid');
@@ -137,7 +138,13 @@ export default function DashboardContent({ events, atLimit }: Props) {
             : 'flex flex-col gap-2'
         }>
           {filtered.map(event => (
-            <EventCard key={event.id} event={event} compact={view === 'list'} />
+            <EventCard
+              key={event.id}
+              event={event}
+              compact={view === 'list'}
+              regCount={regsByEvent[event.id]?.count ?? 0}
+              revenue={regsByEvent[event.id]?.revenue ?? 0}
+            />
           ))}
 
           {/* New event tile */}
