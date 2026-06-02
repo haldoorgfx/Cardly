@@ -111,7 +111,7 @@ export default function SpeakersManager({ eventId, initialSpeakers }: Props) {
           body: JSON.stringify({ speakerId: editingSpeaker.id, ...form }),
         });
         if (!res.ok) throw new Error('Failed to update speaker.');
-        const updated: Speaker = await res.json();
+        const { speaker: updated }: { speaker: Speaker } = await res.json();
         setSpeakers((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
       } else {
         const res = await fetch(`/api/events/${eventId}/speakers`, {
@@ -120,7 +120,7 @@ export default function SpeakersManager({ eventId, initialSpeakers }: Props) {
           body: JSON.stringify(form),
         });
         if (!res.ok) throw new Error('Failed to create speaker.');
-        const created: Speaker = await res.json();
+        const { speaker: created }: { speaker: Speaker } = await res.json();
         setSpeakers((prev) => [created, ...prev]);
       }
       closeForm();

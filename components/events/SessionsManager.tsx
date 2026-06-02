@@ -105,7 +105,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
       body: JSON.stringify({ name: trackForm.name, color: trackForm.color }),
     });
     if (!res.ok) return;
-    const created: Track = await res.json();
+    const { track: created }: { track: Track } = await res.json();
     setTracks((prev) => [...prev, created]);
     setTrackForm({ name: '', color: TRACK_COLORS[0] });
     setShowTrackForm(false);
@@ -175,7 +175,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
           body: JSON.stringify({ sessionId: editingSession.id, ...payload }),
         });
         if (!res.ok) throw new Error('Failed to update.');
-        const updated: Session = await res.json();
+        const { session: updated }: { session: Session } = await res.json();
         setSessions((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
       } else {
         const res = await fetch(`/api/events/${eventId}/sessions`, {
@@ -184,7 +184,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
           body: JSON.stringify(payload),
         });
         if (!res.ok) throw new Error('Failed to create.');
-        const created: Session = await res.json();
+        const { session: created }: { session: Session } = await res.json();
         setSessions((prev) => [...prev, created]);
       }
       closeForm();
