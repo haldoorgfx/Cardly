@@ -16,7 +16,7 @@ export default async function FeedbackPage({ params, searchParams }: Props) {
   const resolved = await resolvePublicSlug(params.slug);
   if (!resolved) notFound();
   const { eventPageTitle, event } = resolved;
-  const eventPage = { title: eventPageTitle };
+  const eventPage = { title: eventPageTitle ?? '' };
 
   const { data: agendaSessions } = await admin
     .from('attendee_agendas')

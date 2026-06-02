@@ -13,8 +13,7 @@ export default async function SpeakerProfilePage({ params }: Props) {
 
   const resolved = await resolvePublicSlug(params.slug);
   if (!resolved) notFound();
-  const { eventPageTitle, event } = resolved;
-  const eventPage = { title: eventPageTitle };
+  const { event } = resolved;
 
   const [{ data: speaker }, { data: sessions }] = await Promise.all([
     admin.from('speakers').select('*').eq('id', params.speakerId).eq('event_id', event.id).single(),

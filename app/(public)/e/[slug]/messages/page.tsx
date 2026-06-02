@@ -15,8 +15,7 @@ export default async function MessagesPage({ params, searchParams }: Props) {
 
   const resolved = await resolvePublicSlug(params.slug);
   if (!resolved) notFound();
-  const { eventPageTitle, event } = resolved;
-  const eventPage = { title: eventPageTitle };
+  const { event } = resolved;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: threads } = await (admin as any)

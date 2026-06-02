@@ -13,8 +13,7 @@ export default async function SessionDetailPage({ params, searchParams }: Props)
 
   const resolved = await resolvePublicSlug(params.slug);
   if (!resolved) notFound();
-  const { eventPageTitle, event } = resolved;
-  const eventPage = { title: eventPageTitle };
+  const { event } = resolved;
 
   const [{ data: session }, relatedResult, isSavedResult] = await Promise.all([
     admin.from('sessions')
