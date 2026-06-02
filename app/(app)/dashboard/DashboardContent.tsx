@@ -3,12 +3,13 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Search, Plus } from 'lucide-react';
-import EventRow from './EventCard';
+import EventCard from './EventCard';
 import type { Database } from '@/types/database';
 
 type EventRowType = Database['public']['Tables']['events']['Row'];
 type Event = Pick<EventRowType, 'id' | 'name' | 'slug' | 'status' | 'view_count' | 'download_count' | 'updated_at'> & {
   event_pages?: Array<{ starts_at: string | null; venue_name: string | null }> | null;
+  event_variants?: Array<{ id: string; background_url: string | null; position: number }> | null;
 };
 type Filter  = 'all' | 'active' | 'draft' | 'archived';
 type SortKey = 'recent' | 'registrations' | 'revenue';
@@ -17,6 +18,8 @@ interface Props {
   events:      Event[];
   atLimit:     boolean;
   regsByEvent: Record<string, { count: number; revenue: number }>;
+  draftCount:  number;
+  activeCount: number;
 }
 
 const FILTERS: { key: Filter; label: string }[] = [
@@ -52,11 +55,10 @@ export default function DashboardContent({ events, atLimit, regsByEvent }: Props
     });
 
   return (
-    <div className="bg-white rounded-2xl border overflow-hidden" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
-
+    <>
       {/* Toolbar */}
-      <div className="flex items-center justify-between gap-3 px-4 py-3 border-b flex-wrap" style={{ borderColor: '#E5E0D4' }}>
-        <div className="flex items-center gap-0.5" role="tablist">
+      <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
+        <div className="flex items-center gap-0.5 p-1 rounded-xl" style={{ background: 'white', border: '1px solid #E5E0D4' }} role="tablist">
           {FILTERS.map(f => (
             <button
               key={f.key}
@@ -77,7 +79,7 @@ export default function DashboardContent({ events, atLimit, regsByEvent }: Props
         <select
           value={sort}
           onChange={e => setSort(e.target.value as SortKey)}
-          className="h-7 text-[12px] rounded-lg px-2.5 cursor-pointer outline-none"
+          className="h-8 text-[12px] rounded-lg px-2.5 cursor-pointer outline-none"
           style={{ background: 'white', border: '1px solid #E5E0D4', color: '#3A4A42' }}
         >
           <option value="recent">Most recent</option>
@@ -86,45 +88,39 @@ export default function DashboardContent({ events, atLimit, regsByEvent }: Props
         </select>
       </div>
 
-      {/* Column headers */}
-      <div className="hidden md:grid px-5 py-2 border-b" style={{ borderColor: '#F0EDE7', gridTemplateColumns: '1fr 90px 110px 70px 80px 160px' }}>
-        {['Event', 'Status', 'Date', 'Reg.', 'Revenue', ''].map((h, i) => (
-          <div key={i} className="font-mono text-[10px] tracking-[0.1em] uppercase text-[#6B7A72]">{h}</div>
-        ))}
-      </div>
-
-      {/* Rows */}
+      {/* Empty filter state */}
       {filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
-          <div className="h-10 w-10 rounded-xl grid place-items-center" style={{ background: '#E8EFEB' }}>
+        <div className="rounded-2xl border border-dashed p-12 text-center" style={{ borderColor: '#E5E0D4' }}>
+          <div className="mx-auto h-10 w-10 rounded-xl grid place-items-center mb-3" style={{ background: '#E8EFEB' }}>
             <Search size={16} strokeWidth={1.8} color="#1F4D3A" />
           </div>
-          <div>
-            <div className="font-display font-semibold text-[14px] text-[#0F1F18]">No events match this filter</div>
-            <p className="text-[13px] text-[#6B7A72] mt-0.5">Switch the filter above to see more.</p>
-          </div>
+          <div className="font-display font-semibold text-[14px] text-[#0F1F18]">No events match this filter</div>
+          <p className="text-[13px] text-[#6B7A72] mt-1">Switch the filter above.</p>
         </div>
       ) : (
-        <div className="divide-y" style={{ borderColor: '#F0EDE7' }}>
-          {filtered.map(event => (
-            <EventRow
-              key={event.id}
-              event={event}
-              regCount={regsByEvent[event.id]?.count   ?? 0}
-              revenue={regsByEvent[event.id]?.revenue ?? 0}
-            />
-          ))}
-        </div>
-      )}
+        <>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filtered.map((event, i) => (
+              <EventCard
+                key={event.id}
+                event={event}
+                index={i}
+                regCount={regsByEvent[event.id]?.count   ?? 0}
+                revenue={regsByEvent[event.id]?.revenue ?? 0}
+              />
+            ))}
+          </div>
 
-      {/* Footer */}
-      {!atLimit && filter !== 'archived' && (
-        <div className="px-5 py-3 border-t" style={{ borderColor: '#F0EDE7' }}>
-          <Link href="/events/new" className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-[#1F4D3A] hover:underline">
-            <Plus size={13} strokeWidth={2.4} /> Create a new event
-          </Link>
-        </div>
+          {!atLimit && filter !== 'archived' && (
+            <div className="mt-4">
+              <Link href="/events/new"
+                className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#1F4D3A] hover:underline">
+                <Plus size={13} strokeWidth={2.4} /> Create a new event
+              </Link>
+            </div>
+          )}
+        </>
       )}
-    </div>
+    </>
   );
 }

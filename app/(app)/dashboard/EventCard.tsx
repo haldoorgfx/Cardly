@@ -4,42 +4,42 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { MoreVertical, Pencil, ChevronRight, Link as LinkIcon, RotateCcw, Archive, Trash2, ScanLine, ExternalLink, ArrowRight } from 'lucide-react';
+import { MoreVertical, Pencil, ChevronRight, Link as LinkIcon, RotateCcw, Archive, Trash2, ScanLine, ExternalLink, ArrowRight, Calendar, MapPin } from 'lucide-react';
 import type { Database } from '@/types/database';
 
 type EventRowType = Database['public']['Tables']['events']['Row'];
 type Event = Pick<EventRowType, 'id' | 'name' | 'slug' | 'status' | 'view_count' | 'download_count' | 'updated_at'> & {
   event_pages?: Array<{ starts_at: string | null; venue_name: string | null }> | null;
+  event_variants?: Array<{ id: string; background_url: string | null; position: number }> | null;
 };
 
 interface Props {
   event:    Event;
+  index:    number;
   regCount: number;
   revenue:  number;
 }
 
-function StatusPill({ status }: { status: string }) {
-  if (status === 'published') return (
-    <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap" style={{ background: 'rgba(45,122,79,0.1)', color: '#2D7A4F' }}>
-      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
-    </span>
-  );
-  if (status === 'archived') return (
-    <span className="inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap" style={{ background: '#F5F5F4', color: '#6B7A72' }}>Archived</span>
-  );
-  return (
-    <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap" style={{ background: 'rgba(201,122,45,0.1)', color: '#C97A2D' }}>
-      <span className="h-1.5 w-1.5 rounded-full bg-amber-400" /> Draft
-    </span>
-  );
-}
+// Forest-branded gradients — one per slot, cycles
+const GRADS = [
+  'linear-gradient(135deg, #163828 0%, #1F4D3A 55%, #2A6A50 100%)',
+  'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 45%, #C9A45E 120%)',
+  'linear-gradient(150deg, #122e21 0%, #1F4D3A 70%, #2A6A50 100%)',
+  'linear-gradient(160deg, #1F4D3A 0%, #3E7E5E 100%)',
+];
+
+const STATUS_STYLE = {
+  published: { label: 'Live',     cls: 'bg-emerald-50 text-emerald-700 border-emerald-200', dot: '#2D7A4F', pulse: true },
+  draft:     { label: 'Draft',    cls: 'bg-amber-50 text-amber-700 border-amber-200',       dot: '#C9A45E', pulse: false },
+  archived:  { label: 'Archived', cls: 'bg-[#FAF6EE] text-[#6B7A72] border-[#E5E0D4]',     dot: '#6B7A72', pulse: false },
+};
 
 function formatDate(iso: string | null | undefined) {
   if (!iso) return null;
-  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  return new Date(iso).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-export default function EventRow({ event, regCount, revenue }: Props) {
+export default function EventCard({ event, index, regCount, revenue }: Props) {
   const router = useRouter();
   const [renaming,      setRenaming]      = useState(false);
   const [nameVal,       setNameVal]       = useState(event.name);
@@ -51,6 +51,12 @@ export default function EventRow({ event, regCount, revenue }: Props) {
   const isDraft    = event.status === 'draft';
   const isArchived = event.status === 'archived';
 
+  const st = STATUS_STYLE[event.status as keyof typeof STATUS_STYLE] ?? STATUS_STYLE.draft;
+  const coverImg  = (event.event_variants ?? []).sort((a, b) => a.position - b.position)[0]?.background_url;
+  const coverGrad = GRADS[index % GRADS.length];
+  const eventDate = formatDate(event.event_pages?.[0]?.starts_at);
+  const venue     = event.event_pages?.[0]?.venue_name;
+
   useEffect(() => { if (renaming) inputRef.current?.select(); }, [renaming]);
 
   async function doDelete() {
@@ -58,7 +64,6 @@ export default function EventRow({ event, regCount, revenue }: Props) {
     await fetch(`/api/events/${event.id}`, { method: 'DELETE' });
     router.refresh();
   }
-
   async function doRename() {
     const trimmed = nameVal.trim();
     if (!trimmed || trimmed === event.name) { setRenaming(false); setNameVal(event.name); return; }
@@ -66,35 +71,35 @@ export default function EventRow({ event, regCount, revenue }: Props) {
     await fetch(`/api/events/${event.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: trimmed }) });
     setBusy(false); setRenaming(false); router.refresh();
   }
-
   async function doStatus(status: string) {
     setBusy(true);
     await fetch(`/api/events/${event.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) });
     setBusy(false); router.refresh();
   }
 
-  const eventDate = formatDate(event.event_pages?.[0]?.starts_at);
-
-
-  // ─── Delete confirm ────────────────────────────────────────────────────────
   if (confirmDelete) {
     return (
-      <div className="px-5 py-4 flex items-center justify-between gap-4 bg-red-50/40">
-        <span className="text-[13px] text-[#0F1F18]">Delete <strong>{event.name}</strong>? This cannot be undone.</span>
-        <div className="flex items-center gap-2 shrink-0">
-          <button onClick={() => setConfirmDelete(false)} className="h-7 px-3 rounded-lg text-[12px] font-medium border text-[#3A4A42]" style={{ borderColor: '#E5E0D4', background: 'white' }}>Cancel</button>
-          <button onClick={doDelete} disabled={busy} className="h-7 px-3 rounded-lg text-[12px] font-medium text-white bg-red-500 hover:bg-red-600 disabled:opacity-60">{busy ? 'Deleting…' : 'Delete forever'}</button>
+      <div className="bg-white rounded-2xl border p-6 flex flex-col items-center gap-4 text-center" style={{ borderColor: '#fecaca' }}>
+        <div className="h-8 w-8 rounded-full bg-red-50 grid place-items-center">
+          <Trash2 size={14} strokeWidth={2} color="#ef4444" />
+        </div>
+        <div>
+          <div className="font-display font-semibold text-[14px] text-[#0F1F18]">Delete &ldquo;{event.name}&rdquo;?</div>
+          <div className="text-[12px] text-[#6B7A72] mt-0.5">This cannot be undone.</div>
+        </div>
+        <div className="flex gap-2">
+          <button onClick={() => setConfirmDelete(false)} className="px-4 py-1.5 rounded-lg text-[12px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#3A4A42', background: 'white' }}>Cancel</button>
+          <button onClick={doDelete} disabled={busy} className="px-4 py-1.5 rounded-lg text-[12px] font-medium text-white bg-red-500 hover:bg-red-600 disabled:opacity-60">{busy ? 'Deleting…' : 'Delete forever'}</button>
         </div>
       </div>
     );
   }
 
-  // ─── Dropdown menu ─────────────────────────────────────────────────────────
   const Menu = (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
-        <button className="h-7 w-7 rounded-lg flex items-center justify-center transition" style={{ color: '#6B7A72' }} disabled={busy}
-          onMouseEnter={e => (e.currentTarget.style.background = '#F5F5F4')}
+        <button className="h-7 w-7 rounded-lg flex items-center justify-center transition" style={{ color: 'rgba(255,255,255,0.6)' }} disabled={busy}
+          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.15)')}
           onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
           <MoreVertical size={14} strokeWidth={1.8} />
         </button>
@@ -105,7 +110,6 @@ export default function EventRow({ event, regCount, revenue }: Props) {
             onMouseEnter={e => (e.currentTarget.style.background = '#FAF6EE')} onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
             <Pencil size={13} strokeWidth={1.8} /> Rename
           </DropdownMenu.Item>
-
           {!isLive && (
             <DropdownMenu.Item asChild>
               <Link href={`/events/${event.id}/publish`} className="flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer outline-none font-medium transition" style={{ color: '#1F4D3A' }}
@@ -114,7 +118,6 @@ export default function EventRow({ event, regCount, revenue }: Props) {
               </Link>
             </DropdownMenu.Item>
           )}
-
           {isLive && (
             <DropdownMenu.Item className="flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer outline-none transition" style={{ color: '#3A4A42' }}
               onSelect={() => navigator.clipboard.writeText(`${window.location.origin}/c/${event.slug}`)}
@@ -122,16 +125,13 @@ export default function EventRow({ event, regCount, revenue }: Props) {
               <LinkIcon size={13} strokeWidth={1.8} /> Copy link
             </DropdownMenu.Item>
           )}
-
           <DropdownMenu.Separator className="my-1 h-px" style={{ background: '#E5E0D4' }} />
-
           {isLive && (
             <DropdownMenu.Item className="flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer outline-none transition" style={{ color: '#6B7A72' }} onSelect={() => doStatus('draft')}
               onMouseEnter={e => (e.currentTarget.style.background = '#FAF6EE')} onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
               <RotateCcw size={13} strokeWidth={1.8} /> Unpublish
             </DropdownMenu.Item>
           )}
-
           {!isArchived ? (
             <DropdownMenu.Item className="flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer outline-none transition" style={{ color: '#6B7A72' }} onSelect={() => doStatus('archived')}
               onMouseEnter={e => (e.currentTarget.style.background = '#FAF6EE')} onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
@@ -143,9 +143,7 @@ export default function EventRow({ event, regCount, revenue }: Props) {
               <RotateCcw size={13} strokeWidth={1.8} /> Restore to draft
             </DropdownMenu.Item>
           )}
-
           <DropdownMenu.Separator className="my-1 h-px" style={{ background: '#E5E0D4' }} />
-
           <DropdownMenu.Item className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-red-600 cursor-pointer outline-none transition" onSelect={() => setConfirmDelete(true)}
             onMouseEnter={e => (e.currentTarget.style.background = '#FEF2F2')} onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
             <Trash2 size={13} strokeWidth={1.8} /> Delete
@@ -155,106 +153,88 @@ export default function EventRow({ event, regCount, revenue }: Props) {
     </DropdownMenu.Root>
   );
 
-  // ─── Table row ─────────────────────────────────────────────────────────────
   return (
-    <div className={`group px-5 py-3.5 hover:bg-[#FAFAF9] transition ${isArchived ? 'opacity-60' : ''}`}>
+    <div className={`group bg-white border rounded-2xl overflow-hidden transition-colors hover:border-[#1F4D3A]/40 flex flex-col ${isArchived ? 'opacity-70' : ''}`}
+      style={{ borderColor: '#E5E0D4' }}>
 
-      {/* Desktop: grid columns matching header */}
-      <div className="hidden md:grid items-center gap-3" style={{ gridTemplateColumns: '1fr 90px 110px 70px 80px 160px' }}>
+      {/* ── Cover ── */}
+      <div className="relative h-[88px]"
+        style={coverImg
+          ? { backgroundImage: `url(${coverImg})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+          : { background: coverGrad }}>
+        <div aria-hidden className="absolute inset-0" style={{ background: 'radial-gradient(70% 90% at 92% 8%, rgba(232,197,126,0.28), transparent 60%)' }} />
 
-        {/* Event name */}
-        <div className="min-w-0">
-          {renaming ? (
-            <input ref={inputRef} value={nameVal} onChange={e => setNameVal(e.target.value)}
-              onBlur={doRename} onKeyDown={e => { if (e.key === 'Enter') doRename(); if (e.key === 'Escape') { setRenaming(false); setNameVal(event.name); } }}
-              className="w-full text-[13.5px] font-semibold rounded-lg px-2 py-0.5 outline-none" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }} />
-          ) : (
-            <Link href={`/events/${event.id}`} className="text-[13.5px] font-semibold text-[#0F1F18] hover:text-[#1F4D3A] truncate block transition">
-              {event.name}
-            </Link>
+        {/* Status pill */}
+        <span className={`absolute top-3 left-3 inline-flex items-center gap-1.5 text-[9.5px] font-mono tracking-[0.1em] uppercase px-2 py-0.5 rounded-full border ${st.cls} bg-cream/95`}
+          style={{ background: 'rgba(250,246,238,0.95)' }}>
+          <span className={`w-1.5 h-1.5 rounded-full ${st.pulse ? 'animate-pulse' : ''}`} style={{ background: st.dot }} />
+          {st.label}
+        </span>
+
+        {/* Overflow menu — top right on cover */}
+        <div className="absolute top-2 right-2">{Menu}</div>
+      </div>
+
+      {/* ── Body ── */}
+      <div className="p-4 flex-1 flex flex-col">
+
+        {/* Name */}
+        {renaming ? (
+          <input ref={inputRef} value={nameVal} onChange={e => setNameVal(e.target.value)}
+            onBlur={doRename} onKeyDown={e => { if (e.key === 'Enter') doRename(); if (e.key === 'Escape') { setRenaming(false); setNameVal(event.name); } }}
+            className="w-full text-[15px] font-semibold rounded-lg px-2 py-0.5 outline-none mb-1"
+            style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }} />
+        ) : (
+          <Link href={`/events/${event.id}`}
+            className="font-display text-[15px] font-semibold text-[#0F1F18] tracking-tight leading-snug line-clamp-1 hover:text-[#1F4D3A] transition-colors">
+            {event.name}
+          </Link>
+        )}
+
+        {/* Date + venue */}
+        {(eventDate || venue) && (
+          <div className="flex items-center gap-2 mt-1 font-mono text-[12px] text-[#6B7A72] flex-wrap">
+            {eventDate && <span className="inline-flex items-center gap-1"><Calendar size={12} strokeWidth={1.8} />{eventDate}</span>}
+            {eventDate && venue && <span className="text-[#E5E0D4]">·</span>}
+            {venue && <span className="inline-flex items-center gap-1"><MapPin size={12} strokeWidth={1.8} />{venue}</span>}
+          </div>
+        )}
+
+        {/* Stats */}
+        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[12px] text-[#6B7A72]">
+          <span><span className="text-[#1F4D3A] font-semibold">{regCount}</span> registered</span>
+          {!isDraft && revenue > 0 && (
+            <><span className="text-[#E5E0D4]">·</span>
+            <span><span className="text-[#1F4D3A] font-semibold">${revenue.toLocaleString()}</span></span></>
           )}
         </div>
 
-        {/* Status */}
-        <div><StatusPill status={event.status} /></div>
-
-        {/* Date */}
-        <div className="text-[12px] text-[#6B7A72] truncate">{eventDate ?? <span className="text-[#C9C3B1]">—</span>}</div>
-
-        {/* Registrations */}
-        <div className="font-mono text-[13px]" style={{ color: regCount > 0 ? '#0F1F18' : '#C9C3B1' }}>
-          {regCount > 0 ? regCount.toLocaleString() : '—'}
-        </div>
-
-        {/* Revenue */}
-        <div className="font-mono text-[13px]" style={{ color: revenue > 0 ? '#2D7A4F' : '#C9C3B1' }}>
-          {revenue > 0 ? '$' + revenue.toLocaleString() : '—'}
-        </div>
-
         {/* Actions */}
-        <div className="flex items-center gap-1.5 justify-end">
-          {isDraft ? (
-            <Link href={`/events/${event.id}`}
-              className="inline-flex items-center gap-1 h-7 px-2.5 rounded-lg text-[11.5px] font-medium text-white transition hover:opacity-90"
-              style={{ background: '#1F4D3A' }}>
-              Continue setup <ArrowRight size={10} strokeWidth={2.2} />
-            </Link>
-          ) : (
-            <Link href={`/events/${event.id}`}
-              className="inline-flex items-center gap-1 h-7 px-2.5 rounded-lg text-[11.5px] font-medium text-white transition hover:opacity-90"
-              style={{ background: '#1F4D3A' }}>
-              Manage <ArrowRight size={10} strokeWidth={2.2} />
+        <div className="mt-4 pt-3 border-t flex items-center gap-2" style={{ borderColor: 'rgba(229,224,212,0.7)' }}>
+          <Link href={`/events/${event.id}`}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white text-[12.5px] font-medium transition hover:bg-[#163828]"
+            style={{ background: '#1F4D3A' }}>
+            {isDraft ? 'Continue setup' : 'Manage'} <ArrowRight size={13} strokeWidth={2} />
+          </Link>
+
+          {isLive && (
+            <Link href={`/c/${event.slug}`} target="_blank"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[12.5px] transition hover:border-[#1F4D3A]/40 hover:text-[#1F4D3A]"
+              style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
+              <ExternalLink size={12} strokeWidth={1.8} /> View public
             </Link>
           )}
 
           {isLive && (
-            <>
-              <Link href={`/c/${event.slug}`} target="_blank"
-                className="h-7 w-7 rounded-lg grid place-items-center border transition hover:bg-[#FAF6EE]"
-                style={{ borderColor: '#E5E0D4', color: '#6B7A72' }} title="View public page">
-                <ExternalLink size={12} strokeWidth={1.8} />
-              </Link>
-              <Link href={`/events/${event.id}/check-in`}
-                className="h-7 w-7 rounded-lg grid place-items-center border transition hover:bg-[#FAF6EE]"
-                style={{ borderColor: '#E5E0D4', color: '#6B7A72' }} title="Check-in scanner">
-                <ScanLine size={12} strokeWidth={1.8} />
-              </Link>
-            </>
-          )}
-
-          {Menu}
-        </div>
-      </div>
-
-      {/* Mobile: stacked */}
-      <div className="md:hidden flex items-start justify-between gap-3">
-        <div className="flex-1 min-w-0">
-          {renaming ? (
-            <input ref={inputRef} value={nameVal} onChange={e => setNameVal(e.target.value)}
-              onBlur={doRename} onKeyDown={e => { if (e.key === 'Enter') doRename(); if (e.key === 'Escape') { setRenaming(false); setNameVal(event.name); } }}
-              className="w-full text-[13.5px] font-semibold rounded-lg px-2 py-0.5 outline-none" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }} />
-          ) : (
-            <Link href={`/events/${event.id}`} className="text-[13.5px] font-semibold text-[#0F1F18] hover:text-[#1F4D3A] block truncate transition">
-              {event.name}
+            <Link href={`/events/${event.id}/check-in`}
+              className="ml-auto inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[12.5px] transition hover:bg-[#E8EFEB]"
+              style={{ color: '#1F4D3A' }}
+              title="Check-in scanner">
+              <ScanLine size={15} strokeWidth={1.8} />
             </Link>
           )}
-          <div className="flex items-center gap-2 mt-1 flex-wrap">
-            <StatusPill status={event.status} />
-            {eventDate && <span className="text-[11px] text-[#6B7A72]">{eventDate}</span>}
-            {regCount > 0 && <span className="text-[11px] font-mono text-[#3A4A42]">{regCount} reg</span>}
-            {revenue > 0 && <span className="text-[11px] font-mono text-[#2D7A4F]">${revenue.toLocaleString()}</span>}
-          </div>
-        </div>
-        <div className="flex items-center gap-1 shrink-0">
-          <Link href={`/events/${event.id}`}
-            className="inline-flex items-center gap-1 h-7 px-2.5 rounded-lg text-[11.5px] font-medium text-white"
-            style={{ background: '#1F4D3A' }}>
-            {isDraft ? 'Setup' : 'Manage'}
-          </Link>
-          {Menu}
         </div>
       </div>
-
     </div>
   );
 }
