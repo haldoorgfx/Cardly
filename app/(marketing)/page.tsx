@@ -7,7 +7,7 @@ import {
 import { FAQAccordion, type FAQItem } from '@/components/marketing/FAQAccordion';
 
 export const metadata = {
-  title: 'Karta — The complete event platform',
+  title: { absolute: 'Karta — The complete event platform' },
   description:
     'Registration, tickets, agenda, check-in, networking, and a personalized Karta Card for every attendee. The complete event platform built for organizers everywhere.',
 };
