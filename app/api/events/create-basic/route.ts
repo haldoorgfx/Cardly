@@ -13,10 +13,6 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json().catch(() => ({}));
   const name: string = (body.name as string | undefined)?.trim() || 'Untitled Event';
-  const starts_at: string | null = body.starts_at ?? null;
-  const ends_at: string | null = body.ends_at ?? null;
-  const venue_name: string | null = body.venue_name ?? null;
-  const is_online: boolean = body.is_online ?? false;
 
   const admin = createAdminClient();
 
@@ -24,21 +20,16 @@ export async function POST(req: NextRequest) {
   let event: { id: string; slug: string } | null = null;
   for (let attempt = 0; attempt < 3; attempt++) {
     const slug = generateSlug(name);
-    const row: Record<string, unknown> = {
-      user_id: user.id,
-      name,
-      slug,
-      zones: [],
-      status: 'draft',
-    };
-    if (starts_at) row.starts_at = starts_at;
-    if (ends_at) row.ends_at = ends_at;
-    if (venue_name) row.venue_name = venue_name;
-    if (is_online) row.is_online = is_online;
 
     const { data, error: dbError } = await admin
       .from('events')
-      .insert(row)
+      .insert({
+        user_id: user.id,
+        name,
+        slug,
+        zones: [],
+        status: 'draft' as const,
+      })
       .select('id, slug')
       .single();
 

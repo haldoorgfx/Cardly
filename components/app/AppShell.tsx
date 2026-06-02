@@ -10,6 +10,7 @@ import {
   Settings2, Users, LogOut, Menu, Search, Plus, ChevronRight, CreditCard,
   BarChart2, FileText, Eye, X, ArrowLeft, ShieldCheck,
   Flag, Image as ImageIcon, ScrollText, Sliders, Gavel,
+  Home, Layout, Ticket, ScanLine, CalendarDays, User, Globe,
 } from 'lucide-react';
 
 type Profile = {
@@ -40,6 +41,51 @@ const PLAN_LIMITS: Record<string, number> = {
   free:   PLANS.free.events   ?? Infinity,
   pro:    PLANS.pro.events    ?? Infinity,
   studio: PLANS.studio.events ?? Infinity,
+};
+
+// ─── UUID detection ───────────────────────────────────────────────────────────
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+function getEventIdFromPath(pathname: string): string | null {
+  const m = pathname.match(/\/events\/([^/]+)/);
+  return m && UUID_RE.test(m[1]) ? m[1] : null;
+}
+
+// ─── Event nav ────────────────────────────────────────────────────────────────
+
+type EventInfo = { id: string; name: string; status: string; slug: string } | null;
+
+const EVENT_NAV_SECTIONS = [
+  {
+    title: 'Manage',
+    items: [
+      { id: 'overview',      label: 'Overview',       icon: <Home size={15} strokeWidth={1.8} />,       segment: '' },
+      { id: 'event-page',    label: 'Event page',     icon: <Layout size={15} strokeWidth={1.8} />,     segment: 'event-page' },
+      { id: 'tickets',       label: 'Tickets',        icon: <Ticket size={15} strokeWidth={1.8} />,     segment: 'tickets' },
+      { id: 'registrations', label: 'Registrations',  icon: <Users size={15} strokeWidth={1.8} />,      segment: 'registrations' },
+      { id: 'check-in',      label: 'Check-in',       icon: <ScanLine size={15} strokeWidth={1.8} />,   segment: 'check-in' },
+    ],
+  },
+  {
+    title: 'Programme',
+    items: [
+      { id: 'agenda',   label: 'Agenda',   icon: <CalendarDays size={15} strokeWidth={1.8} />, segment: 'agenda' },
+      { id: 'speakers', label: 'Speakers', icon: <User size={15} strokeWidth={1.8} />,         segment: 'speakers' },
+      { id: 'sessions', label: 'Sessions', icon: <LayoutGrid size={15} strokeWidth={1.8} />,   segment: 'sessions' },
+    ],
+  },
+  {
+    title: 'Insights',
+    items: [
+      { id: 'analytics', label: 'Analytics', icon: <BarChart2 size={15} strokeWidth={1.8} />, segment: 'analytics' },
+    ],
+  },
+];
+
+const EVENT_STATUS_BADGE: Record<string, { cls: string; dot: string; label: string }> = {
+  published: { cls: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30', dot: '#2D7A4F', label: 'Live' },
+  draft:     { cls: 'bg-amber-500/20 text-amber-300 border-amber-500/30',       dot: '#C9A45E', label: 'Draft' },
+  archived:  { cls: 'bg-white/10 text-white/40 border-white/15',                dot: '#6B7A72', label: 'Archived' },
 };
 
 // ─── User nav ─────────────────────────────────────────────────────────────────
@@ -373,6 +419,103 @@ function AdminNavContent({ pathname, onNavigate }: { pathname: string; onNavigat
   );
 }
 
+// ─── Event sidebar content ────────────────────────────────────────────────────
+
+function EventNavContent({ pathname, eventId, onNavigate }: {
+  pathname: string; eventId: string; onNavigate?: () => void;
+}) {
+  const { logoUrl } = usePlanCtx();
+  const [event, setEvent] = useState<EventInfo>(null);
+  const supabase = createClient();
+
+  useEffect(() => {
+    supabase
+      .from('events')
+      .select('id, name, status, slug')
+      .eq('id', eventId)
+      .single()
+      .then(({ data }) => setEvent(data));
+  }, [eventId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const prefix = `/events/${eventId}`;
+  const rest = pathname.startsWith(prefix) ? pathname.slice(prefix.length) : '';
+  const activeSegment = rest === '' || rest === '/' ? '' : rest.split('/').filter(Boolean)[0] ?? '';
+
+  const badge = event?.status ? (EVENT_STATUS_BADGE[event.status] ?? EVENT_STATUS_BADGE.archived) : null;
+
+  return (
+    <>
+      {/* Logo */}
+      <Link href="/" onClick={onNavigate}
+        className="h-14 px-4 flex items-center gap-2.5 shrink-0 transition-opacity hover:opacity-80"
+        style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+        {logoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={logoUrl} alt="Logo" className="max-h-[32px] max-w-[140px] object-contain" />
+        ) : (
+          <>
+            <span className="inline-block w-6 h-6 rounded-md shrink-0"
+              style={{ background: 'linear-gradient(135deg, #FAF6EE 0%, #E8C57E 100%)' }} />
+            <span className="font-display text-[19px] font-bold tracking-tight text-white">Karta</span>
+          </>
+        )}
+      </Link>
+
+      {/* Event context header */}
+      <div className="px-3 pt-3 pb-3 shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+        <Link href="/dashboard" onClick={onNavigate}
+          className="inline-flex items-center gap-1.5 text-[12px] text-white/35 hover:text-white/65 transition-colors mb-3">
+          <ArrowLeft size={13} strokeWidth={2} />
+          All events
+        </Link>
+        <div className="font-display text-[14px] font-semibold text-white leading-snug tracking-tight line-clamp-2 px-0.5">
+          {event ? event.name : <span className="text-white/25">Loading…</span>}
+        </div>
+        {badge && (
+          <span className={`mt-2 inline-flex items-center gap-1.5 text-[10px] font-mono tracking-[0.1em] uppercase px-2 py-0.5 rounded-full border ${badge.cls}`}>
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: badge.dot }} />
+            {badge.label}
+          </span>
+        )}
+      </div>
+
+      {/* Event nav */}
+      <nav className="flex-1 px-3 py-3 overflow-y-auto">
+        {EVENT_NAV_SECTIONS.map(section => (
+          <div key={section.title} className="mb-4">
+            <div className="px-2.5 mb-1.5 text-[10px] font-mono text-white/25 uppercase tracking-widest">
+              {section.title}
+            </div>
+            <ul className="space-y-0.5">
+              {section.items.map(item => {
+                const href = item.segment === ''
+                  ? `/events/${eventId}`
+                  : `/events/${eventId}/${item.segment}`;
+                const active = activeSegment === item.segment;
+                return (
+                  <NavItem key={item.id} href={href} icon={item.icon} label={item.label}
+                    active={active} onNavigate={onNavigate} />
+                );
+              })}
+            </ul>
+          </div>
+        ))}
+      </nav>
+
+      {/* Footer */}
+      <div className="px-3 py-2 shrink-0 border-t" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
+        {event?.status === 'published' && event?.slug && (
+          <a href={`/c/${event.slug}`} target="_blank" rel="noopener noreferrer"
+            className="flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-[12.5px] text-white/40 hover:text-white/70 hover:bg-white/[0.06] transition-colors">
+            <span>View public page</span>
+            <Globe size={13} strokeWidth={1.8} className="shrink-0" />
+          </a>
+        )}
+      </div>
+    </>
+  );
+}
+
 // ─── Command palette ──────────────────────────────────────────────────────────
 
 function CommandPalette({ onClose }: { onClose: () => void }) {
@@ -583,7 +726,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const isFullScreen = /\/events\/[^/]+\/(edit|publish)/.test(pathname);
   if (isFullScreen) return <>{children}</>;
 
-  const SidebarContent = isAdminRoute ? AdminNavContent : UserNavContent;
+  const eventId = getEventIdFromPath(pathname);
+  const isEventRoute = !!eventId && !isAdminRoute;
+
+  function SidebarInner({ onNavigate }: { onNavigate?: () => void }) {
+    if (isAdminRoute) return <AdminNavContent pathname={pathname} onNavigate={onNavigate} />;
+    if (isEventRoute && eventId) return <EventNavContent pathname={pathname} eventId={eventId} onNavigate={onNavigate} />;
+    return <UserNavContent pathname={pathname} onNavigate={onNavigate} />;
+  }
 
   return (
     <PlanContext.Provider value={ctxValue}>
@@ -591,7 +741,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         {/* Desktop sidebar */}
         <aside className="hidden md:flex w-[252px] shrink-0 flex-col sticky top-0 h-screen" style={{ background: '#0F1F18' }}>
-          <SidebarContent pathname={pathname} />
+          <SidebarInner />
         </aside>
 
         {/* Mobile drawer */}
@@ -600,7 +750,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <div className="absolute inset-0 bg-black/50" onClick={() => setMobileNavOpen(false)} />
             <aside className="absolute left-0 top-0 bottom-0 w-[272px] flex flex-col shadow-[4px_0_32px_rgba(0,0,0,0.25)] animate-[slideInLeft_200ms_ease-out]"
               style={{ background: '#0F1F18' }}>
-              <SidebarContent pathname={pathname} onNavigate={() => setMobileNavOpen(false)} />
+              <SidebarInner onNavigate={() => setMobileNavOpen(false)} />
             </aside>
           </div>
         )}
