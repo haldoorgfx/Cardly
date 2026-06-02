@@ -5,10 +5,8 @@ export const metadata: Metadata = { title: 'Registrations' };
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { EventManageNav } from '@/components/events/EventManageNav';
+import { RegistrationTabs } from '@/components/events/RegistrationTabs';
 import { RegistrationsTable } from '@/components/events/RegistrationsTable';
-import { QrCode } from 'lucide-react';
 
 interface Props { params: { id: string } }
 
@@ -36,44 +34,18 @@ export default async function RegistrationsPage({ params }: Props) {
 
   if (!event) redirect('/dashboard');
 
-  // Resolve event page slug for check-in link
-  const { data: eventPage } = await admin
-    .from('event_pages')
-    .select('custom_slug')
-    .eq('event_id', params.id)
-    .single();
-
-  const checkInSlug = eventPage?.custom_slug ?? event.slug;
-
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <EventManageNav eventId={params.id} eventName={event.name} active="registrations" />
+      <RegistrationTabs eventId={params.id} eventName={event.name} />
 
       <div className="max-w-[1100px] mx-auto px-6 py-8">
-        {/* Header */}
-        <div className="flex items-start justify-between mb-6 gap-4">
-          <div>
-            <h1
-              className="font-display font-semibold text-[24px]"
-              style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}
-            >
-              Registrations
-            </h1>
-            <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>
-              Attendee list with check-in status, ticket type, payment, and card download.
-            </p>
-          </div>
-
-          {/* Check-in scanner link */}
-          <Link href={`/e/${checkInSlug}/check-in`}>
-            <button
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-medium whitespace-nowrap"
-              style={{ background: '#1F4D3A', color: 'white' }}
-            >
-              <QrCode size={15} />
-              Check-in scanner
-            </button>
-          </Link>
+        <div className="mb-6">
+          <h1 className="font-display font-semibold text-[24px]" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
+            Attendees
+          </h1>
+          <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>
+            Attendee list with check-in status, ticket type, payment, and card download.
+          </p>
         </div>
 
         <RegistrationsTable

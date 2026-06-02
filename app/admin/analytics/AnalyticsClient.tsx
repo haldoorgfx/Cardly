@@ -63,7 +63,8 @@ export function AnalyticsClient({ stats, userGrowth, cardGrowth, planDist }: Pro
         <StatCard label="Total users" value={stats.totalUsers} />
         <StatCard label="New this month" value={stats.newUsersThisMonth} sub="signups" />
         <StatCard label="Total events" value={stats.totalEvents} sub={`${stats.publishedEvents} published`} />
-        <StatCard label="Cards generated" value={stats.totalCards} />
+        <StatCard label="Total registrations" value={stats.totalRegistrations} />
+        <StatCard label="Cards shared" value={stats.totalCards} />
         <StatCard label="Paid users" value={stats.paidUsers} sub={`${conversionRate}% conversion`} />
         <StatCard
           label="Free users"
@@ -204,7 +205,8 @@ export function AnalyticsClient({ stats, userGrowth, cardGrowth, planDist }: Pro
               { label: 'Conversion rate',     value: `${conversionRate}%` },
               { label: 'Total events',        value: stats.totalEvents },
               { label: 'Published events',    value: stats.publishedEvents },
-              { label: 'Total cards',         value: stats.totalCards },
+              { label: 'Total registrations',  value: stats.totalRegistrations },
+      { label: 'Cards shared',        value: stats.totalCards },
               { label: 'New users (30d)',     value: stats.newUsersThisMonth },
             ].map(row => (
               <div key={row.label} className="flex items-center justify-between py-2 border-b border-[#E5E0D4] last:border-0">

@@ -10,7 +10,7 @@ import {
   Settings2, Users, LogOut, Menu, Search, Plus, ChevronRight, CreditCard,
   BarChart2, FileText, Eye, X, ArrowLeft, ShieldCheck,
   Flag, Image as ImageIcon, ScrollText, Sliders, Gavel,
-  Home, Layout, Ticket, ScanLine, CalendarDays, User, Globe,
+  Home, Layout, CalendarDays, Globe, MessageSquare, IdCard,
 } from 'lucide-react';
 
 type Profile = {
@@ -57,27 +57,15 @@ type EventInfo = { id: string; name: string; status: string; slug: string } | nu
 
 const EVENT_NAV_SECTIONS = [
   {
-    title: 'Manage',
+    title: null,
     items: [
-      { id: 'overview',      label: 'Overview',       icon: <Home size={15} strokeWidth={1.8} />,       segment: '' },
-      { id: 'event-page',    label: 'Event page',     icon: <Layout size={15} strokeWidth={1.8} />,     segment: 'event-page' },
-      { id: 'tickets',       label: 'Tickets',        icon: <Ticket size={15} strokeWidth={1.8} />,     segment: 'tickets' },
-      { id: 'registrations', label: 'Registrations',  icon: <Users size={15} strokeWidth={1.8} />,      segment: 'registrations' },
-      { id: 'check-in',      label: 'Check-in',       icon: <ScanLine size={15} strokeWidth={1.8} />,   segment: 'check-in' },
-    ],
-  },
-  {
-    title: 'Programme',
-    items: [
-      { id: 'agenda',   label: 'Agenda',   icon: <CalendarDays size={15} strokeWidth={1.8} />, segment: 'agenda' },
-      { id: 'speakers', label: 'Speakers', icon: <User size={15} strokeWidth={1.8} />,         segment: 'speakers' },
-      { id: 'sessions', label: 'Sessions', icon: <LayoutGrid size={15} strokeWidth={1.8} />,   segment: 'sessions' },
-    ],
-  },
-  {
-    title: 'Insights',
-    items: [
-      { id: 'analytics', label: 'Analytics', icon: <BarChart2 size={15} strokeWidth={1.8} />, segment: 'analytics' },
+      { id: 'overview',      label: 'Overview',      icon: <Home size={15} strokeWidth={1.8} />,           segment: '' },
+      { id: 'registrations', label: 'Registrations', icon: <Users size={15} strokeWidth={1.8} />,          segment: 'registrations' },
+      { id: 'event-page',    label: 'Event page',    icon: <Layout size={15} strokeWidth={1.8} />,         segment: 'event-page' },
+      { id: 'agenda',        label: 'Agenda',        icon: <CalendarDays size={15} strokeWidth={1.8} />,   segment: 'agenda' },
+      { id: 'engagement',    label: 'Engagement',    icon: <MessageSquare size={15} strokeWidth={1.8} />,  segment: 'engagement' },
+      { id: 'analytics',     label: 'Analytics',     icon: <BarChart2 size={15} strokeWidth={1.8} />,      segment: 'analytics' },
+      { id: 'karta-card',    label: 'Karta Card',    icon: <IdCard size={15} strokeWidth={1.8} />,         segment: 'edit' },
     ],
   },
 ];
@@ -98,9 +86,8 @@ const NAV_ITEMS = [
 ];
 
 const WORKSPACE_ITEMS = [
-  { href: '/settings',         label: 'Settings', icon: <Settings2 size={15} strokeWidth={1.8} /> },
   { href: '/settings/billing', label: 'Billing',  icon: <CreditCard size={15} strokeWidth={1.8} /> },
-  { href: '/team',             label: 'Team',     icon: <Users size={15} strokeWidth={1.8} /> },
+  { href: '/settings',         label: 'Settings', icon: <Settings2 size={15} strokeWidth={1.8} /> },
 ];
 
 // ─── Admin nav ────────────────────────────────────────────────────────────────
@@ -481,11 +468,13 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
 
       {/* Event nav */}
       <nav className="flex-1 px-3 py-3 overflow-y-auto">
-        {EVENT_NAV_SECTIONS.map(section => (
-          <div key={section.title} className="mb-4">
-            <div className="px-2.5 mb-1.5 text-[10px] font-mono text-white/25 uppercase tracking-widest">
-              {section.title}
-            </div>
+        {EVENT_NAV_SECTIONS.map((section, si) => (
+          <div key={si} className="mb-4">
+            {section.title && (
+              <div className="px-2.5 mb-1.5 text-[10px] font-mono text-white/25 uppercase tracking-widest">
+                {section.title}
+              </div>
+            )}
             <ul className="space-y-0.5">
               {section.items.map(item => {
                 const href = item.segment === ''

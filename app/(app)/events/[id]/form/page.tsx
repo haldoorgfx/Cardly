@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { EventManageNav } from '@/components/events/EventManageNav';
+import { RegistrationTabs } from '@/components/events/RegistrationTabs';
 import { RegistrationFormBuilder } from '@/components/events/RegistrationFormBuilder';
 
 interface Props { params: { id: string } }
@@ -22,7 +22,7 @@ export default async function FormBuilderPage({ params }: Props) {
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <EventManageNav eventId={params.id} eventName={event.name} active="form" />
+      <RegistrationTabs eventId={params.id} eventName={event.name} />
       <div className="max-w-[700px] mx-auto px-6 py-8 pb-24">
         <div className="mb-6">
           <h1

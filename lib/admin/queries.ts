@@ -120,6 +120,7 @@ export interface PlatformStats {
   totalEvents: number;
   publishedEvents: number;
   totalCards: number;
+  totalRegistrations: number;
   paidUsers: number;
 }
 
@@ -134,6 +135,7 @@ export async function getPlatformStats(): Promise<PlatformStats> {
     { count: totalEvents },
     { count: publishedEvents },
     { count: totalCards },
+    { count: totalRegistrations },
     { count: paidUsers },
   ] = await Promise.all([
     supabase.from('profiles').select('id', { count: 'exact', head: true }),
@@ -141,6 +143,7 @@ export async function getPlatformStats(): Promise<PlatformStats> {
     supabase.from('events').select('id', { count: 'exact', head: true }),
     supabase.from('events').select('id', { count: 'exact', head: true }).eq('status', 'published'),
     supabase.from('generated_cards').select('id', { count: 'exact', head: true }),
+    supabase.from('registrations').select('id', { count: 'exact', head: true }).in('status', ['confirmed', 'checked_in']),
     supabase.from('profiles').select('id', { count: 'exact', head: true }).in('plan', ['pro', 'studio']),
   ]);
 
@@ -150,6 +153,7 @@ export async function getPlatformStats(): Promise<PlatformStats> {
     totalEvents: totalEvents ?? 0,
     publishedEvents: publishedEvents ?? 0,
     totalCards: totalCards ?? 0,
+    totalRegistrations: totalRegistrations ?? 0,
     paidUsers: paidUsers ?? 0,
   };
 }
