@@ -3,11 +3,13 @@ export const dynamic = 'force-dynamic';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import QRCode from 'qrcode';
-import { Pencil, Download, TrendingUp, ChevronRight, Image as ImageIcon, Type, FileDown } from 'lucide-react';
+import {
+  Pencil, Download, LayoutGrid, Globe, Users, Ticket,
+  ScanLine, CalendarDays, User, BarChart2, IdCard, ArrowRight,
+  FileDown, Eye,
+} from 'lucide-react';
 import CopyButton from '@/components/shared/CopyButton';
 import EventDetailActions from './EventDetailActions';
-import CardPreviewClient from './CardPreviewClient';
 import type { Zone, Variant } from '@/types/database';
 
 function timeAgo(dateStr: string) {
@@ -25,13 +27,13 @@ function getInitials(name: string | null) {
   return name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
 }
 
-const AVATAR_COLORS = [
-  '#1F4D3A',
-  '#2A6A50',
-  '#163828',
-  '#3A6B8C',
-  '#0F1F18',
-];
+const AVATAR_COLORS = ['#1F4D3A', '#2A6A50', '#163828', '#3A6B8C', '#0F1F18'];
+
+const STATUS_STYLE = {
+  published: { label: 'Live',     cls: 'bg-emerald-50 text-emerald-700 border-emerald-200', dot: '#2D7A4F', pulse: true },
+  draft:     { label: 'Draft',    cls: 'bg-amber-50 text-amber-700 border-amber-200',       dot: '#C9A45E', pulse: false },
+  archived:  { label: 'Archived', cls: 'bg-[#FAF6EE] text-[#6B7A72] border-[#E5E0D4]',     dot: '#6B7A72', pulse: false },
+};
 
 export default async function EventDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -43,7 +45,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
   const [{ data: event }, { data: variantsData }, { data: recentCards }] = await Promise.all([
     admin.from('events').select('id, name, slug, status, view_count, download_count, user_id, created_at').eq('id', id).eq('user_id', user.id).single(),
     admin.from('event_variants').select('id, variant_name, variant_slug, background_url, background_width, background_height, zones, position').eq('event_id', id).order('position', { ascending: true }),
-    admin.from('generated_cards').select('id, attendee_name, attendee_data, created_at').eq('event_id', id).order('created_at', { ascending: false }).limit(8),
+    admin.from('generated_cards').select('id, attendee_name, attendee_data, created_at').eq('event_id', id).order('created_at', { ascending: false }).limit(6),
   ]);
 
   if (!event) redirect('/dashboard');
@@ -52,129 +54,233 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
   const firstVariant = variants[0];
   const zones = (firstVariant?.zones as unknown as Zone[]) ?? [];
   const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/c/${event.slug}`;
-  const bgW = firstVariant?.background_width ?? 1080;
-  const bgH = firstVariant?.background_height ?? 1350;
   const activity = recentCards ?? [];
 
   const conversionPct = event.view_count > 0
     ? Math.round((event.download_count / event.view_count) * 100)
     : 0;
 
-  const qrDataUrl = event.status === 'published'
-    ? await QRCode.toDataURL(shareUrl, {
-        width: 180,
-        margin: 2,
-        color: { dark: '#0F1F18', light: '#ffffff' },
-        errorCorrectionLevel: 'M',
-      })
-    : null;
+  const st = STATUS_STYLE[event.status as keyof typeof STATUS_STYLE] ?? STATUS_STYLE.draft;
+
+  // Action items
+  const actionItems: { text: string; cta: string; href: string; accent?: boolean }[] = [];
+  if (event.status === 'draft') {
+    actionItems.push({ text: 'This event is still a draft — publish it to open registration.', cta: 'Publish event', href: `/events/${id}/publish`, accent: true });
+  }
+  if (!firstVariant) {
+    actionItems.push({ text: 'No card design uploaded yet.', cta: 'Upload design', href: `/events/${id}/edit` });
+  } else if (zones.length === 0) {
+    actionItems.push({ text: 'No editable zones defined on the card.', cta: 'Open editor', href: `/events/${id}/edit` });
+  }
+
+  // Feature grid cards
+  const featureCards = [
+    {
+      id: 'karta-card', label: 'Karta Card', icon: <IdCard size={20} strokeWidth={1.7} />,
+      desc: 'The personalized card every attendee gets.',
+      status: `${event.download_count} downloaded`, href: `/events/${id}/edit`, gold: true,
+    },
+    {
+      id: 'registrations', label: 'Registrations', icon: <Users size={20} strokeWidth={1.7} />,
+      desc: 'View and manage attendees who generated a card.',
+      status: `${event.download_count} total`, href: `/events/${id}/registrations`,
+    },
+    {
+      id: 'event-page', label: 'Event Page', icon: <Globe size={20} strokeWidth={1.7} />,
+      desc: 'Edit your public event page and settings.',
+      status: event.status === 'published' ? 'Published' : 'Draft', href: `/events/${id}/event-page`,
+    },
+    {
+      id: 'tickets', label: 'Tickets', icon: <Ticket size={20} strokeWidth={1.7} />,
+      desc: 'Manage ticket types and pricing.',
+      status: null, href: `/events/${id}/tickets`,
+    },
+    {
+      id: 'agenda', label: 'Agenda', icon: <CalendarDays size={20} strokeWidth={1.7} />,
+      desc: 'Build and manage the event schedule.',
+      status: null, href: `/events/${id}/agenda`,
+    },
+    {
+      id: 'speakers', label: 'Speakers', icon: <User size={20} strokeWidth={1.7} />,
+      desc: 'Manage speakers and their sessions.',
+      status: null, href: `/events/${id}/speakers`,
+    },
+    {
+      id: 'sessions', label: 'Sessions', icon: <LayoutGrid size={20} strokeWidth={1.7} />,
+      desc: 'Individual sessions and breakout rooms.',
+      status: null, href: `/events/${id}/sessions`,
+    },
+    {
+      id: 'check-in', label: 'Check-in', icon: <ScanLine size={20} strokeWidth={1.7} />,
+      desc: 'Scan attendees at the door.',
+      status: 'Go live →', href: `/events/${id}/check-in`,
+    },
+    {
+      id: 'analytics', label: 'Analytics', icon: <BarChart2 size={20} strokeWidth={1.7} />,
+      desc: 'Registration funnel and engagement data.',
+      status: 'View →', href: `/events/${id}/analytics`,
+    },
+  ];
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-5 sm:py-8 max-w-[1200px]">
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-[12px] text-neutral-500 mb-6">
-        <Link href="/dashboard" className="hover:text-neutral-700">Events</Link>
-        <span>/</span>
-        <span className="text-neutral-700 truncate max-w-[240px]">{event.name}</span>
+    <div className="min-h-full" style={{ background: '#FAF6EE' }}>
+
+      {/* ── Cover header ── */}
+      <div className="relative h-[176px]" style={{ background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 55%, #2A6A50 100%)' }}>
+        <div aria-hidden className="absolute inset-0" style={{ background: 'radial-gradient(60% 120% at 90% 0%, rgba(232,197,126,0.28), transparent 55%)' }} />
+        <svg aria-hidden viewBox="0 0 1200 176" preserveAspectRatio="none" className="absolute inset-0 w-full h-full" style={{ opacity: 0.08 }}>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <path key={i} d={`M -40 ${36 + i * 36} Q 320 ${-8 + i * 36} 640 ${66 + i * 36} T 1280 ${40 + i * 36}`} fill="none" stroke="#E8C57E" strokeWidth="1.5" />
+          ))}
+        </svg>
+        <div className="relative max-w-[1100px] mx-auto px-6 lg:px-8 h-full flex flex-col justify-end pb-5">
+          {/* Status + actions row */}
+          <div className="flex items-end justify-between gap-4 flex-wrap">
+            <div>
+              <span className={`self-start inline-flex items-center gap-1.5 text-[10px] font-mono tracking-[0.1em] uppercase px-2 py-0.5 rounded-full border bg-[#FAF6EE]/95 mb-3 ${st.cls}`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${st.pulse ? 'animate-pulse' : ''}`} style={{ background: st.dot }} />
+                {st.label}
+              </span>
+              <h1 className="font-display text-[26px] sm:text-[30px] font-bold text-[#FAF6EE] tracking-[-0.02em] leading-tight">
+                {event.name}
+              </h1>
+              <div className="flex items-center gap-2 mt-1.5 font-mono text-[12px] text-[#FAF6EE]/60">
+                <span>/{event.slug}</span>
+                <span className="text-[#FAF6EE]/30">·</span>
+                <span>{variants.length} variant{variants.length !== 1 ? 's' : ''}</span>
+                <span className="text-[#FAF6EE]/30">·</span>
+                <span>{zones.length} zones</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0 pb-0.5">
+              <EventDetailActions eventId={id} eventName={event.name} status={event.status} />
+              <Link href={`/events/${id}/edit`}
+                className="inline-flex items-center gap-1.5 h-8 px-3 text-[13px] font-medium rounded-lg transition border border-white/20 text-white/80 hover:text-white hover:border-white/40 hover:bg-white/[0.08]">
+                <Pencil size={13} strokeWidth={1.8} />
+                Edit zones
+              </Link>
+              <Link href={`/events/${id}/publish`}
+                className="inline-flex items-center gap-1.5 h-8 px-3.5 text-[13px] font-semibold rounded-lg transition"
+                style={{ background: '#E8C57E', color: '#0F1F18' }}>
+                {event.status === 'published' ? 'Share →' : 'Publish →'}
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left: preview + stats + activity */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Preview card */}
-          <div className="bg-white rounded-lg border border-neutral-200 overflow-hidden">
-            <div className="p-6 border-b border-neutral-200 flex items-center justify-between flex-wrap gap-3">
-              <div>
-                <h1 className="text-xl font-semibold">{event.name}</h1>
-                <div className="flex items-center gap-3 mt-1.5">
-                  {event.status === 'published' ? (
-                    <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-1 rounded-full">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
-                    </span>
-                  ) : event.status === 'archived' ? (
-                    <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-neutral-500 bg-neutral-100 px-2 py-1 rounded-full">
-                      <span className="h-1.5 w-1.5 rounded-full bg-neutral-400" /> Archived
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-amber-700 bg-amber-50 px-2 py-1 rounded-full">
-                      <span className="h-1.5 w-1.5 rounded-full bg-amber-500" /> Draft
-                    </span>
-                  )}
-                  <span className="text-[12px] text-neutral-400">{variants.length} variant{variants.length !== 1 ? 's' : ''}</span>
-                  <span className="text-[12px] text-neutral-400">{zones.length} zones</span>
-                  <span className="text-[12px] text-neutral-400">/{event.slug}</span>
-                </div>
+      <div className="max-w-[1100px] mx-auto px-6 lg:px-8 py-7">
+
+        {/* ── Quick stats strip ── */}
+        <div className="bg-white rounded-2xl border px-6 py-4 mb-6 flex flex-wrap items-center gap-x-8 gap-y-3"
+          style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
+          {[
+            { value: event.view_count.toLocaleString(), label: 'page views', icon: <Eye size={14} strokeWidth={1.8} /> },
+            { value: event.download_count.toLocaleString(), label: 'cards generated', icon: <Download size={14} strokeWidth={1.8} /> },
+            { value: `${conversionPct}%`, label: 'conversion', icon: <BarChart2 size={14} strokeWidth={1.8} /> },
+            { value: activity.length.toString(), label: 'recent activity', icon: <Users size={14} strokeWidth={1.8} /> },
+          ].map((s, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <div className="flex items-baseline gap-2">
+                <span className="font-mono text-[20px] text-[#1F4D3A] tracking-tight leading-none">{s.value}</span>
+                <span className="text-[13px] text-[#6B7A72]">{s.label}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <EventDetailActions eventId={id} eventName={event.name} status={event.status} />
-                <Link
-                  href={`/events/${id}/edit`}
-                  className="inline-flex items-center gap-1.5 h-8 px-3 border border-neutral-200 bg-white text-[13px] rounded-md hover:bg-neutral-50 transition"
-                >
-                  <Pencil size={14} strokeWidth={1.8} />
-                  Edit zones
-                </Link>
-                <Link
-                  href={`/events/${id}/publish`}
-                  className="inline-flex items-center gap-1.5 h-8 px-3 bg-[#0F1F18] text-white text-[13px] font-medium rounded-md hover:bg-neutral-800 transition"
-                >
-                  {event.status === 'published' ? 'Share →' : 'Publish →'}
-                </Link>
-              </div>
+              {i < 3 && <span className="text-[#E5E0D4] hidden sm:inline">·</span>}
             </div>
+          ))}
+        </div>
 
-            {firstVariant?.background_url && (
-              <CardPreviewClient
-                backgroundUrl={firstVariant.background_url}
-                bgW={bgW}
-                bgH={bgH}
-                zones={zones}
-                eventName={event.name}
-                maxHeight={460}
-              />
-            )}
+        {/* ── Action items ── */}
+        {actionItems.length > 0 && (
+          <div className="mb-6 grid gap-2.5">
+            {actionItems.map((item, i) => (
+              <div key={i}
+                className={`flex items-center justify-between gap-3 rounded-2xl px-4 py-3 border ${item.accent ? 'border-[#E8C57E]/50' : 'bg-white border-[#E5E0D4]'}`}
+                style={item.accent ? { background: 'linear-gradient(135deg, rgba(232,197,126,0.14), rgba(31,77,58,0.05))' } : undefined}>
+                <span className="text-[13.5px] font-medium" style={{ color: item.accent ? '#163828' : '#3A4A42' }}>
+                  {item.text}
+                </span>
+                <Link href={item.href}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[12.5px] font-semibold shrink-0 transition-colors"
+                  style={item.accent
+                    ? { background: '#E8C57E', color: '#0F1F18' }
+                    : { border: '1px solid rgba(31,77,58,0.25)', color: '#1F4D3A', background: 'transparent' }}>
+                  {item.cta} <ArrowRight size={13} strokeWidth={2} />
+                </Link>
+              </div>
+            ))}
+          </div>
+        )}
 
-            {/* Variants strip */}
-            {variants.length > 1 && (
-              <div className="px-6 py-3 border-t border-neutral-200 flex items-center gap-2 flex-wrap">
-                <span className="text-xs font-medium text-neutral-500 uppercase tracking-wide mr-1">Variants</span>
-                {variants.map(v => (
-                  <span key={v.id} className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#1F4D3A] bg-[#1F4D3A]/8 px-2 py-1 rounded-full">
-                    {v.variant_name}
-                    <span className="text-neutral-400">· {(v.zones as Zone[]).length} zones</span>
+        {/* ── Feature grid ── */}
+        <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#6B7A72] mb-3">Manage this event</div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+          {featureCards.map(card => (
+            <Link key={card.id} href={card.href}
+              className={`group text-left rounded-2xl border p-5 transition-all hover:-translate-y-0.5 ${card.gold ? 'border-[#E8C57E]/60 hover:border-[#E8C57E]' : 'bg-white border-[#E5E0D4] hover:border-[#1F4D3A]/40'}`}
+              style={card.gold ? { background: 'linear-gradient(135deg, rgba(232,197,126,0.16), rgba(31,77,58,0.06))' } : { boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
+              <div className="flex items-start justify-between mb-3">
+                <span className={`w-10 h-10 rounded-xl grid place-items-center ${card.gold ? 'bg-[#E8C57E]/25 text-[#C9A45E]' : 'bg-[#E8EFEB] text-[#1F4D3A]'}`}>
+                  {card.icon}
+                </span>
+                {card.status && (
+                  <span className={`font-mono text-[10px] tracking-[0.08em] ${card.gold ? 'text-[#C9A45E]' : 'text-[#6B7A72]'}`}>
+                    {card.status}
                   </span>
-                ))}
+                )}
+              </div>
+              <div className={`font-display text-[15px] font-semibold tracking-tight flex items-center gap-1.5 ${card.gold ? 'text-[#C9A45E]' : 'text-[#0F1F18]'}`}>
+                {card.label}
+              </div>
+              <p className="text-[13px] text-[#6B7A72] mt-1 leading-[1.5]">{card.desc}</p>
+            </Link>
+          ))}
+        </div>
+
+        {/* ── Share link + recent activity ── */}
+        <div className="grid lg:grid-cols-2 gap-6">
+
+          {/* Share link */}
+          <div className="bg-white rounded-2xl border p-5" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
+            <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#6B7A72] mb-4">
+              {event.status === 'published' ? 'Share link' : 'Ready to share?'}
+            </div>
+            {event.status === 'published' ? (
+              <>
+                <div className="flex items-center gap-2 font-mono text-[12px] text-[#3A4A42] bg-[#FAF6EE] border rounded-lg px-3 py-2 mb-4"
+                  style={{ borderColor: '#E5E0D4' }}>
+                  <span className="flex-1 truncate">{shareUrl}</span>
+                  <CopyButton text={shareUrl} />
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <a href={`https://wa.me/?text=${encodeURIComponent(`Get your personalised card: ${shareUrl}`)}`}
+                    target="_blank" rel="noopener noreferrer"
+                    className="py-2 rounded-lg text-[12px] font-medium text-white text-center transition hover:opacity-90"
+                    style={{ background: '#25D366' }}>WhatsApp</a>
+                  <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Get your personalised card: ${shareUrl}`)}`}
+                    target="_blank" rel="noopener noreferrer"
+                    className="py-2 rounded-lg text-[12px] font-medium text-white text-center bg-black transition hover:opacity-90">X</a>
+                  <a href={shareUrl} target="_blank" rel="noopener noreferrer"
+                    className="py-2 rounded-lg text-[12px] font-medium text-center border transition hover:bg-[#FAF6EE]"
+                    style={{ borderColor: '#E5E0D4', color: '#1F4D3A' }}>Preview ↗</a>
+                </div>
+              </>
+            ) : (
+              <div>
+                <p className="text-[13px] text-[#6B7A72] mb-4">Publish to get a shareable link attendees can open on their phone.</p>
+                <Link href={`/events/${id}/publish`}
+                  className="inline-flex items-center gap-1.5 h-9 px-4 text-white text-[13px] font-semibold rounded-lg transition hover:opacity-90"
+                  style={{ background: '#1F4D3A' }}>
+                  Publish &amp; share →
+                </Link>
               </div>
             )}
           </div>
 
-          {/* Stats row */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="bg-white rounded-lg border border-neutral-200 p-5">
-              <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide">Page Views</div>
-              <div className="mt-2 text-2xl font-semibold leading-none">{event.view_count.toLocaleString()}</div>
-              <div className="mt-2 h-1 rounded-full bg-neutral-100 overflow-hidden">
-                <div className="h-full bg-[#1F4D3A]" style={{ width: '60%' }} />
-              </div>
-            </div>
-            <div className="bg-white rounded-lg border border-neutral-200 p-5">
-              <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide">Downloads</div>
-              <div className="mt-2 text-2xl font-semibold leading-none">{event.download_count.toLocaleString()}</div>
-              <svg className="mt-2 w-full" height="24" viewBox="0 0 160 24" preserveAspectRatio="none" fill="none">
-                <path d="M0,20 L20,16 L40,18 L60,10 L80,14 L100,6 L120,9 L140,3 L160,5" stroke="#1F4D3A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-            <div className="bg-white rounded-lg border border-neutral-200 p-5">
-              <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide">Conversion</div>
-              <div className="mt-2 text-2xl font-semibold leading-none">{conversionPct}%</div>
-              <div className="mt-2 text-[11px] text-neutral-400">views → downloads</div>
-            </div>
-          </div>
-
-          {/* Activity feed */}
-          <div className="bg-white rounded-lg border border-neutral-200 overflow-hidden">
-            <div className="px-5 py-4 border-b border-neutral-200 flex items-center justify-between">
-              <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide">Recent Activity</div>
+          {/* Recent activity */}
+          <div className="bg-white rounded-2xl border overflow-hidden" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
+            <div className="px-5 py-4 border-b flex items-center justify-between" style={{ borderColor: '#E5E0D4' }}>
+              <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#6B7A72]">Recent activity</div>
               <div className="flex items-center gap-3">
                 {activity.length > 0 && (
                   <span className="flex items-center gap-1.5 text-[11px] text-emerald-600">
@@ -183,12 +289,9 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                   </span>
                 )}
                 {event.download_count > 0 && (
-                  <a
-                    href={`/api/events/${id}/export`}
-                    download
-                    className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md border text-[12px] font-medium transition hover:bg-neutral-50"
-                    style={{ borderColor: '#E5E0D4', color: '#1F4D3A' }}
-                  >
+                  <a href={`/api/events/${id}/export`} download
+                    className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-lg border text-[12px] font-medium transition hover:bg-[#FAF6EE]"
+                    style={{ borderColor: '#E5E0D4', color: '#1F4D3A' }}>
                     <FileDown size={12} strokeWidth={2.2} />
                     Export CSV
                   </a>
@@ -197,9 +300,9 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
             </div>
             {activity.length === 0 ? (
               <div className="px-5 py-10 text-center">
-                <div className="text-[13px] text-neutral-400">No cards generated yet.</div>
+                <div className="text-[13px] text-[#6B7A72]">No cards generated yet.</div>
                 {event.status === 'published' ? (
-                  <div className="mt-1 text-[12.5px] text-neutral-400">Share the link to start seeing activity here.</div>
+                  <div className="mt-1 text-[12.5px] text-[#6B7A72]">Share the link to start seeing activity here.</div>
                 ) : (
                   <Link href={`/events/${id}/publish`} className="mt-3 inline-block text-[13px] text-[#1F4D3A] font-medium hover:underline">
                     Publish to start →
@@ -207,28 +310,21 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                 )}
               </div>
             ) : (
-              <div className="divide-y divide-neutral-100">
+              <div className="divide-y" style={{ borderColor: '#E5E0D4' }}>
                 {activity.map((card, i) => {
                   const attendeeData = (card.attendee_data ?? {}) as Record<string, string>;
                   const location = Object.values(attendeeData).find(v => typeof v === 'string' && v.includes(',')) ?? null;
                   return (
-                    <div key={card.id} className="flex items-center gap-3 px-5 py-3.5 hover:bg-neutral-50 transition">
-                      <div
-                        className="h-9 w-9 rounded-full grid place-items-center text-white text-[12px] font-bold shrink-0"
-                        style={{ background: AVATAR_COLORS[i % AVATAR_COLORS.length] }}
-                      >
+                    <div key={card.id} className="flex items-center gap-3 px-5 py-3 hover:bg-[#FAF6EE] transition">
+                      <div className="h-9 w-9 rounded-full grid place-items-center text-white text-[12px] font-bold shrink-0"
+                        style={{ background: AVATAR_COLORS[i % AVATAR_COLORS.length] }}>
                         {getInitials(card.attendee_name)}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="text-[13.5px] font-medium truncate">{card.attendee_name ?? 'Anonymous'}</div>
-                        {location && <div className="text-[11.5px] text-neutral-400 truncate">{location}</div>}
+                        <div className="text-[13px] font-medium text-[#0F1F18] truncate">{card.attendee_name ?? 'Anonymous'}</div>
+                        {location && <div className="text-[11px] text-[#6B7A72] truncate">{location}</div>}
                       </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-[11px] text-neutral-400">{timeAgo(card.created_at)}</span>
-                        <span className="inline-flex items-center gap-1 text-[10px] text-[#1F4D3A] bg-[#1F4D3A]/8 px-1.5 py-0.5 rounded-md">
-                          card
-                        </span>
-                      </div>
+                      <span className="text-[11px] text-[#6B7A72] shrink-0">{timeAgo(card.created_at)}</span>
                     </div>
                   );
                 })}
@@ -237,150 +333,6 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
           </div>
         </div>
 
-        {/* Right: share + zones + info */}
-        <div className="space-y-4">
-          {/* Share link */}
-          {event.status === 'published' ? (
-            <div className="bg-white rounded-lg border border-neutral-200 p-5">
-              <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-3">Share Link</div>
-              <div className="flex items-center gap-2 font-mono text-[13px] text-neutral-600 bg-neutral-50 border border-neutral-200 rounded-md px-3 py-2 mb-3">
-                <span className="flex-1 truncate">{shareUrl}</span>
-                <CopyButton text={shareUrl} />
-              </div>
-              <div className="grid grid-cols-3 gap-2 mb-4">
-                <a
-                  href={`https://wa.me/?text=${encodeURIComponent(`Get your personalized card: ${shareUrl}`)}`}
-                  target="_blank" rel="noopener noreferrer"
-                  className="py-2 rounded-md text-[12px] font-medium text-white text-center"
-                  style={{ background: '#25D366' }}
-                >
-                  WhatsApp
-                </a>
-                <a
-                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Get your personalized card: ${shareUrl}`)}`}
-                  target="_blank" rel="noopener noreferrer"
-                  className="py-2 rounded-md text-[12px] font-medium text-white text-center bg-black"
-                >
-                  X
-                </a>
-                <a
-                  href={shareUrl}
-                  target="_blank" rel="noopener noreferrer"
-                  className="py-2 rounded-md text-[12px] font-medium text-center border border-neutral-200 hover:bg-neutral-50 transition"
-                >
-                  Preview ↗
-                </a>
-              </div>
-
-              {qrDataUrl && (
-                <div className="border-t border-neutral-200 pt-4">
-                  <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-3">QR Code · Display on screen or print</div>
-                  <div className="border border-neutral-200 rounded-lg p-4">
-                    <div className="flex items-center gap-4">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={qrDataUrl}
-                        alt="QR code for attendee link"
-                        className="w-20 h-20 rounded-md border border-neutral-200"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="text-[12.5px] font-medium">Scan to personalise</div>
-                        <div className="text-[11.5px] text-neutral-500 mt-0.5 leading-snug">
-                          Show this QR on stage, in emails, or on printed materials.
-                        </div>
-                        <a
-                          href={qrDataUrl}
-                          download={`${event.slug}-qr.png`}
-                          className="mt-2 inline-flex items-center gap-1 text-[11.5px] text-[#1F4D3A] font-medium hover:underline"
-                        >
-                          <Download size={11} strokeWidth={2.2} />
-                          Download PNG
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="bg-white rounded-lg border border-neutral-200 p-5">
-              <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-3">Ready to Share?</div>
-              <p className="text-[13px] text-neutral-500 mb-4">Publish to get a shareable link for attendees.</p>
-              <Link
-                href={`/events/${id}/publish`}
-                className="w-full h-8 px-3 bg-[#0F1F18] text-white text-[13px] font-medium rounded-md hover:bg-neutral-800 transition flex items-center justify-center"
-              >
-                Publish &amp; share →
-              </Link>
-            </div>
-          )}
-
-          {/* Zones (from first variant) */}
-          <div className="bg-white rounded-lg border border-neutral-200 p-5">
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide">Zones ({zones.length})</div>
-              <Link href={`/events/${id}/edit`} className="text-[11px] text-[#1F4D3A] hover:underline">Edit →</Link>
-            </div>
-            {zones.length === 0 ? (
-              <div className="text-[13px] text-neutral-400 text-center py-4">
-                No zones. <Link href={`/events/${id}/edit`} className="text-[#1F4D3A] font-medium">Open editor →</Link>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {zones.map(z => (
-                  <div key={z.id} className="flex items-center gap-2.5 text-[13px]">
-                    <span className="h-6 w-6 rounded-md bg-neutral-50 border border-neutral-200 grid place-items-center text-[#1F4D3A] shrink-0">
-                      {z.type === 'photo' ? <ImageIcon size={12} strokeWidth={1.8} /> : <Type size={12} strokeWidth={1.8} />}
-                    </span>
-                    <span className="flex-1 truncate">{z.label}</span>
-                    {z.required && <span className="text-[10px] font-mono text-[#1F4D3A] bg-[#1F4D3A]/10 px-1.5 py-0.5 rounded">REQ</span>}
-                    <span className="text-[10px] font-mono text-neutral-400">{z.type}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Event info */}
-          <div className="bg-white rounded-lg border border-neutral-200 p-5">
-            <div className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-3">Event Info</div>
-            <div className="space-y-2.5 text-[13px]">
-              <div className="flex items-center justify-between">
-                <span className="text-neutral-500">Status</span>
-                <span className={`font-medium ${event.status === 'published' ? 'text-emerald-600' : event.status === 'archived' ? 'text-neutral-400' : 'text-amber-600'}`}>
-                  {event.status === 'published' ? 'Live' : event.status === 'archived' ? 'Archived' : 'Draft'}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-neutral-500">Slug</span>
-                <span className="font-mono text-[12px] text-neutral-600">/{event.slug}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-neutral-500">Format</span>
-                <span className="font-mono text-[12px]">{bgW} × {bgH}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-neutral-500">Variants</span>
-                <span className="font-mono text-[12px]">{variants.length}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-neutral-500">Created</span>
-                <span className="text-[12px] text-neutral-500">{new Date(event.created_at).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-              </div>
-            </div>
-          </div>
-
-          <Link href="/dashboard" className="flex items-center gap-3 bg-white rounded-lg border border-neutral-200 p-4 hover:bg-neutral-50 transition group">
-            <div className="h-9 w-9 rounded-md grid place-items-center bg-[#1F4D3A] text-white shrink-0">
-              <TrendingUp size={15} strokeWidth={2} />
-            </div>
-            <div className="flex-1">
-              <div className="text-[13px] font-medium">View full analytics</div>
-              <div className="text-[11.5px] text-neutral-400">All events · charts · funnel</div>
-            </div>
-            <ChevronRight className="text-neutral-300 group-hover:text-neutral-500 transition" size={14} strokeWidth={2} />
-          </Link>
-        </div>
       </div>
     </div>
   );
