@@ -218,21 +218,26 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
           {featureCards.map(card => (
             <Link key={card.id} href={card.href}
               className={`group text-left rounded-2xl border p-5 transition-all hover:-translate-y-0.5 ${card.gold ? 'border-[#E8C57E]/60 hover:border-[#E8C57E]' : 'bg-white border-[#E5E0D4] hover:border-[#1F4D3A]/40'}`}
-              style={card.gold ? { background: 'linear-gradient(135deg, rgba(232,197,126,0.16), rgba(31,77,58,0.06))' } : { boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
+              style={card.gold
+                ? { background: 'linear-gradient(135deg, rgba(232,197,126,0.16), rgba(31,77,58,0.06))', color: 'inherit', textDecoration: 'none' }
+                : { boxShadow: '0 1px 2px rgba(15,31,24,0.04)', color: 'inherit', textDecoration: 'none' }}>
               <div className="flex items-start justify-between mb-3">
-                <span className={`w-10 h-10 rounded-xl grid place-items-center ${card.gold ? 'bg-[#E8C57E]/25 text-[#C9A45E]' : 'bg-[#E8EFEB] text-[#1F4D3A]'}`}>
+                <span className={`w-10 h-10 rounded-xl grid place-items-center ${card.gold ? 'bg-[#E8C57E]/25' : 'bg-[#E8EFEB]'}`}
+                  style={{ color: card.gold ? '#C9A45E' : '#1F4D3A' }}>
                   {card.icon}
                 </span>
                 {card.status && (
-                  <span className={`font-mono text-[10px] tracking-[0.08em] ${card.gold ? 'text-[#C9A45E]' : 'text-[#6B7A72]'}`}>
+                  <span className="font-mono text-[10px] tracking-[0.08em]"
+                    style={{ color: card.gold ? '#C9A45E' : '#6B7A72' }}>
                     {card.status}
                   </span>
                 )}
               </div>
-              <div className={`font-display text-[15px] font-semibold tracking-tight flex items-center gap-1.5 ${card.gold ? 'text-[#C9A45E]' : 'text-[#0F1F18]'}`}>
+              <div className="font-display text-[15px] font-semibold tracking-tight flex items-center gap-1.5"
+                style={{ color: card.gold ? '#C9A45E' : '#0F1F18' }}>
                 {card.label}
               </div>
-              <p className="text-[13px] text-[#6B7A72] mt-1 leading-[1.5]">{card.desc}</p>
+              <p className="text-[13px] mt-1 leading-[1.5]" style={{ color: '#6B7A72' }}>{card.desc}</p>
             </Link>
           ))}
         </div>
