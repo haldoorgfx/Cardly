@@ -7,25 +7,25 @@ import { Analytics } from "@vercel/analytics/next";
 export const metadata: Metadata = {
   metadataBase: new URL("https://karta.cre8so.com"),
   title: {
-    default: "Karta — Your design. Their personalization. One link.",
+    default: "Karta — The complete event platform",
     template: "%s — Karta",
   },
   description:
-    "Upload your event design, define editable zones, and share one link. Attendees personalize and download their own version.",
+    "Registration, tickets, agenda, check-in, networking — and a personalized Karta Card for every attendee. The complete event platform built for organizers everywhere.",
   openGraph: {
     type: "website",
     siteName: "Karta",
-    title: "Karta — Your design. Their personalization. One link.",
+    title: "Karta — The complete event platform",
     description:
-      "Upload your event design, define editable zones, and share one link. Attendees personalize and download their own version.",
+      "Registration, tickets, agenda, check-in, networking — and a personalized Karta Card for every attendee. The complete event platform built for organizers everywhere.",
     url: "https://karta.cre8so.com",
     images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "Karta" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Karta — Your design. Their personalization. One link.",
+    title: "Karta — The complete event platform",
     description:
-      "Upload your event design, define editable zones, and share one link. Attendees personalize and download their own version.",
+      "Registration, tickets, agenda, check-in, networking — and a personalized Karta Card for every attendee. The complete event platform built for organizers everywhere.",
     images: ["/og-default.png"],
   },
 };
@@ -67,7 +67,7 @@ export default function RootLayout({
                   '@id': 'https://karta.cre8so.com/#website',
                   url: 'https://karta.cre8so.com',
                   name: 'Karta',
-                  description: 'Upload your event design, define editable zones, and share one link. Attendees personalize and download their own card.',
+                  description: 'Registration, tickets, agenda, check-in, networking — and a personalized Karta Card for every attendee. The complete event platform.',
                   publisher: { '@id': 'https://karta.cre8so.com/#organization' },
                   potentialAction: {
                     '@type': 'SearchAction',
