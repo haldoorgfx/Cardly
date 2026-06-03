@@ -62,20 +62,25 @@ export default function MessagingClient({
 
   const switchThread = async (threadId: string) => {
     setActiveId(threadId);
+    if (!registrationId) return;
     try {
-      const res = await fetch(`/api/events/${eventId}/messages?threadId=${threadId}`);
+      const res = await fetch(`/api/events/${eventId}/messages?registration_id=${registrationId}&thread_id=${threadId}`);
       const data = await res.json() as { messages: Message[] };
       if (data.messages) setMessages(data.messages);
     } catch {}
   };
 
   const send = async () => {
-    if (!newMsg.trim() || !activeId || sending) return;
+    if (!newMsg.trim() || !activeId || !registrationId || sending) return;
+    const t = threads.find(th => th.id === activeId);
+    const recipientId = t?.registrations?.id;
+    if (!recipientId) return;
+
     setSending(true);
     const optimistic: Message = {
       id: `tmp-${Date.now()}`,
       content: newMsg.trim(),
-      sender_id: registrationId ?? '',
+      sender_id: registrationId,
       created_at: new Date().toISOString(),
       read_at: null,
     };
@@ -85,7 +90,7 @@ export default function MessagingClient({
       const res = await fetch(`/api/events/${eventId}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ thread_id: activeId, content: optimistic.content, sender_id: registrationId }),
+        body: JSON.stringify({ sender_id: registrationId, recipient_id: recipientId, content: optimistic.content }),
       });
       const data = await res.json() as { message: Message };
       if (data.message) {

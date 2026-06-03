@@ -81,10 +81,8 @@ export default function RegistrationClient({
         body: JSON.stringify({
           ticket_type_id: selectedTicket?.id,
           attendee_name: name,
-          email,
-          role,
-          city: cityVal,
-          accent,
+          attendee_email: email,
+          custom_fields: { role, city: cityVal, accent: String(accent) },
         }),
       });
       const data = await res.json() as { registration_id?: string };
