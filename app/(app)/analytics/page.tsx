@@ -1,466 +1,675 @@
 export const dynamic = 'force-dynamic';
 
-import React from 'react';
+import type { Metadata } from 'next';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import GeoMap, { type CityPoint } from '@/components/analytics/GeoMap';
-import { Eye, LayoutGrid, Download as DownloadIcon, CheckCircle2 } from 'lucide-react';
 
-function fmtNum(n: number) {
-  if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
-  if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
-  return n.toLocaleString();
+export const metadata: Metadata = { title: 'Portfolio Analytics' };
+
+// ── helpers ──────────────────────────────────────────────────────────────────
+
+function fmtMoney(n: number) {
+  if (n === 0) return '$0';
+  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}k`;
+  return `$${n.toLocaleString()}`;
 }
+
+function fmtPct(n: number) {
+  return `${Math.round(n)}%`;
+}
+
+/** Map a value from [minV,maxV] → [minP,maxP] */
+function scale(value: number, minV: number, maxV: number, minP: number, maxP: number) {
+  if (maxV === minV) return (minP + maxP) / 2;
+  return minP + ((value - minV) / (maxV - minV)) * (maxP - minP);
+}
+
+/** Build SVG polyline points string from an array of 4 quarterly values */
+function buildPolylinePoints(series: number[], allValues: number[]): string {
+  const minV = Math.min(...allValues, 0);
+  const maxV = Math.max(...allValues, 1);
+  const xs = [40, 293, 547, 780];
+  return series
+    .map((v, i) => `${xs[i]},${scale(v, minV, maxV, 190, 10).toFixed(1)}`)
+    .join(' ');
+}
+
+// ── page ─────────────────────────────────────────────────────────────────────
 
 export default async function AnalyticsPage() {
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
   const admin = createAdminClient();
 
-  const eventIds = (await admin.from('events').select('id').eq('user_id', user.id)).data?.map(e => e.id) ?? [];
+  // 1. Fetch events
+  const { data: eventsRaw } = await admin
+    .from('events')
+    .select('id, name, created_at, status')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false });
 
-  const [{ data: events }, { data: cards }] = await Promise.all([
-    admin.from('events').select('id, name, view_count, download_count, status').eq('user_id', user.id).order('download_count', { ascending: false }),
-    eventIds.length > 0
-      ? admin.from('generated_cards').select('id, event_id, attendee_data, created_at').in('event_id', eventIds).order('created_at', { ascending: false }).limit(1000)
-      : Promise.resolve({ data: [] }),
-  ]);
+  const events = eventsRaw ?? [];
+  const eventIds = events.map((e) => e.id);
 
-  const allEvents = events ?? [];
-  const allCards = (cards as { id: string; event_id: string; attendee_data: Record<string, string> | null; created_at: string }[] | null) ?? [];
+  // 2. Fetch registrations
+  const { data: regsRaw } = eventIds.length > 0
+    ? await admin
+        .from('registrations')
+        .select('event_id, status, amount_paid, karta_card_url, created_at')
+        .in('event_id', eventIds)
+        .in('status', ['confirmed', 'checked_in', 'pending'])
+        .limit(5000)
+    : { data: [] };
 
-  const cityMap = new Map<string, { count: number; lat: number; lng: number; country: string }>();
-  for (const card of allCards) {
-    const d = card.attendee_data as Record<string, unknown> | null;
-    const city    = typeof d?._city    === 'string' ? d._city    : null;
-    const country = typeof d?._country === 'string' ? d._country : '';
-    const lat     = typeof d?._lat     === 'number' ? d._lat     : null;
-    const lng     = typeof d?._lng     === 'number' ? d._lng     : null;
-    if (city && lat !== null && lng !== null) {
-      const existing = cityMap.get(city);
-      if (existing) { existing.count++; }
-      else { cityMap.set(city, { count: 1, lat, lng, country }); }
-    }
+  const regs = (regsRaw ?? []) as {
+    event_id: string;
+    status: string;
+    amount_paid: number | null;
+    karta_card_url: string | null;
+    created_at: string;
+  }[];
+
+  // ── aggregations ─────────────────────────────────────────────────────────
+
+  const totalEvents = events.length;
+  const totalRegs = regs.length;
+  const totalRevenue = regs.reduce((s, r) => s + (r.amount_paid ?? 0), 0);
+  const totalCards = regs.filter((r) => r.karta_card_url != null).length;
+  const cardsPct = totalRegs > 0 ? Math.round((totalCards / totalRegs) * 100) : 0;
+
+  // avg check-in rate across events
+  let avgCheckinRate = 0;
+  if (events.length > 0) {
+    const perEvent = events.map((ev) => {
+      const evRegs = regs.filter((r) => r.event_id === ev.id);
+      if (evRegs.length === 0) return 0;
+      const checkedIn = evRegs.filter((r) => r.status === 'checked_in').length;
+      return (checkedIn / evRegs.length) * 100;
+    });
+    avgCheckinRate = perEvent.reduce((s, v) => s + v, 0) / perEvent.length;
   }
-  const cityData: CityPoint[] = Array.from(cityMap.entries())
-    .map(([city, data]) => ({ city, ...data }))
-    .sort((a, b) => b.count - a.count);
 
-  const totalViews = allEvents.reduce((s, e) => s + (e.view_count ?? 0), 0);
-  const totalCards = allCards.length;
-  const totalDownloads = allEvents.reduce((s, e) => s + (e.download_count ?? 0), 0);
-  const conversionPct = totalViews > 0 ? (totalDownloads / totalViews) * 100 : 0;
+  // per-event stats sorted by regsCount desc
+  const perEventStats = events
+    .map((ev) => {
+      const evRegs = regs.filter((r) => r.event_id === ev.id);
+      const regsCount = evRegs.length;
+      const revenue = evRegs.reduce((s, r) => s + (r.amount_paid ?? 0), 0);
+      const checkedIn = evRegs.filter((r) => r.status === 'checked_in').length;
+      const checkinRate = regsCount > 0 ? Math.round((checkedIn / regsCount) * 100) : 0;
+      const cards = evRegs.filter((r) => r.karta_card_url != null).length;
+      const cardRate = regsCount > 0 ? Math.round((cards / regsCount) * 100) : 0;
+      return { id: ev.id, name: ev.name, created_at: ev.created_at, regsCount, revenue, checkinRate, cardRate };
+    })
+    .sort((a, b) => b.regsCount - a.regsCount);
+
+  // ── quarterly trends ──────────────────────────────────────────────────────
 
   const now = new Date();
+  const thisYear = now.getFullYear();
+  const lastYear = thisYear - 1;
 
-  const days30: { label: string; shortLabel: string; downloads: number; views: number }[] = [];
-  for (let i = 29; i >= 0; i--) {
-    const d = new Date(now);
-    d.setDate(d.getDate() - i);
-    const dayStr = d.toISOString().slice(0, 10);
-    const downloads = allCards.filter(c => c.created_at.slice(0, 10) === dayStr).length;
-    days30.push({
-      label: d.toLocaleDateString('en', { month: 'short', day: 'numeric' }),
-      shortLabel: d.toLocaleDateString('en', { month: 'short', day: 'numeric' }),
-      downloads,
-      views: 0,
-    });
+  const currentPeriod = [0, 0, 0, 0];
+  const lastPeriod = [0, 0, 0, 0];
+
+  for (const r of regs) {
+    const d = new Date(r.created_at);
+    const yr = d.getFullYear();
+    const q = Math.floor(d.getMonth() / 3);
+    if (yr === thisYear) currentPeriod[q]++;
+    else if (yr === lastYear) lastPeriod[q]++;
   }
 
-  const viewMultiplier = totalDownloads > 0 && totalViews > 0
-    ? totalViews / totalDownloads
-    : 4.2;
-  const days30WithViews = days30.map(d => ({
-    ...d,
-    views: Math.round(d.downloads * viewMultiplier),
-  }));
+  const allChartValues = [...currentPeriod, ...lastPeriod];
+  const currentPoints = buildPolylinePoints(currentPeriod, allChartValues);
+  const lastPoints = buildPolylinePoints(lastPeriod, allChartValues);
 
-  const maxY = Math.max(...days30WithViews.map(d => d.views), 1);
-  const chartW = 600;
-  const chartH = 200;
+  // gold dot at end of current line
+  const endXs = [40, 293, 547, 780];
+  const allV = allChartValues;
+  const minV = Math.min(...allV, 0);
+  const maxV = Math.max(...allV, 1);
+  const dotX = endXs[3];
+  const dotY = scale(currentPeriod[3], minV, maxV, 190, 10);
 
-  const viewPoints = days30WithViews.map((d, i) => {
-    const x = (i / (days30WithViews.length - 1)) * chartW;
-    const y = chartH - (d.views / maxY) * (chartH - 20) - 10;
-    return `${x.toFixed(1)},${y.toFixed(1)}`;
-  }).join(' ');
-
-  const dlPoints = days30WithViews.map((d, i) => {
-    const x = (i / (days30WithViews.length - 1)) * chartW;
-    const y = chartH - (d.downloads / maxY) * (chartH - 20) - 10;
-    return `${x.toFixed(1)},${y.toFixed(1)}`;
-  }).join(' ');
-
-  const viewArea = `0,${chartH} ${viewPoints} ${chartW},${chartH}`;
-  const dlArea   = `0,${chartH} ${dlPoints} ${chartW},${chartH}`;
-
-  const topEvents = [...allEvents]
-    .sort((a, b) => (b.download_count ?? 0) - (a.download_count ?? 0))
-    .slice(0, 6);
-
-  const last30Cards = allCards.filter(c => (now.getTime() - new Date(c.created_at).getTime()) < 30 * 86400000).length;
-  const prev30Cards = allCards.filter(c => {
-    const age = now.getTime() - new Date(c.created_at).getTime();
-    return age >= 30 * 86400000 && age < 60 * 86400000;
-  }).length;
-  const cardGrowth = prev30Cards > 0 ? ((last30Cards - prev30Cards) / prev30Cards) * 100 : (last30Cards > 0 ? 100 : 0);
-
-  // Only "Cards generated" has a real period-over-period delta (we store created_at
-  // per card). Views/downloads/conversion are stored as running totals with no
-  // historical snapshots, so we show an honest "all-time" subtitle instead of a
-  // fabricated percentage.
-  const kpis: { label: string; value: string; delta: string | null; sub: string; positive: boolean; icon: React.ReactNode }[] = [
-    {
-      label: 'Page views',
-      value: fmtNum(totalViews),
-      delta: null,
-      sub: 'all-time',
-      positive: true,
-      icon: <Eye size={13} strokeWidth={1.8} color="#1F4D3A" />,
-    },
-    {
-      label: 'Cards generated',
-      value: fmtNum(totalCards),
-      delta: totalCards > 0 ? (cardGrowth >= 0 ? `+${cardGrowth.toFixed(1)}%` : `${cardGrowth.toFixed(1)}%`) : null,
-      sub: 'vs prev 30 days',
-      positive: cardGrowth >= 0,
-      icon: <LayoutGrid size={13} strokeWidth={1.8} color="#1F4D3A" />,
-    },
-    {
-      label: 'Downloads',
-      value: fmtNum(totalDownloads),
-      delta: null,
-      sub: 'all-time',
-      positive: true,
-      icon: <DownloadIcon size={13} strokeWidth={1.8} color="#1F4D3A" />,
-    },
-    {
-      label: 'Conversion',
-      value: `${conversionPct.toFixed(1)}%`,
-      delta: null,
-      sub: 'views → downloads',
-      positive: true,
-      icon: <CheckCircle2 size={13} strokeWidth={1.8} color="#1F4D3A" />,
-    },
-  ];
-
-  const cardStyle = {
-    background: 'white',
-    border: '1px solid #E5E0D4',
-    borderRadius: 16,
-    boxShadow: '0 1px 2px rgba(15,31,24,0.04)',
-  };
+  // ── render ────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-full flex flex-col">
+    <div
+      style={{
+        minHeight: '100vh',
+        background: '#FAF6EE',
+        fontFamily: 'Inter, sans-serif',
+        color: '#0F1F18',
+        padding: '48px 0',
+      }}
+    >
+      <div style={{ maxWidth: 1080, margin: '0 auto', padding: '0 32px' }}>
 
-      {/* ── Page header ── */}
-      <div
-        className="relative overflow-hidden px-6 pt-7 pb-6 border-b shrink-0"
-        style={{ background: 'white', borderColor: '#E5E0D4' }}
-      >
+        {/* ── Page header ── */}
         <div
-          className="absolute pointer-events-none"
-          style={{ top: '-50%', right: '-5%', width: 280, height: 280, background: 'radial-gradient(ellipse, rgba(31,77,58,0.07) 0%, transparent 70%)', filter: 'blur(40px)' }}
-        />
-
-        <div className="relative">
-          {/* Breadcrumb */}
-          <div className="flex items-center gap-1.5 text-[12px] font-mono text-[#6B7A72]/60 mb-3">
-            <span>WORKSPACE</span>
-            <span>/</span>
-            <span className="text-[#6B7A72]">Analytics</span>
-          </div>
-
-          <div className="flex items-end justify-between gap-4 flex-wrap">
-            <div>
-              <h1 className="font-display font-bold text-[28px] text-[#0F1F18] leading-tight tracking-tight">Analytics</h1>
-              <p className="text-[13px] text-[#6B7A72] mt-1">Performance across all events.</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <a
-                href="/api/export-data"
-                className="h-8 px-3 text-[13px] rounded-lg inline-flex items-center gap-2 transition hover:opacity-80"
-                style={{ border: '1px solid #E5E0D4', background: 'white', color: '#3A4A42' }}
-              >
-                <DownloadIcon size={13} strokeWidth={2} />
-                Export data
-              </a>
-            </div>
-          </div>
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: 32,
+            flexWrap: 'wrap',
+            gap: 12,
+          }}
+        >
+          <h1
+            style={{
+              fontFamily: 'DM Sans, sans-serif',
+              fontSize: 24,
+              fontWeight: 600,
+              letterSpacing: '-0.02em',
+              color: '#1F4D3A',
+              margin: 0,
+            }}
+          >
+            Your Events Portfolio
+          </h1>
+          <button
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              fontFamily: 'JetBrains Mono, monospace',
+              fontSize: 12,
+              color: '#3A4A42',
+              background: '#FFFFFF',
+              border: '1px solid #E5E0D4',
+              borderRadius: 9999,
+              padding: '6px 14px',
+              cursor: 'pointer',
+            }}
+          >
+            1 year
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M3 4.5L6 7.5L9 4.5" stroke="#6B7A72" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
         </div>
-      </div>
 
-      {/* ── Content ── */}
-      <div className="flex-1 px-6 py-6 space-y-5">
+        {/* ── Metrics strip ── */}
+        <div
+          style={{
+            background: '#FFFFFF',
+            border: '1px solid #E5E0D4',
+            borderRadius: 14,
+            padding: '20px 28px',
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '6px 4px',
+            alignItems: 'baseline',
+            fontSize: 14,
+            color: '#3A4A42',
+            boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)',
+            marginBottom: 56,
+          }}
+        >
+          <span style={{ fontFamily: 'JetBrains Mono, monospace', color: '#1F4D3A', fontWeight: 600 }}>
+            {totalEvents}
+          </span>
+          <span style={{ margin: '0 2px' }}> events &middot; </span>
+          <span style={{ fontFamily: 'JetBrains Mono, monospace', color: '#1F4D3A', fontWeight: 600 }}>
+            {totalRegs.toLocaleString()}
+          </span>
+          <span style={{ margin: '0 2px' }}> total registrations &middot; </span>
+          <span style={{ fontFamily: 'JetBrains Mono, monospace', color: '#1F4D3A', fontWeight: 600 }}>
+            {fmtMoney(totalRevenue)}
+          </span>
+          <span style={{ margin: '0 2px' }}> total revenue &middot; </span>
+          <span style={{ fontFamily: 'JetBrains Mono, monospace', color: '#1F4D3A', fontWeight: 600 }}>
+            {fmtPct(avgCheckinRate)}
+          </span>
+          <span style={{ margin: '0 2px' }}> avg check-in rate &middot; </span>
+          <span style={{ fontFamily: 'JetBrains Mono, monospace', color: '#1F4D3A', fontWeight: 600 }}>
+            {totalCards.toLocaleString()}
+          </span>
+          <span style={{ margin: '0 2px' }}> Karta Cards downloaded (</span>
+          <span style={{ fontFamily: 'JetBrains Mono, monospace', color: '#1F4D3A', fontWeight: 600 }}>
+            {cardsPct}%
+          </span>
+          <span>)</span>
+        </div>
 
-        {/* KPI row */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {kpis.map(k => (
-            <div key={k.label} style={cardStyle} className="p-5">
-              <div className="flex items-center justify-between mb-4">
-                <div className="text-[11px] font-mono text-[#6B7A72]/70 uppercase tracking-widest">{k.label}</div>
-                <div
-                  className="h-7 w-7 rounded-lg grid place-items-center"
-                  style={{ background: 'rgba(31,77,58,0.08)', border: '1px solid rgba(31,77,58,0.12)' }}
+        {/* ── Registrations over time ── */}
+        <section style={{ marginBottom: 64 }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: 12,
+              marginBottom: 20,
+            }}
+          >
+            <h2
+              style={{
+                fontFamily: 'DM Sans, sans-serif',
+                fontSize: 22,
+                fontWeight: 400,
+                letterSpacing: '-0.015em',
+                color: '#1F4D3A',
+                margin: 0,
+              }}
+            >
+              Registrations
+            </h2>
+            {/* Legend */}
+            <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                <div style={{ width: 24, height: 2, background: '#1F4D3A', borderRadius: 1 }} />
+                <span style={{ fontSize: 12, color: '#3A4A42' }}>This period</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                <svg width="24" height="2" viewBox="0 0 24 2">
+                  <line x1="0" y1="1" x2="24" y2="1" stroke="#A9BDB2" strokeWidth="2" strokeDasharray="4 3" />
+                </svg>
+                <span style={{ fontSize: 12, color: '#6B7A72' }}>Last period</span>
+              </div>
+            </div>
+          </div>
+
+          {/* SVG chart */}
+          <div
+            style={{
+              background: '#FFFFFF',
+              border: '1px solid #E5E0D4',
+              borderRadius: 14,
+              padding: '20px 0 0',
+              boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)',
+              overflow: 'hidden',
+            }}
+          >
+            <svg
+              viewBox="0 0 820 220"
+              preserveAspectRatio="none"
+              width="100%"
+              height="220"
+              style={{ display: 'block' }}
+            >
+              {/* grid lines */}
+              {[10, 70, 130, 190].map((y) => (
+                <line key={y} x1="40" y1={y} x2="780" y2={y} stroke="#E5E0D4" strokeWidth="1" />
+              ))}
+
+              {/* last period dashed */}
+              {lastPeriod.some((v) => v > 0) && (
+                <polyline
+                  points={lastPoints}
+                  fill="none"
+                  stroke="#A9BDB2"
+                  strokeWidth="2"
+                  strokeDasharray="6 4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              )}
+
+              {/* current period solid */}
+              <polyline
+                points={currentPoints}
+                fill="none"
+                stroke="#1F4D3A"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+
+              {/* gold dot at last data point */}
+              <circle cx={dotX} cy={dotY} r="5" fill="#E8C57E" stroke="#FFFFFF" strokeWidth="2" />
+            </svg>
+
+            {/* Q labels */}
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                padding: '8px 24px 16px',
+                borderTop: '1px solid #E5E0D4',
+              }}
+            >
+              {['Q1', 'Q2', 'Q3', 'Q4'].map((q) => (
+                <span
+                  key={q}
+                  style={{
+                    fontFamily: 'JetBrains Mono, monospace',
+                    fontSize: 11,
+                    color: '#6B7A72',
+                    letterSpacing: '0.05em',
+                  }}
                 >
-                  {k.icon}
-                </div>
-              </div>
-              <div className="text-[28px] font-display font-bold text-[#0F1F18] leading-none">{k.value}</div>
-              <div className="mt-2 text-[11.5px] font-mono font-medium flex items-center gap-1">
-                {k.delta && (
-                  <span className={k.positive ? 'text-emerald-600' : 'text-rose-500'}>{k.positive ? '↑' : '↓'} {k.delta}</span>
-                )}
-                <span className="text-[#6B7A72]/60 font-normal">{k.sub}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Chart — Views vs Downloads */}
-        <div style={cardStyle} className="p-6">
-          <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
-            <div>
-              <div className="text-[11px] font-mono text-[#6B7A72]/60 uppercase tracking-widest">Daily views vs downloads</div>
-              <div className="font-display font-semibold text-[15px] text-[#0F1F18] mt-0.5">Last 30 days</div>
-            </div>
-            <div className="flex items-center gap-5">
-              <span className="flex items-center gap-2 text-[12px] text-[#3A4A42]">
-                <span className="h-2.5 w-5 rounded-full inline-block" style={{ background: '#1F4D3A' }} /> Views <span className="text-[#6B7A72]/60">(est.)</span>
-              </span>
-              <span className="flex items-center gap-2 text-[12px] text-[#3A4A42]">
-                <span className="h-2.5 w-5 rounded-full inline-block" style={{ background: '#E8C57E' }} /> Downloads
-              </span>
-            </div>
-          </div>
-
-          <svg viewBox={`0 0 ${chartW} ${chartH + 30}`} className="w-full" style={{ height: 220 }}>
-            <defs>
-              <linearGradient id="ag1" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stopColor="#1F4D3A" stopOpacity="0.15" />
-                <stop offset="100%" stopColor="#1F4D3A" stopOpacity="0" />
-              </linearGradient>
-              <linearGradient id="ag2" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stopColor="#E8C57E" stopOpacity="0.20" />
-                <stop offset="100%" stopColor="#E8C57E" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-
-            {[0, 1, 2, 3].map(i => (
-              <line key={i} x1="0" y1={10 + i * (chartH / 3)} x2={chartW} y2={10 + i * (chartH / 3)} stroke="#E5E0D4" strokeWidth="1" />
-            ))}
-
-            <polygon points={viewArea} fill="url(#ag1)" />
-            <polyline points={viewPoints} fill="none" stroke="#1F4D3A" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-
-            <polygon points={dlArea} fill="url(#ag2)" />
-            <polyline points={dlPoints} fill="none" stroke="#E8C57E" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-
-            {days30WithViews.length > 0 && (() => {
-              const last = days30WithViews[days30WithViews.length - 1];
-              const lx = chartW;
-              const vy = chartH - (last.views / maxY) * (chartH - 20) - 10;
-              const dy = chartH - (last.downloads / maxY) * (chartH - 20) - 10;
-              return (
-                <>
-                  <circle cx={lx} cy={vy} r="4" fill="#1F4D3A" />
-                  <circle cx={lx} cy={dy} r="4" fill="#E8C57E" />
-                </>
-              );
-            })()}
-
-            {[0, 7, 14, 21, 29].map(i => (
-              <text
-                key={i}
-                x={(i / 29) * chartW}
-                y={chartH + 22}
-                fontFamily="JetBrains Mono, monospace"
-                fontSize="9"
-                fill="#6B7A7288"
-                textAnchor={i === 0 ? 'start' : i === 29 ? 'end' : 'middle'}
-              >
-                {days30WithViews[i]?.label ?? ''}
-              </text>
-            ))}
-          </svg>
-
-          {totalCards === 0 && (
-            <div className="text-center text-[13px] text-[#6B7A72] -mt-4 pb-2">
-              No data yet — share your event link to start collecting metrics.
-            </div>
-          )}
-        </div>
-
-        {/* Geo + Funnel */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-
-          {/* Geo map */}
-          <div style={cardStyle} className="lg:col-span-2 p-6">
-            <div className="flex items-center justify-between mb-5">
-              <div>
-                <div className="text-[11px] font-mono text-[#6B7A72]/60 uppercase tracking-widest">Geographic spread</div>
-                <div className="font-display font-semibold text-[15px] text-[#0F1F18] mt-0.5">Worldwide audience</div>
-              </div>
-              <span
-                className="text-[11px] font-mono text-[#6B7A72] px-2.5 py-1 rounded-lg"
-                style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }}
-              >
-                {cityData.length > 0 ? 'Live data' : 'Waiting'}
-              </span>
-            </div>
-            <GeoMap cityData={cityData} totalCards={totalCards} />
-          </div>
-
-          {/* Funnel */}
-          <div style={cardStyle} className="p-6">
-            <div className="text-[11px] font-mono text-[#6B7A72]/60 uppercase tracking-widest mb-1">Funnel · Last 30d</div>
-            <div className="font-display font-semibold text-[15px] text-[#0F1F18] mb-6">Where attendees drop</div>
-            <div className="space-y-5">
-              {[
-                { label: 'Opened link', value: totalViews, pct: 100, bar: 'linear-gradient(135deg,#1F4D3A,#E8C57E)' },
-                { label: 'Started form', value: Math.round(totalViews * 0.46), pct: 46, bar: '#E8C57E' },
-                { label: 'Generated card', value: totalCards, pct: totalViews > 0 ? Math.round((totalCards / totalViews) * 100) : 24, bar: '#ffd28a' },
-                { label: 'Downloaded', value: totalDownloads, pct: totalViews > 0 ? Math.round((totalDownloads / totalViews) * 100) : 19, bar: '#7be0c0' },
-              ].map((step, i) => (
-                <div key={step.label}>
-                  <div className="flex items-center justify-between text-[12.5px] mb-2">
-                    <span className="text-[#3A4A42]">{step.label}</span>
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-[#0F1F18]">{fmtNum(step.value)}</span>
-                      <span className="text-[10.5px] font-mono text-[#6B7A72] w-9 text-right">{step.pct}%</span>
-                    </div>
-                  </div>
-                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: '#E5E0D4' }}>
-                    <div
-                      className="h-full rounded-full"
-                      style={{ width: `${Math.max(step.pct, 1)}%`, background: step.bar }}
-                    />
-                  </div>
-                  {i < 3 && (
-                    <div className="text-[10px] font-mono text-rose-400 mt-1 pl-0.5">
-                      {i === 0 ? `−${100 - 46}% drop` : i === 1 ? `−${46 - (totalViews > 0 ? Math.round((totalCards / totalViews) * 100) : 24)}% drop` : `−${(totalViews > 0 ? Math.round((totalCards / totalViews) * 100) : 24) - (totalViews > 0 ? Math.round((totalDownloads / totalViews) * 100) : 19)}% drop`}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Devices + Sources + Top Events */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-
-          {/* Devices donut */}
-          <div style={cardStyle} className="p-6">
-            <div className="flex items-center justify-between mb-1">
-              <div className="text-[11px] font-mono text-[#6B7A72]/60 uppercase tracking-widest">Devices</div>
-              <span className="text-[9px] font-mono tracking-widest uppercase px-1.5 py-0.5 rounded" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#6B7A72' }}>Sample</span>
-            </div>
-            <div className="font-display font-semibold text-[15px] text-[#0F1F18] mb-5">Mobile-first audience</div>
-            <div className="flex items-center justify-center mb-5">
-              <svg width="140" height="140" viewBox="0 0 42 42">
-                <circle cx="21" cy="21" r="15.91" fill="none" stroke="#E5E0D4" strokeWidth="5.5" />
-                <circle cx="21" cy="21" r="15.91" fill="none" stroke="#1F4D3A" strokeWidth="5.5" strokeDasharray="78 100" strokeDashoffset="25" />
-                <circle cx="21" cy="21" r="15.91" fill="none" stroke="#E8C57E" strokeWidth="5.5" strokeDasharray="16 100" strokeDashoffset="-53" />
-                <circle cx="21" cy="21" r="15.91" fill="none" stroke="#ffd28a" strokeWidth="5.5" strokeDasharray="6 100" strokeDashoffset="-69" />
-                <text x="21" y="20.5" textAnchor="middle" fontFamily="DM Sans, sans-serif" fontWeight="700" fontSize="6" fill="#0F1F18">78%</text>
-                <text x="21" y="24.5" textAnchor="middle" fontFamily="JetBrains Mono, monospace" fontSize="2.2" fill="#6B7A72">MOBILE</text>
-              </svg>
-            </div>
-            <div className="space-y-2.5">
-              {[
-                { label: 'Mobile', pct: 78, color: '#1F4D3A' },
-                { label: 'Desktop', pct: 16, color: '#E8C57E' },
-                { label: 'Tablet', pct: 6, color: '#ffd28a' },
-              ].map(d => (
-                <div key={d.label} className="flex items-center gap-2.5 text-[12.5px] text-[#3A4A42]">
-                  <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ background: d.color }} />
-                  <span className="flex-1">{d.label}</span>
-                  <span className="font-mono text-[#6B7A72]">{d.pct}%</span>
-                </div>
+                  {q}
+                </span>
               ))}
             </div>
           </div>
 
-          {/* Traffic sources */}
-          <div style={cardStyle} className="p-6">
-            <div className="flex items-center justify-between mb-1">
-              <div className="text-[11px] font-mono text-[#6B7A72]/60 uppercase tracking-widest">Traffic sources</div>
-              <span className="text-[9px] font-mono tracking-widest uppercase px-1.5 py-0.5 rounded" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#6B7A72' }}>Sample</span>
-            </div>
-            <div className="font-display font-semibold text-[15px] text-[#0F1F18] mb-5">Where they come from</div>
-            <div className="space-y-3.5">
-              {[
-                { label: 'WhatsApp', pct: 42, color: '#25D366' },
-                { label: 'X / Twitter', pct: 22, color: '#0F1F18' },
-                { label: 'LinkedIn', pct: 14, color: '#0a66c2' },
-                { label: 'Direct', pct: 11, color: '#1F4D3A' },
-                { label: 'Email', pct: 8, color: '#E8C57E' },
-                { label: 'Other', pct: 3, color: '#E5E0D4' },
-              ].map(s => (
-                <div key={s.label} className="flex items-center gap-3">
-                  <span className="text-[12px] w-20 text-[#6B7A72] shrink-0">{s.label}</span>
-                  <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: '#E5E0D4' }}>
-                    <div className="h-full rounded-full" style={{ width: `${s.pct}%`, background: s.color }} />
-                  </div>
-                  <span className="font-mono text-[11px] text-[#6B7A72] w-7 text-right">{s.pct}%</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          {/* Insight */}
+          <p style={{ fontSize: 15, color: '#6B7A72', marginTop: 14, lineHeight: 1.6 }}>
+            {currentPeriod.reduce((a, b) => a + b, 0) > lastPeriod.reduce((a, b) => a + b, 0)
+              ? `Registration volume is up compared to last year. Strong momentum in Q${currentPeriod.indexOf(Math.max(...currentPeriod)) + 1}.`
+              : totalRegs === 0
+              ? 'No registrations yet. Publish an event to start collecting data.'
+              : `Tracking registrations across ${totalEvents} event${totalEvents !== 1 ? 's' : ''}. Data updates in real time.`}
+          </p>
+        </section>
 
-          {/* Top events */}
-          <div style={cardStyle} className="p-6">
-            <div className="flex items-center justify-between mb-1">
-              <div className="text-[11px] font-mono text-[#6B7A72]/60 uppercase tracking-widest">Top events</div>
-              <Link href="/dashboard" className="text-[11px] font-mono text-[#1F4D3A] hover:underline">View all →</Link>
-            </div>
-            <div className="font-display font-semibold text-[15px] text-[#0F1F18] mb-5">By cards generated</div>
+        {/* ── Top events table ── */}
+        <section style={{ marginBottom: 64 }}>
+          <h2
+            style={{
+              fontFamily: 'DM Sans, sans-serif',
+              fontSize: 22,
+              fontWeight: 400,
+              letterSpacing: '-0.015em',
+              color: '#1F4D3A',
+              marginBottom: 20,
+            }}
+          >
+            Top performing events
+          </h2>
 
-            {topEvents.length === 0 ? (
-              <div className="text-center py-8">
-                <div className="text-[13px] text-[#6B7A72]">No events yet.</div>
-                <Link href="/events/new" className="mt-2 inline-block text-[12px] text-[#1F4D3A] hover:underline">Create your first →</Link>
+          <div
+            style={{
+              background: '#FFFFFF',
+              border: '1px solid #E5E0D4',
+              borderRadius: 14,
+              overflow: 'hidden',
+              boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)',
+            }}
+          >
+            {perEventStats.length === 0 ? (
+              <div style={{ padding: '40px 28px', color: '#6B7A72', fontSize: 14, textAlign: 'center' }}>
+                No events yet. Create your first event to see analytics here.
               </div>
             ) : (
-              <div className="space-y-4">
-                {topEvents.map((ev, i) => {
-                  const maxDl = Math.max(topEvents[0].download_count ?? 1, 1);
-                  const pct = ((ev.download_count ?? 0) / maxDl) * 100;
-                  const grads = [
-                    'linear-gradient(135deg,#1F4D3A,#E8C57E)',
-                    'linear-gradient(135deg,#0a2540,#7be0c0)',
-                    'linear-gradient(135deg,#1f8a5b,#ffd28a)',
-                    'linear-gradient(135deg,#3a3aff,#7be0c0)',
-                    'linear-gradient(135deg,#E8C57E,#0F1F18)',
-                    'linear-gradient(135deg,#ffd28a,#E8C57E)',
-                  ];
-                  return (
-                    <Link key={ev.id} href={`/events/${ev.id}`} className="flex items-center gap-3 group">
-                      <div
-                        className="h-8 w-8 rounded-lg shrink-0"
-                        style={{ background: grads[i % grads.length] }}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="text-[12.5px] font-medium text-[#0F1F18] truncate group-hover:text-[#1F4D3A] transition">{ev.name}</div>
-                        <div className="mt-1 h-1 rounded-full overflow-hidden" style={{ background: '#E5E0D4' }}>
-                          <div className="h-full rounded-full" style={{ width: `${pct}%`, background: grads[i % grads.length] }} />
-                        </div>
-                      </div>
-                      <span className="font-mono text-[12px] font-medium text-[#6B7A72] shrink-0">
-                        {fmtNum(ev.download_count ?? 0)}
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid #E5E0D4' }}>
+                    {['Event', 'Date', 'Registrations', 'Revenue', 'Check-in %', 'Cards shared %'].map(
+                      (col, i) => (
+                        <th
+                          key={col}
+                          style={{
+                            padding: '12px 16px',
+                            textAlign: i === 0 ? 'left' : 'right',
+                            fontWeight: 500,
+                            fontSize: 12,
+                            color: '#6B7A72',
+                            letterSpacing: '0.03em',
+                            whiteSpace: 'nowrap',
+                            // hide date + check-in on narrow screens via className
+                          }}
+                          className={i === 1 || i === 4 ? 'hidden md:table-cell' : undefined}
+                        >
+                          {col}
+                        </th>
+                      )
+                    )}
+                  </tr>
+                </thead>
+                <tbody>
+                  {perEventStats.map((ev, idx) => (
+                    <tr
+                      key={ev.id}
+                      style={{
+                        background: idx === 0 ? '#E8EFEB' : undefined,
+                        borderBottom: idx < perEventStats.length - 1 ? '1px solid #E5E0D4' : undefined,
+                      }}
+                    >
+                      <td style={{ padding: '14px 16px' }}>
+                        <span
+                          style={{
+                            fontWeight: idx === 0 ? 600 : 400,
+                            color: idx === 0 ? '#1F4D3A' : '#0F1F18',
+                          }}
+                        >
+                          {ev.name}
+                        </span>
+                      </td>
+                      <td
+                        style={{
+                          padding: '14px 16px',
+                          textAlign: 'right',
+                          color: '#6B7A72',
+                          fontFamily: 'JetBrains Mono, monospace',
+                          fontSize: 12,
+                        }}
+                        className="hidden md:table-cell"
+                      >
+                        {new Date(ev.created_at).toLocaleDateString('en-GB', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
+                      </td>
+                      <td
+                        style={{
+                          padding: '14px 16px',
+                          textAlign: 'right',
+                          fontFamily: 'JetBrains Mono, monospace',
+                          color: '#1F4D3A',
+                          fontWeight: 600,
+                        }}
+                      >
+                        {ev.regsCount.toLocaleString()}
+                      </td>
+                      <td
+                        style={{
+                          padding: '14px 16px',
+                          textAlign: 'right',
+                          fontFamily: 'JetBrains Mono, monospace',
+                          color: '#0F1F18',
+                        }}
+                      >
+                        {fmtMoney(ev.revenue)}
+                      </td>
+                      <td
+                        style={{
+                          padding: '14px 16px',
+                          textAlign: 'right',
+                          fontFamily: 'JetBrains Mono, monospace',
+                          color: '#0F1F18',
+                        }}
+                        className="hidden md:table-cell"
+                      >
+                        {ev.checkinRate}%
+                      </td>
+                      <td
+                        style={{
+                          padding: '14px 16px',
+                          textAlign: 'right',
+                          fontFamily: 'JetBrains Mono, monospace',
+                          color: '#0F1F18',
+                        }}
+                      >
+                        {ev.cardRate}%
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </section>
+
+        {/* ── Card sharing ── */}
+        <section style={{ marginBottom: 64 }}>
+          <h2
+            style={{
+              fontFamily: 'DM Sans, sans-serif',
+              fontSize: 22,
+              fontWeight: 400,
+              letterSpacing: '-0.015em',
+              color: '#1F4D3A',
+              marginBottom: 20,
+            }}
+          >
+            Card sharing across your events
+          </h2>
+
+          <div
+            style={{
+              background: '#FFFFFF',
+              border: '1px solid #E5E0D4',
+              borderRadius: 14,
+              padding: '24px 28px',
+              boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)',
+            }}
+          >
+            {perEventStats.length === 0 ? (
+              <p style={{ color: '#6B7A72', fontSize: 14, margin: 0 }}>No data yet.</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                {perEventStats.slice(0, 6).map((ev) => (
+                  <div key={ev.id}>
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        marginBottom: 7,
+                        fontSize: 13,
+                        color: '#3A4A42',
+                      }}
+                    >
+                      <span>{ev.name}</span>
+                      <span
+                        style={{
+                          fontFamily: 'JetBrains Mono, monospace',
+                          color: '#1F4D3A',
+                          fontWeight: 600,
+                        }}
+                      >
+                        {ev.cardRate}%
                       </span>
-                    </Link>
-                  );
-                })}
+                    </div>
+                    <div
+                      style={{
+                        height: 10,
+                        background: '#E8EFEB',
+                        borderRadius: 9999,
+                        overflow: 'hidden',
+                      }}
+                    >
+                      <div
+                        style={{
+                          height: '100%',
+                          width: `${ev.cardRate}%`,
+                          background: '#1F4D3A',
+                          borderRadius: 9999,
+                          transition: 'width 0.6s ease',
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
-        </div>
+
+          <p style={{ fontSize: 15, color: '#6B7A72', marginTop: 14, lineHeight: 1.6 }}>
+            {cardsPct >= 50
+              ? `Great adoption — ${cardsPct}% of attendees downloaded their Karta Card.`
+              : cardsPct > 0
+              ? `${cardsPct}% of attendees have downloaded a Karta Card so far. Sharing the link directly in your event comms can boost this significantly.`
+              : 'Card sharing data will appear here once attendees start downloading their personalized cards.'}
+          </p>
+        </section>
+
+        {/* ── Revenue ── */}
+        <section style={{ marginBottom: 32 }}>
+          <h2
+            style={{
+              fontFamily: 'DM Sans, sans-serif',
+              fontSize: 22,
+              fontWeight: 400,
+              letterSpacing: '-0.015em',
+              color: '#1F4D3A',
+              marginBottom: 20,
+            }}
+          >
+            Revenue
+          </h2>
+
+          <div
+            style={{
+              background: '#FFFFFF',
+              border: '1px solid #E5E0D4',
+              borderRadius: 14,
+              padding: '24px 28px',
+              boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)',
+            }}
+          >
+            {totalRevenue === 0 ? (
+              <p style={{ color: '#6B7A72', fontSize: 14, margin: 0, textAlign: 'center', padding: '16px 0' }}>
+                No paid tickets yet. Add ticket pricing to your events to track revenue here.
+              </p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {/* Leader: ticket sales */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    padding: '14px 0',
+                    borderBottom: '1px solid #E5E0D4',
+                  }}
+                >
+                  <span style={{ fontSize: 14, color: '#3A4A42', flex: 1 }}>Ticket sales</span>
+                  <div style={{ flex: 1, height: 1, background: '#E5E0D4', margin: '0 12px' }} />
+                  <span
+                    style={{
+                      fontFamily: 'JetBrains Mono, monospace',
+                      fontSize: 16,
+                      fontWeight: 600,
+                      color: '#1F4D3A',
+                    }}
+                  >
+                    {fmtMoney(totalRevenue)}
+                  </span>
+                </div>
+                {/* Per-event breakdown */}
+                {perEventStats
+                  .filter((ev) => ev.revenue > 0)
+                  .map((ev) => (
+                    <div
+                      key={ev.id}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        padding: '10px 0',
+                      }}
+                    >
+                      <span style={{ fontSize: 13, color: '#6B7A72', flex: 1, paddingLeft: 12 }}>
+                        {ev.name}
+                      </span>
+                      <div style={{ flex: 1, height: 1, background: '#E5E0D4', margin: '0 12px' }} />
+                      <span
+                        style={{
+                          fontFamily: 'JetBrains Mono, monospace',
+                          fontSize: 13,
+                          color: '#3A4A42',
+                        }}
+                      >
+                        {fmtMoney(ev.revenue)}
+                      </span>
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
+        </section>
 
       </div>
     </div>
