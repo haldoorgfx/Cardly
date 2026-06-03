@@ -1,24 +1,33 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Star, Check, X, Download } from 'lucide-react';
+import { Star, Check, X, Download, Plus } from 'lucide-react';
 import type { QAQuestion } from '@/types/database';
 
 type QAStatus = 'pending' | 'answered' | 'hidden';
-type Tab = 'all' | QAStatus;
+type FilterTab = 'all' | QAStatus;
+
+interface Poll {
+  id: string;
+  question: string;
+  is_active: boolean;
+  is_closed: boolean;
+  poll_options?: { id: string; text: string; votes_count: number; position: number }[];
+}
 
 interface Props {
   eventId: string;
   initialQuestions: QAQuestion[];
   sessions: { id: string; title: string }[];
+  initialPolls?: Poll[];
 }
 
-export default function QAModerationClient({ eventId, initialQuestions }: Props) {
+export default function QAModerationClient({ eventId, initialQuestions, initialPolls = [] }: Props) {
   const [questions, setQuestions] = useState(initialQuestions);
-  const [tab, setTab] = useState<Tab>('all');
+  const [polls, setPolls] = useState(initialPolls);
+  const [tab, setTab] = useState<FilterTab>('all');
   const [acting, setActing] = useState<string | null>(null);
 
-  // Auto-refresh every 15s
   useEffect(() => {
     const iv = setInterval(async () => {
       try {
@@ -33,6 +42,9 @@ export default function QAModerationClient({ eventId, initialQuestions }: Props)
   const filtered = questions.filter(q => tab === 'all' || q.status === tab);
   const pendingCount = questions.filter(q => q.status === 'pending').length;
   const answeredCount = questions.filter(q => q.status === 'answered').length;
+  const hiddenCount = questions.filter(q => q.status === 'hidden').length;
+
+  const activePoll = polls.find(p => p.is_active && !p.is_closed);
 
   const update = async (qId: string, updates: { status?: QAStatus; is_featured?: boolean }) => {
     setActing(qId);
@@ -49,6 +61,17 @@ export default function QAModerationClient({ eventId, initialQuestions }: Props)
     }
   };
 
+  const closePoll = async (pollId: string) => {
+    try {
+      await fetch(`/api/events/${eventId}/polls`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pollId, is_closed: true }),
+      });
+      setPolls(prev => prev.map(p => p.id === pollId ? { ...p, is_closed: true } : p));
+    } catch {}
+  };
+
   const downloadCSV = () => {
     const rows = [['Question', 'Asker', 'Votes', 'Status', 'Time']];
     questions.forEach(q => {
@@ -62,104 +85,266 @@ export default function QAModerationClient({ eventId, initialQuestions }: Props)
     a.click();
   };
 
+  const TABS: { key: FilterTab; label: string; count: number }[] = [
+    { key: 'all', label: 'All', count: questions.length },
+    { key: 'pending', label: 'Pending', count: pendingCount },
+    { key: 'answered', label: 'Answered', count: answeredCount },
+    { key: 'hidden', label: 'Hidden', count: hiddenCount },
+  ];
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6">
-      {/* Question queue */}
-      <div>
-        {/* Tabs */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex gap-1">
-            {(['all', 'pending', 'answered', 'hidden'] as Tab[]).map(t => (
-              <button
-                key={t}
-                onClick={() => setTab(t)}
-                className="px-3 py-1.5 rounded-lg text-[12px] font-medium transition-colors"
-                style={{ background: tab === t ? '#1F4D3A' : 'transparent', color: tab === t ? 'white' : '#6B7A72' }}
-              >
-                {t.charAt(0).toUpperCase() + t.slice(1)}
-              </button>
-            ))}
+    <div
+      className="grid"
+      style={{
+        gridTemplateColumns: '440px 1fr',
+        height: 'calc(100vh - 200px)',
+        minHeight: 480,
+        border: '1px solid #E5E0D4',
+        borderRadius: 16,
+        overflow: 'hidden',
+        background: 'white',
+      }}
+    >
+      {/* ── Left: Question queue ── */}
+      <aside style={{ borderRight: '1px solid #E5E0D4', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        {/* Queue header */}
+        <div className="px-6 pt-5 pb-3 shrink-0">
+          <div className="font-display font-medium text-[18px]" style={{ color: '#1F4D3A' }}>Q&amp;A Moderation</div>
+          <div className="font-mono text-[12px] mt-1" style={{ color: '#6B7A72' }}>
+            {questions.length} question{questions.length !== 1 ? 's' : ''} · sorted by votes
           </div>
-          <span className="font-mono text-[12px]" style={{ color: '#6B7A72' }}>{filtered.length} question{filtered.length !== 1 ? 's' : ''}</span>
         </div>
 
-        {filtered.length === 0 ? (
-          <div className="rounded-2xl py-12 text-center" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-            <p className="text-[14px]" style={{ color: '#6B7A72' }}>No questions in this filter.</p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {filtered.map(q => (
-              <div
-                key={q.id}
-                className="rounded-xl p-4 flex gap-3"
-                style={{ background: 'white', border: `1px solid ${q.is_featured ? '#E8C57E' : '#E5E0D4'}`, opacity: q.status === 'hidden' ? 0.5 : 1 }}
-              >
-                <span className="font-mono text-[16px] font-semibold w-8 shrink-0 text-right" style={{ color: '#1F4D3A' }}>{q.upvotes_count}</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[14px]" style={{ color: '#0F1F18' }}>{q.question}</p>
-                  <p className="text-[12px] mt-1" style={{ color: '#6B7A72' }}>
-                    {q.is_anonymous ? 'Anonymous' : (q.registrations as { attendee_name: string } | null)?.attendee_name ?? 'Attendee'} · {new Date(q.created_at).toLocaleTimeString()}
-                  </p>
-                </div>
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <button
-                    onClick={() => update(q.id, { is_featured: !q.is_featured })}
-                    disabled={acting === q.id}
-                    title="Feature"
-                    className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-                    style={{ background: q.is_featured ? '#FEF3C7' : '#FAF6EE', color: q.is_featured ? '#E8C57E' : '#6B7A72' }}
-                  >
-                    <Star size={14} fill={q.is_featured ? 'currentColor' : 'none'} />
-                  </button>
-                  <button
-                    onClick={() => update(q.id, { status: q.status === 'answered' ? 'pending' : 'answered' })}
-                    disabled={acting === q.id}
-                    title="Answered"
-                    className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-                    style={{ background: q.status === 'answered' ? '#E8EFEB' : '#FAF6EE', color: q.status === 'answered' ? '#1F4D3A' : '#6B7A72' }}
-                  >
-                    <Check size={14} />
-                  </button>
-                  <button
-                    onClick={() => update(q.id, { status: q.status === 'hidden' ? 'pending' : 'hidden' })}
-                    disabled={acting === q.id}
-                    title="Hide"
-                    className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-                    style={{ background: q.status === 'hidden' ? '#FEE2E2' : '#FAF6EE', color: q.status === 'hidden' ? '#B8423C' : '#6B7A72' }}
-                  >
-                    <X size={14} />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+        {/* Filter tabs */}
+        <div className="flex gap-1 px-5 pb-3 shrink-0" style={{ borderBottom: '1px solid #E5E0D4' }}>
+          {TABS.map(t => (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              className="px-3 py-1.5 rounded-lg text-[12px] font-medium transition-colors"
+              style={{
+                background: tab === t.key ? '#E8EFEB' : 'transparent',
+                color: tab === t.key ? '#1F4D3A' : '#6B7A72',
+              }}
+            >
+              {t.label}
+              {t.count > 0 && t.key !== 'all' && (
+                <span className="ml-1.5 font-mono text-[11px] opacity-70">{t.count}</span>
+              )}
+            </button>
+          ))}
+        </div>
 
-      {/* Stats panel */}
-      <div className="space-y-4">
-        <div className="rounded-2xl p-5" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-          <h3 className="font-display font-medium text-[15px] mb-3" style={{ color: '#1F4D3A' }}>Stats</h3>
+        {/* Scrollable question list */}
+        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
+          {filtered.length === 0 ? (
+            <div className="py-10 text-center">
+              <p className="text-[13px]" style={{ color: '#6B7A72' }}>No questions in this filter.</p>
+            </div>
+          ) : (
+            filtered.map(q => {
+              const asker = q.is_anonymous
+                ? 'Anonymous'
+                : (q.registrations as { attendee_name: string } | null)?.attendee_name ?? 'Attendee';
+              const timeAgo = (() => {
+                const diff = Date.now() - new Date(q.created_at).getTime();
+                const mins = Math.floor(diff / 60000);
+                return mins < 1 ? 'just now' : `${mins}m ago`;
+              })();
+              return (
+                <div
+                  key={q.id}
+                  className="rounded-xl p-4"
+                  style={{
+                    border: `1px solid ${q.is_featured ? '#E8C57E' : '#E5E0D4'}`,
+                    background: '#FAF6EE',
+                    opacity: q.status === 'hidden' ? 0.5 : 1,
+                  }}
+                >
+                  <div className="flex gap-3">
+                    {/* Vote count */}
+                    <span
+                      className="font-mono font-semibold text-[17px] w-7 text-right shrink-0 pt-0.5"
+                      style={{ color: '#1F4D3A' }}
+                    >
+                      {q.upvotes_count}
+                    </span>
+
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[14px] leading-snug" style={{ color: '#0F1F18' }}>{q.question}</p>
+                      <p className="text-[12px] mt-1.5" style={{ color: '#6B7A72' }}>
+                        {asker} · {timeAgo}
+                      </p>
+
+                      {/* Action buttons */}
+                      <div className="flex items-center gap-1.5 mt-2.5">
+                        {/* Feature / un-feature */}
+                        <button
+                          onClick={() => update(q.id, { is_featured: !q.is_featured })}
+                          disabled={acting === q.id}
+                          title="Feature"
+                          className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+                          style={{
+                            background: q.is_featured ? '#E8C57E' : 'white',
+                            border: `1px solid ${q.is_featured ? '#E8C57E' : '#E5E0D4'}`,
+                            color: q.is_featured ? '#0F1F18' : '#6B7A72',
+                          }}
+                        >
+                          <Star size={13} fill={q.is_featured ? 'currentColor' : 'none'} />
+                        </button>
+
+                        {/* Mark answered */}
+                        <button
+                          onClick={() => update(q.id, { status: q.status === 'answered' ? 'pending' : 'answered' })}
+                          disabled={acting === q.id}
+                          title="Answered"
+                          className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+                          style={{
+                            background: q.status === 'answered' ? '#1F4D3A' : 'white',
+                            border: `1px solid ${q.status === 'answered' ? '#1F4D3A' : '#E5E0D4'}`,
+                            color: q.status === 'answered' ? 'white' : '#6B7A72',
+                          }}
+                        >
+                          <Check size={13} />
+                        </button>
+
+                        {/* Hide */}
+                        <button
+                          onClick={() => update(q.id, { status: q.status === 'hidden' ? 'pending' : 'hidden' })}
+                          disabled={acting === q.id}
+                          title={q.status === 'hidden' ? 'Restore' : 'Hide'}
+                          className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+                          style={{
+                            background: q.status === 'hidden' ? '#FEE2E2' : 'white',
+                            border: `1px solid ${q.status === 'hidden' ? '#FCA5A5' : '#E5E0D4'}`,
+                            color: q.status === 'hidden' ? '#B8423C' : '#6B7A72',
+                          }}
+                        >
+                          <X size={13} />
+                        </button>
+
+                        {q.status === 'answered' && (
+                          <span
+                            className="ml-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium"
+                            style={{ background: '#E8EFEB', color: '#1F4D3A' }}
+                          >
+                            <Check size={9} strokeWidth={2.5} /> Answered
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </aside>
+
+      {/* ── Right: Status panel ── */}
+      <section className="overflow-y-auto p-8" style={{ background: '#FAF6EE' }}>
+        {/* Live indicator */}
+        <div className="flex items-center gap-2 mb-1">
+          <span
+            className="w-2.5 h-2.5 rounded-full shrink-0"
+            style={{
+              background: '#1F4D3A',
+              boxShadow: '0 0 0 3px rgba(31,77,58,0.2)',
+              animation: 'pulse 1.4s infinite',
+            }}
+          />
+          <span className="font-display font-medium text-[16px]" style={{ color: '#1F4D3A' }}>
+            Session live
+          </span>
+        </div>
+        <div className="font-mono text-[13px] mb-6" style={{ color: '#6B7A72' }}>
+          {questions.length} questions · {pendingCount} pending
+        </div>
+
+        {/* Stats row */}
+        <div className="grid grid-cols-3 gap-3 mb-8">
           {[
-            { label: 'Total questions', value: questions.length },
+            { label: 'Total', value: questions.length },
             { label: 'Pending', value: pendingCount },
             { label: 'Answered', value: answeredCount },
           ].map(s => (
-            <div key={s.label} className="flex justify-between py-2" style={{ borderBottom: '1px solid #F0EBE3' }}>
-              <span className="text-[13px]" style={{ color: '#6B7A72' }}>{s.label}</span>
-              <span className="font-mono text-[13px] font-medium" style={{ color: '#1F4D3A' }}>{s.value}</span>
+            <div
+              key={s.label}
+              className="rounded-xl p-4 text-center"
+              style={{ background: 'white', border: '1px solid #E5E0D4' }}
+            >
+              <div className="font-mono font-semibold text-[24px]" style={{ color: '#1F4D3A' }}>{s.value}</div>
+              <div className="text-[12px] mt-1" style={{ color: '#6B7A72' }}>{s.label}</div>
             </div>
           ))}
         </div>
-        <button
-          onClick={downloadCSV}
-          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-[13px] font-medium"
-          style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
-        >
-          <Download size={14} /> Download CSV
-        </button>
-      </div>
+
+        {/* Active poll card */}
+        {activePoll && (
+          <div className="rounded-2xl p-5 mb-6" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
+            <div className="text-[10px] font-semibold uppercase tracking-widest mb-2" style={{ color: '#E8C57E' }}>
+              ● Active poll
+            </div>
+            <div className="font-display font-medium text-[15px] mb-4" style={{ color: '#1F4D3A' }}>
+              {activePoll.question}
+            </div>
+            <div className="space-y-2.5">
+              {(activePoll.poll_options ?? [])
+                .sort((a, b) => a.position - b.position)
+                .map(opt => {
+                  const total = (activePoll.poll_options ?? []).reduce((s, o) => s + o.votes_count, 0);
+                  const pct = total > 0 ? Math.round((opt.votes_count / total) * 100) : 0;
+                  return (
+                    <div key={opt.id}>
+                      <div className="flex justify-between text-[12px] mb-1" style={{ color: '#3A4A42' }}>
+                        <span>{opt.text}</span>
+                        <span className="font-mono font-medium" style={{ color: '#1F4D3A' }}>{pct}%</span>
+                      </div>
+                      <div className="h-1.5 rounded-full overflow-hidden" style={{ background: '#E8EFEB' }}>
+                        <div
+                          className="h-full rounded-full transition-all duration-500"
+                          style={{ width: `${pct}%`, background: '#1F4D3A' }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+            <button
+              onClick={() => closePoll(activePoll.id)}
+              className="mt-4 px-4 py-1.5 rounded-lg text-[12px] font-medium transition-colors"
+              style={{ background: '#E8EFEB', color: '#1F4D3A' }}
+            >
+              Close poll
+            </button>
+          </div>
+        )}
+
+        {/* CTAs */}
+        <div className="space-y-2.5">
+          <a
+            href={`/events/${eventId}/polls`}
+            className="flex items-center gap-2 justify-center w-full py-3 rounded-xl text-[13px] font-medium"
+            style={{ background: '#1F4D3A', color: 'white' }}
+          >
+            <Plus size={14} /> Launch new poll
+          </a>
+          <button
+            onClick={downloadCSV}
+            className="flex items-center gap-2 justify-center w-full py-2.5 rounded-xl text-[13px] font-medium"
+            style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
+          >
+            <Download size={14} /> Download questions CSV
+          </button>
+        </div>
+
+        <style>{`
+          @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(31,77,58,0.4); }
+            50% { box-shadow: 0 0 0 6px rgba(31,77,58,0); }
+          }
+        `}</style>
+      </section>
     </div>
   );
 }

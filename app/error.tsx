@@ -1,6 +1,13 @@
+'use client';
+
+import { useEffect } from 'react';
 import Link from 'next/link';
 
-export default function NotFound() {
+export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+  useEffect(() => {
+    console.error('[global error]', error);
+  }, [error]);
+
   return (
     <div className="min-h-screen grid place-items-center px-6" style={{ background: '#FAF6EE' }}>
       <div className="text-center max-w-[440px]">
@@ -10,21 +17,26 @@ export default function NotFound() {
         >
           K
         </div>
-        <div className="text-[11px] font-mono tracking-widest mb-4" style={{ color: 'rgba(15,31,24,0.4)' }}>404</div>
-        <h1 className="font-display font-bold text-[36px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.025em' }}>
-          Page not found.
+        <div className="text-[11px] font-mono tracking-widest mb-4" style={{ color: 'rgba(15,31,24,0.4)' }}>500</div>
+        <h1 className="font-display font-bold text-[34px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.025em' }}>
+          Something went wrong.
         </h1>
         <p className="text-[15px] mt-3 leading-relaxed" style={{ color: 'rgba(15,31,24,0.6)' }}>
-          This page doesn&apos;t exist or was moved. If you&apos;re looking for an event card, double-check the link with the organiser.
+          An unexpected error occurred. The team has been notified. You can try again or go back to the dashboard.
         </p>
+        {error.digest && (
+          <p className="font-mono text-[11px] mt-3" style={{ color: 'rgba(15,31,24,0.3)' }}>
+            Error ID: {error.digest}
+          </p>
+        )}
         <div className="mt-8 flex items-center justify-center gap-3">
-          <Link
-            href="/"
+          <button
+            onClick={reset}
             className="inline-flex items-center gap-2 h-11 px-6 rounded-xl text-white font-medium text-[14px] transition-opacity hover:opacity-90"
-            style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)', boxShadow: '0 4px 12px rgba(31,77,58,0.18)' }}
+            style={{ background: '#1F4D3A', boxShadow: '0 4px 12px rgba(31,77,58,0.18)' }}
           >
-            Go home
-          </Link>
+            Try again
+          </button>
           <Link
             href="/dashboard"
             className="inline-flex items-center gap-2 h-11 px-6 rounded-xl border text-[14px] font-medium transition-colors hover:bg-white"

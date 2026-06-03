@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Key, Webhook, Plus, Trash2, Copy, Check, Eye, EyeOff, ExternalLink } from 'lucide-react';
+import { Key, Webhook, Plus, Trash2, Copy, Check, ExternalLink } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -9,9 +9,18 @@ interface ApiKey {
   id: string;
   name: string;
   key_prefix: string;
+  scopes: string[];
   created_at: string;
   last_used_at: string | null;
 }
+
+const SCOPE_OPTIONS = [
+  { value: 'events:read',         label: 'events:read' },
+  { value: 'registrations:read',  label: 'registrations:read' },
+  { value: 'analytics:read',      label: 'analytics:read' },
+  { value: 'checkin:write',       label: 'checkin:write' },
+  { value: 'full_access',         label: 'full_access' },
+] as const;
 
 interface WebhookRow {
   id: string;
@@ -51,13 +60,15 @@ function CopyBtn({ text }: { text: string }) {
 
 // ─── API Keys section ─────────────────────────────────────────────────────────
 
+const BASE_URL = 'https://karta.cre8so.com/api/v1';
+
 function ApiKeysSection({ plan }: { plan: string }) {
   const [keys, setKeys] = useState<ApiKey[]>([]);
   const [loading, setLoading] = useState(true);
   const [newName, setNewName] = useState('');
+  const [newScopes, setNewScopes] = useState('events:read, registrations:read');
   const [creating, setCreating] = useState(false);
   const [newKey, setNewKey] = useState<string | null>(null);
-  const [showKey, setShowKey] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -68,10 +79,11 @@ function ApiKeysSection({ plan }: { plan: string }) {
     e.preventDefault();
     if (!newName.trim()) return;
     setCreating(true); setError('');
+    const scopes = newScopes.split(',').map(s => s.trim()).filter(Boolean);
     const res = await fetch('/api/keys', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: newName.trim() }),
+      body: JSON.stringify({ name: newName.trim(), scopes }),
     });
     const data = await res.json();
     if (!res.ok) { setError(data.error ?? 'Failed to create key.'); setCreating(false); return; }
@@ -101,83 +113,162 @@ function ApiKeysSection({ plan }: { plan: string }) {
 
   return (
     <div>
-      {/* Reveal new key */}
+      {/* Base URL strip */}
+      <div className="flex items-center gap-3 flex-wrap py-4 mb-2" style={{ borderBottom: '1px solid #E5E0D4' }}>
+        <span className="text-[13px]" style={{ color: '#6B7A72' }}>Base URL:</span>
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full font-mono text-[13px]" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#1F4D3A' }}>
+          {BASE_URL}
+          <CopyBtn text={BASE_URL} />
+        </div>
+        <a href="#" className="ml-auto text-[13px] font-semibold" style={{ color: '#C9A45E' }}>
+          View API docs →
+        </a>
+      </div>
+
+      {/* New key revealed modal */}
       {newKey && (
-        <div className="mb-4 rounded-xl p-4" style={{ background: 'rgba(31,77,58,0.06)', border: '1px solid rgba(31,77,58,0.2)' }}>
-          <div className="text-[12px] font-semibold text-[#1F4D3A] mb-2">Your new API key — copy it now, it won&apos;t be shown again</div>
-          <div className="flex items-center gap-2">
-            <code className="flex-1 font-mono text-[12px] break-all text-[#0F1F18]">
-              {showKey ? newKey : newKey.slice(0, 16) + '…'}
-            </code>
-            <button onClick={() => setShowKey(s => !s)} className="h-7 w-7 grid place-items-center text-[#6B7A72] hover:text-[#0F1F18]">
-              {showKey ? <EyeOff size={13} /> : <Eye size={13} />}
-            </button>
-            <CopyBtn text={newKey} />
+        <div className="mb-5 rounded-2xl p-5" style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 4px 12px rgba(15,31,24,0.08)' }}>
+          <div className="font-display font-medium text-[18px] mb-1" style={{ color: '#1F4D3A' }}>Your new API key</div>
+          <div className="text-[13px] mb-4" style={{ color: '#6B7A72' }}>Copy this key now — it won&apos;t be shown again.</div>
+          <div className="rounded-xl px-4 py-3 font-mono text-[14px] break-all mb-4" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+            {newKey}
           </div>
-          <button onClick={() => setNewKey(null)} className="mt-2 text-[11px] text-[#6B7A72] hover:underline">Dismiss</button>
+          <div className="flex gap-2.5">
+            <button
+              onClick={() => navigator.clipboard.writeText(newKey)}
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[13px] font-semibold text-white"
+              style={{ background: '#1F4D3A' }}
+            >
+              <Copy size={13} /> Copy key
+            </button>
+            <button
+              onClick={() => setNewKey(null)}
+              className="flex-1 py-2.5 rounded-xl text-[13px] font-medium"
+              style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#6B7A72' }}
+            >
+              I&apos;ve copied my key
+            </button>
+          </div>
         </div>
       )}
 
       {/* Create form */}
-      <form onSubmit={create} className="flex gap-2 mb-4">
-        <input
-          type="text"
-          value={newName}
-          onChange={e => setNewName(e.target.value)}
-          placeholder="Key name (e.g. Production)"
-          maxLength={60}
-          className="flex-1 h-9 px-3 text-[13px] rounded-lg border outline-none transition focus:border-[#1F4D3A] focus:ring-[3px] focus:ring-[rgba(31,77,58,0.1)]"
-          style={{ borderColor: '#E5E0D4' }}
-        />
-        <button
-          type="submit"
-          disabled={creating || !newName.trim()}
-          className="h-9 px-4 text-[13px] font-semibold text-white rounded-lg disabled:opacity-50 inline-flex items-center gap-1.5"
-          style={{ background: '#1F4D3A' }}
-        >
-          <Plus size={12} strokeWidth={2.8} />
-          {creating ? 'Creating…' : 'Create'}
-        </button>
-      </form>
-      {error && <p className="text-[12px] text-red-600 mb-3">{error}</p>}
+      <div className="rounded-2xl p-5 mb-5" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
+        <div className="font-display font-medium text-[16px] mb-4" style={{ color: '#1F4D3A' }}>Create API key</div>
+        <form onSubmit={create}>
+          <div className="grid gap-3" style={{ gridTemplateColumns: '1fr 1fr auto' }}>
+            <div>
+              <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>Key name</label>
+              <input
+                type="text"
+                value={newName}
+                onChange={e => setNewName(e.target.value)}
+                placeholder="e.g. My CRM integration"
+                maxLength={60}
+                className="w-full h-10 px-3 text-[13px] rounded-lg border outline-none transition focus:border-[#1F4D3A] focus:ring-[3px] focus:ring-[rgba(31,77,58,0.1)]"
+                style={{ borderColor: '#E5E0D4' }}
+              />
+            </div>
+            <div>
+              <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>Scope</label>
+              <select
+                value={newScopes}
+                onChange={e => setNewScopes(e.target.value)}
+                className="w-full h-10 px-3 text-[13px] rounded-lg border outline-none appearance-none"
+                style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
+              >
+                {SCOPE_OPTIONS.map(s => (
+                  <option key={s.value} value={s.value}>{s.label}</option>
+                ))}
+                <option value="events:read, registrations:read">events:read, registrations:read</option>
+              </select>
+            </div>
+            <div className="flex items-end">
+              <button
+                type="submit"
+                disabled={creating || !newName.trim()}
+                className="h-10 px-5 text-[13px] font-semibold text-white rounded-lg disabled:opacity-50 inline-flex items-center gap-1.5 whitespace-nowrap"
+                style={{ background: '#1F4D3A' }}
+              >
+                <Plus size={12} strokeWidth={2.8} />
+                {creating ? 'Creating…' : 'Create key'}
+              </button>
+            </div>
+          </div>
+          {error && <p className="text-[12px] text-red-600 mt-2">{error}</p>}
+        </form>
+      </div>
 
-      {/* Keys list */}
+      {/* Keys table */}
+      <div className="font-display font-medium text-[16px] mb-3" style={{ color: '#1F4D3A' }}>Active keys</div>
       {loading ? (
         <div className="text-[13px] text-[#6B7A72]">Loading…</div>
       ) : keys.length === 0 ? (
-        <div className="text-center py-6 text-[13px] text-[#6B7A72]">No API keys yet.</div>
+        <div className="text-center py-8 rounded-2xl text-[13px]" style={{ background: 'white', border: '1px solid #E5E0D4', color: '#6B7A72' }}>
+          No API keys yet.
+        </div>
       ) : (
-        <div className="rounded-xl overflow-hidden border" style={{ borderColor: '#E5E0D4' }}>
-          {keys.map((k, i) => (
-            <div
-              key={k.id}
-              className="flex items-center gap-3 px-4 py-3"
-              style={{ borderBottom: i < keys.length - 1 ? '1px solid #E5E0D4' : 'none' }}
-            >
-              <Key size={13} strokeWidth={2} color="#6B7A72" className="shrink-0" />
-              <div className="flex-1 min-w-0">
-                <div className="text-[13px] font-medium text-[#0F1F18]">{k.name}</div>
-                <div className="text-[11.5px] font-mono text-[#6B7A72]">
-                  {k.key_prefix}… · created {relativeTime(k.created_at)}
-                  {k.last_used_at && ` · last used ${relativeTime(k.last_used_at)}`}
-                </div>
-              </div>
-              <button
-                onClick={() => revoke(k.id)}
-                className="h-7 w-7 grid place-items-center rounded-lg transition hover:bg-red-50"
-                style={{ color: '#B8423C' }}
-                title="Revoke key"
-              >
-                <Trash2 size={13} />
-              </button>
-            </div>
-          ))}
+        <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
+          <table className="w-full">
+            <thead>
+              <tr style={{ borderBottom: '1px solid #E5E0D4', background: '#FAF6EE' }}>
+                {['Name', 'Key', 'Scopes', 'Last used', 'Created', 'Actions'].map(h => (
+                  <th key={h} className="text-left px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider" style={{ color: '#6B7A72' }}>
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {keys.map((k, i) => (
+                <tr
+                  key={k.id}
+                  style={{ borderBottom: i < keys.length - 1 ? '1px solid #F0EBE3' : 'none', background: 'white' }}
+                >
+                  <td className="px-4 py-3">
+                    <span className="font-display font-medium text-[14px]" style={{ color: '#1F4D3A' }}>{k.name}</span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full font-mono text-[12px] w-fit" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#1F4D3A' }}>
+                      {k.key_prefix}…
+                      <CopyBtn text={k.key_prefix} />
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex flex-wrap gap-1.5">
+                      {(k.scopes ?? ['events:read']).map(s => (
+                        <span key={s} className="inline-flex items-center h-5 px-2 rounded-full text-[11px] font-medium" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+                          {s}
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 font-mono text-[12px]" style={{ color: '#6B7A72' }}>
+                    {k.last_used_at ? relativeTime(k.last_used_at) : '—'}
+                  </td>
+                  <td className="px-4 py-3 font-mono text-[12px]" style={{ color: '#6B7A72' }}>
+                    {new Date(k.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      <button className="text-[13px] font-medium" style={{ color: '#3A4A42' }}>
+                        Rotate
+                      </button>
+                      <button
+                        onClick={() => revoke(k.id)}
+                        className="text-[13px] font-medium"
+                        style={{ color: '#B8423C' }}
+                      >
+                        Revoke
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
-
-      <p className="mt-3 text-[12px] text-[#6B7A72]">
-        Use as a Bearer token: <code className="font-mono text-[11px] bg-[#FAF6EE] px-1.5 py-0.5 rounded-md">Authorization: Bearer sk_live_…</code> · API endpoint: <code className="font-mono text-[11px] bg-[#FAF6EE] px-1.5 py-0.5 rounded-md">POST /api/v1/render</code>
-      </p>
     </div>
   );
 }

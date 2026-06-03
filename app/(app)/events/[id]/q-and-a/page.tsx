@@ -28,19 +28,28 @@ export default async function QAModerationPage({ params }: Props) {
     .order('upvotes_count', { ascending: false })
     .order('created_at', { ascending: true });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: polls } = await (admin as any)
+    .from('polls')
+    .select('*, poll_options(id, text, votes_count, position)')
+    .eq('event_id', params.id)
+    .order('created_at', { ascending: false });
+
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
       <EventManageNav eventId={params.id} eventName={event.name} active="q-and-a" />
-      <div className="max-w-[1100px] mx-auto px-6 py-8">
-        <div className="mb-6">
-          <h1 className="font-display font-semibold text-[24px]" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>Q&amp;A</h1>
-          <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>Moderate live questions from attendees.</p>
+      <div className="px-6 py-6">
+        <div className="mb-5">
+          <h1 className="font-display font-semibold text-[22px]" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>Q&amp;A Moderation</h1>
+          <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>Feature, answer, or hide questions in real time.</p>
         </div>
         <QAModerationClient
           eventId={params.id}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           initialQuestions={(questions ?? []) as any}
           sessions={(sessions ?? []) as { id: string; title: string }[]}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          initialPolls={(polls ?? []) as any}
         />
       </div>
     </div>
