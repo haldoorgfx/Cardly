@@ -1,10 +1,9 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { Search, Download, CheckCircle2, Clock, XCircle, RotateCcw, ExternalLink } from 'lucide-react';
+import { Search, ChevronDown, CreditCard } from 'lucide-react';
 
 type Status = 'pending' | 'confirmed' | 'checked_in' | 'cancelled' | 'refunded';
-type PaymentStatus = 'free' | 'pending' | 'paid' | 'refunded' | 'failed';
 
 interface Registration {
   id: string;
@@ -12,7 +11,7 @@ interface Registration {
   attendee_email: string;
   attendee_phone: string | null;
   status: Status;
-  payment_status: PaymentStatus;
+  payment_status: string;
   amount_paid: number;
   currency: string;
   karta_card_url: string | null;
@@ -28,51 +27,52 @@ interface Props {
   totalCount: number;
 }
 
-const STATUS_PILL: Record<Status, { label: string; bg: string; color: string }> = {
-  confirmed:   { label: 'Confirmed',   bg: '#E8EFEB', color: '#1F4D3A' },
-  checked_in:  { label: 'Checked in',  bg: '#D1FAE5', color: '#065F46' },
-  pending:     { label: 'Pending',     bg: '#FEF3C7', color: '#92400E' },
-  cancelled:   { label: 'Cancelled',   bg: '#FEE2E2', color: '#991B1B' },
-  refunded:    { label: 'Refunded',    bg: '#E0E7FF', color: '#3730A3' },
-};
-
-function StatusPill({ status }: { status: Status }) {
-  const s = STATUS_PILL[status];
-  return (
-    <span
-      className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[12px] font-medium"
-      style={{ background: s.bg, color: s.color }}
-    >
-      {status === 'checked_in' && <CheckCircle2 size={10} />}
-      {status === 'confirmed'  && <Clock size={10} />}
-      {status === 'cancelled'  && <XCircle size={10} />}
-      {status === 'refunded'   && <RotateCcw size={10} />}
-      {s.label}
-    </span>
-  );
+// Deterministic gradient from attendee name
+const GRADS = [
+  'linear-gradient(135deg,#1F4D3A,#2A6A50)',
+  'linear-gradient(135deg,#2A6A50,#C9A45E)',
+  'linear-gradient(135deg,#163828,#3E7E5E)',
+  'linear-gradient(135deg,#C9A45E,#1F4D3A)',
+  'linear-gradient(135deg,#3E7E5E,#C9A45E)',
+  'linear-gradient(135deg,#163828,#2A6A50)',
+];
+function nameGrad(name: string): string {
+  const h = name.split('').reduce((acc, c) => acc * 31 + c.charCodeAt(0), 0);
+  return GRADS[Math.abs(h) % GRADS.length];
 }
 
-function formatCurrency(amount: number, currency: string) {
-  if (amount === 0) return 'Free';
-  try {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 0 }).format(amount);
-  } catch {
-    return `${currency} ${amount}`;
-  }
+function initials(name: string): string {
+  return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+}
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return `${Math.floor(hrs / 24)}d ago`;
+}
+
+function ticketPill(name: string) {
+  if (name === 'Speaker' || name.toLowerCase().includes('speaker'))
+    return { bg: '#E8EFEB', color: '#1F4D3A' };
+  if (name === 'VIP' || name.toLowerCase().includes('vip'))
+    return { bg: 'rgba(232,197,126,0.2)', color: '#C9A45E' };
+  return { bg: 'rgba(15,31,24,0.06)', color: '#6B7A72' };
 }
 
 function exportCSV(rows: Registration[], eventSlug: string) {
-  const headers = ['Name', 'Email', 'Phone', 'Ticket', 'Amount', 'Status', 'Card Downloaded', 'Registered At', 'Checked In At'];
+  const headers = ['Name', 'Email', 'Phone', 'Ticket', 'Status', 'Card', 'Registered'];
   const lines = rows.map(r => [
     r.attendee_name,
     r.attendee_email,
     r.attendee_phone ?? '',
     r.ticket_types?.name ?? 'General',
-    formatCurrency(r.amount_paid, r.currency),
     r.status,
     r.karta_card_url ? 'Yes' : 'No',
     new Date(r.created_at).toLocaleString(),
-    r.checked_in_at ? new Date(r.checked_in_at).toLocaleString() : '',
   ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(','));
 
   const csv = [headers.join(','), ...lines].join('\n');
@@ -86,16 +86,17 @@ function exportCSV(rows: Registration[], eventSlug: string) {
 }
 
 export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, totalCount }: Props) {
-  const [rows, setRows] = useState(initialRegistrations);
-  const [total, setTotal] = useState(totalCount);
-  const [query, setQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<Status | 'all'>('all');
-  const [loading, setLoading] = useState(false);
-  const [offset, setOffset] = useState(initialRegistrations.length);
+  const [rows, setRows]           = useState(initialRegistrations);
+  const [total, setTotal]         = useState(totalCount);
+  const [query, setQuery]         = useState('');
+  const [statusFilter, setStatus] = useState<Status | 'all'>('all');
+  const [loading, setLoading]     = useState(false);
+  const [offset, setOffset]       = useState(initialRegistrations.length);
   const PAGE = 50;
 
   const filtered = rows.filter(r => {
-    const matchQ = !query || r.attendee_name.toLowerCase().includes(query.toLowerCase()) || r.attendee_email.toLowerCase().includes(query.toLowerCase());
+    const q = query.toLowerCase();
+    const matchQ = !q || r.attendee_name.toLowerCase().includes(q) || r.attendee_email.toLowerCase().includes(q);
     const matchS = statusFilter === 'all' || r.status === statusFilter;
     return matchQ && matchS;
   });
@@ -107,7 +108,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
       url.searchParams.set('offset', String(offset));
       url.searchParams.set('limit', String(PAGE));
       if (statusFilter !== 'all') url.searchParams.set('status', statusFilter);
-      const res = await fetch(url.toString());
+      const res  = await fetch(url.toString());
       const data = await res.json() as { registrations: Registration[]; total: number };
       setRows(r => [...r, ...data.registrations]);
       setTotal(data.total);
@@ -117,85 +118,74 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
     }
   }, [eventId, offset, statusFilter]);
 
-  const checkedInCount = rows.filter(r => r.status === 'checked_in').length;
-  const cardDownloaded = rows.filter(r => r.karta_card_url).length;
+  // Unique ticket names for the filter dropdown
+  const ticketNames = Array.from(new Set(rows.map(r => r.ticket_types?.name ?? 'General')));
 
   return (
     <div>
-      {/* ── Stats strip ─────────────────────────────── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-        {[
-          { label: 'Total', value: total },
-          { label: 'Checked in', value: checkedInCount },
-          { label: 'Cards downloaded', value: cardDownloaded },
-          { label: 'Check-in rate', value: total > 0 ? `${Math.round((checkedInCount / total) * 100)}%` : '—' },
-        ].map(s => (
-          <div key={s.label} className="rounded-xl px-4 py-3" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-            <div className="font-mono text-[20px] font-medium" style={{ color: '#1F4D3A' }}>{s.value}</div>
-            <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{s.label}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* ── Toolbar ─────────────────────────────────── */}
-      <div className="flex flex-wrap gap-3 mb-4">
+      {/* ── Toolbar ──────────────────────────────────── */}
+      <div className="flex items-center gap-2.5 mb-4 flex-wrap">
         {/* Search */}
-        <div className="relative flex-1 min-w-[200px]">
+        <div className="relative flex-1 min-w-[200px] max-w-[320px]">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#6B7A72' }} />
           <input
             type="text"
-            placeholder="Search name or email…"
+            placeholder="Search attendees…"
             value={query}
             onChange={e => setQuery(e.target.value)}
-            className="w-full rounded-lg pl-9 pr-3 py-2 text-[13px] outline-none"
+            className="w-full h-9 pl-9 pr-3 rounded-lg text-[13px] outline-none"
             style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
           />
         </div>
 
-        {/* Status filter */}
-        <div className="flex gap-1.5 flex-wrap">
-          {(['all', 'confirmed', 'checked_in', 'pending', 'cancelled'] as const).map(s => (
-            <button
-              key={s}
-              onClick={() => setStatusFilter(s)}
-              className="px-3 py-1.5 rounded-full text-[12px] font-medium transition-colors"
-              style={{
-                background: statusFilter === s ? '#1F4D3A' : 'white',
-                color: statusFilter === s ? 'white' : '#6B7A72',
-                border: `1px solid ${statusFilter === s ? '#1F4D3A' : '#E5E0D4'}`,
-              }}
-            >
-              {s === 'all' ? 'All' : s === 'checked_in' ? 'Checked in' : s.charAt(0).toUpperCase() + s.slice(1)}
-            </button>
-          ))}
+        {/* All tickets dropdown */}
+        <div className="relative">
+          <select
+            className="h-9 pl-3 pr-7 rounded-lg border text-[12.5px] appearance-none cursor-pointer outline-none"
+            style={{ background: 'white', borderColor: '#E5E0D4', color: '#6B7A72' }}
+            onChange={() => {/* future: ticket filter */}}
+          >
+            <option>All tickets</option>
+            {ticketNames.map(t => <option key={t}>{t}</option>)}
+          </select>
+          <ChevronDown size={13} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#6B7A72' }} />
         </div>
 
-        {/* Export */}
-        <button
-          onClick={() => exportCSV(filtered, eventSlug)}
-          className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[13px] font-medium ml-auto"
-          style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
-        >
-          <Download size={14} />
-          Export CSV
-        </button>
+        {/* All statuses dropdown */}
+        <div className="relative">
+          <select
+            value={statusFilter}
+            onChange={e => setStatus(e.target.value as Status | 'all')}
+            className="h-9 pl-3 pr-7 rounded-lg border text-[12.5px] appearance-none cursor-pointer outline-none"
+            style={{ background: 'white', borderColor: '#E5E0D4', color: '#6B7A72' }}
+          >
+            <option value="all">All statuses</option>
+            <option value="confirmed">Registered</option>
+            <option value="checked_in">Checked in</option>
+            <option value="pending">Pending</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <ChevronDown size={13} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#6B7A72' }} />
+        </div>
       </div>
 
-      {/* ── Table ───────────────────────────────────── */}
-      <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
+      {/* ── Table ────────────────────────────────────── */}
+      <div className="rounded-2xl overflow-hidden" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
         {filtered.length === 0 ? (
-          <div className="py-16 text-center" style={{ background: 'white' }}>
-            <div className="text-[14px]" style={{ color: '#6B7A72' }}>No registrations match your filter</div>
+          <div className="py-16 text-center">
+            <p className="text-[14px]" style={{ color: '#6B7A72' }}>
+              {total === 0 ? 'No registrations yet.' : 'No registrations match your filter'}
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr style={{ background: '#FAF6EE', borderBottom: '1px solid #E5E0D4' }}>
-                  {['Name', 'Ticket', 'Amount', 'Status', 'Card', 'Registered', 'Checked in'].map(h => (
+                <tr style={{ background: 'rgba(250,246,238,0.6)', borderBottom: '1px solid #E5E0D4' }}>
+                  {['Attendee', 'Ticket', 'Status', 'Card', 'Registered'].map(h => (
                     <th
                       key={h}
-                      className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider whitespace-nowrap"
+                      className="py-3 px-5 font-mono text-[9.5px] tracking-[0.16em] uppercase"
                       style={{ color: '#6B7A72' }}
                     >
                       {h}
@@ -204,44 +194,83 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((reg, i) => (
+                {filtered.map(reg => (
                   <tr
                     key={reg.id}
-                    style={{
-                      background: i % 2 === 0 ? 'white' : '#FDFCFA',
-                      borderBottom: '1px solid #F0EBE3',
-                    }}
+                    className="transition-colors"
+                    style={{ borderTop: '1px solid rgba(229,224,212,0.6)' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(250,246,238,0.4)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                   >
-                    <td className="px-4 py-3">
-                      <div className="font-medium text-[14px]" style={{ color: '#0F1F18' }}>{reg.attendee_name}</div>
-                      <div className="text-[12px]" style={{ color: '#6B7A72' }}>{reg.attendee_email}</div>
+                    {/* Attendee */}
+                    <td className="py-3 px-5">
+                      <div className="flex items-center gap-3">
+                        <span
+                          className="w-8 h-8 rounded-full grid place-items-center font-display text-[11px] font-semibold shrink-0"
+                          style={{ background: nameGrad(reg.attendee_name), color: '#FAF6EE' }}
+                        >
+                          {initials(reg.attendee_name)}
+                        </span>
+                        <div className="min-w-0">
+                          <div className="text-[13.5px] font-medium leading-tight" style={{ color: '#0F1F18' }}>
+                            {reg.attendee_name}
+                          </div>
+                          <div className="font-mono text-[11px] truncate" style={{ color: '#6B7A72' }}>
+                            {reg.attendee_email}
+                          </div>
+                        </div>
+                      </div>
                     </td>
-                    <td className="px-4 py-3 text-[13px]" style={{ color: '#3A4A42' }}>
-                      {reg.ticket_types?.name ?? 'General'}
-                    </td>
-                    <td className="px-4 py-3 font-mono text-[13px]" style={{ color: '#1F4D3A' }}>
-                      {formatCurrency(reg.amount_paid, reg.currency)}
-                    </td>
-                    <td className="px-4 py-3">
-                      <StatusPill status={reg.status} />
-                    </td>
-                    <td className="px-4 py-3">
-                      {reg.karta_card_url ? (
-                        <a href={reg.karta_card_url} target="_blank" rel="noopener noreferrer">
-                          <span className="inline-flex items-center gap-1 text-[12px]" style={{ color: '#1F4D3A' }}>
-                            <ExternalLink size={12} />
-                            View
+
+                    {/* Ticket */}
+                    <td className="py-3 px-5">
+                      {(() => {
+                        const name = reg.ticket_types?.name ?? 'General';
+                        const s = ticketPill(name);
+                        return (
+                          <span
+                            className="inline-block text-[11px] font-medium px-2 py-0.5 rounded"
+                            style={{ background: s.bg, color: s.color }}
+                          >
+                            {name}
                           </span>
-                        </a>
+                        );
+                      })()}
+                    </td>
+
+                    {/* Status */}
+                    <td className="py-3 px-5">
+                      {reg.status === 'checked_in' ? (
+                        <span className="inline-flex items-center gap-1.5 text-[12.5px]" style={{ color: '#059669' }}>
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                          Checked in
+                        </span>
+                      ) : reg.status === 'cancelled' ? (
+                        <span className="inline-flex items-center gap-1.5 text-[12.5px]" style={{ color: '#B8423C' }}>
+                          <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: '#B8423C' }} />
+                          Cancelled
+                        </span>
                       ) : (
-                        <span className="text-[12px]" style={{ color: '#C9C3B1' }}>—</span>
+                        <span className="inline-flex items-center gap-1.5 text-[12.5px]" style={{ color: '#6B7A72' }}>
+                          <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: 'rgba(107,122,114,0.5)' }} />
+                          Registered
+                        </span>
                       )}
                     </td>
-                    <td className="px-4 py-3 font-mono text-[12px]" style={{ color: '#6B7A72' }}>
-                      {new Date(reg.created_at).toLocaleDateString()}
+
+                    {/* Card */}
+                    <td className="py-3 px-5">
+                      <span
+                        title={reg.karta_card_url ? 'Card generated' : 'No card yet'}
+                        style={{ color: reg.karta_card_url ? '#1F4D3A' : 'rgba(15,31,24,0.2)' }}
+                      >
+                        <CreditCard size={17} strokeWidth={1.7} />
+                      </span>
                     </td>
-                    <td className="px-4 py-3 font-mono text-[12px]" style={{ color: reg.checked_in_at ? '#1F4D3A' : '#C9C3B1' }}>
-                      {reg.checked_in_at ? new Date(reg.checked_in_at).toLocaleTimeString() : '—'}
+
+                    {/* Registered */}
+                    <td className="py-3 px-5 font-mono text-[12px]" style={{ color: '#6B7A72' }}>
+                      {timeAgo(reg.created_at)}
                     </td>
                   </tr>
                 ))}
@@ -251,7 +280,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
         )}
       </div>
 
-      {/* ── Load more ───────────────────────────────── */}
+      {/* ── Load more ────────────────────────────────── */}
       {rows.length < total && (
         <div className="mt-4 text-center">
           <button
