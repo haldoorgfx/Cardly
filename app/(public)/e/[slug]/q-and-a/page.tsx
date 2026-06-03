@@ -13,8 +13,7 @@ export default async function QandAPage({ params, searchParams }: Props) {
 
   const resolved = await resolvePublicSlug(params.slug);
   if (!resolved) notFound();
-  const { eventPageTitle, event } = resolved;
-  const eventPage = { title: eventPageTitle };
+  const { event } = resolved;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: questions } = await (admin as any)
@@ -25,31 +24,30 @@ export default async function QandAPage({ params, searchParams }: Props) {
     .order('upvotes_count', { ascending: false })
     .order('created_at', { ascending: true });
 
-  const { data: sessions } = await admin
-    .from('sessions')
-    .select('id, title')
-    .eq('event_id', event.id)
-    .eq('is_published', true)
-    .order('starts_at', { ascending: true });
+  // If a specific session is requested, look up its title + room
+  let sessionTitle: string | null = null;
+  let sessionRoom: string | null = null;
+  if (searchParams.session) {
+    const { data: sess } = await admin
+      .from('sessions')
+      .select('title, room')
+      .eq('id', searchParams.session)
+      .single();
+    sessionTitle = sess?.title ?? null;
+    sessionRoom  = sess?.room  ?? null;
+  }
 
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
       <PublicNav eventSlug={params.slug} eventName={event.name} />
-      <div className="max-w-[760px] mx-auto px-5 py-10">
-        <div className="mb-8">
-          <h1 className="font-display font-normal text-[32px]" style={{ color: '#1F4D3A', letterSpacing: '-0.025em' }}>
-            Q&amp;A
-          </h1>
-          <p className="text-[16px] mt-2" style={{ color: '#6B7A72' }}>{eventPage.title}</p>
-        </div>
-        <QandAClient
-          eventId={event.id}
-          registrationId={searchParams.reg ?? null}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          initialQuestions={(questions ?? []) as any}
-          sessions={(sessions ?? []) as { id: string; title: string }[]}
-        />
-      </div>
+      <QandAClient
+        eventId={event.id}
+        registrationId={searchParams.reg ?? null}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        questions={(questions ?? []) as any}
+        sessionTitle={sessionTitle}
+        sessionRoom={sessionRoom}
+      />
     </div>
   );
 }
