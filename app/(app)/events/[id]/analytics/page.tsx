@@ -25,7 +25,7 @@ export default async function EventAnalyticsPage({ params }: Props) {
 
   if (!event) redirect('/dashboard');
 
-  // Fetch all registrations for this event (for analytics we want full data, capped at 1000)
+  // ── Registrations ─────────────────────────────────────────────────────────
   const { data: regs } = await admin
     .from('registrations')
     .select('created_at, status, amount_paid, currency, karta_card_url, ticket_type_id, ticket_types(name, currency)')
@@ -36,7 +36,6 @@ export default async function EventAnalyticsPage({ params }: Props) {
 
   const allRegs = regs ?? [];
 
-  // ── Daily registrations ────────────────────────────────────────────────────
   const dailyMap = new Map<string, number>();
   for (const r of allRegs) {
     const day = r.created_at.slice(0, 10);
@@ -60,22 +59,73 @@ export default async function EventAnalyticsPage({ params }: Props) {
   }
   const ticketRevenue = Array.from(revenueMap.values()).sort((a, b) => b.revenue - a.revenue);
 
-  const totalRevenue = allRegs.reduce((s, r) => s + Number(r.amount_paid ?? 0), 0);
+  const totalRevenue    = allRegs.reduce((s, r) => s + Number(r.amount_paid ?? 0), 0);
   const revenueCurrency = allRegs.find(r => r.amount_paid > 0)?.currency ?? 'USD';
   const checkInCount    = allRegs.filter(r => r.status === 'checked_in').length;
   const cardDownloaded  = allRegs.filter(r => r.karta_card_url).length;
 
+  // ── Sessions ───────────────────────────────────────────────────────────────
+  const { data: rawSessions } = await admin
+    .from('sessions')
+    .select('id, title, registrations_count')
+    .eq('event_id', params.id)
+    .order('registrations_count', { ascending: false })
+    .limit(20);
+
+  const sessionIds = (rawSessions ?? []).map(s => s.id);
+
+  const [{ data: sessionRatings }, { data: agendaItems }] = await Promise.all([
+    sessionIds.length > 0
+      ? admin.from('session_ratings').select('session_id, rating').in('session_id', sessionIds)
+      : Promise.resolve({ data: [] as { session_id: string; rating: number }[] }),
+    sessionIds.length > 0
+      ? admin.from('attendee_agendas').select('session_id').in('session_id', sessionIds)
+      : Promise.resolve({ data: [] as { session_id: string }[] }),
+  ]);
+
+  const ratingMap = new Map<string, { sum: number; count: number }>();
+  for (const r of sessionRatings ?? []) {
+    const e = ratingMap.get(r.session_id) ?? { sum: 0, count: 0 };
+    e.sum += r.rating; e.count += 1;
+    ratingMap.set(r.session_id, e);
+  }
+  const agendaMap = new Map<string, number>();
+  for (const a of agendaItems ?? []) {
+    agendaMap.set(a.session_id, (agendaMap.get(a.session_id) ?? 0) + 1);
+  }
+
+  const sessions = (rawSessions ?? []).map(s => {
+    const ratings = ratingMap.get(s.id);
+    return {
+      id: s.id,
+      title: s.title,
+      registrationsCount: s.registrations_count,
+      attendedCount: agendaMap.get(s.id) ?? 0,
+      avgRating: ratings ? ratings.sum / ratings.count : null,
+      feedbackCount: ratings?.count ?? 0,
+    };
+  });
+
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
       <EventManageNav eventId={params.id} eventName={event.name} active="analytics" />
-      <div className="max-w-[900px] mx-auto px-6 py-8">
-        <div className="mb-6">
-          <h1 className="font-display font-semibold text-[24px]" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
-            Analytics
+      <div className="max-w-[920px] mx-auto px-6 py-8">
+        <div className="flex items-center justify-between flex-wrap gap-3 mb-8">
+          <h1
+            className="font-display font-semibold text-[24px]"
+            style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}
+          >
+            Analytics — {event.name}
           </h1>
-          <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>
-            Registration metrics, revenue by ticket type, check-in rate, and card download rate.
-          </p>
+          <div
+            className="inline-flex items-center gap-2 text-[14px] rounded-full px-4"
+            style={{ height: 38, border: '1px solid #E5E0D4', background: '#FAF6EE', color: '#6B7A72', cursor: 'default' }}
+          >
+            All time
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </div>
         </div>
 
         <EventAnalyticsView
@@ -86,6 +136,7 @@ export default async function EventAnalyticsPage({ params }: Props) {
           revenueCurrency={revenueCurrency}
           checkInCount={checkInCount}
           cardDownloadCount={cardDownloaded}
+          sessions={sessions}
         />
       </div>
     </div>
