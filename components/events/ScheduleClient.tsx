@@ -23,10 +23,6 @@ function getUniqueDates(sessions: Session[]): Date[] {
   return dates;
 }
 
-function formatDayTab(d: Date) {
-  return d.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' });
-}
-
 function formatTime(iso: string) {
   if (!iso) return '';
   return new Date(iso).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
@@ -48,8 +44,8 @@ export default function ScheduleClient({ sessions, tracks, registrationId, saved
   const visibleSessions = useMemo(() => {
     if (!activeDay) return [];
     return sessions
-      .filter((s) => isSameDay(new Date(s.starts_at), activeDay))
-      .filter((s) => activeTrackId === 'all' || s.track_id === activeTrackId)
+      .filter(s => isSameDay(new Date(s.starts_at), activeDay))
+      .filter(s => activeTrackId === 'all' || s.track_id === activeTrackId)
       .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime());
   }, [sessions, activeDay, activeTrackId]);
 
@@ -57,7 +53,7 @@ export default function ScheduleClient({ sessions, tracks, registrationId, saved
     if (!registrationId) return;
     const isAdding = !saved.has(sessionId);
     setSavingId(sessionId);
-    setSaved((prev) => {
+    setSaved(prev => {
       const next = new Set(prev);
       if (isAdding) next.add(sessionId); else next.delete(sessionId);
       return next;
@@ -69,8 +65,7 @@ export default function ScheduleClient({ sessions, tracks, registrationId, saved
         body: JSON.stringify({ registration_id: registrationId, action: isAdding ? 'add' : 'remove' }),
       });
     } catch {
-      // revert on error
-      setSaved((prev) => {
+      setSaved(prev => {
         const next = new Set(prev);
         if (isAdding) next.delete(sessionId); else next.add(sessionId);
         return next;
@@ -81,147 +76,135 @@ export default function ScheduleClient({ sessions, tracks, registrationId, saved
   }
 
   function getTrack(trackId: string | null) {
-    return tracks.find((t) => t.id === trackId) ?? null;
+    return tracks.find(t => t.id === trackId) ?? null;
   }
 
   function getSpeakerNames(session: Session) {
-    return (session.session_speakers ?? [])
-      .map((ss) => ss.speakers?.name)
-      .filter(Boolean)
-      .join(', ');
+    return (session.session_speakers ?? []).map(ss => ss.speakers?.name).filter(Boolean).join(', ');
   }
 
   return (
-    <div className="space-y-5">
-      {/* Day tabs */}
+    <div>
+      {/* ── Day tabs ──────────────────────────────────────────────────────── */}
       {days.length > 1 && (
-        <div className="flex gap-1 border-b" style={{ borderColor: '#E5E0D4' }}>
-          {days.map((day, idx) => (
-            <button
-              key={day.toDateString()}
-              onClick={() => setActiveDayIdx(idx)}
-              className="px-4 py-2.5 text-sm font-medium transition-colors"
-              style={
-                activeDayIdx === idx
-                  ? { color: '#1F4D3A', borderBottom: '2px solid #1F4D3A', marginBottom: -1 }
-                  : { color: '#6B7A72', borderBottom: '2px solid transparent', marginBottom: -1 }
-              }
-            >
-              {formatDayTab(day)}
-            </button>
-          ))}
+        <div className="flex gap-0.5" style={{ borderBottom: '1px solid #E5E0D4', marginBottom: 20 }}>
+          {days.map((day, idx) => {
+            const active = activeDayIdx === idx;
+            return (
+              <button
+                key={day.toDateString()}
+                onClick={() => setActiveDayIdx(idx)}
+                className="px-[18px] py-3 font-display font-medium text-[15px] transition-colors"
+                style={{
+                  color: active ? '#1F4D3A' : '#6B7A72',
+                  borderBottom: active ? '2px solid #E8C57E' : '2px solid transparent',
+                  marginBottom: -1,
+                }}
+              >
+                {day.toLocaleDateString('en-US', { weekday: 'short' })}
+                <span
+                  className="block font-mono text-[12px]"
+                  style={{ color: active ? '#6B7A72' : '#6B7A72' }}
+                >
+                  {day.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
+                </span>
+              </button>
+            );
+          })}
         </div>
       )}
 
-      {/* Track filter */}
+      {/* ── Track filter chips ────────────────────────────────────────────── */}
       {tracks.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => setActiveTrackId('all')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-colors"
-            style={
-              activeTrackId === 'all'
-                ? { background: '#1F4D3A', color: '#fff', borderColor: '#1F4D3A' }
-                : { background: '#fff', color: '#0F1F18', borderColor: '#E5E0D4' }
-            }
-          >
-            All tracks
-          </button>
-          {tracks.map((track) => (
-            <button
-              key={track.id}
-              onClick={() => setActiveTrackId(track.id)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-colors"
-              style={
-                activeTrackId === track.id
-                  ? { background: track.color, color: '#fff', borderColor: track.color }
-                  : { background: '#fff', color: '#0F1F18', borderColor: '#E5E0D4' }
-              }
-            >
-              <span
-                className="w-2 h-2 rounded-full"
-                style={{ background: activeTrackId === track.id ? '#fff' : track.color }}
-              />
-              {track.name}
-            </button>
-          ))}
+        <div className="flex flex-wrap gap-2 mb-5" style={{ overflowX: 'auto' }}>
+          {[{ id: 'all' as const, name: 'All tracks', color: '#1F4D3A' }, ...tracks].map(t => {
+            const active = activeTrackId === t.id;
+            return (
+              <button
+                key={t.id}
+                onClick={() => setActiveTrackId(t.id)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[13px] font-medium border transition-colors whitespace-nowrap"
+                style={active
+                  ? { background: t.id === 'all' ? '#1F4D3A' : t.color, color: '#fff', borderColor: t.id === 'all' ? '#1F4D3A' : t.color }
+                  : { background: 'white', color: '#0F1F18', borderColor: '#E5E0D4' }
+                }
+              >
+                {t.id !== 'all' && (
+                  <span
+                    className="rounded-full shrink-0"
+                    style={{ width: 7, height: 7, background: active ? 'rgba(255,255,255,0.8)' : t.color, display: 'inline-block' }}
+                  />
+                )}
+                {t.name}
+              </button>
+            );
+          })}
         </div>
       )}
 
-      {/* Session list */}
+      {/* ── Session list ──────────────────────────────────────────────────── */}
       {visibleSessions.length === 0 ? (
         <div className="py-16 text-center">
-          <p className="text-sm" style={{ color: '#6B7A72' }}>No sessions scheduled for this day.</p>
+          <p className="text-[14px]" style={{ color: '#6B7A72' }}>No sessions scheduled for this day.</p>
         </div>
       ) : (
-        <div className="space-y-2">
-          {visibleSessions.map((session, idx) => {
-            const track = getTrack(session.track_id);
-            const isSaved = saved.has(session.id);
-            const speakerNames = getSpeakerNames(session);
-            const prevSession = visibleSessions[idx - 1];
-            const hasAdjacentPrev = prevSession ? new Date(prevSession.ends_at).getTime() >= new Date(session.starts_at).getTime() : false;
+        <div className="space-y-0">
+          {visibleSessions.map(session => {
+            const track    = getTrack(session.track_id);
+            const isSaved  = saved.has(session.id);
+            const speakers = getSpeakerNames(session);
+            const trackColor = track?.color ?? '#E5E0D4';
 
             return (
-              <div key={session.id} className="flex gap-3 items-start">
-                {/* Time column */}
-                <div className="w-14 shrink-0 flex flex-col items-center pt-3.5">
-                  <span
-                    className="font-mono text-[13px] font-medium"
-                    style={{ color: '#1F4D3A' }}
-                  >
-                    {formatTime(session.starts_at)}
-                  </span>
-                  {hasAdjacentPrev && (
-                    <div
-                      className="w-px mt-1 flex-1"
-                      style={{ background: '#E8C57E', height: 20 }}
-                    />
-                  )}
+              <div
+                key={session.id}
+                className="grid gap-3.5"
+                style={{
+                  gridTemplateColumns: '64px 1fr',
+                  padding: '16px 0',
+                  borderBottom: '1px solid #E5E0D4',
+                }}
+              >
+                {/* Time */}
+                <div className="font-mono text-[13px] pt-0.5" style={{ color: '#6B7A72' }}>
+                  {formatTime(session.starts_at)}
                 </div>
 
-                {/* Session card */}
+                {/* Card */}
                 <div
-                  className="flex-1 bg-white border rounded-xl p-3 flex items-start gap-3"
+                  className="rounded-xl px-4 py-3 flex items-start gap-3"
                   style={{
-                    borderColor: '#E5E0D4',
-                    borderLeft: track ? `3px solid ${track.color}` : '3px solid #E5E0D4',
+                    background: isSaved ? '#FBF7EC' : 'white',
+                    border: '1px solid #E5E0D4',
+                    borderLeft: `3px solid ${isSaved ? '#E8C57E' : trackColor}`,
                   }}
                 >
                   <div className="flex-1 min-w-0">
-                    <p className="font-display text-[15px] font-medium" style={{ color: '#0F1F18' }}>
+                    <p className="font-display font-medium text-[15px]" style={{ color: '#1F4D3A' }}>
                       {session.title}
                     </p>
-                    {speakerNames && (
+                    {speakers && (
                       <p className="text-[13px] mt-0.5 truncate" style={{ color: '#6B7A72' }}>
-                        {speakerNames}
+                        {speakers}
+                        {session.room ? ` · ${session.room}` : ''}
                       </p>
                     )}
-                    <div className="flex items-center gap-2 mt-1 flex-wrap">
-                      {session.room && (
-                        <span className="text-[12px]" style={{ color: '#6B7A72' }}>{session.room}</span>
-                      )}
-                      <span
-                        className="text-[11px] font-medium px-2 py-0.5 rounded-full"
-                        style={{ background: '#E8EFEB', color: '#1F4D3A' }}
-                      >
-                        {session.session_type}
-                      </span>
-                    </div>
+                    {!speakers && session.room && (
+                      <p className="text-[13px] mt-0.5" style={{ color: '#6B7A72' }}>{session.room}</p>
+                    )}
                   </div>
 
-                  {/* Save button */}
                   <button
                     onClick={() => toggleSave(session.id)}
                     disabled={!registrationId || savingId === session.id}
-                    className="shrink-0 p-1.5 rounded-lg hover:bg-amber-50 disabled:opacity-40 transition-colors"
+                    className="shrink-0 p-1.5 rounded-lg transition-colors disabled:opacity-40"
+                    style={{ color: isSaved ? '#E8C57E' : '#6B7A72' }}
                     title={isSaved ? 'Remove from agenda' : 'Save to agenda'}
                   >
-                    {isSaved ? (
-                      <BookmarkCheck size={18} style={{ color: '#E8C57E', fill: '#E8C57E' }} />
-                    ) : (
-                      <Bookmark size={18} style={{ color: '#6B7A72' }} />
-                    )}
+                    {isSaved
+                      ? <BookmarkCheck size={18} fill="#E8C57E" />
+                      : <Bookmark size={18} />
+                    }
                   </button>
                 </div>
               </div>
@@ -229,6 +212,13 @@ export default function ScheduleClient({ sessions, tracks, registrationId, saved
           })}
         </div>
       )}
+
+      {/* Legend */}
+      <div className="mt-5 flex items-center gap-2 text-[13px]" style={{ color: '#6B7A72' }}>
+        <span className="rounded-full" style={{ width: 8, height: 8, background: '#E8C57E', display: 'inline-block' }} />
+        In my agenda
+        <span className="ml-2">· Tap a session to save it to your personal schedule.</span>
+      </div>
     </div>
   );
 }
