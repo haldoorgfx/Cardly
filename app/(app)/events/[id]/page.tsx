@@ -3,29 +3,10 @@ export const dynamic = 'force-dynamic';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import {
-  Pencil, Users, ArrowRight, Globe, ScanLine, FileDown,
-} from 'lucide-react';
-import CopyButton from '@/components/shared/CopyButton';
+import { Pencil } from 'lucide-react';
 import EventDetailActions from './EventDetailActions';
+import EventFeatureGrid from '@/components/events/EventFeatureGrid';
 import type { Zone, Variant } from '@/types/database';
-
-function timeAgo(dateStr: string) {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'just now';
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  return `${Math.floor(hrs / 24)}d ago`;
-}
-
-function getInitials(name: string | null) {
-  if (!name) return '?';
-  return name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
-}
-
-const AVATAR_COLORS = ['#1F4D3A', '#2A6A50', '#163828', '#3A6B8C', '#0F1F18'];
 
 const STATUS_STYLE = {
   published: { label: 'Live',     cls: 'bg-emerald-50 text-emerald-700 border-emerald-200', dot: '#2D7A4F', pulse: true },
@@ -41,36 +22,59 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
 
   const admin = createAdminClient();
 
-  const [{ data: event }, { data: variantsData }, { data: recentRegs }, { data: revData }, { count: regCount }, { count: checkedInCount }] = await Promise.all([
-    admin.from('events').select('id, name, slug, status, view_count, download_count, user_id, created_at').eq('id', id).eq('user_id', user.id).single(),
-    admin.from('event_variants').select('id, variant_name, variant_slug, background_url, background_width, background_height, zones, position').eq('event_id', id).order('position', { ascending: true }),
-    admin.from('registrations').select('id, attendee_name, status, created_at').eq('event_id', id).order('created_at', { ascending: false }).limit(5),
-    admin.from('registrations').select('amount_paid').eq('event_id', id).in('status', ['confirmed', 'checked_in']),
-    admin.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', id).in('status', ['confirmed', 'checked_in']),
-    admin.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', id).eq('status', 'checked_in'),
+  const [
+    { data: event },
+    { data: variantsData },
+    { data: revData },
+    { count: regCount },
+    { count: checkedInCount },
+    { data: profileData },
+    { count: ticketTypesCount },
+    { count: sessionsCount },
+    { count: speakersCount },
+  ] = await Promise.all([
+    admin.from('events')
+      .select('id, name, slug, status, view_count, download_count, user_id, created_at')
+      .eq('id', id).eq('user_id', user.id).single(),
+    admin.from('event_variants')
+      .select('id, variant_name, zones, position')
+      .eq('event_id', id).order('position', { ascending: true }),
+    admin.from('registrations')
+      .select('amount_paid').eq('event_id', id).in('status', ['confirmed', 'checked_in']),
+    admin.from('registrations')
+      .select('id', { count: 'exact', head: true }).eq('event_id', id).in('status', ['confirmed', 'checked_in']),
+    admin.from('registrations')
+      .select('id', { count: 'exact', head: true }).eq('event_id', id).eq('status', 'checked_in'),
+    admin.from('profiles').select('plan').eq('id', user.id).single(),
+    admin.from('ticket_types')
+      .select('id', { count: 'exact', head: true }).eq('event_id', id),
+    admin.from('sessions')
+      .select('id', { count: 'exact', head: true }).eq('event_id', id),
+    admin.from('speakers')
+      .select('id', { count: 'exact', head: true }).eq('event_id', id),
   ]);
 
   if (!event) redirect('/dashboard');
 
-  const variants = (variantsData ?? []) as unknown as Variant[];
+  const variants     = (variantsData ?? []) as unknown as Variant[];
   const firstVariant = variants[0];
-  const zones = (firstVariant?.zones as unknown as Zone[]) ?? [];
-  const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/c/${event.slug}`;
+  const zones        = (firstVariant?.zones as unknown as Zone[]) ?? [];
+  const plan         = (profileData?.plan as string) ?? 'free';
 
-  const totalRevenue = (revData ?? []).reduce((s, r) => s + Number(r.amount_paid ?? 0), 0);
+  const totalRevenue  = (revData ?? []).reduce((s, r) => s + Number(r.amount_paid ?? 0), 0);
   const registrations = regCount ?? 0;
-  const checkedIn = checkedInCount ?? 0;
-  const checkInRate = registrations > 0 ? Math.round((checkedIn / registrations) * 100) : 0;
+  const checkedIn     = checkedInCount ?? 0;
+  const checkInRate   = registrations > 0 ? Math.round((checkedIn / registrations) * 100) : 0;
 
   const st = STATUS_STYLE[event.status as keyof typeof STATUS_STYLE] ?? STATUS_STYLE.draft;
 
-  // Action banners
+  // Action banners — items that need attention
   const actionItems: { text: string; cta: string; href: string; accent?: boolean }[] = [];
   if (event.status === 'draft') {
     actionItems.push({ text: 'This event is still a draft — publish it to open registration.', cta: 'Publish event', href: `/events/${id}/publish`, accent: true });
   }
   if (!firstVariant) {
-    actionItems.push({ text: 'No card design uploaded yet.', cta: 'Upload design', href: `/events/${id}/edit` });
+    actionItems.push({ text: 'No Karta Card design uploaded yet.', cta: 'Upload design', href: `/events/${id}/edit` });
   } else if (zones.length === 0) {
     actionItems.push({ text: 'No editable zones defined on the card.', cta: 'Open editor', href: `/events/${id}/edit` });
   }
@@ -78,12 +82,12 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
 
-      {/* ── Cover header ── */}
+      {/* ── Cover header ─────────────────────────────────────────── */}
       <div className="relative" style={{ background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 55%, #2A6A50 100%)', paddingBottom: '28px' }}>
         <div aria-hidden className="absolute inset-0" style={{ background: 'radial-gradient(60% 120% at 90% 0%, rgba(232,197,126,0.28), transparent 55%)' }} />
         <svg aria-hidden viewBox="0 0 1200 176" preserveAspectRatio="none" className="absolute inset-0 w-full h-full" style={{ opacity: 0.08 }}>
-          {Array.from({ length: 4 }).map((_, i) => (
-            <path key={i} d={`M -40 ${36 + i * 36} Q 320 ${-8 + i * 36} 640 ${66 + i * 36} T 1280 ${40 + i * 36}`} fill="none" stroke="#E8C57E" strokeWidth="1.5" />
+          {Array.from({ length: 5 }).map((_, i) => (
+            <path key={i} d={`M -40 ${38 + i * 34} Q 320 ${-8 + i * 34} 640 ${68 + i * 34} T 1280 ${42 + i * 34}`} fill="none" stroke="#E8C57E" strokeWidth="1.5" />
           ))}
         </svg>
         <div className="relative max-w-[1100px] mx-auto px-6 lg:px-8 pt-7">
@@ -100,20 +104,22 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                 <span>/{event.slug}</span>
                 <span className="text-[#FAF6EE]/30">·</span>
                 <span>{variants.length} variant{variants.length !== 1 ? 's' : ''}</span>
-                <span className="text-[#FAF6EE]/30">·</span>
-                <span>{zones.length} zones</span>
               </div>
             </div>
             <div className="flex items-center gap-2 shrink-0 pb-0.5">
               <EventDetailActions eventId={id} eventName={event.name} status={event.status} />
-              <Link href={`/events/${id}/edit`}
-                className="inline-flex items-center gap-1.5 h-8 px-3 text-[13px] font-medium rounded-lg transition border border-white/20 text-white/80 hover:text-white hover:border-white/40 hover:bg-white/[0.08]">
+              <Link
+                href={`/events/${id}/edit`}
+                className="inline-flex items-center gap-1.5 h-8 px-3 text-[13px] font-medium rounded-lg transition border border-white/20 text-white/80 hover:text-white hover:border-white/40 hover:bg-white/[0.08]"
+              >
                 <Pencil size={13} strokeWidth={1.8} />
-                Edit zones
+                Edit card
               </Link>
-              <Link href={`/events/${id}/publish`}
+              <Link
+                href={`/events/${id}/publish`}
                 className="inline-flex items-center gap-1.5 h-8 px-3.5 text-[13px] font-semibold rounded-lg transition"
-                style={{ background: '#E8C57E', color: '#0F1F18' }}>
+                style={{ background: '#E8C57E', color: '#0F1F18' }}
+              >
                 {event.status === 'published' ? 'Share →' : 'Publish →'}
               </Link>
             </div>
@@ -123,12 +129,14 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
 
       <div className="max-w-[1100px] mx-auto px-6 lg:px-8 py-7 space-y-6">
 
-        {/* ── Stats bar ── */}
-        <div className="bg-white rounded-2xl border px-6 py-4 flex flex-wrap items-center gap-x-10 gap-y-3"
-          style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
+        {/* ── Stats bar ────────────────────────────────────────────── */}
+        <div
+          className="bg-white rounded-2xl border px-6 py-4 flex flex-wrap items-center gap-x-8 gap-y-3"
+          style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}
+        >
           {[
-            { value: registrations.toLocaleString(), label: 'registrations' },
-            { value: totalRevenue > 0 ? '$' + totalRevenue.toLocaleString() : '$0', label: 'revenue' },
+            { value: registrations.toLocaleString(), label: 'registered' },
+            { value: totalRevenue > 0 ? `$${totalRevenue.toLocaleString()}` : '$0', label: 'revenue' },
             { value: `${checkInRate}%`, label: 'check-in rate' },
             { value: event.download_count.toLocaleString(), label: 'cards shared' },
           ].map((s, i) => (
@@ -140,157 +148,45 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
           ))}
         </div>
 
-        {/* ── Action banners ── */}
+        {/* ── Action banners ───────────────────────────────────────── */}
         {actionItems.length > 0 && (
           <div className="grid gap-2.5">
             {actionItems.map((item, i) => (
-              <div key={i}
+              <div
+                key={i}
                 className={`flex items-center justify-between gap-3 rounded-2xl px-4 py-3 border ${item.accent ? 'border-[#E8C57E]/50' : 'bg-white border-[#E5E0D4]'}`}
-                style={item.accent ? { background: 'linear-gradient(135deg, rgba(232,197,126,0.14), rgba(31,77,58,0.05))' } : undefined}>
+                style={item.accent ? { background: 'linear-gradient(135deg, rgba(232,197,126,0.14), rgba(31,77,58,0.05))' } : undefined}
+              >
                 <span className="text-[13.5px] font-medium" style={{ color: item.accent ? '#163828' : '#3A4A42' }}>
                   {item.text}
                 </span>
-                <Link href={item.href}
+                <Link
+                  href={item.href}
                   className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[12.5px] font-semibold shrink-0 transition-colors"
                   style={item.accent
                     ? { background: '#E8C57E', color: '#0F1F18' }
-                    : { border: '1px solid rgba(31,77,58,0.25)', color: '#1F4D3A', background: 'transparent' }}>
-                  {item.cta} <ArrowRight size={13} strokeWidth={2} />
+                    : { border: '1px solid rgba(31,77,58,0.25)', color: '#1F4D3A', background: 'transparent' }}
+                >
+                  {item.cta} →
                 </Link>
               </div>
             ))}
           </div>
         )}
 
-        {/* ── Main content: recent registrations + quick links ── */}
-        <div className="grid lg:grid-cols-[1fr_320px] gap-6">
-
-          {/* Recent registrations */}
-          <div className="bg-white rounded-2xl border overflow-hidden" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
-            <div className="px-5 py-4 border-b flex items-center justify-between" style={{ borderColor: '#E5E0D4' }}>
-              <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#6B7A72]">Recent registrations</div>
-              <div className="flex items-center gap-3">
-                {registrations > 0 && (
-                  <span className="flex items-center gap-1.5 text-[11px] text-emerald-600">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    {registrations} total
-                  </span>
-                )}
-                {registrations > 0 && (
-                  <a href={`/api/events/${id}/export`} download
-                    className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-lg border text-[12px] font-medium transition hover:bg-[#FAF6EE]"
-                    style={{ borderColor: '#E5E0D4', color: '#1F4D3A' }}>
-                    <FileDown size={12} strokeWidth={2.2} />
-                    Export
-                  </a>
-                )}
-              </div>
-            </div>
-
-            {(recentRegs ?? []).length === 0 ? (
-              <div className="px-5 py-10 text-center">
-                <div className="text-[13px] text-[#6B7A72]">No registrations yet.</div>
-                {event.status === 'published' ? (
-                  <div className="mt-1 text-[12.5px] text-[#6B7A72]">Share the link to start seeing activity.</div>
-                ) : (
-                  <Link href={`/events/${id}/publish`} className="mt-3 inline-block text-[13px] text-[#1F4D3A] font-medium hover:underline">
-                    Publish to start →
-                  </Link>
-                )}
-              </div>
-            ) : (
-              <>
-                <div className="divide-y" style={{ borderColor: '#F0EDE7' }}>
-                  {(recentRegs ?? []).map((reg, i) => (
-                      <div key={reg.id} className="flex items-center gap-3 px-5 py-3 hover:bg-[#FAF6EE] transition">
-                        <div className="h-8 w-8 rounded-full grid place-items-center text-white text-[11px] font-bold shrink-0"
-                          style={{ background: AVATAR_COLORS[i % AVATAR_COLORS.length] }}>
-                          {getInitials(reg.attendee_name)}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-[13px] font-medium text-[#0F1F18] truncate">{reg.attendee_name ?? 'Anonymous'}</div>
-                        </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                          {reg.status === 'checked_in' && (
-                            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(45,122,79,0.1)', color: '#2D7A4F' }}>Checked in</span>
-                          )}
-                          <span className="text-[11px] text-[#6B7A72]">{timeAgo(reg.created_at)}</span>
-                        </div>
-                      </div>
-                  ))}
-                </div>
-                {registrations > 5 && (
-                  <div className="px-5 py-3 border-t" style={{ borderColor: '#F0EDE7' }}>
-                    <Link href={`/events/${id}/registrations`} className="text-[12.5px] font-medium text-[#1F4D3A] hover:underline inline-flex items-center gap-1">
-                      View all {registrations} registrations <ArrowRight size={12} strokeWidth={2} />
-                    </Link>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-
-          {/* Quick links */}
-          <div className="space-y-3">
-            {[
-              {
-                label: 'View all registrations',
-                desc: 'Attendee list, check-in status, exports.',
-                href: `/events/${id}/registrations`,
-                icon: <Users size={18} strokeWidth={1.7} />,
-              },
-              {
-                label: 'Edit event page',
-                desc: 'Public page, date, venue, description.',
-                href: `/events/${id}/event-page`,
-                icon: <Globe size={18} strokeWidth={1.7} />,
-              },
-              {
-                label: 'Open check-in',
-                desc: 'QR scanner for attendees at the door.',
-                href: `/events/${id}/check-in`,
-                icon: <ScanLine size={18} strokeWidth={1.7} />,
-              },
-            ].map(card => (
-              <Link key={card.label} href={card.href}
-                className="group flex items-start gap-3 bg-white rounded-2xl border p-4 transition-all hover:-translate-y-0.5 hover:border-[#1F4D3A]/40"
-                style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)', textDecoration: 'none' }}>
-                <span className="w-9 h-9 rounded-xl grid place-items-center shrink-0 mt-0.5" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
-                  {card.icon}
-                </span>
-                <div className="flex-1 min-w-0">
-                  <div className="font-display text-[14px] font-semibold text-[#0F1F18]">{card.label}</div>
-                  <p className="text-[12px] text-[#6B7A72] mt-0.5 leading-snug">{card.desc}</p>
-                </div>
-                <ArrowRight size={14} strokeWidth={2} className="shrink-0 mt-1 text-[#C9C3B1] group-hover:text-[#1F4D3A] transition-colors" />
-              </Link>
-            ))}
-
-            {/* Share link */}
-            {event.status === 'published' && (
-              <div className="bg-white rounded-2xl border p-4 space-y-3" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
-                <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#6B7A72]">Share link</div>
-                <div className="flex items-center gap-2 font-mono text-[11px] text-[#3A4A42] bg-[#FAF6EE] border rounded-lg px-3 py-2"
-                  style={{ borderColor: '#E5E0D4' }}>
-                  <span className="flex-1 truncate">{shareUrl}</span>
-                  <CopyButton text={shareUrl} />
-                </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <a href={`https://wa.me/?text=${encodeURIComponent(`Get your personalised card: ${shareUrl}`)}`}
-                    target="_blank" rel="noopener noreferrer"
-                    className="py-1.5 rounded-lg text-[11px] font-medium text-white text-center transition hover:opacity-90"
-                    style={{ background: '#25D366' }}>WhatsApp</a>
-                  <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Get your personalised card: ${shareUrl}`)}`}
-                    target="_blank" rel="noopener noreferrer"
-                    className="py-1.5 rounded-lg text-[11px] font-medium text-white text-center bg-black transition hover:opacity-90">X</a>
-                  <a href={shareUrl} target="_blank" rel="noopener noreferrer"
-                    className="py-1.5 rounded-lg text-[11px] font-medium text-center border transition hover:bg-[#FAF6EE]"
-                    style={{ borderColor: '#E5E0D4', color: '#1F4D3A' }}>Preview ↗</a>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+        {/* ── Feature card grid ────────────────────────────────────── */}
+        <EventFeatureGrid
+          eventId={id}
+          plan={plan}
+          stats={{
+            registrations,
+            checkedIn,
+            downloads: event.download_count,
+            sessions:     sessionsCount    ?? 0,
+            speakers:     speakersCount    ?? 0,
+            ticketTypes:  ticketTypesCount ?? 0,
+          }}
+        />
 
       </div>
     </div>
