@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { signOut, resetPassword, deleteAccount, updatePassword, updateEmail, signOutAllDevices } from '@/app/(auth)/actions';
 import { Check, Mail, ArrowRight, Minus } from 'lucide-react';
 import { DeveloperTab } from './DeveloperTab';
+import { WhiteLabelTab } from './WhiteLabelTab';
 
 interface Profile {
   full_name: string | null;
@@ -22,7 +23,7 @@ interface Props {
   userId: string;
 }
 
-const TABS = ['Profile', 'Security', 'Notifications', 'Developer', 'Account'] as const;
+const TABS = ['Profile', 'Security', 'Notifications', 'Developer', 'White Label', 'Account'] as const;
 type Tab = typeof TABS[number];
 
 const PLANS: Record<string, { label: string; limit: string; features: { text: string; included: boolean }[] }> = {
@@ -542,6 +543,11 @@ export default function SettingsClient({ profile, userId }: Props) {
           {/* ─── Developer ───────────────────────────────────────── */}
           {activeTab === 'Developer' && (
             <DeveloperTab plan={profile?.plan ?? 'free'} />
+          )}
+
+          {/* ─── White Label ─────────────────────────────────────── */}
+          {activeTab === 'White Label' && (
+            <WhiteLabelTab plan={profile?.plan ?? 'free'} />
           )}
 
           {/* ─── Account ──────────────────────────────────────────── */}
