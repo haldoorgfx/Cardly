@@ -16,26 +16,27 @@ export default async function FeedbackPage({ params, searchParams }: Props) {
   const resolved = await resolvePublicSlug(params.slug);
   if (!resolved) notFound();
   const { eventPageTitle, event } = resolved;
-  const eventPage = { title: eventPageTitle ?? '' };
 
   const { data: agendaSessions } = await admin
     .from('attendee_agendas')
-    .select('session_id, sessions(id, title, starts_at, session_type)')
+    .select('session_id, sessions(id, title, starts_at)')
     .eq('registration_id', searchParams.reg)
     .order('created_at', { ascending: true });
+
+  const sessions = (agendaSessions ?? [])
+    .map(r => r.sessions)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .filter(Boolean) as any as { id: string; title: string; starts_at: string }[];
 
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
       <PublicNav eventSlug={params.slug} eventName={event.name} />
-      <div className="max-w-[680px] mx-auto px-5 py-10">
-        <FeedbackClient
-          eventId={event.id}
-          eventTitle={eventPage.title}
-          registrationId={searchParams.reg}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          attendedSessions={(agendaSessions ?? []).map(r => r.sessions).filter(Boolean) as any}
-        />
-      </div>
+      <FeedbackClient
+        eventName={eventPageTitle ?? event.name}
+        registrationId={searchParams.reg}
+        eventSlug={params.slug}
+        sessions={sessions}
+      />
     </div>
   );
 }

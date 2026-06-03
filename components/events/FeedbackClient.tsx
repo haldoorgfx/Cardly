@@ -1,212 +1,392 @@
 'use client';
 
 import { useState } from 'react';
-import type { Session } from '@/types/database';
+import Link from 'next/link';
 
-interface Props {
-  eventId: string;
-  eventTitle: string;
-  registrationId: string;
-  attendedSessions: Partial<Session>[];
+interface FeedbackSession {
+  id: string;
+  title: string;
+  starts_at: string;
 }
 
-const HIGHLIGHTS = [
+interface Props {
+  sessions: FeedbackSession[];
+  eventName: string;
+  registrationId: string;
+  eventSlug: string;
+  onSubmit?: () => void;
+}
+
+const HIGHLIGHT_OPTIONS = [
   'The speakers',
   'The networking',
   'The sessions',
   'The venue',
-  'The Karta Card',
+  'The Karta Card 😄',
 ];
 
-function StarIcon({ filled }: { filled: boolean }) {
+function StarIcon({
+  filled,
+  size = 40,
+}: {
+  filled: boolean;
+  size?: number;
+}) {
   return (
     <svg
-      width="100%"
-      height="100%"
+      width={size}
+      height={size}
       viewBox="0 0 24 24"
       fill={filled ? '#E8C57E' : 'none'}
-      stroke={filled ? '#E8C57E' : '#C9C3B1'}
-      strokeWidth="1.5"
+      stroke="#E8C57E"
+      strokeWidth={1.5}
+      strokeLinejoin="round"
     >
       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
     </svg>
   );
 }
 
-function SmallStarIcon({ filled }: { filled: boolean }) {
+function StarRow({
+  rating,
+  onRate,
+  size = 40,
+  gap = 12,
+}: {
+  rating: number;
+  onRate: (n: number) => void;
+  size?: number;
+  gap?: number;
+}) {
+  const [hover, setHover] = useState(0);
+  const active = hover || rating;
+
   return (
-    <svg
-      width="100%"
-      height="100%"
-      viewBox="0 0 24 24"
-      fill={filled ? '#E8C57E' : 'none'}
-      stroke={filled ? '#E8C57E' : '#C9C3B1'}
-      strokeWidth="1.5"
+    <div
+      style={{ display: 'flex', gap }}
+      role="group"
+      aria-label="Star rating"
     >
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-    </svg>
+      {[1, 2, 3, 4, 5].map((n) => (
+        <button
+          key={n}
+          type="button"
+          onClick={() => onRate(n)}
+          onMouseEnter={() => setHover(n)}
+          onMouseLeave={() => setHover(0)}
+          aria-label={`${n} star${n !== 1 ? 's' : ''}`}
+          style={{
+            background: 'none',
+            border: 'none',
+            padding: 0,
+            cursor: 'pointer',
+            lineHeight: 0,
+            transition: 'transform 0.12s ease',
+            transform: hover === n ? 'scale(1.12)' : 'scale(1)',
+          }}
+        >
+          <StarIcon filled={n <= active} size={size} />
+        </button>
+      ))}
+    </div>
   );
 }
 
-export default function FeedbackClient({ eventId, eventTitle, registrationId, attendedSessions }: Props) {
-  const [overallRating, setOverallRating] = useState(0);
-  const [hoverRating, setHoverRating] = useState(0);
-  const [comment, setComment] = useState('');
-  const [selectedHighlights, setSelectedHighlights] = useState<string[]>([]);
+export default function FeedbackClient({
+  sessions,
+  eventName,
+  registrationId: _registrationId,
+  eventSlug,
+  onSubmit,
+}: Props) {
+  const [eventRating, setEventRating] = useState(0);
   const [sessionRatings, setSessionRatings] = useState<Record<string, number>>({});
-  const [submitting, setSubmitting] = useState(false);
+  const [highlights, setHighlights] = useState<Set<string>>(new Set());
+  const [notes, setNotes] = useState('');
   const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [noteVisible, setNoteVisible] = useState(false);
 
-  function toggleHighlight(h: string) {
-    setSelectedHighlights((prev) =>
-      prev.includes(h) ? prev.filter((x) => x !== h) : [...prev, h]
-    );
+  function handleEventRating(n: number) {
+    setEventRating(n);
+    if (!noteVisible) setNoteVisible(true);
   }
 
-  async function rateSession(sessionId: string, rating: number) {
-    setSessionRatings((prev) => ({ ...prev, [sessionId]: rating }));
-    try {
-      await fetch(`/api/sessions/${sessionId}/rate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ registration_id: registrationId, rating }),
-      });
-    } catch {
-      // no-op
-    }
+  function handleSessionRating(sessionId: string, n: number) {
+    setSessionRatings((prev) => ({ ...prev, [sessionId]: n }));
   }
 
-  async function handleSubmit() {
-    if (overallRating === 0) { setError('Please select an overall rating.'); return; }
-    setSubmitting(true); setError(null);
-    try {
-      const res = await fetch(`/api/events/${eventId}/feedback`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          registration_id: registrationId,
-          overall_rating: overallRating,
-          highlights: selectedHighlights,
-          comment,
-        }),
-      });
-      if (!res.ok) throw new Error('Submission failed.');
-      setSubmitted(true);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Something went wrong.');
-    } finally {
-      setSubmitting(false);
-    }
+  function toggleHighlight(label: string) {
+    setHighlights((prev) => {
+      const next = new Set(prev);
+      if (next.has(label)) next.delete(label);
+      else next.add(label);
+      return next;
+    });
+  }
+
+  function handleSubmit() {
+    setSubmitted(true);
+    onSubmit?.();
   }
 
   if (submitted) {
     return (
-      <div className="flex flex-col items-center py-20 gap-4">
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '60vh',
+          gap: 20,
+          textAlign: 'center',
+          padding: '0 24px',
+        }}
+      >
         <div
-          className="w-16 h-16 rounded-full flex items-center justify-center text-2xl"
-          style={{ background: '#E8EFEB' }}
+          style={{
+            width: 56,
+            height: 56,
+            borderRadius: '50%',
+            background: '#E8EFEB',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
         >
-          ✓
+          <svg
+            width={28}
+            height={28}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#1F4D3A"
+            strokeWidth={2.5}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
         </div>
-        <h2 className="font-display text-[22px] font-normal" style={{ color: '#1F4D3A' }}>
-          Thank you for your feedback!
-        </h2>
-        <p className="text-[15px]" style={{ color: '#6B7A72' }}>
-          Your response has been recorded.
+        <p
+          style={{
+            fontFamily: 'DM Sans, sans-serif',
+            fontSize: 22,
+            fontWeight: 400,
+            color: '#1F4D3A',
+            margin: 0,
+          }}
+        >
+          Thanks! Your feedback has been submitted.
         </p>
+        <Link
+          href={`/c/${eventSlug}`}
+          style={{
+            fontSize: 14,
+            color: '#6B7A72',
+            textDecoration: 'underline',
+            textUnderlineOffset: 3,
+            fontFamily: 'Inter, sans-serif',
+          }}
+        >
+          Back to event
+        </Link>
       </div>
     );
   }
 
   return (
-    <div className="max-w-[640px] mx-auto px-5 py-10 space-y-10">
-      {/* Heading */}
+    <div
+      style={{
+        maxWidth: 680,
+        margin: '0 auto',
+        padding: '48px 24px 80px',
+      }}
+    >
+      {/* Header */}
       <h1
-        className="font-display font-normal"
-        style={{ fontSize: 28, color: '#1F4D3A' }}
+        style={{
+          fontFamily: 'DM Sans, sans-serif',
+          fontSize: 28,
+          fontWeight: 400,
+          color: '#1F4D3A',
+          margin: '0 0 10px',
+          letterSpacing: '-0.02em',
+        }}
       >
-        How was {eventTitle}?
+        How was {eventName}?
       </h1>
+      <p
+        style={{
+          fontSize: 16,
+          color: '#6B7A72',
+          margin: 0,
+          fontFamily: 'Inter, sans-serif',
+        }}
+      >
+        Your feedback helps organizers improve.
+      </p>
 
-      {/* Overall rating */}
-      <section className="space-y-3">
-        <p className="text-[15px] font-medium" style={{ color: '#0F1F18' }}>Overall rating</p>
-        <div className="flex gap-2">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <button
-              key={star}
-              onClick={() => setOverallRating(star)}
-              onMouseEnter={() => setHoverRating(star)}
-              onMouseLeave={() => setHoverRating(0)}
-              className="w-10 h-10 transition-transform hover:scale-110"
-              aria-label={`${star} star`}
-            >
-              <StarIcon filled={star <= (hoverRating || overallRating)} />
-            </button>
-          ))}
+      {/* Section 1 — Rate the event */}
+      <section style={{ marginTop: 44 }}>
+        <h2
+          style={{
+            fontFamily: 'DM Sans, sans-serif',
+            fontSize: 22,
+            fontWeight: 400,
+            color: '#1F4D3A',
+            margin: '0 0 20px',
+            letterSpacing: '-0.01em',
+          }}
+        >
+          Rate the event
+        </h2>
+
+        <StarRow rating={eventRating} onRate={handleEventRating} size={40} gap={12} />
+
+        {/* Slide-in note area */}
+        <div
+          style={{
+            overflow: 'hidden',
+            maxHeight: noteVisible ? 220 : 0,
+            opacity: noteVisible ? 1 : 0,
+            transition: 'max-height 0.3s ease, opacity 0.25s ease',
+            marginTop: noteVisible ? 20 : 0,
+          }}
+        >
+          <p
+            style={{
+              fontSize: 16,
+              color: '#6B7A72',
+              margin: '0 0 10px',
+              fontFamily: 'Inter, sans-serif',
+            }}
+          >
+            Thanks — tell us more (optional)
+          </p>
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="What stood out?"
+            style={{
+              width: '100%',
+              boxSizing: 'border-box',
+              border: '1px solid #E5E0D4',
+              borderRadius: 12,
+              padding: '14px 16px',
+              fontSize: 14,
+              fontFamily: 'Inter, sans-serif',
+              color: '#0F1F18',
+              background: '#FFFFFF',
+              minHeight: 90,
+              resize: 'vertical',
+              outline: 'none',
+              lineHeight: 1.5,
+              transition: 'border-color 0.15s ease',
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = '#E8C57E';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = '#E5E0D4';
+            }}
+          />
         </div>
-
-        {overallRating > 0 && (
-          <div className="space-y-1.5">
-            <p className="text-[13px]" style={{ color: '#6B7A72' }}>Tell us more (optional)</p>
-            <textarea
-              className="w-full border rounded-xl px-4 py-3 text-[15px] resize-none"
-              style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
-              rows={3}
-              placeholder="What did you enjoy most? What could be improved?"
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-            />
-          </div>
-        )}
       </section>
 
-      {/* Highlights */}
-      <section className="space-y-3">
-        <p className="text-[15px] font-medium" style={{ color: '#0F1F18' }}>What were the highlights?</p>
-        <div className="flex flex-wrap gap-2">
-          {HIGHLIGHTS.map((h) => (
-            <button
-              key={h}
-              onClick={() => toggleHighlight(h)}
-              className="px-4 py-2 rounded-full text-sm font-medium border transition-colors"
-              style={
-                selectedHighlights.includes(h)
-                  ? { background: '#1F4D3A', color: '#fff', borderColor: '#1F4D3A' }
-                  : { background: '#fff', color: '#0F1F18', borderColor: '#E5E0D4' }
-              }
-            >
-              {h}
-            </button>
-          ))}
-        </div>
-      </section>
+      {/* Section 2 — Sessions you attended */}
+      {sessions.length > 0 && (
+        <section style={{ marginTop: 44 }}>
+          <h2
+            style={{
+              fontFamily: 'DM Sans, sans-serif',
+              fontSize: 20,
+              fontWeight: 400,
+              color: '#1F4D3A',
+              margin: '0 0 4px',
+              letterSpacing: '-0.01em',
+            }}
+          >
+            Sessions you attended
+          </h2>
 
-      {/* Per-session ratings */}
-      {attendedSessions.length > 0 && (
-        <section className="space-y-4">
-          <p className="text-[15px] font-medium" style={{ color: '#0F1F18' }}>Sessions you attended</p>
-          <div className="space-y-4">
-            {attendedSessions.map((session) => {
-              if (!session.id || !session.title) return null;
-              const rating = sessionRatings[session.id] ?? 0;
+          <div>
+            {sessions.map((session, idx) => {
+              const sessionRating = sessionRatings[session.id] ?? 0;
+              const rated = sessionRating > 0;
               return (
-                <div key={session.id} className="flex items-center justify-between gap-4">
-                  <p className="text-[15px] font-medium flex-1 min-w-0 truncate" style={{ color: '#0F1F18' }}>
+                <div
+                  key={session.id}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    paddingTop: 16,
+                    paddingBottom: 16,
+                    borderBottom:
+                      idx < sessions.length - 1 ? '1px solid #E5E0D4' : 'none',
+                    gap: 16,
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 15,
+                      fontWeight: 500,
+                      color: '#1F4D3A',
+                      fontFamily: 'Inter, sans-serif',
+                      flex: 1,
+                      minWidth: 0,
+                    }}
+                  >
                     {session.title}
-                  </p>
-                  <div className="flex gap-1 shrink-0">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        onClick={() => rateSession(session.id!, star)}
-                        className="w-5 h-5 transition-transform hover:scale-110"
-                        aria-label={`${star} star`}
+                  </span>
+
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 10,
+                      flexShrink: 0,
+                    }}
+                  >
+                    <StarRow
+                      rating={sessionRating}
+                      onRate={(n) => handleSessionRating(session.id, n)}
+                      size={22}
+                      gap={4}
+                    />
+                    {rated ? (
+                      <span
+                        style={{
+                          fontSize: 15,
+                          color: '#1F4D3A',
+                          fontWeight: 700,
+                          lineHeight: 1,
+                          width: 32,
+                          textAlign: 'center',
+                        }}
+                        aria-label="Rated"
                       >
-                        <SmallStarIcon filled={star <= rating} />
+                        ✓
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleSessionRating(session.id, 0)}
+                        style={{
+                          fontSize: 13,
+                          color: '#6B7A72',
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          padding: 0,
+                          fontFamily: 'Inter, sans-serif',
+                          width: 32,
+                          textAlign: 'center',
+                        }}
+                      >
+                        Skip
                       </button>
-                    ))}
+                    )}
                   </div>
                 </div>
               );
@@ -215,21 +395,106 @@ export default function FeedbackClient({ eventId, eventTitle, registrationId, at
         </section>
       )}
 
-      {/* Error */}
-      {error && (
-        <p className="text-sm px-3 py-2 rounded-lg bg-red-50" style={{ color: '#B8423C' }}>{error}</p>
-      )}
-
-      {/* Submit */}
-      <div className="flex justify-center md:justify-start">
-        <button
-          onClick={handleSubmit}
-          disabled={submitting}
-          className="w-full md:w-[280px] py-3.5 rounded-xl text-[15px] font-medium text-white disabled:opacity-60 transition-opacity"
-          style={{ background: '#1F4D3A' }}
+      {/* Section 3 — Best part */}
+      <section style={{ marginTop: 44 }}>
+        <h2
+          style={{
+            fontFamily: 'DM Sans, sans-serif',
+            fontSize: 20,
+            fontWeight: 400,
+            color: '#1F4D3A',
+            margin: '0 0 16px',
+            letterSpacing: '-0.01em',
+          }}
         >
-          {submitting ? 'Submitting…' : 'Submit feedback'}
+          What was the best part?
+        </h2>
+
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+          {HIGHLIGHT_OPTIONS.map((label) => {
+            const active = highlights.has(label);
+            return (
+              <button
+                key={label}
+                type="button"
+                onClick={() => toggleHighlight(label)}
+                style={{
+                  height: 40,
+                  padding: '0 18px',
+                  borderRadius: 9999,
+                  fontSize: 14,
+                  fontFamily: 'Inter, sans-serif',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  border: '1px solid',
+                  borderColor: active ? '#1F4D3A' : '#E5E0D4',
+                  background: active ? '#1F4D3A' : '#FFFFFF',
+                  color: active ? '#FAF6EE' : '#3A4A42',
+                  transition:
+                    'background 0.15s ease, color 0.15s ease, border-color 0.15s ease',
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Footer */}
+      <div
+        style={{
+          marginTop: 52,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 14,
+        }}
+      >
+        <button
+          type="button"
+          onClick={handleSubmit}
+          style={{
+            width: 280,
+            height: 48,
+            borderRadius: 9999,
+            background: '#1F4D3A',
+            color: '#FAF6EE',
+            fontSize: 15,
+            fontWeight: 600,
+            fontFamily: 'Inter, sans-serif',
+            border: 'none',
+            cursor: 'pointer',
+            letterSpacing: '0.01em',
+            transition: 'background 0.15s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = '#163828';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = '#1F4D3A';
+          }}
+        >
+          Submit feedback
         </button>
+        <Link
+          href={`/c/${eventSlug}`}
+          style={{
+            fontSize: 14,
+            color: '#6B7A72',
+            textDecoration: 'none',
+            fontFamily: 'Inter, sans-serif',
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLAnchorElement).style.textDecoration =
+              'underline';
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none';
+          }}
+        >
+          Skip for now
+        </Link>
       </div>
     </div>
   );
