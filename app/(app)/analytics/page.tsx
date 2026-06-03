@@ -3,11 +3,9 @@ export const dynamic = 'force-dynamic';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { ArrowUpRight } from 'lucide-react';
 import {
-  CalendarDays, Users, Download, IdCard, ArrowUpRight,
-} from 'lucide-react';
-import {
-  StatCards, Panel, BarsChart, AreaChart, Table, Row, Cell, Pill, SectionLabel,
+  StatCards, Panel, BarsChart, AreaChart, Table, Row, Cell, Pill,
 } from '@/components/dashboard/ui';
 
 function fmtMoney(n: number, currency = 'USD') {
@@ -184,31 +182,10 @@ export default async function AnalyticsPage() {
 
         {/* Stat cards */}
         <StatCards cols={4} items={[
-          {
-            value:    totalEvents,
-            label:    'TOTAL EVENTS',
-            icon:     CalendarDays,
-          },
-          {
-            value:    fmtNum(totalRegs),
-            label:    'REGISTRATIONS',
-            delta:    monthRegs > 0 ? `+${monthRegs} mo` : undefined,
-            deltaUp:  true,
-            icon:     Users,
-          },
-          {
-            value:    fmtMoney(totalRevenue, revCurrency),
-            label:    'REVENUE',
-            delta:    monthRevenue > 0 ? `+${fmtMoney(monthRevenue, revCurrency)} mo` : undefined,
-            deltaUp:  true,
-            icon:     Download,
-            accent:   true,
-          },
-          {
-            value:    fmtNum(totalCards),
-            label:    'CARDS SHARED',
-            icon:     IdCard,
-          },
+          { value: totalEvents,                          label: 'TOTAL EVENTS' },
+          { value: fmtNum(totalRegs),                    label: 'REGISTRATIONS', delta: monthRegs > 0 ? `+${monthRegs} mo` : undefined, deltaUp: true },
+          { value: fmtMoney(totalRevenue, revCurrency),  label: 'REVENUE',       delta: monthRevenue > 0 ? `+${fmtMoney(monthRevenue, revCurrency)} mo` : undefined, deltaUp: true, accent: true },
+          { value: fmtNum(totalCards),                   label: 'CARDS SHARED' },
         ]} />
 
         {/* Charts row */}

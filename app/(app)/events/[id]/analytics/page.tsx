@@ -110,8 +110,6 @@ export default async function EventAnalyticsPage({ params }: Props) {
       {/* ── Content ─────────────────────────────────────────────────────────── */}
       <div className="max-w-[1100px] mx-auto px-6 py-7">
         <EventAnalyticsView
-          eventName={event.name}
-          eventStatus={event.status}
           viewCount={event.view_count ?? 0}
           dailyRegistrations={dailyRegistrations}
           ticketRevenue={ticketRevenue}

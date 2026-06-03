@@ -2,7 +2,6 @@ export const dynamic = 'force-dynamic';
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { Settings2 } from 'lucide-react';
 import {
   PageShell, Btn, StatCards, GateNotice, Panel, AreaChart, Toggle,
 } from '@/components/dashboard/ui';
@@ -45,7 +44,7 @@ export default async function NetworkingPage({ params }: Props) {
     <PageShell
       title="Networking"
       subtitle="Attendee connections & AI matchmaking"
-      actions={<Btn variant="primary" icon={Settings2}>Matchmaking settings</Btn>}
+      actions={<Btn variant="primary">Matchmaking settings</Btn>}
     >
       {isLocked && (
         <GateNotice featureLabel="Networking" planLabel="Pro" />

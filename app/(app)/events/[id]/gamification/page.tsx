@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { Settings2, Trophy, ScanLine, Network, MessageSquare, CalendarDays } from 'lucide-react';
+import { Trophy, ScanLine, Network, MessageSquare, CalendarDays } from 'lucide-react';
 import { PageShell, Btn, GateNotice, Panel, ProgressBar } from '@/components/dashboard/ui';
 
 interface Props { params: Promise<{ id: string }> }
@@ -53,7 +53,7 @@ export default async function GamificationPage({ params }: Props) {
     <PageShell
       title="Gamification"
       subtitle="Points, badges & leaderboard"
-      actions={<Btn variant="primary" icon={Settings2}>Configure points</Btn>}
+      actions={<Btn variant="primary">Configure points</Btn>}
     >
       {isLocked && <GateNotice featureLabel="Gamification" planLabel="Pro" />}
 

@@ -2,7 +2,6 @@ export const dynamic = 'force-dynamic';
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { Ticket, DollarSign, Users, TrendingUp } from 'lucide-react';
 import { StatCards } from '@/components/dashboard/ui';
 import { TicketTypesManager } from '@/components/events/TicketTypesManager';
 import { PromoCodesManager } from '@/components/events/PromoCodesManager';
@@ -80,10 +79,10 @@ export default async function TicketsPage({ params }: Props) {
 
         {/* Stat cards */}
         <StatCards cols={4} items={[
-          { value: fmtMoney(totalRevenue, revCurrency), label: 'REVENUE',       icon: DollarSign, accent: true },
-          { value: ticketsSold,                         label: 'TICKETS SOLD',  icon: Ticket },
-          { value: `${checkInRate}%`,                   label: 'CHECK-IN RATE', icon: Users },
-          { value: convRate > 0 ? `${convRate}%` : '—', label: 'CONVERSION',    icon: TrendingUp },
+          { value: fmtMoney(totalRevenue, revCurrency),  label: 'REVENUE',       accent: true },
+          { value: ticketsSold,                          label: 'TICKETS SOLD' },
+          { value: `${checkInRate}%`,                    label: 'CHECK-IN RATE' },
+          { value: convRate > 0 ? `${convRate}%` : '—',  label: 'CONVERSION' },
         ]} />
 
         {/* Ticket types */}

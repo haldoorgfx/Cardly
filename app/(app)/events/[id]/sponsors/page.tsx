@@ -2,7 +2,6 @@ export const dynamic = 'force-dynamic';
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { Download, Plus } from 'lucide-react';
 import { PageShell, Btn, StatCards, GateNotice, SectionLabel, Pill, ProgressBar } from '@/components/dashboard/ui';
 
 interface Props { params: Promise<{ id: string }> }
@@ -62,8 +61,8 @@ export default async function SponsorsPage({ params }: Props) {
       subtitle="9 sponsors · 590 leads captured"
       actions={
         <>
-          <Btn variant="ghost" icon={Download}>Export leads</Btn>
-          <Btn variant="primary" icon={Plus}>Add sponsor</Btn>
+          <Btn variant="ghost">Export leads</Btn>
+          <Btn variant="primary">Add sponsor</Btn>
         </>
       }
     >

@@ -1,3 +1,5 @@
+'use client';
+
 import { Plug, CheckCircle2, XCircle } from 'lucide-react';
 import { PageShell, Btn, SectionLabel, Panel, Table, Row, Cell, Pill } from '@/components/dashboard/ui';
 

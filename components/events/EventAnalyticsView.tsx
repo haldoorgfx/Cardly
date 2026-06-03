@@ -9,8 +9,6 @@ interface DailyPoint    { date: string; count: number }
 interface TicketRevenue { name: string; revenue: number; count: number; currency: string }
 
 interface Props {
-  eventName:          string;
-  eventStatus:        string;
   viewCount:          number;
   dailyRegistrations: DailyPoint[];
   ticketRevenue:      TicketRevenue[];
@@ -45,12 +43,6 @@ function fmtNum(n: number) {
   return n.toLocaleString();
 }
 
-const STATUS_DOT: Record<string, string> = {
-  published: '#2D7A4F', draft: '#C9A45E', archived: '#6B7A72',
-};
-const STATUS_LABEL: Record<string, string> = {
-  published: 'live', draft: 'draft', archived: 'archived',
-};
 
 // ── Line chart ────────────────────────────────────────────────────────────────
 
@@ -126,7 +118,7 @@ function DonutChart({ segments, size = 120 }: {
 // ── Main component ────────────────────────────────────────────────────────────
 
 export function EventAnalyticsView({
-  eventName, eventStatus, viewCount,
+  viewCount,
   dailyRegistrations, ticketRevenue,
   totalRegistrations, totalRevenue, revenueCurrency,
   checkInCount, cardDownloadCount,

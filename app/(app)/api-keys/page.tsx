@@ -1,3 +1,5 @@
+'use client';
+
 import { Key, Copy, Trash2, Info } from 'lucide-react';
 import { PageShell, Btn, Table, Row, Cell, Pill } from '@/components/dashboard/ui';
 

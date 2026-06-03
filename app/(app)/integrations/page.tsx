@@ -1,3 +1,5 @@
+'use client';
+
 import { Zap, MessageSquare, Mail, Briefcase, BarChart2, CreditCard, Globe, CalendarDays } from 'lucide-react';
 import { PageShell, Btn, Pill } from '@/components/dashboard/ui';
 
