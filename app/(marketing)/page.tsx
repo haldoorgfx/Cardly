@@ -2,9 +2,10 @@ import Link from 'next/link';
 import {
   Sparkles, Check, Ticket, LayoutTemplate, ScanLine, LayoutGrid,
   User, Network, MessageSquare, Briefcase, BarChart2,
-  Sun, Users, ArrowRight, Quote,
+  Sun, Users, ArrowRight,
 } from 'lucide-react';
 import { FAQAccordion, type FAQItem } from '@/components/marketing/FAQAccordion';
+import { Testimonials } from '@/components/marketing/Testimonials';
 
 export const metadata = {
   title: { absolute: 'Karta — The complete event platform' },
@@ -1312,75 +1313,7 @@ function Pricing() {
   );
 }
 
-/* ─────────────────────────────────────────────────────────
-   SECTION 8 — TESTIMONIAL
-───────────────────────────────────────────────────────── */
-function Testimonial() {
-  return (
-    <section
-      style={{
-        borderTop: '1px solid #E5E0D4',
-        borderBottom: '1px solid #E5E0D4',
-        background: 'rgba(250,246,238,0.4)',
-        paddingTop: 72,
-        paddingBottom: 72,
-      }}
-    >
-      <div className="mx-auto px-5 lg:px-10" style={{ maxWidth: 860 }}>
-        <div
-          style={{
-            fontSize: 11,
-            fontFamily: 'var(--font-mono)',
-            letterSpacing: '0.22em',
-            textTransform: 'uppercase',
-            color: '#1F4D3A',
-            textAlign: 'center',
-            marginBottom: 28,
-          }}
-        >
-          From organizers who&apos;ve run real events on Karta
-        </div>
-        <Quote size={38} strokeWidth={1.5} style={{ color: '#E8C57E', margin: '0 auto 20px', display: 'block' }} />
-        <blockquote
-          className="font-display"
-          style={{
-            fontSize: 'clamp(20px, 2.8vw, 30px)',
-            color: '#0F1F18',
-            lineHeight: 1.4,
-            letterSpacing: '-0.02em',
-            textAlign: 'center',
-            marginBottom: 28,
-          }}
-        >
-          &ldquo;We ran registration, check-in and the agenda on Karta — but the cards are what people remember. 600 attendees, 740 cards shared. The reach was 10x what our email kit ever did.&rdquo;
-        </blockquote>
-        <div className="flex items-center justify-center gap-3">
-          <div
-            style={{
-              width: 40, height: 40,
-              borderRadius: '50%',
-              background: '#E8EFEB',
-              border: '2px solid #1F4D3A',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 13,
-              fontWeight: 700,
-              color: '#1F4D3A',
-              fontFamily: 'var(--font-display)',
-            }}
-          >
-            AY
-          </div>
-          <div>
-            <div style={{ fontSize: 14, fontWeight: 600, color: '#0F1F18', fontFamily: 'var(--font-display)' }}>Amara Yusuf</div>
-            <div style={{ fontSize: 12, color: '#6B7A72', fontFamily: 'var(--font-mono)' }}>Comms Lead · Pan-African Climate Summit</div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
+/* Section 8 — Testimonials: use shared component */
 
 /* ─────────────────────────────────────────────────────────
    SECTION 9 — FAQ
@@ -1550,7 +1483,7 @@ export default function LandingPage() {
       <HowItWorks />
       <UseCases />
       <Pricing />
-      <Testimonial />
+      <Testimonials />
       <FAQSection />
       <FinalCTA />
     </>

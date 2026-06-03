@@ -85,7 +85,7 @@ export default function RootLayout({
                     '@type': 'Offer',
                     price: '0',
                     priceCurrency: 'USD',
-                    description: 'Free plan available. Pro from $29/month.',
+                    description: 'Free plan available. Pro from $19/month.',
                   },
                   publisher: { '@id': 'https://karta.cre8so.com/#organization' },
                 },

@@ -1,323 +1,156 @@
-# CLAUDE.md — Cardly Project
+# CLAUDE.md — Karta Project
 
 **Read this file fully at the start of every session before writing any code.**
 
 ---
 
-## What Cardly Is
+## What Karta Is
 
-Cardly is a SaaS tool that lets event organizers and designers create personalized "I'm Attending" social cards for event attendees.
+Karta is a **full event-management SaaS platform**. Organizers run an entire event on it — public event page, registration & ticketing, agenda, speakers, check-in, attendee networking, live Q&A/polls, sponsors, and analytics — and **every attendee leaves with a personalized "Karta Card"** to share on social. The card is the **signature differentiator**, not the whole product.
 
-**Flow:**
-1. Designer uploads an event design (PNG/JPG)
-2. Designer defines editable zones (name, title, photo, role)
-3. Designer publishes → gets a public shareable link
-4. Attendee opens the link on a phone, fills in info, uploads a photo
-5. Attendee downloads a personalized PNG to share on social media
+**Positioning:** the all-in-one platform (vs Eventbrite/Whova) where registration ends in a shareable moment, not just a confirmation email. Built mobile-first and Africa-first (WhatsApp-native, local payments), but global.
 
-**MVP scope:** static image cards only. No video, no animation, no team accounts, no marketplace.
+**Two product surfaces + ops:**
+- **Organizer dashboard** — create & run events end to end.
+- **Attendee experience** — discover, register, get the Karta Card, live event app.
+- **Operator/super-admin console** — moderation, support, finance, plans/flags, system health.
+- **Card Studio** — the canvas editor for the Karta Card (the old "Cardly" editor — ported, not rebuilt).
 
-**Edge over competitors (Premagic, CrowdCard):** designer-native. The designer uploads their own design — no template constraints. Built for event organizers and designers worldwide.
+> This was formerly **Cardly** (a card-only tool). We are evolving the SAME codebase into the platform. Rename Cardly → **Karta** everywhere; watermark is "Made with Karta". Keep the card editor/render pipeline — it becomes the Card Studio feature.
 
 ---
 
 ## Design Handoff
 
-The folder `cardly-handoff/cardly/project/` contains 13 HTML prototypes exported from Claude Design. **These are the source of truth for LAYOUT, STRUCTURE, SPACING, TYPE SIZES, ANIMATIONS, AND COMPONENT ANATOMY.**
+New high-fidelity prototypes live in **`design-reference/karta/`** — **the source of truth for LAYOUT, STRUCTURE, SPACING, TYPE, COMPONENTS, FLOWS.** Folders:
+`site/` (marketing landing + pricing) · `directory/` (public event browse) · `support/` (help/status/changelog/legal) · `dashboard/` (organizer **+** operator console + auth) · `onboarding/` · `studio/` (Card Studio) · `emails/` · `speaker/` · `attendee/` (full attendee app) · `index.html` (hub).
 
-Files to read:
-- A1 Landing Page.html
-- A2 Pricing Page.html
-- B1 Auth.html
-- C1 Empty Dashboard.html
-- C2 Events List.html
-- C3 Event Detail.html
-- D1 Upload Design.html
-- D2 Canvas Editor.html (already a working React component with drag/resize/zoom — port carefully)
-- D3 Publish and Share.html
-- E1 Attendee Public Page.html (mobile-first, 375px viewport target)
-- E2 Preview State.html
-- E3 Success.html
-
-**Rule:** Read the HTML files directly. Match layout, spacing, type sizes, animations, component structure exactly. No reinterpretation.
-
-**IMPORTANT — Colors in the HTML files are OUTDATED.** The HTML uses an old purple/pink palette (`#6c63ff` / `#f8a4d8`). Ignore those colors. The current brand is forest + cream (see Brand System section below and BRAND.md).
+**Rules:** Read the prototype files directly; match layout/spacing/type/components exactly, no reinterpretation. Pull **all colors from BRAND.md** (prototypes already use the correct forest/cream/gold tokens). Ignore any legacy purple/pink. The retired 13 `cardly-handoff` HTML files are superseded — do not use them.
 
 ---
 
-## Brand System (see BRAND.md for full details — this is the summary)
-
-**Direction:** Forest + Cream. Editorial, African-modern, designer-grade. Quiet confidence. The brand frames the user's event design — it never competes with it.
-
-**Colors**
-- Primary: `#1F4D3A` (deep forest green)
-- Primary dark: `#163828`
-- Primary soft: `#E8EFEB`
-- Accent: `#E8C57E` (warm cream-gold, used sparingly)
-- Accent dark: `#C9A45E`
-- Ink: `#0F1F18` (text)
-- Ink soft: `#3A4A42`
-- Muted: `#6B7A72`
-- Cream: `#FAF6EE` (app background, NOT pure white)
-- Surface: `#FFFFFF` (cards, modals, inputs)
-- Border: `#E5E0D4` (warm beige, NOT cool grey)
-- Border strong: `#C9C3B1`
-
-**Functional**
-- Success: `#2D7A4F`
-- Warning: `#C97A2D`
-- Danger: `#B8423C`
-- Info: `#3A6B8C`
-
-**Gradient (hero, illustrations, premium tier only)**
-`linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)`
-
-**Typography (unchanged)**
-- Display: DM Sans (headings, letter-spacing -0.02em)
-- Sans: Inter (body, UI)
-- Mono: JetBrains Mono (labels, IDs, code)
-
-**Shadows**
-- soft: `0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)`
-- lift: `0 4px 12px rgba(15,31,24,0.08), 0 24px 60px rgba(31,77,58,0.12)`
-- focus: `0 0 0 3px rgba(31,77,58,0.15)`
-
-**Animations (unchanged — keep keyframes from HTML)**
-- `floatA` / `floatB` — hero floaters
-- `zonePulse` — editor zone outlines
-- `marquee` — logo strip
-- `blink` — caret
-
-**Retired (never use again)**
-- `#6c63ff` (old purple)
-- `#f8a4d8` (old pink)
-- `#fafafa` (replaced by warm cream `#FAF6EE`)
-- `#e5e5ea` (replaced by warm border `#E5E0D4`)
-- Old purple/pink 135deg gradient
-
-**Sources of truth (in order of priority)**
-1. BRAND.md (most detailed)
-2. This section in CLAUDE.md (summary)
-3. Tailwind config (implementation)
-
-The HTML files in `cardly-handoff/cardly/project/` are layout/structure reference only. Their colors are OUTDATED — use BRAND.md for all color decisions, not the HTML.
+## Brand System (summary — BRAND.md wins)
+Forest + cream + gold, editorial/African-modern/premium. `primary #1F4D3A`, `primary-dark #163828`, `primary-soft #E8EFEB`, `accent #E8C57E`, `accent-dark #C9A45E`, `ink #0F1F18`, `ink-soft #3A4A42`, `muted #6B7A72`, `cream #FAF6EE`, `surface #FFFFFF`, `border #E5E0D4`. Success `#2D7A4F` · warning `#C97A2D` · danger `#B8423C` · info `#3A6B8C`. Type: DM Sans (display) · Inter (sans) · JetBrains Mono (mono). Brand tokens are theme-able via CSS vars (for organizer-themed public pages/cards). **Retired:** `#6c63ff`, `#f8a4d8`, `#fafafa`, `#e5e5ea`, all blue/teal, the "Cardly" name. Sources of truth: 1) BRAND.md 2) this summary 3) `tailwind.config.ts`.
 
 ---
 
-## Tech Stack (locked)
-
+## Tech Stack (LOCKED — no new dependencies, no conflicts)
 - **Framework:** Next.js 14, App Router, TypeScript (strict)
-- **Styling:** Tailwind CSS
-- **UI primitives:** shadcn/ui (button, input, card, dialog, dropdown-menu, tabs, badge, toast, avatar)
-- **Database + Auth + Storage:** Supabase
-- **Image rendering:** `sharp` (server-side, in API route only)
+- **Styling:** Tailwind CSS (v3) + shadcn/ui (button, input, card, dialog, dropdown-menu, tabs, badge, toast, avatar, sheet, table, select, switch, tooltip, popover)
+- **DB + Auth + Storage:** **Supabase** (Postgres + Auth + Storage + **RLS**)
+- **Image rendering:** `sharp` (server-side only, in API routes) — for Karta Card PNGs
 - **Forms:** react-hook-form + zod
-- **State:** React Context for global, useState for local. No Redux, no Zustand.
-- **Deployment:** Vercel
-- **Package manager:** pnpm
+- **State:** React Context (global) + useState (local). No Redux/Zustand.
+- **Payments:** Stripe + Paystack + Flutterwave (server SDKs/REST)
+- **Email:** Resend · **QR:** server-side · **Deploy:** Vercel · **pnpm**
 
-**Do not add:** Redis, edge functions, microservices, GraphQL, tRPC, any state-management library, any CSS-in-JS library.
+**Do not add:** Prisma, Auth.js/NextAuth, another DB/ORM, Tailwind v4, Redis, GraphQL, tRPC, any state-management or CSS-in-JS library, microservices. If a prototype implies one, express it with the stack above. **Switching the data/auth layer is the #1 way to create conflicts — never do it.**
 
 ---
 
-## Project Structure
-
+## Project Structure (target)
 ```
-cardly/
-├── app/
-│   ├── (marketing)/
-│   │   ├── page.tsx                 → A1 Landing
-│   │   └── pricing/page.tsx         → A2 Pricing
-│   ├── (auth)/
-│   │   ├── login/page.tsx           → B1 Auth (login)
-│   │   └── signup/page.tsx          → B1 Auth (signup)
-│   ├── (app)/
-│   │   ├── dashboard/page.tsx       → C1 or C2 (conditional)
-│   │   ├── events/
-│   │   │   ├── new/page.tsx         → D1 Upload Design
-│   │   │   ├── [id]/page.tsx        → C3 Event Detail
-│   │   │   ├── [id]/edit/page.tsx   → D2 Canvas Editor
-│   │   │   └── [id]/publish/page.tsx → D3 Publish & Share
-│   ├── c/[slug]/page.tsx            → E1 Attendee (public, no auth)
-│   ├── api/
-│   │   ├── events/route.ts
-│   │   ├── events/[id]/route.ts
-│   │   ├── render/route.ts          → POST: generate personalized PNG
-│   │   └── upload/route.ts
-├── components/
-│   ├── ui/                          → shadcn primitives
-│   ├── editor/                      → canvas editor parts from D2
-│   ├── landing/                     → A1 sections
-│   └── shared/                      → nav, footer, logo
-├── lib/
-│   ├── supabase/                    → client + server helpers
-│   ├── render/                      → sharp-based composition
-│   └── utils.ts
-├── types/
-│   └── database.ts                  → generated from Supabase
-└── tailwind.config.ts
+app/
+├── (marketing)/        page, pricing, how-it-works, use-cases, about, whats-new,
+│                       help, status, privacy, terms, dmca, contact, blog, partners
+├── (auth)/             login, signup, forgot-password, accept-invite
+├── (app)/              ← organizer dashboard (auth + org-scoped)
+│   ├── onboarding/                     org → brand → first event wizard
+│   ├── dashboard/                      events home + context shell
+│   ├── events/[id]/                    overview + tabs:
+│   │     registration, tickets, agenda, speakers, check-in,
+│   │     networking, qa, polls, sponsors, analytics, card (Studio), settings
+│   ├── events/[id]/edit/               Card Studio (canvas editor)
+│   ├── analytics, team, templates, brand, settings, speaker
+├── (public)/           events/ (directory), e/[slug] (public event page)
+├── c/[slug]/           attendee registration → Karta Card reveal → event app
+├── admin/              ← operator console (super-admin):
+│                       analytics, audit, billing, changelog, content, events,
+│                       flags, media, templates, theme, users, moderation,
+│                       support, finance, refunds, system
+└── api/                events, registrations, tickets, sessions, speakers,
+                        render (card PNG), qr, payments, webhooks, billing,
+                        teams, keys, admin, v1 (public API), upload, report
+components/  ui · shared · marketing · app · events · registration · editor(studio)
+             · check-in · networking · qa · polls · sponsors · analytics · admin · cms
+lib/         supabase · auth · events · registration · payments · billing · render
+             · qr · email · teams · matchmaking · templates · theme · flags · audit
+             · api-keys · webhooks · utils
 ```
 
 ---
 
-## Database Schema (Supabase)
+## Database (Supabase) — extend the existing schema, never replace it
+Existing: `profiles`, `events`, `generated_cards`. **Add** (new `supabase/migrations/` files, all with RLS):
+- `organizations` (id, name, slug, plan `free|pro|studio`, brand jsonb, created_by) and `organization_members` (org_id, user_id, role `owner|admin|editor|checkin_staff|viewer`).
+- Extend `events` with `organization_id`, cover/theme, dates, venue, category, visibility, status.
+- `ticket_types` (event_id, name, price, currency, quantity, sales window, hidden) · `orders` (buyer, amount, provider, status) · `registrations` (event_id, attendee fields jsonb, ticket_type_id, order_id, checked_in_at, card_id).
+- `sessions` (event_id, title, day, start, duration, track, room) · `session_speakers` · `speakers` (event_id, name, role, org, bio, photo, featured).
+- `sponsors` (event_id, name, tier, booth, leads) · `connections` (event_id, a_user, b_user, status) · `messages` (thread, sender, body) · `questions` (session_id, body, votes, status) · `polls` + `poll_votes` · `points`/`badges` (gamification).
+- Platform/ops: `api_keys`, `webhooks` + `webhook_deliveries`, `audit_log`, `feature_flags`, `payouts`, `refunds`, `reports` (moderation), `changelog`.
+- Reuse `generated_cards` as the Karta Card output table; keep `events.zones` jsonb + the zones shape for the Studio.
 
-```sql
-create table profiles (
-  id uuid primary key references auth.users on delete cascade,
-  email text unique,
-  full_name text,
-  plan text default 'free',           -- free | pro | studio
-  created_at timestamptz default now()
-);
-
-create table events (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid references profiles(id) on delete cascade,
-  name text not null,
-  slug text unique not null,
-  background_url text,
-  background_width int,
-  background_height int,
-  zones jsonb not null default '[]'::jsonb,
-  status text default 'draft',        -- draft | published | archived
-  view_count int default 0,
-  download_count int default 0,
-  created_at timestamptz default now(),
-  updated_at timestamptz default now()
-);
-
-create table generated_cards (
-  id uuid primary key default gen_random_uuid(),
-  event_id uuid references events(id) on delete cascade,
-  attendee_name text,
-  attendee_data jsonb,
-  output_url text,
-  created_at timestamptz default now()
-);
-```
-
-**Zones JSON shape:**
-```json
-[
-  {
-    "id": "z1",
-    "type": "text",
-    "label": "Full Name",
-    "x": 100, "y": 200, "w": 400, "h": 60,
-    "font": "Inter", "size": 32, "weight": 600,
-    "color": "#0F1F18", "align": "center",
-    "required": true,
-    "placeholder": "Your name"
-  },
-  {
-    "id": "z2",
-    "type": "photo",
-    "label": "Photo",
-    "x": 200, "y": 400, "w": 200, "h": 200,
-    "shape": "circle",
-    "required": true
-  }
-]
-```
-
-**RLS policies:**
-- Users can read/write only their own rows in `events` and `generated_cards`.
-- Public can `select` from `events` where `status = 'published'` filtered by `slug`.
-- Public can `insert` into `generated_cards`.
+**RLS:** every row scoped by `organization_id` / owner; members access by role; public can read `published` events by slug and `insert` registrations/cards. **Enforce plan limits and roles server-side** — UI lock pills are cosmetic.
 
 ---
 
-## Build Order (do not skip ahead)
+## Plans
+- **Free — $0:** 1 event, 50 registrations, Karta Card (with "Made with Karta" watermark), QR check-in, basic page.
+- **Pro — $19/mo:** unlimited events, 500 regs/mo, full agenda, speakers, networking + 1:1 messaging, remove watermark, email, basic analytics.
+- **Studio — $49/mo:** unlimited regs, AI matchmaking, live Q&A/polls, gamification, sponsor tools, multiple brand kits, 3 team seats, API access, white-label, priority support.
 
-### Phase 1 — Foundation
-1. `pnpm create next-app` with TypeScript + Tailwind + App Router
-2. Port the Tailwind config — USE COLORS FROM BRAND.md, NOT FROM THE HTML FILES. Pull the layout, spacing, fonts, keyframes from the HTML; pull all colors from BRAND.md.
-3. Set up Supabase project; output `.env.local.example`
-4. Install shadcn primitives listed above
-5. Write the migration SQL
-6. Build auth (signup, login, logout, protected routes via middleware)
-7. Build the marketing nav + footer (forest green primary, cream background)
-8. Build A1 Landing Page (re-skin in forest+cream, NOT the old purple/pink from the HTML)
+---
 
-**STOP. Wait for human review before continuing.**
+## Build Order (vertical, review-gated — do not skip ahead)
 
-### Phase 2 — Designer App
-9. Dashboard (C1 empty + C2 list, conditional on event count)
-10. D1 Upload Design → upload to Supabase storage → create event row
-11. C3 Event Detail page
-12. D2 Canvas Editor — port the existing React component from the HTML. Wire it to save `zones` to the database with **800ms debounced auto-save**. Keep undo/redo. Re-skin zone outlines and handles to forest green.
-13. D3 Publish & Share — generate slug (`event-name-xxxx`), mark as published, show link + QR
+### Milestone A — Reposition & shell  *(STOP for review)*
+Rewrite this file's framing in code/comments; rename Cardly→Karta + watermark; marketing landing + pricing + nav/footer from `site/`; app shell (sidebar/topbar, context-aware nav, ⌘K, plan lock pills + upgrade slide-over).
 
-**STOP. Wait for human review.**
+### Milestone B — Organizer core  *(STOP)*
+`organizations` + members + RLS migrations; onboarding wizard; dashboard events home; event overview + tabs wired to existing `components/{events,registration,…}`; tickets + ticket types.
 
-### Phase 3 — Attendee Experience (mobile-first, 375px first)
-14. Public route `/c/[slug]` (E1) — load event, render background + zones, mobile form
-15. `/api/render` — `sharp`-based image composition:
-    - Load background from Supabase storage
-    - Composite text zones with correct font, size, color, alignment
-    - Composite photo cropped to shape (circle / square / rounded)
-    - Return final PNG
-    - Apply "Made with Cardly" watermark if user.plan === 'free'
-16. E2 Preview — rendered card + download + share buttons
-17. E3 Success — confirmation, suggested caption, share prompts
+### Milestone C — Attendee + the Karta Card  *(STOP)*
+Public event page + directory; registration → payment → **Karta Card reveal** (keep `sharp` render + zones + Studio); attendee app surfaces (schedule, wallet/QR). End-to-end test.
 
-**STOP. End-to-end test: designer creates → attendee personalizes → downloads.**
+### Milestone D — Engagement, ops & integrations  *(STOP)*
+Networking, Q&A/polls, sponsors, check-in scanner, analytics; operator console (moderation/support/finance/refunds/flags/system); integrations hub; speaker portal; email templates.
 
-### Phase 4 — Pricing & Polish
-18. A2 Pricing
-19. Plan limits: free = 1 event + watermark, pro = 10 events, studio = unlimited
-20. View + download analytics on event detail page
-21. Error states, loading states, empty states across all screens
+Each milestone: **migrations → UI → wire → states (loading/empty/error)**. One branch per milestone.
 
 ---
 
 ## Critical Rules
-
-1. **Match LAYOUT exactly, REPLACE COLORS.** Pull spacing, font sizes, animations, component structure from the HTML files. Pull all colors from BRAND.md only.
-2. **Mobile attendee experience is non-negotiable.** Test E1 at 375px viewport. One-thumb operable. No tiny tap targets.
-3. **Port the canvas editor, do not rewrite.** D2 already has working drag/resize/zoom logic in React. Re-skin colors only.
-4. **Server-side image rendering only.** Never use html2canvas or browser-based rendering. Use `sharp` in API route.
-5. **Watermark logic:** "Made with Cardly" bottom-center, small, semi-transparent. Only on free tier output.
-6. **Slug format:** `lowercase-event-name-xxxx` where `xxxx` is a 4-char random suffix.
-7. **Auto-save:** 800ms debounce after last change in the editor.
-8. **TypeScript strict mode.** Type zones, database rows, API request/response.
-9. **No premature optimization.** No caching layers, no edge runtime, no SSG where SSR works fine.
-10. **Don't ask design questions.** The designs are final. Just implement.
+1. **Same stack, in place.** No new deps; edit behind existing routes; no parallel `-v2`. Switching DB/auth = forbidden.
+2. **Multi-tenant + RLS from day one.** Scope every query by org; enforce roles + plan limits server-side.
+3. **Match prototype LAYOUT exactly; colors from BRAND.md.** No UI from memory.
+4. **Port the Card Studio editor, don't rewrite.** Keep drag/resize/zoom, 800ms debounced autosave, `zones` jsonb, undo/redo. Re-skin only.
+5. **Server-side card render only** (`sharp` in API). Never html2canvas. Watermark "Made with Karta" on free tier.
+6. **Integrate, don't rebuild.** Payments, email, CRM, automation, streaming, analytics = connectable third-party integrations the user opts into (Integrations hub), not custom builds.
+7. **Mobile is non-negotiable.** Everything responsive; attendee flows test at 375px; tap targets ≥ 48px.
+8. **States are part of the contract.** Loading skeletons, empty states, error+retry, validated forms — on every data view.
+9. **TypeScript strict.** Type DB rows, zones, API req/res.
+10. **Don't run ahead of the Build Order without review at each STOP.** If a prototype conflicts with working code, flag it — don't silently rewrite.
 
 ---
 
-## Definition of Done (MVP)
-
-- A new user can sign up, upload a design, define zones, publish, and get a shareable link.
-- An attendee can open the link on a phone, fill in info, upload a photo, and download a personalized PNG.
-- The downloaded PNG visually matches the live preview.
-- Free tier shows watermark; paid tier doesn't.
-- Deployed on Vercel.
-- Works on mobile Safari + Chrome.
+## Definition of Done
+- Existing flow still works: sign up → create event → Card Studio → publish → attendee personalizes → downloads card.
+- Organizer can run a full event: tickets, agenda, speakers, check-in, networking, analytics.
+- Attendee gets the platform experience (discover → register → Karta Card → live app).
+- Operator console + integrations + plans/billing live. Multi-tenant with RLS. Deployed on Vercel. Responsive throughout.
 
 ---
 
 ## Communication Style with the Human
-
-The human (Abdalla) is a designer, not a backend engineer. When you explain things:
-
-- Be direct. No hedging.
-- No corporate language.
-- Show code. Then explain in 1–2 lines what it does.
-- If something will take >30 minutes or break working features, **ask first**.
-- If you hit an architectural fork, present 2 options max with a recommendation.
-- Don't ask permission for routine implementation choices.
-- If a request conflicts with this CLAUDE.md, point it out before complying.
+The human (Abdalla) is a designer, not a backend engineer. Be direct, no corporate language. Show code, then 1–2 lines explaining it. If something will take >30 min or risks breaking working features, **ask first**. At an architectural fork, give 2 options max + a recommendation. Don't ask permission for routine choices. If a request conflicts with this file, say so before complying.
 
 ---
 
 ## Things That Will Break the Build (do not do)
-
-- Adding any library not listed in Tech Stack above
-- Switching to Pages Router
-- Using browser-based image rendering (html2canvas, dom-to-image, etc.)
-- Skipping the design files and "improving" the UI from memory
-- Using the OLD colors from the HTML files (#6c63ff, #f8a4d8, #fafafa, #e5e5ea) anywhere in the codebase
-- Adding features beyond MVP scope (templates marketplace, team accounts, video output, AI features)
-- Running ahead of the Build Order without human review at each STOP point
+- Adding any dependency not in Tech Stack; switching DB/auth/ORM; Tailwind v4; Pages Router.
+- Browser-based image rendering (html2canvas/dom-to-image).
+- Rewriting the canvas editor or render pipeline instead of porting/reskinning.
+- Building UI from memory instead of the `design-reference/karta/` prototypes.
+- Using retired colors (`#6c63ff`, `#f8a4d8`, `#fafafa`, `#e5e5ea`) or the "Cardly" name.
+- Skipping RLS / org-scoping / server-side plan + role enforcement.
+- Running past a STOP gate without human review.

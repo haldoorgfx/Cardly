@@ -1,17 +1,25 @@
 'use client';
 
-import React, { useEffect, useState, useRef, useCallback, createContext, useContext } from 'react';
+import React, {
+  useEffect, useState, useRef, useCallback,
+  createContext, useContext,
+} from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { PLANS } from '@/lib/billing/plans';
 import {
   LayoutGrid, TrendingUp, LayoutTemplate, Palette,
-  Settings2, Users, LogOut, Menu, Search, Plus, ChevronRight, CreditCard,
-  BarChart2, FileText, Eye, X, ArrowLeft, ShieldCheck,
+  Settings2, Users, LogOut, Menu, Search, Plus, ChevronRight,
+  CreditCard, BarChart2, FileText, Eye, X, ArrowLeft, ShieldCheck,
   Flag, Image as ImageIcon, ScrollText, Sliders, Gavel,
-  Home, Layout, CalendarDays, Globe, MessageSquare, IdCard,
+  Home, Layout, CalendarDays, Globe, MessageSquare,
+  Ticket, ScanLine, Network, Lock, Sparkles,
 } from 'lucide-react';
+import { UpgradeSlideOver, type UpgradeFeature } from '@/components/app/UpgradeSlideOver';
+import { UpgradeContext, planMeets } from '@/components/app/PlanGate';
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 type Profile = {
   full_name: string | null;
@@ -35,15 +43,9 @@ type EventResult = {
   slug: string;
 };
 
-// Derived from the canonical billing config (events: null = unlimited) so the
-// sidebar limit can never drift from the real plan limits.
-const PLAN_LIMITS: Record<string, number> = {
-  free:   PLANS.free.events   ?? Infinity,
-  pro:    PLANS.pro.events    ?? Infinity,
-  studio: PLANS.studio.events ?? Infinity,
-};
+type EventInfo = { id: string; name: string; status: string; slug: string } | null;
 
-// ─── UUID detection ───────────────────────────────────────────────────────────
+// ─── Constants ────────────────────────────────────────────────────────────────
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 function getEventIdFromPath(pathname: string): string | null {
@@ -51,44 +53,83 @@ function getEventIdFromPath(pathname: string): string | null {
   return m && UUID_RE.test(m[1]) ? m[1] : null;
 }
 
-// ─── Event nav ────────────────────────────────────────────────────────────────
+const PLAN_LIMITS: Record<string, number> = {
+  free:   PLANS.free.events   ?? Infinity,
+  pro:    PLANS.pro.events    ?? Infinity,
+  studio: PLANS.studio.events ?? Infinity,
+};
 
-type EventInfo = { id: string; name: string; status: string; slug: string } | null;
+const PLAN_LABEL: Record<string, string> = { free: 'Free', pro: 'Pro', studio: 'Studio' };
 
-const EVENT_NAV_SECTIONS = [
+// ─── Platform-level nav ───────────────────────────────────────────────────────
+
+const NAV_ITEMS = [
+  { href: '/dashboard', label: 'Events',    icon: <LayoutGrid size={15} strokeWidth={1.8} />,     badge: null, matchPrefix: true },
+  { href: '/analytics', label: 'Analytics', icon: <TrendingUp size={15} strokeWidth={1.8} />,     badge: null, matchPrefix: false },
+  { href: '/templates', label: 'Templates', icon: <LayoutTemplate size={15} strokeWidth={1.8} />, badge: 'NEW', matchPrefix: false },
+  { href: '/brand',     label: 'Brand Kit', icon: <Palette size={15} strokeWidth={1.8} />,        badge: null, matchPrefix: false },
+];
+
+const WORKSPACE_ITEMS = [
+  { href: '/team',              label: 'Team',     icon: <Users size={15} strokeWidth={1.8} />,    minPlan: 'pro' as const },
+  { href: '/settings/billing',  label: 'Billing',  icon: <CreditCard size={15} strokeWidth={1.8} /> },
+  { href: '/settings',          label: 'Settings', icon: <Settings2 size={15} strokeWidth={1.8} /> },
+];
+
+// ─── Event-level nav (matches design-reference/dashboard/data.jsx) ────────────
+
+type EventNavItem = {
+  id: string;
+  label: string;
+  icon: React.ReactNode;
+  segment: string;
+  minPlan?: 'pro' | 'studio';
+};
+
+type EventNavSection = {
+  title: string;
+  items: EventNavItem[];
+};
+
+const EVENT_NAV_SECTIONS: EventNavSection[] = [
   {
-    title: null,
+    title: 'Manage',
     items: [
-      { id: 'overview',      label: 'Overview',      icon: <Home size={15} strokeWidth={1.8} />,           segment: '' },
-      { id: 'registrations', label: 'Registrations', icon: <Users size={15} strokeWidth={1.8} />,          segment: 'registrations' },
-      { id: 'event-page',    label: 'Event page',    icon: <Layout size={15} strokeWidth={1.8} />,         segment: 'event-page' },
-      { id: 'agenda',        label: 'Agenda',        icon: <CalendarDays size={15} strokeWidth={1.8} />,   segment: 'agenda' },
-      { id: 'engagement',    label: 'Engagement',    icon: <MessageSquare size={15} strokeWidth={1.8} />,  segment: 'engagement' },
-      { id: 'analytics',     label: 'Analytics',     icon: <BarChart2 size={15} strokeWidth={1.8} />,      segment: 'analytics' },
-      { id: 'karta-card',    label: 'Karta Card',    icon: <IdCard size={15} strokeWidth={1.8} />,         segment: 'edit' },
+      { id: 'overview',      label: 'Overview',       icon: <Home size={15} strokeWidth={1.8} />,        segment: '' },
+      { id: 'event-page',    label: 'Event Page',     icon: <Layout size={15} strokeWidth={1.8} />,      segment: 'event-page' },
+      { id: 'tickets',       label: 'Tickets',        icon: <Ticket size={15} strokeWidth={1.8} />,      segment: 'tickets' },
+      { id: 'registrations', label: 'Registrations',  icon: <Users size={15} strokeWidth={1.8} />,       segment: 'registrations' },
+      { id: 'check-in',      label: 'Check-in',       icon: <ScanLine size={15} strokeWidth={1.8} />,    segment: 'check-in' },
+    ],
+  },
+  {
+    title: 'Programme',
+    items: [
+      { id: 'agenda',    label: 'Agenda',    icon: <LayoutGrid size={15} strokeWidth={1.8} />,    segment: 'agenda' },
+      { id: 'speakers',  label: 'Speakers',  icon: <Users size={15} strokeWidth={1.8} />,         segment: 'speakers' },
+      { id: 'sessions',  label: 'Sessions',  icon: <CalendarDays size={15} strokeWidth={1.8} />,  segment: 'sessions' },
+    ],
+  },
+  {
+    title: 'Engagement',
+    items: [
+      { id: 'networking', label: 'Networking',  icon: <Network size={15} strokeWidth={1.8} />,      segment: 'engagement', minPlan: 'pro' },
+      { id: 'q-and-a',    label: 'Q&A & Polls', icon: <MessageSquare size={15} strokeWidth={1.8} />, segment: 'q-and-a',    minPlan: 'pro' },
+    ],
+  },
+  {
+    title: 'Insights',
+    items: [
+      { id: 'analytics', label: 'Analytics', icon: <BarChart2 size={15} strokeWidth={1.8} />, segment: 'analytics' },
     ],
   },
 ];
 
 const EVENT_STATUS_BADGE: Record<string, { cls: string; dot: string; label: string }> = {
-  published: { cls: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30', dot: '#2D7A4F', label: 'Live' },
-  draft:     { cls: 'bg-amber-500/20 text-amber-300 border-amber-500/30',       dot: '#C9A45E', label: 'Draft' },
-  archived:  { cls: 'bg-white/10 text-white/40 border-white/15',                dot: '#6B7A72', label: 'Archived' },
+  published: { cls: 'bg-emerald-50 text-emerald-700 border-emerald-200', dot: '#2D7A4F',  label: 'Live' },
+  draft:     { cls: 'bg-amber-50 text-amber-700 border-amber-200',       dot: '#C9A45E',  label: 'Draft' },
+  archived:  { cls: 'bg-ink/5 text-ink-soft border-border',              dot: '#6B7A72',  label: 'Archived' },
 };
-
-// ─── User nav ─────────────────────────────────────────────────────────────────
-
-const NAV_ITEMS = [
-  { href: '/dashboard', label: 'Events',    icon: <LayoutGrid size={15} strokeWidth={1.8} />, badge: null, matchPrefix: true },
-  { href: '/analytics', label: 'Analytics', icon: <TrendingUp size={15} strokeWidth={1.8} />, badge: null, matchPrefix: false },
-  { href: '/templates', label: 'Templates', icon: <LayoutTemplate size={15} strokeWidth={1.8} />, badge: 'NEW', matchPrefix: false },
-  { href: '/brand',     label: 'Brand kit', icon: <Palette size={15} strokeWidth={1.8} />, badge: null, matchPrefix: false },
-];
-
-const WORKSPACE_ITEMS = [
-  { href: '/settings/billing', label: 'Billing',  icon: <CreditCard size={15} strokeWidth={1.8} /> },
-  { href: '/settings',         label: 'Settings', icon: <Settings2 size={15} strokeWidth={1.8} /> },
-];
 
 // ─── Admin nav ────────────────────────────────────────────────────────────────
 
@@ -136,24 +177,70 @@ const ADMIN_SECTIONS: AdminNavSection[] = [
   },
 ];
 
-// ─── Shared nav item ──────────────────────────────────────────────────────────
+// ─── Context ──────────────────────────────────────────────────────────────────
 
-function NavItem({ href, icon, label, badge, active, onNavigate }: {
-  href: string; icon: React.ReactNode; label: string;
-  badge?: string | null; active: boolean; onNavigate?: () => void;
+type PlanCtx = {
+  profile: Profile | null;
+  eventCount: number;
+  initials: string;
+  planPct: number;
+  planLabel: string;
+  logoUrl: string | null;
+  openUpgrade: (feature: UpgradeFeature) => void;
+};
+
+const PlanContext = createContext<PlanCtx>({
+  profile: null, eventCount: 0, initials: '?', planPct: 0,
+  planLabel: 'Free', logoUrl: null, openUpgrade: () => {},
+});
+export function usePlanCtx() { return useContext(PlanContext); }
+
+// ─── NavItem (light sidebar) ──────────────────────────────────────────────────
+
+function NavItem({ href, icon, label, badge, active, locked, minPlanLabel, onNavigate, onUpgrade }: {
+  href: string;
+  icon: React.ReactNode;
+  label: string;
+  badge?: string | null;
+  active: boolean;
+  locked?: boolean;
+  minPlanLabel?: string;
+  onNavigate?: () => void;
+  onUpgrade?: () => void;
 }) {
+  if (locked) {
+    return (
+      <li>
+        <button
+          onClick={onUpgrade}
+          className="group w-full flex items-center gap-2.5 pl-3 pr-2.5 py-[7px] rounded-lg text-[13.5px] transition-colors border-l-2 border-transparent text-muted hover:bg-primary-soft/50"
+        >
+          <span className="shrink-0 text-muted/70">{icon}</span>
+          <span className="flex-1 text-left leading-none truncate">{label}</span>
+          <span className="inline-flex items-center gap-1 font-mono text-[8.5px] tracking-[0.12em] uppercase bg-accent/20 text-accent-dark px-1.5 py-0.5 rounded font-semibold shrink-0">
+            <Lock size={9} strokeWidth={2.5} />
+            {minPlanLabel}
+          </span>
+        </button>
+      </li>
+    );
+  }
+
   return (
     <li>
-      <Link href={href} onClick={onNavigate}
-        className={`flex items-center gap-3 py-[7px] rounded-lg text-[13.5px] transition-colors border-l-2 ${
+      <Link
+        href={href}
+        onClick={onNavigate}
+        className={`flex items-center gap-2.5 py-[7px] rounded-lg text-[13.5px] transition-colors border-l-2 ${
           active
-            ? 'border-[#E8C57E] bg-white/[0.1] text-white font-medium pl-[8px] pr-2.5'
-            : 'border-transparent px-2.5 text-white/50 hover:text-white/85 hover:bg-white/[0.06]'
-        }`}>
+            ? 'border-primary bg-primary text-cream font-medium pl-[9px] pr-2.5'
+            : 'border-transparent pl-3 pr-2.5 text-ink-soft hover:text-primary hover:bg-primary-soft/70'
+        }`}
+      >
         <span className="shrink-0">{icon}</span>
-        <span className="flex-1 leading-none">{label}</span>
+        <span className="flex-1 leading-none truncate">{label}</span>
         {badge && (
-          <span className="text-[9px] font-mono font-medium text-white/40 bg-white/[0.08] px-1.5 py-0.5 rounded-md tracking-wide">
+          <span className="text-[9px] font-mono font-medium text-primary bg-primary-soft px-1.5 py-0.5 rounded-md tracking-wide shrink-0">
             {badge}
           </span>
         )}
@@ -162,10 +249,43 @@ function NavItem({ href, icon, label, badge, active, onNavigate }: {
   );
 }
 
-// ─── User sidebar content ─────────────────────────────────────────────────────
+// ─── Admin NavItem (dark sidebar) ─────────────────────────────────────────────
+
+function AdminNavItem({ href, icon, label, active, onNavigate }: {
+  href: string; icon: React.ReactNode; label: string; active: boolean; onNavigate?: () => void;
+}) {
+  return (
+    <li>
+      <Link
+        href={href}
+        onClick={onNavigate}
+        className={`flex items-center gap-3 py-[7px] rounded-lg text-[13.5px] transition-colors border-l-2 ${
+          active
+            ? 'border-[#E8C57E] bg-white/[0.1] text-white font-medium pl-[8px] pr-2.5'
+            : 'border-transparent px-2.5 text-white/50 hover:text-white/85 hover:bg-white/[0.06]'
+        }`}
+      >
+        <span className="shrink-0">{icon}</span>
+        <span className="flex-1 leading-none">{label}</span>
+      </Link>
+    </li>
+  );
+}
+
+// ─── Sidebar section label ────────────────────────────────────────────────────
+
+function SectionLabel({ children, light = true }: { children: React.ReactNode; light?: boolean }) {
+  return (
+    <div className={`px-2.5 mb-1.5 pt-2 text-[9.5px] font-mono tracking-[0.2em] uppercase ${light ? 'text-muted' : 'text-white/25'}`}>
+      {children}
+    </div>
+  );
+}
+
+// ─── User sidebar content (LIGHT — cream bg) ─────────────────────────────────
 
 function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
-  const { profile, eventCount, planPct, logoUrl } = usePlanCtx();
+  const { profile, eventCount, planPct, planLabel, logoUrl, openUpgrade } = usePlanCtx();
   const planLimit = profile ? (PLAN_LIMITS[profile.plan] ?? 1) : 1;
   const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
 
@@ -175,55 +295,59 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
     window.location.href = '/login';
   };
 
+  const handleUpgradeCta = () => {
+    const targetPlan = profile?.plan === 'free' ? 'pro' : 'studio';
+    openUpgrade({ id: 'events', label: 'More events & features', minPlan: targetPlan as 'pro' | 'studio' });
+  };
+
   return (
     <>
       {/* Logo */}
-      <Link href="/" onClick={onNavigate}
+      <Link
+        href="/"
+        onClick={onNavigate}
         className="h-14 px-4 flex items-center gap-2.5 shrink-0 transition-opacity hover:opacity-80"
-        style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+        style={{ borderBottom: '1px solid #E5E0D4' }}
+      >
         {logoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={logoUrl} alt="Logo" className="max-h-[32px] max-w-[140px] object-contain" />
         ) : (
           <>
             <span className="inline-block w-6 h-6 rounded-md shrink-0"
-              style={{ background: 'linear-gradient(135deg, #FAF6EE 0%, #E8C57E 100%)' }} />
-            <span className="font-display text-[19px] font-bold tracking-tight text-white">Karta</span>
+              style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }} />
+            <span className="font-display text-[19px] font-semibold tracking-tight text-primary">Karta</span>
           </>
         )}
       </Link>
 
       {/* Workspace header */}
-      <div className="h-14 flex items-center px-4 border-b shrink-0" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
-        <div className="flex items-center gap-3 flex-1 min-w-0">
-          <div className="h-8 w-8 rounded-lg grid place-items-center shrink-0 ring-1 ring-white/20"
-            style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}>
-            <span className="text-[12px] font-bold text-white">
+      <div className="h-12 flex items-center px-4 border-b shrink-0" style={{ borderColor: '#E5E0D4' }}>
+        <div className="flex items-center gap-2.5 flex-1 min-w-0">
+          <div
+            className="h-7 w-7 rounded-lg grid place-items-center shrink-0"
+            style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}
+          >
+            <span className="text-[11px] font-bold text-white">
               {profile?.full_name?.[0]?.toUpperCase() ?? 'K'}
             </span>
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-[14px] font-semibold text-white truncate leading-snug">
+            <div className="text-[13.5px] font-semibold text-ink truncate leading-snug">
               {profile?.full_name ?? 'My workspace'}
             </div>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              {profile?.plan === 'pro' ? (
-                <span className="font-mono text-[9px] tracking-[0.1em] uppercase px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(232,197,126,0.2)', color: '#C9A45E' }}>PRO</span>
-              ) : profile?.plan === 'studio' ? (
-                <span className="font-mono text-[9px] tracking-[0.1em] uppercase px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(31,77,58,0.8)', color: '#FAF6EE' }}>STUDIO</span>
-              ) : (
-                <span className="font-mono text-[9px] tracking-[0.1em] uppercase px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.4)' }}>FREE</span>
-              )}
-            </div>
+            <span className="font-mono text-[8.5px] tracking-[0.1em] uppercase px-1.5 py-0.5 rounded bg-primary-soft text-primary font-semibold">
+              {planLabel}
+            </span>
           </div>
         </div>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-5 overflow-y-auto space-y-5">
-        {/* Main */}
-        <div>
-          <div className="px-2.5 mb-2 text-[10px] font-mono text-white/25 uppercase tracking-widest">Main</div>
+      <nav className="flex-1 px-2 py-3 overflow-y-auto">
+        {/* Platform section */}
+        <div className="mb-2">
+          <SectionLabel>Platform</SectionLabel>
           <ul className="space-y-0.5">
             {NAV_ITEMS.map(item => {
               const active = item.matchPrefix
@@ -237,67 +361,90 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
           </ul>
         </div>
 
-        <div className="h-px" style={{ background: 'rgba(255,255,255,0.07)' }} />
+        <div className="mx-2.5 my-2 h-px bg-border" />
 
-        {/* Workspace */}
-        <div>
-          <div className="px-2.5 mb-2 text-[10px] font-mono text-white/25 uppercase tracking-widest">Workspace</div>
+        {/* Workspace section */}
+        <div className="mb-2">
+          <SectionLabel>Workspace</SectionLabel>
           <ul className="space-y-0.5">
-            {WORKSPACE_ITEMS.map(item => (
-              <NavItem key={item.href} href={item.href} icon={item.icon} label={item.label}
-                active={pathname === item.href} onNavigate={onNavigate} />
-            ))}
+            {WORKSPACE_ITEMS.map(item => {
+              const locked = !!item.minPlan && !planMeets(profile?.plan ?? 'free', item.minPlan);
+              return (
+                <NavItem
+                  key={item.href}
+                  href={item.href}
+                  icon={item.icon}
+                  label={item.label}
+                  active={pathname === item.href}
+                  locked={locked}
+                  minPlanLabel={item.minPlan ? PLAN_LABEL[item.minPlan] : undefined}
+                  onNavigate={onNavigate}
+                  onUpgrade={locked ? () => openUpgrade({ id: item.href.split('/').pop() ?? item.label.toLowerCase(), label: item.label, minPlan: item.minPlan! }) : undefined}
+                />
+              );
+            })}
           </ul>
         </div>
+
+        {/* Admin entry point */}
+        {isAdmin && (
+          <>
+            <div className="mx-2.5 my-2 h-px bg-border" />
+            <div className="px-2.5">
+              <Link
+                href="/admin/analytics"
+                onClick={onNavigate}
+                className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[12.5px] transition-colors group"
+                style={{ background: 'rgba(232,197,126,0.08)', border: '1px solid rgba(232,197,126,0.2)' }}
+              >
+                <div className="h-6 w-6 rounded-md grid place-items-center shrink-0"
+                  style={{ background: 'rgba(232,197,126,0.15)' }}>
+                  <ShieldCheck size={12} strokeWidth={1.8} style={{ color: '#C9A45E' }} />
+                </div>
+                <span className="flex-1 leading-none" style={{ color: 'rgba(201,164,94,0.8)' }}>Admin panel</span>
+                <ArrowLeft size={12} strokeWidth={2} className="rotate-180 shrink-0 transition-transform group-hover:translate-x-0.5"
+                  style={{ color: 'rgba(201,164,94,0.4)' }} />
+              </Link>
+            </div>
+          </>
+        )}
       </nav>
 
-      {/* Usage mini-card */}
-      <div className="px-3 pb-2 shrink-0">
-        <div className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}>
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-mono text-white/30 uppercase tracking-widest">Events</span>
-            <span className="text-[10px] font-mono text-white/40">
-              {eventCount}&nbsp;/&nbsp;{planLimit === Infinity ? '∞' : planLimit}
-            </span>
-          </div>
-          <div className="h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
-            <div className="h-full rounded-full transition-all duration-500"
-              style={{ width: `${planPct}%`, background: planPct >= 90 ? '#C97A2D' : '#E8C57E' }} />
-          </div>
-          {profile?.plan !== 'studio' && (
-            <Link href="/settings/billing" onClick={onNavigate}
-              className="block mt-2 text-[10px] font-mono text-white/30 hover:text-white/55 transition-colors">
-              Upgrade for more →
-            </Link>
-          )}
-        </div>
-      </div>
-
-      {/* Admin panel entry — only for admins */}
-      {isAdmin && (
-        <div className="px-3 pb-2 shrink-0">
-          <Link
-            href="/admin/analytics"
-            onClick={onNavigate}
-            className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[12.5px] transition-colors group"
-            style={{ background: 'rgba(232,197,126,0.07)', border: '1px solid rgba(232,197,126,0.12)' }}
-          >
-            <div className="h-6 w-6 rounded-md grid place-items-center shrink-0"
-              style={{ background: 'rgba(232,197,126,0.12)' }}>
-              <ShieldCheck size={12} strokeWidth={1.8} style={{ color: '#E8C57E' }} />
+      {/* Footer — usage + upgrade CTA */}
+      <div className="px-3 pb-3 shrink-0 border-t pt-3" style={{ borderColor: '#E5E0D4' }}>
+        {profile?.plan !== 'studio' && (
+          <div className="mb-2.5">
+            <div className="flex items-center justify-between text-[10.5px] font-mono text-muted mb-1.5">
+              <span>{eventCount} / {planLimit === Infinity ? '∞' : planLimit} events</span>
             </div>
-            <span className="flex-1 leading-none" style={{ color: 'rgba(232,197,126,0.6)' }}>Admin panel</span>
-            <ArrowLeft size={12} strokeWidth={2} className="rotate-180 shrink-0 transition-transform group-hover:translate-x-0.5"
-              style={{ color: 'rgba(232,197,126,0.35)' }} />
-          </Link>
-        </div>
-      )}
-
-      {/* Sign out */}
-      <div className="px-3 py-2 shrink-0 border-t" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
-        <button onClick={handleSignOut}
-          className="w-full flex items-center gap-3 px-2.5 py-[7px] rounded-lg text-[13.5px] text-white/40 hover:text-white/70 hover:bg-white/[0.06] transition-colors text-left">
-          <LogOut size={15} strokeWidth={1.7} className="shrink-0" />
+            <div className="h-1.5 rounded-full overflow-hidden bg-primary-soft">
+              <div
+                className="h-full rounded-full transition-all duration-500"
+                style={{ width: `${planPct}%`, background: planPct >= 90 ? '#C97A2D' : '#1F4D3A' }}
+              />
+            </div>
+          </div>
+        )}
+        {profile?.plan !== 'studio' ? (
+          <button
+            onClick={handleUpgradeCta}
+            className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-[12.5px] font-medium bg-primary text-cream hover:bg-primary-dark transition-colors"
+          >
+            <Sparkles size={13} strokeWidth={2} style={{ color: '#E8C57E' }} />
+            Upgrade plan
+          </button>
+        ) : (
+          <div className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-[12px] font-mono text-primary" style={{ background: '#E8EFEB' }}>
+            <Sparkles size={12} strokeWidth={2} style={{ color: '#C9A45E' }} />
+            Studio plan
+          </div>
+        )}
+        {/* Sign out */}
+        <button
+          onClick={handleSignOut}
+          className="mt-2 w-full flex items-center gap-2.5 px-2.5 py-[6px] rounded-lg text-[12.5px] text-muted hover:text-ink hover:bg-primary-soft/60 transition-colors text-left"
+        >
+          <LogOut size={14} strokeWidth={1.7} className="shrink-0" />
           <span className="leading-none">Sign out</span>
         </button>
       </div>
@@ -305,7 +452,7 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
   );
 }
 
-// ─── Admin sidebar content ────────────────────────────────────────────────────
+// ─── Admin sidebar content (DARK — stays dark; admin is a distinct surface) ───
 
 function AdminNavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
   const { profile, logoUrl } = usePlanCtx();
@@ -319,7 +466,6 @@ function AdminNavContent({ pathname, onNavigate }: { pathname: string; onNavigat
 
   return (
     <>
-      {/* Header */}
       <div className="h-14 px-4 flex items-center gap-3 shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
         {logoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -335,7 +481,6 @@ function AdminNavContent({ pathname, onNavigate }: { pathname: string; onNavigat
         </span>
       </div>
 
-      {/* Back to app */}
       <div className="px-3 pt-3 shrink-0">
         <Link
           href="/dashboard"
@@ -349,11 +494,10 @@ function AdminNavContent({ pathname, onNavigate }: { pathname: string; onNavigat
 
       <div className="mx-3 mt-2 h-px" style={{ background: 'rgba(255,255,255,0.07)' }} />
 
-      {/* Admin nav — flat sections */}
       <nav className="flex-1 px-3 py-4 overflow-y-auto space-y-5">
         {ADMIN_SECTIONS.map(section => {
           const visibleItems = section.items.filter(i => isSuperAdmin || !i.superAdminOnly);
-          if (visibleItems.length === 0) return null;
+          if (!visibleItems.length) return null;
           return (
             <div key={section.label}>
               <div className="px-2.5 mb-1.5 text-[10px] font-mono uppercase tracking-widest"
@@ -362,7 +506,7 @@ function AdminNavContent({ pathname, onNavigate }: { pathname: string; onNavigat
               </div>
               <ul className="space-y-0.5">
                 {visibleItems.map(item => (
-                  <NavItem
+                  <AdminNavItem
                     key={item.href}
                     href={item.href}
                     icon={item.icon}
@@ -377,7 +521,6 @@ function AdminNavContent({ pathname, onNavigate }: { pathname: string; onNavigat
         })}
       </nav>
 
-      {/* Admin identity */}
       <div className="px-3 pb-2 shrink-0">
         <div className="rounded-xl px-3 py-2.5 flex items-center gap-2.5"
           style={{ background: 'rgba(232,197,126,0.06)', border: '1px solid rgba(232,197,126,0.12)' }}>
@@ -394,7 +537,6 @@ function AdminNavContent({ pathname, onNavigate }: { pathname: string; onNavigat
         </div>
       </div>
 
-      {/* Sign out */}
       <div className="px-3 py-2 shrink-0 border-t" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
         <button onClick={handleSignOut}
           className="w-full flex items-center gap-3 px-2.5 py-[7px] rounded-lg text-[13.5px] text-white/40 hover:text-white/70 hover:bg-white/[0.06] transition-colors text-left">
@@ -406,12 +548,12 @@ function AdminNavContent({ pathname, onNavigate }: { pathname: string; onNavigat
   );
 }
 
-// ─── Event sidebar content ────────────────────────────────────────────────────
+// ─── Event sidebar content (LIGHT — cream bg) ────────────────────────────────
 
 function EventNavContent({ pathname, eventId, onNavigate }: {
   pathname: string; eventId: string; onNavigate?: () => void;
 }) {
-  const { logoUrl } = usePlanCtx();
+  const { logoUrl, profile, openUpgrade } = usePlanCtx();
   const [event, setEvent] = useState<EventInfo>(null);
   const supabase = createClient();
 
@@ -433,30 +575,36 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
   return (
     <>
       {/* Logo */}
-      <Link href="/" onClick={onNavigate}
+      <Link
+        href="/"
+        onClick={onNavigate}
         className="h-14 px-4 flex items-center gap-2.5 shrink-0 transition-opacity hover:opacity-80"
-        style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+        style={{ borderBottom: '1px solid #E5E0D4' }}
+      >
         {logoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={logoUrl} alt="Logo" className="max-h-[32px] max-w-[140px] object-contain" />
         ) : (
           <>
             <span className="inline-block w-6 h-6 rounded-md shrink-0"
-              style={{ background: 'linear-gradient(135deg, #FAF6EE 0%, #E8C57E 100%)' }} />
-            <span className="font-display text-[19px] font-bold tracking-tight text-white">Karta</span>
+              style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }} />
+            <span className="font-display text-[19px] font-semibold tracking-tight text-primary">Karta</span>
           </>
         )}
       </Link>
 
       {/* Event context header */}
-      <div className="px-3 pt-3 pb-3 shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-        <Link href="/dashboard" onClick={onNavigate}
-          className="inline-flex items-center gap-1.5 text-[12px] text-white/35 hover:text-white/65 transition-colors mb-3">
+      <div className="px-3 pt-3 pb-3 shrink-0" style={{ borderBottom: '1px solid #E5E0D4' }}>
+        <Link
+          href="/dashboard"
+          onClick={onNavigate}
+          className="inline-flex items-center gap-1.5 text-[12px] text-muted hover:text-primary transition-colors mb-3"
+        >
           <ArrowLeft size={13} strokeWidth={2} />
           All events
         </Link>
-        <div className="font-display text-[14px] font-semibold text-white leading-snug tracking-tight line-clamp-2 px-0.5">
-          {event ? event.name : <span className="text-white/25">Loading…</span>}
+        <div className="font-display text-[14px] font-semibold text-ink leading-snug tracking-tight line-clamp-2 px-0.5">
+          {event ? event.name : <span className="text-muted">Loading…</span>}
         </div>
         {badge && (
           <span className={`mt-2 inline-flex items-center gap-1.5 text-[10px] font-mono tracking-[0.1em] uppercase px-2 py-0.5 rounded-full border ${badge.cls}`}>
@@ -466,24 +614,30 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
         )}
       </div>
 
-      {/* Event nav */}
-      <nav className="flex-1 px-3 py-3 overflow-y-auto">
+      {/* Event nav — sectioned */}
+      <nav className="flex-1 px-2 py-2 overflow-y-auto">
         {EVENT_NAV_SECTIONS.map((section, si) => (
-          <div key={si} className="mb-4">
-            {section.title && (
-              <div className="px-2.5 mb-1.5 text-[10px] font-mono text-white/25 uppercase tracking-widest">
-                {section.title}
-              </div>
-            )}
+          <div key={si} className="mb-2">
+            <SectionLabel>{section.title}</SectionLabel>
             <ul className="space-y-0.5">
               {section.items.map(item => {
                 const href = item.segment === ''
                   ? `/events/${eventId}`
                   : `/events/${eventId}/${item.segment}`;
                 const active = activeSegment === item.segment;
+                const locked = !!item.minPlan && !planMeets(profile?.plan ?? 'free', item.minPlan);
                 return (
-                  <NavItem key={item.id} href={href} icon={item.icon} label={item.label}
-                    active={active} onNavigate={onNavigate} />
+                  <NavItem
+                    key={item.id}
+                    href={href}
+                    icon={item.icon}
+                    label={item.label}
+                    active={active}
+                    locked={locked}
+                    minPlanLabel={item.minPlan ? PLAN_LABEL[item.minPlan] : undefined}
+                    onNavigate={onNavigate}
+                    onUpgrade={locked ? () => openUpgrade({ id: item.id, label: item.label, minPlan: item.minPlan! }) : undefined}
+                  />
                 );
               })}
             </ul>
@@ -492,12 +646,15 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
       </nav>
 
       {/* Footer */}
-      <div className="px-3 py-2 shrink-0 border-t" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
+      <div className="px-3 py-3 shrink-0 border-t" style={{ borderColor: '#E5E0D4' }}>
         {event?.status === 'published' && event?.slug && (
-          <a href={`/c/${event.slug}`} target="_blank" rel="noopener noreferrer"
-            className="flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-[12.5px] text-white/40 hover:text-white/70 hover:bg-white/[0.06] transition-colors">
-            <span>View public page</span>
-            <Globe size={13} strokeWidth={1.8} className="shrink-0" />
+          <a
+            href={`/e/${event.slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg border border-border text-[12.5px] text-ink-soft hover:border-primary/40 hover:text-primary transition-colors"
+          >
+            View public page <Globe size={13} strokeWidth={1.8} className="shrink-0" />
           </a>
         )}
       </div>
@@ -561,41 +718,41 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-[200] flex items-start justify-center pt-[12vh] px-4">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative w-full max-w-[560px] bg-white rounded-2xl shadow-[0_8px_40px_rgba(15,31,24,0.18)] border overflow-hidden" style={{ borderColor: '#E5E0D4' }}>
-        <div className="flex items-center gap-3 px-4 py-3 border-b" style={{ borderColor: '#E5E0D4' }}>
-          <Search className="text-[#6B7A72] shrink-0" size={15} strokeWidth={2} />
+      <div className="relative w-full max-w-[560px] bg-surface rounded-2xl shadow-lift border border-border overflow-hidden">
+        <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
+          <Search className="text-muted shrink-0" size={15} strokeWidth={2} />
           <input
             ref={inputRef}
             value={query}
             onChange={e => setQuery(e.target.value)}
             placeholder="Search events, or jump to…"
-            className="flex-1 text-[13px] placeholder-[#6B7A72] outline-none bg-transparent text-[#0F1F18]"
+            className="flex-1 text-[13px] placeholder-muted outline-none bg-transparent text-ink"
           />
           {loading && (
-            <svg className="animate-spin text-[#6B7A72] shrink-0" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <svg className="animate-spin text-muted shrink-0" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
             </svg>
           )}
-          <button onClick={onClose} className="text-[11px] text-[#6B7A72] border px-1.5 py-0.5 rounded-md hover:text-[#0F1F18] transition leading-none" style={{ borderColor: '#E5E0D4' }}>
+          <button onClick={onClose} className="text-[11px] text-muted border border-border px-1.5 py-0.5 rounded-md hover:text-ink transition leading-none">
             ESC
           </button>
         </div>
 
         <div className="max-h-[360px] overflow-y-auto">
           {query.trim() && results.length === 0 && !loading && (
-            <div className="px-4 py-10 text-center text-[13px] text-[#6B7A72]">
+            <div className="px-4 py-10 text-center text-[13px] text-muted">
               No events found for &ldquo;{query}&rdquo;
             </div>
           )}
           {results.length > 0 && (
             <div className="p-1.5">
-              <div className="px-2.5 py-1.5 text-[10px] font-mono text-[#6B7A72]/70 uppercase tracking-widest">Events</div>
+              <div className="px-2.5 py-1.5 text-[10px] font-mono text-muted/70 uppercase tracking-widest">Events</div>
               {results.map((r, i) => (
                 <button key={r.id} onClick={() => navigate(r)} onMouseEnter={() => setSelected(i)}
-                  className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left transition-colors ${i === selected ? 'bg-[#F5F5F4]' : 'hover:bg-[#F5F5F4]/60'}`}>
+                  className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left transition-colors ${i === selected ? 'bg-primary-soft' : 'hover:bg-primary-soft/60'}`}>
                   <div className="flex-1 min-w-0">
-                    <div className="text-[13px] font-medium text-[#0F1F18] truncate">{r.name}</div>
-                    <div className="text-[11px] text-[#6B7A72] font-mono">/{r.slug}</div>
+                    <div className="text-[13px] font-medium text-ink truncate">{r.name}</div>
+                    <div className="text-[11px] text-muted font-mono">/{r.slug}</div>
                   </div>
                   <span className={`text-[10px] px-2 py-0.5 rounded-full border ${r.status === 'published' ? 'border-emerald-200 bg-emerald-50 text-emerald-600' : r.status === 'archived' ? 'border-rose-200 bg-rose-50 text-rose-500' : 'border-amber-200 bg-amber-50 text-amber-600'}`}>
                     {r.status}
@@ -606,44 +763,30 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
           )}
           {!query.trim() && (
             <div className="p-1.5">
-              <div className="px-2.5 py-1.5 text-[10px] font-mono text-[#6B7A72]/70 uppercase tracking-widest">Quick actions</div>
+              <div className="px-2.5 py-1.5 text-[10px] font-mono text-muted/70 uppercase tracking-widest">Quick actions</div>
               {quickActions.map((a, i) => (
                 <Link key={a.href} href={a.href} onClick={onClose}
-                  className={`flex items-center gap-3 px-2.5 py-2 rounded-xl transition-colors ${i === selected ? 'bg-[#F5F5F4]' : 'hover:bg-[#F5F5F4]/60'}`}>
-                  <div className="h-7 w-7 rounded-lg border grid place-items-center text-[#3A4A42] shrink-0" style={{ borderColor: '#E5E0D4', background: '#FAF6EE' }}>
+                  className={`flex items-center gap-3 px-2.5 py-2 rounded-xl transition-colors ${i === selected ? 'bg-primary-soft' : 'hover:bg-primary-soft/60'}`}>
+                  <div className="h-7 w-7 rounded-lg border border-border grid place-items-center text-ink-soft shrink-0" style={{ background: '#FAF6EE' }}>
                     {a.icon}
                   </div>
-                  <span className="text-[13px] text-[#3A4A42]">{a.label}</span>
-                  <ChevronRight className="ml-auto text-[#E5E0D4] shrink-0" size={12} strokeWidth={2.2} />
+                  <span className="text-[13px] text-ink-soft">{a.label}</span>
+                  <ChevronRight className="ml-auto text-border shrink-0" size={12} strokeWidth={2.2} />
                 </Link>
               ))}
             </div>
           )}
         </div>
 
-        <div className="border-t px-4 py-2.5 flex items-center gap-4 text-[11px] text-[#6B7A72]" style={{ borderColor: '#E5E0D4' }}>
-          <span><kbd className="border px-1 rounded text-[10px]" style={{ borderColor: '#E5E0D4' }}>↑↓</kbd> navigate</span>
-          <span><kbd className="border px-1 rounded text-[10px]" style={{ borderColor: '#E5E0D4' }}>↵</kbd> open</span>
-          <span><kbd className="border px-1 rounded text-[10px]" style={{ borderColor: '#E5E0D4' }}>ESC</kbd> close</span>
+        <div className="border-t border-border px-4 py-2.5 flex items-center gap-4 text-[11px] text-muted">
+          <span><kbd className="border border-border px-1 rounded text-[10px]">↑↓</kbd> navigate</span>
+          <span><kbd className="border border-border px-1 rounded text-[10px]">↵</kbd> open</span>
+          <span><kbd className="border border-border px-1 rounded text-[10px]">ESC</kbd> close</span>
         </div>
       </div>
     </div>
   );
 }
-
-// ─── Context ──────────────────────────────────────────────────────────────────
-
-type PlanCtx = {
-  profile: Profile | null;
-  eventCount: number;
-  initials: string;
-  planPct: number;
-  planLabel: string;
-  logoUrl: string | null;       // white/light logo — for dark sidebar bg
-};
-
-const PlanContext = createContext<PlanCtx>({ profile: null, eventCount: 0, initials: '?', planPct: 0, planLabel: 'Free', logoUrl: null });
-function usePlanCtx() { return useContext(PlanContext); }
 
 // ─── AppShell ─────────────────────────────────────────────────────────────────
 
@@ -657,8 +800,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [cmdOpen, setCmdOpen] = useState(false);
   const [impersonating, setImpersonating] = useState<ImpersonatedUser | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [upgradeFeature, setUpgradeFeature] = useState<UpgradeFeature | null>(null);
 
   const isAdminRoute = pathname.startsWith('/admin');
+
+  const openUpgrade = useCallback((feature: UpgradeFeature) => setUpgradeFeature(feature), []);
+  const closeUpgrade = useCallback(() => setUpgradeFeature(null), []);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -683,12 +830,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       .then(d => setImpersonating(d.impersonating ?? null));
   }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  async function exitImpersonation() {
-    await fetch('/api/admin/impersonate', { method: 'DELETE' });
-    setImpersonating(null);
-    router.push('/admin/users');
-  }
-
   useEffect(() => {
     const handle = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -702,15 +843,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => { setMobileNavOpen(false); }, [pathname]);
 
+  async function exitImpersonation() {
+    await fetch('/api/admin/impersonate', { method: 'DELETE' });
+    setImpersonating(null);
+    router.push('/admin/users');
+  }
+
   const initials = profile?.full_name
     ? profile.full_name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
     : '?';
 
   const planLimit = profile ? (PLAN_LIMITS[profile.plan] ?? 1) : 1;
   const planPct = planLimit === Infinity ? 50 : Math.min((eventCount / planLimit) * 100, 100);
-  const planLabel = profile?.plan === 'studio' ? 'Studio' : profile?.plan === 'pro' ? 'Pro' : 'Free';
+  const planLabel = PLAN_LABEL[profile?.plan ?? 'free'] ?? 'Free';
 
-  const ctxValue: PlanCtx = { profile, eventCount, initials, planPct, planLabel, logoUrl };
+  const ctxValue: PlanCtx = { profile, eventCount, initials, planPct, planLabel, logoUrl, openUpgrade };
 
   const isFullScreen = /\/events\/[^/]+\/(edit|publish)/.test(pathname);
   if (isFullScreen) return <>{children}</>;
@@ -724,81 +871,107 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return <UserNavContent pathname={pathname} onNavigate={onNavigate} />;
   }
 
+  const sidebarBg = isAdminRoute ? '#0F1F18' : '#FAF6EE';
+  const sidebarBorder = isAdminRoute ? 'rgba(255,255,255,0.07)' : '#E5E0D4';
+
   return (
     <PlanContext.Provider value={ctxValue}>
-      <div className="flex min-h-screen" style={{ background: '#F5F5F4' }}>
+      <UpgradeContext.Provider value={{ plan: profile?.plan ?? 'free', openUpgrade }}>
+        <div className="flex min-h-screen" style={{ background: '#FAF6EE' }}>
 
-        {/* Desktop sidebar */}
-        <aside className="hidden md:flex w-[252px] shrink-0 flex-col sticky top-0 h-screen" style={{ background: '#0F1F18' }}>
-          <SidebarInner />
-        </aside>
+          {/* Desktop sidebar */}
+          <aside
+            className="hidden lg:flex w-[252px] shrink-0 flex-col sticky top-0 h-screen"
+            style={{ background: sidebarBg, borderRight: `1px solid ${sidebarBorder}` }}
+          >
+            <SidebarInner />
+          </aside>
 
-        {/* Mobile drawer */}
-        {mobileNavOpen && (
-          <div className="fixed inset-0 z-[100] md:hidden">
-            <div className="absolute inset-0 bg-black/50" onClick={() => setMobileNavOpen(false)} />
-            <aside className="absolute left-0 top-0 bottom-0 w-[272px] flex flex-col shadow-[4px_0_32px_rgba(0,0,0,0.25)] animate-[slideInLeft_200ms_ease-out]"
-              style={{ background: '#0F1F18' }}>
-              <SidebarInner onNavigate={() => setMobileNavOpen(false)} />
-            </aside>
-          </div>
-        )}
-
-        {/* Main column */}
-        <main className="flex-1 min-w-0 flex flex-col">
-          {impersonating && (
-            <div className="w-full flex items-center justify-between gap-3 px-4 py-2.5 shrink-0 z-50"
-              style={{ background: '#C97A2D', color: 'white' }}>
-              <div className="flex items-center gap-2 text-[13px] font-medium">
-                <Eye size={14} strokeWidth={2} />
-                Viewing as <strong>{impersonating.full_name ?? impersonating.email}</strong>
-                <span className="opacity-70 text-[11px]">({impersonating.email})</span>
-              </div>
-              <button
-                onClick={exitImpersonation}
-                className="inline-flex items-center gap-1.5 h-7 px-3 text-[12px] font-semibold rounded-lg bg-white/20 hover:bg-white/30 transition"
+          {/* Mobile drawer */}
+          {mobileNavOpen && (
+            <div className="fixed inset-0 z-[100] lg:hidden">
+              <div className="absolute inset-0 bg-black/50" onClick={() => setMobileNavOpen(false)} />
+              <aside
+                className="absolute left-0 top-0 bottom-0 w-[272px] flex flex-col shadow-lift animate-[slideInLeft_200ms_ease-out]"
+                style={{ background: sidebarBg, borderRight: `1px solid ${sidebarBorder}` }}
               >
-                <X size={11} strokeWidth={2.5} /> Exit
-              </button>
+                <SidebarInner onNavigate={() => setMobileNavOpen(false)} />
+              </aside>
             </div>
           )}
 
-          <header className="h-14 bg-white px-4 md:px-5 flex items-center gap-3 shrink-0 sticky top-0 z-40 border-b"
-            style={{ borderColor: '#E5E0D4' }}>
-            <button className="md:hidden h-8 w-8 rounded-lg hover:bg-[#F5F5F4] grid place-items-center text-[#6B7A72] shrink-0 transition"
-              onClick={() => setMobileNavOpen(true)} aria-label="Open menu">
-              <Menu size={16} strokeWidth={2} />
-            </button>
+          {/* Main column */}
+          <main className="flex-1 min-w-0 flex flex-col">
+            {/* Impersonation banner */}
+            {impersonating && (
+              <div className="w-full flex items-center justify-between gap-3 px-4 py-2.5 shrink-0 z-50"
+                style={{ background: '#C97A2D', color: 'white' }}>
+                <div className="flex items-center gap-2 text-[13px] font-medium">
+                  <Eye size={14} strokeWidth={2} />
+                  Viewing as <strong>{impersonating.full_name ?? impersonating.email}</strong>
+                  <span className="opacity-70 text-[11px]">({impersonating.email})</span>
+                </div>
+                <button
+                  onClick={exitImpersonation}
+                  className="inline-flex items-center gap-1.5 h-7 px-3 text-[12px] font-semibold rounded-lg bg-white/20 hover:bg-white/30 transition"
+                >
+                  <X size={11} strokeWidth={2.5} /> Exit
+                </button>
+              </div>
+            )}
 
-            <div onClick={() => setCmdOpen(true)}
-              className="flex items-center gap-2 h-8 px-3 rounded-lg text-[13px] text-[#6B7A72] cursor-pointer transition flex-1 sm:flex-none sm:min-w-[200px] sm:max-w-[280px] max-w-[180px] border"
-              style={{ background: '#FAF6EE', borderColor: '#E5E0D4' }}>
-              <Search size={13} strokeWidth={2} className="shrink-0" />
-              <span className="flex-1 text-[13px] text-[#6B7A72]/70">Search</span>
-              <span className="text-[11px] text-[#6B7A72]/50 font-mono hidden sm:block">⌘K</span>
-            </div>
+            {/* Topbar — cream/blur */}
+            <header
+              className="h-14 px-4 md:px-5 flex items-center gap-3 shrink-0 sticky top-0 z-40 border-b"
+              style={{ background: 'rgba(250,246,238,0.85)', backdropFilter: 'blur(12px)', borderColor: '#E5E0D4' }}
+            >
+              <button
+                className="lg:hidden h-8 w-8 rounded-lg hover:bg-primary-soft grid place-items-center text-muted shrink-0 transition"
+                onClick={() => setMobileNavOpen(true)}
+                aria-label="Open menu"
+              >
+                <Menu size={16} strokeWidth={2} />
+              </button>
 
-            <div className="flex items-center gap-2 ml-auto">
-              {!isAdminRoute && (
-                <Link href="/events/new"
-                  className="hidden sm:inline-flex items-center gap-1.5 h-8 px-3.5 text-white text-[13px] font-medium rounded-lg transition hover:opacity-90"
-                  style={{ background: '#1F4D3A' }}>
-                  <Plus size={11} strokeWidth={2.8} />New event
+              {/* ⌘K trigger */}
+              <div
+                onClick={() => setCmdOpen(true)}
+                className="flex items-center gap-2 h-8 px-3 rounded-lg text-[13px] text-muted cursor-pointer transition flex-1 sm:flex-none sm:min-w-[200px] sm:max-w-[280px] max-w-[180px] border border-border hover:border-primary/30 hover:bg-primary-soft/40"
+                style={{ background: '#FAF6EE' }}
+              >
+                <Search size={13} strokeWidth={2} className="shrink-0" />
+                <span className="flex-1 text-[13px] text-muted/70">Search</span>
+                <span className="text-[11px] text-muted/50 font-mono hidden sm:block">⌘K</span>
+              </div>
+
+              {/* Right actions */}
+              <div className="flex items-center gap-2 ml-auto">
+                {!isAdminRoute && (
+                  <Link
+                    href="/events/new"
+                    className="hidden sm:inline-flex items-center gap-1.5 h-8 px-3.5 text-cream text-[13px] font-medium rounded-lg transition hover:bg-primary-dark bg-primary"
+                  >
+                    <Plus size={11} strokeWidth={2.8} />New event
+                  </Link>
+                )}
+                <Link
+                  href="/settings"
+                  className="h-8 w-8 rounded-full grid place-items-center text-white text-[12px] font-semibold shrink-0 hover:opacity-90 transition"
+                  style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}
+                  title={profile?.full_name ?? 'Settings'}
+                >
+                  {initials}
                 </Link>
-              )}
-              <Link href="/settings"
-                className="h-8 w-8 rounded-full grid place-items-center text-white text-[12px] font-semibold shrink-0 hover:opacity-90 transition"
-                style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}>
-                {initials}
-              </Link>
-            </div>
-          </header>
+              </div>
+            </header>
 
-          <div className="flex-1 overflow-y-auto">{children}</div>
-        </main>
+            <div className="flex-1 overflow-y-auto">{children}</div>
+          </main>
+        </div>
 
         {cmdOpen && <CommandPalette onClose={() => setCmdOpen(false)} />}
-      </div>
+        <UpgradeSlideOver feature={upgradeFeature} onClose={closeUpgrade} />
+      </UpgradeContext.Provider>
     </PlanContext.Provider>
   );
 }
