@@ -4,7 +4,7 @@ import { useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { fetchWithRetry } from '@/lib/utils/fetch-retry';
-import { ArrowLeft, ArrowRight, CalendarDays, MapPin, Wifi, LayoutGrid, Image, Clock } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CalendarDays, MapPin, Wifi, LayoutGrid, Image as ImageIcon, Clock } from 'lucide-react';
 
 type Step = 1 | 2;
 type SetupChoice = 'hub' | 'card' | 'later';
@@ -271,7 +271,7 @@ export default function NewEventPage() {
               >
                 <div className="flex items-start gap-4">
                   <div className="h-10 w-10 rounded-lg grid place-items-center shrink-0 mt-0.5" style={{ background: choice === 'card' ? '#1F4D3A' : '#E8EFEB', color: choice === 'card' ? 'white' : '#1F4D3A' }}>
-                    <Image size={18} strokeWidth={1.8} />
+                    <ImageIcon size={18} strokeWidth={1.8} />
                   </div>
                   <div className="flex-1">
                     <div className="font-display font-medium text-[15px] mb-1" style={{ color: '#0F1F18' }}>

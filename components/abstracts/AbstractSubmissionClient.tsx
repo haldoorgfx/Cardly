@@ -25,12 +25,11 @@ export default function AbstractSubmissionClient({
   eventSlug,
   eventName,
   deadline,
-  daysLeft,
 }: {
   eventSlug: string;
   eventName: string;
   deadline: string;
-  daysLeft: number;
+  daysLeft?: number;
 }) {
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);

@@ -60,7 +60,7 @@ function MiniCard({ accent, name = 'Your Name', role = 'Attendee' }: { accent: t
   );
 }
 
-export default function OnboardingClient({ userId, email }: { userId: string; email: string }) {
+export default function OnboardingClient() {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);

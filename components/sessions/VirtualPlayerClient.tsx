@@ -34,7 +34,7 @@ export default function VirtualPlayerClient({ event, session, speakers, initialQ
     setVoted(prev => {
       const next = new Set(prev);
       const wasOn = next.has(qId);
-      wasOn ? next.delete(qId) : next.add(qId);
+      if (wasOn) { next.delete(qId); } else { next.add(qId); }
       setQuestions(qs => qs.map(q => q.id === qId ? { ...q, upvotes_count: q.upvotes_count + (wasOn ? -1 : 1) } : q).sort((a, b) => b.upvotes_count - a.upvotes_count));
       return next;
     });
