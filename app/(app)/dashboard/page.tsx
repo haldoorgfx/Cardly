@@ -22,11 +22,18 @@ export default async function DashboardPage() {
       .select('id, name, slug, status, view_count, download_count, updated_at, event_pages(starts_at, venue_name), event_variants(id, background_url, position)')
       .eq('user_id', user.id)
       .order('updated_at', { ascending: false }),
-    admin.from('profiles').select('plan, full_name').eq('id', user.id).single(),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (admin as any).from('profiles').select('plan, full_name, onboarding_completed').eq('id', user.id).single(),
   ]);
 
   const allEvents = events ?? [];
   const isEmpty = allEvents.length === 0;
+
+  // New users who haven't completed onboarding → redirect to the wizard
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if (isEmpty && !(profile as any)?.onboarding_completed) {
+    redirect('/onboarding');
+  }
   const plan = (profile?.plan ?? 'free') as Plan;
   const planName = plan.charAt(0).toUpperCase() + plan.slice(1);
   const limit = (PLANS[plan] ?? PLANS.free).events;

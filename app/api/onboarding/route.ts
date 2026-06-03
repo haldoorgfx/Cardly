@@ -21,13 +21,14 @@ export async function POST(req: NextRequest) {
 
   const admin = createAdminClient();
 
-  // Save org preferences to profile metadata
-  await admin
+  // Save org name + mark onboarding as completed
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (admin as any)
     .from('profiles')
     .update({
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ...(body.orgName ? { full_name: body.orgName } : {}),
-    } as any)
+      onboarding_completed: true,
+    })
     .eq('id', user.id);
 
   // Create first event if name provided
