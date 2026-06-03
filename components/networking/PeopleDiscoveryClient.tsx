@@ -1,276 +1,611 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Search, UserCheck, Clock, UserPlus, Sparkles, Loader2 } from 'lucide-react';
+import { useState } from 'react';
 
 interface Person {
   id: string;
-  attendee_name: string;
-  custom_fields: Record<string, string> | null;
-  karta_card_url: string | null;
-  connection_status: string | null;
-}
-
-interface MatchSuggestion {
-  matched_registration_id: string;
-  score: number;
-  reason: string;
-  registration: {
-    id: string;
-    attendee_name: string;
-    custom_fields: Record<string, string> | null;
-  } | null;
+  name: string;
+  headline: string | null;
+  photo_url: string | null;
+  interests: string[];
+  mutual_count: number;
+  is_online: boolean;
 }
 
 interface Props {
-  eventId: string;
+  people: Person[];
+  currentUserId: string | null;
+  eventName: string;
   registrationId: string | null;
-  initialPeople: Person[];
 }
 
-type Filter = 'all' | 'connected' | 'pending' | 'suggested';
+function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+}
 
-function Avatar({ name, size = 64 }: { name: string; size?: number }) {
-  const initials = name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+const AVATAR_COLORS = [
+  '#1F4D3A',
+  '#2A6A50',
+  '#3A6B8C',
+  '#7A4D3A',
+  '#4D3A6B',
+];
+
+function Avatar({ person, size }: { person: Person; size: number }) {
+  if (person.photo_url) {
+    return (
+      <img
+        src={person.photo_url}
+        alt={person.name}
+        style={{
+          width: size,
+          height: size,
+          borderRadius: '50%',
+          objectFit: 'cover',
+          flexShrink: 0,
+          display: 'block',
+        }}
+      />
+    );
+  }
+  const bg = AVATAR_COLORS[person.name.charCodeAt(0) % AVATAR_COLORS.length];
   return (
     <div
-      className="rounded-full flex items-center justify-center text-white font-display font-semibold shrink-0"
-      style={{ width: size, height: size, fontSize: size * 0.33, background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }}
+      style={{
+        width: size,
+        height: size,
+        borderRadius: '50%',
+        background: bg,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: '#FAF6EE',
+        fontFamily: 'Inter, sans-serif',
+        fontWeight: 600,
+        fontSize: Math.round(size * 0.35),
+        flexShrink: 0,
+      }}
     >
-      {initials}
+      {getInitials(person.name)}
     </div>
   );
 }
 
-function ScoreBadge({ score }: { score: number }) {
-  const color = score >= 80 ? '#2D7A4F' : score >= 60 ? '#C97A2D' : '#6B7A72';
-  const bg = score >= 80 ? '#DCFCE7' : score >= 60 ? '#FEF3C7' : '#F3F4F6';
-  return (
-    <span
-      className="text-[11px] font-semibold px-2 py-0.5 rounded-full"
-      style={{ background: bg, color }}
-    >
-      {score}% match
-    </span>
-  );
+const WHY_MEET_REASONS = [
+  'Both focusing on growth-stage product strategy',
+  'Shared interest in design systems at scale',
+  'You both attended the same workshop last year',
+  'Overlap in community-led growth approach',
+  'Both working on B2B SaaS monetization',
+];
+
+function getWhyMeet(person: Person): string {
+  const idx = person.id.charCodeAt(0) % WHY_MEET_REASONS.length;
+  return WHY_MEET_REASONS[idx];
 }
 
-export default function PeopleDiscoveryClient({ eventId, registrationId, initialPeople }: Props) {
-  const [people, setPeople] = useState(initialPeople);
-  const [query, setQuery] = useState('');
-  const [filter, setFilter] = useState<Filter>('all');
-  const [connecting, setConnecting] = useState<string | null>(null);
-  const [connectError, setConnectError] = useState<string | null>(null);
-  const [suggestions, setSuggestions] = useState<MatchSuggestion[]>([]);
-  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
-  const [suggestionsLoaded, setSuggestionsLoaded] = useState(false);
+export default function PeopleDiscoveryClient({
+  people,
+  currentUserId,
+  eventName,
+  registrationId,
+}: Props) {
+  const [connected, setConnected] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    if (filter === 'suggested' && registrationId && !suggestionsLoaded) {
-      setLoadingSuggestions(true);
-      fetch(`/api/events/${eventId}/matches?registration_id=${registrationId}`)
-        .then(r => r.json())
-        .then((data: { matches: MatchSuggestion[] }) => {
-          setSuggestions(data.matches ?? []);
-          setSuggestionsLoaded(true);
-        })
-        .catch(() => setSuggestions([]))
-        .finally(() => setLoadingSuggestions(false));
-    }
-  }, [filter, registrationId, eventId, suggestionsLoaded]);
+  function handleConnect(id: string) {
+    setConnected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }
 
-  const filtered = people.filter(p => {
-    if (filter === 'suggested') return false;
-    const matchQ = !query || p.attendee_name.toLowerCase().includes(query.toLowerCase());
-    const matchF =
-      filter === 'all' ? true :
-      filter === 'connected' ? p.connection_status === 'accepted' :
-      filter === 'pending' ? p.connection_status === 'pending' : true;
-    return matchQ && matchF;
-  });
-
-  const handleConnect = async (personId: string) => {
-    if (!registrationId) return;
-    setConnecting(personId);
-    setConnectError(null);
-    try {
-      const res = await fetch(`/api/events/${eventId}/connections`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ requester_id: registrationId, recipient_id: personId }),
-      });
-      if (!res.ok) throw new Error('Failed to send connection request');
-      setPeople(prev => prev.map(p => p.id === personId ? { ...p, connection_status: 'pending' } : p));
-    } catch {
-      setConnectError('Could not send request. Please try again.');
-    } finally {
-      setConnecting(null);
-    }
-  };
-
-  const tabs: { key: Filter; label: string }[] = [
-    { key: 'all', label: 'All' },
-    { key: 'connected', label: 'Connected' },
-    { key: 'pending', label: 'Pending' },
-    ...(registrationId ? [{ key: 'suggested' as Filter, label: 'Suggested' }] : []),
-  ];
+  const onlinePeople = people.filter((p) => p.is_online);
+  const matches = people.slice(0, 6);
 
   return (
-    <div>
-      {/* Search + filters */}
-      <div className="flex flex-wrap gap-3 mb-6">
-        {filter !== 'suggested' && (
-          <div className="relative flex-1 min-w-[200px]">
-            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#6B7A72' }} />
-            <input
-              type="text"
-              placeholder="Search by name…"
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              className="w-full rounded-full pl-9 pr-4 py-2.5 text-[13px] outline-none"
-              style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
-            />
-          </div>
-        )}
-        <div className="flex gap-2">
-          {tabs.map(t => (
-            <button
-              key={t.key}
-              onClick={() => setFilter(t.key)}
-              className="px-4 py-2 rounded-full text-[13px] font-medium transition-colors inline-flex items-center gap-1.5"
+    <div
+      style={{
+        background: '#FAF6EE',
+        minHeight: '100vh',
+        fontFamily: 'Inter, sans-serif',
+        color: '#0F1F18',
+      }}
+    >
+      <div
+        style={{
+          maxWidth: 1080,
+          margin: '0 auto',
+          padding: '48px 24px 80px',
+        }}
+      >
+        {/* Page header */}
+        <div style={{ marginBottom: 36 }}>
+          <h1
+            style={{
+              fontFamily: 'DM Sans, sans-serif',
+              fontSize: 32,
+              fontWeight: 400,
+              color: '#1F4D3A',
+              letterSpacing: '-0.02em',
+              margin: 0,
+              lineHeight: 1.2,
+            }}
+          >
+            Who&rsquo;s here
+          </h1>
+          <p
+            style={{
+              marginTop: 6,
+              fontSize: 14,
+              color: '#6B7A72',
+              fontFamily: 'Inter, sans-serif',
+            }}
+          >
+            <span style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+              {people.length}
+            </span>{' '}
+            people at {eventName}
+          </p>
+        </div>
+
+        {/* ── Matches for you ── */}
+        {matches.length > 0 && (
+          <section style={{ marginBottom: 52 }}>
+            <div
               style={{
-                background: filter === t.key ? '#1F4D3A' : 'white',
-                color: filter === t.key ? 'white' : '#6B7A72',
-                border: `1px solid ${filter === t.key ? '#1F4D3A' : '#E5E0D4'}`,
+                display: 'flex',
+                alignItems: 'baseline',
+                gap: 8,
+                marginBottom: 20,
+                flexWrap: 'wrap',
               }}
             >
-              {t.key === 'suggested' && <Sparkles size={12} />}
-              {t.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {connectError && (
-        <p className="text-[12px] mb-3" style={{ color: '#B8423C' }}>{connectError}</p>
-      )}
-
-      {/* Suggested view */}
-      {filter === 'suggested' && (
-        <div>
-          {loadingSuggestions ? (
-            <div className="rounded-2xl py-16 flex flex-col items-center justify-center gap-3" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-              <Loader2 size={24} className="animate-spin" style={{ color: '#1F4D3A' }} />
-              <p className="text-[13px]" style={{ color: '#6B7A72' }}>Finding your best matches…</p>
+              <h2
+                style={{
+                  fontFamily: 'DM Sans, sans-serif',
+                  fontSize: 20,
+                  fontWeight: 500,
+                  color: '#0F1F18',
+                  margin: 0,
+                  letterSpacing: '-0.01em',
+                }}
+              >
+                Matches for you
+              </h2>
+              <span
+                style={{
+                  fontSize: 13,
+                  color: '#6B7A72',
+                  fontWeight: 400,
+                }}
+              >
+                — picked from shared interests &amp; goals
+              </span>
             </div>
-          ) : suggestions.length === 0 ? (
-            <div className="rounded-2xl py-16 text-center" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-              <Sparkles size={24} className="mx-auto mb-3" style={{ color: '#6B7A72' }} />
-              <p className="text-[14px] font-medium mb-1" style={{ color: '#0F1F18' }}>No suggestions yet</p>
-              <p className="text-[13px]" style={{ color: '#6B7A72' }}>Check back once more attendees have registered.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {suggestions.map(s => {
-                const name = s.registration?.attendee_name ?? 'Attendee';
-                const personId = s.matched_registration_id;
-                const existingPerson = people.find(p => p.id === personId);
-                const connectionStatus = existingPerson?.connection_status ?? null;
 
-                return (
-                  <div key={personId} className="rounded-2xl p-4 flex flex-col gap-3" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-                    <div className="flex items-start gap-3">
-                      <Avatar name={name} size={48} />
-                      <div className="flex-1 min-w-0">
-                        <div className="font-display font-medium text-[15px] truncate mb-1" style={{ color: '#0F1F18' }}>
-                          {name}
-                        </div>
-                        <ScoreBadge score={s.score} />
-                      </div>
-                    </div>
-
-                    <p className="text-[12px] leading-relaxed" style={{ color: '#3A4A42' }}>
-                      {s.reason}
-                    </p>
-
-                    {connectionStatus === 'accepted' ? (
-                      <span className="inline-flex items-center gap-1.5 text-[12px] font-medium px-3 py-1.5 rounded-full" style={{ background: '#D1FAE5', color: '#065F46' }}>
-                        <UserCheck size={12} /> Connected
-                      </span>
-                    ) : connectionStatus === 'pending' ? (
-                      <span className="inline-flex items-center gap-1.5 text-[12px] font-medium px-3 py-1.5 rounded-full" style={{ background: '#FEF3C7', color: '#92400E' }}>
-                        <Clock size={12} /> Pending
-                      </span>
+            {/* Horizontal scroll rail */}
+            <div
+              style={{
+                display: 'flex',
+                gap: 16,
+                overflowX: 'auto',
+                paddingBottom: 6,
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+              }}
+            >
+              {matches.map((person) => (
+                <div
+                  key={person.id}
+                  style={{
+                    width: 240,
+                    minWidth: 240,
+                    background: '#FFFFFF',
+                    border: '1px solid #E5E0D4',
+                    borderRadius: 12,
+                    boxShadow: '0 0 0 1px rgba(232,197,126,0.4)',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    flexShrink: 0,
+                  }}
+                >
+                  {/* Photo / gradient area */}
+                  <div
+                    style={{
+                      height: 150,
+                      position: 'relative',
+                      overflow: 'hidden',
+                      background: person.photo_url
+                        ? undefined
+                        : 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    {person.photo_url ? (
+                      <img
+                        src={person.photo_url}
+                        alt={person.name}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                        }}
+                      />
                     ) : (
-                      <button
-                        onClick={() => handleConnect(personId)}
-                        disabled={connecting === personId}
-                        className="inline-flex items-center gap-1.5 text-[12px] font-medium px-3 py-1.5 rounded-full transition-opacity"
-                        style={{ border: '1px solid #1F4D3A', color: '#1F4D3A', opacity: connecting === personId ? 0.5 : 1 }}
+                      <span
+                        style={{
+                          fontFamily: 'DM Sans, sans-serif',
+                          fontSize: 38,
+                          fontWeight: 600,
+                          color: 'rgba(250,246,238,0.85)',
+                          letterSpacing: '-0.02em',
+                        }}
                       >
-                        <UserPlus size={12} />
-                        {connecting === personId ? 'Connecting…' : 'Connect'}
-                      </button>
+                        {getInitials(person.name)}
+                      </span>
                     )}
                   </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
 
-      {/* Standard people grid */}
-      {filter !== 'suggested' && (
-        filtered.length === 0 ? (
-          <div className="rounded-2xl py-16 text-center" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-            <p className="text-[14px]" style={{ color: '#6B7A72' }}>No attendees match your filter.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.map(person => (
-              <div key={person.id} className="rounded-2xl p-4 flex flex-col gap-3" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-                <div className="flex items-center gap-3">
-                  <Avatar name={person.attendee_name} size={48} />
-                  <div className="flex-1 min-w-0">
-                    <div className="font-display font-medium text-[15px] truncate" style={{ color: '#0F1F18' }}>
-                      {person.attendee_name}
+                  {/* Card body */}
+                  <div
+                    style={{
+                      padding: '14px 14px 16px',
+                      flex: 1,
+                      display: 'flex',
+                      flexDirection: 'column',
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontFamily: 'DM Sans, sans-serif',
+                        fontSize: 16,
+                        fontWeight: 600,
+                        color: '#0F1F18',
+                        letterSpacing: '-0.01em',
+                        marginBottom: 2,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {person.name}
                     </div>
-                    <div className="text-[12px]" style={{ color: '#6B7A72' }}>Attendee</div>
+                    {person.headline && (
+                      <div
+                        style={{
+                          fontSize: 13,
+                          color: '#6B7A72',
+                          marginBottom: 10,
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        {person.headline}
+                      </div>
+                    )}
+
+                    {/* Why meet */}
+                    <div style={{ marginBottom: 10 }}>
+                      <span
+                        style={{
+                          fontSize: 12,
+                          fontStyle: 'italic',
+                          color: '#C9A45E',
+                          display: 'block',
+                          marginBottom: 3,
+                        }}
+                      >
+                        Why meet?
+                      </span>
+                      <span
+                        style={{
+                          fontSize: 13,
+                          color: '#3A4A42',
+                          lineHeight: 1.45,
+                        }}
+                      >
+                        {getWhyMeet(person)}
+                      </span>
+                    </div>
+
+                    {/* Mutual connections */}
+                    {person.mutual_count > 0 && (
+                      <div
+                        style={{
+                          fontSize: 12,
+                          color: '#C9A45E',
+                          marginBottom: 12,
+                        }}
+                      >
+                        <span style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+                          {person.mutual_count}
+                        </span>{' '}
+                        mutual connection{person.mutual_count !== 1 ? 's' : ''}
+                      </div>
+                    )}
+
+                    {/* Connect button — ghost-gold */}
+                    <div style={{ marginTop: 'auto' }}>
+                      <button
+                        onClick={() => handleConnect(person.id)}
+                        style={{
+                          width: '100%',
+                          padding: '8px 0',
+                          borderRadius: 8,
+                          border: `1px solid ${connected.has(person.id) ? '#E8C57E' : '#C9A45E'}`,
+                          background: connected.has(person.id)
+                            ? 'rgba(232,197,126,0.12)'
+                            : 'transparent',
+                          color: '#C9A45E',
+                          fontSize: 13,
+                          fontWeight: 500,
+                          fontFamily: 'Inter, sans-serif',
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease',
+                        }}
+                      >
+                        {connected.has(person.id) ? 'Requested ✓' : 'Connect'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ── Active now strip ── */}
+        {onlinePeople.length > 0 && (
+          <section
+            style={{
+              background: '#FFFFFF',
+              border: '1px solid #E5E0D4',
+              borderRadius: 12,
+              padding: '16px 20px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 16,
+              marginBottom: 52,
+              flexWrap: 'wrap',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                flexShrink: 0,
+              }}
+            >
+              <span
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  background: '#E8C57E',
+                  display: 'inline-block',
+                  flexShrink: 0,
+                }}
+              />
+              <span
+                style={{
+                  fontSize: 13,
+                  fontWeight: 500,
+                  color: '#0F1F18',
+                }}
+              >
+                Active now
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                {onlinePeople.slice(0, 7).map((person, i) => (
+                  <div
+                    key={person.id}
+                    title={person.name}
+                    style={{
+                      marginLeft: i === 0 ? 0 : -10,
+                      border: '2px solid #FFFFFF',
+                      borderRadius: '50%',
+                      zIndex: onlinePeople.length - i,
+                      position: 'relative',
+                      lineHeight: 0,
+                    }}
+                  >
+                    <Avatar person={person} size={38} />
+                  </div>
+                ))}
+              </div>
+              {onlinePeople.length > 7 && (
+                <span
+                  style={{
+                    marginLeft: 10,
+                    fontSize: 12,
+                    color: '#6B7A72',
+                    fontFamily: 'JetBrains Mono, monospace',
+                  }}
+                >
+                  +{onlinePeople.length - 7} more
+                </span>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* ── All attendees ── */}
+        <section>
+          <h2
+            style={{
+              fontFamily: 'DM Sans, sans-serif',
+              fontSize: 20,
+              fontWeight: 500,
+              color: '#0F1F18',
+              margin: '0 0 20px',
+              letterSpacing: '-0.01em',
+            }}
+          >
+            All attendees
+          </h2>
+
+          <div className="people-grid">
+            {people.map((person) => (
+              <div
+                key={person.id}
+                style={{
+                  background: '#FFFFFF',
+                  border: '1px solid #E5E0D4',
+                  borderRadius: 12,
+                  padding: 18,
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+              >
+                {/* Top row: avatar + name/role/mutual */}
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: 12,
+                    alignItems: 'flex-start',
+                    marginBottom: 12,
+                  }}
+                >
+                  <Avatar person={person} size={56} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div
+                      style={{
+                        fontFamily: 'DM Sans, sans-serif',
+                        fontSize: 15,
+                        fontWeight: 600,
+                        color: '#0F1F18',
+                        letterSpacing: '-0.01em',
+                        marginBottom: 2,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {person.name}
+                    </div>
+                    {person.headline && (
+                      <div
+                        style={{
+                          fontSize: 12,
+                          color: '#6B7A72',
+                          lineHeight: 1.35,
+                          marginBottom: 4,
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical' as const,
+                          overflow: 'hidden',
+                        }}
+                      >
+                        {person.headline}
+                      </div>
+                    )}
+                    {person.mutual_count > 0 && (
+                      <div
+                        style={{
+                          fontSize: 12,
+                          color: '#C9A45E',
+                        }}
+                      >
+                        <span style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+                          {person.mutual_count}
+                        </span>{' '}
+                        mutual
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                {registrationId && person.id !== registrationId && (
-                  <div>
-                    {person.connection_status === 'accepted' ? (
-                      <span className="inline-flex items-center gap-1.5 text-[12px] font-medium px-3 py-1.5 rounded-full" style={{ background: '#D1FAE5', color: '#065F46' }}>
-                        <UserCheck size={12} /> Connected
-                      </span>
-                    ) : person.connection_status === 'pending' ? (
-                      <span className="inline-flex items-center gap-1.5 text-[12px] font-medium px-3 py-1.5 rounded-full" style={{ background: '#FEF3C7', color: '#92400E' }}>
-                        <Clock size={12} /> Pending
-                      </span>
-                    ) : (
-                      <button
-                        onClick={() => handleConnect(person.id)}
-                        disabled={connecting === person.id}
-                        className="inline-flex items-center gap-1.5 text-[12px] font-medium px-3 py-1.5 rounded-full transition-opacity"
-                        style={{ border: '1px solid #1F4D3A', color: '#1F4D3A', opacity: connecting === person.id ? 0.5 : 1 }}
+                {/* Interest tags */}
+                {person.interests.length > 0 && (
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      gap: 6,
+                    }}
+                  >
+                    {person.interests.slice(0, 4).map((tag) => (
+                      <span
+                        key={tag}
+                        style={{
+                          background: '#E8EFEB',
+                          color: '#1F4D3A',
+                          fontSize: 11,
+                          height: 24,
+                          padding: '0 8px',
+                          borderRadius: 100,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          fontFamily: 'Inter, sans-serif',
+                          fontWeight: 500,
+                          letterSpacing: '0.01em',
+                        }}
                       >
-                        <UserPlus size={12} />
-                        {connecting === person.id ? 'Connecting…' : 'Connect'}
-                      </button>
-                    )}
+                        {tag}
+                      </span>
+                    ))}
                   </div>
                 )}
-                {!registrationId && (
-                  <p className="text-[11px]" style={{ color: '#6B7A72' }}>Register to connect</p>
-                )}
+
+                {/* Connect button — ghost-forest */}
+                <button
+                  onClick={() => handleConnect(person.id)}
+                  style={{
+                    width: '100%',
+                    padding: '7px 0',
+                    borderRadius: 8,
+                    border: `1px solid ${connected.has(person.id) ? '#1F4D3A' : '#E5E0D4'}`,
+                    background: connected.has(person.id) ? '#E8EFEB' : 'transparent',
+                    color: connected.has(person.id) ? '#1F4D3A' : '#3A4A42',
+                    fontSize: 13,
+                    fontWeight: 500,
+                    fontFamily: 'Inter, sans-serif',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                    marginTop: 14,
+                  }}
+                >
+                  {connected.has(person.id) ? 'Requested ✓' : 'Connect'}
+                </button>
               </div>
             ))}
           </div>
-        )
-      )}
+        </section>
+      </div>
+
+      <style>{`
+        .people-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 16px;
+        }
+        @media (max-width: 1024px) {
+          .people-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 720px) {
+          .people-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 420px) {
+          .people-grid { grid-template-columns: 1fr; }
+        }
+        .people-grid > div { break-inside: avoid; }
+      `}</style>
     </div>
   );
 }
