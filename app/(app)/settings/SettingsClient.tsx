@@ -22,7 +22,7 @@ interface Props {
   userId: string;
 }
 
-const TABS = ['Profile', 'Security', 'Notifications', 'Developer', 'Account'] as const;
+const TABS = ['Profile', 'Security', 'Notifications', 'Integrations', 'Developer', 'Account'] as const;
 type Tab = typeof TABS[number];
 
 const PLANS: Record<string, { label: string; limit: string; features: { text: string; included: boolean }[] }> = {
@@ -536,6 +536,103 @@ export default function SettingsClient({ profile, userId }: Props) {
               <div className="px-4 py-3 rounded-xl border text-[12px] text-[#6B7A72]" style={{ borderColor: '#E5E0D4', background: 'white' }}>
                 Preferences are saved. Email delivery requires SMTP configuration — contact support to enable.
               </div>
+            </div>
+          )}
+
+          {/* ─── Integrations ────────────────────────────────────── */}
+          {activeTab === 'Integrations' && (
+            <div className="space-y-8">
+              <p className="text-[14px]" style={{ color: '#6B7A72' }}>
+                Connect your existing tools to sync data automatically.
+              </p>
+
+              {/* Connected */}
+              <section>
+                <h3 className="font-display font-medium text-[18px] mb-4" style={{ color: '#1F4D3A' }}>Connected</h3>
+                <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px,1fr))' }}>
+                  {[
+                    { logo: 'S', bg: '#4A154B', name: 'Slack', desc: 'Post event notifications to your team channels.' },
+                    { logo: 'M', bg: '#FFE01B', fg: '#1F1F1F', name: 'Mailchimp', desc: 'Sync registrants to your email list automatically.' },
+                  ].map(app => (
+                    <div key={app.name} className="rounded-2xl p-5" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center font-display font-semibold text-[16px]"
+                        style={{ background: app.bg, color: app.fg ?? '#fff' }}>
+                        {app.logo}
+                      </div>
+                      <div className="font-display font-medium text-[16px] mt-3.5" style={{ color: '#1F4D3A' }}>{app.name}</div>
+                      <div className="text-[13px] mt-1 leading-relaxed" style={{ color: '#6B7A72' }}>{app.desc}</div>
+                      <div className="flex items-center justify-between mt-4">
+                        <span className="flex items-center gap-2 text-[13px]" style={{ color: '#2D7A4F' }}>
+                          <span className="rounded-full" style={{ width: 8, height: 8, background: '#2D7A4F', display: 'inline-block' }} />
+                          Connected
+                        </span>
+                        <div className="flex gap-3 text-[13px]">
+                          <button className="hover:underline" style={{ color: '#3A4A42' }}>Settings</button>
+                          <button className="hover:underline" style={{ color: '#6B7A72' }}>Disconnect</button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* Available */}
+              <section>
+                <h3 className="font-display font-medium text-[18px] mb-4" style={{ color: '#1F4D3A' }}>Available</h3>
+                <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px,1fr))' }}>
+                  {[
+                    { logo: 'Z', bg: '#2D8CFF', name: 'Zoom', desc: 'Video meetings for your hybrid and online sessions.' },
+                    { logo: 'H', bg: '#FF7A59', name: 'HubSpot', desc: 'Add registrants as CRM contacts in real time.' },
+                    { logo: 'Z', bg: '#FF4A00', name: 'Zapier', desc: 'Connect Karta to 5,000+ apps with no code.' },
+                  ].map(app => (
+                    <div key={app.name} className="rounded-2xl p-5" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center font-display font-semibold text-[16px] text-white"
+                        style={{ background: app.bg }}>
+                        {app.logo}
+                      </div>
+                      <div className="font-display font-medium text-[16px] mt-3.5" style={{ color: '#1F4D3A' }}>{app.name}</div>
+                      <div className="text-[13px] mt-1 leading-relaxed" style={{ color: '#6B7A72' }}>{app.desc}</div>
+                      <div className="flex items-center justify-between mt-4">
+                        <span className="flex items-center gap-2 text-[13px]" style={{ color: '#6B7A72' }}>
+                          <span className="rounded-full" style={{ width: 8, height: 8, border: '1.5px solid #C9C3B1', display: 'inline-block' }} />
+                          Not connected
+                        </span>
+                        <button
+                          className="h-8 px-3 rounded-lg text-[13px] font-medium transition hover:opacity-80"
+                          style={{ border: '1px solid #1F4D3A', color: '#1F4D3A', background: 'transparent' }}
+                        >
+                          Connect
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* API & Webhooks */}
+              <section>
+                <h3 className="font-display font-medium text-[18px] mb-2" style={{ color: '#1F4D3A' }}>Webhooks & API</h3>
+                <p className="text-[14px] mb-4" style={{ color: '#6B7A72' }}>
+                  For developers — connect Karta to anything with our REST API and outbound webhooks.
+                </p>
+                <div className="grid gap-4" style={{ gridTemplateColumns: '1fr 1fr' }}>
+                  {[
+                    { title: 'API Keys', desc: 'Create and manage access tokens.', href: '/settings?tab=Developer' },
+                    { title: 'Webhook settings', desc: 'Subscribe to event notifications.', href: '#' },
+                  ].map(card => (
+                    <a key={card.title} href={card.href}
+                      className="flex items-center justify-between gap-4 p-5 rounded-2xl transition hover:opacity-80"
+                      style={{ background: 'white', border: '1px solid #E5E0D4', textDecoration: 'none' }}
+                    >
+                      <div>
+                        <div className="font-display font-medium text-[15px]" style={{ color: '#1F4D3A' }}>{card.title}</div>
+                        <div className="text-[13px] mt-0.5" style={{ color: '#6B7A72' }}>{card.desc}</div>
+                      </div>
+                      <span className="text-[18px]" style={{ color: '#1F4D3A' }}>→</span>
+                    </a>
+                  ))}
+                </div>
+              </section>
             </div>
           )}
 
