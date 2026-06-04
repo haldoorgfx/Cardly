@@ -47,7 +47,6 @@ export default async function BillingPage({
 
         {/* Header */}
         <div className="mb-8">
-          <div className="font-mono text-[11px] tracking-[0.18em] text-[#1F4D3A] uppercase mb-1">Workspace</div>
           <h1 className="font-display font-bold text-[28px] text-[#0F1F18] tracking-tight">Billing</h1>
           <p className="text-[14px] text-[#6B7A72] mt-1">Manage your plan, usage, and subscription.</p>
         </div>
