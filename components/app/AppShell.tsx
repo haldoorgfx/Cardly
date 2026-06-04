@@ -86,8 +86,8 @@ const EVENT_NAV_SECTIONS = [
   {
     title: 'Partners',
     items: [
-      { id: 'sponsors', label: 'Sponsors', icon: <Briefcase size={15} strokeWidth={1.8} />, segment: 'engagement' },
-      { id: 'virtual',  label: 'Virtual',  icon: <Video size={15} strokeWidth={1.8} />,     segment: 'engagement' },
+      { id: 'sponsors', label: 'Sponsors', icon: <Briefcase size={15} strokeWidth={1.8} />, segment: 'engagement', activeOn: '__sponsors__' },
+      { id: 'virtual',  label: 'Virtual',  icon: <Video size={15} strokeWidth={1.8} />,     segment: 'engagement', activeOn: '__virtual__'  },
     ],
   },
   {
@@ -518,7 +518,8 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
                 const href = item.segment === ''
                   ? `/events/${eventId}`
                   : `/events/${eventId}/${item.segment}`;
-                const active = activeSegment === item.segment;
+                const matchKey = 'activeOn' in item ? item.activeOn : item.segment;
+                const active = activeSegment === matchKey;
                 return (
                   <NavItem key={item.id} href={href} icon={item.icon} label={item.label}
                     active={active} onNavigate={onNavigate} />
