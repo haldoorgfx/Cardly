@@ -73,49 +73,9 @@ export default function SpeakerProfileClient({ speaker, sessions, eventSlug }: P
           style={{ background: 'linear-gradient(to bottom, transparent 20%, rgba(0,0,0,0.7) 100%)' }}
         />
 
-        {/* Social icons */}
-        <div className="absolute top-5 right-5 flex gap-2">
-          {speaker.linkedin_url && (
-            <a
-              href={speaker.linkedin_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-9 h-9 rounded-full flex items-center justify-center text-white"
-              style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)' }}
-            >
-              <LinkedInIcon />
-            </a>
-          )}
-          {speaker.twitter_url && (
-            <a
-              href={speaker.twitter_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-9 h-9 rounded-full flex items-center justify-center text-white"
-              style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)' }}
-            >
-              <TwitterIcon />
-            </a>
-          )}
-          {speaker.website_url && (
-            <a
-              href={speaker.website_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-9 h-9 rounded-full flex items-center justify-center text-white"
-              style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)' }}
-            >
-              <GlobeIcon />
-            </a>
-          )}
-        </div>
-
-        {/* Name & role */}
-        <div className="absolute left-6" style={{ bottom: 32 }}>
-          <h1
-            className="font-display font-normal leading-tight text-white"
-            style={{ fontSize: 36 }}
-          >
+        {/* Name, role + social icons — bottom left, matching w14 reference */}
+        <div className="absolute left-6" style={{ bottom: 28 }}>
+          <h1 className="font-display font-normal leading-tight text-white" style={{ fontSize: 36 }}>
             {speaker.name}
           </h1>
           {(speaker.role || speaker.company) && (
@@ -123,6 +83,30 @@ export default function SpeakerProfileClient({ speaker, sessions, eventSlug }: P
               {[speaker.role, speaker.company].filter(Boolean).join(' · ')}
             </p>
           )}
+          {/* Social icons below name */}
+          <div className="flex gap-2 mt-3">
+            {speaker.linkedin_url && (
+              <a href={speaker.linkedin_url} target="_blank" rel="noopener noreferrer"
+                className="w-9 h-9 rounded-full flex items-center justify-center text-white transition hover:opacity-80"
+                style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)' }}>
+                <LinkedInIcon />
+              </a>
+            )}
+            {speaker.twitter_url && (
+              <a href={speaker.twitter_url} target="_blank" rel="noopener noreferrer"
+                className="w-9 h-9 rounded-full flex items-center justify-center text-white transition hover:opacity-80"
+                style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)' }}>
+                <TwitterIcon />
+              </a>
+            )}
+            {speaker.website_url && (
+              <a href={speaker.website_url} target="_blank" rel="noopener noreferrer"
+                className="w-9 h-9 rounded-full flex items-center justify-center text-white transition hover:opacity-80"
+                style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)' }}>
+                <GlobeIcon />
+              </a>
+            )}
+          </div>
         </div>
       </div>
 

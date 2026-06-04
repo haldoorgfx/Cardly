@@ -122,7 +122,7 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
   }
 
   const publicSlug = customSlug.trim() || eventSlug;
-  const previewUrl = `/e/${publicSlug}`;
+  const previewUrl = `/e/${publicSlug}?preview=1&event_id=${eventId}`;
 
   return (
     <div className="max-w-[800px] mx-auto px-6 py-8 pb-20">
