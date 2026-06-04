@@ -23,10 +23,12 @@ export function PublicNav({ eventSlug }: PublicNavProps = {}) {
 
   // Determine the dynamic middle nav item based on current page
   function getMiddleItem() {
-    if (!eventSlug) return null;
-    const isRegisterOrEventPage = pathname === `/e/${eventSlug}` || pathname.startsWith(`/e/${eventSlug}/register`) || pathname.startsWith(`/e/${eventSlug}/my-agenda`);
-    if (isRegisterOrEventPage) return { href: `/e/${eventSlug}/register`, label: 'My tickets' };
-    return { href: `/e/${eventSlug}/speakers`, label: 'Speakers' };
+    const isTicketsPage = pathname === '/my-tickets' || (eventSlug && pathname.startsWith(`/e/${eventSlug}/register`));
+    if (isTicketsPage) return { href: '/my-tickets', label: 'My tickets' };
+    const isSpeakerPage = eventSlug && (pathname.startsWith(`/e/${eventSlug}/speakers`) || pathname.startsWith(`/e/${eventSlug}/sessions`));
+    if (isSpeakerPage) return { href: eventSlug ? `/e/${eventSlug}/speakers` : '/events', label: 'Speakers' };
+    if (eventSlug) return { href: `/e/${eventSlug}/speakers`, label: 'Speakers' };
+    return { href: '/my-tickets', label: 'My tickets' };
   }
 
   const middleItem = getMiddleItem();

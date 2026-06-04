@@ -51,10 +51,10 @@ export default async function PeoplePage({ params, searchParams }: Props) {
       <div className="max-w-[1000px] mx-auto px-5 py-10">
         <div className="mb-8">
           <h1 className="font-display font-normal text-[32px]" style={{ color: '#1F4D3A', letterSpacing: '-0.025em' }}>
-            People
+            Who&apos;s here
           </h1>
           <p className="text-[16px] mt-2" style={{ color: '#6B7A72' }}>
-            {enriched.length} attendee{enriched.length !== 1 ? 's' : ''} at {eventPage.title}
+            {enriched.length} people at {eventPage.title}
           </p>
         </div>
         <PeopleDiscoveryClient
