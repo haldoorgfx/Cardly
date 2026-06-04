@@ -1,0 +1,372 @@
+'use client';
+
+import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { Check, Copy, AlertTriangle, Trash2 } from 'lucide-react';
+
+interface EventData {
+  id: string;
+  name: string;
+  slug: string;
+  status: string;
+  starts_at: string | null;
+  ends_at: string | null;
+  max_capacity: number | null;
+  is_public: boolean;
+  venue_name: string | null;
+  timezone: string;
+}
+
+interface Props {
+  event: EventData;
+}
+
+type Tab = 'general' | 'registration' | 'privacy' | 'danger';
+
+const TABS: { id: Tab; label: string }[] = [
+  { id: 'general',      label: 'General'      },
+  { id: 'registration', label: 'Registration' },
+  { id: 'privacy',      label: 'Privacy'      },
+  { id: 'danger',       label: 'Danger zone'  },
+];
+
+function toLocalDate(iso: string | null) {
+  if (!iso) return '';
+  return iso.slice(0, 16);
+}
+
+export function EventSettingsView({ event }: Props) {
+  const router = useRouter();
+  const [tab, setTab] = useState<Tab>('general');
+  const [isPending, startTransition] = useTransition();
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState('');
+
+  // General
+  const [name, setName] = useState(event.name);
+  const [startsAt, setStartsAt] = useState(toLocalDate(event.starts_at));
+  const [endsAt, setEndsAt] = useState(toLocalDate(event.ends_at));
+  const [venue, setVenue] = useState(event.venue_name ?? '');
+  const [timezone, setTimezone] = useState(event.timezone);
+  const [capacity, setCapacity] = useState(event.max_capacity?.toString() ?? '');
+  const [waitlist, setWaitlist] = useState(false);
+
+  // Registration
+  const [collectOrg, setCollectOrg] = useState(true);
+  const [collectDietary, setCollectDietary] = useState(false);
+  const [customQuestion, setCustomQuestion] = useState(true);
+  const [requireApproval, setRequireApproval] = useState(false);
+  const [closeAtCapacity, setCloseAtCapacity] = useState(true);
+
+  // Privacy
+  const [isPublic, setIsPublic] = useState(event.is_public);
+  const [showAttendees, setShowAttendees] = useState(true);
+  const [requireLogin, setRequireLogin] = useState(false);
+  const [allowNetworking, setAllowNetworking] = useState(true);
+
+  async function handleSave() {
+    setError('');
+    startTransition(async () => {
+      try {
+        const res = await fetch(`/api/events/${event.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: name.trim(),
+            starts_at: startsAt ? new Date(startsAt).toISOString() : null,
+            ends_at: endsAt ? new Date(endsAt).toISOString() : null,
+            max_capacity: capacity ? parseInt(capacity) : null,
+            is_public: isPublic,
+          }),
+        });
+        if (!res.ok) {
+          const d = await res.json();
+          throw new Error(d.error ?? 'Save failed');
+        }
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2500);
+        router.refresh();
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Save failed');
+      }
+    });
+  }
+
+  const statusBadge = {
+    published: { label: 'Live', bg: 'rgba(45,122,79,0.12)', color: '#2D7A4F', dot: '#2D7A4F' },
+    draft:     { label: 'Draft', bg: 'rgba(201,122,45,0.12)', color: '#C97A2D', dot: '#C97A2D' },
+    archived:  { label: 'Archived', bg: '#F5F0E8', color: '#6B7A72', dot: '#6B7A72' },
+  }[event.status] ?? { label: event.status, bg: '#F5F0E8', color: '#6B7A72', dot: '#6B7A72' };
+
+  return (
+    <div className="max-w-[900px] mx-auto px-6 py-8 pb-24">
+
+      {/* Header */}
+      <div className="flex items-start justify-between gap-4 mb-8">
+        <div>
+          <h1 className="font-display font-semibold text-[22px]" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
+            Settings
+          </h1>
+          <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>{event.name}</p>
+        </div>
+        <button
+          onClick={handleSave}
+          disabled={isPending}
+          className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-white text-[13px] font-semibold transition hover:opacity-90 disabled:opacity-60"
+          style={{ background: '#1F4D3A' }}
+        >
+          <Check size={14} strokeWidth={2.5} />
+          {isPending ? 'Saving…' : saved ? 'Saved' : 'Save changes'}
+        </button>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-1 mb-7 p-1 rounded-xl" style={{ background: '#F5F0E8', display: 'inline-flex' }}>
+        {TABS.map(t => (
+          <button
+            key={t.id}
+            onClick={() => setTab(t.id)}
+            className="h-8 px-4 rounded-lg text-[13px] font-medium transition"
+            style={{
+              background: tab === t.id ? 'white' : 'transparent',
+              color: tab === t.id ? '#0F1F18' : '#6B7A72',
+              boxShadow: tab === t.id ? '0 1px 3px rgba(15,31,24,0.08)' : 'none',
+            }}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {error && <p className="mb-4 text-[13px]" style={{ color: '#B8423C' }}>{error}</p>}
+
+      {/* General tab */}
+      {tab === 'general' && (
+        <div className="space-y-5">
+          <Panel title="Event details">
+            <div className="space-y-4">
+              <Field label="Event name">
+                <input
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
+                  style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
+                  onFocus={e => (e.target.style.borderColor = '#E8C57E')}
+                  onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
+                />
+              </Field>
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Starts">
+                  <input
+                    type="datetime-local"
+                    value={startsAt}
+                    onChange={e => setStartsAt(e.target.value)}
+                    className="w-full h-10 px-3 rounded-lg text-[13px] outline-none transition"
+                    style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
+                    onFocus={e => (e.target.style.borderColor = '#E8C57E')}
+                    onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
+                  />
+                </Field>
+                <Field label="Ends">
+                  <input
+                    type="datetime-local"
+                    value={endsAt}
+                    onChange={e => setEndsAt(e.target.value)}
+                    className="w-full h-10 px-3 rounded-lg text-[13px] outline-none transition"
+                    style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
+                    onFocus={e => (e.target.style.borderColor = '#E8C57E')}
+                    onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
+                  />
+                </Field>
+              </div>
+              <Field label="Venue">
+                <input
+                  value={venue}
+                  onChange={e => setVenue(e.target.value)}
+                  placeholder="Palais du Peuple, Djibouti City"
+                  className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
+                  style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
+                  onFocus={e => (e.target.style.borderColor = '#E8C57E')}
+                  onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
+                />
+              </Field>
+              <Field label="Timezone">
+                <input
+                  value={timezone}
+                  onChange={e => setTimezone(e.target.value)}
+                  className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
+                  style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
+                  onFocus={e => (e.target.style.borderColor = '#E8C57E')}
+                  onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
+                />
+              </Field>
+            </div>
+          </Panel>
+
+          <Panel title="Capacity & status">
+            <div className="space-y-3">
+              <InfoRow label="Status" last={false}>
+                <span
+                  className="inline-flex items-center gap-1.5 h-5 px-2 rounded-full text-[11px] font-medium"
+                  style={{ background: statusBadge.bg, color: statusBadge.color }}
+                >
+                  <span className="h-1.5 w-1.5 rounded-full" style={{ background: statusBadge.dot }} />
+                  {statusBadge.label}
+                </span>
+              </InfoRow>
+              <InfoRow label="Capacity" last={false}>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    value={capacity}
+                    onChange={e => setCapacity(e.target.value)}
+                    placeholder="Unlimited"
+                    min={1}
+                    className="w-28 h-8 px-2.5 rounded-lg text-[13px] outline-none transition text-right"
+                    style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
+                    onFocus={e => (e.target.style.borderColor = '#E8C57E')}
+                    onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
+                  />
+                  <span className="text-[12px]" style={{ color: '#6B7A72' }}>attendees</span>
+                </div>
+              </InfoRow>
+              <InfoRow label="Waitlist" last>
+                <Toggle value={waitlist} onChange={setWaitlist} />
+              </InfoRow>
+            </div>
+          </Panel>
+        </div>
+      )}
+
+      {/* Registration tab */}
+      {tab === 'registration' && (
+        <Panel title="Registration form">
+          <div className="space-y-0">
+            {[
+              { label: 'Collect organization', desc: "Ask attendees for their company", val: collectOrg, set: setCollectOrg },
+              { label: 'Collect dietary needs', desc: 'For catered events', val: collectDietary, set: setCollectDietary },
+              { label: 'Custom question', desc: '"What do you hope to learn?"', val: customQuestion, set: setCustomQuestion },
+              { label: 'Require approval', desc: 'Manually approve each registration', val: requireApproval, set: setRequireApproval },
+              { label: 'Close registration at capacity', desc: 'Stop sales when full', val: closeAtCapacity, set: setCloseAtCapacity },
+            ].map((item, i, arr) => (
+              <InfoRow key={item.label} label={item.label} desc={item.desc} last={i === arr.length - 1}>
+                <Toggle value={item.val} onChange={item.set} />
+              </InfoRow>
+            ))}
+          </div>
+        </Panel>
+      )}
+
+      {/* Privacy tab */}
+      {tab === 'privacy' && (
+        <Panel title="Visibility & privacy">
+          <div className="space-y-0">
+            {[
+              { label: 'Public event page', desc: 'Listed and discoverable', val: isPublic, set: setIsPublic },
+              { label: 'Show attendee list', desc: "Let attendees see who's coming", val: showAttendees, set: setShowAttendees },
+              { label: 'Require login to register', desc: 'Attendees must create an account', val: requireLogin, set: setRequireLogin },
+              { label: 'Allow networking', desc: 'Attendees can message each other', val: allowNetworking, set: setAllowNetworking },
+            ].map((item, i, arr) => (
+              <InfoRow key={item.label} label={item.label} desc={item.desc} last={i === arr.length - 1}>
+                <Toggle value={item.val} onChange={item.set} />
+              </InfoRow>
+            ))}
+          </div>
+        </Panel>
+      )}
+
+      {/* Danger zone tab */}
+      {tab === 'danger' && (
+        <div className="space-y-3">
+          <DangerCard
+            title="Duplicate event"
+            desc="Create a copy of this event with the same settings and ticket types."
+            action={<button className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-medium border transition" style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}><Copy size={13} strokeWidth={2} /> Duplicate</button>}
+          />
+          <DangerCard
+            title="Cancel event"
+            desc="Notify all attendees and process refunds."
+            action={<button className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-medium border transition" style={{ borderColor: '#FBD38D', color: '#C97A2D' }}><AlertTriangle size={13} strokeWidth={2} /> Cancel</button>}
+          />
+          <DangerCard
+            title="Delete event"
+            desc="Permanently remove this event and all its data. Can't be undone."
+            danger
+            action={<button className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-medium border transition" style={{ borderColor: '#FCA5A5', color: '#B8423C' }}><Trash2 size={13} strokeWidth={2} /> Delete</button>}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── Helpers ── */
+
+function Panel({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4', background: 'white' }}>
+      <div className="px-5 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
+        <h3 className="text-[13px] font-semibold" style={{ color: '#0F1F18' }}>{title}</h3>
+      </div>
+      <div className="px-5 py-4">{children}</div>
+    </div>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label className="block text-[12px] font-medium mb-1.5" style={{ color: '#3A4A42' }}>{label}</label>
+      {children}
+    </div>
+  );
+}
+
+function InfoRow({ label, desc, last, children }: { label: string; desc?: string; last: boolean; children: React.ReactNode }) {
+  return (
+    <div
+      className="flex items-center justify-between gap-4 py-3.5"
+      style={{ borderBottom: last ? 'none' : '1px solid #F5F0E8' }}
+    >
+      <div>
+        <p className="text-[13.5px] font-medium" style={{ color: '#0F1F18' }}>{label}</p>
+        {desc && <p className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{desc}</p>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onChange(!value)}
+      className="shrink-0 rounded-full transition-all"
+      style={{ width: 40, height: 22, background: value ? '#1F4D3A' : '#E5E0D4', position: 'relative' }}
+    >
+      <div
+        className="absolute top-0.5 rounded-full transition-all"
+        style={{ width: 18, height: 18, background: 'white', left: value ? 20 : 2, boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }}
+      />
+    </button>
+  );
+}
+
+function DangerCard({ title, desc, action, danger }: { title: string; desc: string; action: React.ReactNode; danger?: boolean }) {
+  return (
+    <div
+      className="flex items-center justify-between gap-4 p-5 rounded-2xl"
+      style={{
+        background: danger ? 'rgba(184,66,60,0.04)' : 'white',
+        border: danger ? '1px solid rgba(184,66,60,0.2)' : '1px solid #E5E0D4',
+      }}
+    >
+      <div>
+        <p className="text-[14px] font-semibold font-display" style={{ color: danger ? '#B8423C' : '#0F1F18' }}>{title}</p>
+        <p className="text-[12.5px] mt-0.5" style={{ color: danger ? 'rgba(184,66,60,0.7)' : '#6B7A72' }}>{desc}</p>
+      </div>
+      {action}
+    </div>
+  );
+}

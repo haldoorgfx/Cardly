@@ -9,7 +9,7 @@ import {
   LayoutGrid, TrendingUp, LayoutTemplate, Settings2, Users, LogOut, Menu, Search, Plus, ChevronRight, CreditCard,
   BarChart2, FileText, Eye, X, ArrowLeft, ShieldCheck,
   Flag, Image as ImageIcon, ScrollText, Sliders, Gavel,
-  Home, Layout, CalendarDays, Globe, MessageSquare, IdCard,
+  Home, Layout, CalendarDays, MessageSquare, IdCard, Bell, Plug, Globe,
 } from 'lucide-react';
 
 type Profile = {
@@ -58,13 +58,17 @@ const EVENT_NAV_SECTIONS = [
   {
     title: null,
     items: [
-      { id: 'overview',      label: 'Overview',      icon: <Home size={15} strokeWidth={1.8} />,           segment: '' },
-      { id: 'registrations', label: 'Registrations', icon: <Users size={15} strokeWidth={1.8} />,          segment: 'registrations' },
-      { id: 'event-page',    label: 'Event page',    icon: <Layout size={15} strokeWidth={1.8} />,         segment: 'event-page' },
-      { id: 'agenda',        label: 'Agenda',        icon: <CalendarDays size={15} strokeWidth={1.8} />,   segment: 'agenda' },
-      { id: 'engagement',    label: 'Engagement',    icon: <MessageSquare size={15} strokeWidth={1.8} />,  segment: 'engagement' },
-      { id: 'analytics',     label: 'Analytics',     icon: <BarChart2 size={15} strokeWidth={1.8} />,      segment: 'analytics' },
-      { id: 'karta-card',    label: 'Karta Card',    icon: <IdCard size={15} strokeWidth={1.8} />,         segment: 'edit' },
+      { id: 'overview',        label: 'Overview',        icon: <Home size={15} strokeWidth={1.8} />,            segment: '' },
+      { id: 'registrations',   label: 'Registrations',   icon: <Users size={15} strokeWidth={1.8} />,           segment: 'registrations' },
+      { id: 'event-page',      label: 'Event page',      icon: <Layout size={15} strokeWidth={1.8} />,          segment: 'event-page' },
+      { id: 'agenda',          label: 'Agenda',          icon: <CalendarDays size={15} strokeWidth={1.8} />,    segment: 'agenda' },
+      { id: 'engagement',      label: 'Engagement',      icon: <MessageSquare size={15} strokeWidth={1.8} />,   segment: 'engagement' },
+      { id: 'communications',  label: 'Communications',  icon: <Bell size={15} strokeWidth={1.8} />,            segment: 'communications' },
+      { id: 'analytics',       label: 'Analytics',       icon: <BarChart2 size={15} strokeWidth={1.8} />,       segment: 'analytics' },
+      { id: 'karta-card',      label: 'Karta Card',      icon: <IdCard size={15} strokeWidth={1.8} />,          segment: 'karta-card' },
+      { id: 'integrations',    label: 'Integrations',    icon: <Plug size={15} strokeWidth={1.8} />,            segment: 'integrations' },
+      { id: 'webhooks',        label: 'Webhooks',        icon: <Globe size={15} strokeWidth={1.8} />,           segment: 'webhooks' },
+      { id: 'settings',        label: 'Settings',        icon: <Sliders size={15} strokeWidth={1.8} />,         segment: 'settings' },
     ],
   },
 ];
