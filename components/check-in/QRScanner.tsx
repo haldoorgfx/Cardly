@@ -80,7 +80,7 @@ export function QRScanner({ eventId, eventName, totalRegistrations, initialCheck
       setFlash(null);
       processingRef.current = false;
     }, 2500);
-  }, [eventId]);
+  }, [eventId, onCheckedIn]);
 
   useEffect(() => {
     const reader = new BrowserMultiFormatReader();

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Plus, Pencil, Trash2, X, ChevronDown, ChevronUp, User, MapPin, Settings } from 'lucide-react';
+import { Plus, Trash2, X, ChevronDown, ChevronUp, User, MapPin, Settings } from 'lucide-react';
 import type { Session, Track, SessionType } from '@/types/database';
 
 interface SpeakerOption {
@@ -55,16 +55,6 @@ const EMPTY_SESSION: SessionForm = {
   is_published: false,
 };
 
-function formatTimeRange(start: string, end: string) {
-  if (!start || !end) return '';
-  const s = new Date(start);
-  const e = new Date(end);
-  const dateStr = s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  const startTime = s.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
-  const endTime = e.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
-  return `${dateStr} · ${startTime}–${endTime}`;
-}
-
 function groupByDate(sessions: Session[]): [string, Session[]][] {
   const map = new Map<string, Session[]>();
   const sorted = [...sessions].sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime());
@@ -74,10 +64,6 @@ function groupByDate(sessions: Session[]): [string, Session[]][] {
     map.get(key)!.push(s);
   }
   return Array.from(map.entries());
-}
-
-function getInitials(name: string) {
-  return name.split(' ').map((p) => p[0]).join('').toUpperCase().slice(0, 2);
 }
 
 export default function SessionsManager({ eventId, initialSessions, speakers, initialTracks }: Props) {
@@ -568,6 +554,14 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
                     style={{ color: '#6B7A72' }}
                   >
                     <Settings size={15} strokeWidth={1.8} />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteSession(session.id)}
+                    disabled={deletingId === session.id}
+                    className="w-8 h-8 grid place-items-center rounded-lg transition shrink-0 hover:bg-red-50 disabled:opacity-40"
+                    style={{ color: '#B8423C' }}
+                  >
+                    <Trash2 size={15} strokeWidth={1.8} />
                   </button>
                 </div>
               );
