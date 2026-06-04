@@ -280,9 +280,6 @@ export default function TemplatesPage() {
       <div className="relative overflow-hidden px-6 pt-7 pb-6 border-b shrink-0" style={{ background:'white', borderColor:'#E5E0D4' }}>
         <div className="absolute pointer-events-none" style={{ top:'-50%', right:'-5%', width:260, height:260, background:'radial-gradient(ellipse,rgba(31,77,58,0.07) 0%,transparent 70%)', filter:'blur(40px)' }} />
         <div className="relative">
-          <div className="flex items-center gap-1.5 text-[12px] font-mono text-[#6B7A72]/60 mb-3">
-            <span>WORKSPACE</span><span>/</span><span className="text-[#6B7A72]">Templates</span>
-          </div>
           <div className="flex items-end justify-between gap-4 flex-wrap">
             <div>
               <h1 className="font-display font-bold text-[28px] text-[#0F1F18] leading-tight tracking-tight">Templates</h1>

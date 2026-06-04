@@ -126,9 +126,6 @@ export default function BrandKitPage() {
       {/* Header */}
       <div className="flex items-end justify-between flex-wrap gap-4 mb-10">
         <div>
-          <div className="flex items-center gap-2 text-[12px] font-mono text-[#0F1F18]/40">
-            <span>WORKSPACE</span><span>/</span><span className="text-[#0F1F18]/70">Brand Kit</span>
-          </div>
           <h1 className="mt-2 font-display font-bold text-[34px] leading-tight">Brand Kit</h1>
           <p className="text-[#0F1F18]/60 mt-1 text-[14.5px] max-w-[540px]">
             One source of truth for every event. Updates here propagate to all new events.
