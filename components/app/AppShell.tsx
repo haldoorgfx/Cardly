@@ -11,6 +11,7 @@ import {
   Flag, Image as ImageIcon, ScrollText, Sliders, Gavel,
   Home, Layout, CalendarDays, MessageSquare, Bell, Plug, Globe,
   Ticket, ScanLine, User, Network, Trophy, Briefcase, Video, Palette, Key, Tag, ExternalLink,
+  UserCircle, HelpCircle, Zap,
 } from 'lucide-react';
 
 type Profile = {
@@ -768,6 +769,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [eventCount, setEventCount] = useState(0);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [impersonating, setImpersonating] = useState<ImpersonatedUser | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [contextEventName, setContextEventName] = useState<string | null>(null);
@@ -915,19 +917,110 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               );
             })()}
 
-            {/* Right side: search trigger + avatar */}
-            <div className="flex items-center gap-2 shrink-0 ml-auto">
+            {/* Right side: search + bell + avatar */}
+            <div className="flex items-center gap-1.5 shrink-0 ml-auto">
               <button onClick={() => setCmdOpen(true)}
                 className="h-8 w-8 rounded-lg grid place-items-center transition hover:bg-[#F5F3EE]"
                 style={{ color: '#6B7A72' }}
                 aria-label="Search (⌘K)">
                 <Search size={15} strokeWidth={2} />
               </button>
-              <Link href="/settings"
-                className="h-8 w-8 rounded-full grid place-items-center text-white text-[12px] font-semibold shrink-0 hover:opacity-90 transition"
-                style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}>
-                {initials}
-              </Link>
+
+              {/* Bell */}
+              <button
+                className="relative h-8 w-8 rounded-lg grid place-items-center transition hover:bg-[#F5F3EE]"
+                style={{ color: '#6B7A72' }}
+                aria-label="Notifications">
+                <Bell size={15} strokeWidth={2} />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full ring-2 ring-white" style={{ background: '#E8C57E' }} />
+              </button>
+
+              {/* Avatar → AccountMenu */}
+              <div className="relative">
+                <button
+                  onClick={() => setAccountMenuOpen(o => !o)}
+                  className="h-8 w-8 rounded-full grid place-items-center text-white text-[12px] font-semibold shrink-0 ring-2 ring-transparent hover:ring-[#1F4D3A]/30 transition-all"
+                  style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}
+                  aria-label="Account menu">
+                  {initials}
+                </button>
+
+                {accountMenuOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setAccountMenuOpen(false)} />
+                    <div className="absolute right-0 top-[44px] z-50 w-[260px] bg-[#FAF6EE] border border-[#E5E0D4] rounded-2xl shadow-[0_8px_40px_rgba(15,31,24,0.15)] overflow-hidden animate-dropIn">
+                      {/* Identity */}
+                      <div className="px-4 py-3.5 flex items-center gap-3" style={{ borderBottom: '1px solid #E5E0D4' }}>
+                        <div className="h-10 w-10 rounded-full grid place-items-center text-white text-[13px] font-bold shrink-0"
+                          style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}>
+                          {initials}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-[13.5px] font-semibold text-[#0F1F18] leading-tight truncate">
+                            {profile?.full_name ?? '—'}
+                          </div>
+                          <div className="font-mono text-[11px] text-[#6B7A72] truncate">{profile?.email ?? ''}</div>
+                        </div>
+                      </div>
+
+                      {/* Nav items */}
+                      <div className="py-1.5">
+                        {[
+                          { href: '/settings',          icon: <UserCircle size={14} strokeWidth={1.8} />, label: 'Your profile' },
+                          { href: '/settings/billing',  icon: <CreditCard size={14} strokeWidth={1.8} />, label: 'Billing & plan' },
+                          { href: '/settings',          icon: <Settings2 size={14} strokeWidth={1.8} />,  label: 'Account settings' },
+                        ].map(item => (
+                          <Link key={item.label} href={item.href} onClick={() => setAccountMenuOpen(false)}
+                            className="flex items-center gap-3 px-4 py-2 text-[13px] transition-colors hover:text-[#1F4D3A]"
+                            style={{ color: '#3A4A42' }}
+                            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(250,246,238,0.7)')}
+                            onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                            {item.icon} {item.label}
+                          </Link>
+                        ))}
+
+                        <div className="mx-3 my-1.5 h-px" style={{ background: '#E5E0D4' }} />
+
+                        {[
+                          { href: 'https://help.karta.app', icon: <HelpCircle size={14} strokeWidth={1.8} />, label: 'Help center' },
+                        ].map(item => (
+                          <a key={item.label} href={item.href} target="_blank" rel="noopener noreferrer"
+                            onClick={() => setAccountMenuOpen(false)}
+                            className="flex items-center gap-3 px-4 py-2 text-[13px] transition-colors hover:text-[#1F4D3A]"
+                            style={{ color: '#3A4A42' }}
+                            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(250,246,238,0.7)')}
+                            onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                            {item.icon} {item.label}
+                          </a>
+                        ))}
+                      </div>
+
+                      {/* Plan badge */}
+                      <div className="px-3 pb-3 pt-0">
+                        <div className="rounded-xl p-3 mb-2"
+                          style={{ background: 'linear-gradient(135deg, rgba(232,197,126,0.18), rgba(31,77,58,0.06))' }}>
+                          <div className="flex items-center gap-1.5 text-[12px] font-semibold" style={{ color: '#C9A45E' }}>
+                            <Zap size={12} strokeWidth={2} /> {planLabel} plan
+                          </div>
+                          <div className="text-[11.5px] text-[#6B7A72] mt-0.5">
+                            {planLabel === 'Studio' ? "You're on the full platform." : 'Upgrade for more features.'}
+                          </div>
+                        </div>
+                        <button
+                          onClick={async () => {
+                            setAccountMenuOpen(false);
+                            const supabase = createClient();
+                            await supabase.auth.signOut();
+                            window.location.href = '/login';
+                          }}
+                          className="w-full flex items-center gap-2.5 px-4 py-2 rounded-lg text-[13px] transition-colors text-left text-red-600 hover:bg-red-50">
+                          <LogOut size={14} strokeWidth={1.8} /> Sign out
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           </header>
 

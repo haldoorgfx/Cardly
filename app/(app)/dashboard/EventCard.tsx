@@ -14,10 +14,11 @@ type Event = Pick<EventRowType, 'id' | 'name' | 'slug' | 'status' | 'view_count'
 };
 
 interface Props {
-  event:    Event;
-  index:    number;
-  regCount: number;
-  revenue:  number;
+  event:      Event;
+  index:      number;
+  regCount:   number;
+  revenue:    number;
+  checkinPct?: number;
 }
 
 // Forest-branded gradients — one per slot, cycles
@@ -39,7 +40,7 @@ function formatDate(iso: string | null | undefined) {
   return new Date(iso).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-export default function EventCard({ event, index, regCount, revenue }: Props) {
+export default function EventCard({ event, index, regCount, revenue, checkinPct = 0 }: Props) {
   const router = useRouter();
   const [renaming,      setRenaming]      = useState(false);
   const [nameVal,       setNameVal]       = useState(event.name);
@@ -206,6 +207,10 @@ export default function EventCard({ event, index, regCount, revenue }: Props) {
           {!isDraft && revenue > 0 && (
             <><span className="text-[#E5E0D4]">·</span>
             <span><span className="text-[#1F4D3A] font-semibold">${revenue.toLocaleString()}</span></span></>
+          )}
+          {checkinPct > 0 && (
+            <><span className="text-[#E5E0D4]">·</span>
+            <span><span className="text-[#1F4D3A] font-semibold">{checkinPct}%</span> check-in</span></>
           )}
         </div>
 

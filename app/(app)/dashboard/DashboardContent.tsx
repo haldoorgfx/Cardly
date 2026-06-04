@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { Search, Plus } from 'lucide-react';
 import Link from 'next/link';
-import EventRow, { type EventRowData } from './EventRow';
+import EventCard from './EventCard';
+import { type EventRowData } from './EventRow';
 
 type Filter  = 'all' | 'active' | 'draft' | 'archived';
 type SortKey = 'recent' | 'registrations' | 'revenue';
@@ -11,7 +12,7 @@ type SortKey = 'recent' | 'registrations' | 'revenue';
 interface Props {
   events:      EventRowData[];
   atLimit:     boolean;
-  regsByEvent: Record<string, { count: number; revenue: number }>;
+  regsByEvent: Record<string, { count: number; revenue: number; checkedIn: number }>;
   draftCount:  number;
   activeCount: number;
 }
@@ -98,41 +99,25 @@ export default function DashboardContent({ events, atLimit, regsByEvent }: Props
         </div>
       ) : (
         <>
-          {/* Table */}
-          <div className="bg-white rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
-            <table className="w-full">
-              <thead>
-                <tr style={{ borderBottom: '1px solid #E5E0D4', background: '#FAFAF9' }}>
-                  <th className="px-5 py-3 text-left font-mono text-[10.5px] tracking-[0.12em] uppercase text-[#6B7A72]">
-                    Name
-                  </th>
-                  <th className="px-5 py-3 text-left font-mono text-[10.5px] tracking-[0.12em] uppercase text-[#6B7A72]">
-                    Date
-                  </th>
-                  <th className="px-5 py-3 text-left font-mono text-[10.5px] tracking-[0.12em] uppercase text-[#6B7A72]">
-                    Tickets
-                  </th>
-                  <th className="px-5 py-3 text-left font-mono text-[10.5px] tracking-[0.12em] uppercase text-[#6B7A72]">
-                    Revenue
-                  </th>
-                  <th className="px-5 py-3 text-left font-mono text-[10.5px] tracking-[0.12em] uppercase text-[#6B7A72]">
-                    Status
-                  </th>
-                  <th className="px-5 py-3" />
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((event, i) => (
-                  <EventRow
-                    key={event.id}
-                    event={event}
-                    index={i}
-                    regCount={regsByEvent[event.id]?.count   ?? 0}
-                    revenue={regsByEvent[event.id]?.revenue ?? 0}
-                  />
-                ))}
-              </tbody>
-            </table>
+          {/* Card grid */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filtered.map((event, i) => {
+              const regs       = regsByEvent[event.id];
+              const regCount   = regs?.count     ?? 0;
+              const revenue    = regs?.revenue   ?? 0;
+              const checkedIn  = regs?.checkedIn ?? 0;
+              const checkinPct = regCount > 0 ? Math.round((checkedIn / regCount) * 100) : 0;
+              return (
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  index={i}
+                  regCount={regCount}
+                  revenue={revenue}
+                  checkinPct={checkinPct}
+                />
+              );
+            })}
           </div>
 
           {!atLimit && filter !== 'archived' && (

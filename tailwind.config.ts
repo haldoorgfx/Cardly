@@ -68,6 +68,10 @@ const config: Config = {
           from: { transform: "translateX(100%)" },
           to:   { transform: "translateX(0)" },
         },
+        dropIn: {
+          from: { opacity: "0", transform: "translateY(-6px) scale(0.97)" },
+          to:   { opacity: "1", transform: "translateY(0) scale(1)" },
+        },
       },
       animation: {
         floatA:      "floatA 8s ease-in-out infinite",
@@ -76,6 +80,7 @@ const config: Config = {
         blink:       "blink 1s steps(1) infinite",
         zonePulse:   "zonePulse 2.4s ease-in-out infinite",
         slideInLeft: "slideInLeft 200ms ease-out",
+        dropIn:      "dropIn 140ms ease-out",
       },
     },
   },
