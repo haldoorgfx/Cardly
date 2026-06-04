@@ -434,11 +434,23 @@ function AdminNavContent({ pathname, onNavigate }: { pathname: string; onNavigat
 
 // ─── Event sidebar content ────────────────────────────────────────────────────
 
+function readEventCache(eventId: string): EventInfo {
+  if (typeof window === 'undefined') return null;
+  try { return JSON.parse(sessionStorage.getItem(`karta_ev_${eventId}`) || 'null'); }
+  catch { return null; }
+}
+
+function writeEventCache(eventId: string, data: EventInfo) {
+  try { sessionStorage.setItem(`karta_ev_${eventId}`, JSON.stringify(data)); }
+  catch {}
+}
+
 function EventNavContent({ pathname, eventId, onNavigate }: {
   pathname: string; eventId: string; onNavigate?: () => void;
 }) {
   const { logoUrl } = usePlanCtx();
-  const [event, setEvent] = useState<EventInfo>(null);
+  // Read from cache immediately — no "Loading…" flash on repeat visits
+  const [event, setEvent] = useState<EventInfo>(() => readEventCache(eventId));
   const supabase = createClient();
 
   const { setContextEventName } = usePlanCtx();
@@ -450,6 +462,7 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
       .single()
       .then(({ data }) => {
         setEvent(data);
+        writeEventCache(eventId, data);
         if (data?.name) setContextEventName(data.name);
       });
     return () => setContextEventName(null);

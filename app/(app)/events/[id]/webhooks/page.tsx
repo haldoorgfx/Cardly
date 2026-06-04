@@ -12,12 +12,7 @@ export default async function WebhooksPage({ params }: { params: Promise<{ id: s
 
   const admin = createAdminClient();
   const { data: event } = await admin
-    .from('events')
-    .select('id, name')
-    .eq('id', id)
-    .eq('user_id', user.id)
-    .single();
-
+    .from('events').select('id, name').eq('id', id).eq('user_id', user.id).single();
   if (!event) redirect('/dashboard');
 
   return <WebhooksView eventId={id} eventName={event.name} />;

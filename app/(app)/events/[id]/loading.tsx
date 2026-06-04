@@ -1,52 +1,25 @@
-import type { CSSProperties } from 'react';
-
-function Skel({ className, style }: { className?: string; style?: CSSProperties }) {
-  return <div className={`animate-pulse rounded-lg bg-[#E5E0D4]/60 ${className ?? ''}`} style={style} />;
+function Skel({ w, h, className }: { w?: string; h?: string; className?: string }) {
+  return <div className={`animate-pulse rounded-xl bg-[#E5E0D4]/60 ${className ?? ''}`} style={{ width: w, height: h }} />;
 }
 
 export default function EventDetailLoading() {
   return (
-    <div className="px-8 py-8 max-w-[1200px]">
-      <Skel className="h-3 w-48 mb-6" />
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white rounded-2xl border border-[#E5E0D4] overflow-hidden">
-            <div className="p-6 border-b border-[#E5E0D4] flex items-center justify-between">
-              <div>
-                <Skel className="h-7 w-48" />
-                <Skel className="h-4 w-32 mt-2" />
-              </div>
-              <div className="flex gap-2">
-                <Skel className="h-9 w-24 rounded-xl" />
-                <Skel className="h-9 w-20 rounded-xl" />
-              </div>
-            </div>
-            <Skel className="w-full rounded-none" style={{ aspectRatio: '1080/1350', maxHeight: 480 } as React.CSSProperties} />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-white rounded-2xl border border-[#E5E0D4] p-5">
-              <Skel className="h-3 w-24 mb-3" />
-              <Skel className="h-10 w-20" />
-            </div>
-            <div className="bg-white rounded-2xl border border-[#E5E0D4] p-5">
-              <Skel className="h-3 w-16 mb-3" />
-              <Skel className="h-10 w-20" />
-            </div>
-          </div>
+    <div className="min-h-full" style={{ background: '#FAF6EE' }}>
+      {/* Hero skeleton */}
+      <div className="animate-pulse" style={{ height: 190, background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 55%, #2A6A50 100%)', opacity: 0.6 }} />
+
+      <div className="max-w-[1100px] mx-auto px-6 lg:px-8 py-6 space-y-6">
+        {/* Stats bar */}
+        <div className="bg-white rounded-2xl border px-6 py-4 flex gap-8" style={{ borderColor: '#E5E0D4' }}>
+          {[140, 80, 200, 120].map((w, i) => <Skel key={i} w={`${w}px`} h="24px" />)}
         </div>
-        <div className="space-y-4">
-          <div className="bg-white rounded-2xl border border-[#E5E0D4] p-5">
-            <Skel className="h-3 w-20 mb-4" />
-            <Skel className="h-10 w-full rounded-xl mb-4" />
-            <div className="flex gap-2">
-              <Skel className="flex-1 h-10 rounded-xl" />
-              <Skel className="flex-1 h-10 rounded-xl" />
-            </div>
-          </div>
-          <div className="bg-white rounded-2xl border border-[#E5E0D4] p-5">
-            <Skel className="h-3 w-20 mb-4" />
-            {[0, 1, 2].map(i => <Skel key={i} className="h-8 w-full mb-2" />)}
-          </div>
+
+        {/* Section label */}
+        <Skel w="160px" h="12px" />
+
+        {/* Action cards grid */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[...Array(9)].map((_, i) => <Skel key={i} h="110px" />)}
         </div>
       </div>
     </div>
