@@ -393,13 +393,18 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
   const [event, setEvent] = useState<EventInfo>(null);
   const supabase = createClient();
 
+  const { setContextEventName } = usePlanCtx();
   useEffect(() => {
     supabase
       .from('events')
       .select('id, name, status, slug')
       .eq('id', eventId)
       .single()
-      .then(({ data }) => setEvent(data));
+      .then(({ data }) => {
+        setEvent(data);
+        if (data?.name) setContextEventName(data.name);
+      });
+    return () => setContextEventName(null);
   }, [eventId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const prefix = `/events/${eventId}`;
@@ -625,11 +630,61 @@ type PlanCtx = {
   initials: string;
   planPct: number;
   planLabel: string;
-  logoUrl: string | null;       // white/light logo — for dark sidebar bg
+  logoUrl: string | null;
+  contextEventName: string | null;
+  setContextEventName: (n: string | null) => void;
 };
 
-const PlanContext = createContext<PlanCtx>({ profile: null, eventCount: 0, initials: '?', planPct: 0, planLabel: 'Free', logoUrl: null });
+const PlanContext = createContext<PlanCtx>({
+  profile: null, eventCount: 0, initials: '?', planPct: 0, planLabel: 'Free', logoUrl: null,
+  contextEventName: null, setContextEventName: () => {},
+});
 function usePlanCtx() { return useContext(PlanContext); }
+
+// ─── Breadcrumb helper ────────────────────────────────────────────────────────
+
+const PAGE_LABELS: Record<string, string> = {
+  '':               'Overview',
+  'registrations':  'Registrations',
+  'event-page':     'Event page',
+  'agenda':         'Agenda',
+  'engagement':     'Engagement',
+  'analytics':      'Analytics',
+  'edit':           'Karta Card',
+  'check-in':       'Check-in',
+  'tickets':        'Tickets',
+  'speakers':       'Speakers',
+  'sessions':       'Sessions',
+  'polls':          'Polls',
+  'q-and-a':        'Q&A',
+  'abstracts':      'Abstracts',
+  'form':           'Registration form',
+  'promo-codes':    'Promo codes',
+  'publish':        'Publish',
+};
+
+function getPageBreadcrumbs(pathname: string, eventName: string | null): { label: string; href?: string }[] {
+  if (pathname === '/dashboard')                         return [{ label: 'My Events' }];
+  if (pathname === '/analytics')                         return [{ label: 'Portfolio' }];
+  if (pathname === '/team')                              return [{ label: 'Team' }];
+  if (pathname === '/templates')                         return [{ label: 'Templates' }];
+  if (pathname === '/brand')                             return [{ label: 'Brand Kit' }];
+  if (pathname.startsWith('/settings/billing'))          return [{ label: 'Settings', href: '/settings' }, { label: 'Billing' }];
+  if (pathname.startsWith('/settings/reset-password'))   return [{ label: 'Settings', href: '/settings' }, { label: 'Reset Password' }];
+  if (pathname.startsWith('/settings'))                  return [{ label: 'Settings' }];
+  if (pathname.startsWith('/admin'))                     return [{ label: 'Admin' }];
+
+  const m = pathname.match(/^\/events\/([^/]+)(?:\/(.+))?$/);
+  if (m) {
+    const eventBase = m[1];
+    const seg = m[2] ?? '';
+    const pageName = PAGE_LABELS[seg] ?? seg.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    const name = eventName ?? 'Event';
+    return [{ label: name, href: `/events/${eventBase}` }, { label: pageName }];
+  }
+
+  return [];
+}
 
 // ─── AppShell ─────────────────────────────────────────────────────────────────
 
@@ -643,6 +698,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [cmdOpen, setCmdOpen] = useState(false);
   const [impersonating, setImpersonating] = useState<ImpersonatedUser | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [contextEventName, setContextEventName] = useState<string | null>(null);
 
   const isAdminRoute = pathname.startsWith('/admin');
 
@@ -696,7 +752,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const planPct = planLimit === Infinity ? 50 : Math.min((eventCount / planLimit) * 100, 100);
   const planLabel = profile?.plan === 'studio' ? 'Studio' : profile?.plan === 'pro' ? 'Pro' : 'Free';
 
-  const ctxValue: PlanCtx = { profile, eventCount, initials, planPct, planLabel, logoUrl };
+  const ctxValue: PlanCtx = { profile, eventCount, initials, planPct, planLabel, logoUrl, contextEventName, setContextEventName };
 
   const isFullScreen = /\/events\/[^/]+\/(edit|publish)/.test(pathname) || pathname === '/onboarding';
   if (isFullScreen) return <>{children}</>;
@@ -750,29 +806,51 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           )}
 
-          <header className="h-14 bg-white px-4 md:px-5 flex items-center gap-3 shrink-0 sticky top-0 z-40 border-b"
+          <header className="h-14 bg-white px-4 md:px-6 flex items-center gap-3 shrink-0 sticky top-0 z-40 border-b"
             style={{ borderColor: '#E5E0D4' }}>
-            <button className="md:hidden h-8 w-8 rounded-lg hover:bg-[#F5F5F4] grid place-items-center text-[#6B7A72] shrink-0 transition"
+            {/* Mobile hamburger */}
+            <button className="md:hidden h-8 w-8 rounded-lg hover:bg-[#F5F3EE] grid place-items-center shrink-0 transition"
+              style={{ color: '#6B7A72' }}
               onClick={() => setMobileNavOpen(true)} aria-label="Open menu">
               <Menu size={16} strokeWidth={2} />
             </button>
 
-            <div onClick={() => setCmdOpen(true)}
-              className="flex items-center gap-2 h-8 px-3 rounded-lg text-[13px] text-[#6B7A72] cursor-pointer transition flex-1 sm:flex-none sm:min-w-[200px] sm:max-w-[280px] max-w-[180px] border"
-              style={{ background: '#FAF6EE', borderColor: '#E5E0D4' }}>
-              <Search size={13} strokeWidth={2} className="shrink-0" />
-              <span className="flex-1 text-[13px] text-[#6B7A72]/70">Search</span>
-              <span className="text-[11px] text-[#6B7A72]/50 font-mono hidden sm:block">⌘K</span>
-            </div>
+            {/* Breadcrumb */}
+            {(() => {
+              const crumbs = getPageBreadcrumbs(pathname, contextEventName);
+              return (
+                <nav className="flex items-center gap-1.5 flex-1 min-w-0 text-[13px]" aria-label="Breadcrumb">
+                  <Link href="/" className="font-display font-bold tracking-tight shrink-0 hover:opacity-70 transition-opacity"
+                    style={{ color: '#0F1F18' }}>
+                    Karta
+                  </Link>
+                  {crumbs.map((crumb, i) => (
+                    <span key={i} className="flex items-center gap-1.5 min-w-0">
+                      <span style={{ color: '#C9C3B1' }}>/</span>
+                      {crumb.href ? (
+                        <Link href={crumb.href} className="truncate hover:text-[#1F4D3A] transition-colors"
+                          style={{ color: '#6B7A72' }}>
+                          {crumb.label}
+                        </Link>
+                      ) : (
+                        <span className="truncate font-medium" style={{ color: '#0F1F18' }}>
+                          {crumb.label}
+                        </span>
+                      )}
+                    </span>
+                  ))}
+                </nav>
+              );
+            })()}
 
-            <div className="flex items-center gap-2 ml-auto">
-              {!isAdminRoute && (
-                <Link href="/events/new"
-                  className="hidden sm:inline-flex items-center gap-1.5 h-8 px-3.5 text-white text-[13px] font-medium rounded-lg transition hover:opacity-90"
-                  style={{ background: '#1F4D3A' }}>
-                  <Plus size={11} strokeWidth={2.8} />New event
-                </Link>
-              )}
+            {/* Right side: search trigger + avatar */}
+            <div className="flex items-center gap-2 shrink-0 ml-auto">
+              <button onClick={() => setCmdOpen(true)}
+                className="h-8 w-8 rounded-lg grid place-items-center transition hover:bg-[#F5F3EE]"
+                style={{ color: '#6B7A72' }}
+                aria-label="Search (⌘K)">
+                <Search size={15} strokeWidth={2} />
+              </button>
               <Link href="/settings"
                 className="h-8 w-8 rounded-full grid place-items-center text-white text-[12px] font-semibold shrink-0 hover:opacity-90 transition"
                 style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}>
