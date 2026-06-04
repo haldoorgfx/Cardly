@@ -15,6 +15,8 @@ interface Props {
   eventName: string;
   totalRegistrations: number;
   initialCheckedIn: number;
+  onCheckedIn?: () => void;
+  onClose?: () => void;
 }
 
 function beep(type: 'ok' | 'warn' | 'err') {
@@ -32,7 +34,7 @@ function beep(type: 'ok' | 'warn' | 'err') {
   } catch {}
 }
 
-export function QRScanner({ eventId, eventName, totalRegistrations, initialCheckedIn }: Props) {
+export function QRScanner({ eventId, eventName, totalRegistrations, initialCheckedIn, onCheckedIn, onClose }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const readerRef = useRef<BrowserMultiFormatReader | null>(null);
   const controlsRef = useRef<IScannerControls | null>(null);
@@ -59,6 +61,7 @@ export function QRScanner({ eventId, eventName, totalRegistrations, initialCheck
       if (data.result === 'success') {
         beep('ok');
         setCheckedIn(c => c + 1);
+        onCheckedIn?.();
         setFlash({ kind: 'success', name: data.attendee_name ?? '', email: data.attendee_email ?? '' });
       } else if (data.result === 'already_checked_in') {
         beep('warn');
@@ -137,12 +140,17 @@ export function QRScanner({ eventId, eventName, totalRegistrations, initialCheck
         className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-5"
         style={{ paddingTop: 'env(safe-area-inset-top, 16px)', paddingBottom: 12, background: 'rgba(10,15,12,0.9)', backdropFilter: 'blur(8px)' }}
       >
-        <Link href={`/events/${eventId}/registrations`}>
-          <button className="flex items-center gap-1.5 text-[13px]" style={{ color: 'rgba(255,255,255,0.55)' }}>
-            <X size={16} strokeWidth={1.8} />
-            Exit
+        {onClose ? (
+          <button onClick={onClose} className="flex items-center gap-1.5 text-[13px]" style={{ color: 'rgba(255,255,255,0.55)' }}>
+            <X size={16} strokeWidth={1.8} /> Exit
           </button>
-        </Link>
+        ) : (
+          <Link href={`/events/${eventId}/registrations`}>
+            <button className="flex items-center gap-1.5 text-[13px]" style={{ color: 'rgba(255,255,255,0.55)' }}>
+              <X size={16} strokeWidth={1.8} /> Exit
+            </button>
+          </Link>
+        )}
 
         <div className="text-center">
           <div className="font-display font-medium text-[14px] text-white truncate max-w-[200px]">{eventName}</div>

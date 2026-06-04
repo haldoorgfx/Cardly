@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Pencil, Trash2, Plus, X } from 'lucide-react';
+import { Pencil, Trash2, Plus, X, Sparkles, ExternalLink } from 'lucide-react';
 import type { Speaker, SpeakerType } from '@/types/database';
 
 interface Props {
@@ -25,6 +25,15 @@ const TYPE_LABELS: Record<SpeakerType, string> = {
   workshop: 'Workshop',
   mc: 'MC',
 };
+
+const AVATAR_GRADS = [
+  'linear-gradient(135deg,#1F4D3A,#2A6A50)',
+  'linear-gradient(135deg,#163828,#3E7E5E)',
+  'linear-gradient(135deg,#2A6A50,#C9A45E)',
+  'linear-gradient(135deg,#C9A45E,#1F4D3A)',
+  'linear-gradient(135deg,#3E7E5E,#C9A45E)',
+  'linear-gradient(135deg,#1F4D3A,#163828)',
+];
 
 function getInitials(name: string) {
   return name
@@ -145,21 +154,33 @@ export default function SpeakersManager({ eventId, initialSpeakers }: Props) {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="font-display text-lg font-semibold" style={{ color: '#0F1F18' }}>
-          Speakers
-        </h2>
-        {!showForm && (
+    <div className="space-y-5">
+      {/* Page header */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div>
+          <h1 className="font-display text-[24px] font-semibold tracking-[-0.015em]" style={{ color: '#0F1F18' }}>Speakers</h1>
+          <p className="text-[14px] mt-0.5" style={{ color: '#6B7A72' }}>
+            {speakers.length > 0 ? `${speakers.length} speaker${speakers.length !== 1 ? 's' : ''}` : 'Add speakers to your event'}
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
           <button
-            onClick={openAdd}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-white"
-            style={{ background: '#1F4D3A' }}
+            onClick={() => {}}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[13.5px] font-medium border transition hover:border-[#1F4D3A]/40 hover:text-[#1F4D3A]"
+            style={{ borderColor: '#E5E0D4', color: '#6B7A72', background: 'white' }}
           >
-            <Plus size={15} />
-            Add speaker
+            <ExternalLink size={14} strokeWidth={1.8} /> Speaker portal
           </button>
-        )}
+          {!showForm && (
+            <button
+              onClick={openAdd}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[13.5px] font-medium text-white transition hover:bg-[#163828]"
+              style={{ background: '#1F4D3A' }}
+            >
+              <Plus size={15} strokeWidth={2} /> Add speaker
+            </button>
+          )}
+        </div>
       </div>
 
       {showForm && (
@@ -289,74 +310,82 @@ export default function SpeakersManager({ eventId, initialSpeakers }: Props) {
       )}
 
       {speakers.length === 0 && !showForm ? (
-        <div className="bg-white border rounded-2xl p-10 flex flex-col items-center gap-3" style={{ borderColor: '#E5E0D4' }}>
-          <p className="text-sm" style={{ color: '#6B7A72' }}>No speakers yet.</p>
-          <button
-            onClick={openAdd}
-            className="px-4 py-2 rounded-lg text-sm font-medium text-white"
-            style={{ background: '#1F4D3A' }}
-          >
-            Add first speaker
+        <div className="bg-white border rounded-2xl p-12 flex flex-col items-center gap-4 text-center" style={{ borderColor: '#E5E0D4' }}>
+          <div className="w-12 h-12 rounded-2xl grid place-items-center" style={{ background: '#E8EFEB' }}>
+            <Plus size={20} strokeWidth={1.8} style={{ color: '#1F4D3A' }} />
+          </div>
+          <div>
+            <div className="font-display text-[16px] font-semibold" style={{ color: '#0F1F18' }}>No speakers yet</div>
+            <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>Add your first speaker — they&apos;ll appear on the event page.</p>
+          </div>
+          <button onClick={openAdd} className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-[13.5px] font-medium text-white" style={{ background: '#1F4D3A' }}>
+            <Plus size={15} strokeWidth={2} /> Add first speaker
           </button>
         </div>
-      ) : (
-        <ul className="space-y-2">
-          {speakers.map((speaker) => (
-            <li
-              key={speaker.id}
-              className="bg-white border rounded-2xl p-4 flex items-center gap-3"
-              style={{ borderColor: '#E5E0D4' }}
-            >
-              {speaker.photo_url ? (
-                <Image
-                  src={speaker.photo_url}
-                  alt={speaker.name}
-                  width={48}
-                  height={48}
-                  className="w-12 h-12 rounded-full object-cover shrink-0"
-                  style={{ border: '1px solid #E5E0D4' }}
-                />
-              ) : (
-                <div
-                  className="w-12 h-12 rounded-full shrink-0 flex items-center justify-center text-sm font-semibold"
-                  style={{ background: '#E8EFEB', color: '#1F4D3A' }}
-                >
-                  {getInitials(speaker.name)}
+      ) : speakers.length > 0 ? (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {speakers.map((speaker, i) => {
+            const initials = getInitials(speaker.name);
+            const grad = AVATAR_GRADS[i % AVATAR_GRADS.length];
+            return (
+              <div
+                key={speaker.id}
+                className="group bg-white border border-[#E5E0D4] rounded-2xl p-5 hover:border-[#1F4D3A]/40 hover:-translate-y-0.5 transition-all flex flex-col"
+              >
+                {/* Avatar row + featured badge */}
+                <div className="flex items-start justify-between mb-3">
+                  {speaker.photo_url ? (
+                    <Image
+                      src={speaker.photo_url}
+                      alt={speaker.name}
+                      width={52}
+                      height={52}
+                      className="w-[52px] h-[52px] rounded-full object-cover shrink-0"
+                      style={{ border: '1px solid #E5E0D4' }}
+                    />
+                  ) : (
+                    <div
+                      className="w-[52px] h-[52px] rounded-full shrink-0 grid place-items-center font-display text-[15px] font-bold text-white"
+                      style={{ background: grad }}
+                    >
+                      {initials}
+                    </div>
+                  )}
+                  {speaker.is_featured && (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-mono font-medium px-2 py-0.5 rounded-full border" style={{ color: '#C9A45E', borderColor: 'rgba(201,164,94,0.4)', background: 'rgba(232,197,126,0.12)' }}>
+                      <Sparkles size={9} strokeWidth={2} /> Featured
+                    </span>
+                  )}
                 </div>
-              )}
-              <div className="flex-1 min-w-0">
-                <p className="font-display text-[15px] font-medium truncate" style={{ color: '#0F1F18' }}>
-                  {speaker.name}
-                </p>
-                {speaker.headline && (
-                  <p className="text-[13px] truncate" style={{ color: '#6B7A72' }}>{speaker.headline}</p>
+
+                {/* Info */}
+                <div className="font-display text-[15px] font-semibold tracking-tight" style={{ color: '#0F1F18' }}>{speaker.name}</div>
+                {(speaker.role || speaker.headline) && (
+                  <div className="text-[12.5px] mt-0.5" style={{ color: '#3A4A42' }}>{speaker.role || speaker.headline}</div>
                 )}
+                {speaker.company && (
+                  <div className="font-mono text-[11px] mt-0.5" style={{ color: '#6B7A72' }}>{speaker.company}</div>
+                )}
+
+                {/* Footer */}
+                <div className="flex items-center justify-between mt-4 pt-3 flex-1 items-end" style={{ borderTop: '1px solid rgba(229,224,212,0.7)' }}>
+                  <span className="inline-flex items-center text-[10.5px] font-mono font-medium px-2 py-0.5 rounded-full" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+                    {TYPE_LABELS[speaker.speaker_type]}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => openEdit(speaker)} className="w-7 h-7 grid place-items-center rounded-lg transition hover:bg-[#F5F3EE]" style={{ color: '#6B7A72' }} title="Edit">
+                      <Pencil size={13} strokeWidth={1.8} />
+                    </button>
+                    <button onClick={() => handleDelete(speaker.id)} disabled={deletingId === speaker.id} className="w-7 h-7 grid place-items-center rounded-lg transition hover:bg-red-50 disabled:opacity-40" title="Delete">
+                      <Trash2 size={13} strokeWidth={1.8} style={{ color: '#B8423C' }} />
+                    </button>
+                  </div>
+                </div>
               </div>
-              <span
-                className="text-[11px] font-medium px-2 py-0.5 rounded-full shrink-0"
-                style={{ background: '#E8EFEB', color: '#1F4D3A' }}
-              >
-                {TYPE_LABELS[speaker.speaker_type]}
-              </span>
-              <button
-                onClick={() => openEdit(speaker)}
-                className="p-1.5 rounded-lg hover:bg-gray-100 shrink-0"
-                title="Edit"
-              >
-                <Pencil size={15} color="#6B7A72" />
-              </button>
-              <button
-                onClick={() => handleDelete(speaker.id)}
-                disabled={deletingId === speaker.id}
-                className="p-1.5 rounded-lg hover:bg-red-50 shrink-0 disabled:opacity-40"
-                title="Delete"
-              >
-                <Trash2 size={15} color="#B8423C" />
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+            );
+          })}
+        </div>
+      ) : null}
     </div>
   );
 }

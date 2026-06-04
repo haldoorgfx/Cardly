@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Plus, Pencil, Trash2, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, ChevronDown, ChevronUp, User, MapPin, Settings } from 'lucide-react';
 import type { Session, Track, SessionType } from '@/types/database';
 
 interface SpeakerOption {
@@ -84,6 +84,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
   const [sessions, setSessions] = useState<Session[]>(initialSessions);
   const [tracks, setTracks] = useState<Track[]>(initialTracks);
   const [tracksOpen, setTracksOpen] = useState(false);
+  const [activeDay, setActiveDay] = useState<string | null>(null);
   const [trackForm, setTrackForm] = useState({ name: '', color: TRACK_COLORS[0] });
   const [showTrackForm, setShowTrackForm] = useState(false);
 
@@ -95,6 +96,14 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const grouped = useMemo(() => groupByDate(sessions), [sessions]);
+
+  // Day tabs — unique date keys from sessions
+  const dayKeys = useMemo(() => grouped.map(([k]) => k), [grouped]);
+  const currentDay = activeDay && dayKeys.includes(activeDay) ? activeDay : (dayKeys[0] ?? null);
+  const activeSessions = useMemo(
+    () => grouped.find(([k]) => k === currentDay)?.[1] ?? [],
+    [grouped, currentDay]
+  );
 
   // Track management
   async function handleAddTrack() {
@@ -296,15 +305,37 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
 
       {/* Sessions section */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="font-display text-lg font-semibold" style={{ color: '#0F1F18' }}>Sessions</h2>
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-3 flex-wrap flex-1">
+            <h2 className="font-display text-[18px] font-semibold" style={{ color: '#0F1F18' }}>Sessions</h2>
+            {/* Day tabs */}
+            {dayKeys.length > 1 && (
+              <div className="flex items-center gap-0.5 p-1 rounded-xl" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
+                {grouped.map(([dateKey]) => {
+                  const d = new Date(dateKey);
+                  const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                  const isActive = dateKey === currentDay;
+                  return (
+                    <button
+                      key={dateKey}
+                      onClick={() => setActiveDay(dateKey)}
+                      className="h-7 px-3 rounded-lg text-[12.5px] font-medium transition whitespace-nowrap"
+                      style={isActive ? { background: '#E8EFEB', color: '#0F1F18' } : { color: '#6B7A72' }}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
           {!showSessionForm && (
             <button
               onClick={openAdd}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-white"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[13.5px] font-medium text-white transition hover:bg-[#163828]"
               style={{ background: '#1F4D3A' }}
             >
-              <Plus size={15} /> Add session
+              <Plus size={15} strokeWidth={2} /> Add session
             </button>
           )}
         </div>
@@ -460,83 +491,88 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
         )}
 
         {grouped.length === 0 ? (
-          <div className="bg-white border rounded-2xl p-10 flex flex-col items-center gap-3" style={{ borderColor: '#E5E0D4' }}>
-            <p className="text-sm" style={{ color: '#6B7A72' }}>No sessions yet.</p>
-            <button
-              onClick={openAdd}
-              className="px-4 py-2 rounded-lg text-sm font-medium text-white"
-              style={{ background: '#1F4D3A' }}
-            >
-              Add first session
+          <div className="bg-white border rounded-2xl p-12 flex flex-col items-center gap-4 text-center" style={{ borderColor: '#E5E0D4' }}>
+            <div className="w-12 h-12 rounded-2xl grid place-items-center" style={{ background: '#E8EFEB' }}>
+              <Plus size={20} strokeWidth={1.8} style={{ color: '#1F4D3A' }} />
+            </div>
+            <div>
+              <div className="font-display text-[16px] font-semibold" style={{ color: '#0F1F18' }}>No sessions yet</div>
+              <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>Add sessions to build your agenda.</p>
+            </div>
+            <button onClick={openAdd} className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-[13.5px] font-medium text-white" style={{ background: '#1F4D3A' }}>
+              <Plus size={15} strokeWidth={2} /> Add first session
             </button>
           </div>
         ) : (
-          grouped.map(([dateKey, daySessions]) => (
-            <div key={dateKey} className="space-y-2">
-              <h3 className="text-xs font-semibold uppercase tracking-wider px-1" style={{ color: '#6B7A72' }}>
-                {new Date(dateKey).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-              </h3>
-              {daySessions.map((session) => {
-                const track = getTrack(session.track_id);
-                const sessionSpeakers = session.session_speakers?.map((ss) => ss.speakers).filter(Boolean) ?? [];
-                return (
-                  <div
-                    key={session.id}
-                    className="bg-white border rounded-xl p-3 flex items-center gap-3"
-                    style={{ borderColor: '#E5E0D4' }}
-                  >
-                    <div
-                      className="w-[3px] self-stretch rounded-full shrink-0"
-                      style={{ background: track?.color ?? '#E5E0D4', minHeight: 32 }}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-display text-[14px] font-medium truncate" style={{ color: '#0F1F18' }}>
-                        {session.title}
-                      </p>
-                      <p className="font-mono text-[12px]" style={{ color: '#6B7A72' }}>
-                        {formatTimeRange(session.starts_at, session.ends_at)}
-                        {session.room ? ` · ${session.room}` : ''}
-                      </p>
-                    </div>
-                    <span
-                      className="text-[11px] font-medium px-2 py-0.5 rounded-full shrink-0"
-                      style={{ background: '#E8EFEB', color: '#1F4D3A' }}
-                    >
-                      {session.session_type}
-                    </span>
-                    <div className="flex -space-x-2 shrink-0">
-                      {sessionSpeakers.slice(0, 3).map((sp) =>
-                        sp ? (
-                          sp.photo_url ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img key={sp.id} src={sp.photo_url} alt={sp.name} className="w-6 h-6 rounded-full border-2 border-white object-cover" />
-                          ) : (
-                            <div
-                              key={sp.id}
-                              className="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center text-[9px] font-semibold"
-                              style={{ background: '#E8EFEB', color: '#1F4D3A' }}
-                            >
-                              {getInitials(sp.name)}
-                            </div>
-                          )
-                        ) : null
+          <div className="grid gap-2.5">
+            {activeSessions.map((session) => {
+              const track = getTrack(session.track_id);
+              const sessionSpeakers = session.session_speakers?.map((ss) => ss.speakers).filter(Boolean) ?? [];
+              const startTime = session.starts_at
+                ? new Date(session.starts_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
+                : null;
+              const duration = session.starts_at && session.ends_at
+                ? Math.round((new Date(session.ends_at).getTime() - new Date(session.starts_at).getTime()) / 60000) + 'm'
+                : null;
+              const speakerText = sessionSpeakers.length === 1
+                ? sessionSpeakers[0]?.name
+                : sessionSpeakers.length > 1
+                ? `Panel · ${sessionSpeakers.length} speakers`
+                : null;
+              return (
+                <div
+                  key={session.id}
+                  className="bg-white border border-[#E5E0D4] rounded-2xl px-5 py-4 flex items-center gap-5 hover:border-[#1F4D3A]/40 transition-colors"
+                >
+                  {/* Time */}
+                  <div className="text-center shrink-0 w-[52px]">
+                    {startTime && <div className="font-mono text-[15px] tracking-tight" style={{ color: '#1F4D3A' }}>{startTime}</div>}
+                    {duration && <div className="font-mono text-[10px] mt-0.5" style={{ color: '#6B7A72' }}>{duration}</div>}
+                  </div>
+
+                  {/* Track color bar */}
+                  <span className="w-1 self-stretch rounded-full shrink-0" style={{ background: track?.color ?? '#E5E0D4', minHeight: 32 }} />
+
+                  {/* Content */}
+                  <div className="min-w-0 flex-1">
+                    <div className="font-display text-[14.5px] font-semibold tracking-tight leading-snug" style={{ color: '#0F1F18' }}>{session.title}</div>
+                    <div className="flex items-center gap-2.5 mt-1.5 font-mono text-[11px] flex-wrap" style={{ color: '#6B7A72' }}>
+                      {speakerText && (
+                        <span className="inline-flex items-center gap-1"><User size={11} strokeWidth={1.8} />{speakerText}</span>
+                      )}
+                      {speakerText && session.room && <span style={{ color: '#E5E0D4' }}>·</span>}
+                      {session.room && (
+                        <span className="inline-flex items-center gap-1"><MapPin size={11} strokeWidth={1.8} />{session.room}</span>
                       )}
                     </div>
-                    <button onClick={() => openEdit(session)} className="p-1.5 rounded-lg hover:bg-gray-100 shrink-0">
-                      <Pencil size={14} color="#6B7A72" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteSession(session.id)}
-                      disabled={deletingId === session.id}
-                      className="p-1.5 rounded-lg hover:bg-red-50 shrink-0 disabled:opacity-40"
-                    >
-                      <Trash2 size={14} color="#B8423C" />
-                    </button>
                   </div>
-                );
-              })}
-            </div>
-          ))
+
+                  {/* Track pill */}
+                  {track && (
+                    <span className="hidden sm:inline-flex items-center text-[10.5px] font-mono font-medium px-2 py-0.5 rounded-full shrink-0" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+                      {track.name}
+                    </span>
+                  )}
+
+                  {/* Status pill */}
+                  <span className={`inline-flex items-center text-[10.5px] font-mono font-medium px-2 py-0.5 rounded-full shrink-0 ${session.is_published ? 'text-emerald-700' : 'text-amber-700'}`}
+                    style={session.is_published
+                      ? { background: '#ECFDF5', borderColor: '#BBF7D0', border: '1px solid #BBF7D0' }
+                      : { background: '#FFFBEB', borderColor: '#FDE68A', border: '1px solid #FDE68A' }}>
+                    {session.is_published ? 'Confirmed' : 'Draft'}
+                  </span>
+
+                  <button
+                    onClick={() => openEdit(session)}
+                    className="w-8 h-8 grid place-items-center rounded-lg transition shrink-0 hover:bg-[#E8EFEB] hover:text-[#1F4D3A]"
+                    style={{ color: '#6B7A72' }}
+                  >
+                    <Settings size={15} strokeWidth={1.8} />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
         )}
       </div>
     </div>
