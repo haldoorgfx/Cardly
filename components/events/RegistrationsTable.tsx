@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import Link from 'next/link';
 import { Search, Download, CheckCircle2, Clock, XCircle, RotateCcw, ExternalLink } from 'lucide-react';
 
 type Status = 'pending' | 'confirmed' | 'checked_in' | 'cancelled' | 'refunded';
@@ -230,7 +231,10 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
                     }}
                   >
                     <td className="px-4 py-3">
-                      <div className="font-medium text-[14px]" style={{ color: '#0F1F18' }}>{reg.attendee_name}</div>
+                      <Link href={`/events/${eventId}/registrations/${reg.id}`}
+                        className="font-medium text-[14px] hover:underline block" style={{ color: '#0F1F18', textDecoration: 'none' }}>
+                        {reg.attendee_name}
+                      </Link>
                       <div className="text-[12px]" style={{ color: '#6B7A72' }}>{reg.attendee_email}</div>
                     </td>
                     <td className="px-4 py-3 text-[13px]" style={{ color: '#3A4A42' }}>
