@@ -69,9 +69,9 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
   const isPaid = (selectedTicket?.price ?? 0) > 0;
   const isSoldOut = (t: TicketRow) => t.quantity !== null && t.quantity_sold >= t.quantity;
 
-  // Dynamic steps: paid = Ticket/Details/Payment, free = Ticket/Details/Your card
+  // Dynamic steps: paid = Ticket/Details/Payment/Your card (4), free = Ticket/Details/Your card (3)
   const STEPS = isPaid
-    ? [{ label: 'Ticket' }, { label: 'Details' }, { label: 'Payment' }]
+    ? [{ label: 'Ticket' }, { label: 'Details' }, { label: 'Payment' }, { label: 'Your card' }]
     : [{ label: 'Ticket' }, { label: 'Details' }, { label: 'Your card' }];
 
   // ── Validation ───────────────────────────────────────────────

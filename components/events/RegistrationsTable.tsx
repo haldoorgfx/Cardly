@@ -118,21 +118,29 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
   }, [eventId, offset, statusFilter]);
 
   const checkedInCount = rows.filter(r => r.status === 'checked_in').length;
+  const pendingCount   = rows.filter(r => r.status === 'pending').length;
   const cardDownloaded = rows.filter(r => r.karta_card_url).length;
+  const totalRevenue   = rows.reduce((s, r) => s + (r.amount_paid ?? 0), 0);
+  const checkInPct     = total > 0 ? `${Math.round((checkedInCount / total) * 100)}%` : '0%';
 
   return (
     <div>
-      {/* ── Stats strip ─────────────────────────────── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+      {/* ── Stats strip (inline, matching w03 reference) ── */}
+      <div className="bg-white border rounded-2xl px-5 py-4 mb-5 flex flex-wrap items-center gap-x-5 gap-y-2"
+        style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
         {[
-          { label: 'Total', value: total },
-          { label: 'Checked in', value: checkedInCount },
-          { label: 'Cards downloaded', value: cardDownloaded },
-          { label: 'Check-in rate', value: total > 0 ? `${Math.round((checkedInCount / total) * 100)}%` : '—' },
-        ].map(s => (
-          <div key={s.label} className="rounded-xl px-4 py-3" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-            <div className="font-mono text-[20px] font-medium" style={{ color: '#1F4D3A' }}>{s.value}</div>
-            <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{s.label}</div>
+          { value: total,                             label: 'Total' },
+          { value: `${checkedInCount} (${checkInPct})`, label: 'Checked in' },
+          { value: pendingCount,                      label: 'Pending' },
+          { value: totalRevenue > 0 ? `$${totalRevenue.toLocaleString()}` : '$0', label: 'Revenue' },
+          { value: cardDownloaded,                    label: 'Karta Cards downloaded', last: true },
+        ].map((s, i, arr) => (
+          <div key={s.label} className="flex items-center gap-5">
+            <div>
+              <span className="font-mono text-[18px] font-medium" style={{ color: '#1F4D3A' }}>{s.value}</span>
+              <span className="ml-2 text-[13px]" style={{ color: '#6B7A72' }}>{s.label}</span>
+            </div>
+            {i < arr.length - 1 && <span className="hidden sm:inline" style={{ color: '#E5E0D4' }}>·</span>}
           </div>
         ))}
       </div>
@@ -170,15 +178,24 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
           ))}
         </div>
 
-        {/* Export */}
-        <button
-          onClick={() => exportCSV(filtered, eventSlug)}
-          className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[13px] font-medium ml-auto"
-          style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
-        >
-          <Download size={14} />
-          Export CSV
-        </button>
+        {/* Export + Add manually */}
+        <div className="flex gap-2 ml-auto">
+          <button
+            onClick={() => exportCSV(filtered, eventSlug)}
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[13px] font-medium"
+            style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
+          >
+            <Download size={14} />
+            Export CSV
+          </button>
+          <button
+            onClick={() => alert('Add manually feature coming soon')}
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[13px] font-medium text-white transition hover:opacity-90"
+            style={{ background: '#1F4D3A' }}
+          >
+            Add manually
+          </button>
+        </div>
       </div>
 
       {/* ── Table ───────────────────────────────────── */}

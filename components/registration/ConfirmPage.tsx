@@ -361,13 +361,13 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center px-5 py-16 relative overflow-hidden"
-      style={{ background: '#0A0F0C' }}
+      style={{ background: '#FAF6EE' }}
     >
       {/* Ambient glow */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(31,77,58,0.25) 0%, transparent 70%), radial-gradient(ellipse 40% 30% at 80% 80%, rgba(232,197,126,0.08) 0%, transparent 60%)',
+          background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(31,77,58,0.08) 0%, transparent 70%), radial-gradient(ellipse 40% 30% at 80% 80%, rgba(232,197,126,0.12) 0%, transparent 60%)',
         }}
       />
 
@@ -376,11 +376,11 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
 
       <div className="relative z-10 flex flex-col items-center text-center max-w-[360px] w-full">
 
-        {/* Kicker */}
+        {/* Kicker — YOUR CARD · READY */}
         <div className="flex items-center gap-2 mb-6">
-          <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#E8C57E', boxShadow: '0 0 8px rgba(232,197,126,0.6)' }} />
-          <span className="text-[12px] font-medium uppercase tracking-[0.14em]" style={{ color: '#E8C57E' }}>
-            You&apos;re registered!
+          <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#E8C57E' }} />
+          <span className="text-[11px] font-semibold uppercase tracking-[0.18em]" style={{ color: '#C9A45E' }}>
+            Your card · ready
           </span>
         </div>
 
@@ -389,7 +389,7 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
           <div
             className="w-full max-w-[280px] rounded-2xl overflow-hidden mb-8"
             style={{
-              boxShadow: '0 0 0 1px rgba(232,197,126,0.2), 0 8px 40px rgba(232,197,126,0.15), 0 30px 80px rgba(10,15,12,0.8)',
+              boxShadow: '0 4px 24px rgba(31,77,58,0.12), 0 20px 60px rgba(31,77,58,0.15)',
               animation: 'breathe 3.4s ease-in-out infinite',
             }}
           >
@@ -406,23 +406,23 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
               className="rounded-xl"
               style={{ width: 200, height: 200, background: 'white', padding: 12 }}
             />
-            <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.5)' }}>
+            <p className="text-[13px]" style={{ color: '#6B7A72' }}>
               Show this QR at the door
             </p>
           </div>
         )}
 
         {/* Attendee name */}
-        <h1 className="font-display font-semibold text-[26px] mb-1 text-white" style={{ letterSpacing: '-0.015em' }}>
+        <h1 className="font-display font-semibold text-[26px] mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
           {registration.attendee_name}
         </h1>
-        <p className="text-[14px] mb-2" style={{ color: 'rgba(255,255,255,0.55)' }}>
+        <p className="text-[14px] mb-2" style={{ color: '#6B7A72' }}>
           {ticketName ?? 'Registered'} · {eventTitle}
         </p>
 
         {/* QR code (always shown when card is visible too) */}
         {cardDataUrl && (
-          <div className="flex items-center gap-2 mb-6 px-3 py-1.5 rounded-lg" style={{ background: 'rgba(255,255,255,0.06)' }}>
+          <div className="flex items-center gap-2 mb-6 px-3 py-1.5 rounded-lg" style={{ background: 'rgba(31,77,58,0.06)', border: '1px solid #E5E0D4' }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={`/api/qr/${registration.qr_code_token}`}
@@ -430,7 +430,7 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
               className="rounded"
               style={{ width: 36, height: 36, background: 'white', padding: 3 }}
             />
-            <span className="text-[12px]" style={{ color: 'rgba(255,255,255,0.5)', fontFamily: 'JetBrains Mono, monospace' }}>
+            <span className="text-[12px]" style={{ color: '#6B7A72', fontFamily: 'JetBrains Mono, monospace' }}>
               Show at door for check-in
             </span>
           </div>
@@ -463,13 +463,9 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
               target="_blank"
               rel="noopener noreferrer"
               className="h-11 w-11 rounded-full flex items-center justify-center transition"
-              style={{
-                background: 'rgba(255,255,255,0.08)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                color: s.color,
-              }}
-              onMouseEnter={e => (e.currentTarget.style.borderColor = '#E8C57E')}
-              onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')}
+              style={{ background: 'white', border: '1px solid #E5E0D4', color: s.color }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = '#1F4D3A')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = '#E5E0D4')}
               title={`Share on ${s.label}`}
             >
               {s.icon}
@@ -478,13 +474,9 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
           <button
             onClick={handleShare}
             className="h-11 w-11 rounded-full flex items-center justify-center transition"
-            style={{
-              background: 'rgba(255,255,255,0.08)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              color: 'rgba(255,255,255,0.7)',
-            }}
-            onMouseEnter={e => (e.currentTarget.style.borderColor = '#E8C57E')}
-            onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')}
+            style={{ background: 'white', border: '1px solid #E5E0D4', color: '#6B7A72' }}
+            onMouseEnter={e => (e.currentTarget.style.borderColor = '#1F4D3A')}
+            onMouseLeave={e => (e.currentTarget.style.borderColor = '#E5E0D4')}
             title="Share"
           >
             <Share2 size={17} strokeWidth={2} />
@@ -495,9 +487,9 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
         <a
           href={`/e/${eventSlug}`}
           className="mt-8 text-[13px] transition"
-          style={{ color: 'rgba(232,197,126,0.6)' }}
-          onMouseEnter={e => (e.currentTarget.style.color = '#E8C57E')}
-          onMouseLeave={e => (e.currentTarget.style.color = 'rgba(232,197,126,0.6)')}
+          style={{ color: '#6B7A72' }}
+          onMouseEnter={e => (e.currentTarget.style.color = '#1F4D3A')}
+          onMouseLeave={e => (e.currentTarget.style.color = '#6B7A72')}
         >
           Back to event →
         </a>
