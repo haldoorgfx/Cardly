@@ -87,10 +87,11 @@ export default async function DashboardPage() {
   const regsByEvent: Record<string, { count: number; revenue: number }> = {};
   let totalRegistrations = 0;
   let totalRevenue = 0;
+  let totalCheckedIn = 0;
   if (eventIds.length > 0) {
     const { data: regs } = await admin
       .from('registrations')
-      .select('event_id, amount_paid')
+      .select('event_id, amount_paid, status')
       .in('event_id', eventIds)
       .in('status', ['confirmed', 'checked_in']);
     for (const r of regs ?? []) {
@@ -99,10 +100,11 @@ export default async function DashboardPage() {
       regsByEvent[r.event_id].revenue += Number(r.amount_paid ?? 0);
       totalRegistrations += 1;
       totalRevenue       += Number(r.amount_paid ?? 0);
+      if (r.status === 'checked_in') totalCheckedIn += 1;
     }
   }
 
-  const totalCards    = allEvents.reduce((s, e) => s + (e.download_count ?? 0), 0);
+  const checkInRate = totalRegistrations > 0 ? Math.round((totalCheckedIn / totalRegistrations) * 100) : 0;
   const firstLiveEvent = allEvents.find(e => e.status === 'published');
 
   // ─── Attention items ───────────────────────────────────────────────────────
@@ -139,10 +141,10 @@ export default async function DashboardPage() {
         <div className="bg-white border rounded-2xl px-6 py-4 mb-5 flex flex-wrap items-center gap-x-5 gap-y-2"
           style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
           {[
-            { value: allEvents.filter(e => e.status !== 'archived').length, label: 'events' },
+            { value: allEvents.filter(e => e.status !== 'archived').length, label: 'events total' },
             { value: totalRegistrations.toLocaleString(), label: 'registrations' },
             { value: totalRevenue > 0 ? '$' + totalRevenue.toLocaleString() : '$0', label: 'revenue' },
-            { value: totalCards.toLocaleString(), label: 'cards shared', last: true },
+            { value: `${checkInRate}%`, label: 'check-in rate', last: true },
           ].map((s, i) => (
             <div key={i} className="flex items-center gap-5">
               <div>
