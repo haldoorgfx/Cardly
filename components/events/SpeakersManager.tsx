@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Pencil, Trash2, Plus, X, Sparkles, ExternalLink } from 'lucide-react';
 import type { Speaker, SpeakerType } from '@/types/database';
 
@@ -373,6 +374,9 @@ export default function SpeakersManager({ eventId, initialSpeakers }: Props) {
                     {TYPE_LABELS[speaker.speaker_type]}
                   </span>
                   <div className="flex items-center gap-1">
+                    <Link href={`/events/${eventId}/speakers/${speaker.id}`} className="w-7 h-7 grid place-items-center rounded-lg transition hover:bg-[#F5F3EE]" style={{ color: '#6B7A72' }} title="View detail">
+                      <ExternalLink size={13} strokeWidth={1.8} />
+                    </Link>
                     <button onClick={() => openEdit(speaker)} className="w-7 h-7 grid place-items-center rounded-lg transition hover:bg-[#F5F3EE]" style={{ color: '#6B7A72' }} title="Edit">
                       <Pencil size={13} strokeWidth={1.8} />
                     </button>

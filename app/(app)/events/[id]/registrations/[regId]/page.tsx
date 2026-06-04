@@ -1,0 +1,177 @@
+export const dynamic = 'force-dynamic';
+
+import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
+import Link from 'next/link';
+import { ChevronLeft, CheckCircle2, Clock, Scan } from 'lucide-react';
+
+interface Props { params: Promise<{ id: string; regId: string }> }
+
+function initials(name: string) {
+  return name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2);
+}
+
+const AVATAR_GRADS = [
+  'linear-gradient(135deg,#1F4D3A,#2A6A50)',
+  'linear-gradient(135deg,#3E7E5E,#C9A45E)',
+  'linear-gradient(135deg,#163828,#3E7E5E)',
+  'linear-gradient(135deg,#2A6A50,#E8C57E)',
+];
+
+function InfoRow({ label, children, last }: { label: string; children: React.ReactNode; last?: boolean }) {
+  return (
+    <div className={`flex items-center justify-between gap-4 py-2.5 ${last ? '' : 'border-b'}`} style={{ borderColor: '#E5E0D4' }}>
+      <span className="font-mono text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>{label}</span>
+      <span className="text-[13.5px] text-right" style={{ color: '#0F1F18' }}>{children}</span>
+    </div>
+  );
+}
+
+const STATUS_LABEL: Record<string, string> = {
+  confirmed: 'Confirmed', checked_in: 'Checked in', pending: 'Pending', cancelled: 'Cancelled', refunded: 'Refunded',
+};
+const STATUS_STYLE: Record<string, { bg: string; color: string }> = {
+  confirmed:  { bg: '#E8EFEB', color: '#1F4D3A' },
+  checked_in: { bg: '#D1FAE5', color: '#065F46' },
+  pending:    { bg: '#FEF3C7', color: '#92400E' },
+  cancelled:  { bg: '#FEE2E2', color: '#991B1B' },
+  refunded:   { bg: '#E0E7FF', color: '#3730A3' },
+};
+
+export default async function AttendeeDetailPage({ params }: Props) {
+  const { id, regId } = await params;
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+
+  const admin = createAdminClient();
+  const [{ data: event }, { data: reg }] = await Promise.all([
+    admin.from('events').select('id, name, slug').eq('id', id).eq('user_id', user.id).single(),
+    admin.from('registrations')
+      .select('*, ticket_types(name, price, currency)')
+      .eq('id', regId)
+      .eq('event_id', id)
+      .single(),
+  ]);
+
+  if (!event || !reg) redirect(`/events/${id}/registrations`);
+
+  const gradIdx = reg.attendee_name.charCodeAt(0) % AVATAR_GRADS.length;
+  const avatarGrad = AVATAR_GRADS[gradIdx];
+  const statusStyle = STATUS_STYLE[reg.status] ?? STATUS_STYLE.pending;
+  const registeredDate = new Date(reg.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+  const checkedInDate = reg.checked_in_at
+    ? new Date(reg.checked_in_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+    : null;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const ticket = (reg as any).ticket_types as { name: string; price: number; currency: string } | null;
+  const amountStr = reg.amount_paid > 0
+    ? new Intl.NumberFormat('en-US', { style: 'currency', currency: reg.currency || 'USD', minimumFractionDigits: 0 }).format(reg.amount_paid)
+    : 'Free';
+
+  const timeline = [
+    ...(reg.karta_card_url ? [{ text: 'Generated their Karta Card', when: registeredDate, color: '#C9A45E' }] : []),
+    ...(checkedInDate ? [{ text: 'Checked in', when: checkedInDate, color: '#2D7A4F' }] : []),
+    { text: `Registered · ${ticket?.name ?? 'General'}`, when: registeredDate, color: '#1F4D3A' },
+    ...(reg.source ? [{ text: `Visited from ${reg.source}`, when: registeredDate, color: '#A8C2B5' }] : []),
+  ];
+
+  return (
+    <div className="min-h-full" style={{ background: '#FAF6EE' }}>
+      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+        {/* Back */}
+        <Link href={`/events/${id}/registrations`}
+          className="inline-flex items-center gap-1.5 text-[13px] mb-5 hover:opacity-80 transition-opacity"
+          style={{ color: '#6B7A72' }}>
+          <ChevronLeft size={15} /> Registrations
+        </Link>
+
+        {/* Header */}
+        <div className="flex items-start gap-4 mb-6">
+          <div className="w-16 h-16 rounded-2xl grid place-items-center shrink-0 text-white font-display text-[20px] font-semibold"
+            style={{ background: avatarGrad }}>
+            {initials(reg.attendee_name)}
+          </div>
+          <div className="flex-1 min-w-0">
+            <h1 className="font-display text-[24px] font-semibold leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+              {reg.attendee_name}
+            </h1>
+            <div className="flex items-center gap-2 flex-wrap mt-2">
+              {ticket && (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[12px] font-medium"
+                  style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+                  {ticket.name}
+                </span>
+              )}
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[12px] font-medium"
+                style={{ background: statusStyle.bg, color: statusStyle.color }}>
+                {reg.status === 'checked_in' && <CheckCircle2 size={10} />}
+                {reg.status === 'confirmed' && <Clock size={10} />}
+                {STATUS_LABEL[reg.status] ?? reg.status}
+              </span>
+            </div>
+            <div className="font-mono text-[12.5px] mt-2" style={{ color: '#6B7A72' }}>{reg.attendee_email}</div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Link href={`/events/${id}/check-in`}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-medium transition-all hover:opacity-90"
+              style={{ background: '#1F4D3A', color: 'white' }}>
+              <Scan size={14} /> Check in
+            </Link>
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="grid lg:grid-cols-[1fr_320px] gap-5">
+
+          {/* Left */}
+          <div className="grid gap-5 content-start">
+            {/* Activity timeline */}
+            <div className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
+              <div className="font-display text-[14.5px] font-semibold mb-5" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>Activity</div>
+              <div className="relative pl-6">
+                <span className="absolute left-[5px] top-1.5 bottom-1.5 w-px" style={{ background: '#E5E0D4' }} />
+                <div className="grid gap-4">
+                  {timeline.map((item, i) => (
+                    <div key={i} className="relative">
+                      <span className="absolute -left-6 top-1 w-3 h-3 rounded-full ring-4"
+                        style={{ background: item.color, outline: '3px solid white', outlineOffset: '-1px' }} />
+                      <div className="text-[13px] leading-snug" style={{ color: '#0F1F18' }}>{item.text}</div>
+                      <div className="font-mono text-[11px] mt-0.5" style={{ color: '#6B7A72' }}>{item.when}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right */}
+          <div className="grid gap-5 content-start">
+            {/* Registration details */}
+            <div className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
+              <div className="font-display text-[14.5px] font-semibold mb-4" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>Registration</div>
+              <InfoRow label="Order ID">#{regId.slice(0, 8).toUpperCase()}</InfoRow>
+              <InfoRow label="Ticket">{ticket?.name ?? 'General'} · {amountStr}</InfoRow>
+              <InfoRow label="Payment">{reg.payment_status}</InfoRow>
+              {reg.attendee_phone && <InfoRow label="Phone">{reg.attendee_phone}</InfoRow>}
+              <InfoRow label="Registered">{registeredDate}</InfoRow>
+              <InfoRow label="Karta Card" last>{reg.karta_card_url ? 'Generated' : 'Not yet'}</InfoRow>
+            </div>
+
+            {/* Karta Card preview */}
+            {reg.karta_card_url && (
+              <div className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
+                <div className="font-display text-[14.5px] font-semibold mb-4" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>Their Karta Card</div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={reg.karta_card_url} alt="Karta Card" className="w-full rounded-xl" style={{ border: '1px solid #E5E0D4' }} />
+              </div>
+            )}
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
+}
