@@ -1,21 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { Search, Plus } from 'lucide-react';
-import EventCard from './EventCard';
-import type { Database } from '@/types/database';
+import Link from 'next/link';
+import EventRow, { type EventRowData } from './EventRow';
 
-type EventRowType = Database['public']['Tables']['events']['Row'];
-type Event = Pick<EventRowType, 'id' | 'name' | 'slug' | 'status' | 'view_count' | 'download_count' | 'updated_at'> & {
-  event_pages?: Array<{ starts_at: string | null; venue_name: string | null }> | null;
-  event_variants?: Array<{ id: string; background_url: string | null; position: number }> | null;
-};
 type Filter  = 'all' | 'active' | 'draft' | 'archived';
 type SortKey = 'recent' | 'registrations' | 'revenue';
 
 interface Props {
-  events:      Event[];
+  events:      EventRowData[];
   atLimit:     boolean;
   regsByEvent: Record<string, { count: number; revenue: number }>;
   draftCount:  number;
@@ -57,8 +51,10 @@ export default function DashboardContent({ events, atLimit, regsByEvent }: Props
   return (
     <>
       {/* Toolbar */}
-      <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
-        <div className="flex items-center gap-0.5 p-1 rounded-xl" style={{ background: 'white', border: '1px solid #E5E0D4' }} role="tablist">
+      <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+        <div className="flex items-center gap-0.5 p-1 rounded-xl"
+          style={{ background: 'white', border: '1px solid #E5E0D4' }}
+          role="tablist">
           {FILTERS.map(f => (
             <button
               key={f.key}
@@ -66,10 +62,13 @@ export default function DashboardContent({ events, atLimit, regsByEvent }: Props
               role="tab"
               aria-selected={filter === f.key}
               className="h-7 px-3 rounded-lg text-[12.5px] font-medium transition"
-              style={filter === f.key ? { background: '#E8EFEB', color: '#0F1F18' } : { color: '#6B7A72' }}
+              style={filter === f.key
+                ? { background: '#E8EFEB', color: '#0F1F18' }
+                : { color: '#6B7A72' }}
             >
               {f.label}
-              <span className="ml-1.5 font-mono text-[11px]" style={{ color: filter === f.key ? '#3A4A42' : '#6B7A72' }}>
+              <span className="ml-1.5 font-mono text-[11px]"
+                style={{ color: filter === f.key ? '#3A4A42' : '#6B7A72' }}>
                 {counts[f.key]}
               </span>
             </button>
@@ -99,16 +98,41 @@ export default function DashboardContent({ events, atLimit, regsByEvent }: Props
         </div>
       ) : (
         <>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.map((event, i) => (
-              <EventCard
-                key={event.id}
-                event={event}
-                index={i}
-                regCount={regsByEvent[event.id]?.count   ?? 0}
-                revenue={regsByEvent[event.id]?.revenue ?? 0}
-              />
-            ))}
+          {/* Table */}
+          <div className="bg-white rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
+            <table className="w-full">
+              <thead>
+                <tr style={{ borderBottom: '1px solid #E5E0D4', background: '#FAFAF9' }}>
+                  <th className="px-5 py-3 text-left font-mono text-[10.5px] tracking-[0.12em] uppercase text-[#6B7A72]">
+                    Name
+                  </th>
+                  <th className="px-5 py-3 text-left font-mono text-[10.5px] tracking-[0.12em] uppercase text-[#6B7A72]">
+                    Date
+                  </th>
+                  <th className="px-5 py-3 text-left font-mono text-[10.5px] tracking-[0.12em] uppercase text-[#6B7A72]">
+                    Tickets
+                  </th>
+                  <th className="px-5 py-3 text-left font-mono text-[10.5px] tracking-[0.12em] uppercase text-[#6B7A72]">
+                    Revenue
+                  </th>
+                  <th className="px-5 py-3 text-left font-mono text-[10.5px] tracking-[0.12em] uppercase text-[#6B7A72]">
+                    Status
+                  </th>
+                  <th className="px-5 py-3" />
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((event, i) => (
+                  <EventRow
+                    key={event.id}
+                    event={event}
+                    index={i}
+                    regCount={regsByEvent[event.id]?.count   ?? 0}
+                    revenue={regsByEvent[event.id]?.revenue ?? 0}
+                  />
+                ))}
+              </tbody>
+            </table>
           </div>
 
           {!atLimit && filter !== 'archived' && (

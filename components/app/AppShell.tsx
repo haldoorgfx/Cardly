@@ -6,8 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { PLANS } from '@/lib/billing/plans';
 import {
-  LayoutGrid, TrendingUp, LayoutTemplate, Palette,
-  Settings2, Users, LogOut, Menu, Search, Plus, ChevronRight, CreditCard,
+  LayoutGrid, TrendingUp, LayoutTemplate, Settings2, Users, LogOut, Menu, Search, Plus, ChevronRight, CreditCard,
   BarChart2, FileText, Eye, X, ArrowLeft, ShieldCheck,
   Flag, Image as ImageIcon, ScrollText, Sliders, Gavel,
   Home, Layout, CalendarDays, Globe, MessageSquare, IdCard,
@@ -81,13 +80,12 @@ const EVENT_STATUS_BADGE: Record<string, { cls: string; dot: string; label: stri
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'Events',    icon: <LayoutGrid size={15} strokeWidth={1.8} />, badge: null, matchPrefix: true },
   { href: '/analytics', label: 'Analytics', icon: <TrendingUp size={15} strokeWidth={1.8} />, badge: null, matchPrefix: false },
-  { href: '/templates', label: 'Templates', icon: <LayoutTemplate size={15} strokeWidth={1.8} />, badge: 'NEW', matchPrefix: false },
-  { href: '/brand',     label: 'Brand kit', icon: <Palette size={15} strokeWidth={1.8} />, badge: null, matchPrefix: false },
+  { href: '/team',      label: 'Team',      icon: <Users size={15} strokeWidth={1.8} />,      badge: null, matchPrefix: false },
+  { href: '/settings',  label: 'Settings',  icon: <Settings2 size={15} strokeWidth={1.8} />,  badge: null, matchPrefix: false },
 ];
 
 const WORKSPACE_ITEMS = [
-  { href: '/settings/billing', label: 'Billing',  icon: <CreditCard size={15} strokeWidth={1.8} /> },
-  { href: '/settings',         label: 'Settings', icon: <Settings2 size={15} strokeWidth={1.8} /> },
+  { href: '/settings/billing', label: 'Billing', icon: <CreditCard size={15} strokeWidth={1.8} /> },
 ];
 
 // ─── Admin nav ────────────────────────────────────────────────────────────────
@@ -147,13 +145,17 @@ function NavItem({ href, icon, label, badge, active, onNavigate }: {
       <Link href={href} onClick={onNavigate}
         className={`flex items-center gap-3 py-[7px] rounded-lg text-[13.5px] transition-colors border-l-2 ${
           active
-            ? 'border-[#E8C57E] bg-white/[0.1] text-white font-medium pl-[8px] pr-2.5'
-            : 'border-transparent px-2.5 text-white/50 hover:text-white/85 hover:bg-white/[0.06]'
-        }`}>
+            ? 'border-[#1F4D3A] font-medium pl-[8px] pr-2.5'
+            : 'border-transparent px-2.5 hover:bg-[#F5F3EE]'
+        }`}
+        style={active
+          ? { background: '#E8EFEB', color: '#1F4D3A' }
+          : { color: '#3A4A42' }}>
         <span className="shrink-0">{icon}</span>
         <span className="flex-1 leading-none">{label}</span>
         {badge && (
-          <span className="text-[9px] font-mono font-medium text-white/40 bg-white/[0.08] px-1.5 py-0.5 rounded-md tracking-wide">
+          <span className="text-[9px] font-mono font-medium px-1.5 py-0.5 rounded-md tracking-wide"
+            style={{ color: '#6B7A72', background: '#F5F3EE' }}>
             {badge}
           </span>
         )}
@@ -179,73 +181,45 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
     <>
       {/* Logo */}
       <Link href="/" onClick={onNavigate}
-        className="h-14 px-4 flex items-center gap-2.5 shrink-0 transition-opacity hover:opacity-80"
-        style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+        className="h-14 px-4 flex items-center gap-2.5 shrink-0 transition-opacity hover:opacity-70"
+        style={{ borderBottom: '1px solid #E5E0D4' }}>
         {logoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={logoUrl} alt="Logo" className="max-h-[32px] max-w-[140px] object-contain" />
         ) : (
           <>
             <span className="inline-block w-6 h-6 rounded-md shrink-0"
-              style={{ background: 'linear-gradient(135deg, #FAF6EE 0%, #E8C57E 100%)' }} />
-            <span className="font-display text-[19px] font-bold tracking-tight text-white">Karta</span>
+              style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #E8C57E 100%)' }} />
+            <span className="font-display text-[19px] font-bold tracking-tight" style={{ color: '#0F1F18' }}>Karta</span>
           </>
         )}
       </Link>
 
-      {/* Workspace header */}
-      <div className="h-14 flex items-center px-4 border-b shrink-0" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
-        <div className="flex items-center gap-3 flex-1 min-w-0">
-          <div className="h-8 w-8 rounded-lg grid place-items-center shrink-0 ring-1 ring-white/20"
-            style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}>
-            <span className="text-[12px] font-bold text-white">
-              {profile?.full_name?.[0]?.toUpperCase() ?? 'K'}
-            </span>
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-[14px] font-semibold text-white truncate leading-snug">
-              {profile?.full_name ?? 'My workspace'}
-            </div>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              {profile?.plan === 'pro' ? (
-                <span className="font-mono text-[9px] tracking-[0.1em] uppercase px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(232,197,126,0.2)', color: '#C9A45E' }}>PRO</span>
-              ) : profile?.plan === 'studio' ? (
-                <span className="font-mono text-[9px] tracking-[0.1em] uppercase px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(31,77,58,0.8)', color: '#FAF6EE' }}>STUDIO</span>
-              ) : (
-                <span className="font-mono text-[9px] tracking-[0.1em] uppercase px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.4)' }}>FREE</span>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Nav */}
       <nav className="flex-1 px-3 py-5 overflow-y-auto space-y-5">
-        {/* Main */}
-        <div>
-          <div className="px-2.5 mb-2 text-[10px] font-mono text-white/25 uppercase tracking-widest">Main</div>
-          <ul className="space-y-0.5">
-            {NAV_ITEMS.map(item => {
-              const active = item.matchPrefix
-                ? (pathname === item.href || pathname.startsWith('/events'))
-                : pathname === item.href;
-              return (
-                <NavItem key={item.href} href={item.href} icon={item.icon} label={item.label}
-                  badge={item.badge} active={active} onNavigate={onNavigate} />
-              );
-            })}
-          </ul>
-        </div>
+        <ul className="space-y-0.5">
+          {NAV_ITEMS.map(item => {
+            const active = item.matchPrefix
+              ? (pathname === item.href || pathname.startsWith('/events'))
+              : pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
+            return (
+              <NavItem key={item.href} href={item.href} icon={item.icon} label={item.label}
+                badge={item.badge} active={active} onNavigate={onNavigate} />
+            );
+          })}
+        </ul>
 
-        <div className="h-px" style={{ background: 'rgba(255,255,255,0.07)' }} />
+        <div className="h-px" style={{ background: '#E5E0D4' }} />
 
-        {/* Workspace */}
+        {/* Organizer Tools */}
         <div>
-          <div className="px-2.5 mb-2 text-[10px] font-mono text-white/25 uppercase tracking-widest">Workspace</div>
+          <div className="px-2.5 mb-2 text-[10px] font-mono uppercase tracking-widest" style={{ color: '#9BA8A1' }}>
+            Organizer Tools
+          </div>
           <ul className="space-y-0.5">
             {WORKSPACE_ITEMS.map(item => (
               <NavItem key={item.href} href={item.href} icon={item.icon} label={item.label}
-                active={pathname === item.href} onNavigate={onNavigate} />
+                active={pathname === item.href || pathname.startsWith(item.href + '/')} onNavigate={onNavigate} />
             ))}
           </ul>
         </div>
@@ -253,20 +227,21 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
 
       {/* Usage mini-card */}
       <div className="px-3 pb-2 shrink-0">
-        <div className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}>
+        <div className="rounded-xl p-3" style={{ background: '#F5F3EE', border: '1px solid #E5E0D4' }}>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-mono text-white/30 uppercase tracking-widest">Events</span>
-            <span className="text-[10px] font-mono text-white/40">
+            <span className="text-[10px] font-mono uppercase tracking-widest" style={{ color: '#9BA8A1' }}>Events</span>
+            <span className="text-[10px] font-mono" style={{ color: '#6B7A72' }}>
               {eventCount}&nbsp;/&nbsp;{planLimit === Infinity ? '∞' : planLimit}
             </span>
           </div>
-          <div className="h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
+          <div className="h-1 rounded-full overflow-hidden" style={{ background: '#E5E0D4' }}>
             <div className="h-full rounded-full transition-all duration-500"
-              style={{ width: `${planPct}%`, background: planPct >= 90 ? '#C97A2D' : '#E8C57E' }} />
+              style={{ width: `${planPct}%`, background: planPct >= 90 ? '#C97A2D' : '#1F4D3A' }} />
           </div>
           {profile?.plan !== 'studio' && (
             <Link href="/settings/billing" onClick={onNavigate}
-              className="block mt-2 text-[10px] font-mono text-white/30 hover:text-white/55 transition-colors">
+              className="block mt-2 text-[10px] font-mono transition-colors hover:text-[#1F4D3A]"
+              style={{ color: '#9BA8A1' }}>
               Upgrade for more →
             </Link>
           )}
@@ -280,23 +255,24 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
             href="/admin/analytics"
             onClick={onNavigate}
             className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[12.5px] transition-colors group"
-            style={{ background: 'rgba(232,197,126,0.07)', border: '1px solid rgba(232,197,126,0.12)' }}
+            style={{ background: '#E8EFEB', border: '1px solid #C9DDD3' }}
           >
             <div className="h-6 w-6 rounded-md grid place-items-center shrink-0"
-              style={{ background: 'rgba(232,197,126,0.12)' }}>
-              <ShieldCheck size={12} strokeWidth={1.8} style={{ color: '#E8C57E' }} />
+              style={{ background: '#D0E5D9' }}>
+              <ShieldCheck size={12} strokeWidth={1.8} style={{ color: '#1F4D3A' }} />
             </div>
-            <span className="flex-1 leading-none" style={{ color: 'rgba(232,197,126,0.6)' }}>Admin panel</span>
+            <span className="flex-1 leading-none" style={{ color: '#1F4D3A' }}>Admin panel</span>
             <ArrowLeft size={12} strokeWidth={2} className="rotate-180 shrink-0 transition-transform group-hover:translate-x-0.5"
-              style={{ color: 'rgba(232,197,126,0.35)' }} />
+              style={{ color: '#3A6B50' }} />
           </Link>
         </div>
       )}
 
       {/* Sign out */}
-      <div className="px-3 py-2 shrink-0 border-t" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
+      <div className="px-3 py-2 shrink-0 border-t" style={{ borderColor: '#E5E0D4' }}>
         <button onClick={handleSignOut}
-          className="w-full flex items-center gap-3 px-2.5 py-[7px] rounded-lg text-[13.5px] text-white/40 hover:text-white/70 hover:bg-white/[0.06] transition-colors text-left">
+          className="w-full flex items-center gap-3 px-2.5 py-[7px] rounded-lg text-[13.5px] transition-colors text-left hover:bg-[#F5F3EE]"
+          style={{ color: '#6B7A72' }}>
           <LogOut size={15} strokeWidth={1.7} className="shrink-0" />
           <span className="leading-none">Sign out</span>
         </button>
@@ -320,17 +296,17 @@ function AdminNavContent({ pathname, onNavigate }: { pathname: string; onNavigat
   return (
     <>
       {/* Header */}
-      <div className="h-14 px-4 flex items-center gap-3 shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+      <div className="h-14 px-4 flex items-center gap-3 shrink-0" style={{ borderBottom: '1px solid #E5E0D4' }}>
         {logoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={logoUrl} alt="Logo" className="max-h-[28px] max-w-[100px] object-contain" />
         ) : (
           <div className="h-7 w-7 rounded-lg grid place-items-center shrink-0"
-            style={{ background: 'rgba(232,197,126,0.15)' }}>
-            <ShieldCheck size={14} strokeWidth={1.8} style={{ color: '#E8C57E' }} />
+            style={{ background: '#E8EFEB' }}>
+            <ShieldCheck size={14} strokeWidth={1.8} style={{ color: '#1F4D3A' }} />
           </div>
         )}
-        <span className="font-display text-[14px] font-bold tracking-tight" style={{ color: 'rgba(232,197,126,0.7)' }}>
+        <span className="font-display text-[14px] font-bold tracking-tight" style={{ color: '#1F4D3A' }}>
           Admin Panel
         </span>
       </div>
@@ -340,14 +316,15 @@ function AdminNavContent({ pathname, onNavigate }: { pathname: string; onNavigat
         <Link
           href="/dashboard"
           onClick={onNavigate}
-          className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-[12.5px] text-white/35 hover:text-white/65 hover:bg-white/[0.05] transition-colors"
+          className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-[12.5px] transition-colors hover:bg-[#F5F3EE]"
+          style={{ color: '#6B7A72' }}
         >
           <ArrowLeft size={13} strokeWidth={2} className="shrink-0" />
           Back to workspace
         </Link>
       </div>
 
-      <div className="mx-3 mt-2 h-px" style={{ background: 'rgba(255,255,255,0.07)' }} />
+      <div className="mx-3 mt-2 h-px" style={{ background: '#E5E0D4' }} />
 
       {/* Admin nav — flat sections */}
       <nav className="flex-1 px-3 py-4 overflow-y-auto space-y-5">
@@ -357,7 +334,7 @@ function AdminNavContent({ pathname, onNavigate }: { pathname: string; onNavigat
           return (
             <div key={section.label}>
               <div className="px-2.5 mb-1.5 text-[10px] font-mono uppercase tracking-widest"
-                style={{ color: 'rgba(232,197,126,0.4)' }}>
+                style={{ color: '#9BA8A1' }}>
                 {section.label}
               </div>
               <ul className="space-y-0.5">
@@ -380,14 +357,14 @@ function AdminNavContent({ pathname, onNavigate }: { pathname: string; onNavigat
       {/* Admin identity */}
       <div className="px-3 pb-2 shrink-0">
         <div className="rounded-xl px-3 py-2.5 flex items-center gap-2.5"
-          style={{ background: 'rgba(232,197,126,0.06)', border: '1px solid rgba(232,197,126,0.12)' }}>
+          style={{ background: '#E8EFEB', border: '1px solid #C9DDD3' }}>
           <div className="h-7 w-7 rounded-full grid place-items-center shrink-0 text-[11px] font-bold"
-            style={{ background: 'rgba(232,197,126,0.15)', color: '#E8C57E' }}>
+            style={{ background: '#D0E5D9', color: '#1F4D3A' }}>
             {profile?.full_name?.[0]?.toUpperCase() ?? 'A'}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-[12px] font-medium text-white/70 truncate">{profile?.full_name ?? 'Admin'}</div>
-            <div className="text-[10px] font-mono" style={{ color: 'rgba(232,197,126,0.5)' }}>
+            <div className="text-[12px] font-medium truncate" style={{ color: '#0F1F18' }}>{profile?.full_name ?? 'Admin'}</div>
+            <div className="text-[10px] font-mono" style={{ color: '#6B7A72' }}>
               {isSuperAdmin ? 'Super admin' : 'Admin'}
             </div>
           </div>
@@ -395,9 +372,10 @@ function AdminNavContent({ pathname, onNavigate }: { pathname: string; onNavigat
       </div>
 
       {/* Sign out */}
-      <div className="px-3 py-2 shrink-0 border-t" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
+      <div className="px-3 py-2 shrink-0 border-t" style={{ borderColor: '#E5E0D4' }}>
         <button onClick={handleSignOut}
-          className="w-full flex items-center gap-3 px-2.5 py-[7px] rounded-lg text-[13.5px] text-white/40 hover:text-white/70 hover:bg-white/[0.06] transition-colors text-left">
+          className="w-full flex items-center gap-3 px-2.5 py-[7px] rounded-lg text-[13.5px] transition-colors text-left hover:bg-[#F5F3EE]"
+          style={{ color: '#6B7A72' }}>
           <LogOut size={15} strokeWidth={1.7} className="shrink-0" />
           <span className="leading-none">Sign out</span>
         </button>
@@ -434,32 +412,39 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
     <>
       {/* Logo */}
       <Link href="/" onClick={onNavigate}
-        className="h-14 px-4 flex items-center gap-2.5 shrink-0 transition-opacity hover:opacity-80"
-        style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+        className="h-14 px-4 flex items-center gap-2.5 shrink-0 transition-opacity hover:opacity-70"
+        style={{ borderBottom: '1px solid #E5E0D4' }}>
         {logoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={logoUrl} alt="Logo" className="max-h-[32px] max-w-[140px] object-contain" />
         ) : (
           <>
             <span className="inline-block w-6 h-6 rounded-md shrink-0"
-              style={{ background: 'linear-gradient(135deg, #FAF6EE 0%, #E8C57E 100%)' }} />
-            <span className="font-display text-[19px] font-bold tracking-tight text-white">Karta</span>
+              style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #E8C57E 100%)' }} />
+            <span className="font-display text-[19px] font-bold tracking-tight" style={{ color: '#0F1F18' }}>Karta</span>
           </>
         )}
       </Link>
 
       {/* Event context header */}
-      <div className="px-3 pt-3 pb-3 shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+      <div className="px-3 pt-3 pb-3 shrink-0" style={{ borderBottom: '1px solid #E5E0D4' }}>
         <Link href="/dashboard" onClick={onNavigate}
-          className="inline-flex items-center gap-1.5 text-[12px] text-white/35 hover:text-white/65 transition-colors mb-3">
+          className="inline-flex items-center gap-1.5 text-[12px] transition-colors mb-3 hover:text-[#0F1F18]"
+          style={{ color: '#6B7A72' }}>
           <ArrowLeft size={13} strokeWidth={2} />
           All events
         </Link>
-        <div className="font-display text-[14px] font-semibold text-white leading-snug tracking-tight line-clamp-2 px-0.5">
-          {event ? event.name : <span className="text-white/25">Loading…</span>}
+        <div className="font-display text-[14px] font-semibold leading-snug tracking-tight line-clamp-2 px-0.5"
+          style={{ color: '#0F1F18' }}>
+          {event ? event.name : <span style={{ color: '#C9C3B1' }}>Loading…</span>}
         </div>
         {badge && (
-          <span className={`mt-2 inline-flex items-center gap-1.5 text-[10px] font-mono tracking-[0.1em] uppercase px-2 py-0.5 rounded-full border ${badge.cls}`}>
+          <span className="mt-2 inline-flex items-center gap-1.5 text-[10px] font-mono tracking-[0.1em] uppercase px-2 py-0.5 rounded-full border"
+            style={event?.status === 'published'
+              ? { background: '#E8EFEB', color: '#2D7A4F', borderColor: '#C9DDD3' }
+              : event?.status === 'draft'
+              ? { background: '#FEF9EE', color: '#C97A2D', borderColor: '#F0D99A' }
+              : { background: '#F5F3EE', color: '#6B7A72', borderColor: '#E5E0D4' }}>
             <span className="w-1.5 h-1.5 rounded-full" style={{ background: badge.dot }} />
             {badge.label}
           </span>
@@ -471,7 +456,7 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
         {EVENT_NAV_SECTIONS.map((section, si) => (
           <div key={si} className="mb-4">
             {section.title && (
-              <div className="px-2.5 mb-1.5 text-[10px] font-mono text-white/25 uppercase tracking-widest">
+              <div className="px-2.5 mb-1.5 text-[10px] font-mono uppercase tracking-widest" style={{ color: '#9BA8A1' }}>
                 {section.title}
               </div>
             )}
@@ -492,10 +477,11 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
       </nav>
 
       {/* Footer */}
-      <div className="px-3 py-2 shrink-0 border-t" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
+      <div className="px-3 py-2 shrink-0 border-t" style={{ borderColor: '#E5E0D4' }}>
         {event?.status === 'published' && event?.slug && (
           <a href={`/c/${event.slug}`} target="_blank" rel="noopener noreferrer"
-            className="flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-[12.5px] text-white/40 hover:text-white/70 hover:bg-white/[0.06] transition-colors">
+            className="flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-[12.5px] transition-colors hover:bg-[#F5F3EE]"
+            style={{ color: '#6B7A72' }}>
             <span>View public page</span>
             <Globe size={13} strokeWidth={1.8} className="shrink-0" />
           </a>
@@ -726,10 +712,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <PlanContext.Provider value={ctxValue}>
-      <div className="flex min-h-screen" style={{ background: '#F5F5F4' }}>
+      <div className="flex min-h-screen" style={{ background: '#FAF6EE' }}>
 
         {/* Desktop sidebar */}
-        <aside className="hidden md:flex w-[252px] shrink-0 flex-col sticky top-0 h-screen" style={{ background: '#0F1F18' }}>
+        <aside className="hidden md:flex w-[240px] shrink-0 flex-col sticky top-0 h-screen"
+          style={{ background: '#FFFFFF', borderRight: '1px solid #E5E0D4' }}>
           <SidebarInner />
         </aside>
 
@@ -737,8 +724,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {mobileNavOpen && (
           <div className="fixed inset-0 z-[100] md:hidden">
             <div className="absolute inset-0 bg-black/50" onClick={() => setMobileNavOpen(false)} />
-            <aside className="absolute left-0 top-0 bottom-0 w-[272px] flex flex-col shadow-[4px_0_32px_rgba(0,0,0,0.25)] animate-[slideInLeft_200ms_ease-out]"
-              style={{ background: '#0F1F18' }}>
+            <aside className="absolute left-0 top-0 bottom-0 w-[272px] flex flex-col shadow-[4px_0_32px_rgba(0,0,0,0.12)] animate-[slideInLeft_200ms_ease-out]"
+              style={{ background: '#FFFFFF', borderRight: '1px solid #E5E0D4' }}>
               <SidebarInner onNavigate={() => setMobileNavOpen(false)} />
             </aside>
           </div>
