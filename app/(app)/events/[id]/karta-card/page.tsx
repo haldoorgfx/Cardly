@@ -26,19 +26,13 @@ export default async function KartaCardPage({ params }: { params: Promise<{ id: 
     .eq('event_id', id)
     .not('karta_card_url', 'is', null);
 
-  const { count: sharedCards } = await admin
-    .from('registrations')
-    .select('id', { count: 'exact', head: true })
-    .eq('event_id', id)
-    .eq('card_shared', true);
-
   return (
     <KartaCardView
       eventId={id}
       eventName={event.name}
       eventSlug={event.slug}
       totalCards={totalCards ?? 0}
-      sharedCards={sharedCards ?? 0}
+      sharedCards={0}
     />
   );
 }

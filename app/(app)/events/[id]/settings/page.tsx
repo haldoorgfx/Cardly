@@ -13,16 +13,16 @@ export default async function EventSettingsPage({ params }: { params: Promise<{ 
   const admin = createAdminClient();
   const { data: event } = await admin
     .from('events')
-    .select('id, name, slug, status, starts_at, ends_at, max_capacity, is_public')
+    .select('id, name, slug, status')
     .eq('id', id)
     .eq('user_id', user.id)
     .single();
 
   if (!event) redirect('/dashboard');
 
-  const { data: eventPage } = await admin
+  const { data: page } = await admin
     .from('event_pages')
-    .select('venue_name, timezone')
+    .select('venue_name, timezone, starts_at, ends_at, max_capacity, is_public')
     .eq('event_id', id)
     .single();
 
@@ -33,12 +33,12 @@ export default async function EventSettingsPage({ params }: { params: Promise<{ 
         name: event.name,
         slug: event.slug,
         status: event.status,
-        starts_at: event.starts_at,
-        ends_at: event.ends_at,
-        max_capacity: event.max_capacity,
-        is_public: event.is_public,
-        venue_name: eventPage?.venue_name ?? null,
-        timezone: eventPage?.timezone ?? 'UTC',
+        starts_at: page?.starts_at ?? null,
+        ends_at: page?.ends_at ?? null,
+        max_capacity: page?.max_capacity ?? null,
+        is_public: page?.is_public ?? true,
+        venue_name: page?.venue_name ?? null,
+        timezone: page?.timezone ?? 'UTC',
       }}
     />
   );
