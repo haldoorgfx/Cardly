@@ -19,7 +19,7 @@ const TABS = [
 
 export function EventManageNav({ eventId, eventName, active }: Props) {
   return (
-    <div className="sticky top-14 z-30 border-b" style={{ background: 'white', borderColor: '#E5E0D4' }}>
+    <div className="sticky top-0 z-30 border-b" style={{ background: 'white', borderColor: '#E5E0D4' }}>
       <div className="px-6 lg:px-8 pt-3 pb-0">
         {/* Breadcrumb */}
         <div className="flex items-center gap-1.5 text-[12px] mb-2.5" style={{ color: '#6B7A72' }}>

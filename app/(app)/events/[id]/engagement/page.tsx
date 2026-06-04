@@ -49,7 +49,7 @@ export default async function EngagementPage({ params }: Props) {
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="sticky top-14 z-30 border-b bg-white" style={{ borderColor: '#E5E0D4' }}>
+      <div className="sticky top-0 z-30 border-b bg-white" style={{ borderColor: '#E5E0D4' }}>
         <div className="max-w-[1100px] mx-auto px-6 lg:px-8 pt-3 pb-3">
           <Link href={`/events/${id}`} className="inline-flex items-center gap-1 text-[12px] text-[#6B7A72] hover:text-[#1F4D3A] transition-colors">
             <ArrowLeft size={12} strokeWidth={2} />
