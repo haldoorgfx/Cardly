@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W27 · Integrations</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .sec-h { font-family: var(--display); font-weight: 500; font-size: 18px; color: var(--forest); margin: 36px 0 18px; }
+  .igrid { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; }
+  .icard { border: 1px solid var(--cream-border); border-radius: var(--r-card); background: var(--cream-surface); padding: 22px; }
+  .icard .logo { width: 40px; height: 40px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-family: var(--display); font-weight: 500; font-size: 16px; color: #fff; }
+  .icard .nm { font-family: var(--display); font-weight: 500; font-size: 16px; color: var(--forest); margin-top: 14px; }
+  .icard .ds { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 5px; line-height: 1.45; min-height: 38px; }
+  .icard .foot { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; gap: 10px; }
+  .status { display: inline-flex; align-items: center; gap: 7px; font-family: var(--body); font-size: 13px; }
+  .status.on { color: var(--forest); } .status.off { color: var(--ink-muted); }
+  .status .ring { width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--ink-muted); }
+  .links2 { display: flex; gap: 12px; }
+  .links2 a { font-family: var(--body); font-size: 13px; text-decoration: none; cursor: pointer; }
+  .links2 .set { color: var(--ink-soft); } .links2 .dis { color: var(--ink-muted); }
+
+  .api { margin: 56px 0 96px; }
+  .api .lead { font-family: var(--body); font-size: 14px; color: var(--ink-muted); margin-top: 6px; }
+  .apicards { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 20px; }
+  .apicard { border: 1px solid var(--cream-border); border-radius: var(--r-card); background: var(--cream-surface); padding: 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .apicard .t { font-family: var(--display); font-weight: 500; font-size: 16px; color: var(--forest); }
+  .apicard .d { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 3px; }
+
+  @media (max-width:1000px){ .igrid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width:640px){ .igrid, .apicards { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<nav class="dashnav">
+  <div style="display:flex; align-items:center; gap:18px;">
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+    <div class="crumb"><b>Karta</b>&nbsp;&nbsp;/&nbsp;&nbsp;Settings&nbsp;&nbsp;/&nbsp;&nbsp;Integrations</div>
+  </div>
+  <div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div>
+</nav>
+
+<div class="dash">
+  <aside class="sidebar">
+    <div class="side-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Events</div>
+    <div class="side-item"><svg viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l4-4 3 3 5-6"/></svg>Analytics</div>
+    <div class="side-item"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="10" r="2.3"/><path d="M3 20c0-3 2.7-5 6-5s6 2 6 5"/></svg>Team</div>
+    <div class="side-item active"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 00-.1-1l2-1.5-2-3.4-2.3 1a7 7 0 00-1.7-1l-.3-2.5H10l-.3 2.5a7 7 0 00-1.7 1l-2.3-1-2 3.4 2 1.5a7 7 0 000 2l-2 1.5 2 3.4 2.3-1a7 7 0 001.7 1l.3 2.5h3.8l.3-2.5a7 7 0 001.7-1l2.3 1 2-3.4-2-1.5c.1-.3.1-.7.1-1z"/></svg>Settings</div>
+    <div class="side-label">Organizer Tools</div>
+    <div class="side-item"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Billing</div>
+    <div style="flex:1;"></div>
+    <span class="pill" style="background:var(--forest-soft); color:var(--forest); margin:0 12px; align-self:flex-start; font-family:var(--mono); font-weight:500;">Pro plan</span>
+  </aside>
+
+  <main class="main">
+    <h1 class="t-display-lg" style="color:var(--forest);">Integrations</h1>
+    <p class="t-body" style="color:var(--ink-muted); margin-top:6px;">Connect your existing tools to sync data automatically.</p>
+
+    <div class="sec-h">Connected</div>
+    <div class="igrid">
+      <div class="icard">
+        <div class="logo" style="background:#4A154B;">S</div>
+        <div class="nm">Slack</div>
+        <div class="ds">Post event notifications to your team channels.</div>
+        <div class="foot"><span class="status on"><span class="dot" style="background:var(--success)"></span>Connected</span><div class="links2"><a class="set">Settings</a><a class="dis">Disconnect</a></div></div>
+      </div>
+      <div class="icard">
+        <div class="logo" style="background:#FFE01B; color:#1F1F1F;">M</div>
+        <div class="nm">Mailchimp</div>
+        <div class="ds">Sync registrants to your email list automatically.</div>
+        <div class="foot"><span class="status on"><span class="dot" style="background:var(--success)"></span>Connected</span><div class="links2"><a class="set">Settings</a><a class="dis">Disconnect</a></div></div>
+      </div>
+    </div>
+
+    <div class="sec-h">Available</div>
+    <div class="igrid">
+      <div class="icard">
+        <div class="logo" style="background:#2D8CFF;">Z</div>
+        <div class="nm">Zoom</div>
+        <div class="ds">Video meetings for your hybrid and online sessions.</div>
+        <div class="foot"><span class="status off"><span class="ring"></span>Not connected</span><button class="btn btn-ghost-forest btn-sm">Connect</button></div>
+      </div>
+      <div class="icard">
+        <div class="logo" style="background:#FF7A59;">H</div>
+        <div class="nm">HubSpot</div>
+        <div class="ds">Add registrants as CRM contacts in real time.</div>
+        <div class="foot"><span class="status off"><span class="ring"></span>Not connected</span><button class="btn btn-ghost-forest btn-sm">Connect</button></div>
+      </div>
+      <div class="icard">
+        <div class="logo" style="background:#FF4A00;">Z</div>
+        <div class="nm">Zapier</div>
+        <div class="ds">Connect Karta to 5,000+ apps with no code.</div>
+        <div class="foot"><span class="status off"><span class="ring"></span>Not connected</span><button class="btn btn-ghost-forest btn-sm">Connect</button></div>
+      </div>
+    </div>
+
+    <div class="api">
+      <h2 class="t-display-md" style="color:var(--forest);">Webhooks & API</h2>
+      <p class="lead">For developers — connect Karta to anything with our REST API and outbound webhooks.</p>
+      <div class="apicards">
+        <a href="w28-api-keys.html" class="apicard" style="text-decoration:none;">
+          <div><div class="t">API Keys</div><div class="d">Create and manage access tokens.</div></div>
+          <span style="color:var(--forest); font-size:18px;">→</span>
+        </a>
+        <div class="apicard">
+          <div><div class="t">Webhook settings</div><div class="d">Subscribe to event notifications.</div></div>
+          <span style="color:var(--forest); font-size:18px;">→</span>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

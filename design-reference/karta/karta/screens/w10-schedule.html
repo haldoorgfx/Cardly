@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W10 · Schedule</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .head { padding: 40px 0 8px; }
+  .head h1 { font-family: var(--display); font-weight: 400; font-size: 32px; color: var(--forest); letter-spacing: -0.02em; }
+  .head .ev { font-family: var(--body); font-size: 14px; color: var(--ink-muted); margin-top: 4px; }
+
+  .daytabs { display: flex; gap: 4px; border-bottom: 1px solid var(--cream-border); margin-top: 24px; }
+  .daytab { padding: 12px 18px; font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--ink-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .daytab.active { color: var(--forest); border-bottom-color: var(--gold); }
+  .daytab .dn { font-family: var(--mono); font-size: 12px; display: block; color: var(--ink-muted); }
+
+  .chips-rail { display: flex; gap: 8px; overflow-x: auto; padding: 20px 0 4px; }
+
+  /* desktop grid */
+  .gridwrap { margin-top: 16px; overflow-x: auto; padding-bottom: 40px; }
+  .trackhead { display: grid; grid-template-columns: 70px repeat(4, minmax(150px,1fr)); border-bottom: 1px solid var(--cream-border); position: sticky; top: 64px; background: var(--cream-canvas); z-index: 5; }
+  .trackhead .th { padding: 14px 12px; font-family: var(--body); font-weight: 500; font-size: 13px; color: var(--ink-soft); display: flex; align-items: center; gap: 8px; }
+  .grid { display: grid; grid-template-columns: 70px repeat(4, minmax(150px,1fr)); position: relative; }
+  .timecol .tcell { height: 60px; padding: 4px 8px; font-family: var(--mono); font-size: 12px; color: var(--ink-muted); text-align: right; border-right: 1px solid var(--cream-border); }
+  .trackcol { position: relative; border-right: 1px solid var(--cream-border); }
+  .trackcol:last-child { border-right: none; }
+  .gcell { height: 60px; border-bottom: 1px solid var(--cream-border); }
+  .sess { position: absolute; left: 4px; right: 4px; border-radius: var(--r-card); background: var(--cream-surface); border: 1px solid var(--cream-border); padding: 9px 11px; overflow: hidden; cursor: pointer; transition: box-shadow .15s; }
+  .sess:hover { box-shadow: var(--e1); }
+  .sess .tt { font-family: var(--body); font-weight: 500; font-size: 13px; color: var(--forest); line-height: 1.25; }
+  .sess .sp { font-family: var(--body); font-size: 11px; color: var(--ink-muted); margin-top: 3px; }
+  .sess.mine { border-left-width: 3px !important; background: #FBF7EC; }
+
+  /* mobile list */
+  .list { display: none; margin-top: 8px; padding-bottom: 60px; }
+  .litem { display: grid; grid-template-columns: 64px 1fr; gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--cream-border); }
+  .litem .tm { font-family: var(--mono); font-size: 13px; color: var(--ink-muted); }
+  .litem .body { border-left: 3px solid var(--cream-border); padding-left: 14px; }
+  .litem .tt { font-family: var(--body); font-weight: 500; font-size: 15px; color: var(--forest); }
+  .litem .sp { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 3px; }
+
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 20px; }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; font-family: var(--body); font-size: 13px; color: var(--ink-soft); }
+
+  @media (max-width: 820px){
+    .gridwrap { display: none; }
+    .list { display: block; }
+    .head h1 { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links"><a href="#">Discover</a><a href="#">My tickets</a><a href="#">Schedule</a><a href="#">Network</a></div>
+  <div class="right">
+    <div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div>
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="head">
+    <h1>Schedule</h1>
+    <div class="ev">AfriTech Summit 2026 · Palais du Peuple, Djibouti</div>
+  </div>
+
+  <div class="daytabs">
+    <div class="daytab active">Thu <span class="dn">12 Mar</span></div>
+    <div class="daytab">Fri <span class="dn">13 Mar</span></div>
+    <div class="daytab">Sat <span class="dn">14 Mar</span></div>
+  </div>
+
+  <div class="chips-rail no-scrollbar">
+    <div class="chip active">All tracks</div>
+    <div class="chip">Design</div>
+    <div class="chip">Engineering</div>
+    <div class="chip">Business</div>
+    <div class="chip">Workshop</div>
+  </div>
+
+  <!-- DESKTOP GRID -->
+  <div class="gridwrap">
+    <div class="trackhead">
+      <div class="th"></div>
+      <div class="th"><span class="dot" style="background:var(--gold)"></span>Design</div>
+      <div class="th"><span class="dot" style="background:var(--forest)"></span>Engineering</div>
+      <div class="th"><span class="dot" style="background:#8A6FB0"></span>Business</div>
+      <div class="th"><span class="dot" style="background:var(--success)"></span>Workshop</div>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <!-- MOBILE LIST -->
+  <div class="list" id="list"></div>
+
+  <div class="legend">
+    <span><span class="dot" style="background:var(--gold)"></span>In my agenda</span>
+    <span class="t-body-sm" style="color:var(--ink-muted)">Tap a session to add it to your personal schedule.</span>
+  </div>
+</div>
+
+<script>
+  const times=['9:00','9:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30'];
+  // [colIdx, startRow, span, title, speaker, color, mine]
+  const sessions=[
+    [1,0,2,'Opening keynote — Building for the next billion','Amina Osman · Main Stage','var(--forest)',true],
+    [0,2,2,'Type & layout fundamentals','Leila Haddad · Studio','var(--gold)',false],
+    [1,3,2,'Scaling engineering across borders','Faisal Karim · Track A','var(--forest)',false],
+    [3,2,3,'Build your first Karta Card','Karta Team · Lab','var(--success)',true],
+    [2,5,2,'Go-to-market in the Horn','Omar Farah · Track B','#8A6FB0',false],
+    [0,6,2,'Design systems workshop','Leila Haddad · Workshop','var(--gold)',false],
+    [1,8,2,'Infra clinic','Samuel Okoro · Track A','var(--forest)',false],
+  ];
+  const ROW=60;
+  const grid=document.getElementById('grid');
+  let tcol='<div class="timecol">'; times.forEach(t=>tcol+=`<div class="tcell">${t}</div>`); tcol+='</div>';
+  grid.innerHTML=tcol;
+  const colEls=[];
+  for(let c=0;c<4;c++){ let col='<div class="trackcol">'; for(let r=0;r<times.length;r++) col+='<div class="gcell"></div>'; col+='</div>'; grid.insertAdjacentHTML('beforeend',col); }
+  grid.querySelectorAll('.trackcol').forEach(c=>colEls.push(c));
+  sessions.forEach(s=>{
+    const el=document.createElement('div');
+    el.className='sess'+(s[6]?' mine':'');
+    el.style.top=(s[1]*ROW+3)+'px'; el.style.height=(s[2]*ROW-6)+'px';
+    el.style.borderLeft='3px solid '+(s[6]?'var(--gold)':s[5]);
+    el.innerHTML=`<div class="tt">${s[3]}</div><div class="sp">${s[4]}</div>`;
+    el.onclick=()=>el.classList.toggle('mine');
+    colEls[s[0]].appendChild(el);
+  });
+
+  // mobile list — sorted by start time
+  const list=document.getElementById('list');
+  [...sessions].sort((a,b)=>a[1]-b[1]).forEach(s=>{
+    const li=document.createElement('div'); li.className='litem';
+    li.innerHTML=`<div class="tm">${times[s[1]]}</div><div class="body" style="border-left-color:${s[6]?'var(--gold)':s[5]}"><div class="tt">${s[3]}</div><div class="sp">${s[4]}</div></div>`;
+    list.appendChild(li);
+  });
+
+  document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{document.querySelector('.chip.active')?.classList.remove('active');c.classList.add('active');});
+  document.querySelectorAll('.daytab').forEach(d=>d.onclick=()=>{document.querySelector('.daytab.active')?.classList.remove('active');d.classList.add('active');});
+</script>
+</body>
+</html>

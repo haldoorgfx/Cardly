@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W30 · Abstract Submission</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .topnav .wm-row { display: flex; align-items: center; gap: 12px; }
+  .topnav .ev-logo { width: 36px; height: 36px; border-radius: var(--r-btn); }
+  .topnav .evn { font-family: var(--display); font-weight: 600; font-size: 18px; color: var(--forest); }
+  .topnav .cfp { font-family: var(--body); font-size: 14px; color: var(--ink-muted); }
+
+  .wrap { max-width: 680px; margin: 40px auto 96px; padding: 0 40px; }
+  .wrap h1 { font-family: var(--display); font-weight: 400; font-size: 32px; color: var(--forest); letter-spacing: -0.025em; }
+  .deadline { display: inline-flex; align-items: center; gap: 8px; background: var(--cream-soft); border: 1px solid var(--cream-border); border-radius: var(--r-pill); padding: 8px 16px; margin-top: 14px; font-family: var(--body); font-size: 14px; color: var(--ink-muted); }
+  .deadline b { font-family: var(--mono); font-weight: 500; color: var(--forest); }
+
+  .steps { display: flex; align-items: center; gap: 8px; margin: 32px 0; }
+  .step { display: flex; align-items: center; gap: 10px; }
+  .step .num { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--cream-border); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 12px; color: var(--ink-muted); flex: none; }
+  .step.active .num { background: var(--forest); border-color: var(--forest); color: #fff; }
+  .step.done .num { background: var(--forest-soft); border-color: var(--forest); color: var(--forest); }
+  .step .lab { font-family: var(--body); font-size: 13px; font-weight: 500; color: var(--ink-muted); white-space: nowrap; }
+  .step.active .lab, .step.done .lab { color: var(--forest); }
+  .step .bar { width: 24px; height: 1px; background: var(--cream-border); }
+
+  .pane { display: none; } .pane.active { display: block; }
+  .field { margin-bottom: 20px; }
+  .field label { display: block; font-family: var(--body); font-size: 13px; font-weight: 500; color: var(--ink-soft); margin-bottom: 8px; }
+  .field input, .field textarea, .field .sel { width: 100%; border: 1px solid var(--cream-border); border-radius: var(--r-input); padding: 13px 15px; font-family: var(--body); font-size: 15px; color: var(--ink); background: var(--cream-surface); }
+  .field input:focus, .field textarea:focus { outline: none; border-color: var(--gold); }
+  .field input.big { height: 56px; }
+  .field textarea { min-height: 180px; resize: vertical; line-height: 1.55; }
+  .wc { font-family: var(--mono); font-size: 12px; color: var(--ink-muted); text-align: right; margin-top: 6px; }
+  .wc.warn { color: var(--gold-hover); } .wc.err { color: var(--error); }
+  .sel { display: flex; align-items: center; justify-content: space-between; color: var(--ink-muted); cursor: pointer; }
+  .taginput { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; border: 1px solid var(--cream-border); border-radius: var(--r-input); padding: 9px 12px; background: var(--cream-surface); }
+  .ktag { height: 28px; padding: 0 6px 0 12px; display: inline-flex; align-items: center; gap: 6px; border-radius: var(--r-pill); background: var(--forest-soft); color: var(--forest); font-family: var(--body); font-size: 13px; font-weight: 500; }
+  .ktag .x { cursor: pointer; opacity: .6; } .ktag .x:hover { opacity: 1; }
+  .taginput input { border: none; outline: none; background: none; flex: 1; min-width: 120px; font-family: var(--body); font-size: 14px; padding: 5px 0; }
+  .upload { border: 1.5px dashed var(--cream-border); border-radius: var(--r-card); height: 100px; display: flex; align-items: center; justify-content: center; font-family: var(--body); font-size: 13px; color: var(--ink-muted); background: var(--cream-surface); cursor: pointer; }
+
+  .author-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 12px; }
+  .toggle { display: inline-flex; align-items: center; gap: 10px; font-family: var(--body); font-size: 14px; color: var(--ink-soft); cursor: pointer; margin-top: 16px; }
+  .tg { width: 38px; height: 22px; border-radius: 999px; background: var(--cream-border); position: relative; flex: none; }
+  .tg::after { content:""; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#fff; transition:transform .15s; }
+  .toggle.on .tg { background: var(--forest); } .toggle.on .tg::after { transform: translateX(16px); }
+  .addco { margin-top: 16px; }
+
+  .summary { border: 1px solid var(--cream-border); border-radius: var(--r-card); background: var(--cream-surface); overflow: hidden; }
+  .srow { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 16px 20px; border-bottom: 1px solid var(--cream-border); }
+  .srow:last-child { border-bottom: none; }
+  .srow .k { font-family: var(--body); font-size: 12px; color: var(--ink-muted); width: 110px; flex: none; }
+  .srow .v { font-family: var(--body); font-size: 14px; color: var(--ink); flex: 1; }
+  .srow .edit { color: var(--ink-muted); cursor: pointer; }
+
+  .nav { display: flex; justify-content: space-between; margin-top: 32px; gap: 12px; }
+  .note { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 14px; }
+
+  @media (max-width:600px){ .wrap { padding: 0 18px; } .author-row { grid-template-columns: 1fr; } .steps .lab { display: none; } }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm-row">
+    <div class="ph ev-logo" style="--h:158;"></div>
+    <div><div class="evn">AfriTech Summit 2026</div></div>
+    <span class="cfp">· Call for Papers</span>
+  </div>
+  <div class="right"><div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div><button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button></div>
+</nav>
+
+<div class="wrap">
+  <h1>Submit your abstract</h1>
+  <div class="deadline"><b>Deadline: March 1, 2026</b> · 14 days remaining</div>
+
+  <div class="steps">
+    <div class="step active" data-s="0"><span class="num">1</span><span class="lab">Paper details</span></div>
+    <div class="bar"></div>
+    <div class="step" data-s="1"><span class="num">2</span><span class="lab">Authors</span></div>
+    <div class="bar"></div>
+    <div class="step" data-s="2"><span class="num">3</span><span class="lab">Review & submit</span></div>
+  </div>
+
+  <!-- Step 1 -->
+  <div class="pane active" data-pane="0">
+    <div class="field"><label>Paper title</label><input class="big" value="Offline-first payment rails for low-connectivity regions"></div>
+    <div class="field">
+      <label>Abstract</label>
+      <textarea id="abs" oninput="wc()">We present a payments architecture designed for intermittent connectivity, common across much of the Horn of Africa. By treating the local device as the source of truth and reconciling asynchronously, we achieve sub-second confirmation perceived latency while maintaining eventual consistency with the central ledger.</textarea>
+      <div class="wc" id="wccount">42 / 400 words</div>
+    </div>
+    <div class="field">
+      <label>Keywords</label>
+      <div class="taginput" id="tags">
+        <span class="ktag">payments<span class="x">×</span></span>
+        <span class="ktag">offline-first<span class="x">×</span></span>
+        <span class="ktag">distributed systems<span class="x">×</span></span>
+        <input placeholder="Add keyword and press Enter">
+      </div>
+    </div>
+    <div class="field"><label>Category</label><div class="sel">Engineering & Infrastructure <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div></div>
+    <div class="field"><label>Full paper (optional)</label><div class="upload">Upload full paper (optional) — PDF, max 10MB</div></div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="pane" data-pane="1">
+    <div class="field" style="margin-bottom:8px;"><label style="font-family:var(--display); font-weight:500; font-size:16px; color:var(--forest);">Primary author (you)</label></div>
+    <div class="author-row">
+      <input value="Dr. Amina Osman" placeholder="Name"><input value="amina@sahelpay.co" placeholder="Email"><input value="Sahel Pay" placeholder="Affiliation">
+    </div>
+    <div class="toggle on" id="presenting"><span class="tg"></span>I am presenting this paper</div>
+    <div class="addco">
+      <div class="field" style="margin-bottom:8px;"><label style="font-family:var(--display); font-weight:500; font-size:16px; color:var(--forest);">Co-authors</label></div>
+      <div class="author-row">
+        <input value="Prof. Kwame Mensah" placeholder="Name"><input value="k.mensah@ug.edu.gh" placeholder="Email"><input value="University of Ghana" placeholder="Affiliation">
+      </div>
+      <button class="btn btn-ghost-forest btn-sm" style="margin-top:14px;">+ Add co-author</button>
+    </div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="pane" data-pane="2">
+    <div class="summary">
+      <div class="srow"><span class="k">Title</span><span class="v">Offline-first payment rails for low-connectivity regions</span><span class="edit">✎</span></div>
+      <div class="srow"><span class="k">Abstract</span><span class="v">We present a payments architecture designed for intermittent connectivity…</span><span class="edit">✎</span></div>
+      <div class="srow"><span class="k">Keywords</span><span class="v">payments · offline-first · distributed systems</span><span class="edit">✎</span></div>
+      <div class="srow"><span class="k">Category</span><span class="v">Engineering & Infrastructure</span><span class="edit">✎</span></div>
+      <div class="srow"><span class="k">Authors</span><span class="v">Dr. Amina Osman (Sahel Pay) · Prof. Kwame Mensah (University of Ghana)</span><span class="edit">✎</span></div>
+    </div>
+    <button class="btn btn-forest btn-lg" style="width:100%; margin-top:24px;">Submit abstract</button>
+    <p class="note">You'll receive a confirmation email. Decisions by February 15.</p>
+  </div>
+
+  <div class="nav">
+    <button class="btn btn-ghost-forest btn-lg" id="back" style="visibility:hidden;">← Back</button>
+    <button class="btn btn-forest btn-lg" id="next" style="margin-left:auto;">Continue →</button>
+  </div>
+</div>
+
+<script>
+  let step=0;
+  const panes=[...document.querySelectorAll('.pane')], steps=[...document.querySelectorAll('.step')];
+  const back=document.getElementById('back'), next=document.getElementById('next');
+  function render(){
+    panes.forEach((p,i)=>p.classList.toggle('active', i===step));
+    steps.forEach((s,i)=>{ s.classList.toggle('active', i===step); s.classList.toggle('done', i<step); });
+    back.style.visibility = step===0?'hidden':'visible';
+    next.style.display = step===2?'none':'inline-flex';
+  }
+  next.onclick=()=>{ if(step<2){step++;render();} };
+  back.onclick=()=>{ if(step>0){step--;render();} };
+  function wc(){
+    const n=document.getElementById('abs').value.trim().split(/\s+/).filter(Boolean).length;
+    const el=document.getElementById('wccount'); el.textContent=n+' / 400 words';
+    el.className='wc'+(n>=400?' err':n>=380?' warn':'');
+  }
+  document.getElementById('presenting').onclick=function(){this.classList.toggle('on');};
+  // keyword tag input
+  const tg=document.getElementById('tags'), inp=tg.querySelector('input');
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter'&&inp.value.trim()){ e.preventDefault(); const s=document.createElement('span'); s.className='ktag'; s.innerHTML=inp.value.trim()+'<span class="x">×</span>'; tg.insertBefore(s,inp); inp.value=''; }});
+  tg.addEventListener('click',e=>{ if(e.target.classList.contains('x')) e.target.closest('.ktag').remove(); });
+  wc();
+</script>
+</body>
+</html>

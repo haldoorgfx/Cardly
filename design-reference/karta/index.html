@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Karta — Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      :root { --forest:#1F4D3A; --forest-dark:#163828; --gold:#E8C57E; --gold-dark:#C9A45E; --cream:#FAF6EE; --surface:#fff; --ink:#0F1F18; --ink-soft:#3A4A42; --muted:#6B7A72; --border:#E5E0D4; }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: "Inter", system-ui, sans-serif; background: #EFE9DC; color: var(--ink); -webkit-font-smoothing: antialiased; min-height: 100vh; }
+      .font-display { font-family: "DM Sans", sans-serif; letter-spacing: -0.02em; }
+      .font-mono { font-family: "JetBrains Mono", monospace; }
+      .wrap { max-width: 1080px; margin: 0 auto; padding: 64px 32px 80px; }
+      .head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+      .logo { width: 34px; height: 34px; border-radius: 9px; background: linear-gradient(135deg,#1F4D3A,#2A6A50 60%,#E8C57E); }
+      .wm { font-family: "DM Sans"; font-weight: 700; font-size: 26px; color: var(--forest); letter-spacing: -0.02em; }
+      .kicker { font-family: "JetBrains Mono"; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); margin: 28px 0 10px; }
+      h1 { font-family: "DM Sans"; font-weight: 700; font-size: 40px; color: var(--forest); letter-spacing: -0.035em; line-height: 1.05; max-width: 640px; }
+      .sub { font-size: 17px; color: var(--ink-soft); margin-top: 14px; max-width: 560px; line-height: 1.55; }
+      .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-top: 44px; }
+      .card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; text-decoration: none; color: inherit; transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease; display: flex; flex-direction: column; }
+      .card:hover { transform: translateY(-3px); border-color: rgba(31,77,58,0.4); box-shadow: 0 18px 40px -22px rgba(15,31,24,0.4); }
+      .cover { height: 150px; position: relative; overflow: hidden; display: flex; align-items: flex-end; padding: 18px; }
+      .cover svg.topo { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.12; }
+      .tag { font-family: "JetBrains Mono"; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--forest-dark); background: rgba(250,246,238,0.92); padding: 5px 10px; border-radius: 100px; font-weight: 600; position: relative; }
+      .body { padding: 20px 22px 22px; flex: 1; display: flex; flex-direction: column; }
+      .body h2 { font-family: "DM Sans"; font-weight: 600; font-size: 19px; color: var(--ink); letter-spacing: -0.01em; }
+      .body p { font-size: 14px; color: var(--ink-soft); margin-top: 6px; line-height: 1.55; flex: 1; }
+      .go { display: inline-flex; align-items: center; gap: 7px; margin-top: 16px; font-size: 13.5px; font-weight: 600; color: var(--forest); }
+      .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+      .chip { font-family: "JetBrains Mono"; font-size: 10.5px; color: var(--muted); border: 1px solid var(--border); border-radius: 100px; padding: 4px 9px; }
+      .foot { margin-top: 48px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--border); padding-top: 20px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+      @media (max-width: 760px){ .grid { grid-template-columns: 1fr; } h1 { font-size: 32px; } .wrap { padding: 40px 22px 60px; } }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="head"><span class="logo"></span><span class="wm">Karta</span></div>
+      <div class="kicker">All-in-one event platform · prototype map</div>
+      <h1>One platform, every surface — designed end to end.</h1>
+      <p class="sub">Marketing, the attendee app, and the organizer dashboard — all in the same forest, cream &amp; gold system. Jump into any surface below.</p>
+
+      <div class="grid">
+        <a class="card" href="attendee/att.html">
+          <div class="cover" style="background:linear-gradient(150deg,#0D1F17,#1F4D3A 60%,#2A6A50)">
+            <svg class="topo" viewBox="0 0 400 150" preserveAspectRatio="none"><path d="M-40 40 Q110 0 220 64 T460 44" fill="none" stroke="#E8C57E" stroke-width="1.2"/><path d="M-40 70 Q110 30 220 94 T460 74" fill="none" stroke="#E8C57E" stroke-width="1.2"/><path d="M-40 100 Q110 60 220 124 T460 104" fill="none" stroke="#E8C57E" stroke-width="1.2"/></svg>
+            <span class="tag">Attendee app · mobile</span>
+          </div>
+          <div class="body">
+            <h2>The attendee journey</h2>
+            <p>Discover events, register, generate &amp; share your Karta Card, build your agenda, network, join live Q&amp;A and more.</p>
+            <div class="meta"><span class="chip">Discover</span><span class="chip">Register</span><span class="chip">Karta Card</span><span class="chip">Network</span></div>
+            <span class="go">Open attendee app →</span>
+          </div>
+        </a>
+
+        <a class="card" href="dashboard/dashboard.html">
+          <div class="cover" style="background:linear-gradient(150deg,#122e21,#1F4D3A 70%,#2A6A50)">
+            <svg class="topo" viewBox="0 0 400 150" preserveAspectRatio="none"><path d="M-40 50 Q110 10 220 74 T460 54" fill="none" stroke="#E8C57E" stroke-width="1.2"/><path d="M-40 80 Q110 40 220 104 T460 84" fill="none" stroke="#E8C57E" stroke-width="1.2"/><path d="M-40 110 Q110 70 220 134 T460 114" fill="none" stroke="#E8C57E" stroke-width="1.2"/></svg>
+            <span class="tag">Organizer dashboard · desktop</span>
+          </div>
+          <div class="body">
+            <h2>The organizer dashboard</h2>
+            <p>Run the whole event — registrations, tickets, agenda, speakers, check-in, engagement, sponsors, analytics, team, billing &amp; admin.</p>
+            <div class="meta"><span class="chip">30+ pages</span><span class="chip">Plan gating</span><span class="chip">Detail views</span><span class="chip">Admin</span></div>
+            <span class="go">Open dashboard →</span>
+          </div>
+        </a>
+
+        <a class="card" href="studio/studio.html">
+          <div class="cover" style="background:linear-gradient(150deg,#122e21,#1F4D3A 70%,#C9A45E 130%)">
+            <svg class="topo" viewBox="0 0 400 150" preserveAspectRatio="none"><path d="M-40 48 Q110 8 220 72 T460 52" fill="none" stroke="#E8C57E" stroke-width="1.2"/><path d="M-40 78 Q110 38 220 102 T460 82" fill="none" stroke="#E8C57E" stroke-width="1.2"/><path d="M-40 108 Q110 68 220 132 T460 112" fill="none" stroke="#E8C57E" stroke-width="1.2"/></svg>
+            <span class="tag">Card Studio · editor</span>
+          </div>
+          <div class="body">
+            <h2>The Karta Card studio</h2>
+            <p>Design the personalized card every attendee gets — drag-and-drop zones, variants, brand kit, live typography, publish.</p>
+            <div class="meta"><span class="chip">Canvas editor</span><span class="chip">Variants</span><span class="chip">Brand</span></div>
+            <span class="go">Open card studio →</span>
+          </div>
+        </a>
+
+        <a class="card" href="site/landing-page.html">
+          <div class="cover" style="background:linear-gradient(150deg,#1F4D3A,#2A6A50 45%,#C9A45E 125%)">
+            <svg class="topo" viewBox="0 0 400 150" preserveAspectRatio="none"><path d="M-40 45 Q110 5 220 69 T460 49" fill="none" stroke="#FAF6EE" stroke-width="1.2"/><path d="M-40 75 Q110 35 220 99 T460 79" fill="none" stroke="#FAF6EE" stroke-width="1.2"/><path d="M-40 105 Q110 65 220 129 T460 109" fill="none" stroke="#FAF6EE" stroke-width="1.2"/></svg>
+            <span class="tag">Marketing site</span>
+          </div>
+          <div class="body">
+            <h2>The marketing site</h2>
+            <p>The public story — the full-platform hero, feature grid, the Karta Card difference, lifecycle, use cases and pricing.</p>
+            <div class="meta"><span class="chip">Landing</span><span class="chip">Pricing</span><span class="chip">Tweakable</span></div>
+            <span class="go">Open landing page →</span>
+          </div>
+        </a>
+
+        <a class="card" href="emails/emails.html">
+          <div class="cover" style="background:linear-gradient(150deg,#0D1F17,#1F4D3A 62%,#2A6A50)">
+            <svg class="topo" viewBox="0 0 400 150" preserveAspectRatio="none"><path d="M-40 50 Q110 10 220 74 T460 54" fill="none" stroke="#E8C57E" stroke-width="1.2"/><path d="M-40 80 Q110 40 220 104 T460 84" fill="none" stroke="#E8C57E" stroke-width="1.2"/><path d="M-40 110 Q110 70 220 134 T460 114" fill="none" stroke="#E8C57E" stroke-width="1.2"/></svg>
+            <span class="tag">Email studio · comms</span>
+          </div>
+          <div class="body">
+            <h2>Email template designer</h2>
+            <p>Branded, on-brand emails — confirmation, reminders, agenda updates, post-event — with ticket QR and the Karta Card built in.</p>
+            <div class="meta"><span class="chip">5 templates</span><span class="chip">Live preview</span><span class="chip">Blocks</span></div>
+            <span class="go">Open email studio →</span>
+          </div>
+        </a>
+
+        <a class="card" href="directory/directory.html">
+          <div class="cover" style="background:linear-gradient(150deg,#241733,#1F4D3A 55%,#2A6A50)">
+            <svg class="topo" viewBox="0 0 400 150" preserveAspectRatio="none"><path d="M-40 50 Q110 10 220 74 T460 54" fill="none" stroke="#E8C57E" stroke-width="1.2"/><path d="M-40 80 Q110 40 220 104 T460 84" fill="none" stroke="#E8C57E" stroke-width="1.2"/><path d="M-40 110 Q110 70 220 134 T460 114" fill="none" stroke="#E8C57E" stroke-width="1.2"/></svg>
+            <span class="tag">Discover · public</span>
+          </div>
+          <div class="body">
+            <h2>The event directory</h2>
+            <p>The public-facing browse &amp; search — featured events, category filters, and a feed spanning every kind of event.</p>
+            <div class="meta"><span class="chip">Search</span><span class="chip">Categories</span><span class="chip">Featured</span></div>
+            <span class="go">Open directory →</span>
+          </div>
+        </a>
+
+        <a class="card" href="speaker/speaker.html">
+          <div class="cover" style="background:linear-gradient(150deg,#1F4D3A,#2A6A50 60%,#C9A45E 130%)">
+            <svg class="topo" viewBox="0 0 400 150" preserveAspectRatio="none"><path d="M-40 50 Q110 10 220 74 T460 54" fill="none" stroke="#E8C57E" stroke-width="1.2"/><path d="M-40 80 Q110 40 220 104 T460 84" fill="none" stroke="#E8C57E" stroke-width="1.2"/><path d="M-40 110 Q110 70 220 134 T460 114" fill="none" stroke="#E8C57E" stroke-width="1.2"/></svg>
+            <span class="tag">Speaker portal</span>
+          </div>
+          <div class="body">
+            <h2>The speaker portal</h2>
+            <p>Where speakers manage their profile, sessions and slides, and share their own speaker Karta Card.</p>
+            <div class="meta"><span class="chip">Profile</span><span class="chip">Sessions</span><span class="chip">Speaker card</span></div>
+            <span class="go">Open speaker portal →</span>
+          </div>
+        </a>
+
+        <a class="card" href="onboarding/onboarding.html">
+          <div class="cover" style="background:linear-gradient(150deg,#0D1F17,#1F4D3A 65%,#235741)">
+            <svg class="topo" viewBox="0 0 400 150" preserveAspectRatio="none"><path d="M-40 52 Q110 12 220 76 T460 56" fill="none" stroke="#E8C57E" stroke-width="1.2"/><path d="M-40 82 Q110 42 220 106 T460 86" fill="none" stroke="#E8C57E" stroke-width="1.2"/><path d="M-40 112 Q110 72 220 136 T460 116" fill="none" stroke="#E8C57E" stroke-width="1.2"/></svg>
+            <span class="tag">Onboarding · setup</span>
+          </div>
+          <div class="body">
+            <h2>Get started wizard</h2>
+            <p>The post-signup flow: pick your event type, set up your org and brand, create a first event, invite your team.</p>
+            <div class="meta"><span class="chip">5 steps</span><span class="chip">Brand kit</span><span class="chip">First event</span></div>
+            <span class="go">Open onboarding →</span>
+          </div>
+        </a>
+
+        <a class="card" href="support/support.html">
+          <div class="cover" style="background:linear-gradient(150deg,#163828,#1F4D3A 60%,#2A6A50)">
+            <svg class="topo" viewBox="0 0 400 150" preserveAspectRatio="none"><path d="M-40 50 Q110 10 220 74 T460 54" fill="none" stroke="#E8C57E" stroke-width="1.2"/><path d="M-40 80 Q110 40 220 104 T460 84" fill="none" stroke="#E8C57E" stroke-width="1.2"/><path d="M-40 110 Q110 70 220 134 T460 114" fill="none" stroke="#E8C57E" stroke-width="1.2"/></svg>
+            <span class="tag">Help · resources</span>
+          </div>
+          <div class="body">
+            <h2>Help &amp; resources</h2>
+            <p>The public support hub — help center, live system status, product changelog, and legal (privacy &amp; terms).</p>
+            <div class="meta"><span class="chip">Help center</span><span class="chip">Status</span><span class="chip">Changelog</span><span class="chip">Legal</span></div>
+            <span class="go">Open resources →</span>
+          </div>
+        </a>
+
+        <a class="card" href="dashboard/auth.html">
+          <div class="cover" style="background:linear-gradient(150deg,#163828,#1F4D3A 55%,#235741)">
+            <svg class="topo" viewBox="0 0 400 150" preserveAspectRatio="none"><path d="M-40 55 Q110 15 220 79 T460 59" fill="none" stroke="#E8C57E" stroke-width="1.2"/><path d="M-40 85 Q110 45 220 109 T460 89" fill="none" stroke="#E8C57E" stroke-width="1.2"/><path d="M-40 115 Q110 75 220 139 T460 119" fill="none" stroke="#E8C57E" stroke-width="1.2"/></svg>
+            <span class="tag">Auth · sign in / up</span>
+          </div>
+          <div class="body">
+            <h2>Sign in &amp; onboarding</h2>
+            <p>The entry point — sign in, create an account, reset a password, or accept a team invite, with the brand panel.</p>
+            <div class="meta"><span class="chip">Sign in</span><span class="chip">Sign up</span><span class="chip">Invite</span></div>
+            <span class="go">Open auth →</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="foot">
+        <span>Karta — all-in-one event management. Built for every kind of event.</span>
+        <span class="font-mono">Forest · Gold · Cream</span>
+      </div>
+    </div>
+  </body>
+</html>

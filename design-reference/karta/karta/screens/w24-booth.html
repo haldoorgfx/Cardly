@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W24 · Exhibitor Booth</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .hero { width: 100%; height: 400px; position: relative; overflow: hidden; }
+  .hero .scrim-b { position: absolute; inset: 0; }
+  .hero .cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 40px 0; }
+  .hero .inner { max-width: 960px; margin: 0 auto; padding: 0 40px; }
+  .hero h1 { font-family: var(--display); font-weight: 400; font-size: 32px; color: #fff; letter-spacing: -0.02em; }
+  .hero .tag { font-family: var(--body); font-size: 16px; color: var(--gold); margin-top: 8px; }
+
+  .layout { display: grid; grid-template-columns: 1fr 280px; gap: 56px; max-width: 960px; margin: 48px auto 96px; padding: 0 40px; align-items: start; }
+  .sec-h { font-family: var(--display); font-weight: 400; font-size: 22px; color: var(--forest); letter-spacing: -0.015em; }
+  .block { margin-top: 40px; } .block:first-child { margin-top: 0; }
+
+  .offer { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--cream-border); }
+  .offer:last-child { border-bottom: none; }
+  .offer .ck { width: 22px; height: 22px; border-radius: 50%; background: var(--forest-soft); display: flex; align-items: center; justify-content: center; flex: none; margin-top: 1px; }
+  .offer .ck svg { width: 13px; height: 13px; stroke: var(--forest); fill: none; stroke-width: 2.4; }
+  .offer .t { font-family: var(--body); font-size: 15px; color: var(--ink-soft); line-height: 1.5; }
+
+  .team { display: flex; gap: 22px; margin-top: 18px; flex-wrap: wrap; }
+  .tm { display: flex; align-items: center; gap: 10px; }
+  .tm .ph { width: 40px; height: 40px; border-radius: 50%; }
+  .tm .nm { font-family: var(--body); font-weight: 500; font-size: 14px; color: var(--ink); }
+  .tm .r { font-family: var(--body); font-size: 12px; color: var(--ink-muted); }
+
+  .booth { position: sticky; top: 88px; padding: 24px; }
+  .booth .loc { font-family: var(--mono); font-weight: 400; font-size: 18px; color: var(--forest); }
+  .booth .hrs { font-family: var(--mono); font-size: 13px; color: var(--ink-muted); margin-top: 6px; }
+  .booth .btn { width: 100%; }
+
+  @media (max-width:900px){ .hero { height: 280px; } .hero h1 { font-size: 26px; } .layout { grid-template-columns: 1fr; gap: 0; } .booth { position: static; margin-top: 36px; } }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links"><a href="w06-discovery.html">Discover</a><a href="w13-speakers.html">Speakers</a><a href="w10-schedule.html">Schedule</a><a href="w11-networking.html">Network</a></div>
+  <div class="right"><div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div><button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button></div>
+</nav>
+
+<div class="hero ph" style="--h:200;">
+  <div class="scrim-b"></div>
+  <div class="cap"><div class="inner">
+    <h1>Flutterwave</h1>
+    <div class="tag">Payments infrastructure for Africa</div>
+  </div></div>
+</div>
+
+<div class="layout">
+  <div>
+    <div class="block">
+      <div class="sec-h">About Flutterwave</div>
+      <p class="t-body" style="color:var(--ink-soft); margin-top:14px; text-wrap:pretty;">Flutterwave powers payments for thousands of businesses across Africa and beyond, processing billions in transactions across cards, mobile money, and bank transfers. At AfriTech Summit we're showcasing our new developer SDK and hiring across engineering, design, and partnerships.</p>
+    </div>
+
+    <div class="block">
+      <div class="sec-h">What we're offering</div>
+      <div style="margin-top:14px;">
+        <div class="offer"><span class="ck"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span><span class="t">Free API credits for summit attendees — $500 toward your first integration.</span></div>
+        <div class="offer"><span class="ck"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span><span class="t">Live demos of our new mobile-money SDK at the booth.</span></div>
+        <div class="offer"><span class="ck"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span><span class="t">On-the-spot interviews for engineering and design roles.</span></div>
+        <div class="offer"><span class="ck"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span><span class="t">Swag, coffee, and a quiet corner to actually have a conversation.</span></div>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="sec-h">Meet the team at the booth</div>
+      <div class="team">
+        <div class="tm"><div class="ph" style="--h:265;"></div><div><div class="nm">Leila Haddad</div><div class="r">Design Lead</div></div></div>
+        <div class="tm"><div class="ph" style="--h:200;"></div><div><div class="nm">Faisal Karim</div><div class="r">VP Engineering</div></div></div>
+        <div class="tm"><div class="ph" style="--h:95;"></div><div><div class="nm">Omar Farah</div><div class="r">Partnerships</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <aside>
+    <div class="card booth">
+      <div class="loc">Hall B · Booth 14</div>
+      <div class="hrs">Open: 09:00 – 18:00</div>
+      <button class="btn btn-forest btn-lg" style="margin-top:18px;">Scan QR to connect</button>
+      <button class="btn btn-ghost-forest btn-md" style="margin-top:10px;">Book a meeting</button>
+    </div>
+  </aside>
+</div>
+
+</body>
+</html>

@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: 'Agenda' };
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { AgendaTabs } from '@/components/events/AgendaTabs';
-import SessionsManager from '@/components/events/SessionsManager';
+import { AgendaView } from '@/components/events/AgendaView';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -38,7 +38,7 @@ export default async function AgendaPage({ params }: Props) {
             Build your event schedule — add sessions, assign speakers, organise by track.
           </p>
         </div>
-        <SessionsManager
+        <AgendaView
           eventId={id}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           initialSessions={(sessions ?? []) as any}

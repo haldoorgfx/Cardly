@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W23 · Sponsor Showcase</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .head { padding: 56px 0 8px; text-align: center; }
+  .head h1 { font-family: var(--display); font-weight: 400; font-size: 28px; color: var(--forest); letter-spacing: -0.02em; }
+  .head .sub { font-family: var(--body); font-size: 16px; color: var(--ink-muted); margin-top: 6px; }
+
+  .tier-lab { font-family: var(--body); font-weight: 500; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted); text-align: center; margin: 56px 0 20px; }
+
+  .t1 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .scard { border: 1px solid var(--cream-border); border-radius: var(--r-card); background: var(--cream-surface); padding: 36px 28px; text-align: center; display: flex; flex-direction: column; align-items: center; }
+  .scard.gold { border: 1px solid var(--gold); }
+  .logo { display: flex; align-items: center; justify-content: center; font-family: var(--display); font-weight: 500; color: var(--forest); }
+  .t1 .logo { height: 80px; font-size: 30px; letter-spacing: -0.01em; }
+  .scard .cn { font-family: var(--display); font-weight: 500; font-size: 20px; color: var(--forest); margin-top: 16px; }
+  .scard .tag { font-family: var(--body); font-size: 14px; color: var(--ink-muted); margin-top: 6px; }
+  .scard .lnk { font-family: var(--body); font-size: 14px; font-weight: 600; color: var(--forest); text-decoration: none; margin-top: 16px; }
+  .scard .lnk:hover { color: var(--gold-hover); }
+
+  .t2 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .t2 .logo { height: 56px; font-size: 22px; }
+  .t2 .cn { font-size: 16px; }
+
+  .t3 { display: flex; flex-wrap: wrap; gap: 40px; justify-content: center; align-items: center; padding: 8px 0; }
+  .t3 .plogo { font-family: var(--display); font-weight: 500; font-size: 18px; color: var(--ink-muted); opacity: .55; filter: grayscale(1); transition: all .2s; cursor: pointer; }
+  .t3 .plogo:hover { color: var(--forest); opacity: 1; filter: none; }
+
+  .cta { margin: 72px auto 96px; padding: 36px 40px; background: var(--cream-soft); border: 1px solid var(--cream-border); border-radius: var(--r-card); text-align: center; }
+  .cta h3 { font-family: var(--display); font-weight: 400; font-size: 20px; color: var(--forest); }
+  .cta p { font-family: var(--body); font-size: 14px; color: var(--ink-muted); margin: 8px 0 20px; }
+
+  @media (max-width:760px){ .t1 { grid-template-columns: 1fr; } .t2 { grid-template-columns: 1fr 1fr; } }
+  @media (max-width:480px){ .t2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links"><a href="w06-discovery.html">Discover</a><a href="w13-speakers.html">Speakers</a><a href="w10-schedule.html">Schedule</a><a href="w11-networking.html">Network</a></div>
+  <div class="right"><div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div><button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button></div>
+</nav>
+
+<div class="container-narrow">
+  <div class="head">
+    <h1>Partners & Sponsors</h1>
+    <div class="sub">AfriTech Summit 2026 is made possible by…</div>
+  </div>
+
+  <div class="tier-lab">Title Sponsors</div>
+  <div class="t1">
+    <div class="scard gold"><div class="logo">Flutterwave</div><div class="cn">Flutterwave</div><div class="tag">Payments infrastructure for Africa</div><a href="w24-booth.html" class="lnk">View booth →</a></div>
+    <div class="scard gold"><div class="logo">Andela</div><div class="cn">Andela</div><div class="tag">Global engineering talent</div><a href="w24-booth.html" class="lnk">View booth →</a></div>
+  </div>
+
+  <div class="tier-lab">Gold Sponsors</div>
+  <div class="t2">
+    <div class="scard"><div class="logo">Paystack</div><div class="cn">Paystack</div><a href="w24-booth.html" class="lnk">Visit booth →</a></div>
+    <div class="scard"><div class="logo">Sahel Pay</div><div class="cn">Sahel Pay</div><a href="w24-booth.html" class="lnk">Visit booth →</a></div>
+    <div class="scard"><div class="logo">Cargo.io</div><div class="cn">Cargo.io</div><a href="w24-booth.html" class="lnk">Visit booth →</a></div>
+  </div>
+
+  <div class="tier-lab">Community Partners</div>
+  <div class="t3">
+    <span class="plogo">Horn Ventures</span>
+    <span class="plogo">U. of Ghana</span>
+    <span class="plogo">ASTU</span>
+    <span class="plogo">Red Sea Tech</span>
+    <span class="plogo">DevCircle</span>
+    <span class="plogo">WomenWhoCode</span>
+  </div>
+
+  <div class="cta">
+    <h3>Interested in sponsoring?</h3>
+    <p>Reach 2,800+ founders, engineers, and investors across the Horn of Africa.</p>
+    <button class="btn btn-gold btn-lg">Contact organizer</button>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Karta — Speaker Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = { theme: { extend: {
+        colors: { primary: "#1F4D3A", "primary-dark": "#163828", "primary-soft": "#E8EFEB", accent: "#E8C57E", "accent-dark": "#C9A45E", ink: "#0F1F18", "ink-soft": "#3A4A42", muted: "#6B7A72", cream: "#FAF6EE", surface: "#FFFFFF", border: "#E5E0D4", success: "#2D7A4F", danger: "#B8423C" },
+        fontFamily: { display: ['"DM Sans"', "sans-serif"], sans: ['"Inter"', "sans-serif"], mono: ['"JetBrains Mono"', "monospace"] },
+      } } };
+    </script>
+    <style>
+      html, body { color: #0F1F18; font-family: "Inter", system-ui, sans-serif; -webkit-font-smoothing: antialiased; background: #FAF6EE; }
+      .font-display { font-family: "DM Sans", sans-serif; letter-spacing: -0.02em; }
+      .font-mono { font-family: "JetBrains Mono", monospace; }
+      ::selection { background: #1F4D3A; color: #FAF6EE; }
+      *:focus-visible { outline: 2px solid rgba(31,77,58,0.4); outline-offset: 2px; border-radius: 4px; }
+      .cardly-cta { box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 4px 12px rgba(31,77,58,0.2); transition: transform .2s; }
+      .cardly-cta:hover { transform: translateY(-1px); }
+    </style>
+    <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel" src="icons.jsx"></script>
+    <script type="text/babel">
+      const { useState } = React;
+      const NAV = [["home", "Home", "Home"], ["profile", "My Profile", "User"], ["sessions", "My Sessions", "Calendar"], ["card", "My Card", "IdCard"], ["resources", "Resources", "Layout"]];
+      const SESSIONS = [
+        { t: "Opening keynote: The next decade of African tech", day: "Day 1 · 12 Mar", time: "09:30–10:15", room: "Auditorium A", track: "Main Stage", status: "Confirmed", materials: true },
+        { t: "Workshop: Ship payments in a weekend", day: "Day 1 · 12 Mar", time: "10:30–12:00", room: "Lab 1", track: "Builders", status: "Needs slides", materials: false },
+      ];
+
+      function SpeakerCard({ w = 200 }) {
+        const h = w * 1.4;
+        return (
+          <div className="rounded-[12px] overflow-hidden relative" style={{ width: w, height: h, background: "linear-gradient(155deg,#0D1F17,#1F4D3A 70%,#163828)", boxShadow: "0 18px 44px -16px rgba(13,31,23,0.55)" }}>
+            <div aria-hidden className="absolute inset-0" style={{ background: "radial-gradient(60% 45% at 50% 38%, rgba(232,197,126,0.2), transparent 65%)" }} />
+            <div className="relative h-full flex flex-col" style={{ padding: w * 0.085 }}>
+              <div className="flex items-center justify-between"><span className="font-display font-semibold text-accent" style={{ fontSize: w * 0.045 }}>Africa Tech Fest</span><span className="font-mono text-white/60" style={{ fontSize: w * 0.037 }}>2026</span></div>
+              <div className="text-center mt-auto"><span className="font-mono uppercase tracking-[0.16em] text-white/60" style={{ fontSize: w * 0.04 }}>I'm speaking at</span></div>
+              <div className="rounded-full mx-auto my-2 grid place-items-center text-white font-display font-semibold" style={{ width: w * 0.38, height: w * 0.38, border: "2px solid #E8C57E", background: "linear-gradient(135deg,#C9A45E,#1F4D3A)", fontSize: w * 0.12 }}>KM</div>
+              <div className="text-center text-white font-display font-medium" style={{ fontSize: w * 0.09 }}>Kwame Mensah</div>
+              <div className="text-center text-white/70" style={{ fontSize: w * 0.046, marginTop: 2 }}>Product Engineer · Paystack</div>
+              <div className="flex items-center justify-between mt-auto" style={{ paddingTop: w * 0.05, borderTop: "1px solid rgba(232,197,126,0.25)" }}><span className="font-mono text-accent" style={{ fontSize: w * 0.04 }}>SPEAKER</span><span className="font-mono text-white/60" style={{ fontSize: w * 0.04 }}>12 MAR · LAGOS</span></div>
+            </div>
+          </div>
+        );
+      }
+
+      function Pill({ children, tone = "neutral" }) {
+        const t = { neutral: "bg-ink/5 text-ink-soft border-border", green: "bg-emerald-50 text-emerald-700 border-emerald-200", amber: "bg-amber-50 text-amber-700 border-amber-200", gold: "bg-accent/20 text-accent-dark border-accent/40" };
+        return <span className={`inline-flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-full border ${t[tone]}`}>{children}</span>;
+      }
+      function Field({ label, value, ta }) {
+        return <label className="block"><span className="font-mono text-[9.5px] tracking-[0.14em] uppercase text-muted block mb-1.5">{label}</span>{ta ? <div className="w-full bg-surface border border-border rounded-xl px-3.5 py-3 text-[13.5px] text-ink-soft leading-relaxed min-h-[90px]">{value}</div> : <input defaultValue={value} className="w-full bg-surface border border-border rounded-xl px-3.5 py-3 text-[14px] text-ink focus:border-accent outline-none" />}</label>;
+      }
+      function Card({ children, className = "" }) { return <div className={`bg-surface border border-border rounded-2xl ${className}`}>{children}</div>; }
+      function H({ children, sub }) { return <div className="mb-5"><h1 className="font-display text-[24px] font-semibold text-primary tracking-[-0.02em]">{children}</h1>{sub && <p className="text-ink-soft text-[14px] mt-0.5">{sub}</p>}</div>; }
+
+      function SessionRow({ s }) {
+        return (
+          <Card className="p-4 flex items-start gap-4">
+            <span className="w-10 h-10 rounded-xl bg-primary-soft text-primary grid place-items-center shrink-0"><Icon.Calendar w={18} /></span>
+            <div className="min-w-0 flex-1">
+              <div className="font-display text-[14.5px] font-semibold text-ink tracking-tight leading-snug">{s.t}</div>
+              <div className="flex items-center gap-2.5 mt-1.5 font-mono text-[11px] text-muted flex-wrap"><span>{s.day}</span><span className="text-border">·</span><span>{s.time}</span><span className="text-border">·</span><span><Icon.Pin w={10} className="inline" /> {s.room}</span></div>
+              <div className="flex items-center gap-2 mt-3">
+                <Pill tone="neutral">{s.track}</Pill>
+                <Pill tone={s.status === "Confirmed" ? "green" : "amber"}>{s.status}</Pill>
+              </div>
+            </div>
+            <button className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-[12.5px] font-medium text-ink-soft hover:border-primary/40 hover:text-primary transition-colors"><Icon.Plus w={13} /> {s.materials ? "Slides ✓" : "Upload slides"}</button>
+          </Card>
+        );
+      }
+
+      function App() {
+        const [tab, setTab] = useState("home");
+        return (
+          <div className="min-h-screen flex flex-col">
+            {/* top bar */}
+            <header className="sticky top-0 z-30 bg-cream/90 backdrop-blur border-b border-border">
+              <div className="max-w-[1080px] mx-auto px-5 lg:px-8 h-14 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span className="w-7 h-7 rounded-lg" style={{ background: "linear-gradient(135deg,#1F4D3A,#2A6A50 60%,#E8C57E)" }} />
+                  <span className="font-display text-[17px] font-bold text-primary tracking-tight">Karta</span>
+                  <span className="hidden sm:inline text-border">/</span>
+                  <span className="hidden sm:inline font-mono text-[10px] tracking-[0.16em] uppercase text-muted truncate">Speaker Portal</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="hidden sm:inline text-[12.5px] text-ink-soft">Africa Tech Festival 2026</span>
+                  <span className="w-9 h-9 rounded-full grid place-items-center text-cream font-display text-[12px] font-semibold" style={{ background: "linear-gradient(135deg,#C9A45E,#1F4D3A)" }}>KM</span>
+                </div>
+              </div>
+              {/* tabs */}
+              <div className="max-w-[1080px] mx-auto px-3 lg:px-8 flex items-center gap-1 overflow-x-auto">
+                {NAV.map(([id, label, icon]) => { const IconC = Icon[icon] || Icon.Home; const on = tab === id; return (
+                  <button key={id} onClick={() => setTab(id)} className={`relative shrink-0 inline-flex items-center gap-2 px-3.5 py-3 text-[13px] font-medium transition-colors ${on ? "text-primary" : "text-muted hover:text-ink-soft"}`}>
+                    <IconC w={15} />{label}{on && <span className="absolute left-2.5 right-2.5 bottom-0 h-0.5 rounded-full bg-primary" />}
+                  </button>
+                ); })}
+              </div>
+            </header>
+
+            <main className="flex-1 max-w-[1080px] w-full mx-auto px-5 lg:px-8 py-8">
+              {tab === "home" && (
+                <div>
+                  <div className="rounded-2xl overflow-hidden relative mb-7" style={{ background: "linear-gradient(150deg,#0D1F17,#1F4D3A 65%,#235741)" }}>
+                    <div aria-hidden className="absolute inset-0" style={{ background: "radial-gradient(60% 90% at 90% 0%, rgba(232,197,126,0.26), transparent 55%)" }} />
+                    <div className="relative px-6 py-7">
+                      <Pill tone="gold"><Icon.Sparkle w={11} /> You're speaking</Pill>
+                      <h1 className="font-display text-cream text-[26px] font-bold tracking-[-0.02em] mt-3">Welcome, Kwame.</h1>
+                      <p className="text-cream/75 text-[14px] mt-1.5 max-w-[480px] leading-relaxed">You have 2 sessions at Africa Tech Festival 2026. Finish the steps below so attendees see you at your best.</p>
+                    </div>
+                  </div>
+                  <div className="grid lg:grid-cols-[1fr_300px] gap-6">
+                    <div>
+                      <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-muted mb-3">Your checklist</div>
+                      <div className="grid gap-2.5 mb-7">
+                        {[["Complete your profile", true], ["Confirm your 2 sessions", true], ["Upload slides for your workshop", false], ["Add a headshot", true]].map(([t, done], i) => (
+                          <Card key={i} className="px-4 py-3 flex items-center gap-3">
+                            <span className={`w-6 h-6 rounded-full grid place-items-center shrink-0 ${done ? "bg-success/15 text-success" : "border-2 border-border"}`}>{done && <Icon.Check w={13} />}</span>
+                            <span className={`flex-1 text-[13.5px] ${done ? "text-muted line-through" : "text-ink font-medium"}`}>{t}</span>
+                            {!done && <button className="text-[12.5px] text-primary font-medium">Do it →</button>}
+                          </Card>
+                        ))}
+                      </div>
+                      <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-muted mb-3">Your sessions</div>
+                      <div className="grid gap-2.5">{SESSIONS.map((s, i) => <SessionRow key={i} s={s} />)}</div>
+                    </div>
+                    <div className="grid gap-5 content-start">
+                      <Card className="p-5">
+                        <div className="font-mono text-[10px] tracking-[0.16em] uppercase text-muted mb-3">Key dates</div>
+                        <div className="grid gap-3">
+                          {[["Slides due", "05 Mar"], ["Tech check", "11 Mar · 16:00"], ["Your keynote", "12 Mar · 09:30"]].map((d, i) => (
+                            <div key={i} className="flex items-center justify-between"><span className="text-[13px] text-ink-soft">{d[0]}</span><span className="font-mono text-[12.5px] text-primary">{d[1]}</span></div>
+                          ))}
+                        </div>
+                      </Card>
+                      <Card className="p-5 text-center">
+                        <div className="font-mono text-[10px] tracking-[0.16em] uppercase text-muted mb-3">Your speaker card</div>
+                        <div className="flex justify-center"><SpeakerCard w={150} /></div>
+                        <button onClick={() => setTab("card")} className="mt-4 w-full cardly-cta inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg bg-primary text-cream text-[13px] font-medium"><Icon.Share w={13} /> Share my card</button>
+                      </Card>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {tab === "profile" && (
+                <div>
+                  <H sub="This is what attendees see in the speaker directory and on your card.">My Profile</H>
+                  <div className="grid lg:grid-cols-[1fr_280px] gap-6">
+                    <div className="grid gap-4">
+                      <div className="flex items-center gap-4">
+                        <span className="w-20 h-20 rounded-2xl grid place-items-center text-cream font-display text-[24px] font-semibold" style={{ background: "linear-gradient(135deg,#C9A45E,#1F4D3A)" }}>KM</span>
+                        <button className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-border text-[13px] font-medium text-ink-soft hover:border-primary/40 hover:text-primary"><Icon.Plus w={14} /> Change headshot</button>
+                      </div>
+                      <div className="grid sm:grid-cols-2 gap-4"><Field label="Full name" value="Kwame Mensah" /><Field label="Pronouns" value="he/him" /></div>
+                      <div className="grid sm:grid-cols-2 gap-4"><Field label="Role" value="Product Engineer" /><Field label="Company" value="Paystack" /></div>
+                      <Field label="Bio" ta value="Kwame leads product engineering at Paystack, shipping payment infrastructure used by thousands of African businesses. A frequent speaker on fintech and building for emerging markets." />
+                      <div className="grid sm:grid-cols-3 gap-4"><Field label="Twitter / X" value="@kwame" /><Field label="LinkedIn" value="in/kwame" /><Field label="Website" value="kwame.dev" /></div>
+                      <div className="flex justify-end"><button className="cardly-cta inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-primary text-cream font-medium text-[14px]"><Icon.Check w={15} /> Save profile</button></div>
+                    </div>
+                    <Card className="p-5 self-start text-center">
+                      <div className="font-mono text-[10px] tracking-[0.16em] uppercase text-muted mb-4">Directory preview</div>
+                      <span className="w-16 h-16 rounded-full grid place-items-center text-cream font-display text-[18px] font-semibold mx-auto" style={{ background: "linear-gradient(135deg,#C9A45E,#1F4D3A)" }}>KM</span>
+                      <div className="font-display text-[15px] font-semibold text-ink mt-2.5">Kwame Mensah</div>
+                      <div className="text-[12px] text-muted">Product Engineer · Paystack</div>
+                      <div className="mt-2 inline-flex"><Pill tone="gold"><Icon.Sparkle w={10} /> Keynote</Pill></div>
+                    </Card>
+                  </div>
+                </div>
+              )}
+
+              {tab === "sessions" && (
+                <div>
+                  <H sub="Your assigned sessions. Upload materials and review details.">My Sessions</H>
+                  <div className="grid gap-2.5">{SESSIONS.map((s, i) => <SessionRow key={i} s={s} />)}</div>
+                  <div className="mt-5 rounded-2xl border border-primary/15 bg-primary-soft/40 px-5 py-4 flex items-start gap-3">
+                    <span className="text-primary mt-0.5"><Icon.Bell w={16} /></span>
+                    <div className="text-[13px] text-ink-soft leading-relaxed"><span className="font-medium text-ink">Slides are due 05 Mar.</span> Upload PDF or a link to your deck — we'll load it on the session screen and share it with attendees afterward.</div>
+                  </div>
+                </div>
+              )}
+
+              {tab === "card" && (
+                <div className="max-w-[640px] mx-auto text-center">
+                  <H sub="Share it on social to bring your audience to the event.">Your speaker card</H>
+                  <div className="flex justify-center my-6" style={{ filter: "drop-shadow(0 20px 44px rgba(13,31,23,0.4))" }}><SpeakerCard w={250} /></div>
+                  <div className="flex items-center justify-center gap-2.5">
+                    <button className="cardly-cta inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-primary text-cream font-medium text-[14px]"><Icon.Share w={15} /> Share card</button>
+                    <button className="inline-flex items-center gap-2 px-5 py-3 rounded-lg border border-border text-ink font-medium text-[14px] hover:border-primary/40">Download</button>
+                  </div>
+                  <div className="flex items-center justify-center gap-3 mt-5">
+                    {["Twitter", "Linkedin", "Chat", "Share"].map((ic, i) => { const IconC = Icon[ic] || Icon.Share; return <button key={i} className="w-10 h-10 rounded-full border border-border grid place-items-center text-ink-soft hover:border-accent hover:text-primary transition-colors"><IconC w={16} /></button>; })}
+                  </div>
+                </div>
+              )}
+
+              {tab === "resources" && (
+                <div>
+                  <H sub="Everything you need to prepare.">Resources</H>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {[["Speaker brief & code of conduct", "PDF · 1.2 MB", "Layout"], ["AV & stage guidelines", "PDF · 800 KB", "Video"], ["Slide template (16:9)", "Keynote / PPTX", "Grid"], ["Travel & accommodation", "Link", "Pin"]].map((r, i) => { const IconC = Icon[r[2]] || Icon.Layout; return (
+                      <Card key={i} className="p-4 flex items-center gap-3 cursor-pointer hover:border-primary/40 transition-colors"><span className="w-10 h-10 rounded-xl bg-primary-soft text-primary grid place-items-center"><IconC w={17} /></span><div className="flex-1"><div className="text-[13.5px] font-medium text-ink">{r[0]}</div><div className="font-mono text-[11px] text-muted mt-0.5">{r[1]}</div></div><Icon.External w={15} className="text-muted" /></Card>
+                    ); })}
+                  </div>
+                  <Card className="mt-5 p-5 flex items-center justify-between gap-4">
+                    <div><div className="font-display text-[15px] font-semibold text-ink">Need help?</div><div className="text-[13px] text-ink-soft mt-0.5">Reach the organizer team directly.</div></div>
+                    <button className="cardly-cta inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-primary text-cream text-[13px] font-medium"><Icon.Chat w={14} /> Message organizer</button>
+                  </Card>
+                </div>
+              )}
+            </main>
+          </div>
+        );
+      }
+      ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    </script>
+  </body>
+</html>

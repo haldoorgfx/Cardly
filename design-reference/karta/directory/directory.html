@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Karta — Discover events</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = { theme: { extend: {
+        colors: { primary: "#1F4D3A", "primary-dark": "#163828", "primary-soft": "#E8EFEB", accent: "#E8C57E", "accent-dark": "#C9A45E", ink: "#0F1F18", "ink-soft": "#3A4A42", muted: "#6B7A72", cream: "#FAF6EE", surface: "#FFFFFF", border: "#E5E0D4", success: "#2D7A4F", danger: "#B8423C" },
+        fontFamily: { display: ['"DM Sans"', "sans-serif"], sans: ['"Inter"', "sans-serif"], mono: ['"JetBrains Mono"', "monospace"] },
+      } } };
+    </script>
+    <style>
+      html, body { color: #0F1F18; font-family: "Inter", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+      body { background-color: #FAF6EE; background-image: radial-gradient(circle, rgba(15,31,24,0.045) 1px, transparent 1px); background-size: 24px 24px; }
+      .font-display { font-family: "DM Sans", sans-serif; letter-spacing: -0.02em; }
+      .font-mono { font-family: "JetBrains Mono", monospace; }
+      ::selection { background: #1F4D3A; color: #FAF6EE; }
+      *:focus-visible { outline: 2px solid rgba(31,77,58,0.4); outline-offset: 2px; border-radius: 4px; }
+      .cardly-cta { box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 4px 12px rgba(31,77,58,0.2); transition: transform .2s; }
+      .cardly-cta:hover { transform: translateY(-1px); }
+      .noscroll::-webkit-scrollbar { display: none; } .noscroll { scrollbar-width: none; }
+    </style>
+    <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel" src="icons.jsx"></script>
+    <script type="text/babel">
+      const { useState } = React;
+      const G = {
+        forest: "linear-gradient(150deg,#0D1F17,#1F4D3A 60%,#2A6A50)",
+        gold: "linear-gradient(150deg,#1F4D3A,#2A6A50 45%,#C9A45E 125%)",
+        plum: "linear-gradient(150deg,#241733,#3a2a55 70%,#5a4a7a)",
+        clay: "linear-gradient(150deg,#2b160c,#5a3320 70%,#9a6038)",
+        ocean: "linear-gradient(150deg,#0b1a26,#1e3a55 70%,#3a6a90)",
+        rose: "linear-gradient(150deg,#2b0f1a,#5a2036 70%,#a04a68)",
+      };
+      const CATS = ["All", "Tech", "Music", "NGO", "Sports", "Corporate", "Religious", "Education", "Arts"];
+      const EVENTS = [
+        { n: "AfriTech Summit 2026", cat: "Tech", when: "12–14 Mar", city: "Djibouti City", price: "From $25", going: 1284, g: G.forest, feat: true },
+        { n: "Sahara Rhythms Festival", cat: "Music", when: "30 May", city: "Marrakesh", price: "From $40", going: 5200, g: G.plum },
+        { n: "Pan-African Climate Forum", cat: "NGO", when: "22 Apr", city: "Nairobi", price: "Free", going: 640, g: G.forest },
+        { n: "Lagos City Marathon", cat: "Sports", when: "09 Feb", city: "Lagos", price: "From $30", going: 12000, g: G.clay },
+        { n: "Founders Gala Dinner", cat: "Corporate", when: "14 May", city: "Accra", price: "From $120", going: 320, g: G.ocean },
+        { n: "Global Halal Summit", cat: "Religious", when: "18 Jul", city: "Istanbul", price: "From $15", going: 880, g: G.gold },
+        { n: "Dakar Art Biennale", cat: "Arts", when: "03 Jun", city: "Dakar", price: "From $12", going: 2100, g: G.rose },
+        { n: "UoN · Class of 2026", cat: "Education", when: "Dec 2026", city: "Nairobi", price: "Invite", going: 612, g: G.forest },
+        { n: "Nairobi Tech Week", cat: "Tech", when: "08 Sep", city: "Nairobi", price: "From $20", going: 3400, g: G.forest },
+        { n: "Afrobeats Live", cat: "Music", when: "21 Dec", city: "Lagos", price: "From $55", going: 8800, g: G.plum },
+        { n: "Women in Leadership", cat: "Corporate", when: "11 Mar", city: "Kigali", price: "From $60", going: 540, g: G.ocean },
+        { n: "Ramadan Charity Iftar", cat: "Religious", when: "02 Apr", city: "Cairo", price: "Free", going: 1500, g: G.gold },
+      ];
+
+      function Nav() {
+        return (
+          <header className="sticky top-0 z-40 bg-cream/85 backdrop-blur border-b border-border/60">
+            <div className="mx-auto max-w-[1200px] px-5 lg:px-8 h-[60px] flex items-center justify-between">
+              <a href="../index.html" className="flex items-center gap-2"><span className="w-7 h-7 rounded-md" style={{ background: "linear-gradient(135deg,#1F4D3A,#2A6A50 60%,#E8C57E)" }} /><span className="font-display text-[19px] font-bold text-primary tracking-tight">Karta</span></a>
+              <nav className="hidden md:flex items-center gap-7 text-[14px] text-ink-soft">
+                <a href="../site/landing-page.html" className="hover:text-primary">Product</a>
+                <a href="#" className="text-primary font-medium">Discover</a>
+                <a href="../site/pricing-page.html" className="hover:text-primary">Pricing</a>
+              </nav>
+              <div className="flex items-center gap-2">
+                <a href="../dashboard/auth.html" className="hidden sm:inline px-3 py-2 text-[14px] text-ink-soft hover:text-primary">Sign in</a>
+                <a href="../onboarding/onboarding.html" className="cardly-cta px-4 py-2.5 rounded-lg bg-primary text-cream text-[14px] font-medium inline-flex items-center gap-1.5">Host an event <Icon.Arrow w={15} /></a>
+              </div>
+            </div>
+          </header>
+        );
+      }
+
+      function Cover({ g, h = 150, children }) {
+        return (
+          <div className="relative overflow-hidden" style={{ height: h, background: g }}>
+            <div aria-hidden className="absolute inset-0" style={{ background: "radial-gradient(70% 85% at 88% 10%, rgba(232,197,126,0.3), transparent 60%)" }} />
+            <svg aria-hidden viewBox="0 0 400 150" preserveAspectRatio="none" className="absolute inset-0 w-full h-full" style={{ opacity: 0.1 }}>
+              {[0,1,2,3].map((i) => <path key={i} d={`M-40 ${36+i*32} Q110 ${-2+i*32} 220 ${60+i*32} T460 ${40+i*32}`} fill="none" stroke="#E8C57E" strokeWidth="1.2" />)}
+            </svg>
+            {children}
+          </div>
+        );
+      }
+
+      function EventCard({ e }) {
+        return (
+          <a href="../attendee/att.html" className="group bg-surface border border-border rounded-2xl overflow-hidden flex flex-col hover:border-primary/40 hover:-translate-y-0.5 transition-all">
+            <Cover g={e.g} h={140}>
+              <div className="absolute inset-0 p-3.5 flex flex-col justify-between">
+                <span className="self-start font-mono text-[9px] tracking-[0.12em] uppercase text-primary-dark bg-cream/95 px-2 py-1 rounded-full font-semibold">{e.cat}</span>
+                <span className="self-start inline-flex items-center gap-1.5 font-mono text-[9.5px] tracking-[0.1em] uppercase text-cream/85 bg-black/25 px-2 py-1 rounded-full"><Icon.Users w={10} /> {e.going.toLocaleString()} going</span>
+              </div>
+            </Cover>
+            <div className="p-4 flex-1 flex flex-col">
+              <div className="font-display text-[16px] font-semibold text-ink tracking-tight leading-snug line-clamp-2">{e.n}</div>
+              <div className="flex items-center gap-2 mt-2 font-mono text-[12px] text-muted"><Icon.Calendar w={12} /> {e.when}<span className="text-border">·</span><Icon.Pin w={12} /> {e.city}</div>
+              <div className="mt-auto pt-3.5 flex items-center justify-between">
+                <span className="text-[13px] font-medium text-primary">{e.price}</span>
+                <span className="inline-flex items-center gap-1 text-[12.5px] text-ink-soft group-hover:text-primary transition-colors">View <Icon.Arrow w={13} /></span>
+              </div>
+            </div>
+          </a>
+        );
+      }
+
+      function App() {
+        const [cat, setCat] = useState("All");
+        const feat = EVENTS.find((e) => e.feat);
+        const list = (cat === "All" ? EVENTS : EVENTS.filter((e) => e.cat === cat)).filter((e) => !(cat === "All" && e.feat));
+        return (
+          <div className="min-h-screen flex flex-col">
+            <Nav />
+            {/* hero */}
+            <section className="relative">
+              <div className="mx-auto max-w-[1100px] px-5 lg:px-8 pt-14 lg:pt-20 pb-8 text-center">
+                <div className="inline-flex items-center gap-2 bg-surface/80 border border-primary/15 rounded-full px-3.5 py-1.5 mb-6 shadow-sm"><span className="w-1.5 h-1.5 rounded-full bg-accent" /><span className="font-sans text-[12.5px] font-medium text-ink-soft">Events on Karta</span></div>
+                <h1 className="font-display text-primary font-bold tracking-[-0.035em] leading-[1.02]" style={{ fontSize: "clamp(34px, 5.5vw, 58px)" }}>Discover events worth showing up for.</h1>
+                <p className="mt-5 text-ink-soft text-[16px] lg:text-[18px] leading-[1.55] max-w-[560px] mx-auto">From tech summits to festivals, find your next experience — and get a card worth sharing the moment you register.</p>
+                <div className="mt-8 max-w-[560px] mx-auto flex items-center gap-2.5 h-13 bg-surface border border-border rounded-2xl px-4 py-3 shadow-sm">
+                  <Icon.Search w={18} className="text-muted" /><span className="text-[15px] text-muted flex-1 text-left">Search events, cities, topics…</span>
+                  <span className="cardly-cta hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-cream text-[13px] font-medium">Search</span>
+                </div>
+              </div>
+              {/* categories */}
+              <div className="mx-auto max-w-[1100px] px-5 lg:px-8">
+                <div className="flex gap-2 overflow-x-auto noscroll pb-2 justify-start lg:justify-center">
+                  {CATS.map((c) => <button key={c} onClick={() => setCat(c)} className={`shrink-0 px-4 py-2 rounded-full text-[13px] font-medium border transition-colors ${cat === c ? "bg-primary text-cream border-primary" : "bg-surface text-ink-soft border-border hover:border-primary/40"}`}>{c}</button>)}
+                </div>
+              </div>
+            </section>
+
+            {/* featured */}
+            {cat === "All" && feat && (
+              <section className="mx-auto max-w-[1100px] px-5 lg:px-8 pt-6">
+                <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-muted mb-3">Featured this week</div>
+                <a href="../attendee/att.html" className="block rounded-3xl overflow-hidden border border-border group">
+                  <Cover g={feat.g} h={260}>
+                    <div className="absolute inset-0 p-6 lg:p-8 flex flex-col justify-between">
+                      <span className="self-start font-mono text-[10px] tracking-[0.12em] uppercase text-primary-dark bg-cream/95 px-2.5 py-1 rounded-full font-semibold">{feat.cat}</span>
+                      <div>
+                        <div className="font-display text-cream text-[28px] lg:text-[36px] font-bold tracking-[-0.02em] leading-[1.02] max-w-[600px]">{feat.n}</div>
+                        <div className="flex items-center gap-3 mt-3 font-mono text-[13px] text-cream/85 flex-wrap"><span className="inline-flex items-center gap-1.5"><Icon.Calendar w={14} style={{ color: "#E8C57E" }} /> {feat.when}</span><span className="inline-flex items-center gap-1.5"><Icon.Pin w={14} style={{ color: "#E8C57E" }} /> {feat.city}</span><span className="inline-flex items-center gap-1.5"><Icon.Users w={14} style={{ color: "#E8C57E" }} /> {feat.going.toLocaleString()} going</span></div>
+                      </div>
+                    </div>
+                  </Cover>
+                </a>
+              </section>
+            )}
+
+            {/* grid */}
+            <section className="flex-1 mx-auto max-w-[1100px] w-full px-5 lg:px-8 py-8">
+              <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-muted mb-4">{cat === "All" ? "Upcoming events" : `${cat} events`} · {list.length}</div>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {list.map((e, i) => <EventCard key={i} e={e} />)}
+              </div>
+            </section>
+
+            {/* host CTA */}
+            <section className="relative overflow-hidden" style={{ background: "linear-gradient(135deg,#0D1F17,#1F4D3A 60%,#235741)" }}>
+              <div aria-hidden className="absolute inset-0" style={{ background: "radial-gradient(40% 80% at 80% 50%, rgba(232,197,126,0.22), transparent 60%)" }} />
+              <div className="relative mx-auto max-w-[1100px] px-5 lg:px-8 py-16 text-center">
+                <h2 className="font-display text-cream text-[28px] lg:text-[38px] font-bold tracking-[-0.025em] leading-[1.05]">Hosting something? List it on Karta.</h2>
+                <p className="mt-4 text-cream/75 text-[15px] lg:text-[16px] max-w-[480px] mx-auto leading-[1.55]">Free to start. Sell tickets, run the day, and give every attendee a card they'll actually share.</p>
+                <a href="../onboarding/onboarding.html" className="cardly-cta mt-7 inline-flex items-center gap-2 px-6 py-3.5 rounded-lg bg-accent text-primary-dark font-semibold hover:bg-accent-dark">Create your event <Icon.Arrow w={16} /></a>
+              </div>
+            </section>
+
+            {/* footer */}
+            <footer className="bg-primary-dark text-cream/80">
+              <div className="mx-auto max-w-[1100px] px-5 lg:px-8 py-10 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-2"><span className="w-6 h-6 rounded-md" style={{ background: "linear-gradient(135deg,#FAF6EE,#E8C57E)" }} /><span className="font-display text-[18px] font-bold text-cream">Karta</span></div>
+                <div className="font-mono text-[11px] tracking-[0.1em] uppercase text-cream/50">The all-in-one event platform</div>
+              </div>
+            </footer>
+          </div>
+        );
+      }
+      ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W15 · Session Detail</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .band { background: var(--cream-soft); border-bottom: 1px solid var(--cream-border); }
+  .band .inner { max-width: 960px; margin: 0 auto; padding: 40px; display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  .trackpill { display: inline-flex; align-items: center; gap: 7px; height: 26px; padding: 0 12px; border-radius: var(--r-pill); background: var(--cream-surface); border: 1px solid var(--cream-border); font-family: var(--body); font-size: 12px; font-weight: 500; color: var(--ink-soft); }
+  .band h1 { font-family: var(--display); font-weight: 400; font-size: 32px; color: var(--forest); letter-spacing: -0.025em; max-width: 720px; margin: 14px 0 12px; }
+  .band .mt { font-family: var(--mono); font-size: 14px; color: var(--ink-muted); display: flex; gap: 10px; flex-wrap: wrap; }
+  .band .mt .sep { color: var(--cream-border); }
+
+  .layout { display: grid; grid-template-columns: 1fr 260px; gap: 56px; max-width: 960px; margin: 44px auto 96px; padding: 0 40px; align-items: start; }
+  .sec-h { font-family: var(--display); font-weight: 400; font-size: 20px; color: var(--forest); }
+  .block { margin-top: 40px; }
+  .block:first-child { margin-top: 0; }
+
+  .spk-row { display: flex; gap: 16px; margin-top: 18px; flex-wrap: wrap; }
+  .spk { width: 180px; border-radius: var(--r-card); overflow: hidden; border: 1px solid var(--cream-border); }
+  .spk .ph { width: 100%; aspect-ratio: 2/3; }
+  .spk .b { padding: 12px 14px; }
+  .spk .nm { font-family: var(--display); font-weight: 500; font-size: 14px; color: var(--forest); }
+  .spk .role { font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-top: 2px; }
+
+  .rel { border: 1px solid var(--cream-border); border-radius: var(--r-card); overflow: hidden; margin-top: 18px; }
+  .rel-row { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--cream-border); cursor: pointer; }
+  .rel-row:last-child { border-bottom: none; }
+  .rel-row:hover { background: var(--cream-soft); }
+  .rel-row .tt { font-family: var(--body); font-weight: 500; font-size: 14px; color: var(--ink); }
+  .rel-row .tm { font-family: var(--mono); font-size: 12px; color: var(--ink-muted); margin-left: auto; white-space: nowrap; }
+
+  .sched { position: sticky; top: 88px; padding: 24px; }
+  .sched .dt { font-family: var(--display); font-weight: 500; font-size: 16px; color: var(--forest); }
+  .sched .tm { font-family: var(--mono); font-weight: 400; font-size: 20px; color: var(--forest); margin-top: 10px; }
+  .sched .kv { font-family: var(--body); font-size: 14px; color: var(--ink-muted); margin-top: 4px; }
+  .sched .cap-row { font-family: var(--mono); font-size: 13px; margin-top: 12px; }
+  .sched .cap-row .f { color: var(--forest); } .sched .cap-row .m { color: var(--ink-muted); }
+  .stars { display: flex; gap: 6px; margin: 8px 0 14px; }
+  .star { width: 24px; height: 24px; cursor: pointer; }
+  .star svg { width: 100%; height: 100%; }
+
+  @media (max-width:900px){ .layout { grid-template-columns: 1fr; gap: 0; } .sched { position: static; margin-top: 36px; } .band h1 { font-size: 26px; } }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links"><a href="w06-discovery.html">Discover</a><a href="w13-speakers.html">Speakers</a><a href="w10-schedule.html" style="color:var(--forest)">Schedule</a><a href="w11-networking.html">Network</a></div>
+  <div class="right"><div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div><button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button></div>
+</nav>
+
+<div class="band">
+  <div class="inner">
+    <div>
+      <span class="trackpill"><span class="dot" style="background:var(--gold)"></span>Design</span>
+      <h1>Design systems workshop — tokens to components</h1>
+      <div class="mt"><span>12 Mar · 13:00 · Workshop Room</span><span class="sep">·</span><span>47 attending</span></div>
+    </div>
+    <button class="btn btn-gold btn-lg" id="addTop">Add to my agenda</button>
+  </div>
+</div>
+
+<div class="layout">
+  <div>
+    <div class="block">
+      <p class="t-body" style="color:var(--ink-soft); line-height:1.6; text-wrap:pretty;">A hands-on, ninety-minute workshop building a production-grade design system from first principles. We'll define a token layer, wire it into components, and ship a themeable button, card, and form set you can reuse the same afternoon. Bring a laptop — you'll leave with a working repo. No prior design-systems experience required, but comfort with CSS helps.</p>
+    </div>
+
+    <div class="block">
+      <div class="sec-h">Presented by</div>
+      <div class="spk-row">
+        <div class="spk"><div class="ph" style="--h:265;"></div><div class="b"><div class="nm">Leila Haddad</div><div class="role">Design Lead, Flutterwave</div></div></div>
+        <div class="spk"><div class="ph" style="--h:30;"></div><div class="b"><div class="nm">Amina Osman</div><div class="role">Founder, Sahel Pay</div></div></div>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="sec-h">You might also like</div>
+      <div class="rel">
+        <div class="rel-row"><span class="dot" style="background:var(--gold)"></span><span class="tt">Type & layout fundamentals</span><span class="tm">12 Mar · 10:00 · Studio</span></div>
+        <div class="rel-row"><span class="dot" style="background:var(--forest)"></span><span class="tt">Scaling engineering across borders</span><span class="tm">12 Mar · 10:30 · Track A</span></div>
+        <div class="rel-row"><span class="dot" style="background:var(--success)"></span><span class="tt">Build your first Karta Card</span><span class="tm">12 Mar · 11:00 · Lab</span></div>
+      </div>
+    </div>
+  </div>
+
+  <aside>
+    <div class="card sched">
+      <div class="dt">Thursday, 12 March</div>
+      <div class="tm">13:00 – 14:30</div>
+      <div class="kv">Workshop Room · Floor 2</div>
+      <div class="kv mono" style="font-family:var(--mono); font-size:13px;">90 min</div>
+      <div class="cap-row"><span class="f">47</span><span class="m"> / 120 registered</span></div>
+      <button class="btn btn-forest btn-md" id="addSide" style="width:100%; margin-top:16px;">Add to agenda</button>
+    </div>
+  </aside>
+</div>
+
+<script>
+  function toggle(){
+    [document.getElementById('addTop'),document.getElementById('addSide')].forEach(b=>{
+      const on = b.dataset.on==='1';
+      b.dataset.on = on?'0':'1';
+      if(b.id==='addTop'){ b.textContent = on?'Add to my agenda':'✓ In your agenda'; b.className = on?'btn btn-gold btn-lg':'btn btn-ghost-gold btn-lg'; }
+      else { b.textContent = on?'Add to agenda':'✓ In your agenda'; b.className = on?'btn btn-forest btn-md':'btn btn-ghost-gold btn-md'; b.style.width='100%'; if(on) b.style.marginTop='16px'; }
+    });
+  }
+  document.getElementById('addTop').onclick=toggle;
+  document.getElementById('addSide').onclick=toggle;
+  document.getElementById('addSide').style.marginTop='16px';
+</script>
+</body>
+</html>

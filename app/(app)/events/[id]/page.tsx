@@ -4,12 +4,10 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import {
-  ArrowRight, Layout, Ticket, Users, CalendarDays, User,
-  ScanLine, Bell, Network, MessageSquare, Briefcase, BarChart2,
-  Video, CheckCircle2, FileDown,
-  Sparkles,
+  ArrowRight, CalendarDays, CheckCircle2, FileDown, MapPin, Wifi,
 } from 'lucide-react';
 import EventDetailActions from './EventDetailActions';
+import { EventOverviewCards, type OverviewCard } from '@/components/events/EventOverviewCards';
 import type { Zone, Variant } from '@/types/database';
 
 function timeAgo(dateStr: string) {
@@ -53,8 +51,9 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
     { count: sessionCount },
     { count: speakerCount },
     { count: ticketTypeCount },
+    { data: profile },
   ] = await Promise.all([
-    admin.from('events').select('id, name, slug, status, view_count, download_count, user_id, created_at').eq('id', id).eq('user_id', user.id).single(),
+    admin.from('events').select('id, name, slug, status, view_count, download_count, user_id, created_at, event_pages(starts_at, ends_at, venue_name, is_online)').eq('id', id).eq('user_id', user.id).single(),
     admin.from('event_variants').select('id, variant_name, variant_slug, background_url, background_width, background_height, zones, position').eq('event_id', id).order('position', { ascending: true }),
     admin.from('registrations').select('id, attendee_name, status, created_at').eq('event_id', id).order('created_at', { ascending: false }).limit(5),
     admin.from('registrations').select('amount_paid').eq('event_id', id).in('status', ['confirmed', 'checked_in']),
@@ -63,6 +62,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
     admin.from('sessions').select('id', { count: 'exact', head: true }).eq('event_id', id),
     admin.from('speakers').select('id', { count: 'exact', head: true }).eq('event_id', id),
     admin.from('ticket_types').select('id', { count: 'exact', head: true }).eq('event_id', id),
+    admin.from('profiles').select('plan').eq('id', user.id).single(),
   ]);
 
   if (!event) redirect('/dashboard');
@@ -82,126 +82,22 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
 
   const st = STATUS_STYLE[event.status as keyof typeof STATUS_STYLE] ?? STATUS_STYLE.draft;
 
-  const ACTION_CARDS = [
-    {
-      id: 'event-page',
-      label: 'Event Page',
-      desc: 'Edit your public event page',
-      icon: <Layout size={18} strokeWidth={1.8} />,
-      href: `/events/${id}/event-page`,
-      badge: event.status === 'published' ? 'Published' : 'Draft',
-      badgeGreen: event.status === 'published',
-      gold: false,
-    },
-    {
-      id: 'tickets',
-      label: 'Tickets',
-      desc: 'Manage ticket types and pricing',
-      icon: <Ticket size={18} strokeWidth={1.8} />,
-      href: `/events/${id}/tickets`,
-      badge: ticketTypes > 0 ? `${ticketTypes} ticket type${ticketTypes !== 1 ? 's' : ''}` : null,
-      gold: false,
-    },
-    {
-      id: 'registrations',
-      label: 'Registrations',
-      desc: 'View and manage attendees',
-      icon: <Users size={18} strokeWidth={1.8} />,
-      href: `/events/${id}/registrations`,
-      badge: registrations > 0 ? `${registrations.toLocaleString()} registered` : null,
-      gold: false,
-    },
-    {
-      id: 'agenda',
-      label: 'Agenda',
-      desc: 'Build your event schedule',
-      icon: <CalendarDays size={18} strokeWidth={1.8} />,
-      href: `/events/${id}/agenda`,
-      badge: sessions > 0 ? `${sessions} session${sessions !== 1 ? 's' : ''}` : null,
-      gold: false,
-    },
-    {
-      id: 'speakers',
-      label: 'Speakers',
-      desc: 'Manage speakers and sessions',
-      icon: <User size={18} strokeWidth={1.8} />,
-      href: `/events/${id}/speakers`,
-      badge: speakers > 0 ? `${speakers} speaker${speakers !== 1 ? 's' : ''}` : null,
-      gold: false,
-    },
-    {
-      id: 'check-in',
-      label: 'Check-in',
-      desc: 'Scan attendees at the door',
-      icon: <ScanLine size={18} strokeWidth={1.8} />,
-      href: `/events/${id}/check-in`,
-      badge: event.status === 'published' ? `${checkInRate}% checked in` : 'Go live →',
-      gold: false,
-    },
-    {
-      id: 'networking',
-      label: 'Networking',
-      desc: 'Attendee connections and matchmaking',
-      icon: <Network size={18} strokeWidth={1.8} />,
-      href: `/events/${id}/engagement`,
-      badge: null,
-      gold: false,
-    },
-    {
-      id: 'q-and-a',
-      label: 'Q&A & Polls',
-      desc: 'Live session engagement',
-      icon: <MessageSquare size={18} strokeWidth={1.8} />,
-      href: `/events/${id}/q-and-a`,
-      badge: null,
-      gold: false,
-    },
-    {
-      id: 'sponsors',
-      label: 'Sponsors',
-      desc: 'Manage sponsors and exhibitors',
-      icon: <Briefcase size={18} strokeWidth={1.8} />,
-      href: `/events/${id}/engagement`,
-      badge: null,
-      gold: false,
-    },
-    {
-      id: 'analytics',
-      label: 'Analytics',
-      desc: 'Registration funnel and engagement data',
-      icon: <BarChart2 size={18} strokeWidth={1.8} />,
-      href: `/events/${id}/analytics`,
-      badge: 'View →',
-      gold: false,
-    },
-    {
-      id: 'karta-card',
-      label: 'Karta Card',
-      desc: 'The personalized card every attendee gets',
-      icon: <Sparkles size={18} strokeWidth={1.8} />,
-      href: `/events/${id}/karta-card`,
-      badge: event.download_count > 0 ? `${event.download_count} downloaded` : null,
-      gold: true,
-    },
-    {
-      id: 'communications',
-      label: 'Communications',
-      desc: 'Email your attendees and send updates',
-      icon: <Bell size={18} strokeWidth={1.8} />,
-      href: `/events/${id}/communications`,
-      badge: null,
-      gold: false,
-    },
-    {
-      id: 'virtual',
-      label: 'Virtual',
-      desc: 'Stream sessions online',
-      icon: <Video size={18} strokeWidth={1.8} />,
-      href: `/events/${id}/engagement`,
-      badge: null,
-      gold: false,
-    },
-  ] as const;
+  const ACTION_CARDS: OverviewCard[] = [
+    { id: 'event-page',     label: 'Event Page',     iconId: 'layout',    desc: 'Edit your public event page',               href: `/events/${id}/event-page`,     badge: event.status === 'published' ? 'Published' : 'Draft', badgeGreen: event.status === 'published' },
+    { id: 'tickets',        label: 'Tickets',        iconId: 'ticket',    desc: 'Manage ticket types and pricing',            href: `/events/${id}/tickets`,        badge: ticketTypes > 0 ? `${ticketTypes} ticket type${ticketTypes !== 1 ? 's' : ''}` : null },
+    { id: 'registrations',  label: 'Registrations',  iconId: 'users',     desc: 'View and manage attendees',                 href: `/events/${id}/registrations`,  badge: registrations > 0 ? `${registrations.toLocaleString()} registered` : null },
+    { id: 'agenda',         label: 'Agenda',         iconId: 'calendar',  desc: 'Build your event schedule',                 href: `/events/${id}/agenda`,         badge: sessions > 0 ? `${sessions} session${sessions !== 1 ? 's' : ''}` : null },
+    { id: 'speakers',       label: 'Speakers',       iconId: 'user',      desc: 'Manage speakers and sessions',              href: `/events/${id}/speakers`,       badge: speakers > 0 ? `${speakers} speaker${speakers !== 1 ? 's' : ''}` : null },
+    { id: 'check-in',       label: 'Check-in',       iconId: 'scan',      desc: 'Scan attendees at the door',                href: `/events/${id}/check-in`,       badge: event.status === 'published' ? `${checkInRate}% checked in` : 'Go live →' },
+    { id: 'networking',     label: 'Networking',     iconId: 'network',   desc: 'Attendee connections and matchmaking',      href: `/events/${id}/engagement`,     badge: null, minPlan: 'pro' },
+    { id: 'q-and-a',        label: 'Q&A & Polls',    iconId: 'message',   desc: 'Live session engagement',                  href: `/events/${id}/q-and-a`,        badge: null, minPlan: 'pro' },
+    { id: 'gamification',   label: 'Gamification',   iconId: 'trophy',    desc: 'Points, leaderboard and badges',            href: `/events/${id}/polls`,          badge: null, minPlan: 'pro' },
+    { id: 'sponsors',       label: 'Sponsors',       iconId: 'briefcase', desc: 'Manage sponsors and exhibitors',            href: `/events/${id}/engagement`,     badge: null, minPlan: 'studio' },
+    { id: 'virtual',        label: 'Virtual',        iconId: 'video',     desc: 'Stream sessions online',                   href: `/events/${id}/engagement`,     badge: null, minPlan: 'studio' },
+    { id: 'analytics',      label: 'Analytics',      iconId: 'chart',     desc: 'Registration funnel and engagement data',  href: `/events/${id}/analytics`,      badge: 'View →' },
+    { id: 'karta-card',     label: 'Karta Card',     iconId: 'sparkles',  desc: 'The personalized card every attendee gets', href: `/events/${id}/karta-card`,    badge: event.download_count > 0 ? `${event.download_count} downloaded` : null, gold: true },
+    { id: 'communications', label: 'Communications', iconId: 'bell',      desc: 'Email your attendees and send updates',     href: `/events/${id}/communications`, badge: null },
+  ];
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
@@ -224,6 +120,29 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
               <h1 className="font-display text-[26px] sm:text-[32px] font-bold text-[#FAF6EE] tracking-[-0.02em] leading-tight">
                 {event.name}
               </h1>
+              {(() => {
+                const ep = Array.isArray(event.event_pages) ? event.event_pages[0] : event.event_pages;
+                if (!ep) return null;
+                return (
+                  <div className="flex items-center gap-2.5 mt-2 font-mono text-[12.5px]" style={{ color: 'rgba(250,246,238,0.75)' }}>
+                    {ep.starts_at && (
+                      <span className="inline-flex items-center gap-1.5">
+                        <CalendarDays size={12} strokeWidth={1.8} />
+                        {new Date(ep.starts_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </span>
+                    )}
+                    {ep.starts_at && (ep.venue_name || ep.is_online) && (
+                      <span style={{ color: 'rgba(250,246,238,0.35)' }}>·</span>
+                    )}
+                    {(ep.venue_name || ep.is_online) && (
+                      <span className="inline-flex items-center gap-1.5">
+                        {ep.is_online ? <Wifi size={12} strokeWidth={1.8} /> : <MapPin size={12} strokeWidth={1.8} />}
+                        {ep.is_online ? 'Online' : ep.venue_name}
+                      </span>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
             <div className="flex items-center gap-2 shrink-0 pb-0.5">
               <EventDetailActions eventId={id} eventName={event.name} status={event.status} />
@@ -256,8 +175,8 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
           ))}
         </div>
 
-        {/* ── Status alert ── */}
-        {event.status === 'published' && registrations > 0 && (
+        {/* ── Attention items ── */}
+        {event.status === 'published' && registrations > 0 && ticketTypes > 0 && sessions > 0 && speakers > 0 && firstVariant ? (
           <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl"
             style={{ background: 'rgba(45,122,79,0.06)', border: '1px solid rgba(45,122,79,0.2)' }}>
             <CheckCircle2 size={15} strokeWidth={2} style={{ color: '#2D7A4F', flexShrink: 0 }} />
@@ -265,28 +184,61 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
               Your event is live and healthy — registrations and cards are flowing.
             </span>
           </div>
-        )}
-        {event.status === 'draft' && (
-          <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl"
-            style={{ background: 'linear-gradient(135deg, rgba(232,197,126,0.14), rgba(31,77,58,0.05))', border: '1px solid rgba(232,197,126,0.5)' }}>
-            <span className="text-[13.5px] font-medium" style={{ color: '#163828' }}>
-              This event is still a draft — publish it to open registration.
-            </span>
-            <Link href={`/events/${id}/publish`}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[12.5px] font-semibold shrink-0 transition-colors"
-              style={{ background: '#E8C57E', color: '#0F1F18' }}>
-              Publish event <ArrowRight size={13} strokeWidth={2} />
-            </Link>
-          </div>
-        )}
-        {!firstVariant && (
-          <div className="flex items-center justify-between gap-3 bg-white rounded-xl px-4 py-3 border" style={{ borderColor: '#E5E0D4' }}>
-            <span className="text-[13.5px] font-medium" style={{ color: '#3A4A42' }}>No card design uploaded yet.</span>
-            <Link href={`/events/${id}/edit`}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[12.5px] font-semibold shrink-0"
-              style={{ border: '1px solid rgba(31,77,58,0.25)', color: '#1F4D3A' }}>
-              Upload design <ArrowRight size={13} strokeWidth={2} />
-            </Link>
+        ) : (
+          <div className="grid gap-2.5">
+            {event.status === 'draft' && (
+              <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl"
+                style={{ background: 'linear-gradient(135deg, rgba(232,197,126,0.14), rgba(31,77,58,0.05))', border: '1px solid rgba(232,197,126,0.5)' }}>
+                <span className="text-[13.5px] font-medium" style={{ color: '#163828' }}>
+                  This event is still a draft — publish it to open registration.
+                </span>
+                <Link href={`/events/${id}/publish`}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[12.5px] font-semibold shrink-0 transition-colors"
+                  style={{ background: '#E8C57E', color: '#0F1F18' }}>
+                  Publish event <ArrowRight size={13} strokeWidth={2} />
+                </Link>
+              </div>
+            )}
+            {ticketTypes === 0 && (
+              <div className="flex items-center justify-between gap-3 bg-white rounded-xl px-4 py-3 border" style={{ borderColor: '#E5E0D4' }}>
+                <span className="text-[13.5px]" style={{ color: '#6B7A72' }}>No tickets set up yet.</span>
+                <Link href={`/events/${id}/tickets`}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[12.5px] font-medium shrink-0 transition hover:bg-[#E8EFEB]"
+                  style={{ border: '1px solid rgba(31,77,58,0.25)', color: '#1F4D3A' }}>
+                  Add tickets <ArrowRight size={13} strokeWidth={2} />
+                </Link>
+              </div>
+            )}
+            {sessions === 0 && (
+              <div className="flex items-center justify-between gap-3 bg-white rounded-xl px-4 py-3 border" style={{ borderColor: '#E5E0D4' }}>
+                <span className="text-[13.5px]" style={{ color: '#6B7A72' }}>Your agenda has no sessions yet.</span>
+                <Link href={`/events/${id}/agenda`}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[12.5px] font-medium shrink-0 transition hover:bg-[#E8EFEB]"
+                  style={{ border: '1px solid rgba(31,77,58,0.25)', color: '#1F4D3A' }}>
+                  Build agenda <ArrowRight size={13} strokeWidth={2} />
+                </Link>
+              </div>
+            )}
+            {speakers === 0 && (
+              <div className="flex items-center justify-between gap-3 bg-white rounded-xl px-4 py-3 border" style={{ borderColor: '#E5E0D4' }}>
+                <span className="text-[13.5px]" style={{ color: '#6B7A72' }}>No speakers added yet.</span>
+                <Link href={`/events/${id}/speakers`}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[12.5px] font-medium shrink-0 transition hover:bg-[#E8EFEB]"
+                  style={{ border: '1px solid rgba(31,77,58,0.25)', color: '#1F4D3A' }}>
+                  Add speakers <ArrowRight size={13} strokeWidth={2} />
+                </Link>
+              </div>
+            )}
+            {!firstVariant && (
+              <div className="flex items-center justify-between gap-3 bg-white rounded-xl px-4 py-3 border" style={{ borderColor: '#E5E0D4' }}>
+                <span className="text-[13.5px]" style={{ color: '#6B7A72' }}>No Karta Card design uploaded yet.</span>
+                <Link href={`/events/${id}/edit`}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[12.5px] font-medium shrink-0 transition hover:bg-[#E8EFEB]"
+                  style={{ border: '1px solid rgba(31,77,58,0.25)', color: '#1F4D3A' }}>
+                  Upload design <ArrowRight size={13} strokeWidth={2} />
+                </Link>
+              </div>
+            )}
           </div>
         )}
 
@@ -295,51 +247,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
           <p className="text-[10px] font-mono uppercase tracking-[0.2em] mb-4" style={{ color: '#9BA8A1' }}>
             Manage this event
           </p>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {ACTION_CARDS.map(card => (
-              <Link key={card.id} href={card.href}
-                className="group flex flex-col p-5 rounded-2xl transition-all hover:-translate-y-0.5"
-                style={{
-                  background: card.gold
-                    ? 'linear-gradient(135deg, rgba(232,197,126,0.16), rgba(31,77,58,0.06))'
-                    : 'white',
-                  border: '1px solid #E5E0D4',
-                  boxShadow: '0 1px 2px rgba(15,31,24,0.04)',
-                  textDecoration: 'none',
-                }}
-                onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(31,77,58,0.4)')}
-                onMouseLeave={e => (e.currentTarget.style.borderColor = '#E5E0D4')}
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <div
-                    className="h-10 w-10 rounded-xl grid place-items-center shrink-0"
-                    style={card.gold
-                      ? { background: 'rgba(232,197,126,0.25)', color: '#C9A45E' }
-                      : { background: '#E8EFEB', color: '#1F4D3A' }
-                    }
-                  >
-                    {card.id === 'karta-card'
-                      ? <Sparkles size={18} strokeWidth={1.8} />
-                      : card.icon
-                    }
-                  </div>
-                  {card.badge && (
-                    <span className="text-[11px] font-mono shrink-0 ml-2"
-                      style={{ color: ('badgeGreen' in card && card.badgeGreen) ? '#2D7A4F' : '#6B7A72' }}>
-                      {card.badge}
-                    </span>
-                  )}
-                </div>
-                <p className="font-display text-[14.5px] font-semibold leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>
-                  {card.label}
-                  {card.gold && <Sparkles size={11} strokeWidth={2} className="inline ml-1" style={{ color: '#C9A45E', verticalAlign: 'middle' }} />}
-                </p>
-                <p className="text-[12.5px] mt-1 flex-1" style={{ color: '#6B7A72', lineHeight: 1.5 }}>
-                  {card.desc}
-                </p>
-              </Link>
-            ))}
-          </div>
+          <EventOverviewCards cards={ACTION_CARDS} userPlan={profile?.plan ?? 'free'} />
         </div>
 
         {/* ── Recent registrations ── */}
