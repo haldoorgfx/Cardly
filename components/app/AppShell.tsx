@@ -9,7 +9,8 @@ import {
   LayoutGrid, TrendingUp, LayoutTemplate, Settings2, Users, LogOut, Menu, Search, Plus, ChevronRight, CreditCard,
   BarChart2, FileText, Eye, X, ArrowLeft, ShieldCheck,
   Flag, Image as ImageIcon, ScrollText, Sliders, Gavel,
-  Home, Layout, CalendarDays, MessageSquare, IdCard, Bell, Plug, Globe,
+  Home, Layout, CalendarDays, MessageSquare, Bell, Plug, Globe,
+  Ticket, ScanLine, User, Network, Trophy, Briefcase, Video, Palette, Key, Tag, ExternalLink,
 } from 'lucide-react';
 
 type Profile = {
@@ -56,19 +57,49 @@ type EventInfo = { id: string; name: string; status: string; slug: string } | nu
 
 const EVENT_NAV_SECTIONS = [
   {
-    title: null,
+    title: 'Manage',
     items: [
-      { id: 'overview',        label: 'Overview',        icon: <Home size={15} strokeWidth={1.8} />,            segment: '' },
-      { id: 'registrations',   label: 'Registrations',   icon: <Users size={15} strokeWidth={1.8} />,           segment: 'registrations' },
-      { id: 'event-page',      label: 'Event page',      icon: <Layout size={15} strokeWidth={1.8} />,          segment: 'event-page' },
-      { id: 'agenda',          label: 'Agenda',          icon: <CalendarDays size={15} strokeWidth={1.8} />,    segment: 'agenda' },
-      { id: 'engagement',      label: 'Engagement',      icon: <MessageSquare size={15} strokeWidth={1.8} />,   segment: 'engagement' },
-      { id: 'communications',  label: 'Communications',  icon: <Bell size={15} strokeWidth={1.8} />,            segment: 'communications' },
-      { id: 'analytics',       label: 'Analytics',       icon: <BarChart2 size={15} strokeWidth={1.8} />,       segment: 'analytics' },
-      { id: 'karta-card',      label: 'Karta Card',      icon: <IdCard size={15} strokeWidth={1.8} />,          segment: 'karta-card' },
-      { id: 'integrations',    label: 'Integrations',    icon: <Plug size={15} strokeWidth={1.8} />,            segment: 'integrations' },
-      { id: 'webhooks',        label: 'Webhooks',        icon: <Globe size={15} strokeWidth={1.8} />,           segment: 'webhooks' },
-      { id: 'settings',        label: 'Settings',        icon: <Sliders size={15} strokeWidth={1.8} />,         segment: 'settings' },
+      { id: 'overview',        label: 'Overview',        icon: <Home size={15} strokeWidth={1.8} />,           segment: '' },
+      { id: 'event-page',      label: 'Event Page',      icon: <Layout size={15} strokeWidth={1.8} />,         segment: 'event-page' },
+      { id: 'tickets',         label: 'Tickets',         icon: <Ticket size={15} strokeWidth={1.8} />,         segment: 'tickets' },
+      { id: 'registrations',   label: 'Registrations',   icon: <Users size={15} strokeWidth={1.8} />,          segment: 'registrations' },
+      { id: 'check-in',        label: 'Check-in',        icon: <ScanLine size={15} strokeWidth={1.8} />,       segment: 'check-in' },
+      { id: 'communications',  label: 'Communications',  icon: <Bell size={15} strokeWidth={1.8} />,           segment: 'communications' },
+    ],
+  },
+  {
+    title: 'Programme',
+    items: [
+      { id: 'agenda',    label: 'Agenda',    icon: <CalendarDays size={15} strokeWidth={1.8} />, segment: 'agenda' },
+      { id: 'speakers',  label: 'Speakers',  icon: <User size={15} strokeWidth={1.8} />,         segment: 'speakers' },
+      { id: 'sessions',  label: 'Sessions',  icon: <LayoutGrid size={15} strokeWidth={1.8} />,   segment: 'sessions' },
+    ],
+  },
+  {
+    title: 'Engagement',
+    items: [
+      { id: 'networking',   label: 'Networking',   icon: <Network size={15} strokeWidth={1.8} />,      segment: 'engagement' },
+      { id: 'q-and-a',      label: 'Q&A & Polls',  icon: <MessageSquare size={15} strokeWidth={1.8} />, segment: 'q-and-a' },
+      { id: 'gamification', label: 'Gamification', icon: <Trophy size={15} strokeWidth={1.8} />,        segment: 'polls' },
+    ],
+  },
+  {
+    title: 'Partners',
+    items: [
+      { id: 'sponsors', label: 'Sponsors', icon: <Briefcase size={15} strokeWidth={1.8} />, segment: 'engagement' },
+      { id: 'virtual',  label: 'Virtual',  icon: <Video size={15} strokeWidth={1.8} />,     segment: 'engagement' },
+    ],
+  },
+  {
+    title: 'Insights',
+    items: [
+      { id: 'analytics', label: 'Analytics', icon: <BarChart2 size={15} strokeWidth={1.8} />, segment: 'analytics' },
+    ],
+  },
+  {
+    title: 'Configure',
+    items: [
+      { id: 'settings', label: 'Settings', icon: <Sliders size={15} strokeWidth={1.8} />, segment: 'settings' },
     ],
   },
 ];
@@ -81,16 +112,35 @@ const EVENT_STATUS_BADGE: Record<string, { cls: string; dot: string; label: stri
 
 // ─── User nav ─────────────────────────────────────────────────────────────────
 
-const NAV_ITEMS = [
-  { href: '/dashboard', label: 'Events',    icon: <LayoutGrid size={15} strokeWidth={1.8} />, badge: null, matchPrefix: true },
-  { href: '/analytics', label: 'Analytics', icon: <TrendingUp size={15} strokeWidth={1.8} />, badge: null, matchPrefix: false },
-  { href: '/team',      label: 'Team',      icon: <Users size={15} strokeWidth={1.8} />,      badge: null, matchPrefix: false },
-  { href: '/settings',  label: 'Settings',  icon: <Settings2 size={15} strokeWidth={1.8} />,  badge: null, matchPrefix: false },
+const PLATFORM_SECTIONS = [
+  {
+    title: null,
+    items: [
+      { href: '/dashboard',  label: 'Events',     icon: <LayoutGrid size={15} strokeWidth={1.8} />,   matchPrefix: true  },
+      { href: '/analytics',  label: 'Analytics',  icon: <TrendingUp size={15} strokeWidth={1.8} />,   matchPrefix: false },
+      { href: '/templates',  label: 'Templates',  icon: <LayoutTemplate size={15} strokeWidth={1.8} />, matchPrefix: false },
+    ],
+  },
+  {
+    title: 'Workspace',
+    items: [
+      { href: '/brand',             label: 'Brand Kit', icon: <Palette size={15} strokeWidth={1.8} />,  matchPrefix: false },
+      { href: '/team',              label: 'Team',      icon: <Users size={15} strokeWidth={1.8} />,    matchPrefix: false },
+      { href: '/settings/billing',  label: 'Billing',   icon: <CreditCard size={15} strokeWidth={1.8} />, matchPrefix: false },
+      { href: '/settings',          label: 'Settings',  icon: <Settings2 size={15} strokeWidth={1.8} />,  matchPrefix: false },
+    ],
+  },
+  {
+    title: 'Developer',
+    items: [
+      { href: '/settings/api-keys',   label: 'API Keys',    icon: <Key size={15} strokeWidth={1.8} />,       matchPrefix: false },
+      { href: '/settings/webhooks',   label: 'Webhooks',    icon: <Plug size={15} strokeWidth={1.8} />,      matchPrefix: false },
+      { href: '/settings/integrations', label: 'Integrations', icon: <Globe size={15} strokeWidth={1.8} />, matchPrefix: false },
+      { href: '/brand',               label: 'White Label', icon: <Tag size={15} strokeWidth={1.8} />,       matchPrefix: false },
+    ],
+  },
 ];
 
-const WORKSPACE_ITEMS = [
-  { href: '/settings/billing', label: 'Billing', icon: <CreditCard size={15} strokeWidth={1.8} /> },
-];
 
 // ─── Admin nav ────────────────────────────────────────────────────────────────
 
@@ -200,33 +250,27 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
       </Link>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-5 overflow-y-auto space-y-5">
-        <ul className="space-y-0.5">
-          {NAV_ITEMS.map(item => {
-            const active = item.matchPrefix
-              ? (pathname === item.href || pathname.startsWith('/events'))
-              : pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
-            return (
-              <NavItem key={item.href} href={item.href} icon={item.icon} label={item.label}
-                badge={item.badge} active={active} onNavigate={onNavigate} />
-            );
-          })}
-        </ul>
-
-        <div className="h-px" style={{ background: '#E5E0D4' }} />
-
-        {/* Organizer Tools */}
-        <div>
-          <div className="px-2.5 mb-2 text-[10px] font-mono uppercase tracking-widest" style={{ color: '#9BA8A1' }}>
-            Organizer Tools
+      <nav className="flex-1 px-3 py-4 overflow-y-auto space-y-5">
+        {PLATFORM_SECTIONS.map((section, si) => (
+          <div key={si}>
+            {section.title && (
+              <div className="px-2.5 mb-1.5 text-[10px] font-mono uppercase tracking-widest" style={{ color: '#9BA8A1' }}>
+                {section.title}
+              </div>
+            )}
+            <ul className="space-y-0.5">
+              {section.items.map(item => {
+                const active = item.matchPrefix
+                  ? (pathname === item.href || pathname.startsWith('/events'))
+                  : pathname === item.href || pathname.startsWith(item.href + '/');
+                return (
+                  <NavItem key={item.href} href={item.href} icon={item.icon} label={item.label}
+                    active={active} onNavigate={onNavigate} />
+                );
+              })}
+            </ul>
           </div>
-          <ul className="space-y-0.5">
-            {WORKSPACE_ITEMS.map(item => (
-              <NavItem key={item.href} href={item.href} icon={item.icon} label={item.label}
-                active={pathname === item.href || pathname.startsWith(item.href + '/')} onNavigate={onNavigate} />
-            ))}
-          </ul>
-        </div>
+        ))}
       </nav>
 
       {/* Usage mini-card */}
@@ -486,15 +530,15 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
       </nav>
 
       {/* Footer */}
-      <div className="px-3 py-2 shrink-0 border-t" style={{ borderColor: '#E5E0D4' }}>
-        {event?.status === 'published' && event?.slug && (
-          <a href={`/c/${event.slug}`} target="_blank" rel="noopener noreferrer"
-            className="flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-[12.5px] transition-colors hover:bg-[#F5F3EE]"
-            style={{ color: '#6B7A72' }}>
+      <div className="px-3 py-2 shrink-0" style={{ borderTop: '1px solid #E5E0D4' }}>
+        {event?.slug ? (
+          <a href={`/e/${event.slug}`} target="_blank" rel="noopener noreferrer"
+            className="flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-[12.5px] font-medium transition-colors border hover:border-[#1F4D3A]/40 hover:text-[#1F4D3A]"
+            style={{ color: '#6B7A72', borderColor: '#E5E0D4' }}>
             <span>View public page</span>
-            <Globe size={13} strokeWidth={1.8} className="shrink-0" />
+            <ExternalLink size={12} strokeWidth={2} className="shrink-0" />
           </a>
-        )}
+        ) : null}
       </div>
     </>
   );
