@@ -449,21 +449,31 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
   pathname: string; eventId: string; onNavigate?: () => void;
 }) {
   const { logoUrl } = usePlanCtx();
-  // Read from cache immediately — no "Loading…" flash on repeat visits
-  const [event, setEvent] = useState<EventInfo>(() => readEventCache(eventId));
+  // null on server; cache applied in useEffect (client-only) to avoid hydration mismatch
+  const [event, setEvent] = useState<EventInfo>(null);
   const supabase = createClient();
 
   const { setContextEventName } = usePlanCtx();
   useEffect(() => {
+    // Apply cache immediately after hydration — no "Loading…" flash on repeat visits
+    const cached = readEventCache(eventId);
+    if (cached) {
+      setEvent(cached);
+      if (cached.name) setContextEventName(cached.name);
+    }
+
+    // Background refresh
     supabase
       .from('events')
       .select('id, name, status, slug')
       .eq('id', eventId)
       .single()
       .then(({ data }) => {
-        setEvent(data);
-        writeEventCache(eventId, data);
-        if (data?.name) setContextEventName(data.name);
+        if (data) {
+          setEvent(data);
+          writeEventCache(eventId, data);
+          if (data.name) setContextEventName(data.name);
+        }
       });
     return () => setContextEventName(null);
   }, [eventId]); // eslint-disable-line react-hooks/exhaustive-deps
