@@ -2,9 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 
 interface PublicNavProps {
@@ -12,7 +11,7 @@ interface PublicNavProps {
   eventName?: string;
 }
 
-export function PublicNav({ eventSlug, eventName }: PublicNavProps = {}) {
+export function PublicNav({ eventSlug }: PublicNavProps = {}) {
   const pathname = usePathname();
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -22,17 +21,31 @@ export function PublicNav({ eventSlug, eventName }: PublicNavProps = {}) {
     supabase.auth.getUser().then(({ data }) => setUser(data.user ?? null));
   }, []);
 
-  const links = eventSlug ? [
-    { href: `/e/${eventSlug}`, label: 'Info' },
+  // Determine the dynamic middle nav item based on current page
+  function getMiddleItem() {
+    if (!eventSlug) return null;
+    const isRegisterOrEventPage = pathname === `/e/${eventSlug}` || pathname.startsWith(`/e/${eventSlug}/register`) || pathname.startsWith(`/e/${eventSlug}/my-agenda`);
+    if (isRegisterOrEventPage) return { href: `/e/${eventSlug}/register`, label: 'My tickets' };
+    return { href: `/e/${eventSlug}/speakers`, label: 'Speakers' };
+  }
+
+  const middleItem = getMiddleItem();
+
+  const eventLinks = eventSlug ? [
+    { href: '/events', label: 'Discover' },
+    ...(middleItem ? [middleItem] : []),
     { href: `/e/${eventSlug}/schedule`, label: 'Schedule' },
-    { href: `/e/${eventSlug}/speakers`, label: 'Speakers' },
-    { href: `/e/${eventSlug}/people`, label: 'People' },
-    { href: `/e/${eventSlug}/q-and-a`, label: 'Q&A' },
+    { href: `/e/${eventSlug}/people`,   label: 'Network' },
   ] : [
-    { href: '/events', label: 'Events' },
+    { href: '/events',       label: 'Discover' },
     { href: '/how-it-works', label: 'How it works' },
-    { href: '/pricing', label: 'Pricing' },
+    { href: '/pricing',      label: 'Pricing' },
   ];
+
+  function isActive(href: string) {
+    if (href === '/events') return pathname === '/events';
+    return pathname === href || pathname.startsWith(href + '/');
+  }
 
   return (
     <header
@@ -45,32 +58,21 @@ export function PublicNav({ eventSlug, eventName }: PublicNavProps = {}) {
       }}
     >
       <div className="max-w-[1120px] mx-auto h-full px-5 flex items-center gap-6">
-        {/* Wordmark */}
+        {/* Wordmark — always Karta */}
         <Link href={eventSlug ? `/e/${eventSlug}` : '/'} className="flex items-center gap-1.5 shrink-0 hover:opacity-80 transition-opacity">
-          {eventName ? (
-            <span className="font-display font-medium text-[16px] truncate max-w-[160px]" style={{ color: '#0F1F18' }}>
-              {eventName}
-            </span>
-          ) : (
-            <span
-              className="font-display font-semibold text-[19px] tracking-tight"
-              style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}
-            >
-              Kart<span style={{ color: '#E8C57E' }}>a</span>
-            </span>
-          )}
+          <span className="font-display font-semibold text-[19px] tracking-tight" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>
+            Kart<span style={{ color: '#E8C57E' }}>a</span>
+          </span>
         </Link>
 
-        {/* Desktop nav links */}
-        <nav className="hidden md:flex items-center gap-6 flex-1 ml-4">
-          {links.map(link => (
+        {/* Desktop nav */}
+        <nav className="hidden md:flex items-center gap-7 flex-1 ml-4">
+          {eventLinks.map(link => (
             <Link
               key={link.href}
               href={link.href}
               className="text-[14px] font-medium transition-colors"
-              style={{
-                color: pathname === link.href ? '#1F4D3A' : '#3A4A42',
-              }}
+              style={{ color: isActive(link.href) ? '#1F4D3A' : '#3A4A42' }}
             >
               {link.label}
             </Link>
@@ -118,28 +120,16 @@ export function PublicNav({ eventSlug, eventName }: PublicNavProps = {}) {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div
-          className="md:hidden px-5 pb-4 pt-2 flex flex-col gap-3"
-          style={{ background: '#FAF6EE', borderTop: '1px solid #E5E0D4' }}
-        >
-          {links.map(link => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={() => setMenuOpen(false)}
-              className="text-[15px] font-medium py-1"
-              style={{ color: '#0F1F18' }}
-            >
+        <div className="md:hidden px-5 pb-4 pt-2 flex flex-col gap-3" style={{ background: '#FAF6EE', borderTop: '1px solid #E5E0D4' }}>
+          {eventLinks.map(link => (
+            <Link key={link.href} href={link.href} onClick={() => setMenuOpen(false)}
+              className="text-[15px] font-medium py-1" style={{ color: '#0F1F18' }}>
               {link.label}
             </Link>
           ))}
           {!user && (
-            <Link
-              href="/login"
-              onClick={() => setMenuOpen(false)}
-              className="text-[15px] font-medium py-1"
-              style={{ color: '#3A4A42' }}
-            >
+            <Link href="/login" onClick={() => setMenuOpen(false)}
+              className="text-[15px] font-medium py-1" style={{ color: '#3A4A42' }}>
               Sign in
             </Link>
           )}
