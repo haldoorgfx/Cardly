@@ -2,6 +2,33 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 
+// Search registrations by name or email for manual check-in
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const q = req.nextUrl.searchParams.get('q')?.trim() ?? '';
+  if (!q || q.length < 2) return NextResponse.json({ results: [] });
+
+  const admin = createAdminClient();
+
+  // Verify event ownership
+  const { data: event } = await admin.from('events').select('id').eq('id', params.id).eq('user_id', user.id).single();
+  if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+  const { data } = await admin
+    .from('registrations')
+    .select('id, attendee_name, attendee_email, status, checked_in_at, qr_code_token')
+    .eq('event_id', params.id)
+    .in('status', ['confirmed', 'checked_in'])
+    .or(`attendee_name.ilike.%${q}%,attendee_email.ilike.%${q}%`)
+    .order('attendee_name', { ascending: true })
+    .limit(20);
+
+  return NextResponse.json({ results: data ?? [] });
+}
+
 const BodySchema = z.object({
   qr_code_token: z.string().min(1),
 });
