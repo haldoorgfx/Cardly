@@ -86,8 +86,12 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
 
   function validateStep(s: number): string {
     if (s === 1 && !title.trim()) return 'Event title is required';
-    if (s === 3 && !startsAt) return 'Start date is required';
-    if (s === 3 && !endsAt) return 'End date is required';
+    if (s === 3) {
+      if (!startsAt) return 'Start date is required';
+      if (!endsAt) return 'End date is required';
+      if (endsAt <= startsAt) return 'End date must be after start date';
+      if (deadline && deadline >= startsAt) return 'Registration deadline must be before the event starts';
+    }
     return '';
   }
 
@@ -110,6 +114,8 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
     if (!title.trim()) { setSaveError('Title is required'); return; }
     if (!startsAt) { setSaveError('Start date/time is required'); return; }
     if (!endsAt) { setSaveError('End date/time is required'); return; }
+    if (endsAt <= startsAt) { setSaveError('End date must be after start date'); return; }
+    if (deadline && deadline >= startsAt) { setSaveError('Registration deadline must be before the event starts'); return; }
 
     startTransition(async () => {
       try {
