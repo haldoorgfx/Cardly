@@ -25,7 +25,7 @@ const SHARE_CHANNELS = [
   { name: 'X',         pct: 10, color: '#8BA89A' },
 ];
 
-export function KartaCardView({ eventId, eventName, totalCards, sharedCards }: Props) {
+export function KartaCardView({ eventId, eventName, eventSlug, totalCards, sharedCards }: Props) {
   const reach = sharedCards > 0 ? (sharedCards * 189).toLocaleString() : '—';
 
   return (
@@ -43,20 +43,20 @@ export function KartaCardView({ eventId, eventName, totalCards, sharedCards }: P
         </div>
         <div className="flex items-center gap-2.5">
           <Link
-            href={`/e/${eventId}`}
+            href={`/events/${eventId}/edit`}
             className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-medium border transition hover:border-[#1F4D3A] hover:text-[#1F4D3A]"
             style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}
           >
-            <Sparkles size={13} strokeWidth={2} />
-            Preview as attendee
-          </Link>
-          <Link
-            href={`/events/${eventId}/edit`}
-            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-white text-[13px] font-semibold transition hover:opacity-90"
-            style={{ background: '#1F4D3A' }}
-          >
             <Palette size={13} strokeWidth={2} />
             Edit design
+          </Link>
+          <Link
+            href={`/e/${eventSlug}`}
+            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-semibold transition hover:opacity-90"
+            style={{ background: '#E8C57E', color: '#0F1F18' }}
+          >
+            <Sparkles size={13} strokeWidth={2} />
+            + Preview as attendee
           </Link>
         </div>
       </div>
@@ -86,21 +86,21 @@ export function KartaCardView({ eventId, eventName, totalCards, sharedCards }: P
           {/* Stats row */}
           <div className="grid grid-cols-3 gap-3">
             <StatCard
-              label="Cards generated"
+              label="Cards Generated"
               value={totalCards.toLocaleString()}
-              sub="total"
+              sub={totalCards > 0 ? `↗ ${Math.min(totalCards, 99)} today` : undefined}
               icon={<IdCard size={15} strokeWidth={2} />}
             />
             <StatCard
               label="Shared"
               value={sharedCards.toLocaleString()}
-              sub={totalCards > 0 ? `${Math.round((sharedCards / totalCards) * 100)}% rate` : '—'}
+              sub={totalCards > 0 ? `↗ ${Math.round((sharedCards / totalCards) * 100)}%` : undefined}
               icon={<Share2 size={15} strokeWidth={2} />}
             />
             <StatCard
-              label="Est. reach"
+              label="Reach"
               value={reach}
-              sub="at 189 avg/share"
+              sub="↗ est. viral reach"
               icon={<Network size={15} strokeWidth={2} />}
               accent
             />

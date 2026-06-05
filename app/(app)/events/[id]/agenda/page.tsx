@@ -30,14 +30,6 @@ export default async function AgendaPage({ params }: Props) {
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
       <AgendaTabs eventId={id} eventName={event.name} />
       <div className="max-w-[1200px] mx-auto px-6 py-8">
-        <div className="mb-6">
-          <h1 className="font-display font-semibold text-[24px]" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
-            Agenda
-          </h1>
-          <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>
-            Build your event schedule — add sessions, assign speakers, organise by track.
-          </p>
-        </div>
         <AgendaView
           eventId={id}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any

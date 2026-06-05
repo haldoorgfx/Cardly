@@ -798,6 +798,34 @@ function getPageBreadcrumbs(pathname: string, eventName: string | null): { label
   return [];
 }
 
+// ─── Notification item ────────────────────────────────────────────────────────
+
+const NOTIF_ICONS: Record<string, React.ReactNode> = {
+  users:     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+  card:      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>,
+  dollar:    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
+  briefcase: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>,
+  clock:     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+};
+
+function NotifItem({ icon, text, time, unread }: { icon: string; text: string; time: string; unread: boolean }) {
+  return (
+    <div className="flex items-start gap-3 px-5 py-3 hover:bg-[#FAF6EE] transition-colors cursor-pointer">
+      <div className="h-8 w-8 rounded-lg grid place-items-center shrink-0 mt-0.5"
+        style={{ background: '#F0EDE8', color: '#1F4D3A' }}>
+        {NOTIF_ICONS[icon] ?? NOTIF_ICONS.clock}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-[13px] leading-snug" style={{ color: '#0F1F18' }}>{text}</p>
+        <p className="text-[11px] mt-0.5 font-mono" style={{ color: '#9BA8A1' }}>{time}</p>
+      </div>
+      {unread && (
+        <span className="h-2 w-2 rounded-full shrink-0 mt-2" style={{ background: '#E8C57E' }} />
+      )}
+    </div>
+  );
+}
+
 // ─── AppShell ─────────────────────────────────────────────────────────────────
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -809,6 +837,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
   const [impersonating, setImpersonating] = useState<ImpersonatedUser | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [contextEventName, setContextEventName] = useState<string | null>(null);
@@ -999,14 +1028,68 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <Search size={15} strokeWidth={2} />
               </button>
 
-              {/* Bell */}
-              <button
-                className="relative h-8 w-8 rounded-lg grid place-items-center transition hover:bg-[#F5F3EE]"
-                style={{ color: '#6B7A72' }}
-                aria-label="Notifications">
-                <Bell size={15} strokeWidth={2} />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full ring-2 ring-white" style={{ background: '#E8C57E' }} />
-              </button>
+              {/* Bell + Notifications panel */}
+              <div className="relative">
+                <button
+                  onClick={() => { setNotifOpen(o => !o); setAccountMenuOpen(false); }}
+                  className="relative h-8 w-8 rounded-lg grid place-items-center transition hover:bg-[#F5F3EE]"
+                  style={{ color: '#6B7A72' }}
+                  aria-label="Notifications">
+                  <Bell size={15} strokeWidth={2} />
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full ring-2 ring-white" style={{ background: '#E8C57E' }} />
+                </button>
+
+                {notifOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} />
+                    <div className="absolute right-0 top-[44px] z-50 w-[340px] bg-white border border-[#E5E0D4] rounded-2xl shadow-[0_8px_40px_rgba(15,31,24,0.14)] overflow-hidden animate-dropIn">
+                      {/* Header */}
+                      <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
+                        <span className="font-display text-[14px] font-semibold" style={{ color: '#0F1F18' }}>Notifications</span>
+                        <button className="text-[10px] font-mono font-medium uppercase tracking-widest transition hover:text-[#1F4D3A]"
+                          style={{ color: '#9BA8A1' }}>
+                          Mark all read
+                        </button>
+                      </div>
+
+                      {/* TODAY */}
+                      <div>
+                        <div className="px-5 pt-3 pb-1.5 text-[10px] font-mono uppercase tracking-widest" style={{ color: '#9BA8A1' }}>
+                          Today
+                        </div>
+                        {[
+                          { icon: 'users',  text: '12 new registrations for Africa Tech Festival', time: '2m',  unread: true },
+                          { icon: 'card',   text: 'Aisha Ahmed shared their Karta Card',            time: '18m', unread: true },
+                          { icon: 'dollar', text: '₦240,000 in ticket sales today',                 time: '1h',  unread: true },
+                        ].map((n, i) => (
+                          <NotifItem key={i} {...n} />
+                        ))}
+                      </div>
+
+                      {/* EARLIER */}
+                      <div>
+                        <div className="px-5 pt-3 pb-1.5 text-[10px] font-mono uppercase tracking-widest" style={{ color: '#9BA8A1' }}>
+                          Earlier
+                        </div>
+                        {[
+                          { icon: 'briefcase', text: 'Paystack confirmed as Platinum sponsor',          time: 'Yesterday', unread: false },
+                          { icon: 'clock',     text: 'Pan-African Climate Summit agenda is still empty', time: '2d',        unread: false },
+                        ].map((n, i) => (
+                          <NotifItem key={i} {...n} />
+                        ))}
+                      </div>
+
+                      {/* Footer */}
+                      <div className="px-5 py-3.5 border-t text-center" style={{ borderColor: '#E5E0D4' }}>
+                        <button className="text-[13px] font-medium transition hover:text-[#1F4D3A]"
+                          style={{ color: '#1F4D3A' }}>
+                          View all notifications
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
 
               {/* Avatar → AccountMenu */}
               <div className="relative">
