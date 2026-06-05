@@ -63,9 +63,11 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
   const [seoTitle, setSeoTitle] = useState(existing?.seo_title ?? '');
   const [seoDescription, setSeoDescription] = useState(existing?.seo_description ?? '');
 
-  const [stepError, setStepError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [saveError, setSaveError] = useState('');
   const [saved, setSaved] = useState(false);
+
+  function fe(field: string) { return fieldErrors[field]; }
 
   async function handleCoverUpload(file: File) {
     setCoverUploading(true);
@@ -84,38 +86,46 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
     }
   }
 
-  function validateStep(s: number): string {
-    if (s === 1 && !title.trim()) return 'Event title is required';
-    if (s === 3) {
-      if (!startsAt) return 'Start date is required';
-      if (!endsAt) return 'End date is required';
-      if (endsAt <= startsAt) return 'End date must be after start date';
-      if (deadline && deadline >= startsAt) return 'Registration deadline must be before the event starts';
+  function validateStep(s: number): Record<string, string> {
+    const errs: Record<string, string> = {};
+    if (s === 1) {
+      if (!title.trim()) errs.title = 'Event title is required';
     }
-    return '';
+    if (s === 3) {
+      if (!startsAt) errs.startsAt = 'Start date is required';
+      if (!endsAt) errs.endsAt = 'End date is required';
+      if (startsAt && endsAt && endsAt <= startsAt) errs.endsAt = 'End must be after start';
+      if (deadline && startsAt && deadline >= startsAt) errs.deadline = 'Deadline must be before the event starts';
+    }
+    return errs;
   }
 
   function goNext() {
-    const err = validateStep(step);
-    if (err) { setStepError(err); return; }
-    setStepError('');
+    const errs = validateStep(step);
+    if (Object.keys(errs).length > 0) { setFieldErrors(errs); return; }
+    setFieldErrors({});
+    setSaveError('');
     setStep(s => Math.min(s + 1, STEPS.length));
   }
 
   function goBack() {
-    setStepError('');
+    setFieldErrors({});
+    setSaveError('');
     setStep(s => Math.max(s - 1, 1));
   }
 
   async function handleSave() {
     setSaveError('');
-    const err = validateStep(step);
-    if (err) { setSaveError(err); return; }
-    if (!title.trim()) { setSaveError('Title is required'); return; }
-    if (!startsAt) { setSaveError('Start date/time is required'); return; }
-    if (!endsAt) { setSaveError('End date/time is required'); return; }
-    if (endsAt <= startsAt) { setSaveError('End date must be after start date'); return; }
-    if (deadline && deadline >= startsAt) { setSaveError('Registration deadline must be before the event starts'); return; }
+    // Validate all steps before final save
+    const allErrs = { ...validateStep(1), ...validateStep(3) };
+    if (Object.keys(allErrs).length > 0) {
+      setFieldErrors(allErrs);
+      // Jump to the first step with an error
+      if (allErrs.title) { setStep(1); }
+      else if (allErrs.startsAt || allErrs.endsAt || allErrs.deadline) { setStep(3); }
+      return;
+    }
+    setFieldErrors({});
 
     startTransition(async () => {
       try {
@@ -151,7 +161,15 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
 
         router.push(`/events/${eventId}`);
       } catch (err) {
-        setSaveError(err instanceof Error ? err.message : 'Save failed');
+        const msg = err instanceof Error ? err.message : 'Save failed';
+        // Never show raw DB errors to users
+        if (msg.includes('unique constraint') || msg.includes('duplicate key')) {
+          setSaveError('This event page already exists. Please refresh and try again.');
+        } else if (msg.includes('not null') || msg.includes('violates')) {
+          setSaveError('Some required fields are missing. Please check your inputs.');
+        } else {
+          setSaveError(msg);
+        }
       }
     });
   }
@@ -191,7 +209,7 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
           <div key={s.id} className="flex items-center gap-2">
             <button
               onClick={() => {
-                if (s.id < step) { setStep(s.id); setStepError(''); }
+                if (s.id < step) { setStep(s.id); setFieldErrors({}); setSaveError(''); }
               }}
               disabled={s.id > step}
               className="flex items-center gap-1.5 transition"
@@ -293,16 +311,16 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
           />
           {coverError && <p className="text-[12px]" style={{ color: '#B8423C' }}>{coverError}</p>}
 
-          <Field label="Event title *">
+          <Field label="Event title *" error={fe('title')}>
             <input
               value={title}
-              onChange={e => setTitle(e.target.value)}
+              onChange={e => { setTitle(e.target.value); if (fieldErrors.title) setFieldErrors(p => ({ ...p, title: '' })); }}
               placeholder="AfriTech Summit 2026"
               autoFocus
               className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
-              style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
-              onFocus={e => (e.target.style.borderColor = '#E8C57E')}
-              onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
+              style={{ background: 'white', border: `1px solid ${fe('title') ? '#B8423C' : '#E5E0D4'}`, color: '#0F1F18' }}
+              onFocus={e => (e.target.style.borderColor = fe('title') ? '#B8423C' : '#E8C57E')}
+              onBlur={e => (e.target.style.borderColor = fe('title') ? '#B8423C' : '#E5E0D4')}
             />
           </Field>
 
@@ -364,26 +382,26 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
       {step === 3 && (
         <div className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Start *">
+            <Field label="Start *" error={fe('startsAt')}>
               <input
                 type="datetime-local"
                 value={startsAt}
-                onChange={e => setStartsAt(e.target.value)}
+                onChange={e => { setStartsAt(e.target.value); setFieldErrors(p => ({ ...p, startsAt: '', endsAt: '' })); }}
                 className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
-                style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
-                onFocus={e => (e.target.style.borderColor = '#E8C57E')}
-                onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
+                style={{ background: 'white', border: `1px solid ${fe('startsAt') ? '#B8423C' : '#E5E0D4'}`, color: '#0F1F18' }}
+                onFocus={e => (e.target.style.borderColor = fe('startsAt') ? '#B8423C' : '#E8C57E')}
+                onBlur={e => (e.target.style.borderColor = fe('startsAt') ? '#B8423C' : '#E5E0D4')}
               />
             </Field>
-            <Field label="End *">
+            <Field label="End *" error={fe('endsAt')}>
               <input
                 type="datetime-local"
                 value={endsAt}
-                onChange={e => setEndsAt(e.target.value)}
+                onChange={e => { setEndsAt(e.target.value); setFieldErrors(p => ({ ...p, endsAt: '' })); }}
                 className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
-                style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
-                onFocus={e => (e.target.style.borderColor = '#E8C57E')}
-                onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
+                style={{ background: 'white', border: `1px solid ${fe('endsAt') ? '#B8423C' : '#E5E0D4'}`, color: '#0F1F18' }}
+                onFocus={e => (e.target.style.borderColor = fe('endsAt') ? '#B8423C' : '#E8C57E')}
+                onBlur={e => (e.target.style.borderColor = fe('endsAt') ? '#B8423C' : '#E5E0D4')}
               />
             </Field>
           </div>
@@ -401,17 +419,17 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
             </select>
           </Field>
 
-          <Field label="Registration deadline">
+          <Field label="Registration deadline" error={fe('deadline')}>
             <input
               type="datetime-local"
               value={deadline}
-              onChange={e => setDeadline(e.target.value)}
+              onChange={e => { setDeadline(e.target.value); setFieldErrors(p => ({ ...p, deadline: '' })); }}
               className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
-              style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
-              onFocus={e => (e.target.style.borderColor = '#E8C57E')}
-              onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
+              style={{ background: 'white', border: `1px solid ${fe('deadline') ? '#B8423C' : '#E5E0D4'}`, color: '#0F1F18' }}
+              onFocus={e => (e.target.style.borderColor = fe('deadline') ? '#B8423C' : '#E8C57E')}
+              onBlur={e => (e.target.style.borderColor = fe('deadline') ? '#B8423C' : '#E5E0D4')}
             />
-            <p className="text-[12px] mt-1" style={{ color: '#6B7A72' }}>Leave blank to allow registration until the event starts.</p>
+            {!fe('deadline') && <p className="text-[12px] mt-1" style={{ color: '#6B7A72' }}>Leave blank to allow registration until the event starts.</p>}
           </Field>
 
           <div style={{ borderTop: '1px solid #E5E0D4', paddingTop: 24 }}>
@@ -607,8 +625,10 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
               Back
             </button>
           )}
-          {(stepError || saveError) && (
-            <p className="text-[13px]" style={{ color: '#B8423C' }}>{stepError || saveError}</p>
+          {(Object.keys(fieldErrors).length > 0 || saveError) && (
+            <p className="text-[13px]" style={{ color: '#B8423C' }}>
+              {saveError || 'Please fix the highlighted fields above'}
+            </p>
           )}
           {saved && <p className="text-[13px]" style={{ color: '#2D7A4F' }}>Changes saved.</p>}
         </div>
@@ -672,13 +692,14 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, children, error }: { label: string; children: React.ReactNode; error?: string }) {
   return (
     <div>
-      <label className="block text-[12px] font-medium mb-1.5" style={{ color: '#3A4A42', letterSpacing: '0.02em' }}>
+      <label className="block text-[12px] font-medium mb-1.5" style={{ color: error ? '#B8423C' : '#3A4A42', letterSpacing: '0.02em' }}>
         {label}
       </label>
       {children}
+      {error && <p className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>{error}</p>}
     </div>
   );
 }
