@@ -14,16 +14,6 @@ const TIERS = [
   { name: 'Bronze',   color: '#8B6B4E', bg: 'rgba(139,107,78,0.10)',  border: 'rgba(139,107,78,0.3)' },
 ];
 
-// Mock sponsors — replace with real DB query once sponsors table exists
-const MOCK_SPONSORS = [
-  { id: '1', name: 'Paystack',      tier: 'Platinum', leads: 142, booth: 'A1 · Main hall',  logo: 'PS' },
-  { id: '2', name: 'Flutterwave',   tier: 'Platinum', leads: 98,  booth: 'A2 · Main hall',  logo: 'FL' },
-  { id: '3', name: 'Andela',        tier: 'Gold',     leads: 64,  booth: 'B1 · East wing',  logo: 'AN' },
-  { id: '4', name: 'Kuda Bank',     tier: 'Gold',     leads: 51,  booth: 'B2 · East wing',  logo: 'KB' },
-  { id: '5', name: 'Safaricom',     tier: 'Silver',   leads: 29,  booth: 'C1 · West wing',  logo: 'SF' },
-  { id: '6', name: 'M-Pesa Africa', tier: 'Silver',   leads: 23,  booth: 'C2 · West wing',  logo: 'MP' },
-];
-
 export default async function SponsorsPage({ params }: Props) {
   const { id } = await params;
   const supabase = createClient();
@@ -35,14 +25,11 @@ export default async function SponsorsPage({ params }: Props) {
     .from('events').select('id, name, slug').eq('id', id).eq('user_id', user.id).single();
   if (!event) redirect('/dashboard');
 
-  const totalLeads = MOCK_SPONSORS.reduce((s, sp) => s + sp.leads, 0);
-  const totalBooths = MOCK_SPONSORS.length;
-
   const byStat = [
-    { label: 'Sponsors',    value: String(MOCK_SPONSORS.length), icon: Briefcase },
-    { label: 'Total leads', value: String(totalLeads),           icon: Users },
-    { label: 'Booths',      value: String(totalBooths),          icon: MapPin },
-    { label: 'Packages',    value: '$92k',                       icon: DollarSign, accent: true },
+    { label: 'Sponsors',    value: '0',  icon: Briefcase },
+    { label: 'Total leads', value: '—',  icon: Users },
+    { label: 'Booths',      value: '0',  icon: MapPin },
+    { label: 'Packages',    value: '—',  icon: DollarSign, accent: true },
   ];
 
   return (
@@ -57,11 +44,15 @@ export default async function SponsorsPage({ params }: Props) {
             <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>Manage sponsor packages, booths, and lead capture.</p>
           </div>
           <div className="flex items-center gap-2">
-            <button className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-medium border transition hover:border-[#1F4D3A]/40"
+            <button
+              disabled
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-medium border transition opacity-40 cursor-not-allowed"
               style={{ border: '1px solid #E5E0D4', color: '#3A4A42', background: 'white' }}>
               <Download size={14} /> Export leads
             </button>
-            <button className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-medium text-white transition hover:bg-[#163828]"
+            <button
+              disabled
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-medium text-white transition opacity-40 cursor-not-allowed"
               style={{ background: '#1F4D3A' }}>
               <Plus size={14} /> Add sponsor
             </button>
@@ -84,48 +75,31 @@ export default async function SponsorsPage({ params }: Props) {
           ))}
         </div>
 
-        {/* Sponsors by tier */}
-        {TIERS.map(tier => {
-          const tierSponsors = MOCK_SPONSORS.filter(sp => sp.tier === tier.name);
-          if (tierSponsors.length === 0) return null;
-          return (
-            <div key={tier.name} className="mb-8">
-              <div className="flex items-center gap-2.5 mb-3">
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-[12px] font-mono font-medium"
-                  style={{ background: tier.bg, color: tier.color, border: `1px solid ${tier.border}` }}>
-                  {tier.name}
-                </span>
-                <span className="text-[13px]" style={{ color: '#6B7A72' }}>{tierSponsors.length} sponsor{tierSponsors.length !== 1 ? 's' : ''}</span>
-              </div>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {tierSponsors.map(sp => (
-                  <div key={sp.id} className="bg-white rounded-2xl p-5 hover:-translate-y-0.5 transition-transform cursor-pointer"
-                    style={{ border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
-                    <div className="flex items-start gap-4 mb-4">
-                      <div className="w-12 h-12 rounded-xl grid place-items-center shrink-0"
-                        style={{ background: tier.bg, border: `1px solid ${tier.border}` }}>
-                        <span className="font-display text-[14px] font-bold" style={{ color: tier.color }}>{sp.logo}</span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="font-display text-[15px] font-semibold" style={{ color: '#0F1F18' }}>{sp.name}</div>
-                        <div className="font-mono text-[11px] mt-0.5" style={{ color: '#6B7A72' }}>{sp.booth}</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between pt-3" style={{ borderTop: '1px solid #E5E0D4' }}>
-                      <div className="text-[13px]" style={{ color: '#6B7A72' }}>Leads captured</div>
-                      <div className="font-mono text-[15px] font-medium" style={{ color: '#1F4D3A' }}>{sp.leads}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          );
-        })}
+        {/* Tier sections — empty state */}
+        <div className="bg-white rounded-2xl overflow-hidden mb-6" style={{ border: '1px solid #E5E0D4' }}>
+          {/* Tier pills */}
+          <div className="flex items-center gap-2 px-5 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
+            {TIERS.map(tier => (
+              <span key={tier.name} className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-mono font-medium opacity-50"
+                style={{ background: tier.bg, color: tier.color, border: `1px solid ${tier.border}` }}>
+                {tier.name}
+              </span>
+            ))}
+          </div>
 
-        {/* Empty state note */}
-        <div className="bg-white rounded-2xl p-6 text-center" style={{ border: '1px dashed #E5E0D4' }}>
-          <div className="text-[13px]" style={{ color: '#6B7A72' }}>
-            Sponsor data is currently using placeholder content. Connect your sponsors database to see live data.
+          {/* Empty state */}
+          <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
+            <div className="w-14 h-14 rounded-2xl grid place-items-center mb-4"
+              style={{ background: '#E8EFEB' }}>
+              <Briefcase size={22} strokeWidth={1.6} style={{ color: '#1F4D3A' }} />
+            </div>
+            <h3 className="font-display text-[16px] font-semibold mb-2" style={{ color: '#0F1F18' }}>
+              No sponsors yet
+            </h3>
+            <p className="text-[13px] max-w-[380px]" style={{ color: '#6B7A72' }}>
+              Sponsor management — including packages, booth assignments, and lead capture — is coming soon.
+              Contact us if you need this feature urgently.
+            </p>
           </div>
         </div>
 

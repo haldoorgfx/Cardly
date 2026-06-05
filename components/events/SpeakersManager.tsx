@@ -165,13 +165,6 @@ export default function SpeakersManager({ eventId, initialSpeakers }: Props) {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => {}}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[13.5px] font-medium border transition hover:border-[#1F4D3A]/40 hover:text-[#1F4D3A]"
-            style={{ borderColor: '#E5E0D4', color: '#6B7A72', background: 'white' }}
-          >
-            <ExternalLink size={14} strokeWidth={1.8} /> Speaker portal
-          </button>
           {!showForm && (
             <button
               onClick={openAdd}

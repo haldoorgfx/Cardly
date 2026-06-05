@@ -7,11 +7,13 @@ interface Props {
   eventName: string;
 }
 
+type IntegrationStatus = 'builtin' | 'coming_soon';
+
 type Integration = {
   name: string;
   desc: string;
   icon: React.ReactNode;
-  connected: boolean;
+  status: IntegrationStatus;
 };
 
 type Category = {
@@ -26,49 +28,49 @@ const CATEGORIES: Category[] = [
   {
     label: 'Payments',
     apps: [
-      { name: 'Stripe',       desc: 'Cards, subscriptions & payouts',             icon: <CreditCard size={ICON_SIZE} strokeWidth={SW} />, connected: true  },
-      { name: 'Flutterwave',  desc: 'Pan-African card & bank payments',           icon: <DollarSign size={ICON_SIZE} strokeWidth={SW} />, connected: true  },
-      { name: 'Paystack',     desc: 'Payments across Nigeria & Ghana',            icon: <DollarSign size={ICON_SIZE} strokeWidth={SW} />, connected: false },
-      { name: 'M-Pesa',       desc: 'Mobile money for East Africa',               icon: <CreditCard size={ICON_SIZE} strokeWidth={SW} />, connected: false },
+      { name: 'Stripe',       desc: 'Cards, subscriptions & payouts',             icon: <CreditCard size={ICON_SIZE} strokeWidth={SW} />, status: 'builtin'      },
+      { name: 'Flutterwave',  desc: 'Pan-African card & bank payments',           icon: <DollarSign size={ICON_SIZE} strokeWidth={SW} />, status: 'builtin'      },
+      { name: 'Paystack',     desc: 'Payments across Nigeria & Ghana',            icon: <DollarSign size={ICON_SIZE} strokeWidth={SW} />, status: 'coming_soon'  },
+      { name: 'M-Pesa',       desc: 'Mobile money for East Africa',               icon: <CreditCard size={ICON_SIZE} strokeWidth={SW} />, status: 'coming_soon'  },
     ],
   },
   {
     label: 'Communication',
     apps: [
-      { name: 'Slack',        desc: 'Registration & sales alerts in Slack',       icon: <MessageSquare size={ICON_SIZE} strokeWidth={SW} />, connected: true  },
-      { name: 'Twilio SMS',   desc: 'Text reminders & check-in codes',            icon: <Send size={ICON_SIZE} strokeWidth={SW} />,         connected: false },
-      { name: 'Intercom',     desc: 'Live chat support on your pages',            icon: <MessageSquare size={ICON_SIZE} strokeWidth={SW} />, connected: false },
-      { name: 'Mailchimp',    desc: 'Sync attendees to audiences',                icon: <Send size={ICON_SIZE} strokeWidth={SW} />,         connected: false },
+      { name: 'Slack',        desc: 'Registration & sales alerts in Slack',       icon: <MessageSquare size={ICON_SIZE} strokeWidth={SW} />, status: 'coming_soon' },
+      { name: 'Twilio SMS',   desc: 'Text reminders & check-in codes',            icon: <Send size={ICON_SIZE} strokeWidth={SW} />,         status: 'coming_soon' },
+      { name: 'Intercom',     desc: 'Live chat support on your pages',            icon: <MessageSquare size={ICON_SIZE} strokeWidth={SW} />, status: 'coming_soon' },
+      { name: 'Mailchimp',    desc: 'Sync attendees to audiences',                icon: <Send size={ICON_SIZE} strokeWidth={SW} />,         status: 'coming_soon' },
     ],
   },
   {
     label: 'CRM & marketing',
     apps: [
-      { name: 'HubSpot',          desc: 'Sync registrants as contacts',          icon: <Briefcase size={ICON_SIZE} strokeWidth={SW} />,  connected: false },
-      { name: 'Salesforce',       desc: 'Push leads to your CRM',               icon: <Briefcase size={ICON_SIZE} strokeWidth={SW} />,  connected: false },
-      { name: 'Google Analytics', desc: 'Track event-page traffic',              icon: <BarChart2 size={ICON_SIZE} strokeWidth={SW} />,  connected: true  },
-      { name: 'Meta Pixel',       desc: 'Retarget visitors with ads',            icon: <Share2 size={ICON_SIZE} strokeWidth={SW} />,    connected: false },
+      { name: 'HubSpot',          desc: 'Sync registrants as contacts',          icon: <Briefcase size={ICON_SIZE} strokeWidth={SW} />,  status: 'coming_soon' },
+      { name: 'Salesforce',       desc: 'Push leads to your CRM',               icon: <Briefcase size={ICON_SIZE} strokeWidth={SW} />,  status: 'coming_soon' },
+      { name: 'Google Analytics', desc: 'Track event-page traffic',              icon: <BarChart2 size={ICON_SIZE} strokeWidth={SW} />,  status: 'coming_soon' },
+      { name: 'Meta Pixel',       desc: 'Retarget visitors with ads',            icon: <Share2 size={ICON_SIZE} strokeWidth={SW} />,     status: 'coming_soon' },
     ],
   },
   {
     label: 'Productivity & automation',
     apps: [
-      { name: 'Zapier',          desc: 'Automate 6,000+ apps',                   icon: <Zap size={ICON_SIZE} strokeWidth={SW} />,      connected: true  },
-      { name: 'Google Calendar', desc: 'Add sessions to attendee calendars',     icon: <Calendar size={ICON_SIZE} strokeWidth={SW} />, connected: false },
-      { name: 'Notion',          desc: "Export attendees & agenda to Notion",   icon: <Share2 size={ICON_SIZE} strokeWidth={SW} />,   connected: false },
-      { name: 'Webhooks',        desc: 'Build your own with our API',            icon: <Plug size={ICON_SIZE} strokeWidth={SW} />,     connected: true  },
+      { name: 'Zapier',          desc: 'Automate 6,000+ apps',                   icon: <Zap size={ICON_SIZE} strokeWidth={SW} />,      status: 'coming_soon' },
+      { name: 'Google Calendar', desc: 'Add sessions to attendee calendars',     icon: <Calendar size={ICON_SIZE} strokeWidth={SW} />, status: 'coming_soon' },
+      { name: 'Notion',          desc: "Export attendees & agenda to Notion",   icon: <Share2 size={ICON_SIZE} strokeWidth={SW} />,   status: 'coming_soon' },
+      { name: 'Webhooks',        desc: 'Build your own with our API',            icon: <Plug size={ICON_SIZE} strokeWidth={SW} />,     status: 'builtin'     },
     ],
   },
   {
     label: 'Streaming',
     apps: [
-      { name: 'Zoom',         desc: 'Run virtual sessions over Zoom',            icon: <Video size={ICON_SIZE} strokeWidth={SW} />, connected: false },
-      { name: 'YouTube Live', desc: 'Stream the main stage publicly',            icon: <Video size={ICON_SIZE} strokeWidth={SW} />, connected: false },
+      { name: 'Zoom',         desc: 'Run virtual sessions over Zoom',            icon: <Video size={ICON_SIZE} strokeWidth={SW} />, status: 'coming_soon' },
+      { name: 'YouTube Live', desc: 'Stream the main stage publicly',            icon: <Video size={ICON_SIZE} strokeWidth={SW} />, status: 'coming_soon' },
     ],
   },
 ];
 
-const connectedCount = CATEGORIES.reduce((acc, cat) => acc + cat.apps.filter(a => a.connected).length, 0);
+const builtinCount = CATEGORIES.reduce((acc, cat) => acc + cat.apps.filter(a => a.status === 'builtin').length, 0);
 const totalCount = CATEGORIES.reduce((acc, cat) => acc + cat.apps.length, 0);
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -84,7 +86,7 @@ export function IntegrationsView(_props: Props) {
           </h1>
           <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>
             Connect Karta to your stack ·{' '}
-            <span style={{ color: '#1F4D3A', fontWeight: 500 }}>{connectedCount} of {totalCount}</span> connected
+            <span style={{ color: '#1F4D3A', fontWeight: 500 }}>{builtinCount} of {totalCount}</span> built-in
           </p>
         </div>
         <button
@@ -158,13 +160,13 @@ function AppCard({ app }: { app: Integration }) {
         </div>
         <span
           className="inline-flex items-center gap-1 h-5 px-2 rounded-full text-[11px] font-medium"
-          style={app.connected
+          style={app.status === 'builtin'
             ? { background: 'rgba(45,122,79,0.1)', color: '#2D7A4F' }
-            : { background: '#F5F0E8', color: '#6B7A72' }
+            : { background: '#F5F0E8', color: '#9BA8A1' }
           }
         >
-          {app.connected && <span className="h-1.5 w-1.5 rounded-full bg-current" />}
-          {app.connected ? 'Connected' : 'Not connected'}
+          {app.status === 'builtin' && <span className="h-1.5 w-1.5 rounded-full bg-current" />}
+          {app.status === 'builtin' ? 'Built-in' : 'Coming soon'}
         </span>
       </div>
       <p className="text-[14.5px] font-semibold font-display leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>
@@ -174,15 +176,16 @@ function AppCard({ app }: { app: Integration }) {
         {app.desc}
       </p>
       <button
-        className="mt-4 w-full h-8 rounded-lg text-[12.5px] font-medium transition flex items-center justify-center gap-1.5"
-        style={app.connected
-          ? { border: '1px solid #E5E0D4', color: '#6B7A72', background: 'white' }
-          : { background: '#1F4D3A', color: 'white' }
+        disabled={app.status === 'coming_soon'}
+        className="mt-4 w-full h-8 rounded-lg text-[12.5px] font-medium transition flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
+        style={app.status === 'builtin'
+          ? { border: '1px solid #E5E0D4', color: '#1F4D3A', background: 'rgba(31,77,58,0.06)' }
+          : { border: '1px solid #E5E0D4', color: '#6B7A72', background: 'white' }
         }
       >
-        {app.connected
-          ? <><Settings size={12} strokeWidth={2} /> Manage</>
-          : <><Plug size={12} strokeWidth={2} /> Connect</>
+        {app.status === 'builtin'
+          ? <><Settings size={12} strokeWidth={2} /> Configure</>
+          : 'Coming soon'
         }
       </button>
     </div>
