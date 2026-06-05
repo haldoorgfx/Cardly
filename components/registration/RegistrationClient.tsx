@@ -57,9 +57,21 @@ export default function RegistrationClient({
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [accent, setAccent] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [done, setDone] = useState(false);
   const [regId, setRegId] = useState<string | null>(null);
   const photoRef = useRef<HTMLInputElement>(null);
+
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  function validateDetails(): Record<string, string> {
+    const errs: Record<string, string> = {};
+    if (!name.trim()) errs.name = 'Full name is required';
+    if (!email.trim()) errs.email = 'Email is required';
+    else if (!EMAIL_RE.test(email)) errs.email = 'Enter a valid email address';
+    return errs;
+  }
 
   const STEPS = ['Ticket', 'Details', 'Payment', 'Your card'];
   const fee = selectedTicket && selectedTicket.price > 0 ? 150 : 0; // $1.50 service fee in cents
@@ -73,6 +85,7 @@ export default function RegistrationClient({
   };
 
   const handleSubmit = async () => {
+    setSubmitError('');
     setSubmitting(true);
     try {
       const res = await fetch(`/api/events/${eventId}/register`, {
@@ -85,9 +98,15 @@ export default function RegistrationClient({
           custom_fields: { role, city: cityVal, accent: String(accent) },
         }),
       });
-      const data = await res.json() as { registration_id?: string };
+      const data = await res.json() as { registration_id?: string; error?: string };
+      if (!res.ok) {
+        setSubmitError(data.error ?? 'Registration failed. Please try again.');
+        return;
+      }
       if (data.registration_id) setRegId(data.registration_id);
       setDone(true);
+    } catch {
+      setSubmitError('Something went wrong. Check your connection and try again.');
     } finally {
       setSubmitting(false);
     }
@@ -217,12 +236,28 @@ export default function RegistrationClient({
 
             <div className="space-y-4">
               <div>
-                <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>Full name</label>
-                <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Amina Osman" className={INPUT} style={{ borderColor: '#E5E0D4', background: 'white', color: '#0F1F18' }} />
+                <label className="block text-[12px] mb-1.5" style={{ color: fieldErrors.name ? '#B8423C' : '#6B7A72' }}>Full name</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={e => { setName(e.target.value); if (fieldErrors.name) setFieldErrors(p => ({ ...p, name: '' })); }}
+                  placeholder="Amina Osman"
+                  className={INPUT}
+                  style={{ borderColor: fieldErrors.name ? '#B8423C' : '#E5E0D4', background: 'white', color: '#0F1F18' }}
+                />
+                {fieldErrors.name && <p className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>{fieldErrors.name}</p>}
               </div>
               <div>
-                <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>Email</label>
-                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" className={INPUT} style={{ borderColor: '#E5E0D4', background: 'white', color: '#0F1F18' }} />
+                <label className="block text-[12px] mb-1.5" style={{ color: fieldErrors.email ? '#B8423C' : '#6B7A72' }}>Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => { setEmail(e.target.value); if (fieldErrors.email) setFieldErrors(p => ({ ...p, email: '' })); }}
+                  placeholder="you@example.com"
+                  className={INPUT}
+                  style={{ borderColor: fieldErrors.email ? '#B8423C' : '#E5E0D4', background: 'white', color: '#0F1F18' }}
+                />
+                {fieldErrors.email && <p className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>{fieldErrors.email}</p>}
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -336,33 +371,46 @@ export default function RegistrationClient({
         )}
 
         {/* Nav */}
-        <div className="flex items-center justify-between mt-8">
-          <button
-            onClick={() => setStep(s => s - 1)}
-            className="px-5 py-2.5 rounded-xl font-medium text-[14px] transition-colors"
-            style={{ visibility: step === 0 ? 'hidden' : 'visible', background: '#E8EFEB', color: '#1F4D3A' }}
-          >
-            ← Back
-          </button>
-          {step < 3 ? (
-            <button
-              onClick={() => setStep(s => s + 1)}
-              disabled={step === 0 && !selectedTicket}
-              className="ml-auto px-6 py-2.5 rounded-xl font-medium text-[14px] text-white disabled:opacity-50"
-              style={{ background: '#1F4D3A' }}
-            >
-              Continue →
-            </button>
-          ) : (
-            <button
-              onClick={handleSubmit}
-              disabled={submitting || !name || !email}
-              className="ml-auto px-6 py-2.5 rounded-xl font-medium text-[14px] text-white disabled:opacity-50"
-              style={{ background: '#1F4D3A' }}
-            >
-              {submitting ? 'Confirming…' : 'Confirm registration'}
-            </button>
+        <div className="mt-8">
+          {submitError && (
+            <div className="mb-4 px-4 py-3 rounded-xl text-[13px] font-medium" style={{ background: '#FEF2F2', color: '#B8423C', border: '1px solid #FECACA' }}>
+              {submitError}
+            </div>
           )}
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => setStep(s => s - 1)}
+              className="px-5 py-2.5 rounded-xl font-medium text-[14px] transition-colors"
+              style={{ visibility: step === 0 ? 'hidden' : 'visible', background: '#E8EFEB', color: '#1F4D3A' }}
+            >
+              ← Back
+            </button>
+            {step < 3 ? (
+              <button
+                onClick={() => {
+                  if (step === 1) {
+                    const errs = validateDetails();
+                    if (Object.keys(errs).length > 0) { setFieldErrors(errs); return; }
+                  }
+                  setStep(s => s + 1);
+                }}
+                disabled={step === 0 && !selectedTicket}
+                className="ml-auto px-6 py-2.5 rounded-xl font-medium text-[14px] text-white disabled:opacity-50"
+                style={{ background: '#1F4D3A' }}
+              >
+                Continue →
+              </button>
+            ) : (
+              <button
+                onClick={handleSubmit}
+                disabled={submitting}
+                className="ml-auto px-6 py-2.5 rounded-xl font-medium text-[14px] text-white disabled:opacity-50"
+                style={{ background: '#1F4D3A' }}
+              >
+                {submitting ? 'Confirming…' : 'Confirm registration'}
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

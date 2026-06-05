@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     if (updated) {
       const [{ data: eventPage }, { data: ticket }] = await Promise.all([
         admin.from('event_pages').select('title, starts_at, timezone, venue_name, venue_address, is_online').eq('event_id', updated.event_id).single(),
-        admin.from('ticket_types').select('name').eq('id', updated.ticket_type_id).single(),
+        admin.from('ticket_types').select('name').eq('id', updated.ticket_type_id ?? '').single(),
       ]);
       if (eventPage) {
         const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
