@@ -18,7 +18,7 @@ export default async function RegistrationsPage({ params }: Props) {
 
   const admin = createAdminClient();
 
-  const [{ data: event }, regResult] = await Promise.all([
+  const [{ data: event }, regResult, { data: ticketTypes }] = await Promise.all([
     admin
       .from('events')
       .select('id, name, slug')
@@ -31,6 +31,11 @@ export default async function RegistrationsPage({ params }: Props) {
       .eq('event_id', id)
       .order('created_at', { ascending: false })
       .range(0, 49),
+    admin
+      .from('ticket_types')
+      .select('id, name, price, currency')
+      .eq('event_id', id)
+      .order('position'),
   ]);
 
   if (!event) redirect('/dashboard');
@@ -55,6 +60,7 @@ export default async function RegistrationsPage({ params }: Props) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           initialRegistrations={(regResult.data ?? []) as any}
           totalCount={regResult.count ?? 0}
+          ticketTypes={ticketTypes ?? []}
         />
       </div>
     </div>

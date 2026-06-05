@@ -20,6 +20,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   const offset = parseInt(searchParams.get('offset') ?? '0');
   const status = searchParams.get('status');
 
+  const q = searchParams.get('q')?.trim();
+
   let query = admin
     .from('registrations')
     .select('*, ticket_types(name, price)', { count: 'exact' })
@@ -28,11 +30,78 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     .range(offset, offset + limit - 1);
 
   if (status) query = query.eq('status', status as 'pending' | 'confirmed' | 'checked_in' | 'cancelled' | 'refunded');
+  if (q) query = query.or(`attendee_name.ilike.%${q}%,attendee_email.ilike.%${q}%`);
 
   const { data, error, count } = await query;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   return NextResponse.json({ registrations: data, total: count });
+}
+
+// Manual walk-in registration by organizer — bypasses event_page public check and ticket sales dates
+export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const admin = createAdminClient();
+  const { data: event } = await admin
+    .from('events')
+    .select('id, name')
+    .eq('id', params.id)
+    .eq('user_id', user.id)
+    .single();
+  if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+  const body = await req.json() as {
+    attendee_name: string;
+    attendee_email: string;
+    attendee_phone?: string;
+    ticket_type_id: string;
+    notes?: string;
+  };
+
+  const { attendee_name, attendee_email, ticket_type_id, attendee_phone, notes } = body;
+  if (!attendee_name?.trim()) return NextResponse.json({ error: 'Name is required' }, { status: 400 });
+  if (!attendee_email?.trim()) return NextResponse.json({ error: 'Email is required' }, { status: 400 });
+  if (!ticket_type_id) return NextResponse.json({ error: 'Ticket type is required' }, { status: 400 });
+
+  // Verify ticket belongs to this event
+  const { data: ticket } = await admin
+    .from('ticket_types')
+    .select('id, name, price, currency')
+    .eq('id', ticket_type_id)
+    .eq('event_id', params.id)
+    .single();
+  if (!ticket) return NextResponse.json({ error: 'Ticket type not found' }, { status: 404 });
+
+  const token = crypto.randomUUID().replace(/-/g, '');
+
+  const { data: reg, error } = await admin
+    .from('registrations')
+    .insert({
+      event_id: params.id,
+      ticket_type_id,
+      attendee_name: attendee_name.trim(),
+      attendee_email: attendee_email.trim().toLowerCase(),
+      attendee_phone: attendee_phone?.trim() ?? null,
+      status: 'confirmed',
+      payment_status: ticket.price === 0 ? 'free' : 'paid',
+      amount_paid: ticket.price,
+      currency: ticket.currency ?? 'USD',
+      qr_code_token: token,
+      source: 'manual',
+      custom_fields: notes ? { notes } : {},
+    })
+    .select('id, attendee_name, attendee_email, qr_code_token')
+    .single();
+
+  if (error) {
+    if (error.code === '23505') return NextResponse.json({ error: 'This email is already registered for this event' }, { status: 409 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ registration: reg }, { status: 201 });
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
