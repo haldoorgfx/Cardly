@@ -351,7 +351,7 @@ function CreateTicketModal({ onClose, eventId }: { onClose: () => void; eventId:
 
 /* ── Main component ────────────────────────────────────────────────────────── */
 export function TicketsPageClient({
-  eventId, eventName, tickets, soldByType,
+  eventId, tickets, soldByType,
   totalRevenue, ticketsSold, avgOrder, conversion, promoCodes,
 }: Props) {
   const [createOpen, setCreateOpen] = useState(false);
