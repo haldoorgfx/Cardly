@@ -87,7 +87,7 @@ export default function BrandKitPage() {
       </div>
 
       {/* Two-column layout */}
-      <div className="grid grid-cols-[1fr_340px] gap-5">
+      <div className="grid grid-cols-[minmax(0,1fr)_300px] xl:grid-cols-[minmax(0,1fr)_340px] gap-5">
 
         {/* Left column */}
         <div className="space-y-5">
@@ -188,19 +188,19 @@ export default function BrandKitPage() {
           {/* Colors */}
           <section className="bg-white rounded-2xl border border-border p-6 shadow-soft">
             <h2 className="font-semibold text-[15px] text-[#0F1F18] mb-5">Colors</h2>
-            <div className="grid grid-cols-6 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               {BRAND_COLORS.map(color => (
-                <div key={color.hex} className="flex flex-col items-center gap-2">
+                <div key={color.hex} className="flex items-center gap-2.5">
                   <div
-                    className="w-full aspect-square rounded-xl border"
+                    className="h-9 w-9 rounded-lg shrink-0 border"
                     style={{
                       background: color.hex,
                       borderColor: color.hex === '#FAF6EE' ? '#E5E0D4' : 'transparent',
                     }}
                   />
-                  <div className="text-center">
-                    <div className="text-[12px] font-medium text-[#0F1F18]">{color.name}</div>
-                    <div className="text-[11px] font-mono text-[#6B7A72]">{color.hex}</div>
+                  <div className="min-w-0">
+                    <div className="text-[12.5px] font-medium text-[#0F1F18] leading-tight">{color.name}</div>
+                    <div className="text-[10.5px] font-mono text-[#6B7A72] truncate">{color.hex}</div>
                   </div>
                 </div>
               ))}

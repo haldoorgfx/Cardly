@@ -137,8 +137,8 @@ export default async function BillingPage({
     invoices = stripeData.invoices;
   }
 
-  // Free users → show upgrade cards
-  if (plan === 'free' || !isActive) {
+  // Free users (or lapsed subscriptions on free) → show upgrade cards
+  if (plan === 'free') {
     return (
       <div className="px-8 py-8 max-w-[720px]">
         <div className="mb-8">
