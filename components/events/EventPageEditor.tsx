@@ -149,9 +149,7 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error ?? 'Save failed');
 
-        setSaved(true);
-        setTimeout(() => setSaved(false), 2500);
-        router.refresh();
+        router.push(`/events/${eventId}`);
       } catch (err) {
         setSaveError(err instanceof Error ? err.message : 'Save failed');
       }

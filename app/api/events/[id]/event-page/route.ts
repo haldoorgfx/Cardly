@@ -39,7 +39,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
   const { data, error } = await admin
     .from('event_pages')
-    .upsert({ ...body, event_id: params.id, updated_at: new Date().toISOString() })
+    .upsert({ ...body, event_id: params.id, updated_at: new Date().toISOString() }, { onConflict: 'event_id' })
     .select()
     .single();
 
