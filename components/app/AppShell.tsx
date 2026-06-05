@@ -87,8 +87,8 @@ const EVENT_NAV_SECTIONS = [
   {
     title: 'Partners',
     items: [
-      { id: 'sponsors', label: 'Sponsors', icon: <Briefcase size={15} strokeWidth={1.8} />, segment: 'engagement', activeOn: '__sponsors__' },
-      { id: 'virtual',  label: 'Virtual',  icon: <Video size={15} strokeWidth={1.8} />,     segment: 'engagement', activeOn: '__virtual__'  },
+      { id: 'sponsors', label: 'Sponsors', icon: <Briefcase size={15} strokeWidth={1.8} />, segment: 'sponsors' },
+      { id: 'virtual',  label: 'Virtual',  icon: <Video size={15} strokeWidth={1.8} />,     segment: 'virtual'  },
     ],
   },
   {
@@ -721,7 +721,9 @@ const PAGE_LABELS: Record<string, string> = {
   'registrations':  'Registrations',
   'event-page':     'Event page',
   'agenda':         'Agenda',
-  'engagement':     'Engagement',
+  'engagement':     'Networking',
+  'sponsors':       'Sponsors',
+  'virtual':        'Virtual',
   'analytics':      'Analytics',
   'edit':           'Karta Card',
   'check-in':       'Check-in',
