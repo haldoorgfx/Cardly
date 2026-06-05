@@ -115,7 +115,7 @@ const EVENT_STATUS_BADGE: Record<string, { cls: string; dot: string; label: stri
 
 const PLATFORM_SECTIONS = [
   {
-    title: null,
+    title: 'Platform',
     items: [
       { href: '/dashboard',  label: 'Events',     icon: <LayoutGrid size={15} strokeWidth={1.8} />,   matchPrefix: true  },
       { href: '/analytics',  label: 'Analytics',  icon: <TrendingUp size={15} strokeWidth={1.8} />,   matchPrefix: false },
@@ -219,10 +219,19 @@ function NavItem({ href, icon, label, badge, active, onNavigate }: {
   );
 }
 
+// ─── Inline admin nav items (visible in user sidebar for admins) ──────────────
+
+const INLINE_ADMIN_ITEMS = [
+  { href: '/admin/users',     label: 'Users',              icon: <Users size={15} strokeWidth={1.8} /> },
+  { href: '/admin/events',    label: 'All Events',         icon: <LayoutGrid size={15} strokeWidth={1.8} /> },
+  { href: '/admin/events',    label: 'Moderation',         icon: <Gavel size={15} strokeWidth={1.8} /> },
+  { href: '/admin/analytics', label: 'Platform Analytics', icon: <BarChart2 size={15} strokeWidth={1.8} /> },
+];
+
 // ─── User sidebar content ─────────────────────────────────────────────────────
 
 function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
-  const { profile, eventCount, planPct, logoUrl } = usePlanCtx();
+  const { profile, eventCount, planPct, planLabel, logoUrl } = usePlanCtx();
   const planLimit = profile ? (PLAN_LIMITS[profile.plan] ?? 1) : 1;
   const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
 
@@ -232,30 +241,50 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
     window.location.href = '/login';
   };
 
+  const ctaLabel = profile?.plan === 'studio'
+    ? '✓ Studio plan'
+    : profile?.plan === 'pro'
+    ? '+ Studio plan'
+    : '+ Pro plan';
+
   return (
     <>
-      {/* Logo */}
-      <Link href="/" onClick={onNavigate}
-        className="h-14 px-4 flex items-center gap-2.5 shrink-0 transition-opacity hover:opacity-70"
-        style={{ borderBottom: '1px solid #E5E0D4' }}>
-        {logoUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={logoUrl} alt="Logo" className="max-h-[32px] max-w-[140px] object-contain" />
-        ) : (
-          <>
-            <span className="inline-block w-6 h-6 rounded-md shrink-0"
-              style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #E8C57E 100%)' }} />
-            <span className="font-display text-[19px] font-bold tracking-tight" style={{ color: '#0F1F18' }}>Karta</span>
-          </>
+      {/* Logo + user identity header */}
+      <div className="px-4 pt-3.5 pb-3 shrink-0" style={{ borderBottom: '1px solid #E5E0D4' }}>
+        <div className="flex items-center justify-between mb-2">
+          {logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={logoUrl} alt="Logo" className="max-h-[28px] max-w-[120px] object-contain" />
+          ) : (
+            <Link href="/" onClick={onNavigate} className="flex items-center gap-2 transition-opacity hover:opacity-80">
+              <span className="inline-block w-6 h-6 rounded-md shrink-0"
+                style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #E8C57E 100%)' }} />
+              <span className="font-display text-[19px] font-bold tracking-tight" style={{ color: '#0F1F18' }}>
+                Karta
+              </span>
+            </Link>
+          )}
+          {planLabel && (
+            <span className="text-[9px] font-mono font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md"
+              style={{ background: '#E8EFEB', color: '#1F4D3A', border: '1px solid #C9DDD3' }}>
+              {planLabel}
+            </span>
+          )}
+        </div>
+        {profile?.full_name && (
+          <p className="text-[12.5px] font-medium px-0.5" style={{ color: '#6B7A72' }}>
+            {profile.full_name}
+          </p>
         )}
-      </Link>
+      </div>
 
-      {/* Nav */}
+      {/* Nav sections */}
       <nav className="flex-1 px-3 py-4 overflow-y-auto space-y-5">
         {PLATFORM_SECTIONS.map((section, si) => (
           <div key={si}>
             {section.title && (
-              <div className="px-2.5 mb-1.5 text-[10px] font-mono uppercase tracking-widest" style={{ color: '#9BA8A1' }}>
+              <div className="px-2.5 mb-1.5 text-[10px] font-mono uppercase tracking-widest"
+                style={{ color: '#9BA8A1' }}>
                 {section.title}
               </div>
             )}
@@ -272,9 +301,32 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
             </ul>
           </div>
         ))}
+
+        {/* Admin section — inline for admin users */}
+        {isAdmin && (
+          <div>
+            <div className="px-2.5 mb-1.5 flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest"
+              style={{ color: '#9BA8A1' }}>
+              Admin
+              <ShieldCheck size={9} strokeWidth={2} style={{ color: '#9BA8A1' }} />
+            </div>
+            <ul className="space-y-0.5">
+              {INLINE_ADMIN_ITEMS.map(item => (
+                <NavItem
+                  key={item.label}
+                  href={item.href}
+                  icon={item.icon}
+                  label={item.label}
+                  active={pathname === item.href}
+                  onNavigate={onNavigate}
+                />
+              ))}
+            </ul>
+          </div>
+        )}
       </nav>
 
-      {/* Usage mini-card */}
+      {/* Events usage bar */}
       <div className="px-3 pb-2 shrink-0">
         <div className="rounded-xl p-3" style={{ background: '#F5F3EE', border: '1px solid #E5E0D4' }}>
           <div className="flex items-center justify-between mb-2">
@@ -287,35 +339,20 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
             <div className="h-full rounded-full transition-all duration-500"
               style={{ width: `${planPct}%`, background: planPct >= 90 ? '#C97A2D' : '#1F4D3A' }} />
           </div>
-          {profile?.plan !== 'studio' && (
-            <Link href="/settings/billing" onClick={onNavigate}
-              className="block mt-2 text-[10px] font-mono transition-colors hover:text-[#1F4D3A]"
-              style={{ color: '#9BA8A1' }}>
-              Upgrade for more →
-            </Link>
-          )}
         </div>
       </div>
 
-      {/* Admin panel entry — only for admins */}
-      {isAdmin && (
-        <div className="px-3 pb-2 shrink-0">
-          <Link
-            href="/admin/analytics"
-            onClick={onNavigate}
-            className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[12.5px] transition-colors group"
-            style={{ background: '#E8EFEB', border: '1px solid #C9DDD3' }}
-          >
-            <div className="h-6 w-6 rounded-md grid place-items-center shrink-0"
-              style={{ background: '#D0E5D9' }}>
-              <ShieldCheck size={12} strokeWidth={1.8} style={{ color: '#1F4D3A' }} />
-            </div>
-            <span className="flex-1 leading-none" style={{ color: '#1F4D3A' }}>Admin panel</span>
-            <ArrowLeft size={12} strokeWidth={2} className="rotate-180 shrink-0 transition-transform group-hover:translate-x-0.5"
-              style={{ color: '#3A6B50' }} />
-          </Link>
+      {/* Operations + plan CTA */}
+      <div className="px-3 pb-3 shrink-0">
+        <div className="px-2.5 mb-2 text-[10px] font-mono uppercase tracking-widest" style={{ color: '#9BA8A1' }}>
+          Operations
         </div>
-      )}
+        <Link href="/settings/billing" onClick={onNavigate}
+          className="flex items-center justify-center gap-1.5 w-full px-3 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all hover:opacity-90"
+          style={{ background: '#1F4D3A' }}>
+          {ctaLabel}
+        </Link>
+      </div>
 
       {/* Sign out */}
       <div className="px-3 py-2 shrink-0 border-t" style={{ borderColor: '#E5E0D4' }}>
@@ -740,7 +777,7 @@ const PAGE_LABELS: Record<string, string> = {
 
 function getPageBreadcrumbs(pathname: string, eventName: string | null): { label: string; href?: string }[] {
   if (pathname === '/dashboard')                         return [{ label: 'My Events' }];
-  if (pathname === '/analytics')                         return [{ label: 'Portfolio' }];
+  if (pathname === '/analytics')                         return [{ label: 'Analytics' }];
   if (pathname === '/team')                              return [{ label: 'Team' }];
   if (pathname === '/templates')                         return [{ label: 'Templates' }];
   if (pathname === '/brand')                             return [{ label: 'Brand Kit' }];
@@ -919,10 +956,44 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               );
             })()}
 
+            {/* Plan switcher pills */}
+            <div className="hidden md:flex items-center gap-0.5 rounded-xl p-1 ml-4 shrink-0"
+              style={{ background: '#F5F3EE', border: '1px solid #E5E0D4' }}>
+              {(['free', 'pro', 'studio'] as const).map(p => {
+                const active = profile?.plan === p;
+                const label  = p.charAt(0).toUpperCase() + p.slice(1);
+                return (
+                  <Link key={p} href="/settings/billing"
+                    className="px-2.5 py-1 rounded-lg text-[11.5px] font-medium transition-all"
+                    style={active
+                      ? { background: '#1F4D3A', color: 'white' }
+                      : { color: '#6B7A72' }}>
+                    {label}
+                  </Link>
+                );
+              })}
+              {(profile?.role === 'admin' || profile?.role === 'super_admin') && (
+                <Link href="/admin/analytics"
+                  className="px-2.5 py-1 rounded-lg text-[11.5px] font-medium transition-all"
+                  style={{ color: '#6B7A72' }}>
+                  Admin
+                </Link>
+              )}
+            </div>
+
             {/* Right side: search + bell + avatar */}
             <div className="flex items-center gap-1.5 shrink-0 ml-auto">
               <button onClick={() => setCmdOpen(true)}
-                className="h-8 w-8 rounded-lg grid place-items-center transition hover:bg-[#F5F3EE]"
+                className="hidden sm:flex h-8 items-center gap-2 px-3 rounded-lg transition hover:bg-[#F5F3EE]"
+                style={{ color: '#6B7A72', border: '1px solid #E5E0D4', background: 'white' }}
+                aria-label="Search (⌘K)">
+                <Search size={13} strokeWidth={2} />
+                <span className="text-[12px]">Search</span>
+                <kbd className="text-[10px] font-mono opacity-50">⌘K</kbd>
+              </button>
+              {/* Mobile icon-only */}
+              <button onClick={() => setCmdOpen(true)}
+                className="sm:hidden h-8 w-8 rounded-lg grid place-items-center transition hover:bg-[#F5F3EE]"
                 style={{ color: '#6B7A72' }}
                 aria-label="Search (⌘K)">
                 <Search size={15} strokeWidth={2} />
