@@ -12,7 +12,7 @@ type SortKey = 'recent' | 'registrations' | 'revenue';
 interface Props {
   events:      EventRowData[];
   atLimit:     boolean;
-  regsByEvent: Record<string, { count: number; revenue: number; checkedIn: number }>;
+  regsByEvent: Record<string, { count: number; revenue: number; checkedIn: number; currencies?: Set<string> }>;
   draftCount:  number;
   activeCount: number;
 }
@@ -107,6 +107,8 @@ export default function DashboardContent({ events, atLimit, regsByEvent }: Props
               const revenue    = regs?.revenue   ?? 0;
               const checkedIn  = regs?.checkedIn ?? 0;
               const checkinPct = regCount > 0 ? Math.round((checkedIn / regCount) * 100) : 0;
+              const currencies = regs?.currencies;
+              const currency   = currencies && currencies.size === 1 ? Array.from(currencies)[0] : null;
               return (
                 <EventCard
                   key={event.id}
@@ -114,6 +116,7 @@ export default function DashboardContent({ events, atLimit, regsByEvent }: Props
                   index={i}
                   regCount={regCount}
                   revenue={revenue}
+                  currency={currency}
                   checkinPct={checkinPct}
                 />
               );

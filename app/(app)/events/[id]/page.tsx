@@ -56,7 +56,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
     admin.from('events').select('id, name, slug, status, view_count, download_count, user_id, created_at, event_pages(starts_at, ends_at, venue_name, is_online)').eq('id', id).eq('user_id', user.id).single(),
     admin.from('event_variants').select('id, variant_name, variant_slug, background_url, background_width, background_height, zones, position').eq('event_id', id).order('position', { ascending: true }),
     admin.from('registrations').select('id, attendee_name, status, created_at').eq('event_id', id).order('created_at', { ascending: false }).limit(5),
-    admin.from('registrations').select('amount_paid').eq('event_id', id).in('status', ['confirmed', 'checked_in']),
+    admin.from('registrations').select('amount_paid, currency').eq('event_id', id).in('status', ['confirmed', 'checked_in']),
     admin.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', id).in('status', ['confirmed', 'checked_in']),
     admin.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', id).eq('status', 'checked_in'),
     admin.from('sessions').select('id', { count: 'exact', head: true }).eq('event_id', id),
@@ -73,6 +73,11 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
   void (firstVariant?.zones as unknown as Zone[]);
 
   const totalRevenue = (revData ?? []).reduce((s, r) => s + Number(r.amount_paid ?? 0), 0);
+  const revCurrencies = new Set((revData ?? []).map(r => r.currency).filter(Boolean) as string[]);
+  const revCurrency = revCurrencies.size === 1 ? Array.from(revCurrencies)[0] : null;
+  const revenueDisplay = totalRevenue > 0 && revCurrency
+    ? (() => { try { return new Intl.NumberFormat('en-US', { style: 'currency', currency: revCurrency, minimumFractionDigits: 0 }).format(totalRevenue); } catch { return `${revCurrency} ${totalRevenue.toLocaleString()}`; } })()
+    : '—';
   const registrations = regCount ?? 0;
   const checkedIn = checkedInCount ?? 0;
   const checkInRate = registrations > 0 ? Math.round((checkedIn / registrations) * 100) : 0;
@@ -163,7 +168,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
           style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
           {[
             { value: registrations.toLocaleString(), label: 'registered' },
-            { value: totalRevenue > 0 ? '$' + totalRevenue.toLocaleString() : '$0', label: 'revenue' },
+            { value: revenueDisplay, label: 'revenue' },
             { value: `${checkedIn.toLocaleString()} checked in (${checkInRate}%)`, label: '' },
             { value: event.download_count.toLocaleString(), label: 'cards shared' },
           ].map((s, i) => (

@@ -42,6 +42,23 @@ export function formatMinPrice(tickets: { price: number; currency?: string; is_v
   }
 }
 
+/**
+ * Format a revenue amount with the given currency.
+ * Returns '—' if amount is 0 or currency is unknown.
+ */
+export function formatRevenue(amount: number, currency: string | null | undefined): string {
+  if (amount === 0 || !currency) return '—';
+  try {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency,
+      minimumFractionDigits: 0,
+    }).format(amount);
+  } catch {
+    return `${currency} ${amount.toLocaleString()}`;
+  }
+}
+
 export const TIMEZONES = [
   { value: 'UTC', label: 'UTC' },
   { value: 'Africa/Nairobi', label: 'Nairobi (EAT)' },

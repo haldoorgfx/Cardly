@@ -10,6 +10,7 @@ import DashboardContent from './DashboardContent';
 import React from 'react';
 import { CalendarDays, Ticket, Users, ScanLine, Plus, IdCard } from 'lucide-react';
 import { PLANS, type Plan } from '@/lib/billing/plans';
+import { formatRevenue } from '@/lib/events/format';
 
 export default async function DashboardPage() {
   const supabase = createClient();
@@ -84,20 +85,22 @@ export default async function DashboardPage() {
 
   // ─── Registrations + revenue ───────────────────────────────────────────────
   const eventIds = allEvents.map(e => e.id);
-  const regsByEvent: Record<string, { count: number; revenue: number; checkedIn: number }> = {};
+  const regsByEvent: Record<string, { count: number; revenue: number; checkedIn: number; currencies: Set<string> }> = {};
   let totalRegistrations = 0;
   let totalRevenue = 0;
   let totalCheckedIn = 0;
+  const allCurrencies = new Set<string>();
   if (eventIds.length > 0) {
     const { data: regs } = await admin
       .from('registrations')
-      .select('event_id, amount_paid, status')
+      .select('event_id, amount_paid, status, currency')
       .in('event_id', eventIds)
       .in('status', ['confirmed', 'checked_in']);
     for (const r of regs ?? []) {
-      if (!regsByEvent[r.event_id]) regsByEvent[r.event_id] = { count: 0, revenue: 0, checkedIn: 0 };
+      if (!regsByEvent[r.event_id]) regsByEvent[r.event_id] = { count: 0, revenue: 0, checkedIn: 0, currencies: new Set() };
       regsByEvent[r.event_id].count   += 1;
       regsByEvent[r.event_id].revenue += Number(r.amount_paid ?? 0);
+      if (r.currency) { regsByEvent[r.event_id].currencies.add(r.currency); allCurrencies.add(r.currency); }
       totalRegistrations += 1;
       totalRevenue       += Number(r.amount_paid ?? 0);
       if (r.status === 'checked_in') {
@@ -106,6 +109,8 @@ export default async function DashboardPage() {
       }
     }
   }
+  // If all revenue is in a single currency we can display it; otherwise show —
+  const totalCurrency = allCurrencies.size === 1 ? Array.from(allCurrencies)[0] : null;
 
   const checkInRate = totalRegistrations > 0 ? Math.round((totalCheckedIn / totalRegistrations) * 100) : 0;
   const firstLiveEvent = allEvents.find(e => e.status === 'published');
@@ -146,7 +151,7 @@ export default async function DashboardPage() {
           {[
             { value: allEvents.filter(e => e.status !== 'archived').length, label: 'events total' },
             { value: totalRegistrations.toLocaleString(), label: 'registrations' },
-            { value: totalRevenue > 0 ? '$' + totalRevenue.toLocaleString() : '$0', label: 'revenue' },
+            { value: totalRevenue > 0 ? formatRevenue(totalRevenue, totalCurrency) : '—', label: 'revenue' },
             { value: `${checkInRate}%`, label: 'check-in rate', last: true },
           ].map((s, i) => (
             <div key={i} className="flex items-center gap-5">
