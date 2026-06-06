@@ -11,7 +11,7 @@ import {
   Flag, Image as ImageIcon, ScrollText, Sliders, Gavel,
   Home, Layout, CalendarDays, MessageSquare, Bell, Plug, Globe,
   Ticket, ScanLine, User, Network, Trophy, Briefcase, Video, Palette, Key, Tag, ExternalLink,
-  UserCircle, HelpCircle, Zap,
+  UserCircle, HelpCircle, Zap, ShoppingCart, BadgeCheck, Handshake, Clock,
 } from 'lucide-react';
 
 type Profile = {
@@ -64,6 +64,8 @@ const EVENT_NAV_SECTIONS = [
       { id: 'event-page',      label: 'Event Page',      icon: <Layout size={15} strokeWidth={1.8} />,         segment: 'event-page' },
       { id: 'tickets',         label: 'Tickets',         icon: <Ticket size={15} strokeWidth={1.8} />,         segment: 'tickets' },
       { id: 'registrations',   label: 'Registrations',   icon: <Users size={15} strokeWidth={1.8} />,          segment: 'registrations' },
+      { id: 'orders',          label: 'Orders',          icon: <ShoppingCart size={15} strokeWidth={1.8} />,   segment: 'orders' },
+      { id: 'waitlist',        label: 'Waitlist',        icon: <Clock size={15} strokeWidth={1.8} />,          segment: 'waitlist' },
       { id: 'check-in',        label: 'Check-in',        icon: <ScanLine size={15} strokeWidth={1.8} />,       segment: 'check-in' },
       { id: 'communications',  label: 'Communications',  icon: <Bell size={15} strokeWidth={1.8} />,           segment: 'communications' },
     ],
@@ -85,6 +87,13 @@ const EVENT_NAV_SECTIONS = [
     ],
   },
   {
+    title: 'On-site',
+    items: [
+      { id: 'meetings', label: '1:1 Meetings', icon: <Handshake size={15} strokeWidth={1.8} />, segment: 'meetings' },
+      { id: 'badges',   label: 'Badges',       icon: <BadgeCheck size={15} strokeWidth={1.8} />, segment: 'badges' },
+    ],
+  },
+  {
     title: 'Partners',
     items: [
       { id: 'sponsors', label: 'Sponsors', icon: <Briefcase size={15} strokeWidth={1.8} />, segment: 'sponsors' },
@@ -95,6 +104,7 @@ const EVENT_NAV_SECTIONS = [
     title: 'Insights',
     items: [
       { id: 'analytics', label: 'Analytics', icon: <BarChart2 size={15} strokeWidth={1.8} />, segment: 'analytics' },
+      { id: 'reports',   label: 'Reports',   icon: <FileText size={15} strokeWidth={1.8} />,  segment: 'reports' },
     ],
   },
   {
@@ -756,12 +766,15 @@ function usePlanCtx() { return useContext(PlanContext); }
 const PAGE_LABELS: Record<string, string> = {
   '':               'Overview',
   'registrations':  'Registrations',
+  'orders':         'Orders',
+  'waitlist':       'Waitlist',
   'event-page':     'Event page',
   'agenda':         'Agenda',
   'engagement':     'Networking',
   'sponsors':       'Sponsors',
   'virtual':        'Virtual',
   'analytics':      'Analytics',
+  'reports':        'Reports',
   'edit':           'Karta Card',
   'check-in':       'Check-in',
   'tickets':        'Tickets',
@@ -773,6 +786,8 @@ const PAGE_LABELS: Record<string, string> = {
   'form':           'Registration form',
   'promo-codes':    'Promo codes',
   'publish':        'Publish',
+  'meetings':       '1:1 Meetings',
+  'badges':         'Badges',
 };
 
 function getPageBreadcrumbs(pathname: string, eventName: string | null): { label: string; href?: string }[] {
