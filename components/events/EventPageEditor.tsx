@@ -65,7 +65,6 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
 
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [saveError, setSaveError] = useState('');
-  const [saved, setSaved] = useState(false);
 
   function fe(field: string) { return fieldErrors[field]; }
 
@@ -630,7 +629,6 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
               {saveError || 'Please fix the highlighted fields above'}
             </p>
           )}
-          {saved && <p className="text-[13px]" style={{ color: '#2D7A4F' }}>Changes saved.</p>}
         </div>
 
         <div className="flex items-center gap-3">
@@ -652,7 +650,7 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
                 className="inline-flex items-center h-9 px-5 rounded-lg text-white text-[13px] font-semibold transition hover:opacity-90 disabled:opacity-60"
                 style={{ background: '#1F4D3A' }}
               >
-                {isPending ? 'Saving…' : saved ? '✓ Saved' : 'Save changes'}
+                {isPending ? 'Saving…' : 'Save changes'}
               </button>
             </>
           ) : (
