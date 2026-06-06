@@ -10,7 +10,7 @@ interface Ticket {
   description: string | null;
   price: number;
   currency: string;
-  quantity_total: number | null;
+  quantity: number | null;
   quantity_sold: number;
 }
 
@@ -36,7 +36,11 @@ const INPUT = 'w-full rounded-xl px-4 py-3 text-[15px] outline-none transition b
 
 function fmt(price: number, currency: string) {
   if (price === 0) return 'Free';
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: currency || 'USD' }).format(price / 100);
+  try {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: currency || 'USD', minimumFractionDigits: 0 }).format(price);
+  } catch {
+    return `${currency} ${price}`;
+  }
 }
 
 function dateStr(iso: string | null) {
@@ -183,7 +187,7 @@ export default function RegistrationClient({
             ) : (
               <div className="space-y-3">
                 {tickets.map(t => {
-                  const sold = t.quantity_total !== null && t.quantity_sold >= t.quantity_total;
+                  const sold = t.quantity !== null && t.quantity_sold >= t.quantity;
                   const isSelected = selectedTicket?.id === t.id;
                   return (
                     <button

@@ -16,9 +16,10 @@ export default async function RegisterPage({ params }: Props) {
   const { event, eventPageTitle } = resolved;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: tickets } = await (admin as any)
     .from('ticket_types')
-    .select('id, name, description, price, currency, quantity_total, quantity_sold, is_visible')
+    .select('id, name, description, price, currency, quantity, quantity_sold, is_visible')
     .eq('event_id', event.id)
     .eq('is_visible', true)
     .order('price', { ascending: true });

@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { createAdminClient } from '@/lib/supabase/server';
 import { DiscoveryGrid } from '@/components/events/DiscoveryGrid';
+import { PublicNav } from '@/components/events/PublicNav';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -21,6 +22,8 @@ export default async function EventDiscoveryPage() {
     .limit(48);
 
   return (
+    <>
+    <PublicNav />
     <div className="max-w-[1120px] mx-auto px-5 py-12">
       {/* Hero */}
       <div className="mb-10">
@@ -37,5 +40,6 @@ export default async function EventDiscoveryPage() {
 
       <DiscoveryGrid pages={pages ?? []} />
     </div>
+    </>
   );
 }

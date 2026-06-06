@@ -28,13 +28,18 @@ export function formatShortDate(isoString: string, timezone = 'UTC'): string {
   }).format(new Date(isoString));
 }
 
-export function formatMinPrice(tickets: { price: number; is_visible: boolean }[]): string {
+export function formatMinPrice(tickets: { price: number; currency?: string; is_visible: boolean }[]): string {
   const visible = tickets.filter(t => t.is_visible);
   if (visible.length === 0) return 'Free';
   const paid = visible.filter(t => t.price > 0);
   if (paid.length === 0) return 'Free';
-  const min = Math.min(...paid.map(t => t.price));
-  return `From $${min % 1 === 0 ? min : min.toFixed(2)}`;
+  const cheapest = paid.reduce((a, b) => a.price <= b.price ? a : b);
+  const currency = cheapest.currency ?? 'USD';
+  try {
+    return 'From ' + new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 0 }).format(cheapest.price);
+  } catch {
+    return `From ${currency} ${cheapest.price}`;
+  }
 }
 
 export const TIMEZONES = [
