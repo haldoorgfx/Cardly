@@ -14,10 +14,15 @@ function fmtNum(n: number) {
   return n.toLocaleString();
 }
 
-function fmtMoney(n: number) {
-  if (n >= 1_000_000) return `₦${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000)     return `₦${(n / 1_000).toFixed(1)}k`;
-  return `₦${n.toLocaleString()}`;
+function fmtMoney(n: number, currency: string | null | undefined): string {
+  if (!currency || n === 0) return '—';
+  // Get currency symbol for abbreviation labels
+  let sym = currency;
+  try { sym = (0).toLocaleString('en-US', { style: 'currency', currency, minimumFractionDigits: 0 }).replace(/[\d,.\s]/g, '').trim() || currency; } catch { /* */ }
+  if (n >= 1_000_000) return `${sym}${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000)     return `${sym}${(n / 1_000).toFixed(1)}k`;
+  try { return new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 0 }).format(n); }
+  catch { return `${currency} ${n.toLocaleString()}`; }
 }
 
 const EVENT_COLORS = ['#1F4D3A', '#2A6A50', '#3D7A5E', '#4F8A6E', '#2D7A4F', '#163828', '#5E9A7D'];
@@ -77,7 +82,7 @@ export default async function AnalyticsPage() {
   const { data: regs } = eventIds.length > 0
     ? await admin
         .from('registrations')
-        .select('event_id, status, amount_paid, created_at')
+        .select('event_id, status, amount_paid, created_at, currency')
         .in('event_id', eventIds)
     : { data: [] };
 
@@ -89,6 +94,8 @@ export default async function AnalyticsPage() {
   const confirmedRegs  = allRegs.filter(r => ['confirmed', 'checked_in'].includes(r.status));
   const totalRegs      = confirmedRegs.length;
   const totalRevenue   = allRegs.reduce((s, r) => s + Number(r.amount_paid ?? 0), 0);
+  const allCurrencies  = new Set(allRegs.map(r => r.currency).filter(Boolean) as string[]);
+  const primaryCurrency = allCurrencies.size === 1 ? Array.from(allCurrencies)[0] : null;
   const totalCards     = allEvents.reduce((s, e) => s + (e.download_count ?? 0), 0);
 
   // Month-over-month
@@ -225,7 +232,7 @@ export default async function AnalyticsPage() {
           <StatCard label="Revenue" icon="dollar">
             <div className="font-display text-[36px] font-semibold tracking-tight leading-none"
               style={{ color: '#0F1F18' }}>
-              {fmtMoney(totalRevenue)}
+              {fmtMoney(totalRevenue, primaryCurrency)}
             </div>
             {revMoM !== null && <MoMBadge value={revMoM} />}
           </StatCard>
@@ -403,9 +410,7 @@ export default async function AnalyticsPage() {
 
                       {/* Revenue */}
                       <td className="px-5 py-3.5 font-mono text-[13px]" style={{ color: '#0F1F18' }}>
-                        {e.revenue > 0
-                          ? fmtMoney(e.revenue)
-                          : <span style={{ color: '#6B7A72' }}>$0</span>}
+                        {fmtMoney(e.revenue, primaryCurrency)}
                       </td>
 
                       {/* Cards */}
