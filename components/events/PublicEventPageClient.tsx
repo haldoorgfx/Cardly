@@ -7,9 +7,9 @@ import type { Database } from '@/types/database';
 
 function fmtTicketPrice(price: number, currency?: string | null): string {
   if (price === 0) return 'Free';
-  const cur = currency ?? 'USD';
+  const cur = currency || 'USD';
   try {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: cur, minimumFractionDigits: 0 }).format(price);
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: cur, minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(price);
   } catch {
     return `${cur} ${price.toLocaleString()}`;
   }
