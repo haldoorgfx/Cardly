@@ -25,8 +25,11 @@ export async function POST(req: NextRequest) {
     .eq('id', user.id)
     .single();
 
-  const isActivePaid = profile?.subscription_status === 'active' || profile?.subscription_status === 'trialing';
-  const plan = (!isActivePaid && profile?.plan !== 'free') ? 'free' : (profile?.plan ?? 'free');
+  const subscriptionFailed =
+    profile?.subscription_status === 'canceled' ||
+    profile?.subscription_status === 'past_due' ||
+    profile?.subscription_status === 'unpaid';
+  const plan = (subscriptionFailed && profile?.plan !== 'free') ? 'free' : (profile?.plan ?? 'free');
 
   if (plan !== 'studio') {
     return NextResponse.json({ error: 'Teams require a Studio plan.' }, { status: 402 });

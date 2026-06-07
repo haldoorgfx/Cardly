@@ -37,10 +37,11 @@ export async function POST(req: NextRequest) {
     .eq('id', userId)
     .single();
 
-  const isActive =
-    profile?.subscription_status === 'active' ||
-    profile?.subscription_status === 'trialing';
-  const plan = (!isActive && profile?.plan !== 'free') ? 'free' : (profile?.plan ?? 'free');
+  const subscriptionFailed =
+    profile?.subscription_status === 'canceled' ||
+    profile?.subscription_status === 'past_due' ||
+    profile?.subscription_status === 'unpaid';
+  const plan = (subscriptionFailed && profile?.plan !== 'free') ? 'free' : (profile?.plan ?? 'free');
 
   if (plan !== 'studio') {
     return NextResponse.json(
