@@ -88,19 +88,20 @@ export default function EventDetailActions({ eventId, eventName, status }: Props
             if (e.key === 'Enter') doRename();
             if (e.key === 'Escape') { setRenaming(false); setNameVal(eventName); }
           }}
-          className="font-display font-semibold text-[22px] bg-[#1F4D3A]/5 border border-[#1F4D3A]/30 rounded-xl px-3 py-1.5 outline-none focus:ring-2 focus:ring-[#1F4D3A]/30 min-w-[240px]"
+          className="font-display font-semibold text-[22px] text-[#FAF6EE] placeholder-[#FAF6EE]/50 bg-white/10 border border-white/30 rounded-xl px-3 py-1.5 outline-none focus:ring-2 focus:ring-white/30 min-w-[240px]"
         />
         <button
           onClick={doRename}
           disabled={busy}
-          className="text-[13px] font-semibold text-white px-3 py-1.5 rounded-lg hover:opacity-90 transition"
-          style={{ background: 'linear-gradient(135deg,#1F4D3A,#2A6A50)' }}
+          className="text-[13px] font-semibold px-3 py-1.5 rounded-lg hover:opacity-90 transition"
+          style={{ background: '#1F4D3A', color: '#FAF6EE', border: '1px solid rgba(250,246,238,0.2)' }}
         >
           Save
         </button>
         <button
           onClick={() => { setRenaming(false); setNameVal(eventName); }}
-          className="text-[13px] text-[#0F1F18]/60 px-3 py-1.5 rounded-lg hover:bg-[#FAF6EE] border border-[#E5E0D4] transition"
+          className="text-[13px] px-3 py-1.5 rounded-lg transition"
+          style={{ color: 'rgba(250,246,238,0.7)', border: '1px solid rgba(250,246,238,0.2)', background: 'transparent' }}
         >
           Cancel
         </button>
