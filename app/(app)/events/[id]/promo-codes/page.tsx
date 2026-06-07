@@ -2,7 +2,6 @@ export const dynamic = 'force-dynamic';
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { EventManageNav } from '@/components/events/EventManageNav';
 import { PromoCodesManager } from '@/components/events/PromoCodesManager';
 
 interface Props { params: Promise<{ id: string }> }
@@ -23,7 +22,6 @@ export default async function PromoCodesPage({ params }: Props) {
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <EventManageNav eventId={id} eventName={event.name} active="promo-codes" />
       <div className="max-w-[800px] mx-auto px-6 py-8">
         <div className="mb-6">
           <h1 className="font-display font-semibold text-[24px]" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>

@@ -2,7 +2,6 @@ export const dynamic = 'force-dynamic';
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { EventManageNav } from '@/components/events/EventManageNav';
 import AbstractReviewClient from '@/components/abstracts/AbstractReviewClient';
 
 interface Props { params: Promise<{ id: string }> }
@@ -37,7 +36,6 @@ export default async function AbstractsPage({ params }: Props) {
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <EventManageNav eventId={id} eventName={event.name} active="abstracts" />
       <AbstractReviewClient
         eventId={id}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

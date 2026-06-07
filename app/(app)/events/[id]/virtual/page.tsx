@@ -2,7 +2,6 @@ export const dynamic = 'force-dynamic';
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { EventManageNav } from '@/components/events/EventManageNav';
 import { Video, Users, BarChart2, Clock, Radio } from 'lucide-react';
 
 interface Props { params: Promise<{ id: string }> }
@@ -38,7 +37,6 @@ export default async function VirtualPage({ params }: Props) {
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <EventManageNav eventId={id} eventName={event.name} active="virtual" />
       <div className="max-w-[1100px] mx-auto px-6 py-8">
 
         {/* Stream panel */}

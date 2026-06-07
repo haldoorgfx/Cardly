@@ -24,7 +24,7 @@ interface Props {
 function fmtMoney(n: number) {
   if (n >= 1_000_000) return `₦${(n / 1_000_000).toFixed(1)}M`;
   if (n >= 1_000)     return `₦${(n / 1_000).toFixed(0)}k`;
-  return `₦${n.toLocaleString()}`;
+  return `₦${Math.round(n).toLocaleString()}`;
 }
 
 /* ── Stat card ─────────────────────────────────────────────────────────────── */
