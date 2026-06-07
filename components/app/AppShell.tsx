@@ -229,13 +229,51 @@ function NavItem({ href, icon, label, badge, active, onNavigate }: {
   );
 }
 
-// ─── Inline admin nav items (visible in user sidebar for admins) ──────────────
+// ─── Inline admin nav items (merged into user sidebar for admins) ─────────────
+// Each section maps to a group title + items shown inside the Admin section.
 
-const INLINE_ADMIN_ITEMS = [
-  { href: '/admin/users',     label: 'Users',              icon: <Users size={15} strokeWidth={1.8} /> },
-  { href: '/admin/events',    label: 'All Events',         icon: <LayoutGrid size={15} strokeWidth={1.8} /> },
-  { href: '/admin/events',    label: 'Moderation',         icon: <Gavel size={15} strokeWidth={1.8} /> },
-  { href: '/admin/analytics', label: 'Platform Analytics', icon: <BarChart2 size={15} strokeWidth={1.8} /> },
+type InlineAdminSection = {
+  label: string;
+  items: { href: string; label: string; icon: React.ReactNode; superAdminOnly?: boolean }[];
+};
+
+const INLINE_ADMIN_SECTIONS: InlineAdminSection[] = [
+  {
+    label: 'Overview',
+    items: [
+      { href: '/admin/analytics', label: 'Platform Stats',  icon: <BarChart2 size={14} strokeWidth={1.8} /> },
+    ],
+  },
+  {
+    label: 'Users',
+    items: [
+      { href: '/admin/users', label: 'Accounts',     icon: <Users size={14} strokeWidth={1.8} /> },
+      { href: '/admin/audit', label: 'Activity Log', icon: <ScrollText size={14} strokeWidth={1.8} /> },
+    ],
+  },
+  {
+    label: 'Content',
+    items: [
+      { href: '/admin/content',   label: 'Pages',     icon: <FileText size={14} strokeWidth={1.8} /> },
+      { href: '/admin/media',     label: 'Media',     icon: <ImageIcon size={14} strokeWidth={1.8} /> },
+      { href: '/admin/changelog', label: 'Changelog', icon: <ScrollText size={14} strokeWidth={1.8} /> },
+    ],
+  },
+  {
+    label: 'Product',
+    items: [
+      { href: '/admin/theme',     label: 'Appearance',    icon: <Sliders size={14} strokeWidth={1.8} /> },
+      { href: '/admin/templates', label: 'Templates',     icon: <LayoutTemplate size={14} strokeWidth={1.8} />, superAdminOnly: true },
+      { href: '/admin/flags',     label: 'Feature Flags', icon: <Flag size={14} strokeWidth={1.8} />,          superAdminOnly: true },
+    ],
+  },
+  {
+    label: 'Business',
+    items: [
+      { href: '/admin/billing', label: 'Revenue',    icon: <CreditCard size={14} strokeWidth={1.8} />, superAdminOnly: true },
+      { href: '/admin/events',  label: 'Moderation', icon: <Gavel size={14} strokeWidth={1.8} />,      superAdminOnly: true },
+    ],
+  },
 ];
 
 // ─── User sidebar content ─────────────────────────────────────────────────────
@@ -244,6 +282,7 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
   const { profile, eventCount, planPct, planLabel, logoUrl } = usePlanCtx();
   const planLimit = profile ? (PLAN_LIMITS[profile.plan] ?? 1) : 1;
   const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
+  const isSuperAdmin = profile?.role === 'super_admin';
 
   const handleSignOut = async () => {
     const supabase = createClient();
@@ -314,24 +353,36 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
 
         {/* Admin section — inline for admin users */}
         {isAdmin && (
-          <div>
-            <div className="px-2.5 mb-1.5 flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest"
+          <div className="space-y-4">
+            <div className="px-2.5 flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest"
               style={{ color: '#9BA8A1' }}>
               Admin
               <ShieldCheck size={9} strokeWidth={2} style={{ color: '#9BA8A1' }} />
             </div>
-            <ul className="space-y-0.5">
-              {INLINE_ADMIN_ITEMS.map(item => (
-                <NavItem
-                  key={item.label}
-                  href={item.href}
-                  icon={item.icon}
-                  label={item.label}
-                  active={pathname === item.href}
-                  onNavigate={onNavigate}
-                />
-              ))}
-            </ul>
+            {INLINE_ADMIN_SECTIONS.map(section => {
+              const visibleItems = section.items.filter(i => isSuperAdmin || !i.superAdminOnly);
+              if (visibleItems.length === 0) return null;
+              return (
+                <div key={section.label}>
+                  <div className="px-2.5 mb-1.5 text-[9.5px] font-mono uppercase tracking-widest"
+                    style={{ color: '#C9C3B1' }}>
+                    {section.label}
+                  </div>
+                  <ul className="space-y-0.5">
+                    {visibleItems.map(item => (
+                      <NavItem
+                        key={item.href + item.label}
+                        href={item.href}
+                        icon={item.icon}
+                        label={item.label}
+                        active={pathname.startsWith(item.href)}
+                        onNavigate={onNavigate}
+                      />
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
           </div>
         )}
       </nav>
@@ -918,7 +969,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const isEventRoute = !!eventId && !isAdminRoute;
 
   function SidebarInner({ onNavigate }: { onNavigate?: () => void }) {
-    if (isAdminRoute) return <AdminNavContent pathname={pathname} onNavigate={onNavigate} />;
     if (isEventRoute && eventId) return <EventNavContent pathname={pathname} eventId={eventId} onNavigate={onNavigate} />;
     return <UserNavContent pathname={pathname} onNavigate={onNavigate} />;
   }
@@ -1019,7 +1069,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               {(profile?.role === 'admin' || profile?.role === 'super_admin') && (
                 <Link href="/admin/analytics"
                   className="px-2.5 py-1 rounded-lg text-[11.5px] font-medium transition-all"
-                  style={{ color: '#6B7A72' }}>
+                  style={pathname.startsWith('/admin')
+                    ? { background: '#1F4D3A', color: 'white' }
+                    : { color: '#6B7A72' }}>
                   Admin
                 </Link>
               )}
