@@ -11,7 +11,7 @@ import {
   Flag, Image as ImageIcon, ScrollText, Sliders, Gavel,
   Home, Layout, CalendarDays, MessageSquare, Bell, Plug, Globe,
   Ticket, ScanLine, User, Network, Trophy, Briefcase, Video, Palette, Key, Tag, ExternalLink,
-  UserCircle, HelpCircle, Zap, ShoppingCart, BadgeCheck, Handshake, Clock, IdCard,
+  UserCircle, HelpCircle, Zap, ShoppingCart, Handshake, Clock, IdCard,
 } from 'lucide-react';
 
 type Profile = {

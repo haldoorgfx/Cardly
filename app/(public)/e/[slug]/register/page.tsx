@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export const dynamic = 'force-dynamic';
 
 import { createAdminClient } from '@/lib/supabase/server';
@@ -15,7 +16,6 @@ export default async function RegisterPage({ params }: Props) {
   if (!resolved) notFound();
   const { event, eventPageTitle } = resolved;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [ticketsRes, pageRes, variantRes] = await Promise.all([
     (admin as any)
       .from('ticket_types')
@@ -38,9 +38,7 @@ export default async function RegisterPage({ params }: Props) {
       .maybeSingle(),
   ]);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const page = (pageRes as any).data;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tickets = (ticketsRes as any).data ?? [];
   const rawVariant = variantRes.data;
 
@@ -75,7 +73,6 @@ export default async function RegisterPage({ params }: Props) {
           coverUrl={page?.cover_image_url ?? null}
           startsAt={page?.starts_at ?? null}
           city={page?.city ?? null}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           tickets={tickets as any}
           canvasVariant={canvasVariant}
         />
