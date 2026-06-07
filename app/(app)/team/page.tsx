@@ -17,14 +17,14 @@ export default async function TeamPage() {
     .eq('id', user.id)
     .single();
 
-  // Honor plan if: active subscription, trialing, OR manually assigned (no subscription yet).
-  // !subscription_status covers null, undefined, and '' (empty string).
-  const isActivePaid =
-    profile?.subscription_status === 'active' ||
-    profile?.subscription_status === 'trialing' ||
-    !profile?.subscription_status;
+  // Only downgrade if subscription explicitly failed/cancelled.
+  // This correctly handles manually-assigned plans with no Stripe subscription.
+  const subscriptionFailed =
+    profile?.subscription_status === 'canceled' ||
+    profile?.subscription_status === 'past_due' ||
+    profile?.subscription_status === 'unpaid';
   const plan =
-    !isActivePaid && profile?.plan !== 'free' ? 'free' : (profile?.plan ?? 'free');
+    subscriptionFailed && profile?.plan !== 'free' ? 'free' : (profile?.plan ?? 'free');
   const isStudio = plan === 'studio';
 
   let team = null;

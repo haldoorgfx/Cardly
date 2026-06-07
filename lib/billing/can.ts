@@ -18,14 +18,15 @@ export async function getUserPlan(userId: string): Promise<Plan> {
 
   if (!data) return 'free';
 
-  // Honor plan if active, trialing, or manually assigned (no subscription set yet).
-  // !subscription_status covers null, undefined, and '' (empty string).
-  const isActivePaid =
-    data.subscription_status === 'active' ||
-    data.subscription_status === 'trialing' ||
-    !data.subscription_status;
+  // Only downgrade if there's an explicitly failed/cancelled subscription.
+  // Any other value (null, '', 'active', 'trialing', or unknown) → honor the plan.
+  // This correctly handles manually-assigned plans with no Stripe subscription.
+  const subscriptionFailed =
+    data.subscription_status === 'canceled' ||
+    data.subscription_status === 'past_due' ||
+    data.subscription_status === 'unpaid';
 
-  if (!isActivePaid && data.plan !== 'free') return 'free';
+  if (subscriptionFailed && data.plan !== 'free') return 'free';
   return (data.plan as Plan) ?? 'free';
 }
 
@@ -68,13 +69,14 @@ export async function canGenerateCard(userId: string): Promise<{ allowed: boolea
 
   if (!profile) return { allowed: false, plan: 'free' };
 
-  const isActivePaid =
-    profile.subscription_status === 'active' ||
-    profile.subscription_status === 'trialing' ||
-    !profile.subscription_status;
+  // Only downgrade if there's an explicitly failed/cancelled subscription.
+  const subscriptionFailed =
+    profile.subscription_status === 'canceled' ||
+    profile.subscription_status === 'past_due' ||
+    profile.subscription_status === 'unpaid';
 
   const plan: Plan =
-    !isActivePaid && profile.plan !== 'free'
+    subscriptionFailed && profile.plan !== 'free'
       ? 'free'
       : (profile.plan as Plan) ?? 'free';
 
