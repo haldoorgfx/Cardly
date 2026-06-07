@@ -8,7 +8,7 @@ export async function POST(req: Request) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json();
-  const { event_id, company_name, tier, booth_number, website } = body;
+  const { event_id, company_name, tier, booth_location, website_url } = body;
   if (!event_id || !company_name) return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -25,9 +25,9 @@ export async function POST(req: Request) {
     .insert({
       event_id,
       company_name,
-      tier: tier || null,
-      booth_number: booth_number || null,
-      website: website || null,
+      tier: tier || 'standard',
+      booth_location: booth_location || null,
+      website_url: website_url || null,
       invite_token,
     })
     .select()

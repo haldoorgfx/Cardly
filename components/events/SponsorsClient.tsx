@@ -7,8 +7,8 @@ interface Sponsor {
   id: string;
   company_name: string;
   tier: string | null;
-  booth_number: string | null;
-  website: string | null;
+  booth_location: string | null;
+  website_url: string | null;
   invite_token: string;
   lead_count: number;
 }
@@ -19,27 +19,34 @@ interface Props {
   sponsors: Sponsor[];
 }
 
-const TIERS = ['Platinum', 'Gold', 'Silver', 'Bronze', 'Media partner', 'Community'];
+// Values match DB check constraint: platinum|gold|silver|standard
+const TIERS = [
+  { value: 'platinum', label: 'Platinum' },
+  { value: 'gold',     label: 'Gold' },
+  { value: 'silver',   label: 'Silver' },
+  { value: 'standard', label: 'Standard' },
+];
+
 const TIER_STYLE: Record<string, { bg: string; color: string; border: string }> = {
-  Platinum:         { bg: 'rgba(232,197,126,0.15)', color: '#C9A45E', border: 'rgba(201,164,94,0.4)' },
-  Gold:             { bg: 'rgba(201,122,45,0.10)',  color: '#C97A2D', border: 'rgba(201,122,45,0.3)' },
-  Silver:           { bg: 'rgba(107,122,114,0.10)', color: '#6B7A72', border: 'rgba(107,122,114,0.3)' },
-  Bronze:           { bg: 'rgba(139,107,78,0.10)',  color: '#8B6B4E', border: 'rgba(139,107,78,0.3)' },
-  'Media partner':  { bg: 'rgba(58,107,140,0.10)',  color: '#3A6B8C', border: 'rgba(58,107,140,0.3)' },
-  'Community':      { bg: '#E8EFEB',                color: '#1F4D3A', border: 'rgba(31,77,58,0.2)' },
+  platinum: { bg: 'rgba(232,197,126,0.15)', color: '#C9A45E',  border: 'rgba(201,164,94,0.4)' },
+  gold:     { bg: 'rgba(201,122,45,0.10)',  color: '#C97A2D',  border: 'rgba(201,122,45,0.3)' },
+  silver:   { bg: 'rgba(107,122,114,0.10)', color: '#6B7A72',  border: 'rgba(107,122,114,0.3)' },
+  standard: { bg: '#E8EFEB',                color: '#1F4D3A',  border: 'rgba(31,77,58,0.2)' },
 };
 
 function tierStyle(tier: string | null) {
-  return TIER_STYLE[tier ?? ''] ?? TIER_STYLE['Community'];
+  return TIER_STYLE[tier ?? ''] ?? TIER_STYLE['standard'];
+}
+
+function tierLabel(tier: string | null) {
+  return TIERS.find(t => t.value === tier)?.label ?? tier ?? 'Standard';
 }
 
 function Avatar({ name }: { name: string }) {
   const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
   return (
-    <span
-      className="w-10 h-10 rounded-xl grid place-items-center text-cream font-display font-semibold text-[13px] shrink-0"
-      style={{ background: 'linear-gradient(135deg,#1F4D3A,#2A6A50)' }}
-    >
+    <span className="w-10 h-10 rounded-xl grid place-items-center text-cream font-display font-semibold text-[13px] shrink-0"
+      style={{ background: 'linear-gradient(135deg,#1F4D3A,#2A6A50)' }}>
       {initials}
     </span>
   );
@@ -49,11 +56,11 @@ export function SponsorsClient({ eventId, eventName, sponsors: initial }: Props)
   const [sponsors, setSponsors] = useState(initial);
   const [showAdd, setShowAdd] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
-  const [form, setForm] = useState({ company_name: '', tier: 'Gold', booth_number: '', website: '' });
+  const [form, setForm] = useState({ company_name: '', tier: 'gold', booth_location: '', website_url: '' });
   const [isPending, startTransition] = useTransition();
 
   const totalLeads = sponsors.reduce((s, sp) => s + sp.lead_count, 0);
-  const booths = sponsors.filter(s => s.booth_number).length;
+  const booths = sponsors.filter(s => s.booth_location).length;
 
   function copyPortalLink(token: string) {
     const url = `${window.location.origin}/exhibitor/${token}`;
@@ -73,8 +80,10 @@ export function SponsorsClient({ eventId, eventName, sponsors: initial }: Props)
       const data = await res.json();
       if (data.sponsor) {
         setSponsors(prev => [{ ...data.sponsor, lead_count: 0 }, ...prev]);
-        setForm({ company_name: '', tier: 'Gold', booth_number: '', website: '' });
+        setForm({ company_name: '', tier: 'gold', booth_location: '', website_url: '' });
         setShowAdd(false);
+      } else {
+        alert(data.error || 'Failed to add sponsor');
       }
     });
   }
@@ -96,25 +105,21 @@ export function SponsorsClient({ eventId, eventName, sponsors: initial }: Props)
             <h1 className="font-display font-semibold text-[24px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>Sponsors</h1>
             <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>Manage packages, booths, and lead capture.</p>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowAdd(v => !v)}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13.5px] font-medium text-cream transition-colors"
-              style={{ background: '#1F4D3A' }}
-            >
-              <svg width={15} height={15} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-              </svg>
-              Add sponsor
-            </button>
-          </div>
+          <button onClick={() => setShowAdd(v => !v)}
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13.5px] font-medium text-cream transition-colors"
+            style={{ background: '#1F4D3A' }}>
+            <svg width={15} height={15} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Add sponsor
+          </button>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {[
-            { label: 'Sponsors', value: sponsors.length, accent: false },
-            { label: 'Total leads', value: totalLeads || '—', accent: false },
+            { label: 'Sponsors',       value: sponsors.length, accent: false },
+            { label: 'Total leads',    value: totalLeads || '—', accent: false },
             { label: 'Booths assigned', value: booths, accent: false },
             { label: 'Portal links sent', value: sponsors.length, accent: true },
           ].map(s => (
@@ -132,51 +137,42 @@ export function SponsorsClient({ eventId, eventName, sponsors: initial }: Props)
             <div className="grid sm:grid-cols-2 gap-3 mb-4">
               <div>
                 <div className="font-mono text-[9.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Company name *</div>
-                <input
-                  type="text" value={form.company_name} onChange={e => setForm(f => ({ ...f, company_name: e.target.value }))}
+                <input type="text" value={form.company_name} onChange={e => setForm(f => ({ ...f, company_name: e.target.value }))}
                   placeholder="Paystack"
                   className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none"
-                  style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
-                />
+                  style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
               </div>
               <div>
                 <div className="font-mono text-[9.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Tier</div>
-                <select
-                  value={form.tier} onChange={e => setForm(f => ({ ...f, tier: e.target.value }))}
+                <select value={form.tier} onChange={e => setForm(f => ({ ...f, tier: e.target.value }))}
                   className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none bg-white"
-                  style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
-                >
-                  {TIERS.map(t => <option key={t} value={t}>{t}</option>)}
+                  style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}>
+                  {TIERS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                 </select>
               </div>
               <div>
-                <div className="font-mono text-[9.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Booth number</div>
-                <input
-                  type="text" value={form.booth_number} onChange={e => setForm(f => ({ ...f, booth_number: e.target.value }))}
-                  placeholder="A1"
+                <div className="font-mono text-[9.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Booth location</div>
+                <input type="text" value={form.booth_location} onChange={e => setForm(f => ({ ...f, booth_location: e.target.value }))}
+                  placeholder="Hall B · Booth 14"
                   className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none"
-                  style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
-                />
+                  style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
               </div>
               <div>
                 <div className="font-mono text-[9.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Website</div>
-                <input
-                  type="url" value={form.website} onChange={e => setForm(f => ({ ...f, website: e.target.value }))}
-                  placeholder="paystack.com"
+                <input type="url" value={form.website_url} onChange={e => setForm(f => ({ ...f, website_url: e.target.value }))}
+                  placeholder="https://paystack.com"
                   className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none"
-                  style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
-                />
+                  style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
               </div>
             </div>
             <div className="flex gap-2">
-              <button
-                onClick={handleAdd} disabled={isPending || !form.company_name}
+              <button onClick={handleAdd} disabled={isPending || !form.company_name}
                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13.5px] font-medium text-cream"
-                style={{ background: '#1F4D3A', opacity: !form.company_name ? 0.6 : 1 }}
-              >
+                style={{ background: '#1F4D3A', opacity: !form.company_name ? 0.6 : 1 }}>
                 {isPending ? 'Adding…' : 'Add sponsor'}
               </button>
-              <button onClick={() => setShowAdd(false)} className="px-4 py-2.5 rounded-xl text-[13.5px] border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
+              <button onClick={() => setShowAdd(false)} className="px-4 py-2.5 rounded-xl text-[13.5px] border"
+                style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
                 Cancel
               </button>
             </div>
@@ -198,25 +194,22 @@ export function SponsorsClient({ eventId, eventName, sponsors: initial }: Props)
           </div>
         ) : (
           <div className="bg-white rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
-            {/* Tier legend */}
             <div className="flex items-center gap-2 px-5 py-3.5 flex-wrap" style={{ borderBottom: '1px solid #E5E0D4' }}>
-              {TIERS.map(tier => {
-                const ts = tierStyle(tier);
-                const count = sponsors.filter(s => s.tier === tier).length;
+              {TIERS.map(t => {
+                const ts = tierStyle(t.value);
+                const count = sponsors.filter(s => s.tier === t.value).length;
                 if (count === 0) return null;
                 return (
-                  <span key={tier} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono font-medium"
+                  <span key={t.value} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono font-medium"
                     style={{ background: ts.bg, color: ts.color, border: `1px solid ${ts.border}` }}>
-                    {tier} · {count}
+                    {t.label} · {count}
                   </span>
                 );
               })}
             </div>
-
             <div className="divide-y" style={{ borderColor: 'rgba(229,224,212,0.6)' }}>
               {sponsors.map(sponsor => {
                 const ts = tierStyle(sponsor.tier);
-                const portalUrl = `/exhibitor/${sponsor.invite_token}`;
                 return (
                   <div key={sponsor.id} className="flex items-center gap-4 px-5 py-4">
                     <Avatar name={sponsor.company_name} />
@@ -228,58 +221,30 @@ export function SponsorsClient({ eventId, eventName, sponsors: initial }: Props)
                         {sponsor.tier && (
                           <span className="inline-flex items-center text-[11px] font-medium px-2.5 py-0.5 rounded-full border"
                             style={{ background: ts.bg, color: ts.color, borderColor: ts.border }}>
-                            {sponsor.tier}
+                            {tierLabel(sponsor.tier)}
                           </span>
                         )}
                       </div>
                       <div className="font-mono text-[11px] mt-0.5 flex items-center gap-3 flex-wrap" style={{ color: '#6B7A72' }}>
-                        {sponsor.booth_number && <span>Booth {sponsor.booth_number}</span>}
-                        {sponsor.website && <span>{sponsor.website}</span>}
+                        {sponsor.booth_location && <span>{sponsor.booth_location}</span>}
+                        {sponsor.website_url && <span>{sponsor.website_url}</span>}
                       </div>
                     </div>
-
-                    {/* Lead count */}
                     <div className="text-center shrink-0 hidden sm:block">
                       <div className="font-mono text-[15px]" style={{ color: '#1F4D3A' }}>{sponsor.lead_count}</div>
                       <div className="font-mono text-[9.5px] tracking-[0.1em] uppercase" style={{ color: '#6B7A72' }}>leads</div>
                     </div>
-
-                    {/* Copy portal link */}
-                    <button
-                      onClick={() => copyPortalLink(sponsor.invite_token)}
+                    <button onClick={() => copyPortalLink(sponsor.invite_token)}
                       className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12.5px] font-medium transition-colors border shrink-0"
                       style={{
                         borderColor: copied === sponsor.invite_token ? 'rgba(45,122,79,0.4)' : '#E5E0D4',
                         color: copied === sponsor.invite_token ? '#2D7A4F' : '#3A4A42',
                         background: copied === sponsor.invite_token ? 'rgba(45,122,79,0.06)' : 'white',
-                      }}
-                    >
-                      {copied === sponsor.invite_token ? (
-                        <>
-                          <svg width={13} height={13} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                          </svg>
-                          Copied!
-                        </>
-                      ) : (
-                        <>
-                          <svg width={13} height={13} fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
-                          </svg>
-                          Copy portal link
-                        </>
-                      )}
+                      }}>
+                      {copied === sponsor.invite_token ? 'Copied!' : 'Copy portal link'}
                     </button>
-
-                    {/* Open portal */}
-                    <a
-                      href={portalUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-8 h-8 grid place-items-center rounded-lg transition-colors shrink-0"
-                      style={{ color: '#6B7A72' }}
-                      title="Open exhibitor portal"
-                    >
+                    <a href={`/exhibitor/${sponsor.invite_token}`} target="_blank" rel="noopener noreferrer"
+                      className="w-8 h-8 grid place-items-center rounded-lg shrink-0" style={{ color: '#6B7A72' }}>
                       <svg width={15} height={15} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
                       </svg>

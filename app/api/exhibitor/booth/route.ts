@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 
 export async function PATCH(req: Request) {
   const body = await req.json();
-  const { token, company_name, tagline, description, website } = body;
+  const { token, company_name, tagline, description, website_url } = body;
 
   if (!token) return NextResponse.json({ error: 'Missing token' }, { status: 400 });
 
@@ -20,7 +20,7 @@ export async function PATCH(req: Request) {
 
   const { error } = await admin
     .from('sponsors')
-    .update({ company_name, tagline, description, website, updated_at: new Date().toISOString() })
+    .update({ company_name, tagline, description, website_url, updated_at: new Date().toISOString() })
     .eq('id', sponsor.id);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
