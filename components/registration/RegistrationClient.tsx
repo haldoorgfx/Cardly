@@ -78,7 +78,7 @@ export default function RegistrationClient({
   }
 
   const STEPS = ['Ticket', 'Details', 'Payment', 'Your card'];
-  const fee = selectedTicket && selectedTicket.price > 0 ? 150 : 0; // $1.50 service fee in cents
+  const fee = selectedTicket && selectedTicket.price > 0 ? 1.50 : 0; // $1.50 service fee
   const total = (selectedTicket?.price ?? 0) + fee;
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
