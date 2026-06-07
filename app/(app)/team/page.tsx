@@ -17,9 +17,11 @@ export default async function TeamPage() {
     .eq('id', user.id)
     .single();
 
+  // Honor plan if: active subscription, trialing, OR manually assigned (null status = no payment system yet)
   const isActivePaid =
     profile?.subscription_status === 'active' ||
-    profile?.subscription_status === 'trialing';
+    profile?.subscription_status === 'trialing' ||
+    profile?.subscription_status == null;
   const plan =
     !isActivePaid && profile?.plan !== 'free' ? 'free' : (profile?.plan ?? 'free');
   const isStudio = plan === 'studio';
