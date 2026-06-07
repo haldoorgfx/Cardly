@@ -83,7 +83,7 @@ const EVENT_NAV_SECTIONS = [
     items: [
       { id: 'networking',   label: 'Networking',   icon: <Network size={15} strokeWidth={1.8} />,      segment: 'engagement' },
       { id: 'q-and-a',      label: 'Q&A & Polls',  icon: <MessageSquare size={15} strokeWidth={1.8} />, segment: 'q-and-a' },
-      { id: 'gamification', label: 'Gamification', icon: <Trophy size={15} strokeWidth={1.8} />,        segment: 'polls' },
+      { id: 'gamification', label: 'Gamification', icon: <Trophy size={15} strokeWidth={1.8} />,        segment: 'gamification' },
     ],
   },
   {
@@ -690,6 +690,7 @@ const PAGE_LABELS: Record<string, string> = {
   'publish':        'Publish',
   'meetings':       '1:1 Meetings',
   'badges':         'Badges',
+  'gamification':   'Gamification',
 };
 
 function getPageBreadcrumbs(pathname: string, eventName: string | null): { label: string; href?: string }[] {
