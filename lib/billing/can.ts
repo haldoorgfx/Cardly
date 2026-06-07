@@ -18,10 +18,11 @@ export async function getUserPlan(userId: string): Promise<Plan> {
 
   if (!data) return 'free';
 
-  // Treat any non-active paid subscription as free
+  // Honor plan if active, trialing, or manually assigned (null = no payment system yet)
   const isActivePaid =
     data.subscription_status === 'active' ||
-    data.subscription_status === 'trialing';
+    data.subscription_status === 'trialing' ||
+    data.subscription_status == null;
 
   if (!isActivePaid && data.plan !== 'free') return 'free';
   return (data.plan as Plan) ?? 'free';
@@ -68,7 +69,8 @@ export async function canGenerateCard(userId: string): Promise<{ allowed: boolea
 
   const isActivePaid =
     profile.subscription_status === 'active' ||
-    profile.subscription_status === 'trialing';
+    profile.subscription_status === 'trialing' ||
+    profile.subscription_status == null;
 
   const plan: Plan =
     !isActivePaid && profile.plan !== 'free'
