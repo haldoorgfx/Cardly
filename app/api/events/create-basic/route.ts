@@ -39,5 +39,10 @@ export async function POST(req: NextRequest) {
 
   if (!event) return NextResponse.json({ error: 'Could not generate a unique slug' }, { status: 500 });
 
+  // Create a draft event_pages row immediately so the event page editor
+  // has something to work with and /e/[slug]/register resolves after publish.
+  // is_public = false — stays private until the organiser clicks Publish.
+  await admin.from('event_pages').insert({ event_id: event.id, title: name, is_public: false });
+
   return NextResponse.json({ id: event.id, slug: event.slug }, { status: 201 });
 }

@@ -32,6 +32,16 @@ export default async function PublishPage({ params }: { params: Promise<{ id: st
     if (updated) slug = updated.slug;
   }
 
+  // Ensure event_pages row exists and is public — required for /e/[slug]/register to resolve.
+  // Use upsert so repeated Publish clicks are idempotent and existing organiser-configured
+  // fields (venue, dates, cover image, etc.) are preserved — we only force is_public = true.
+  await admin
+    .from('event_pages')
+    .upsert(
+      { event_id: id, title: event.name, is_public: true },
+      { onConflict: 'event_id', ignoreDuplicates: false }
+    );
+
   // Get total zones from all variants
   const { data: variants } = await admin
     .from('event_variants')
