@@ -39,8 +39,7 @@ export async function POST(req: NextRequest) {
 
   const subscriptionFailed =
     profile?.subscription_status === 'canceled' ||
-    profile?.subscription_status === 'past_due' ||
-    profile?.subscription_status === 'unpaid';
+    profile?.subscription_status === 'past_due';
   const plan = (subscriptionFailed && profile?.plan !== 'free') ? 'free' : (profile?.plan ?? 'free');
 
   if (plan !== 'studio') {

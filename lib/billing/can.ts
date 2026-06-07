@@ -1,9 +1,10 @@
 import { createAdminClient } from '@/lib/supabase/server';
 import { PLANS, type Plan } from './plans';
+import type { SubscriptionStatus } from '@/types/database';
 
 type Profile = {
   plan: Plan;
-  subscription_status: string;
+  subscription_status: SubscriptionStatus;
   cards_this_month: number;
   cards_month_start: string;
 };
@@ -23,8 +24,7 @@ export async function getUserPlan(userId: string): Promise<Plan> {
   // This correctly handles manually-assigned plans with no Stripe subscription.
   const subscriptionFailed =
     data.subscription_status === 'canceled' ||
-    data.subscription_status === 'past_due' ||
-    data.subscription_status === 'unpaid';
+    data.subscription_status === 'past_due';
 
   if (subscriptionFailed && data.plan !== 'free') return 'free';
   return (data.plan as Plan) ?? 'free';

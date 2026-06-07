@@ -21,8 +21,7 @@ export default async function TeamPage() {
   // This correctly handles manually-assigned plans with no Stripe subscription.
   const subscriptionFailed =
     profile?.subscription_status === 'canceled' ||
-    profile?.subscription_status === 'past_due' ||
-    profile?.subscription_status === 'unpaid';
+    profile?.subscription_status === 'past_due';
   const plan =
     subscriptionFailed && profile?.plan !== 'free' ? 'free' : (profile?.plan ?? 'free');
   const isStudio = plan === 'studio';
