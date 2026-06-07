@@ -154,13 +154,16 @@ export function ReportsClient({ eventName, totalRevenue, regCount, checkedIn, re
           <div className="grid lg:grid-cols-2 gap-5 mb-5">
             {/* Daily registrations */}
             <Panel title="Registrations · last 14 days">
-              <div className="flex items-end gap-1 h-[120px]">
-                {days.map(d => (
-                  <div key={d.date} className="flex-1 flex flex-col items-center gap-1" title={`${d.date}: ${d.count}`}>
-                    <div className="w-full rounded-sm transition-all" style={{ height: `${Math.max((d.count / maxDay) * 100, 4)}%`, background: d.count > 0 ? '#1F4D3A' : '#E8EFEB' }} />
-                    <div className="font-mono text-[8px] rotate-45 origin-left" style={{ color: '#9BA8A1' }}>{d.date.split(' ')[1]}</div>
-                  </div>
-                ))}
+              <div className="flex items-end gap-1" style={{ height: 120 }}>
+                {days.map(d => {
+                  const barH = Math.max(Math.round((d.count / maxDay) * 92), d.count > 0 ? 8 : 3);
+                  return (
+                    <div key={d.date} className="flex-1 flex flex-col items-center justify-end" style={{ height: 120 }} title={`${d.date}: ${d.count}`}>
+                      <div className="w-full rounded-sm transition-all" style={{ height: barH, background: d.count > 0 ? '#1F4D3A' : '#E8EFEB' }} />
+                      <div className="font-mono text-[8px] rotate-45 origin-left mt-1 shrink-0" style={{ color: '#9BA8A1' }}>{d.date.split(' ')[1]}</div>
+                    </div>
+                  );
+                })}
               </div>
             </Panel>
 
