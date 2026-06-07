@@ -70,10 +70,10 @@ export async function canGenerateCard(userId: string): Promise<{ allowed: boolea
   if (!profile) return { allowed: false, plan: 'free' };
 
   // Only downgrade if there's an explicitly failed/cancelled subscription.
+  // 'none' = manually-assigned plan (no Stripe) → honor the plan.
   const subscriptionFailed =
     profile.subscription_status === 'canceled' ||
-    profile.subscription_status === 'past_due' ||
-    profile.subscription_status === 'unpaid';
+    profile.subscription_status === 'past_due';
 
   const plan: Plan =
     subscriptionFailed && profile.plan !== 'free'
