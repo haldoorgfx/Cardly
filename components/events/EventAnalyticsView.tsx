@@ -22,7 +22,6 @@ interface Props {
 }
 
 function formatCurrency(amount: number, currency: string) {
-  if (amount === 0) return '$0';
   try {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
   } catch {
@@ -86,8 +85,8 @@ function HorizontalBar({ label, value, max, currency }: { label: string; value: 
       <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: '#E5E0D4' }}>
         <div className="h-full rounded-full" style={{ width: `${pct}%`, background: '#1F4D3A' }} />
       </div>
-      <div className="font-mono text-[13px] min-w-[60px] text-right" style={{ color: '#1F4D3A' }}>
-        {formatCurrency(value, currency)}
+      <div className="font-mono text-[13px] min-w-[60px] text-right" style={{ color: value === 0 ? '#2D7A4F' : '#1F4D3A' }}>
+        {value === 0 ? 'Free' : formatCurrency(value, currency)}
       </div>
     </div>
   );

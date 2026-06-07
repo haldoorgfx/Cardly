@@ -674,7 +674,7 @@ const PAGE_LABELS: Record<string, string> = {
   'waitlist':       'Waitlist',
   'event-page':     'Event page',
   'agenda':         'Agenda',
-  'engagement':     'Networking',
+  'engagement':     'Engagement',
   'sponsors':       'Sponsors',
   'virtual':        'Virtual',
   'analytics':      'Analytics',

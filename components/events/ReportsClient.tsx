@@ -180,7 +180,7 @@ export function ReportsClient({ eventName, totalRevenue, regCount, checkedIn, re
                         <div className="flex items-center justify-between mb-1.5 text-[13px]">
                           <span style={{ color: '#3A4A42' }}>{tt.name}</span>
                           <span className="font-mono" style={{ color: '#6B7A72' }}>
-                            {tt.count} sold · {primaryCurrency ? fmtCurrency(tt.revenue, primaryCurrency) : tt.revenue.toLocaleString()}
+                            {tt.count} sold · {tt.revenue === 0 ? 'Free' : (primaryCurrency ? fmtCurrency(tt.revenue, primaryCurrency) : tt.revenue.toLocaleString())}
                           </span>
                         </div>
                         <div className="h-2 rounded-full overflow-hidden" style={{ background: '#E8EFEB' }}>
