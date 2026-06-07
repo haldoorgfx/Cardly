@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Check, Upload } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Check, Upload, Sparkles } from 'lucide-react';
 import Image from 'next/image';
 
 interface Ticket {
@@ -14,6 +15,12 @@ interface Ticket {
   quantity_sold: number;
 }
 
+interface CanvasVariant {
+  backgroundUrl: string;
+  backgroundWidth: number | null;
+  backgroundHeight: number | null;
+}
+
 interface Props {
   eventSlug: string;
   eventId: string;
@@ -23,14 +30,8 @@ interface Props {
   startsAt: string | null;
   city: string | null;
   tickets: Ticket[];
+  canvasVariant: CanvasVariant | null;
 }
-
-const ACCENTS = [
-  { gradient: 'linear-gradient(135deg,#1F4D3A,#0D1F17)', label: 'Forest' },
-  { gradient: 'linear-gradient(135deg,#3a2a55,#14101f)', label: 'Midnight' },
-  { gradient: 'linear-gradient(135deg,#5a3320,#1f120c)', label: 'Amber' },
-  { gradient: 'linear-gradient(135deg,#1e3a55,#0c1420)', label: 'Ocean' },
-];
 
 const INPUT = 'w-full rounded-xl px-4 py-3 text-[15px] outline-none transition border focus:border-[#E8C57E] focus:ring-[3px] focus:ring-[rgba(232,197,126,0.15)]';
 
@@ -50,8 +51,9 @@ function dateStr(iso: string | null) {
 
 export default function RegistrationClient({
   eventSlug, eventId, eventName, eventSubtitle,
-  coverUrl, startsAt, city, tickets,
+  coverUrl, startsAt, city, tickets, canvasVariant,
 }: Props) {
+  const router = useRouter();
   const [step, setStep] = useState(0);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(tickets[0] ?? null);
   const [name, setName] = useState('');
@@ -59,11 +61,9 @@ export default function RegistrationClient({
   const [role, setRole] = useState('');
   const [cityVal, setCityVal] = useState('');
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
-  const [accent, setAccent] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [done, setDone] = useState(false);
   const photoRef = useRef<HTMLInputElement>(null);
 
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -76,8 +76,9 @@ export default function RegistrationClient({
     return errs;
   }
 
-  const STEPS = ['Ticket', 'Details', 'Payment', 'Your card'];
-  const fee = selectedTicket && selectedTicket.price > 0 ? 1.50 : 0; // $1.50 service fee
+  // 3 steps: Ticket → Details → Payment
+  const STEPS = ['Ticket', 'Details', 'Payment'];
+  const fee = selectedTicket && selectedTicket.price > 0 ? 1.50 : 0;
   const total = (selectedTicket?.price ?? 0) + fee;
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,20 +94,46 @@ export default function RegistrationClient({
     try {
       const res = await fetch(`/api/events/${eventId}/register`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-event-slug': eventSlug,
+        },
         body: JSON.stringify({
           ticket_type_id: selectedTicket?.id,
           attendee_name: name,
           attendee_email: email,
-          custom_fields: { role, city: cityVal, accent: String(accent) },
+          custom_fields: { role, city: cityVal },
         }),
       });
-      const data = await res.json() as { registration_id?: string; error?: string };
+
+      const data = await res.json() as {
+        registration_id?: string;
+        qr_code_token?: string;
+        error?: string;
+        payment_required?: boolean;
+        redirect_url?: string;
+        client_secret?: string;
+      };
+
       if (!res.ok) {
         setSubmitError(data.error ?? 'Registration failed. Please try again.');
         return;
       }
-      setDone(true);
+
+      // Paid ticket with external redirect (Flutterwave etc.)
+      if (data.payment_required && data.redirect_url) {
+        window.location.href = data.redirect_url;
+        return;
+      }
+
+      // Free ticket OR Stripe → go to confirm page which handles card generation
+      if (data.qr_code_token) {
+        router.push(`/e/${eventSlug}/register/confirm?reg=${data.qr_code_token}`);
+        return;
+      }
+
+      // Fallback
+      setSubmitError('Registration created but something went wrong. Check your email for confirmation.');
     } catch {
       setSubmitError('Something went wrong. Check your connection and try again.');
     } finally {
@@ -114,132 +141,12 @@ export default function RegistrationClient({
     }
   };
 
-  if (done) {
-    const eventUrl = `https://karta.cre8so.com/e/${eventSlug}`;
-    const shareText = `I'm attending ${eventName}! Join me →`;
-    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText + ' ' + eventUrl)}`;
-    const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(eventUrl)}`;
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + eventUrl)}`;
-
-    return (
-      <div
-        className="reg-success-grid max-w-[820px] mx-auto px-6 py-12"
-        style={{ display: 'grid', gridTemplateColumns: '1fr 260px', gap: 48, alignItems: 'start' }}
-      >
-        {/* ── Left: confirmation + share ── */}
-        <div>
-          <div className="w-14 h-14 rounded-full flex items-center justify-center mb-5" style={{ background: '#E8EFEB' }}>
-            <Check size={26} strokeWidth={2.5} color="#1F4D3A" />
-          </div>
-          <h2 className="font-display font-normal text-[30px] mb-3" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>
-            You&apos;re registered!
-          </h2>
-          <p className="text-[15px] mb-2" style={{ color: '#6B7A72' }}>
-            A confirmation has been sent to <strong style={{ color: '#0F1F18' }}>{email}</strong>.
-          </p>
-          <p className="text-[15px] mb-8" style={{ color: '#6B7A72' }}>
-            See you at {eventName}.
-          </p>
-
-          {/* Share your card */}
-          <div className="mb-5">
-            <p className="text-[13px] font-semibold uppercase tracking-wider mb-3" style={{ color: '#6B7A72' }}>
-              Share your Karta Card
-            </p>
-            <div className="flex gap-2 flex-wrap">
-              <a
-                href={twitterUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-medium transition hover:opacity-80"
-                style={{ background: '#0F1F18', color: 'white' }}
-              >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.734-8.85L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                Post on X
-              </a>
-              <a
-                href={linkedinUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-medium transition hover:opacity-80"
-                style={{ background: '#0A66C2', color: 'white' }}
-              >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-                Share on LinkedIn
-              </a>
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-medium transition hover:opacity-80"
-                style={{ background: '#25D366', color: 'white' }}
-              >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                WhatsApp
-              </a>
-            </div>
-          </div>
-
-          <p className="text-[12px] mb-8" style={{ color: '#6B7A72' }}>
-            💡 Screenshot your Karta Card and post it on social media to spread the word!
-          </p>
-
-          <a
-            href={`/e/${eventSlug}`}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-medium text-[15px] text-white transition hover:opacity-90"
-            style={{ background: '#1F4D3A' }}
-          >
-            Go to event →
-          </a>
-        </div>
-
-        {/* ── Right: Karta Card preview ── */}
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-center mb-3" style={{ color: '#6B7A72' }}>
-            Your Karta Card
-          </p>
-          <div
-            className="w-full rounded-2xl overflow-hidden relative"
-            style={{ aspectRatio: '5/7', background: ACCENTS[accent].gradient }}
-          >
-            <div className="absolute inset-0 p-5 flex flex-col">
-              <div className="font-display font-semibold text-[11px] tracking-wider" style={{ color: '#E8C57E' }}>
-                {eventName.toUpperCase()}
-              </div>
-              <div className="flex-1 flex flex-col items-center justify-center">
-                {photoUrl ? (
-                  <Image src={photoUrl} alt="" width={80} height={80} className="w-20 h-20 rounded-full object-cover border-2 mb-3" style={{ borderColor: '#E8C57E' }} unoptimized />
-                ) : (
-                  <div className="w-20 h-20 rounded-full border-2 mb-3 flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.08)', borderColor: '#E8C57E' }}>
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(232,197,126,0.5)" strokeWidth="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-                  </div>
-                )}
-                <div className="font-display font-medium text-[20px] text-white text-center leading-tight">
-                  {name || 'Your Name'}
-                </div>
-                <div className="font-mono text-[11px] mt-1 text-center" style={{ color: '#E8C57E' }}>
-                  {role || eventSubtitle}
-                </div>
-              </div>
-              <div className="font-mono text-[10px] text-center" style={{ color: 'rgba(255,255,255,0.4)' }}>
-                KARTA
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile: stack */}
-        <style>{`@media(max-width:640px){.reg-success-grid{grid-template-columns:1fr!important}}`}</style>
-      </div>
-    );
-  }
-
   return (
     <div
       className="max-w-[1000px] mx-auto px-10 py-10 pb-20"
       style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 48, alignItems: 'start' }}
     >
-      {/* Left: form */}
+      {/* ── Left: form ── */}
       <div>
         {/* Step indicator */}
         <div className="flex items-center gap-2.5 mb-8">
@@ -265,7 +172,7 @@ export default function RegistrationClient({
           ))}
         </div>
 
-        {/* Step 1: Ticket */}
+        {/* Step 0: Ticket */}
         {step === 0 && (
           <div>
             <h2 className="font-display font-normal text-[28px] mb-1.5" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>
@@ -279,7 +186,7 @@ export default function RegistrationClient({
               </div>
             ) : (
               <div className="space-y-3">
-                {tickets.map(t => {
+                {tickets.map((t: Ticket) => {
                   const sold = t.quantity !== null && t.quantity_sold >= t.quantity;
                   const isSelected = selectedTicket?.id === t.id;
                   return (
@@ -307,10 +214,7 @@ export default function RegistrationClient({
                         {t.description && <div className="text-[13px] mt-0.5" style={{ color: '#6B7A72' }}>{t.description}</div>}
                         {sold && <div className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>Sold out</div>}
                       </div>
-                      <div
-                        className="font-mono font-medium text-[18px] shrink-0"
-                        style={{ color: t.price === 0 ? '#C9A45E' : '#1F4D3A' }}
-                      >
+                      <div className="font-mono font-medium text-[18px] shrink-0" style={{ color: t.price === 0 ? '#C9A45E' : '#1F4D3A' }}>
                         {fmt(t.price, t.currency)}
                       </div>
                     </button>
@@ -321,7 +225,7 @@ export default function RegistrationClient({
           </div>
         )}
 
-        {/* Step 2: Details */}
+        {/* Step 1: Details */}
         {step === 1 && (
           <div>
             <h2 className="font-display font-normal text-[28px] mb-1.5" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>
@@ -335,11 +239,9 @@ export default function RegistrationClient({
               <div>
                 <label className="block text-[12px] mb-1.5" style={{ color: fieldErrors.name ? '#B8423C' : '#6B7A72' }}>Full name</label>
                 <input
-                  type="text"
-                  value={name}
+                  type="text" value={name}
                   onChange={e => { setName(e.target.value); if (fieldErrors.name) setFieldErrors(p => ({ ...p, name: '' })); }}
-                  placeholder="Amina Osman"
-                  className={INPUT}
+                  placeholder="Amina Osman" className={INPUT}
                   style={{ borderColor: fieldErrors.name ? '#B8423C' : '#E5E0D4', background: 'white', color: '#0F1F18' }}
                 />
                 {fieldErrors.name && <p className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>{fieldErrors.name}</p>}
@@ -347,11 +249,9 @@ export default function RegistrationClient({
               <div>
                 <label className="block text-[12px] mb-1.5" style={{ color: fieldErrors.email ? '#B8423C' : '#6B7A72' }}>Email</label>
                 <input
-                  type="email"
-                  value={email}
+                  type="email" value={email}
                   onChange={e => { setEmail(e.target.value); if (fieldErrors.email) setFieldErrors(p => ({ ...p, email: '' })); }}
-                  placeholder="you@example.com"
-                  className={INPUT}
+                  placeholder="you@example.com" className={INPUT}
                   style={{ borderColor: fieldErrors.email ? '#B8423C' : '#E5E0D4', background: 'white', color: '#0F1F18' }}
                 />
                 {fieldErrors.email && <p className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>{fieldErrors.email}</p>}
@@ -394,7 +294,7 @@ export default function RegistrationClient({
           </div>
         )}
 
-        {/* Step 3: Payment */}
+        {/* Step 2: Payment */}
         {step === 2 && (
           <div>
             <h2 className="font-display font-normal text-[28px] mb-1.5" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>
@@ -442,36 +342,7 @@ export default function RegistrationClient({
           </div>
         )}
 
-        {/* Step 4: Card personalization */}
-        {step === 3 && (
-          <div>
-            <h2 className="font-display font-normal text-[28px] mb-1.5" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>
-              Personalize your card
-            </h2>
-            <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>
-              Pick an accent. Your Karta Card generates the moment you confirm.
-            </p>
-            <div className="flex gap-3 mb-6">
-              {ACCENTS.map((a, i) => (
-                <button
-                  key={i}
-                  onClick={() => setAccent(i)}
-                  className="w-9 h-9 rounded-full border-2 transition-all"
-                  style={{
-                    background: a.gradient,
-                    borderColor: accent === i ? '#0F1F18' : 'transparent',
-                  }}
-                  title={a.label}
-                />
-              ))}
-            </div>
-            <p className="text-[13px] max-w-[380px]" style={{ color: '#6B7A72' }}>
-              The gold frame, your name and ticket tier are locked to the {eventName} template. Everything else is yours.
-            </p>
-          </div>
-        )}
-
-        {/* Nav */}
+        {/* Nav buttons */}
         <div className="mt-8">
           {submitError && (
             <div className="mb-4 px-4 py-3 rounded-xl text-[13px] font-medium" style={{ background: '#FEF2F2', color: '#B8423C', border: '1px solid #FECACA' }}>
@@ -486,7 +357,8 @@ export default function RegistrationClient({
             >
               ← Back
             </button>
-            {step < 3 ? (
+
+            {step < 2 ? (
               <button
                 onClick={() => {
                   if (step === 1) {
@@ -515,86 +387,78 @@ export default function RegistrationClient({
         </div>
       </div>
 
-      {/* Right: summary + live card preview */}
+      {/* ── Right: order summary + card teaser ── */}
       <aside className="sticky" style={{ top: 88 }}>
-        {step < 3 ? (
-          /* Order summary */
-          <div className="rounded-2xl p-6" style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)' }}>
-            {/* Event mini */}
-            <div className="flex items-center gap-3 pb-4 mb-1" style={{ borderBottom: '1px solid #E5E0D4' }}>
-              {coverUrl ? (
-                <Image src={coverUrl} alt={eventName} width={48} height={48} className="w-12 h-12 rounded-xl object-cover shrink-0" unoptimized />
-              ) : (
-                <div className="w-12 h-12 rounded-xl shrink-0" style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }} />
-              )}
-              <div>
-                <div className="font-display font-medium text-[15px]" style={{ color: '#0F1F18' }}>{eventName}</div>
-                {(startsAt || city) && (
-                  <div className="font-mono text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>
-                    {startsAt ? dateStr(startsAt) : ''}{city ? ` · ${city}` : ''}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {selectedTicket && (
-              <>
-                <div className="flex justify-between py-2.5 text-[14px]" style={{ color: '#3A4A42' }}>
-                  <span>{selectedTicket.name}</span>
-                  <span className="font-mono" style={{ color: '#0F1F18' }}>{fmt(selectedTicket.price, selectedTicket.currency)}</span>
-                </div>
-                {fee > 0 && (
-                  <div className="flex justify-between py-2.5 text-[14px]" style={{ color: '#3A4A42' }}>
-                    <span>Service fee</span>
-                    <span className="font-mono" style={{ color: '#0F1F18' }}>{fmt(fee, selectedTicket.currency)}</span>
-                  </div>
-                )}
-                <div className="flex justify-between items-baseline pt-3 mt-1" style={{ borderTop: '1px solid #E5E0D4' }}>
-                  <span className="font-display font-medium text-[15px]" style={{ color: '#0F1F18' }}>Total</span>
-                  <span className="font-mono font-medium text-[22px]" style={{ color: '#1F4D3A' }}>{fmt(total, selectedTicket.currency)}</span>
-                </div>
-              </>
+        <div className="rounded-2xl p-6" style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)' }}>
+          {/* Event mini */}
+          <div className="flex items-center gap-3 pb-4 mb-1" style={{ borderBottom: '1px solid #E5E0D4' }}>
+            {coverUrl ? (
+              <Image src={coverUrl} alt={eventName} width={48} height={48} className="w-12 h-12 rounded-xl object-cover shrink-0" unoptimized />
+            ) : (
+              <div className="w-12 h-12 rounded-xl shrink-0" style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }} />
             )}
-          </div>
-        ) : (
-          /* Live card preview */
-          <div>
-            <div className="text-[11px] font-semibold uppercase tracking-wider text-center mb-4" style={{ color: '#6B7A72' }}>
-              Live preview
+            <div>
+              <div className="font-display font-medium text-[15px]" style={{ color: '#0F1F18' }}>{eventName}</div>
+              {(startsAt || city) && (
+                <div className="font-mono text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>
+                  {startsAt ? dateStr(startsAt) : ''}{city ? ` · ${city}` : ''}
+                </div>
+              )}
             </div>
-            <div
-              className="w-full rounded-2xl overflow-hidden relative"
-              style={{ aspectRatio: '5/7', background: ACCENTS[accent].gradient }}
-            >
-              <div className="absolute inset-0 p-6 flex flex-col">
-                <div className="font-display font-semibold text-[13px] tracking-wider" style={{ color: '#E8C57E' }}>
-                  {eventName.toUpperCase()}
-                </div>
-                <div className="flex-1 flex flex-col items-center justify-center">
-                  {photoUrl ? (
-                    <Image src={photoUrl} alt="" width={92} height={92} className="w-24 h-24 rounded-full object-cover border-2 mb-4" style={{ borderColor: '#E8C57E' }} unoptimized />
-                  ) : (
-                    <div className="w-24 h-24 rounded-full border-2 mb-4 flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.08)', borderColor: '#E8C57E' }}>
-                      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(232,197,126,0.45)" strokeWidth="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-                    </div>
-                  )}
-                  <div className="font-display font-medium text-[24px] text-white text-center">
-                    {name || 'Your Name'}
-                  </div>
-                  <div className="font-mono text-[12px] mt-1 text-center" style={{ color: '#E8C57E' }}>
-                    {role || 'Your Role'}
-                  </div>
-                </div>
-                <div className="font-mono text-[11px] text-center" style={{ color: 'rgba(255,255,255,0.5)' }}>
-                  KARTA
-                </div>
+          </div>
+
+          {selectedTicket && (
+            <>
+              <div className="flex justify-between py-2.5 text-[14px]" style={{ color: '#3A4A42' }}>
+                <span>{selectedTicket.name}</span>
+                <span className="font-mono" style={{ color: '#0F1F18' }}>{fmt(selectedTicket.price, selectedTicket.currency)}</span>
               </div>
+              {fee > 0 && (
+                <div className="flex justify-between py-2.5 text-[14px]" style={{ color: '#3A4A42' }}>
+                  <span>Service fee</span>
+                  <span className="font-mono" style={{ color: '#0F1F18' }}>{fmt(fee, selectedTicket.currency)}</span>
+                </div>
+              )}
+              <div className="flex justify-between items-baseline pt-3 mt-1" style={{ borderTop: '1px solid #E5E0D4' }}>
+                <span className="font-display font-medium text-[15px]" style={{ color: '#0F1F18' }}>Total</span>
+                <span className="font-mono font-medium text-[22px]" style={{ color: '#1F4D3A' }}>{fmt(total, selectedTicket.currency)}</span>
+              </div>
+            </>
+          )}
+
+          {/* Card teaser — shown at payment step */}
+          {step === 2 && (
+            <div className="mt-5 pt-4" style={{ borderTop: '1px solid #E5E0D4' }}>
+              <div className="text-[11px] font-semibold uppercase tracking-wider mb-3 text-center" style={{ color: '#6B7A72' }}>
+                Your Karta Card
+              </div>
+              {canvasVariant?.backgroundUrl ? (
+                /* Real organizer design */
+                <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #E5E0D4', boxShadow: '0 2px 8px rgba(15,31,24,0.06)' }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={canvasVariant.backgroundUrl} alt="Event card design" className="w-full h-auto block" />
+                  <div className="px-3 py-2 text-center text-[11px]" style={{ color: '#6B7A72', background: '#FAFAF8' }}>
+                    Personalised with your details after registration
+                  </div>
+                </div>
+              ) : (
+                /* No canvas design yet — show generic indicator */
+                <div
+                  className="rounded-xl p-4 flex items-center gap-3"
+                  style={{ background: 'rgba(31,77,58,0.05)', border: '1px solid rgba(31,77,58,0.15)' }}
+                >
+                  <Sparkles size={16} style={{ color: '#1F4D3A', flexShrink: 0 }} />
+                  <div>
+                    <div className="text-[13px] font-medium" style={{ color: '#1F4D3A' }}>Karta Card included</div>
+                    <div className="text-[11px] mt-0.5" style={{ color: '#6B7A72' }}>Personalised card generated after registration</div>
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </aside>
 
-      {/* Responsive */}
       <style>{`
         @media (max-width: 900px) {
           .reg-grid { grid-template-columns: 1fr !important; }

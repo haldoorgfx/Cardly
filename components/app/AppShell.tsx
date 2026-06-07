@@ -11,7 +11,7 @@ import {
   Flag, Image as ImageIcon, ScrollText, Sliders, Gavel,
   Home, Layout, CalendarDays, MessageSquare, Bell, Plug, Globe,
   Ticket, ScanLine, User, Network, Trophy, Briefcase, Video, Palette, Key, Tag, ExternalLink,
-  UserCircle, HelpCircle, Zap, ShoppingCart, BadgeCheck, Handshake, Clock,
+  UserCircle, HelpCircle, Zap, ShoppingCart, BadgeCheck, Handshake, Clock, IdCard,
 } from 'lucide-react';
 
 type Profile = {
@@ -89,8 +89,8 @@ const EVENT_NAV_SECTIONS = [
   {
     title: 'On-site',
     items: [
-      { id: 'meetings', label: '1:1 Meetings', icon: <Handshake size={15} strokeWidth={1.8} />, segment: 'meetings' },
-      { id: 'badges',   label: 'Badges',       icon: <BadgeCheck size={15} strokeWidth={1.8} />, segment: 'badges' },
+      { id: 'meetings',    label: '1:1 Meetings',   icon: <Handshake size={15} strokeWidth={1.8} />, segment: 'meetings'    },
+      { id: 'karta-card',  label: 'Cards & Badges', icon: <IdCard size={15} strokeWidth={1.8} />,    segment: 'karta-card'  },
     ],
   },
   {
@@ -679,7 +679,8 @@ const PAGE_LABELS: Record<string, string> = {
   'virtual':        'Virtual',
   'analytics':      'Analytics',
   'reports':        'Reports',
-  'edit':           'Karta Card',
+  'edit':           'Card Editor',
+  'karta-card':     'Cards & Badges',
   'check-in':       'Check-in',
   'tickets':        'Tickets',
   'speakers':       'Speakers',
@@ -691,7 +692,7 @@ const PAGE_LABELS: Record<string, string> = {
   'promo-codes':    'Promo codes',
   'publish':        'Publish',
   'meetings':       '1:1 Meetings',
-  'badges':         'Badges',
+  'badges':         'Cards & Badges',
   'gamification':   'Gamification',
 };
 

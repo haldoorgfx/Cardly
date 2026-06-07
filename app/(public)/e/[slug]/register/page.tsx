@@ -16,20 +16,41 @@ export default async function RegisterPage({ params }: Props) {
   const { event, eventPageTitle } = resolved;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: tickets } = await (admin as any)
-    .from('ticket_types')
-    .select('id, name, description, price, currency, quantity, quantity_sold, is_visible')
-    .eq('event_id', event.id)
-    .eq('is_visible', true)
-    .order('price', { ascending: true });
+  const [ticketsRes, pageRes, variantRes] = await Promise.all([
+    (admin as any)
+      .from('ticket_types')
+      .select('id, name, description, price, currency, quantity, quantity_sold, is_visible')
+      .eq('event_id', event.id)
+      .eq('is_visible', true)
+      .order('price', { ascending: true }),
+    (admin as any)
+      .from('event_pages')
+      .select('cover_image_url, starts_at, city')
+      .eq('event_id', event.id)
+      .single(),
+    // Load the primary canvas variant so registration can preview the real card design
+    admin
+      .from('event_variants')
+      .select('id, background_url, background_width, background_height')
+      .eq('event_id', event.id)
+      .order('position' as never)
+      .limit(1)
+      .maybeSingle(),
+  ]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: page } = await (admin as any)
-    .from('event_pages')
-    .select('cover_image_url, starts_at, city')
-    .eq('event_id', event.id)
-    .single();
+  const page = (pageRes as any).data;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const tickets = (ticketsRes as any).data ?? [];
+  const rawVariant = variantRes.data;
+
+  const canvasVariant = rawVariant && rawVariant.background_url
+    ? {
+        backgroundUrl: rawVariant.background_url as string,
+        backgroundWidth: rawVariant.background_width as number | null,
+        backgroundHeight: rawVariant.background_height as number | null,
+      }
+    : null;
 
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
@@ -51,14 +72,12 @@ export default async function RegisterPage({ params }: Props) {
           eventId={event.id}
           eventName={event.name}
           eventSubtitle={eventPageTitle ?? event.name}
+          coverUrl={page?.cover_image_url ?? null}
+          startsAt={page?.starts_at ?? null}
+          city={page?.city ?? null}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          coverUrl={(page as any)?.cover_image_url ?? null}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          startsAt={(page as any)?.starts_at ?? null}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          city={(page as any)?.city ?? null}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          tickets={(tickets ?? []) as any}
+          tickets={tickets as any}
+          canvasVariant={canvasVariant}
         />
       </div>
     </div>

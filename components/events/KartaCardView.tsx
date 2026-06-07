@@ -1,7 +1,23 @@
 'use client';
 
-import { IdCard, Share2, Network, Sparkles, Palette, Plus } from 'lucide-react';
+import { useState } from 'react';
+import { IdCard, Share2, Network, Sparkles, Palette, Plus, Printer, FileImage } from 'lucide-react';
 import Link from 'next/link';
+
+interface PrimaryVariant {
+  id: string;
+  backgroundUrl: string | null;
+  backgroundWidth: number | null;
+  backgroundHeight: number | null;
+  zonesCount: number;
+}
+
+interface VariantSummary {
+  id: string;
+  position: number;
+  backgroundUrl: string | null;
+  zonesCount: number;
+}
 
 interface Props {
   eventId: string;
@@ -9,14 +25,12 @@ interface Props {
   eventSlug: string;
   totalCards: number;
   sharedCards: number;
+  primaryVariant: PrimaryVariant | null;
+  allVariants: VariantSummary[];
 }
 
-const VARIANTS = [
-  { label: 'Attendee', count: null, active: true  },
-  { label: 'Speaker',  count: null, active: false },
-  { label: 'Sponsor',  count: null, active: false },
-  { label: 'VIP',      count: null, active: false },
-];
+const PAPER_SIZES = ['A4', 'A6', 'Letter', '4×6 in'] as const;
+type PaperSize = typeof PAPER_SIZES[number];
 
 const SHARE_CHANNELS = [
   { name: 'Instagram', pct: 39, color: '#1F4D3A' },
@@ -25,20 +39,22 @@ const SHARE_CHANNELS = [
   { name: 'X',         pct: 10, color: '#8BA89A' },
 ];
 
-export function KartaCardView({ eventId, eventName, eventSlug, totalCards, sharedCards }: Props) {
+export function KartaCardView({ eventId, eventName, eventSlug, totalCards, sharedCards, primaryVariant, allVariants }: Props) {
+  const [paperSize, setPaperSize] = useState<PaperSize>('A6');
   const reach = sharedCards > 0 ? (sharedCards * 189).toLocaleString() : '—';
+  const hasDesign = !!primaryVariant?.backgroundUrl;
 
   return (
     <div className="max-w-[1100px] mx-auto px-6 py-8">
 
-      {/* Header */}
+      {/* ── Header ── */}
       <div className="flex items-start justify-between gap-4 mb-6">
         <div>
           <h1 className="font-display font-semibold text-[22px]" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
-            Karta Card
+            Cards &amp; Badges
           </h1>
           <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>
-            The personalized card every attendee gets
+            One design. Personalised cards for attendees, printed badges for the door.
           </p>
         </div>
         <div className="flex items-center gap-2.5">
@@ -48,7 +64,7 @@ export function KartaCardView({ eventId, eventName, eventSlug, totalCards, share
             style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}
           >
             <Palette size={13} strokeWidth={2} />
-            Edit design
+            {hasDesign ? 'Edit design' : 'Upload design'}
           </Link>
           <Link
             href={`/e/${eventSlug}`}
@@ -56,31 +72,86 @@ export function KartaCardView({ eventId, eventName, eventSlug, totalCards, share
             style={{ background: '#E8C57E', color: '#0F1F18' }}
           >
             <Sparkles size={13} strokeWidth={2} />
-            + Preview as attendee
+            Preview as attendee
           </Link>
         </div>
       </div>
 
-      {/* Promo banner */}
-      <div
-        className="flex items-center gap-2.5 px-4 py-3 rounded-xl mb-7 text-[13px]"
-        style={{ background: 'rgba(232,197,126,0.12)', border: '1px solid rgba(232,197,126,0.4)' }}
-      >
-        <Sparkles size={14} strokeWidth={2} style={{ color: '#C9A45E', flexShrink: 0 }} />
-        <span style={{ color: '#3A4A42' }}>
-          The Karta Card is standard on every plan — no other event platform has this.
-        </span>
-      </div>
+      {/* ── No design state ── */}
+      {!hasDesign && (
+        <div
+          className="flex items-center justify-between gap-4 px-5 py-4 rounded-xl mb-7"
+          style={{ background: 'rgba(232,197,126,0.1)', border: '1px solid rgba(232,197,126,0.35)' }}
+        >
+          <div className="flex items-center gap-2.5">
+            <FileImage size={15} strokeWidth={2} style={{ color: '#C9A45E', flexShrink: 0 }} />
+            <span className="text-[13px]" style={{ color: '#3A4A42' }}>
+              No card design uploaded yet. Upload your event design to generate personalised cards for every attendee.
+            </span>
+          </div>
+          <Link
+            href={`/events/${eventId}/edit`}
+            className="shrink-0 inline-flex items-center gap-1.5 h-8 px-3.5 rounded-lg text-[12.5px] font-semibold transition hover:opacity-90"
+            style={{ background: '#1F4D3A', color: 'white' }}
+          >
+            Upload design →
+          </Link>
+        </div>
+      )}
 
-      {/* Main grid */}
-      <div className="grid lg:grid-cols-[260px_1fr] gap-6">
+      {/* ── Main grid ── */}
+      <div className="grid lg:grid-cols-[280px_1fr] gap-6">
 
-        {/* Left: card preview */}
-        <div>
-          <MiniCard eventName={eventName} />
+        {/* Left: design preview */}
+        <div className="flex flex-col gap-4">
+          {hasDesign ? (
+            <div>
+              <div className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: '#6B7A72' }}>
+                Card design
+              </div>
+              <div
+                className="rounded-2xl overflow-hidden"
+                style={{
+                  border: '1px solid #E5E0D4',
+                  boxShadow: '0 4px 12px rgba(15,31,24,0.08), 0 24px 60px rgba(31,77,58,0.1)',
+                }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={primaryVariant!.backgroundUrl!}
+                  alt={`${eventName} card design`}
+                  className="w-full h-auto block"
+                />
+              </div>
+              {primaryVariant!.zonesCount > 0 && (
+                <div className="mt-2 flex items-center gap-1.5 text-[12px]" style={{ color: '#6B7A72' }}>
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#2D7A4F' }} />
+                  {primaryVariant!.zonesCount} editable {primaryVariant!.zonesCount === 1 ? 'zone' : 'zones'} defined
+                </div>
+              )}
+            </div>
+          ) : (
+            /* Empty state */
+            <Link
+              href={`/events/${eventId}/edit`}
+              className="flex flex-col items-center justify-center rounded-2xl p-8 text-center transition hover:border-[#1F4D3A] group"
+              style={{ border: '2px dashed #C9C3B1', background: '#FAFAF8', minHeight: 240 }}
+            >
+              <div
+                className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3 transition group-hover:scale-105"
+                style={{ background: '#E8EFEB' }}
+              >
+                <Palette size={20} strokeWidth={1.8} style={{ color: '#1F4D3A' }} />
+              </div>
+              <div className="font-medium text-[14px] mb-1" style={{ color: '#0F1F18' }}>Upload your design</div>
+              <div className="text-[12px]" style={{ color: '#6B7A72' }}>
+                PNG or JPG background, then add name, photo &amp; role zones
+              </div>
+            </Link>
+          )}
         </div>
 
-        {/* Right: stats + panels */}
+        {/* Right: stats + variants */}
         <div className="space-y-5">
 
           {/* Stats row */}
@@ -106,39 +177,65 @@ export function KartaCardView({ eventId, eventName, eventSlug, totalCards, share
             />
           </div>
 
-          {/* Card variants */}
-          <Panel title="Card variants" action={
-            <button
+          {/* Card variants from canvas editor */}
+          <Panel title="Design variants" action={
+            <Link
+              href={`/events/${eventId}/edit`}
               className="inline-flex items-center gap-1 text-[12px] font-medium h-7 px-2.5 rounded-lg transition"
               style={{ color: '#1F4D3A', background: 'rgba(31,77,58,0.06)' }}
             >
               <Plus size={12} strokeWidth={2.5} />
-              New variant
-            </button>
+              Add variant
+            </Link>
           }>
-            <div className="grid sm:grid-cols-2 gap-2.5">
-              {VARIANTS.map(v => (
-                <div
-                  key={v.label}
-                  className="flex items-center gap-3 p-3.5 rounded-xl"
-                  style={{
-                    border: v.active ? '1px solid rgba(31,77,58,0.4)' : '1px solid #E5E0D4',
-                    background: v.active ? 'rgba(31,77,58,0.04)' : 'white',
-                  }}
+            {allVariants.length === 0 ? (
+              <div className="text-center py-6">
+                <p className="text-[13px] mb-3" style={{ color: '#6B7A72' }}>
+                  No variants yet. Create different card designs for Attendees, Speakers, VIPs, etc.
+                </p>
+                <Link
+                  href={`/events/${eventId}/edit`}
+                  className="inline-flex items-center gap-1.5 text-[13px] font-medium transition hover:opacity-80"
+                  style={{ color: '#1F4D3A' }}
                 >
-                  <div
-                    className="h-8 w-8 rounded-lg flex items-center justify-center shrink-0"
-                    style={{ background: 'rgba(31,77,58,0.08)' }}
+                  <Plus size={13} strokeWidth={2} /> Create first variant
+                </Link>
+              </div>
+            ) : (
+              <div className="grid sm:grid-cols-2 gap-2.5">
+                {allVariants.map((v, i) => (
+                  <Link
+                    key={v.id}
+                    href={`/events/${eventId}/edit`}
+                    className="flex items-center gap-3 p-3.5 rounded-xl transition hover:border-[#1F4D3A]/30"
+                    style={{
+                      border: i === 0 ? '1px solid rgba(31,77,58,0.4)' : '1px solid #E5E0D4',
+                      background: i === 0 ? 'rgba(31,77,58,0.04)' : 'white',
+                    }}
                   >
-                    <IdCard size={15} strokeWidth={2} style={{ color: '#1F4D3A' }} />
-                  </div>
-                  <span className="text-[13.5px] font-medium flex-1" style={{ color: '#0F1F18' }}>{v.label}</span>
-                  <span className="text-[12px] font-mono" style={{ color: '#6B7A72' }}>
-                    {v.count ?? '—'}
-                  </span>
-                </div>
-              ))}
-            </div>
+                    {v.backgroundUrl ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img src={v.backgroundUrl} alt="" className="h-10 w-8 rounded-md object-cover shrink-0" />
+                    ) : (
+                      <div className="h-10 w-8 rounded-md flex items-center justify-center shrink-0" style={{ background: 'rgba(31,77,58,0.08)' }}>
+                        <IdCard size={14} strokeWidth={2} style={{ color: '#1F4D3A' }} />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[13.5px] font-medium" style={{ color: '#0F1F18' }}>Variant {v.position + 1}</div>
+                      <div className="text-[11px] mt-0.5" style={{ color: '#6B7A72' }}>
+                        {v.zonesCount > 0 ? `${v.zonesCount} zone${v.zonesCount !== 1 ? 's' : ''}` : 'No zones yet'}
+                      </div>
+                    </div>
+                    {i === 0 && (
+                      <span className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+                        PRIMARY
+                      </span>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            )}
           </Panel>
 
           {/* Where cards are shared */}
@@ -167,49 +264,85 @@ export function KartaCardView({ eventId, eventName, eventSlug, totalCards, share
           </Panel>
         </div>
       </div>
+
+      {/* ── Print & Badges section ── */}
+      <div className="mt-6 rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4', background: 'white' }}>
+        <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
+          <div>
+            <h3 className="text-[14px] font-semibold flex items-center gap-2" style={{ color: '#0F1F18' }}>
+              <Printer size={15} strokeWidth={2} style={{ color: '#6B7A72' }} />
+              Print badges
+            </h3>
+            <p className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>
+              Same design, printed for check-in. Includes name, ticket type, and QR code.
+            </p>
+          </div>
+          <Link
+            href={`/events/${eventId}/edit`}
+            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-semibold transition hover:opacity-90"
+            style={{ background: hasDesign ? '#1F4D3A' : '#E5E0D4', color: hasDesign ? 'white' : '#6B7A72' }}
+          >
+            <Printer size={13} strokeWidth={2} />
+            {hasDesign ? 'Print all badges' : 'Design needed first'}
+          </Link>
+        </div>
+        <div className="p-5 grid sm:grid-cols-2 gap-8 items-start">
+          {/* Paper size */}
+          <div>
+            <div className="text-[11px] font-semibold uppercase tracking-wider mb-3" style={{ color: '#6B7A72' }}>Paper size</div>
+            <div className="grid grid-cols-2 gap-2">
+              {PAPER_SIZES.map(size => (
+                <button
+                  key={size}
+                  onClick={() => setPaperSize(size)}
+                  className="py-2.5 px-3 rounded-xl text-[13px] font-medium transition text-center"
+                  style={{
+                    border: `1px solid ${paperSize === size ? '#1F4D3A' : '#E5E0D4'}`,
+                    background: paperSize === size ? 'rgba(31,77,58,0.06)' : 'white',
+                    color: paperSize === size ? '#1F4D3A' : '#3A4A42',
+                  }}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+          </div>
+          {/* Badge preview */}
+          <div>
+            <div className="text-[11px] font-semibold uppercase tracking-wider mb-3" style={{ color: '#6B7A72' }}>Badge includes</div>
+            <div className="space-y-2">
+              {[
+                { label: 'Attendee name', always: true },
+                { label: 'Ticket type / role', always: true },
+                { label: 'QR code for check-in', always: true },
+                { label: 'Organisation', always: false },
+                { label: 'Photo (if uploaded)', always: false },
+              ].map(item => (
+                <div key={item.label} className="flex items-center gap-2 text-[13px]" style={{ color: '#3A4A42' }}>
+                  <div
+                    className="w-4 h-4 rounded-full flex items-center justify-center shrink-0"
+                    style={{ background: item.always ? '#2D7A4F' : '#E8EFEB' }}
+                  >
+                    {item.always && (
+                      <svg width="8" height="8" viewBox="0 0 12 12" fill="none">
+                        <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    )}
+                  </div>
+                  {item.label}
+                  {!item.always && <span className="text-[11px] ml-auto" style={{ color: '#6B7A72' }}>if provided</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 }
 
 /* ── Sub-components ── */
-
-function MiniCard({ eventName }: { eventName: string }) {
-  return (
-    <div
-      className="rounded-2xl overflow-hidden"
-      style={{
-        width: '100%', maxWidth: 260,
-        background: 'linear-gradient(160deg, #0D2018 0%, #1F4D3A 55%, #2A6A50 100%)',
-        boxShadow: '0 4px 12px rgba(15,31,24,0.12), 0 24px 60px rgba(31,77,58,0.16)',
-      }}
-    >
-      {/* Top bar */}
-      <div className="flex items-center gap-2 px-4 pt-4 pb-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-        <div
-          className="h-6 w-6 rounded-md"
-          style={{ background: 'linear-gradient(135deg, #E8C57E, #C9A45E)' }}
-        />
-        <span className="text-[11px] font-semibold tracking-wide" style={{ color: 'rgba(255,255,255,0.9)' }}>
-          {eventName.toUpperCase().slice(0, 20)}
-        </span>
-      </div>
-      {/* Body */}
-      <div className="px-4 py-5">
-        <div
-          className="h-14 w-14 rounded-full mb-4 flex items-center justify-center"
-          style={{ background: 'rgba(232,197,126,0.2)', border: '2px solid rgba(232,197,126,0.4)' }}
-        >
-          <span className="text-[18px] font-bold" style={{ color: '#E8C57E' }}>K</span>
-        </div>
-        <p className="text-[20px] font-bold leading-tight" style={{ color: 'white' }}>Kwame Mensah</p>
-        <p className="text-[12px] mt-1" style={{ color: 'rgba(255,255,255,0.6)' }}>Product Engineer · Paystack</p>
-        <p className="text-[11px] mt-4 font-mono tracking-widest" style={{ color: 'rgba(232,197,126,0.7)' }}>
-          12 MAR · LAGOS
-        </p>
-      </div>
-    </div>
-  );
-}
 
 function StatCard({
   label, value, sub, icon, accent,
