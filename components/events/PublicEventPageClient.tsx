@@ -38,6 +38,7 @@ export function PublicEventPageClient({
   const registerHref = selectedTicket
     ? `/e/${registrationSlug}/register?ticket=${selectedTicket}`
     : `/e/${registrationSlug}/register`;
+  const registrationClosed = !!(page.registration_deadline && new Date(page.registration_deadline) < new Date());
 
   function handleShare() {
     if (navigator.share) {
@@ -274,13 +275,22 @@ export function PublicEventPageClient({
             {selectedTicketObj?.name ?? 'Select a ticket'}
           </div>
         </div>
-        <Link
-          href={registerHref}
-          className="inline-flex items-center h-11 px-6 rounded-xl text-white font-display font-semibold text-[15px] transition hover:opacity-90 shrink-0"
-          style={{ background: '#1F4D3A' }}
-        >
-          Register now
-        </Link>
+        {registrationClosed ? (
+          <div
+            className="inline-flex items-center h-11 px-6 rounded-xl font-display font-semibold text-[15px] shrink-0"
+            style={{ background: '#F5F0E8', color: '#6B7A72', border: '1px solid #E5E0D4' }}
+          >
+            Closed
+          </div>
+        ) : (
+          <Link
+            href={registerHref}
+            className="inline-flex items-center h-11 px-6 rounded-xl text-white font-display font-semibold text-[15px] transition hover:opacity-90 shrink-0"
+            style={{ background: '#1F4D3A' }}
+          >
+            Register now
+          </Link>
+        )}
       </div>
       {/* Spacer so content isn't hidden behind mobile bar */}
       <div className="h-20 lg:hidden" />
@@ -302,6 +312,7 @@ function TicketList({
   const isSoldOut = (t: TicketTypeRow) =>
     t.quantity !== null && t.quantity_sold >= t.quantity;
   const hasTickets = tickets.length > 0;
+  const registrationClosed = !!(page.registration_deadline && new Date(page.registration_deadline) < new Date());
 
   return (
     <div
@@ -381,16 +392,25 @@ function TicketList({
       })}
 
       {/* CTA */}
-      <Link
-        href={registerHref}
-        className="mt-4 flex items-center justify-center h-12 rounded-xl text-white font-display font-semibold text-[15px] transition hover:opacity-90"
-        style={{ background: '#1F4D3A' }}
-      >
-        Register now
-      </Link>
+      {registrationClosed ? (
+        <div
+          className="mt-4 flex items-center justify-center h-12 rounded-xl text-[15px] font-display font-semibold"
+          style={{ background: '#F5F0E8', color: '#6B7A72', border: '1px solid #E5E0D4' }}
+        >
+          Registration closed
+        </div>
+      ) : (
+        <Link
+          href={registerHref}
+          className="mt-4 flex items-center justify-center h-12 rounded-xl text-white font-display font-semibold text-[15px] transition hover:opacity-90"
+          style={{ background: '#1F4D3A' }}
+        >
+          Register now
+        </Link>
+      )}
 
       {/* Registration deadline note */}
-      {page.registration_deadline && (
+      {page.registration_deadline && !registrationClosed && (
         <div
           className="mt-3 text-center text-[12px]"
           style={{ color: '#6B7A72' }}
