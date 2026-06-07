@@ -294,7 +294,22 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
   const checkedInCount = rows.filter(r => r.status === 'checked_in').length;
   const pendingCount   = rows.filter(r => r.status === 'pending').length;
   const cardDownloaded = rows.filter(r => r.karta_card_url).length;
-  const totalRevenue   = rows.reduce((s, r) => s + (r.amount_paid ?? 0), 0);
+  // Group revenue by currency
+  const revenueByCurrency = rows.reduce<Record<string, number>>((acc, r) => {
+    if ((r.amount_paid ?? 0) <= 0) return acc;
+    const cur = r.currency || 'USD';
+    acc[cur] = (acc[cur] ?? 0) + (r.amount_paid ?? 0);
+    return acc;
+  }, {});
+  const totalRevenue = Object.values(revenueByCurrency).reduce((s, v) => s + v, 0);
+  const revenueDisplay = Object.entries(revenueByCurrency).length === 0
+    ? '—'
+    : Object.entries(revenueByCurrency)
+        .map(([cur, amt]) => {
+          try { return new Intl.NumberFormat('en-US', { style: 'currency', currency: cur, minimumFractionDigits: 0 }).format(amt); }
+          catch { return `${cur} ${amt.toLocaleString()}`; }
+        })
+        .join(' + ');
   const checkInPct     = total > 0 ? `${Math.round((checkedInCount / total) * 100)}%` : '0%';
 
   return (
@@ -317,7 +332,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
           { value: total,                                          label: 'Total' },
           { value: `${checkedInCount} (${checkInPct})`,           label: 'Checked in' },
           { value: pendingCount,                                   label: 'Pending' },
-          { value: totalRevenue > 0 ? `$${totalRevenue.toLocaleString()}` : '$0', label: 'Revenue' },
+          { value: revenueDisplay, label: 'Revenue' },
           { value: cardDownloaded, label: 'Karta Cards downloaded', last: true },
         ].map((s, i, arr) => (
           <div key={s.label} className="flex items-center gap-5">

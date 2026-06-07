@@ -462,7 +462,9 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
         </Link>
         <div className="font-display text-[14px] font-semibold leading-snug tracking-tight line-clamp-2 px-0.5"
           style={{ color: '#0F1F18' }}>
-          {event ? event.name : <span style={{ color: '#C9C3B1' }}>Loading…</span>}
+          {event ? event.name : (
+            <span className="inline-block w-36 h-4 rounded animate-pulse" style={{ background: '#E5E0D4' }} />
+          )}
         </div>
         {badge && (
           <span className="mt-2 inline-flex items-center gap-1.5 text-[10px] font-mono tracking-[0.1em] uppercase px-2 py-0.5 rounded-full border"
@@ -713,7 +715,7 @@ function getPageBreadcrumbs(pathname: string, eventName: string | null): { label
     const eventBase = m[1];
     const seg = m[2] ?? '';
     const pageName = PAGE_LABELS[seg] ?? seg.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-    const name = eventName ?? 'Event';
+    const name = eventName ?? '…';
     return [{ label: name, href: `/events/${eventBase}` }, { label: pageName }];
   }
 
