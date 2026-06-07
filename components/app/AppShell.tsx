@@ -147,7 +147,7 @@ const PLATFORM_SECTIONS = [
       { href: '/settings/api-keys',   label: 'API Keys',    icon: <Key size={15} strokeWidth={1.8} />,       matchPrefix: false },
       { href: '/settings/webhooks',   label: 'Webhooks',    icon: <Plug size={15} strokeWidth={1.8} />,      matchPrefix: false },
       { href: '/settings/integrations', label: 'Integrations', icon: <Globe size={15} strokeWidth={1.8} />, matchPrefix: false },
-      { href: '/brand',               label: 'White Label', icon: <Tag size={15} strokeWidth={1.8} />,       matchPrefix: false },
+      { href: '/white-label',          label: 'White Label', icon: <Tag size={15} strokeWidth={1.8} />,       matchPrefix: false },
     ],
   },
 ];
@@ -700,6 +700,10 @@ function getPageBreadcrumbs(pathname: string, eventName: string | null): { label
   if (pathname === '/brand')                             return [{ label: 'Brand Kit' }];
   if (pathname.startsWith('/settings/billing'))          return [{ label: 'Settings', href: '/settings' }, { label: 'Billing' }];
   if (pathname.startsWith('/settings/reset-password'))   return [{ label: 'Settings', href: '/settings' }, { label: 'Reset Password' }];
+  if (pathname.startsWith('/settings/api-keys'))         return [{ label: 'Settings', href: '/settings' }, { label: 'API Keys' }];
+  if (pathname.startsWith('/settings/webhooks'))         return [{ label: 'Settings', href: '/settings' }, { label: 'Webhooks' }];
+  if (pathname.startsWith('/settings/integrations'))     return [{ label: 'Settings', href: '/settings' }, { label: 'Integrations' }];
+  if (pathname === '/white-label')                       return [{ label: 'White Label' }];
   if (pathname.startsWith('/settings'))                  return [{ label: 'Settings' }];
   if (pathname.startsWith('/admin'))                     return [{ label: 'Admin' }];
 
