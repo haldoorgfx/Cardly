@@ -238,6 +238,7 @@ export function PublicEventPageClient({
                 registerHref={registerHref}
                 selectedTicketObj={selectedTicketObj}
                 page={page}
+                minPrice={minPrice}
               />
             </div>
 
@@ -252,6 +253,7 @@ export function PublicEventPageClient({
               registerHref={registerHref}
               selectedTicketObj={selectedTicketObj}
               page={page}
+              minPrice={minPrice}
             />
           </aside>
         </div>
@@ -300,7 +302,7 @@ export function PublicEventPageClient({
 
 /* ── Ticket list (shared between sidebar and mobile inline) ── */
 function TicketList({
-  tickets, selectedTicket, setSelectedTicket, registerHref, selectedTicketObj, page,
+  tickets, selectedTicket, setSelectedTicket, registerHref, selectedTicketObj, page, minPrice,
 }: {
   tickets: TicketTypeRow[];
   selectedTicket: string;
@@ -308,6 +310,7 @@ function TicketList({
   registerHref: string;
   selectedTicketObj: TicketTypeRow | undefined;
   page: EventPageRow;
+  minPrice: string;
 }) {
   const isSoldOut = (t: TicketTypeRow) =>
     t.quantity !== null && t.quantity_sold >= t.quantity;
