@@ -1050,32 +1050,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               );
             })()}
 
-            {/* Plan switcher pills */}
-            <div className="hidden md:flex items-center gap-0.5 rounded-xl p-1 ml-4 shrink-0"
-              style={{ background: '#F5F3EE', border: '1px solid #E5E0D4' }}>
-              {(['free', 'pro', 'studio'] as const).map(p => {
-                const active = profile?.plan === p;
-                const label  = p.charAt(0).toUpperCase() + p.slice(1);
-                return (
-                  <Link key={p} href="/settings/billing"
-                    className="px-2.5 py-1 rounded-lg text-[11.5px] font-medium transition-all"
-                    style={active
-                      ? { background: '#1F4D3A', color: 'white' }
-                      : { color: '#6B7A72' }}>
-                    {label}
-                  </Link>
-                );
-              })}
-              {(profile?.role === 'admin' || profile?.role === 'super_admin') && (
-                <Link href="/admin/analytics"
-                  className="px-2.5 py-1 rounded-lg text-[11.5px] font-medium transition-all"
-                  style={pathname.startsWith('/admin')
-                    ? { background: '#1F4D3A', color: 'white' }
-                    : { color: '#6B7A72' }}>
-                  Admin
-                </Link>
-              )}
-            </div>
 
             {/* Right side: search + bell + avatar */}
             <div className="flex items-center gap-1.5 shrink-0 ml-auto">
