@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
         user_id: user.id,
         name,
         slug,
-        zones: [],
+        // zones omitted — DB default is '[]'::jsonb; avoids schema cache issues
         status: 'draft' as const,
       })
       .select('id, slug')
