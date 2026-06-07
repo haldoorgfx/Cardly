@@ -28,14 +28,6 @@ export default async function SpeakersPage({ params }: Props) {
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
       <AgendaTabs eventId={id} eventName={event.name} />
       <div className="max-w-[900px] mx-auto px-6 py-8">
-        <div className="mb-6">
-          <h1 className="font-display font-semibold text-[24px]" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
-            Speakers
-          </h1>
-          <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>
-            Add speakers to your event. They&apos;ll appear on the public event page and session cards.
-          </p>
-        </div>
         {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         <SpeakersManager eventId={id} initialSpeakers={(speakers ?? []) as any} />
       </div>
