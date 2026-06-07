@@ -35,7 +35,8 @@ export default async function PublishPage({ params }: { params: Promise<{ id: st
   // Ensure event_pages row exists and is public — required for /e/[slug]/register to resolve.
   // Use upsert so repeated Publish clicks are idempotent and existing organiser-configured
   // fields (venue, dates, cover image, etc.) are preserved — we only force is_public = true.
-  await admin
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (admin as any)
     .from('event_pages')
     .upsert(
       { event_id: id, title: event.name, is_public: true },

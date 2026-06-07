@@ -122,7 +122,8 @@ export async function POST(req: NextRequest) {
   // and /e/[slug]/register can resolve once the event is published.
   // is_public = false — stays private until the organiser clicks Publish.
   // Best-effort: non-fatal if it fails (e.g. unique constraint on re-create).
-  await admin.from('event_pages').insert({ event_id: event.id, title: name, is_public: false });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (admin as any).from('event_pages').insert({ event_id: event.id, title: name, is_public: false });
 
   return NextResponse.json({ id: event.id, slug: event.slug });
 }
