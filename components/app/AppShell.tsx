@@ -750,11 +750,20 @@ function NotifItem({ icon, text, time, unread }: { icon: string; text: string; t
 
 // ─── AppShell ─────────────────────────────────────────────────────────────────
 
+function readProfileCache(): Profile | null {
+  if (typeof window === 'undefined') return null;
+  try { return JSON.parse(sessionStorage.getItem('karta_profile') || 'null'); }
+  catch { return null; }
+}
+function writeProfileCache(p: Profile) {
+  try { sessionStorage.setItem('karta_profile', JSON.stringify(p)); } catch {}
+}
+
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(() => readProfileCache());
   const [eventCount, setEventCount] = useState(0);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
@@ -774,7 +783,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         supabase.from('events').select('id', { count: 'exact', head: true }).eq('user_id', data.user.id).neq('status', 'archived'),
         supabase.from('site_settings').select('logo_light_url').eq('id', 1).single(),
       ]).then(([{ data: p }, { count }, { data: s }]) => {
-        setProfile(p);
+        if (p) { setProfile(p); writeProfileCache(p); }
         setEventCount(count ?? 0);
         setLogoUrl((s as { logo_light_url?: string | null } | null)?.logo_light_url ?? null);
       });
