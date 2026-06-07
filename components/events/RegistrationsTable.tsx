@@ -301,7 +301,6 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
     acc[cur] = (acc[cur] ?? 0) + (r.amount_paid ?? 0);
     return acc;
   }, {});
-  const totalRevenue = Object.values(revenueByCurrency).reduce((s, v) => s + v, 0);
   const revenueDisplay = Object.entries(revenueByCurrency).length === 0
     ? '—'
     : Object.entries(revenueByCurrency)

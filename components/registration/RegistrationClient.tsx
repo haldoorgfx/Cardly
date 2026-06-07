@@ -64,7 +64,6 @@ export default function RegistrationClient({
   const [submitError, setSubmitError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [done, setDone] = useState(false);
-  const [regId, setRegId] = useState<string | null>(null);
   const photoRef = useRef<HTMLInputElement>(null);
 
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -107,7 +106,6 @@ export default function RegistrationClient({
         setSubmitError(data.error ?? 'Registration failed. Please try again.');
         return;
       }
-      if (data.registration_id) setRegId(data.registration_id);
       setDone(true);
     } catch {
       setSubmitError('Something went wrong. Check your connection and try again.');
