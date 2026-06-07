@@ -43,9 +43,9 @@ async function resolveEventPage(slug: string) {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const page = await resolveEventPage(params.slug);
-  if (!page) return { title: 'Event — Karta' };
+  if (!page) return { title: 'Event' };
   return {
-    title: page.seo_title ?? `${page.title} — Karta`,
+    title: page.seo_title ?? page.title,
     description: page.seo_description ?? page.tagline ?? undefined,
     openGraph: {
       title: page.seo_title ?? page.title,

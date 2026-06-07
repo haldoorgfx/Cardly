@@ -5,6 +5,16 @@ import Link from 'next/link';
 import { MapPin, Globe, Calendar, Clock, Users, Share2, Heart } from 'lucide-react';
 import type { Database } from '@/types/database';
 
+function fmtTicketPrice(price: number, currency?: string | null): string {
+  if (price === 0) return 'Free';
+  const cur = currency ?? 'USD';
+  try {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: cur, minimumFractionDigits: 0 }).format(price);
+  } catch {
+    return `${cur} ${price.toLocaleString()}`;
+  }
+}
+
 type EventPageRow = Database['public']['Tables']['event_pages']['Row'];
 type TicketTypeRow = Database['public']['Tables']['ticket_types']['Row'];
 
@@ -257,7 +267,7 @@ export function PublicEventPageClient({
             style={{ fontFamily: 'JetBrains Mono, monospace', color: '#1F4D3A' }}
           >
             {selectedTicketObj
-              ? selectedTicketObj.price === 0 ? 'Free' : `$${selectedTicketObj.price}`
+              ? fmtTicketPrice(selectedTicketObj.price, selectedTicketObj.currency)
               : minPrice}
           </div>
           <div className="text-[12px] truncate" style={{ color: '#6B7A72' }}>
@@ -304,8 +314,8 @@ function TicketList({
         style={{ fontFamily: 'JetBrains Mono, monospace', color: '#1F4D3A' }}
       >
         {selectedTicketObj
-          ? selectedTicketObj.price === 0 ? 'Free' : `$${selectedTicketObj.price}`
-          : hasTickets ? (tickets.every(t => t.price === 0) ? 'Free' : `From $${Math.min(...tickets.filter(t => t.price > 0).map(t => t.price))}`) : 'Free'
+          ? fmtTicketPrice(selectedTicketObj.price, selectedTicketObj.currency)
+          : minPrice
         }
       </div>
       <div className="text-[13px] mb-5" style={{ color: '#6B7A72' }}>
@@ -352,7 +362,7 @@ function TicketList({
                   className="text-[14px] shrink-0"
                   style={{ fontFamily: 'JetBrains Mono, monospace', color: ticket.price === 0 ? '#2D7A4F' : '#1F4D3A', fontWeight: 500 }}
                 >
-                  {soldOut ? 'Sold out' : ticket.price === 0 ? 'Free' : `$${ticket.price}`}
+                  {soldOut ? 'Sold out' : fmtTicketPrice(ticket.price, ticket.currency)}
                 </span>
               </div>
               {ticket.description && (
