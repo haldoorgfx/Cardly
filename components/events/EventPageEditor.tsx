@@ -513,6 +513,16 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
                 value={isPublic}
                 onChange={setIsPublic}
               />
+              {!isPublic && (
+                <div className="flex items-start gap-3 px-4 py-3 rounded-xl" style={{ background: 'rgba(201,122,45,0.08)', border: '1px solid rgba(201,122,45,0.25)' }}>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#C97A2D" strokeWidth="2" className="shrink-0 mt-0.5">
+                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                  </svg>
+                  <p className="text-[13px]" style={{ color: '#C97A2D' }}>
+                    <strong>Registration page is hidden.</strong> Attendees cannot find or access this event until you turn on &ldquo;Public event&rdquo;.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
