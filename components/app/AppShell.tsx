@@ -8,7 +8,7 @@ import { PLANS } from '@/lib/billing/plans';
 import {
   LayoutGrid, TrendingUp, LayoutTemplate, Settings2, Users, LogOut, Menu, Search, Plus, ChevronRight, CreditCard,
   BarChart2, FileText, Eye, X, ArrowLeft, ShieldCheck,
-  Flag, Image as ImageIcon, ScrollText, Sliders, Gavel,
+  ScrollText, Sliders,
   Home, Layout, CalendarDays, MessageSquare, Bell,
   Ticket, ScanLine, User, Network, Trophy, Briefcase, Video, Palette, ExternalLink,
   UserCircle, HelpCircle, Zap, ShoppingCart, Handshake, Clock, IdCard,
@@ -134,15 +134,15 @@ const PLATFORM_SECTIONS = [
     items: [
       { href: '/dashboard',  label: 'Events',    icon: <LayoutGrid size={15} strokeWidth={1.8} />,    matchPrefix: true  },
       { href: '/analytics',  label: 'Analytics', icon: <TrendingUp size={15} strokeWidth={1.8} />,    matchPrefix: false },
-      { href: '/templates',  label: 'Templates', icon: <LayoutTemplate size={15} strokeWidth={1.8} />, matchPrefix: false },
     ],
   },
   {
     title: 'Workspace',
     items: [
-      { href: '/brand',     label: 'Brand Kit', icon: <Palette size={15} strokeWidth={1.8} />,   matchPrefix: false },
-      { href: '/team',      label: 'Team',      icon: <Users size={15} strokeWidth={1.8} />,     matchPrefix: false },
-      { href: '/settings',  label: 'Settings',  icon: <Settings2 size={15} strokeWidth={1.8} />, matchPrefix: true  },
+      { href: '/brand',      label: 'Brand Kit',  icon: <Palette size={15} strokeWidth={1.8} />,        matchPrefix: false },
+      { href: '/templates',  label: 'Templates',  icon: <LayoutTemplate size={15} strokeWidth={1.8} />, matchPrefix: false },
+      { href: '/team',       label: 'Team',       icon: <Users size={15} strokeWidth={1.8} />,          matchPrefix: false },
+      { href: '/settings',   label: 'Settings',   icon: <Settings2 size={15} strokeWidth={1.8} />,      matchPrefix: true  },
     ],
   },
 ];
@@ -188,39 +188,12 @@ type InlineAdminSection = {
 
 const INLINE_ADMIN_SECTIONS: InlineAdminSection[] = [
   {
-    label: 'Overview',
+    label: '',
     items: [
       { href: '/admin/analytics', label: 'Platform Stats',  icon: <BarChart2 size={14} strokeWidth={1.8} /> },
-    ],
-  },
-  {
-    label: 'Users',
-    items: [
-      { href: '/admin/users', label: 'Accounts',     icon: <Users size={14} strokeWidth={1.8} /> },
-      { href: '/admin/audit', label: 'Activity Log', icon: <ScrollText size={14} strokeWidth={1.8} /> },
-    ],
-  },
-  {
-    label: 'Content',
-    items: [
-      { href: '/admin/content',   label: 'Pages',     icon: <FileText size={14} strokeWidth={1.8} /> },
-      { href: '/admin/media',     label: 'Media',     icon: <ImageIcon size={14} strokeWidth={1.8} /> },
-      { href: '/admin/changelog', label: 'Changelog', icon: <ScrollText size={14} strokeWidth={1.8} /> },
-    ],
-  },
-  {
-    label: 'Product',
-    items: [
-      { href: '/admin/theme',     label: 'Appearance',    icon: <Sliders size={14} strokeWidth={1.8} /> },
-      { href: '/admin/templates', label: 'Templates',     icon: <LayoutTemplate size={14} strokeWidth={1.8} />, superAdminOnly: true },
-      { href: '/admin/flags',     label: 'Feature Flags', icon: <Flag size={14} strokeWidth={1.8} />,          superAdminOnly: true },
-    ],
-  },
-  {
-    label: 'Business',
-    items: [
-      { href: '/admin/billing', label: 'Revenue',    icon: <CreditCard size={14} strokeWidth={1.8} />, superAdminOnly: true },
-      { href: '/admin/events',  label: 'Moderation', icon: <Gavel size={14} strokeWidth={1.8} />,      superAdminOnly: true },
+      { href: '/admin/users',     label: 'Accounts',        icon: <Users size={14} strokeWidth={1.8} /> },
+      { href: '/admin/billing',   label: 'Revenue',         icon: <CreditCard size={14} strokeWidth={1.8} />, superAdminOnly: true },
+      { href: '/admin/audit',     label: 'Activity Log',    icon: <ScrollText size={14} strokeWidth={1.8} /> },
     ],
   },
 ];
@@ -232,6 +205,7 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
   const planLimit = profile ? (PLAN_LIMITS[profile.plan] ?? 1) : 1;
   const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
   const isSuperAdmin = profile?.role === 'super_admin';
+  const [adminOpen, setAdminOpen] = useState(true);
 
   const handleSignOut = async () => {
     const supabase = createClient();
@@ -307,36 +281,35 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
 
         {/* Admin section — inline for admin users */}
         {isAdmin && (
-          <div className="space-y-4">
-            <div className="px-2.5 flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest"
+          <div>
+            <button
+              onClick={() => setAdminOpen(o => !o)}
+              className="w-full px-2.5 mb-1.5 flex items-center justify-between text-[10px] font-mono uppercase tracking-widest transition-colors hover:text-[#6B7A72]"
               style={{ color: '#9BA8A1' }}>
-              Admin
-              <ShieldCheck size={9} strokeWidth={2} style={{ color: '#9BA8A1' }} />
-            </div>
-            {INLINE_ADMIN_SECTIONS.map(section => {
-              const visibleItems = section.items.filter(i => isSuperAdmin || !i.superAdminOnly);
-              if (visibleItems.length === 0) return null;
-              return (
-                <div key={section.label}>
-                  <div className="px-2.5 mb-1.5 text-[9.5px] font-mono uppercase tracking-widest"
-                    style={{ color: '#C9C3B1' }}>
-                    {section.label}
-                  </div>
-                  <ul className="space-y-0.5">
-                    {visibleItems.map(item => (
-                      <NavItem
-                        key={item.href + item.label}
-                        href={item.href}
-                        icon={item.icon}
-                        label={item.label}
-                        active={pathname.startsWith(item.href)}
-                        onNavigate={onNavigate}
-                      />
-                    ))}
-                  </ul>
-                </div>
-              );
-            })}
+              <span className="flex items-center gap-1.5">
+                Admin
+                <ShieldCheck size={9} strokeWidth={2} />
+              </span>
+              <ChevronRight size={10} strokeWidth={2.5}
+                className="transition-transform duration-200"
+                style={{ transform: adminOpen ? 'rotate(90deg)' : 'rotate(0deg)' }} />
+            </button>
+            {adminOpen && (
+              <ul className="space-y-0.5">
+                {INLINE_ADMIN_SECTIONS[0].items
+                  .filter(i => isSuperAdmin || !i.superAdminOnly)
+                  .map(item => (
+                    <NavItem
+                      key={item.href + item.label}
+                      href={item.href}
+                      icon={item.icon}
+                      label={item.label}
+                      active={pathname.startsWith(item.href)}
+                      onNavigate={onNavigate}
+                    />
+                  ))}
+              </ul>
+            )}
           </div>
         )}
       </nav>
