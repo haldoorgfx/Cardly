@@ -22,7 +22,7 @@ export async function POST(req: Request) {
 
   const { data: resource, error } = await admin
     .from('sponsor_resources')
-    .insert({ sponsor_id: sponsor.id, name, url, kind: url.startsWith('http') ? 'Link' : null, opens: 0 })
+    .insert({ sponsor_id: sponsor.id, name, url, kind: url.startsWith('http') ? 'Link' : null })
     .select()
     .single();
 
