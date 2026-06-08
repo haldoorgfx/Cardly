@@ -807,7 +807,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   const ctxValue: PlanCtx = { profile, eventCount, initials, planPct, planLabel, logoUrl, contextEventName, setContextEventName };
 
-  const isFullScreen = /\/events\/[^/]+\/(edit|publish)/.test(pathname) || pathname === '/onboarding';
+  const isFullScreen = /\/events\/[^/]+\/edit/.test(pathname) || pathname === '/onboarding';
   if (isFullScreen) return <>{children}</>;
 
   const eventId = getEventIdFromPath(pathname);

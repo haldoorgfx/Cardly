@@ -45,7 +45,7 @@ export function KartaCardView({ eventId, eventName, eventSlug, totalCards, share
   const hasDesign = !!primaryVariant?.backgroundUrl;
 
   return (
-    <div className="max-w-[1100px] mx-auto px-6 py-8">
+    <div className="px-6 lg:px-8 py-8">
 
       {/* ── Header ── */}
       <div className="flex items-start justify-between gap-4 mb-6">
@@ -67,7 +67,7 @@ export function KartaCardView({ eventId, eventName, eventSlug, totalCards, share
             {hasDesign ? 'Edit design' : 'Upload design'}
           </Link>
           <Link
-            href={`/e/${eventSlug}`}
+            href={`/c/${eventSlug}`}
             className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-semibold transition hover:opacity-90"
             style={{ background: '#E8C57E', color: '#0F1F18' }}
           >

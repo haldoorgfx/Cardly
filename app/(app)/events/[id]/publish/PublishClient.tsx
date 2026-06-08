@@ -192,7 +192,7 @@ export default function PublishClient({
     });
   }, [shareUrl]);
 
-  const caption = `Get your personalized card for ${eventName} — just add your name and photo. 30 seconds.`;
+  const caption = `Register for ${eventName} and download your personalised attendee card — share it on social media. 30 seconds.`;
   const embedCode = `<iframe src="${shareUrl}"\n        width="375" height="812"\n        frameborder="0" allow="camera"></iframe>`;
 
   const handleCopy = useCallback(async () => {
@@ -240,69 +240,7 @@ export default function PublishClient({
   const sz = embedSizes[activeSize];
 
   return (
-    <div style={{ minHeight: '100vh', background: PT.cream, fontFamily: 'Inter, sans-serif', color: PT.ink, display: 'flex', flexDirection: 'column' }}>
-
-      {/* ── Top bar ───────────────────────────────────────────────── */}
-      <div style={{
-        height: 52, flexShrink: 0,
-        background: PT.surface, borderBottom: `1px solid ${PT.border}`,
-        display: 'flex', alignItems: 'center',
-        padding: '0 20px', gap: 16,
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 0 }}>
-          <Link href={`/events/${eventId}`} style={{
-            width: 30, height: 30, borderRadius: 6,
-            background: 'transparent', border: 'none', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: PT.inkSoft, textDecoration: 'none',
-          }}>
-            {I.back({ size: 16 })}
-          </Link>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Inter, sans-serif', fontSize: 13, minWidth: 0 }}>
-            <span style={{ color: PT.muted }}>Events</span>
-            <span style={{ color: PT.borderStrong }}>/</span>
-            <span style={{
-              color: PT.ink, fontWeight: 600,
-              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 380,
-            }}>{eventName}</span>
-          </div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          {/* Published pill */}
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 6,
-            height: 28, padding: '0 10px',
-            background: PT.primarySoft, color: PT.primary,
-            borderRadius: 999,
-            fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
-            letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 600,
-          }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: PT.success, display: 'block' }} />
-            <span>Published</span>
-          </div>
-          <Link href={`/events/${eventId}/edit`} style={{
-            height: 32, padding: '0 12px',
-            background: 'transparent', color: PT.ink,
-            border: `1px solid ${PT.border}`, borderRadius: 6,
-            fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 13,
-            display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer',
-            textDecoration: 'none',
-          }}>
-            {I.edit({ size: 13 })}
-            <span>Edit</span>
-          </Link>
-          <Link href="/dashboard" style={{
-            height: 32, padding: '0 14px',
-            background: PT.ink, color: PT.cream,
-            border: 'none', borderRadius: 6,
-            fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13,
-            display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer',
-            textDecoration: 'none',
-          }}>
-            <span>Dashboard</span>
-          </Link>
-        </div>
-      </div>
+    <div style={{ background: PT.cream, fontFamily: 'Inter, sans-serif', color: PT.ink }}>
 
       {/* ── Main scroll area ──────────────────────────────────────── */}
       <div className="px-4 sm:px-8" style={{
