@@ -2,18 +2,35 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 
+const SESSION_TYPES = ['talk', 'keynote', 'workshop', 'panel', 'fireside', 'lightning', 'break'] as const;
+
 const SessionSchema = z.object({
-  title: z.string().min(1),
-  description: z.string().optional(),
-  session_type: z.enum(['talk', 'keynote', 'workshop', 'panel', 'fireside', 'lightning', 'break']).default('talk'),
-  track_id: z.string().uuid().nullable().optional(),
-  starts_at: z.string().min(1),
-  ends_at: z.string().min(1),
-  room: z.string().optional(),
-  capacity: z.number().int().positive().nullable().optional(),
+  title:        z.string().min(1, 'Title is required').max(300).trim(),
+  description:  z.string().max(10_000).optional(),
+  session_type: z.enum(SESSION_TYPES).default('talk'),
+  track_id:     z.string().uuid().nullable().optional(),
+  starts_at:    z.string().min(1, 'Start time is required'),
+  ends_at:      z.string().min(1, 'End time is required'),
+  room:         z.string().max(200).trim().optional(),
+  capacity:     z.number().int().positive().nullable().optional(),
   is_published: z.boolean().default(true),
-  speaker_ids: z.array(z.string().uuid()).optional(),
+  speaker_ids:  z.array(z.string().uuid()).optional(),
+}).superRefine((data, ctx) => {
+  if (data.starts_at && data.ends_at && new Date(data.ends_at) <= new Date(data.starts_at)) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'End time must be after start time', path: ['ends_at'] });
+  }
 });
+
+// Only these columns can be updated via PATCH (never event_id, id, created_at, etc.)
+const SessionPatchSchema = SessionSchema
+  .omit({ speaker_ids: true })
+  .partial()
+  .extend({ speaker_ids: z.array(z.string().uuid()).optional() })
+  .superRefine((data, ctx) => {
+    if (data.starts_at && data.ends_at && new Date(data.ends_at) <= new Date(data.starts_at)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'End time must be after start time', path: ['ends_at'] });
+    }
+  });
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const admin = createAdminClient();
@@ -69,10 +86,30 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { sessionId, speaker_ids, ...updates } = await req.json();
-  if (!sessionId) return NextResponse.json({ error: 'sessionId required' }, { status: 400 });
+  let raw: unknown;
+  try { raw = await req.json(); } catch { return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }); }
+
+  const { sessionId, ...rest } = raw as Record<string, unknown>;
+  if (!sessionId || typeof sessionId !== 'string') {
+    return NextResponse.json({ error: 'sessionId required' }, { status: 400 });
+  }
+
+  const parsed = SessionPatchSchema.safeParse(rest);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: 'Validation failed', details: parsed.error.flatten().fieldErrors },
+      { status: 400 },
+    );
+  }
+
+  const { speaker_ids, ...updates } = parsed.data;
 
   const admin = createAdminClient();
+
+  // Verify ownership via the event
+  const { data: event } = await admin.from('events').select('id').eq('id', params.id).eq('user_id', user.id).single();
+  if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
   const { data: session, error } = await admin
     .from('sessions')
     .update(updates)

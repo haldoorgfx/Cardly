@@ -4,29 +4,37 @@ import { sendRegistrationConfirmEmail } from '@/lib/registration/email';
 import { createTicketPaymentIntent } from '@/lib/payments/stripe';
 import { initFlutterwavePayment, isFlutterwaveCurrency, type FlutterwaveCurrency } from '@/lib/payments/flutterwave';
 import { isWaafiPayCurrency } from '@/lib/payments/waafipay';
+import { z } from 'zod';
+
+// ── Input validation ──────────────────────────────────────────────────────────
+const RegisterSchema = z.object({
+  attendee_name:   z.string().min(1, 'Name is required').max(200, 'Name must be 200 characters or less').trim(),
+  attendee_email:  z.string().min(1, 'Email is required').max(254, 'Email is too long').email('Please enter a valid email address').transform(v => v.toLowerCase()),
+  attendee_phone:  z.string().max(30, 'Phone number is too long').trim().optional().nullable(),
+  ticket_type_id:  z.string().uuid('Invalid ticket type'),
+  // custom_fields: only allow string values, cap key and value length
+  custom_fields:   z.record(z.string().max(100), z.string().max(2000)).optional().default({}),
+});
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   const admin = createAdminClient();
 
-  let body: {
-    attendee_name: string;
-    attendee_email: string;
-    attendee_phone?: string;
-    ticket_type_id: string;
-    custom_fields?: Record<string, string>;
-  };
-
+  let raw: unknown;
   try {
-    body = await req.json();
+    raw = await req.json();
   } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  const { attendee_name, attendee_email, ticket_type_id, attendee_phone, custom_fields } = body;
+  const parsed = RegisterSchema.safeParse(raw);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? 'Validation failed', details: parsed.error.flatten().fieldErrors },
+      { status: 400 },
+    );
+  }
 
-  if (!attendee_name?.trim()) return NextResponse.json({ error: 'Name is required' }, { status: 400 });
-  if (!attendee_email?.trim()) return NextResponse.json({ error: 'Email is required' }, { status: 400 });
-  if (!ticket_type_id) return NextResponse.json({ error: 'Ticket type is required' }, { status: 400 });
+  const { attendee_name, attendee_email, ticket_type_id, attendee_phone, custom_fields } = parsed.data;
 
   // 1. Verify event has a public event_page
   const { data: eventPage } = await admin

@@ -12,7 +12,8 @@ export async function POST(req: NextRequest) {
   if (!allowed) return NextResponse.json({ error: 'PLAN_LIMIT' }, { status: 402 });
 
   const body = await req.json().catch(() => ({}));
-  const name: string = (body.name as string | undefined)?.trim() || 'Untitled Event';
+  const rawName = (body.name as string | undefined)?.trim() || 'Untitled Event';
+  const name = rawName.slice(0, 200); // hard cap — no event name longer than 200 chars
 
   const admin = createAdminClient();
 

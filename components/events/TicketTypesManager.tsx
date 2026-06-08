@@ -50,16 +50,21 @@ function rowToForm(t: TicketRow): FormState {
 }
 
 function formToBody(f: FormState) {
+  // NOTE: never use `parseInt(x) || fallback` — parseInt("0") is 0 which is falsy,
+  // so it would incorrectly return the fallback. Use explicit null checks instead.
+  const qty = f.isLimited && f.quantity !== '' ? parseInt(f.quantity, 10) : null;
+  const min = f.min_per_order !== '' ? parseInt(f.min_per_order, 10) : 1;
+  const max = f.max_per_order !== '' ? parseInt(f.max_per_order, 10) : 10;
   return {
     name: f.name.trim(),
     description: f.description.trim() || null,
     price: f.isFree ? 0 : parseFloat(f.price) || 0,
     currency: f.currency,
-    quantity: f.isLimited && f.quantity ? parseInt(f.quantity) : null,
+    quantity: (qty !== null && !isNaN(qty)) ? qty : null,
     sales_start: f.hasSalesWindow && f.sales_start ? new Date(f.sales_start).toISOString() : null,
     sales_end: f.hasSalesWindow && f.sales_end ? new Date(f.sales_end).toISOString() : null,
-    min_per_order: parseInt(f.min_per_order) || 1,
-    max_per_order: parseInt(f.max_per_order) || 10,
+    min_per_order: !isNaN(min) ? min : 1,
+    max_per_order: !isNaN(max) ? max : 10,
     is_visible: f.is_visible,
   };
 }
@@ -92,9 +97,28 @@ export function TicketTypesManager({ eventId, initialTickets }: Props) {
   }, []);
 
   async function handleSave() {
+    // ── Client-side validation ──────────────────────────────────────
     if (!form.name.trim()) { setError('Name is required'); return; }
-    if (!form.isFree && (!form.price || parseFloat(form.price) <= 0)) {
-      setError('Enter a price greater than 0'); return;
+    if (form.name.trim().length > 100) { setError('Name must be 100 characters or less'); return; }
+    if (!form.isFree) {
+      const price = parseFloat(form.price);
+      if (isNaN(price) || price <= 0) { setError('Enter a price greater than 0'); return; }
+      if (price > 9_999_999) { setError('Price cannot exceed 9,999,999'); return; }
+    }
+    if (form.isLimited && form.quantity !== '') {
+      const qty = parseInt(form.quantity, 10);
+      if (isNaN(qty) || qty < 1) { setError('Quantity must be at least 1'); return; }
+      if (qty > 1_000_000) { setError('Quantity cannot exceed 1,000,000'); return; }
+    }
+    const minVal = form.min_per_order !== '' ? parseInt(form.min_per_order, 10) : 1;
+    const maxVal = form.max_per_order !== '' ? parseInt(form.max_per_order, 10) : 10;
+    if (!isNaN(minVal) && !isNaN(maxVal) && minVal > maxVal) {
+      setError('Min per order cannot exceed max per order'); return;
+    }
+    if (form.hasSalesWindow && form.sales_start && form.sales_end) {
+      if (new Date(form.sales_end) <= new Date(form.sales_start)) {
+        setError('Sales end must be after sales start'); return;
+      }
     }
     setSaving(true); setError('');
     try {

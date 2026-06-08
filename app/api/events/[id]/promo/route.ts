@@ -2,14 +2,44 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 
-const CreateSchema = z.object({
-  code: z.string().min(2).max(32).toUpperCase(),
-  discount_type: z.enum(['percent', 'fixed']),
-  discount_value: z.number().positive(),
-  max_uses: z.number().int().positive().nullable().optional(),
-  valid_from: z.string().datetime().nullable().optional(),
-  valid_until: z.string().datetime().nullable().optional(),
+// ── Shared validation schema ──────────────────────────────────────────────────
+
+const NullableDateTime = z.preprocess(
+  v => (v === '' || v === undefined ? null : v),
+  z.string().datetime({ offset: true }).nullable(),
+);
+
+const PromoSchema = z.object({
+  code:            z.string().min(2, 'Code must be at least 2 characters').max(32, 'Code must be 32 characters or less')
+                     .regex(/^[A-Z0-9_-]+$/, 'Code may only contain letters, numbers, hyphens, and underscores')
+                     .toUpperCase(),
+  discount_type:   z.enum(['percent', 'fixed'] as const),
+  discount_value:  z.number().positive('Discount value must be greater than 0'),
+  max_uses:        z.number().int().min(1, 'Max uses must be at least 1').nullable().optional(),
+  valid_from:      NullableDateTime.optional(),
+  valid_until:     NullableDateTime.optional(),
+}).superRefine((data, ctx) => {
+  // Percent discount cannot exceed 100%
+  if (data.discount_type === 'percent' && data.discount_value > 100) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Percent discount cannot exceed 100%', path: ['discount_value'] });
+  }
+  // valid_until must be after valid_from when both are provided
+  if (data.valid_from && data.valid_until && new Date(data.valid_until) <= new Date(data.valid_from)) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Expiry date must be after start date', path: ['valid_until'] });
+  }
 });
+
+// PATCH uses a partial version of the same schema (code not updatable)
+const PromoPatchSchema = PromoSchema.omit({ code: true }).partial().superRefine((data, ctx) => {
+  if (data.discount_type === 'percent' && data.discount_value !== undefined && data.discount_value > 100) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Percent discount cannot exceed 100%', path: ['discount_value'] });
+  }
+  if (data.valid_from && data.valid_until && new Date(data.valid_until) <= new Date(data.valid_from)) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Expiry date must be after start date', path: ['valid_until'] });
+  }
+});
+
+// ── GET ───────────────────────────────────────────────────────────────────────
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   const supabase = createClient();
@@ -30,14 +60,18 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
   return NextResponse.json({ promo_codes: data });
 }
 
+// ── POST ──────────────────────────────────────────────────────────────────────
+
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const body = await req.json().catch(() => null);
-  const parsed = CreateSchema.safeParse(body);
-  if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+  const raw = await req.json().catch(() => null);
+  const parsed = PromoSchema.safeParse(raw);
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Validation failed', details: parsed.error.flatten().fieldErrors }, { status: 400 });
+  }
 
   const admin = createAdminClient();
   const { data: event } = await admin.from('events').select('id').eq('id', params.id).eq('user_id', user.id).single();
@@ -50,36 +84,65 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     .single();
 
   if (error) {
-    if (error.code === '23505') return NextResponse.json({ error: 'Code already exists for this event' }, { status: 409 });
+    if (error.code === '23505') return NextResponse.json({ error: 'That promo code already exists for this event' }, { status: 409 });
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
   return NextResponse.json({ promo_code: data }, { status: 201 });
 }
+
+// ── PATCH ─────────────────────────────────────────────────────────────────────
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const body = await req.json().catch(() => null);
-  const { codeId, discount_type, discount_value, max_uses, valid_from, valid_until } = body ?? {};
-  if (!codeId) return NextResponse.json({ error: 'codeId required' }, { status: 400 });
+  const raw = await req.json().catch(() => null);
+  if (!raw || typeof raw !== 'object') {
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+  }
 
+  const { codeId, ...rest } = raw as Record<string, unknown>;
+  if (!codeId || typeof codeId !== 'string') {
+    return NextResponse.json({ error: 'codeId is required' }, { status: 400 });
+  }
+
+  const parsed = PromoPatchSchema.safeParse(rest);
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Validation failed', details: parsed.error.flatten().fieldErrors }, { status: 400 });
+  }
+
+  // If updating valid window, re-verify ordering against current DB values
   const admin = createAdminClient();
   const { data: event } = await admin.from('events').select('id').eq('id', params.id).eq('user_id', user.id).single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-  const patch: Record<string, unknown> = {};
-  if (discount_type !== undefined) patch.discount_type = discount_type;
-  if (discount_value !== undefined) patch.discount_value = discount_value;
-  if (max_uses !== undefined) patch.max_uses = max_uses ?? null;
-  if (valid_from !== undefined) patch.valid_from = valid_from ?? null;
-  if (valid_until !== undefined) patch.valid_until = valid_until ?? null;
+  if (parsed.data.valid_from !== undefined || parsed.data.valid_until !== undefined) {
+    const { data: existing } = await admin
+      .from('promo_codes')
+      .select('valid_from, valid_until, discount_type')
+      .eq('id', codeId)
+      .eq('event_id', params.id)
+      .single();
+
+    const effectiveFrom  = parsed.data.valid_from  ?? existing?.valid_from  ?? null;
+    const effectiveUntil = parsed.data.valid_until ?? existing?.valid_until ?? null;
+    if (effectiveFrom && effectiveUntil && new Date(effectiveUntil) <= new Date(effectiveFrom)) {
+      return NextResponse.json({ error: 'Expiry date must be after start date' }, { status: 400 });
+    }
+
+    // Also re-check percent cap against the effective type
+    const effectiveType  = parsed.data.discount_type  ?? existing?.discount_type;
+    const effectiveValue = parsed.data.discount_value;
+    if (effectiveType === 'percent' && effectiveValue !== undefined && effectiveValue > 100) {
+      return NextResponse.json({ error: 'Percent discount cannot exceed 100%' }, { status: 400 });
+    }
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
   const { data, error } = await (admin as any)
     .from('promo_codes')
-    .update(patch)
+    .update(parsed.data)
     .eq('id', codeId)
     .eq('event_id', params.id)
     .select()
@@ -88,6 +151,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ promo_code: data });
 }
+
+// ── DELETE ────────────────────────────────────────────────────────────────────
 
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   const supabase = createClient();
@@ -99,6 +164,9 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
   if (!codeId) return NextResponse.json({ error: 'codeId required' }, { status: 400 });
 
   const admin = createAdminClient();
+  const { data: event } = await admin.from('events').select('id').eq('id', params.id).eq('user_id', user.id).single();
+  if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
   const { error } = await admin
     .from('promo_codes')
     .delete()

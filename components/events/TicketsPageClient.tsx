@@ -155,24 +155,49 @@ function AddPromoModal({ onClose, eventId }: { onClose: () => void; eventId: str
   const [err, setErr]           = useState('');
 
   async function handleSave() {
-    if (!code.trim() || !value) { setErr('Code and discount value are required.'); return; }
+    setErr('');
+    // ── Client-side validation ──────────────────────────────────────────────
+    const trimmedCode = code.trim().toUpperCase();
+    if (!trimmedCode) { setErr('Promo code is required.'); return; }
+    if (trimmedCode.length < 2) { setErr('Code must be at least 2 characters.'); return; }
+    if (trimmedCode.length > 32) { setErr('Code must be 32 characters or less.'); return; }
+    if (!/^[A-Z0-9_-]+$/.test(trimmedCode)) {
+      setErr('Code may only contain letters, numbers, hyphens, and underscores.');
+      return;
+    }
+
+    const parsedValue = parseFloat(value);
+    if (!value || isNaN(parsedValue)) { setErr('Discount value is required and must be a number.'); return; }
+    if (parsedValue <= 0) { setErr('Discount value must be greater than 0.'); return; }
+    if (type === 'percent' && parsedValue > 100) { setErr('Percent discount cannot exceed 100%.'); return; }
+
+    const parsedMaxUses = maxUses ? parseInt(maxUses, 10) : null;
+    if (maxUses && (isNaN(parsedMaxUses!) || parsedMaxUses! < 1)) {
+      setErr('Max uses must be a whole number of at least 1.');
+      return;
+    }
+    // ── Submit ──────────────────────────────────────────────────────────────
     setSaving(true);
     try {
       const res = await fetch(`/api/events/${eventId}/promo`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          code: code.trim().toUpperCase(),
+          code: trimmedCode,
           discount_type: type,
-          discount_value: parseFloat(value),
-          max_uses: maxUses ? parseInt(maxUses) : null,
+          discount_value: parsedValue,
+          max_uses: parsedMaxUses,
         }),
       });
-      if (!res.ok) { const d = await res.json(); throw new Error(d.error ?? 'Failed'); }
+      if (!res.ok) {
+        const d = await res.json();
+        const detail = d.details ? Object.values(d.details as Record<string, string[]>).flat().join(' ') : null;
+        throw new Error(detail ?? d.error ?? 'Failed to create promo code.');
+      }
       onClose();
       window.location.reload();
     } catch (e) {
-      setErr(e instanceof Error ? e.message : 'Error');
+      setErr(e instanceof Error ? e.message : 'Something went wrong.');
       setSaving(false);
     }
   }
@@ -211,6 +236,7 @@ function AddPromoModal({ onClose, eventId }: { onClose: () => void; eventId: str
               <label className="block text-[11px] font-mono uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Value</label>
               <input value={value} onChange={e => setValue(e.target.value)}
                 placeholder={type === 'percent' ? '20' : '5000'} type="number"
+                min="0.01" max={type === 'percent' ? '100' : '9999999'} step="any"
                 className="w-full h-10 px-3 rounded-lg text-[13px] font-mono outline-none"
                 style={{ border: '1.5px solid #E5E0D4', background: 'white', color: '#0F1F18' }} />
             </div>
@@ -250,7 +276,30 @@ function CreateTicketModal({ onClose, eventId, defaultCurrency }: { onClose: () 
   const [err, setErr]             = useState('');
 
   async function handleCreate() {
+    setErr('');
+    // ── Client-side validation ──────────────────────────────────────────────
     if (!name.trim()) { setErr('Ticket name is required.'); return; }
+    if (name.trim().length > 100) { setErr('Ticket name must be 100 characters or less.'); return; }
+
+    const parsedPrice = parseFloat(price.replace(/,/g, ''));
+    if (isNaN(parsedPrice)) { setErr('Price must be a valid number.'); return; }
+    if (parsedPrice < 0)    { setErr('Price cannot be negative.'); return; }
+    if (parsedPrice > 9_999_999) { setErr('Price exceeds the maximum allowed (9,999,999).'); return; }
+
+    const parsedQty = qty ? parseInt(qty, 10) : null;
+    if (qty && (isNaN(parsedQty!) || parsedQty! < 1)) {
+      setErr('Quantity must be a whole number of at least 1, or leave blank for unlimited.');
+      return;
+    }
+    if (parsedQty && parsedQty > 1_000_000) { setErr('Quantity exceeds the maximum allowed (1,000,000).'); return; }
+
+    if (salesStart && salesEnd) {
+      if (new Date(salesEnd) <= new Date(salesStart)) {
+        setErr('Sales end date must be after sales start date.');
+        return;
+      }
+    }
+    // ── Submit ──────────────────────────────────────────────────────────────
     setSaving(true);
     try {
       const res = await fetch(`/api/events/${eventId}/tickets`, {
@@ -258,19 +307,23 @@ function CreateTicketModal({ onClose, eventId, defaultCurrency }: { onClose: () 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: name.trim(),
-          price: parseFloat(price.replace(/,/g, '')) || 0,
+          price: parsedPrice,
           currency: defaultCurrency,
-          quantity: qty ? parseInt(qty) : null,
-          sales_start: salesStart || null,
-          sales_end: salesEnd || null,
+          quantity: parsedQty,
+          sales_start: salesStart ? new Date(salesStart).toISOString() : null,
+          sales_end:   salesEnd   ? new Date(salesEnd).toISOString()   : null,
           is_visible: !hidden,
         }),
       });
-      if (!res.ok) { const d = await res.json(); throw new Error(d.error ?? 'Failed'); }
+      if (!res.ok) {
+        const d = await res.json();
+        const detail = d.details ? Object.values(d.details as Record<string, string[]>).flat().join(' ') : null;
+        throw new Error(detail ?? d.error ?? 'Failed to create ticket.');
+      }
       onClose();
       window.location.reload();
     } catch (e) {
-      setErr(e instanceof Error ? e.message : 'Error');
+      setErr(e instanceof Error ? e.message : 'Something went wrong.');
       setSaving(false);
     }
   }
@@ -305,13 +358,15 @@ function CreateTicketModal({ onClose, eventId, defaultCurrency }: { onClose: () 
             <div>
               <label className="block text-[10.5px] font-mono uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Price ({defaultCurrency})</label>
               <input value={price} onChange={e => setPrice(e.target.value)}
-                placeholder="15,000" className="w-full h-10 px-3 rounded-lg text-[13px] font-mono outline-none"
+                type="number" min="0" max="9999999" step="any" placeholder="0"
+                className="w-full h-10 px-3 rounded-lg text-[13px] font-mono outline-none"
                 style={{ border: '1.5px solid #E5E0D4', background: 'white', color: '#0F1F18' }} />
             </div>
             <div>
               <label className="block text-[10.5px] font-mono uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Quantity</label>
               <input value={qty} onChange={e => setQty(e.target.value)}
-                placeholder="300" className="w-full h-10 px-3 rounded-lg text-[13px] font-mono outline-none"
+                type="number" min="1" max="1000000" step="1" placeholder="Unlimited"
+                className="w-full h-10 px-3 rounded-lg text-[13px] font-mono outline-none"
                 style={{ border: '1.5px solid #E5E0D4', background: 'white', color: '#0F1F18' }} />
             </div>
           </div>
