@@ -269,7 +269,7 @@ export default function SettingsClient({ profile, userId }: Props) {
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>
-          <h1 className="font-display font-bold text-[32px] leading-tight text-[#0F1F18]">Settings</h1>
+          <h1 className="font-display font-semibold text-[24px] leading-tight text-[#0F1F18]">Settings</h1>
           <p className="text-[14px] text-[#6B7A72] mt-1">Account and workspace preferences</p>
         </div>
         <div className="flex flex-col items-end gap-1 shrink-0 mt-1">
@@ -290,7 +290,7 @@ export default function SettingsClient({ profile, userId }: Props) {
 
         {/* ── Profile ── */}
         <section className="bg-white rounded-2xl border p-6" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)' }}>
-          <h2 className="font-semibold text-[15px] text-[#0F1F18] mb-5">Profile</h2>
+          <h2 className="font-display font-semibold text-[15px] tracking-tight text-[#0F1F18] mb-5">Profile</h2>
 
           {/* Avatar row */}
           <div className="flex items-center gap-4 mb-6">
@@ -349,7 +349,7 @@ export default function SettingsClient({ profile, userId }: Props) {
 
         {/* ── Preferences ── */}
         <section className="bg-white rounded-2xl border p-6" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)' }}>
-          <h2 className="font-semibold text-[15px] text-[#0F1F18] mb-5">Preferences</h2>
+          <h2 className="font-display font-semibold text-[15px] tracking-tight text-[#0F1F18] mb-5">Preferences</h2>
           <div className="grid grid-cols-2 gap-x-4 gap-y-4">
             <SelectField
               label="Timezone"
@@ -390,7 +390,7 @@ export default function SettingsClient({ profile, userId }: Props) {
 
         {/* ── Notifications ── */}
         <section className="bg-white rounded-2xl border p-6" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)' }}>
-          <h2 className="font-semibold text-[15px] text-[#0F1F18] mb-5">Notifications</h2>
+          <h2 className="font-display font-semibold text-[15px] tracking-tight text-[#0F1F18] mb-5">Notifications</h2>
           <div className="divide-y" style={{ borderColor: '#E5E0D4' }}>
             {[
               {

@@ -172,7 +172,7 @@ export function PromoCodesManager({ eventId, initialCodes }: Props) {
             <div className="px-6 py-5 grid grid-cols-2 gap-4">
               {error && <p className="col-span-2 text-[13px] px-3 py-2 rounded-lg" style={{ background: '#FEF2F2', color: '#B8423C' }}>{error}</p>}
               <div>
-                <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>Discount type</label>
+                <label className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Discount type</label>
                 <select className={INPUT} style={INPUT_STYLE} value={editForm.discount_type}
                   onChange={e => setEditForm(f => ({ ...f, discount_type: e.target.value as 'percent' | 'fixed' }))}>
                   <option value="percent">Percentage (%)</option>
@@ -180,7 +180,7 @@ export function PromoCodesManager({ eventId, initialCodes }: Props) {
                 </select>
               </div>
               <div>
-                <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>
+                <label className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>
                   {editForm.discount_type === 'percent' ? 'Discount (%)' : 'Discount amount'} *
                 </label>
                 <input type="number" min="0" className={INPUT} style={INPUT_STYLE}
@@ -188,19 +188,19 @@ export function PromoCodesManager({ eventId, initialCodes }: Props) {
                   onChange={e => setEditForm(f => ({ ...f, discount_value: e.target.value }))} />
               </div>
               <div>
-                <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>Max uses (blank = unlimited)</label>
+                <label className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Max uses (blank = unlimited)</label>
                 <input type="number" min="1" className={INPUT} style={INPUT_STYLE}
                   value={editForm.max_uses} placeholder="Unlimited"
                   onChange={e => setEditForm(f => ({ ...f, max_uses: e.target.value }))} />
               </div>
               <div>
-                <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>Valid from</label>
+                <label className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Valid from</label>
                 <input type="datetime-local" className={INPUT} style={INPUT_STYLE}
                   value={editForm.valid_from}
                   onChange={e => setEditForm(f => ({ ...f, valid_from: e.target.value }))} />
               </div>
               <div>
-                <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>Valid until</label>
+                <label className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Valid until</label>
                 <input type="datetime-local" className={INPUT} style={INPUT_STYLE}
                   value={editForm.valid_until}
                   onChange={e => setEditForm(f => ({ ...f, valid_until: e.target.value }))} />
@@ -321,7 +321,7 @@ export function PromoCodesManager({ eventId, initialCodes }: Props) {
             <button
               onClick={resetForm}
               className="px-5 py-2.5 rounded-xl text-[13px] font-medium"
-              style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#6B7A72' }}
+              style={{ background: 'white', border: '1px solid #E5E0D4', color: '#6B7A72' }}
             >
               Cancel
             </button>

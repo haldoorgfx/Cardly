@@ -54,7 +54,7 @@ function LeadModal({ token, onClose, onAdded }: { token: string; onClose: () => 
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" style={{ background: 'rgba(15,31,24,0.55)' }}>
       <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl" style={{ boxShadow: '0 24px 80px rgba(15,31,24,0.3)' }}>
         {/* Modal header */}
-        <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b" style={{ borderColor: '#E5E0D4' }}>
+        <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: '#E5E0D4' }}>
           <div className="font-display text-[15px] font-semibold" style={{ color: '#0F1F18' }}>Capture lead</div>
           <button onClick={onClose} className="w-7 h-7 grid place-items-center rounded-lg transition-colors" style={{ color: '#6B7A72' }}>
             <svg width={15} height={15} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -185,7 +185,7 @@ function Panel({ title, children, pad = 'p-5' }: { title?: string; children: Rea
   return (
     <div className="bg-white rounded-2xl border" style={{ borderColor: '#E5E0D4' }}>
       {title && (
-        <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b" style={{ borderColor: 'rgba(229,224,212,0.7)' }}>
+        <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: 'rgba(229,224,212,0.7)' }}>
           <div className="font-display text-[14px] font-semibold tracking-tight" style={{ color: '#0F1F18' }}>{title}</div>
         </div>
       )}

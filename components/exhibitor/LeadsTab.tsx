@@ -191,7 +191,7 @@ function LeadPanel({
           <button
             onClick={handleSave}
             disabled={isPending}
-            className="flex-1 py-2.5 rounded-xl text-[13.5px] font-medium text-cream transition"
+            className="flex-1 py-2.5 rounded-xl text-[13.5px] font-medium text-white transition"
             style={{ background: '#1F4D3A', opacity: isPending ? 0.6 : 1 }}
           >
             {isPending ? 'Saving…' : 'Save changes'}
@@ -236,7 +236,7 @@ export function LeadsTab({ leads: initialLeads, token }: Props) {
       )}
 
       {/* Panel header */}
-      <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b" style={{ borderColor: 'rgba(229,224,212,0.7)' }}>
+      <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: 'rgba(229,224,212,0.7)' }}>
         <div className="font-display text-[14px] font-semibold tracking-tight" style={{ color: '#0F1F18' }}>
           Captured leads · {leads.length}
         </div>

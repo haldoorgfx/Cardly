@@ -271,7 +271,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
                 </button>
                 <button
                   onClick={() => setShowTrackForm(false)}
-                  className="p-1.5 rounded hover:bg-gray-100"
+                  className="p-1.5 rounded hover:bg-[#F5F3EE]"
                 >
                   <X size={14} color="#6B7A72" />
                 </button>
@@ -293,7 +293,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-3 flex-wrap flex-1">
-            <h2 className="font-display text-[18px] font-semibold" style={{ color: '#0F1F18' }}>Sessions</h2>
+            <h2 className="font-display text-[15px] font-semibold" style={{ color: '#0F1F18' }}>Sessions</h2>
             {/* Day tabs */}
             {dayKeys.length > 1 && (
               <div className="flex items-center gap-0.5 p-1 rounded-xl" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
@@ -318,7 +318,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
           {!showSessionForm && (
             <button
               onClick={openAdd}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[13.5px] font-medium text-white transition hover:bg-[#163828]"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-[13.5px] font-medium text-white transition hover:bg-[#163828]"
               style={{ background: '#1F4D3A' }}
             >
               <Plus size={15} strokeWidth={2} /> Add session
@@ -329,10 +329,10 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
         {showSessionForm && (
           <div className="bg-white border rounded-2xl p-5 space-y-4" style={{ borderColor: '#E5E0D4' }}>
             <div className="flex items-center justify-between">
-              <span className="font-display text-sm font-semibold" style={{ color: '#0F1F18' }}>
+              <span className="font-display text-[14px] font-semibold" style={{ color: '#0F1F18' }}>
                 {editingSession ? 'Edit session' : 'New session'}
               </span>
-              <button onClick={closeForm} className="p-1 rounded hover:bg-gray-100">
+              <button onClick={closeForm} className="p-1 rounded hover:bg-[#F5F3EE]">
                 <X size={16} color="#6B7A72" />
               </button>
             </div>
@@ -343,7 +343,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="sm:col-span-2 space-y-1">
-                <label className="text-xs font-medium" style={{ color: '#6B7A72' }}>Title <span style={{ color: '#B8423C' }}>*</span></label>
+                <label className="font-mono text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>Title <span style={{ color: '#B8423C' }}>*</span></label>
                 <input
                   className="w-full border rounded-lg px-3 py-2 text-sm"
                   style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
@@ -352,7 +352,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
                 />
               </div>
               <div className="sm:col-span-2 space-y-1">
-                <label className="text-xs font-medium" style={{ color: '#6B7A72' }}>Description</label>
+                <label className="font-mono text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>Description</label>
                 <textarea
                   className="w-full border rounded-lg px-3 py-2 text-sm resize-none"
                   style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
@@ -362,7 +362,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium" style={{ color: '#6B7A72' }}>Type</label>
+                <label className="font-mono text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>Type</label>
                 <select
                   className="w-full border rounded-lg px-3 py-2 text-sm"
                   style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
@@ -373,7 +373,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
                 </select>
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium" style={{ color: '#6B7A72' }}>Track</label>
+                <label className="font-mono text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>Track</label>
                 <select
                   className="w-full border rounded-lg px-3 py-2 text-sm"
                   style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
@@ -385,7 +385,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
                 </select>
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium" style={{ color: '#6B7A72' }}>Start</label>
+                <label className="font-mono text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>Start</label>
                 <input
                   type="datetime-local"
                   className="w-full border rounded-lg px-3 py-2 text-sm"
@@ -395,7 +395,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium" style={{ color: '#6B7A72' }}>End</label>
+                <label className="font-mono text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>End</label>
                 <input
                   type="datetime-local"
                   className="w-full border rounded-lg px-3 py-2 text-sm"
@@ -405,7 +405,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium" style={{ color: '#6B7A72' }}>Room</label>
+                <label className="font-mono text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>Room</label>
                 <input
                   className="w-full border rounded-lg px-3 py-2 text-sm"
                   style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
@@ -415,7 +415,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium" style={{ color: '#6B7A72' }}>Capacity</label>
+                <label className="font-mono text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>Capacity</label>
                 <input
                   type="number"
                   className="w-full border rounded-lg px-3 py-2 text-sm"
@@ -429,7 +429,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
 
             {speakers.length > 0 && (
               <div className="space-y-2">
-                <label className="text-xs font-medium" style={{ color: '#6B7A72' }}>Speakers</label>
+                <label className="font-mono text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>Speakers</label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {speakers.map((sp) => (
                     <label key={sp.id} className="flex items-center gap-2 cursor-pointer">
@@ -460,14 +460,14 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
               <button
                 onClick={handleSaveSession}
                 disabled={saving}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-white disabled:opacity-60"
+                className="px-4 py-2 rounded-xl text-[13.5px] font-medium text-white disabled:opacity-60"
                 style={{ background: '#1F4D3A' }}
               >
                 {saving ? 'Saving…' : 'Save'}
               </button>
               <button
                 onClick={closeForm}
-                className="px-4 py-2 rounded-lg text-sm font-medium border"
+                className="px-4 py-2 rounded-xl text-[13.5px] font-medium border"
                 style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}
               >
                 Cancel
@@ -477,7 +477,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
         )}
 
         {grouped.length === 0 ? (
-          <div className="bg-white border rounded-2xl p-12 flex flex-col items-center gap-4 text-center" style={{ borderColor: '#E5E0D4' }}>
+          <div className="bg-white border rounded-2xl py-16 flex flex-col items-center gap-4 text-center" style={{ borderColor: '#E5E0D4' }}>
             <div className="w-12 h-12 rounded-2xl grid place-items-center" style={{ background: '#E8EFEB' }}>
               <Plus size={20} strokeWidth={1.8} style={{ color: '#1F4D3A' }} />
             </div>
@@ -485,7 +485,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
               <div className="font-display text-[16px] font-semibold" style={{ color: '#0F1F18' }}>No sessions yet</div>
               <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>Add sessions to build your agenda.</p>
             </div>
-            <button onClick={openAdd} className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-[13.5px] font-medium text-white" style={{ background: '#1F4D3A' }}>
+            <button onClick={openAdd} className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13.5px] font-medium text-white" style={{ background: '#1F4D3A' }}>
               <Plus size={15} strokeWidth={2} /> Add first session
             </button>
           </div>

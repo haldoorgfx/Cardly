@@ -80,7 +80,7 @@ export function TeamTab({ members: initial, token }: Props) {
   return (
     <div className="bg-white rounded-2xl border" style={{ borderColor: '#E5E0D4' }}>
       {/* Header */}
-      <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b" style={{ borderColor: 'rgba(229,224,212,0.7)' }}>
+      <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: 'rgba(229,224,212,0.7)' }}>
         <div className="font-display text-[14px] font-semibold tracking-tight" style={{ color: '#0F1F18' }}>Booth team</div>
         <button
           onClick={() => setShowInvite(v => !v)}
@@ -110,7 +110,7 @@ export function TeamTab({ members: initial, token }: Props) {
           <div className="flex gap-2">
             <button
               onClick={handleInvite} disabled={isPending || !email}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-[13.5px] font-medium text-cream"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-[13.5px] font-medium text-white"
               style={{ background: '#1F4D3A', opacity: !email ? 0.6 : 1 }}
             >
               {isPending ? 'Sending…' : 'Send invite'}

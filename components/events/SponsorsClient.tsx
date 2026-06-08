@@ -288,7 +288,7 @@ export function SponsorsClient({ eventId, eventName, sponsors: initial }: Props)
             { label: 'Portal links sent', value: sponsors.length, accent: true },
           ].map(s => (
             <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
-              <div className="font-mono text-[9.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#6B7A72' }}>{s.label}</div>
+              <div className="font-mono text-[10px] tracking-[0.12em] uppercase mb-2" style={{ color: '#6B7A72' }}>{s.label}</div>
               <div className="font-mono text-[26px] leading-none tracking-tight" style={{ color: s.accent ? '#C9A45E' : '#1F4D3A' }}>{s.value}</div>
             </div>
           ))}

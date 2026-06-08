@@ -181,7 +181,7 @@ export function TicketTypesManager({ eventId, initialTickets }: Props) {
       {tickets.length === 0 && panel === 'closed' ? (
         <div
           className="rounded-2xl flex flex-col items-center justify-center py-16 text-center mb-6"
-          style={{ background: 'white', border: '2px dashed #E5E0D4' }}
+          style={{ background: 'white', border: '1px solid #E5E0D4' }}
         >
           <div
             className="h-12 w-12 rounded-xl flex items-center justify-center mb-4"
@@ -560,7 +560,7 @@ function TicketCard({
 
   return (
     <div
-      className="rounded-xl transition"
+      className="rounded-2xl transition"
       style={{
         background: 'white',
         border: `1px solid ${isEditing ? '#1F4D3A' : '#E5E0D4'}`,
@@ -690,7 +690,7 @@ function TicketCard({
 function FField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-[12px] font-medium mb-1.5" style={{ color: '#3A4A42' }}>{label}</label>
+      <label className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>{label}</label>
       {children}
     </div>
   );

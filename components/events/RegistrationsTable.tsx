@@ -441,7 +441,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
         ].map((s, i, arr) => (
           <div key={s.label} className="flex items-center gap-5">
             <div>
-              <span className="font-mono text-[18px] font-medium" style={{ color: '#1F4D3A' }}>{s.value}</span>
+              <span className="font-mono text-[20px] font-medium" style={{ color: '#1F4D3A' }}>{s.value}</span>
               <span className="ml-2 text-[13px]" style={{ color: '#6B7A72' }}>{s.label}</span>
             </div>
             {i < arr.length - 1 && <span className="hidden sm:inline" style={{ color: '#E5E0D4' }}>·</span>}
@@ -491,7 +491,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
           </button>
           <button
             onClick={() => setAddOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[13px] font-medium text-white transition hover:opacity-90"
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-[13px] font-medium text-white transition hover:opacity-90"
             style={{ background: '#1F4D3A' }}
           >
             <UserPlus size={14} />
@@ -518,7 +518,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
               <thead>
                 <tr style={{ background: '#FAF6EE', borderBottom: '1px solid #E5E0D4' }}>
                   {['Name', 'Ticket', 'Amount', 'Status', 'Card', 'Registered', 'Checked in', ''].map(h => (
-                    <th key={h} className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider whitespace-nowrap" style={{ color: '#6B7A72' }}>
+                    <th key={h} className="px-5 py-3 font-mono text-[10px] tracking-[0.12em] uppercase font-semibold whitespace-nowrap" style={{ color: '#6B7A72' }}>
                       {h}
                     </th>
                   ))}
@@ -526,24 +526,24 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
               </thead>
               <tbody>
                 {rows.map((reg, i) => (
-                  <tr key={reg.id} style={{ background: i % 2 === 0 ? 'white' : '#FDFCFA', borderBottom: '1px solid #F0EBE3' }}>
-                    <td className="px-4 py-3">
+                  <tr key={reg.id} style={{ background: i % 2 === 0 ? 'white' : '#FAF6EE', borderBottom: '1px solid #F0EBE3' }}>
+                    <td className="px-5 py-3.5">
                       <Link href={`/events/${eventId}/registrations/${reg.id}`}
                         className="font-medium text-[14px] hover:underline block" style={{ color: '#0F1F18', textDecoration: 'none' }}>
                         {reg.attendee_name}
                       </Link>
                       <div className="text-[12px]" style={{ color: '#6B7A72' }}>{reg.attendee_email}</div>
                     </td>
-                    <td className="px-4 py-3 text-[13px]" style={{ color: '#3A4A42' }}>
+                    <td className="px-5 py-3.5 text-[13px]" style={{ color: '#3A4A42' }}>
                       {reg.ticket_types?.name ?? 'General'}
                     </td>
-                    <td className="px-4 py-3 font-mono text-[13px]" style={{ color: '#1F4D3A' }}>
+                    <td className="px-5 py-3.5 font-mono text-[13px]" style={{ color: '#1F4D3A' }}>
                       {formatCurrency(reg.amount_paid, reg.currency)}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-5 py-3.5">
                       <StatusPill status={reg.status} />
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-5 py-3.5">
                       {reg.karta_card_url ? (
                         <a href={reg.karta_card_url} target="_blank" rel="noopener noreferrer">
                           <span className="inline-flex items-center gap-1 text-[12px]" style={{ color: '#1F4D3A' }}>
@@ -554,13 +554,13 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
                         <span className="text-[12px]" style={{ color: '#C9C3B1' }}>—</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 font-mono text-[12px]" style={{ color: '#6B7A72' }}>
+                    <td className="px-5 py-3.5 font-mono text-[12px]" style={{ color: '#6B7A72' }}>
                       {new Date(reg.created_at).toLocaleDateString()}
                     </td>
-                    <td className="px-4 py-3 font-mono text-[12px]" style={{ color: reg.checked_in_at ? '#1F4D3A' : '#C9C3B1' }}>
+                    <td className="px-5 py-3.5 font-mono text-[12px]" style={{ color: reg.checked_in_at ? '#1F4D3A' : '#C9C3B1' }}>
                       {reg.checked_in_at ? new Date(reg.checked_in_at).toLocaleTimeString() : '—'}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-5 py-3.5">
                       <RowActionsMenu
                         reg={reg}
                         eventId={eventId}
@@ -581,7 +581,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
         <div className="mt-4 text-center">
           <button
             onClick={loadMore}
-            className="px-6 py-2.5 rounded-full text-[13px] font-medium"
+            className="px-6 py-2.5 rounded-xl text-[13px] font-medium"
             style={{ background: '#1F4D3A', color: 'white' }}
           >
             Load more ({total - rows.length} remaining)
