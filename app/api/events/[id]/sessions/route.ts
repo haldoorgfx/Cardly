@@ -4,7 +4,8 @@ import { z } from 'zod';
 
 const SESSION_TYPES = ['talk', 'keynote', 'workshop', 'panel', 'fireside', 'lightning', 'break'] as const;
 
-const SessionSchema = z.object({
+// Base object — no refinements, so .omit()/.partial() work on it
+const SessionBaseFields = z.object({
   title:        z.string().min(1, 'Title is required').max(300).trim(),
   description:  z.string().max(10_000).optional(),
   session_type: z.enum(SESSION_TYPES).default('talk'),
@@ -15,22 +16,25 @@ const SessionSchema = z.object({
   capacity:     z.number().int().positive().nullable().optional(),
   is_published: z.boolean().default(true),
   speaker_ids:  z.array(z.string().uuid()).optional(),
-}).superRefine((data, ctx) => {
-  if (data.starts_at && data.ends_at && new Date(data.ends_at) <= new Date(data.starts_at)) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'End time must be after start time', path: ['ends_at'] });
-  }
 });
 
-// Only these columns can be updated via PATCH (never event_id, id, created_at, etc.)
-const SessionPatchSchema = SessionSchema
-  .omit({ speaker_ids: true })
-  .partial()
-  .extend({ speaker_ids: z.array(z.string().uuid()).optional() })
-  .superRefine((data, ctx) => {
+function checkSessionDates<T extends { starts_at?: string; ends_at?: string }>(schema: z.ZodType<T>) {
+  return schema.superRefine((data, ctx) => {
     if (data.starts_at && data.ends_at && new Date(data.ends_at) <= new Date(data.starts_at)) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'End time must be after start time', path: ['ends_at'] });
     }
   });
+}
+
+// POST: all required fields present
+const SessionSchema = checkSessionDates(SessionBaseFields);
+
+// PATCH: all fields optional, speaker_ids re-attached after omit+partial
+const SessionPatchSchema = checkSessionDates(
+  SessionBaseFields.omit({ speaker_ids: true }).partial().extend({
+    speaker_ids: z.array(z.string().uuid()).optional(),
+  }),
+);
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const admin = createAdminClient();

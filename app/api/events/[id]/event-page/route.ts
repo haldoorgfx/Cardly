@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { z } from 'zod';
+import type { Database } from '@/types/database';
 
 // ── Validation ────────────────────────────────────────────────────────────────
 
@@ -112,10 +113,9 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     updated_at: new Date().toISOString(),
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await admin
     .from('event_pages')
-    .upsert(upsertPayload as any, { onConflict: 'event_id' })
+    .upsert(upsertPayload as unknown as Database['public']['Tables']['event_pages']['Insert'], { onConflict: 'event_id' })
     .select()
     .single();
 

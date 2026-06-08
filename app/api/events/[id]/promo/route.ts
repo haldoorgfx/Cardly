@@ -9,7 +9,8 @@ const NullableDateTime = z.preprocess(
   z.string().datetime({ offset: true }).nullable(),
 );
 
-const PromoSchema = z.object({
+// Base object (no refinements) — used as the source for both POST and PATCH schemas
+const PromoBaseFields = z.object({
   code:            z.string().min(2, 'Code must be at least 2 characters').max(32, 'Code must be 32 characters or less')
                      .regex(/^[A-Z0-9_-]+$/, 'Code may only contain letters, numbers, hyphens, and underscores')
                      .toUpperCase(),
@@ -18,26 +19,28 @@ const PromoSchema = z.object({
   max_uses:        z.number().int().min(1, 'Max uses must be at least 1').nullable().optional(),
   valid_from:      NullableDateTime.optional(),
   valid_until:     NullableDateTime.optional(),
-}).superRefine((data, ctx) => {
-  // Percent discount cannot exceed 100%
-  if (data.discount_type === 'percent' && data.discount_value > 100) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Percent discount cannot exceed 100%', path: ['discount_value'] });
-  }
-  // valid_until must be after valid_from when both are provided
-  if (data.valid_from && data.valid_until && new Date(data.valid_until) <= new Date(data.valid_from)) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Expiry date must be after start date', path: ['valid_until'] });
-  }
 });
 
-// PATCH uses a partial version of the same schema (code not updatable)
-const PromoPatchSchema = PromoSchema.omit({ code: true }).partial().superRefine((data, ctx) => {
-  if (data.discount_type === 'percent' && data.discount_value !== undefined && data.discount_value > 100) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Percent discount cannot exceed 100%', path: ['discount_value'] });
-  }
-  if (data.valid_from && data.valid_until && new Date(data.valid_until) <= new Date(data.valid_from)) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Expiry date must be after start date', path: ['valid_until'] });
-  }
-});
+function addPromoRefinements<T extends { discount_type?: string; discount_value?: number; valid_from?: string | null; valid_until?: string | null }>(
+  schema: z.ZodType<T>,
+) {
+  return schema.superRefine((data, ctx) => {
+    if (data.discount_type === 'percent' && data.discount_value !== undefined && data.discount_value > 100) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Percent discount cannot exceed 100%', path: ['discount_value'] });
+    }
+    if (data.valid_from && data.valid_until && new Date(data.valid_until) <= new Date(data.valid_from)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Expiry date must be after start date', path: ['valid_until'] });
+    }
+  });
+}
+
+// POST: all fields required (code + type + value)
+const PromoSchema = addPromoRefinements(PromoBaseFields);
+
+// PATCH: code is immutable, all other fields optional
+const PromoPatchSchema = addPromoRefinements(
+  PromoBaseFields.omit({ code: true }).partial(),
+);
 
 // ── GET ───────────────────────────────────────────────────────────────────────
 
