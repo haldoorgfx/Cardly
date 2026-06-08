@@ -344,7 +344,7 @@ function ImportCSVModal({ eventId, ticketTypes, onClose, onImported }: {
               {/* Format hint */}
               <div className="rounded-xl px-4 py-3 text-[12px]" style={{ background: '#F5F3EE', color: '#6B7A72' }}>
                 <span className="font-semibold" style={{ color: '#3A4A42' }}>Accepted columns: </span>
-                Name, Email, Phone — header names are flexible (e.g. "Full Name", "Email Address").
+                Name, Email, Phone — header names are flexible (e.g. &quot;Full Name&quot;, &quot;Email Address&quot;).
                 Export your existing list as a template.
               </div>
 
