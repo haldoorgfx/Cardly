@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { ScanLine, Settings, Check, Users, Clock, Search, X, CheckCircle2, Smartphone, QrCode } from 'lucide-react';
+import { ScanLine, Check, Users, Clock, Search, X, CheckCircle2, Smartphone, QrCode } from 'lucide-react';
 import { QRScanner } from './QRScanner';
 import type { RecentCheckin } from '@/app/(app)/events/[id]/check-in/page';
 
