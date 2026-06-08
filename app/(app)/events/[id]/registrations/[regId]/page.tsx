@@ -4,6 +4,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronLeft, CheckCircle2, Clock, Scan } from 'lucide-react';
+import { RegistrationDetailActions } from '@/components/events/RegistrationDetailActions';
 
 interface Props { params: Promise<{ id: string; regId: string }> }
 
@@ -114,12 +115,20 @@ export default async function AttendeeDetailPage({ params }: Props) {
             </div>
             <div className="font-mono text-[12.5px] mt-2" style={{ color: '#6B7A72' }}>{reg.attendee_email}</div>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 shrink-0 flex-wrap">
             <Link href={`/events/${id}/check-in`}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-medium transition-all hover:opacity-90"
               style={{ background: '#1F4D3A', color: 'white' }}>
               <Scan size={14} /> Check in
             </Link>
+            <RegistrationDetailActions
+              regId={regId}
+              eventId={id}
+              currentStatus={reg.status}
+              attendeeName={reg.attendee_name}
+              attendeeEmail={reg.attendee_email}
+              attendeePhone={reg.attendee_phone}
+            />
           </div>
         </div>
 

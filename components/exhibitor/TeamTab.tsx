@@ -48,7 +48,18 @@ export function TeamTab({ members: initial, token }: Props) {
   const [showInvite, setShowInvite] = useState(false);
   const [email, setEmail]           = useState('');
   const [role, setRole]             = useState('');
+  const [removingId, setRemovingId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  function handleRemove(id: string) {
+    if (!confirm('Remove this team member?')) return;
+    setRemovingId(id);
+    startTransition(async () => {
+      await fetch(`/api/exhibitor/team?id=${id}&token=${token}`, { method: 'DELETE' });
+      setMembers(prev => prev.filter(m => m.id !== id));
+      setRemovingId(null);
+    });
+  }
 
   function handleInvite() {
     if (!email) return;
@@ -122,7 +133,7 @@ export function TeamTab({ members: initial, token }: Props) {
             const displayName = m.profiles?.full_name ?? m.invited_email;
             const displayRole = m.role ?? '—';
             return (
-              <div key={m.id} className="flex items-center gap-3.5 px-5 py-3.5">
+              <div key={m.id} className="group flex items-center gap-3.5 px-5 py-3.5">
                 <Avatar name={displayName} idx={i} />
                 <div className="min-w-0 flex-1">
                   <div className="text-[13.5px] font-medium truncate" style={{ color: '#0F1F18' }}>{displayName}</div>
@@ -135,6 +146,17 @@ export function TeamTab({ members: initial, token }: Props) {
                     You
                   </span>
                 )}
+                <button
+                  onClick={() => handleRemove(m.id)}
+                  disabled={removingId === m.id}
+                  className="w-8 h-8 grid place-items-center rounded-lg transition-colors shrink-0 opacity-0 group-hover:opacity-100"
+                  style={{ color: '#B8423C' }}
+                  title="Remove member"
+                >
+                  <svg width={14} height={14} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
             );
           })}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Trash2, Copy, Check } from 'lucide-react';
+import { Plus, Trash2, Copy, Check, Pencil, X } from 'lucide-react';
 
 interface PromoCode {
   id: string;
@@ -45,6 +45,7 @@ function CopyCode({ code }: { code: string }) {
 export function PromoCodesManager({ eventId, initialCodes }: Props) {
   const [codes, setCodes] = useState(initialCodes);
   const [showForm, setShowForm] = useState(false);
+  const [editingCode, setEditingCode] = useState<PromoCode | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [error, setError] = useState('');
@@ -58,10 +59,55 @@ export function PromoCodesManager({ eventId, initialCodes }: Props) {
     valid_until: '',
   });
 
+  const [editForm, setEditForm] = useState({
+    discount_type: 'percent' as 'percent' | 'fixed',
+    discount_value: '',
+    max_uses: '',
+    valid_from: '',
+    valid_until: '',
+  });
+
   const resetForm = () => {
     setForm({ code: '', discount_type: 'percent', discount_value: '', max_uses: '', valid_from: '', valid_until: '' });
     setError('');
     setShowForm(false);
+  };
+
+  function openEdit(c: PromoCode) {
+    setEditingCode(c);
+    setEditForm({
+      discount_type:  c.discount_type,
+      discount_value: String(c.discount_value),
+      max_uses:       c.max_uses != null ? String(c.max_uses) : '',
+      valid_from:     c.valid_from ? c.valid_from.slice(0, 16) : '',
+      valid_until:    c.valid_until ? c.valid_until.slice(0, 16) : '',
+    });
+    setError('');
+  }
+
+  const handleEdit = async () => {
+    if (!editForm.discount_value || !editingCode) { setError('Discount value is required'); return; }
+    setSaving(true); setError('');
+    try {
+      const res = await fetch(`/api/events/${eventId}/promo`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          codeId:         editingCode.id,
+          discount_type:  editForm.discount_type,
+          discount_value: parseFloat(editForm.discount_value),
+          max_uses:       editForm.max_uses ? parseInt(editForm.max_uses) : null,
+          valid_from:     editForm.valid_from || null,
+          valid_until:    editForm.valid_until || null,
+        }),
+      });
+      const data = await res.json() as { promo_code?: PromoCode; error?: string };
+      if (!res.ok) { setError(data.error ?? 'Failed to save'); return; }
+      if (data.promo_code) setCodes(c => c.map(x => x.id === data.promo_code!.id ? data.promo_code! : x));
+      setEditingCode(null);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleCreate = async () => {
@@ -109,6 +155,69 @@ export function PromoCodesManager({ eventId, initialCodes }: Props) {
 
   return (
     <div>
+      {/* ── Edit modal ── */}
+      {editingCode && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setEditingCode(null)} />
+          <div className="relative bg-white rounded-2xl w-full max-w-[460px]" style={{ border: '1px solid #E5E0D4', boxShadow: '0 8px 40px rgba(15,31,24,0.18)' }}>
+            <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: '1px solid #E5E0D4' }}>
+              <div>
+                <div className="font-display text-[16px] font-semibold" style={{ color: '#0F1F18' }}>Edit promo code</div>
+                <div className="font-mono text-[13px] mt-0.5" style={{ color: '#1F4D3A' }}>{editingCode.code}</div>
+              </div>
+              <button onClick={() => setEditingCode(null)} className="w-7 h-7 rounded-lg grid place-items-center hover:bg-[#F5F3EE]" style={{ color: '#6B7A72' }}>
+                <X size={14} strokeWidth={2} />
+              </button>
+            </div>
+            <div className="px-6 py-5 grid grid-cols-2 gap-4">
+              {error && <p className="col-span-2 text-[13px] px-3 py-2 rounded-lg" style={{ background: '#FEF2F2', color: '#B8423C' }}>{error}</p>}
+              <div>
+                <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>Discount type</label>
+                <select className={INPUT} style={INPUT_STYLE} value={editForm.discount_type}
+                  onChange={e => setEditForm(f => ({ ...f, discount_type: e.target.value as 'percent' | 'fixed' }))}>
+                  <option value="percent">Percentage (%)</option>
+                  <option value="fixed">Fixed amount</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>
+                  {editForm.discount_type === 'percent' ? 'Discount (%)' : 'Discount amount'} *
+                </label>
+                <input type="number" min="0" className={INPUT} style={INPUT_STYLE}
+                  value={editForm.discount_value}
+                  onChange={e => setEditForm(f => ({ ...f, discount_value: e.target.value }))} />
+              </div>
+              <div>
+                <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>Max uses (blank = unlimited)</label>
+                <input type="number" min="1" className={INPUT} style={INPUT_STYLE}
+                  value={editForm.max_uses} placeholder="Unlimited"
+                  onChange={e => setEditForm(f => ({ ...f, max_uses: e.target.value }))} />
+              </div>
+              <div>
+                <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>Valid from</label>
+                <input type="datetime-local" className={INPUT} style={INPUT_STYLE}
+                  value={editForm.valid_from}
+                  onChange={e => setEditForm(f => ({ ...f, valid_from: e.target.value }))} />
+              </div>
+              <div>
+                <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>Valid until</label>
+                <input type="datetime-local" className={INPUT} style={INPUT_STYLE}
+                  value={editForm.valid_until}
+                  onChange={e => setEditForm(f => ({ ...f, valid_until: e.target.value }))} />
+              </div>
+            </div>
+            <div className="px-6 pb-6 flex gap-3">
+              <button onClick={() => setEditingCode(null)} className="flex-1 h-10 rounded-xl text-[13px] border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
+              <button onClick={handleEdit} disabled={saving}
+                className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white disabled:opacity-60"
+                style={{ background: '#1F4D3A' }}>
+                {saving ? 'Saving…' : 'Save changes'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Create button */}
       {!showForm && (
         <button
@@ -277,15 +386,25 @@ export function PromoCodesManager({ eventId, initialCodes }: Props) {
                 </div>
               </div>
 
-              <button
-                onClick={() => handleDelete(c.id)}
-                disabled={deleting === c.id}
-                className="p-2 rounded-lg transition-colors hover:opacity-80"
-                style={{ color: '#B8423C', opacity: deleting === c.id ? 0.4 : undefined }}
-                title="Delete code"
-              >
-                <Trash2 size={15} />
-              </button>
+              <div className="flex items-center gap-1 shrink-0">
+                <button
+                  onClick={() => openEdit(c)}
+                  className="p-2 rounded-lg transition-colors hover:bg-[#F5F3EE]"
+                  style={{ color: '#6B7A72' }}
+                  title="Edit code"
+                >
+                  <Pencil size={14} />
+                </button>
+                <button
+                  onClick={() => handleDelete(c.id)}
+                  disabled={deleting === c.id}
+                  className="p-2 rounded-lg transition-colors hover:opacity-80"
+                  style={{ color: '#B8423C', opacity: deleting === c.id ? 0.4 : undefined }}
+                  title="Delete code"
+                >
+                  <Trash2 size={15} />
+                </button>
+              </div>
             </div>
           ))}
         </div>

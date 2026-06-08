@@ -121,7 +121,7 @@ export function ResourcesTab({ resources: initial, token }: Props) {
       ) : (
         <div className="divide-y" style={{ borderColor: 'rgba(229,224,212,0.6)' }}>
           {resources.map(r => (
-            <div key={r.id} className="flex items-center gap-3.5 px-5 py-3.5">
+            <div key={r.id} className="group flex items-center gap-3.5 px-5 py-3.5">
               <span className="w-9 h-9 rounded-lg grid place-items-center shrink-0" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
                 <ExternalIcon size={15} />
               </span>

@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { Search, Download, CheckCircle2, Clock, XCircle, RotateCcw, ExternalLink, UserPlus, X } from 'lucide-react';
+import { Search, Download, CheckCircle2, Clock, XCircle, RotateCcw, ExternalLink, UserPlus, X, MoreHorizontal } from 'lucide-react';
 
 type Status = 'pending' | 'confirmed' | 'checked_in' | 'cancelled' | 'refunded';
 type PaymentStatus = 'free' | 'pending' | 'paid' | 'refunded' | 'failed';
@@ -89,6 +89,102 @@ function exportCSV(rows: Registration[], eventSlug: string) {
   a.download = `${eventSlug}-registrations-${new Date().toISOString().slice(0, 10)}.csv`;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+/* ── Row actions menu ───────────────────────────────────────────────────────── */
+function RowActionsMenu({
+  reg,
+  eventId,
+  onStatusChange,
+  onDeleted,
+}: {
+  reg: Registration;
+  eventId: string;
+  onStatusChange: (id: string, status: Status) => void;
+  onDeleted: (id: string) => void;
+}) {
+  const [open, setOpen]       = useState(false);
+  const [loading, setLoading] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handler(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  async function changeStatus(status: Status) {
+    setOpen(false);
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/events/${eventId}/registrations`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ registrationId: reg.id, status }),
+      });
+      if (res.ok) onStatusChange(reg.id, status);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleDelete() {
+    setOpen(false);
+    if (!confirm(`Delete registration for ${reg.attendee_name}? This cannot be undone.`)) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/events/${eventId}/registrations?regId=${reg.id}`, { method: 'DELETE' });
+      if (res.ok) onDeleted(reg.id);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const canCancel  = ['pending', 'confirmed', 'checked_in'].includes(reg.status);
+  const canConfirm = reg.status === 'cancelled' || reg.status === 'pending';
+  const canRefund  = reg.status === 'confirmed' || reg.status === 'checked_in';
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen(v => !v)}
+        disabled={loading}
+        className="w-7 h-7 rounded-lg grid place-items-center transition-colors hover:bg-[#F0EBE3]"
+        style={{ color: loading ? '#C9C3B1' : '#6B7A72' }}
+        title="Actions"
+      >
+        <MoreHorizontal size={14} />
+      </button>
+      {open && (
+        <div
+          className="absolute right-0 top-full mt-1 w-44 rounded-xl bg-white z-20 py-1"
+          style={{ border: '1px solid #E5E0D4', boxShadow: '0 4px 12px rgba(15,31,24,0.10), 0 1px 3px rgba(15,31,24,0.06)' }}
+        >
+          {canConfirm && (
+            <button onClick={() => changeStatus('confirmed')} className="w-full text-left px-4 py-2 text-[13px] hover:bg-[#F5F3EE] transition-colors" style={{ color: '#1F4D3A' }}>
+              ✓ Mark confirmed
+            </button>
+          )}
+          {canCancel && (
+            <button onClick={() => changeStatus('cancelled')} className="w-full text-left px-4 py-2 text-[13px] hover:bg-[#F5F3EE] transition-colors" style={{ color: '#C97A2D' }}>
+              Cancel registration
+            </button>
+          )}
+          {canRefund && (
+            <button onClick={() => changeStatus('refunded')} className="w-full text-left px-4 py-2 text-[13px] hover:bg-[#F5F3EE] transition-colors" style={{ color: '#3A6B8C' }}>
+              Mark as refunded
+            </button>
+          )}
+          <div style={{ height: 1, background: '#E5E0D4', margin: '4px 0' }} />
+          <button onClick={handleDelete} className="w-full text-left px-4 py-2 text-[13px] hover:bg-[#FEF2F2] transition-colors" style={{ color: '#B8423C' }}>
+            Delete registration
+          </button>
+        </div>
+      )}
+    </div>
+  );
 }
 
 /* ── Add manually modal ─────────────────────────────────────────────────────── */
@@ -245,6 +341,15 @@ function AddManuallyModal({
 export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, totalCount, ticketTypes }: Props) {
   const [rows, setRows]               = useState(initialRegistrations);
   const [total, setTotal]             = useState(totalCount);
+
+  function handleStatusChange(id: string, status: Status) {
+    setRows(r => r.map(row => row.id === id ? { ...row, status } : row));
+  }
+
+  function handleDeleted(id: string) {
+    setRows(r => r.filter(row => row.id !== id));
+    setTotal(t => t - 1);
+  }
   const [query, setQuery]             = useState('');
   const [statusFilter, setStatusFilter] = useState<Status | 'all'>('all');
   const [loading, setLoading]         = useState(false);
@@ -412,7 +517,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
             <table className="w-full text-left">
               <thead>
                 <tr style={{ background: '#FAF6EE', borderBottom: '1px solid #E5E0D4' }}>
-                  {['Name', 'Ticket', 'Amount', 'Status', 'Card', 'Registered', 'Checked in'].map(h => (
+                  {['Name', 'Ticket', 'Amount', 'Status', 'Card', 'Registered', 'Checked in', ''].map(h => (
                     <th key={h} className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider whitespace-nowrap" style={{ color: '#6B7A72' }}>
                       {h}
                     </th>
@@ -454,6 +559,14 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
                     </td>
                     <td className="px-4 py-3 font-mono text-[12px]" style={{ color: reg.checked_in_at ? '#1F4D3A' : '#C9C3B1' }}>
                       {reg.checked_in_at ? new Date(reg.checked_in_at).toLocaleTimeString() : '—'}
+                    </td>
+                    <td className="px-4 py-3">
+                      <RowActionsMenu
+                        reg={reg}
+                        eventId={eventId}
+                        onStatusChange={handleStatusChange}
+                        onDeleted={handleDeleted}
+                      />
                     </td>
                   </tr>
                 ))}

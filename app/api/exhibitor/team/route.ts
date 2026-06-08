@@ -30,3 +30,25 @@ export async function POST(req: Request) {
 
   return NextResponse.json({ member });
 }
+
+export async function DELETE(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const memberId = searchParams.get('id');
+  const token    = searchParams.get('token');
+
+  if (!memberId || !token) {
+    return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const admin = createAdminClient() as any;
+
+  // Verify the token belongs to the sponsor that owns this member
+  const { data: sponsor } = await admin.from('sponsors').select('id').eq('invite_token', token).single();
+  if (!sponsor) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+  const { error } = await admin.from('sponsor_members').delete().eq('id', memberId).eq('sponsor_id', sponsor.id);
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  return NextResponse.json({ ok: true });
+}

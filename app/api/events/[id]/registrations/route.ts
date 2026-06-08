@@ -109,13 +109,31 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { registrationId, karta_card_url, karta_card_zone_data } = await req.json();
+  const admin = createAdminClient();
+  // Verify event ownership
+  const { data: event } = await admin.from('events').select('id').eq('id', params.id).eq('user_id', user.id).single();
+  if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+  const body = await req.json();
+  const { registrationId, karta_card_url, karta_card_zone_data, status, attendee_name, attendee_email, attendee_phone } = body;
   if (!registrationId) return NextResponse.json({ error: 'registrationId required' }, { status: 400 });
 
-  const admin = createAdminClient();
+  const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
+  if (karta_card_url !== undefined) patch.karta_card_url = karta_card_url;
+  if (karta_card_zone_data !== undefined) patch.karta_card_zone_data = karta_card_zone_data;
+  if (status !== undefined) {
+    const VALID_STATUSES = ['pending', 'confirmed', 'checked_in', 'cancelled', 'refunded'];
+    if (!VALID_STATUSES.includes(status)) return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
+    patch.status = status;
+  }
+  if (attendee_name !== undefined) patch.attendee_name = attendee_name;
+  if (attendee_email !== undefined) patch.attendee_email = attendee_email.toLowerCase();
+  if (attendee_phone !== undefined) patch.attendee_phone = attendee_phone || null;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await admin
     .from('registrations')
-    .update({ karta_card_url, karta_card_zone_data, updated_at: new Date().toISOString() })
+    .update(patch as any)
     .eq('id', registrationId)
     .eq('event_id', params.id)
     .select()
@@ -123,4 +141,22 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ registration: data });
+}
+
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const admin = createAdminClient();
+  const { data: event } = await admin.from('events').select('id').eq('id', params.id).eq('user_id', user.id).single();
+  if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+  const { searchParams } = new URL(req.url);
+  const regId = searchParams.get('regId');
+  if (!regId) return NextResponse.json({ error: 'regId required' }, { status: 400 });
+
+  const { error } = await admin.from('registrations').delete().eq('id', regId).eq('event_id', params.id);
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ ok: true });
 }

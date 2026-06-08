@@ -195,6 +195,17 @@ export default function SettingsClient({ profile, userId }: Props) {
     : profile?.role === 'admin' ? 'Admin'
     : 'Owner';
 
+  async function handleRemoveAvatar() {
+    setAvatarUploading(true);
+    await fetch('/api/profile', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ avatar_url: null }),
+    });
+    setAvatarUrl(null);
+    setAvatarUploading(false);
+  }
+
   async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -304,15 +315,28 @@ export default function SettingsClient({ profile, userId }: Props) {
                 </div>
               )}
             </div>
-            <button
-              type="button"
-              onClick={() => avatarInputRef.current?.click()}
-              disabled={avatarUploading}
-              className="inline-flex items-center gap-2 h-8 px-4 rounded-lg border text-[13px] transition disabled:opacity-50"
-              style={{ borderColor: '#E5E0D4', color: '#3A4A42', background: 'white' }}
-            >
-              Change photo
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => avatarInputRef.current?.click()}
+                disabled={avatarUploading}
+                className="inline-flex items-center gap-2 h-8 px-4 rounded-lg border text-[13px] transition disabled:opacity-50"
+                style={{ borderColor: '#E5E0D4', color: '#3A4A42', background: 'white' }}
+              >
+                {avatarUrl ? 'Change photo' : 'Upload photo'}
+              </button>
+              {avatarUrl && (
+                <button
+                  type="button"
+                  onClick={handleRemoveAvatar}
+                  disabled={avatarUploading}
+                  className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border text-[13px] transition disabled:opacity-50"
+                  style={{ borderColor: 'rgba(184,66,60,0.3)', color: '#B8423C', background: 'transparent' }}
+                >
+                  Remove
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-x-4 gap-y-4">
