@@ -65,10 +65,10 @@ ALTER TABLE promo_codes
   ADD CONSTRAINT chk_promo_max_uses_positive
     CHECK (max_uses IS NULL OR max_uses >= 1);
 
--- times_used must never be negative
+-- uses_count must never be negative
 ALTER TABLE promo_codes
-  ADD CONSTRAINT chk_promo_times_used_non_negative
-    CHECK (times_used IS NULL OR times_used >= 0);
+  ADD CONSTRAINT chk_promo_uses_count_non_negative
+    CHECK (uses_count >= 0);
 
 -- valid_until must be after valid_from when both are set
 ALTER TABLE promo_codes
