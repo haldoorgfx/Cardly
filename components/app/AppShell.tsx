@@ -918,61 +918,57 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           )}
 
-          <header className="h-14 bg-white px-4 md:px-6 flex items-center gap-3 shrink-0 sticky top-0 z-40 border-b"
+          <header className="h-14 bg-white px-4 md:px-6 grid grid-cols-[1fr_auto_1fr] items-center gap-3 shrink-0 sticky top-0 z-40 border-b"
             style={{ borderColor: '#E5E0D4' }}>
-            {/* Mobile hamburger */}
-            <button className="md:hidden h-8 w-8 rounded-lg hover:bg-[#F5F3EE] grid place-items-center shrink-0 transition"
-              style={{ color: '#6B7A72' }}
-              onClick={() => setMobileNavOpen(true)} aria-label="Open menu">
-              <Menu size={16} strokeWidth={2} />
+
+            {/* Left: hamburger + breadcrumb */}
+            <div className="flex items-center gap-2 min-w-0">
+              <button className="md:hidden h-8 w-8 rounded-lg hover:bg-[#F5F3EE] grid place-items-center shrink-0 transition"
+                style={{ color: '#6B7A72' }}
+                onClick={() => setMobileNavOpen(true)} aria-label="Open menu">
+                <Menu size={16} strokeWidth={2} />
+              </button>
+              {(() => {
+                const crumbs = getPageBreadcrumbs(pathname, contextEventName);
+                return (
+                  <nav className="hidden sm:flex items-center gap-1.5 min-w-0 text-[13px]" aria-label="Breadcrumb">
+                    <Link href="/" className="font-display font-bold tracking-tight shrink-0 hover:opacity-70 transition-opacity"
+                      style={{ color: '#0F1F18' }}>
+                      Karta
+                    </Link>
+                    {crumbs.map((crumb, i) => (
+                      <span key={i} className="flex items-center gap-1.5 min-w-0">
+                        <span style={{ color: '#C9C3B1' }}>/</span>
+                        {crumb.href ? (
+                          <Link href={crumb.href} className="truncate hover:text-[#1F4D3A] transition-colors"
+                            style={{ color: '#6B7A72' }}>
+                            {crumb.label}
+                          </Link>
+                        ) : (
+                          <span className="truncate font-medium" style={{ color: '#0F1F18' }}>
+                            {crumb.label}
+                          </span>
+                        )}
+                      </span>
+                    ))}
+                  </nav>
+                );
+              })()}
+            </div>
+
+            {/* Center: search bar */}
+            <button onClick={() => setCmdOpen(true)}
+              className="flex h-9 w-full max-w-[420px] items-center gap-2.5 px-3.5 rounded-xl transition hover:shadow-[0_0_0_2px_#1F4D3A20]"
+              style={{ color: '#6B7A72', border: '1px solid #E5E0D4', background: '#FAF6EE', minWidth: '180px' }}
+              aria-label="Search (⌘K)">
+              <Search size={14} strokeWidth={2} className="shrink-0" style={{ color: '#9BA8A1' }} />
+              <span className="flex-1 text-left text-[13px]" style={{ color: '#9BA8A1' }}>Search…</span>
+              <kbd className="hidden sm:flex items-center gap-0.5 text-[10px] font-mono px-1.5 py-0.5 rounded-md shrink-0"
+                style={{ background: '#F0EDE8', color: '#9BA8A1', border: '1px solid #E5E0D4' }}>⌘K</kbd>
             </button>
 
-            {/* Breadcrumb */}
-            {(() => {
-              const crumbs = getPageBreadcrumbs(pathname, contextEventName);
-              return (
-                <nav className="flex items-center gap-1.5 flex-1 min-w-0 text-[13px]" aria-label="Breadcrumb">
-                  <Link href="/" className="font-display font-bold tracking-tight shrink-0 hover:opacity-70 transition-opacity"
-                    style={{ color: '#0F1F18' }}>
-                    Karta
-                  </Link>
-                  {crumbs.map((crumb, i) => (
-                    <span key={i} className="flex items-center gap-1.5 min-w-0">
-                      <span style={{ color: '#C9C3B1' }}>/</span>
-                      {crumb.href ? (
-                        <Link href={crumb.href} className="truncate hover:text-[#1F4D3A] transition-colors"
-                          style={{ color: '#6B7A72' }}>
-                          {crumb.label}
-                        </Link>
-                      ) : (
-                        <span className="truncate font-medium" style={{ color: '#0F1F18' }}>
-                          {crumb.label}
-                        </span>
-                      )}
-                    </span>
-                  ))}
-                </nav>
-              );
-            })()}
-
-
-            {/* Right side: search + bell + avatar */}
-            <div className="flex items-center gap-1.5 shrink-0 ml-auto">
-              <button onClick={() => setCmdOpen(true)}
-                className="hidden sm:flex h-8 items-center gap-2 px-3 rounded-lg transition hover:bg-[#F5F3EE]"
-                style={{ color: '#6B7A72', border: '1px solid #E5E0D4', background: 'white' }}
-                aria-label="Search (⌘K)">
-                <Search size={13} strokeWidth={2} />
-                <span className="text-[12px]">Search</span>
-                <kbd className="text-[10px] font-mono opacity-50">⌘K</kbd>
-              </button>
-              {/* Mobile icon-only */}
-              <button onClick={() => setCmdOpen(true)}
-                className="sm:hidden h-8 w-8 rounded-lg grid place-items-center transition hover:bg-[#F5F3EE]"
-                style={{ color: '#6B7A72' }}
-                aria-label="Search (⌘K)">
-                <Search size={15} strokeWidth={2} />
-              </button>
+            {/* Right: bell + avatar */}
+            <div className="flex items-center gap-1.5 justify-end">
 
               {/* Bell + Notifications panel */}
               <div className="relative">
