@@ -4,6 +4,7 @@ import { useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { fetchWithRetry } from '@/lib/utils/fetch-retry';
+import { track } from '@/components/shared/PostHogProvider';
 import {
   ArrowLeft, ArrowRight, CalendarDays, MapPin, Wifi,
   Image as ImageIcon, Plus,
@@ -57,6 +58,7 @@ export default function NewEventPage() {
       if (res.status === 402) throw new Error('Event limit reached on your plan. Upgrade to create more events.');
       if (!res.ok) throw new Error(data.error ?? 'Failed to create event');
 
+      track('event_created', { event_id: data.id });
       router.push(`/events/${data.id}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong');

@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef, useCallback, createContext, useContext } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { identify } from '@/components/shared/PostHogProvider';
 import { createClient } from '@/lib/supabase/client';
 import { PLANS } from '@/lib/billing/plans';
 import {
@@ -758,12 +759,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) { router.push('/login'); return; }
+      const userId = data.user.id;
       Promise.all([
-        supabase.from('profiles').select('full_name, email, plan, role').eq('id', data.user.id).single(),
-        supabase.from('events').select('id', { count: 'exact', head: true }).eq('user_id', data.user.id).neq('status', 'archived'),
+        supabase.from('profiles').select('full_name, email, plan, role').eq('id', userId).single(),
+        supabase.from('events').select('id', { count: 'exact', head: true }).eq('user_id', userId).neq('status', 'archived'),
         supabase.from('site_settings').select('logo_light_url').eq('id', 1).single(),
       ]).then(([{ data: p }, { count }, { data: s }]) => {
-        if (p) { setProfile(p); writeProfileCache(p); }
+        if (p) {
+          setProfile(p);
+          writeProfileCache(p);
+          // Tell PostHog who this user is — connects all events to this person
+          identify(userId, { email: p.email, plan: p.plan, role: p.role, name: p.full_name });
+        }
         setEventCount(count ?? 0);
         setLogoUrl((s as { logo_light_url?: string | null } | null)?.logo_light_url ?? null);
       });

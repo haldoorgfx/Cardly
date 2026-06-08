@@ -7,6 +7,31 @@ const nextConfig = {
       '/api/render': ['./public/fonts/**/*'],
     },
   },
+
+  // ── Security headers ──────────────────────────────────────────────────────
+  // Applied to every response. Blocks clickjacking, MIME sniffing, XSS, etc.
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          // Block this page being embedded in an iframe on another domain
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          // Prevent browsers guessing MIME types (enables XSS via crafted files)
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          // Enable browser's built-in XSS filter
+          { key: 'X-XSS-Protection', value: '1; mode=block' },
+          // Don't send full URL as referrer to third-party sites
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          // Lock down browser features we don't use
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), payment=()' },
+          // Force HTTPS for 2 years (only applies once on HTTPS — safe on Vercel)
+          { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
+        ],
+      },
+    ];
+  },
+
   images: {
     remotePatterns: [
       // Supabase storage (event backgrounds, speaker photos, etc.)

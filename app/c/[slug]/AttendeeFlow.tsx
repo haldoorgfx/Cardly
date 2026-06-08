@@ -197,6 +197,10 @@ export default function AttendeeFlow({
     a.href     = resultUrl;
     a.download = `${eventName.toLowerCase().replace(/\s+/g, '-')}-card.png`;
     a.click();
+    // Track the core value moment — card downloaded
+    import('@/components/shared/PostHogProvider').then(({ track }) => {
+      track('card_downloaded', { event_name: eventName });
+    });
     setTimeout(() => setScreen('success'), 400);
   }, [resultUrl, eventName]);
 

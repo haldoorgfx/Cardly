@@ -3,6 +3,9 @@ import "./globals.css";
 import { ThemeProvider } from "@/lib/theme/ThemeProvider";
 import { CookieConsent } from "@/components/shared/CookieConsent";
 import { Analytics } from "@vercel/analytics/next";
+import { PostHogProvider } from "@/components/shared/PostHogProvider";
+import { CrispChat } from "@/components/shared/CrispChat";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://karta.cre8so.com"),
@@ -95,9 +98,14 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
-        <ThemeProvider>{children}</ThemeProvider>
-        <CookieConsent />
-        <Analytics />
+        <Suspense>
+          <PostHogProvider>
+            <ThemeProvider>{children}</ThemeProvider>
+            <CookieConsent />
+            <CrispChat />
+            <Analytics />
+          </PostHogProvider>
+        </Suspense>
       </body>
     </html>
   );
