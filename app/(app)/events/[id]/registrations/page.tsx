@@ -5,7 +5,6 @@ export const metadata: Metadata = { title: 'Registrations' };
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { RegistrationTabs } from '@/components/events/RegistrationTabs';
 import { RegistrationsTable } from '@/components/events/RegistrationsTable';
 
 interface Props { params: Promise<{ id: string }> }
@@ -42,8 +41,6 @@ export default async function RegistrationsPage({ params }: Props) {
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <RegistrationTabs eventId={id} eventName={event.name} />
-
       <div className="px-6 lg:px-8 py-8">
         <div className="mb-6">
           <h1 className="font-display font-semibold text-[24px]" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
