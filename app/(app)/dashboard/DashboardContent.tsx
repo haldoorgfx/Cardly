@@ -107,8 +107,8 @@ export default function DashboardContent({ events, atLimit, regsByEvent }: Props
               const revenue    = regs?.revenue   ?? 0;
               const checkedIn  = regs?.checkedIn ?? 0;
               const checkinPct = regCount > 0 ? Math.round((checkedIn / regCount) * 100) : 0;
-              const currencies = regs?.currencies;
-              const currency   = currencies && currencies.size === 1 ? Array.from(currencies)[0] : null;
+              // Platform currency is USD — always display in USD
+              const currency   = revenue > 0 ? 'USD' : null;
               return (
                 <EventCard
                   key={event.id}

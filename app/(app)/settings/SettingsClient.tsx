@@ -41,7 +41,7 @@ export default function SettingsClient({ profile, userId }: Props) {
   const [organization, setOrganization] = useState('');
   const [timezone, setTimezone] = useState('WAT · Lagos (GMT+1)');
   const [language, setLanguage] = useState('English');
-  const [currency, setCurrency] = useState('NGN · ₦ Naira');
+  const [currency, setCurrency] = useState('USD · $ Dollar');
   const [dateFormat, setDateFormat] = useState('DD MMM YYYY');
 
   const [notifyRegistrations, setNotifyRegistrations] = useState(true);

@@ -6,8 +6,6 @@ import type { Database } from '@/types/database';
 
 type TicketRow = Database['public']['Tables']['ticket_types']['Row'];
 
-const CURRENCIES = ['USD', 'EUR', 'GBP', 'NGN', 'KES', 'GHS', 'ZAR', 'UGX', 'TZS'];
-
 interface FormState {
   name: string;
   description: string;
@@ -296,10 +294,16 @@ export function TicketTypesManager({ eventId, initialTickets }: Props) {
               </div>
             </FField>
 
-            {/* Price + Currency */}
+            {/* Price (always USD) */}
             {!form.isFree && (
-              <div className="grid grid-cols-2 gap-3">
-                <FField label="Price *">
+              <FField label="Price (USD) *">
+                <div className="flex items-center gap-2">
+                  <div
+                    className="flex items-center justify-center h-10 px-3 rounded-lg text-[13px] font-medium shrink-0"
+                    style={{ background: '#E8EFEB', color: '#1F4D3A', border: '1px solid #D4E2D8' }}
+                  >
+                    $
+                  </div>
                   <input
                     type="number"
                     value={form.price}
@@ -307,23 +311,13 @@ export function TicketTypesManager({ eventId, initialTickets }: Props) {
                     placeholder="25.00"
                     min={0.01}
                     step={0.01}
-                    className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
+                    className="flex-1 h-10 px-3 rounded-lg text-[14px] outline-none transition"
                     style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18' }}
                     onFocus={e => (e.target.style.borderColor = '#E8C57E')}
                     onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
                   />
-                </FField>
-                <FField label="Currency">
-                  <select
-                    value={form.currency}
-                    onChange={e => setF('currency', e.target.value)}
-                    className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
-                    style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18' }}
-                  >
-                    {CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
-                  </select>
-                </FField>
-              </div>
+                </div>
+              </FField>
             )}
 
             {/* Quantity */}

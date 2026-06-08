@@ -969,7 +969,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                         {[
                           { icon: 'users',  text: '12 new registrations for Africa Tech Festival', time: '2m',  unread: true },
                           { icon: 'card',   text: 'Aisha Ahmed shared their Karta Card',            time: '18m', unread: true },
-                          { icon: 'dollar', text: '₦240,000 in ticket sales today',                 time: '1h',  unread: true },
+                          { icon: 'dollar', text: '$240,000 in ticket sales today',                  time: '1h',  unread: true },
                         ].map((n, i) => (
                           <NotifItem key={i} {...n} />
                         ))}

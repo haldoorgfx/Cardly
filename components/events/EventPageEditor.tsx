@@ -535,7 +535,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
             <div className="space-y-2">
               {[
                 { value: 'stripe',      label: 'Stripe',      desc: 'Credit/debit cards worldwide. Recommended for international events.' },
-                { value: 'flutterwave', label: 'Flutterwave', desc: 'NGN, KES, GHS, ZAR and more African currencies. Hosted redirect checkout.' },
+                { value: 'flutterwave', label: 'Flutterwave', desc: 'Accepts local African currencies (KES, GHS, ZAR, etc.). Ticket prices in USD, charged in local currency.' },
                 { value: 'waafipay',    label: 'WaafiPay',    desc: 'EVC Plus, eDahab, Somtel and Djibouti mobile money. Best for Somalia & Djibouti.' },
                 { value: 'free',        label: 'Free only',   desc: 'No payment collection — all tickets must be free.' },
               ].map(opt => (

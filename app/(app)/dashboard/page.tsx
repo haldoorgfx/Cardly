@@ -109,8 +109,8 @@ export default async function DashboardPage() {
       }
     }
   }
-  // If all revenue is in a single currency we can display it; otherwise show —
-  const totalCurrency = allCurrencies.size === 1 ? Array.from(allCurrencies)[0] : null;
+  // Platform currency is USD — always display revenue totals in USD
+  const totalCurrency = totalRevenue > 0 ? 'USD' : null;
 
   const checkInRate = totalRegistrations > 0 ? Math.round((totalCheckedIn / totalRegistrations) * 100) : 0;
   const firstLiveEvent = allEvents.find(e => e.status === 'published');
