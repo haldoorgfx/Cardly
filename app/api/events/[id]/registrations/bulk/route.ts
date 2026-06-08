@@ -51,7 +51,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const existingEmails = new Set((existing ?? []).map(r => r.attendee_email.toLowerCase()));
 
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const toInsert: Record<string, unknown>[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const toInsert: any[] = [];
   const skipped: string[] = [];
   const invalid: string[] = [];
 
