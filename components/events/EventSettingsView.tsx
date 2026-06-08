@@ -181,7 +181,7 @@ export function EventSettingsView({ event }: Props) {
                   onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
                 />
               </Field>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Field label="Starts">
                   <input
                     type="datetime-local"

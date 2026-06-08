@@ -87,7 +87,7 @@ export default function BrandKitPage() {
       </div>
 
       {/* Two-column layout */}
-      <div className="grid grid-cols-[minmax(0,1fr)_300px] xl:grid-cols-[minmax(0,1fr)_340px] gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_300px] xl:grid-cols-[minmax(0,1fr)_340px] gap-5">
 
         {/* Left column */}
         <div className="space-y-5">
@@ -95,7 +95,7 @@ export default function BrandKitPage() {
           {/* Logo */}
           <section className="bg-white rounded-2xl border border-border p-6 shadow-soft">
             <h2 className="font-semibold text-[15px] text-[#0F1F18] mb-5">Logo</h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Primary logo — light bg */}
               <div>
                 <input

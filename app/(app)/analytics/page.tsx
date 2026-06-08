@@ -176,7 +176,7 @@ export default async function AnalyticsPage() {
       <div className="max-w-[1200px] mx-auto px-6 lg:px-8 py-8">
 
         {/* ── Page header ────────────────────────────────────────────────────── */}
-        <div className="flex items-start justify-between mb-7 gap-4">
+        <div className="flex items-start justify-between mb-7 gap-4 flex-wrap">
           <div>
             <h1 className="font-display text-[28px] font-semibold tracking-[-0.02em]"
               style={{ color: '#1F4D3A' }}>
@@ -213,7 +213,7 @@ export default async function AnalyticsPage() {
         </div>
 
         {/* ── 4 stat cards ───────────────────────────────────────────────────── */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <StatCard label="Total Events" icon="calendar">
             <div className="font-display text-[36px] font-semibold tracking-tight leading-none"
               style={{ color: '#0F1F18' }}>

@@ -8,7 +8,7 @@ export default function CheckInLoading() {
         <div className="h-4 rounded w-64 mb-8" style={{ background: '#F0EBE3' }} />
 
         {/* Stats row */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="rounded-2xl p-5" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
               <div className="h-8 rounded w-16 mb-2" style={{ background: '#E5E0D4' }} />

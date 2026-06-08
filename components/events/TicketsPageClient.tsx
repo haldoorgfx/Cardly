@@ -222,7 +222,7 @@ function AddPromoModal({ onClose, eventId }: { onClose: () => void; eventId: str
               placeholder="EARLY20" className="w-full h-10 px-3 rounded-lg text-[14px] font-mono outline-none"
               style={{ border: '1.5px solid #E5E0D4', background: 'white', color: '#0F1F18' }} />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-[11px] font-mono uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Type</label>
               <select value={type} onChange={e => setType(e.target.value as 'percent' | 'fixed')}
@@ -354,7 +354,7 @@ function CreateTicketModal({ onClose, eventId, defaultCurrency }: { onClose: () 
               style={{ border: '1.5px solid #E5E0D4', background: 'white', color: '#0F1F18' }} autoFocus />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-[10.5px] font-mono uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Price ({defaultCurrency})</label>
               <input value={price} onChange={e => setPrice(e.target.value)}
@@ -371,7 +371,7 @@ function CreateTicketModal({ onClose, eventId, defaultCurrency }: { onClose: () 
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-[10.5px] font-mono uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Sales Start</label>
               <input type="date" value={salesStart} onChange={e => setSalesStart(e.target.value)}
@@ -479,7 +479,7 @@ export function TicketsPageClient({
         </div>
 
         {/* ── Stat cards ─────────────────────────────────────────────────── */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-7">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-7">
           {statCards.map(s => (
             <StatCard key={s.label} label={s.label} value={s.value} trend={s.trend ?? undefined}
               icon={s.icon} gold={s.gold} />

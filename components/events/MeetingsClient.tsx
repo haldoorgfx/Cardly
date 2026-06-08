@@ -48,7 +48,7 @@ export function MeetingsClient({ eventName }: Props) {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {[
           { label: 'Meetings booked', value: '—' },
           { label: 'Acceptance rate', value: '—' },
@@ -176,7 +176,7 @@ export function MeetingsClient({ eventName }: Props) {
                   style={{ transform: meetingOn ? 'translateX(16px)' : 'translateX(0)' }} />
               </button>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[['Meeting length', '30 min'], ['Tables', '5'], ['From', '10:00'], ['Until', '16:00']].map(([label, val]) => (
                 <div key={label}>
                   <div className="font-mono text-[9.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>{label}</div>

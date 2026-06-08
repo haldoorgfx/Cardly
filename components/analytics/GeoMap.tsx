@@ -185,7 +185,7 @@ export default function GeoMap({ cityData, totalCards }: Props) {
       </div>
 
       {/* Legend */}
-      <div className="grid grid-cols-3 gap-3 mt-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
         {legendCities.map(({ city, count }, i) => {
           const pct = hasRealData && totalCards > 0
             ? Math.round((count / totalCards) * 100)

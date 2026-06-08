@@ -262,7 +262,7 @@ export default function QAModerationClient({ eventId, initialQuestions, initialP
         </div>
 
         {/* Stats row */}
-        <div className="grid grid-cols-3 gap-3 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
           {[
             { label: 'Total', value: questions.length },
             { label: 'Pending', value: pendingCount },

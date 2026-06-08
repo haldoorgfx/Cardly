@@ -124,7 +124,7 @@ export default function NewEventPage() {
             </div>
 
             {/* Dates */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-[11px] font-mono font-semibold uppercase tracking-widest mb-2"
                   style={{ color: '#6B7A72' }}>

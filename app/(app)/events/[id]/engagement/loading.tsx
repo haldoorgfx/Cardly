@@ -8,7 +8,7 @@ export default function EngagementLoading() {
         <div className="h-4 rounded w-72 mb-8" style={{ background: '#F0EBE3' }} />
 
         {/* Feature grid */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="rounded-2xl p-6" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
               <div className="w-10 h-10 rounded-xl mb-4" style={{ background: '#E8EFEB' }} />

@@ -381,7 +381,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
       {/* ── Step 3: When & where ─────────────────────────────────────── */}
       {step === 3 && (
         <div className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Start *" error={fe('startsAt')}>
               <input
                 type="datetime-local"

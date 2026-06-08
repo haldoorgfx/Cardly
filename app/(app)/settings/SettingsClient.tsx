@@ -339,7 +339,7 @@ export default function SettingsClient({ profile, userId }: Props) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-x-4 gap-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4">
             <TextField label="Full Name" value={name} onChange={setName} />
             <TextField label="Email" value={profile?.email ?? ''} readOnly />
             <TextField label="Organization" value={organization} onChange={setOrganization} placeholder="Your company or event org" />
@@ -350,7 +350,7 @@ export default function SettingsClient({ profile, userId }: Props) {
         {/* ── Preferences ── */}
         <section className="bg-white rounded-2xl border p-6" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)' }}>
           <h2 className="font-display font-semibold text-[15px] tracking-tight text-[#0F1F18] mb-5">Preferences</h2>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4">
             <SelectField
               label="Timezone"
               value={timezone}

@@ -173,7 +173,7 @@ export function KartaCardView({ eventId, eventName, eventSlug, eventStatus, tota
         <div className="space-y-5">
 
           {/* Stats row */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <StatCard
               label="Cards Generated"
               value={totalCards.toLocaleString()}

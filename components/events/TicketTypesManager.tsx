@@ -386,7 +386,7 @@ export function TicketTypesManager({ eventId, initialTickets }: Props) {
             </FField>
 
             {/* Per-order limits */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <FField label="Min per order">
                 <input
                   type="number"
@@ -434,7 +434,7 @@ export function TicketTypesManager({ eventId, initialTickets }: Props) {
               </button>
 
               {form.hasSalesWindow && (
-                <div className="grid grid-cols-2 gap-3 mt-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
                   <FField label="Sales start">
                     <input
                       type="datetime-local"

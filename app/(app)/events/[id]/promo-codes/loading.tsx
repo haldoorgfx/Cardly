@@ -12,18 +12,20 @@ export default function PromoCodesLoading() {
         <Skel className="h-7 w-36" />
         <Skel className="h-9 w-28 rounded-xl" />
       </div>
-      <div className="bg-white rounded-2xl border border-[#E5E0D4] overflow-hidden">
-        <div className="grid grid-cols-4 gap-4 px-5 py-3.5 bg-[#FAF6EE] border-b border-[#E5E0D4]">
-          {[60, 50, 40, 60].map((w, i) => <Skel key={i} className="h-3" style={{ width: w }} />)}
-        </div>
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="grid grid-cols-4 gap-4 px-5 py-4 border-b border-[#E5E0D4]/60">
-            <Skel className="h-4 w-24" />
-            <Skel className="h-4 w-16" />
-            <Skel className="h-4 w-12" />
-            <Skel className="h-4 w-20" />
+      <div className="bg-white rounded-2xl border border-[#E5E0D4] overflow-hidden overflow-x-auto">
+        <div className="min-w-[480px]">
+          <div className="grid grid-cols-4 gap-4 px-5 py-3.5 bg-[#FAF6EE] border-b border-[#E5E0D4]">
+            {[60, 50, 40, 60].map((w, i) => <Skel key={i} className="h-3" style={{ width: w }} />)}
           </div>
-        ))}
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="grid grid-cols-4 gap-4 px-5 py-4 border-b border-[#E5E0D4]/60">
+              <Skel className="h-4 w-24" />
+              <Skel className="h-4 w-16" />
+              <Skel className="h-4 w-12" />
+              <Skel className="h-4 w-20" />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
