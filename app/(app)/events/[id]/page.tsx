@@ -96,7 +96,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
     { id: 'check-in',       label: 'Check-in',       iconId: 'scan',      desc: 'Scan attendees at the door',                href: `/events/${id}/check-in`,       badge: event.status === 'published' ? `${checkInRate}% checked in` : 'Go live →' },
     { id: 'networking',     label: 'Networking',     iconId: 'network',   desc: 'Attendee connections and matchmaking',      href: `/events/${id}/engagement`,     badge: null, minPlan: 'pro' },
     { id: 'q-and-a',        label: 'Q&A & Polls',    iconId: 'message',   desc: 'Live session engagement',                  href: `/events/${id}/q-and-a`,        badge: null, minPlan: 'pro' },
-    { id: 'gamification',   label: 'Gamification',   iconId: 'trophy',    desc: 'Points, leaderboard and badges',            href: `/events/${id}/polls`,          badge: null, minPlan: 'pro' },
+    { id: 'gamification',   label: 'Gamification',   iconId: 'trophy',    desc: 'Points, leaderboard and badges',            href: `/events/${id}/gamification`,   badge: null, minPlan: 'pro' },
     { id: 'sponsors',       label: 'Sponsors',       iconId: 'briefcase', desc: 'Manage sponsors and exhibitors',            href: `/events/${id}/engagement`,     badge: null, minPlan: 'studio' },
     { id: 'virtual',        label: 'Virtual',        iconId: 'video',     desc: 'Stream sessions online',                   href: `/events/${id}/engagement`,     badge: null, minPlan: 'studio' },
     { id: 'analytics',      label: 'Analytics',      iconId: 'chart',     desc: 'Registration funnel and engagement data',  href: `/events/${id}/analytics`,      badge: 'View →' },

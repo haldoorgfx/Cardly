@@ -12,6 +12,7 @@ import {
   Home, Layout, CalendarDays, MessageSquare, Bell,
   Ticket, ScanLine, User, Network, Trophy, Briefcase, Video, Palette, ExternalLink,
   UserCircle, HelpCircle, Zap, ShoppingCart, Handshake, Clock, IdCard,
+  Tag, Plug, Globe,
 } from 'lucide-react';
 
 type Profile = {
@@ -64,6 +65,8 @@ const EVENT_NAV_SECTIONS = [
       { id: 'event-page',      label: 'Event Page',      icon: <Layout size={15} strokeWidth={1.8} />,         segment: 'event-page' },
       { id: 'tickets',         label: 'Tickets',         icon: <Ticket size={15} strokeWidth={1.8} />,         segment: 'tickets' },
       { id: 'registrations',   label: 'Registrations',   icon: <Users size={15} strokeWidth={1.8} />,          segment: 'registrations' },
+      { id: 'form',            label: 'Reg. Form',       icon: <FileText size={15} strokeWidth={1.8} />,       segment: 'form'        },
+      { id: 'promo-codes',     label: 'Promo Codes',     icon: <Tag size={15} strokeWidth={1.8} />,            segment: 'promo-codes' },
       { id: 'orders',          label: 'Orders',          icon: <ShoppingCart size={15} strokeWidth={1.8} />,   segment: 'orders' },
       { id: 'waitlist',        label: 'Waitlist',        icon: <Clock size={15} strokeWidth={1.8} />,          segment: 'waitlist' },
       { id: 'check-in',        label: 'Check-in',        icon: <ScanLine size={15} strokeWidth={1.8} />,       segment: 'check-in' },
@@ -81,8 +84,8 @@ const EVENT_NAV_SECTIONS = [
   {
     title: 'Engagement',
     items: [
-      { id: 'networking',   label: 'Networking',   icon: <Network size={15} strokeWidth={1.8} />,      segment: 'engagement' },
-      { id: 'q-and-a',      label: 'Q&A & Polls',  icon: <MessageSquare size={15} strokeWidth={1.8} />, segment: 'q-and-a' },
+      { id: 'engagement',   label: 'Engagement',   icon: <Network size={15} strokeWidth={1.8} />,       segment: 'engagement' },
+      { id: 'polls',        label: 'Q&A & Polls',  icon: <MessageSquare size={15} strokeWidth={1.8} />, segment: 'q-and-a' },
       { id: 'gamification', label: 'Gamification', icon: <Trophy size={15} strokeWidth={1.8} />,        segment: 'gamification' },
     ],
   },
@@ -110,7 +113,9 @@ const EVENT_NAV_SECTIONS = [
   {
     title: 'Configure',
     items: [
-      { id: 'settings', label: 'Settings', icon: <Sliders size={15} strokeWidth={1.8} />, segment: 'settings' },
+      { id: 'settings',     label: 'Settings',     icon: <Sliders size={15} strokeWidth={1.8} />, segment: 'settings'     },
+      { id: 'integrations', label: 'Integrations', icon: <Plug size={15} strokeWidth={1.8} />,    segment: 'integrations' },
+      { id: 'webhooks',     label: 'Webhooks',     icon: <Globe size={15} strokeWidth={1.8} />,   segment: 'webhooks'     },
     ],
   },
 ];
@@ -689,6 +694,8 @@ const PAGE_LABELS: Record<string, string> = {
   'meetings':       '1:1 Meetings',
   'badges':         'Cards & Badges',
   'gamification':   'Gamification',
+  'integrations':   'Integrations',
+  'webhooks':       'Webhooks',
 };
 
 function getPageBreadcrumbs(pathname: string, eventName: string | null): { label: string; href?: string }[] {

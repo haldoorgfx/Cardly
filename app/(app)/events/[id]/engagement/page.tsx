@@ -6,6 +6,7 @@ export const metadata: Metadata = { title: 'Engagement' };
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import React from 'react';
 import { MessageSquare, BarChart2, Users2, ArrowLeft } from 'lucide-react';
 
 interface Props { params: Promise<{ id: string }> }
@@ -26,7 +27,7 @@ export default async function EngagementPage({ params }: Props) {
 
   if (!event) redirect('/dashboard');
 
-  const features = [
+  const features: { label: string; icon: React.ReactNode; desc: string; href?: string; comingSoon?: boolean }[] = [
     {
       label: 'Q&A',
       icon: <MessageSquare size={20} strokeWidth={1.7} />,
@@ -43,7 +44,7 @@ export default async function EngagementPage({ params }: Props) {
       label: 'Networking',
       icon: <Users2 size={20} strokeWidth={1.7} />,
       desc: 'Attendee connections, match suggestions, and messaging.',
-      href: `/events/${id}/q-and-a`,
+      comingSoon: true,
     },
   ];
 
@@ -69,17 +70,41 @@ export default async function EngagementPage({ params }: Props) {
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {features.map(card => (
-            <Link key={card.label} href={card.href}
-              className="group text-left bg-white rounded-2xl border p-5 transition-all hover:-translate-y-0.5 hover:border-[#1F4D3A]/40"
-              style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)', color: 'inherit', textDecoration: 'none' }}>
-              <div className="w-10 h-10 rounded-xl grid place-items-center mb-3" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
-                {card.icon}
-              </div>
-              <div className="font-display text-[15px] font-semibold tracking-tight text-[#0F1F18]">{card.label}</div>
-              <p className="text-[13px] mt-1 leading-[1.5] text-[#6B7A72]">{card.desc}</p>
-            </Link>
-          ))}
+          {features.map(card => {
+            const inner = (
+              <>
+                <div className="w-10 h-10 rounded-xl grid place-items-center mb-3" style={{ background: card.comingSoon ? '#F5F3EE' : '#E8EFEB', color: card.comingSoon ? '#9BA8A1' : '#1F4D3A' }}>
+                  {card.icon}
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="font-display text-[15px] font-semibold tracking-tight text-[#0F1F18]">{card.label}</span>
+                  {card.comingSoon && (
+                    <span className="text-[9px] font-mono font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-md"
+                      style={{ background: '#F5F3EE', color: '#9BA8A1', border: '1px solid #E5E0D4' }}>
+                      Coming soon
+                    </span>
+                  )}
+                </div>
+                <p className="text-[13px] mt-1 leading-[1.5] text-[#6B7A72]">{card.desc}</p>
+              </>
+            );
+            if (card.comingSoon) {
+              return (
+                <div key={card.label}
+                  className="text-left bg-white rounded-2xl border p-5 opacity-60 cursor-default"
+                  style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
+                  {inner}
+                </div>
+              );
+            }
+            return (
+              <Link key={card.label} href={card.href!}
+                className="group text-left bg-white rounded-2xl border p-5 transition-all hover:-translate-y-0.5 hover:border-[#1F4D3A]/40"
+                style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)', color: 'inherit', textDecoration: 'none' }}>
+                {inner}
+              </Link>
+            );
+          })}
         </div>
       </div>
     </div>
