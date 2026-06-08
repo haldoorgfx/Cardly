@@ -3,6 +3,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { PLANS } from '@/lib/billing/plans';
 import BillingActions from './BillingActions';
 import { BillingPortalButton } from './BillingPortalButton';
+import { SettingsTabs } from '@/components/settings/SettingsTabs';
 
 export const dynamic = 'force-dynamic';
 
@@ -140,28 +141,33 @@ export default async function BillingPage({
   // Free users (or lapsed subscriptions on free) → show upgrade cards
   if (plan === 'free') {
     return (
-      <div className="px-8 py-8 max-w-[720px]">
-        <div className="mb-8">
-          <h1 className="font-display font-bold text-[32px] text-[#0F1F18] tracking-tight">Billing</h1>
-          <p className="text-[14px] text-[#6B7A72] mt-1">Manage your plan and payment method</p>
-        </div>
-        {checkout === 'success' && (
-          <div className="mb-6 rounded-2xl border border-[#A8D5B5] bg-[#F0FAF4] px-5 py-4 flex items-center gap-3">
-            <span className="h-2 w-2 rounded-full bg-[#2D7A4F] shrink-0" />
-            <p className="text-[14px] text-[#1F4D3A] font-medium">Payment successful — your plan has been updated.</p>
+      <>
+        <SettingsTabs />
+        <div className="px-8 py-8 max-w-[720px]">
+          <div className="mb-8">
+            <h1 className="font-display font-semibold text-[24px] text-[#0F1F18] tracking-tight">Billing</h1>
+            <p className="text-[14px] text-[#6B7A72] mt-1">Manage your plan and payment method</p>
           </div>
-        )}
-        <BillingActions plan={plan} hasPortal={hasPortal} isTrialing={isTrialing} />
-      </div>
+          {checkout === 'success' && (
+            <div className="mb-6 rounded-2xl border border-[#A8D5B5] bg-[#F0FAF4] px-5 py-4 flex items-center gap-3">
+              <span className="h-2 w-2 rounded-full bg-[#2D7A4F] shrink-0" />
+              <p className="text-[14px] text-[#1F4D3A] font-medium">Payment successful — your plan has been updated.</p>
+            </div>
+          )}
+          <BillingActions plan={plan} hasPortal={hasPortal} isTrialing={isTrialing} />
+        </div>
+      </>
     );
   }
 
   return (
+    <>
+      <SettingsTabs />
     <div className="px-8 py-8 max-w-[960px]">
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>
-          <h1 className="font-display font-bold text-[32px] text-[#0F1F18] tracking-tight">Billing</h1>
+          <h1 className="font-display font-semibold text-[24px] text-[#0F1F18] tracking-tight">Billing</h1>
           <p className="text-[14px] text-[#6B7A72] mt-1">Manage your plan and payment method</p>
         </div>
         {plan !== 'studio' && (
@@ -411,6 +417,7 @@ export default async function BillingPage({
         </div>
       )}
     </div>
+    </>
   );
 }
 

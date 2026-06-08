@@ -269,7 +269,7 @@ export default function SettingsClient({ profile, userId }: Props) {
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>
-          <h1 className="font-display font-semibold text-[24px] leading-tight text-[#0F1F18]">Settings</h1>
+          <h1 className="font-display font-semibold text-[24px] leading-tight text-[#0F1F18]">General</h1>
           <p className="text-[14px] text-[#6B7A72] mt-1">Account and workspace preferences</p>
         </div>
         <div className="flex flex-col items-end gap-1 shrink-0 mt-1">

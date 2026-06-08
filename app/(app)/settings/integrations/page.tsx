@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import { SettingsTabs } from '@/components/settings/SettingsTabs';
 
 export const metadata = { title: 'Integrations — Karta' };
 
@@ -18,10 +19,11 @@ export default async function IntegrationsPage() {
   if (!user) redirect('/login');
 
   return (
+    <>
+      <SettingsTabs />
     <div className="max-w-[900px] mx-auto px-6 py-10">
       <div className="mb-8">
-        <div className="font-mono text-[10px] tracking-[0.22em] uppercase mb-2" style={{ color: '#6B7A72' }}>Developer</div>
-        <h1 className="font-display font-bold text-[28px] tracking-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>Integrations</h1>
+        <h1 className="font-display font-semibold text-[24px] tracking-tight" style={{ color: '#0F1F18' }}>Integrations</h1>
         <p className="mt-1.5 text-[14px]" style={{ color: '#6B7A72' }}>Connect Karta to your existing tools and workflows.</p>
       </div>
 
@@ -44,5 +46,6 @@ export default async function IntegrationsPage() {
         ))}
       </div>
     </div>
+    </>
   );
 }

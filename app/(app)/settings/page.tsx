@@ -6,6 +6,7 @@ export const metadata: Metadata = { title: 'Settings' };
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import SettingsClient from './SettingsClient';
+import { SettingsTabs } from '@/components/settings/SettingsTabs';
 
 export default async function SettingsPage() {
   const supabase = createClient();
@@ -23,5 +24,10 @@ export default async function SettingsPage() {
     .eq('id', user.id)
     .single();
 
-  return <SettingsClient profile={profile} userId={user.id} />;
+  return (
+    <>
+      <SettingsTabs />
+      <SettingsClient profile={profile} userId={user.id} />
+    </>
+  );
 }

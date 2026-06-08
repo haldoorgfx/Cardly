@@ -9,8 +9,8 @@ import {
   LayoutGrid, TrendingUp, LayoutTemplate, Settings2, Users, LogOut, Menu, Search, Plus, ChevronRight, CreditCard,
   BarChart2, FileText, Eye, X, ArrowLeft, ShieldCheck,
   Flag, Image as ImageIcon, ScrollText, Sliders, Gavel,
-  Home, Layout, CalendarDays, MessageSquare, Bell, Plug, Globe,
-  Ticket, ScanLine, User, Network, Trophy, Briefcase, Video, Palette, Key, Tag, ExternalLink,
+  Home, Layout, CalendarDays, MessageSquare, Bell,
+  Ticket, ScanLine, User, Network, Trophy, Briefcase, Video, Palette, ExternalLink,
   UserCircle, HelpCircle, Zap, ShoppingCart, Handshake, Clock, IdCard,
 } from 'lucide-react';
 
@@ -127,27 +127,17 @@ const PLATFORM_SECTIONS = [
   {
     title: 'Platform',
     items: [
-      { href: '/dashboard',  label: 'Events',     icon: <LayoutGrid size={15} strokeWidth={1.8} />,   matchPrefix: true  },
-      { href: '/analytics',  label: 'Analytics',  icon: <TrendingUp size={15} strokeWidth={1.8} />,   matchPrefix: false },
-      { href: '/templates',  label: 'Templates',  icon: <LayoutTemplate size={15} strokeWidth={1.8} />, matchPrefix: false },
+      { href: '/dashboard',  label: 'Events',    icon: <LayoutGrid size={15} strokeWidth={1.8} />,    matchPrefix: true  },
+      { href: '/analytics',  label: 'Analytics', icon: <TrendingUp size={15} strokeWidth={1.8} />,    matchPrefix: false },
+      { href: '/templates',  label: 'Templates', icon: <LayoutTemplate size={15} strokeWidth={1.8} />, matchPrefix: false },
     ],
   },
   {
     title: 'Workspace',
     items: [
-      { href: '/brand',             label: 'Brand Kit', icon: <Palette size={15} strokeWidth={1.8} />,  matchPrefix: false },
-      { href: '/team',              label: 'Team',      icon: <Users size={15} strokeWidth={1.8} />,    matchPrefix: false },
-      { href: '/settings/billing',  label: 'Billing',   icon: <CreditCard size={15} strokeWidth={1.8} />, matchPrefix: false },
-      { href: '/settings',          label: 'Settings',  icon: <Settings2 size={15} strokeWidth={1.8} />,  matchPrefix: false },
-    ],
-  },
-  {
-    title: 'Developer',
-    items: [
-      { href: '/settings/api-keys',   label: 'API Keys',    icon: <Key size={15} strokeWidth={1.8} />,       matchPrefix: false },
-      { href: '/settings/webhooks',   label: 'Webhooks',    icon: <Plug size={15} strokeWidth={1.8} />,      matchPrefix: false },
-      { href: '/settings/integrations', label: 'Integrations', icon: <Globe size={15} strokeWidth={1.8} />, matchPrefix: false },
-      { href: '/white-label',          label: 'White Label', icon: <Tag size={15} strokeWidth={1.8} />,       matchPrefix: false },
+      { href: '/brand',     label: 'Brand Kit', icon: <Palette size={15} strokeWidth={1.8} />,   matchPrefix: false },
+      { href: '/team',      label: 'Team',      icon: <Users size={15} strokeWidth={1.8} />,     matchPrefix: false },
+      { href: '/settings',  label: 'Settings',  icon: <Settings2 size={15} strokeWidth={1.8} />, matchPrefix: true  },
     ],
   },
 ];
@@ -293,9 +283,14 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
             )}
             <ul className="space-y-0.5">
               {section.items.map(item => {
-                const active = item.matchPrefix
-                  ? (pathname === item.href || pathname.startsWith('/events'))
-                  : pathname === item.href || pathname.startsWith(item.href + '/');
+                let active = false;
+                if (item.href === '/dashboard') {
+                  active = pathname === '/dashboard' || pathname.startsWith('/events');
+                } else if (item.matchPrefix) {
+                  active = pathname === item.href || pathname.startsWith(item.href + '/');
+                } else {
+                  active = pathname === item.href;
+                }
                 return (
                   <NavItem key={item.href} href={item.href} icon={item.icon} label={item.label}
                     active={active} onNavigate={onNavigate} />
@@ -707,7 +702,9 @@ function getPageBreadcrumbs(pathname: string, eventName: string | null): { label
   if (pathname.startsWith('/settings/api-keys'))         return [{ label: 'Settings', href: '/settings' }, { label: 'API Keys' }];
   if (pathname.startsWith('/settings/webhooks'))         return [{ label: 'Settings', href: '/settings' }, { label: 'Webhooks' }];
   if (pathname.startsWith('/settings/integrations'))     return [{ label: 'Settings', href: '/settings' }, { label: 'Integrations' }];
-  if (pathname === '/white-label')                       return [{ label: 'White Label' }];
+  if (pathname.startsWith('/settings/developer'))        return [{ label: 'Settings', href: '/settings' }, { label: 'Developer' }];
+  if (pathname.startsWith('/settings/white-label'))      return [{ label: 'Settings', href: '/settings' }, { label: 'White Label' }];
+  if (pathname === '/white-label')                       return [{ label: 'Settings', href: '/settings' }, { label: 'White Label' }];
   if (pathname.startsWith('/settings'))                  return [{ label: 'Settings' }];
   if (pathname.startsWith('/admin'))                     return [{ label: 'Admin' }];
 
