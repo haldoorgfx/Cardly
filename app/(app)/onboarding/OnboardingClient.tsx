@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Check, ChevronLeft, ArrowRight, Plus, X, CalendarDays, Ticket, Layout } from 'lucide-react';
 
@@ -15,28 +15,32 @@ const EVENT_TYPES = [
   { id: 'other',      label: 'Something else' },
 ];
 
-const ACCENTS = [
+const PRESETS = [
   { id: 'gold',  label: 'Forest & Gold',  grad: 'linear-gradient(155deg,#0D1F17,#1F4D3A 70%,#163828)', ring: '#E8C57E' },
   { id: 'plum',  label: 'Plum',           grad: 'linear-gradient(155deg,#14101f,#3a2a55 75%,#241733)', ring: '#C9A45E' },
   { id: 'clay',  label: 'Clay',           grad: 'linear-gradient(155deg,#1f120c,#5a3320 75%,#2b160c)', ring: '#E8C57E' },
   { id: 'ocean', label: 'Ocean',          grad: 'linear-gradient(155deg,#0c1420,#1e3a55 75%,#0b1a26)', ring: '#E8C57E' },
 ];
 
+type Accent = { id: string; label: string; grad: string; ring: string };
+
 const INPUT = 'w-full bg-white border border-[#E5E0D4] rounded-xl px-3.5 py-3 text-[14.5px] text-[#0F1F18] placeholder:text-[#6B7A72]/60 focus:border-[#E8C57E] outline-none transition-colors';
 const LABEL = 'block font-mono text-[9.5px] tracking-[0.14em] uppercase text-[#6B7A72] mb-1.5';
 
-function MiniCard({ accent, name = 'Your Name', role = 'Attendee' }: { accent: typeof ACCENTS[0]; name?: string; role?: string }) {
-  const w = 160;
-  const h = w * 1.4;
+function MiniCard({ accent, name = 'Your Name', role = 'Attendee', eventLabel = 'Africa Tech Fest' }: {
+  accent: Accent; name?: string; role?: string; eventLabel?: string;
+}) {
+  const w = 220;
+  const h = w * 1.42;
   return (
     <div
-      className="rounded-xl overflow-hidden relative shrink-0"
-      style={{ width: w, height: h, background: accent.grad, boxShadow: '0 18px 40px -16px rgba(13,31,23,0.55)' }}
+      className="rounded-2xl overflow-hidden relative shrink-0"
+      style={{ width: w, height: h, background: accent.grad, boxShadow: '0 24px 56px -18px rgba(13,31,23,0.6)' }}
     >
-      <div className="absolute inset-0" style={{ background: 'radial-gradient(60% 45% at 50% 40%, rgba(232,197,126,0.2), transparent 65%)' }} />
+      <div className="absolute inset-0" style={{ background: 'radial-gradient(60% 45% at 50% 40%, rgba(232,197,126,0.22), transparent 65%)' }} />
       <div className="relative h-full flex flex-col" style={{ padding: w * 0.085 }}>
         <div className="flex items-center justify-between">
-          <span className="font-display font-semibold" style={{ color: accent.ring, fontSize: w * 0.045 }}>Africa Tech Fest</span>
+          <span className="font-display font-semibold" style={{ color: accent.ring, fontSize: w * 0.045 }}>{eventLabel}</span>
           <span className="font-mono" style={{ color: 'rgba(255,255,255,0.6)', fontSize: w * 0.037 }}>2026</span>
         </div>
         <div
@@ -48,13 +52,38 @@ function MiniCard({ accent, name = 'Your Name', role = 'Attendee' }: { accent: t
         <div className="text-center text-white font-display font-medium mt-3" style={{ fontSize: w * 0.085 }}>
           {name || 'Your Name'}
         </div>
-        <div className="text-center" style={{ color: 'rgba(255,255,255,0.7)', fontSize: w * 0.045, marginTop: 2 }}>
+        <div className="text-center" style={{ color: 'rgba(255,255,255,0.7)', fontSize: w * 0.047, marginTop: 2 }}>
           {role || 'Attendee'}
         </div>
         <div className="flex items-center justify-between mt-auto" style={{ paddingTop: w * 0.05, borderTop: `1px solid ${accent.ring}40` }}>
           <span className="font-mono" style={{ color: accent.ring, fontSize: w * 0.04 }}>VIP</span>
           <span className="font-mono" style={{ color: 'rgba(255,255,255,0.6)', fontSize: w * 0.04 }}>12 MAR</span>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function ColorRow({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  return (
+    <div>
+      <label className={LABEL}>{label}</label>
+      <div className="flex items-center gap-2">
+        <label
+          className="w-9 h-9 rounded-lg border border-[#E5E0D4] cursor-pointer shrink-0 overflow-hidden"
+          style={{ background: value }}
+        >
+          <input type="color" value={value} onChange={e => onChange(e.target.value)} className="opacity-0 w-full h-full cursor-pointer" />
+        </label>
+        <input
+          className={INPUT}
+          value={value}
+          maxLength={7}
+          onChange={e => {
+            const v = e.target.value;
+            if (/^#[0-9a-fA-F]{0,6}$/.test(v)) onChange(v.length === 7 ? v : v);
+          }}
+        />
       </div>
     </div>
   );
@@ -68,13 +97,31 @@ export default function OnboardingClient() {
   // Step 0 — event type
   const [evType, setEvType] = useState('tech');
 
-  // Step 1 — org
+  // Step 1 — org + logo
   const [orgName, setOrgName] = useState('');
   const [region, setRegion]   = useState('');
   const [currency, setCurrency] = useState('USD');
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
 
   // Step 2 — brand
-  const [accent, setAccent]   = useState(ACCENTS[0]);
+  const [accentId, setAccentId] = useState('gold');
+  // Custom color state
+  const [customMode, setCustomMode] = useState<'solid' | 'gradient'>('gradient');
+  const [customSolid, setCustomSolid] = useState('#1F4D3A');
+  const [customFrom, setCustomFrom]   = useState('#0D1F17');
+  const [customTo, setCustomTo]       = useState('#2A6A50');
+  const [customRing, setCustomRing]   = useState('#E8C57E');
+
+  const customAccent: Accent = {
+    id: 'custom',
+    label: 'Custom',
+    grad: customMode === 'solid' ? customSolid : `linear-gradient(155deg,${customFrom},${customTo})`,
+    ring: customRing,
+  };
+  const ALL_ACCENTS: Accent[] = [...PRESETS, customAccent];
+  const accent = ALL_ACCENTS.find(a => a.id === accentId) ?? PRESETS[0];
 
   // Step 3 — first event
   const [evName, setEvName]   = useState('');
@@ -92,16 +139,29 @@ export default function OnboardingClient() {
     setInviteInput('');
   };
 
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setLogoFile(file);
+    setLogoPreview(URL.createObjectURL(file));
+  };
+
   const next = () => setStep(s => Math.min(STEPS.length - 1, s + 1));
   const back = () => setStep(s => Math.max(0, s - 1));
 
   const handleFinish = async () => {
     setSubmitting(true);
     try {
+      if (logoFile) {
+        const fd = new FormData();
+        fd.append('file', logoFile);
+        fd.append('variant', 'light');
+        await fetch('/api/brand/logo', { method: 'POST', body: fd });
+      }
       await fetch('/api/onboarding', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ evType, orgName, region, currency, accent: accent.id, evName, evStart, evEnd, venue, inviteEmails: emails }),
+        body: JSON.stringify({ evType, orgName, region, currency, accent: accentId, evName, evStart, evEnd, venue, inviteEmails: emails }),
       });
     } catch {}
     router.push('/dashboard');
@@ -173,7 +233,7 @@ export default function OnboardingClient() {
 
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto">
-          <div className="max-w-[560px] mx-auto px-6 sm:px-10 py-10 lg:py-16">
+          <div className="max-w-[600px] mx-auto px-6 sm:px-10 py-10 lg:py-16">
 
             {/* Step 0 — Welcome */}
             {step === 0 && (
@@ -222,34 +282,56 @@ export default function OnboardingClient() {
                   This is the brand attendees will see across your events.
                 </p>
                 <div className="mt-7 flex flex-col gap-4">
+                  {/* Logo upload */}
                   <div className="flex items-center gap-4">
-                    <span
-                      className="w-16 h-16 rounded-2xl border-2 border-dashed grid place-items-center shrink-0 cursor-pointer transition-colors hover:border-[#E8C57E]"
-                      style={{ borderColor: 'rgba(31,77,58,0.35)', background: 'white', color: '#1F4D3A' }}
+                    <label
+                      className="w-16 h-16 rounded-2xl border-2 border-dashed grid place-items-center shrink-0 cursor-pointer transition-colors hover:border-[#E8C57E] overflow-hidden"
+                      style={{
+                        borderColor: logoPreview ? 'transparent' : 'rgba(31,77,58,0.35)',
+                        background: logoPreview ? 'transparent' : 'white',
+                        color: '#1F4D3A',
+                      }}
                     >
-                      <Plus size={20} />
-                    </span>
-                    <div>
+                      <input
+                        ref={logoInputRef}
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                        className="hidden"
+                        onChange={handleLogoChange}
+                      />
+                      {logoPreview ? (
+                        <img src={logoPreview} alt="Logo preview" className="w-full h-full object-cover rounded-2xl" />
+                      ) : (
+                        <Plus size={20} />
+                      )}
+                    </label>
+                    <div className="flex-1">
                       <div className="text-[13.5px] font-medium" style={{ color: '#0F1F18' }}>Organization logo</div>
-                      <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>PNG or SVG, square works best</div>
+                      <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>PNG, JPG or SVG · max 5 MB</div>
+                      {logoPreview && (
+                        <button
+                          onClick={() => { setLogoFile(null); setLogoPreview(null); if (logoInputRef.current) logoInputRef.current.value = ''; }}
+                          className="mt-1 text-[12px] transition-colors"
+                          style={{ color: '#B8423C' }}
+                        >
+                          Remove
+                        </button>
+                      )}
                     </div>
                   </div>
+
                   <div>
                     <label className={LABEL}>Organization name</label>
                     <input className={INPUT} value={orgName} onChange={e => setOrgName(e.target.value)} placeholder="e.g. Sahel Ventures" />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className={LABEL}>Region</label>
                       <input className={INPUT} value={region} onChange={e => setRegion(e.target.value)} placeholder="East Africa" />
                     </div>
                     <div>
                       <label className={LABEL}>Currency</label>
-                      <select
-                        className={INPUT}
-                        value={currency}
-                        onChange={e => setCurrency(e.target.value)}
-                      >
+                      <select className={INPUT} value={currency} onChange={e => setCurrency(e.target.value)}>
                         {['USD', 'EUR', 'GBP', 'KES', 'ETB', 'DJF', 'NGN', 'GHS', 'ZAR'].map(c => (
                           <option key={c} value={c}>{c}</option>
                         ))}
@@ -269,30 +351,75 @@ export default function OnboardingClient() {
                 <p className="mt-3 text-[15px] leading-[1.6]" style={{ color: '#3A4A42' }}>
                   This styles your event pages and the Karta Card every attendee shares.
                 </p>
-                <div className="mt-7 grid sm:grid-cols-[1fr_180px] gap-6 items-start">
-                  <div className="flex flex-col gap-2.5">
-                    {ACCENTS.map(a => {
-                      const on = accent.id === a.id;
+
+                <div className="mt-7 grid sm:grid-cols-[1fr_240px] gap-6 items-start">
+                  {/* Theme list */}
+                  <div className="flex flex-col gap-2">
+                    {ALL_ACCENTS.map(a => {
+                      const on = accentId === a.id;
                       return (
-                        <button
-                          key={a.id}
-                          onClick={() => setAccent(a)}
-                          className="flex items-center gap-3 rounded-2xl border p-3 transition-all"
-                          style={{
-                            borderColor: on ? '#1F4D3A' : '#E5E0D4',
-                            background: on ? 'white' : 'white',
-                            boxShadow: on ? '0 0 0 1px rgba(31,77,58,0.3)' : 'none',
-                          }}
-                        >
-                          <span className="w-10 h-10 rounded-xl shrink-0" style={{ background: a.grad }} />
-                          <span className="text-[13.5px] font-medium" style={{ color: '#0F1F18' }}>{a.label}</span>
-                          {on && <Check size={16} strokeWidth={2.5} className="ml-auto" style={{ color: '#1F4D3A' }} />}
-                        </button>
+                        <div key={a.id}>
+                          <button
+                            onClick={() => setAccentId(a.id)}
+                            className="w-full flex items-center gap-3 rounded-2xl border p-3 transition-all"
+                            style={{
+                              borderColor: on ? '#1F4D3A' : '#E5E0D4',
+                              background: 'white',
+                              boxShadow: on ? '0 0 0 1px rgba(31,77,58,0.3)' : 'none',
+                            }}
+                          >
+                            <span
+                              className="w-10 h-10 rounded-xl shrink-0"
+                              style={{ background: a.id === 'custom' ? (customMode === 'solid' ? customSolid : `linear-gradient(135deg,${customFrom},${customTo})`) : a.grad }}
+                            />
+                            <span className="text-[13.5px] font-medium" style={{ color: '#0F1F18' }}>{a.label}</span>
+                            {on && <Check size={16} strokeWidth={2.5} className="ml-auto" style={{ color: '#1F4D3A' }} />}
+                          </button>
+
+                          {/* Custom color controls — inline below the Custom button */}
+                          {a.id === 'custom' && on && (
+                            <div className="mt-2 p-4 rounded-2xl border border-[#E5E0D4] flex flex-col gap-3" style={{ background: '#FDFAF6' }}>
+                              {/* Solid / Gradient toggle */}
+                              <div className="flex gap-1 p-1 rounded-lg" style={{ background: '#F0EDE5' }}>
+                                {(['solid', 'gradient'] as const).map(m => (
+                                  <button
+                                    key={m}
+                                    onClick={() => setCustomMode(m)}
+                                    className="flex-1 py-1.5 rounded-md text-[12.5px] font-medium capitalize transition-all"
+                                    style={customMode === m
+                                      ? { background: '#1F4D3A', color: 'white' }
+                                      : { color: '#6B7A72' }}
+                                  >
+                                    {m}
+                                  </button>
+                                ))}
+                              </div>
+
+                              {customMode === 'solid' ? (
+                                <ColorRow label="Card color" value={customSolid} onChange={setCustomSolid} />
+                              ) : (
+                                <div className="grid grid-cols-2 gap-3">
+                                  <ColorRow label="From" value={customFrom} onChange={setCustomFrom} />
+                                  <ColorRow label="To" value={customTo} onChange={setCustomTo} />
+                                </div>
+                              )}
+
+                              <ColorRow label="Accent color" value={customRing} onChange={setCustomRing} />
+                            </div>
+                          )}
+                        </div>
                       );
                     })}
                   </div>
-                  <div className="hidden sm:flex justify-center">
-                    <MiniCard accent={accent} name={orgName || 'Adaeze O.'} role="Founder · Sahel" />
+
+                  {/* Card preview */}
+                  <div className="hidden sm:flex justify-center sticky top-8">
+                    <MiniCard
+                      accent={accent}
+                      name={orgName || 'Adaeze O.'}
+                      role="Founder · Sahel"
+                      eventLabel={evName || 'Africa Tech Fest'}
+                    />
                   </div>
                 </div>
               </div>
@@ -312,7 +439,7 @@ export default function OnboardingClient() {
                     <label className={LABEL}>Event name</label>
                     <input className={INPUT} value={evName} onChange={e => setEvName(e.target.value)} placeholder="Africa Tech Festival 2026" />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className={LABEL}>Starts</label>
                       <input type="date" className={INPUT} value={evStart} onChange={e => setEvStart(e.target.value)} />
@@ -420,7 +547,7 @@ export default function OnboardingClient() {
           className="border-t px-6 sm:px-10 py-4"
           style={{ borderColor: '#E5E0D4', background: 'rgba(239,233,220,0.8)', backdropFilter: 'blur(8px)' }}
         >
-          <div className="max-w-[560px] mx-auto flex items-center justify-between">
+          <div className="max-w-[600px] mx-auto flex items-center justify-between">
             {step > 0 && step < 5 ? (
               <button
                 onClick={back}
