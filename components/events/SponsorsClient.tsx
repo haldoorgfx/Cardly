@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 interface Sponsor {
@@ -53,6 +54,7 @@ function Avatar({ name }: { name: string }) {
 }
 
 export function SponsorsClient({ eventId, eventName, sponsors: initial }: Props) {
+  const router = useRouter();
   const [sponsors, setSponsors] = useState(initial);
   const [showAdd, setShowAdd] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
@@ -82,6 +84,7 @@ export function SponsorsClient({ eventId, eventName, sponsors: initial }: Props)
         setSponsors(prev => [{ ...data.sponsor, lead_count: 0 }, ...prev]);
         setForm({ company_name: '', tier: 'gold', booth_location: '', website_url: '' });
         setShowAdd(false);
+        router.refresh(); // sync server state (stats, counts)
       } else {
         alert(data.error || 'Failed to add sponsor');
       }
