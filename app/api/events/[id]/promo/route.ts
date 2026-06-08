@@ -76,10 +76,10 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   if (valid_from !== undefined) patch.valid_from = valid_from ?? null;
   if (valid_until !== undefined) patch.valid_until = valid_until ?? null;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await admin
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
+  const { data, error } = await (admin as any)
     .from('promo_codes')
-    .update(patch as any)
+    .update(patch)
     .eq('id', codeId)
     .eq('event_id', params.id)
     .select()
