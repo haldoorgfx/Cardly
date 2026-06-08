@@ -47,6 +47,7 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
     <CanvasEditor
       eventId={event.id}
       eventName={event.name}
+      eventSlug={event.slug}
       variants={variants}
     />
   );

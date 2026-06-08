@@ -29,6 +29,7 @@ interface TopBarProps {
   styleFlash: boolean;
   copyStyle: () => void;
   pasteStyle: () => void;
+  eventSlug: string;
   router: AppRouterInstance;
 }
 
@@ -38,7 +39,7 @@ export default function TopBar({
   previewMode, setPreviewMode,
   showShortcuts, setShowShortcuts,
   selected, copiedStyle, styleFlash, copyStyle, pasteStyle,
-  router,
+  eventSlug, router,
 }: TopBarProps) {
   return (
     <header
@@ -168,9 +169,12 @@ export default function TopBar({
           <span className="text-[10px] font-mono opacity-50 ml-0.5">⌘P</span>
         </button>
 
-        {/* Test */}
+        {/* Test — opens attendee page in new tab */}
         <a
-          href={`/events/${eventId}`}
+          href={`/c/${eventSlug}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Preview attendee experience"
           className="inline-flex items-center gap-1.5 text-[12.5px] text-ink/80 bg-white border border-border px-3 py-1.5 rounded-lg hover:bg-cream transition"
         >
           <Play size={13} strokeWidth={2.2} />Test

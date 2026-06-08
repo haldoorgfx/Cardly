@@ -199,19 +199,22 @@ const GOOGLE_FONTS_URL =
 interface CanvasEditorProps {
   eventId: string;
   eventName: string;
+  eventSlug: string;
   variants: Variant[];
 }
 
 /* ══════════════════════════════════════════════════════════
    MAIN COMPONENT
 ══════════════════════════════════════════════════════════ */
-export default function CanvasEditor({ eventId, eventName, variants: initialVariants }: CanvasEditorProps) {
+export default function CanvasEditor({ eventId, eventName, eventSlug, variants: initialVariants }: CanvasEditorProps) {
   const router = useRouter();
 
   /* variants */
   const [variants, setVariants] = useState<Variant[]>(initialVariants);
   const [activeVariantId, setActiveVariantId] = useState<string>(initialVariants[0]?.id ?? '');
-  const [showAddVariant, setShowAddVariant] = useState(false);
+  // Auto-open the "Add variant" modal when the event has no variants yet —
+  // so first-time users immediately get the design upload prompt.
+  const [showAddVariant, setShowAddVariant] = useState(() => initialVariants.length === 0);
   const [addingVariant, setAddingVariant] = useState(false);
   const [newVariantName, setNewVariantName] = useState('');
   const [newVariantFile, setNewVariantFile] = useState<File | null>(null);
@@ -1136,6 +1139,7 @@ export default function CanvasEditor({ eventId, eventName, variants: initialVari
         styleFlash={styleFlash}
         copyStyle={copyStyle}
         pasteStyle={pasteStyle}
+        eventSlug={eventSlug}
         router={router}
       />
 

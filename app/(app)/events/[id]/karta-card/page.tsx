@@ -40,6 +40,7 @@ export default async function KartaCardPage({ params }: { params: Promise<{ id: 
       eventId={id}
       eventName={event.name}
       eventSlug={event.slug}
+      eventStatus={event.status}
       totalCards={totalCards ?? 0}
       sharedCards={0}
       primaryVariant={primaryVariant ? {

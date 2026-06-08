@@ -23,6 +23,7 @@ interface Props {
   eventId: string;
   eventName: string;
   eventSlug: string;
+  eventStatus: string;
   totalCards: number;
   sharedCards: number;
   primaryVariant: PrimaryVariant | null;
@@ -39,10 +40,13 @@ const SHARE_CHANNELS = [
   { name: 'X',         pct: 10, color: '#8BA89A' },
 ];
 
-export function KartaCardView({ eventId, eventName, eventSlug, totalCards, sharedCards, primaryVariant, allVariants }: Props) {
+export function KartaCardView({ eventId, eventName, eventSlug, eventStatus, totalCards, sharedCards, primaryVariant, allVariants }: Props) {
   const [paperSize, setPaperSize] = useState<PaperSize>('A6');
   const reach = sharedCards > 0 ? (sharedCards * 189).toLocaleString() : '—';
   const hasDesign = !!primaryVariant?.backgroundUrl;
+  const isPublished = eventStatus === 'published';
+  // Attendee page only works when the event is published and has at least one variant with a design
+  const attendeeReady = isPublished && allVariants.length > 0 && hasDesign;
 
   return (
     <div className="px-6 lg:px-8 py-8">
@@ -66,14 +70,28 @@ export function KartaCardView({ eventId, eventName, eventSlug, totalCards, share
             <Palette size={13} strokeWidth={2} />
             {hasDesign ? 'Edit design' : 'Upload design'}
           </Link>
-          <Link
-            href={`/c/${eventSlug}`}
-            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-semibold transition hover:opacity-90"
-            style={{ background: '#E8C57E', color: '#0F1F18' }}
-          >
-            <Sparkles size={13} strokeWidth={2} />
-            Preview as attendee
-          </Link>
+          {attendeeReady ? (
+            <Link
+              href={`/c/${eventSlug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-semibold transition hover:opacity-90"
+              style={{ background: '#E8C57E', color: '#0F1F18' }}
+            >
+              <Sparkles size={13} strokeWidth={2} />
+              Preview as attendee
+            </Link>
+          ) : (
+            <Link
+              href={`/events/${eventId}/publish`}
+              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-semibold transition hover:opacity-90"
+              style={{ background: '#E8EFEB', color: '#1F4D3A' }}
+              title={!hasDesign ? 'Upload a design first' : !isPublished ? 'Publish the event to share the attendee link' : 'Add a card design to enable the attendee page'}
+            >
+              <Sparkles size={13} strokeWidth={2} />
+              {!hasDesign ? 'Design needed' : 'Publish to share'}
+            </Link>
+          )}
         </div>
       </div>
 
@@ -277,14 +295,14 @@ export function KartaCardView({ eventId, eventName, eventSlug, totalCards, share
               Same design, printed for check-in. Includes name, ticket type, and QR code.
             </p>
           </div>
-          <Link
-            href={`/events/${eventId}/edit`}
-            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-semibold transition hover:opacity-90"
-            style={{ background: hasDesign ? '#1F4D3A' : '#E5E0D4', color: hasDesign ? 'white' : '#6B7A72' }}
+          <span
+            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-semibold cursor-not-allowed"
+            style={{ background: '#F5F3EE', color: '#6B7A72', border: '1px solid #E5E0D4' }}
+            title="Print badges — coming soon"
           >
             <Printer size={13} strokeWidth={2} />
-            {hasDesign ? 'Print all badges' : 'Design needed first'}
-          </Link>
+            Coming soon
+          </span>
         </div>
         <div className="p-5 grid sm:grid-cols-2 gap-8 items-start">
           {/* Paper size */}
