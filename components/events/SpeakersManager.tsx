@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Pencil, Trash2, Plus, X, Sparkles, ExternalLink } from 'lucide-react';
 import type { Speaker, SpeakerType } from '@/types/database';
@@ -329,11 +328,10 @@ export default function SpeakersManager({ eventId, initialSpeakers }: Props) {
                 {/* Avatar row + featured badge */}
                 <div className="flex items-start justify-between mb-3">
                   {speaker.photo_url ? (
-                    <Image
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
                       src={speaker.photo_url}
                       alt={speaker.name}
-                      width={52}
-                      height={52}
                       className="w-[52px] h-[52px] rounded-full object-cover shrink-0"
                       style={{ border: '1px solid #E5E0D4' }}
                     />

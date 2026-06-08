@@ -7,6 +7,16 @@ const nextConfig = {
       '/api/render': ['./public/fonts/**/*'],
     },
   },
+  images: {
+    remotePatterns: [
+      // Supabase storage (event backgrounds, speaker photos, etc.)
+      { protocol: 'https', hostname: '*.supabase.co' },
+      { protocol: 'https', hostname: '*.supabase.in' },
+      // Allow any https image (organiser-supplied speaker photos, sponsor logos, etc.)
+      // We validate/sanitize URLs before saving so this is safe.
+      { protocol: 'https', hostname: '**' },
+    ],
+  },
 };
 
 export default withSentryConfig(nextConfig, {
