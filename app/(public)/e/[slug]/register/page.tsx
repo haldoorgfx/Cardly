@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation';
 import { PublicNav } from '@/components/events/PublicNav';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 import RegistrationClient from '@/components/registration/RegistrationClient';
+import type { Zone } from '@/types/database';
 
 interface Props { params: { slug: string } }
 
@@ -31,7 +32,7 @@ export default async function RegisterPage({ params }: Props) {
     // Load the primary canvas variant so registration can preview the real card design
     admin
       .from('event_variants')
-      .select('id, background_url, background_width, background_height')
+      .select('id, zones, background_url, background_width, background_height')
       .eq('event_id', event.id)
       .order('position' as never)
       .limit(1)
@@ -47,6 +48,8 @@ export default async function RegisterPage({ params }: Props) {
         backgroundUrl: rawVariant.background_url as string,
         backgroundWidth: rawVariant.background_width as number | null,
         backgroundHeight: rawVariant.background_height as number | null,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        zones: (rawVariant.zones ?? []) as unknown as Zone[],
       }
     : null;
 
