@@ -32,6 +32,7 @@ alter table generated_cards
 alter table event_variants enable row level security;
 
 -- Event owners have full access to their variants
+drop policy if exists "event_variants: owner access" on event_variants;
 create policy "event_variants: owner access"
   on event_variants for all
   using (
@@ -43,6 +44,7 @@ create policy "event_variants: owner access"
   );
 
 -- Anyone can read variants of published events (needed for attendee page)
+drop policy if exists "event_variants: public read published" on event_variants;
 create policy "event_variants: public read published"
   on event_variants for select
   using (
