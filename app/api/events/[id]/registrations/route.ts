@@ -57,23 +57,26 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     attendee_name: string;
     attendee_email: string;
     attendee_phone?: string;
-    ticket_type_id: string;
+    ticket_type_id?: string;
     notes?: string;
   };
 
   const { attendee_name, attendee_email, ticket_type_id, attendee_phone, notes } = body;
   if (!attendee_name?.trim()) return NextResponse.json({ error: 'Name is required' }, { status: 400 });
   if (!attendee_email?.trim()) return NextResponse.json({ error: 'Email is required' }, { status: 400 });
-  if (!ticket_type_id) return NextResponse.json({ error: 'Ticket type is required' }, { status: 400 });
 
-  // Verify ticket belongs to this event
-  const { data: ticket } = await admin
-    .from('ticket_types')
-    .select('id, name, price, currency')
-    .eq('id', ticket_type_id)
-    .eq('event_id', params.id)
-    .single();
-  if (!ticket) return NextResponse.json({ error: 'Ticket type not found' }, { status: 404 });
+  // Verify ticket belongs to this event (if provided)
+  let ticket: { id: string; name: string; price: number; currency: string } | null = null;
+  if (ticket_type_id) {
+    const { data } = await admin
+      .from('ticket_types')
+      .select('id, name, price, currency')
+      .eq('id', ticket_type_id)
+      .eq('event_id', params.id)
+      .single();
+    if (!data) return NextResponse.json({ error: 'Ticket type not found' }, { status: 404 });
+    ticket = data;
+  }
 
   const token = crypto.randomUUID().replace(/-/g, '');
 
@@ -81,19 +84,19 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     .from('registrations')
     .insert({
       event_id: params.id,
-      ticket_type_id,
+      ticket_type_id: ticket_type_id ?? null,
       attendee_name: attendee_name.trim(),
       attendee_email: attendee_email.trim().toLowerCase(),
       attendee_phone: attendee_phone?.trim() ?? null,
       status: 'confirmed',
-      payment_status: ticket.price === 0 ? 'free' : 'paid',
-      amount_paid: ticket.price,
-      currency: ticket.currency ?? 'USD',
+      payment_status: ticket ? (ticket.price === 0 ? 'free' : 'paid') : 'free',
+      amount_paid: ticket?.price ?? 0,
+      currency: ticket?.currency ?? 'USD',
       qr_code_token: token,
       source: 'manual',
       custom_fields: notes ? { notes } : {},
     })
-    .select('id, attendee_name, attendee_email, qr_code_token')
+    .select('id, attendee_name, attendee_email, attendee_phone, status, payment_status, amount_paid, currency, karta_card_url, checked_in_at, created_at, ticket_types(name, price)')
     .single();
 
   if (error) {

@@ -212,7 +212,7 @@ function AddManuallyModal({
     if (!name.trim()) errs.name = 'Name is required';
     if (!email.trim()) errs.email = 'Email is required';
     else if (!EMAIL_RE.test(email)) errs.email = 'Enter a valid email';
-    if (!ticketId) errs.ticketId = 'Select a ticket type';
+    if (ticketTypes.length > 0 && !ticketId) errs.ticketId = 'Select a ticket type';
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
 
     setSaving(true);
@@ -221,7 +221,7 @@ function AddManuallyModal({
       const res = await fetch(`/api/events/${eventId}/registrations`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ attendee_name: name.trim(), attendee_email: email.trim(), attendee_phone: phone.trim() || undefined, ticket_type_id: ticketId, notes: notes.trim() || undefined }),
+        body: JSON.stringify({ attendee_name: name.trim(), attendee_email: email.trim(), attendee_phone: phone.trim() || undefined, ticket_type_id: ticketId || undefined, notes: notes.trim() || undefined }),
       });
       const data = await res.json() as { registration?: Registration; error?: string };
       if (!res.ok) { setApiError(data.error ?? 'Failed to add registration'); return; }
@@ -290,9 +290,9 @@ function AddManuallyModal({
           </div>
 
           <div>
-            <label className="block text-[11px] font-mono uppercase tracking-widest mb-1.5" style={{ color: errors.ticketId ? '#B8423C' : '#6B7A72' }}>Ticket type *</label>
+            <label className="block text-[11px] font-mono uppercase tracking-widest mb-1.5" style={{ color: errors.ticketId ? '#B8423C' : '#6B7A72' }}>Ticket type {ticketTypes.length > 0 ? '*' : '(optional)'}</label>
             {ticketTypes.length === 0 ? (
-              <p className="text-[13px]" style={{ color: '#6B7A72' }}>No ticket types created yet.</p>
+              <p className="text-[13px]" style={{ color: '#9BA8A1' }}>No ticket types yet — attendee will be added as a free walk-in.</p>
             ) : (
               <select
                 value={ticketId} onChange={e => { setTicketId(e.target.value); if (errors.ticketId) setErrors(p => ({ ...p, ticketId: '' })); }}
@@ -325,7 +325,7 @@ function AddManuallyModal({
             Cancel
           </button>
           <button
-            onClick={handleSave} disabled={saving || ticketTypes.length === 0}
+            onClick={handleSave} disabled={saving}
             className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white transition disabled:opacity-60 inline-flex items-center justify-center gap-1.5"
             style={{ background: '#1F4D3A' }}
           >
