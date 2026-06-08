@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { sendWelcomeEmail } from "@/lib/email";
 
 export async function signIn(formData: FormData) {
   const supabase = createClient();
@@ -42,6 +43,11 @@ export async function signUp(formData: FormData) {
   if (error) {
     return { error: error.message };
   }
+
+  // Fire-and-forget welcome email — never blocks the redirect
+  const email = formData.get("email") as string;
+  const name = (formData.get("full_name") as string) || email;
+  sendWelcomeEmail({ to: email, name }).catch(() => {});
 
   revalidatePath("/", "layout");
 

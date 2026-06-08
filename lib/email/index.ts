@@ -55,6 +55,55 @@ function btn(href: string, text: string): string {
   return `<a href="${href}" style="display:inline-block;margin-top:20px;padding:12px 24px;background:#1F4D3A;color:#FFFFFF;text-decoration:none;border-radius:10px;font-size:14px;font-weight:600">${text}</a>`;
 }
 
+// ─── Welcome email ───────────────────────────────────────────────────────────
+
+/** Sent once immediately after a new user creates their account. */
+export async function sendWelcomeEmail(opts: {
+  to: string;
+  name: string;
+}): Promise<void> {
+  const dashboardUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com'}/dashboard`;
+  const firstName = opts.name.split(' ')[0] || opts.name;
+
+  await sendEmail(
+    opts.to,
+    `Welcome to Karta, ${firstName} 👋`,
+    wrap(`
+      <h1 style="margin:0 0 8px;font-size:26px;font-weight:700;letter-spacing:-0.02em">
+        Welcome to Karta, ${firstName} 👋
+      </h1>
+      <p style="margin:0 0 16px;font-size:14px;color:#6B7A72;line-height:1.6">
+        We&apos;re glad you&apos;re here. Karta helps event organisers create
+        beautiful, personalised social cards that attendees actually share.
+      </p>
+
+      <table cellpadding="0" cellspacing="0" style="width:100%;border-radius:12px;overflow:hidden;border:1px solid #E5E0D4;margin-bottom:20px">
+        <tr><td style="padding:16px 20px;background:#FAF6EE;border-bottom:1px solid #E5E0D4">
+          <span style="font-size:18px">🎨</span>&nbsp;
+          <strong style="font-size:14px;color:#0F1F18">Upload your event design</strong>
+          <p style="margin:4px 0 0;font-size:13px;color:#6B7A72">Bring your own artwork — no templates, no constraints.</p>
+        </td></tr>
+        <tr><td style="padding:16px 20px;background:#FAF6EE;border-bottom:1px solid #E5E0D4">
+          <span style="font-size:18px">✏️</span>&nbsp;
+          <strong style="font-size:14px;color:#0F1F18">Define editable zones</strong>
+          <p style="margin:4px 0 0;font-size:13px;color:#6B7A72">Mark where names, photos and titles should appear.</p>
+        </td></tr>
+        <tr><td style="padding:16px 20px;background:#FAF6EE">
+          <span style="font-size:18px">🚀</span>&nbsp;
+          <strong style="font-size:14px;color:#0F1F18">Share with attendees</strong>
+          <p style="margin:4px 0 0;font-size:13px;color:#6B7A72">One link. Attendees fill in their info and download a personalised card.</p>
+        </td></tr>
+      </table>
+
+      ${btn(dashboardUrl, 'Create your first event →')}
+
+      <p style="margin:24px 0 0;font-size:13px;color:#9CA3AF;line-height:1.6">
+        Questions? Reply to this email — a real person reads every response.
+      </p>
+    `),
+  );
+}
+
 // ─── Milestone email ──────────────────────────────────────────────────────────
 
 const MILESTONES = [10, 50, 100, 250, 500, 1000, 2500, 5000];
