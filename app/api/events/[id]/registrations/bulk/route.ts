@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { createNotification } from '@/lib/notifications';
 
 interface AttendeeRow {
   attendee_name: string;
@@ -96,6 +97,20 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         .update({ quantity_sold: (cur?.quantity_sold ?? 0) + imported })
         .eq('id', ticket.id);
     }
+  }
+
+  if (imported > 0) {
+    // Fetch event name for the notification title
+    const { data: ev } = await admin.from('events').select('name').eq('id', params.id).single();
+    createNotification({
+      userId: user.id,
+      eventId: params.id,
+      type: 'registration',
+      title: `${imported} attendee${imported !== 1 ? 's' : ''} imported for ${ev?.name ?? 'your event'}`,
+      body: skipped.length > 0 ? `${skipped.length} duplicate${skipped.length !== 1 ? 's' : ''} skipped` : undefined,
+      actionUrl: `/events/${params.id}/registrations`,
+      icon: 'users',
+    });
   }
 
   return NextResponse.json({ imported, skipped: skipped.length, invalid: invalid.length, skipped_emails: skipped });

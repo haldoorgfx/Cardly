@@ -390,6 +390,36 @@ export interface Database {
         };
         Relationships: [];
       };
+      notifications: {
+        Row: {
+          id: string;
+          user_id: string;
+          event_id: string | null;
+          type: 'registration' | 'card_download' | 'ticket_sale' | 'milestone' | 'sponsor' | 'system';
+          title: string;
+          body: string | null;
+          action_url: string | null;
+          icon: string;
+          read_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          event_id?: string | null;
+          type: 'registration' | 'card_download' | 'ticket_sale' | 'milestone' | 'sponsor' | 'system';
+          title: string;
+          body?: string | null;
+          action_url?: string | null;
+          icon?: string;
+          read_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          read_at?: string | null;
+        };
+        Relationships: [];
+      };
       events: {
         Row: {
           id: string;

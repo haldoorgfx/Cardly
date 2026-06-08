@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { createNotification } from '@/lib/notifications';
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const supabase = createClient();
@@ -103,6 +104,17 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     if (error.code === '23505') return NextResponse.json({ error: 'This email is already registered for this event' }, { status: 409 });
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  // Fire-and-forget notification to the organizer
+  createNotification({
+    userId: user.id,
+    eventId: params.id,
+    type: 'registration',
+    title: `${attendee_name.trim()} registered for ${event.name}`,
+    body: attendee_email.trim().toLowerCase(),
+    actionUrl: `/events/${params.id}/registrations`,
+    icon: 'users',
+  });
 
   return NextResponse.json({ registration: reg }, { status: 201 });
 }

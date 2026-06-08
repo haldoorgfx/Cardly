@@ -713,21 +713,46 @@ const NOTIF_ICONS: Record<string, React.ReactNode> = {
   clock:     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
 };
 
-function NotifItem({ icon, text, time, unread }: { icon: string; text: string; time: string; unread: boolean }) {
+interface Notification {
+  id: string;
+  icon: string;
+  title: string;
+  body: string | null;
+  action_url: string | null;
+  read_at: string | null;
+  created_at: string;
+}
+
+function formatNotifTime(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return 'just now';
+  if (m < 60) return `${m}m`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h`;
+  const d = Math.floor(h / 24);
+  if (d === 1) return 'Yesterday';
+  return `${d}d`;
+}
+
+function NotifItem({ notif, onRead }: { notif: Notification; onRead: (id: string, url: string | null) => void }) {
   return (
-    <div className="flex items-start gap-3 px-5 py-3 hover:bg-[#FAF6EE] transition-colors cursor-pointer">
+    <button
+      onClick={() => onRead(notif.id, notif.action_url)}
+      className="w-full text-left flex items-start gap-3 px-5 py-3 hover:bg-[#FAF6EE] transition-colors">
       <div className="h-8 w-8 rounded-lg grid place-items-center shrink-0 mt-0.5"
         style={{ background: '#F0EDE8', color: '#1F4D3A' }}>
-        {NOTIF_ICONS[icon] ?? NOTIF_ICONS.clock}
+        {NOTIF_ICONS[notif.icon] ?? NOTIF_ICONS.clock}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-[13px] leading-snug" style={{ color: '#0F1F18' }}>{text}</p>
-        <p className="text-[11px] mt-0.5 font-mono" style={{ color: '#9BA8A1' }}>{time}</p>
+        <p className="text-[13px] leading-snug" style={{ color: '#0F1F18' }}>{notif.title}</p>
+        {notif.body && <p className="text-[11.5px] mt-0.5 truncate" style={{ color: '#6B7A72' }}>{notif.body}</p>}
+        <p className="text-[11px] mt-0.5 font-mono" style={{ color: '#9BA8A1' }}>{formatNotifTime(notif.created_at)}</p>
       </div>
-      {unread && (
+      {!notif.read_at && (
         <span className="h-2 w-2 rounded-full shrink-0 mt-2" style={{ background: '#E8C57E' }} />
       )}
-    </div>
+    </button>
   );
 }
 
@@ -752,6 +777,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [cmdOpen, setCmdOpen] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifLoading, setNotifLoading] = useState(false);
   const [impersonating, setImpersonating] = useState<ImpersonatedUser | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [contextEventName, setContextEventName] = useState<string | null>(null);
@@ -778,6 +805,30 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       });
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function fetchNotifications() {
+    setNotifLoading(true);
+    fetch('/api/notifications?limit=20')
+      .then(r => r.json())
+      .then(d => setNotifications(d.notifications ?? []))
+      .finally(() => setNotifLoading(false));
+  }
+
+  function handleMarkAllRead() {
+    fetch('/api/notifications', { method: 'PATCH' }).then(() =>
+      setNotifications(prev => prev.map(n => ({ ...n, read_at: n.read_at ?? new Date().toISOString() })))
+    );
+  }
+
+  function handleNotifRead(id: string, url: string | null) {
+    if (!notifications.find(n => n.id === id)?.read_at) {
+      fetch(`/api/notifications/${id}`, { method: 'PATCH' }).then(() =>
+        setNotifications(prev => prev.map(n => n.id === id ? { ...n, read_at: new Date().toISOString() } : n))
+      );
+    }
+    setNotifOpen(false);
+    if (url) router.push(url);
+  }
 
   useEffect(() => {
     const cookieVal = document.cookie.split('; ').find(r => r.startsWith('karta_impersonating='))?.split('=')[1];
@@ -926,12 +977,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               {/* Bell + Notifications panel */}
               <div className="relative">
                 <button
-                  onClick={() => { setNotifOpen(o => !o); setAccountMenuOpen(false); }}
+                  onClick={() => {
+                    const next = !notifOpen;
+                    setNotifOpen(next);
+                    setAccountMenuOpen(false);
+                    if (next) fetchNotifications();
+                  }}
                   className="relative h-8 w-8 rounded-lg grid place-items-center transition hover:bg-[#F5F3EE]"
                   style={{ color: '#6B7A72' }}
                   aria-label="Notifications">
                   <Bell size={15} strokeWidth={2} />
-                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full ring-2 ring-white" style={{ background: '#E8C57E' }} />
+                  {notifications.some(n => !n.read_at) && (
+                    <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full ring-2 ring-white" style={{ background: '#E8C57E' }} />
+                  )}
                 </button>
 
                 {notifOpen && (
@@ -941,42 +999,52 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                       {/* Header */}
                       <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
                         <span className="font-display text-[14px] font-semibold" style={{ color: '#0F1F18' }}>Notifications</span>
-                        <button className="text-[10px] font-mono font-medium uppercase tracking-widest transition hover:text-[#1F4D3A]"
-                          style={{ color: '#9BA8A1' }}>
-                          Mark all read
-                        </button>
+                        {notifications.some(n => !n.read_at) && (
+                          <button onClick={handleMarkAllRead}
+                            className="text-[10px] font-mono font-medium uppercase tracking-widest transition hover:text-[#1F4D3A]"
+                            style={{ color: '#9BA8A1' }}>
+                            Mark all read
+                          </button>
+                        )}
                       </div>
 
-                      {/* TODAY */}
-                      <div>
-                        <div className="px-5 pt-3 pb-1.5 text-[10px] font-mono uppercase tracking-widest" style={{ color: '#9BA8A1' }}>
-                          Today
-                        </div>
-                        {[
-                          { icon: 'users',  text: '12 new registrations for Africa Tech Festival', time: '2m',  unread: true },
-                          { icon: 'card',   text: 'Aisha Ahmed shared their Karta Card',            time: '18m', unread: true },
-                          { icon: 'dollar', text: '$240,000 in ticket sales today',                  time: '1h',  unread: true },
-                        ].map((n, i) => (
-                          <NotifItem key={i} {...n} />
-                        ))}
-                      </div>
-
-                      {/* EARLIER */}
-                      <div>
-                        <div className="px-5 pt-3 pb-1.5 text-[10px] font-mono uppercase tracking-widest" style={{ color: '#9BA8A1' }}>
-                          Earlier
-                        </div>
-                        {[
-                          { icon: 'briefcase', text: 'Paystack confirmed as Platinum sponsor',          time: 'Yesterday', unread: false },
-                          { icon: 'clock',     text: 'Pan-African Climate Summit agenda is still empty', time: '2d',        unread: false },
-                        ].map((n, i) => (
-                          <NotifItem key={i} {...n} />
-                        ))}
+                      {/* List */}
+                      <div className="max-h-[380px] overflow-y-auto">
+                        {notifLoading ? (
+                          <div className="px-5 py-8 text-center text-[13px]" style={{ color: '#9BA8A1' }}>Loading…</div>
+                        ) : notifications.length === 0 ? (
+                          <div className="px-5 py-8 text-center">
+                            <Bell size={22} strokeWidth={1.5} className="mx-auto mb-2" style={{ color: '#C9C3B1' }} />
+                            <p className="text-[13px]" style={{ color: '#9BA8A1' }}>No notifications yet</p>
+                          </div>
+                        ) : (() => {
+                          const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+                          const today = notifications.filter(n => new Date(n.created_at) >= todayStart);
+                          const earlier = notifications.filter(n => new Date(n.created_at) < todayStart);
+                          return (
+                            <>
+                              {today.length > 0 && (
+                                <div>
+                                  <div className="px-5 pt-3 pb-1.5 text-[10px] font-mono uppercase tracking-widest" style={{ color: '#9BA8A1' }}>Today</div>
+                                  {today.map(n => <NotifItem key={n.id} notif={n} onRead={handleNotifRead} />)}
+                                </div>
+                              )}
+                              {earlier.length > 0 && (
+                                <div>
+                                  <div className="px-5 pt-3 pb-1.5 text-[10px] font-mono uppercase tracking-widest" style={{ color: '#9BA8A1' }}>Earlier</div>
+                                  {earlier.map(n => <NotifItem key={n.id} notif={n} onRead={handleNotifRead} />)}
+                                </div>
+                              )}
+                            </>
+                          );
+                        })()}
                       </div>
 
                       {/* Footer */}
                       <div className="px-5 py-3.5 border-t text-center" style={{ borderColor: '#E5E0D4' }}>
-                        <button className="text-[13px] font-medium transition hover:text-[#1F4D3A]"
+                        <button
+                          onClick={() => { setNotifOpen(false); router.push('/notifications'); }}
+                          className="text-[13px] font-medium transition hover:text-[#163828]"
                           style={{ color: '#1F4D3A' }}>
                           View all notifications
                         </button>
