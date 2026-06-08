@@ -23,7 +23,7 @@ export function RegistrationTabs({ eventId, eventName }: Props) {
 
   return (
     <div className="sticky top-0 z-30 border-b bg-white" style={{ borderColor: '#E5E0D4' }}>
-      <div className="max-w-[1100px] mx-auto px-6 lg:px-8 pt-3 pb-0">
+      <div className="px-6 lg:px-8 pt-3 pb-0">
         <div className="flex items-center gap-1.5 text-[12px] mb-2.5" style={{ color: '#6B7A72' }}>
           <Link href={`/events/${eventId}`} className="inline-flex items-center gap-1 hover:text-[#1F4D3A] transition-colors">
             <ArrowLeft size={12} strokeWidth={2} />

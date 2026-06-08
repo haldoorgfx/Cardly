@@ -265,7 +265,7 @@ export default function SettingsClient({ profile, userId }: Props) {
   }
 
   return (
-    <div className="px-8 py-8 max-w-[720px]">
+    <div className="px-6 lg:px-8 py-8 max-w-[760px]">
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>

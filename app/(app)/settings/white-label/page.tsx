@@ -24,7 +24,7 @@ export default async function WhiteLabelPage() {
   return (
     <>
       <SettingsTabs />
-      <div className="max-w-[900px] mx-auto px-6 py-8">
+      <div className="px-6 lg:px-8 py-8 max-w-[760px]">
         <div className="mb-8">
           <h1 className="font-display font-semibold text-[24px] tracking-tight" style={{ color: '#0F1F18' }}>White Label</h1>
           <p className="mt-1 text-[14px]" style={{ color: '#6B7A72' }}>Remove Karta branding and use your own domain.</p>

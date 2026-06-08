@@ -44,7 +44,7 @@ export default async function RegistrationsPage({ params }: Props) {
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
       <RegistrationTabs eventId={id} eventName={event.name} />
 
-      <div className="max-w-[1100px] mx-auto px-6 py-8">
+      <div className="px-6 lg:px-8 py-8">
         <div className="mb-6">
           <h1 className="font-display font-semibold text-[24px]" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
             Attendees

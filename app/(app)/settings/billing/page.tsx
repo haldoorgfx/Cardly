@@ -143,7 +143,7 @@ export default async function BillingPage({
     return (
       <>
         <SettingsTabs />
-        <div className="px-8 py-8 max-w-[720px]">
+        <div className="px-6 lg:px-8 py-8 max-w-[760px]">
           <div className="mb-8">
             <h1 className="font-display font-semibold text-[24px] text-[#0F1F18] tracking-tight">Billing</h1>
             <p className="text-[14px] text-[#6B7A72] mt-1">Manage your plan and payment method</p>
@@ -163,7 +163,7 @@ export default async function BillingPage({
   return (
     <>
       <SettingsTabs />
-    <div className="px-8 py-8 max-w-[960px]">
+    <div className="px-6 lg:px-8 py-8 max-w-[960px]">
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>

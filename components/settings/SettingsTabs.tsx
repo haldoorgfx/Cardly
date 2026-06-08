@@ -14,8 +14,8 @@ export function SettingsTabs() {
   const pathname = usePathname();
   return (
     <div style={{ borderBottom: '1px solid #E5E0D4', background: '#FFFFFF' }}>
-      <div className="max-w-[900px] mx-auto px-6">
-        <div className="flex items-center gap-0 overflow-x-auto">
+      <div className="px-6 lg:px-8">
+        <div className="flex items-center gap-0 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
           {TABS.map(tab => {
             const active = tab.href === '/settings'
               ? pathname === '/settings'
@@ -24,7 +24,7 @@ export function SettingsTabs() {
               <Link
                 key={tab.href}
                 href={tab.href}
-                className="shrink-0 px-4 py-3.5 text-[13.5px] font-medium border-b-2 transition-colors whitespace-nowrap"
+                className="shrink-0 px-4 pt-3 pb-2.5 text-[13px] font-medium border-b-2 transition-colors whitespace-nowrap"
                 style={{
                   borderColor: active ? '#1F4D3A' : 'transparent',
                   color: active ? '#1F4D3A' : '#6B7A72',

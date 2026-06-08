@@ -27,7 +27,7 @@ export default async function SpeakersPage({ params }: Props) {
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
       <AgendaTabs eventId={id} eventName={event.name} />
-      <div className="max-w-[900px] mx-auto px-6 py-8">
+      <div className="px-6 lg:px-8 py-8">
         {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         <SpeakersManager eventId={id} initialSpeakers={(speakers ?? []) as any} />
       </div>

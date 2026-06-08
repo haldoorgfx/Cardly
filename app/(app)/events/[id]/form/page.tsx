@@ -24,7 +24,7 @@ export default async function FormBuilderPage({ params }: Props) {
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
       <RegistrationTabs eventId={id} eventName={event.name} />
-      <div className="max-w-[700px] mx-auto px-6 py-8 pb-24">
+      <div className="px-6 lg:px-8 py-8 pb-24 max-w-[760px]">
         <div className="mb-6">
           <h1
             className="font-display font-semibold text-[24px]"
