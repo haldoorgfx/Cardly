@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { Search, Download, CheckCircle2, Clock, XCircle, RotateCcw, ExternalLink, UserPlus, X, MoreHorizontal, Upload, AlertCircle, CheckCircle, ChevronDown } from 'lucide-react';
+import { Search, Download, CheckCircle2, Clock, XCircle, RotateCcw, ExternalLink, UserPlus, X, MoreHorizontal, Upload, AlertCircle, CheckCircle, ChevronDown, Pencil, Copy } from 'lucide-react';
 
 type Status = 'pending' | 'confirmed' | 'checked_in' | 'cancelled' | 'refunded';
 type PaymentStatus = 'free' | 'pending' | 'paid' | 'refunded' | 'failed';
@@ -91,20 +91,168 @@ function exportCSV(rows: Registration[], eventSlug: string) {
   URL.revokeObjectURL(url);
 }
 
+/* ── Edit attendee modal ────────────────────────────────────────────────────── */
+function EditAttendeeModal({ reg, eventId, ticketTypes, onClose, onSaved }: {
+  reg: Registration;
+  eventId: string;
+  ticketTypes: TicketOption[];
+  onClose: () => void;
+  onSaved: (updates: Partial<Registration> & { ticket_type_id?: string | null }) => void;
+}) {
+  const [name, setName]         = useState(reg.attendee_name);
+  const [email, setEmail]       = useState(reg.attendee_email);
+  const [phone, setPhone]       = useState(reg.attendee_phone ?? '');
+  const [ticketId, setTicketId] = useState(
+    ticketTypes.find(t => t.name === reg.ticket_types?.name)?.id ?? ''
+  );
+  const [saving, setSaving]     = useState(false);
+  const [errors, setErrors]     = useState<Record<string, string>>({});
+  const [apiError, setApiError] = useState('');
+
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  async function handleSave() {
+    const errs: Record<string, string> = {};
+    if (!name.trim()) errs.name = 'Name is required';
+    if (!email.trim()) errs.email = 'Email is required';
+    else if (!EMAIL_RE.test(email)) errs.email = 'Enter a valid email';
+    if (Object.keys(errs).length > 0) { setErrors(errs); return; }
+
+    setSaving(true);
+    setApiError('');
+    try {
+      const res = await fetch(`/api/events/${eventId}/registrations`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          registrationId: reg.id,
+          attendee_name: name.trim(),
+          attendee_email: email.trim().toLowerCase(),
+          attendee_phone: phone.trim() || null,
+          ticket_type_id: ticketId || null,
+        }),
+      });
+      const data = await res.json() as { error?: string };
+      if (!res.ok) { setApiError(data.error ?? 'Failed to save'); return; }
+      onSaved({
+        attendee_name: name.trim(),
+        attendee_email: email.trim().toLowerCase(),
+        attendee_phone: phone.trim() || null,
+        ticket_type_id: ticketId || null,
+      });
+      onClose();
+    } catch {
+      setApiError('Something went wrong.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="relative bg-white rounded-2xl w-full max-w-[420px]" style={{ border: '1px solid #E5E0D4', boxShadow: '0 8px 40px rgba(15,31,24,0.18)' }}>
+        <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: '1px solid #E5E0D4' }}>
+          <div>
+            <h3 className="font-display text-[16px] font-semibold" style={{ color: '#0F1F18' }}>Edit attendee</h3>
+            <p className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>Update registration details</p>
+          </div>
+          <button onClick={onClose} className="h-7 w-7 rounded-lg grid place-items-center hover:bg-[#F5F3EE]" style={{ color: '#6B7A72' }}>
+            <X size={14} strokeWidth={2.2} />
+          </button>
+        </div>
+
+        <div className="px-6 py-5 space-y-4">
+          {apiError && (
+            <div className="px-4 py-3 rounded-xl text-[13px] font-medium" style={{ background: '#FEF2F2', color: '#B8423C', border: '1px solid #FECACA' }}>
+              {apiError}
+            </div>
+          )}
+
+          <div>
+            <label className="block text-[11px] font-mono uppercase tracking-widest mb-1.5" style={{ color: errors.name ? '#B8423C' : '#6B7A72' }}>Full name *</label>
+            <input
+              value={name} onChange={e => { setName(e.target.value); if (errors.name) setErrors(p => ({ ...p, name: '' })); }}
+              autoFocus
+              className="w-full h-10 px-3 rounded-lg text-[14px] outline-none"
+              style={{ border: `1.5px solid ${errors.name ? '#B8423C' : '#E5E0D4'}`, background: 'white', color: '#0F1F18' }}
+            />
+            {errors.name && <p className="text-[12px] mt-1" style={{ color: '#B8423C' }}>{errors.name}</p>}
+          </div>
+
+          <div>
+            <label className="block text-[11px] font-mono uppercase tracking-widest mb-1.5" style={{ color: errors.email ? '#B8423C' : '#6B7A72' }}>Email *</label>
+            <input
+              type="email" value={email} onChange={e => { setEmail(e.target.value); if (errors.email) setErrors(p => ({ ...p, email: '' })); }}
+              className="w-full h-10 px-3 rounded-lg text-[14px] outline-none"
+              style={{ border: `1.5px solid ${errors.email ? '#B8423C' : '#E5E0D4'}`, background: 'white', color: '#0F1F18' }}
+            />
+            {errors.email && <p className="text-[12px] mt-1" style={{ color: '#B8423C' }}>{errors.email}</p>}
+          </div>
+
+          <div>
+            <label className="block text-[11px] font-mono uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Phone (optional)</label>
+            <input
+              type="tel" value={phone} onChange={e => setPhone(e.target.value)}
+              placeholder="+254 700 000 000"
+              className="w-full h-10 px-3 rounded-lg text-[14px] outline-none"
+              style={{ border: '1.5px solid #E5E0D4', background: 'white', color: '#0F1F18' }}
+            />
+          </div>
+
+          {ticketTypes.length > 0 && (
+            <div>
+              <label className="block text-[11px] font-mono uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Ticket type</label>
+              <select
+                value={ticketId} onChange={e => setTicketId(e.target.value)}
+                className="w-full h-10 px-3 rounded-lg text-[13px] outline-none"
+                style={{ border: '1.5px solid #E5E0D4', background: 'white', color: '#0F1F18' }}
+              >
+                <option value="">No ticket type</option>
+                {ticketTypes.map(t => (
+                  <option key={t.id} value={t.id}>{t.name} — {t.price === 0 ? 'Free' : formatCurrency(t.price, t.currency)}</option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
+
+        <div className="px-6 pb-5 pt-3 flex gap-3" style={{ borderTop: '1px solid #F0EBE3' }}>
+          <button onClick={onClose} className="flex-1 h-10 rounded-xl text-[13px] font-medium border transition" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
+            Cancel
+          </button>
+          <button
+            onClick={handleSave} disabled={saving}
+            className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white transition disabled:opacity-60 inline-flex items-center justify-center gap-1.5"
+            style={{ background: '#1F4D3A' }}
+          >
+            {saving ? 'Saving…' : 'Save changes'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ── Row actions menu ───────────────────────────────────────────────────────── */
 function RowActionsMenu({
   reg,
   eventId,
+  ticketTypes,
   onStatusChange,
   onDeleted,
+  onEdited,
 }: {
   reg: Registration;
   eventId: string;
-  onStatusChange: (id: string, status: Status) => void;
+  ticketTypes: TicketOption[];
+  onStatusChange: (id: string, status: Status, checkedInAt?: string | null) => void;
   onDeleted: (id: string) => void;
+  onEdited: (id: string, updates: Partial<Registration> & { ticket_type_id?: string | null }) => void;
 }) {
-  const [open, setOpen]       = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [open, setOpen]         = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [loading, setLoading]   = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -124,7 +272,10 @@ function RowActionsMenu({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ registrationId: reg.id, status }),
       });
-      if (res.ok) onStatusChange(reg.id, status);
+      if (res.ok) {
+        const data = await res.json() as { registration?: Registration };
+        onStatusChange(reg.id, status, data.registration?.checked_in_at);
+      }
     } finally {
       setLoading(false);
     }
@@ -142,12 +293,28 @@ function RowActionsMenu({
     }
   }
 
-  const canCancel  = ['pending', 'confirmed', 'checked_in'].includes(reg.status);
-  const canConfirm = reg.status === 'cancelled' || reg.status === 'pending';
-  const canRefund  = reg.status === 'confirmed' || reg.status === 'checked_in';
+  function handleCopyEmail() {
+    navigator.clipboard.writeText(reg.attendee_email).catch(() => {});
+    setOpen(false);
+  }
+
+  const canCheckIn    = reg.status === 'confirmed' || reg.status === 'pending';
+  const canUndoCheckIn = reg.status === 'checked_in';
+  const canCancel     = ['pending', 'confirmed', 'checked_in'].includes(reg.status);
+  const canConfirm    = reg.status === 'cancelled' || reg.status === 'pending';
+  const canRefund     = reg.status === 'confirmed' || reg.status === 'checked_in';
 
   return (
     <div ref={ref} className="relative">
+      {editOpen && (
+        <EditAttendeeModal
+          reg={reg}
+          eventId={eventId}
+          ticketTypes={ticketTypes}
+          onClose={() => setEditOpen(false)}
+          onSaved={(updates) => onEdited(reg.id, updates)}
+        />
+      )}
       <button
         onClick={() => setOpen(v => !v)}
         disabled={loading}
@@ -159,27 +326,62 @@ function RowActionsMenu({
       </button>
       {open && (
         <div
-          className="absolute right-0 top-full mt-1 w-44 rounded-xl bg-white z-20 py-1"
-          style={{ border: '1px solid #E5E0D4', boxShadow: '0 4px 12px rgba(15,31,24,0.10), 0 1px 3px rgba(15,31,24,0.06)' }}
+          className="absolute right-0 top-full mt-1 w-[188px] rounded-xl bg-white z-20 py-1.5"
+          style={{ border: '1px solid #E5E0D4', boxShadow: '0 4px 16px rgba(15,31,24,0.12), 0 1px 3px rgba(15,31,24,0.06)' }}
         >
+          {/* Edit */}
+          <button
+            onClick={() => { setOpen(false); setEditOpen(true); }}
+            className="w-full text-left px-4 py-2 text-[13px] hover:bg-[#F5F3EE] transition-colors flex items-center gap-2.5"
+            style={{ color: '#0F1F18' }}
+          >
+            <Pencil size={12} strokeWidth={2} style={{ color: '#6B7A72' }} /> Edit attendee
+          </button>
+
+          <div style={{ height: 1, background: '#E5E0D4', margin: '4px 0' }} />
+
+          {/* Check-in actions */}
+          {canCheckIn && (
+            <button onClick={() => changeStatus('checked_in')} className="w-full text-left px-4 py-2 text-[13px] hover:bg-[#F5F3EE] transition-colors flex items-center gap-2.5" style={{ color: '#065F46' }}>
+              <CheckCircle2 size={12} strokeWidth={2} /> Check in
+            </button>
+          )}
+          {canUndoCheckIn && (
+            <button onClick={() => changeStatus('confirmed')} className="w-full text-left px-4 py-2 text-[13px] hover:bg-[#F5F3EE] transition-colors flex items-center gap-2.5" style={{ color: '#6B7A72' }}>
+              <RotateCcw size={12} strokeWidth={2} /> Undo check-in
+            </button>
+          )}
           {canConfirm && (
-            <button onClick={() => changeStatus('confirmed')} className="w-full text-left px-4 py-2 text-[13px] hover:bg-[#F5F3EE] transition-colors" style={{ color: '#1F4D3A' }}>
-              ✓ Mark confirmed
+            <button onClick={() => changeStatus('confirmed')} className="w-full text-left px-4 py-2 text-[13px] hover:bg-[#F5F3EE] transition-colors flex items-center gap-2.5" style={{ color: '#1F4D3A' }}>
+              <CheckCircle2 size={12} strokeWidth={2} /> Mark confirmed
             </button>
           )}
           {canCancel && (
-            <button onClick={() => changeStatus('cancelled')} className="w-full text-left px-4 py-2 text-[13px] hover:bg-[#F5F3EE] transition-colors" style={{ color: '#C97A2D' }}>
-              Cancel registration
+            <button onClick={() => changeStatus('cancelled')} className="w-full text-left px-4 py-2 text-[13px] hover:bg-[#F5F3EE] transition-colors flex items-center gap-2.5" style={{ color: '#C97A2D' }}>
+              <XCircle size={12} strokeWidth={2} /> Cancel registration
             </button>
           )}
           {canRefund && (
-            <button onClick={() => changeStatus('refunded')} className="w-full text-left px-4 py-2 text-[13px] hover:bg-[#F5F3EE] transition-colors" style={{ color: '#3A6B8C' }}>
-              Mark as refunded
+            <button onClick={() => changeStatus('refunded')} className="w-full text-left px-4 py-2 text-[13px] hover:bg-[#F5F3EE] transition-colors flex items-center gap-2.5" style={{ color: '#3A6B8C' }}>
+              <RotateCcw size={12} strokeWidth={2} /> Mark as refunded
             </button>
           )}
+
           <div style={{ height: 1, background: '#E5E0D4', margin: '4px 0' }} />
-          <button onClick={handleDelete} className="w-full text-left px-4 py-2 text-[13px] hover:bg-[#FEF2F2] transition-colors" style={{ color: '#B8423C' }}>
-            Delete registration
+
+          {/* Utilities */}
+          <button
+            onClick={handleCopyEmail}
+            className="w-full text-left px-4 py-2 text-[13px] hover:bg-[#F5F3EE] transition-colors flex items-center gap-2.5"
+            style={{ color: '#6B7A72' }}
+          >
+            <Copy size={12} strokeWidth={2} style={{ color: '#9BA8A1' }} /> Copy email
+          </button>
+
+          <div style={{ height: 1, background: '#E5E0D4', margin: '4px 0' }} />
+
+          <button onClick={handleDelete} className="w-full text-left px-4 py-2 text-[13px] hover:bg-[#FEF2F2] transition-colors flex items-center gap-2.5" style={{ color: '#B8423C' }}>
+            <XCircle size={12} strokeWidth={2} /> Delete registration
           </button>
         </div>
       )}
@@ -587,13 +789,28 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
   const [rows, setRows]               = useState(initialRegistrations);
   const [total, setTotal]             = useState(totalCount);
 
-  function handleStatusChange(id: string, status: Status) {
-    setRows(r => r.map(row => row.id === id ? { ...row, status } : row));
+  function handleStatusChange(id: string, status: Status, checkedInAt?: string | null) {
+    setRows(r => r.map(row => row.id === id
+      ? { ...row, status, checked_in_at: checkedInAt !== undefined ? checkedInAt : row.checked_in_at }
+      : row
+    ));
   }
 
   function handleDeleted(id: string) {
     setRows(r => r.filter(row => row.id !== id));
     setTotal(t => t - 1);
+  }
+
+  function handleEdited(id: string, updates: Partial<Registration> & { ticket_type_id?: string | null }) {
+    setRows(r => r.map(row => {
+      if (row.id !== id) return row;
+      const updated = { ...row, ...updates };
+      if (updates.ticket_type_id !== undefined) {
+        const tt = ticketTypes.find(t => t.id === updates.ticket_type_id);
+        updated.ticket_types = tt ? { name: tt.name, price: tt.price } : null;
+      }
+      return updated;
+    }));
   }
   const [query, setQuery]             = useState('');
   const [statusFilter, setStatusFilter] = useState<Status | 'all'>('all');
@@ -830,8 +1047,10 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
                       <RowActionsMenu
                         reg={reg}
                         eventId={eventId}
+                        ticketTypes={ticketTypes}
                         onStatusChange={handleStatusChange}
                         onDeleted={handleDeleted}
+                        onEdited={handleEdited}
                       />
                     </td>
                   </tr>

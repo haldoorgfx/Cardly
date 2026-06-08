@@ -130,7 +130,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   const body = await req.json();
-  const { registrationId, karta_card_url, karta_card_zone_data, status, attendee_name, attendee_email, attendee_phone } = body;
+  const { registrationId, karta_card_url, karta_card_zone_data, status, attendee_name, attendee_email, attendee_phone, ticket_type_id } = body;
   if (!registrationId) return NextResponse.json({ error: 'registrationId required' }, { status: 400 });
 
   const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
@@ -140,10 +140,13 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     const VALID_STATUSES = ['pending', 'confirmed', 'checked_in', 'cancelled', 'refunded'];
     if (!VALID_STATUSES.includes(status)) return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
     patch.status = status;
+    if (status === 'checked_in') patch.checked_in_at = new Date().toISOString();
+    else patch.checked_in_at = null;
   }
   if (attendee_name !== undefined) patch.attendee_name = attendee_name;
   if (attendee_email !== undefined) patch.attendee_email = attendee_email.toLowerCase();
   if (attendee_phone !== undefined) patch.attendee_phone = attendee_phone || null;
+  if (ticket_type_id !== undefined) patch.ticket_type_id = ticket_type_id || null;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await (admin as any)
@@ -151,7 +154,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     .update(patch)
     .eq('id', registrationId)
     .eq('event_id', params.id)
-    .select()
+    .select('*, ticket_types(name, price)')
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
