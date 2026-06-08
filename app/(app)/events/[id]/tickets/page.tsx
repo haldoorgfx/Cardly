@@ -14,7 +14,7 @@ export default async function TicketsPage({ params }: Props) {
 
   const admin = createAdminClient();
   const [{ data: event }, { data: tickets }, { data: regs }, { data: promoCodes }] = await Promise.all([
-    admin.from('events').select('id, name, slug').eq('id', id).eq('user_id', user.id).single(),
+    admin.from('events').select('id, name, slug, checkout_collect_details, checkout_require_approval, checkout_show_remaining, checkout_apply_vat').eq('id', id).eq('user_id', user.id).single(),
     admin.from('ticket_types').select('*').eq('event_id', id).order('position'),
     admin.from('registrations').select('status, amount_paid, ticket_type_id').eq('event_id', id),
     admin.from('promo_codes').select('*').eq('event_id', id).order('created_at', { ascending: false }).limit(20),
@@ -45,6 +45,10 @@ export default async function TicketsPage({ params }: Props) {
       avgOrder={avgOrder}
       conversion={conversion}
       promoCodes={promoCodes ?? []}
+      checkoutCollectDetails={event.checkout_collect_details ?? true}
+      checkoutRequireApproval={event.checkout_require_approval ?? false}
+      checkoutShowRemaining={event.checkout_show_remaining ?? true}
+      checkoutApplyVat={event.checkout_apply_vat ?? false}
     />
   );
 }

@@ -404,6 +404,10 @@ export interface Database {
           moderation_status: ModerationStatus;
           view_count: number;
           download_count: number;
+          checkout_collect_details: boolean;
+          checkout_require_approval: boolean;
+          checkout_show_remaining: boolean;
+          checkout_apply_vat: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -420,6 +424,10 @@ export interface Database {
           moderation_status?: ModerationStatus;
           view_count?: number;
           download_count?: number;
+          checkout_collect_details?: boolean;
+          checkout_require_approval?: boolean;
+          checkout_show_remaining?: boolean;
+          checkout_apply_vat?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -434,6 +442,10 @@ export interface Database {
           moderation_status?: ModerationStatus;
           view_count?: number;
           download_count?: number;
+          checkout_collect_details?: boolean;
+          checkout_require_approval?: boolean;
+          checkout_show_remaining?: boolean;
+          checkout_apply_vat?: boolean;
           updated_at?: string;
         };
         Relationships: [

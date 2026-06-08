@@ -83,6 +83,19 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     const { error } = await admin.from('registrations').insert(toInsert);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     imported = toInsert.length;
+
+    // Keep quantity_sold in sync on the ticket type
+    if (ticket) {
+      const { data: cur } = await admin
+        .from('ticket_types')
+        .select('quantity_sold')
+        .eq('id', ticket.id)
+        .single();
+      await admin
+        .from('ticket_types')
+        .update({ quantity_sold: (cur?.quantity_sold ?? 0) + imported })
+        .eq('id', ticket.id);
+    }
   }
 
   return NextResponse.json({ imported, skipped: skipped.length, invalid: invalid.length, skipped_emails: skipped });

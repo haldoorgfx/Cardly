@@ -187,21 +187,35 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     .single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-  // Prevent deletion if tickets have already been sold
+  // Verify ticket belongs to this event
   const { data: ticket } = await admin
     .from('ticket_types')
-    .select('quantity_sold')
+    .select('id')
     .eq('id', ticketId)
     .eq('event_id', params.id)
     .single();
 
   if (!ticket) return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
-  if ((ticket.quantity_sold ?? 0) > 0) {
+
+  // Check actual registration count (quantity_sold may be stale from manual/bulk imports)
+  const { count: regCount } = await admin
+    .from('registrations')
+    .select('id', { count: 'exact', head: true })
+    .eq('ticket_type_id', ticketId)
+    .in('status', ['confirmed', 'checked_in', 'pending']);
+
+  if ((regCount ?? 0) > 0) {
     return NextResponse.json(
-      { error: 'Cannot delete a ticket type that has been sold. Set it as hidden instead.' },
+      { error: 'Cannot delete a ticket type that has registrations. Set it as hidden instead.' },
       { status: 409 },
     );
   }
+
+  // Nullify any remaining references (cancelled/refunded registrations) to satisfy FK constraint
+  await admin
+    .from('registrations')
+    .update({ ticket_type_id: null })
+    .eq('ticket_type_id', ticketId);
 
   const { error } = await admin
     .from('ticket_types')

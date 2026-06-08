@@ -19,6 +19,10 @@ interface Props {
   avgOrder:     number;
   conversion:   number;
   promoCodes:   PromoRow[];
+  checkoutCollectDetails:  boolean;
+  checkoutRequireApproval: boolean;
+  checkoutShowRemaining:   boolean;
+  checkoutApplyVat:        boolean;
 }
 
 function fmtMoney(n: number, currency = 'USD') {
@@ -413,6 +417,7 @@ function CreateTicketModal({ onClose, eventId, defaultCurrency }: { onClose: () 
 export function TicketsPageClient({
   eventId, tickets, soldByType,
   totalRevenue, ticketsSold, avgOrder, conversion, promoCodes,
+  checkoutCollectDetails, checkoutRequireApproval, checkoutShowRemaining, checkoutApplyVat,
 }: Props) {
   const [createOpen, setCreateOpen] = useState(false);
   const [promoOpen, setPromoOpen]   = useState(false);
@@ -420,11 +425,23 @@ export function TicketsPageClient({
   // Derive primary currency from the first paid ticket, fall back to USD
   const primaryCurrency = tickets.find(t => t.price > 0)?.currency || tickets[0]?.currency || 'USD';
 
-  // Checkout settings state (UI-only defaults; ideally loaded from event row)
-  const [collectDetails, setCollectDetails]     = useState(true);
-  const [requireApproval, setRequireApproval]   = useState(false);
-  const [showRemaining, setShowRemaining]       = useState(true);
-  const [applyVat, setApplyVat]                 = useState(true);
+  // Checkout settings — loaded from DB, saved on toggle
+  const [collectDetails, setCollectDetails]     = useState(checkoutCollectDetails);
+  const [requireApproval, setRequireApproval]   = useState(checkoutRequireApproval);
+  const [showRemaining, setShowRemaining]       = useState(checkoutShowRemaining);
+  const [applyVat, setApplyVat]                 = useState(checkoutApplyVat);
+
+  async function saveCheckoutSetting(field: string, value: boolean) {
+    await fetch(`/api/events/${eventId}/checkout-settings`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ [field]: value }),
+    });
+  }
+
+  function makeToggle(field: string, setter: (v: boolean) => void) {
+    return (v: boolean) => { setter(v); saveCheckoutSetting(field, v); };
+  }
 
   const subtitle = [
     `${tickets.length} ticket type${tickets.length !== 1 ? 's' : ''}`,
@@ -565,10 +582,10 @@ export function TicketsPageClient({
             </div>
             <div className="px-5 py-4 space-y-0">
               {[
-                { label: 'Collect attendee details', sub: 'Name, email, organization', value: collectDetails, set: setCollectDetails },
-                { label: 'Require approval',         sub: 'Manually approve each registrant', value: requireApproval, set: setRequireApproval },
-                { label: 'Show remaining tickets',   sub: 'Display scarcity on event page', value: showRemaining, set: setShowRemaining },
-                { label: 'Apply 7.5% VAT',           sub: 'Add tax at checkout', value: applyVat, set: setApplyVat },
+                { label: 'Collect attendee details', sub: 'Name, email, organization', value: collectDetails, set: makeToggle('checkout_collect_details', setCollectDetails) },
+                { label: 'Require approval',         sub: 'Manually approve each registrant', value: requireApproval, set: makeToggle('checkout_require_approval', setRequireApproval) },
+                { label: 'Show remaining tickets',   sub: 'Display scarcity on event page', value: showRemaining, set: makeToggle('checkout_show_remaining', setShowRemaining) },
+                { label: 'Apply 7.5% VAT',           sub: 'Add tax at checkout', value: applyVat, set: makeToggle('checkout_apply_vat', setApplyVat) },
               ].map((setting, i, arr) => (
                 <div key={setting.label}
                   className="flex items-center justify-between py-4"
