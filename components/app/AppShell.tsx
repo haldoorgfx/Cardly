@@ -207,6 +207,8 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
   const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
   const isSuperAdmin = profile?.role === 'super_admin';
   const [adminOpen, setAdminOpen] = useState(true);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const handleSignOut = async () => {
     const supabase = createClient();
@@ -225,7 +227,7 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
       {/* Logo + user identity header */}
       <div className="px-4 pt-3.5 pb-3 shrink-0" style={{ borderBottom: '1px solid #E5E0D4' }}>
         <div className="flex items-center justify-between mb-2">
-          {logoUrl ? (
+          {mounted && logoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={logoUrl} alt="Logo" className="max-h-[28px] max-w-[120px] object-contain" />
           ) : (
@@ -237,14 +239,14 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
               </span>
             </Link>
           )}
-          {planLabel && (
+          {mounted && planLabel && (
             <span className="text-[9px] font-mono font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md"
               style={{ background: '#E8EFEB', color: '#1F4D3A', border: '1px solid #C9DDD3' }}>
               {planLabel}
             </span>
           )}
         </div>
-        {profile?.full_name && (
+        {mounted && profile?.full_name && (
           <p className="text-[12.5px] font-medium px-0.5" style={{ color: '#6B7A72' }}>
             {profile.full_name}
           </p>
@@ -281,7 +283,7 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
         ))}
 
         {/* Admin section — inline for admin users */}
-        {isAdmin && (
+        {mounted && isAdmin && (
           <div>
             <button
               onClick={() => setAdminOpen(o => !o)}
@@ -320,12 +322,12 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
         <div className="rounded-xl p-3" style={{ background: '#F5F3EE', border: '1px solid #E5E0D4' }}>
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] font-mono uppercase tracking-widest" style={{ color: '#9BA8A1' }}>Events</span>
-            <span className="text-[10px] font-mono" style={{ color: '#6B7A72' }}>
+            <span suppressHydrationWarning className="text-[10px] font-mono" style={{ color: '#6B7A72' }}>
               {eventCount}&nbsp;/&nbsp;{planLimit === Infinity ? '∞' : planLimit}
             </span>
           </div>
           <div className="h-1 rounded-full overflow-hidden" style={{ background: '#E5E0D4' }}>
-            <div className="h-full rounded-full transition-all duration-500"
+            <div suppressHydrationWarning className="h-full rounded-full transition-all duration-500"
               style={{ width: `${planPct}%`, background: planPct >= 90 ? '#C97A2D' : '#1F4D3A' }} />
           </div>
         </div>
@@ -339,7 +341,7 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
         <Link href="/settings/billing" onClick={onNavigate}
           className="flex items-center justify-center gap-1.5 w-full px-3 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all hover:opacity-90"
           style={{ background: '#1F4D3A' }}>
-          {ctaLabel}
+          <span suppressHydrationWarning>{ctaLabel}</span>
         </Link>
       </div>
 
@@ -991,7 +993,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   className="h-8 w-8 rounded-full grid place-items-center text-white text-[12px] font-semibold shrink-0 ring-2 ring-transparent hover:ring-[#1F4D3A]/30 transition-all"
                   style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}
                   aria-label="Account menu">
-                  {initials}
+                  <span suppressHydrationWarning>{initials}</span>
                 </button>
 
                 {accountMenuOpen && (
@@ -1002,13 +1004,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                       <div className="px-4 py-3.5 flex items-center gap-3" style={{ borderBottom: '1px solid #E5E0D4' }}>
                         <div className="h-10 w-10 rounded-full grid place-items-center text-white text-[13px] font-bold shrink-0"
                           style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}>
-                          {initials}
+                          <span suppressHydrationWarning>{initials}</span>
                         </div>
                         <div className="min-w-0">
-                          <div className="text-[13.5px] font-semibold text-[#0F1F18] leading-tight truncate">
+                          <div suppressHydrationWarning className="text-[13.5px] font-semibold text-[#0F1F18] leading-tight truncate">
                             {profile?.full_name ?? '—'}
                           </div>
-                          <div className="font-mono text-[11px] text-[#6B7A72] truncate">{profile?.email ?? ''}</div>
+                          <div suppressHydrationWarning className="font-mono text-[11px] text-[#6B7A72] truncate">{profile?.email ?? ''}</div>
                         </div>
                       </div>
 
@@ -1048,10 +1050,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                       <div className="px-3 pb-3 pt-0">
                         <div className="rounded-xl p-3 mb-2"
                           style={{ background: 'linear-gradient(135deg, rgba(232,197,126,0.18), rgba(31,77,58,0.06))' }}>
-                          <div className="flex items-center gap-1.5 text-[12px] font-semibold" style={{ color: '#C9A45E' }}>
+                          <div suppressHydrationWarning className="flex items-center gap-1.5 text-[12px] font-semibold" style={{ color: '#C9A45E' }}>
                             <Zap size={12} strokeWidth={2} /> {planLabel} plan
                           </div>
-                          <div className="text-[11.5px] text-[#6B7A72] mt-0.5">
+                          <div suppressHydrationWarning className="text-[11.5px] text-[#6B7A72] mt-0.5">
                             {planLabel === 'Studio' ? "You're on the full platform." : 'Upgrade for more features.'}
                           </div>
                         </div>
