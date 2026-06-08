@@ -2,12 +2,37 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 import type { Database } from "@/types/database";
+import { checkRateLimit } from "@/lib/ratelimit";
 
 export async function middleware(request: NextRequest) {
-  // Step 1: refresh auth session cookies (handles unauthenticated → /login redirect)
+  const pathname = request.nextUrl.pathname;
+
+  // ── Step 0: Rate limiting on all /api/* routes ──────────────────────────
+  if (pathname.startsWith('/api/')) {
+    const ip =
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
+      request.headers.get('x-real-ip') ??
+      '127.0.0.1';
+
+    const rl = await checkRateLimit(pathname, ip);
+    if (!rl.allowed) {
+      return new NextResponse(
+        JSON.stringify({ error: 'Too many requests. Please slow down.' }),
+        {
+          status: 429,
+          headers: {
+            'Content-Type': 'application/json',
+            'Retry-After': String(rl.retryAfter),
+            'X-RateLimit-Reset': String(Math.floor(Date.now() / 1000) + rl.retryAfter),
+          },
+        },
+      );
+    }
+  }
+
+  // ── Step 1: refresh auth session cookies (handles unauthenticated → /login redirect)
   const response = await updateSession(request);
 
-  const pathname = request.nextUrl.pathname;
 
   // Skip role/suspension checks for fully public routes
   const isPublicRoute =

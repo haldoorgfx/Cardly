@@ -33,21 +33,7 @@ const TMP_FONTS = '/tmp/karta-fonts';
 const MAX_PHOTO_BYTES = 10 * 1024 * 1024; // 10 MB
 const MAX_FIELD_CHARS = 500;
 
-// ── Per-IP rate limiter ───────────────────────────────────────────────────────
-// In-memory sliding window: 10 renders per IP per 60 s.
-// Not distributed (each Lambda instance has its own bucket) but stops trivial abuse.
-const rlMap = new Map<string, { count: number; resetAt: number }>();
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const entry = rlMap.get(ip);
-  if (!entry || now > entry.resetAt) {
-    rlMap.set(ip, { count: 1, resetAt: now + 60_000 });
-    return false;
-  }
-  if (entry.count >= 10) return true;
-  entry.count++;
-  return false;
-}
+// Rate limiting for /api/render is now handled by middleware (lib/ratelimit.ts)
 let fontsWritten = false;
 
 // ── Font setup ────────────────────────────────────────────────────────────────
@@ -238,12 +224,7 @@ function decodeDataUrl(dataUrl: string): Buffer | null {
 }
 
 export async function POST(req: NextRequest) {
-  // Rate limit by IP — stops trivial abuse of this public endpoint
-  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
-  if (isRateLimited(ip)) {
-    return NextResponse.json({ error: 'Too many requests. Please wait a minute and try again.' }, { status: 429 });
-  }
-
+  // Rate limiting handled by middleware (lib/ratelimit.ts — 'render' tier: 10 req/60s per IP)
   const supabase = createAdminClient();
 
   // The attendee page POSTs multipart/form-data (photo files); the developer
