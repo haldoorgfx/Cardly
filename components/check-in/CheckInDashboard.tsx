@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { ScanLine, Settings, Check, Users, Clock, Search, X, CheckCircle2 } from 'lucide-react';
+import { ScanLine, Settings, Check, Users, Clock, Search, X, CheckCircle2, Smartphone, QrCode } from 'lucide-react';
 import { QRScanner } from './QRScanner';
 import type { RecentCheckin } from '@/app/(app)/events/[id]/check-in/page';
 
@@ -60,6 +60,97 @@ function fmt(amount: number, currency: string): string {
   if (!amount) return 'Free';
   try { return new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 0 }).format(amount); }
   catch { return `${currency} ${amount}`; }
+}
+
+/* ── Phone scanner modal ───────────────────────────────────────────────────── */
+function PhoneScannerModal({ eventId, onClose }: { eventId: string; onClose: () => void }) {
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const scannerUrl = typeof window !== 'undefined'
+    ? `${window.location.origin}/events/${eventId}/check-in`
+    : '';
+
+  useEffect(() => {
+    if (!scannerUrl) return;
+    import('qrcode').then(QRCode =>
+      QRCode.toDataURL(scannerUrl, { width: 280, margin: 2, color: { dark: '#0F1F18', light: '#FFFFFF' } })
+    ).then(setQrDataUrl).catch(() => {});
+  }, [scannerUrl]);
+
+  function copyLink() {
+    navigator.clipboard.writeText(scannerUrl).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: 'rgba(10,15,12,0.72)', backdropFilter: 'blur(4px)' }}>
+      <div className="w-full max-w-[380px] rounded-2xl bg-white overflow-hidden animate-dropIn"
+        style={{ border: '1px solid #E5E0D4', boxShadow: '0 20px 60px rgba(15,31,24,0.32)' }}>
+
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
+          <div className="flex items-center gap-2">
+            <Smartphone size={16} strokeWidth={1.8} style={{ color: '#1F4D3A' }} />
+            <span className="font-display text-[15px] font-semibold" style={{ color: '#0F1F18' }}>Scan with phone</span>
+          </div>
+          <button onClick={onClose} className="h-7 w-7 rounded-lg grid place-items-center hover:bg-[#F5F3EE]"
+            style={{ color: '#6B7A72' }}>
+            <X size={14} />
+          </button>
+        </div>
+
+        <div className="px-6 py-5">
+          {/* Instructions */}
+          <p className="text-[13px] mb-4 leading-relaxed" style={{ color: '#3A4A42' }}>
+            Open this on your phone to use the camera as a QR scanner. Check-ins appear on this dashboard within seconds.
+          </p>
+
+          {/* Steps */}
+          <div className="space-y-2 mb-5">
+            {[
+              'Point your phone camera at the QR code below',
+              'Open the link — you\'ll go straight to the scanner',
+              'Scan attendee badges — check-ins update here live',
+            ].map((step, i) => (
+              <div key={i} className="flex items-start gap-3">
+                <span className="w-5 h-5 rounded-full grid place-items-center text-[11px] font-mono font-bold shrink-0 mt-0.5"
+                  style={{ background: '#E8EFEB', color: '#1F4D3A' }}>{i + 1}</span>
+                <span className="text-[13px]" style={{ color: '#3A4A42' }}>{step}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* QR code */}
+          <div className="rounded-2xl p-5 flex flex-col items-center gap-3 mb-4"
+            style={{ background: '#F5F3EE', border: '1px solid #E5E0D4' }}>
+            {qrDataUrl ? (
+              <img src={qrDataUrl} alt="Scanner QR code" width={200} height={200} className="rounded-xl" />
+            ) : (
+              <div className="w-[200px] h-[200px] rounded-xl grid place-items-center" style={{ background: '#E5E0D4' }}>
+                <QrCode size={40} style={{ color: '#9BA8A1' }} />
+              </div>
+            )}
+            <div className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#2D7A4F' }} />
+              <span className="font-mono text-[10px] tracking-[0.1em] uppercase" style={{ color: '#6B7A72' }}>Updates live</span>
+            </div>
+          </div>
+
+          {/* Copy link fallback */}
+          <button
+            onClick={copyLink}
+            className="w-full h-10 rounded-xl text-[13px] font-medium border transition flex items-center justify-center gap-2"
+            style={{ borderColor: '#E5E0D4', color: copied ? '#2D7A4F' : '#3A4A42', background: copied ? '#ECFDF5' : 'white' }}>
+            {copied ? '✓ Link copied!' : 'Copy link instead'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 /* ── Confirm check-in modal ────────────────────────────────────────────────── */
@@ -201,22 +292,23 @@ function Row({ label, value, mono, muted }: { label: string; value: string; mono
 export default function CheckInDashboard({
   eventId, eventName, eventStatus, totalRegistrations, initialCheckedIn, recentCheckins,
 }: Props) {
-  const [scannerOpen, setScannerOpen]     = useState(false);
-  const [checkedIn, setCheckedIn]         = useState(initialCheckedIn);
-  const [perHour, setPerHour]             = useState(0);
-  const [feed, setFeed]                   = useState<FeedEntry[]>(
+  const [scannerOpen, setScannerOpen]         = useState(false);
+  const [phoneModalOpen, setPhoneModalOpen]   = useState(false);
+  const [checkedIn, setCheckedIn]             = useState(initialCheckedIn);
+  const [perHour, setPerHour]                 = useState(0);
+  const [feed, setFeed]                       = useState<FeedEntry[]>(
     recentCheckins.map(r => ({ id: r.id, attendee_name: r.attendee_name, ticket_type: r.ticket_type, checked_in_at: r.checked_in_at }))
   );
-  const [searchQuery, setSearchQuery]     = useState('');
-  const [searchResults, setSearchResults] = useState<DashboardSearchResult[]>([]);
-  const [searching, setSearching]         = useState(false);
-  const [selectedReg, setSelectedReg]     = useState<DashboardSearchResult | null>(null);
-  const searchTimeout                     = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [searchQuery, setSearchQuery]         = useState('');
+  const [searchResults, setSearchResults]     = useState<DashboardSearchResult[]>([]);
+  const [searching, setSearching]             = useState(false);
+  const [selectedReg, setSelectedReg]         = useState<DashboardSearchResult | null>(null);
+  const searchTimeout                         = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const pct    = totalRegistrations > 0 ? Math.round((checkedIn / totalRegistrations) * 100) : 0;
   const isLive = eventStatus === 'published';
 
-  /* Live feed polling every 30s */
+  /* Live feed polling every 5s */
   const refreshFeed = useCallback(async () => {
     try {
       const res  = await fetch(`/api/events/${eventId}/checkin?feed=1`);
@@ -229,7 +321,7 @@ export default function CheckInDashboard({
 
   useEffect(() => {
     refreshFeed();
-    const id = setInterval(refreshFeed, 30_000);
+    const id = setInterval(refreshFeed, 5_000);
     return () => clearInterval(id);
   }, [refreshFeed]);
 
@@ -289,6 +381,12 @@ export default function CheckInDashboard({
           onCheckedIn={handleCheckedIn}
         />
       )}
+      {phoneModalOpen && (
+        <PhoneScannerModal
+          eventId={eventId}
+          onClose={() => setPhoneModalOpen(false)}
+        />
+      )}
 
       <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
 
@@ -301,11 +399,12 @@ export default function CheckInDashboard({
               {isLive ? 'Live · ' : ''}{eventName}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <button
+              onClick={() => setPhoneModalOpen(true)}
               className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[13.5px] font-medium border transition hover:border-[#1F4D3A]/40 hover:text-[#1F4D3A]"
               style={{ borderColor: '#E5E0D4', color: '#6B7A72', background: 'white' }}>
-              <Settings size={14} strokeWidth={1.8} /> Settings
+              <Smartphone size={14} strokeWidth={1.8} /> Scan with phone
             </button>
             <button
               onClick={() => setScannerOpen(true)}
