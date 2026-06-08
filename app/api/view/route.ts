@@ -18,7 +18,8 @@ export async function POST(req: NextRequest) {
 
   const admin = createAdminClient();
   try {
-    await admin.rpc('increment_view_count', { p_event_id: eventId });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (admin as any).rpc('increment_view_count', { p_event_id: eventId });
   } catch {
     // Silently ignore — view count is best-effort, never block the response
   }
