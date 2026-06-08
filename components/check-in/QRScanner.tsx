@@ -6,17 +6,19 @@ import { X, Search, Check, Clock } from 'lucide-react';
 import Link from 'next/link';
 
 type ScanResult =
-  | { kind: 'success'; name: string; email: string }
-  | { kind: 'already_checked_in'; name: string; checked_in_at: string }
+  | { kind: 'success'; name: string; email: string; ticket_type: string | null }
+  | { kind: 'already_checked_in'; name: string; checked_in_at: string; ticket_type: string | null }
   | { kind: 'invalid'; message: string };
 
 type SearchResult = {
   id: string;
   attendee_name: string | null;
   attendee_email: string | null;
+  attendee_phone: string | null;
   status: string;
   checked_in_at: string | null;
   qr_code_token: string;
+  ticket_types: { name: string } | null;
 };
 
 interface Props {
@@ -70,16 +72,17 @@ export function QRScanner({ eventId, eventName, totalRegistrations, initialCheck
       const data = await res.json() as {
         result: string; message: string;
         attendee_name?: string; attendee_email?: string; checked_in_at?: string;
+        ticket_type?: string | null;
       };
 
       if (data.result === 'success') {
         beep('ok');
         setCheckedIn(c => c + 1);
         onCheckedIn?.();
-        setFlash({ kind: 'success', name: data.attendee_name ?? '', email: data.attendee_email ?? '' });
+        setFlash({ kind: 'success', name: data.attendee_name ?? '', email: data.attendee_email ?? '', ticket_type: data.ticket_type ?? null });
       } else if (data.result === 'already_checked_in') {
         beep('warn');
-        setFlash({ kind: 'already_checked_in', name: data.attendee_name ?? '', checked_in_at: data.checked_in_at ?? '' });
+        setFlash({ kind: 'already_checked_in', name: data.attendee_name ?? '', checked_in_at: data.checked_in_at ?? '', ticket_type: data.ticket_type ?? null });
       } else {
         beep('err');
         setFlash({ kind: 'invalid', message: data.message ?? 'Invalid QR code' });
@@ -145,14 +148,16 @@ export function QRScanner({ eventId, eventName, totalRegistrations, initialCheck
 
       reader.decodeFromVideoDevice(deviceId ?? undefined, videoRef.current!, (result, err) => {
         if (result) {
-          const text = result.getText();
-          // Accept raw 32-hex token or full URL ending in the token
-          const token = text.replace(/^.*\//, '').replace(/\?.*$/, '');
-          if (/^[0-9a-f]{32}$/i.test(token)) {
-            handleToken(token);
+          const text = result.getText().trim();
+          // Extract 32-hex token from URL query param or bare value
+          let token: string | null = null;
+          const urlMatch = text.match(/[?&]token=([0-9a-f]{32})/i);
+          if (urlMatch) {
+            token = urlMatch[1];
           } else if (/^[0-9a-f]{32}$/i.test(text)) {
-            handleToken(text);
+            token = text;
           }
+          if (token) handleToken(token);
         }
         if (err && err?.name !== 'NotFoundException') {
           console.error(err);
@@ -213,7 +218,7 @@ export function QRScanner({ eventId, eventName, totalRegistrations, initialCheck
               type="text"
               value={searchQuery}
               onChange={e => handleSearch(e.target.value)}
-              placeholder="Search by name or email…"
+              placeholder="Name, email, phone, or badge ID…"
               autoFocus
               className="flex-1 bg-transparent outline-none text-[15px]"
               style={{ color: 'white', caretColor: '#E8C57E' }}
@@ -242,7 +247,9 @@ export function QRScanner({ eventId, eventName, totalRegistrations, initialCheck
                 >
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-[14px] truncate text-white">{reg.attendee_name ?? 'Unknown'}</div>
-                    <div className="text-[12px] truncate" style={{ color: 'rgba(255,255,255,0.4)' }}>{reg.attendee_email}</div>
+                    <div className="text-[12px] truncate" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                      {[reg.ticket_types?.name, reg.attendee_email, reg.attendee_phone].filter(Boolean).join(' · ')}
+                    </div>
                     {isCheckedIn && reg.checked_in_at && (
                       <div className="flex items-center gap-1 mt-1 text-[11px]" style={{ color: 'rgba(45,122,79,0.9)' }}>
                         <Clock size={10} /> {new Date(reg.checked_in_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
@@ -392,9 +399,9 @@ export function QRScanner({ eventId, eventName, totalRegistrations, initialCheck
           </div>
           <div className="text-[15px]" style={{ color: 'rgba(255,255,255,0.7)' }}>
             {flash.kind === 'success'
-              ? 'Checked in ✓'
+              ? (flash.ticket_type ? `${flash.ticket_type} · Checked in ✓` : 'Checked in ✓')
               : flash.kind === 'already_checked_in'
-              ? `Already checked in at ${new Date(flash.checked_in_at).toLocaleTimeString()}`
+              ? `Already in${flash.ticket_type ? ` · ${flash.ticket_type}` : ''} at ${new Date(flash.checked_in_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`
               : flash.message}
           </div>
         </div>
