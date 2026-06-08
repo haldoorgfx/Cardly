@@ -21,10 +21,15 @@ interface Props {
   promoCodes:   PromoRow[];
 }
 
-function fmtMoney(n: number) {
-  if (n >= 1_000_000) return `₦${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000)     return `₦${(n / 1_000).toFixed(0)}k`;
-  return `₦${Math.round(n).toLocaleString()}`;
+function fmtMoney(n: number, currency = 'USD') {
+  try {
+    if (n >= 1_000_000) {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency, maximumFractionDigits: 1, notation: 'compact' }).format(n);
+    }
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n);
+  } catch {
+    return `${currency} ${Math.round(n).toLocaleString()}`;
+  }
 }
 
 /* ── Stat card ─────────────────────────────────────────────────────────────── */
@@ -63,7 +68,7 @@ function TicketTypeRow({ t, sold }: { t: TicketRow; sold: number }) {
   const isSoldOut = cap > 0 && sold >= cap;
   const priceStr  = t.price === 0
     ? 'Free'
-    : new Intl.NumberFormat('en-NG', { style: 'currency', currency: t.currency || 'NGN', maximumFractionDigits: 0 }).format(t.price);
+    : new Intl.NumberFormat('en-US', { style: 'currency', currency: t.currency || 'USD', maximumFractionDigits: 0 }).format(t.price);
 
   const statusLabel = isSoldOut ? 'Sold out' : t.is_visible ? 'On sale' : 'Scheduled';
   const statusStyle = isSoldOut
@@ -234,9 +239,9 @@ function AddPromoModal({ onClose, eventId }: { onClose: () => void; eventId: str
 }
 
 /* ── Create ticket modal ───────────────────────────────────────────────────── */
-function CreateTicketModal({ onClose, eventId }: { onClose: () => void; eventId: string }) {
+function CreateTicketModal({ onClose, eventId, defaultCurrency }: { onClose: () => void; eventId: string; defaultCurrency: string }) {
   const [name, setName]           = useState('');
-  const [price, setPrice]         = useState('15,000');
+  const [price, setPrice]         = useState('0');
   const [qty, setQty]             = useState('300');
   const [salesStart, setSalesStart] = useState('');
   const [salesEnd, setSalesEnd]   = useState('');
@@ -254,7 +259,7 @@ function CreateTicketModal({ onClose, eventId }: { onClose: () => void; eventId:
         body: JSON.stringify({
           name: name.trim(),
           price: parseFloat(price.replace(/,/g, '')) || 0,
-          currency: 'NGN',
+          currency: defaultCurrency,
           quantity: qty ? parseInt(qty) : null,
           sales_start: salesStart || null,
           sales_end: salesEnd || null,
@@ -298,7 +303,7 @@ function CreateTicketModal({ onClose, eventId }: { onClose: () => void; eventId:
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-[10.5px] font-mono uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Price (₦)</label>
+              <label className="block text-[10.5px] font-mono uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Price ({defaultCurrency})</label>
               <input value={price} onChange={e => setPrice(e.target.value)}
                 placeholder="15,000" className="w-full h-10 px-3 rounded-lg text-[13px] font-mono outline-none"
                 style={{ border: '1.5px solid #E5E0D4', background: 'white', color: '#0F1F18' }} />
@@ -357,6 +362,9 @@ export function TicketsPageClient({
   const [createOpen, setCreateOpen] = useState(false);
   const [promoOpen, setPromoOpen]   = useState(false);
 
+  // Derive primary currency from the first paid ticket, fall back to USD
+  const primaryCurrency = tickets.find(t => t.price > 0)?.currency || tickets[0]?.currency || 'USD';
+
   // Checkout settings state (UI-only defaults; ideally loaded from event row)
   const [collectDetails, setCollectDetails]     = useState(true);
   const [requireApproval, setRequireApproval]   = useState(false);
@@ -365,13 +373,13 @@ export function TicketsPageClient({
 
   const subtitle = [
     `${tickets.length} ticket type${tickets.length !== 1 ? 's' : ''}`,
-    totalRevenue > 0 ? `${fmtMoney(totalRevenue)} collected` : null,
+    totalRevenue > 0 ? `${fmtMoney(totalRevenue, primaryCurrency)} collected` : null,
     ticketsSold > 0  ? `${ticketsSold} sold` : null,
   ].filter(Boolean).join(' · ');
 
   const statCards = [
     {
-      label: 'Revenue',      value: fmtMoney(totalRevenue), trend: null,
+      label: 'Revenue',      value: fmtMoney(totalRevenue, primaryCurrency), trend: null,
       icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
     },
     {
@@ -379,7 +387,7 @@ export function TicketsPageClient({
       icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>,
     },
     {
-      label: 'Avg. Order',   value: fmtMoney(avgOrder), trend: null,
+      label: 'Avg. Order',   value: fmtMoney(avgOrder, primaryCurrency), trend: null,
       icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>,
     },
     {
@@ -534,7 +542,7 @@ export function TicketsPageClient({
 
       </div>
 
-      {createOpen && <CreateTicketModal onClose={() => setCreateOpen(false)} eventId={eventId} />}
+      {createOpen && <CreateTicketModal onClose={() => setCreateOpen(false)} eventId={eventId} defaultCurrency={primaryCurrency} />}
       {promoOpen  && <AddPromoModal    onClose={() => setPromoOpen(false)}  eventId={eventId} />}
     </div>
   );
