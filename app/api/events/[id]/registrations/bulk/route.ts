@@ -51,7 +51,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const existingEmails = new Set((existing ?? []).map(r => r.attendee_email.toLowerCase()));
 
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const toInsert: object[] = [];
+  const toInsert: Record<string, unknown>[] = [];
   const skipped: string[] = [];
   const invalid: string[] = [];
 
