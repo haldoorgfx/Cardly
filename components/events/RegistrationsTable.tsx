@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { Search, Download, CheckCircle2, Clock, XCircle, RotateCcw, ExternalLink, UserPlus, X, MoreHorizontal } from 'lucide-react';
+import { Search, Download, CheckCircle2, Clock, XCircle, RotateCcw, ExternalLink, UserPlus, X, MoreHorizontal, Upload, AlertCircle, CheckCircle, ChevronDown } from 'lucide-react';
 
 type Status = 'pending' | 'confirmed' | 'checked_in' | 'cancelled' | 'refunded';
 type PaymentStatus = 'free' | 'pending' | 'paid' | 'refunded' | 'failed';
@@ -187,6 +187,251 @@ function RowActionsMenu({
   );
 }
 
+/* ── Import CSV modal ───────────────────────────────────────────────────────── */
+interface ParsedRow { name: string; email: string; phone: string; rowIndex: number; error?: string }
+
+function parseCSV(text: string): ParsedRow[] {
+  const lines = text.trim().split(/\r?\n/);
+  if (lines.length < 2) return [];
+
+  // Detect header columns (case-insensitive)
+  const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim().toLowerCase());
+  const col = (candidates: string[]) => candidates.map(c => headers.indexOf(c)).find(i => i >= 0) ?? -1;
+  const nameCol  = col(['name', 'full name', 'attendee name', 'full_name', 'attendee_name']);
+  const emailCol = col(['email', 'email address', 'attendee email', 'attendee_email']);
+  const phoneCol = col(['phone', 'phone number', 'mobile', 'telephone', 'attendee_phone']);
+
+  if (nameCol === -1 || emailCol === -1) return [];
+
+  const rows: ParsedRow[] = [];
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+    // Simple CSV parse (handles quoted fields)
+    const cells: string[] = [];
+    let cur = '', inQ = false;
+    for (const ch of line + ',') {
+      if (ch === '"') { inQ = !inQ; continue; }
+      if (ch === ',' && !inQ) { cells.push(cur.trim()); cur = ''; continue; }
+      cur += ch;
+    }
+    const name  = cells[nameCol]  ?? '';
+    const email = cells[emailCol] ?? '';
+    const phone = phoneCol >= 0 ? (cells[phoneCol] ?? '') : '';
+    const error = !name ? 'Missing name' : !email ? 'Missing email' : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? 'Invalid email' : undefined;
+    rows.push({ name, email, phone, rowIndex: i, error });
+  }
+  return rows;
+}
+
+function ImportCSVModal({ eventId, ticketTypes, onClose, onImported }: {
+  eventId: string;
+  ticketTypes: TicketOption[];
+  onClose: () => void;
+  onImported: (count: number) => void;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [rows, setRows]           = useState<ParsedRow[]>([]);
+  const [fileName, setFileName]   = useState('');
+  const [ticketId, setTicketId]   = useState(ticketTypes[0]?.id ?? '');
+  const [dragging, setDragging]   = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [result, setResult]       = useState<{ imported: number; skipped: number; invalid: number } | null>(null);
+  const [apiError, setApiError]   = useState('');
+
+  const validRows   = rows.filter(r => !r.error);
+  const invalidRows = rows.filter(r => r.error);
+
+  function handleFile(file: File) {
+    if (!file) return;
+    setFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = e => {
+      const text = e.target?.result as string;
+      const parsed = parseCSV(text);
+      setRows(parsed);
+      setResult(null);
+      setApiError('');
+    };
+    reader.readAsText(file);
+  }
+
+  async function handleImport() {
+    if (validRows.length === 0) return;
+    setImporting(true);
+    setApiError('');
+    try {
+      const res = await fetch(`/api/events/${eventId}/registrations/bulk`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          attendees: validRows.map(r => ({ attendee_name: r.name, attendee_email: r.email, attendee_phone: r.phone || undefined })),
+          ticket_type_id: ticketId || undefined,
+        }),
+      });
+      const data = await res.json() as { imported?: number; skipped?: number; invalid?: number; error?: string };
+      if (!res.ok) { setApiError(data.error ?? 'Import failed'); return; }
+      setResult({ imported: data.imported ?? 0, skipped: data.skipped ?? 0, invalid: data.invalid ?? 0 });
+      onImported(data.imported ?? 0);
+    } catch {
+      setApiError('Something went wrong. Check your connection and try again.');
+    } finally {
+      setImporting(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="relative bg-white rounded-2xl w-full max-w-[560px] max-h-[90vh] flex flex-col" style={{ border: '1px solid #E5E0D4', boxShadow: '0 8px 40px rgba(15,31,24,0.18)' }}>
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-5 shrink-0" style={{ borderBottom: '1px solid #E5E0D4' }}>
+          <div>
+            <h3 className="font-display text-[16px] font-semibold" style={{ color: '#0F1F18' }}>Import from CSV</h3>
+            <p className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>Bulk-add attendees from a spreadsheet export</p>
+          </div>
+          <button onClick={onClose} className="h-7 w-7 rounded-lg grid place-items-center hover:bg-[#F5F3EE]" style={{ color: '#6B7A72' }}>
+            <X size={14} strokeWidth={2.2} />
+          </button>
+        </div>
+
+        <div className="px-6 py-5 overflow-y-auto space-y-4 flex-1">
+          {apiError && (
+            <div className="px-4 py-3 rounded-xl text-[13px] font-medium flex gap-2 items-start" style={{ background: '#FEF2F2', color: '#B8423C', border: '1px solid #FECACA' }}>
+              <AlertCircle size={14} className="mt-0.5 shrink-0" />
+              {apiError}
+            </div>
+          )}
+
+          {/* Success result */}
+          {result && (
+            <div className="px-4 py-4 rounded-xl" style={{ background: '#F0FDF4', border: '1px solid #BBF7D0' }}>
+              <div className="flex items-center gap-2 font-semibold text-[14px] mb-2" style={{ color: '#15803D' }}>
+                <CheckCircle size={15} />
+                Import complete
+              </div>
+              <div className="text-[13px] space-y-0.5" style={{ color: '#166534' }}>
+                <div>✓ {result.imported} attendee{result.imported !== 1 ? 's' : ''} added</div>
+                {result.skipped > 0 && <div>↷ {result.skipped} skipped (already registered)</div>}
+                {result.invalid > 0 && <div>✗ {result.invalid} invalid rows skipped</div>}
+              </div>
+            </div>
+          )}
+
+          {/* Drop zone */}
+          {!result && (
+            <>
+              <div
+                onClick={() => fileRef.current?.click()}
+                onDragOver={e => { e.preventDefault(); setDragging(true); }}
+                onDragLeave={() => setDragging(false)}
+                onDrop={e => { e.preventDefault(); setDragging(false); const f = e.dataTransfer.files[0]; if (f) handleFile(f); }}
+                className="rounded-xl border-2 border-dashed cursor-pointer flex flex-col items-center justify-center gap-2 py-8 transition-colors"
+                style={{ borderColor: dragging ? '#1F4D3A' : '#C9C3B1', background: dragging ? '#F0F7F3' : '#FAF6EE' }}
+              >
+                <Upload size={22} style={{ color: dragging ? '#1F4D3A' : '#9BA8A1' }} />
+                {fileName ? (
+                  <span className="text-[13px] font-medium" style={{ color: '#1F4D3A' }}>{fileName}</span>
+                ) : (
+                  <>
+                    <span className="text-[13px] font-medium" style={{ color: '#0F1F18' }}>Drop your CSV here, or click to browse</span>
+                    <span className="text-[12px]" style={{ color: '#9BA8A1' }}>Required columns: Name, Email · Phone optional</span>
+                  </>
+                )}
+                <input ref={fileRef} type="file" accept=".csv,text/csv" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
+              </div>
+
+              {/* Format hint */}
+              <div className="rounded-xl px-4 py-3 text-[12px]" style={{ background: '#F5F3EE', color: '#6B7A72' }}>
+                <span className="font-semibold" style={{ color: '#3A4A42' }}>Accepted columns: </span>
+                Name, Email, Phone — header names are flexible (e.g. "Full Name", "Email Address").
+                Export your existing list as a template.
+              </div>
+
+              {/* Preview */}
+              {rows.length > 0 && (
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[12px] font-semibold" style={{ color: '#3A4A42' }}>
+                      Preview — {validRows.length} valid · {invalidRows.length > 0 ? `${invalidRows.length} invalid` : 'none invalid'}
+                    </span>
+                  </div>
+                  <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #E5E0D4', maxHeight: 240, overflowY: 'auto' }}>
+                    <table className="w-full text-left">
+                      <thead style={{ background: '#FAF6EE', position: 'sticky', top: 0 }}>
+                        <tr>
+                          {['Name', 'Email', 'Phone', ''].map(h => (
+                            <th key={h} className="px-3 py-2 font-mono text-[9.5px] uppercase tracking-wider" style={{ color: '#6B7A72' }}>{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {rows.slice(0, 100).map((r, i) => (
+                          <tr key={i} style={{ background: r.error ? '#FFF7F7' : i % 2 === 0 ? 'white' : '#FAF6EE', borderTop: '1px solid #F0EBE3' }}>
+                            <td className="px-3 py-2 text-[12px]" style={{ color: '#0F1F18' }}>{r.name || <span style={{ color: '#B8423C' }}>—</span>}</td>
+                            <td className="px-3 py-2 text-[12px]" style={{ color: '#6B7A72' }}>{r.email || <span style={{ color: '#B8423C' }}>—</span>}</td>
+                            <td className="px-3 py-2 text-[12px]" style={{ color: '#9BA8A1' }}>{r.phone || '—'}</td>
+                            <td className="px-3 py-2 text-[11px]" style={{ color: '#B8423C' }}>{r.error ?? ''}</td>
+                          </tr>
+                        ))}
+                        {rows.length > 100 && (
+                          <tr style={{ background: '#FAF6EE' }}>
+                            <td colSpan={4} className="px-3 py-2 text-[12px] text-center" style={{ color: '#9BA8A1' }}>
+                              +{rows.length - 100} more rows not shown
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* Ticket type */}
+              {ticketTypes.length > 0 && (
+                <div>
+                  <label className="block text-[11px] font-mono uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Assign ticket type (optional)</label>
+                  <div className="relative">
+                    <select
+                      value={ticketId}
+                      onChange={e => setTicketId(e.target.value)}
+                      className="w-full h-10 px-3 pr-8 rounded-lg text-[13px] outline-none appearance-none"
+                      style={{ border: '1.5px solid #E5E0D4', background: 'white', color: '#0F1F18' }}
+                    >
+                      <option value="">No ticket type (free walk-in)</option>
+                      {ticketTypes.map(t => (
+                        <option key={t.id} value={t.id}>{t.name} — {t.price === 0 ? 'Free' : `${t.currency} ${t.price}`}</option>
+                      ))}
+                    </select>
+                    <ChevronDown size={13} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#6B7A72' }} />
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 pb-5 pt-3 shrink-0 flex gap-3" style={{ borderTop: '1px solid #F0EBE3' }}>
+          <button onClick={onClose} className="flex-1 h-10 rounded-xl text-[13px] font-medium border transition" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
+            {result ? 'Close' : 'Cancel'}
+          </button>
+          {!result && (
+            <button
+              onClick={handleImport}
+              disabled={importing || validRows.length === 0}
+              className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white transition disabled:opacity-50 inline-flex items-center justify-center gap-1.5"
+              style={{ background: '#1F4D3A' }}
+            >
+              {importing ? 'Importing…' : validRows.length > 0 ? <><Upload size={13} strokeWidth={2} /> Import {validRows.length} attendee{validRows.length !== 1 ? 's' : ''}</> : 'Upload a CSV first'}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ── Add manually modal ─────────────────────────────────────────────────────── */
 function AddManuallyModal({
   eventId, ticketTypes, onClose, onAdded,
@@ -354,6 +599,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
   const [statusFilter, setStatusFilter] = useState<Status | 'all'>('all');
   const [loading, setLoading]         = useState(false);
   const [addOpen, setAddOpen]         = useState(false);
+  const [importOpen, setImportOpen]   = useState(false);
   const searchTimeout                 = useRef<ReturnType<typeof setTimeout> | null>(null);
   const PAGE = 50;
 
@@ -429,6 +675,18 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
           }}
         />
       )}
+      {importOpen && (
+        <ImportCSVModal
+          eventId={eventId}
+          ticketTypes={ticketTypes}
+          onClose={() => setImportOpen(false)}
+          onImported={(count) => {
+            setTotal(t => t + count);
+            // Refresh list from server
+            setQuery(q => q); // trigger search effect
+          }}
+        />
+      )}
 
       {/* ── Stats strip ── */}
       <div className="bg-white border rounded-2xl px-5 py-4 mb-5 flex flex-wrap items-center gap-x-5 gap-y-2" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
@@ -488,6 +746,14 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
           >
             <Download size={14} />
             Export CSV
+          </button>
+          <button
+            onClick={() => setImportOpen(true)}
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[13px] font-medium"
+            style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
+          >
+            <Upload size={14} />
+            Import CSV
           </button>
           <button
             onClick={() => setAddOpen(true)}
