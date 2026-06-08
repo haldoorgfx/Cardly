@@ -17,8 +17,11 @@ export async function POST(req: NextRequest) {
   if (!eventId) return NextResponse.json({ error: 'Missing eventId' }, { status: 400 });
 
   const admin = createAdminClient();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await (admin as any).rpc('increment_view_count', { p_event_id: eventId }).catch(() => {});
+  try {
+    await admin.rpc('increment_view_count', { p_event_id: eventId });
+  } catch {
+    // Silently ignore — view count is best-effort, never block the response
+  }
 
   return NextResponse.json({ ok: true });
 }
