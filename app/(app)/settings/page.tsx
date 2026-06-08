@@ -15,7 +15,11 @@ export default async function SettingsPage() {
   const admin = createAdminClient();
   const { data: profile } = await admin
     .from('profiles')
-    .select('full_name, email, plan, role, avatar_url, notify_downloads, notify_views')
+    .select(`
+      full_name, email, plan, role, avatar_url,
+      organization, timezone, language, currency, date_format,
+      notify_registrations, notify_daily_summary, notify_card_shares, notify_product_updates
+    `)
     .eq('id', user.id)
     .single();
 

@@ -315,6 +315,16 @@ export interface Database {
           suspended: boolean;
           suspended_at: string | null;
           suspended_reason: string | null;
+          // preferences (migration 026)
+          organization: string | null;
+          timezone: string | null;
+          language: string | null;
+          currency: string | null;
+          date_format: string | null;
+          notify_registrations: boolean;
+          notify_daily_summary: boolean;
+          notify_card_shares: boolean;
+          notify_product_updates: boolean;
         };
         Insert: {
           id: string;
@@ -338,6 +348,15 @@ export interface Database {
           suspended?: boolean;
           suspended_at?: string | null;
           suspended_reason?: string | null;
+          organization?: string | null;
+          timezone?: string | null;
+          language?: string | null;
+          currency?: string | null;
+          date_format?: string | null;
+          notify_registrations?: boolean;
+          notify_daily_summary?: boolean;
+          notify_card_shares?: boolean;
+          notify_product_updates?: boolean;
         };
         Update: {
           email?: string | null;
@@ -359,6 +378,15 @@ export interface Database {
           suspended?: boolean;
           suspended_at?: string | null;
           suspended_reason?: string | null;
+          organization?: string | null;
+          timezone?: string | null;
+          language?: string | null;
+          currency?: string | null;
+          date_format?: string | null;
+          notify_registrations?: boolean;
+          notify_daily_summary?: boolean;
+          notify_card_shares?: boolean;
+          notify_product_updates?: boolean;
         };
         Relationships: [];
       };

@@ -3,7 +3,51 @@
 import { useState, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { deleteAccount, signOut } from '@/app/(auth)/actions';
-import { Check } from 'lucide-react';
+import { Check, ChevronDown } from 'lucide-react';
+
+// ── Option lists ──────────────────────────────────────────────────────────────
+
+const TIMEZONES = [
+  { value: 'UTC',                    label: 'UTC' },
+  { value: 'Africa/Nairobi',         label: 'Nairobi (EAT, UTC+3)' },
+  { value: 'Africa/Lagos',           label: 'Lagos (WAT, UTC+1)' },
+  { value: 'Africa/Johannesburg',    label: 'Johannesburg (SAST, UTC+2)' },
+  { value: 'Africa/Cairo',           label: 'Cairo (EET, UTC+2)' },
+  { value: 'Africa/Accra',           label: 'Accra (GMT, UTC+0)' },
+  { value: 'Africa/Djibouti',        label: 'Djibouti (EAT, UTC+3)' },
+  { value: 'Africa/Dar_es_Salaam',   label: 'Dar es Salaam (EAT, UTC+3)' },
+  { value: 'Africa/Abidjan',         label: 'Abidjan (GMT, UTC+0)' },
+  { value: 'Africa/Addis_Ababa',     label: 'Addis Ababa (EAT, UTC+3)' },
+  { value: 'Africa/Kampala',         label: 'Kampala (EAT, UTC+3)' },
+  { value: 'Africa/Kigali',          label: 'Kigali (CAT, UTC+2)' },
+  { value: 'Africa/Mogadishu',       label: 'Mogadishu (EAT, UTC+3)' },
+  { value: 'Europe/London',          label: 'London (GMT/BST)' },
+  { value: 'Europe/Paris',           label: 'Paris (CET/CEST)' },
+  { value: 'Europe/Amsterdam',       label: 'Amsterdam (CET/CEST)' },
+  { value: 'America/New_York',       label: 'New York (ET)' },
+  { value: 'America/Los_Angeles',    label: 'Los Angeles (PT)' },
+  { value: 'America/Chicago',        label: 'Chicago (CT)' },
+  { value: 'Asia/Dubai',             label: 'Dubai (GST, UTC+4)' },
+  { value: 'Asia/Singapore',         label: 'Singapore (SGT, UTC+8)' },
+  { value: 'Asia/Tokyo',             label: 'Tokyo (JST, UTC+9)' },
+  { value: 'Asia/Riyadh',            label: 'Riyadh (AST, UTC+3)' },
+  { value: 'Australia/Sydney',       label: 'Sydney (AEST/AEDT)' },
+];
+
+const LANGUAGES = [
+  'English', 'French', 'Arabic', 'Swahili', 'Portuguese',
+  'Spanish', 'Hausa', 'Amharic', 'Yoruba', 'Somali',
+];
+
+const DATE_FORMATS = [
+  { value: 'DD MMM YYYY', label: 'DD MMM YYYY  (15 Jun 2026)' },
+  { value: 'MM/DD/YYYY',  label: 'MM/DD/YYYY   (06/15/2026)' },
+  { value: 'DD/MM/YYYY',  label: 'DD/MM/YYYY   (15/06/2026)' },
+  { value: 'YYYY-MM-DD',  label: 'YYYY-MM-DD   (2026-06-15)' },
+  { value: 'D MMM YYYY',  label: 'D MMM YYYY   (15 Jun 2026)' },
+];
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 interface Profile {
   full_name: string | null;
@@ -11,8 +55,15 @@ interface Profile {
   plan: string | null;
   role?: string | null;
   avatar_url?: string | null;
-  notify_downloads?: boolean;
-  notify_views?: boolean;
+  organization?: string | null;
+  timezone?: string | null;
+  language?: string | null;
+  currency?: string | null;
+  date_format?: string | null;
+  notify_registrations?: boolean | null;
+  notify_daily_summary?: boolean | null;
+  notify_card_shares?: boolean | null;
+  notify_product_updates?: boolean | null;
 }
 
 interface Props {
@@ -36,31 +87,113 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
   );
 }
 
+function SelectField({
+  label, value, onChange, options,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[] | string[];
+}) {
+  const opts = options.map(o => typeof o === 'string' ? { value: o, label: o } : o);
+  return (
+    <div>
+      <label className="block text-[11px] font-mono tracking-widest text-[#6B7A72] uppercase mb-1.5">
+        {label}
+      </label>
+      <div className="relative">
+        <select
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          className="w-full h-10 pl-3 pr-8 rounded-xl border text-[13.5px] text-[#0F1F18] outline-none appearance-none transition cursor-pointer"
+          style={{ background: 'white', borderColor: '#E5E0D4' }}
+          onFocus={e => (e.target.style.borderColor = 'rgba(31,77,58,0.4)')}
+          onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
+        >
+          {opts.map(o => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
+        </select>
+        <ChevronDown size={13} strokeWidth={2.5} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#6B7A72' }} />
+      </div>
+    </div>
+  );
+}
+
+function TextField({
+  label, value, onChange, placeholder = '', readOnly = false,
+}: {
+  label: string;
+  value: string;
+  onChange?: (v: string) => void;
+  placeholder?: string;
+  readOnly?: boolean;
+}) {
+  return (
+    <div>
+      <label className="block text-[11px] font-mono tracking-widest text-[#6B7A72] uppercase mb-1.5">
+        {label}
+      </label>
+      <input
+        type="text"
+        value={value}
+        readOnly={readOnly}
+        onChange={e => onChange?.(e.target.value)}
+        placeholder={placeholder}
+        className="w-full h-10 px-3 rounded-xl border text-[13.5px] outline-none transition"
+        style={{
+          background: readOnly ? '#F5F2EC' : 'white',
+          borderColor: '#E5E0D4',
+          color: readOnly ? '#6B7A72' : '#0F1F18',
+          cursor: readOnly ? 'default' : undefined,
+        }}
+        onFocus={e => { if (!readOnly) e.target.style.borderColor = 'rgba(31,77,58,0.4)'; }}
+        onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
+      />
+    </div>
+  );
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
+
 export default function SettingsClient({ profile, userId }: Props) {
-  const [name, setName] = useState(profile?.full_name ?? '');
-  const [organization, setOrganization] = useState('');
-  const [timezone, setTimezone] = useState('WAT · Lagos (GMT+1)');
-  const [language, setLanguage] = useState('English');
-  const [currency, setCurrency] = useState('USD · $ Dollar');
-  const [dateFormat, setDateFormat] = useState('DD MMM YYYY');
+  // Profile
+  const [name, setName]               = useState(profile?.full_name ?? '');
+  const [organization, setOrganization] = useState(profile?.organization ?? '');
 
-  const [notifyRegistrations, setNotifyRegistrations] = useState(true);
-  const [notifyDailySummary, setNotifyDailySummary] = useState(true);
-  const [notifyCardShares, setNotifyCardShares] = useState(false);
-  const [notifyProductUpdates, setNotifyProductUpdates] = useState(true);
+  // Preferences
+  const [timezone, setTimezone]     = useState(profile?.timezone   ?? 'UTC');
+  const [language, setLanguage]     = useState(profile?.language   ?? 'English');
+  const [dateFormat, setDateFormat] = useState(profile?.date_format ?? 'DD MMM YYYY');
 
-  const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url ?? null);
+  // Notifications
+  const [notifyRegistrations,  setNotifyRegistrations]  = useState(profile?.notify_registrations  ?? true);
+  const [notifyDailySummary,   setNotifyDailySummary]   = useState(profile?.notify_daily_summary  ?? true);
+  const [notifyCardShares,     setNotifyCardShares]     = useState(profile?.notify_card_shares    ?? false);
+  const [notifyProductUpdates, setNotifyProductUpdates] = useState(profile?.notify_product_updates ?? true);
+
+  // Avatar
+  const [avatarUrl, setAvatarUrl]           = useState(profile?.avatar_url ?? null);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
+  // Save state
   const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const [saved, setSaved]   = useState(false);
+  const [error, setError]   = useState('');
+
+  // Delete
   const [deleteConfirm, setDeleteConfirm] = useState(false);
-  const [deleting, setDeleting] = useState(false);
+  const [deleting, setDeleting]           = useState(false);
 
   const nameInitials = name
     ? name.split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase()
     : '?';
+
+  const roleLabel =
+    profile?.role === 'super_admin' ? 'Super Admin'
+    : profile?.role === 'admin' ? 'Admin'
+    : 'Owner';
 
   async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -87,14 +220,31 @@ export default function SettingsClient({ profile, userId }: Props) {
 
   async function handleSave() {
     setSaving(true);
-    await fetch('/api/profile', {
+    setError('');
+    const res = await fetch('/api/profile', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ full_name: name }),
+      body: JSON.stringify({
+        full_name:              name.trim(),
+        organization:           organization.trim(),
+        timezone,
+        language,
+        date_format:            dateFormat,
+        currency:               'USD',          // platform currency — always USD
+        notify_registrations:   notifyRegistrations,
+        notify_daily_summary:   notifyDailySummary,
+        notify_card_shares:     notifyCardShares,
+        notify_product_updates: notifyProductUpdates,
+      }),
     });
     setSaving(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+    if (res.ok) {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } else {
+      const data = await res.json().catch(() => ({}));
+      setError(data.error ?? 'Save failed');
+    }
   }
 
   async function handleDeleteAccount() {
@@ -102,11 +252,6 @@ export default function SettingsClient({ profile, userId }: Props) {
     setDeleting(true);
     await deleteAccount();
   }
-
-  const roleLabel =
-    profile?.role === 'super_admin' ? 'Super Admin'
-    : profile?.role === 'admin' ? 'Admin'
-    : 'Owner';
 
   return (
     <div className="px-8 py-8 max-w-[720px]">
@@ -116,39 +261,33 @@ export default function SettingsClient({ profile, userId }: Props) {
           <h1 className="font-display font-bold text-[32px] leading-tight text-[#0F1F18]">Settings</h1>
           <p className="text-[14px] text-[#6B7A72] mt-1">Account and workspace preferences</p>
         </div>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="inline-flex items-center gap-2 h-9 px-5 rounded-xl text-[13.5px] font-semibold text-white bg-primary hover:opacity-95 disabled:opacity-60 transition shrink-0 mt-1"
-        >
-          <Check size={13} strokeWidth={2.5} />
-          {saved ? 'Saved' : saving ? 'Saving…' : 'Save changes'}
-        </button>
+        <div className="flex flex-col items-end gap-1 shrink-0 mt-1">
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="inline-flex items-center gap-2 h-9 px-5 rounded-xl text-[13.5px] font-semibold text-white transition disabled:opacity-60"
+            style={{ background: saved ? '#2D7A4F' : '#1F4D3A' }}
+          >
+            <Check size={13} strokeWidth={2.5} />
+            {saved ? 'Saved!' : saving ? 'Saving…' : 'Save changes'}
+          </button>
+          {error && <p className="text-[12px]" style={{ color: '#B8423C' }}>{error}</p>}
+        </div>
       </div>
 
       <div className="space-y-5">
 
-        {/* Profile */}
-        <section className="bg-white rounded-2xl border border-border p-6 shadow-soft">
+        {/* ── Profile ── */}
+        <section className="bg-white rounded-2xl border p-6" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)' }}>
           <h2 className="font-semibold text-[15px] text-[#0F1F18] mb-5">Profile</h2>
 
           {/* Avatar row */}
           <div className="flex items-center gap-4 mb-6">
-            <input
-              ref={avatarInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleAvatarChange}
-            />
+            <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
             <div className="relative shrink-0">
               {avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={avatarUrl}
-                  alt="Avatar"
-                  className="h-14 w-14 rounded-full object-cover border border-border"
-                />
+                <img src={avatarUrl} alt="Avatar" className="h-14 w-14 rounded-full object-cover border" style={{ borderColor: '#E5E0D4' }} />
               ) : (
                 <div
                   className="h-14 w-14 rounded-full grid place-items-center text-white font-display font-bold text-[18px]"
@@ -169,115 +308,88 @@ export default function SettingsClient({ profile, userId }: Props) {
               type="button"
               onClick={() => avatarInputRef.current?.click()}
               disabled={avatarUploading}
-              className="inline-flex items-center gap-2 h-8 px-4 rounded-lg border border-border text-[13px] text-[#3A4A42] hover:bg-cream transition disabled:opacity-50"
+              className="inline-flex items-center gap-2 h-8 px-4 rounded-lg border text-[13px] transition disabled:opacity-50"
+              style={{ borderColor: '#E5E0D4', color: '#3A4A42', background: 'white' }}
             >
               Change photo
             </button>
           </div>
 
-          {/* Form fields grid */}
           <div className="grid grid-cols-2 gap-x-4 gap-y-4">
-            <div>
-              <label className="block text-[11px] font-mono tracking-widest text-[#6B7A72] uppercase mb-1.5">
-                Full Name
-              </label>
-              <input
-                type="text"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                className="w-full h-10 px-3 rounded-xl border border-border bg-white text-[13.5px] text-[#0F1F18] focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition"
-              />
-            </div>
-            <div>
-              <label className="block text-[11px] font-mono tracking-widest text-[#6B7A72] uppercase mb-1.5">
-                Email
-              </label>
-              <input
-                type="email"
-                value={profile?.email ?? ''}
-                readOnly
-                className="w-full h-10 px-3 rounded-xl border border-border text-[13.5px] text-[#6B7A72] outline-none cursor-default"
-                style={{ background: '#F5F2EC' }}
-              />
-            </div>
-            <div>
-              <label className="block text-[11px] font-mono tracking-widest text-[#6B7A72] uppercase mb-1.5">
-                Organization
-              </label>
-              <input
-                type="text"
-                value={organization}
-                onChange={e => setOrganization(e.target.value)}
-                placeholder="Your organization"
-                className="w-full h-10 px-3 rounded-xl border border-border bg-white text-[13.5px] text-[#0F1F18] placeholder:text-[#6B7A72]/50 focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition"
-              />
-            </div>
-            <div>
-              <label className="block text-[11px] font-mono tracking-widest text-[#6B7A72] uppercase mb-1.5">
-                Role
-              </label>
-              <input
-                type="text"
-                value={roleLabel}
-                readOnly
-                className="w-full h-10 px-3 rounded-xl border border-border text-[13.5px] text-[#6B7A72] outline-none cursor-default"
-                style={{ background: '#F5F2EC' }}
-              />
-            </div>
+            <TextField label="Full Name" value={name} onChange={setName} />
+            <TextField label="Email" value={profile?.email ?? ''} readOnly />
+            <TextField label="Organization" value={organization} onChange={setOrganization} placeholder="Your company or event org" />
+            <TextField label="Role" value={roleLabel} readOnly />
           </div>
         </section>
 
-        {/* Preferences */}
-        <section className="bg-white rounded-2xl border border-border p-6 shadow-soft">
+        {/* ── Preferences ── */}
+        <section className="bg-white rounded-2xl border p-6" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)' }}>
           <h2 className="font-semibold text-[15px] text-[#0F1F18] mb-5">Preferences</h2>
           <div className="grid grid-cols-2 gap-x-4 gap-y-4">
-            {[
-              { label: 'TIMEZONE', value: timezone, onChange: setTimezone },
-              { label: 'LANGUAGE', value: language, onChange: setLanguage },
-              { label: 'CURRENCY', value: currency, onChange: setCurrency },
-              { label: 'DATE FORMAT', value: dateFormat, onChange: setDateFormat },
-            ].map(({ label, value, onChange }) => (
-              <div key={label}>
-                <label className="block text-[11px] font-mono tracking-widest text-[#6B7A72] uppercase mb-1.5">
-                  {label}
-                </label>
-                <input
-                  type="text"
-                  value={value}
-                  onChange={e => onChange(e.target.value)}
-                  className="w-full h-10 px-3 rounded-xl border border-border bg-white text-[13.5px] text-[#0F1F18] focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition"
-                />
+            <SelectField
+              label="Timezone"
+              value={timezone}
+              onChange={setTimezone}
+              options={TIMEZONES}
+            />
+            <SelectField
+              label="Language"
+              value={language}
+              onChange={setLanguage}
+              options={LANGUAGES}
+            />
+            {/* Currency: platform-locked to USD, shown as read-only */}
+            <div>
+              <label className="block text-[11px] font-mono tracking-widest text-[#6B7A72] uppercase mb-1.5">
+                Currency
+              </label>
+              <div
+                className="flex items-center gap-2 h-10 px-3 rounded-xl border text-[13.5px]"
+                style={{ background: '#F5F2EC', borderColor: '#E5E0D4', color: '#3A4A42' }}
+              >
+                <span className="font-medium text-[#1F4D3A]">USD</span>
+                <span className="text-[#6B7A72]">· US Dollar</span>
+                <span className="ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+                  Platform default
+                </span>
               </div>
-            ))}
+            </div>
+            <SelectField
+              label="Date Format"
+              value={dateFormat}
+              onChange={setDateFormat}
+              options={DATE_FORMATS}
+            />
           </div>
         </section>
 
-        {/* Notifications */}
-        <section className="bg-white rounded-2xl border border-border p-6 shadow-soft">
+        {/* ── Notifications ── */}
+        <section className="bg-white rounded-2xl border p-6" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)' }}>
           <h2 className="font-semibold text-[15px] text-[#0F1F18] mb-5">Notifications</h2>
-          <div className="divide-y divide-border">
+          <div className="divide-y" style={{ borderColor: '#E5E0D4' }}>
             {[
               {
                 label: 'New registrations',
-                desc: 'Email me when someone registers',
+                desc: 'Email me when someone registers for your event',
                 checked: notifyRegistrations,
                 onChange: setNotifyRegistrations,
               },
               {
                 label: 'Daily summary',
-                desc: "A digest of each event's activity",
+                desc: "A daily digest of each event's registrations and activity",
                 checked: notifyDailySummary,
                 onChange: setNotifyDailySummary,
               },
               {
                 label: 'Card shares',
-                desc: 'Notify when attendees share cards',
+                desc: 'Notify when attendees download or share their card',
                 checked: notifyCardShares,
                 onChange: setNotifyCardShares,
               },
               {
                 label: 'Product updates',
-                desc: 'News about new Karta features',
+                desc: 'News and announcements about new Karta features',
                 checked: notifyProductUpdates,
                 onChange: setNotifyProductUpdates,
               },
@@ -285,7 +397,7 @@ export default function SettingsClient({ profile, userId }: Props) {
               <div key={item.label} className="flex items-center justify-between gap-6 py-4">
                 <div>
                   <div className="text-[13.5px] font-medium text-[#0F1F18]">{item.label}</div>
-                  <div className="text-[12.5px] text-[#6B7A72] mt-0.5">{item.desc}</div>
+                  <div className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>{item.desc}</div>
                 </div>
                 <Toggle checked={item.checked} onChange={item.onChange} />
               </div>
@@ -293,13 +405,13 @@ export default function SettingsClient({ profile, userId }: Props) {
           </div>
         </section>
 
-        {/* Delete account */}
+        {/* ── Danger zone ── */}
         <section className="bg-white rounded-2xl border p-6" style={{ borderColor: 'rgba(184,66,60,0.25)' }}>
           <div className="flex items-center justify-between gap-6">
             <div>
-              <div className="text-[13.5px] font-semibold text-[#B8423C] mb-1">Delete account</div>
-              <div className="text-[13px] text-[#6B7A72]">
-                Permanently remove your account and all events. This can&apos;t be undone.
+              <div className="text-[13.5px] font-semibold mb-1" style={{ color: '#B8423C' }}>Delete account</div>
+              <div className="text-[13px]" style={{ color: '#6B7A72' }}>
+                Permanently removes your account and all events. This can&apos;t be undone.
               </div>
             </div>
             <div className="flex flex-col items-end gap-1.5 shrink-0">
@@ -316,10 +428,7 @@ export default function SettingsClient({ profile, userId }: Props) {
                 {deleting ? 'Deleting…' : deleteConfirm ? 'Confirm — delete forever' : 'Delete'}
               </button>
               {deleteConfirm && !deleting && (
-                <button
-                  onClick={() => setDeleteConfirm(false)}
-                  className="text-[11.5px] text-[#6B7A72] hover:text-[#0F1F18] transition"
-                >
+                <button onClick={() => setDeleteConfirm(false)} className="text-[11.5px] transition" style={{ color: '#6B7A72' }}>
                   Cancel
                 </button>
               )}
@@ -327,12 +436,9 @@ export default function SettingsClient({ profile, userId }: Props) {
           </div>
         </section>
 
-        {/* Sign out link at bottom */}
+        {/* Sign out */}
         <div className="pt-2 pb-4">
-          <button
-            onClick={() => signOut()}
-            className="text-[13px] text-[#6B7A72] hover:text-[#0F1F18] transition"
-          >
+          <button onClick={() => signOut()} className="text-[13px] transition" style={{ color: '#6B7A72' }}>
             Sign out of Karta →
           </button>
         </div>
