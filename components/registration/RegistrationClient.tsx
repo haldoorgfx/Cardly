@@ -35,6 +35,8 @@ interface Props {
   city: string | null;
   tickets: TicketType[];
   canvasVariant: CanvasVariant | null;
+  initialName?: string;
+  initialEmail?: string;
 }
 
 const INPUT = 'w-full rounded-xl px-4 py-3 text-[15px] outline-none transition border focus:border-[#E8C57E] focus:ring-[3px] focus:ring-[rgba(232,197,126,0.15)]';
@@ -329,16 +331,28 @@ function ArrivalStep({
 }
 
 // ── Main RegistrationClient ──────────────────────────────────────────────────
+/** Pick the best default ticket: skip sold-out and invitation-only, prefer non-VIP */
+function pickDefaultTicket(tickets: TicketType[]): TicketType | null {
+  const available = tickets.filter(t => !(t.quantity !== null && t.quantity_sold >= t.quantity));
+  if (available.length === 0) return tickets[0] ?? null;
+  const notInvite = available.filter(t => {
+    const combined = `${t.name ?? ''} ${t.description ?? ''}`.toLowerCase();
+    return !combined.includes('invitation only') && !combined.includes('invite only') && !combined.includes('speaker') && !combined.includes('vip');
+  });
+  return (notInvite[0] ?? available[0]) ?? null;
+}
+
 export default function RegistrationClient({
   eventSlug, eventId, eventName, eventSubtitle,
   coverUrl, startsAt, city, tickets, canvasVariant,
+  initialName = '', initialEmail = '',
 }: Props) {
   const router = useRouter();
   // step -1 = arrival, 0 = ticket, 1 = details, 2 = payment
   const [step, setStep] = useState<-1 | 0 | 1 | 2>(-1);
-  const [selectedTicket, setSelectedTicket] = useState<TicketType | null>(tickets[0] ?? null);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [selectedTicket, setSelectedTicket] = useState<TicketType | null>(() => pickDefaultTicket(tickets));
+  const [name, setName] = useState(initialName);
+  const [email, setEmail] = useState(initialEmail);
   const [role, setRole] = useState('');
   const [cityVal, setCityVal] = useState('');
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);

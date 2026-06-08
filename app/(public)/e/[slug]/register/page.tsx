@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export const dynamic = 'force-dynamic';
 
-import { createAdminClient } from '@/lib/supabase/server';
+import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { PublicNav } from '@/components/events/PublicNav';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
@@ -16,6 +16,23 @@ export default async function RegisterPage({ params }: Props) {
   const resolved = await resolvePublicSlug(params.slug);
   if (!resolved) notFound();
   const { event, eventPageTitle } = resolved;
+
+  // Pre-fill registration form for logged-in users
+  let sessionName = '';
+  let sessionEmail = '';
+  try {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      sessionEmail = user.email ?? '';
+      const { data: profile } = await admin
+        .from('profiles')
+        .select('full_name')
+        .eq('id', user.id)
+        .single();
+      if (profile?.full_name) sessionName = profile.full_name;
+    }
+  } catch { /* non-blocking — if auth fails, form starts empty */ }
 
   const [ticketsRes, pageRes, variantRes] = await Promise.all([
     (admin as any)
@@ -78,6 +95,8 @@ export default async function RegisterPage({ params }: Props) {
           city={page?.city ?? null}
           tickets={tickets as any}
           canvasVariant={canvasVariant}
+          initialName={sessionName}
+          initialEmail={sessionEmail}
         />
       </div>
     </div>

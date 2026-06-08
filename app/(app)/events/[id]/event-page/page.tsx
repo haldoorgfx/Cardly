@@ -32,6 +32,7 @@ export default async function EventPageEditorPage({ params }: Props) {
       <EventPageEditor
         eventId={id}
         eventSlug={event.slug}
+        eventName={event.name}
         existing={existing ?? null}
       />
     </div>

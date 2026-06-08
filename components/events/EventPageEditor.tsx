@@ -11,6 +11,7 @@ type EventPageRow = Database['public']['Tables']['event_pages']['Row'];
 interface Props {
   eventId: string;
   eventSlug: string;
+  eventName?: string;
   existing: EventPageRow | null;
 }
 
@@ -31,7 +32,7 @@ const STEPS = [
   { id: 4, label: 'Settings',      short: 'Settings'    },
 ];
 
-export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
+export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -42,7 +43,7 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
   const [coverUploading, setCoverUploading] = useState(false);
   const [coverError, setCoverError] = useState('');
 
-  const [title, setTitle] = useState(existing?.title ?? '');
+  const [title, setTitle] = useState(existing?.title || eventName || '');
   const [tagline, setTagline] = useState(existing?.tagline ?? '');
   const [description, setDescription] = useState(existing?.description ?? '');
   const [venueName, setVenueName] = useState(existing?.venue_name ?? '');

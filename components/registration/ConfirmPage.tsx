@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { Share2, Check, ChevronRight } from 'lucide-react';
+import { Share2, Check, ChevronRight, Download } from 'lucide-react';
 import { CardZoneFill } from './CardZoneFill';
 import { PhotoCropModal } from './PhotoCropModal';
 import PreviewDownloadScreen from '@/app/c/[slug]/components/PreviewDownloadScreen';
@@ -436,6 +436,19 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
           <Check size={14} strokeWidth={2.5} style={{ color: '#2D7A4F' }} />
           <span className="text-[13px] font-medium" style={{ color: '#2D7A4F' }}>You&apos;re registered</span>
         </div>
+
+        {/* Download ticket */}
+        <a
+          href={`/api/qr/${registration.qr_code_token}`}
+          download={`ticket-${registration.attendee_name.replace(/\s+/g, '-').toLowerCase()}.png`}
+          className="flex items-center gap-2 h-11 px-5 rounded-xl font-medium text-[14px] transition mb-5"
+          style={{ background: 'white', border: '1px solid #E5E0D4', color: '#1F4D3A', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}
+          onMouseEnter={e => (e.currentTarget.style.borderColor = '#1F4D3A')}
+          onMouseLeave={e => (e.currentTarget.style.borderColor = '#E5E0D4')}
+        >
+          <Download size={15} strokeWidth={2} />
+          Save ticket
+        </a>
 
         {/* Share platforms */}
         <div className="flex gap-3 justify-center">
