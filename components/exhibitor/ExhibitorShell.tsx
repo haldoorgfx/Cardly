@@ -7,6 +7,7 @@ interface Props {
   companyName: string;
   tier: string | null;
   boothNumber: string | null;
+  logoUrl?: string | null;
   eventName: string;
   eventSlug: string;
   activeTab: 'overview' | 'leads' | 'booth' | 'resources' | 'team';
@@ -28,7 +29,7 @@ function tabHref(token: string, id: string) {
 function Avatar({ initials, size = 36 }: { initials: string; size?: number }) {
   return (
     <span
-      className="rounded-full grid place-items-center text-cream font-display font-semibold shrink-0"
+      className="rounded-full grid place-items-center text-white font-display font-semibold shrink-0"
       style={{
         width: size, height: size,
         fontSize: size * 0.36,
@@ -45,10 +46,10 @@ function tierTone(tier: string | null) {
   const t = tier.toLowerCase();
   if (t === 'platinum') return 'bg-[rgba(232,197,126,0.2)] text-[#C9A45E] border-[rgba(232,197,126,0.4)]';
   if (t === 'gold')     return 'bg-[rgba(232,197,126,0.15)] text-[#C9A45E] border-[rgba(232,197,126,0.3)]';
-  return 'bg-[rgba(255,255,255,0.1)] text-cream border-[rgba(255,255,255,0.2)]';
+  return 'bg-[rgba(255,255,255,0.1)] text-white border-[rgba(255,255,255,0.2)]';
 }
 
-export function ExhibitorShell({ token, companyName, tier, boothNumber, eventName, children, activeTab }: Props) {
+export function ExhibitorShell({ token, companyName, tier, boothNumber, logoUrl, eventName, children, activeTab }: Props) {
   const initials = companyName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 
   return (
@@ -65,7 +66,12 @@ export function ExhibitorShell({ token, companyName, tier, boothNumber, eventNam
           </div>
           <div className="flex items-center gap-3">
             <span className="hidden sm:inline font-mono text-[11px]" style={{ color: '#6B7A72' }}>{eventName}</span>
-            <Avatar initials={initials} size={32} />
+            {logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={logoUrl} alt={companyName} className="h-8 w-8 rounded-full object-cover border" style={{ borderColor: '#E5E0D4' }} />
+            ) : (
+              <Avatar initials={initials} size={32} />
+            )}
           </div>
         </div>
       </header>
@@ -74,20 +80,34 @@ export function ExhibitorShell({ token, companyName, tier, boothNumber, eventNam
       <div className="relative overflow-hidden" style={{ background: 'linear-gradient(135deg,#0D1F17,#1F4D3A 60%,#235741)' }}>
         <div aria-hidden className="absolute inset-0" style={{ background: 'radial-gradient(60% 100% at 90% 0%, rgba(232,197,126,0.26), transparent 55%)' }} />
         <div className="relative mx-auto max-w-[1080px] px-5 lg:px-8 py-8">
-          <div className="flex items-center gap-2 mb-3">
-            {tier && (
-              <span className={`inline-flex items-center text-[11px] font-medium px-2.5 py-1 rounded-full border ${tierTone(tier)}`}>
-                {tier} sponsor
-              </span>
-            )}
-            {boothNumber && (
-              <span className="font-mono text-[11px]" style={{ color: 'rgba(250,246,238,0.7)' }}>Booth {boothNumber}</span>
+          <div className="flex items-start justify-between gap-6">
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                {tier && (
+                  <span className={`inline-flex items-center text-[11px] font-medium px-2.5 py-1 rounded-full border ${tierTone(tier)}`}>
+                    {tier} sponsor
+                  </span>
+                )}
+                {boothNumber && (
+                  <span className="font-mono text-[11px]" style={{ color: 'rgba(250,246,238,0.7)' }}>Booth {boothNumber}</span>
+                )}
+              </div>
+              <h1 className="font-display text-[28px] font-bold tracking-[-0.02em]" style={{ color: '#FAF6EE' }}>{companyName}</h1>
+              <p className="text-[14px] mt-1.5" style={{ color: 'rgba(250,246,238,0.75)' }}>
+                Welcome back. Here&apos;s how your presence is performing.
+              </p>
+            </div>
+            {/* Logo display in hero */}
+            {logoUrl && (
+              <div
+                className="shrink-0 hidden sm:flex items-center justify-center rounded-2xl p-3"
+                style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.15)' }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={logoUrl} alt={companyName} className="h-16 w-28 object-contain" />
+              </div>
             )}
           </div>
-          <h1 className="font-display text-[28px] font-bold tracking-[-0.02em]" style={{ color: '#FAF6EE' }}>{companyName}</h1>
-          <p className="text-[14px] mt-1.5" style={{ color: 'rgba(250,246,238,0.75)' }}>
-            Welcome back. Here&apos;s how your presence is performing.
-          </p>
         </div>
       </div>
 

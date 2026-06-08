@@ -9,8 +9,9 @@ interface Lead {
   company: string | null;
   role: string | null;
   rating: string | null;
-  notes: string | null;
-  captured_at: string;
+  note: string | null;
+  captured_at: string | null;
+  created_at: string;
 }
 
 interface Props {
@@ -48,7 +49,7 @@ function exportCSV(leads: Lead[]) {
     l.company ?? '',
     l.role ?? '',
     l.rating ?? '',
-    new Date(l.captured_at).toLocaleDateString(),
+    new Date(l.captured_at ?? l.created_at).toLocaleDateString(),
   ]);
   const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });

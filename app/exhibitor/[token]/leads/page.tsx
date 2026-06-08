@@ -14,7 +14,7 @@ export default async function ExhibitorLeadsPage({ params }: Props) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: sponsor } = await (admin as any)
     .from('sponsors')
-    .select('id, company_name, tier, booth_number, events(name, slug)')
+    .select('id, company_name, tier, booth_location, logo_url, events(name, slug)')
     .eq('invite_token', token)
     .single();
 
@@ -25,7 +25,7 @@ export default async function ExhibitorLeadsPage({ params }: Props) {
     .from('sponsor_leads')
     .select('*')
     .eq('sponsor_id', sponsor.id)
-    .order('captured_at', { ascending: false });
+    .order('created_at', { ascending: false });
 
   const event = sponsor.events as { name: string; slug: string };
 
@@ -34,7 +34,8 @@ export default async function ExhibitorLeadsPage({ params }: Props) {
       token={token}
       companyName={sponsor.company_name}
       tier={sponsor.tier}
-      boothNumber={sponsor.booth_number}
+      boothNumber={sponsor.booth_location}
+      logoUrl={sponsor.logo_url}
       eventName={event.name}
       eventSlug={event.slug}
       activeTab="leads"

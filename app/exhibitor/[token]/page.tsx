@@ -48,7 +48,8 @@ export default async function ExhibitorPage({ params }: Props) {
       token={token}
       companyName={sponsor.company_name}
       tier={sponsor.tier}
-      boothNumber={sponsor.booth_number}
+      boothNumber={sponsor.booth_location}
+      logoUrl={sponsor.logo_url}
       eventName={event.name}
       eventSlug={event.slug}
       activeTab="overview"
