@@ -430,8 +430,7 @@ export default function RegistrationClient({
   return (
     <div className="min-h-screen" style={{ background: '#FAF6EE' }}>
       <div
-        className="max-w-[1100px] mx-auto px-5 py-8 pb-20"
-        style={{ display: 'grid', gridTemplateColumns: canvasVariant ? '1fr 340px' : '1fr', gap: 48, alignItems: 'start' }}
+        className={`max-w-[1100px] mx-auto px-5 py-8 pb-20 ${canvasVariant ? 'lg:grid lg:grid-cols-[1fr_340px] lg:gap-12 lg:items-start' : ''}`}
       >
         {/* Left: form */}
         <div>
