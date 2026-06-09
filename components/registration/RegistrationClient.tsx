@@ -480,7 +480,7 @@ export default function RegistrationClient({
                       <button
                         key={t.id}
                         disabled={sold}
-                        onClick={() => setSelectedTicket(t)}
+                        onClick={() => { setSelectedTicket(t); setSubmitError(''); }}
                         className="w-full text-left flex items-center gap-4 p-5 rounded-2xl transition-all"
                         style={{ border: `1px solid ${isSelected ? '#1F4D3A' : '#E5E0D4'}`, background: 'white', boxShadow: isSelected ? 'inset 0 0 0 1px #1F4D3A' : 'none', opacity: sold ? 0.5 : 1 }}
                       >
@@ -622,6 +622,7 @@ export default function RegistrationClient({
             <div className="flex items-center justify-between">
               <button
                 onClick={() => {
+                  setSubmitError('');
                   if (step === 0) setStep(-1);
                   else setStep(s => (s - 1) as -1 | 0 | 1 | 2);
                 }}

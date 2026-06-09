@@ -138,6 +138,7 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
       fd.append('variantId', variant.id);
       fd.append('fields', JSON.stringify(enriched));
       fd.append('idempotencyKey', `reg-${registration.id}-card`);
+      fd.append('registrationId', registration.id);
       for (const [zoneId, file] of Object.entries(photoFiles)) {
         fd.append(`photo_${zoneId}`, file);
       }
