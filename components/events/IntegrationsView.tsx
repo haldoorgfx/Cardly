@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { Sparkles, Search, Plug, Settings, CreditCard, MessageSquare, Briefcase, BarChart2, Zap, Calendar, Video, Share2, Send, DollarSign } from 'lucide-react';
 
 interface Props {
@@ -14,6 +15,7 @@ type Integration = {
   desc: string;
   icon: React.ReactNode;
   status: IntegrationStatus;
+  configureHref?: string;
 };
 
 type Category = {
@@ -24,57 +26,63 @@ type Category = {
 const ICON_SIZE = 20;
 const SW = 1.8;
 
-const CATEGORIES: Category[] = [
-  {
-    label: 'Payments',
-    apps: [
-      { name: 'Stripe',       desc: 'Cards, subscriptions & payouts',             icon: <CreditCard size={ICON_SIZE} strokeWidth={SW} />, status: 'builtin'      },
-      { name: 'Flutterwave',  desc: 'Pan-African card & bank payments',           icon: <DollarSign size={ICON_SIZE} strokeWidth={SW} />, status: 'builtin'      },
-      { name: 'Paystack',     desc: 'Payments across Nigeria & Ghana',            icon: <DollarSign size={ICON_SIZE} strokeWidth={SW} />, status: 'coming_soon'  },
-      { name: 'M-Pesa',       desc: 'Mobile money for East Africa',               icon: <CreditCard size={ICON_SIZE} strokeWidth={SW} />, status: 'coming_soon'  },
-    ],
-  },
-  {
-    label: 'Communication',
-    apps: [
-      { name: 'Slack',        desc: 'Registration & sales alerts in Slack',       icon: <MessageSquare size={ICON_SIZE} strokeWidth={SW} />, status: 'coming_soon' },
-      { name: 'Twilio SMS',   desc: 'Text reminders & check-in codes',            icon: <Send size={ICON_SIZE} strokeWidth={SW} />,         status: 'coming_soon' },
-      { name: 'Intercom',     desc: 'Live chat support on your pages',            icon: <MessageSquare size={ICON_SIZE} strokeWidth={SW} />, status: 'coming_soon' },
-      { name: 'Mailchimp',    desc: 'Sync attendees to audiences',                icon: <Send size={ICON_SIZE} strokeWidth={SW} />,         status: 'coming_soon' },
-    ],
-  },
-  {
-    label: 'CRM & marketing',
-    apps: [
-      { name: 'HubSpot',          desc: 'Sync registrants as contacts',          icon: <Briefcase size={ICON_SIZE} strokeWidth={SW} />,  status: 'coming_soon' },
-      { name: 'Salesforce',       desc: 'Push leads to your CRM',               icon: <Briefcase size={ICON_SIZE} strokeWidth={SW} />,  status: 'coming_soon' },
-      { name: 'Google Analytics', desc: 'Track event-page traffic',              icon: <BarChart2 size={ICON_SIZE} strokeWidth={SW} />,  status: 'coming_soon' },
-      { name: 'Meta Pixel',       desc: 'Retarget visitors with ads',            icon: <Share2 size={ICON_SIZE} strokeWidth={SW} />,     status: 'coming_soon' },
-    ],
-  },
-  {
-    label: 'Productivity & automation',
-    apps: [
-      { name: 'Zapier',          desc: 'Automate 6,000+ apps',                   icon: <Zap size={ICON_SIZE} strokeWidth={SW} />,      status: 'coming_soon' },
-      { name: 'Google Calendar', desc: 'Add sessions to attendee calendars',     icon: <Calendar size={ICON_SIZE} strokeWidth={SW} />, status: 'coming_soon' },
-      { name: 'Notion',          desc: "Export attendees & agenda to Notion",   icon: <Share2 size={ICON_SIZE} strokeWidth={SW} />,   status: 'coming_soon' },
-      { name: 'Webhooks',        desc: 'Build your own with our API',            icon: <Plug size={ICON_SIZE} strokeWidth={SW} />,     status: 'builtin'     },
-    ],
-  },
-  {
-    label: 'Streaming',
-    apps: [
-      { name: 'Zoom',         desc: 'Run virtual sessions over Zoom',            icon: <Video size={ICON_SIZE} strokeWidth={SW} />, status: 'coming_soon' },
-      { name: 'YouTube Live', desc: 'Stream the main stage publicly',            icon: <Video size={ICON_SIZE} strokeWidth={SW} />, status: 'coming_soon' },
-    ],
-  },
-];
+function buildCategories(eventId: string): Category[] {
+  return [
+    {
+      label: 'Payments',
+      apps: [
+        { name: 'Stripe',       desc: 'Cards, subscriptions & payouts',             icon: <CreditCard size={ICON_SIZE} strokeWidth={SW} />, status: 'builtin',     configureHref: `/events/${eventId}/event-page` },
+        { name: 'Flutterwave',  desc: 'Pan-African card & bank payments',           icon: <DollarSign size={ICON_SIZE} strokeWidth={SW} />, status: 'builtin',     configureHref: `/events/${eventId}/event-page` },
+        { name: 'Paystack',     desc: 'Payments across Nigeria & Ghana',            icon: <DollarSign size={ICON_SIZE} strokeWidth={SW} />, status: 'coming_soon'  },
+        { name: 'M-Pesa',       desc: 'Mobile money for East Africa',               icon: <CreditCard size={ICON_SIZE} strokeWidth={SW} />, status: 'coming_soon'  },
+      ],
+    },
+    {
+      label: 'Communication',
+      apps: [
+        { name: 'Slack',        desc: 'Registration & sales alerts in Slack',       icon: <MessageSquare size={ICON_SIZE} strokeWidth={SW} />, status: 'coming_soon' },
+        { name: 'Twilio SMS',   desc: 'Text reminders & check-in codes',            icon: <Send size={ICON_SIZE} strokeWidth={SW} />,         status: 'coming_soon' },
+        { name: 'Intercom',     desc: 'Live chat support on your pages',            icon: <MessageSquare size={ICON_SIZE} strokeWidth={SW} />, status: 'coming_soon' },
+        { name: 'Mailchimp',    desc: 'Sync attendees to audiences',                icon: <Send size={ICON_SIZE} strokeWidth={SW} />,         status: 'coming_soon' },
+      ],
+    },
+    {
+      label: 'CRM & marketing',
+      apps: [
+        { name: 'HubSpot',          desc: 'Sync registrants as contacts',          icon: <Briefcase size={ICON_SIZE} strokeWidth={SW} />,  status: 'coming_soon' },
+        { name: 'Salesforce',       desc: 'Push leads to your CRM',               icon: <Briefcase size={ICON_SIZE} strokeWidth={SW} />,  status: 'coming_soon' },
+        { name: 'Google Analytics', desc: 'Track event-page traffic',              icon: <BarChart2 size={ICON_SIZE} strokeWidth={SW} />,  status: 'coming_soon' },
+        { name: 'Meta Pixel',       desc: 'Retarget visitors with ads',            icon: <Share2 size={ICON_SIZE} strokeWidth={SW} />,     status: 'coming_soon' },
+      ],
+    },
+    {
+      label: 'Productivity & automation',
+      apps: [
+        { name: 'Zapier',          desc: 'Automate 6,000+ apps',                   icon: <Zap size={ICON_SIZE} strokeWidth={SW} />,      status: 'coming_soon' },
+        { name: 'Google Calendar', desc: 'Add sessions to attendee calendars',     icon: <Calendar size={ICON_SIZE} strokeWidth={SW} />, status: 'coming_soon' },
+        { name: 'Notion',          desc: "Export attendees & agenda to Notion",   icon: <Share2 size={ICON_SIZE} strokeWidth={SW} />,   status: 'coming_soon' },
+        { name: 'Webhooks',        desc: 'Build your own with our API',            icon: <Plug size={ICON_SIZE} strokeWidth={SW} />,     status: 'builtin',    configureHref: `/events/${eventId}/webhooks` },
+      ],
+    },
+    {
+      label: 'Streaming',
+      apps: [
+        { name: 'Zoom',         desc: 'Run virtual sessions over Zoom',            icon: <Video size={ICON_SIZE} strokeWidth={SW} />, status: 'coming_soon' },
+        { name: 'YouTube Live', desc: 'Stream the main stage publicly',            icon: <Video size={ICON_SIZE} strokeWidth={SW} />, status: 'coming_soon' },
+      ],
+    },
+  ];
+}
 
-const builtinCount = CATEGORIES.reduce((acc, cat) => acc + cat.apps.filter(a => a.status === 'builtin').length, 0);
-const totalCount = CATEGORIES.reduce((acc, cat) => acc + cat.apps.length, 0);
+// Counts computed from a dummy categories call (eventId doesn't affect counts)
+const _dummyCats = buildCategories('');
+const builtinCount = _dummyCats.reduce((acc, cat) => acc + cat.apps.filter(a => a.status === 'builtin').length, 0);
+const totalCount = _dummyCats.reduce((acc, cat) => acc + cat.apps.length, 0);
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function IntegrationsView(_props: Props) {
+export function IntegrationsView({ eventId }: Props) {
+  const router = useRouter();
+  const CATEGORIES = buildCategories(eventId);
+
   return (
     <div className="max-w-[1000px] mx-auto px-6 py-8">
 
@@ -129,7 +137,7 @@ export function IntegrationsView(_props: Props) {
             </h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {cat.apps.map(app => (
-                <AppCard key={app.name} app={app} />
+                <AppCard key={app.name} app={app} onConfigure={app.configureHref ? () => router.push(app.configureHref!) : undefined} />
               ))}
             </div>
           </div>
@@ -139,7 +147,7 @@ export function IntegrationsView(_props: Props) {
   );
 }
 
-function AppCard({ app }: { app: Integration }) {
+function AppCard({ app, onConfigure }: { app: Integration; onConfigure?: () => void }) {
   return (
     <div
       className="flex flex-col p-5 rounded-2xl transition-colors"
@@ -177,6 +185,7 @@ function AppCard({ app }: { app: Integration }) {
       </p>
       <button
         disabled={app.status === 'coming_soon'}
+        onClick={onConfigure}
         className="mt-4 w-full h-8 rounded-lg text-[12.5px] font-medium transition flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
         style={app.status === 'builtin'
           ? { border: '1px solid #E5E0D4', color: '#1F4D3A', background: 'rgba(31,77,58,0.06)' }
