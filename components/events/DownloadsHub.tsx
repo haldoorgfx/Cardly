@@ -1,6 +1,6 @@
 'use client';
 
-import { Users, CalendarDays, TrendingUp, IdCard, ExternalLink, FileSpreadsheet, Printer } from 'lucide-react';
+import { Users, CalendarDays, TrendingUp, IdCard, FileSpreadsheet, FileDown } from 'lucide-react';
 import Link from 'next/link';
 
 interface Reg {
@@ -198,15 +198,14 @@ export function DownloadsHub({ eventId, eventName, regs, sessions, ticketTypes, 
               <PillBtn onClick={downloadRosterCSV} variant="green">
                 <FileSpreadsheet size={13} strokeWidth={2} /> Spreadsheet
               </PillBtn>
-              <Link
-                href={`/events/${eventId}/roster/print`}
-                target="_blank"
-                rel="noopener noreferrer"
+              <a
+                href={`/api/events/${eventId}/roster/pdf`}
+                download={`karta-roster-${slug}.pdf`}
                 className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12.5px] font-medium transition hover:opacity-80"
                 style={{ background: 'white', color: '#3A4A42', border: '1px solid #E5E0D4' }}
               >
-                <Printer size={13} strokeWidth={2} /> Print / PDF <ExternalLink size={11} strokeWidth={2} />
-              </Link>
+                <FileDown size={13} strokeWidth={2} /> Download PDF
+              </a>
             </>
           }
         />
@@ -221,15 +220,14 @@ export function DownloadsHub({ eventId, eventName, regs, sessions, ticketTypes, 
               <PillBtn onClick={downloadAgendaCSV} variant="green">
                 <FileSpreadsheet size={13} strokeWidth={2} /> Spreadsheet
               </PillBtn>
-              <Link
-                href={`/events/${eventId}/agenda/print`}
-                target="_blank"
-                rel="noopener noreferrer"
+              <a
+                href={`/api/events/${eventId}/agenda/pdf`}
+                download={`karta-agenda-${slug}.pdf`}
                 className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12.5px] font-medium transition hover:opacity-80"
                 style={{ background: 'white', color: '#3A4A42', border: '1px solid #E5E0D4' }}
               >
-                <Printer size={13} strokeWidth={2} /> Print / PDF <ExternalLink size={11} strokeWidth={2} />
-              </Link>
+                <FileDown size={13} strokeWidth={2} /> Download PDF
+              </a>
             </>
           }
         />
@@ -244,15 +242,14 @@ export function DownloadsHub({ eventId, eventName, regs, sessions, ticketTypes, 
               <PillBtn onClick={downloadRevenueCSV} variant="green">
                 <FileSpreadsheet size={13} strokeWidth={2} /> Spreadsheet
               </PillBtn>
-              <Link
-                href={`/events/${eventId}/revenue/print`}
-                target="_blank"
-                rel="noopener noreferrer"
+              <a
+                href={`/api/events/${eventId}/revenue/pdf`}
+                download={`karta-revenue-${slug}.pdf`}
                 className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12.5px] font-medium transition hover:opacity-80"
                 style={{ background: 'white', color: '#3A4A42', border: '1px solid #E5E0D4' }}
               >
-                <Printer size={13} strokeWidth={2} /> Print / PDF <ExternalLink size={11} strokeWidth={2} />
-              </Link>
+                <FileDown size={13} strokeWidth={2} /> Download PDF
+              </a>
             </>
           }
         />
