@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
@@ -74,7 +74,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
     ? [{ label: 'Ticket' }, { label: 'Details' }, { label: 'Payment' }, { label: 'Your card' }]
     : [{ label: 'Ticket' }, { label: 'Details' }, { label: 'Your card' }];
 
-  // â”€â”€ Validation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // -- Validation -----------------------------------------------
   function validateDetails(): boolean {
     const errs: Record<string, string> = {};
     if (!name.trim()) errs['name'] = 'Name is required';
@@ -104,7 +104,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
     return Object.keys(errs).length === 0;
   }
 
-  // â”€â”€ Navigation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // -- Navigation -----------------------------------------------
   async function handleNext() {
     if (step === 1) {
       if (!validateDetails()) return;
@@ -161,7 +161,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // â”€â”€ Photo crop â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // -- Photo crop -----------------------------------------------
   const handlePhotoSelect = useCallback((zone: Zone, file: File, srcUrl: string) => {
     setCropTarget({ zone, srcUrl, file });
   }, []);
@@ -178,7 +178,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
     setPhotoUrls(p => { const n = { ...p }; delete n[zoneId]; return n; });
   }, []);
 
-  // â”€â”€ Submit â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // -- Submit ---------------------------------------------------
   async function handleSubmit() {
     if (!validateZones()) return;
     setSubmitting(true);
@@ -266,7 +266,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
     }
   }
 
-  // â”€â”€ Summary sidebar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // -- Summary sidebar ------------------------------------------
   const summaryTicket = selectedTicket;
 
   return (
@@ -307,7 +307,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
 
         {/* Main grid */}
         <div className="grid gap-6 lg:gap-8" style={{ gridTemplateColumns: 'minmax(0,1fr) 300px' }}>
-          {/* â”€â”€ Form area â”€â”€ */}
+          {/* -- Form area -- */}
           <div>
             {/* Step 0 — Ticket selection */}
             {step === 0 && (
@@ -499,7 +499,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
             )}
           </div>
 
-          {/* â”€â”€ Summary sidebar â”€â”€ */}
+          {/* -- Summary sidebar -- */}
           <div className="hidden lg:block">
             <div
               className="rounded-2xl p-5 sticky"
@@ -542,7 +542,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
           </div>
         </div>
 
-        {/* â”€â”€ Bottom nav bar — hidden on paid step 2 (Stripe has its own submit) â”€â”€ */}
+        {/* -- Bottom nav bar — hidden on paid step 2 (Stripe has its own submit) -- */}
         {!(step === 2 && isPaid) && (
           <div
             className="fixed bottom-0 left-0 right-0 flex items-center justify-between gap-4 px-4 sm:px-6 py-4 z-30"
@@ -590,7 +590,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                     Generating your card…
                   </>
                 ) : (
-                  'Confirm & get my card â†’'
+                  'Confirm & get my card ->'
                 )}
               </button>
             )}
@@ -610,7 +610,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
   );
 }
 
-// â”€â”€ Helper components â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Helper components ------------------------------------------
 
 function RField({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
   return (

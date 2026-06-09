@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -89,7 +89,7 @@ function buildZoneValues(
   return { values, photoUrls };
 }
 
-// â”€â”€ Arrival Screen (step -1) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Arrival Screen (step -1) -------------------------------------------------
 function ArrivalStep({
   eventName,
   canvasVariant,
@@ -124,7 +124,7 @@ function ArrivalStep({
         filter: 'blur(48px)',
       }}/>
 
-      {/* â”€â”€ Mobile / tablet: single column â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- Mobile / tablet: single column --------------------------------- */}
       <div className="relative z-10 flex flex-col lg:hidden">
         <div className="px-5 pt-5">
           <EventBrandStrip eventName={eventName} compact />
@@ -210,7 +210,7 @@ function ArrivalStep({
         </div>
       </div>
 
-      {/* â”€â”€ Desktop: two-column â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- Desktop: two-column --------------------------------------------- */}
       <div className="relative z-10 hidden lg:flex flex-col" style={{ minHeight: '100vh' }}>
         <div className="px-10 pt-6 flex items-center justify-between gap-6">
           <div style={{ flex: '0 1 460px', minWidth: 0 }}>
@@ -330,7 +330,7 @@ function ArrivalStep({
   );
 }
 
-// â”€â”€ Main RegistrationClient â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Main RegistrationClient --------------------------------------------------
 /** Pick the best default ticket: skip sold-out and invitation-only, prefer non-VIP */
 function pickDefaultTicket(tickets: TicketType[]): TicketType | null {
   const available = tickets.filter(t => !(t.quantity !== null && t.quantity_sold >= t.quantity));
@@ -371,7 +371,7 @@ export default function RegistrationClient({
     return errs;
   }
 
-  // 3 form steps: Ticket â†’ Details â†’ Payment
+  // 3 form steps: Ticket -> Details -> Payment
   const STEPS = ['Ticket', 'Details', 'Payment'];
   // 3.5% platform fee, rounded to 2 decimal places
   const fee = selectedTicket && selectedTicket.price > 0
@@ -436,7 +436,7 @@ export default function RegistrationClient({
     }
   };
 
-  // â”€â”€ Arrival screen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // -- Arrival screen --------------------------------------------------------
   if (step === -1) {
     return (
       <ArrivalStep
@@ -447,7 +447,7 @@ export default function RegistrationClient({
     );
   }
 
-  // â”€â”€ Build live card preview values from current form state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // -- Build live card preview values from current form state ----------------
   const { values: previewValues, photoUrls: previewPhotoUrls } = canvasVariant
     ? buildZoneValues(canvasVariant.zones, name, role, photoUrl)
     : { values: {}, photoUrls: {} };
@@ -458,7 +458,7 @@ export default function RegistrationClient({
         className="max-w-[1100px] mx-auto px-5 py-8 pb-20"
         style={{ display: 'grid', gridTemplateColumns: canvasVariant ? '1fr 340px' : '1fr', gap: 48, alignItems: 'start' }}
       >
-        {/* â”€â”€ Left: form â”€â”€ */}
+        {/* -- Left: form -- */}
         <div>
           {/* Step indicator */}
           <div className="flex items-center gap-2.5 mb-8">
@@ -670,7 +670,7 @@ export default function RegistrationClient({
                 className="px-5 py-2.5 rounded-xl font-medium text-[14px] transition-colors"
                 style={{ background: '#E8EFEB', color: '#1F4D3A' }}
               >
-                â† Back
+                &larr; Back
               </button>
 
               {step < 2 ? (
@@ -686,7 +686,7 @@ export default function RegistrationClient({
                   className="ml-auto px-6 py-2.5 rounded-xl font-medium text-[14px] text-white disabled:opacity-50"
                   style={{ background: '#1F4D3A' }}
                 >
-                  Continue â†’
+                  Continue &rarr;
                 </button>
               ) : (
                 <button
@@ -702,7 +702,7 @@ export default function RegistrationClient({
           </div>
         </div>
 
-        {/* â”€â”€ Right: order summary + live card preview â”€â”€ */}
+        {/* -- Right: order summary + live card preview -- */}
         {canvasVariant && (
           <aside className="sticky hidden lg:block" style={{ top: 88 }}>
             {/* Live card preview */}

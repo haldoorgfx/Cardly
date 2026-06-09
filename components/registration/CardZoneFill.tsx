@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useRef } from 'react';
 import { Camera, X } from 'lucide-react';
@@ -29,7 +29,7 @@ export function CardZoneFill({
 
   return (
     <div className="flex flex-col lg:flex-row gap-6">
-      {/* â”€â”€ Form fields â”€â”€ */}
+      {/* -- Form fields -- */}
       <div className="flex-1 min-w-0 space-y-4">
         <p className="text-[13px]" style={{ color: '#6B7A72' }}>
           Personalise your card. It&apos;ll be generated when you confirm.
@@ -104,7 +104,7 @@ export function CardZoneFill({
         })}
       </div>
 
-      {/* â”€â”€ Live preview â”€â”€ */}
+      {/* -- Live preview -- */}
       {backgroundUrl && (
         <div className="lg:w-[280px] shrink-0">
           <div className="text-[11px] font-mono uppercase tracking-widest mb-2 text-center" style={{ color: '#6B7A72' }}>

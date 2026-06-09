@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // D2.7 — Mobile fallback screen (viewport < 768px)
 // Shows a cream-background nudge to open the editor on desktop.

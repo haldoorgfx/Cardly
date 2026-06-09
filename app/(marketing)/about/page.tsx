@@ -1,4 +1,4 @@
-﻿import type { Metadata } from 'next';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   },
 };
 
-// â”€â”€â”€ colours â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// --- colours ----------------------------------------------------------------
 const C = {
   primary:      '#1F4D3A',
   primaryDark:  '#163828',
@@ -30,7 +30,7 @@ const C = {
   border:       '#E5E0D4',
 } as const;
 
-// â”€â”€â”€ small helper icon components â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// --- small helper icon components --------------------------------------------
 function CheckIcon({ color }: { color: string }) {
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
@@ -57,11 +57,11 @@ function SparkleIcon() {
   );
 }
 
-// â”€â”€â”€ page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// --- page --------------------------------------------------------------------
 export default function AboutPage() {
   return (
     <>
-      {/* â”€â”€ SECTION 1 — HERO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- SECTION 1 — HERO ------------------------------------------------- */}
       <section
         style={{ background: C.cream, position: 'relative', overflow: 'hidden' }}
         className="border-b"
@@ -132,7 +132,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* â”€â”€ SECTION 2 — PLATFORM ORIGIN STORY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- SECTION 2 — PLATFORM ORIGIN STORY ------------------------------- */}
       <section style={{ background: C.cream }}>
         <div
           style={{
@@ -290,7 +290,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* â”€â”€ SECTION 3 — THE DIFFERENTIATOR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- SECTION 3 — THE DIFFERENTIATOR ---------------------------------- */}
       <section
         style={{
           background: 'rgba(232,239,235,0.40)',
@@ -456,13 +456,13 @@ export default function AboutPage() {
                 textDecoration: 'none',
               }}
             >
-              See how the card works â†’
+              See how the card works &rarr;
             </Link>
           </div>
         </div>
       </section>
 
-      {/* â”€â”€ SECTION 4 — VALUES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- SECTION 4 — VALUES ---------------------------------------------- */}
       <section style={{ background: C.cream, padding: '80px 20px' }}>
         {/* header */}
         <div style={{ textAlign: 'center', marginBottom: 48 }}>
@@ -543,7 +543,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* â”€â”€ SECTION 5 — TEAM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- SECTION 5 — TEAM ------------------------------------------------ */}
       <section style={{ background: C.cream, padding: '64px 20px' }}>
         <div style={{ maxWidth: 1060, margin: '0 auto' }}>
           <h2
@@ -689,7 +689,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* â”€â”€ SECTION 6 — PRESS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- SECTION 6 — PRESS ----------------------------------------------- */}
       <section
         style={{
           borderTop: `1px solid ${C.border}`,
@@ -735,7 +735,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* â”€â”€ SECTION 7 — FINAL CTA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- SECTION 7 — FINAL CTA ------------------------------------------- */}
       <section
         style={{
           background: `linear-gradient(135deg, ${C.primary} 0%, #2A6A50 60%, ${C.accent} 100%)`,
@@ -809,7 +809,7 @@ export default function AboutPage() {
                 textDecoration: 'none',
               }}
             >
-              Start free â†’
+              Start free &rarr;
             </Link>
             <Link
               href="/contact"
@@ -826,7 +826,7 @@ export default function AboutPage() {
                 textDecoration: 'none',
               }}
             >
-              Talk to us â†’
+              Talk to us &rarr;
             </Link>
           </div>
 

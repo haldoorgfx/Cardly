@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 /** Compact organizer strip shown at the top of every attendee screen. */
 

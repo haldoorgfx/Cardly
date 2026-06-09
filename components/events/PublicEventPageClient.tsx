@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
@@ -55,7 +55,7 @@ export function PublicEventPageClient({
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
 
-      {/* â”€â”€ Hero â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- Hero ----------------------------------------------------- */}
       <div
         className="relative overflow-hidden w-full"
         style={{ height: 440 }}
@@ -135,13 +135,13 @@ export function PublicEventPageClient({
               style={{ color: 'rgba(255,255,255,0.85)', fontSize: 14, fontFamily: 'Inter, system-ui, sans-serif' }}
             >
               <div>{dateStr}</div>
-              <div className=”mt-1”>{timeStr} – {endTimeStr}</div>
+              <div className="mt-1">{timeStr} – {endTimeStr}</div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* â”€â”€ Main layout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- Main layout --------------------------------------------- */}
       <div className="max-w-[1000px] mx-auto px-5">
 
         {/* Meta strip */}
@@ -175,7 +175,7 @@ export function PublicEventPageClient({
           className="grid gap-8 py-10 lg:grid-cols-[1fr_340px]"
           style={{ alignItems: 'start' }}
         >
-          {/* â”€â”€ Content column â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+          {/* -- Content column ------------------------------------ */}
           <div className="min-w-0">
 
             {/* About */}
@@ -244,7 +244,7 @@ export function PublicEventPageClient({
 
           </div>
 
-          {/* â”€â”€ Sidebar: registration card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+          {/* -- Sidebar: registration card ------------------------ */}
           <aside className="hidden lg:block" style={{ position: 'sticky', top: 88 }}>
             <TicketList
               tickets={tickets}
@@ -259,7 +259,7 @@ export function PublicEventPageClient({
         </div>
       </div>
 
-      {/* â”€â”€ Mobile bottom bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- Mobile bottom bar ---------------------------------------- */}
       <div
         className="fixed bottom-0 left-0 right-0 lg:hidden flex items-center gap-3 px-4 py-3 z-50"
         style={{ background: 'white', borderTop: '1px solid #E5E0D4', boxShadow: '0 -4px 16px rgba(15,31,24,0.08)' }}
@@ -300,7 +300,7 @@ export function PublicEventPageClient({
   );
 }
 
-/* â”€â”€ Ticket list (shared between sidebar and mobile inline) â”€â”€ */
+/* -- Ticket list (shared between sidebar and mobile inline) -- */
 function TicketList({
   tickets, selectedTicket, setSelectedTicket, registerHref, selectedTicketObj, page, minPrice,
 }: {

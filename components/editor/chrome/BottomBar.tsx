@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { ZoomIn, ZoomOut, Grid, Magnet, Maximize2 } from 'lucide-react';
@@ -37,7 +37,7 @@ export default function BottomBar({
       >
         <button
           onClick={() => setZoom(z => Math.max(0.1, +(z - 0.1).toFixed(1)))}
-          title="Zoom out (âŒ˜-)"
+          title="Zoom out (Cmd-)"
           className="flex items-center justify-center transition hover:bg-white"
           style={{ width: 26, height: 26, color: '#3A4A42', background: 'transparent', border: 'none', cursor: 'pointer' }}
         >
@@ -69,7 +69,7 @@ export default function BottomBar({
 
         <button
           onClick={() => setZoom(z => Math.min(3, +(z + 0.1).toFixed(1)))}
-          title="Zoom in (âŒ˜+)"
+          title="Zoom in (Cmd+)"
           className="flex items-center justify-center transition hover:bg-white"
           style={{ width: 26, height: 26, color: '#3A4A42', background: 'transparent', border: 'none', cursor: 'pointer' }}
         >

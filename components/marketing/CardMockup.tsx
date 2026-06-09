@@ -1,4 +1,4 @@
-﻿// Decorative event card mockup — used across hero, use-cases, how-it-works.
+// Decorative event card mockup — used across hero, use-cases, how-it-works.
 // NOT connected to real event data. Pure visual prop.
 
 export type CardVariant = 'forest' | 'cream' | 'gold' | 'duotone';

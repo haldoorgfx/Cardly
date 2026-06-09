@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import {
   AreaChart, Area, BarChart, Bar,
@@ -58,7 +58,7 @@ export function AnalyticsClient({ stats, userGrowth, cardGrowth, planDist }: Pro
 
   return (
     <div className="space-y-8">
-      {/* â”€â”€ Stat cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- Stat cards ------------------------------------ */}
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
         <StatCard label="Total users" value={stats.totalUsers} />
         <StatCard label="New this month" value={stats.newUsersThisMonth} sub="signups" />
@@ -73,7 +73,7 @@ export function AnalyticsClient({ stats, userGrowth, cardGrowth, planDist }: Pro
         />
       </div>
 
-      {/* â”€â”€ User growth chart â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- User growth chart -------------------------- */}
       <div className="bg-white border border-[#E5E0D4] rounded-2xl p-6">
         <h2 className="font-display font-semibold text-[16px] text-[#0F1F18] mb-1">User growth</h2>
         <p className="text-[12px] text-[#6B7A72] mb-5">New signups per day — last 30 days</p>
@@ -120,7 +120,7 @@ export function AnalyticsClient({ stats, userGrowth, cardGrowth, planDist }: Pro
         </ResponsiveContainer>
       </div>
 
-      {/* â”€â”€ Cards generated chart â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- Cards generated chart ------------------- */}
       <div className="bg-white border border-[#E5E0D4] rounded-2xl p-6">
         <h2 className="font-display font-semibold text-[16px] text-[#0F1F18] mb-1">Cards generated</h2>
         <p className="text-[12px] text-[#6B7A72] mb-5">Attendee card downloads per day — last 30 days</p>
@@ -153,7 +153,7 @@ export function AnalyticsClient({ stats, userGrowth, cardGrowth, planDist }: Pro
         </ResponsiveContainer>
       </div>
 
-      {/* â”€â”€ Plan distribution â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- Plan distribution ----------------------- */}
       <div className="grid md:grid-cols-2 gap-6">
         <div className="bg-white border border-[#E5E0D4] rounded-2xl p-6">
           <h2 className="font-display font-semibold text-[16px] text-[#0F1F18] mb-1">Plan distribution</h2>

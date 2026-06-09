@@ -1,22 +1,22 @@
-﻿'use client';
+'use client';
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ---------------------------------------------------------------------------
 // KARTA CANVAS EDITOR — STATE & BEHAVIOR INVENTORY
 // Documented before UI refactor (Step 1). DO NOT remove any of this logic.
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ---------------------------------------------------------------------------
 //
-// â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Constants ---------------------------------------------------------------
 //   CW = 1080                       — canvas baseline width (px)
 //   CH = 1350                       — canvas baseline height (px)
 //   GRID_SIZE = 60                  — snap-to-grid cell size (canvas px)
 //   ROTATE_HANDLE_DIST = 32         — rotate handle distance above zone top
 //
-// â”€â”€ Props â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Props -------------------------------------------------------------------
 //   eventId: string                 — Supabase event UUID (for API calls)
 //   eventName: string               — display name (editable inline)
 //   variants: Variant[]             — initial variant list from server
 //
-// â”€â”€ State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- State -------------------------------------------------------------------
 //   variants: Variant[]             — line 84  — live variant list
 //   activeVariantId: string         — line 85  — which variant's zones are shown
 //   showAddVariant: boolean         — line 86  — "Add variant" form open
@@ -48,7 +48,7 @@
 //   history: HistoryState           — line 138 — {past: Zone[][], future: Zone[][]}
 //   isMobile: boolean               — line 155 — viewport < 900px
 //
-// â”€â”€ Refs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Refs --------------------------------------------------------------------
 //   stageRef: HTMLDivElement        — line 141 — outer scrollable stage (for zoom/pan scroll)
 //   canvasInnerRef: HTMLDivElement  — line 142 — the artwork div (for position math)
 //   imageUploadRef: HTMLInputElement— line 143 — hidden input for zone image upload
@@ -64,7 +64,7 @@
 //   toolbarDragRef: drag anchor     — line 135 — toolbar drag state
 //   newVariantFileRef: HTMLInputElement  — line 90  — hidden input for variant background
 //
-// â”€â”€ Derived (not state) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Derived (not state) -----------------------------------------------------
 //   activeVariant   — line 104 — current Variant object
 //   zones           — line 105 — current variant's Zone[]
 //   bgW             — line 106 — active variant background width (px)
@@ -73,7 +73,7 @@
 //   selectedId      — line 112 — last selectedIds entry
 //   selected        — line 113 — Zone | null for selectedId
 //
-// â”€â”€ Behaviors â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Behaviors ---------------------------------------------------------------
 //   switchVariant(id)               — line 195 — switch active variant, clear selection + history
 //   handleRenameVariant(id, name)   — line 202 — PATCH variant_name via API
 //   handleDeleteVariant(id)         — line 214 — DELETE variant via API, switch to next
@@ -90,11 +90,11 @@
 //   bringToFront(id)                — line 312 — move zone to end of array
 //   sendToBack(id)                  — line 319 — move zone to start of array
 //   alignSelected(axis)             — line 327 — align all selected zones (6 axes)
-//   distributeSelected(dir)         — line 345 — evenly space â‰¥3 selected zones (h or v)
+//   distributeSelected(dir)         — line 345 — evenly space >=3 selected zones (h or v)
 //   addZone(type)                   — line 369 — add text|photo|custom|label zone, scaled to bgW
 //   addShapeZone(shapeType)         — line 394 — add rect|ellipse|triangle|line shape zone
-//   handleImageUpload(e)            — line 420 — upload file â†’ /api/upload-zone-image â†’ add image zone
-//   handleReplaceBackground(e)      — line 462 — upload file â†’ /api/upload-zone-image â†’ PATCH variant bg
+//   handleImageUpload(e)            — line 420 — upload file -> /api/upload-zone-image -> add image zone
+//   handleReplaceBackground(e)      — line 462 — upload file -> /api/upload-zone-image -> PATCH variant bg
 //   undo()                          — line 495 — Cmd+Z: pop past[], push current to future[]
 //   redo()                          — line 505 — Cmd+Shift+Z: pop future[], push current to past[]
 //   copyStyle()                     — line 516 — Cmd+Alt+C: store non-positional zone props
@@ -106,8 +106,8 @@
 //   saveName()                      — line 813 — PATCH event name
 //   fitZoom()                       — line 818 — recalculate zoom to fit stage
 //
-// â”€â”€ useEffects â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-//   Mobile detection                — line 156 — window.innerWidth < 900 â†’ isMobile
+// -- useEffects --------------------------------------------------------------
+//   Mobile detection                — line 156 — window.innerWidth < 900 -> isMobile
 //   Google Fonts inject             — line 163 — appends <link> to <head> once
 //   Floating toolbar position       — line 173 — computes floatBarPos from selected zone + zoom
 //   Reset toolbar drag offset       — line 192 — clears toolbarOffset on selection change
@@ -117,12 +117,12 @@
 //   Scroll-to-zoom (wheel)          — line 770 — Ctrl/Cmd+wheel adjusts zoom
 //   Re-center canvas after zoom     — line 783 — adjusts scrollLeft/scrollTop to keep canvas centered
 //
-// â”€â”€ Type aliases â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Type aliases ------------------------------------------------------------
 //   HistoryState = { past: Zone[][], future: Zone[][] }
 //   SnapGuides   = { x?: number, y?: number }
 //   Interaction  = { mode, id, sx, sy, ox, oy, ow, oh, dir?, startMouseAngle?, startRotation?, multiPositions? }
 //
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ---------------------------------------------------------------------------
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { fetchWithRetry } from '@/lib/utils/fetch-retry';
@@ -163,7 +163,7 @@ interface Interaction {
   multiPositions?: Record<string, { x: number; y: number }>;
 }
 
-/* â”€â”€ helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- helpers ----------------------------------------------- */
 function wrapTextLines(text: string, maxWidth: number, fontSize: number): string[] {
   const approxCharWidth = fontSize * 0.55;
   const maxChars = Math.max(1, Math.floor(maxWidth / approxCharWidth));
@@ -196,7 +196,7 @@ const FONTS = [
 const GOOGLE_FONTS_URL =
   'https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=&family=Space+Grotesk:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Oswald:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Work+Sans:wght@300;400;500;600;700&family=Merriweather:wght@300;400;700&family=Lora:wght@400;500;600;700&family=Cormorant+Garamond:wght@300;400;500;600;700&family=Bebas+Neue&family=Anton&display=swap';
 
-/* â”€â”€ types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- types ------------------------------------------------- */
 interface CanvasEditorProps {
   eventId: string;
   eventName: string;
@@ -204,9 +204,9 @@ interface CanvasEditorProps {
   variants: Variant[];
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* ----------------------------------------------------------
    MAIN COMPONENT
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+---------------------------------------------------------- */
 export default function CanvasEditor({ eventId, eventName, eventSlug, variants: initialVariants }: CanvasEditorProps) {
   const router = useRouter();
 
@@ -291,7 +291,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
   const spaceDownRef  = useRef(false);
   const panStart      = useRef({ x: 0, y: 0, scrollLeft: 0, scrollTop: 0 });
 
-  /* â”€â”€ mobile detection â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* -- mobile detection -------------------------------- */
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -300,7 +300,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
     return () => window.removeEventListener("resize", check);
   }, []);
 
-    /* â”€â”€ load Google Fonts â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    /* -- load Google Fonts --------------------------------- */
   useEffect(() => {
     const id = 'karta-gfonts';
     if (document.getElementById(id)) return;
@@ -309,7 +309,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
     document.head.appendChild(link);
   }, []);
 
-  /* â”€â”€ load brand kit assets â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* -- load brand kit assets ----------------------------- */
   useEffect(() => {
     fetch('/api/brand')
       .then(r => r.ok ? r.json() : {})
@@ -319,7 +319,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
       .catch(() => {});
   }, []);
 
-  /* â”€â”€ floating toolbar position â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* -- floating toolbar position ------------------------- */
   useEffect(() => {
     if (!selected || previewMode) { setFloatBarPos(null); return; }
     const recalc = () => {
@@ -341,14 +341,14 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
   /* reset drag offset when selection changes */
   useEffect(() => { setToolbarOffset({ dx: 0, dy: 0 }); }, [selected?.id]);
 
-  /* â”€â”€ variant helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* -- variant helpers ----------------------------------- */
   const switchVariant = useCallback((id: string) => {
     setActiveVariantId(id);
     setSelectedIds([]);
     setHistory({ past: [], future: [] });
   }, []);
 
-  /* â”€â”€ variant management â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* -- variant management ------------------------------- */
   const handleRenameVariant = useCallback(async (variantId: string, name: string) => {
     const trimmed = name.trim();
     setRenamingVariantId(null);
@@ -395,7 +395,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
     switchVariant(nv.id);
   }, [eventId, variants, variantZonesMap, switchVariant]);
 
-  /* â”€â”€ autosave â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* -- autosave ------------------------------------------ */
   const scheduleSave = useCallback((nextZones: Zone[], variantId: string) => {
     if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
     autosaveTimer.current = setTimeout(async () => {
@@ -428,7 +428,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
     scheduleSave(nextZones, activeVariantId);
   }, [scheduleSave, activeVariantId, setZonesForVariant]);
 
-  /* â”€â”€ zone operations â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* -- zone operations ----------------------------------- */
   const updateZone = useCallback((id: string, patch: Partial<Zone>, withHistory = false) => {
     const next = zonesRef.current.map(z => z.id === id ? { ...z, ...patch } : z);
     if (withHistory) pushHistory(next);
@@ -483,7 +483,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
     pushHistory([zone, ...arr.filter(z => z.id !== id)]);
   }, [pushHistory]);
 
-  /* â”€â”€ multi-select align / distribute â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* -- multi-select align / distribute -------------------- */
   const alignSelected = useCallback((axis: 'left' | 'centerH' | 'right' | 'top' | 'middleV' | 'bottom') => {
     if (selectedIds.length < 2) return;
     const sel = zonesRef.current.filter(z => selectedIds.includes(z.id));
@@ -743,7 +743,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
     }
   }, [activeVariantId]);
 
-  /* â”€â”€ undo / redo â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* -- undo / redo --------------------------------------- */
   const undo = useCallback(() => {
     setHistory(h => {
       if (!h.past.length) return h;
@@ -764,7 +764,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
     });
   }, [scheduleSave, activeVariantId, setZonesForVariant]);
 
-  /* â”€â”€ copy / paste style â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* -- copy / paste style -------------------------------- */
   const copyStyle = useCallback(() => {
     if (!selected) return;
     const { id, type, label, x, y, w, h, required, hidden, locked, ...style } = selected;
@@ -779,7 +779,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
     updateZone(selected.id, copiedStyle, true);
   }, [selected, copiedStyle, updateZone]);
 
-  /* â”€â”€ pointer: zone drag / resize / rotate â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* -- pointer: zone drag / resize / rotate -------------- */
   const onZonePointerDown = useCallback((e: React.PointerEvent, zone: Zone) => {
     e.stopPropagation();
     didMoveRef.current = false;
@@ -835,7 +835,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
     document.body.classList.add('select-none');
   }, [zoom]);
 
-  /* â”€â”€ global pointer move / up â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* -- global pointer move / up -------------------------- */
   useEffect(() => {
     const SNAP = 6 / zoom;  // 6 visual px threshold
 
@@ -981,7 +981,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
     };
   }, [zoom, updateZone, bgW, bgH, gridSnap, activeVariantId, setZonesForVariant, aspectLock]);
 
-  /* â”€â”€ keyboard shortcuts â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* -- keyboard shortcuts -------------------------------- */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const inInput = (e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'TEXTAREA';
@@ -1025,7 +1025,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
     return () => { window.removeEventListener('keydown', onKey); window.removeEventListener('keyup', onKeyUp); };
   }, [selected, selectedId, selectedIds, undo, redo, removeSelected, duplicateZone, updateZone, bgW, bgH, copyStyle, pasteStyle, moveZoneUp, moveZoneDown]);
 
-  /* â”€â”€ fit zoom on mount / variant change â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* -- fit zoom on mount / variant change ---------------- */
   useEffect(() => {
     const fit = () => {
       const el = stageRef.current;
@@ -1038,7 +1038,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
     return () => window.removeEventListener('resize', fit);
   }, [bgW, bgH, activeVariantId]);
 
-  /* â”€â”€ scroll-to-zoom â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* -- scroll-to-zoom ------------------------------------ */
   useEffect(() => {
     const el = stageRef.current;
     if (!el) return;
@@ -1051,7 +1051,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
     return () => el.removeEventListener('wheel', onWheel);
   }, []);
 
-  /* â”€â”€ re-center canvas after zoom changes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* -- re-center canvas after zoom changes --------------- */
   useEffect(() => {
     const el = stageRef.current;
     if (!el) return;
@@ -1061,7 +1061,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
     });
   }, [zoom]);
 
-  /* â”€â”€ add variant â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* -- add variant --------------------------------------- */
   const handleAddVariant = async () => {
     if (!newVariantName.trim() || !newVariantFile) return;
     setAddingVariant(true);
@@ -1110,11 +1110,11 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const filteredFonts = FONTS.filter(f => f.toLowerCase().includes(fontSearch.toLowerCase()));
 
-  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  /* ------------------------------------------------------
      RENDER
-  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+  ------------------------------------------------------ */
 
-  /* â”€â”€ Mobile gate — canvas editor requires desktop (<768px) â”€â”€ */
+  /* -- Mobile gate — canvas editor requires desktop (<768px) -- */
   if (isMobile) {
     return <MobileFallback eventId={eventId} eventName={nameVal} />;
   }
@@ -1131,7 +1131,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
   return (
     <div className="flex flex-col" style={{ height: '100vh', overflow: 'hidden', background: '#FAF6EE' }}>
 
-      {/* â”€â”€ Top Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- Top Bar ---------------------------------------- */}
       <TopBar
         eventId={eventId}
         nameVal={nameVal}
@@ -1158,7 +1158,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
         router={router}
       />
 
-      {/* â”€â”€ Variant Tabs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- Variant Tabs ----------------------------------- */}
       <VariantsTabs
         variants={variants}
         activeVariantId={activeVariantId}
@@ -1180,7 +1180,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
 
       <div className="flex-1 flex min-h-0">
 
-        {/* â”€â”€ Left Rail â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* -- Left Rail ------------------------------------- */}
         <LeftRail
           previewMode={previewMode}
           addZone={addZone}
@@ -1205,7 +1205,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
           addBrandAssetToCanvas={addBrandAssetToCanvas}
         />
 
-        {/* â”€â”€ Stage â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* -- Stage ----------------------------------------- */}
         <div ref={stageContainerRef} className="flex-1 flex flex-col overflow-hidden" style={{ position: 'relative' }}>
           {/* Canvas dims chip — non-scrolling overlay at top of stage */}
           {!previewMode && (
@@ -1333,7 +1333,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
 
                 {previewMode && (
                   <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white/70 text-[11px] font-mono px-3 py-1.5 rounded-full pointer-events-none">
-                    PREVIEW — âŒ˜P to edit
+                    PREVIEW — CmdP to edit
                   </div>
                 )}
               </div>
@@ -1341,7 +1341,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
           </div>
           </div>
 
-          {/* â”€â”€ Floating context toolbar — draggable, viewport-anchored â”€â”€ */}
+          {/* -- Floating context toolbar — draggable, viewport-anchored -- */}
           {floatBarPos && selected && !previewMode && (() => {
             const containerW = stageContainerRef.current?.offsetWidth ?? 9999;
             // Always translateX(-50%) so the toolbar is centered on `left`.
@@ -1368,7 +1368,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
                 onClick={e => e.stopPropagation()}
                 onPointerDown={e => e.stopPropagation()}
               >
-                {/* â”€â”€ arrow tip pointing down at element â”€â”€ */}
+                {/* -- arrow tip pointing down at element -- */}
                 <div className="flex justify-center pointer-events-none" style={{ marginBottom: -1 }}>
                   <div style={{ width: 10, height: 6, background: 'white', clipPath: 'polygon(50% 100%, 0 0, 100% 0)', border: '1px solid #E5E0D4' }} />
                 </div>
@@ -1377,7 +1377,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
                   className="flex items-center bg-white rounded-2xl"
                   style={{ border: '1px solid #E5E0D4', padding: '4px 6px', gap: 1, whiteSpace: 'nowrap' }}
                 >
-                  {/* â”€â”€ Grip / drag handle â”€â”€ */}
+                  {/* -- Grip / drag handle -- */}
                   <div
                     role="button"
                     aria-label="Drag toolbar to reposition"
@@ -1420,7 +1420,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
 
                   {sep}
 
-                  {/* â”€â”€ TEXT / LABEL / CUSTOM â”€â”€ */}
+                  {/* -- TEXT / LABEL / CUSTOM -- */}
                   {isText && (
                     <>
                       {/* Font family */}
@@ -1437,7 +1437,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
 
                       {sep}
 
-                      {/* Size âˆ’ N + */}
+                      {/* Size - N + */}
                       <div
                         role="group"
                         aria-label="Font size"
@@ -1449,7 +1449,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
                           title="Decrease font size"
                           onClick={() => updateZone(selected.id, { size: Math.max(8, (selected.size ?? 32) - 2) })}
                           className="h-7 w-6 flex items-center justify-center hover:bg-[#FAF6EE] text-[#0F1F18]/60 hover:text-[#1F4D3A] active:bg-[#E8EFEB] transition text-[15px] font-light select-none"
-                        >âˆ’</button>
+                        >-</button>
                         <input
                           type="number" min="8" max="400"
                           aria-label="Font size value"
@@ -1520,7 +1520,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
                     </>
                   )}
 
-                  {/* â”€â”€ PHOTO shape — CSS shape previews so circle/rounded/square are visually obvious â”€â”€ */}
+                  {/* -- PHOTO shape — CSS shape previews so circle/rounded/square are visually obvious -- */}
                   {selected.type === 'photo' && (
                     <>
                       <div role="group" aria-label="Photo shape" className="flex items-center gap-1 shrink-0 rounded-lg overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
@@ -1549,7 +1549,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
                     </>
                   )}
 
-                  {/* â”€â”€ SHAPE fill color â”€â”€ */}
+                  {/* -- SHAPE fill color -- */}
                   {selected.type === 'shape' && (
                     <>
                       <div
@@ -1569,7 +1569,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
                     </>
                   )}
 
-                  {/* â”€â”€ Opacity â”€â”€ */}
+                  {/* -- Opacity -- */}
                   <div role="group" aria-label={`Opacity: ${opacity}%`} className="flex items-center gap-1.5 px-1 shrink-0">
                     <span className="text-[10px] font-mono w-7 text-right select-none tabular-nums" style={{ color: 'rgba(15,31,24,0.45)' }}>{opacity}%</span>
                     <input
@@ -1582,7 +1582,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
 
                   {sep}
 
-                  {/* â”€â”€ Center H / V â”€â”€ */}
+                  {/* -- Center H / V -- */}
                   <div role="group" aria-label="Center element" className="flex items-center gap-px">
                     <button
                       aria-label="Center horizontally on canvas"
@@ -1602,7 +1602,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
 
                   {sep}
 
-                  {/* â”€â”€ Layer order â”€â”€ */}
+                  {/* -- Layer order -- */}
                   <div role="group" aria-label="Layer order" className="flex items-center gap-px">
                     <button
                       aria-label="Bring forward"
@@ -1622,17 +1622,17 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
 
                   {sep}
 
-                  {/* â”€â”€ Duplicate / Delete â”€â”€ */}
+                  {/* -- Duplicate / Delete -- */}
                   <button
-                    aria-label="Duplicate element (âŒ˜D)"
-                    title="Duplicate (âŒ˜D)"
+                    aria-label="Duplicate element (CmdD)"
+                    title="Duplicate (CmdD)"
                     onClick={() => duplicateZone(selected.id)}
                     className="h-7 w-7 rounded-lg grid place-items-center transition hover:bg-[#FAF6EE] active:scale-95"
                     style={{ color: 'rgba(15,31,24,0.65)' }}
                   ><Copy size={13} strokeWidth={1.8} /></button>
                   <button
-                    aria-label="Delete element (âŒ«)"
-                    title="Delete (âŒ«)"
+                    aria-label="Delete element (Backspace)"
+                    title="Delete (Backspace)"
                     onClick={() => removeZone(selected.id)}
                     className="h-7 w-7 rounded-lg grid place-items-center transition hover:bg-red-50 active:scale-95"
                     style={{ color: '#f87171' }}
@@ -1646,7 +1646,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
           {/* Multi-select badge — viewport-fixed, not inside scroll area */}
           {selectedIds.length > 1 && !previewMode && (
             <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-primary text-white text-[11.5px] font-mono px-3 py-1.5 rounded-full shadow-lift pointer-events-none z-10">
-              {selectedIds.length} elements selected · âŒ« delete · drag to move
+              {selectedIds.length} elements selected · Backspace delete · drag to move
             </div>
           )}
 
@@ -1662,7 +1662,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
           />
         </div>
 
-        {/* â”€â”€ Right Sidebar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* -- Right Sidebar ---------------------------------- */}
         <RightSidebar
           mode={sidebarMode}
           nameVal={nameVal}
@@ -1704,7 +1704,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
         </RightSidebar>
       </div>
 
-      {/* â”€â”€ Template Picker â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- Template Picker -------------------------------- */}
       {showTemplatePicker && (
         <TemplatePickerModal
           eventId={eventId}
@@ -1714,13 +1714,13 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
         />
       )}
 
-      {/* â”€â”€ Add Variant Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- Add Variant Modal ----------------------------- */}
       {showAddVariant && (
         <Modal onClose={() => { setShowAddVariant(false); setVariantLimitHit(false); }} title="Add variant" subtitle="A new card type, e.g. Speaker, Sponsor, Exhibitor">
           {variantLimitHit ? (
             <div className="space-y-4">
               <div className="rounded-xl p-4 flex gap-3" style={{ background: '#FEF3C7', border: '1px solid #F59E0B33' }}>
-                <span style={{ fontSize: 20 }}>ðŸ”’</span>
+                <span style={{ fontSize: 20 }}></span>
                 <div>
                   <p className="text-[13.5px] font-semibold mb-1" style={{ color: '#92400E' }}>Variant limit reached</p>
                   <p className="text-[12.5px] leading-relaxed" style={{ color: '#92400E' }}>
@@ -1731,7 +1731,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
               <div className="flex gap-2 mt-2">
                 <button onClick={() => { setShowAddVariant(false); setVariantLimitHit(false); }} className="flex-1 h-10 rounded-xl border border-border text-[13px] hover:bg-cream transition">Cancel</button>
                 <a href="/settings#billing" className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white bg-primary flex items-center justify-center transition hover:opacity-90">
-                  Upgrade plan â†’
+                  Upgrade plan &rarr;
                 </a>
               </div>
             </div>
@@ -1764,17 +1764,17 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
         </Modal>
       )}
 
-      {/* â”€â”€ Shortcuts Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- Shortcuts Modal ------------------------------- */}
       {showShortcuts && (
         <Modal onClose={() => setShowShortcuts(false)} title="Keyboard shortcuts" subtitle="Everything you can do without a mouse">
           <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-[12.5px]">
             {[
-              ['âŒ˜Z / â‡§âŒ˜Z','Undo / Redo'],['âŒ˜D','Duplicate zone'],['âŒ«','Delete selected'],
-              ['âŒ˜P','Preview mode'],['âŒ˜/','This panel'],['G','Toggle grid'],
-              ['âŒ˜âŒ¥C','Copy style'],['âŒ˜âŒ¥V','Paste style'],['Arrow keys','Nudge 1px'],
-              ['â‡§+Arrow','Nudge 10px'],['[',  'Send backward'],[']','Bring forward'],
-              ['â‡§+click','Multi-select'],['â‡§+drag resize','Lock aspect ratio'],['Esc','Deselect all'],
-              ['âŒ˜+wheel','Zoom in/out'],['â‡§+rotate','Snap to 15°'],['âŒ˜+click variant','Switch variant'],
+              ['CmdZ / ShiftCmdZ','Undo / Redo'],['CmdD','Duplicate zone'],['Backspace','Delete selected'],
+              ['CmdP','Preview mode'],['Cmd/','This panel'],['G','Toggle grid'],
+              ['CmdOptionC','Copy style'],['CmdOptionV','Paste style'],['Arrow keys','Nudge 1px'],
+              ['Shift+Arrow','Nudge 10px'],['[',  'Send backward'],[']','Bring forward'],
+              ['Shift+click','Multi-select'],['Shift+drag resize','Lock aspect ratio'],['Esc','Deselect all'],
+              ['Cmd+wheel','Zoom in/out'],['Shift+rotate','Snap to 15°'],['Cmd+click variant','Switch variant'],
             ].map(([k, v]) => (
               <div key={k} className="flex items-center justify-between py-1 border-b border-border/50">
                 <span className="font-mono text-[11px] bg-cream px-1.5 py-0.5 rounded text-[#0F1F18]/70">{k}</span>
@@ -1788,9 +1788,9 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
   );
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* ----------------------------------------------------------
    RIGHT RAIL COMPONENT
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+---------------------------------------------------------- */
 const EDITOR_FONTS = ['DM Sans', 'Inter', 'JetBrains Mono'];
 
 function RightRail({
@@ -1831,7 +1831,7 @@ function RightRail({
 
   return (
     <div className="flex flex-col">
-      {/* â”€â”€ Sticky zone header (D2.2 design) â”€â”€â”€ */}
+      {/* -- Sticky zone header (D2.2 design) --- */}
       <div style={{
         padding: '14px 14px 10px',
         borderBottom: '1px solid #E5E0D4',
@@ -1893,7 +1893,7 @@ function RightRail({
         </div>
       </div>
 
-      {/* â”€â”€ Field â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- Field ----------------------------------------- */}
       <PropSection title={selected.type === 'label' ? 'Content' : 'Field'}>
         <PropRow label="Label">
           <input value={selected.label} onChange={e => upd({ label: e.target.value })} className="prop-input" />
@@ -1912,9 +1912,9 @@ function RightRail({
             {/* Field setup guide */}
             <div className="rounded-lg px-2.5 py-2 text-[10.5px] leading-relaxed space-y-0.5" style={{background:'rgba(31,77,58,0.07)',border:'1px solid rgba(31,77,58,0.15)'}}>
               <div className="font-semibold text-primary text-[10px] uppercase tracking-wide mb-1">Attendee sees:</div>
-              <div className="text-ink-soft"><span className="font-mono text-primary">Label</span> â†’ field title in the form</div>
-              <div className="text-ink-soft"><span className="font-mono text-primary">Placeholder</span> â†’ hint below the title</div>
-              <div className="text-ink-soft"><span className="font-mono text-primary">Preview text</span> â†’ sample shown on card</div>
+              <div className="text-ink-soft"><span className="font-mono text-primary">Label</span> &rarr; field title in the form</div>
+              <div className="text-ink-soft"><span className="font-mono text-primary">Placeholder</span> &rarr; hint below the title</div>
+              <div className="text-ink-soft"><span className="font-mono text-primary">Preview text</span> &rarr; sample shown on card</div>
             </div>
             <PropRow label="Placeholder">
               <input value={selected.placeholder ?? ''} onChange={e => upd({ placeholder: e.target.value })} className="prop-input" placeholder="e.g. Enter your full name" />
@@ -1935,7 +1935,7 @@ function RightRail({
                   <input
                     type="number" min="1" max="200"
                     value={selected.maxChars ?? ''}
-                    placeholder="âˆž"
+                    placeholder="-ž"
                     onChange={e => upd({ maxChars: e.target.value ? Number(e.target.value) : undefined })}
                     className="w-14 h-7 text-center border border-border rounded-lg text-[12px] font-mono outline-none focus:border-primary"
                   />
@@ -1946,7 +1946,7 @@ function RightRail({
         )}
       </PropSection>
 
-      {/* â”€â”€ Photo style â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- Photo style ----------------------------------- */}
       {selected.type === 'photo' && (
         <>
           <PropSection title="Photo style">
@@ -1989,7 +1989,7 @@ function RightRail({
         </>
       )}
 
-      {/* â”€â”€ Shape style â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- Shape style ------------------------------------ */}
       {selected.type === 'shape' && (
         <PropSection title="Shape style">
           <PropRow label="Fill color">
@@ -2016,7 +2016,7 @@ function RightRail({
         </PropSection>
       )}
 
-      {/* â”€â”€ Image style â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- Image style ------------------------------------- */}
       {selected.type === 'image' && (
         <PropSection title="Image">
           {selected.imageUrl && (
@@ -2051,7 +2051,7 @@ function RightRail({
         </PropSection>
       )}
 
-      {/* â”€â”€ Typography (text/custom/label) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- Typography (text/custom/label) ---------------- */}
       {(selected.type === 'text' || selected.type === 'custom' || selected.type === 'label') && (
         <>
           <PropSection title="Typography">
@@ -2146,7 +2146,7 @@ function RightRail({
             </PropRow>
           </PropSection>
 
-          {/* â”€â”€ Text Effects â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+          {/* -- Text Effects ------------------------------- */}
           <PropSection title="Text effects">
             {/* Stroke */}
             <PropToggle label="Text stroke" value={!!(selected.strokeColor && (selected.strokeWidth ?? 0) > 0)} onChange={v => upd({ strokeColor: v ? '#000000' : undefined, strokeWidth: v ? 3 : 0 })} />
@@ -2186,7 +2186,7 @@ function RightRail({
             )}
           </PropSection>
 
-          {/* â”€â”€ Background fill â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+          {/* -- Background fill ----------------------------- */}
           <PropSection title="Background fill">
             <PropToggle label="Enable fill" value={!!selected.bgColor} onChange={v => upd({ bgColor: v ? '#000000' : undefined, bgOpacity: v ? 50 : undefined })} />
             {selected.bgColor && (
@@ -2203,7 +2203,7 @@ function RightRail({
         </>
       )}
 
-      {/* â”€â”€ Appearance â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- Appearance ------------------------------------ */}
       <PropSection title="Appearance">
         <PropRow label={`Opacity · ${selected.opacity ?? 100}%`}>
           <input type="range" min="0" max="100" value={selected.opacity ?? 100} onChange={e => upd({ opacity: Number(e.target.value) })} className="w-full accent-primary" style={{ height: 4 }} />
@@ -2223,7 +2223,7 @@ function RightRail({
         <PropToggle label="Hidden" value={!!selected.hidden} onChange={v => upd({ hidden: v })} />
       </PropSection>
 
-      {/* â”€â”€ Position & size â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- Position & size ------------------------------- */}
       <PropSection title="Position & size">
         <div className="grid grid-cols-2 gap-2">
           <NumberProp label="X" value={selected.x} onChange={v => upd({ x: v })} />
@@ -2254,12 +2254,12 @@ function RightRail({
         </div>
         {/* Alignment quick buttons */}
         <div className="mt-3 grid grid-cols-3 gap-1">
-          <button onClick={() => upd({ x: 0 })} className="py-1.5 text-[10.5px] font-mono text-[#0F1F18]/55 border border-border rounded-lg hover:bg-cream transition" title="Align left edge">â‡¤ Left</button>
-          <button onClick={() => upd({ x: Math.round(bgW / 2 - selected.w / 2) })} className="py-1.5 text-[10.5px] font-mono text-[#0F1F18]/55 border border-border rounded-lg hover:bg-cream transition" title="Center horizontally">â†” H</button>
-          <button onClick={() => upd({ x: bgW - selected.w })} className="py-1.5 text-[10.5px] font-mono text-[#0F1F18]/55 border border-border rounded-lg hover:bg-cream transition" title="Align right edge">Right â‡¥</button>
-          <button onClick={() => upd({ y: 0 })} className="py-1.5 text-[10.5px] font-mono text-[#0F1F18]/55 border border-border rounded-lg hover:bg-cream transition" title="Align top edge">â‡¡ Top</button>
-          <button onClick={() => upd({ y: Math.round(bgH / 2 - selected.h / 2) })} className="py-1.5 text-[10.5px] font-mono text-[#0F1F18]/55 border border-border rounded-lg hover:bg-cream transition" title="Center vertically">â†• V</button>
-          <button onClick={() => upd({ y: bgH - selected.h })} className="py-1.5 text-[10.5px] font-mono text-[#0F1F18]/55 border border-border rounded-lg hover:bg-cream transition" title="Align bottom edge">Bot â‡©</button>
+          <button onClick={() => upd({ x: 0 })} className="py-1.5 text-[10.5px] font-mono text-[#0F1F18]/55 border border-border rounded-lg hover:bg-cream transition" title="Align left edge">Left</button>
+          <button onClick={() => upd({ x: Math.round(bgW / 2 - selected.w / 2) })} className="py-1.5 text-[10.5px] font-mono text-[#0F1F18]/55 border border-border rounded-lg hover:bg-cream transition" title="Center horizontally">Ctr H</button>
+          <button onClick={() => upd({ x: bgW - selected.w })} className="py-1.5 text-[10.5px] font-mono text-[#0F1F18]/55 border border-border rounded-lg hover:bg-cream transition" title="Align right edge">Right</button>
+          <button onClick={() => upd({ y: 0 })} className="py-1.5 text-[10.5px] font-mono text-[#0F1F18]/55 border border-border rounded-lg hover:bg-cream transition" title="Align top edge">Top</button>
+          <button onClick={() => upd({ y: Math.round(bgH / 2 - selected.h / 2) })} className="py-1.5 text-[10.5px] font-mono text-[#0F1F18]/55 border border-border rounded-lg hover:bg-cream transition" title="Center vertically">Ctr V</button>
+          <button onClick={() => upd({ y: bgH - selected.h })} className="py-1.5 text-[10.5px] font-mono text-[#0F1F18]/55 border border-border rounded-lg hover:bg-cream transition" title="Align bottom edge">Bot</button>
         </div>
       </PropSection>
 
@@ -2277,17 +2277,17 @@ function RightRail({
         </PropSection>
       )}
 
-      {/* â”€â”€ Layer order & Actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- Layer order & Actions ----------------------- */}
       <div style={{ padding: '0 14px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
         {/* Layer order buttons */}
         <div style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 6, padding: '10px 12px' }}>
           <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: '#6B7A72', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>Layer</div>
           <div className="flex gap-1.5">
             {[
-              { fn: () => bringForward(selected.id), title: 'Bring forward · ]', disabled: zoneIndex >= zoneCount - 1, label: 'â†‘ Forward' },
-              { fn: () => sendBack(selected.id),     title: 'Send back · [',     disabled: zoneIndex <= 0,            label: 'â†“ Back'    },
-              { fn: () => bringToFront(selected.id), title: 'Bring to front · â‡§]', disabled: zoneIndex >= zoneCount - 1, label: 'â‡ˆ Front' },
-              { fn: () => sendToBack(selected.id),   title: 'Send to back · â‡§[',  disabled: zoneIndex <= 0,            label: 'â‡Š Bottom' },
+              { fn: () => bringForward(selected.id), title: 'Bring forward · ]', disabled: zoneIndex >= zoneCount - 1, label: '-> Forward' },
+              { fn: () => sendBack(selected.id),     title: 'Send back · [',     disabled: zoneIndex <= 0,            label: '->" Back'    },
+              { fn: () => bringToFront(selected.id), title: 'Bring to front · Shift]', disabled: zoneIndex >= zoneCount - 1, label: 'â‡ˆ Front' },
+              { fn: () => sendToBack(selected.id),   title: 'Send to back · Shift[',  disabled: zoneIndex <= 0,            label: 'â‡Š Bottom' },
             ].map((btn, i) => (
               <button
                 key={i}
@@ -2359,9 +2359,9 @@ function RightRail({
   );
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* ----------------------------------------------------------
    ZONE ELEMENT
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+---------------------------------------------------------- */
 function ZoneEl({ zone, selected, multiSelected, previewMode, zoom, onPointerDown, onHandle, onRotate }: {
   zone: Zone; selected: boolean; multiSelected: boolean; previewMode: boolean; zoom: number;
   onPointerDown: (e: React.PointerEvent) => void;
@@ -2570,7 +2570,7 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, zoom, onPointerDow
               background: '#C97A2D', color: '#fff', opacity: 0.9, zIndex: 10,
             }}
           >
-            {'â†• fit ' + Math.round(previewFitScale * 100) + '%'}
+            {'->• fit ' + Math.round(previewFitScale * 100) + '%'}
           </div>
         )}
       </>
@@ -2613,7 +2613,7 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, zoom, onPointerDow
       {/* Label tag */}
       {!previewMode && (
         <span className="absolute pointer-events-none font-mono text-[9.5px] px-1.5 py-px rounded text-white whitespace-nowrap" style={{ background: dashColor, top: -2, left: 0, transform: 'translateY(-100%)' }}>
-          {zone.label}{zone.required && ' *'}{zone.locked && ' ðŸ”’'}{rotation !== 0 && ` ${rotation}°`}
+          {zone.label}{zone.required && ' *'}{zone.locked && ' '}{rotation !== 0 && ` ${rotation}°`}
         </span>
       )}
 
@@ -2631,7 +2631,7 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, zoom, onPointerDow
           {/* Circle handle */}
           <div
             onPointerDown={onRotate}
-            title="Drag to rotate (â‡§ = snap 15°)"
+            title="Drag to rotate (Shift = snap 15°)"
             style={{
               position: 'absolute',
               width: 14 / zoom, height: 14 / zoom,
@@ -2703,9 +2703,9 @@ function HandleEl({ dir, round, color, zoom, onPointerDown }: {
   );
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* ----------------------------------------------------------
    UI PRIMITIVES
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+---------------------------------------------------------- */
 function PropSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="px-4 py-4 border-b border-border">

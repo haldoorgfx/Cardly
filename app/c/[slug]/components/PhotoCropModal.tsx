@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 /**
  * PhotoCropModal — E1.5

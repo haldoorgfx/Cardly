@@ -1,12 +1,12 @@
-﻿'use client';
+'use client';
 
 // RightSidebar — context-switching panel matching editor-shared.jsx / D2.1–D2.3 design.
 //
 // Modes:
-//   preview     â†’ PreviewPanel
-//   multiselect â†’ MultiSelectPanel
-//   zone        â†’ children (RightRail from CanvasEditor) + LayersPanel + ShortcutsBlock
-//   event       â†’ EventPanel + LayersPanel + ShortcutsBlock
+//   preview     -> PreviewPanel
+//   multiselect -> MultiSelectPanel
+//   zone        -> children (RightRail from CanvasEditor) + LayersPanel + ShortcutsBlock
+//   event       -> EventPanel + LayersPanel + ShortcutsBlock
 //
 // Layers and Shortcuts are ALWAYS rendered in this sidebar (below the top panel).
 
@@ -19,7 +19,7 @@ import {
   Pencil, Upload, Image as ImageIcon,
 } from 'lucide-react';
 
-/* â”€â”€ Design tokens (matching editor-shared.jsx) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Design tokens (matching editor-shared.jsx) -------------------- */
 const T = {
   cream:       '#FAF6EE',
   surface:     '#FFFFFF',
@@ -35,7 +35,7 @@ const T = {
   success:     '#2D7A4F',
 };
 
-/* â”€â”€ PanelCard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- PanelCard ----------------------------------------------------- */
 function PanelCard({
   label, children, trailing,
 }: { label: string; children: React.ReactNode; trailing?: React.ReactNode }) {
@@ -52,7 +52,7 @@ function PanelCard({
   );
 }
 
-/* â”€â”€ Section label â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Section label ------------------------------------------------- */
 function SectionLabel({ children, count }: { children: React.ReactNode; count?: number }) {
   return (
     <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: T.muted, letterSpacing: '0.1em', textTransform: 'uppercase' }} className="flex items-center gap-1.5">
@@ -62,7 +62,7 @@ function SectionLabel({ children, count }: { children: React.ReactNode; count?: 
   );
 }
 
-/* â”€â”€ Event Panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Event Panel --------------------------------------------------- */
 interface EventPanelProps {
   nameVal: string;
   setNameVal: (v: string) => void;
@@ -186,7 +186,7 @@ function EventPanel({
   );
 }
 
-/* â”€â”€ Preview Panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Preview Panel ------------------------------------------------- */
 function PreviewPanel() {
   return (
     <aside
@@ -211,14 +211,14 @@ function PreviewPanel() {
           background: T.cream, border: `1px solid ${T.border}`,
           borderRadius: 4, padding: '1px 5px',
           fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
-        }}>âŒ˜P</kbd>
+        }}>CmdP</kbd>
         {' '}to resume editing.
       </p>
     </aside>
   );
 }
 
-/* â”€â”€ Multi-select Panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Multi-select Panel -------------------------------------------- */
 interface MultiSelectPanelProps {
   selectedIds: string[];
   alignSelected: (axis: 'left' | 'centerH' | 'right' | 'top' | 'middleV' | 'bottom') => void;
@@ -314,7 +314,7 @@ function MultiSelectPanel({ selectedIds, alignSelected, distributeSelected, remo
   );
 }
 
-/* â”€â”€ Public composite sidebar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Public composite sidebar -------------------------------------- */
 export type RightSidebarMode = 'preview' | 'multiselect' | 'event' | 'zone';
 
 export interface RightSidebarProps {

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 /**
  * DetailsFormScreen — E1

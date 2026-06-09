@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { Phone, ShieldCheck, ChevronRight } from 'lucide-react';
@@ -141,7 +141,7 @@ export function WaafiPayStep({ registrationId, qrToken, amount, currency, eventT
         {/* Operator hint */}
         {detectedOperator && !error && (
           <p className="text-[12px] mt-1.5 flex items-center gap-1" style={{ color: '#2D7A4F' }}>
-            <span>âœ“</span> Detected: {detectedOperator.name}
+            <span>&#10003;</span> Detected: {detectedOperator.name}
           </p>
         )}
         {error && (
@@ -154,7 +154,7 @@ export function WaafiPayStep({ registrationId, qrToken, amount, currency, eventT
         className="flex gap-3 px-4 py-3 rounded-xl mb-5 text-[13px]"
         style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }}
       >
-        <span style={{ fontSize: 16 }}>ðŸ“±</span>
+        <span style={{ fontSize: 16 }}>&#128241;</span>
         <div style={{ color: '#3A4A42', lineHeight: 1.5 }}>
           You&apos;ll receive a push notification or USSD prompt on your phone to approve the payment.
           Keep your phone nearby.

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useRef, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
@@ -181,7 +181,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
   return (
     <div className="max-w-[640px] mx-auto px-6 py-8 pb-28">
 
-      {/* â”€â”€ Step header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- Step header ----------------------------------------------- */}
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>
           <p className="text-[11px] font-mono font-medium mb-1" style={{ color: '#6B7A72', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
@@ -203,7 +203,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
         </a>
       </div>
 
-      {/* â”€â”€ Progress dots â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- Progress dots ----------------------------------------------- */}
       <div className="flex items-center gap-2 mb-10">
         {STEPS.map((s, i) => (
           <div key={s.id} className="flex items-center gap-2">
@@ -241,7 +241,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
         ))}
       </div>
 
-      {/* â”€â”€ Step 1: Cover & name â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- Step 1: Cover & name --------------------------------------- */}
       {step === 1 && (
         <div className="space-y-6">
           {/* Cover image */}
@@ -350,7 +350,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
         </div>
       )}
 
-      {/* â”€â”€ Step 2: Description â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- Step 2: Description ---------------------------------------- */}
       {step === 2 && (
         <div className="space-y-3">
           <p className="text-[13px]" style={{ color: '#6B7A72' }}>
@@ -378,7 +378,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
         </div>
       )}
 
-      {/* â”€â”€ Step 3: When & where â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- Step 3: When & where --------------------------------------- */}
       {step === 3 && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -487,7 +487,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
         </div>
       )}
 
-      {/* â”€â”€ Step 4: Settings â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- Step 4: Settings ------------------------------------------- */}
       {step === 4 && (
         <div className="space-y-8">
           {/* Capacity & visibility */}
@@ -619,7 +619,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
         </div>
       )}
 
-      {/* â”€â”€ Bottom nav bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* -- Bottom nav bar --------------------------------------------- */}
       <div
         className="fixed bottom-0 left-[252px] right-0 flex items-center justify-between gap-4 px-6 py-4"
         style={{ background: 'white', borderTop: '1px solid #E5E0D4', zIndex: 40 }}
@@ -680,7 +680,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
   );
 }
 
-/* â”€â”€ Helpers â”€â”€ */
+/* -- Helpers -- */
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (

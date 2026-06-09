@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import {
@@ -153,7 +153,7 @@ export default function GeoMap({ cityData, totalCards }: Props) {
             className="h-7 w-7 rounded-lg bg-white border border-[#E5E0D4] shadow-soft text-[#0F1F18]/60 hover:text-[#1F4D3A] hover:border-[#1F4D3A]/30 disabled:opacity-30 disabled:cursor-not-allowed transition flex items-center justify-center text-[15px] font-light leading-none"
             title="Zoom out"
           >
-            âˆ’
+            -
           </button>
           {(zoom !== DEFAULT_ZOOM || center[0] !== DEFAULT_CENTER[0] || center[1] !== DEFAULT_CENTER[1]) && (
             <button

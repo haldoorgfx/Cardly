@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { Plug, Plus, Key, CheckCircle2, XCircle, X } from 'lucide-react';
@@ -311,7 +311,7 @@ export function WebhooksView(_props: Props) {
                 className="h-9 px-5 rounded-xl text-[13px] font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
                 style={{ background: saved ? '#2D7A4F' : '#1F4D3A', minWidth: 120 }}
               >
-                {saved ? 'âœ“ Saved' : saving ? 'Saving…' : 'Add endpoint'}
+                {saved ? 'âœ" Saved' : saving ? 'Saving…' : 'Add endpoint'}
               </button>
             </div>
           </div>

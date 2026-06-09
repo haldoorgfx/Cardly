@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useRouter } from 'next/navigation';
 import { Sparkles, Search, Plug, Settings, CreditCard, MessageSquare, Briefcase, BarChart2, Zap, Calendar, Video, Share2, Send, DollarSign } from 'lucide-react';

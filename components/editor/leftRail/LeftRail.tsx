@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import type { Zone } from '@/types/database';
@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { buildSVG, TEMPLATE_CONFIGS } from '@/lib/templates/svgs';
 
-/* â”€â”€ Design tokens â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Design tokens --------------------------------------------- */
 const T = {
   cream: '#FAF6EE', surface: '#FFFFFF', border: '#E5E0D4',
   borderStrong: '#C9C3B1', primary: '#1F4D3A', primarySoft: '#E8EFEB',
@@ -20,7 +20,7 @@ const T = {
 
 type LeftTab = 'elements' | 'templates' | 'brand' | 'background';
 
-/* â”€â”€ Background presets â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Background presets ---------------------------------------- */
 const BG_SOLIDS = [
   '#FFFFFF','#0F1F18','#1F4D3A','#163828','#E8C57E',
   '#FAF6EE','#000000','#1A1A2E','#16213E','#0F3460',
@@ -47,20 +47,20 @@ const BRAND_COLORS = [
   '#000000','#FAF6EE',
 ];
 
-/* â”€â”€ Shortcuts list â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Shortcuts list -------------------------------------------- */
 const SHORTCUTS = [
   { keys:['click'],        label:'Select zone' },
   { keys:['drag'],         label:'Reposition' },
-  { keys:['âŒ«'],            label:'Delete' },
-  { keys:['âŒ˜','D'],       label:'Duplicate' },
-  { keys:['âŒ˜','Z'],       label:'Undo' },
-  { keys:['â‡§','âŒ˜','Z'],  label:'Redo' },
+  { keys:['Backspace'],            label:'Delete' },
+  { keys:['Cmd','D'],       label:'Duplicate' },
+  { keys:['Cmd','Z'],       label:'Undo' },
+  { keys:['Shift','Cmd','Z'],  label:'Redo' },
   { keys:['[',']'],       label:'Layer order' },
-  { keys:['âŒ˜','P'],       label:'Preview' },
+  { keys:['Cmd','P'],       label:'Preview' },
   { keys:['G'],            label:'Toggle grid' },
 ];
 
-/* â”€â”€ Element add button — compact toolbox style â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Element add button — compact toolbox style ---------------- */
 function AddBtn({
   icon, label, onClick, disabled,
 }: { icon:React.ReactNode; label:string; onClick:()=>void; disabled?:boolean }) {
@@ -97,7 +97,7 @@ function AddBtn({
   );
 }
 
-/* â”€â”€ Zone type icon â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Zone type icon -------------------------------------------- */
 function ZoneIcon({ type }:{ type:string }) {
   const s={size:11,strokeWidth:1.8};
   if (type==='photo')  return <Camera {...s}/>;
@@ -108,7 +108,7 @@ function ZoneIcon({ type }:{ type:string }) {
   return <Type {...s}/>;
 }
 
-/* â”€â”€ Layers panel (embedded in left rail) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Layers panel (embedded in left rail) ---------------------- */
 interface LayersPanelProps {
   zones: Zone[];
   selectedIds: string[];
@@ -225,7 +225,7 @@ function LayersPanel({ zones, selectedIds, setSelectedIds, moveZoneUp, moveZoneD
   );
 }
 
-/* â”€â”€ Shortcuts block â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Shortcuts block ------------------------------------------- */
 function ShortcutsBlock() {
   return (
     <div>
@@ -253,7 +253,7 @@ function ShortcutsBlock() {
   );
 }
 
-/* â”€â”€ Elements panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Elements panel -------------------------------------------- */
 interface ElementsPanelProps extends LayersPanelProps {
   addZone: (type:'text'|'photo'|'custom'|'label') => void;
   addShapeZone: (s:'rect'|'ellipse'|'triangle'|'line') => void;
@@ -271,7 +271,7 @@ function ElementsPanel({
 
   return (
     <div style={{ display:'flex', flexDirection:'column', overflowY:'auto', overflowX:'hidden', flex:1 }}>
-      {/* â”€â”€ Add Elements â”€â”€ */}
+      {/* -- Add Elements -- */}
       {!previewMode && (
         <div style={{ padding:'10px 10px 8px', borderBottom:`1px solid ${T.border}` }}>
           <div style={{ fontFamily:'Inter, system-ui, sans-serif', fontSize:9.5, letterSpacing:'0.1em', textTransform:'uppercase', color:T.muted, marginBottom:6 }}>
@@ -330,23 +330,23 @@ function ElementsPanel({
         </div>
       )}
 
-      {/* â”€â”€ Thick divider separating elements from layers â”€â”€ */}
+      {/* -- Thick divider separating elements from layers -- */}
       <div style={{ height:5, background:T.border, flexShrink:0 }}/>
 
-      {/* â”€â”€ Layers â”€â”€ */}
+      {/* -- Layers -- */}
       <LayersPanel
         zones={zones} selectedIds={selectedIds} setSelectedIds={setSelectedIds}
         moveZoneUp={moveZoneUp} moveZoneDown={moveZoneDown} updateZone={updateZone}
         previewMode={previewMode}
       />
 
-      {/* â”€â”€ Shortcuts (only when nothing selected) â”€â”€ */}
+      {/* -- Shortcuts (only when nothing selected) -- */}
       {nothingSelected && !previewMode && <ShortcutsBlock/>}
     </div>
   );
 }
 
-/* â”€â”€ Templates panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Templates panel ------------------------------------------- */
 function TemplatesPanel({
   onApplyTemplate, applyingTemplateId,
 }:{
@@ -422,7 +422,7 @@ function TemplatesPanel({
   );
 }
 
-/* â”€â”€ Brand Kit panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Brand Kit panel ------------------------------------------- */
 function BrandPanel({
   brandUploadRef, handleBrandUpload, brandAssets, addBrandAssetToCanvas, uploadingBrandAsset,
 }:{
@@ -557,7 +557,7 @@ function BrandPanel({
   );
 }
 
-/* â”€â”€ Background panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Background panel ------------------------------------------ */
 function BackgroundPanel({
   onApplyBackground, applyingBg,
 }:{
@@ -653,7 +653,7 @@ function BackgroundPanel({
   );
 }
 
-/* â”€â”€ Tab icon button — Canva-style: icon above label â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Tab icon button — Canva-style: icon above label ---------- */
 function TabBtn({
   icon, label, active, onClick,
 }:{
@@ -702,7 +702,7 @@ function TabBtn({
   );
 }
 
-/* â”€â”€ Main export â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Main export ----------------------------------------------- */
 export interface LeftRailProps {
   previewMode: boolean;
   // Elements
@@ -756,7 +756,7 @@ export default function LeftRail({
       borderRight:`1px solid ${T.border}`,
       background:T.cream,
     }}>
-      {/* â”€â”€ Icon strip — 72px wide, Canva-style â”€â”€ */}
+      {/* -- Icon strip — 72px wide, Canva-style -- */}
       <div style={{
         width:72, flexShrink:0,
         display:'flex', flexDirection:'column', alignItems:'stretch',
@@ -775,7 +775,7 @@ export default function LeftRail({
         ))}
       </div>
 
-      {/* â”€â”€ Panel content — 292px â”€â”€ */}
+      {/* -- Panel content — 292px -- */}
       <div style={{ flex:1, minWidth:0, display:'flex', flexDirection:'column', overflow:'hidden' }}>
 
         {tab==='elements' && (
