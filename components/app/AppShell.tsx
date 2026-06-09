@@ -544,10 +544,14 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
   }, [results, selected, navigate, onClose]);
 
   const quickActions = [
-    { label: 'New event',  href: '/events/new',  icon: <Plus size={13} strokeWidth={1.8} /> },
-    { label: 'Analytics',  href: '/analytics',   icon: <TrendingUp size={13} strokeWidth={1.8} /> },
-    { label: 'Settings',   href: '/settings',    icon: <Settings2 size={13} strokeWidth={1.8} /> },
-    { label: 'Pricing',    href: '/pricing',     icon: <ChevronRight size={13} strokeWidth={1.8} /> },
+    { label: 'New event',       href: '/events/new',       icon: <Plus size={13} strokeWidth={1.8} /> },
+    { label: 'My Events',       href: '/dashboard',        icon: <LayoutGrid size={13} strokeWidth={1.8} /> },
+    { label: 'Analytics',       href: '/analytics',        icon: <TrendingUp size={13} strokeWidth={1.8} /> },
+    { label: 'Team',            href: '/team',             icon: <Users size={13} strokeWidth={1.8} /> },
+    { label: 'Brand Kit',       href: '/brand',            icon: <Palette size={13} strokeWidth={1.8} /> },
+    { label: 'Templates',       href: '/templates',        icon: <LayoutTemplate size={13} strokeWidth={1.8} /> },
+    { label: 'Settings',        href: '/settings',         icon: <Settings2 size={13} strokeWidth={1.8} /> },
+    { label: 'Billing & Plans', href: '/settings/billing', icon: <CreditCard size={13} strokeWidth={1.8} /> },
   ];
 
   return (
@@ -920,11 +924,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           )}
 
-          <header className="h-14 bg-white px-4 md:px-6 grid grid-cols-[1fr_auto_1fr] items-center gap-3 shrink-0 sticky top-0 z-40 border-b"
+          <header className="h-14 bg-white px-4 md:px-6 flex items-center gap-3 shrink-0 sticky top-0 z-40 border-b"
             style={{ borderColor: '#E5E0D4' }}>
 
             {/* Left: hamburger + breadcrumb */}
-            <div className="flex items-center gap-2 min-w-0">
+            <div className="flex items-center gap-2 min-w-0 flex-1">
               <button className="md:hidden h-8 w-8 rounded-lg hover:bg-[#F5F3EE] grid place-items-center shrink-0 transition"
                 style={{ color: '#6B7A72' }}
                 onClick={() => setMobileNavOpen(true)} aria-label="Open menu">
@@ -958,19 +962,25 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               })()}
             </div>
 
-            {/* Center: search bar */}
-            <button onClick={() => setCmdOpen(true)}
-              className="flex h-9 w-full max-w-[420px] items-center gap-2.5 px-3.5 rounded-xl transition hover:shadow-[0_0_0_2px_#1F4D3A20]"
-              style={{ color: '#6B7A72', border: '1px solid #E5E0D4', background: '#FAF6EE', minWidth: '180px' }}
-              aria-label="Search (⌘K)">
-              <Search size={14} strokeWidth={2} className="shrink-0" style={{ color: '#9BA8A1' }} />
-              <span className="flex-1 text-left text-[13px]" style={{ color: '#9BA8A1' }}>Search…</span>
-              <kbd className="hidden sm:flex items-center gap-0.5 text-[10px] font-mono px-1.5 py-0.5 rounded-md shrink-0"
-                style={{ background: '#F0EDE8', color: '#9BA8A1', border: '1px solid #E5E0D4' }}>⌘K</kbd>
-            </button>
+            {/* Right: search + bell + avatar */}
+            <div className="flex items-center gap-2 shrink-0">
+              {/* Search bar */}
+              <button onClick={() => setCmdOpen(true)}
+                className="hidden sm:flex h-8 items-center gap-2 px-3 rounded-xl transition hover:shadow-[0_0_0_2px_#1F4D3A20]"
+                style={{ color: '#6B7A72', border: '1px solid #E5E0D4', background: '#FAF6EE', width: '200px' }}
+                aria-label="Search (⌘K)">
+                <Search size={13} strokeWidth={2} className="shrink-0" style={{ color: '#9BA8A1' }} />
+                <span className="flex-1 text-left text-[12.5px]" style={{ color: '#9BA8A1' }}>Search…</span>
+                <kbd className="flex items-center gap-0.5 text-[10px] font-mono px-1.5 py-0.5 rounded-md shrink-0"
+                  style={{ background: '#F0EDE8', color: '#9BA8A1', border: '1px solid #E5E0D4' }}>⌘K</kbd>
+              </button>
+              {/* Mobile search icon only */}
+              <button onClick={() => setCmdOpen(true)}
+                className="sm:hidden h-8 w-8 rounded-lg grid place-items-center transition hover:bg-[#F5F3EE]"
+                style={{ color: '#6B7A72' }} aria-label="Search">
+                <Search size={15} strokeWidth={2} />
+              </button>
 
-            {/* Right: bell + avatar */}
-            <div className="flex items-center gap-1.5 justify-end">
 
               {/* Bell + Notifications panel */}
               <div className="relative">
