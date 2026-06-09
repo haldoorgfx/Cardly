@@ -10,7 +10,7 @@
  * the new variant ready to edit.
  */
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Upload, Loader2, Search, X } from 'lucide-react';
 import { buildSVG, TEMPLATE_CONFIGS, W, H } from '@/lib/templates/svgs';
 import type { Variant } from '@/types/database';
@@ -49,19 +49,46 @@ const TEMPLATES = Object.entries(TEMPLATE_CONFIGS).map(([id, cfg]) => ({
   cat: TEMPLATE_CAT[id] ?? 'conf',
 }));
 
-function TemplateSVGPreview({ templateId }: { templateId: string }) {
+/**
+ * Only builds + renders the SVG when the card scrolls into view.
+ * Before that, shows a cheap gradient placeholder using the template accent color.
+ * This prevents all 30 SVGs from being generated synchronously on mount,
+ * which would freeze the browser tab.
+ */
+function TemplateSVGPreview({ templateId, accent }: { templateId: string; accent: string }) {
+  const ref   = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect(); } },
+      { rootMargin: '120px' }   // start loading just before entering viewport
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
   const cfg = TEMPLATE_CONFIGS[templateId];
-  if (!cfg) return null;
-  const svgStr = buildSVG(templateId, cfg.text);
-  const svgUrl = `data:image/svg+xml,${encodeURIComponent(svgStr)}`;
+
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={svgUrl}
-      alt={cfg.name}
-      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-      loading="lazy"
-    />
+    <div ref={ref} style={{ width: '100%', height: '100%' }}>
+      {visible && cfg ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={`data:image/svg+xml,${encodeURIComponent(buildSVG(templateId, cfg.text))}`}
+          alt={cfg.name}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+        />
+      ) : (
+        // Placeholder: gradient using the template's brand accent — gives palette hint
+        <div style={{
+          width: '100%', height: '100%',
+          background: `linear-gradient(160deg, #1F4D3A 0%, ${accent} 100%)`,
+        }} />
+      )}
+    </div>
   );
 }
 
@@ -179,7 +206,7 @@ export default function TemplatePickerModal({ eventId, onVariantCreated, onUploa
                       border: '1px solid rgba(15,31,24,0.06)',
                     }}
                   >
-                    <TemplateSVGPreview templateId={tmpl.id} />
+                    <TemplateSVGPreview templateId={tmpl.id} accent={tmpl.accent} />
 
                     {/* Loading overlay */}
                     {isLoading && (
