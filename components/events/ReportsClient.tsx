@@ -61,6 +61,30 @@ function Panel({ title, children, pad = 'p-5' }: { title?: string; children: Rea
 export function ReportsClient({ eventName, totalRevenue, regCount, checkedIn, regs, ticketTypes }: Props) {
   const [tab, setTab] = useState('roi');
 
+  function handleExportCSV() {
+    const slug = eventName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    const headers = ['Name', 'Ticket Type', 'Amount', 'Status', 'Registered date'];
+    const rows = regs.map(r => [
+      r.attendee_name ?? '',
+      ticketTypes.find(t => t.id === r.ticket_type_id)?.name ?? '',
+      r.amount_paid != null ? String(r.amount_paid) : '0',
+      r.status === 'checked_in' ? 'Checked In' : r.status.charAt(0).toUpperCase() + r.status.slice(1).replace(/_/g, ' '),
+      new Date(r.created_at).toLocaleDateString(),
+    ]);
+    const csvContent = [headers, ...rows]
+      .map(row => row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
+      .join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `karta-registrations-${slug}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
   const currencies = Array.from(new Set(regs.map(r => r.currency).filter(Boolean)));
   const primaryCurrency = currencies.length === 1 ? currencies[0] ?? null : null;
   const checkInPct = regCount > 0 ? Math.round((checkedIn / regCount) * 100) : 0;
@@ -90,7 +114,7 @@ export function ReportsClient({ eventName, totalRevenue, regCount, checkedIn, re
           <h1 className="font-display font-semibold text-[24px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>Reports</h1>
           <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>{eventName}</p>
         </div>
-        <button className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13.5px] font-medium border"
+        <button onClick={handleExportCSV} className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13.5px] font-medium border"
           style={{ borderColor: '#E5E0D4', color: '#3A4A42', background: 'white' }}>
           <svg width={15} height={15} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />

@@ -13,7 +13,7 @@ import {
   Home, Layout, CalendarDays, MessageSquare, Bell,
   Ticket, ScanLine, User, Network, Trophy, Briefcase, Video, Palette, ExternalLink,
   UserCircle, HelpCircle, Zap, ShoppingCart, Handshake, Clock, IdCard,
-  Tag, Plug, Globe,
+  Tag, Plug, Globe, Download,
 } from 'lucide-react';
 
 type Profile = {
@@ -107,8 +107,9 @@ const EVENT_NAV_SECTIONS = [
   {
     title: 'Insights',
     items: [
-      { id: 'analytics', label: 'Analytics', icon: <BarChart2 size={15} strokeWidth={1.8} />, segment: 'analytics' },
-      { id: 'reports',   label: 'Reports',   icon: <FileText size={15} strokeWidth={1.8} />,  segment: 'reports' },
+      { id: 'analytics',  label: 'Analytics',  icon: <BarChart2 size={15} strokeWidth={1.8} />, segment: 'analytics' },
+      { id: 'reports',    label: 'Reports',    icon: <FileText size={15} strokeWidth={1.8} />,  segment: 'reports' },
+      { id: 'downloads',  label: 'Downloads',  icon: <Download size={15} strokeWidth={1.8} />,  segment: 'downloads' },
     ],
   },
   {
@@ -655,6 +656,7 @@ const PAGE_LABELS: Record<string, string> = {
   'virtual':        'Virtual',
   'analytics':      'Analytics',
   'reports':        'Reports',
+  'downloads':      'Downloads',
   'edit':           'Card Editor',
   'karta-card':     'Cards & Badges',
   'check-in':       'Check-in',
@@ -867,7 +869,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   const ctxValue: PlanCtx = { profile, eventCount, initials, planPct, planLabel, logoUrl, contextEventName, setContextEventName };
 
-  const isFullScreen = /\/events\/[^/]+\/edit/.test(pathname) || pathname === '/onboarding';
+  const isFullScreen = /\/events\/[^/]+\/edit/.test(pathname) || pathname === '/onboarding' || /\/events\/[^/]+\/agenda\/print/.test(pathname);
   if (isFullScreen) return <>{children}</>;
 
   const eventId = getEventIdFromPath(pathname);

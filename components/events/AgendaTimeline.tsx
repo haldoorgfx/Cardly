@@ -1,11 +1,12 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState, useRef } from 'react';
 import type { Session, Track } from '@/types/database';
 
 interface Props {
   sessions: Session[];
   tracks: Track[];
+  onSlotClick?: (startsAt: string, trackId: string | null) => void;
 }
 
 const TONE_COLORS = [
@@ -23,6 +24,10 @@ function formatHour(h: number) {
   return `${String(h).padStart(2, '0')}:00`;
 }
 
+function formatTime(h: number, m: number) {
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
+
 function groupByDate(sessions: Session[]): [string, Session[]][] {
   const map = new Map<string, Session[]>();
   for (const s of [...sessions].sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime())) {
@@ -36,9 +41,11 @@ function groupByDate(sessions: Session[]): [string, Session[]][] {
 interface DayGridProps {
   daySessions: Session[];
   tracks: Track[];
+  dateKey: string;
+  onSlotClick?: (startsAt: string, trackId: string | null) => void;
 }
 
-function DayGrid({ daySessions, tracks }: DayGridProps) {
+function DayGrid({ daySessions, tracks, dateKey, onSlotClick }: DayGridProps) {
   // Determine hour range
   const times = daySessions.flatMap(s => [
     s.starts_at ? new Date(s.starts_at).getHours() + new Date(s.starts_at).getMinutes() / 60 : null,
@@ -60,6 +67,10 @@ function DayGrid({ daySessions, tracks }: DayGridProps) {
 
   const gridHeight = hours.length * ROW_HEIGHT;
 
+  // Per-column hover state
+  const [hoverInfo, setHoverInfo] = useState<{ colId: string; y: number; h: number; m: number } | null>(null);
+  const colRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+
   function getSessionStyle(session: Session, colIndex: number) {
     if (!session.starts_at) return null;
     const start = new Date(session.starts_at);
@@ -68,6 +79,43 @@ function DayGrid({ daySessions, tracks }: DayGridProps) {
     const lenFrac   = (end.getTime() - start.getTime()) / 3600000;
     const tone = TONE_COLORS[colIndex % TONE_COLORS.length];
     return { top: startFrac * ROW_HEIGHT + 3, height: Math.max(lenFrac * ROW_HEIGHT - 6, 20), tone };
+  }
+
+  function snapToHalfHour(rawY: number): { h: number; m: number; y: number } {
+    const fracHour = rawY / ROW_HEIGHT + minHour;
+    const totalMins = fracHour * 60;
+    const snapped = Math.round(totalMins / 30) * 30;
+    const h = Math.floor(snapped / 60);
+    const m = snapped % 60;
+    const y = (h + m / 60 - minHour) * ROW_HEIGHT;
+    return { h, m, y };
+  }
+
+  function buildIsoFromDateAndTime(dateKeyStr: string, h: number, m: number): string {
+    const base = new Date(dateKeyStr);
+    base.setHours(h, m, 0, 0);
+    return base.toISOString();
+  }
+
+  function handleColClick(e: React.MouseEvent<HTMLDivElement>, colId: string) {
+    if (!onSlotClick) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const rawY = e.clientY - rect.top;
+    const { h, m } = snapToHalfHour(rawY);
+    const iso = buildIsoFromDateAndTime(dateKey, h, m);
+    onSlotClick(iso, colId === '__none__' ? null : colId);
+  }
+
+  function handleColMouseMove(e: React.MouseEvent<HTMLDivElement>, colId: string) {
+    if (!onSlotClick) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const rawY = e.clientY - rect.top;
+    const { h, m, y } = snapToHalfHour(rawY);
+    setHoverInfo({ colId, y, h, m });
+  }
+
+  function handleColMouseLeave() {
+    setHoverInfo(null);
   }
 
   return (
@@ -99,12 +147,45 @@ function DayGrid({ daySessions, tracks }: DayGridProps) {
           {/* Track columns */}
           {columns.map((col, ci) => {
             const colSessions = daySessions.filter(s => (s.track_id ?? '__none__') === col.id);
+            const isHovered = hoverInfo?.colId === col.id;
             return (
-              <div key={col.id} className="relative rounded-lg" style={{ height: gridHeight, background: '#FAF6EE', border: '1px solid #E5E0D4' }}>
+              <div
+                key={col.id}
+                ref={el => { if (el) colRefs.current.set(col.id, el); else colRefs.current.delete(col.id); }}
+                className="relative rounded-lg"
+                style={{
+                  height: gridHeight,
+                  background: '#FAF6EE',
+                  border: '1px solid #E5E0D4',
+                  cursor: onSlotClick ? 'crosshair' : 'default',
+                }}
+                onClick={e => handleColClick(e, col.id)}
+                onMouseMove={e => handleColMouseMove(e, col.id)}
+                onMouseLeave={handleColMouseLeave}
+              >
                 {/* Hour lines */}
                 {hours.map((_, i) => (
                   <div key={i} className="absolute left-0 right-0" style={{ top: i * ROW_HEIGHT, borderTop: '1px solid rgba(229,224,212,0.5)' }} />
                 ))}
+
+                {/* Ghost hover indicator */}
+                {onSlotClick && isHovered && hoverInfo && (
+                  <div
+                    className="absolute left-1.5 right-1.5 pointer-events-none flex items-center px-2"
+                    style={{
+                      top: hoverInfo.y,
+                      height: ROW_HEIGHT / 2 - 2,
+                      border: '1.5px dashed #1F4D3A',
+                      borderRadius: 6,
+                      background: 'rgba(31,77,58,0.06)',
+                    }}
+                  >
+                    <span className="font-mono text-[10px] font-semibold" style={{ color: '#1F4D3A' }}>
+                      {formatTime(hoverInfo.h, hoverInfo.m)}
+                    </span>
+                  </div>
+                )}
+
                 {/* Sessions */}
                 {colSessions.map(session => {
                   const style = getSessionStyle(session, ci);
@@ -122,8 +203,10 @@ function DayGrid({ daySessions, tracks }: DayGridProps) {
                         height: style.height,
                         background: style.tone.bg,
                         color: style.tone.fg,
+                        zIndex: 1,
                       }}
                       title={session.title}
+                      onClick={e => e.stopPropagation()}
                     >
                       <div className="font-display text-[11.5px] font-semibold leading-tight tracking-tight line-clamp-2">
                         {session.title}
@@ -145,7 +228,7 @@ function DayGrid({ daySessions, tracks }: DayGridProps) {
   );
 }
 
-export function AgendaTimeline({ sessions, tracks }: Props) {
+export function AgendaTimeline({ sessions, tracks, onSlotClick }: Props) {
   const grouped = useMemo(() => groupByDate(sessions), [sessions]);
 
   if (sessions.length === 0) {
@@ -165,7 +248,12 @@ export function AgendaTimeline({ sessions, tracks }: Props) {
           <div key={dateKey}>
             <div className="font-mono text-[11px] tracking-[0.14em] uppercase mb-3" style={{ color: '#9BA8A1' }}>{label}</div>
             <div className="bg-white border rounded-2xl p-5 overflow-hidden" style={{ borderColor: '#E5E0D4' }}>
-              <DayGrid daySessions={daySessions} tracks={tracks} />
+              <DayGrid
+                daySessions={daySessions}
+                tracks={tracks}
+                dateKey={dateKey}
+                onSlotClick={onSlotClick}
+              />
             </div>
           </div>
         );
