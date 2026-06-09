@@ -5,6 +5,9 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+import { Suspense } from 'react';
+import { PeriodSelector } from '@/components/analytics/PeriodSelector';
+import { ExportButton } from '@/components/analytics/ExportButton';
 
 export const metadata: Metadata = { title: 'Analytics' };
 
@@ -63,7 +66,15 @@ function MoMBadge({ value }: { value: number }) {
   );
 }
 
-export default async function AnalyticsPage() {
+export default async function AnalyticsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ period?: string }>;
+}) {
+  const { period: periodParam } = await searchParams;
+  const period = ['90d', '6m', '1y'].includes(periodParam ?? '') ? (periodParam as string) : '90d';
+  const periodDays = period === '1y' ? 365 : period === '6m' ? 180 : 90;
+
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
@@ -86,7 +97,11 @@ export default async function AnalyticsPage() {
         .in('event_id', eventIds)
     : { data: [] };
 
-  const allRegs = regs ?? [];
+  const allRegsRaw = regs ?? [];
+
+  // Apply period filter
+  const cutoffDate = new Date(Date.now() - periodDays * 86400000);
+  const allRegs = allRegsRaw.filter(r => new Date(r.created_at) >= cutoffDate);
 
   // ─── Aggregate stats ────────────────────────────────────────────────────────
 
@@ -187,28 +202,10 @@ export default async function AnalyticsPage() {
             </p>
           </div>
           <div className="flex items-center gap-2 pt-1 shrink-0">
-            <div className="relative">
-              <select
-                className="h-9 text-[13px] rounded-xl pl-3 pr-8 cursor-pointer outline-none font-medium appearance-none"
-                style={{ background: 'white', border: '1px solid #E5E0D4', color: '#3A4A42' }}>
-                <option>Last 90 days</option>
-                <option>Last 6 months</option>
-                <option>Last year</option>
-              </select>
-              <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[#6B7A72]">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>
-              </span>
-            </div>
-            <button
-              className="h-9 flex items-center gap-1.5 px-4 rounded-xl text-[13px] font-medium transition-all hover:bg-[#F5F3EE]"
-              style={{ background: 'white', border: '1px solid #E5E0D4', color: '#3A4A42' }}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
-              Export
-            </button>
+            <Suspense fallback={null}>
+              <PeriodSelector current={period} />
+            </Suspense>
+            <ExportButton events={perfEvents} currency={primaryCurrency} period={period} />
           </div>
         </div>
 

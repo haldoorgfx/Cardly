@@ -146,22 +146,24 @@ export function EventSettingsView({ event }: Props) {
         </button>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 mb-7 p-1 rounded-xl" style={{ background: '#F5F0E8', display: 'inline-flex' }}>
-        {TABS.map(t => (
-          <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            className="h-8 px-4 rounded-lg text-[13px] font-medium transition"
-            style={{
-              background: tab === t.id ? 'white' : 'transparent',
-              color: tab === t.id ? '#0F1F18' : '#6B7A72',
-              boxShadow: tab === t.id ? '0 1px 3px rgba(15,31,24,0.08)' : 'none',
-            }}
-          >
-            {t.label}
-          </button>
-        ))}
+      {/* Tabs — sticky so they stay visible when scrolling */}
+      <div className="sticky top-0 z-10 -mx-6 px-6 py-2.5 mb-4" style={{ background: '#FAF6EE' }}>
+        <div className="flex gap-1 p-1 rounded-xl" style={{ background: '#F5F0E8', display: 'inline-flex' }}>
+          {TABS.map(t => (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              className="h-8 px-4 rounded-lg text-[13px] font-medium transition"
+              style={{
+                background: tab === t.id ? 'white' : 'transparent',
+                color: tab === t.id ? '#0F1F18' : '#6B7A72',
+                boxShadow: tab === t.id ? '0 1px 3px rgba(15,31,24,0.08)' : 'none',
+              }}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {error && <p className="mb-4 text-[13px]" style={{ color: '#B8423C' }}>{error}</p>}

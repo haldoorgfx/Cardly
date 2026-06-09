@@ -6,7 +6,7 @@ import { PublicNav } from '@/components/events/PublicNav';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Discover Events — Karta',
+  title: 'Discover Events',
   description: 'Find events and get your personalized Karta Card.',
 };
 

@@ -230,7 +230,10 @@ export function ReportsClient({ eventName, totalRevenue, regCount, checkedIn, re
                       <td className="py-2.5 px-3 font-mono text-[12px]" style={{ color: '#1F4D3A' }}>
                         {fmtCurrency(r.amount_paid ?? 0, r.currency)}
                       </td>
-                      <td className="py-2.5 px-3 capitalize" style={{ color: '#6B7A72' }}>{r.status}</td>
+                      <td className="py-2.5 px-3" style={{ color: '#6B7A72' }}>
+                        {r.status === 'checked_in' ? 'Checked In'
+                          : r.status.charAt(0).toUpperCase() + r.status.slice(1).replace(/_/g, ' ')}
+                      </td>
                       <td className="py-2.5 px-3 font-mono text-[11px]" style={{ color: '#6B7A72' }}>
                         {new Date(r.created_at).toLocaleDateString()}
                       </td>

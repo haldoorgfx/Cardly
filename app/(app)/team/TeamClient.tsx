@@ -246,9 +246,18 @@ export function TeamClient({
   if (plan !== 'studio') {
     return (
       <div className="px-8 py-8 max-w-[720px]">
-        <div className="mb-8">
-          <h1 className="font-display font-bold text-[32px] leading-tight text-[#0F1F18]">Team</h1>
-          <p className="text-[14px] text-[#6B7A72] mt-1">Manage collaborators and workspace access.</p>
+        <div className="flex items-start justify-between gap-4 mb-8">
+          <div>
+            <h1 className="font-display font-bold text-[32px] leading-tight text-[#0F1F18]">Team</h1>
+            <p className="text-[14px] text-[#6B7A72] mt-1">Manage collaborators and workspace access.</p>
+          </div>
+          <a
+            href="/settings/billing"
+            className="inline-flex items-center gap-1.5 h-9 px-5 rounded-xl text-[13.5px] font-semibold text-white shrink-0 mt-1 transition hover:opacity-90"
+            style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }}
+          >
+            + Invite member
+          </a>
         </div>
         <UpsellCard />
       </div>

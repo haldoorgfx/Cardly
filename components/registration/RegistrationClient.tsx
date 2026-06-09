@@ -373,7 +373,10 @@ export default function RegistrationClient({
 
   // 3 form steps: Ticket → Details → Payment
   const STEPS = ['Ticket', 'Details', 'Payment'];
-  const fee = selectedTicket && selectedTicket.price > 0 ? 1.50 : 0;
+  // 3.5% platform fee, rounded to 2 decimal places
+  const fee = selectedTicket && selectedTicket.price > 0
+    ? Math.round(selectedTicket.price * 0.035 * 100) / 100
+    : 0;
   const total = (selectedTicket?.price ?? 0) + fee;
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
