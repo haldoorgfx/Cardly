@@ -143,6 +143,7 @@ import BottomBar from './chrome/BottomBar';
 import VariantsTabs from './chrome/VariantsTabs';
 import LeftRail from './leftRail/LeftRail';
 import RightSidebar, { type RightSidebarMode } from './rightSidebar/RightSidebar';
+import TemplatePickerModal from './TemplatePickerModal';
 
 const CW = 1080;
 const CH = 1350;
@@ -212,9 +213,10 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
   /* variants */
   const [variants, setVariants] = useState<Variant[]>(initialVariants);
   const [activeVariantId, setActiveVariantId] = useState<string>(initialVariants[0]?.id ?? '');
-  // Auto-open the "Add variant" modal when the event has no variants yet â€”
-  // so first-time users immediately get the design upload prompt.
-  const [showAddVariant, setShowAddVariant] = useState(() => initialVariants.length === 0);
+  // Auto-open the template picker when the event has no variants yet â€”
+  // so first-time users immediately see the template gallery.
+  const [showTemplatePicker, setShowTemplatePicker] = useState(() => initialVariants.length === 0);
+  const [showAddVariant, setShowAddVariant] = useState(false);
   const [addingVariant, setAddingVariant] = useState(false);
   const [newVariantName, setNewVariantName] = useState('');
   const [newVariantFile, setNewVariantFile] = useState<File | null>(null);
@@ -1084,6 +1086,15 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
     } finally { setAddingVariant(false); }
   };
 
+  /** Called by TemplatePickerModal when the API returns a new variant */
+  const handleTemplateVariantCreated = (nv: Variant) => {
+    const zones: Zone[] = Array.isArray(nv.zones) ? (nv.zones as Zone[]) : [];
+    setVariants(v => [...v, { ...nv, zones }]);
+    setVariantZonesMap(m => ({ ...m, [nv.id]: zones }));
+    switchVariant(nv.id);
+    setShowTemplatePicker(false);
+  };
+
   const saveName = async () => {
     setEditName(false);
     await fetch(`/api/events/${eventId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: nameVal }) });
@@ -1162,7 +1173,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
         handleRenameVariant={handleRenameVariant}
         handleDeleteVariant={handleDeleteVariant}
         handleDuplicateVariant={handleDuplicateVariant}
-        onAddVariant={() => setShowAddVariant(true)}
+        onAddVariant={() => setShowTemplatePicker(true)}
         bgW={bgW}
         bgH={bgH}
       />
@@ -1692,6 +1703,16 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
           )}
         </RightSidebar>
       </div>
+
+      {/* â”€â”€ Template Picker â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {showTemplatePicker && (
+        <TemplatePickerModal
+          eventId={eventId}
+          onVariantCreated={handleTemplateVariantCreated}
+          onUploadInstead={() => { setShowTemplatePicker(false); setShowAddVariant(true); }}
+          onClose={() => setShowTemplatePicker(false)}
+        />
+      )}
 
       {/* â”€â”€ Add Variant Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {showAddVariant && (

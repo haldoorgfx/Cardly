@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createAdminClient } from '@/lib/supabase/server';
 import sharp from 'sharp';
@@ -80,18 +80,31 @@ const ALLOWED_STORAGE_HOST = process.env.NEXT_PUBLIC_SUPABASE_URL
   ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname
   : null;
 
-async function fetchBuffer(url: string): Promise<Buffer> {
-  // SSRF guard — only fetch from our own Supabase storage origin
+async function fetchBuffer(url: string | null | undefined): Promise<Buffer> {
+  // Null guard — variant has no background yet
+  if (!url) throw new Error('NO_BACKGROUND: This card variant has no background image. Please upload a design in the editor first.');
+
+  // SSRF guard — only allow HTTPS requests to our own Supabase storage origin.
+  // Validate URL first (throws if malformed), then check hostname separately.
+  let parsed: URL;
   try {
-    const parsed = new URL(url);
-    if (ALLOWED_STORAGE_HOST && parsed.hostname !== ALLOWED_STORAGE_HOST) {
-      throw new Error('Background image must be hosted on Karta storage');
-    }
-  } catch (e) {
-    throw new Error(e instanceof Error ? e.message : 'Invalid background URL');
+    parsed = new URL(url);
+  } catch {
+    throw new Error(`INVALID_URL: The background image URL is malformed: "${url}"`);
   }
+
+  if (parsed.protocol !== 'https:') {
+    throw new Error('INVALID_URL: Background image URL must use HTTPS.');
+  }
+
+  if (ALLOWED_STORAGE_HOST && parsed.hostname !== ALLOWED_STORAGE_HOST) {
+    // Log the offending host so it's visible in Vercel logs
+    console.warn('[render] SSRF guard blocked host:', parsed.hostname, '— expected:', ALLOWED_STORAGE_HOST);
+    throw new Error(`HOST_BLOCKED: Background image host "${parsed.hostname}" is not allowed. Expected "${ALLOWED_STORAGE_HOST}".`);
+  }
+
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`Failed to fetch background image (${res.status})`);
+  if (!res.ok) throw new Error(`FETCH_FAILED: Background image returned HTTP ${res.status} from ${parsed.hostname}`);
   return Buffer.from(await res.arrayBuffer());
 }
 

@@ -7,7 +7,7 @@ import { identify } from '@/components/shared/PostHogProvider';
 import { createClient } from '@/lib/supabase/client';
 import { PLANS } from '@/lib/billing/plans';
 import {
-  LayoutGrid, TrendingUp, LayoutTemplate, Settings2, Users, LogOut, Menu, Search, Plus, ChevronRight, CreditCard,
+  LayoutGrid, TrendingUp, Settings2, Users, LogOut, Menu, Search, Plus, ChevronRight, CreditCard,
   BarChart2, FileText, Eye, X, ArrowLeft, ShieldCheck,
   ScrollText, Sliders,
   Home, Layout, CalendarDays, MessageSquare, Bell,
@@ -142,7 +142,6 @@ const PLATFORM_SECTIONS = [
     title: 'Workspace',
     items: [
       { href: '/brand',      label: 'Brand Kit',  icon: <Palette size={15} strokeWidth={1.8} />,        matchPrefix: false },
-      { href: '/templates',  label: 'Templates',  icon: <LayoutTemplate size={15} strokeWidth={1.8} />, matchPrefix: false },
       { href: '/team',       label: 'Team',       icon: <Users size={15} strokeWidth={1.8} />,          matchPrefix: false },
       { href: '/settings',   label: 'Settings',   icon: <Settings2 size={15} strokeWidth={1.8} />,      matchPrefix: true  },
     ],
@@ -549,7 +548,6 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
     { label: 'Analytics',       href: '/analytics',        icon: <TrendingUp size={13} strokeWidth={1.8} /> },
     { label: 'Team',            href: '/team',             icon: <Users size={13} strokeWidth={1.8} /> },
     { label: 'Brand Kit',       href: '/brand',            icon: <Palette size={13} strokeWidth={1.8} /> },
-    { label: 'Templates',       href: '/templates',        icon: <LayoutTemplate size={13} strokeWidth={1.8} /> },
     { label: 'Settings',        href: '/settings',         icon: <Settings2 size={13} strokeWidth={1.8} /> },
     { label: 'Billing & Plans', href: '/settings/billing', icon: <CreditCard size={13} strokeWidth={1.8} /> },
   ];
@@ -684,7 +682,6 @@ function getPageBreadcrumbs(pathname: string, eventName: string | null): { label
   if (pathname === '/dashboard')                         return [{ label: 'My Events' }];
   if (pathname === '/analytics')                         return [{ label: 'Analytics' }];
   if (pathname === '/team')                              return [{ label: 'Team' }];
-  if (pathname === '/templates')                         return [{ label: 'Templates' }];
   if (pathname === '/brand')                             return [{ label: 'Brand Kit' }];
   if (pathname.startsWith('/settings/billing'))          return [{ label: 'Settings', href: '/settings' }, { label: 'Billing' }];
   if (pathname.startsWith('/settings/reset-password'))   return [{ label: 'Settings', href: '/settings' }, { label: 'Reset Password' }];

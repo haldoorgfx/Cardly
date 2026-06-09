@@ -170,10 +170,13 @@ export default function AttendeeFlow({
         // Map machine error codes to human copy
         const errorMap: Record<string, string> = {
           CARD_LIMIT_REACHED:   "This event has reached its card limit for the month. Please contact the organiser.",
-          RENDER_FAILED:        "We couldn't generate your card right now. Please try again in a moment.",
           PLAN_LIMIT:           "This event has reached its limit. Please contact the organiser.",
           DUPLICATE_SUBMISSION: "Your card is already being generated. Please wait a moment.",
         };
+        // For RENDER_FAILED, prefer the detail message (has the real cause) over a generic one
+        if (d.error === 'RENDER_FAILED') {
+          throw new Error(d.detail ?? "We couldn't generate your card right now. Please try again in a moment.");
+        }
         throw new Error(errorMap[d.error] ?? d.detail ?? 'Something went wrong. Please try again.');
       }
       const blob = await res.blob();
