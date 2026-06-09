@@ -147,25 +147,21 @@ export function QRScanner({ eventId, eventName, totalRegistrations, initialCheck
     const videoEl = videoRef.current;
     if (!videoEl) { setRequesting(false); return; }
 
-    // 1. Explicitly call getUserMedia to surface the browser permission prompt.
-    //    Without this, @zxing sometimes skips the prompt on first load.
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } })
-      .then(stream => {
-        // Stop the test stream immediately — the reader will open its own.
-        stream.getTracks().forEach(t => t.stop());
+    const reader = new BrowserMultiFormatReader();
+    readerRef.current = reader;
+
+    BrowserMultiFormatReader.listVideoInputDevices()
+      .then(devices => {
         if (cancelled) return;
+        // Prefer rear/environment-facing camera on mobile
+        const deviceId =
+          devices.find(d => /back|rear|environment/i.test(d.label))?.deviceId ??
+          devices[0]?.deviceId;
 
-        const reader = new BrowserMultiFormatReader();
-        readerRef.current = reader;
-
-        // 2. List devices and pick the rear camera if available.
-        return BrowserMultiFormatReader.listVideoInputDevices().then(devices => {
-          if (cancelled) return;
-          const deviceId =
-            devices.find(d => /back|rear|environment/i.test(d.label))?.deviceId ??
-            devices[0]?.deviceId;
-
-          return reader.decodeFromVideoDevice(deviceId ?? undefined, videoEl, (result, err) => {
+        return reader.decodeFromVideoDevice(
+          deviceId ?? undefined,
+          videoEl,
+          (result, err) => {
             if (result) {
               const text = result.getText().trim();
               let token: string | null = null;
@@ -175,19 +171,18 @@ export function QRScanner({ eventId, eventName, totalRegistrations, initialCheck
               if (token) handleToken(token);
             }
             if (err && err?.name !== 'NotFoundException') console.error(err);
-          });
-        }).then(controls => {
-          if (cancelled) { controls?.stop(); return; }
-          controlsRef.current = controls ?? null;
-          setRequesting(false);
-        });
+          },
+        );
+      })
+      .then(controls => {
+        if (cancelled) { controls?.stop(); return; }
+        controlsRef.current = controls ?? null;
+        setRequesting(false);
       })
       .catch(e => {
         if (cancelled) return;
         const msg = e instanceof Error ? e.message : 'Camera not available';
-        // Distinguish outright denial from other errors
-        const isDenied = /denied|permission|not allowed/i.test(msg);
-        setCameraError(isDenied ? 'Permission denied' : msg);
+        setCameraError(/denied|permission|not allowed/i.test(msg) ? 'Permission denied' : msg);
         setRequesting(false);
       });
 
