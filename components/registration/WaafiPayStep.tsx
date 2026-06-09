@@ -80,7 +80,7 @@ export function WaafiPayStep({ registrationId, qrToken, amount, currency, eventT
           Pay with mobile money
         </h2>
         <p className="text-[14px]" style={{ color: '#6B7A72' }}>
-          {ticketName} Â· {eventTitle}
+          {ticketName} · {eventTitle}
         </p>
       </div>
 
@@ -173,7 +173,7 @@ export function WaafiPayStep({ registrationId, qrToken, amount, currency, eventT
             <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
             </svg>
-            Waiting for approvalâ€¦
+            Waiting for approval…
           </>
         ) : (
           <>
@@ -186,7 +186,7 @@ export function WaafiPayStep({ registrationId, qrToken, amount, currency, eventT
       {/* Security */}
       <div className="flex items-center justify-center gap-1.5 mt-3 text-[12px]" style={{ color: '#6B7A72' }}>
         <ShieldCheck size={13} strokeWidth={2} />
-        Secured by WaafiPay Â· No card details needed
+        Secured by WaafiPay · No card details needed
       </div>
 
       {/* Supported networks */}

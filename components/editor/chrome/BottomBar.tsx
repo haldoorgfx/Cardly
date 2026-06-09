@@ -25,7 +25,7 @@ export default function BottomBar({
         borderTop: '1px solid #E5E0D4',
       }}
     >
-      {/* Zoom control â€” bordered group */}
+      {/* Zoom control — bordered group */}
       <div
         className="flex items-center overflow-hidden"
         style={{

@@ -50,7 +50,7 @@ export function PublicEventPageClient({
 
   const locationLine = page.is_online
     ? 'Online event'
-    : [page.venue_name, page.venue_address].filter(Boolean).join(' Â· ') || 'Venue TBA';
+    : [page.venue_name, page.venue_address].filter(Boolean).join(' · ') || 'Venue TBA';
 
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
@@ -75,13 +75,13 @@ export function PublicEventPageClient({
           />
         )}
 
-        {/* Dark scrim â€” bottom to top */}
+        {/* Dark scrim — bottom to top */}
         <div
           className="absolute inset-0"
           style={{ background: 'linear-gradient(to top, rgba(10,20,14,0.90) 0%, rgba(10,20,14,0.45) 40%, transparent 75%)' }}
         />
 
-        {/* Share + Heart icons â€” top right */}
+        {/* Share + Heart icons — top right */}
         <div className="absolute top-5 right-5 flex gap-2.5 z-10">
           <button
             onClick={handleShare}
@@ -106,7 +106,7 @@ export function PublicEventPageClient({
           </button>
         </div>
 
-        {/* Hero caption â€” bottom */}
+        {/* Hero caption — bottom */}
         <div className="absolute bottom-0 left-0 right-0 z-10">
           <div className="max-w-[1000px] mx-auto px-5 pb-8 flex items-end justify-between gap-6">
             <div className="flex-1 min-w-0">

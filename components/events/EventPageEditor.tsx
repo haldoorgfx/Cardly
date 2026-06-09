@@ -274,7 +274,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
               <span className="text-[13px] font-medium" style={{ color: 'rgba(255,255,255,0.85)' }}>
                 Click to upload cover image
               </span>
-              <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.5)' }}>PNG, JPG or WebP Â· Max 10 MB</span>
+              <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.5)' }}>PNG, JPG or WebP · Max 10 MB</span>
             </div>
             {coverUrl && (
               <div
@@ -359,7 +359,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
           <textarea
             value={description}
             onChange={e => setDescription(e.target.value)}
-            placeholder="Tell attendees what your event is aboutâ€¦"
+            placeholder="Tell attendees what your event is about…"
             rows={16}
             autoFocus
             className="w-full px-4 py-3 rounded-xl text-[14px] outline-none resize-none transition"
@@ -537,7 +537,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
                 { value: 'stripe',      label: 'Stripe',      desc: 'Credit/debit cards worldwide. Recommended for international events.' },
                 { value: 'flutterwave', label: 'Flutterwave', desc: 'Accepts local African currencies (KES, GHS, ZAR, etc.). Ticket prices in USD, charged in local currency.' },
                 { value: 'waafipay',    label: 'WaafiPay',    desc: 'EVC Plus, eDahab, Somtel and Djibouti mobile money. Best for Somalia & Djibouti.' },
-                { value: 'free',        label: 'Free only',   desc: 'No payment collection â€” all tickets must be free.' },
+                { value: 'free',        label: 'Free only',   desc: 'No payment collection — all tickets must be free.' },
               ].map(opt => (
                 <button
                   key={opt.value}
@@ -595,7 +595,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
                 <input
                   value={seoTitle}
                   onChange={e => setSeoTitle(e.target.value)}
-                  placeholder={`${title || 'Event title'} â€” Karta`}
+                  placeholder={`${title || 'Event title'} — Karta`}
                   className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
                   style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
                   onFocus={e => (e.target.style.borderColor = '#E8C57E')}
@@ -661,7 +661,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
                 className="inline-flex items-center h-9 px-5 rounded-lg text-white text-[13px] font-semibold transition hover:opacity-90 disabled:opacity-60"
                 style={{ background: '#1F4D3A' }}
               >
-                {isPending ? 'Savingâ€¦' : 'Save changes'}
+                {isPending ? 'Saving…' : 'Save changes'}
               </button>
             </>
           ) : (

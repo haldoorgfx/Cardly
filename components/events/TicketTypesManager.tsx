@@ -50,7 +50,7 @@ function rowToForm(t: TicketRow): FormState {
 }
 
 function formToBody(f: FormState) {
-  // NOTE: never use `parseInt(x) || fallback` â€” parseInt("0") is 0 which is falsy,
+  // NOTE: never use `parseInt(x) || fallback` — parseInt("0") is 0 which is falsy,
   // so it would incorrectly return the fallback. Use explicit null checks instead.
   const qty = f.isLimited && f.quantity !== '' ? parseInt(f.quantity, 10) : null;
   const min = f.min_per_order !== '' ? parseInt(f.min_per_order, 10) : 1;
@@ -496,7 +496,7 @@ export function TicketTypesManager({ eventId, initialTickets }: Props) {
                 className="h-9 px-5 text-white text-[13px] font-semibold rounded-lg transition hover:opacity-90 disabled:opacity-60"
                 style={{ background: '#1F4D3A' }}
               >
-                {saving ? 'Savingâ€¦' : isEditing ? 'Save changes' : 'Add ticket'}
+                {saving ? 'Saving…' : isEditing ? 'Save changes' : 'Add ticket'}
               </button>
             </div>
           </div>
@@ -553,7 +553,7 @@ export function TicketTypesManager({ eventId, initialTickets }: Props) {
                   className="flex-1 h-10 rounded-xl text-white text-[14px] font-semibold transition hover:opacity-90 disabled:opacity-60"
                   style={{ background: '#B8423C' }}
                 >
-                  {deleting ? 'Deletingâ€¦' : 'Delete'}
+                  {deleting ? 'Deleting…' : 'Delete'}
                 </button>
               </div>
             </div>

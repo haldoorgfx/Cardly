@@ -1,121 +1,121 @@
 ﻿'use client';
 
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// KARTA CANVAS EDITOR â€” STATE & BEHAVIOR INVENTORY
+// KARTA CANVAS EDITOR — STATE & BEHAVIOR INVENTORY
 // Documented before UI refactor (Step 1). DO NOT remove any of this logic.
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 //
 // â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-//   CW = 1080                       â€” canvas baseline width (px)
-//   CH = 1350                       â€” canvas baseline height (px)
-//   GRID_SIZE = 60                  â€” snap-to-grid cell size (canvas px)
-//   ROTATE_HANDLE_DIST = 32         â€” rotate handle distance above zone top
+//   CW = 1080                       — canvas baseline width (px)
+//   CH = 1350                       — canvas baseline height (px)
+//   GRID_SIZE = 60                  — snap-to-grid cell size (canvas px)
+//   ROTATE_HANDLE_DIST = 32         — rotate handle distance above zone top
 //
 // â”€â”€ Props â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-//   eventId: string                 â€” Supabase event UUID (for API calls)
-//   eventName: string               â€” display name (editable inline)
-//   variants: Variant[]             â€” initial variant list from server
+//   eventId: string                 — Supabase event UUID (for API calls)
+//   eventName: string               — display name (editable inline)
+//   variants: Variant[]             — initial variant list from server
 //
 // â”€â”€ State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-//   variants: Variant[]             â€” line 84  â€” live variant list
-//   activeVariantId: string         â€” line 85  â€” which variant's zones are shown
-//   showAddVariant: boolean         â€” line 86  â€” "Add variant" form open
-//   addingVariant: boolean          â€” line 87  â€” POST in-flight
-//   newVariantName: string          â€” line 88  â€” name input value
-//   newVariantFile: File|null       â€” line 89  â€” background file for new variant
-//   variantMenuId: string|null      â€” line 93  â€” which variant's context menu is open
-//   renamingVariantId: string|null  â€” line 94  â€” inline rename mode
-//   renameValue: string             â€” line 95  â€” rename input value
-//   variantZonesMap: Record<string, Zone[]>  â€” line 98  â€” zones keyed by variantId
-//   selectedIds: string[]           â€” line 111 â€” multi-select zone IDs
-//   zoom: number (default 0.42)     â€” line 116 â€” canvas scale factor
-//   grid: boolean                   â€” line 117 â€” dotted grid visible
-//   gridSnap: boolean               â€” line 118 â€” snap zones to grid
-//   previewMode: boolean            â€” line 119 â€” preview-as-attendee mode
-//   snapGuides: SnapGuides          â€” line 120 â€” {x?,y?} snap line positions (canvas px)
-//   nameVal: string                 â€” line 121 â€” event name input value
-//   editName: boolean               â€” line 122 â€” inline event name edit mode
-//   savedAt: string                 â€” line 123 â€” "HH:MM" timestamp of last save
-//   fontSearch: string              â€” line 125 â€” font picker search query (unused UI)
-//   showShortcuts: boolean          â€” line 126 â€” keyboard shortcuts panel open
-//   copiedStyle: Partial<Zone>|null â€” line 127 â€” style clipboard (Cmd+Alt+C)
-//   styleFlash: boolean             â€” line 128 â€” 1.2s flash after copy style
-//   aspectLock: boolean             â€” line 129 â€” lock aspect ratio during resize
-//   uploadingImage: boolean         â€” line 130 â€” zone image upload in-flight
-//   spaceDown: boolean              â€” line 131 â€” space key held (pan mode)
-//   floatBarPos: {left,top}|null    â€” line 132 â€” floating toolbar position
-//   toolbarOffset: {dx,dy}          â€” line 133 â€” toolbar drag offset
-//   history: HistoryState           â€” line 138 â€” {past: Zone[][], future: Zone[][]}
-//   isMobile: boolean               â€” line 155 â€” viewport < 900px
+//   variants: Variant[]             — line 84  — live variant list
+//   activeVariantId: string         — line 85  — which variant's zones are shown
+//   showAddVariant: boolean         — line 86  — "Add variant" form open
+//   addingVariant: boolean          — line 87  — POST in-flight
+//   newVariantName: string          — line 88  — name input value
+//   newVariantFile: File|null       — line 89  — background file for new variant
+//   variantMenuId: string|null      — line 93  — which variant's context menu is open
+//   renamingVariantId: string|null  — line 94  — inline rename mode
+//   renameValue: string             — line 95  — rename input value
+//   variantZonesMap: Record<string, Zone[]>  — line 98  — zones keyed by variantId
+//   selectedIds: string[]           — line 111 — multi-select zone IDs
+//   zoom: number (default 0.42)     — line 116 — canvas scale factor
+//   grid: boolean                   — line 117 — dotted grid visible
+//   gridSnap: boolean               — line 118 — snap zones to grid
+//   previewMode: boolean            — line 119 — preview-as-attendee mode
+//   snapGuides: SnapGuides          — line 120 — {x?,y?} snap line positions (canvas px)
+//   nameVal: string                 — line 121 — event name input value
+//   editName: boolean               — line 122 — inline event name edit mode
+//   savedAt: string                 — line 123 — "HH:MM" timestamp of last save
+//   fontSearch: string              — line 125 — font picker search query (unused UI)
+//   showShortcuts: boolean          — line 126 — keyboard shortcuts panel open
+//   copiedStyle: Partial<Zone>|null — line 127 — style clipboard (Cmd+Alt+C)
+//   styleFlash: boolean             — line 128 — 1.2s flash after copy style
+//   aspectLock: boolean             — line 129 — lock aspect ratio during resize
+//   uploadingImage: boolean         — line 130 — zone image upload in-flight
+//   spaceDown: boolean              — line 131 — space key held (pan mode)
+//   floatBarPos: {left,top}|null    — line 132 — floating toolbar position
+//   toolbarOffset: {dx,dy}          — line 133 — toolbar drag offset
+//   history: HistoryState           — line 138 — {past: Zone[][], future: Zone[][]}
+//   isMobile: boolean               — line 155 — viewport < 900px
 //
 // â”€â”€ Refs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-//   stageRef: HTMLDivElement        â€” line 141 â€” outer scrollable stage (for zoom/pan scroll)
-//   canvasInnerRef: HTMLDivElement  â€” line 142 â€” the artwork div (for position math)
-//   imageUploadRef: HTMLInputElementâ€” line 143 â€” hidden input for zone image upload
-//   bgReplaceRef: HTMLInputElement  â€” line 144 â€” hidden input for background replace
-//   autosaveTimer: ReturnType<setTimeout> â€” line 145 â€” debounce timer handle
-//   zonesRef: Zone[]                â€” line 146 â€” always-current zones (avoids stale closures in pointer handlers)
-//   didMoveRef: boolean             â€” line 148 â€” drag dead-zone guard (5px threshold)
-//   interaction: Interaction|null   â€” line 149 â€” active drag/resize/rotate state
-//   isPanning: boolean              â€” line 150 â€” space+drag pan in progress
-//   spaceDownRef: boolean           â€” line 151 â€” ref mirror of spaceDown state
-//   panStart: {x,y,scrollLeft,scrollTop} â€” line 152 â€” pan anchor
-//   stageContainerRef: HTMLDivElement    â€” line 134 â€” container for toolbar position calc
-//   toolbarDragRef: drag anchor     â€” line 135 â€” toolbar drag state
-//   newVariantFileRef: HTMLInputElement  â€” line 90  â€” hidden input for variant background
+//   stageRef: HTMLDivElement        — line 141 — outer scrollable stage (for zoom/pan scroll)
+//   canvasInnerRef: HTMLDivElement  — line 142 — the artwork div (for position math)
+//   imageUploadRef: HTMLInputElement— line 143 — hidden input for zone image upload
+//   bgReplaceRef: HTMLInputElement  — line 144 — hidden input for background replace
+//   autosaveTimer: ReturnType<setTimeout> — line 145 — debounce timer handle
+//   zonesRef: Zone[]                — line 146 — always-current zones (avoids stale closures in pointer handlers)
+//   didMoveRef: boolean             — line 148 — drag dead-zone guard (5px threshold)
+//   interaction: Interaction|null   — line 149 — active drag/resize/rotate state
+//   isPanning: boolean              — line 150 — space+drag pan in progress
+//   spaceDownRef: boolean           — line 151 — ref mirror of spaceDown state
+//   panStart: {x,y,scrollLeft,scrollTop} — line 152 — pan anchor
+//   stageContainerRef: HTMLDivElement    — line 134 — container for toolbar position calc
+//   toolbarDragRef: drag anchor     — line 135 — toolbar drag state
+//   newVariantFileRef: HTMLInputElement  — line 90  — hidden input for variant background
 //
 // â”€â”€ Derived (not state) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-//   activeVariant   â€” line 104 â€” current Variant object
-//   zones           â€” line 105 â€” current variant's Zone[]
-//   bgW             â€” line 106 â€” active variant background width (px)
-//   bgH             â€” line 107 â€” active variant background height (px)
-//   backgroundUrl   â€” line 108 â€” active variant background_url
-//   selectedId      â€” line 112 â€” last selectedIds entry
-//   selected        â€” line 113 â€” Zone | null for selectedId
+//   activeVariant   — line 104 — current Variant object
+//   zones           — line 105 — current variant's Zone[]
+//   bgW             — line 106 — active variant background width (px)
+//   bgH             — line 107 — active variant background height (px)
+//   backgroundUrl   — line 108 — active variant background_url
+//   selectedId      — line 112 — last selectedIds entry
+//   selected        — line 113 — Zone | null for selectedId
 //
 // â”€â”€ Behaviors â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-//   switchVariant(id)               â€” line 195 â€” switch active variant, clear selection + history
-//   handleRenameVariant(id, name)   â€” line 202 â€” PATCH variant_name via API
-//   handleDeleteVariant(id)         â€” line 214 â€” DELETE variant via API, switch to next
-//   handleDuplicateVariant(id)      â€” line 225 â€” POST duplicate variant, copy zones
-//   scheduleSave(zones, variantId)  â€” line 249 â€” 800ms debounce PATCH zones to Supabase
-//   setZonesForVariant(id, zones)   â€” line 261 â€” update variantZonesMap for one variant
-//   pushHistory(nextZones)          â€” line 265 â€” prepend current to past[], call scheduleSave
-//   updateZone(id, patch, withHist) â€” line 272 â€” patch one zone; optionally push history
-//   removeZone(id)                  â€” line 278 â€” filter out zone, push history
-//   removeSelected()                â€” line 283 â€” filter out all selectedIds, push history
-//   duplicateZone(id)               â€” line 288 â€” clone zone at +30,+30 offset, push history (Cmd+D)
-//   moveZoneUp(id)                  â€” line 296 â€” swap zone with prev in array (] key)
-//   moveZoneDown(id)                â€” line 304 â€” swap zone with next in array ([ key)
-//   bringToFront(id)                â€” line 312 â€” move zone to end of array
-//   sendToBack(id)                  â€” line 319 â€” move zone to start of array
-//   alignSelected(axis)             â€” line 327 â€” align all selected zones (6 axes)
-//   distributeSelected(dir)         â€” line 345 â€” evenly space â‰¥3 selected zones (h or v)
-//   addZone(type)                   â€” line 369 â€” add text|photo|custom|label zone, scaled to bgW
-//   addShapeZone(shapeType)         â€” line 394 â€” add rect|ellipse|triangle|line shape zone
-//   handleImageUpload(e)            â€” line 420 â€” upload file â†’ /api/upload-zone-image â†’ add image zone
-//   handleReplaceBackground(e)      â€” line 462 â€” upload file â†’ /api/upload-zone-image â†’ PATCH variant bg
-//   undo()                          â€” line 495 â€” Cmd+Z: pop past[], push current to future[]
-//   redo()                          â€” line 505 â€” Cmd+Shift+Z: pop future[], push current to past[]
-//   copyStyle()                     â€” line 516 â€” Cmd+Alt+C: store non-positional zone props
-//   pasteStyle()                    â€” line 525 â€” Cmd+Alt+V: apply copiedStyle to selected
-//   onZonePointerDown(e, zone)      â€” line 531 â€” start move interaction; handle Shift for multi-select
-//   onHandlePointerDown(e, zone, dir) â€” line 558 â€” start resize interaction (8 dirs: n/s/e/w/ne/nw/se/sw)
-//   onRotatePointerDown(e, zone)    â€” line 566 â€” start rotate interaction (angle from zone center)
-//   handleAddVariant()              â€” line 794 â€” POST new variant with name + background file
-//   saveName()                      â€” line 813 â€” PATCH event name
-//   fitZoom()                       â€” line 818 â€” recalculate zoom to fit stage
+//   switchVariant(id)               — line 195 — switch active variant, clear selection + history
+//   handleRenameVariant(id, name)   — line 202 — PATCH variant_name via API
+//   handleDeleteVariant(id)         — line 214 — DELETE variant via API, switch to next
+//   handleDuplicateVariant(id)      — line 225 — POST duplicate variant, copy zones
+//   scheduleSave(zones, variantId)  — line 249 — 800ms debounce PATCH zones to Supabase
+//   setZonesForVariant(id, zones)   — line 261 — update variantZonesMap for one variant
+//   pushHistory(nextZones)          — line 265 — prepend current to past[], call scheduleSave
+//   updateZone(id, patch, withHist) — line 272 — patch one zone; optionally push history
+//   removeZone(id)                  — line 278 — filter out zone, push history
+//   removeSelected()                — line 283 — filter out all selectedIds, push history
+//   duplicateZone(id)               — line 288 — clone zone at +30,+30 offset, push history (Cmd+D)
+//   moveZoneUp(id)                  — line 296 — swap zone with prev in array (] key)
+//   moveZoneDown(id)                — line 304 — swap zone with next in array ([ key)
+//   bringToFront(id)                — line 312 — move zone to end of array
+//   sendToBack(id)                  — line 319 — move zone to start of array
+//   alignSelected(axis)             — line 327 — align all selected zones (6 axes)
+//   distributeSelected(dir)         — line 345 — evenly space â‰¥3 selected zones (h or v)
+//   addZone(type)                   — line 369 — add text|photo|custom|label zone, scaled to bgW
+//   addShapeZone(shapeType)         — line 394 — add rect|ellipse|triangle|line shape zone
+//   handleImageUpload(e)            — line 420 — upload file â†’ /api/upload-zone-image â†’ add image zone
+//   handleReplaceBackground(e)      — line 462 — upload file â†’ /api/upload-zone-image â†’ PATCH variant bg
+//   undo()                          — line 495 — Cmd+Z: pop past[], push current to future[]
+//   redo()                          — line 505 — Cmd+Shift+Z: pop future[], push current to past[]
+//   copyStyle()                     — line 516 — Cmd+Alt+C: store non-positional zone props
+//   pasteStyle()                    — line 525 — Cmd+Alt+V: apply copiedStyle to selected
+//   onZonePointerDown(e, zone)      — line 531 — start move interaction; handle Shift for multi-select
+//   onHandlePointerDown(e, zone, dir) — line 558 — start resize interaction (8 dirs: n/s/e/w/ne/nw/se/sw)
+//   onRotatePointerDown(e, zone)    — line 566 — start rotate interaction (angle from zone center)
+//   handleAddVariant()              — line 794 — POST new variant with name + background file
+//   saveName()                      — line 813 — PATCH event name
+//   fitZoom()                       — line 818 — recalculate zoom to fit stage
 //
 // â”€â”€ useEffects â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-//   Mobile detection                â€” line 156 â€” window.innerWidth < 900 â†’ isMobile
-//   Google Fonts inject             â€” line 163 â€” appends <link> to <head> once
-//   Floating toolbar position       â€” line 173 â€” computes floatBarPos from selected zone + zoom
-//   Reset toolbar drag offset       â€” line 192 â€” clears toolbarOffset on selection change
-//   Global pointermove/pointerup    â€” line 587 â€” handles all drag/resize/rotate; updates snap guides
-//   Keyboard shortcuts              â€” line 714 â€” Delete, Cmd+Z/Y, Cmd+D/P, arrows, brackets, G, space
-//   Fit zoom on mount/variant changeâ€” line 757 â€” fit canvas to stage on load or variant switch
-//   Scroll-to-zoom (wheel)          â€” line 770 â€” Ctrl/Cmd+wheel adjusts zoom
-//   Re-center canvas after zoom     â€” line 783 â€” adjusts scrollLeft/scrollTop to keep canvas centered
+//   Mobile detection                — line 156 — window.innerWidth < 900 â†’ isMobile
+//   Google Fonts inject             — line 163 — appends <link> to <head> once
+//   Floating toolbar position       — line 173 — computes floatBarPos from selected zone + zoom
+//   Reset toolbar drag offset       — line 192 — clears toolbarOffset on selection change
+//   Global pointermove/pointerup    — line 587 — handles all drag/resize/rotate; updates snap guides
+//   Keyboard shortcuts              — line 714 — Delete, Cmd+Z/Y, Cmd+D/P, arrows, brackets, G, space
+//   Fit zoom on mount/variant change— line 757 — fit canvas to stage on load or variant switch
+//   Scroll-to-zoom (wheel)          — line 770 — Ctrl/Cmd+wheel adjusts zoom
+//   Re-center canvas after zoom     — line 783 — adjusts scrollLeft/scrollTop to keep canvas centered
 //
 // â”€â”€ Type aliases â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 //   HistoryState = { past: Zone[][], future: Zone[][] }
@@ -136,7 +136,7 @@ import {
   AlignHorizontalJustifyCenter, AlignVerticalJustifyCenter,
 } from 'lucide-react';
 
-// Chrome components (UI only â€” no logic)
+// Chrome components (UI only — no logic)
 import MobileFallback from './chrome/MobileFallback';
 import TopBar from './chrome/TopBar';
 import BottomBar from './chrome/BottomBar';
@@ -213,7 +213,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
   /* variants */
   const [variants, setVariants] = useState<Variant[]>(initialVariants);
   const [activeVariantId, setActiveVariantId] = useState<string>(initialVariants[0]?.id ?? '');
-  // Auto-open the template picker when the event has no variants yet â€”
+  // Auto-open the template picker when the event has no variants yet —
   // so first-time users immediately see the template gallery.
   const [showTemplatePicker, setShowTemplatePicker] = useState(() => initialVariants.length === 0);
   const [showAddVariant, setShowAddVariant] = useState(false);
@@ -540,7 +540,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
     if (type === 'text') {
       z = { ...base, type, label: 'Text field', w: zoneW, h: zoneH, font: 'DM Sans', weight: 700, size: textSz, color: '#FFFFFF', align: 'center', verticalAlign: 'top' as const, placeholder: 'Enter text', sample: 'Sample text', lineHeight: 1.2, letterSpacing: 0, opacity: 100, rotation: 0 };
     } else if (type === 'photo') {
-      z = { ...base, type, label: 'Photo', w: photoS, h: photoS, shape: 'circle', placeholder: 'Tap to add a photo', sample: 'Â·', opacity: 100, rotation: 0 };
+      z = { ...base, type, label: 'Photo', w: photoS, h: photoS, shape: 'circle', placeholder: 'Tap to add a photo', sample: '·', opacity: 100, rotation: 0 };
     } else if (type === 'custom') {
       z = { ...base, type, label: 'Custom field', w: zoneW, h: custH, font: 'Inter', weight: 500, size: custSz, color: '#FFFFFF', align: 'center', placeholder: 'Select option', sample: 'Speaker', options: ['Speaker', 'Sponsor', 'Delegate'], opacity: 100, rotation: 0 };
     } else {
@@ -844,7 +844,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
     let rafId: number | null = null;
     let pendingEvent: PointerEvent | null = null;
 
-    // RAF-throttled wrapper â€” runs processMove at most once per animation frame
+    // RAF-throttled wrapper — runs processMove at most once per animation frame
     const onMove = (e: PointerEvent) => {
       pendingEvent = e;
       if (rafId !== null) return;
@@ -1114,7 +1114,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
      RENDER
   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-  /* â”€â”€ Mobile gate â€” canvas editor requires desktop (<768px) â”€â”€ */
+  /* â”€â”€ Mobile gate — canvas editor requires desktop (<768px) â”€â”€ */
   if (isMobile) {
     return <MobileFallback eventId={eventId} eventName={nameVal} />;
   }
@@ -1207,7 +1207,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
 
         {/* â”€â”€ Stage â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         <div ref={stageContainerRef} className="flex-1 flex flex-col overflow-hidden" style={{ position: 'relative' }}>
-          {/* Canvas dims chip â€” non-scrolling overlay at top of stage */}
+          {/* Canvas dims chip — non-scrolling overlay at top of stage */}
           {!previewMode && (
             <div style={{
               position: 'absolute', top: 10, left: '50%', transform: 'translateX(-50%)',
@@ -1277,7 +1277,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
                   }} />
                 )}
 
-                {/* Snap guides â€” magenta alignment lines */}
+                {/* Snap guides — magenta alignment lines */}
                 {snapGuides.x !== undefined && (
                   <div className="absolute top-0 bottom-0 pointer-events-none" style={{ left: snapGuides.x, width: 1, background: 'rgba(255,0,204,0.85)', boxShadow: '0 0 6px rgba(255,0,204,0.5)' }} />
                 )}
@@ -1300,7 +1300,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
                   />
                 ))}
 
-                {/* floating toolbar is now viewport-anchored â€” see stageContainerRef section */}
+                {/* floating toolbar is now viewport-anchored — see stageContainerRef section */}
 
                 {/* Corner brackets */}
                 {!previewMode && (
@@ -1333,7 +1333,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
 
                 {previewMode && (
                   <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white/70 text-[11px] font-mono px-3 py-1.5 rounded-full pointer-events-none">
-                    PREVIEW â€” âŒ˜P to edit
+                    PREVIEW — âŒ˜P to edit
                   </div>
                 )}
               </div>
@@ -1341,11 +1341,11 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
           </div>
           </div>
 
-          {/* â”€â”€ Floating context toolbar â€” draggable, viewport-anchored â”€â”€ */}
+          {/* â”€â”€ Floating context toolbar — draggable, viewport-anchored â”€â”€ */}
           {floatBarPos && selected && !previewMode && (() => {
             const containerW = stageContainerRef.current?.offsetWidth ?? 9999;
             // Always translateX(-50%) so the toolbar is centered on `left`.
-            // Dragging shifts that center point â€” no transform switching = no jump.
+            // Dragging shifts that center point — no transform switching = no jump.
             const rawLeft  = floatBarPos.left + toolbarOffset.dx;
             const finalLeft = Math.max(80, Math.min(rawLeft, containerW - 80));
             const finalTop  = Math.max(8, floatBarPos.top + toolbarOffset.dy);
@@ -1362,7 +1362,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
                 style={{
                   left: finalLeft,
                   top: finalTop,
-                  transform: 'translateX(-50%)',   /* always centered â€” drag just moves the center */
+                  transform: 'translateX(-50%)',   /* always centered — drag just moves the center */
                   filter: 'drop-shadow(0 8px 24px rgba(15,31,24,0.14)) drop-shadow(0 2px 4px rgba(15,31,24,0.08))',
                 }}
                 onClick={e => e.stopPropagation()}
@@ -1480,7 +1480,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
 
                       {sep}
 
-                      {/* Text align â€” letter labels so L/C/R are instantly readable */}
+                      {/* Text align — letter labels so L/C/R are instantly readable */}
                       <div role="group" aria-label="Text alignment" className="flex items-center rounded-lg overflow-hidden shrink-0" style={{ border: '1px solid #E5E0D4' }}>
                         {([['left', 'L', 'Align left'], ['center', 'C', 'Align center'], ['right', 'R', 'Align right']] as [string, string, string][]).map(([v, letter, label]) => (
                           <button key={v}
@@ -1496,7 +1496,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
 
                       {sep}
 
-                      {/* Text color â€” "A" with colored underline strip (Word / Figma / Canva standard) */}
+                      {/* Text color — "A" with colored underline strip (Word / Figma / Canva standard) */}
                       <label
                         aria-label={`Text color: ${selected.color ?? '#FFFFFF'}`}
                         title={`Text color: ${selected.color ?? '#FFFFFF'}`}
@@ -1520,7 +1520,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
                     </>
                   )}
 
-                  {/* â”€â”€ PHOTO shape â€” CSS shape previews so circle/rounded/square are visually obvious â”€â”€ */}
+                  {/* â”€â”€ PHOTO shape — CSS shape previews so circle/rounded/square are visually obvious â”€â”€ */}
                   {selected.type === 'photo' && (
                     <>
                       <div role="group" aria-label="Photo shape" className="flex items-center gap-1 shrink-0 rounded-lg overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
@@ -1643,10 +1643,10 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
             );
           })()}
 
-          {/* Multi-select badge â€” viewport-fixed, not inside scroll area */}
+          {/* Multi-select badge — viewport-fixed, not inside scroll area */}
           {selectedIds.length > 1 && !previewMode && (
             <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-primary text-white text-[11.5px] font-mono px-3 py-1.5 rounded-full shadow-lift pointer-events-none z-10">
-              {selectedIds.length} elements selected Â· âŒ« delete Â· drag to move
+              {selectedIds.length} elements selected · âŒ« delete · drag to move
             </div>
           )}
 
@@ -1756,7 +1756,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
                 <button onClick={() => setShowAddVariant(false)} className="flex-1 h-10 rounded-xl border border-border text-[13px] hover:bg-cream transition">Cancel</button>
                 <button onClick={handleAddVariant} disabled={!newVariantName.trim() || !newVariantFile || addingVariant}
                   className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white transition disabled:opacity-40 bg-primary">
-                  {addingVariant ? 'Creatingâ€¦' : 'Create variant'}
+                  {addingVariant ? 'Creating…' : 'Create variant'}
                 </button>
               </div>
             </>
@@ -1774,7 +1774,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
               ['âŒ˜âŒ¥C','Copy style'],['âŒ˜âŒ¥V','Paste style'],['Arrow keys','Nudge 1px'],
               ['â‡§+Arrow','Nudge 10px'],['[',  'Send backward'],[']','Bring forward'],
               ['â‡§+click','Multi-select'],['â‡§+drag resize','Lock aspect ratio'],['Esc','Deselect all'],
-              ['âŒ˜+wheel','Zoom in/out'],['â‡§+rotate','Snap to 15Â°'],['âŒ˜+click variant','Switch variant'],
+              ['âŒ˜+wheel','Zoom in/out'],['â‡§+rotate','Snap to 15°'],['âŒ˜+click variant','Switch variant'],
             ].map(([k, v]) => (
               <div key={k} className="flex items-center justify-between py-1 border-b border-border/50">
                 <span className="font-mono text-[11px] bg-cream px-1.5 py-0.5 rounded text-[#0F1F18]/70">{k}</span>
@@ -1904,7 +1904,7 @@ function RightRail({
               <input value={selected.sample ?? ''} onChange={e => upd({ sample: e.target.value })} className="prop-input" placeholder="Text shown on the card" />
             </PropRow>
             <div className="text-[10.5px] font-mono text-warning bg-warning/8 border border-warning/20 rounded-lg px-2.5 py-1.5 leading-relaxed">
-              Static â€” this text is baked into every card, not editable by attendees.
+              Static — this text is baked into every card, not editable by attendees.
             </div>
           </>
         ) : selected.type === 'shape' ? null : (
@@ -1924,7 +1924,7 @@ function RightRail({
             </PropRow>
             <PropToggle label="Required" value={!!selected.required} onChange={v => upd({ required: v })} />
             {(selected.type === 'text' || selected.type === 'custom') && (
-              <PropRow label={`Max chars Â· ${selected.maxChars ?? 'none'}`}>
+              <PropRow label={`Max chars · ${selected.maxChars ?? 'none'}`}>
                 <div className="flex items-center gap-2">
                   <input
                     type="range" min="1" max="200"
@@ -1963,7 +1963,7 @@ function RightRail({
               />
             </PropRow>
             {selected.shape === 'rounded' && (
-              <PropRow label={`Corner radius Â· ${selected.cornerRadius ?? 18}%`}>
+              <PropRow label={`Corner radius · ${selected.cornerRadius ?? 18}%`}>
                 <input
                   type="range" min="1" max="48"
                   value={selected.cornerRadius ?? 18}
@@ -1980,7 +1980,7 @@ function RightRail({
                 <PropRow label="Border color">
                   <ColorRow value={selected.photoBorderColor ?? '#FFFFFF'} onChange={c => upd({ photoBorderColor: c })} BRAND_COLORS={BRAND_COLORS} />
                 </PropRow>
-                <PropRow label={`Width Â· ${selected.photoBorderWidth ?? 4}px`}>
+                <PropRow label={`Width · ${selected.photoBorderWidth ?? 4}px`}>
                   <input type="range" min="1" max="40" value={selected.photoBorderWidth ?? 4} onChange={e => upd({ photoBorderWidth: Number(e.target.value) })} className="w-full accent-primary" style={{ height: 4 }} />
                 </PropRow>
               </>
@@ -1995,7 +1995,7 @@ function RightRail({
           <PropRow label="Fill color">
             <ColorRow value={selected.bgColor ?? '#1F4D3A'} onChange={c => upd({ bgColor: c })} BRAND_COLORS={BRAND_COLORS} />
           </PropRow>
-          <PropRow label={`Fill opacity Â· ${selected.bgOpacity ?? 100}%`}>
+          <PropRow label={`Fill opacity · ${selected.bgOpacity ?? 100}%`}>
             <input type="range" min="0" max="100" value={selected.bgOpacity ?? 100} onChange={e => upd({ bgOpacity: Number(e.target.value) })} className="w-full accent-primary" style={{ height: 4 }} />
           </PropRow>
           <PropToggle
@@ -2008,7 +2008,7 @@ function RightRail({
               <PropRow label="Border color">
                 <ColorRow value={selected.strokeColor ?? '#FFFFFF'} onChange={c => upd({ strokeColor: c })} BRAND_COLORS={BRAND_COLORS} />
               </PropRow>
-              <PropRow label={`Border width Â· ${selected.strokeWidth ?? 4}px`}>
+              <PropRow label={`Border width · ${selected.strokeWidth ?? 4}px`}>
                 <input type="range" min="1" max="40" value={selected.strokeWidth ?? 4} onChange={e => upd({ strokeWidth: Number(e.target.value) })} className="w-full accent-primary" style={{ height: 4 }} />
               </PropRow>
             </>
@@ -2028,7 +2028,7 @@ function RightRail({
           <PropRow label="Replace image">
             <label className="flex items-center gap-2 cursor-pointer w-full h-9 px-3 rounded-xl border border-border bg-cream text-[12.5px] hover:bg-white transition">
               <Upload size={13} strokeWidth={1.8} />
-              <span>Upload new imageâ€¦</span>
+              <span>Upload new image…</span>
               <input
                 type="file"
                 accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
@@ -2055,7 +2055,7 @@ function RightRail({
       {(selected.type === 'text' || selected.type === 'custom' || selected.type === 'label') && (
         <>
           <PropSection title="Typography">
-            {/* Font picker â€” restricted to the 3 bundled fonts */}
+            {/* Font picker — restricted to the 3 bundled fonts */}
             <PropRow label="Font">
               <div className="grid grid-cols-3 gap-1">
                 {EDITOR_FONTS.map(f => (
@@ -2080,7 +2080,7 @@ function RightRail({
               />
             </PropRow>
 
-            <PropRow label={`Size Â· ${selected.size ?? 32}px`}>
+            <PropRow label={`Size · ${selected.size ?? 32}px`}>
               <div className="flex items-center gap-2">
                 <input type="range" min="8" max="300" value={selected.size ?? 32} onChange={e => upd({ size: Number(e.target.value) })} className="flex-1 accent-primary" style={{ height: 4 }} />
                 <input type="number" min="8" max="300" value={selected.size ?? 32} onChange={e => upd({ size: Number(e.target.value) })} className="w-14 h-7 text-center border border-border rounded-lg text-[12px] font-mono outline-none focus:border-primary" />
@@ -2133,11 +2133,11 @@ function RightRail({
               />
             </PropRow>
 
-            <PropRow label={`Line height Â· ${(selected.lineHeight ?? 1.2).toFixed(1)}`}>
+            <PropRow label={`Line height · ${(selected.lineHeight ?? 1.2).toFixed(1)}`}>
               <input type="range" min="0.8" max="2.5" step="0.05" value={selected.lineHeight ?? 1.2} onChange={e => upd({ lineHeight: Number(e.target.value) })} className="w-full accent-primary" style={{ height: 4 }} />
             </PropRow>
 
-            <PropRow label={`Letter spacing Â· ${selected.letterSpacing ?? 0}px`}>
+            <PropRow label={`Letter spacing · ${selected.letterSpacing ?? 0}px`}>
               <input type="range" min="-5" max="30" step="0.5" value={selected.letterSpacing ?? 0} onChange={e => upd({ letterSpacing: Number(e.target.value) })} className="w-full accent-primary" style={{ height: 4 }} />
             </PropRow>
 
@@ -2155,7 +2155,7 @@ function RightRail({
                 <PropRow label="Stroke color">
                   <ColorRow value={selected.strokeColor ?? '#000000'} onChange={c => upd({ strokeColor: c })} BRAND_COLORS={BRAND_COLORS} />
                 </PropRow>
-                <PropRow label={`Stroke width Â· ${selected.strokeWidth ?? 3}px`}>
+                <PropRow label={`Stroke width · ${selected.strokeWidth ?? 3}px`}>
                   <input type="range" min="1" max="20" value={selected.strokeWidth ?? 3} onChange={e => upd({ strokeWidth: Number(e.target.value) })} className="w-full accent-primary" style={{ height: 4 }} />
                 </PropRow>
               </>
@@ -2171,14 +2171,14 @@ function RightRail({
                     <input value={selected.shadowColor ?? ''} onChange={e => upd({ shadowColor: e.target.value })} className="prop-input flex-1 font-mono text-[11px]" />
                   </div>
                 </PropRow>
-                <PropRow label={`Blur Â· ${selected.shadowBlur ?? 12}px`}>
+                <PropRow label={`Blur · ${selected.shadowBlur ?? 12}px`}>
                   <input type="range" min="0" max="40" value={selected.shadowBlur ?? 12} onChange={e => upd({ shadowBlur: Number(e.target.value) })} className="w-full accent-primary" style={{ height: 4 }} />
                 </PropRow>
                 <div className="grid grid-cols-2 gap-2">
-                  <PropRow label={`X Â· ${selected.shadowX ?? 0}px`}>
+                  <PropRow label={`X · ${selected.shadowX ?? 0}px`}>
                     <input type="range" min="-20" max="20" value={selected.shadowX ?? 0} onChange={e => upd({ shadowX: Number(e.target.value) })} className="w-full accent-primary" style={{ height: 4 }} />
                   </PropRow>
-                  <PropRow label={`Y Â· ${selected.shadowY ?? 0}px`}>
+                  <PropRow label={`Y · ${selected.shadowY ?? 0}px`}>
                     <input type="range" min="-20" max="20" value={selected.shadowY ?? 0} onChange={e => upd({ shadowY: Number(e.target.value) })} className="w-full accent-primary" style={{ height: 4 }} />
                   </PropRow>
                 </div>
@@ -2194,7 +2194,7 @@ function RightRail({
                 <PropRow label="Fill color">
                   <ColorRow value={selected.bgColor.startsWith('#') ? selected.bgColor : '#000000'} onChange={c => upd({ bgColor: c })} BRAND_COLORS={BRAND_COLORS} />
                 </PropRow>
-                <PropRow label={`Fill opacity Â· ${selected.bgOpacity ?? 60}%`}>
+                <PropRow label={`Fill opacity · ${selected.bgOpacity ?? 60}%`}>
                   <input type="range" min="0" max="100" value={selected.bgOpacity ?? 60} onChange={e => upd({ bgOpacity: Number(e.target.value) })} className="w-full accent-primary" style={{ height: 4 }} />
                 </PropRow>
               </>
@@ -2205,10 +2205,10 @@ function RightRail({
 
       {/* â”€â”€ Appearance â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <PropSection title="Appearance">
-        <PropRow label={`Opacity Â· ${selected.opacity ?? 100}%`}>
+        <PropRow label={`Opacity · ${selected.opacity ?? 100}%`}>
           <input type="range" min="0" max="100" value={selected.opacity ?? 100} onChange={e => upd({ opacity: Number(e.target.value) })} className="w-full accent-primary" style={{ height: 4 }} />
         </PropRow>
-        <PropRow label={`Rotation Â· ${selected.rotation ?? 0}Â°`}>
+        <PropRow label={`Rotation · ${selected.rotation ?? 0}°`}>
           <div className="flex items-center gap-2">
             <input type="range" min="0" max="359" value={selected.rotation ?? 0} onChange={e => upd({ rotation: Number(e.target.value) })} className="flex-1 accent-primary" style={{ height: 4 }} />
             <input type="number" min="0" max="359" value={selected.rotation ?? 0} onChange={e => upd({ rotation: Number(e.target.value) })} className="w-14 h-7 text-center border border-border rounded-lg text-[12px] font-mono outline-none focus:border-primary" />
@@ -2216,7 +2216,7 @@ function RightRail({
         </PropRow>
         <div className="flex gap-1.5">
           {[0, 45, 90, 135, 180, 270].map(d => (
-            <button key={d} onClick={() => upd({ rotation: d })} className={`flex-1 h-7 text-[10.5px] font-mono rounded-lg border transition ${(selected.rotation ?? 0) === d ? 'bg-primary/10 text-primary border-primary/30' : 'border-border hover:bg-cream text-[#0F1F18]/55'}`}>{d}Â°</button>
+            <button key={d} onClick={() => upd({ rotation: d })} className={`flex-1 h-7 text-[10.5px] font-mono rounded-lg border transition ${(selected.rotation ?? 0) === d ? 'bg-primary/10 text-primary border-primary/30' : 'border-border hover:bg-cream text-[#0F1F18]/55'}`}>{d}°</button>
           ))}
         </div>
         <PropToggle label="Locked" value={!!selected.locked} onChange={v => upd({ locked: v })} />
@@ -2284,10 +2284,10 @@ function RightRail({
           <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: '#6B7A72', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>Layer</div>
           <div className="flex gap-1.5">
             {[
-              { fn: () => bringForward(selected.id), title: 'Bring forward Â· ]', disabled: zoneIndex >= zoneCount - 1, label: 'â†‘ Forward' },
-              { fn: () => sendBack(selected.id),     title: 'Send back Â· [',     disabled: zoneIndex <= 0,            label: 'â†“ Back'    },
-              { fn: () => bringToFront(selected.id), title: 'Bring to front Â· â‡§]', disabled: zoneIndex >= zoneCount - 1, label: 'â‡ˆ Front' },
-              { fn: () => sendToBack(selected.id),   title: 'Send to back Â· â‡§[',  disabled: zoneIndex <= 0,            label: 'â‡Š Bottom' },
+              { fn: () => bringForward(selected.id), title: 'Bring forward · ]', disabled: zoneIndex >= zoneCount - 1, label: 'â†‘ Forward' },
+              { fn: () => sendBack(selected.id),     title: 'Send back · [',     disabled: zoneIndex <= 0,            label: 'â†“ Back'    },
+              { fn: () => bringToFront(selected.id), title: 'Bring to front · â‡§]', disabled: zoneIndex >= zoneCount - 1, label: 'â‡ˆ Front' },
+              { fn: () => sendToBack(selected.id),   title: 'Send to back · â‡§[',  disabled: zoneIndex <= 0,            label: 'â‡Š Bottom' },
             ].map((btn, i) => (
               <button
                 key={i}
@@ -2399,7 +2399,7 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, zoom, onPointerDow
   const rawLines = (!isPhoto && !isShape && !isImage) ? wrapTextLines(displayText, zone.w - 16, zone.size ?? 32) : [];
 
   // Scale text to always fit zone height in the editor preview
-  // (zone.size stays unchanged â€” it's used for the final render; we only adjust the preview)
+  // (zone.size stays unchanged — it's used for the final render; we only adjust the preview)
   const rawTotalH = rawLines.length * (zone.size ?? 32) * (zone.lineHeight ?? 1.2);
   const previewFitScale = (rawTotalH > 0 && rawTotalH > zone.h) ? zone.h / rawTotalH : 1;
   const previewSize = (zone.size ?? 32) * previewFitScale;
@@ -2470,7 +2470,7 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, zoom, onPointerDow
               draggable={false}
             />
           ) : (
-            /* Image skeleton â€” grey bg + landscape icon */
+            /* Image skeleton — grey bg + landscape icon */
             <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block' }}>
               {/* Background */}
               <rect width={zone.w} height={zone.h} fill="rgba(107,122,114,0.14)" rx="4" />
@@ -2511,7 +2511,7 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, zoom, onPointerDow
       );
     }
     if (isPhoto) {
-      /* Photo placeholder â€” warm beige bg + Image icon, clipped to zone shape */
+      /* Photo placeholder — warm beige bg + Image icon, clipped to zone shape */
       const iconSize = Math.max(18, Math.min(zone.w, zone.h) * 0.28);
       const labelSz  = Math.max(9, Math.min(zone.w, zone.h) * 0.08);
       const bw = zone.photoBorderWidth ?? 0;
@@ -2556,7 +2556,7 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, zoom, onPointerDow
           )}
           <div className="relative h-full" style={{ display: 'flex', flexDirection: 'column', justifyContent: zone.verticalAlign === 'bottom' ? 'flex-end' : zone.verticalAlign === 'center' ? 'center' : 'flex-start', alignItems: zone.align === 'center' ? 'center' : zone.align === 'right' ? 'flex-end' : 'flex-start' }}>
             {lines.map((line, i) => (
-              <div key={i} style={{ ...textStyle, whiteSpace: 'nowrap' }}>{line || 'Â '}</div>
+              <div key={i} style={{ ...textStyle, whiteSpace: 'nowrap' }}>{line || ' '}</div>
             ))}
           </div>
         </div>
@@ -2613,11 +2613,11 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, zoom, onPointerDow
       {/* Label tag */}
       {!previewMode && (
         <span className="absolute pointer-events-none font-mono text-[9.5px] px-1.5 py-px rounded text-white whitespace-nowrap" style={{ background: dashColor, top: -2, left: 0, transform: 'translateY(-100%)' }}>
-          {zone.label}{zone.required && ' *'}{zone.locked && ' ðŸ”’'}{rotation !== 0 && ` ${rotation}Â°`}
+          {zone.label}{zone.required && ' *'}{zone.locked && ' ðŸ”’'}{rotation !== 0 && ` ${rotation}°`}
         </span>
       )}
 
-      {/* Rotation handle â€” sizes scale inversely with zoom so they're always 14px on screen */}
+      {/* Rotation handle — sizes scale inversely with zoom so they're always 14px on screen */}
       {selected && !previewMode && (
         <>
           {/* Stem line */}
@@ -2631,7 +2631,7 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, zoom, onPointerDow
           {/* Circle handle */}
           <div
             onPointerDown={onRotate}
-            title="Drag to rotate (â‡§ = snap 15Â°)"
+            title="Drag to rotate (â‡§ = snap 15°)"
             style={{
               position: 'absolute',
               width: 14 / zoom, height: 14 / zoom,
@@ -2655,7 +2655,7 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, zoom, onPointerDow
             <HandleEl key={dir} dir={dir} round={isPhoto && zone.shape === 'circle'} color={dashColor} zoom={zoom} onPointerDown={e => onHandle(e, dir)} />
           ))}
           <span className="absolute font-mono text-white whitespace-nowrap pointer-events-none" style={{ fontSize: 9.5 / zoom, background: dashColor, bottom: -26 / zoom, left: '50%', transform: 'translateX(-50%)', padding: `${2/zoom}px ${6/zoom}px`, borderRadius: 4/zoom }}>
-            {zone.w} Ã— {zone.h}{rotation !== 0 ? ` Â· ${rotation}Â°` : ''}
+            {zone.w} Ã— {zone.h}{rotation !== 0 ? ` · ${rotation}°` : ''}
           </span>
         </>
       )}

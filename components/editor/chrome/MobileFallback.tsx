@@ -1,6 +1,6 @@
 ﻿'use client';
 
-// D2.7 â€” Mobile fallback screen (viewport < 768px)
+// D2.7 — Mobile fallback screen (viewport < 768px)
 // Shows a cream-background nudge to open the editor on desktop.
 // Does NOT recreate the editor on phone.
 
@@ -99,7 +99,7 @@ export default function MobileFallback({ eventId, eventName, variantSlug }: Mobi
             fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
             color: '#6B7A72', letterSpacing: '0.1em',
             textTransform: 'uppercase', fontWeight: 600,
-          }}>Editor Â· Desktop required</div>
+          }}>Editor · Desktop required</div>
 
           {/* Icon */}
           <div style={{
@@ -217,7 +217,7 @@ export default function MobileFallback({ eventId, eventName, variantSlug }: Mobi
             color: '#1F4D3A', letterSpacing: '0.04em',
           }}>
             <Smartphone size={12} strokeWidth={1.8} />
-            <span>Editing on phone Â· coming later</span>
+            <span>Editing on phone · coming later</span>
           </div>
         </div>
 

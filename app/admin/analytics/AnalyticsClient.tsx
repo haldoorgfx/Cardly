@@ -76,7 +76,7 @@ export function AnalyticsClient({ stats, userGrowth, cardGrowth, planDist }: Pro
       {/* â”€â”€ User growth chart â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="bg-white border border-[#E5E0D4] rounded-2xl p-6">
         <h2 className="font-display font-semibold text-[16px] text-[#0F1F18] mb-1">User growth</h2>
-        <p className="text-[12px] text-[#6B7A72] mb-5">New signups per day â€” last 30 days</p>
+        <p className="text-[12px] text-[#6B7A72] mb-5">New signups per day — last 30 days</p>
         <ResponsiveContainer width="100%" height={200}>
           <AreaChart data={userGrowth} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
             <defs>
@@ -123,7 +123,7 @@ export function AnalyticsClient({ stats, userGrowth, cardGrowth, planDist }: Pro
       {/* â”€â”€ Cards generated chart â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="bg-white border border-[#E5E0D4] rounded-2xl p-6">
         <h2 className="font-display font-semibold text-[16px] text-[#0F1F18] mb-1">Cards generated</h2>
-        <p className="text-[12px] text-[#6B7A72] mb-5">Attendee card downloads per day â€” last 30 days</p>
+        <p className="text-[12px] text-[#6B7A72] mb-5">Attendee card downloads per day — last 30 days</p>
         <ResponsiveContainer width="100%" height={200}>
           <BarChart data={cardGrowth} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#E5E0D4" vertical={false} />

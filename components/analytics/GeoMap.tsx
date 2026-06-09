@@ -171,7 +171,7 @@ export default function GeoMap({ cityData, totalCards }: Props) {
 
         {/* Drag hint */}
         <div className="absolute bottom-3 left-3 pointer-events-none">
-          <span className="text-[9.5px] font-mono text-[#0F1F18]/30">drag to pan Â· scroll to zoom</span>
+          <span className="text-[9.5px] font-mono text-[#0F1F18]/30">drag to pan · scroll to zoom</span>
         </div>
 
         {/* No-data badge */}
@@ -198,7 +198,7 @@ export default function GeoMap({ cityData, totalCards }: Props) {
               />
               <span className="flex-1 text-[#0F1F18]/70 truncate">{city}</span>
               <span className="font-mono text-[#0F1F18]/50">
-                {pct !== null ? `${pct}%` : 'â€”'}
+                {pct !== null ? `${pct}%` : '—'}
               </span>
             </div>
           );

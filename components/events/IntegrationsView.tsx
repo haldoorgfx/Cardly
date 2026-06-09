@@ -93,7 +93,7 @@ export function IntegrationsView({ eventId }: Props) {
             Integrations
           </h1>
           <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>
-            Connect Karta to your stack Â·{' '}
+            Connect Karta to your stack ·{' '}
             <span style={{ color: '#1F4D3A', fontWeight: 500 }}>{builtinCount} of {totalCount}</span> built-in
           </p>
         </div>
@@ -120,7 +120,7 @@ export function IntegrationsView({ eventId }: Props) {
         <div>
           <p className="text-[13px] font-semibold" style={{ color: '#0F1F18' }}>Connect your account, don&apos;t rebuild.</p>
           <p className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>
-            Plug in the tools you already use â€” payments, CRM, comms and automation â€” and Karta keeps them in sync.
+            Plug in the tools you already use — payments, CRM, comms and automation — and Karta keeps them in sync.
           </p>
         </div>
       </div>

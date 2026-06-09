@@ -22,9 +22,9 @@ type Delivery = {
 };
 
 const INITIAL_ENDPOINTS: Endpoint[] = [
-  { url: 'https://api.acme.com/karta/webhook', events: 'registration.created, checkin.*', lastDelivery: '200 Â· 2m ago', status: 'Active' },
-  { url: 'https://hooks.zapier.com/hooks/abc123', events: 'card.shared', lastDelivery: '200 Â· 1h ago', status: 'Active' },
-  { url: 'https://crm.partner.io/ingest', events: 'registration.*', lastDelivery: '500 Â· 3h ago', status: 'Failing' },
+  { url: 'https://api.acme.com/karta/webhook', events: 'registration.created, checkin.*', lastDelivery: '200 · 2m ago', status: 'Active' },
+  { url: 'https://hooks.zapier.com/hooks/abc123', events: 'card.shared', lastDelivery: '200 · 1h ago', status: 'Active' },
+  { url: 'https://crm.partner.io/ingest', events: 'registration.*', lastDelivery: '500 · 3h ago', status: 'Failing' },
 ];
 
 const SAMPLE_DELIVERIES: Delivery[] = [
@@ -78,14 +78,14 @@ export function WebhooksView(_props: Props) {
     if (selectedEvents.length === 0) { setUrlError('Select at least one event type'); return; }
     setUrlError('');
     setSaving(true);
-    // Simulate save â€” in future this will POST to /api/events/[id]/webhooks
+    // Simulate save — in future this will POST to /api/events/[id]/webhooks
     await new Promise(r => setTimeout(r, 600));
     setSaving(false);
     setSaved(true);
     setEndpoints(prev => [{
       url: trimmed,
       events: selectedEvents.join(', '),
-      lastDelivery: 'â€”',
+      lastDelivery: '—',
       status: 'Active',
     }, ...prev]);
     setTimeout(() => setShowModal(false), 800);
@@ -311,7 +311,7 @@ export function WebhooksView(_props: Props) {
                 className="h-9 px-5 rounded-xl text-[13px] font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
                 style={{ background: saved ? '#2D7A4F' : '#1F4D3A', minWidth: 120 }}
               >
-                {saved ? 'âœ“ Saved' : saving ? 'Savingâ€¦' : 'Add endpoint'}
+                {saved ? 'âœ“ Saved' : saving ? 'Saving…' : 'Add endpoint'}
               </button>
             </div>
           </div>

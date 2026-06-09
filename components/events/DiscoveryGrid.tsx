@@ -111,7 +111,7 @@ function EventCard({ page, slug }: { page: PageWithSlug; slug: string }) {
       onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 4px 12px rgba(15,31,24,0.08), 0 24px 60px rgba(31,77,58,0.12)')}
       onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 1px 2px rgba(15,31,24,0.04)')}
     >
-      {/* Cover image â€” 4:3 aspect */}
+      {/* Cover image — 4:3 aspect */}
       <div className="relative overflow-hidden" style={{ paddingTop: '75%' }}>
         {page.cover_image_url ? (
           // eslint-disable-next-line @next/next/no-img-element

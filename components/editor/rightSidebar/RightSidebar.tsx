@@ -1,6 +1,6 @@
 ﻿'use client';
 
-// RightSidebar â€” context-switching panel matching editor-shared.jsx / D2.1â€“D2.3 design.
+// RightSidebar — context-switching panel matching editor-shared.jsx / D2.1–D2.3 design.
 //
 // Modes:
 //   preview     â†’ PreviewPanel
@@ -57,7 +57,7 @@ function SectionLabel({ children, count }: { children: React.ReactNode; count?: 
   return (
     <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: T.muted, letterSpacing: '0.1em', textTransform: 'uppercase' }} className="flex items-center gap-1.5">
       <span>{children}</span>
-      {count !== undefined && <span style={{ opacity: 0.7 }}>Â· {count}</span>}
+      {count !== undefined && <span style={{ opacity: 0.7 }}>· {count}</span>}
     </div>
   );
 }
@@ -357,7 +357,7 @@ export default function RightSidebar({
     />
   );
 
-  // 'event' or 'zone' â€” show event info or zone properties
+  // 'event' or 'zone' — show event info or zone properties
   return (
     <aside
       className="shrink-0 flex flex-col overflow-y-auto"

@@ -2,7 +2,7 @@
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'About Karta â€” The Event Platform',
+  title: 'About Karta — The Event Platform',
   description:
     'Karta started as a social card tool for event attendees. Then organizers asked for tickets. Then check-in. Then agenda. We built the whole platform. The Karta Card is still the feature nobody else has.',
   openGraph: {
@@ -61,7 +61,7 @@ function SparkleIcon() {
 export default function AboutPage() {
   return (
     <>
-      {/* â”€â”€ SECTION 1 â€” HERO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* â”€â”€ SECTION 1 — HERO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section
         style={{ background: C.cream, position: 'relative', overflow: 'hidden' }}
         className="border-b"
@@ -132,7 +132,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* â”€â”€ SECTION 2 â€” PLATFORM ORIGIN STORY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* â”€â”€ SECTION 2 — PLATFORM ORIGIN STORY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section style={{ background: C.cream }}>
         <div
           style={{
@@ -145,7 +145,7 @@ export default function AboutPage() {
             alignItems: 'start',
           }}
         >
-          {/* Left â€” narrative */}
+          {/* Left — narrative */}
           <div style={{ maxWidth: 520 }}>
             <h2
               style={{
@@ -188,12 +188,12 @@ export default function AboutPage() {
                 fontWeight: 500,
               }}
             >
-              The Karta Card never went away. It became the differentiator â€” the feature no
+              The Karta Card never went away. It became the differentiator — the feature no
               competitor has copied, the moment that turns every registration into a share.
             </p>
           </div>
 
-          {/* Right â€” platform feature card */}
+          {/* Right — platform feature card */}
           <div
             style={{
               borderRadius: 16,
@@ -290,7 +290,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* â”€â”€ SECTION 3 â€” THE DIFFERENTIATOR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* â”€â”€ SECTION 3 — THE DIFFERENTIATOR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section
         style={{
           background: 'rgba(232,239,235,0.40)',
@@ -309,9 +309,9 @@ export default function AboutPage() {
             alignItems: 'center',
           }}
         >
-          {/* Left â€” comparison cards */}
+          {/* Left — comparison cards */}
           <div style={{ display: 'flex', gap: 14, alignItems: 'stretch' }}>
-            {/* Card A â€” Other platforms */}
+            {/* Card A — Other platforms */}
             <div
               style={{
                 flex: 1,
@@ -349,7 +349,7 @@ export default function AboutPage() {
               </ul>
             </div>
 
-            {/* Card B â€” Karta */}
+            {/* Card B — Karta */}
             <div
               style={{
                 flex: 1,
@@ -398,7 +398,7 @@ export default function AboutPage() {
             </div>
           </div>
 
-          {/* Right â€” text */}
+          {/* Right — text */}
           <div>
             {/* gold pill overline */}
             <div
@@ -437,7 +437,7 @@ export default function AboutPage() {
 
             <p style={{ fontSize: 15, color: C.inkSoft, lineHeight: 1.65, marginBottom: 14 }}>
               When someone registers on Eventbrite, they get a confirmation email. When they register
-              on Karta, they get a personalized card â€” their photo, their name, your event brand â€”
+              on Karta, they get a personalized card — their photo, their name, your event brand —
               ready to post on Instagram or send on WhatsApp.
             </p>
 
@@ -462,7 +462,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* â”€â”€ SECTION 4 â€” VALUES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* â”€â”€ SECTION 4 — VALUES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section style={{ background: C.cream, padding: '80px 20px' }}>
         {/* header */}
         <div style={{ textAlign: 'center', marginBottom: 48 }}>
@@ -509,7 +509,7 @@ export default function AboutPage() {
             },
             {
               title: 'Built for Africa',
-              body: 'We built Karta for how events actually run in Africa â€” mobile-first, offline-capable, M-Pesa ready, WhatsApp-native. That said, anyone can use it anywhere.',
+              body: 'We built Karta for how events actually run in Africa — mobile-first, offline-capable, M-Pesa ready, WhatsApp-native. That said, anyone can use it anywhere.',
             },
             {
               title: 'Organizer-grade',
@@ -543,7 +543,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* â”€â”€ SECTION 5 â€” TEAM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* â”€â”€ SECTION 5 — TEAM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section style={{ background: C.cream, padding: '64px 20px' }}>
         <div style={{ maxWidth: 1060, margin: '0 auto' }}>
           <h2
@@ -621,9 +621,9 @@ export default function AboutPage() {
 
             {/* Open roles */}
             {[
-              { role: 'Product Designer',     initials: 'â€”' },
-              { role: 'Full-stack Engineer',  initials: 'â€”' },
-              { role: 'Growth',               initials: 'â€”' },
+              { role: 'Product Designer',     initials: '—' },
+              { role: 'Full-stack Engineer',  initials: '—' },
+              { role: 'Growth',               initials: '—' },
             ].map(({ role, initials }) => (
               <Link
                 key={role}
@@ -689,7 +689,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* â”€â”€ SECTION 6 â€” PRESS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* â”€â”€ SECTION 6 — PRESS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section
         style={{
           borderTop: `1px solid ${C.border}`,
@@ -735,7 +735,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* â”€â”€ SECTION 7 â€” FINAL CTA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* â”€â”€ SECTION 7 — FINAL CTA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section
         style={{
           background: `linear-gradient(135deg, ${C.primary} 0%, #2A6A50 60%, ${C.accent} 100%)`,
@@ -840,7 +840,7 @@ export default function AboutPage() {
               color: 'rgba(250,246,238,0.40)',
             }}
           >
-            Made in Djibouti ðŸ‡©ðŸ‡¯ Â· karta.cre8so.com
+            Made in Djibouti ðŸ‡©ðŸ‡¯ · karta.cre8so.com
           </p>
         </div>
       </section>

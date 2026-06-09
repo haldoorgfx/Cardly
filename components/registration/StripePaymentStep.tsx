@@ -100,7 +100,7 @@ function InnerForm({ returnUrl, amount, currency, eventTitle, ticketName }: Prop
           Payment
         </h2>
         <p className="text-[14px]" style={{ color: '#6B7A72' }}>
-          {ticketName} Â· {eventTitle}
+          {ticketName} · {eventTitle}
         </p>
       </div>
 
@@ -150,7 +150,7 @@ function InnerForm({ returnUrl, amount, currency, eventTitle, ticketName }: Prop
             <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
             </svg>
-            Processingâ€¦
+            Processing…
           </>
         ) : (
           <>Pay {formattedAmount} â†’</>

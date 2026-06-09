@@ -60,7 +60,7 @@ export function CardZoneFill({
                   className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
                   style={{ background: '#FAF6EE', border: `1px solid ${err ? '#B8423C' : '#E5E0D4'}`, color: '#0F1F18' }}
                 >
-                  <option value="">Selectâ€¦</option>
+                  <option value="">Select…</option>
                   {zone.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                 </select>
                 {err && <p className="text-[12px] mt-1" style={{ color: '#B8423C' }}>{err}</p>}

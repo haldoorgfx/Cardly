@@ -1,4 +1,4 @@
-﻿// Decorative event card mockup â€” used across hero, use-cases, how-it-works.
+﻿// Decorative event card mockup — used across hero, use-cases, how-it-works.
 // NOT connected to real event data. Pure visual prop.
 
 export type CardVariant = 'forest' | 'cream' | 'gold' | 'duotone';
@@ -30,7 +30,7 @@ export function CardMockup({
   width = 300,
   tilt = 0,
   variant = 'forest',
-  org = 'AYA SUMMIT Â· 2026',
+  org = 'AYA SUMMIT · 2026',
   event = "I'm attending Aya Summit.",
   role = "I'M ATTENDING",
   name = 'Aisha Ahmed',
@@ -116,7 +116,7 @@ export function CardMockup({
               {title}
             </div>
             <div style={{ fontSize: Math.round(width * 0.026), color: 'rgba(255,255,255,0.35)', fontFamily: 'Inter, system-ui, sans-serif', marginTop: 2, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-              {date} Â· {location}
+              {date} · {location}
             </div>
           </div>
         </div>

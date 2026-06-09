@@ -111,7 +111,7 @@ function LogoUploadCard({
             {state === 'uploading'
               ? <Loader2 size={11} strokeWidth={2} className="animate-spin" />
               : <Upload size={11} strokeWidth={2} />}
-            {state === 'uploading' ? 'Uploadingâ€¦' : 'Upload'}
+            {state === 'uploading' ? 'Uploading…' : 'Upload'}
           </button>
           {url && (
             <button
@@ -125,7 +125,7 @@ function LogoUploadCard({
         </div>
         {state === 'done' && (
           <div className="flex items-center gap-1 text-[11px] text-emerald-600">
-            <Check size={11} strokeWidth={2.5} /> Uploaded â€” save to apply
+            <Check size={11} strokeWidth={2.5} /> Uploaded — save to apply
           </div>
         )}
         {state === 'error' && (
@@ -199,11 +199,11 @@ export function ThemeEditorClient({ settings }: Props) {
         </p>
       </section>
 
-      {/* Logo upload â€” two variants */}
+      {/* Logo upload — two variants */}
       <section className="bg-white rounded-2xl border p-6" style={{ borderColor: '#E5E0D4' }}>
         <h2 className="font-display font-semibold text-[15px] text-[#0F1F18] mb-1">Logo</h2>
         <p className="text-[12px] text-[#6B7A72] mb-5">
-          Upload two variants â€” one for light backgrounds (front page), one for dark backgrounds (sidebar). Use transparent PNG or SVG.
+          Upload two variants — one for light backgrounds (front page), one for dark backgrounds (sidebar). Use transparent PNG or SVG.
         </p>
 
         <div className="flex gap-4">
@@ -229,7 +229,7 @@ export function ThemeEditorClient({ settings }: Props) {
           />
         </div>
 
-        <p className="mt-4 text-[11px] text-[#6B7A72]">PNG, JPG, WebP, or SVG Â· max 2 MB each</p>
+        <p className="mt-4 text-[11px] text-[#6B7A72]">PNG, JPG, WebP, or SVG · max 2 MB each</p>
       </section>
 
       {/* Colors */}
@@ -345,7 +345,7 @@ export function ThemeEditorClient({ settings }: Props) {
             style={{ background: '#E8C57E' }}
           >
             {saveState === 'saving' && <Loader2 size={13} strokeWidth={2} className="animate-spin" />}
-            {saveState === 'saving' ? 'Savingâ€¦' : 'Save changes'}
+            {saveState === 'saving' ? 'Saving…' : 'Save changes'}
           </button>
         </div>
       </div>

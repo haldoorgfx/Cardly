@@ -60,7 +60,7 @@ const SHORTCUTS = [
   { keys:['G'],            label:'Toggle grid' },
 ];
 
-/* â”€â”€ Element add button â€” compact toolbox style â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* â”€â”€ Element add button — compact toolbox style â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function AddBtn({
   icon, label, onClick, disabled,
 }: { icon:React.ReactNode; label:string; onClick:()=>void; disabled?:boolean }) {
@@ -287,7 +287,7 @@ function ElementsPanel({
             <AddBtn icon={<Tag size={14} strokeWidth={1.8}/>} label="Static text" onClick={()=>addZone('label')}/>
             <AddBtn
               icon={uploadingImage ? <Loader2 size={14} strokeWidth={2} className="animate-spin"/> : <Upload size={14} strokeWidth={1.8}/>}
-              label={uploadingImage ? 'Uploadingâ€¦' : 'Upload image'}
+              label={uploadingImage ? 'Uploading…' : 'Upload image'}
               onClick={()=>imageUploadRef.current?.click()}
               disabled={uploadingImage}
             />
@@ -364,7 +364,7 @@ function TemplatesPanel({
         </div>
       </div>
 
-      {/* Grid â€” 2-col, fills full panel width */}
+      {/* Grid — 2-col, fills full panel width */}
       <div style={{
         padding:'8px 10px 16px',
         display:'grid', gridTemplateColumns:'1fr 1fr', gap:8,
@@ -390,7 +390,7 @@ function TemplatesPanel({
                 boxShadow:'0 1px 3px rgba(15,31,24,0.06)',
               }}
             >
-              {/* Thumbnail â€” fills the button, taller 4:5 ratio */}
+              {/* Thumbnail — fills the button, taller 4:5 ratio */}
               <div style={{ position:'relative', width:'100%', aspectRatio:'4/5', background:T.cream }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={src} alt={cfg.name} style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }}/>
@@ -400,7 +400,7 @@ function TemplatesPanel({
                   </div>
                 )}
               </div>
-              {/* Name â€” sits below the image inside the card */}
+              {/* Name — sits below the image inside the card */}
               <div style={{
                 padding:'6px 8px 7px',
                 borderTop:`1px solid ${T.border}`,
@@ -516,7 +516,7 @@ function BrandPanel({
               : <Upload size={12} strokeWidth={2}/>}
           </span>
           <span style={{ fontFamily:'Inter,sans-serif', fontSize:11.5, fontWeight:600, color:T.ink }}>
-            {uploadingBrandAsset ? 'Uploadingâ€¦' : 'Upload logo / asset'}
+            {uploadingBrandAsset ? 'Uploading…' : 'Upload logo / asset'}
           </span>
         </button>
 
@@ -653,7 +653,7 @@ function BackgroundPanel({
   );
 }
 
-/* â”€â”€ Tab icon button â€” Canva-style: icon above label â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* â”€â”€ Tab icon button — Canva-style: icon above label â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function TabBtn({
   icon, label, active, onClick,
 }:{
@@ -675,7 +675,7 @@ function TabBtn({
         flexShrink:0,
       }}
     >
-      {/* Icon container â€” subtle background highlight when active */}
+      {/* Icon container — subtle background highlight when active */}
       <span style={{
         width:36, height:36, borderRadius:8,
         display:'flex', alignItems:'center', justifyContent:'center',
@@ -756,7 +756,7 @@ export default function LeftRail({
       borderRight:`1px solid ${T.border}`,
       background:T.cream,
     }}>
-      {/* â”€â”€ Icon strip â€” 72px wide, Canva-style â”€â”€ */}
+      {/* â”€â”€ Icon strip — 72px wide, Canva-style â”€â”€ */}
       <div style={{
         width:72, flexShrink:0,
         display:'flex', flexDirection:'column', alignItems:'stretch',
@@ -775,7 +775,7 @@ export default function LeftRail({
         ))}
       </div>
 
-      {/* â”€â”€ Panel content â€” 292px â”€â”€ */}
+      {/* â”€â”€ Panel content — 292px â”€â”€ */}
       <div style={{ flex:1, minWidth:0, display:'flex', flexDirection:'column', overflow:'hidden' }}>
 
         {tab==='elements' && (

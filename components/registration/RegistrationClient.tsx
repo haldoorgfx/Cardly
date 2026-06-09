@@ -580,7 +580,7 @@ export default function RegistrationClient({
                 </div>
 
                 <div>
-                  <label className="block text-[12px] mb-2" style={{ color: '#6B7A72' }}>Add your photo â€” appears on your Karta Card</label>
+                  <label className="block text-[12px] mb-2" style={{ color: '#6B7A72' }}>Add your photo — appears on your Karta Card</label>
                   <input ref={photoRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
                   {photoUrl ? (
                     <div
@@ -619,7 +619,7 @@ export default function RegistrationClient({
                   </p>
                   <div className="flex items-center gap-2 mb-6">
                     <span className="w-2 h-2 rounded-full" style={{ background: '#2D7A4F' }} />
-                    <span className="font-mono text-[12px]" style={{ color: '#6B7A72' }}>Encrypted Â· PCI-DSS</span>
+                    <span className="font-mono text-[12px]" style={{ color: '#6B7A72' }}>Encrypted · PCI-DSS</span>
                   </div>
                 </>
               )}
@@ -695,7 +695,7 @@ export default function RegistrationClient({
                   className="ml-auto px-6 py-2.5 rounded-xl font-medium text-[14px] text-white disabled:opacity-50"
                   style={{ background: '#1F4D3A' }}
                 >
-                  {submitting ? 'Confirmingâ€¦' : 'Confirm registration'}
+                  {submitting ? 'Confirming…' : 'Confirm registration'}
                 </button>
               )}
             </div>
@@ -742,7 +742,7 @@ export default function RegistrationClient({
                   <div className="font-display font-medium text-[15px]" style={{ color: '#0F1F18' }}>{eventName}</div>
                   {(startsAt || city) && (
                     <div className="font-mono text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>
-                      {startsAt ? dateStr(startsAt) : ''}{city ? ` Â· ${city}` : ''}
+                      {startsAt ? dateStr(startsAt) : ''}{city ? ` · ${city}` : ''}
                     </div>
                   )}
                 </div>
@@ -784,7 +784,7 @@ export default function RegistrationClient({
                   <div className="font-display font-medium text-[15px]" style={{ color: '#0F1F18' }}>{eventName}</div>
                   {(startsAt || city) && (
                     <div className="font-mono text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>
-                      {startsAt ? dateStr(startsAt) : ''}{city ? ` Â· ${city}` : ''}
+                      {startsAt ? dateStr(startsAt) : ''}{city ? ` · ${city}` : ''}
                     </div>
                   )}
                 </div>
@@ -807,7 +807,7 @@ export default function RegistrationClient({
                     <span className="font-mono font-medium text-[22px]" style={{ color: '#1F4D3A' }}>{fmt(total, selectedTicket.currency)}</span>
                   </div>
 
-                  {/* Card teaser â€” shown at payment step when no canvas variant */}
+                  {/* Card teaser — shown at payment step when no canvas variant */}
                   {step === 2 && (
                     <div className="mt-5 pt-4" style={{ borderTop: '1px solid #E5E0D4' }}>
                       <div

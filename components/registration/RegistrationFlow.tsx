@@ -39,13 +39,13 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
   const [step, setStep] = useState(0);
   const [selectedTicketId, setSelectedTicketId] = useState(preselectedTicketId ?? tickets[0]?.id ?? '');
 
-  // Step 1 â€” personal details
+  // Step 1 — personal details
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [customFieldValues, setCustomFieldValues] = useState<Record<string, string>>({});
 
-  // Step 2 (paid) â€” payment state (shared across processors)
+  // Step 2 (paid) — payment state (shared across processors)
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [pendingRegId, setPendingRegId] = useState<string | null>(null);
   const [pendingRegToken, setPendingRegToken] = useState<string | null>(null);
@@ -54,7 +54,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
   const [paymentProcessor, setPaymentProcessor] = useState<'stripe' | 'flutterwave' | 'waafipay' | 'free'>('stripe');
   const [creatingPayment, setCreatingPayment] = useState(false);
 
-  // Step 2 (free) â€” card zones
+  // Step 2 (free) — card zones
   const [zoneValues, setZoneValues] = useState<Record<string, string>>({});
   const [photoFiles, setPhotoFiles] = useState<Record<string, File>>({});
   const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({});
@@ -252,10 +252,10 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
           try {
             sessionStorage.setItem(`card_${qr_code_token}`, cardDataUrl);
           } catch {
-            // sessionStorage might be full â€” ignore
+            // sessionStorage might be full — ignore
           }
         }
-        // If render fails, we still proceed â€” the user has their QR code
+        // If render fails, we still proceed — the user has their QR code
       }
 
       // 3. Redirect to confirm page
@@ -309,7 +309,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
         <div className="grid gap-6 lg:gap-8" style={{ gridTemplateColumns: 'minmax(0,1fr) 300px' }}>
           {/* â”€â”€ Form area â”€â”€ */}
           <div>
-            {/* Step 0 â€” Ticket selection */}
+            {/* Step 0 — Ticket selection */}
             {step === 0 && (
               <div>
                 <h2 className="font-display font-semibold text-[22px] mb-2" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
@@ -368,7 +368,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
               </div>
             )}
 
-            {/* Step 1 â€” Details */}
+            {/* Step 1 — Details */}
             {step === 1 && (
               <div>
                 <h2 className="font-display font-semibold text-[22px] mb-2" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
@@ -421,7 +421,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
               </div>
             )}
 
-            {/* Step 2 â€” Payment (paid) or Card personalisation (free) */}
+            {/* Step 2 — Payment (paid) or Card personalisation (free) */}
             {step === 2 && isPaid && pendingRegToken && (
               <>
                 {paymentProcessor === 'stripe' && clientSecret && (
@@ -450,7 +450,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                     <svg className="animate-spin mx-auto mb-3" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1F4D3A" strokeWidth="2.5">
                       <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
                     </svg>
-                    <p className="text-[14px]" style={{ color: '#6B7A72' }}>Redirecting to Flutterwaveâ€¦</p>
+                    <p className="text-[14px]" style={{ color: '#6B7A72' }}>Redirecting to Flutterwave…</p>
                   </div>
                 )}
               </>
@@ -542,7 +542,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
           </div>
         </div>
 
-        {/* â”€â”€ Bottom nav bar â€” hidden on paid step 2 (Stripe has its own submit) â”€â”€ */}
+        {/* â”€â”€ Bottom nav bar — hidden on paid step 2 (Stripe has its own submit) â”€â”€ */}
         {!(step === 2 && isPaid) && (
           <div
             className="fixed bottom-0 left-0 right-0 flex items-center justify-between gap-4 px-4 sm:px-6 py-4 z-30"
@@ -569,7 +569,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                     <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                       <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
                     </svg>
-                    Setting upâ€¦
+                    Setting up…
                   </>
                 ) : (
                   <>Continue <ChevronRight size={16} strokeWidth={2} /></>
@@ -587,7 +587,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                     <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                       <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
                     </svg>
-                    Generating your cardâ€¦
+                    Generating your card…
                   </>
                 ) : (
                   'Confirm & get my card â†’'
@@ -639,7 +639,7 @@ function CustomFieldInput({ field, value, error, onChange }: {
           className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
           style={{ background: 'white', border: `1px solid ${error ? '#B8423C' : '#E5E0D4'}`, color: value ? '#0F1F18' : '#6B7A72' }}
         >
-          <option value="">Selectâ€¦</option>
+          <option value="">Select…</option>
           {opts.map(o => <option key={o} value={o}>{o}</option>)}
         </select>
       </RField>
