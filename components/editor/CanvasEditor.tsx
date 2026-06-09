@@ -256,6 +256,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [fontSearch, setFontSearch]   = useState('');
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [saveError, setSaveError]       = useState(false);
   const [copiedStyle, setCopiedStyle] = useState<Partial<Zone> | null>(null);
   const [styleFlash, setStyleFlash]   = useState(false);
   const [aspectLock, setAspectLock]   = useState(false);
@@ -407,8 +408,10 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
           { attempts: 3, baseDelay: 1000 },
         );
         setSavedAt(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+        setSaveError(false);
       } catch {
-        // Silent — next edit will trigger another save attempt
+        // Show a visible save-failed indicator so the designer knows to retry
+        setSaveError(true);
       }
     }, 800);
   }, [eventId]);
@@ -1130,6 +1133,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
         undo={undo}
         redo={redo}
         savedAt={savedAt}
+        saveError={saveError}
         previewMode={previewMode}
         setPreviewMode={setPreviewMode}
         showShortcuts={showShortcuts}

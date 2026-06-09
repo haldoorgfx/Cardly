@@ -20,6 +20,7 @@ interface TopBarProps {
   undo: () => void;
   redo: () => void;
   savedAt: string;
+  saveError: boolean;
   previewMode: boolean;
   setPreviewMode: (fn: (p: boolean) => boolean) => void;
   showShortcuts: boolean;
@@ -39,7 +40,7 @@ export default function TopBar({
   previewMode, setPreviewMode,
   showShortcuts, setShowShortcuts,
   selected, copiedStyle, styleFlash, copyStyle, pasteStyle,
-  eventSlug, router,
+  eventSlug, router, saveError,
 }: TopBarProps) {
   return (
     <header
@@ -114,9 +115,18 @@ export default function TopBar({
       </div>
 
       {/* Saved indicator */}
-      <div className="flex items-center gap-1.5 text-[11px] text-ink/45 font-mono mx-1 shrink-0">
-        <CheckCircle2 size={12} strokeWidth={2.2} className="text-success" />
-        <span>Saved {savedAt}</span>
+      <div className="flex items-center gap-1.5 text-[11px] font-mono mx-1 shrink-0">
+        {saveError ? (
+          <>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#B8423C" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+            <span className="text-[#B8423C]">Save failed — edit to retry</span>
+          </>
+        ) : (
+          <>
+            <CheckCircle2 size={12} strokeWidth={2.2} className="text-success" />
+            <span className="text-ink/45">Saved {savedAt}</span>
+          </>
+        )}
       </div>
 
       {/* Copy / paste style (only when a zone is selected) */}
