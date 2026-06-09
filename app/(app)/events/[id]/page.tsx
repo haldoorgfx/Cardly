@@ -33,6 +33,15 @@ const STATUS_STYLE = {
   archived:  { label: 'Archived', cls: 'bg-[#FAF6EE] text-[#6B7A72] border-[#E5E0D4]',     dot: '#6B7A72', pulse: false },
 };
 
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<import('next').Metadata> {
+  const { id } = await params;
+  const admin = createAdminClient();
+  const { data: event } = await admin.from('events').select('name').eq('id', id).single();
+  return {
+    title: event?.name ?? 'Event Overview',
+  };
+}
+
 export default async function EventDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = createClient();
@@ -116,7 +125,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
           ))}
         </svg>
         <div className="relative max-w-[1100px] mx-auto px-6 lg:px-8 h-full flex flex-col justify-end pb-5">
-          <div className="flex items-end justify-between gap-4 flex-wrap">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4">
             <div>
               <span className={`inline-flex items-center gap-1.5 text-[10px] font-mono tracking-[0.1em] uppercase px-2 py-0.5 rounded-full border bg-[#FAF6EE]/95 mb-3 ${st.cls}`}>
                 <span className={`w-1.5 h-1.5 rounded-full ${st.pulse ? 'animate-pulse' : ''}`} style={{ background: st.dot }} />
@@ -149,7 +158,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                 );
               })()}
             </div>
-            <div className="flex items-center gap-2 shrink-0 pb-0.5">
+            <div className="flex items-center gap-2 shrink-0 sm:pb-0.5">
               <EventDetailActions eventId={id} eventName={event.name} status={event.status} />
               <Link href={`/events/${id}/publish`}
                 className="inline-flex items-center gap-1.5 h-8 px-3.5 text-[13px] font-semibold rounded-lg transition"
@@ -164,20 +173,22 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
       <div className="max-w-[1100px] mx-auto px-6 lg:px-8 py-6 space-y-6">
 
         {/* ── Stats bar ── */}
-        <div className="bg-white rounded-2xl border px-6 py-4 flex flex-wrap items-center gap-x-8 gap-y-3"
+        <div className="bg-white rounded-2xl border px-5 py-4"
           style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
-          {[
-            { value: registrations.toLocaleString(), label: 'registered' },
-            { value: revenueDisplay, label: 'revenue' },
-            { value: `${checkedIn.toLocaleString()} checked in (${checkInRate}%)`, label: '' },
-            { value: event.download_count.toLocaleString(), label: 'cards shared' },
-          ].map((s, i) => (
-            <div key={i} className="flex items-baseline gap-2">
-              <span className="font-mono text-[20px] text-[#0F1F18] tracking-tight leading-none font-bold">{s.value}</span>
-              {s.label && <span className="text-[13px] text-[#6B7A72]">{s.label}</span>}
-              {i < 3 && <span className="text-[#E5E0D4] hidden sm:inline ml-3">·</span>}
-            </div>
-          ))}
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center gap-x-8 gap-y-3">
+            {[
+              { value: registrations.toLocaleString(), label: 'registered' },
+              { value: revenueDisplay, label: 'revenue' },
+              { value: checkedIn > 0 ? `${checkedIn} (${checkInRate}%)` : `${checkInRate}%`, label: 'checked in' },
+              { value: event.download_count.toLocaleString(), label: 'cards shared' },
+            ].map((s, i) => (
+              <div key={i} className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
+                <span className="font-mono text-[18px] sm:text-[20px] text-[#0F1F18] tracking-tight leading-none font-bold">{s.value}</span>
+                <span className="text-[11px] sm:text-[13px] text-[#6B7A72]">{s.label}</span>
+                {i < 3 && <span className="text-[#E5E0D4] hidden sm:inline ml-3">·</span>}
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* ── Attention items ── */}
