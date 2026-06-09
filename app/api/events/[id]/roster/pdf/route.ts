@@ -45,7 +45,8 @@ export async function GET(_req: NextRequest, { params }: Params) {
       },
     });
   } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
     console.error('[roster/pdf]', err);
-    return NextResponse.json({ error: 'Failed to generate PDF' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to generate PDF', detail: msg }, { status: 500 });
   }
 }
