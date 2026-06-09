@@ -1,16 +1,58 @@
 import { withSentryConfig } from '@sentry/nextjs';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Inline webpack plugin — copies pdfkit's AFM font-metric files into
+// .next/server/chunks/data/ during the server build.  At runtime the bundled
+// pdfkit code resolves __dirname to that same chunks/ directory, so the files
+// are found correctly.  No extra npm package needed.
+class CopyPdfkitAfmData {
+  apply(compiler) {
+    compiler.hooks.done.tapAsync('CopyPdfkitAfmData', (stats, callback) => {
+      try {
+        const srcDir  = path.join(__dirname, 'node_modules/pdfkit/js/data');
+        const destDir = path.join(__dirname, '.next/server/chunks/data');
+        if (fs.existsSync(srcDir)) {
+          fs.mkdirSync(destDir, { recursive: true });
+          let copied = 0;
+          for (const file of fs.readdirSync(srcDir)) {
+            fs.copyFileSync(path.join(srcDir, file), path.join(destDir, file));
+            copied++;
+          }
+          if (copied > 0) {
+            console.log(`[CopyPdfkitAfmData] copied ${copied} files → .next/server/chunks/data/`);
+          }
+        }
+      } catch (e) {
+        console.warn('[CopyPdfkitAfmData] warning:', e.message);
+      }
+      callback();
+    });
+  }
+}
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
     outputFileTracingIncludes: {
       '/api/render': ['./public/fonts/**/*'],
-      // Include pdfkit's runtime data files (AFM font metrics) so the
-      // serverless function can read them via __dirname at runtime.
-      '/api/events/[id]/roster/pdf':  ['./node_modules/pdfkit/js/data/**/*'],
-      '/api/events/[id]/revenue/pdf': ['./node_modules/pdfkit/js/data/**/*'],
-      '/api/events/[id]/agenda/pdf':  ['./node_modules/pdfkit/js/data/**/*'],
+      // pdfkit AFM font-metric files are copied to .next/server/chunks/data/
+      // by the CopyPdfkitAfmData webpack plugin above (that's the __dirname
+      // path pdfkit resolves at runtime in the bundled chunk).
+      '/api/events/[id]/roster/pdf':  ['./.next/server/chunks/data/**/*'],
+      '/api/events/[id]/revenue/pdf': ['./.next/server/chunks/data/**/*'],
+      '/api/events/[id]/agenda/pdf':  ['./.next/server/chunks/data/**/*'],
     },
+  },
+
+  webpack(config, { isServer }) {
+    if (isServer) {
+      config.plugins.push(new CopyPdfkitAfmData());
+    }
+    return config;
   },
 
   // ── Security headers ──────────────────────────────────────────────────────
