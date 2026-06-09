@@ -35,7 +35,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
     const slug = event.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40);
     const filename = `karta-roster-${slug}.pdf`;
 
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(pdfBuffer as unknown as BodyInit, {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',

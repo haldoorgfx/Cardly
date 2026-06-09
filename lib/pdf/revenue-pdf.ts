@@ -1,10 +1,9 @@
 import {
   streamToBuffer, drawHeader, drawFooter, drawStatBox,
-  drawTableHeader, drawTableRow, drawRule, drawSectionHeading,
-  statusColor, statusLabel, fmtCurrency, today,
+  drawTableHeader, drawTableRow, fmtCurrency, today,
   type ColDef,
 } from './helpers';
-import { C, M, CW, PW, PH } from './brand';
+import { C, M, CW, PH } from './brand';
 
 interface Reg {
   id: string;

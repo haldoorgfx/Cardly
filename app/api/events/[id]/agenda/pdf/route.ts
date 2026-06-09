@@ -68,13 +68,14 @@ export async function GET(_req: NextRequest, { params }: Params) {
 
     if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-    const days = groupByDay(sessions ?? []);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const days = groupByDay((sessions ?? []) as any[]);
     const pdfBuffer = await generateAgendaPDF(event.name, days);
 
     const slug = event.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40);
     const filename = `karta-agenda-${slug}.pdf`;
 
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(pdfBuffer as unknown as BodyInit, {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',

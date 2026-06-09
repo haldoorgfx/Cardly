@@ -1,7 +1,7 @@
 import {
-  streamToBuffer, drawHeader, drawFooter, drawRule, drawSectionHeading, today,
+  streamToBuffer, drawHeader, drawFooter, today,
 } from './helpers';
-import { C, M, CW, PW, PH } from './brand';
+import { C, M, CW, PH } from './brand';
 
 interface Speaker { name: string; title?: string | null; company?: string | null }
 interface Session {
