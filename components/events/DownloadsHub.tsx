@@ -1,6 +1,6 @@
 'use client';
 
-import { Users, CalendarDays, TrendingUp, IdCard, ExternalLink } from 'lucide-react';
+import { Users, CalendarDays, TrendingUp, IdCard, ExternalLink, FileSpreadsheet, Printer } from 'lucide-react';
 import Link from 'next/link';
 
 interface Reg {
@@ -139,18 +139,6 @@ export function DownloadsHub({ eventId, eventName, regs, sessions, ticketTypes, 
     downloadBlob(csv, `karta-roster-${slug}.csv`);
   }
 
-  function downloadRosterJSON() {
-    const data = regs.map(r => ({
-      name: r.attendee_name,
-      ticket_type: ticketTypes.find(t => t.id === r.ticket_type_id)?.name ?? null,
-      amount_paid: r.amount_paid,
-      currency: r.currency,
-      status: r.status,
-      registered_at: r.created_at,
-    }));
-    downloadBlob(JSON.stringify(data, null, 2), `karta-roster-${slug}.json`, 'application/json;charset=utf-8;');
-  }
-
   // ── Agenda ───────────────────────────────────────────────────────────────────
 
   function downloadAgendaCSV() {
@@ -204,11 +192,21 @@ export function DownloadsHub({ eventId, eventName, regs, sessions, ticketTypes, 
         <DownloadCard
           icon={<Users size={18} strokeWidth={1.7} />}
           title="Attendee Roster"
-          description="Full list of registered attendees with status and ticket info"
+          description="Full list of registered attendees — opens directly in Excel or Google Sheets"
           actions={
             <>
-              <PillBtn onClick={downloadRosterCSV} variant="green">CSV</PillBtn>
-              <PillBtn onClick={downloadRosterJSON} variant="grey">JSON</PillBtn>
+              <PillBtn onClick={downloadRosterCSV} variant="green">
+                <FileSpreadsheet size={13} strokeWidth={2} /> Spreadsheet
+              </PillBtn>
+              <Link
+                href={`/events/${eventId}/roster/print`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12.5px] font-medium transition hover:opacity-80"
+                style={{ background: 'white', color: '#3A4A42', border: '1px solid #E5E0D4' }}
+              >
+                <Printer size={13} strokeWidth={2} /> Print / PDF <ExternalLink size={11} strokeWidth={2} />
+              </Link>
             </>
           }
         />
@@ -220,7 +218,9 @@ export function DownloadsHub({ eventId, eventName, regs, sessions, ticketTypes, 
           description="Full event schedule with speakers and tracks"
           actions={
             <>
-              <PillBtn onClick={downloadAgendaCSV} variant="green">CSV</PillBtn>
+              <PillBtn onClick={downloadAgendaCSV} variant="green">
+                <FileSpreadsheet size={13} strokeWidth={2} /> Spreadsheet
+              </PillBtn>
               <Link
                 href={`/events/${eventId}/agenda/print`}
                 target="_blank"
@@ -228,7 +228,7 @@ export function DownloadsHub({ eventId, eventName, regs, sessions, ticketTypes, 
                 className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12.5px] font-medium transition hover:opacity-80"
                 style={{ background: 'white', color: '#3A4A42', border: '1px solid #E5E0D4' }}
               >
-                Print / PDF <ExternalLink size={11} strokeWidth={2} />
+                <Printer size={13} strokeWidth={2} /> Print / PDF <ExternalLink size={11} strokeWidth={2} />
               </Link>
             </>
           }
@@ -241,7 +241,18 @@ export function DownloadsHub({ eventId, eventName, regs, sessions, ticketTypes, 
           description="Financial summary and ticket sales breakdown"
           actions={
             <>
-              <PillBtn onClick={downloadRevenueCSV} variant="green">CSV</PillBtn>
+              <PillBtn onClick={downloadRevenueCSV} variant="green">
+                <FileSpreadsheet size={13} strokeWidth={2} /> Spreadsheet
+              </PillBtn>
+              <Link
+                href={`/events/${eventId}/revenue/print`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12.5px] font-medium transition hover:opacity-80"
+                style={{ background: 'white', color: '#3A4A42', border: '1px solid #E5E0D4' }}
+              >
+                <Printer size={13} strokeWidth={2} /> Print / PDF <ExternalLink size={11} strokeWidth={2} />
+              </Link>
             </>
           }
         />
