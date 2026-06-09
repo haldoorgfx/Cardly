@@ -16,7 +16,7 @@ const KNOWN_CITIES = [
   { city: 'Lagos',     lat:  6.52,  lng:   3.37 },
   { city: 'Dubai',     lat: 25.20,  lng:  55.27 },
   { city: 'Singapore', lat:  1.35,  lng: 103.82 },
-  { city: 'SÃ£o Paulo', lat: -23.55, lng: -46.63 },
+  { city: 'São Paulo', lat: -23.55, lng: -46.63 },
   { city: 'Nairobi',   lat: -1.29,  lng:  36.82 },
   { city: 'Mumbai',    lat: 19.08,  lng:  72.88 },
   { city: 'Sydney',    lat: -33.87, lng: 151.21 },

@@ -1220,7 +1220,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
               zIndex: 10, pointerEvents: 'none', whiteSpace: 'nowrap',
             }}>
               <span style={{ color: '#6B7A72' }}>canvas</span>
-              <span style={{ color: '#0F1F18', fontWeight: 500 }}>{bgW} Ã— {bgH} px</span>
+              <span style={{ color: '#0F1F18', fontWeight: 500 }}>{bgW} &times; {bgH} px</span>
               <span style={{ width: 1, height: 12, background: '#E5E0D4' }} />
               <span style={{ color: '#6B7A72' }}>{Math.round(zoom * 100)}%</span>
             </div>
@@ -1410,7 +1410,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
                     }}
                     onPointerCancel={() => { toolbarDragRef.current = null; }}
                   >
-                    {/* 2Ã—3 dot grip */}
+                    {/* 2x3 dot grip */}
                     <svg width="8" height="12" viewBox="0 0 8 12" fill="currentColor">
                       <circle cx="2" cy="2"  r="1.2"/><circle cx="6" cy="2"  r="1.2"/>
                       <circle cx="2" cy="6"  r="1.2"/><circle cx="6" cy="6"  r="1.2"/>
@@ -2655,7 +2655,7 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, zoom, onPointerDow
             <HandleEl key={dir} dir={dir} round={isPhoto && zone.shape === 'circle'} color={dashColor} zoom={zoom} onPointerDown={e => onHandle(e, dir)} />
           ))}
           <span className="absolute font-mono text-white whitespace-nowrap pointer-events-none" style={{ fontSize: 9.5 / zoom, background: dashColor, bottom: -26 / zoom, left: '50%', transform: 'translateX(-50%)', padding: `${2/zoom}px ${6/zoom}px`, borderRadius: 4/zoom }}>
-            {zone.w} Ã— {zone.h}{rotation !== 0 ? ` · ${rotation}°` : ''}
+            {zone.w} &times; {zone.h}{rotation !== 0 ? ` · ${rotation}°` : ''}
           </span>
         </>
       )}
@@ -2672,7 +2672,7 @@ function HandleEl({ dir, round, color, zoom, onPointerDown }: {
   dir: string; round: boolean; color: string; zoom: number;
   onPointerDown: (e: React.PointerEvent) => void;
 }) {
-  /* Always 12Ã—12 px on screen regardless of canvas zoom */
+  /* Always 12x12 px on screen regardless of canvas zoom */
   const sz  = 12 / zoom;
   const h   = sz / 2;
   const bw  = 2 / zoom;

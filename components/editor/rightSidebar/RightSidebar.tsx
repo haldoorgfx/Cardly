@@ -131,7 +131,7 @@ function EventPanel({
             color: T.ink,
           }}
         >
-          {bgW} Ã— {bgH} px
+          {bgW} &times; {bgH} px
         </div>
       </PanelCard>
 
@@ -162,7 +162,7 @@ function EventPanel({
             </div>
             {bgW > 0 && (
               <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: T.muted, marginTop: 2, letterSpacing: '0.02em' }}>
-                {bgW} Ã— {bgH}
+                {bgW} &times; {bgH}
               </div>
             )}
             <label

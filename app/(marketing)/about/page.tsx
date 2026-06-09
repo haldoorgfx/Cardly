@@ -214,7 +214,7 @@ export default function AboutPage() {
               What Karta does today
             </p>
 
-            {/* 3Ã—3 chip grid */}
+            {/* 3x3 chip grid */}
             <div
               style={{
                 display: 'grid',

@@ -217,7 +217,7 @@ export default function VariantsTabs({
             letterSpacing: '0.04em',
           }}
         >
-          {bgW} Ã— {bgH} px
+          {bgW} &times; {bgH} px
         </span>
       )}
     </div>
