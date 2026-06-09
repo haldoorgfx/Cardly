@@ -2,19 +2,32 @@ import { withSentryConfig } from '@sentry/nextjs';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // pdfkit reads AFM font metrics from node_modules at runtime — it must NOT
-  // be bundled; instead tell Vercel to trace and include its data files.
-  serverExternalPackages: ['pdfkit'],
-
   experimental: {
     outputFileTracingIncludes: {
       '/api/render': ['./public/fonts/**/*'],
-      // Include pdfkit's bundled AFM/font data so the serverless function
-      // can load Helvetica metrics at runtime
+      // Include pdfkit's runtime data files (AFM font metrics) so the
+      // serverless function can read them via __dirname at runtime.
       '/api/events/[id]/roster/pdf':  ['./node_modules/pdfkit/js/data/**/*'],
       '/api/events/[id]/revenue/pdf': ['./node_modules/pdfkit/js/data/**/*'],
       '/api/events/[id]/agenda/pdf':  ['./node_modules/pdfkit/js/data/**/*'],
     },
+  },
+
+  webpack(config, { isServer }) {
+    if (isServer) {
+      // pdfkit uses dynamic require() calls to load AFM font data files at
+      // runtime using __dirname. If webpack bundles it, those require() paths
+      // break. Mark it as an external so Node resolves it from node_modules
+      // at runtime — outputFileTracingIncludes above ensures the files travel
+      // with the serverless function.
+      const existing = Array.isArray(config.externals)
+        ? config.externals
+        : config.externals
+          ? [config.externals]
+          : [];
+      config.externals = [...existing, 'pdfkit'];
+    }
+    return config;
   },
 
   // ── Security headers ──────────────────────────────────────────────────────
