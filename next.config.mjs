@@ -13,23 +13,6 @@ const nextConfig = {
     },
   },
 
-  webpack(config, { isServer }) {
-    if (isServer) {
-      // pdfkit uses dynamic require() calls to load AFM font data files at
-      // runtime using __dirname. If webpack bundles it, those require() paths
-      // break. Mark it as an external so Node resolves it from node_modules
-      // at runtime — outputFileTracingIncludes above ensures the files travel
-      // with the serverless function.
-      const existing = Array.isArray(config.externals)
-        ? config.externals
-        : config.externals
-          ? [config.externals]
-          : [];
-      config.externals = [...existing, 'pdfkit'];
-    }
-    return config;
-  },
-
   // ── Security headers ──────────────────────────────────────────────────────
   // Applied to every response. Blocks clickjacking, MIME sniffing, XSS, etc.
   async headers() {
