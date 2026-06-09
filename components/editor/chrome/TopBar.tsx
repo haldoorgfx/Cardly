@@ -169,9 +169,9 @@ export default function TopBar({
           <span className="text-[10px] font-mono opacity-50 ml-0.5">⌘P</span>
         </button>
 
-        {/* Test — opens attendee page in new tab */}
+        {/* Test — opens attendee page in new tab with preview bypass */}
         <a
-          href={`/c/${eventSlug}`}
+          href={`/c/${eventSlug}?preview=${eventId}`}
           target="_blank"
           rel="noopener noreferrer"
           title="Preview attendee experience"

@@ -818,10 +818,16 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
   const [addOpen, setAddOpen]         = useState(false);
   const [importOpen, setImportOpen]   = useState(false);
   const searchTimeout                 = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isFirstRender                 = useRef(true);
   const PAGE = 50;
 
   // Server-side search: debounce 300ms then re-fetch from offset 0
+  // Skip on initial mount — server already provided data; only re-fetch when query/filter changes
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     if (searchTimeout.current) clearTimeout(searchTimeout.current);
     searchTimeout.current = setTimeout(async () => {
       setLoading(true);

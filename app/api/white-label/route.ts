@@ -14,7 +14,14 @@ export async function GET() {
     .eq('user_id', user.id)
     .single();
 
-  return NextResponse.json(data ?? {});
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const result: Record<string, any> = data ?? {};
+  // Normalize legacy purple palette colors → forest green
+  const LEGACY_COLORS = ['#7300ff', '#6c63ff', '#6366f1', '#8b5cf6', '#7c3aed'];
+  if (result.primary_color && LEGACY_COLORS.includes((result.primary_color as string).toLowerCase())) {
+    result.primary_color = '#1F4D3A';
+  }
+  return NextResponse.json(result);
 }
 
 export async function POST(req: NextRequest) {
