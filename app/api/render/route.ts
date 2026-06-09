@@ -448,12 +448,14 @@ export async function POST(req: NextRequest) {
   // Link the generated card URL back to the registration row so the Registrations
   // table CARD column shows a download link instead of "—".
   if (registrationId && outputUrl) {
-    supabase
+    void supabase
       .from('registrations')
       .update({ karta_card_url: outputUrl })
       .eq('id', registrationId)
-      .then(() => {/* best-effort */})
-      .catch(() => {/* non-critical */});
+      .then(
+        () => { /* best-effort */ },
+        () => { /* non-critical */ },
+      );
   }
 
   // Fire counters — AWAIT so the function doesn't freeze before they land.
