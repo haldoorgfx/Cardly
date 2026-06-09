@@ -1,6 +1,6 @@
 import {
   streamToBuffer, drawHeader, drawFooter, drawStatBox,
-  drawTableHeader, drawTableRow, fmtCurrency, today,
+  drawTableHeader, drawTableRow, drawRule, drawSectionHeading, fmtCurrency, today,
   type ColDef,
 } from './helpers';
 import { C, M, CW, PH } from './brand';

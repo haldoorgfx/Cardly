@@ -1,5 +1,7 @@
-import type PDFDocumentType from 'pdfkit';
-import { C, M, CW, PW } from './brand';
+// pdfkit uses `export =` (CommonJS), so we must import as a value and derive the instance type
+import PDFDocument from 'pdfkit';
+type PDFDocumentType = InstanceType<typeof PDFDocument>;
+import { C, M, CW, PW, PH } from './brand';
 
 // ── Collect pdfkit stream into a Buffer ───────────────────────────────────────
 export function streamToBuffer(doc: PDFDocumentType): Promise<Buffer> {
