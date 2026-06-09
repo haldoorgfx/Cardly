@@ -135,7 +135,7 @@ export function PublicEventPageClient({
               style={{ color: 'rgba(255,255,255,0.85)', fontSize: 14, fontFamily: 'Inter, system-ui, sans-serif' }}
             >
               <div>{dateStr}</div>
-              <div className="mt-1">{timeStr} â€“ {endTimeStr}</div>
+              <div className=”mt-1”>{timeStr} – {endTimeStr}</div>
             </div>
           </div>
         </div>
@@ -155,7 +155,7 @@ export function PublicEventPageClient({
           </span>
           <span className="flex items-center gap-2">
             <Clock size={14} strokeWidth={2} style={{ color: '#1F4D3A' }} />
-            {timeStr} â€“ {endTimeStr}
+            {timeStr} – {endTimeStr}
           </span>
           <span className="flex items-center gap-2">
             {page.is_online
