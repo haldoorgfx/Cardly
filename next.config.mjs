@@ -2,17 +2,15 @@ import { withSentryConfig } from '@sentry/nextjs';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    // pdfkit uses CommonJS `require()` calls for AFM font data at runtime.
-    // If webpack bundles it, those require() paths break in the serverless
-    // sandbox. Marking it external forces Node to resolve it from node_modules
-    // at runtime instead — compatible with Next.js 14.
-    serverComponentsExternalPackages: ['pdfkit'],
+  // pdfkit reads AFM font metrics from node_modules at runtime — it must NOT
+  // be bundled; instead tell Vercel to trace and include its data files.
+  serverExternalPackages: ['pdfkit'],
 
+  experimental: {
     outputFileTracingIncludes: {
       '/api/render': ['./public/fonts/**/*'],
-      // Ensure pdfkit's AFM font metrics files travel with the serverless
-      // function bundle so they're readable at runtime on Vercel.
+      // Include pdfkit's bundled AFM/font data so the serverless function
+      // can load Helvetica metrics at runtime
       '/api/events/[id]/roster/pdf':  ['./node_modules/pdfkit/js/data/**/*'],
       '/api/events/[id]/revenue/pdf': ['./node_modules/pdfkit/js/data/**/*'],
       '/api/events/[id]/agenda/pdf':  ['./node_modules/pdfkit/js/data/**/*'],
