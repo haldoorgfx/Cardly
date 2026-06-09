@@ -445,23 +445,14 @@ export async function POST(req: NextRequest) {
 
   const cardId = cardRow?.id ?? null;
 
-  // Link the generated card URL back to the registration row so the Registrations
-  // table CARD column shows a download link instead of "—".
-  if (registrationId && outputUrl) {
-    void supabase
-      .from('registrations')
-      .update({ karta_card_url: outputUrl })
-      .eq('id', registrationId)
-      .then(
-        () => { /* best-effort */ },
-        () => { /* non-critical */ },
-      );
-  }
-
-  // Fire counters — AWAIT so the function doesn't freeze before they land.
+  // Fire counters + link card URL — all awaited so they land before the response goes out.
+  // (Vercel terminates the function after the response is sent, so void/fire-and-forget is not safe here.)
   await Promise.allSettled([
     supabase.from('events').update({ download_count: newDownloadCount }).eq('id', eventId),
     incrementCardsThisMonth(event.user_id),
+    ...(registrationId && outputUrl
+      ? [supabase.from('registrations').update({ karta_card_url: outputUrl }).eq('id', registrationId)]
+      : []),
   ]);
 
   // Webhooks + notification emails are best-effort — don't block the PNG response.
