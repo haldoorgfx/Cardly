@@ -396,6 +396,8 @@ export default function RegistrationClient({
           }
           fd.append('fields', JSON.stringify(enriched));
           fd.append('idempotencyKey', `reg-${token}-card`);
+          // Pass registration ID so the render API can link the card URL back
+          if (data.registration_id) fd.append('registrationId', data.registration_id);
           for (const [zoneId, file] of Object.entries(zonePhotoFiles)) {
             fd.append(`photo_${zoneId}`, file);
           }

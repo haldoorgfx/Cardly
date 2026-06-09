@@ -255,6 +255,7 @@ export async function POST(req: NextRequest) {
   let formData: FormData | null = null;
 
   let idempotencyKey: string | null = null;
+  let registrationId: string | null = null;
 
   if (isJson) {
     const JsonBodySchema = z.object({
@@ -262,6 +263,7 @@ export async function POST(req: NextRequest) {
       fields:          z.record(z.string(), z.string()).optional(),
       photoDataUrl:    z.string().optional(),
       idempotencyKey:  z.string().optional(),
+      registrationId:  z.string().optional(),
     });
     const raw = await req.json().catch(() => ({}));
     const body = JsonBodySchema.safeParse(raw);
@@ -271,6 +273,7 @@ export async function POST(req: NextRequest) {
     variantId = body.data.variantId ?? '';
     fields = body.data.fields ?? {};
     idempotencyKey = body.data.idempotencyKey ?? null;
+    registrationId = body.data.registrationId ?? null;
     if (body.data.photoDataUrl) jsonPhotoBuffer = decodeDataUrl(body.data.photoDataUrl);
   } else {
     formData = await req.formData();
@@ -285,6 +288,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid fields payload' }, { status: 400 });
     }
     idempotencyKey = (formData.get('idempotencyKey') as string | null) ?? null;
+    registrationId = (formData.get('registrationId') as string | null) ?? null;
   }
 
   // Idempotency check — if this key was already rendered, return 409 immediately.
@@ -440,6 +444,17 @@ export async function POST(req: NextRequest) {
   }).select('id').single();
 
   const cardId = cardRow?.id ?? null;
+
+  // Link the generated card URL back to the registration row so the Registrations
+  // table CARD column shows a download link instead of "—".
+  if (registrationId && outputUrl) {
+    supabase
+      .from('registrations')
+      .update({ karta_card_url: outputUrl })
+      .eq('id', registrationId)
+      .then(() => {/* best-effort */})
+      .catch(() => {/* non-critical */});
+  }
 
   // Fire counters — AWAIT so the function doesn't freeze before they land.
   await Promise.allSettled([
