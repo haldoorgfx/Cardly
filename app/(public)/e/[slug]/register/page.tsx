@@ -62,6 +62,7 @@ export default async function RegisterPage({ params }: Props) {
 
   const canvasVariant = rawVariant && rawVariant.background_url
     ? {
+        id: rawVariant.id as string,
         backgroundUrl: rawVariant.background_url as string,
         backgroundWidth: rawVariant.background_width as number | null,
         backgroundHeight: rawVariant.background_height as number | null,

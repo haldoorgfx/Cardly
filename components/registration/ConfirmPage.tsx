@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useLayoutEffect, useState, useCallback } from 'react';
 import { Share2, Check, ChevronRight, Download } from 'lucide-react';
 import { CardZoneFill } from './CardZoneFill';
 import { PhotoCropModal } from './PhotoCropModal';
@@ -79,6 +79,19 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
   const initialPhase: Phase = isPaidReturn ? 'verifying' : (hasCard ? 'done' : (variant ? 'card' : 'done'));
 
   const [phase, setPhase] = useState<Phase>(initialPhase);
+
+  // Check sessionStorage synchronously before first paint — if the registration flow
+  // already generated the card, jump straight to 'done' without showing the form.
+  useLayoutEffect(() => {
+    if (isPaidReturn || hasCard) return;
+    try {
+      const stored = sessionStorage.getItem(`card_${registration.qr_code_token}`);
+      if (stored) {
+        setCardDataUrl(stored);
+        setPhase('done');
+      }
+    } catch { /* ignore */ }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
   const [cardDataUrl, setCardDataUrl] = useState<string | null>(null);
 
@@ -155,13 +168,7 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
     }
   }
 
-  // Retrieve card from sessionStorage on mount
-  useEffect(() => {
-    try {
-      const stored = sessionStorage.getItem(`card_${registration.qr_code_token}`);
-      if (stored) setCardDataUrl(stored);
-    } catch { /* ignore */ }
-  }, [registration.qr_code_token]);
+  // sessionStorage check is handled in useLayoutEffect above (before first paint)
 
   // Verify payment on paid return (Stripe or Flutterwave)
   useEffect(() => {

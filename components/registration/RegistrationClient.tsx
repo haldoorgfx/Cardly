@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Check, Upload, Sparkles, ArrowRight, ShieldCheck, Ticket } from 'lucide-react';
+import { Check, Sparkles, ArrowRight, ShieldCheck, Ticket } from 'lucide-react';
 import Image from 'next/image';
 import type { Zone } from '@/types/database';
 import EventCardPreview from '@/app/c/[slug]/components/EventCardPreview';
 import EventBrandStrip from '@/app/c/[slug]/components/EventBrandStrip';
+import { CardZoneFill } from './CardZoneFill';
+import { PhotoCropModal } from './PhotoCropModal';
 
 interface TicketType {
   id: string;
@@ -19,6 +21,7 @@ interface TicketType {
 }
 
 interface CanvasVariant {
+  id: string;
   backgroundUrl: string;
   backgroundWidth: number | null;
   backgroundHeight: number | null;
@@ -55,41 +58,27 @@ function dateStr(iso: string | null) {
   return new Date(iso).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-/** Map form values to zone values based on label similarity */
-function buildZoneValues(
-  zones: Zone[],
-  name: string,
-  role: string,
-  photoUrl: string | null,
-): { values: Record<string, string>; photoUrls: Record<string, string> } {
-  const values: Record<string, string> = {};
-  const photoUrls: Record<string, string> = {};
-
+/** Derive attendee_name from zone values (looks for name-like zone) */
+function deriveAttendeeName(zones: Zone[], values: Record<string, string>, fallback: string): string {
   for (const zone of zones) {
-    if (zone.hidden) continue;
-    const label = (zone.label ?? '').toLowerCase();
-
-    if (zone.type === 'photo') {
-      if (photoUrl) photoUrls[zone.id] = photoUrl;
-      continue;
-    }
-
-    if (zone.type === 'text' || zone.type === 'custom') {
-      if (label.includes('name')) {
-        if (name) values[zone.id] = name;
-      } else if (
-        label.includes('role') || label.includes('title') || label.includes('job') ||
-        label.includes('company') || label.includes('org')
-      ) {
-        if (role) values[zone.id] = role;
-      }
+    if (zone.type !== 'text' && zone.type !== 'custom') continue;
+    const lbl = (zone.label ?? '').toLowerCase();
+    if (lbl.includes('name') && !lbl.includes('company') && !lbl.includes('org') && !lbl.includes('event')) {
+      const v = values[zone.id]?.trim();
+      if (v) return v;
     }
   }
-
-  return { values, photoUrls };
+  // Fallback: first non-empty text value
+  for (const zone of zones) {
+    if ((zone.type === 'text' || zone.type === 'custom') && !zone.hidden) {
+      const v = values[zone.id]?.trim();
+      if (v) return v;
+    }
+  }
+  return fallback || 'Attendee';
 }
 
-// -- Arrival Screen (step -1) -------------------------------------------------
+// -- Arrival Screen ----------------------------------------------------------
 function ArrivalStep({
   eventName,
   canvasVariant,
@@ -112,7 +101,6 @@ function ArrivalStep({
       className="relative min-h-screen overflow-hidden"
       style={{ background: '#FAF6EE', fontFamily: 'Inter, sans-serif', color: '#0F1F18' }}
     >
-      {/* Decorative blobs */}
       <div className="pointer-events-none absolute" style={{
         width: 320, height: 320, top: 40, right: -80,
         borderRadius: '50%', background: '#E8EFEB',
@@ -124,18 +112,14 @@ function ArrivalStep({
         filter: 'blur(48px)',
       }}/>
 
-      {/* -- Mobile / tablet: single column --------------------------------- */}
+      {/* Mobile */}
       <div className="relative z-10 flex flex-col lg:hidden">
         <div className="px-5 pt-5">
           <EventBrandStrip eventName={eventName} compact />
         </div>
-
         {canvasVariant && (
           <div className="mt-5 px-5 flex justify-center">
-            <div
-              className="w-full max-w-[320px]"
-              style={{ animation: 'cardFloat 4s ease-in-out infinite' }}
-            >
+            <div className="w-full max-w-[320px]" style={{ animation: 'cardFloat 4s ease-in-out infinite' }}>
               <EventCardPreview
                 backgroundUrl={canvasVariant.backgroundUrl}
                 backgroundWidth={canvasVariant.backgroundWidth ?? 1200}
@@ -143,28 +127,16 @@ function ArrivalStep({
                 zones={canvasVariant.zones}
                 values={demoValues}
                 photoUrls={{}}
-                style={{
-                  borderRadius: 18,
-                  boxShadow: '0 4px 12px rgba(15,31,24,0.08), 0 24px 60px rgba(31,77,58,0.12)',
-                }}
+                style={{ borderRadius: 18, boxShadow: '0 4px 12px rgba(15,31,24,0.08), 0 24px 60px rgba(31,77,58,0.12)' }}
               />
             </div>
           </div>
         )}
-
         <div className="mt-6 px-5">
-          <h1 style={{
-            fontFamily: 'DM Sans, sans-serif',
-            fontWeight: 700, fontSize: 28, lineHeight: 1.15,
-            letterSpacing: '-0.02em', margin: 0, color: '#0F1F18',
-          }}>
+          <h1 style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 28, lineHeight: 1.15, letterSpacing: '-0.02em', margin: 0, color: '#0F1F18' }}>
             Register &amp; get your personalized card
           </h1>
-          <p style={{
-            fontFamily: 'Inter, sans-serif',
-            fontSize: 15, lineHeight: 1.55,
-            color: '#3A4A42', margin: '8px 0 16px',
-          }}>
+          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, lineHeight: 1.55, color: '#3A4A42', margin: '8px 0 16px' }}>
             Get your ticket + a personalized badge to share everywhere.
           </p>
           <div className="flex flex-col gap-2">
@@ -180,68 +152,36 @@ function ArrivalStep({
             ))}
           </div>
         </div>
-
         <div className="flex-1" style={{ minHeight: 24 }}/>
-
         <div className="px-5 pb-8 pt-4 flex flex-col gap-3 mt-auto">
           <button
             onClick={onStart}
             className="w-full flex items-center justify-center gap-2.5 transition-transform active:scale-[0.98]"
-            style={{
-              height: 56, padding: '0 24px',
-              background: '#1F4D3A', color: '#FAF6EE',
-              border: 'none', borderRadius: 14,
-              fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 16,
-              boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(31,77,58,0.18)',
-              cursor: 'pointer',
-            }}
+            style={{ height: 56, padding: '0 24px', background: '#1F4D3A', color: '#FAF6EE', border: 'none', borderRadius: 14, fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 16, boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(31,77,58,0.18)', cursor: 'pointer' }}
           >
             <span>Register &amp; get my card</span>
             <ArrowRight size={18} strokeWidth={2}/>
           </button>
-
-          <div style={{
-            fontFamily: 'Inter, system-ui, sans-serif',
-            fontSize: 11, color: '#6B7A72',
-            letterSpacing: '0.04em', textAlign: 'center',
-          }}>
+          <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: '#6B7A72', letterSpacing: '0.04em', textAlign: 'center' }}>
             powered by <span style={{ color: '#0F1F18', fontWeight: 500 }}>karta</span>
           </div>
         </div>
       </div>
 
-      {/* -- Desktop: two-column --------------------------------------------- */}
+      {/* Desktop */}
       <div className="relative z-10 hidden lg:flex flex-col" style={{ minHeight: '100vh' }}>
         <div className="px-10 pt-6 flex items-center justify-between gap-6">
           <div style={{ flex: '0 1 460px', minWidth: 0 }}>
             <EventBrandStrip eventName={eventName} compact />
           </div>
-          <div style={{
-            fontFamily: 'Inter, system-ui, sans-serif',
-            fontSize: 11, color: '#6B7A72', letterSpacing: '0.04em',
-          }}>
+          <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: '#6B7A72', letterSpacing: '0.04em' }}>
             powered by <span style={{ color: '#0F1F18', fontWeight: 500 }}>karta</span>
           </div>
         </div>
-
-        <div
-          className="flex-1 mx-auto w-full grid items-center"
-          style={{
-            maxWidth: 1200,
-            padding: '0 40px',
-            gridTemplateColumns: '60% 40%',
-            gap: 56,
-          }}
-        >
-          {/* Left: card hero */}
+        <div className="flex-1 mx-auto w-full grid items-center" style={{ maxWidth: 1200, padding: '0 40px', gridTemplateColumns: '60% 40%', gap: 56 }}>
           {canvasVariant ? (
             <div className="flex items-center justify-center">
-              <div
-                style={{
-                  maxWidth: 480, width: '100%',
-                  animation: 'cardFloat 4s ease-in-out infinite',
-                }}
-              >
+              <div style={{ maxWidth: 480, width: '100%', animation: 'cardFloat 4s ease-in-out infinite' }}>
                 <EventCardPreview
                   backgroundUrl={canvasVariant.backgroundUrl}
                   backgroundWidth={canvasVariant.backgroundWidth ?? 1200}
@@ -249,45 +189,23 @@ function ArrivalStep({
                   zones={canvasVariant.zones}
                   values={demoValues}
                   photoUrls={{}}
-                  style={{
-                    borderRadius: 20,
-                    boxShadow: '0 4px 12px rgba(15,31,24,0.08), 0 24px 60px rgba(31,77,58,0.12)',
-                  }}
+                  style={{ borderRadius: 20, boxShadow: '0 4px 12px rgba(15,31,24,0.08), 0 24px 60px rgba(31,77,58,0.12)' }}
                 />
               </div>
             </div>
           ) : (
             <div className="flex items-center justify-center">
-              <div
-                className="rounded-2xl"
-                style={{
-                  width: 360, height: 240,
-                  background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)',
-                  opacity: 0.15,
-                }}
-              />
+              <div className="rounded-2xl" style={{ width: 360, height: 240, background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)', opacity: 0.15 }} />
             </div>
           )}
-
-          {/* Right: copy + CTA */}
           <div className="flex flex-col gap-7" style={{ maxWidth: 420 }}>
-            <div className="inline-flex self-start items-center gap-2 px-3 py-1.5" style={{
-              background: '#E8EFEB', color: '#1F4D3A', borderRadius: 999,
-              fontFamily: 'Inter, system-ui, sans-serif',
-              fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase',
-            }}>
+            <div className="inline-flex self-start items-center gap-2 px-3 py-1.5" style={{ background: '#E8EFEB', color: '#1F4D3A', borderRadius: 999, fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#1F4D3A' }}/>
               You&apos;re invited
             </div>
-
-            <h1 style={{
-              fontFamily: 'DM Sans, sans-serif',
-              fontWeight: 700, fontSize: 48, lineHeight: 1.05,
-              letterSpacing: '-0.03em', margin: 0, color: '#0F1F18',
-            }}>
+            <h1 style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 48, lineHeight: 1.05, letterSpacing: '-0.03em', margin: 0, color: '#0F1F18' }}>
               Register &amp; get your personalized card.
             </h1>
-
             <div className="flex flex-col gap-2.5">
               {[
                 { icon: <Ticket size={15} strokeWidth={2} />, text: 'Event ticket with QR check-in' },
@@ -300,18 +218,10 @@ function ArrivalStep({
                 </div>
               ))}
             </div>
-
             <button
               onClick={onStart}
               className="inline-flex items-center gap-2.5 transition-transform active:scale-[0.98]"
-              style={{
-                height: 56, padding: '0 28px',
-                background: '#1F4D3A', color: '#FAF6EE',
-                border: 'none', borderRadius: 14,
-                fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 16,
-                boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(31,77,58,0.18)',
-                cursor: 'pointer', alignSelf: 'flex-start',
-              }}
+              style={{ height: 56, padding: '0 28px', background: '#1F4D3A', color: '#FAF6EE', border: 'none', borderRadius: 14, fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 16, boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(31,77,58,0.18)', cursor: 'pointer', alignSelf: 'flex-start' }}
             >
               <span>Register &amp; get my card</span>
               <ArrowRight size={18} strokeWidth={2}/>
@@ -330,8 +240,7 @@ function ArrivalStep({
   );
 }
 
-// -- Main RegistrationClient --------------------------------------------------
-/** Pick the best default ticket: skip sold-out and invitation-only, prefer non-VIP */
+// -- Helpers -----------------------------------------------------------------
 function pickDefaultTicket(tickets: TicketType[]): TicketType | null {
   const available = tickets.filter(t => !(t.quantity !== null && t.quantity_sold >= t.quantity));
   if (available.length === 0) return tickets[0] ?? null;
@@ -342,6 +251,16 @@ function pickDefaultTicket(tickets: TicketType[]): TicketType | null {
   return (notInvite[0] ?? available[0]) ?? null;
 }
 
+async function blobToDataUrl(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+// -- Main component ----------------------------------------------------------
 export default function RegistrationClient({
   eventSlug, eventId, eventName, eventSubtitle,
   coverUrl, startsAt, city, tickets, canvasVariant,
@@ -351,56 +270,88 @@ export default function RegistrationClient({
   // step -1 = arrival, 0 = ticket, 1 = details, 2 = payment
   const [step, setStep] = useState<-1 | 0 | 1 | 2>(-1);
   const [selectedTicket, setSelectedTicket] = useState<TicketType | null>(() => pickDefaultTicket(tickets));
-  const [name, setName] = useState(initialName);
+
+  // Basic registration fields (always needed)
   const [email, setEmail] = useState(initialEmail);
-  const [role, setRole] = useState('');
-  const [cityVal, setCityVal] = useState('');
-  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+
+  // Fallback name for events without a card variant
+  const [name, setName] = useState(initialName);
+
+  // Card zone state — used when canvasVariant exists
+  const [zoneValues, setZoneValues] = useState<Record<string, string>>(() => {
+    // Pre-populate name zone from initialName
+    if (!canvasVariant || !initialName) return {};
+    const vals: Record<string, string> = {};
+    for (const zone of canvasVariant.zones) {
+      const lbl = (zone.label ?? '').toLowerCase();
+      if ((zone.type === 'text' || zone.type === 'custom') && lbl.includes('name') && !lbl.includes('company') && !lbl.includes('org')) {
+        vals[zone.id] = initialName;
+      }
+    }
+    return vals;
+  });
+  const [zonePhotoFiles, setZonePhotoFiles] = useState<Record<string, File>>({});
+  const [zonePhotoUrls, setZonePhotoUrls] = useState<Record<string, string>>({});
+  const [cropTarget, setCropTarget] = useState<{ zone: Zone; srcUrl: string; file: File } | null>(null);
+
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const photoRef = useRef<HTMLInputElement>(null);
 
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+  // Photo crop handlers
+  const handlePhotoSelect = useCallback((zone: Zone, file: File, srcUrl: string) => {
+    setCropTarget({ zone, srcUrl, file });
+  }, []);
+  const handleCropConfirm = useCallback((file: File, previewUrl: string) => {
+    if (!cropTarget) return;
+    setZonePhotoFiles(p => ({ ...p, [cropTarget.zone.id]: file }));
+    setZonePhotoUrls(p => ({ ...p, [cropTarget.zone.id]: previewUrl }));
+    setCropTarget(null);
+  }, [cropTarget]);
+  const handlePhotoClear = useCallback((zoneId: string) => {
+    setZonePhotoFiles(p => { const n = { ...p }; delete n[zoneId]; return n; });
+    setZonePhotoUrls(p => { const n = { ...p }; delete n[zoneId]; return n; });
+  }, []);
+
   function validateDetails(): Record<string, string> {
     const errs: Record<string, string> = {};
-    if (!name.trim()) errs.name = 'Full name is required';
     if (!email.trim()) errs.email = 'Email is required';
     else if (!EMAIL_RE.test(email)) errs.email = 'Enter a valid email address';
+    // Without a card variant, require explicit name
+    if (!canvasVariant && !name.trim()) errs.name = 'Full name is required';
     return errs;
   }
 
-  // 3 form steps: Ticket -> Details -> Payment
   const STEPS = ['Ticket', 'Details', 'Payment'];
-  // 3.5% platform fee, rounded to 2 decimal places
   const fee = selectedTicket && selectedTicket.price > 0
     ? Math.round(selectedTicket.price * 0.035 * 100) / 100
     : 0;
   const total = (selectedTicket?.price ?? 0) + fee;
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const url = URL.createObjectURL(file);
-    setPhotoUrl(url);
-  };
+  // Preview values for the card on the right
+  const previewValues = canvasVariant ? zoneValues : {};
+  const previewPhotoUrls = canvasVariant ? zonePhotoUrls : {};
 
   const handleSubmit = async () => {
     setSubmitError('');
     setSubmitting(true);
     try {
+      // Derive attendee name
+      const attendeeName = canvasVariant
+        ? deriveAttendeeName(canvasVariant.zones, zoneValues, name || 'Attendee')
+        : name;
+
+      // 1. Register
       const res = await fetch(`/api/events/${eventId}/register`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-event-slug': eventSlug,
-        },
+        headers: { 'Content-Type': 'application/json', 'x-event-slug': eventSlug },
         body: JSON.stringify({
           ticket_type_id: selectedTicket?.id,
-          attendee_name: name,
+          attendee_name: attendeeName,
           attendee_email: email,
-          custom_fields: { role, city: cityVal },
+          custom_fields: {},
         }),
       });
 
@@ -410,7 +361,6 @@ export default function RegistrationClient({
         error?: string;
         payment_required?: boolean;
         redirect_url?: string;
-        client_secret?: string;
       };
 
       if (!res.ok) {
@@ -423,12 +373,46 @@ export default function RegistrationClient({
         return;
       }
 
-      if (data.qr_code_token) {
-        router.push(`/e/${eventSlug}/register/confirm?reg=${data.qr_code_token}`);
+      if (!data.qr_code_token) {
+        setSubmitError('Registration created but something went wrong. Check your email for confirmation.');
         return;
       }
 
-      setSubmitError('Registration created but something went wrong. Check your email for confirmation.');
+      const token = data.qr_code_token;
+
+      // 2. If we have a card variant, pre-generate the card now so confirm page skips personalization
+      if (canvasVariant) {
+        try {
+          const fd = new FormData();
+          fd.append('variantId', canvasVariant.id);
+          // Enrich: if name zone not filled, fill from attendeeName
+          const enriched = { ...zoneValues };
+          const firstNameZone = canvasVariant.zones.find(z => {
+            const lbl = (z.label ?? '').toLowerCase();
+            return (z.type === 'text' || z.type === 'custom') && lbl.includes('name') && !lbl.includes('company') && !lbl.includes('org');
+          });
+          if (firstNameZone && !enriched[firstNameZone.id]) {
+            enriched[firstNameZone.id] = attendeeName;
+          }
+          fd.append('fields', JSON.stringify(enriched));
+          fd.append('idempotencyKey', `reg-${token}-card`);
+          for (const [zoneId, file] of Object.entries(zonePhotoFiles)) {
+            fd.append(`photo_${zoneId}`, file);
+          }
+
+          const renderRes = await fetch('/api/render', { method: 'POST', body: fd });
+          if (renderRes.ok) {
+            const blob = await renderRes.blob();
+            const dataUrl = await blobToDataUrl(blob);
+            try { sessionStorage.setItem(`card_${token}`, dataUrl); } catch { /* ignore */ }
+          }
+        } catch {
+          // Card pre-generation failed — confirm page will show personalization as fallback
+        }
+      }
+
+      // 3. Redirect to confirm page
+      router.push(`/e/${eventSlug}/register/confirm?reg=${token}`);
     } catch {
       setSubmitError('Something went wrong. Check your connection and try again.');
     } finally {
@@ -436,21 +420,12 @@ export default function RegistrationClient({
     }
   };
 
-  // -- Arrival screen --------------------------------------------------------
+  // Arrival screen
   if (step === -1) {
     return (
-      <ArrivalStep
-        eventName={eventName}
-        canvasVariant={canvasVariant}
-        onStart={() => setStep(0)}
-      />
+      <ArrivalStep eventName={eventName} canvasVariant={canvasVariant} onStart={() => setStep(0)} />
     );
   }
-
-  // -- Build live card preview values from current form state ----------------
-  const { values: previewValues, photoUrls: previewPhotoUrls } = canvasVariant
-    ? buildZoneValues(canvasVariant.zones, name, role, photoUrl)
-    : { values: {}, photoUrls: {} };
 
   return (
     <div className="min-h-screen" style={{ background: '#FAF6EE' }}>
@@ -458,7 +433,7 @@ export default function RegistrationClient({
         className="max-w-[1100px] mx-auto px-5 py-8 pb-20"
         style={{ display: 'grid', gridTemplateColumns: canvasVariant ? '1fr 340px' : '1fr', gap: 48, alignItems: 'start' }}
       >
-        {/* -- Left: form -- */}
+        {/* Left: form */}
         <div>
           {/* Step indicator */}
           <div className="flex items-center gap-2.5 mb-8">
@@ -491,7 +466,6 @@ export default function RegistrationClient({
                 Choose your ticket
               </h2>
               <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>{eventSubtitle}</p>
-
               {tickets.length === 0 ? (
                 <div className="rounded-2xl py-12 text-center text-[14px]" style={{ background: 'white', border: '1px solid #E5E0D4', color: '#6B7A72' }}>
                   No tickets available yet.
@@ -507,19 +481,11 @@ export default function RegistrationClient({
                         disabled={sold}
                         onClick={() => setSelectedTicket(t)}
                         className="w-full text-left flex items-center gap-4 p-5 rounded-2xl transition-all"
-                        style={{
-                          border: `1px solid ${isSelected ? '#1F4D3A' : '#E5E0D4'}`,
-                          background: 'white',
-                          boxShadow: isSelected ? 'inset 0 0 0 1px #1F4D3A' : 'none',
-                          opacity: sold ? 0.5 : 1,
-                        }}
+                        style={{ border: `1px solid ${isSelected ? '#1F4D3A' : '#E5E0D4'}`, background: 'white', boxShadow: isSelected ? 'inset 0 0 0 1px #1F4D3A' : 'none', opacity: sold ? 0.5 : 1 }}
                       >
                         <div
                           className="w-5 h-5 rounded-full shrink-0 border-2 transition-all"
-                          style={{
-                            borderColor: isSelected ? '#1F4D3A' : '#E5E0D4',
-                            boxShadow: isSelected ? 'inset 0 0 0 5px #1F4D3A' : 'none',
-                          }}
+                          style={{ borderColor: isSelected ? '#1F4D3A' : '#E5E0D4', boxShadow: isSelected ? 'inset 0 0 0 5px #1F4D3A' : 'none' }}
                         />
                         <div className="flex-1 min-w-0">
                           <div className="font-display font-medium text-[16px]" style={{ color: '#0F1F18' }}>{t.name}</div>
@@ -548,16 +514,7 @@ export default function RegistrationClient({
               </p>
 
               <div className="space-y-4">
-                <div>
-                  <label className="block text-[12px] mb-1.5" style={{ color: fieldErrors.name ? '#B8423C' : '#6B7A72' }}>Full name</label>
-                  <input
-                    type="text" value={name}
-                    onChange={e => { setName(e.target.value); if (fieldErrors.name) setFieldErrors(p => ({ ...p, name: '' })); }}
-                    placeholder="Amina Osman" className={INPUT}
-                    style={{ borderColor: fieldErrors.name ? '#B8423C' : '#E5E0D4', background: 'white', color: '#0F1F18' }}
-                  />
-                  {fieldErrors.name && <p className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>{fieldErrors.name}</p>}
-                </div>
+                {/* Email — always shown */}
                 <div>
                   <label className="block text-[12px] mb-1.5" style={{ color: fieldErrors.email ? '#B8423C' : '#6B7A72' }}>Email</label>
                   <input
@@ -568,40 +525,34 @@ export default function RegistrationClient({
                   />
                   {fieldErrors.email && <p className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>{fieldErrors.email}</p>}
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>Company / role</label>
-                    <input type="text" value={role} onChange={e => setRole(e.target.value)} placeholder="Founder, Sahel Pay" className={INPUT} style={{ borderColor: '#E5E0D4', background: 'white', color: '#0F1F18' }} />
-                  </div>
-                  <div>
-                    <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>City</label>
-                    <input type="text" value={cityVal} onChange={e => setCityVal(e.target.value)} placeholder="Nairobi" className={INPUT} style={{ borderColor: '#E5E0D4', background: 'white', color: '#0F1F18' }} />
-                  </div>
-                </div>
 
-                <div>
-                  <label className="block text-[12px] mb-2" style={{ color: '#6B7A72' }}>Add your photo — appears on your Karta Card</label>
-                  <input ref={photoRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
-                  {photoUrl ? (
-                    <div
-                      className="rounded-2xl h-36 flex items-center justify-center gap-4 cursor-pointer"
-                      style={{ border: '1.5px solid #1F4D3A', background: '#FAF6EE' }}
-                      onClick={() => photoRef.current?.click()}
-                    >
-                      <Image src={photoUrl} alt="Preview" width={80} height={80} className="w-20 h-20 rounded-full object-cover" unoptimized />
-                      <span className="text-[13px]" style={{ color: '#1F4D3A' }}>Click to change</span>
-                    </div>
-                  ) : (
-                    <div
-                      className="rounded-2xl h-36 flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors hover:border-[#E8C57E]"
-                      style={{ border: '1.5px dashed #E5E0D4', background: 'white' }}
-                      onClick={() => photoRef.current?.click()}
-                    >
-                      <Upload size={22} color="#6B7A72" />
-                      <span className="text-[13px]" style={{ color: '#6B7A72' }}>Click to add your photo</span>
-                    </div>
-                  )}
-                </div>
+                {/* Card zones — shown when the event has a card design */}
+                {canvasVariant ? (
+                  <CardZoneFill
+                    zones={canvasVariant.zones}
+                    values={zoneValues}
+                    photoUrls={zonePhotoUrls}
+                    errors={fieldErrors}
+                    onChange={(id, v) => setZoneValues(p => ({ ...p, [id]: v }))}
+                    onPhotoSelect={handlePhotoSelect}
+                    onPhotoClear={handlePhotoClear}
+                    backgroundUrl={canvasVariant.backgroundUrl}
+                    backgroundWidth={canvasVariant.backgroundWidth}
+                    backgroundHeight={canvasVariant.backgroundHeight}
+                  />
+                ) : (
+                  /* Fallback: simple name field when no card design exists */
+                  <div>
+                    <label className="block text-[12px] mb-1.5" style={{ color: fieldErrors.name ? '#B8423C' : '#6B7A72' }}>Full name</label>
+                    <input
+                      type="text" value={name}
+                      onChange={e => { setName(e.target.value); if (fieldErrors.name) setFieldErrors(p => ({ ...p, name: '' })); }}
+                      placeholder="Amina Osman" className={INPUT}
+                      style={{ borderColor: fieldErrors.name ? '#B8423C' : '#E5E0D4', background: 'white', color: '#0F1F18' }}
+                    />
+                    {fieldErrors.name && <p className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>{fieldErrors.name}</p>}
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -623,7 +574,6 @@ export default function RegistrationClient({
                   </div>
                 </>
               )}
-
               {total === 0 ? (
                 <div className="rounded-2xl p-6 text-center" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
                   <div className="font-display font-medium text-[20px] mb-2" style={{ color: '#1F4D3A' }}>Free ticket</div>
@@ -647,7 +597,14 @@ export default function RegistrationClient({
                   </div>
                   <div>
                     <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>Name on card</label>
-                    <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Amina Osman" className={INPUT} style={{ borderColor: '#E5E0D4', background: 'white', color: '#0F1F18' }} />
+                    <input
+                      type="text"
+                      value={canvasVariant ? deriveAttendeeName(canvasVariant.zones, zoneValues, name) : name}
+                      onChange={e => setName(e.target.value)}
+                      placeholder="Amina Osman"
+                      className={INPUT}
+                      style={{ borderColor: '#E5E0D4', background: 'white', color: '#0F1F18' }}
+                    />
                   </div>
                 </div>
               )}
@@ -672,7 +629,6 @@ export default function RegistrationClient({
               >
                 &larr; Back
               </button>
-
               {step < 2 ? (
                 <button
                   onClick={() => {
@@ -702,10 +658,9 @@ export default function RegistrationClient({
           </div>
         </div>
 
-        {/* -- Right: order summary + live card preview -- */}
+        {/* Right: order summary + live card preview */}
         {canvasVariant && (
           <aside className="sticky hidden lg:block" style={{ top: 88 }}>
-            {/* Live card preview */}
             <div className="mb-4">
               <div className="text-[11px] font-semibold uppercase tracking-wider mb-3" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
                 Your Karta Card
@@ -717,10 +672,7 @@ export default function RegistrationClient({
                 zones={canvasVariant.zones}
                 values={previewValues}
                 photoUrls={previewPhotoUrls}
-                style={{
-                  borderRadius: 16,
-                  boxShadow: '0 4px 12px rgba(15,31,24,0.08), 0 16px 40px rgba(31,77,58,0.10)',
-                }}
+                style={{ borderRadius: 16, boxShadow: '0 4px 12px rgba(15,31,24,0.08), 0 16px 40px rgba(31,77,58,0.10)' }}
               />
               {step === 1 && (
                 <p className="text-[11px] mt-2 text-center" style={{ color: '#6B7A72' }}>
@@ -728,10 +680,7 @@ export default function RegistrationClient({
                 </p>
               )}
             </div>
-
-            {/* Order summary */}
             <div className="rounded-2xl p-6" style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)' }}>
-              {/* Event mini */}
               <div className="flex items-center gap-3 pb-4 mb-1" style={{ borderBottom: '1px solid #E5E0D4' }}>
                 {coverUrl ? (
                   <Image src={coverUrl} alt={eventName} width={48} height={48} className="w-12 h-12 rounded-xl object-cover shrink-0" unoptimized />
@@ -747,7 +696,6 @@ export default function RegistrationClient({
                   )}
                 </div>
               </div>
-
               {selectedTicket && (
                 <>
                   <div className="flex justify-between py-2.5 text-[14px]" style={{ color: '#3A4A42' }}>
@@ -770,7 +718,7 @@ export default function RegistrationClient({
           </aside>
         )}
 
-        {/* No canvas variant: show order summary only */}
+        {/* No canvas variant: order summary only */}
         {!canvasVariant && (
           <aside className="sticky hidden lg:block" style={{ top: 88 }}>
             <div className="rounded-2xl p-6" style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)' }}>
@@ -789,7 +737,6 @@ export default function RegistrationClient({
                   )}
                 </div>
               </div>
-
               {selectedTicket && (
                 <>
                   <div className="flex justify-between py-2.5 text-[14px]" style={{ color: '#3A4A42' }}>
@@ -806,28 +753,21 @@ export default function RegistrationClient({
                     <span className="font-display font-medium text-[15px]" style={{ color: '#0F1F18' }}>Total</span>
                     <span className="font-mono font-medium text-[22px]" style={{ color: '#1F4D3A' }}>{fmt(total, selectedTicket.currency)}</span>
                   </div>
-
-                  {/* Card teaser — shown at payment step when no canvas variant */}
-                  {step === 2 && (
-                    <div className="mt-5 pt-4" style={{ borderTop: '1px solid #E5E0D4' }}>
-                      <div
-                        className="rounded-xl p-4 flex items-center gap-3"
-                        style={{ background: 'rgba(31,77,58,0.05)', border: '1px solid rgba(31,77,58,0.15)' }}
-                      >
-                        <Sparkles size={16} style={{ color: '#1F4D3A', flexShrink: 0 }} />
-                        <div>
-                          <div className="text-[13px] font-medium" style={{ color: '#1F4D3A' }}>Karta Card included</div>
-                          <div className="text-[11px] mt-0.5" style={{ color: '#6B7A72' }}>Personalised card generated after registration</div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
                 </>
               )}
             </div>
           </aside>
         )}
       </div>
+
+      {/* Photo crop modal */}
+      {cropTarget && (
+        <PhotoCropModal
+          target={cropTarget}
+          onConfirm={handleCropConfirm}
+          onCancel={() => setCropTarget(null)}
+        />
+      )}
     </div>
   );
 }
