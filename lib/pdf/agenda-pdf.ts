@@ -165,7 +165,7 @@ export async function generateAgendaPDF(
         doc.font('Helvetica')
            .fontSize(7.5)
            .fillColor(isKeynote ? '#A8C4B8' : C.muted)
-           .text(`📍 ${session.location}`, M + CW - 120, y + cardH - 15, {
+           .text(`@ ${session.location}`, M + CW - 120, y + cardH - 15, {
              width: 118,
              align: 'right',
              lineBreak: false,
