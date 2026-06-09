@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * ArrivalScreen — E0
@@ -168,7 +168,7 @@ export default function ArrivalScreen({
           </div>
 
           <div style={{
-            fontFamily: 'JetBrains Mono, monospace',
+            fontFamily: 'Inter, system-ui, sans-serif',
             fontSize: 11, color: '#6B7A72',
             letterSpacing: '0.04em', textAlign: 'center',
           }}>
@@ -185,7 +185,7 @@ export default function ArrivalScreen({
             <EventBrandStrip eventName={eventName} compact />
           </div>
           <div style={{
-            fontFamily: 'JetBrains Mono, monospace',
+            fontFamily: 'Inter, system-ui, sans-serif',
             fontSize: 11, color: '#6B7A72', letterSpacing: '0.04em',
           }}>
             powered by <span style={{ color: '#0F1F18', fontWeight: 500 }}>karta</span>
@@ -230,7 +230,7 @@ export default function ArrivalScreen({
             {/* Eyebrow badge */}
             <div className="inline-flex self-start items-center gap-2 px-3 py-1.5" style={{
               background: '#E8EFEB', color: '#1F4D3A', borderRadius: 999,
-              fontFamily: 'JetBrains Mono, monospace',
+              fontFamily: 'Inter, system-ui, sans-serif',
               fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase',
             }}>
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#1F4D3A' }}/>

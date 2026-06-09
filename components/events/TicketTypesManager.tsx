@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useCallback } from 'react';
 import { Plus, Pencil, Trash2, Eye, EyeOff, ChevronUp, ChevronDown, Tag, Users } from 'lucide-react';
@@ -50,7 +50,7 @@ function rowToForm(t: TicketRow): FormState {
 }
 
 function formToBody(f: FormState) {
-  // NOTE: never use `parseInt(x) || fallback` — parseInt("0") is 0 which is falsy,
+  // NOTE: never use `parseInt(x) || fallback` â€” parseInt("0") is 0 which is falsy,
   // so it would incorrectly return the fallback. Use explicit null checks instead.
   const qty = f.isLimited && f.quantity !== '' ? parseInt(f.quantity, 10) : null;
   const min = f.min_per_order !== '' ? parseInt(f.min_per_order, 10) : 1;
@@ -97,7 +97,7 @@ export function TicketTypesManager({ eventId, initialTickets }: Props) {
   }, []);
 
   async function handleSave() {
-    // ── Client-side validation ──────────────────────────────────────
+    // â”€â”€ Client-side validation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if (!form.name.trim()) { setError('Name is required'); return; }
     if (form.name.trim().length > 100) { setError('Name must be 100 characters or less'); return; }
     if (!form.isFree) {
@@ -201,7 +201,7 @@ export function TicketTypesManager({ eventId, initialTickets }: Props) {
   return (
     <div>
 
-      {/* ── Ticket list ──────────────────────────────────────────── */}
+      {/* â”€â”€ Ticket list â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {tickets.length === 0 && panel === 'closed' ? (
         <div
           className="rounded-2xl flex flex-col items-center justify-center py-16 text-center mb-6"
@@ -248,7 +248,7 @@ export function TicketTypesManager({ eventId, initialTickets }: Props) {
         </div>
       )}
 
-      {/* ── Add / Edit panel ─────────────────────────────────────── */}
+      {/* â”€â”€ Add / Edit panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {panel !== 'closed' && (
         <div
           className="rounded-2xl mb-4"
@@ -496,14 +496,14 @@ export function TicketTypesManager({ eventId, initialTickets }: Props) {
                 className="h-9 px-5 text-white text-[13px] font-semibold rounded-lg transition hover:opacity-90 disabled:opacity-60"
                 style={{ background: '#1F4D3A' }}
               >
-                {saving ? 'Saving…' : isEditing ? 'Save changes' : 'Add ticket'}
+                {saving ? 'Savingâ€¦' : isEditing ? 'Save changes' : 'Add ticket'}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* ── Add button (when list exists) ────────────────────────── */}
+      {/* â”€â”€ Add button (when list exists) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {tickets.length > 0 && panel === 'closed' && (
         <button
           onClick={openNew}
@@ -515,7 +515,7 @@ export function TicketTypesManager({ eventId, initialTickets }: Props) {
         </button>
       )}
 
-      {/* ── Delete confirm ───────────────────────────────────────── */}
+      {/* â”€â”€ Delete confirm â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {confirmDelete && (() => {
         const target = tickets.find(t => t.id === confirmDelete);
         const hasSales = (target?.quantity_sold ?? 0) > 0;
@@ -553,7 +553,7 @@ export function TicketTypesManager({ eventId, initialTickets }: Props) {
                   className="flex-1 h-10 rounded-xl text-white text-[14px] font-semibold transition hover:opacity-90 disabled:opacity-60"
                   style={{ background: '#B8423C' }}
                 >
-                  {deleting ? 'Deleting…' : 'Delete'}
+                  {deleting ? 'Deletingâ€¦' : 'Delete'}
                 </button>
               </div>
             </div>
@@ -564,7 +564,7 @@ export function TicketTypesManager({ eventId, initialTickets }: Props) {
   );
 }
 
-/* ── Ticket card ── */
+/* â”€â”€ Ticket card â”€â”€ */
 function TicketCard({
   ticket, idx, total, isEditing, soldOut, remaining,
   onEdit, onDelete, onToggleVisibility, onMove,
@@ -650,11 +650,11 @@ function TicketCard({
         <div className="text-right shrink-0">
           <div
             className="flex items-center gap-1 text-[12px]"
-            style={{ color: '#6B7A72', fontFamily: 'JetBrains Mono, monospace' }}
+            style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}
           >
             <Users size={11} strokeWidth={2} />
             {ticket.quantity === null
-              ? <span title="Unlimited">∞</span>
+              ? <span title="Unlimited">âˆž</span>
               : <span style={{ color: soldOut ? '#B8423C' : remaining !== null && remaining <= 10 ? '#C97A2D' : '#3A4A42' }}>
                   {ticket.quantity_sold} / {ticket.quantity}
                 </span>
@@ -665,7 +665,7 @@ function TicketCard({
         {/* Price */}
         <div
           className="shrink-0 text-[14px] font-medium min-w-[48px] text-right"
-          style={{ fontFamily: 'JetBrains Mono, monospace', color: isFree ? '#2D7A4F' : '#1F4D3A' }}
+          style={{ fontFamily: 'Inter, system-ui, sans-serif', color: isFree ? '#2D7A4F' : '#1F4D3A' }}
         >
           {isFree ? 'Free' : `${ticket.currency} ${ticket.price}`}
         </div>

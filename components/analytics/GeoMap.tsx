@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import {
@@ -16,7 +16,7 @@ const KNOWN_CITIES = [
   { city: 'Lagos',     lat:  6.52,  lng:   3.37 },
   { city: 'Dubai',     lat: 25.20,  lng:  55.27 },
   { city: 'Singapore', lat:  1.35,  lng: 103.82 },
-  { city: 'São Paulo', lat: -23.55, lng: -46.63 },
+  { city: 'SÃ£o Paulo', lat: -23.55, lng: -46.63 },
   { city: 'Nairobi',   lat: -1.29,  lng:  36.82 },
   { city: 'Mumbai',    lat: 19.08,  lng:  72.88 },
   { city: 'Sydney',    lat: -33.87, lng: 151.21 },
@@ -113,7 +113,7 @@ export default function GeoMap({ cityData, totalCards }: Props) {
                       textAnchor="middle"
                       y={-(r + 5)}
                       style={{
-                        fontFamily: 'JetBrains Mono, monospace',
+                        fontFamily: 'Inter, system-ui, sans-serif',
                         fontSize: 6,
                         fontWeight: 500,
                         fill: '#0F1F18',
@@ -153,7 +153,7 @@ export default function GeoMap({ cityData, totalCards }: Props) {
             className="h-7 w-7 rounded-lg bg-white border border-[#E5E0D4] shadow-soft text-[#0F1F18]/60 hover:text-[#1F4D3A] hover:border-[#1F4D3A]/30 disabled:opacity-30 disabled:cursor-not-allowed transition flex items-center justify-center text-[15px] font-light leading-none"
             title="Zoom out"
           >
-            −
+            âˆ’
           </button>
           {(zoom !== DEFAULT_ZOOM || center[0] !== DEFAULT_CENTER[0] || center[1] !== DEFAULT_CENTER[1]) && (
             <button
@@ -171,7 +171,7 @@ export default function GeoMap({ cityData, totalCards }: Props) {
 
         {/* Drag hint */}
         <div className="absolute bottom-3 left-3 pointer-events-none">
-          <span className="text-[9.5px] font-mono text-[#0F1F18]/30">drag to pan · scroll to zoom</span>
+          <span className="text-[9.5px] font-mono text-[#0F1F18]/30">drag to pan Â· scroll to zoom</span>
         </div>
 
         {/* No-data badge */}
@@ -198,7 +198,7 @@ export default function GeoMap({ cityData, totalCards }: Props) {
               />
               <span className="flex-1 text-[#0F1F18]/70 truncate">{city}</span>
               <span className="font-mono text-[#0F1F18]/50">
-                {pct !== null ? `${pct}%` : '—'}
+                {pct !== null ? `${pct}%` : 'â€”'}
               </span>
             </div>
           );

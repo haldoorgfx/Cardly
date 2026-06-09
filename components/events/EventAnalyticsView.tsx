@@ -65,12 +65,12 @@ function LineChart({ points }: { points: DailyPoint[] }) {
       )}
       {/* X-axis labels */}
       {points.map((p, i) => i % labelEvery === 0 && (
-        <text key={i} x={toX(i)} y={H - 4} textAnchor="middle" fontSize="10" fill="#6B7A72" fontFamily="JetBrains Mono, monospace">
+        <text key={i} x={toX(i)} y={H - 4} textAnchor="middle" fontSize="10" fill="#6B7A72" fontFamily="Inter, system-ui, sans-serif">
           {new Date(p.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
         </text>
       ))}
       {/* Y-axis max label */}
-      <text x={PAD.left - 6} y={PAD.top + 4} textAnchor="end" fontSize="10" fill="#6B7A72" fontFamily="JetBrains Mono, monospace">
+      <text x={PAD.left - 6} y={PAD.top + 4} textAnchor="end" fontSize="10" fill="#6B7A72" fontFamily="Inter, system-ui, sans-serif">
         {max}
       </text>
     </svg>

@@ -170,7 +170,7 @@ function NavItem({ href, icon, label, badge, active, onNavigate }: {
         <span className="shrink-0">{icon}</span>
         <span className="flex-1 leading-none">{label}</span>
         {badge && (
-          <span className="text-[9px] font-mono font-medium px-1.5 py-0.5 rounded-md tracking-wide"
+          <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-md tracking-wide"
             style={{ color: '#6B7A72', background: '#F5F3EE' }}>
             {badge}
           </span>
@@ -241,7 +241,7 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
             </Link>
           )}
           {mounted && planLabel && (
-            <span className="text-[9px] font-mono font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md"
+            <span className="text-[9px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md"
               style={{ background: '#E8EFEB', color: '#1F4D3A', border: '1px solid #C9DDD3' }}>
               {planLabel}
             </span>
@@ -259,7 +259,7 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
         {PLATFORM_SECTIONS.map((section, si) => (
           <div key={si}>
             {section.title && (
-              <div className="px-2.5 mb-1.5 text-[10px] font-mono uppercase tracking-widest"
+              <div className="px-2.5 mb-1.5 text-[9.5px] font-semibold uppercase tracking-[0.08em]"
                 style={{ color: '#9BA8A1' }}>
                 {section.title}
               </div>
@@ -288,7 +288,7 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
           <div>
             <button
               onClick={() => setAdminOpen(o => !o)}
-              className="w-full px-2.5 mb-1.5 flex items-center justify-between text-[10px] font-mono uppercase tracking-widest transition-colors hover:text-[#6B7A72]"
+              className="w-full px-2.5 mb-1.5 flex items-center justify-between text-[9.5px] font-semibold uppercase tracking-[0.08em] transition-colors hover:text-[#6B7A72]"
               style={{ color: '#9BA8A1' }}>
               <span className="flex items-center gap-1.5">
                 Admin
@@ -322,8 +322,8 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
       <div className="px-3 pb-2 shrink-0">
         <div className="rounded-xl p-3" style={{ background: '#F5F3EE', border: '1px solid #E5E0D4' }}>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-mono uppercase tracking-widest" style={{ color: '#9BA8A1' }}>Events</span>
-            <span suppressHydrationWarning className="text-[10px] font-mono" style={{ color: '#6B7A72' }}>
+            <span className="text-[9.5px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9BA8A1' }}>Events</span>
+            <span suppressHydrationWarning className="text-[10px] font-medium tabular-nums" style={{ color: '#6B7A72' }}>
               {eventCount}&nbsp;/&nbsp;{planLimit === Infinity ? '∞' : planLimit}
             </span>
           </div>
@@ -336,7 +336,7 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
 
       {/* Operations + plan CTA */}
       <div className="px-3 pb-3 shrink-0">
-        <div className="px-2.5 mb-2 text-[10px] font-mono uppercase tracking-widest" style={{ color: '#9BA8A1' }}>
+        <div className="px-2.5 mb-2 text-[9.5px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9BA8A1' }}>
           Operations
         </div>
         <Link href="/settings/billing" onClick={onNavigate}
@@ -444,7 +444,7 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
           )}
         </div>
         {badge && (
-          <span className="mt-2 inline-flex items-center gap-1.5 text-[10px] font-mono tracking-[0.1em] uppercase px-2 py-0.5 rounded-full border"
+          <span className="mt-2 inline-flex items-center gap-1.5 text-[9.5px] font-semibold tracking-[0.06em] uppercase px-2 py-0.5 rounded-full border"
             style={event?.status === 'published'
               ? { background: '#E8EFEB', color: '#2D7A4F', borderColor: '#C9DDD3' }
               : event?.status === 'draft'
@@ -461,7 +461,7 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
         {EVENT_NAV_SECTIONS.map((section, si) => (
           <div key={si} className="mb-4">
             {section.title && (
-              <div className="px-2.5 mb-1.5 text-[10px] font-mono uppercase tracking-widest" style={{ color: '#9BA8A1' }}>
+              <div className="px-2.5 mb-1.5 text-[9.5px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9BA8A1' }}>
                 {section.title}
               </div>
             )}
@@ -1033,13 +1033,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                             <>
                               {today.length > 0 && (
                                 <div>
-                                  <div className="px-5 pt-3 pb-1.5 text-[10px] font-mono uppercase tracking-widest" style={{ color: '#9BA8A1' }}>Today</div>
+                                  <div className="px-5 pt-3 pb-1.5 text-[9.5px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9BA8A1' }}>Today</div>
                                   {today.map(n => <NotifItem key={n.id} notif={n} onRead={handleNotifRead} />)}
                                 </div>
                               )}
                               {earlier.length > 0 && (
                                 <div>
-                                  <div className="px-5 pt-3 pb-1.5 text-[10px] font-mono uppercase tracking-widest" style={{ color: '#9BA8A1' }}>Earlier</div>
+                                  <div className="px-5 pt-3 pb-1.5 text-[9.5px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9BA8A1' }}>Earlier</div>
                                   {earlier.map(n => <NotifItem key={n.id} notif={n} onRead={handleNotifRead} />)}
                                 </div>
                               )}

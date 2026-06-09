@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * PreviewDownloadScreen — E2
@@ -306,7 +306,7 @@ export default function PreviewDownloadScreen({
               padding: '6px 12px',
               background: '#E8EFEB', color: '#1F4D3A',
               borderRadius: 999,
-              fontFamily: 'JetBrains Mono, monospace', fontSize: 11,
+              fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11,
               letterSpacing: '0.08em', textTransform: 'uppercase',
               marginBottom: 16,
             }}>

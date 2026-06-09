@@ -96,7 +96,7 @@ export default async function AgendaPrintPage({ params }: Props) {
               <thead>
                 <tr style={{ borderBottom: '1px solid #E5E0D4' }}>
                   {['Time', 'Title', 'Type', 'Speakers', 'Room'].map(h => (
-                    <th key={h} style={{ textAlign: 'left', padding: '6px 8px', fontSize: 10, fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#9BA8A1', fontWeight: 500 }}>
+                    <th key={h} style={{ textAlign: 'left', padding: '6px 8px', fontSize: 10, fontFamily: 'Inter, system-ui, sans-serif', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#9BA8A1', fontWeight: 500 }}>
                       {h}
                     </th>
                   ))}
@@ -113,7 +113,7 @@ export default async function AgendaPrintPage({ params }: Props) {
                   const typeColor = SESSION_TYPE_COLORS[s.session_type] ?? '#6B7A72';
                   return (
                     <tr key={s.id} style={{ borderBottom: '1px solid rgba(229,224,212,0.5)', background: i % 2 === 0 ? 'transparent' : 'rgba(250,246,238,0.4)' }}>
-                      <td style={{ padding: '8px 8px', fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: '#3A4A42', whiteSpace: 'nowrap' }}>
+                      <td style={{ padding: '8px 8px', fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: '#3A4A42', whiteSpace: 'nowrap' }}>
                         {fmtTime(s.starts_at)}{s.ends_at ? ` – ${fmtTime(s.ends_at)}` : ''}
                       </td>
                       <td style={{ padding: '8px 8px', fontWeight: 500, color: '#0F1F18' }}>
@@ -126,7 +126,7 @@ export default async function AgendaPrintPage({ params }: Props) {
                         </span>
                       </td>
                       <td style={{ padding: '8px 8px', fontSize: 11, color: '#6B7A72' }}>{speakerNames || '—'}</td>
-                      <td style={{ padding: '8px 8px', fontSize: 11, color: '#6B7A72', fontFamily: 'JetBrains Mono, monospace' }}>{s.room || '—'}</td>
+                      <td style={{ padding: '8px 8px', fontSize: 11, color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>{s.room || '—'}</td>
                     </tr>
                   );
                 })}
@@ -140,7 +140,7 @@ export default async function AgendaPrintPage({ params }: Props) {
         )}
 
         {/* Footer */}
-        <div style={{ marginTop: 48, paddingTop: 16, borderTop: '1px solid #E5E0D4', display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#9BA8A1', fontFamily: 'JetBrains Mono, monospace' }}>
+        <div style={{ marginTop: 48, paddingTop: 16, borderTop: '1px solid #E5E0D4', display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#9BA8A1', fontFamily: 'Inter, system-ui, sans-serif' }}>
           <span>Generated with Karta</span>
           <span>{today}</span>
         </div>

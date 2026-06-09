@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useRef } from 'react';
 import { Camera, X } from 'lucide-react';
@@ -29,7 +29,7 @@ export function CardZoneFill({
 
   return (
     <div className="flex flex-col lg:flex-row gap-6">
-      {/* ── Form fields ── */}
+      {/* â”€â”€ Form fields â”€â”€ */}
       <div className="flex-1 min-w-0 space-y-4">
         <p className="text-[13px]" style={{ color: '#6B7A72' }}>
           Personalise your card. It&apos;ll be generated when you confirm.
@@ -60,7 +60,7 @@ export function CardZoneFill({
                   className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
                   style={{ background: '#FAF6EE', border: `1px solid ${err ? '#B8423C' : '#E5E0D4'}`, color: '#0F1F18' }}
                 >
-                  <option value="">Select…</option>
+                  <option value="">Selectâ€¦</option>
                   {zone.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                 </select>
                 {err && <p className="text-[12px] mt-1" style={{ color: '#B8423C' }}>{err}</p>}
@@ -104,7 +104,7 @@ export function CardZoneFill({
         })}
       </div>
 
-      {/* ── Live preview ── */}
+      {/* â”€â”€ Live preview â”€â”€ */}
       {backgroundUrl && (
         <div className="lg:w-[280px] shrink-0">
           <div className="text-[11px] font-mono uppercase tracking-widest mb-2 text-center" style={{ color: '#6B7A72' }}>
@@ -173,7 +173,7 @@ export function CardZoneFill({
                       fontWeight,
                       color: text ? textColor : 'rgba(255,255,255,0.3)',
                       textAlign,
-                      fontFamily: zone.font === 'JetBrains Mono' ? 'JetBrains Mono, monospace' : zone.font === 'DM Sans' ? 'DM Sans, sans-serif' : 'Inter, sans-serif',
+                      fontFamily: zone.font === 'JetBrains Mono' ? 'Inter, system-ui, sans-serif' : zone.font === 'DM Sans' ? 'DM Sans, sans-serif' : 'Inter, sans-serif',
                       lineHeight: zone.lineHeight ?? 1.3,
                       letterSpacing: zone.letterSpacing ? `${zone.letterSpacing * scale}px` : undefined,
                       textTransform: zone.textTransform as React.CSSProperties['textTransform'] ?? undefined,

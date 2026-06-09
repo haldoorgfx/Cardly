@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import type { Zone, Variant } from '@/types/database';
@@ -47,7 +47,7 @@ export default function VariantsTabs({
       {/* "Variants" label */}
       <span
         className="text-[10px] uppercase tracking-[0.1em] mr-1 shrink-0"
-        style={{ fontFamily: 'JetBrains Mono, monospace', color: '#6B7A72' }}
+        style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#6B7A72' }}
       >
         Variants
       </span>
@@ -120,7 +120,7 @@ export default function VariantsTabs({
                   </span>
                   <span
                     className="text-[10px]"
-                    style={{ fontFamily: 'JetBrains Mono, monospace', color: '#6B7A72' }}
+                    style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#6B7A72' }}
                   >
                     {zoneCount}
                   </span>
@@ -211,13 +211,13 @@ export default function VariantsTabs({
         <span
           className="shrink-0 hidden sm:block"
           style={{
-            fontFamily: 'JetBrains Mono, monospace',
+            fontFamily: 'Inter, system-ui, sans-serif',
             fontSize: 10,
             color: '#6B7A72',
             letterSpacing: '0.04em',
           }}
         >
-          {bgW} × {bgH} px
+          {bgW} Ã— {bgH} px
         </span>
       )}
     </div>

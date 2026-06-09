@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { Phone, ShieldCheck, ChevronRight } from 'lucide-react';
@@ -80,7 +80,7 @@ export function WaafiPayStep({ registrationId, qrToken, amount, currency, eventT
           Pay with mobile money
         </h2>
         <p className="text-[14px]" style={{ color: '#6B7A72' }}>
-          {ticketName} · {eventTitle}
+          {ticketName} Â· {eventTitle}
         </p>
       </div>
 
@@ -92,7 +92,7 @@ export function WaafiPayStep({ registrationId, qrToken, amount, currency, eventT
         <span className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>{ticketName}</span>
         <span
           className="text-[17px] font-semibold"
-          style={{ fontFamily: 'JetBrains Mono, monospace', color: '#1F4D3A' }}
+          style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#1F4D3A' }}
         >
           {formattedAmount}
         </span>
@@ -134,14 +134,14 @@ export function WaafiPayStep({ registrationId, qrToken, amount, currency, eventT
             onChange={e => setLocalNumber(e.target.value)}
             placeholder="61 234 5678"
             className="flex-1 h-11 pr-3 text-[15px] outline-none"
-            style={{ color: '#0F1F18', fontFamily: 'JetBrains Mono, monospace', background: 'transparent' }}
+            style={{ color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif', background: 'transparent' }}
           />
         </div>
 
         {/* Operator hint */}
         {detectedOperator && !error && (
           <p className="text-[12px] mt-1.5 flex items-center gap-1" style={{ color: '#2D7A4F' }}>
-            <span>✓</span> Detected: {detectedOperator.name}
+            <span>âœ“</span> Detected: {detectedOperator.name}
           </p>
         )}
         {error && (
@@ -154,7 +154,7 @@ export function WaafiPayStep({ registrationId, qrToken, amount, currency, eventT
         className="flex gap-3 px-4 py-3 rounded-xl mb-5 text-[13px]"
         style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }}
       >
-        <span style={{ fontSize: 16 }}>📱</span>
+        <span style={{ fontSize: 16 }}>ðŸ“±</span>
         <div style={{ color: '#3A4A42', lineHeight: 1.5 }}>
           You&apos;ll receive a push notification or USSD prompt on your phone to approve the payment.
           Keep your phone nearby.
@@ -173,7 +173,7 @@ export function WaafiPayStep({ registrationId, qrToken, amount, currency, eventT
             <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
             </svg>
-            Waiting for approval…
+            Waiting for approvalâ€¦
           </>
         ) : (
           <>
@@ -186,7 +186,7 @@ export function WaafiPayStep({ registrationId, qrToken, amount, currency, eventT
       {/* Security */}
       <div className="flex items-center justify-center gap-1.5 mt-3 text-[12px]" style={{ color: '#6B7A72' }}>
         <ShieldCheck size={13} strokeWidth={2} />
-        Secured by WaafiPay · No card details needed
+        Secured by WaafiPay Â· No card details needed
       </div>
 
       {/* Supported networks */}

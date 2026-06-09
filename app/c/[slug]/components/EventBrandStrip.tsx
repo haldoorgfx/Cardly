@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /** Compact organizer strip shown at the top of every attendee screen. */
 
@@ -58,7 +58,7 @@ export default function EventBrandStrip({ eventName, compact = false }: Props) {
           {eventName}
         </div>
         <div style={{
-          fontFamily: 'JetBrains Mono, monospace',
+          fontFamily: 'Inter, system-ui, sans-serif',
           fontSize: 10,
           color: '#6B7A72',
           letterSpacing: '0.04em',

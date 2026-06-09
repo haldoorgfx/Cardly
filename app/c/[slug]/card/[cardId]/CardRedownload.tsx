@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Download } from 'lucide-react';
 
@@ -35,7 +35,7 @@ export default function CardRedownload({ eventName, attendeeName, outputUrl, cre
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: 8,
             padding: '6px 14px', background: '#E8EFEB', borderRadius: 999,
-            fontFamily: 'JetBrains Mono, monospace', fontSize: 11,
+            fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11,
             letterSpacing: '0.08em', textTransform: 'uppercase', color: '#1F4D3A',
             marginBottom: 16,
           }}>

@@ -1,4 +1,4 @@
-// Registration email triggers — Phase 1.5
+﻿// Registration email triggers — Phase 1.5
 // Uses existing Resend setup
 
 import { Resend } from 'resend';

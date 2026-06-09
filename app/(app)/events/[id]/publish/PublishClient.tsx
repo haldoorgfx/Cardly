@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
@@ -132,7 +132,7 @@ function PreviewArt() {
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <div style={{
-      fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
+      fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
       color: PT.muted, letterSpacing: '0.1em', textTransform: 'uppercase',
     }}>{children}</div>
   );
@@ -277,7 +277,7 @@ export default function PublishClient({
 
           <div>
             <div style={{
-              fontFamily: 'JetBrains Mono, monospace', fontSize: 11,
+              fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11,
               color: PT.muted, letterSpacing: '0.1em', textTransform: 'uppercase',
               marginBottom: 8,
             }}>Your event is live</div>
@@ -301,7 +301,7 @@ export default function PublishClient({
                 <span>Ready for attendees</span>
               </span>
               <span style={{ color: PT.borderStrong }}>·</span>
-              <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12, color: PT.muted }}>
+              <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, color: PT.muted }}>
                 {bgW} × {bgH}
               </span>
             </div>
@@ -325,7 +325,7 @@ export default function PublishClient({
             padding: '4px 10px',
             background: PT.cream, border: `1px solid ${PT.border}`,
             borderRadius: 999,
-            fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
+            fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
             color: PT.muted, letterSpacing: '0.04em',
           }}>
             {I.refresh({ size: 11 })}
@@ -340,7 +340,7 @@ export default function PublishClient({
           <Panel label="Share link" action={
             <span style={{
               display: 'inline-flex', alignItems: 'center', gap: 5,
-              fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
+              fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
               color: PT.muted, letterSpacing: '0.04em',
             }}>
               {I.link({ size: 11 })}
@@ -358,7 +358,7 @@ export default function PublishClient({
                 background: PT.cream, borderRight: `1px solid ${PT.border}`,
               }}>
                 <span style={{
-                  fontFamily: 'JetBrains Mono, monospace', fontSize: 12.5,
+                  fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12.5,
                   color: PT.ink, fontWeight: 500,
                   whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1,
                 }}>{shareUrl}</span>
@@ -383,7 +383,7 @@ export default function PublishClient({
             {/* Share to platforms */}
             <div>
               <div style={{
-                fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
+                fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
                 color: PT.muted, letterSpacing: '0.08em',
                 textTransform: 'uppercase', marginBottom: 8,
               }}>Share to</div>
@@ -425,7 +425,7 @@ export default function PublishClient({
                 marginBottom: 6,
               }}>
                 <div style={{
-                  fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
+                  fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
                   color: PT.muted, letterSpacing: '0.08em', textTransform: 'uppercase',
                 }}>Suggested caption</div>
                 <button
@@ -451,7 +451,7 @@ export default function PublishClient({
           <Panel label="QR code" action={
             <span style={{
               display: 'inline-flex', alignItems: 'center', gap: 5,
-              fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
+              fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
               color: PT.muted, letterSpacing: '0.04em',
             }}>
               {I.qr({ size: 11 })}
@@ -473,7 +473,7 @@ export default function PublishClient({
                     width: 192, height: 192, borderRadius: 4,
                     background: '#F0EDE8', display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>
-                    <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: PT.muted }}>generating…</span>
+                    <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: PT.muted }}>generating…</span>
                   </div>
                 )}
                 {/* Brand logo overlay — always visible */}
@@ -561,13 +561,13 @@ export default function PublishClient({
               <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#28C840', display: 'block' }} />
               <span style={{
                 marginLeft: 8,
-                fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
+                fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
                 color: 'rgba(250,246,238,0.55)', letterSpacing: '0.04em',
               }}>embed.html · html</span>
             </div>
             <pre style={{
               margin: 0, padding: '14px 16px',
-              fontFamily: 'JetBrains Mono, monospace', fontSize: 12, lineHeight: 1.65,
+              fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, lineHeight: 1.65,
               color: PT.cream, whiteSpace: 'pre-wrap', wordBreak: 'break-all',
             }}>
               <span style={{ color: '#9EC6B2' }}>{'<iframe'}</span>{' '}
@@ -602,7 +602,7 @@ export default function PublishClient({
                   color: activeSize === chip.id ? PT.primary : PT.ink,
                 }}>{chip.label}</div>
                 <div style={{
-                  fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
+                  fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
                   color: PT.muted, letterSpacing: '0.04em',
                 }}>{chip.size}</div>
               </button>
@@ -768,7 +768,7 @@ export default function PublishClient({
         <div style={{
           marginTop: 8, padding: '14px 0',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
+          fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
           color: PT.muted, letterSpacing: '0.04em',
         }}>
           <span>powered by <span style={{ color: PT.ink, fontWeight: 500 }}>karta</span></span>
@@ -800,7 +800,7 @@ function ShareButton({ icon, label, sub, href }: { icon: React.ReactNode; label:
         display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
       }}>{icon}</div>
       <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 12, color: PT.ink }}>{label}</div>
-      <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9.5, color: PT.muted, letterSpacing: '0.04em' }}>{sub}</div>
+      <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 9.5, color: PT.muted, letterSpacing: '0.04em' }}>{sub}</div>
     </a>
   );
 }
@@ -810,7 +810,7 @@ function StatItem({ label, value, sub }: { label: string; value: string; sub: st
   return (
     <div>
       <div style={{
-        fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
+        fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
         color: PT.muted, letterSpacing: '0.08em',
         textTransform: 'uppercase', marginBottom: 4,
       }}>{label}</div>
@@ -820,7 +820,7 @@ function StatItem({ label, value, sub }: { label: string; value: string; sub: st
           color: PT.ink, letterSpacing: '-0.02em',
         }}>{value}</span>
         <span style={{
-          fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
+          fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
           color: PT.muted, letterSpacing: '0.04em',
         }}>{sub}</span>
       </div>

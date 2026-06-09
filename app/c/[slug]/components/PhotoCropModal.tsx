@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * PhotoCropModal — E1.5
@@ -69,7 +69,7 @@ export default function PhotoCropModal({
         <div style={{ padding: '18px 20px 12px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
           <div>
             <div style={{
-              fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
+              fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
               color: 'rgba(250,246,238,0.55)', letterSpacing: '0.1em',
               textTransform: 'uppercase', marginBottom: 4,
             }}>
@@ -140,7 +140,7 @@ export default function PhotoCropModal({
           borderTop: '1px solid rgba(250,246,238,0.08)',
         }}>
           <div style={{
-            fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
+            fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
             color: 'rgba(250,246,238,0.55)', letterSpacing: '0.06em',
             textTransform: 'uppercase', marginBottom: 8,
           }}>Zoom</div>
@@ -191,7 +191,7 @@ export default function PhotoCropModal({
           <div style={{ padding: '24px 28px 20px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
             <div>
               <div style={{
-                fontFamily: 'JetBrains Mono, monospace', fontSize: 11,
+                fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11,
                 color: '#6B7A72', letterSpacing: '0.1em',
                 textTransform: 'uppercase', marginBottom: 6,
               }}>Position photo</div>
@@ -250,7 +250,7 @@ export default function PhotoCropModal({
               backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
               border: '1px solid rgba(250,246,238,0.12)',
               borderRadius: 999,
-              fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
+              fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
               letterSpacing: '0.08em', textTransform: 'uppercase',
               color: 'rgba(250,246,238,0.85)',
               pointerEvents: 'none',
@@ -266,7 +266,7 @@ export default function PhotoCropModal({
           {/* Zoom slider */}
           <div style={{ padding: '20px 28px 8px', display: 'flex', alignItems: 'center', gap: 16 }}>
             <div style={{
-              fontFamily: 'JetBrains Mono, monospace', fontSize: 11,
+              fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11,
               color: '#3A4A42', letterSpacing: '0.06em', textTransform: 'uppercase', minWidth: 44,
             }}>Zoom</div>
             <div style={{ flex: 1 }}>
@@ -331,7 +331,7 @@ function ZoomSliderDark({ zoom, pct, onZoomChange }: { zoom: number; pct: number
       <div style={{ color: 'rgba(250,246,238,0.7)' }}>
         <ZoomIn size={18} strokeWidth={2}/>
       </div>
-      <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12, color: 'rgba(250,246,238,0.85)', minWidth: 36, textAlign: 'right' }}>
+      <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, color: 'rgba(250,246,238,0.85)', minWidth: 36, textAlign: 'right' }}>
         {zoom.toFixed(1)}×
       </div>
     </div>
@@ -353,7 +353,7 @@ function ZoomSliderLight({ zoom, pct, onZoomChange }: { zoom: number; pct: numbe
         />
       </div>
       <div style={{ color: '#3A4A42' }}><ZoomIn size={18} strokeWidth={2}/></div>
-      <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12, color: '#0F1F18', minWidth: 36, textAlign: 'right' }}>
+      <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, color: '#0F1F18', minWidth: 36, textAlign: 'right' }}>
         {zoom.toFixed(1)}×
       </div>
     </div>

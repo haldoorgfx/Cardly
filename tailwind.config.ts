@@ -33,7 +33,7 @@ const config: Config = {
       fontFamily: {
         display: ['"DM Sans"', "system-ui", "sans-serif"],
         sans:    ["Inter", "system-ui", "sans-serif"],
-        mono:    ['"JetBrains Mono"', "monospace"],
+        mono:    ["ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
       },
       boxShadow: {
         soft:  "0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)",

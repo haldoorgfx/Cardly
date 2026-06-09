@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useRef, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
@@ -181,7 +181,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
   return (
     <div className="max-w-[640px] mx-auto px-6 py-8 pb-28">
 
-      {/* ── Step header ─────────────────────────────────────────────── */}
+      {/* â”€â”€ Step header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>
           <p className="text-[11px] font-mono font-medium mb-1" style={{ color: '#6B7A72', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
@@ -203,7 +203,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
         </a>
       </div>
 
-      {/* ── Progress dots ─────────────────────────────────────────────── */}
+      {/* â”€â”€ Progress dots â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="flex items-center gap-2 mb-10">
         {STEPS.map((s, i) => (
           <div key={s.id} className="flex items-center gap-2">
@@ -241,7 +241,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
         ))}
       </div>
 
-      {/* ── Step 1: Cover & name ─────────────────────────────────────── */}
+      {/* â”€â”€ Step 1: Cover & name â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {step === 1 && (
         <div className="space-y-6">
           {/* Cover image */}
@@ -274,7 +274,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
               <span className="text-[13px] font-medium" style={{ color: 'rgba(255,255,255,0.85)' }}>
                 Click to upload cover image
               </span>
-              <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.5)' }}>PNG, JPG or WebP · Max 10 MB</span>
+              <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.5)' }}>PNG, JPG or WebP Â· Max 10 MB</span>
             </div>
             {coverUrl && (
               <div
@@ -350,7 +350,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
         </div>
       )}
 
-      {/* ── Step 2: Description ──────────────────────────────────────── */}
+      {/* â”€â”€ Step 2: Description â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {step === 2 && (
         <div className="space-y-3">
           <p className="text-[13px]" style={{ color: '#6B7A72' }}>
@@ -359,7 +359,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
           <textarea
             value={description}
             onChange={e => setDescription(e.target.value)}
-            placeholder="Tell attendees what your event is about…"
+            placeholder="Tell attendees what your event is aboutâ€¦"
             rows={16}
             autoFocus
             className="w-full px-4 py-3 rounded-xl text-[14px] outline-none resize-none transition"
@@ -378,7 +378,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
         </div>
       )}
 
-      {/* ── Step 3: When & where ─────────────────────────────────────── */}
+      {/* â”€â”€ Step 3: When & where â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {step === 3 && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -487,7 +487,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
         </div>
       )}
 
-      {/* ── Step 4: Settings ─────────────────────────────────────────── */}
+      {/* â”€â”€ Step 4: Settings â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {step === 4 && (
         <div className="space-y-8">
           {/* Capacity & visibility */}
@@ -537,7 +537,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
                 { value: 'stripe',      label: 'Stripe',      desc: 'Credit/debit cards worldwide. Recommended for international events.' },
                 { value: 'flutterwave', label: 'Flutterwave', desc: 'Accepts local African currencies (KES, GHS, ZAR, etc.). Ticket prices in USD, charged in local currency.' },
                 { value: 'waafipay',    label: 'WaafiPay',    desc: 'EVC Plus, eDahab, Somtel and Djibouti mobile money. Best for Somalia & Djibouti.' },
-                { value: 'free',        label: 'Free only',   desc: 'No payment collection — all tickets must be free.' },
+                { value: 'free',        label: 'Free only',   desc: 'No payment collection â€” all tickets must be free.' },
               ].map(opt => (
                 <button
                   key={opt.value}
@@ -575,7 +575,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
                 <div className="flex items-center rounded-lg overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
                   <span
                     className="px-3 h-10 flex items-center text-[13px] shrink-0"
-                    style={{ background: '#F5F5F4', borderRight: '1px solid #E5E0D4', color: '#6B7A72', fontFamily: 'JetBrains Mono, monospace' }}
+                    style={{ background: '#F5F5F4', borderRight: '1px solid #E5E0D4', color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}
                   >
                     karta.cre8so.com/e/
                   </span>
@@ -584,18 +584,18 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
                     onChange={e => setCustomSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
                     placeholder={eventSlug}
                     className="flex-1 h-10 px-3 text-[13px] outline-none"
-                    style={{ background: 'white', color: '#0F1F18', fontFamily: 'JetBrains Mono, monospace' }}
+                    style={{ background: 'white', color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}
                   />
                 </div>
                 <p className="text-[12px] mt-1" style={{ color: '#6B7A72' }}>
-                  Leave blank to use the default: <code style={{ fontFamily: 'JetBrains Mono, monospace' }}>{eventSlug}</code>
+                  Leave blank to use the default: <code style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>{eventSlug}</code>
                 </p>
               </Field>
               <Field label="SEO title">
                 <input
                   value={seoTitle}
                   onChange={e => setSeoTitle(e.target.value)}
-                  placeholder={`${title || 'Event title'} — Karta`}
+                  placeholder={`${title || 'Event title'} â€” Karta`}
                   className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
                   style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
                   onFocus={e => (e.target.style.borderColor = '#E8C57E')}
@@ -619,7 +619,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
         </div>
       )}
 
-      {/* ── Bottom nav bar ───────────────────────────────────────────── */}
+      {/* â”€â”€ Bottom nav bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div
         className="fixed bottom-0 left-[252px] right-0 flex items-center justify-between gap-4 px-6 py-4"
         style={{ background: 'white', borderTop: '1px solid #E5E0D4', zIndex: 40 }}
@@ -661,7 +661,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
                 className="inline-flex items-center h-9 px-5 rounded-lg text-white text-[13px] font-semibold transition hover:opacity-90 disabled:opacity-60"
                 style={{ background: '#1F4D3A' }}
               >
-                {isPending ? 'Saving…' : 'Save changes'}
+                {isPending ? 'Savingâ€¦' : 'Save changes'}
               </button>
             </>
           ) : (
@@ -680,7 +680,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
   );
 }
 
-/* ── Helpers ── */
+/* â”€â”€ Helpers â”€â”€ */
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -692,7 +692,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
         textTransform: 'uppercase',
         borderBottom: '1px solid #E5E0D4',
         fontSize: 11,
-        fontFamily: 'JetBrains Mono, monospace',
+        fontFamily: 'Inter, system-ui, sans-serif',
         fontWeight: 600,
       }}
     >

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -89,7 +89,7 @@ function buildZoneValues(
   return { values, photoUrls };
 }
 
-// ── Arrival Screen (step -1) ─────────────────────────────────────────────────
+// â”€â”€ Arrival Screen (step -1) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function ArrivalStep({
   eventName,
   canvasVariant,
@@ -124,7 +124,7 @@ function ArrivalStep({
         filter: 'blur(48px)',
       }}/>
 
-      {/* ── Mobile / tablet: single column ───────────────────────────────── */}
+      {/* â”€â”€ Mobile / tablet: single column â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="relative z-10 flex flex-col lg:hidden">
         <div className="px-5 pt-5">
           <EventBrandStrip eventName={eventName} compact />
@@ -201,7 +201,7 @@ function ArrivalStep({
           </button>
 
           <div style={{
-            fontFamily: 'JetBrains Mono, monospace',
+            fontFamily: 'Inter, system-ui, sans-serif',
             fontSize: 11, color: '#6B7A72',
             letterSpacing: '0.04em', textAlign: 'center',
           }}>
@@ -210,14 +210,14 @@ function ArrivalStep({
         </div>
       </div>
 
-      {/* ── Desktop: two-column ───────────────────────────────────────────── */}
+      {/* â”€â”€ Desktop: two-column â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="relative z-10 hidden lg:flex flex-col" style={{ minHeight: '100vh' }}>
         <div className="px-10 pt-6 flex items-center justify-between gap-6">
           <div style={{ flex: '0 1 460px', minWidth: 0 }}>
             <EventBrandStrip eventName={eventName} compact />
           </div>
           <div style={{
-            fontFamily: 'JetBrains Mono, monospace',
+            fontFamily: 'Inter, system-ui, sans-serif',
             fontSize: 11, color: '#6B7A72', letterSpacing: '0.04em',
           }}>
             powered by <span style={{ color: '#0F1F18', fontWeight: 500 }}>karta</span>
@@ -273,7 +273,7 @@ function ArrivalStep({
           <div className="flex flex-col gap-7" style={{ maxWidth: 420 }}>
             <div className="inline-flex self-start items-center gap-2 px-3 py-1.5" style={{
               background: '#E8EFEB', color: '#1F4D3A', borderRadius: 999,
-              fontFamily: 'JetBrains Mono, monospace',
+              fontFamily: 'Inter, system-ui, sans-serif',
               fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase',
             }}>
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#1F4D3A' }}/>
@@ -330,7 +330,7 @@ function ArrivalStep({
   );
 }
 
-// ── Main RegistrationClient ──────────────────────────────────────────────────
+// â”€â”€ Main RegistrationClient â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 /** Pick the best default ticket: skip sold-out and invitation-only, prefer non-VIP */
 function pickDefaultTicket(tickets: TicketType[]): TicketType | null {
   const available = tickets.filter(t => !(t.quantity !== null && t.quantity_sold >= t.quantity));
@@ -371,7 +371,7 @@ export default function RegistrationClient({
     return errs;
   }
 
-  // 3 form steps: Ticket → Details → Payment
+  // 3 form steps: Ticket â†’ Details â†’ Payment
   const STEPS = ['Ticket', 'Details', 'Payment'];
   // 3.5% platform fee, rounded to 2 decimal places
   const fee = selectedTicket && selectedTicket.price > 0
@@ -436,7 +436,7 @@ export default function RegistrationClient({
     }
   };
 
-  // ── Arrival screen ────────────────────────────────────────────────────────
+  // â”€â”€ Arrival screen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (step === -1) {
     return (
       <ArrivalStep
@@ -447,7 +447,7 @@ export default function RegistrationClient({
     );
   }
 
-  // ── Build live card preview values from current form state ────────────────
+  // â”€â”€ Build live card preview values from current form state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const { values: previewValues, photoUrls: previewPhotoUrls } = canvasVariant
     ? buildZoneValues(canvasVariant.zones, name, role, photoUrl)
     : { values: {}, photoUrls: {} };
@@ -458,7 +458,7 @@ export default function RegistrationClient({
         className="max-w-[1100px] mx-auto px-5 py-8 pb-20"
         style={{ display: 'grid', gridTemplateColumns: canvasVariant ? '1fr 340px' : '1fr', gap: 48, alignItems: 'start' }}
       >
-        {/* ── Left: form ── */}
+        {/* â”€â”€ Left: form â”€â”€ */}
         <div>
           {/* Step indicator */}
           <div className="flex items-center gap-2.5 mb-8">
@@ -580,7 +580,7 @@ export default function RegistrationClient({
                 </div>
 
                 <div>
-                  <label className="block text-[12px] mb-2" style={{ color: '#6B7A72' }}>Add your photo — appears on your Karta Card</label>
+                  <label className="block text-[12px] mb-2" style={{ color: '#6B7A72' }}>Add your photo â€” appears on your Karta Card</label>
                   <input ref={photoRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
                   {photoUrl ? (
                     <div
@@ -619,7 +619,7 @@ export default function RegistrationClient({
                   </p>
                   <div className="flex items-center gap-2 mb-6">
                     <span className="w-2 h-2 rounded-full" style={{ background: '#2D7A4F' }} />
-                    <span className="font-mono text-[12px]" style={{ color: '#6B7A72' }}>Encrypted · PCI-DSS</span>
+                    <span className="font-mono text-[12px]" style={{ color: '#6B7A72' }}>Encrypted Â· PCI-DSS</span>
                   </div>
                 </>
               )}
@@ -670,7 +670,7 @@ export default function RegistrationClient({
                 className="px-5 py-2.5 rounded-xl font-medium text-[14px] transition-colors"
                 style={{ background: '#E8EFEB', color: '#1F4D3A' }}
               >
-                ← Back
+                â† Back
               </button>
 
               {step < 2 ? (
@@ -686,7 +686,7 @@ export default function RegistrationClient({
                   className="ml-auto px-6 py-2.5 rounded-xl font-medium text-[14px] text-white disabled:opacity-50"
                   style={{ background: '#1F4D3A' }}
                 >
-                  Continue →
+                  Continue â†’
                 </button>
               ) : (
                 <button
@@ -695,19 +695,19 @@ export default function RegistrationClient({
                   className="ml-auto px-6 py-2.5 rounded-xl font-medium text-[14px] text-white disabled:opacity-50"
                   style={{ background: '#1F4D3A' }}
                 >
-                  {submitting ? 'Confirming…' : 'Confirm registration'}
+                  {submitting ? 'Confirmingâ€¦' : 'Confirm registration'}
                 </button>
               )}
             </div>
           </div>
         </div>
 
-        {/* ── Right: order summary + live card preview ── */}
+        {/* â”€â”€ Right: order summary + live card preview â”€â”€ */}
         {canvasVariant && (
           <aside className="sticky hidden lg:block" style={{ top: 88 }}>
             {/* Live card preview */}
             <div className="mb-4">
-              <div className="text-[11px] font-semibold uppercase tracking-wider mb-3" style={{ color: '#6B7A72', fontFamily: 'JetBrains Mono, monospace' }}>
+              <div className="text-[11px] font-semibold uppercase tracking-wider mb-3" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
                 Your Karta Card
               </div>
               <EventCardPreview
@@ -742,7 +742,7 @@ export default function RegistrationClient({
                   <div className="font-display font-medium text-[15px]" style={{ color: '#0F1F18' }}>{eventName}</div>
                   {(startsAt || city) && (
                     <div className="font-mono text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>
-                      {startsAt ? dateStr(startsAt) : ''}{city ? ` · ${city}` : ''}
+                      {startsAt ? dateStr(startsAt) : ''}{city ? ` Â· ${city}` : ''}
                     </div>
                   )}
                 </div>
@@ -784,7 +784,7 @@ export default function RegistrationClient({
                   <div className="font-display font-medium text-[15px]" style={{ color: '#0F1F18' }}>{eventName}</div>
                   {(startsAt || city) && (
                     <div className="font-mono text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>
-                      {startsAt ? dateStr(startsAt) : ''}{city ? ` · ${city}` : ''}
+                      {startsAt ? dateStr(startsAt) : ''}{city ? ` Â· ${city}` : ''}
                     </div>
                   )}
                 </div>
@@ -807,7 +807,7 @@ export default function RegistrationClient({
                     <span className="font-mono font-medium text-[22px]" style={{ color: '#1F4D3A' }}>{fmt(total, selectedTicket.currency)}</span>
                   </div>
 
-                  {/* Card teaser — shown at payment step when no canvas variant */}
+                  {/* Card teaser â€” shown at payment step when no canvas variant */}
                   {step === 2 && (
                     <div className="mt-5 pt-4" style={{ borderTop: '1px solid #E5E0D4' }}>
                       <div

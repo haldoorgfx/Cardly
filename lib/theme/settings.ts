@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Theme/brand settings reader.
  *
  * Reads site_settings row (id = 1) from Supabase.

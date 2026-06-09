@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { Plug, Plus, Key, CheckCircle2, XCircle, X } from 'lucide-react';
@@ -22,9 +22,9 @@ type Delivery = {
 };
 
 const INITIAL_ENDPOINTS: Endpoint[] = [
-  { url: 'https://api.acme.com/karta/webhook', events: 'registration.created, checkin.*', lastDelivery: '200 · 2m ago', status: 'Active' },
-  { url: 'https://hooks.zapier.com/hooks/abc123', events: 'card.shared', lastDelivery: '200 · 1h ago', status: 'Active' },
-  { url: 'https://crm.partner.io/ingest', events: 'registration.*', lastDelivery: '500 · 3h ago', status: 'Failing' },
+  { url: 'https://api.acme.com/karta/webhook', events: 'registration.created, checkin.*', lastDelivery: '200 Â· 2m ago', status: 'Active' },
+  { url: 'https://hooks.zapier.com/hooks/abc123', events: 'card.shared', lastDelivery: '200 Â· 1h ago', status: 'Active' },
+  { url: 'https://crm.partner.io/ingest', events: 'registration.*', lastDelivery: '500 Â· 3h ago', status: 'Failing' },
 ];
 
 const SAMPLE_DELIVERIES: Delivery[] = [
@@ -78,14 +78,14 @@ export function WebhooksView(_props: Props) {
     if (selectedEvents.length === 0) { setUrlError('Select at least one event type'); return; }
     setUrlError('');
     setSaving(true);
-    // Simulate save — in future this will POST to /api/events/[id]/webhooks
+    // Simulate save â€” in future this will POST to /api/events/[id]/webhooks
     await new Promise(r => setTimeout(r, 600));
     setSaving(false);
     setSaved(true);
     setEndpoints(prev => [{
       url: trimmed,
       events: selectedEvents.join(', '),
-      lastDelivery: '—',
+      lastDelivery: 'â€”',
       status: 'Active',
     }, ...prev]);
     setTimeout(() => setShowModal(false), 800);
@@ -122,7 +122,7 @@ export function WebhooksView(_props: Props) {
         <Key size={14} strokeWidth={2} style={{ color: '#1F4D3A', flexShrink: 0, marginTop: 1 }} />
         <span style={{ color: '#3A4A42' }}>
           Keep your keys secret. Use them in the{' '}
-          <code className="px-1 py-0.5 rounded text-[11px]" style={{ background: '#EDE9E0', fontFamily: 'JetBrains Mono, monospace' }}>
+          <code className="px-1 py-0.5 rounded text-[11px]" style={{ background: '#EDE9E0', fontFamily: 'Inter, system-ui, sans-serif' }}>
             Authorization: Bearer
           </code>{' '}
           header. Rotate immediately if exposed.
@@ -130,7 +130,7 @@ export function WebhooksView(_props: Props) {
       </div>
 
       {/* Endpoints */}
-      <h2 className="text-[11px] font-semibold mb-3" style={{ color: '#6B7A72', letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'JetBrains Mono, monospace' }}>
+      <h2 className="text-[11px] font-semibold mb-3" style={{ color: '#6B7A72', letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'Inter, system-ui, sans-serif' }}>
         Endpoints
       </h2>
       <div className="space-y-2.5 mb-7">
@@ -242,7 +242,7 @@ export function WebhooksView(_props: Props) {
                   className="w-full h-10 rounded-xl px-3 text-[13px] outline-none transition"
                   style={{
                     border: urlError ? '1.5px solid #B8423C' : '1.5px solid #E5E0D4',
-                    fontFamily: 'JetBrains Mono, monospace',
+                    fontFamily: 'Inter, system-ui, sans-serif',
                     color: '#0F1F18',
                   }}
                   onFocus={e => { if (!urlError) e.currentTarget.style.borderColor = '#1F4D3A'; }}
@@ -311,7 +311,7 @@ export function WebhooksView(_props: Props) {
                 className="h-9 px-5 rounded-xl text-[13px] font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
                 style={{ background: saved ? '#2D7A4F' : '#1F4D3A', minWidth: 120 }}
               >
-                {saved ? '✓ Saved' : saving ? 'Saving…' : 'Add endpoint'}
+                {saved ? 'âœ“ Saved' : saving ? 'Savingâ€¦' : 'Add endpoint'}
               </button>
             </div>
           </div>

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
@@ -50,12 +50,12 @@ export function PublicEventPageClient({
 
   const locationLine = page.is_online
     ? 'Online event'
-    : [page.venue_name, page.venue_address].filter(Boolean).join(' · ') || 'Venue TBA';
+    : [page.venue_name, page.venue_address].filter(Boolean).join(' Â· ') || 'Venue TBA';
 
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
 
-      {/* ── Hero ───────────────────────────────────────────────────── */}
+      {/* â”€â”€ Hero â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div
         className="relative overflow-hidden w-full"
         style={{ height: 440 }}
@@ -75,13 +75,13 @@ export function PublicEventPageClient({
           />
         )}
 
-        {/* Dark scrim — bottom to top */}
+        {/* Dark scrim â€” bottom to top */}
         <div
           className="absolute inset-0"
           style={{ background: 'linear-gradient(to top, rgba(10,20,14,0.90) 0%, rgba(10,20,14,0.45) 40%, transparent 75%)' }}
         />
 
-        {/* Share + Heart icons — top right */}
+        {/* Share + Heart icons â€” top right */}
         <div className="absolute top-5 right-5 flex gap-2.5 z-10">
           <button
             onClick={handleShare}
@@ -106,7 +106,7 @@ export function PublicEventPageClient({
           </button>
         </div>
 
-        {/* Hero caption — bottom */}
+        {/* Hero caption â€” bottom */}
         <div className="absolute bottom-0 left-0 right-0 z-10">
           <div className="max-w-[1000px] mx-auto px-5 pb-8 flex items-end justify-between gap-6">
             <div className="flex-1 min-w-0">
@@ -132,22 +132,22 @@ export function PublicEventPageClient({
             </div>
             <div
               className="text-right shrink-0 hidden sm:block"
-              style={{ color: 'rgba(255,255,255,0.85)', fontSize: 14, fontFamily: 'JetBrains Mono, monospace' }}
+              style={{ color: 'rgba(255,255,255,0.85)', fontSize: 14, fontFamily: 'Inter, system-ui, sans-serif' }}
             >
               <div>{dateStr}</div>
-              <div className="mt-1">{timeStr} – {endTimeStr}</div>
+              <div className="mt-1">{timeStr} â€“ {endTimeStr}</div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── Main layout ───────────────────────────────────────────── */}
+      {/* â”€â”€ Main layout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="max-w-[1000px] mx-auto px-5">
 
         {/* Meta strip */}
         <div
           className="flex flex-wrap gap-x-8 gap-y-2 py-5 text-[14px]"
-          style={{ borderBottom: '1px solid #E5E0D4', fontFamily: 'JetBrains Mono, monospace', color: '#3A4A42' }}
+          style={{ borderBottom: '1px solid #E5E0D4', fontFamily: 'Inter, system-ui, sans-serif', color: '#3A4A42' }}
         >
           <span className="flex items-center gap-2">
             <Calendar size={14} strokeWidth={2} style={{ color: '#1F4D3A' }} />
@@ -155,7 +155,7 @@ export function PublicEventPageClient({
           </span>
           <span className="flex items-center gap-2">
             <Clock size={14} strokeWidth={2} style={{ color: '#1F4D3A' }} />
-            {timeStr} – {endTimeStr}
+            {timeStr} â€“ {endTimeStr}
           </span>
           <span className="flex items-center gap-2">
             {page.is_online
@@ -175,7 +175,7 @@ export function PublicEventPageClient({
           className="grid gap-8 py-10 lg:grid-cols-[1fr_340px]"
           style={{ alignItems: 'start' }}
         >
-          {/* ── Content column ──────────────────────────────────── */}
+          {/* â”€â”€ Content column â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
           <div className="min-w-0">
 
             {/* About */}
@@ -244,7 +244,7 @@ export function PublicEventPageClient({
 
           </div>
 
-          {/* ── Sidebar: registration card ──────────────────────── */}
+          {/* â”€â”€ Sidebar: registration card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
           <aside className="hidden lg:block" style={{ position: 'sticky', top: 88 }}>
             <TicketList
               tickets={tickets}
@@ -259,7 +259,7 @@ export function PublicEventPageClient({
         </div>
       </div>
 
-      {/* ── Mobile bottom bar ──────────────────────────────────────── */}
+      {/* â”€â”€ Mobile bottom bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div
         className="fixed bottom-0 left-0 right-0 lg:hidden flex items-center gap-3 px-4 py-3 z-50"
         style={{ background: 'white', borderTop: '1px solid #E5E0D4', boxShadow: '0 -4px 16px rgba(15,31,24,0.08)' }}
@@ -267,7 +267,7 @@ export function PublicEventPageClient({
         <div className="flex-1 min-w-0">
           <div
             className="text-[17px] font-medium"
-            style={{ fontFamily: 'JetBrains Mono, monospace', color: '#1F4D3A' }}
+            style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#1F4D3A' }}
           >
             {selectedTicketObj
               ? fmtTicketPrice(selectedTicketObj.price, selectedTicketObj.currency)
@@ -300,7 +300,7 @@ export function PublicEventPageClient({
   );
 }
 
-/* ── Ticket list (shared between sidebar and mobile inline) ── */
+/* â”€â”€ Ticket list (shared between sidebar and mobile inline) â”€â”€ */
 function TicketList({
   tickets, selectedTicket, setSelectedTicket, registerHref, selectedTicketObj, page, minPrice,
 }: {
@@ -325,7 +325,7 @@ function TicketList({
       {/* Price headline */}
       <div
         className="text-[28px] font-medium mb-1"
-        style={{ fontFamily: 'JetBrains Mono, monospace', color: '#1F4D3A' }}
+        style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#1F4D3A' }}
       >
         {selectedTicketObj
           ? fmtTicketPrice(selectedTicketObj.price, selectedTicketObj.currency)
@@ -374,7 +374,7 @@ function TicketList({
                 </span>
                 <span
                   className="text-[14px] shrink-0"
-                  style={{ fontFamily: 'JetBrains Mono, monospace', color: ticket.price === 0 ? '#2D7A4F' : '#1F4D3A', fontWeight: 500 }}
+                  style={{ fontFamily: 'Inter, system-ui, sans-serif', color: ticket.price === 0 ? '#2D7A4F' : '#1F4D3A', fontWeight: 500 }}
                 >
                   {soldOut ? 'Sold out' : fmtTicketPrice(ticket.price, ticket.currency)}
                 </span>

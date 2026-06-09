@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { ZoomIn, ZoomOut, Grid, Magnet, Maximize2 } from 'lucide-react';
@@ -25,7 +25,7 @@ export default function BottomBar({
         borderTop: '1px solid #E5E0D4',
       }}
     >
-      {/* Zoom control — bordered group */}
+      {/* Zoom control â€” bordered group */}
       <div
         className="flex items-center overflow-hidden"
         style={{
@@ -37,7 +37,7 @@ export default function BottomBar({
       >
         <button
           onClick={() => setZoom(z => Math.max(0.1, +(z - 0.1).toFixed(1)))}
-          title="Zoom out (⌘-)"
+          title="Zoom out (âŒ˜-)"
           className="flex items-center justify-center transition hover:bg-white"
           style={{ width: 26, height: 26, color: '#3A4A42', background: 'transparent', border: 'none', cursor: 'pointer' }}
         >
@@ -51,7 +51,7 @@ export default function BottomBar({
           style={{
             height: 26,
             padding: '0 8px',
-            fontFamily: 'JetBrains Mono, monospace',
+            fontFamily: 'Inter, system-ui, sans-serif',
             fontSize: 11,
             fontWeight: 500,
             color: '#0F1F18',
@@ -69,7 +69,7 @@ export default function BottomBar({
 
         <button
           onClick={() => setZoom(z => Math.min(3, +(z + 0.1).toFixed(1)))}
-          title="Zoom in (⌘+)"
+          title="Zoom in (âŒ˜+)"
           className="flex items-center justify-center transition hover:bg-white"
           style={{ width: 26, height: 26, color: '#3A4A42', background: 'transparent', border: 'none', cursor: 'pointer' }}
         >
@@ -150,7 +150,7 @@ export default function BottomBar({
       <div className="flex-1" />
       <span
         className="hidden sm:flex items-center gap-1.5"
-        style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: '#6B7A72', letterSpacing: '0.04em' }}
+        style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: '#6B7A72', letterSpacing: '0.04em' }}
       >
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
           <path d="M18 11V6a2 2 0 0 0-4 0v5"/>

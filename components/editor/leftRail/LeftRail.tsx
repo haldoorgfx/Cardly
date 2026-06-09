@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import type { Zone } from '@/types/database';
@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { buildSVG, TEMPLATE_CONFIGS } from '@/lib/templates/svgs';
 
-/* ── Design tokens ───────────────────────────────────────────── */
+/* â”€â”€ Design tokens â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const T = {
   cream: '#FAF6EE', surface: '#FFFFFF', border: '#E5E0D4',
   borderStrong: '#C9C3B1', primary: '#1F4D3A', primarySoft: '#E8EFEB',
@@ -20,7 +20,7 @@ const T = {
 
 type LeftTab = 'elements' | 'templates' | 'brand' | 'background';
 
-/* ── Background presets ──────────────────────────────────────── */
+/* â”€â”€ Background presets â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const BG_SOLIDS = [
   '#FFFFFF','#0F1F18','#1F4D3A','#163828','#E8C57E',
   '#FAF6EE','#000000','#1A1A2E','#16213E','#0F3460',
@@ -47,20 +47,20 @@ const BRAND_COLORS = [
   '#000000','#FAF6EE',
 ];
 
-/* ── Shortcuts list ──────────────────────────────────────────── */
+/* â”€â”€ Shortcuts list â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const SHORTCUTS = [
   { keys:['click'],        label:'Select zone' },
   { keys:['drag'],         label:'Reposition' },
-  { keys:['⌫'],            label:'Delete' },
-  { keys:['⌘','D'],       label:'Duplicate' },
-  { keys:['⌘','Z'],       label:'Undo' },
-  { keys:['⇧','⌘','Z'],  label:'Redo' },
+  { keys:['âŒ«'],            label:'Delete' },
+  { keys:['âŒ˜','D'],       label:'Duplicate' },
+  { keys:['âŒ˜','Z'],       label:'Undo' },
+  { keys:['â‡§','âŒ˜','Z'],  label:'Redo' },
   { keys:['[',']'],       label:'Layer order' },
-  { keys:['⌘','P'],       label:'Preview' },
+  { keys:['âŒ˜','P'],       label:'Preview' },
   { keys:['G'],            label:'Toggle grid' },
 ];
 
-/* ── Element add button — compact toolbox style ──────────────── */
+/* â”€â”€ Element add button â€” compact toolbox style â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function AddBtn({
   icon, label, onClick, disabled,
 }: { icon:React.ReactNode; label:string; onClick:()=>void; disabled?:boolean }) {
@@ -97,7 +97,7 @@ function AddBtn({
   );
 }
 
-/* ── Zone type icon ──────────────────────────────────────────── */
+/* â”€â”€ Zone type icon â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function ZoneIcon({ type }:{ type:string }) {
   const s={size:11,strokeWidth:1.8};
   if (type==='photo')  return <Camera {...s}/>;
@@ -108,7 +108,7 @@ function ZoneIcon({ type }:{ type:string }) {
   return <Type {...s}/>;
 }
 
-/* ── Layers panel (embedded in left rail) ────────────────────── */
+/* â”€â”€ Layers panel (embedded in left rail) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 interface LayersPanelProps {
   zones: Zone[];
   selectedIds: string[];
@@ -125,11 +125,11 @@ function LayersPanel({ zones, selectedIds, setSelectedIds, moveZoneUp, moveZoneD
     <div>
       {/* Header */}
       <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'8px 10px 5px' }}>
-        <span style={{ fontFamily:'JetBrains Mono,monospace', fontSize:9.5, letterSpacing:'0.1em', textTransform:'uppercase', color:T.muted }}>
+        <span style={{ fontFamily:'Inter, system-ui, sans-serif', fontSize:9.5, letterSpacing:'0.1em', textTransform:'uppercase', color:T.muted }}>
           Layers
         </span>
         {zones.length > 0 && (
-          <span style={{ fontFamily:'JetBrains Mono,monospace', fontSize:9, color:T.muted, opacity:0.7 }}>
+          <span style={{ fontFamily:'Inter, system-ui, sans-serif', fontSize:9, color:T.muted, opacity:0.7 }}>
             {zones.length}
           </span>
         )}
@@ -198,7 +198,7 @@ function LayersPanel({ zones, selectedIds, setSelectedIds, moveZoneUp, moveZoneD
               }}>{z.label}</div>
 
               {/* Type badge */}
-              <div style={{ fontFamily:'JetBrains Mono,monospace', fontSize:9, color:T.muted, letterSpacing:'0.02em', flexShrink:0 }}>
+              <div style={{ fontFamily:'Inter, system-ui, sans-serif', fontSize:9, color:T.muted, letterSpacing:'0.02em', flexShrink:0 }}>
                 {z.type}
               </div>
 
@@ -225,12 +225,12 @@ function LayersPanel({ zones, selectedIds, setSelectedIds, moveZoneUp, moveZoneD
   );
 }
 
-/* ── Shortcuts block ─────────────────────────────────────────── */
+/* â”€â”€ Shortcuts block â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function ShortcutsBlock() {
   return (
     <div>
       <div style={{ padding:'8px 10px 5px', borderTop:`1px solid ${T.border}` }}>
-        <span style={{ fontFamily:'JetBrains Mono,monospace', fontSize:9.5, letterSpacing:'0.1em', textTransform:'uppercase', color:T.muted }}>Shortcuts</span>
+        <span style={{ fontFamily:'Inter, system-ui, sans-serif', fontSize:9.5, letterSpacing:'0.1em', textTransform:'uppercase', color:T.muted }}>Shortcuts</span>
       </div>
       <div style={{ padding:'0 10px 12px', display:'flex', flexDirection:'column', gap:1 }}>
         {SHORTCUTS.map((s,i) => (
@@ -241,7 +241,7 @@ function ShortcutsBlock() {
                 <kbd key={j} style={{
                   padding:'1px 5px', minWidth:16, textAlign:'center',
                   background:T.surface, color:T.ink, border:`1px solid ${T.border}`,
-                  borderRadius:3, fontFamily:'JetBrains Mono,monospace', fontSize:9,
+                  borderRadius:3, fontFamily:'Inter, system-ui, sans-serif', fontSize:9,
                   fontWeight:500, lineHeight:1.4,
                 }}>{k}</kbd>
               ))}
@@ -253,7 +253,7 @@ function ShortcutsBlock() {
   );
 }
 
-/* ── Elements panel ──────────────────────────────────────────── */
+/* â”€â”€ Elements panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 interface ElementsPanelProps extends LayersPanelProps {
   addZone: (type:'text'|'photo'|'custom'|'label') => void;
   addShapeZone: (s:'rect'|'ellipse'|'triangle'|'line') => void;
@@ -271,10 +271,10 @@ function ElementsPanel({
 
   return (
     <div style={{ display:'flex', flexDirection:'column', overflowY:'auto', overflowX:'hidden', flex:1 }}>
-      {/* ── Add Elements ── */}
+      {/* â”€â”€ Add Elements â”€â”€ */}
       {!previewMode && (
         <div style={{ padding:'10px 10px 8px', borderBottom:`1px solid ${T.border}` }}>
-          <div style={{ fontFamily:'JetBrains Mono,monospace', fontSize:9.5, letterSpacing:'0.1em', textTransform:'uppercase', color:T.muted, marginBottom:6 }}>
+          <div style={{ fontFamily:'Inter, system-ui, sans-serif', fontSize:9.5, letterSpacing:'0.1em', textTransform:'uppercase', color:T.muted, marginBottom:6 }}>
             Add Element
           </div>
 
@@ -287,7 +287,7 @@ function ElementsPanel({
             <AddBtn icon={<Tag size={14} strokeWidth={1.8}/>} label="Static text" onClick={()=>addZone('label')}/>
             <AddBtn
               icon={uploadingImage ? <Loader2 size={14} strokeWidth={2} className="animate-spin"/> : <Upload size={14} strokeWidth={1.8}/>}
-              label={uploadingImage ? 'Uploading…' : 'Upload image'}
+              label={uploadingImage ? 'Uploadingâ€¦' : 'Upload image'}
               onClick={()=>imageUploadRef.current?.click()}
               disabled={uploadingImage}
             />
@@ -299,7 +299,7 @@ function ElementsPanel({
                 style={{
                   width:'100%', display:'flex', alignItems:'center', gap:5, padding:'5px 8px',
                   background:'transparent', border:`1px solid ${T.border}`, borderRadius:5, cursor:'pointer',
-                  fontFamily:'JetBrains Mono,monospace', fontSize:9.5, letterSpacing:'0.06em', textTransform:'uppercase', color:T.inkSoft,
+                  fontFamily:'Inter, system-ui, sans-serif', fontSize:9.5, letterSpacing:'0.06em', textTransform:'uppercase', color:T.inkSoft,
                 }}
               >
                 {shapesOpen?<ChevronDown size={9} strokeWidth={2}/>:<ChevronRight size={9} strokeWidth={2}/>}
@@ -330,23 +330,23 @@ function ElementsPanel({
         </div>
       )}
 
-      {/* ── Thick divider separating elements from layers ── */}
+      {/* â”€â”€ Thick divider separating elements from layers â”€â”€ */}
       <div style={{ height:5, background:T.border, flexShrink:0 }}/>
 
-      {/* ── Layers ── */}
+      {/* â”€â”€ Layers â”€â”€ */}
       <LayersPanel
         zones={zones} selectedIds={selectedIds} setSelectedIds={setSelectedIds}
         moveZoneUp={moveZoneUp} moveZoneDown={moveZoneDown} updateZone={updateZone}
         previewMode={previewMode}
       />
 
-      {/* ── Shortcuts (only when nothing selected) ── */}
+      {/* â”€â”€ Shortcuts (only when nothing selected) â”€â”€ */}
       {nothingSelected && !previewMode && <ShortcutsBlock/>}
     </div>
   );
 }
 
-/* ── Templates panel ─────────────────────────────────────────── */
+/* â”€â”€ Templates panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function TemplatesPanel({
   onApplyTemplate, applyingTemplateId,
 }:{
@@ -358,13 +358,13 @@ function TemplatesPanel({
     <div style={{ overflowY:'auto', overflowX:'hidden', flex:1 }}>
       {/* Header */}
       <div style={{ padding:'10px 10px 4px', borderBottom:`1px solid ${T.border}` }}>
-        <div style={{ fontFamily:'JetBrains Mono,monospace', fontSize:9.5, letterSpacing:'0.1em', textTransform:'uppercase', color:T.muted }}>Templates</div>
+        <div style={{ fontFamily:'Inter, system-ui, sans-serif', fontSize:9.5, letterSpacing:'0.1em', textTransform:'uppercase', color:T.muted }}>Templates</div>
         <div style={{ fontFamily:'Inter,sans-serif', fontSize:10.5, color:T.muted, lineHeight:1.4, marginTop:2 }}>
           Click to swap background. Zones stay.
         </div>
       </div>
 
-      {/* Grid — 2-col, fills full panel width */}
+      {/* Grid â€” 2-col, fills full panel width */}
       <div style={{
         padding:'8px 10px 16px',
         display:'grid', gridTemplateColumns:'1fr 1fr', gap:8,
@@ -390,7 +390,7 @@ function TemplatesPanel({
                 boxShadow:'0 1px 3px rgba(15,31,24,0.06)',
               }}
             >
-              {/* Thumbnail — fills the button, taller 4:5 ratio */}
+              {/* Thumbnail â€” fills the button, taller 4:5 ratio */}
               <div style={{ position:'relative', width:'100%', aspectRatio:'4/5', background:T.cream }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={src} alt={cfg.name} style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }}/>
@@ -400,7 +400,7 @@ function TemplatesPanel({
                   </div>
                 )}
               </div>
-              {/* Name — sits below the image inside the card */}
+              {/* Name â€” sits below the image inside the card */}
               <div style={{
                 padding:'6px 8px 7px',
                 borderTop:`1px solid ${T.border}`,
@@ -422,7 +422,7 @@ function TemplatesPanel({
   );
 }
 
-/* ── Brand Kit panel ─────────────────────────────────────────── */
+/* â”€â”€ Brand Kit panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function BrandPanel({
   brandUploadRef, handleBrandUpload, brandAssets, addBrandAssetToCanvas, uploadingBrandAsset,
 }:{
@@ -443,7 +443,7 @@ function BrandPanel({
   return (
     <div style={{ overflowY:'auto', overflowX:'hidden', flex:1 }}>
       <div style={{ padding:'10px 10px 4px', borderBottom:`1px solid ${T.border}` }}>
-        <div style={{ fontFamily:'JetBrains Mono,monospace', fontSize:9.5, letterSpacing:'0.1em', textTransform:'uppercase', color:T.muted }}>Brand Kit</div>
+        <div style={{ fontFamily:'Inter, system-ui, sans-serif', fontSize:9.5, letterSpacing:'0.1em', textTransform:'uppercase', color:T.muted }}>Brand Kit</div>
         <div style={{ fontFamily:'Inter,sans-serif', fontSize:10.5, color:T.muted, lineHeight:1.4, marginTop:2 }}>
           Click a color to copy its hex value.
         </div>
@@ -451,7 +451,7 @@ function BrandPanel({
 
       {/* Brand colors */}
       <div style={{ padding:'10px 10px 4px' }}>
-        <div style={{ fontFamily:'JetBrains Mono,monospace', fontSize:9, letterSpacing:'0.08em', textTransform:'uppercase', color:T.muted, marginBottom:7 }}>Colors</div>
+        <div style={{ fontFamily:'Inter, system-ui, sans-serif', fontSize:9, letterSpacing:'0.08em', textTransform:'uppercase', color:T.muted, marginBottom:7 }}>Colors</div>
         <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
           {BRAND_COLORS.map(c => (
             <button
@@ -475,7 +475,7 @@ function BrandPanel({
           ))}
         </div>
         {copied && (
-          <div style={{ fontFamily:'JetBrains Mono,monospace', fontSize:9.5, color:T.primary, marginTop:6 }}>
+          <div style={{ fontFamily:'Inter, system-ui, sans-serif', fontSize:9.5, color:T.primary, marginTop:6 }}>
             {copied} copied
           </div>
         )}
@@ -486,9 +486,9 @@ function BrandPanel({
       {/* Assets */}
       <div style={{ padding:'4px 10px 12px', display:'flex', flexDirection:'column', gap:8 }}>
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-          <div style={{ fontFamily:'JetBrains Mono,monospace', fontSize:9, letterSpacing:'0.08em', textTransform:'uppercase', color:T.muted }}>Assets</div>
+          <div style={{ fontFamily:'Inter, system-ui, sans-serif', fontSize:9, letterSpacing:'0.08em', textTransform:'uppercase', color:T.muted }}>Assets</div>
           {brandAssets.length > 0 && (
-            <span style={{ fontFamily:'JetBrains Mono,monospace', fontSize:9, color:T.muted }}>{brandAssets.length}</span>
+            <span style={{ fontFamily:'Inter, system-ui, sans-serif', fontSize:9, color:T.muted }}>{brandAssets.length}</span>
           )}
         </div>
 
@@ -516,7 +516,7 @@ function BrandPanel({
               : <Upload size={12} strokeWidth={2}/>}
           </span>
           <span style={{ fontFamily:'Inter,sans-serif', fontSize:11.5, fontWeight:600, color:T.ink }}>
-            {uploadingBrandAsset ? 'Uploading…' : 'Upload logo / asset'}
+            {uploadingBrandAsset ? 'Uploadingâ€¦' : 'Upload logo / asset'}
           </span>
         </button>
 
@@ -557,7 +557,7 @@ function BrandPanel({
   );
 }
 
-/* ── Background panel ────────────────────────────────────────── */
+/* â”€â”€ Background panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function BackgroundPanel({
   onApplyBackground, applyingBg,
 }:{
@@ -575,7 +575,7 @@ function BackgroundPanel({
   return (
     <div style={{ overflowY:'auto', overflowX:'hidden', flex:1 }}>
       <div style={{ padding:'10px 10px 4px', borderBottom:`1px solid ${T.border}` }}>
-        <div style={{ fontFamily:'JetBrains Mono,monospace', fontSize:9.5, letterSpacing:'0.1em', textTransform:'uppercase', color:T.muted }}>Background</div>
+        <div style={{ fontFamily:'Inter, system-ui, sans-serif', fontSize:9.5, letterSpacing:'0.1em', textTransform:'uppercase', color:T.muted }}>Background</div>
         <div style={{ fontFamily:'Inter,sans-serif', fontSize:10.5, color:T.muted, lineHeight:1.4, marginTop:2 }}>
           Replace canvas background with a color or gradient.
         </div>
@@ -583,7 +583,7 @@ function BackgroundPanel({
 
       {/* Solid colors */}
       <div style={{ padding:'10px 10px 4px', boxSizing:'border-box', width:'100%' }}>
-        <div style={{ fontFamily:'JetBrains Mono,monospace', fontSize:9, letterSpacing:'0.08em', textTransform:'uppercase', color:T.muted, marginBottom:7 }}>Solid colors</div>
+        <div style={{ fontFamily:'Inter, system-ui, sans-serif', fontSize:9, letterSpacing:'0.08em', textTransform:'uppercase', color:T.muted, marginBottom:7 }}>Solid colors</div>
         <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
           {BG_SOLIDS.map(c => {
             const isActive = active===c && applyingBg;
@@ -614,7 +614,7 @@ function BackgroundPanel({
 
       {/* Gradients */}
       <div style={{ padding:'0 10px 14px', boxSizing:'border-box', width:'100%' }}>
-        <div style={{ fontFamily:'JetBrains Mono,monospace', fontSize:9, letterSpacing:'0.08em', textTransform:'uppercase', color:T.muted, marginBottom:7 }}>Gradients</div>
+        <div style={{ fontFamily:'Inter, system-ui, sans-serif', fontSize:9, letterSpacing:'0.08em', textTransform:'uppercase', color:T.muted, marginBottom:7 }}>Gradients</div>
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:6, width:'100%', boxSizing:'border-box' }}>
           {BG_GRADIENTS.map(g => {
             const isActive = active===g.value && applyingBg;
@@ -653,7 +653,7 @@ function BackgroundPanel({
   );
 }
 
-/* ── Tab icon button — Canva-style: icon above label ────────── */
+/* â”€â”€ Tab icon button â€” Canva-style: icon above label â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function TabBtn({
   icon, label, active, onClick,
 }:{
@@ -675,7 +675,7 @@ function TabBtn({
         flexShrink:0,
       }}
     >
-      {/* Icon container — subtle background highlight when active */}
+      {/* Icon container â€” subtle background highlight when active */}
       <span style={{
         width:36, height:36, borderRadius:8,
         display:'flex', alignItems:'center', justifyContent:'center',
@@ -702,7 +702,7 @@ function TabBtn({
   );
 }
 
-/* ── Main export ─────────────────────────────────────────────── */
+/* â”€â”€ Main export â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export interface LeftRailProps {
   previewMode: boolean;
   // Elements
@@ -756,7 +756,7 @@ export default function LeftRail({
       borderRight:`1px solid ${T.border}`,
       background:T.cream,
     }}>
-      {/* ── Icon strip — 72px wide, Canva-style ── */}
+      {/* â”€â”€ Icon strip â€” 72px wide, Canva-style â”€â”€ */}
       <div style={{
         width:72, flexShrink:0,
         display:'flex', flexDirection:'column', alignItems:'stretch',
@@ -775,7 +775,7 @@ export default function LeftRail({
         ))}
       </div>
 
-      {/* ── Panel content — 292px ── */}
+      {/* â”€â”€ Panel content â€” 292px â”€â”€ */}
       <div style={{ flex:1, minWidth:0, display:'flex', flexDirection:'column', overflow:'hidden' }}>
 
         {tab==='elements' && (

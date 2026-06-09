@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import {
@@ -100,7 +100,7 @@ function InnerForm({ returnUrl, amount, currency, eventTitle, ticketName }: Prop
           Payment
         </h2>
         <p className="text-[14px]" style={{ color: '#6B7A72' }}>
-          {ticketName} · {eventTitle}
+          {ticketName} Â· {eventTitle}
         </p>
       </div>
 
@@ -112,7 +112,7 @@ function InnerForm({ returnUrl, amount, currency, eventTitle, ticketName }: Prop
         <span className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>{ticketName}</span>
         <span
           className="text-[17px] font-semibold"
-          style={{ fontFamily: 'JetBrains Mono, monospace', color: '#1F4D3A' }}
+          style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#1F4D3A' }}
         >
           {formattedAmount}
         </span>
@@ -150,10 +150,10 @@ function InnerForm({ returnUrl, amount, currency, eventTitle, ticketName }: Prop
             <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
             </svg>
-            Processing…
+            Processingâ€¦
           </>
         ) : (
-          <>Pay {formattedAmount} →</>
+          <>Pay {formattedAmount} â†’</>
         )}
       </button>
 

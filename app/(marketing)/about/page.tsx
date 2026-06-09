@@ -1,8 +1,8 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'About Karta — The Event Platform',
+  title: 'About Karta â€” The Event Platform',
   description:
     'Karta started as a social card tool for event attendees. Then organizers asked for tickets. Then check-in. Then agenda. We built the whole platform. The Karta Card is still the feature nobody else has.',
   openGraph: {
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   },
 };
 
-// ─── colours ────────────────────────────────────────────────────────────────
+// â”€â”€â”€ colours â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const C = {
   primary:      '#1F4D3A',
   primaryDark:  '#163828',
@@ -30,7 +30,7 @@ const C = {
   border:       '#E5E0D4',
 } as const;
 
-// ─── small helper icon components ────────────────────────────────────────────
+// â”€â”€â”€ small helper icon components â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function CheckIcon({ color }: { color: string }) {
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
@@ -57,11 +57,11 @@ function SparkleIcon() {
   );
 }
 
-// ─── page ────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export default function AboutPage() {
   return (
     <>
-      {/* ── SECTION 1 — HERO ───────────────────────────────────────────────── */}
+      {/* â”€â”€ SECTION 1 â€” HERO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section
         style={{ background: C.cream, position: 'relative', overflow: 'hidden' }}
         className="border-b"
@@ -132,7 +132,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── SECTION 2 — PLATFORM ORIGIN STORY ─────────────────────────────── */}
+      {/* â”€â”€ SECTION 2 â€” PLATFORM ORIGIN STORY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section style={{ background: C.cream }}>
         <div
           style={{
@@ -145,7 +145,7 @@ export default function AboutPage() {
             alignItems: 'start',
           }}
         >
-          {/* Left — narrative */}
+          {/* Left â€” narrative */}
           <div style={{ maxWidth: 520 }}>
             <h2
               style={{
@@ -188,12 +188,12 @@ export default function AboutPage() {
                 fontWeight: 500,
               }}
             >
-              The Karta Card never went away. It became the differentiator — the feature no
+              The Karta Card never went away. It became the differentiator â€” the feature no
               competitor has copied, the moment that turns every registration into a share.
             </p>
           </div>
 
-          {/* Right — platform feature card */}
+          {/* Right â€” platform feature card */}
           <div
             style={{
               borderRadius: 16,
@@ -214,7 +214,7 @@ export default function AboutPage() {
               What Karta does today
             </p>
 
-            {/* 3×3 chip grid */}
+            {/* 3Ã—3 chip grid */}
             <div
               style={{
                 display: 'grid',
@@ -290,7 +290,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── SECTION 3 — THE DIFFERENTIATOR ────────────────────────────────── */}
+      {/* â”€â”€ SECTION 3 â€” THE DIFFERENTIATOR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section
         style={{
           background: 'rgba(232,239,235,0.40)',
@@ -309,9 +309,9 @@ export default function AboutPage() {
             alignItems: 'center',
           }}
         >
-          {/* Left — comparison cards */}
+          {/* Left â€” comparison cards */}
           <div style={{ display: 'flex', gap: 14, alignItems: 'stretch' }}>
-            {/* Card A — Other platforms */}
+            {/* Card A â€” Other platforms */}
             <div
               style={{
                 flex: 1,
@@ -349,7 +349,7 @@ export default function AboutPage() {
               </ul>
             </div>
 
-            {/* Card B — Karta */}
+            {/* Card B â€” Karta */}
             <div
               style={{
                 flex: 1,
@@ -398,7 +398,7 @@ export default function AboutPage() {
             </div>
           </div>
 
-          {/* Right — text */}
+          {/* Right â€” text */}
           <div>
             {/* gold pill overline */}
             <div
@@ -437,7 +437,7 @@ export default function AboutPage() {
 
             <p style={{ fontSize: 15, color: C.inkSoft, lineHeight: 1.65, marginBottom: 14 }}>
               When someone registers on Eventbrite, they get a confirmation email. When they register
-              on Karta, they get a personalized card — their photo, their name, your event brand —
+              on Karta, they get a personalized card â€” their photo, their name, your event brand â€”
               ready to post on Instagram or send on WhatsApp.
             </p>
 
@@ -456,13 +456,13 @@ export default function AboutPage() {
                 textDecoration: 'none',
               }}
             >
-              See how the card works →
+              See how the card works â†’
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ── SECTION 4 — VALUES ────────────────────────────────────────────── */}
+      {/* â”€â”€ SECTION 4 â€” VALUES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section style={{ background: C.cream, padding: '80px 20px' }}>
         {/* header */}
         <div style={{ textAlign: 'center', marginBottom: 48 }}>
@@ -509,7 +509,7 @@ export default function AboutPage() {
             },
             {
               title: 'Built for Africa',
-              body: 'We built Karta for how events actually run in Africa — mobile-first, offline-capable, M-Pesa ready, WhatsApp-native. That said, anyone can use it anywhere.',
+              body: 'We built Karta for how events actually run in Africa â€” mobile-first, offline-capable, M-Pesa ready, WhatsApp-native. That said, anyone can use it anywhere.',
             },
             {
               title: 'Organizer-grade',
@@ -543,7 +543,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── SECTION 5 — TEAM ──────────────────────────────────────────────── */}
+      {/* â”€â”€ SECTION 5 â€” TEAM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section style={{ background: C.cream, padding: '64px 20px' }}>
         <div style={{ maxWidth: 1060, margin: '0 auto' }}>
           <h2
@@ -621,9 +621,9 @@ export default function AboutPage() {
 
             {/* Open roles */}
             {[
-              { role: 'Product Designer',     initials: '—' },
-              { role: 'Full-stack Engineer',  initials: '—' },
-              { role: 'Growth',               initials: '—' },
+              { role: 'Product Designer',     initials: 'â€”' },
+              { role: 'Full-stack Engineer',  initials: 'â€”' },
+              { role: 'Growth',               initials: 'â€”' },
             ].map(({ role, initials }) => (
               <Link
                 key={role}
@@ -689,7 +689,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── SECTION 6 — PRESS ─────────────────────────────────────────────── */}
+      {/* â”€â”€ SECTION 6 â€” PRESS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section
         style={{
           borderTop: `1px solid ${C.border}`,
@@ -735,7 +735,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── SECTION 7 — FINAL CTA ─────────────────────────────────────────── */}
+      {/* â”€â”€ SECTION 7 â€” FINAL CTA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section
         style={{
           background: `linear-gradient(135deg, ${C.primary} 0%, #2A6A50 60%, ${C.accent} 100%)`,
@@ -809,7 +809,7 @@ export default function AboutPage() {
                 textDecoration: 'none',
               }}
             >
-              Start free →
+              Start free â†’
             </Link>
             <Link
               href="/contact"
@@ -826,7 +826,7 @@ export default function AboutPage() {
                 textDecoration: 'none',
               }}
             >
-              Talk to us →
+              Talk to us â†’
             </Link>
           </div>
 
@@ -840,7 +840,7 @@ export default function AboutPage() {
               color: 'rgba(250,246,238,0.40)',
             }}
           >
-            Made in Djibouti 🇩🇯 · karta.cre8so.com
+            Made in Djibouti ðŸ‡©ðŸ‡¯ Â· karta.cre8so.com
           </p>
         </div>
       </section>

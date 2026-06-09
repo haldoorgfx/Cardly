@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
@@ -39,13 +39,13 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
   const [step, setStep] = useState(0);
   const [selectedTicketId, setSelectedTicketId] = useState(preselectedTicketId ?? tickets[0]?.id ?? '');
 
-  // Step 1 — personal details
+  // Step 1 â€” personal details
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [customFieldValues, setCustomFieldValues] = useState<Record<string, string>>({});
 
-  // Step 2 (paid) — payment state (shared across processors)
+  // Step 2 (paid) â€” payment state (shared across processors)
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [pendingRegId, setPendingRegId] = useState<string | null>(null);
   const [pendingRegToken, setPendingRegToken] = useState<string | null>(null);
@@ -54,7 +54,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
   const [paymentProcessor, setPaymentProcessor] = useState<'stripe' | 'flutterwave' | 'waafipay' | 'free'>('stripe');
   const [creatingPayment, setCreatingPayment] = useState(false);
 
-  // Step 2 (free) — card zones
+  // Step 2 (free) â€” card zones
   const [zoneValues, setZoneValues] = useState<Record<string, string>>({});
   const [photoFiles, setPhotoFiles] = useState<Record<string, File>>({});
   const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({});
@@ -74,7 +74,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
     ? [{ label: 'Ticket' }, { label: 'Details' }, { label: 'Payment' }, { label: 'Your card' }]
     : [{ label: 'Ticket' }, { label: 'Details' }, { label: 'Your card' }];
 
-  // ── Validation ───────────────────────────────────────────────
+  // â”€â”€ Validation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function validateDetails(): boolean {
     const errs: Record<string, string> = {};
     if (!name.trim()) errs['name'] = 'Name is required';
@@ -104,7 +104,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
     return Object.keys(errs).length === 0;
   }
 
-  // ── Navigation ───────────────────────────────────────────────
+  // â”€â”€ Navigation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   async function handleNext() {
     if (step === 1) {
       if (!validateDetails()) return;
@@ -161,7 +161,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // ── Photo crop ───────────────────────────────────────────────
+  // â”€â”€ Photo crop â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handlePhotoSelect = useCallback((zone: Zone, file: File, srcUrl: string) => {
     setCropTarget({ zone, srcUrl, file });
   }, []);
@@ -178,7 +178,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
     setPhotoUrls(p => { const n = { ...p }; delete n[zoneId]; return n; });
   }, []);
 
-  // ── Submit ───────────────────────────────────────────────────
+  // â”€â”€ Submit â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   async function handleSubmit() {
     if (!validateZones()) return;
     setSubmitting(true);
@@ -252,10 +252,10 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
           try {
             sessionStorage.setItem(`card_${qr_code_token}`, cardDataUrl);
           } catch {
-            // sessionStorage might be full — ignore
+            // sessionStorage might be full â€” ignore
           }
         }
-        // If render fails, we still proceed — the user has their QR code
+        // If render fails, we still proceed â€” the user has their QR code
       }
 
       // 3. Redirect to confirm page
@@ -266,7 +266,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
     }
   }
 
-  // ── Summary sidebar ──────────────────────────────────────────
+  // â”€â”€ Summary sidebar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const summaryTicket = selectedTicket;
 
   return (
@@ -307,9 +307,9 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
 
         {/* Main grid */}
         <div className="grid gap-6 lg:gap-8" style={{ gridTemplateColumns: 'minmax(0,1fr) 300px' }}>
-          {/* ── Form area ── */}
+          {/* â”€â”€ Form area â”€â”€ */}
           <div>
-            {/* Step 0 — Ticket selection */}
+            {/* Step 0 â€” Ticket selection */}
             {step === 0 && (
               <div>
                 <h2 className="font-display font-semibold text-[22px] mb-2" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
@@ -351,7 +351,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                             </span>
                             <span
                               className="text-[15px] font-medium shrink-0"
-                              style={{ fontFamily: 'JetBrains Mono, monospace', color: t.price === 0 ? '#2D7A4F' : '#1F4D3A' }}
+                              style={{ fontFamily: 'Inter, system-ui, sans-serif', color: t.price === 0 ? '#2D7A4F' : '#1F4D3A' }}
                             >
                               {sold ? 'Sold out' : t.price === 0 ? 'Free' : `${t.currency} ${t.price}`}
                             </span>
@@ -368,7 +368,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
               </div>
             )}
 
-            {/* Step 1 — Details */}
+            {/* Step 1 â€” Details */}
             {step === 1 && (
               <div>
                 <h2 className="font-display font-semibold text-[22px] mb-2" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
@@ -421,7 +421,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
               </div>
             )}
 
-            {/* Step 2 — Payment (paid) or Card personalisation (free) */}
+            {/* Step 2 â€” Payment (paid) or Card personalisation (free) */}
             {step === 2 && isPaid && pendingRegToken && (
               <>
                 {paymentProcessor === 'stripe' && clientSecret && (
@@ -450,7 +450,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                     <svg className="animate-spin mx-auto mb-3" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1F4D3A" strokeWidth="2.5">
                       <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
                     </svg>
-                    <p className="text-[14px]" style={{ color: '#6B7A72' }}>Redirecting to Flutterwave…</p>
+                    <p className="text-[14px]" style={{ color: '#6B7A72' }}>Redirecting to Flutterwaveâ€¦</p>
                   </div>
                 )}
               </>
@@ -499,7 +499,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
             )}
           </div>
 
-          {/* ── Summary sidebar ── */}
+          {/* â”€â”€ Summary sidebar â”€â”€ */}
           <div className="hidden lg:block">
             <div
               className="rounded-2xl p-5 sticky"
@@ -518,7 +518,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-medium text-[14px] leading-snug" style={{ color: '#0F1F18' }}>{page.title}</div>
-                  <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72', fontFamily: 'JetBrains Mono, monospace' }}>
+                  <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
                     {new Date(page.starts_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                   </div>
                 </div>
@@ -542,7 +542,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
           </div>
         </div>
 
-        {/* ── Bottom nav bar — hidden on paid step 2 (Stripe has its own submit) ── */}
+        {/* â”€â”€ Bottom nav bar â€” hidden on paid step 2 (Stripe has its own submit) â”€â”€ */}
         {!(step === 2 && isPaid) && (
           <div
             className="fixed bottom-0 left-0 right-0 flex items-center justify-between gap-4 px-4 sm:px-6 py-4 z-30"
@@ -569,7 +569,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                     <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                       <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
                     </svg>
-                    Setting up…
+                    Setting upâ€¦
                   </>
                 ) : (
                   <>Continue <ChevronRight size={16} strokeWidth={2} /></>
@@ -587,10 +587,10 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                     <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                       <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
                     </svg>
-                    Generating your card…
+                    Generating your cardâ€¦
                   </>
                 ) : (
-                  'Confirm & get my card →'
+                  'Confirm & get my card â†’'
                 )}
               </button>
             )}
@@ -610,7 +610,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
   );
 }
 
-// ── Helper components ──────────────────────────────────────────
+// â”€â”€ Helper components â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function RField({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
   return (
@@ -639,7 +639,7 @@ function CustomFieldInput({ field, value, error, onChange }: {
           className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
           style={{ background: 'white', border: `1px solid ${error ? '#B8423C' : '#E5E0D4'}`, color: value ? '#0F1F18' : '#6B7A72' }}
         >
-          <option value="">Select…</option>
+          <option value="">Selectâ€¦</option>
           {opts.map(o => <option key={o} value={o}>{o}</option>)}
         </select>
       </RField>
@@ -678,7 +678,7 @@ function SumRow({ label, value, mono }: { label: string; value: string; mono?: b
     <div className="flex items-center justify-between gap-2 text-[13px]">
       <span style={{ color: '#6B7A72' }}>{label}</span>
       <span
-        style={{ color: '#0F1F18', fontFamily: mono ? 'JetBrains Mono, monospace' : undefined, fontWeight: mono ? 500 : 400 }}
+        style={{ color: '#0F1F18', fontFamily: mono ? 'Inter, system-ui, sans-serif' : undefined, fontWeight: mono ? 500 : 400 }}
       >
         {value}
       </span>
