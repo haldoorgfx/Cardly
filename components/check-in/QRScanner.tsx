@@ -53,6 +53,8 @@ export function QRScanner({ eventId, eventName, totalRegistrations, initialCheck
   const [checkedIn, setCheckedIn] = useState(initialCheckedIn);
   const [flash, setFlash] = useState<ScanResult | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const [requesting, setRequesting] = useState(false);
   const [manualMode, setManualMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -138,57 +140,125 @@ export function QRScanner({ eventId, eventName, totalRegistrations, initialCheck
   }, [eventId, onCheckedIn]);
 
   useEffect(() => {
-    const reader = new BrowserMultiFormatReader();
-    readerRef.current = reader;
+    let cancelled = false;
+    setCameraError(null);
+    setRequesting(true);
 
-    if (!videoRef.current) return;
+    const videoEl = videoRef.current;
+    if (!videoEl) { setRequesting(false); return; }
 
-    BrowserMultiFormatReader.listVideoInputDevices().then(devices => {
-      const deviceId = devices.find(d => /back|rear|environment/i.test(d.label))?.deviceId ?? devices[0]?.deviceId;
+    // 1. Explicitly call getUserMedia to surface the browser permission prompt.
+    //    Without this, @zxing sometimes skips the prompt on first load.
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } })
+      .then(stream => {
+        // Stop the test stream immediately — the reader will open its own.
+        stream.getTracks().forEach(t => t.stop());
+        if (cancelled) return;
 
-      reader.decodeFromVideoDevice(deviceId ?? undefined, videoRef.current!, (result, err) => {
-        if (result) {
-          const text = result.getText().trim();
-          // Extract 32-hex token from URL query param or bare value
-          let token: string | null = null;
-          const urlMatch = text.match(/[?&]token=([0-9a-f]{32})/i);
-          if (urlMatch) {
-            token = urlMatch[1];
-          } else if (/^[0-9a-f]{32}$/i.test(text)) {
-            token = text;
-          }
-          if (token) handleToken(token);
-        }
-        if (err && err?.name !== 'NotFoundException') {
-          console.error(err);
-        }
-      }).then(controls => {
-        controlsRef.current = controls;
-      }).catch(e => {
-        setCameraError(e instanceof Error ? e.message : 'Camera not available');
+        const reader = new BrowserMultiFormatReader();
+        readerRef.current = reader;
+
+        // 2. List devices and pick the rear camera if available.
+        return BrowserMultiFormatReader.listVideoInputDevices().then(devices => {
+          if (cancelled) return;
+          const deviceId =
+            devices.find(d => /back|rear|environment/i.test(d.label))?.deviceId ??
+            devices[0]?.deviceId;
+
+          return reader.decodeFromVideoDevice(deviceId ?? undefined, videoEl, (result, err) => {
+            if (result) {
+              const text = result.getText().trim();
+              let token: string | null = null;
+              const urlMatch = text.match(/[?&]token=([0-9a-f]{32})/i);
+              if (urlMatch) token = urlMatch[1];
+              else if (/^[0-9a-f]{32}$/i.test(text)) token = text;
+              if (token) handleToken(token);
+            }
+            if (err && err?.name !== 'NotFoundException') console.error(err);
+          });
+        }).then(controls => {
+          if (cancelled) { controls?.stop(); return; }
+          controlsRef.current = controls ?? null;
+          setRequesting(false);
+        });
+      })
+      .catch(e => {
+        if (cancelled) return;
+        const msg = e instanceof Error ? e.message : 'Camera not available';
+        // Distinguish outright denial from other errors
+        const isDenied = /denied|permission|not allowed/i.test(msg);
+        setCameraError(isDenied ? 'Permission denied' : msg);
+        setRequesting(false);
       });
-    }).catch(() => {
-      setCameraError('Could not list camera devices');
-    });
 
     return () => {
+      cancelled = true;
       controlsRef.current?.stop();
+      controlsRef.current = null;
     };
-  }, [handleToken]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [handleToken, retryCount]);
+
+  // Show a spinner while camera permission is being requested
+  if (requesting && !cameraError && !manualMode) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center" style={{ background: '#0A0F0C' }}>
+        <div className="w-10 h-10 border-2 border-t-transparent rounded-full animate-spin mb-4" style={{ borderColor: 'rgba(232,197,126,0.4)', borderTopColor: 'transparent' }} />
+        <div className="text-[14px]" style={{ color: 'rgba(255,255,255,0.4)' }}>Starting camera…</div>
+      </div>
+    );
+  }
 
   if (cameraError && !manualMode) {
+    const isDenied = /denied|permission|not allowed/i.test(cameraError);
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-5 text-center" style={{ background: '#0A0F0C' }}>
-        <div className="text-[15px] mb-3" style={{ color: 'rgba(255,255,255,0.6)' }}>Camera unavailable</div>
-        <div className="text-[13px] mb-6" style={{ color: 'rgba(255,255,255,0.35)' }}>{cameraError}</div>
+      <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center" style={{ background: '#0A0F0C' }}>
+        {/* Icon */}
+        <div className="mb-5 w-16 h-16 rounded-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.06)' }}>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+            <line x1="1" y1="1" x2="23" y2="23" stroke="rgba(184,66,60,0.7)" strokeWidth="2"/>
+          </svg>
+        </div>
+
+        <div className="text-[17px] font-medium mb-2" style={{ color: 'rgba(255,255,255,0.85)' }}>
+          {isDenied ? 'Camera access blocked' : 'Camera unavailable'}
+        </div>
+        <div className="text-[13px] mb-2 max-w-[260px]" style={{ color: 'rgba(255,255,255,0.4)' }}>
+          {isDenied
+            ? 'Allow camera access in your browser settings, then tap Try again.'
+            : cameraError}
+        </div>
+        {isDenied && (
+          <div className="text-[11px] mb-6 max-w-[240px] px-3 py-2 rounded-xl" style={{ color: 'rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.05)' }}>
+            On iPhone: Settings → Safari → Camera → Allow<br/>
+            On Android: tap the 🔒 in the address bar → Camera
+          </div>
+        )}
+        {!isDenied && <div className="mb-6" />}
+
+        {/* Primary: retry camera */}
+        <button
+          onClick={() => { setCameraError(null); setRetryCount(c => c + 1); }}
+          className="flex items-center gap-2 px-6 py-3 rounded-full text-[14px] font-medium mb-3 transition-opacity active:opacity-70"
+          style={{ background: '#1F4D3A', color: 'white' }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+          </svg>
+          Try again
+        </button>
+
+        {/* Secondary: manual search */}
         <button
           onClick={() => setManualMode(true)}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-medium mb-3"
-          style={{ background: '#1F4D3A', color: 'white' }}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-medium mb-4"
+          style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.12)' }}
         >
           <Search size={14} /> Search by name / email
         </button>
-        <Link href={`/events/${eventId}/registrations`} className="text-[13px]" style={{ color: 'rgba(255,255,255,0.35)' }}>
+
+        <Link href={`/events/${eventId}/registrations`} className="text-[12px]" style={{ color: 'rgba(255,255,255,0.25)' }}>
           Go to registrations list
         </Link>
       </div>
