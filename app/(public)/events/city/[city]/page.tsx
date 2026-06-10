@@ -1,7 +1,6 @@
 export const dynamic = 'force-dynamic';
 
 import { createAdminClient, createClient } from '@/lib/supabase/server';
-import { notFound } from 'next/navigation';
 import { PublicNav } from '@/components/events/PublicNav';
 import { CityPage } from '@/components/discovery/CityPage';
 import type { Metadata } from 'next';
