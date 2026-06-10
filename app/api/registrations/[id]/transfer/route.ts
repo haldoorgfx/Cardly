@@ -36,20 +36,22 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const { to_name, to_email } = parsed.data;
 
   // Log the transfer
-  await admin.from('ticket_transfers').insert({
+  const { error: transferError } = await admin.from('ticket_transfers').insert({
     registration_id: params.id,
     from_name: reg.attendee_name,
     from_email: reg.attendee_email,
     to_name,
     to_email,
   });
+  if (transferError) return NextResponse.json({ error: 'Failed to log transfer' }, { status: 500 });
 
   // Update the registration
-  await admin.from('registrations').update({
+  const { error: updateError } = await admin.from('registrations').update({
     attendee_name: to_name,
     attendee_email: to_email,
     updated_at: new Date().toISOString(),
   }).eq('id', params.id);
+  if (updateError) return NextResponse.json({ error: 'Failed to update registration' }, { status: 500 });
 
   // Email the new holder
   const ep = reg.events?.event_pages?.[0];

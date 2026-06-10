@@ -180,7 +180,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
       const eventSlugHdr = req.headers.get('x-event-slug') ?? params.id;
       const fwResult = await initFlutterwavePayment({
-        amount:        ticket.price,
+        amount:        effectivePrice,
         currency:      ticket.currency as FlutterwaveCurrency,
         txRef:         registration.qr_code_token,
         customerEmail: registration.attendee_email,
@@ -215,7 +215,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       payment_status:    'pending',
       payment_required:  true,
       payment_processor: 'waafipay',
-      amount:            ticket.price,
+      amount:            effectivePrice,
       currency:          ticket.currency,
       ticket_name:       ticket.name,
     }, { status: 201 });

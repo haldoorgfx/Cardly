@@ -33,7 +33,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (reg.status !== 'pending_approval') return NextResponse.json({ error: 'Registration is not pending approval' }, { status: 400 });
 
   const newStatus = parsed.data.action === 'approve' ? 'confirmed' : 'cancelled';
-  await admin.from('registrations').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', params.id);
+  const { error: updateError } = await admin.from('registrations').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', params.id);
+  if (updateError) return NextResponse.json({ error: 'Failed to update registration' }, { status: 500 });
 
   const ep = reg.events?.event_pages?.[0];
   const eventSlug = reg.events?.slug ?? params.id;

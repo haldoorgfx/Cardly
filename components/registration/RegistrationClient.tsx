@@ -389,7 +389,16 @@ export default function RegistrationClient({
           ticket_type_id: selectedTicket?.id,
           attendee_name: attendeeName,
           attendee_email: email,
-          custom_fields: {},
+          custom_fields: canvasVariant
+            ? Object.fromEntries(
+                canvasVariant.zones
+                  .filter(z => (z.type === 'text' || z.type === 'custom') && !z.hidden)
+                  .flatMap(z => {
+                    const v = zoneValues[z.id];
+                    return v ? [[z.id, v]] : [];
+                  }),
+              )
+            : {},
           chosen_price: isPWYW ? effectivePrice : undefined,
           access_code: unlockedTickets.find(t => t.id === selectedTicket?.id) ? accessCodeInput || undefined : undefined,
           referral_code: referralCode ?? null,
