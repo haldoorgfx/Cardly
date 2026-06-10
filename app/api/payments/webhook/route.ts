@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { constructTicketWebhookEvent } from '@/lib/payments/stripe';
 import { createAdminClient } from '@/lib/supabase/server';
+import { sendRegistrationConfirmEmail } from '@/lib/registration/email';
 
 export const runtime = 'nodejs';
 
@@ -23,7 +24,9 @@ export async function POST(req: NextRequest) {
   switch (event.type) {
     case 'payment_intent.succeeded': {
       const pi = event.data.object;
-      const { error } = await admin
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: updated, error } = await (admin as any)
         .from('registrations')
         .update({
           payment_status: 'paid',
@@ -31,8 +34,24 @@ export async function POST(req: NextRequest) {
           updated_at: new Date().toISOString(),
         })
         .eq('stripe_payment_intent_id', pi.id)
-        .eq('payment_status', 'pending'); // idempotent guard
+        .eq('payment_status', 'pending') // idempotent guard
+        .select('attendee_name, attendee_email, qr_code_token, ticket_types(name), events(slug, event_pages(title, starts_at, venue_name, is_online))')
+        .maybeSingle();
       if (error) console.error('[Stripe webhook] update failed:', error.message);
+      if (updated) {
+        const ep = updated.events?.event_pages?.[0];
+        sendRegistrationConfirmEmail({
+          to: updated.attendee_email,
+          attendeeName: updated.attendee_name,
+          eventTitle: ep?.title ?? '',
+          eventDate: ep?.starts_at ? new Date(ep.starts_at).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : '',
+          eventVenue: ep?.is_online ? 'Online' : (ep?.venue_name ?? 'Venue TBA'),
+          qrCodeUrl: `${appUrl}/api/qr/${updated.qr_code_token}`,
+          kartaCardUrl: null,
+          eventSlug: updated.events?.slug ?? '',
+          ticketType: updated.ticket_types?.name ?? 'Ticket',
+        }).catch(() => {});
+      }
       break;
     }
 
