@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: 'My tickets — Karta' };
 export default async function MyTicketsPage() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login?next=/my-tickets');
+  if (!user) redirect('/account/login?next=/my-tickets');
 
   const admin = createAdminClient();
 
