@@ -21,8 +21,9 @@ export default async function PublishPage({ params }: { params: Promise<{ id: st
 
   if (!event) redirect('/dashboard');
 
+  const isFirstPublish = event.status !== 'published';
   let slug = event.slug;
-  if (event.status !== 'published') {
+  if (isFirstPublish) {
     const { data: updated } = await admin
       .from('events')
       .update({ status: 'published' })
@@ -36,12 +37,35 @@ export default async function PublishPage({ params }: { params: Promise<{ id: st
   // Use upsert so repeated Publish clicks are idempotent and existing organiser-configured
   // fields (venue, dates, cover image, etc.) are preserved — we only force is_public = true.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await (admin as any)
+  const { data: upsertedPage } = await (admin as any)
     .from('event_pages')
     .upsert(
       { event_id: id, title: event.name, is_public: true },
       { onConflict: 'event_id', ignoreDuplicates: false }
-    );
+    )
+    .select('id')
+    .single();
+
+  // On first publish: notify followers who have opted in
+  if (isFirstPublish && upsertedPage?.id) {
+    const { data: followers } = await admin
+      .from('organizer_follows')
+      .select('follower_id')
+      .eq('organizer_id', user.id)
+      .eq('notify_new_events', true);
+
+    if (followers && followers.length > 0) {
+      const notifications = followers.map((f: { follower_id: string }) => ({
+        user_id: f.follower_id,
+        event_id: id,
+        type: 'new_event_from_follow' as const,
+        title: `New event: ${event.name}`,
+        body: `An organizer you follow just published a new event.`,
+      }));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (admin as any).from('notifications').insert(notifications);
+    }
+  }
 
   // Get total zones from all variants
   const { data: variants } = await admin

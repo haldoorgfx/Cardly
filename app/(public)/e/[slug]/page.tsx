@@ -82,6 +82,13 @@ export default async function PublicEventPage({ params, searchParams }: Props) {
   const isPreview = searchParams.preview === '1';
   const editorEventId = searchParams.event_id ?? null;
 
+  // Series info
+  let seriesSlug: string | null = null;
+  if (page.series_id) {
+    const { data: series } = await admin.from('event_series').select('slug').eq('id', page.series_id).single();
+    seriesSlug = series?.slug ?? null;
+  }
+
   return (
     <>
       <PublicNav eventSlug={params.slug} />
@@ -130,6 +137,8 @@ export default async function PublicEventPage({ params, searchParams }: Props) {
         minPrice={minPrice}
         registrationSlug={registrationSlug}
         organizerUserId={organizerUserId}
+        seriesSlug={seriesSlug}
+        seriesName={page.series_name ?? null}
       />
     </>
   );

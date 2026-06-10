@@ -416,6 +416,58 @@ export interface Database {
         };
         Relationships: [];
       };
+      waitlist_entries: {
+        Row: {
+          id: string;
+          event_page_id: string;
+          email: string;
+          name: string;
+          status: 'waiting' | 'invited' | 'registered' | 'expired';
+          position: number | null;
+          notified_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          event_page_id: string;
+          email: string;
+          name: string;
+          status?: 'waiting' | 'invited' | 'registered' | 'expired';
+          position?: number | null;
+          notified_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          status?: 'waiting' | 'invited' | 'registered' | 'expired';
+          position?: number | null;
+          notified_at?: string | null;
+        };
+        Relationships: [];
+      };
+      event_series: {
+        Row: {
+          id: string;
+          organizer_id: string;
+          name: string;
+          slug: string;
+          description: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          organizer_id: string;
+          name: string;
+          slug: string;
+          description?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          name?: string;
+          slug?: string;
+          description?: string | null;
+        };
+        Relationships: [];
+      };
       saved_events: {
         Row: {
           id: string;
@@ -819,6 +871,8 @@ export interface Database {
           country: string | null;
           category: string | null;
           price_from: number | null;
+          series_id: string | null;
+          series_name: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -852,6 +906,8 @@ export interface Database {
           country?: string | null;
           category?: string | null;
           price_from?: number | null;
+          series_id?: string | null;
+          series_name?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -883,6 +939,8 @@ export interface Database {
           country?: string | null;
           category?: string | null;
           price_from?: number | null;
+          series_id?: string | null;
+          series_name?: string | null;
           updated_at?: string;
         };
         // Note: payment_processor check constraint updated in migration 018 to include 'waafipay'

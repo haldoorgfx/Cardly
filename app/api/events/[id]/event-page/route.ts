@@ -41,6 +41,9 @@ const EventPageSchema = z.object({
   collect_attendee_details:   z.boolean().optional(),
   apply_vat:                  z.boolean().optional(),
   variant_id:                 z.string().uuid().nullable().optional(),
+  city:                       z.string().max(100).trim().nullable().optional(),
+  category:                   z.string().max(100).trim().nullable().optional(),
+  series_name:                z.string().max(200).trim().nullable().optional(),
 }).superRefine((data, ctx) => {
   // ends_at must be after starts_at when both provided
   if (data.starts_at && data.ends_at) {
@@ -104,13 +107,50 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     .single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
+  // Resolve series_id from series_name (create or find existing)
+  let resolvedSeriesId: string | null | undefined = undefined;
+  const { series_name, ...restData } = parsed.data;
+  if (series_name !== undefined) {
+    if (!series_name) {
+      resolvedSeriesId = null; // clear the series
+    } else {
+      const slug = series_name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '')
+        .slice(0, 80) + '-' + Math.random().toString(36).slice(2, 6);
+
+      // Try to find existing series by name + organizer
+      const { data: existing } = await admin
+        .from('event_series')
+        .select('id, slug')
+        .eq('organizer_id', user.id)
+        .ilike('name', series_name)
+        .limit(1)
+        .maybeSingle();
+
+      if (existing) {
+        resolvedSeriesId = existing.id;
+      } else {
+        const { data: created } = await admin
+          .from('event_series')
+          .insert({ organizer_id: user.id, name: series_name, slug })
+          .select('id')
+          .single();
+        resolvedSeriesId = created?.id ?? null;
+      }
+    }
+  }
+
   // title is required by the DB type. Provide a fallback so upsert satisfies the type
   // even when the client is only updating other fields (DB will preserve the existing title).
-  const upsertPayload = {
+  const upsertPayload: Record<string, unknown> = {
     title: 'Untitled Event',
-    ...parsed.data,
+    ...restData,
     event_id: params.id,
     updated_at: new Date().toISOString(),
+    ...(series_name !== undefined ? { series_name: series_name || null } : {}),
+    ...(resolvedSeriesId !== undefined ? { series_id: resolvedSeriesId } : {}),
   };
 
   const { data, error } = await admin

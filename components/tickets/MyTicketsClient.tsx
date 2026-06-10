@@ -17,6 +17,7 @@ type Registration = {
     name: string;
     slug: string;
     event_pages: Array<{
+      id: string;
       title: string;
       cover_image_url: string | null;
       starts_at: string | null;
@@ -172,6 +173,17 @@ function TicketCard({ reg, onShowQR }: { reg: Registration; onShowQR: () => void
               >
                 {ticketName}
               </span>
+              {ep?.id && ep?.starts_at && (
+                <a
+                  href={`/api/calendar/${ep.id}`}
+                  download
+                  className="h-7 px-3 rounded-full text-[12px] font-medium transition hover:opacity-75"
+                  style={{ background: '#FAF6EE', color: '#1F4D3A', border: '1px solid #E5E0D4' }}
+                  onClick={e => e.stopPropagation()}
+                >
+                  + Calendar
+                </a>
+              )}
               {reg.karta_card_url && (
                 <>
                   <div

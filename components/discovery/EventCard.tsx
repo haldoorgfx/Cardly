@@ -20,6 +20,7 @@ export type DiscoveryEvent = {
   price_from: number | null;
   organizer_name: string | null;
   custom_slug: string | null;
+  series_name: string | null;
   events: { slug: string; user_id: string } | null;
 };
 
@@ -190,8 +191,20 @@ export function EventCard({
 
         {/* Organizer */}
         {page.organizer_name && (
-          <div className="text-[12px] mb-2 truncate" style={{ color: '#6B7A72' }}>
+          <div className="text-[12px] truncate" style={{ color: '#6B7A72' }}>
             {page.organizer_name}
+          </div>
+        )}
+
+        {/* Series pill */}
+        {page.series_name && (
+          <div className="mt-1 mb-1">
+            <span
+              className="inline-block px-2 py-0.5 rounded-full text-[10px] font-medium"
+              style={{ background: 'rgba(31,77,58,0.08)', color: '#1F4D3A', fontFamily: '"JetBrains Mono", monospace' }}
+            >
+              Series
+            </span>
           </div>
         )}
 

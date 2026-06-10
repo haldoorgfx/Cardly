@@ -27,10 +27,13 @@ interface Props {
   minPrice: string;
   registrationSlug: string;
   organizerUserId?: string | null;
+  seriesSlug?: string | null;
+  seriesName?: string | null;
 }
 
 export function PublicEventPageClient({
   page, tickets, dateStr, timeStr, endTimeStr, minPrice, registrationSlug, organizerUserId,
+  seriesSlug, seriesName,
 }: Props) {
   const [savedHeart, setSavedHeart] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<string>(tickets[0]?.id ?? '');
@@ -40,6 +43,7 @@ export function PublicEventPageClient({
     ? `/e/${registrationSlug}/register?ticket=${selectedTicket}`
     : `/e/${registrationSlug}/register`;
   const registrationClosed = !!(page.registration_deadline && new Date(page.registration_deadline) < new Date());
+  const allSoldOut = tickets.length > 0 && tickets.every(t => t.quantity !== null && t.quantity_sold >= t.quantity);
 
   function handleShare() {
     if (navigator.share) {
@@ -111,6 +115,15 @@ export function PublicEventPageClient({
         <div className="absolute bottom-0 left-0 right-0 z-10">
           <div className="max-w-[1000px] mx-auto px-5 pb-8 flex items-end justify-between gap-6">
             <div className="flex-1 min-w-0">
+              {seriesSlug && seriesName && (
+                <Link
+                  href={`/events/series/${seriesSlug}`}
+                  className="inline-flex items-center gap-1.5 text-[11px] font-medium mb-2 hover:opacity-80 transition-opacity"
+                  style={{ color: '#E8C57E', fontFamily: '"JetBrains Mono", monospace', letterSpacing: '0.05em' }}
+                >
+                  ↗ Series: {seriesName}
+                </Link>
+              )}
               {page.organizer_name && (
                 organizerUserId ? (
                   <Link
@@ -179,6 +192,15 @@ export function PublicEventPageClient({
             <Users size={14} strokeWidth={2} style={{ color: '#1F4D3A' }} />
             {minPrice}
           </span>
+          <a
+            href={`/api/calendar/${page.id}`}
+            download
+            className="flex items-center gap-1.5 text-[13px] font-medium hover:opacity-75 transition-opacity ml-auto"
+            style={{ color: '#1F4D3A' }}
+          >
+            <Calendar size={13} strokeWidth={2} style={{ color: '#1F4D3A' }} />
+            Add to calendar
+          </a>
         </div>
 
         {/* Two-column layout */}
@@ -250,6 +272,7 @@ export function PublicEventPageClient({
                 selectedTicketObj={selectedTicketObj}
                 page={page}
                 minPrice={minPrice}
+                registrationSlug={registrationSlug}
               />
             </div>
 
@@ -265,6 +288,7 @@ export function PublicEventPageClient({
               selectedTicketObj={selectedTicketObj}
               page={page}
               minPrice={minPrice}
+              registrationSlug={registrationSlug}
             />
           </aside>
         </div>
@@ -295,6 +319,14 @@ export function PublicEventPageClient({
           >
             Closed
           </div>
+        ) : allSoldOut ? (
+          <Link
+            href={`/e/${registrationSlug}/waitlist`}
+            className="inline-flex items-center h-11 px-6 rounded-xl font-display font-semibold text-[15px] transition hover:opacity-90 shrink-0"
+            style={{ background: '#E8C57E', color: '#0F1F18' }}
+          >
+            Join waitlist
+          </Link>
         ) : (
           <Link
             href={registerHref}
@@ -313,7 +345,7 @@ export function PublicEventPageClient({
 
 /* -- Ticket list (shared between sidebar and mobile inline) -- */
 function TicketList({
-  tickets, selectedTicket, setSelectedTicket, registerHref, selectedTicketObj, page, minPrice,
+  tickets, selectedTicket, setSelectedTicket, registerHref, selectedTicketObj, page, minPrice, registrationSlug,
 }: {
   tickets: TicketTypeRow[];
   selectedTicket: string;
@@ -322,10 +354,12 @@ function TicketList({
   selectedTicketObj: TicketTypeRow | undefined;
   page: EventPageRow;
   minPrice: string;
+  registrationSlug: string;
 }) {
   const isSoldOut = (t: TicketTypeRow) =>
     t.quantity !== null && t.quantity_sold >= t.quantity;
   const hasTickets = tickets.length > 0;
+  const allSoldOut = hasTickets && tickets.every(isSoldOut);
   const registrationClosed = !!(page.registration_deadline && new Date(page.registration_deadline) < new Date());
 
   return (
@@ -413,6 +447,14 @@ function TicketList({
         >
           Registration closed
         </div>
+      ) : allSoldOut ? (
+        <Link
+          href={`/e/${registrationSlug}/waitlist`}
+          className="mt-4 flex items-center justify-center h-12 rounded-xl font-display font-semibold text-[15px] transition hover:opacity-90"
+          style={{ background: '#E8C57E', color: '#0F1F18' }}
+        >
+          Join waitlist
+        </Link>
       ) : (
         <Link
           href={registerHref}

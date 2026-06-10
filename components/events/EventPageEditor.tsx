@@ -63,6 +63,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
   const [organizerName, setOrganizerName] = useState(existing?.organizer_name ?? '');
   const [city, setCity] = useState((existing as { city?: string | null } | null)?.city ?? '');
   const [category, setCategory] = useState((existing as { category?: string | null } | null)?.category ?? '');
+  const [seriesName, setSeriesName] = useState((existing as { series_name?: string | null } | null)?.series_name ?? '');
   const [seoTitle, setSeoTitle] = useState(existing?.seo_title ?? '');
   const [seoDescription, setSeoDescription] = useState(existing?.seo_description ?? '');
 
@@ -151,6 +152,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
           organizer_name: organizerName.trim() || null,
           city: city.trim() || null,
           category: category.trim() || null,
+          series_name: seriesName.trim() || null,
           seo_title: seoTitle.trim() || null,
           seo_description: seoDescription.trim() || null,
         };
@@ -505,6 +507,17 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
                   value={city}
                   onChange={e => setCity(e.target.value)}
                   placeholder="Djibouti City"
+                  className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
+                  style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
+                  onFocus={e => (e.target.style.borderColor = '#E8C57E')}
+                  onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
+                />
+              </Field>
+              <Field label="Series name">
+                <input
+                  value={seriesName}
+                  onChange={e => setSeriesName(e.target.value)}
+                  placeholder="Leave blank if standalone event"
                   className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
                   style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
                   onFocus={e => (e.target.style.borderColor = '#E8C57E')}
