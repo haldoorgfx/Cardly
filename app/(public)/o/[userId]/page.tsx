@@ -11,11 +11,13 @@ interface Props { params: { userId: string } }
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const admin = createAdminClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: profile } = await (admin as any)
-    .from('profiles')
-    .select('full_name, organization')
-    .eq('id', params.userId)
-    .maybeSingle();
+  let profile: { full_name?: string; organization?: string } | null = null;
+  for (const cols of ['full_name, organization', 'full_name']) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (admin as any).from('profiles').select(cols).eq('id', params.userId).maybeSingle();
+    if (data) { profile = data; break; }
+    if (!error) break;
+  }
 
   const name = profile?.organization ?? profile?.full_name ?? 'Organizer';
   return {
@@ -28,23 +30,22 @@ export default async function OrganizerProfilePage({ params }: Props) {
   const { userId } = params;
   const admin = createAdminClient();
 
-  // Profile — try full select first; fall back to base columns if newer columns missing in DB
+  // Profile — try progressively minimal selects to handle missing columns in production DB
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let { data: profile, error: profileError } = await (admin as any)
-    .from('profiles')
-    .select('id, full_name, avatar_url, bio, organization, city')
-    .eq('id', userId)
-    .maybeSingle();
-
-  if (!profile && profileError) {
-    // Possibly some columns don't exist yet — retry with only guaranteed-base columns
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const fallback = await (admin as any)
-      .from('profiles')
-      .select('id, full_name, avatar_url, bio, city')
-      .eq('id', userId)
-      .maybeSingle();
-    profile = fallback.data;
+  const adminAny = admin as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let profile: any = null;
+  const selects = [
+    'id, full_name, avatar_url, bio, organization, city',
+    'id, full_name, avatar_url, bio, city',
+    'id, full_name, avatar_url, city',
+    'id, full_name, avatar_url',
+    'id, full_name',
+  ];
+  for (const cols of selects) {
+    const { data, error } = await adminAny.from('profiles').select(cols).eq('id', userId).maybeSingle();
+    if (data) { profile = data; break; }
+    if (!error) break; // no error but no row → user doesn't exist
   }
 
   if (!profile) notFound();
