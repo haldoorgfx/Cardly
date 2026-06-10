@@ -13,7 +13,7 @@ import {
   Home, Layout, CalendarDays, MessageSquare, Bell,
   Ticket, ScanLine, User, Network, Trophy, Briefcase, Video, Palette, ExternalLink,
   UserCircle, HelpCircle, Zap, ShoppingCart, Handshake, Clock, IdCard,
-  Tag, Plug, Globe, Download,
+  Tag, Plug, Globe, Download, Link2,
 } from 'lucide-react';
 
 type Profile = {
@@ -67,7 +67,8 @@ const EVENT_NAV_SECTIONS = [
       { id: 'tickets',         label: 'Tickets',         icon: <Ticket size={15} strokeWidth={1.8} />,         segment: 'tickets' },
       { id: 'registrations',   label: 'Registrations',   icon: <Users size={15} strokeWidth={1.8} />,          segment: 'registrations' },
       { id: 'form',            label: 'Reg. Form',       icon: <FileText size={15} strokeWidth={1.8} />,       segment: 'form'        },
-      { id: 'promo-codes',     label: 'Promo Codes',     icon: <Tag size={15} strokeWidth={1.8} />,            segment: 'promo-codes' },
+      { id: 'promo-codes',      label: 'Promo Codes',      icon: <Tag size={15} strokeWidth={1.8} />,     segment: 'promo-codes' },
+      { id: 'promoter-links',  label: 'Promoter Links',  icon: <Link2 size={15} strokeWidth={1.8} />,   segment: 'promoter-links' },
       { id: 'orders',          label: 'Orders',          icon: <ShoppingCart size={15} strokeWidth={1.8} />,   segment: 'orders' },
       { id: 'waitlist',        label: 'Waitlist',        icon: <Clock size={15} strokeWidth={1.8} />,          segment: 'waitlist' },
       { id: 'check-in',        label: 'Check-in',        icon: <ScanLine size={15} strokeWidth={1.8} />,       segment: 'check-in' },
@@ -107,9 +108,10 @@ const EVENT_NAV_SECTIONS = [
   {
     title: 'Insights',
     items: [
-      { id: 'analytics',  label: 'Analytics',  icon: <BarChart2 size={15} strokeWidth={1.8} />, segment: 'analytics' },
-      { id: 'reports',    label: 'Reports',    icon: <FileText size={15} strokeWidth={1.8} />,  segment: 'reports' },
-      { id: 'downloads',  label: 'Downloads',  icon: <Download size={15} strokeWidth={1.8} />,  segment: 'downloads' },
+      { id: 'analytics',       label: 'Analytics',       icon: <BarChart2 size={15} strokeWidth={1.8} />,   segment: 'analytics' },
+      { id: 'revenue',         label: 'Revenue',         icon: <TrendingUp size={15} strokeWidth={1.8} />,  segment: 'revenue' },
+      { id: 'reports',         label: 'Reports',         icon: <FileText size={15} strokeWidth={1.8} />,   segment: 'reports' },
+      { id: 'downloads',       label: 'Downloads',       icon: <Download size={15} strokeWidth={1.8} />,   segment: 'downloads' },
     ],
   },
   {
@@ -669,7 +671,9 @@ const PAGE_LABELS: Record<string, string> = {
   'q-and-a':        'Q&A',
   'abstracts':      'Abstracts',
   'form':           'Registration form',
-  'promo-codes':    'Promo codes',
+  'promo-codes':      'Promo codes',
+  'promoter-links':   'Promoter links',
+  'revenue':          'Revenue',
   'publish':        'Publish',
   'meetings':       '1:1 Meetings',
   'badges':         'Cards & Badges',

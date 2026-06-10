@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Search, Download, CheckCircle2, Clock, XCircle, RotateCcw, ExternalLink, UserPlus, X, MoreHorizontal, Upload, AlertCircle, CheckCircle, ChevronDown, Pencil, Copy } from 'lucide-react';
 
-type Status = 'pending' | 'confirmed' | 'checked_in' | 'cancelled' | 'refunded';
+type Status = 'pending' | 'confirmed' | 'checked_in' | 'cancelled' | 'refunded' | 'pending_approval';
 type PaymentStatus = 'free' | 'pending' | 'paid' | 'refunded' | 'failed';
 
 interface Registration {
@@ -19,6 +19,7 @@ interface Registration {
   karta_card_url: string | null;
   checked_in_at: string | null;
   created_at: string;
+  referral_code: string | null;
   ticket_types: { name: string; price: number } | null;
 }
 
@@ -38,11 +39,12 @@ interface Props {
 }
 
 const STATUS_PILL: Record<Status, { label: string; bg: string; color: string }> = {
-  confirmed:   { label: 'Confirmed',   bg: '#E8EFEB', color: '#1F4D3A' },
-  checked_in:  { label: 'Checked in',  bg: '#D1FAE5', color: '#065F46' },
-  pending:     { label: 'Pending',     bg: '#FEF3C7', color: '#92400E' },
-  cancelled:   { label: 'Cancelled',   bg: '#FEE2E2', color: '#991B1B' },
-  refunded:    { label: 'Refunded',    bg: '#E0E7FF', color: '#3730A3' },
+  confirmed:         { label: 'Confirmed',        bg: '#E8EFEB', color: '#1F4D3A' },
+  checked_in:        { label: 'Checked in',       bg: '#D1FAE5', color: '#065F46' },
+  pending:           { label: 'Pending',          bg: '#FEF3C7', color: '#92400E' },
+  cancelled:         { label: 'Cancelled',        bg: '#FEE2E2', color: '#991B1B' },
+  refunded:          { label: 'Refunded',         bg: '#E0E7FF', color: '#3730A3' },
+  pending_approval:  { label: 'Awaiting approval', bg: '#FEF3C7', color: '#7C4B00' },
 };
 
 function StatusPill({ status }: { status: Status }) {
@@ -68,7 +70,7 @@ function formatCurrency(amount: number, currency: string) {
 }
 
 function exportCSV(rows: Registration[], eventSlug: string) {
-  const headers = ['Name', 'Email', 'Phone', 'Ticket', 'Amount', 'Status', 'Card Downloaded', 'Registered At', 'Checked In At'];
+  const headers = ['Name', 'Email', 'Phone', 'Ticket', 'Amount', 'Status', 'Promoter Code', 'Card Downloaded', 'Registered At', 'Checked In At'];
   const lines = rows.map(r => [
     r.attendee_name,
     r.attendee_email,
@@ -76,6 +78,7 @@ function exportCSV(rows: Registration[], eventSlug: string) {
     r.ticket_types?.name ?? 'General',
     formatCurrency(r.amount_paid, r.currency),
     r.status,
+    r.referral_code ?? '',
     r.karta_card_url ? 'Yes' : 'No',
     new Date(r.created_at).toLocaleString(),
     r.checked_in_at ? new Date(r.checked_in_at).toLocaleString() : '',

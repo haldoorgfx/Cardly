@@ -17,6 +17,9 @@ const RegisterSchema = z.object({
   chosen_price:    z.number().min(0).optional(),
   // Access code — unlocks hidden tickets
   access_code:     z.string().max(100).optional(),
+  // Attribution
+  referral_code:   z.string().max(64).optional().nullable(),
+  utm_source:      z.string().max(100).optional().nullable(),
 });
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
@@ -37,7 +40,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     );
   }
 
-  const { attendee_name, attendee_email, ticket_type_id, attendee_phone, custom_fields, chosen_price, access_code } = parsed.data;
+  const { attendee_name, attendee_email, ticket_type_id, attendee_phone, custom_fields, chosen_price, access_code, referral_code, utm_source } = parsed.data;
 
   // 1. Verify event has a public event_page
   const { data: eventPage } = await admin
@@ -121,6 +124,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       attendee_email: attendee_email.trim().toLowerCase(),
       attendee_phone: attendee_phone?.trim() || null,
       custom_fields: custom_fields ?? {},
+      referral_code: referral_code ? referral_code.toUpperCase() : null,
+      utm_source: utm_source ?? null,
       status: initialStatus,
       payment_status: isFree ? 'free' : 'pending',
       amount_paid: isFree ? 0 : effectivePrice,

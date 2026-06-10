@@ -171,8 +171,18 @@ export interface Registration {
   karta_card_url: string | null;
   karta_card_zone_data: Record<string, unknown> | null;
   source: string | null;
+  referral_code: string | null;
+  utm_source: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface PromoterCode {
+  id: string;
+  event_id: string;
+  code: string;
+  label: string | null;
+  created_at: string;
 }
 
 export interface RegistrationFormField {
@@ -1063,6 +1073,8 @@ export interface Database {
           karta_card_url: string | null;
           karta_card_zone_data: Json | null;
           source: string | null;
+          referral_code: string | null;
+          utm_source: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -1086,6 +1098,8 @@ export interface Database {
           karta_card_url?: string | null;
           karta_card_zone_data?: Json | null;
           source?: string | null;
+          referral_code?: string | null;
+          utm_source?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -1105,6 +1119,8 @@ export interface Database {
           checked_in_by?: string | null;
           karta_card_url?: string | null;
           karta_card_zone_data?: Json | null;
+          referral_code?: string | null;
+          utm_source?: string | null;
           updated_at?: string;
         };
         Relationships: [
@@ -1146,6 +1162,35 @@ export interface Database {
         Relationships: [
           {
             foreignKeyName: "reg_form_fields_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      promoter_codes: {
+        Row: {
+          id: string;
+          event_id: string;
+          code: string;
+          label: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          event_id: string;
+          code: string;
+          label?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          code?: string;
+          label?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "promoter_codes_event_id_fkey";
             columns: ["event_id"];
             isOneToOne: false;
             referencedRelation: "events";

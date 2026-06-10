@@ -40,6 +40,8 @@ interface Props {
   canvasVariant: CanvasVariant | null;
   initialName?: string;
   initialEmail?: string;
+  referralCode?: string | null;
+  utmSource?: string | null;
 }
 
 const INPUT = 'w-full rounded-xl px-4 py-3 text-[15px] outline-none transition border focus:border-[#E8C57E] focus:ring-[3px] focus:ring-[rgba(232,197,126,0.15)]';
@@ -265,6 +267,7 @@ export default function RegistrationClient({
   eventSlug, eventId, eventName, eventSubtitle,
   coverUrl, startsAt, city, tickets, canvasVariant,
   initialName = '', initialEmail = '',
+  referralCode, utmSource,
 }: Props) {
   const router = useRouter();
   // step -1 = arrival, 0 = ticket, 1 = details, 2 = payment
@@ -352,6 +355,8 @@ export default function RegistrationClient({
           attendee_name: attendeeName,
           attendee_email: email,
           custom_fields: {},
+          referral_code: referralCode ?? null,
+          utm_source: utmSource ?? null,
         }),
       });
 
