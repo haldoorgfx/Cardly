@@ -148,16 +148,26 @@ async function buildTextOp(zone: Zone, text: string, canvasW: number, canvasH: n
   // Composite the rendered text block centred inside a zone-sized transparent canvas
   // so the final composite step always receives a buffer with the exact zone dimensions.
   const { width: tW = 0, height: tH = 0 } = await sharp(textBuf).metadata();
+
+  // If the rendered text is larger than the zone (e.g. long text at large font wraps
+  // to multiple lines that exceed zone.h), clip it to the zone bounds before compositing.
+  // sharp throws "Image to composite must have same dimensions or smaller" otherwise.
+  const safeTW = Math.min(tW, zW);
+  const safeTH = Math.min(tH, zH);
+  const safeTextBuf = (safeTW < tW || safeTH < tH)
+    ? await sharp(textBuf).extract({ left: 0, top: 0, width: safeTW, height: safeTH }).toBuffer()
+    : textBuf;
+
   const leftInZone = align === 'center'
-    ? Math.max(0, Math.floor((zW - tW) / 2))
+    ? Math.max(0, Math.floor((zW - safeTW) / 2))
     : align === 'right'
-    ? Math.max(0, zW - tW - 8)
+    ? Math.max(0, zW - safeTW - 8)
     : 8;
-  const topInZone = Math.max(0, Math.floor((zH - tH) / 2));
+  const topInZone = Math.max(0, Math.floor((zH - safeTH) / 2));
 
   const zoneCanvas = await sharp({
     create: { width: zW, height: zH, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } },
-  }).composite([{ input: textBuf, left: leftInZone, top: topInZone }]).png().toBuffer();
+  }).composite([{ input: safeTextBuf, left: leftInZone, top: topInZone }]).png().toBuffer();
 
   return {
     input: zoneCanvas,
