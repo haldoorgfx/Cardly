@@ -42,7 +42,7 @@ export async function GET(
   const admin = createAdminClient();
   const { data: page } = await admin
     .from('event_pages')
-    .select('id, title, description, starts_at, ends_at, timezone, venue_name, venue_address, city, country, is_online, online_url, custom_slug, events!event_id(slug)')
+    .select('id, title, description, starts_at, ends_at, timezone, venue_name, venue_address, city, country, is_online, online_url, custom_slug, events(slug)')
     .eq('id', params.pageId)
     .eq('is_public', true)
     .single();

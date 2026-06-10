@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic';
+﻿export const dynamic = 'force-dynamic';
 
 import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { DiscoveryFeed } from '@/components/discovery/DiscoveryFeed';
@@ -6,7 +6,7 @@ import { PublicNav } from '@/components/events/PublicNav';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Discover Events — Karta',
+  title: 'Discover Events â€” Karta',
   description: 'Find events across East Africa and beyond. Music, tech, culture, food and more.',
 };
 
@@ -16,7 +16,7 @@ export default async function EventDiscoveryPage() {
   // Fetch upcoming public events
   const { data: pages } = await admin
     .from('event_pages')
-    .select('id, event_id, title, tagline, cover_image_url, starts_at, ends_at, timezone, is_online, venue_name, city, country, category, price_from, organizer_name, custom_slug, series_name, events!event_id(slug, user_id)')
+    .select('id, event_id, title, tagline, cover_image_url, starts_at, ends_at, timezone, is_online, venue_name, city, country, category, price_from, organizer_name, custom_slug, series_name, events(slug, user_id)')
     .eq('is_public', true)
     .gte('ends_at', new Date().toISOString())
     .order('starts_at', { ascending: true })
@@ -71,3 +71,4 @@ export default async function EventDiscoveryPage() {
     </div>
   );
 }
+

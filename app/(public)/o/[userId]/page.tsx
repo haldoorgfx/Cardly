@@ -45,7 +45,7 @@ export default async function OrganizerProfilePage({ params }: Props) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (admin as any)
       .from('event_pages')
-      .select('id, event_id, title, tagline, cover_image_url, starts_at, ends_at, timezone, is_online, venue_name, city, country, category, price_from, organizer_name, custom_slug, events!event_id(slug, user_id)')
+      .select('id, event_id, title, tagline, cover_image_url, starts_at, ends_at, timezone, is_online, venue_name, city, country, category, price_from, organizer_name, custom_slug, events(slug, user_id)')
       .eq('is_public', true)
       .eq('events.user_id', userId)
       .gte('ends_at', now)
@@ -55,7 +55,7 @@ export default async function OrganizerProfilePage({ params }: Props) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (admin as any)
       .from('event_pages')
-      .select('id, title, starts_at, cover_image_url, custom_slug, events!event_id(slug, user_id)')
+      .select('id, title, starts_at, cover_image_url, custom_slug, events(slug, user_id)')
       .eq('is_public', true)
       .eq('events.user_id', userId)
       .lt('ends_at', now)

@@ -13,7 +13,7 @@ export default async function WaitlistPage({ params }: Props) {
   // Support both custom_slug and event slug
   const { data: page } = await admin
     .from('event_pages')
-    .select('id, title, cover_image_url, starts_at, city, is_online, custom_slug, events!event_id(slug, name)')
+    .select('id, title, cover_image_url, starts_at, city, is_online, custom_slug, events(slug, name)')
     .or(`custom_slug.eq.${params.slug},events.slug.eq.${params.slug}`)
     .eq('is_public', true)
     .single();
