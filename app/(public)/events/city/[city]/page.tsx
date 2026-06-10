@@ -22,11 +22,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CityEventPage({ params }: Props) {
   const city = decodeCity(params.city);
   const admin = createAdminClient();
-  // DEPLOY_MARKER_V3
 
   const { data: pages } = await admin
     .from('event_pages')
-    .select('id, event_id, title, tagline, cover_image_url, starts_at, ends_at, timezone, is_online, venue_name, city, country, category, price_from, organizer_name, custom_slug, series_name, events(slug, user_id)')
+    .select('id, event_id, title, tagline, cover_image_url, starts_at, ends_at, timezone, is_online, venue_name, city, country, category, price_from, organizer_name, custom_slug, series_name, events!inner(slug, user_id)')
     .eq('is_public', true)
     .ilike('city', city)
     .gte('ends_at', new Date().toISOString())

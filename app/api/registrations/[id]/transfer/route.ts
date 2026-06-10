@@ -25,7 +25,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: reg } = await (admin as any)
     .from('registrations')
-    .select('id, attendee_name, attendee_email, qr_code_token, status, events(slug, event_pages(title, starts_at))')
+    .select('id, attendee_name, attendee_email, qr_code_token, status, events!inner(slug, event_pages(title, starts_at))')
     .eq('id', params.id)
     .eq('attendee_email', user.email)
     .in('status', ['confirmed', 'pending_approval'])

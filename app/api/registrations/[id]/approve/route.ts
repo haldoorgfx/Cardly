@@ -24,7 +24,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: reg } = await (admin as any)
     .from('registrations')
-    .select('id, attendee_name, attendee_email, qr_code_token, status, events(id, user_id, slug, event_pages(title, starts_at, timezone, venue_name, is_online))')
+    .select('id, attendee_name, attendee_email, qr_code_token, status, events!inner(id, user_id, slug, event_pages(title, starts_at, timezone, venue_name, is_online))')
     .eq('id', params.id)
     .maybeSingle();
 

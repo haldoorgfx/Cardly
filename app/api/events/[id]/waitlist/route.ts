@@ -119,7 +119,7 @@ export async function PATCH(
     .update({ status: 'invited', notified_at: new Date().toISOString() })
     .eq('id', parsed.data.entry_id)
     .eq('status', 'waiting')
-    .select('email, name, event_pages(title, starts_at, custom_slug, events(slug))')
+    .select('email, name, event_pages(title, starts_at, custom_slug, events!inner(slug))')
     .maybeSingle();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

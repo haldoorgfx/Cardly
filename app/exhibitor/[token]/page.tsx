@@ -15,7 +15,7 @@ export default async function ExhibitorPage({ params }: Props) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: sponsor } = await (admin as any)
     .from('sponsors')
-    .select('*, events(id, name, slug, status)')
+    .select('*, events!inner(id, name, slug, status)')
     .eq('invite_token', token)
     .single();
 

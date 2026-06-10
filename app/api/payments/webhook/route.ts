@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
         })
         .eq('stripe_payment_intent_id', pi.id)
         .eq('payment_status', 'pending') // idempotent guard
-        .select('attendee_name, attendee_email, qr_code_token, ticket_types(name), events(slug, event_pages(title, starts_at, venue_name, is_online))')
+        .select('attendee_name, attendee_email, qr_code_token, ticket_types(name), events!inner(slug, event_pages(title, starts_at, venue_name, is_online))')
         .maybeSingle();
       if (error) console.error('[Stripe webhook] update failed:', error.message);
       if (updated) {

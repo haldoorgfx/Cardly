@@ -35,7 +35,7 @@ export default async function SeriesPage({ params }: Props) {
 
   const { data: pages } = await admin
     .from('event_pages')
-    .select('id, title, cover_image_url, starts_at, city, is_online, price_from, custom_slug, events(slug, user_id)')
+    .select('id, title, cover_image_url, starts_at, city, is_online, price_from, custom_slug, events!inner(slug, user_id)')
     .eq('series_id', series.id)
     .eq('is_public', true)
     .order('starts_at', { ascending: true });

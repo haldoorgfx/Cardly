@@ -11,7 +11,7 @@ export async function GET() {
     .from('saved_events')
     .select(`id, event_page_id, created_at,
       event_pages(id, title, cover_image_url, starts_at, ends_at, venue_name, city, is_online,
-        events(id, name, slug, user_id))`)
+        events!inner(id, name, slug, user_id))`)
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
 

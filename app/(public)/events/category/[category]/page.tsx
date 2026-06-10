@@ -32,7 +32,7 @@ export default async function CategoryEventPage({ params }: Props) {
 
   const { data: pages } = await admin
     .from('event_pages')
-    .select('id, event_id, title, tagline, cover_image_url, starts_at, ends_at, timezone, is_online, venue_name, city, country, category, price_from, organizer_name, custom_slug, series_name, events(slug, user_id)')
+    .select('id, event_id, title, tagline, cover_image_url, starts_at, ends_at, timezone, is_online, venue_name, city, country, category, price_from, organizer_name, custom_slug, series_name, events!inner(slug, user_id)')
     .eq('is_public', true)
     .ilike('category', category)
     .gte('ends_at', new Date().toISOString())

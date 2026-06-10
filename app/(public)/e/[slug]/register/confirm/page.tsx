@@ -25,7 +25,7 @@ export default async function RegisterConfirmPage({ params, searchParams }: Prop
   if (!registration) notFound();
 
   const [{ data: eventPage }, { data: ticket }] = await Promise.all([
-    admin.from('event_pages').select('title, event_id, variant_id, events(slug)').eq('event_id', registration.event_id).single(),
+    admin.from('event_pages').select('title, event_id, variant_id, events!inner(slug)').eq('event_id', registration.event_id).single(),
     registration.ticket_type_id
       ? admin.from('ticket_types').select('name, price, currency').eq('id', registration.ticket_type_id).single()
       : Promise.resolve({ data: null }),

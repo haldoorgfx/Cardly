@@ -21,7 +21,7 @@ export default async function MyTicketsPage() {
     .select(`
       id, attendee_name, attendee_email, status, karta_card_url, qr_code_token, created_at,
       ticket_types(name, price),
-      events(id, name, slug, event_pages(id, title, cover_image_url, starts_at, ends_at, venue_name, city, is_online))
+      events!inner(id, name, slug, event_pages(id, title, cover_image_url, starts_at, ends_at, venue_name, city, is_online))
     `)
     .eq('attendee_email', user.email)
     .in('status', ['confirmed', 'checked_in', 'pending'])
