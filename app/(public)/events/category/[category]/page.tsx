@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { createAdminClient, createClient } from '@/lib/supabase/server';
-import { notFound } from 'next/navigation';
+import { notFound } from 'next/navigation'; // still needed for invalid categories
 import { PublicNav } from '@/components/events/PublicNav';
 import { CategoryPage } from '@/components/discovery/CategoryPage';
 import type { Metadata } from 'next';
@@ -39,11 +39,11 @@ export default async function CategoryEventPage({ params }: Props) {
     .order('starts_at', { ascending: true })
     .limit(80);
 
-  if (!pages) notFound();
+  const safePages = pages ?? [];
 
   // Compute city counts for this category
   const cityCountMap = new Map<string, number>();
-  for (const p of pages) {
+  for (const p of safePages) {
     if (p.city) cityCountMap.set(p.city, (cityCountMap.get(p.city) ?? 0) + 1);
   }
   const cityCounts = Array.from(cityCountMap.entries())
@@ -66,7 +66,7 @@ export default async function CategoryEventPage({ params }: Props) {
       <PublicNav />
       <div className="max-w-[1120px] mx-auto px-5 pt-10">
         {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        <CategoryPage category={category} events={pages as any} savedIds={savedIds} cityCounts={cityCounts} />
+        <CategoryPage category={category} events={safePages as any} savedIds={savedIds} cityCounts={cityCounts} />
       </div>
     </div>
   );
