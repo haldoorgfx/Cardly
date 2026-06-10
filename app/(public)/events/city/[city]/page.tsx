@@ -22,6 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CityEventPage({ params }: Props) {
   const city = decodeCity(params.city);
   const admin = createAdminClient();
+  // DEPLOY_MARKER_V3
 
   const { data: pages } = await admin
     .from('event_pages')
