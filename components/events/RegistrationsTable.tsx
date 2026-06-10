@@ -931,19 +931,50 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
       </div>
 
       {/* ── Toolbar ── */}
-      <div className="flex flex-wrap gap-3 mb-4">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#6B7A72' }} />
-          <input
-            type="text"
-            placeholder="Search name or email…"
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-            className="w-full rounded-lg pl-9 pr-3 py-2 text-[13px] outline-none"
+      <div className="flex flex-col gap-3 mb-4">
+        {/* Row 1: search + action buttons */}
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#6B7A72' }} />
+            <input
+              type="text"
+              placeholder="Search name or email…"
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              className="w-full rounded-lg pl-9 pr-3 py-2 text-[13px] outline-none"
+              style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
+            />
+          </div>
+          <button
+            onClick={() => exportCSV(rows, eventSlug)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium shrink-0"
             style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
-          />
+            title="Export CSV"
+          >
+            <Download size={14} />
+            <span className="hidden sm:inline">Export CSV</span>
+          </button>
+          <button
+            onClick={() => setImportOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium shrink-0"
+            style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
+            title="Import CSV"
+          >
+            <Upload size={14} />
+            <span className="hidden sm:inline">Import CSV</span>
+          </button>
+          <button
+            onClick={() => setAddOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[13px] font-medium text-white transition hover:opacity-90 shrink-0"
+            style={{ background: '#1F4D3A' }}
+          >
+            <UserPlus size={14} />
+            <span className="hidden sm:inline">Add manually</span>
+            <span className="sm:hidden">Add</span>
+          </button>
         </div>
 
+        {/* Row 2: status filters */}
         <div className="flex gap-1.5 flex-wrap">
           {(['all', 'confirmed', 'checked_in', 'pending', 'cancelled'] as const).map(s => (
             <button
@@ -960,50 +991,23 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
             </button>
           ))}
         </div>
-
-        <div className="flex gap-2 ml-auto">
-          <button
-            onClick={() => exportCSV(rows, eventSlug)}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[13px] font-medium"
-            style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
-          >
-            <Download size={14} />
-            Export CSV
-          </button>
-          <button
-            onClick={() => setImportOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[13px] font-medium"
-            style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
-          >
-            <Upload size={14} />
-            Import CSV
-          </button>
-          <button
-            onClick={() => setAddOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-[13px] font-medium text-white transition hover:opacity-90"
-            style={{ background: '#1F4D3A' }}
-          >
-            <UserPlus size={14} />
-            Add manually
-          </button>
-        </div>
       </div>
 
       {/* ── Table ── */}
-      <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
+      <div className="rounded-2xl overflow-x-auto" style={{ border: '1px solid #E5E0D4' }}>
         {loading && rows.length === 0 ? (
-          <div className="py-16 text-center" style={{ background: 'white' }}>
+          <div className="py-16 text-center" style={{ background: 'white', minWidth: 320 }}>
             <div className="text-[14px]" style={{ color: '#6B7A72' }}>Searching…</div>
           </div>
         ) : rows.length === 0 ? (
-          <div className="py-16 text-center" style={{ background: 'white' }}>
+          <div className="py-16 text-center" style={{ background: 'white', minWidth: 320 }}>
             <div className="text-[14px]" style={{ color: '#6B7A72' }}>
               {query || statusFilter !== 'all' ? 'No registrations match your filter' : 'No registrations yet'}
             </div>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
+          <>
+            <table className="w-full text-left" style={{ minWidth: 640 }}>
               <thead>
                 <tr style={{ background: '#FAF6EE', borderBottom: '1px solid #E5E0D4' }}>
                   {['Name', 'Ticket', 'Amount', 'Status', 'Card', 'Registered', 'Checked in', ''].map(h => (
@@ -1063,7 +1067,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
                 ))}
               </tbody>
             </table>
-          </div>
+          </>
         )}
       </div>
 
