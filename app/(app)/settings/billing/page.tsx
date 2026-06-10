@@ -143,7 +143,7 @@ export default async function BillingPage({
     return (
       <>
         <SettingsTabs />
-        <div className="px-6 lg:px-8 py-8 max-w-[760px]">
+        <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-[760px]">
           <div className="mb-8">
             <h1 className="font-display font-semibold text-[24px] text-[#0F1F18] tracking-tight">Billing</h1>
             <p className="text-[14px] text-[#6B7A72] mt-1">Manage your plan and payment method</p>
@@ -163,9 +163,9 @@ export default async function BillingPage({
   return (
     <>
       <SettingsTabs />
-    <div className="px-6 lg:px-8 py-8 max-w-[960px]">
+    <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-[960px]">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4 mb-8">
+      <div className="flex items-start justify-between gap-4 mb-8 flex-wrap">
         <div>
           <h1 className="font-display font-semibold text-[24px] text-[#0F1F18] tracking-tight">Billing</h1>
           <p className="text-[14px] text-[#6B7A72] mt-1">Manage your plan and payment method</p>
@@ -189,7 +189,7 @@ export default async function BillingPage({
       )}
 
       {/* Two-column: plan card + payment method */}
-      <div className="grid grid-cols-[1fr_320px] gap-5 mb-5">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-5 mb-5">
 
         {/* Plan card — dark green */}
         <div
@@ -338,11 +338,12 @@ export default async function BillingPage({
 
       {/* Invoices table */}
       {invoices.length > 0 && (
-        <div className="bg-white rounded-2xl border border-border shadow-soft overflow-hidden">
+        <div className="bg-white rounded-2xl border border-border shadow-soft">
           <div className="px-6 py-4 border-b border-border">
             <h3 className="font-semibold text-[14px] text-[#0F1F18]">Invoices</h3>
           </div>
-          <table className="w-full">
+          <div className="overflow-x-auto">
+          <table className="w-full" style={{ minWidth: 480 }}>
             <thead>
               <tr className="border-b border-border">
                 {['DATE', 'DESCRIPTION', 'AMOUNT', 'STATUS', ''].map(col => (
@@ -408,6 +409,7 @@ export default async function BillingPage({
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 

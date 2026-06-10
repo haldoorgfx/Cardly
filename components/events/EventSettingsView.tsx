@@ -147,8 +147,8 @@ export function EventSettingsView({ event }: Props) {
       </div>
 
       {/* Tabs — sticky so they stay visible when scrolling */}
-      <div className="sticky top-0 z-10 -mx-6 px-6 py-2.5 mb-4" style={{ background: '#FAF6EE' }}>
-        <div className="flex gap-1 p-1 rounded-xl" style={{ background: '#F5F0E8', display: 'inline-flex' }}>
+      <div className="sticky top-0 z-10 -mx-6 px-6 py-2.5 mb-4 overflow-x-auto" style={{ background: '#FAF6EE' }}>
+        <div className="flex gap-1 p-1 rounded-xl whitespace-nowrap" style={{ background: '#F5F0E8', display: 'inline-flex' }}>
           {TABS.map(t => (
             <button
               key={t.id}
@@ -461,7 +461,7 @@ function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) =>
 function DangerCard({ title, desc, action, danger }: { title: string; desc: string; action: React.ReactNode; danger?: boolean }) {
   return (
     <div
-      className="flex items-center justify-between gap-4 p-5 rounded-2xl"
+      className="flex items-start sm:items-center justify-between gap-4 flex-wrap p-5 rounded-2xl"
       style={{
         background: danger ? 'rgba(184,66,60,0.04)' : 'white',
         border: danger ? '1px solid rgba(184,66,60,0.2)' : '1px solid #E5E0D4',

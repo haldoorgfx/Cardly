@@ -287,7 +287,7 @@ export default function PublishClient({
               margin: 0, color: PT.ink, maxWidth: 720,
             }}>{eventName} is live.</h1>
             <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: 12,
+              display: 'inline-flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', rowGap: 6,
               marginTop: 10,
               fontFamily: 'Inter, sans-serif', fontSize: 14, color: PT.inkSoft,
             }}>
@@ -312,7 +312,7 @@ export default function PublishClient({
         <div style={{
           background: PT.surface, border: `1px solid ${PT.border}`,
           borderRadius: 10, padding: '14px 18px',
-          display: 'flex', alignItems: 'center', gap: 24,
+          display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap', rowGap: 12,
         }}>
           <StatItem label="Views" value="0" sub="last 24h" />
           <div style={{ width: 1, height: 32, background: PT.border, flexShrink: 0 }} />

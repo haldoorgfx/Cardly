@@ -188,7 +188,7 @@ export default async function AnalyticsPage({
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[1200px] mx-auto px-6 lg:px-8 py-8">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
 
         {/* ── Page header ────────────────────────────────────────────────────── */}
         <div className="flex items-start justify-between mb-7 gap-4 flex-wrap">
@@ -342,7 +342,7 @@ export default async function AnalyticsPage({
         </div>
 
         {/* ── Event performance table ─────────────────────────────────────────── */}
-        <div className="bg-white rounded-2xl overflow-hidden"
+        <div className="bg-white rounded-2xl"
           style={{ border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
           <div className="px-6 py-4 border-b" style={{ borderColor: '#E5E0D4' }}>
             <div className="font-display text-[15px] font-semibold" style={{ color: '#0F1F18' }}>
@@ -355,7 +355,8 @@ export default async function AnalyticsPage({
               No events yet.
             </div>
           ) : (
-            <table className="w-full">
+            <div className="overflow-x-auto">
+            <table className="w-full" style={{ minWidth: 640 }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid #E5E0D4', background: '#FAFAF9' }}>
                   {['Event', 'Status', 'Registrations', 'Revenue', 'Cards', 'Check-in'].map(h => (
@@ -424,6 +425,7 @@ export default async function AnalyticsPage({
                 })}
               </tbody>
             </table>
+            </div>
           )}
         </div>
 

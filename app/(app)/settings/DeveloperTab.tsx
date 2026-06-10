@@ -156,7 +156,7 @@ function ApiKeysSection({ plan }: { plan: string }) {
       <div className="rounded-2xl p-5 mb-5" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
         <div className="font-display font-medium text-[16px] mb-4" style={{ color: '#1F4D3A' }}>Create API key</div>
         <form onSubmit={create}>
-          <div className="grid gap-3" style={{ gridTemplateColumns: '1fr 1fr auto' }}>
+          <div className="grid gap-3 grid-cols-1 sm:grid-cols-[1fr_1fr_auto]">
             <div>
               <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>Key name</label>
               <input
@@ -209,7 +209,8 @@ function ApiKeysSection({ plan }: { plan: string }) {
         </div>
       ) : (
         <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
-          <table className="w-full">
+          <div className="overflow-x-auto">
+          <table className="w-full" style={{ minWidth: 640 }}>
             <thead>
               <tr style={{ borderBottom: '1px solid #E5E0D4', background: '#FAF6EE' }}>
                 {['Name', 'Key', 'Scopes', 'Last used', 'Created', 'Actions'].map(h => (
@@ -267,6 +268,7 @@ function ApiKeysSection({ plan }: { plan: string }) {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

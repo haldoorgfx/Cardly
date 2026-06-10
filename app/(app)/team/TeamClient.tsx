@@ -315,7 +315,8 @@ export function TeamClient({
       </div>
 
       {/* Members table */}
-      <div className="bg-white rounded-2xl border border-border shadow-soft overflow-hidden">
+      <div className="overflow-x-auto rounded-2xl border border-border shadow-soft">
+      <div className="bg-white" style={{ minWidth: 520 }}>
         {/* Table header */}
         <div
           className="grid items-center px-5 py-3 border-b border-border"
@@ -433,6 +434,7 @@ export function TeamClient({
             No members found.
           </div>
         )}
+      </div>
       </div>
 
       {/* Roles info banner */}
