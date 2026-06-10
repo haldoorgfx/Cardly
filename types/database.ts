@@ -333,6 +333,8 @@ export interface Database {
           whatsapp_verified: boolean;
           notification_prefs: Json | null;
           onboarding_done: boolean;
+          // discovery columns (migration 011)
+          bio: string | null;
         };
         Insert: {
           id: string;
@@ -372,6 +374,7 @@ export interface Database {
           whatsapp_verified?: boolean;
           notification_prefs?: Json | null;
           onboarding_done?: boolean;
+          bio?: string | null;
         };
         Update: {
           email?: string | null;
@@ -409,6 +412,7 @@ export interface Database {
           whatsapp_verified?: boolean;
           notification_prefs?: Json | null;
           onboarding_done?: boolean;
+          bio?: string | null;
         };
         Relationships: [];
       };
@@ -811,6 +815,10 @@ export interface Database {
           payment_processor: PaymentProcessor;
           organizer_name: string | null;
           organizer_avatar_url: string | null;
+          city: string | null;
+          country: string | null;
+          category: string | null;
+          price_from: number | null;
           created_at: string;
           updated_at: string;
         };
@@ -840,6 +848,10 @@ export interface Database {
           payment_processor?: PaymentProcessor;
           organizer_name?: string | null;
           organizer_avatar_url?: string | null;
+          city?: string | null;
+          country?: string | null;
+          category?: string | null;
+          price_from?: number | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -867,6 +879,10 @@ export interface Database {
           payment_processor?: PaymentProcessor;
           organizer_name?: string | null;
           organizer_avatar_url?: string | null;
+          city?: string | null;
+          country?: string | null;
+          category?: string | null;
+          price_from?: number | null;
           updated_at?: string;
         };
         // Note: payment_processor check constraint updated in migration 018 to include 'waafipay'

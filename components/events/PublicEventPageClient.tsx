@@ -26,10 +26,11 @@ interface Props {
   endTimeStr: string;
   minPrice: string;
   registrationSlug: string;
+  organizerUserId?: string | null;
 }
 
 export function PublicEventPageClient({
-  page, tickets, dateStr, timeStr, endTimeStr, minPrice, registrationSlug,
+  page, tickets, dateStr, timeStr, endTimeStr, minPrice, registrationSlug, organizerUserId,
 }: Props) {
   const [savedHeart, setSavedHeart] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<string>(tickets[0]?.id ?? '');
@@ -111,12 +112,22 @@ export function PublicEventPageClient({
           <div className="max-w-[1000px] mx-auto px-5 pb-8 flex items-end justify-between gap-6">
             <div className="flex-1 min-w-0">
               {page.organizer_name && (
-                <div
-                  className="text-[16px] font-medium mb-2 font-display"
-                  style={{ color: '#E8C57E' }}
-                >
-                  {page.organizer_name}
-                </div>
+                organizerUserId ? (
+                  <Link
+                    href={`/o/${organizerUserId}`}
+                    className="text-[16px] font-medium mb-2 font-display hover:opacity-80 transition-opacity"
+                    style={{ color: '#E8C57E', display: 'block' }}
+                  >
+                    {page.organizer_name} →
+                  </Link>
+                ) : (
+                  <div
+                    className="text-[16px] font-medium mb-2 font-display"
+                    style={{ color: '#E8C57E' }}
+                  >
+                    {page.organizer_name}
+                  </div>
+                )
               )}
               <h1
                 className="font-display font-semibold leading-tight"

@@ -264,6 +264,15 @@ export default function AttendeeAuth() {
         and{' '}
         <a href="/privacy" className="hover:underline" style={{ color: '#1F4D3A' }}>privacy policy</a>.
       </p>
+
+      <div className="mt-8 pt-6 text-center" style={{ borderTop: '1px solid #E5E0D4' }}>
+        <p className="text-[12px]" style={{ color: '#6B7A72' }}>
+          Organizing an event?{' '}
+          <a href="/login" className="font-medium hover:underline" style={{ color: '#1F4D3A' }}>
+            Sign in to your organizer account →
+          </a>
+        </p>
+      </div>
     </form>
   );
 }

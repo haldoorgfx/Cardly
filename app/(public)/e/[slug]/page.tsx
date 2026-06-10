@@ -60,14 +60,22 @@ export default async function PublicEventPage({ params, searchParams }: Props) {
   if (!page) notFound();
 
   const admin = createAdminClient();
-  const { data: tickets } = await admin
-    .from('ticket_types')
-    .select('*')
-    .eq('event_id', page.event_id)
-    .eq('is_visible', true)
-    .order('position');
+  const [ticketsRes, eventRes] = await Promise.all([
+    admin
+      .from('ticket_types')
+      .select('*')
+      .eq('event_id', page.event_id)
+      .eq('is_visible', true)
+      .order('position'),
+    admin
+      .from('events')
+      .select('user_id')
+      .eq('id', page.event_id)
+      .single(),
+  ]);
 
-  const allTickets = tickets ?? [];
+  const allTickets = ticketsRes.data ?? [];
+  const organizerUserId = eventRes.data?.user_id ?? null;
   const { date, time, endTime } = formatEventDateRange(page.starts_at, page.ends_at, page.timezone);
   const minPrice = formatMinPrice(allTickets);
   const registrationSlug = params.slug;
@@ -121,6 +129,7 @@ export default async function PublicEventPage({ params, searchParams }: Props) {
         endTimeStr={endTime}
         minPrice={minPrice}
         registrationSlug={registrationSlug}
+        organizerUserId={organizerUserId}
       />
     </>
   );
