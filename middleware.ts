@@ -40,6 +40,9 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/e/") ||       // public event pages
     pathname.startsWith("/exhibitor/") || // exhibitor portal (token-gated, not auth-gated)
     pathname === "/events" ||           // public event discovery feed
+    pathname.startsWith("/events/search") ||
+    pathname.startsWith("/events/city/") ||
+    pathname.startsWith("/events/category/") ||
     pathname.startsWith("/auth") ||
     pathname === "/suspended" ||
     pathname === "/" ||

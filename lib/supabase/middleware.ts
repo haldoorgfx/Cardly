@@ -33,9 +33,15 @@ export async function updateSession(request: NextRequest) {
   // Protect all app routes.
   // Note: /events (exact) is the public discovery feed — allow through.
   // /e/* are public event pages — not protected.
+  const isPublicEventsRoute =
+    request.nextUrl.pathname === "/events" ||
+    request.nextUrl.pathname.startsWith("/events/search") ||
+    request.nextUrl.pathname.startsWith("/events/city/") ||
+    request.nextUrl.pathname.startsWith("/events/category/");
+
   const isProtected =
     request.nextUrl.pathname.startsWith("/dashboard") ||
-    (/^\/events(\/|$)/.test(request.nextUrl.pathname) && request.nextUrl.pathname !== "/events") ||
+    (request.nextUrl.pathname.startsWith("/events") && !isPublicEventsRoute) ||
     request.nextUrl.pathname.startsWith("/analytics") ||
     request.nextUrl.pathname.startsWith("/templates") ||
     request.nextUrl.pathname.startsWith("/brand") ||
