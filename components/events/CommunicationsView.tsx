@@ -227,7 +227,7 @@ export function CommunicationsView({ eventId, eventName, registrantCount }: Prop
           {/* Table head */}
           <div
             className="grid px-5 py-2.5"
-            style={{ gridTemplateColumns: '1fr 120px 100px 130px', borderBottom: '1px solid #E5E0D4', background: '#FAFAF8' }}
+            style={{ gridTemplateColumns: '1fr 120px 100px 155px', borderBottom: '1px solid #E5E0D4', background: '#FAFAF8' }}
           >
             {['Subject', 'Type', 'Recipients', 'Status'].map(h => (
               <span key={h} className="text-[11px] font-medium" style={{ color: '#6B7A72', letterSpacing: '0.03em' }}>{h}</span>
@@ -235,35 +235,35 @@ export function CommunicationsView({ eventId, eventName, registrantCount }: Prop
           </div>
 
           {/* Confirmation email row */}
-          <div className="grid items-center px-5 py-3.5" style={{ gridTemplateColumns: '1fr 120px 100px 130px', borderBottom: '1px solid #F5F0E8' }}>
+          <div className="grid items-center px-5 py-3.5" style={{ gridTemplateColumns: '1fr 120px 100px 155px', borderBottom: '1px solid #F5F0E8' }}>
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="h-7 w-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'rgba(31,77,58,0.08)' }}>
                 <Bell size={13} strokeWidth={2} style={{ color: '#1F4D3A' }} />
               </div>
               <span className="text-[13px] truncate" style={{ color: '#0F1F18' }}>You&apos;re in! Here&apos;s everything you need</span>
             </div>
-            <span className="inline-flex items-center h-5 px-2 rounded-full text-[11px] font-medium" style={{ background: 'rgba(232,197,126,0.2)', color: '#9A7A3A' }}>Confirmation</span>
+            <div><span className="inline-flex items-center h-5 px-2 rounded-full text-[11px] font-medium whitespace-nowrap" style={{ background: 'rgba(232,197,126,0.2)', color: '#9A7A3A' }}>Confirmation</span></div>
             <span className="text-[12.5px] font-mono" style={{ color: '#6B7A72' }}>
               {registrantCount > 0 ? registrantCount : '—'}
             </span>
-            <span className="inline-flex items-center gap-1 h-5 px-2 rounded-full text-[11px] font-medium" style={{ background: 'rgba(31,77,58,0.08)', color: '#1F4D3A' }}>
+            <div><span className="inline-flex items-center gap-1 h-5 px-2 rounded-full text-[11px] font-medium whitespace-nowrap" style={{ background: 'rgba(31,77,58,0.08)', color: '#1F4D3A' }}>
               Automated
-            </span>
+            </span></div>
           </div>
 
           {/* Reminder row */}
-          <div className="grid items-center px-5 py-3.5" style={{ gridTemplateColumns: '1fr 120px 100px 130px' }}>
+          <div className="grid items-center px-5 py-3.5" style={{ gridTemplateColumns: '1fr 120px 100px 155px' }}>
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="h-7 w-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'rgba(31,77,58,0.08)' }}>
                 <Bell size={13} strokeWidth={2} style={{ color: '#1F4D3A' }} />
               </div>
               <span className="text-[13px] truncate" style={{ color: '#0F1F18' }}>Your event is tomorrow</span>
             </div>
-            <span className="inline-flex items-center h-5 px-2 rounded-full text-[11px] font-medium" style={{ background: '#F5F0E8', color: '#6B7A72' }}>Reminder</span>
+            <div><span className="inline-flex items-center h-5 px-2 rounded-full text-[11px] font-medium whitespace-nowrap" style={{ background: '#F5F0E8', color: '#6B7A72' }}>Reminder</span></div>
             <span className="text-[12.5px] font-mono" style={{ color: '#6B7A72' }}>—</span>
-            <span className="inline-flex items-center gap-1 h-5 px-2 rounded-full text-[11px] font-medium" style={{ background: 'rgba(201,122,45,0.1)', color: '#C97A2D' }}>
+            <div><span className="inline-flex items-center gap-1 h-5 px-2 rounded-full text-[11px] font-medium whitespace-nowrap" style={{ background: 'rgba(201,122,45,0.1)', color: '#C97A2D' }}>
               Scheduled · day before
-            </span>
+            </span></div>
           </div>
         </div>
 
