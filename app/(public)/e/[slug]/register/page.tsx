@@ -37,7 +37,7 @@ export default async function RegisterPage({ params, searchParams }: Props) {
   const [ticketsRes, pageRes, variantRes] = await Promise.all([
     (admin as any)
       .from('ticket_types')
-      .select('id, name, description, price, currency, quantity, quantity_sold, is_visible')
+      .select('id, name, description, price, currency, quantity, quantity_sold, is_visible, min_price')
       .eq('event_id', event.id)
       .eq('is_visible', true)
       .order('price', { ascending: true }),
