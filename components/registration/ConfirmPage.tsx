@@ -137,7 +137,7 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
       const fd = new FormData();
       fd.append('variantId', variant.id);
       fd.append('fields', JSON.stringify(enriched));
-      fd.append('idempotencyKey', `reg-${registration.id}-card`);
+      fd.append('idempotencyKey', registration.id); // valid UUID — safe for idempotency_key column
       fd.append('registrationId', registration.id);
       for (const [zoneId, file] of Object.entries(photoFiles)) {
         fd.append(`photo_${zoneId}`, file);
@@ -151,17 +151,25 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
         setCardDataUrl(dataUrl);
         try { sessionStorage.setItem(`card_${registration.qr_code_token}`, dataUrl); } catch { /* ignore */ }
 
-        fetch(`/api/events/${registration.event_id}/registrations`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            registrationId: registration.id,
-            karta_card_zone_data: enriched,
-            karta_card_url: cardId ? `/c/${eventSlug}/card/${cardId}` : null,
-          }),
-        }).catch(() => {});
+        // Only update karta_card_url via PATCH if we have a cardId.
+        // When cardId is null (generated_cards insert failed), the render API
+        // already updated registrations.karta_card_url with the storage URL directly.
+        if (cardId) {
+          fetch(`/api/events/${registration.event_id}/registrations`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              registrationId: registration.id,
+              karta_card_zone_data: enriched,
+              karta_card_url: `/c/${eventSlug}/card/${cardId}`,
+            }),
+          }).catch(() => {});
+        }
+        setPhase('done');
+      } else {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.detail ?? body?.error ?? `Render failed (${res.status})`);
       }
-      setPhase('done');
     } catch (err) {
       setCardError(err instanceof Error ? err.message : 'Card generation failed');
     } finally {

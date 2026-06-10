@@ -227,7 +227,9 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
           }
         }
         fd.append('fields', JSON.stringify(enrichedZoneValues));
-        fd.append('idempotencyKey', `reg-${registration_id}`);
+        // No idempotency key for the flow-time preview render — it's best-effort.
+        // ConfirmPage uses registration.id (valid UUID) as its idempotency key.
+        fd.append('registrationId', registration_id);
         for (const [zoneId, file] of Object.entries(photoFiles)) {
           fd.append(`photo_${zoneId}`, file);
         }
@@ -235,16 +237,19 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
         const renderRes = await fetch('/api/render', { method: 'POST', body: fd });
         if (renderRes.ok) {
           const cardId = renderRes.headers.get('x-card-id');
-          // Save zone data to registration (best-effort)
-          fetch(`/api/events/${eventId}/registrations`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              registrationId: registration_id,
-              karta_card_zone_data: enrichedZoneValues,
-              karta_card_url: cardId ? `/c/${eventSlug}/card/${cardId}` : null,
-            }),
-          }).catch(() => {});
+          // Only send PATCH if cardId is available; otherwise the render API already
+          // updated karta_card_url directly via registrationId.
+          if (cardId) {
+            fetch(`/api/events/${eventId}/registrations`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                registrationId: registration_id,
+                karta_card_zone_data: enrichedZoneValues,
+                karta_card_url: `/c/${eventSlug}/card/${cardId}`,
+              }),
+            }).catch(() => {});
+          }
 
           // Store card blob in sessionStorage for immediate download on confirm page
           const blob = await renderRes.blob();
