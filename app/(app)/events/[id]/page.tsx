@@ -117,14 +117,14 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
 
       {/* ── Cover hero ── */}
-      <div className="relative" style={{ background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 55%, #2A6A50 100%)', height: 190 }}>
+      <div className="relative" style={{ background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 55%, #2A6A50 100%)', minHeight: 190 }}>
         <div aria-hidden className="absolute inset-0" style={{ background: 'radial-gradient(60% 120% at 90% 0%, rgba(232,197,126,0.28), transparent 55%)' }} />
         <svg aria-hidden viewBox="0 0 1200 190" preserveAspectRatio="none" className="absolute inset-0 w-full h-full" style={{ opacity: 0.08 }}>
           {Array.from({ length: 5 }).map((_, i) => (
             <path key={i} d={`M -40 ${30 + i * 32} Q 320 ${-8 + i * 32} 640 ${60 + i * 32} T 1280 ${36 + i * 32}`} fill="none" stroke="#E8C57E" strokeWidth="1.5" />
           ))}
         </svg>
-        <div className="relative max-w-[1100px] mx-auto px-6 lg:px-8 h-full flex flex-col justify-end pb-5">
+        <div className="relative max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-5 flex flex-col justify-end">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4">
             <div>
               <span className={`inline-flex items-center gap-1.5 text-[10px] font-mono tracking-[0.1em] uppercase px-2 py-0.5 rounded-full border bg-[#FAF6EE]/95 mb-3 ${st.cls}`}>
@@ -170,7 +170,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
         </div>
       </div>
 
-      <div className="max-w-[1100px] mx-auto px-6 lg:px-8 py-6 space-y-6">
+      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
         {/* ── Stats bar ── */}
         <div className="bg-white rounded-2xl border px-5 py-4"
@@ -203,7 +203,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
         ) : (
           <div className="grid gap-2.5">
             {event.status === 'draft' && (
-              <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl"
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 px-4 py-3 rounded-xl"
                 style={{ background: 'linear-gradient(135deg, rgba(232,197,126,0.14), rgba(31,77,58,0.05))', border: '1px solid rgba(232,197,126,0.5)' }}>
                 <span className="text-[13.5px] font-medium" style={{ color: '#163828' }}>
                   This event is still a draft — publish it to open registration.

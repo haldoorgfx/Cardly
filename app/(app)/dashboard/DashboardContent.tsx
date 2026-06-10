@@ -52,34 +52,36 @@ export default function DashboardContent({ events, atLimit, regsByEvent }: Props
   return (
     <>
       {/* Toolbar */}
-      <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
-        <div className="flex items-center gap-0.5 p-1 rounded-xl"
-          style={{ background: 'white', border: '1px solid #E5E0D4' }}
-          role="tablist">
-          {FILTERS.map(f => (
-            <button
-              key={f.key}
-              onClick={() => setFilter(f.key)}
-              role="tab"
-              aria-selected={filter === f.key}
-              className="h-7 px-3 rounded-lg text-[12.5px] font-medium transition"
-              style={filter === f.key
-                ? { background: '#E8EFEB', color: '#0F1F18' }
-                : { color: '#6B7A72' }}
-            >
-              {f.label}
-              <span className="ml-1.5 font-mono text-[11px]"
-                style={{ color: filter === f.key ? '#3A4A42' : '#6B7A72' }}>
-                {counts[f.key]}
-              </span>
-            </button>
-          ))}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 mb-4">
+        <div className="overflow-x-auto pb-0.5">
+          <div className="flex items-center gap-0.5 p-1 rounded-xl w-max"
+            style={{ background: 'white', border: '1px solid #E5E0D4' }}
+            role="tablist">
+            {FILTERS.map(f => (
+              <button
+                key={f.key}
+                onClick={() => setFilter(f.key)}
+                role="tab"
+                aria-selected={filter === f.key}
+                className="h-7 px-3 rounded-lg text-[12.5px] font-medium transition whitespace-nowrap"
+                style={filter === f.key
+                  ? { background: '#E8EFEB', color: '#0F1F18' }
+                  : { color: '#6B7A72' }}
+              >
+                {f.label}
+                <span className="ml-1.5 font-mono text-[11px]"
+                  style={{ color: filter === f.key ? '#3A4A42' : '#6B7A72' }}>
+                  {counts[f.key]}
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
 
         <select
           value={sort}
           onChange={e => setSort(e.target.value as SortKey)}
-          className="h-8 text-[12px] rounded-lg px-2.5 cursor-pointer outline-none"
+          className="h-8 text-[12px] rounded-lg px-2.5 cursor-pointer outline-none self-start sm:self-auto"
           style={{ background: 'white', border: '1px solid #E5E0D4', color: '#3A4A42' }}
         >
           <option value="recent">Most recent</option>

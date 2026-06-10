@@ -74,15 +74,18 @@ function TicketTypeRow({ t, sold }: { t: TicketRow; sold: number }) {
     ? 'Free'
     : new Intl.NumberFormat('en-US', { style: 'currency', currency: t.currency || 'USD', maximumFractionDigits: 0 }).format(t.price);
 
-  const statusLabel = isSoldOut ? 'Sold out' : t.is_visible ? 'On sale' : 'Scheduled';
+  const isExpired   = !isSoldOut && !!t.sales_end && new Date(t.sales_end) < new Date();
+  const statusLabel = isSoldOut ? 'Sold out' : isExpired ? 'Sales ended' : t.is_visible ? 'On sale' : 'Scheduled';
   const statusStyle = isSoldOut
     ? { bg: 'rgba(201,164,94,0.12)', color: '#B8833A', border: '1px solid rgba(201,164,94,0.35)' }
+    : isExpired
+    ? { bg: 'rgba(184,66,60,0.08)',  color: '#B8423C', border: '1px solid rgba(184,66,60,0.2)' }
     : t.is_visible
     ? { bg: 'rgba(45,122,79,0.1)',   color: '#2D7A4F', border: '1px solid rgba(45,122,79,0.25)' }
     : { bg: '#F5F3EE',               color: '#6B7A72', border: '1px solid #E5E0D4' };
 
   return (
-    <div className="flex items-center gap-4 px-5 py-4 hover:bg-[#FAFAF9] transition-colors"
+    <div className="flex items-center gap-3 sm:gap-4 px-3 sm:px-5 py-3.5 hover:bg-[#FAFAF9] transition-colors"
       style={{ borderBottom: '1px solid #E5E0D4' }}>
       {/* Icon */}
       <div className="h-9 w-9 rounded-lg grid place-items-center shrink-0" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
@@ -112,7 +115,7 @@ function TicketTypeRow({ t, sold }: { t: TicketRow; sold: number }) {
               <span>{sold}/{cap}</span>
               <span>{pct}%</span>
             </div>
-            <div className="h-1.5 rounded-full overflow-hidden" style={{ background: '#E5E0D4', width: '140px' }}>
+            <div className="h-1.5 rounded-full overflow-hidden w-full max-w-[140px]" style={{ background: '#E5E0D4' }}>
               <div className="h-full rounded-full transition-all"
                 style={{ width: `${pct}%`, background: isSoldOut ? '#C9A45E' : '#1F4D3A' }} />
             </div>
@@ -471,26 +474,28 @@ export function TicketsPageClient({
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[1100px] mx-auto px-6 py-8">
+      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
 
         {/* ── Header ─────────────────────────────────────────────────────── */}
-        <div className="flex items-start justify-between gap-4 mb-7">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 mb-6 sm:mb-7">
           <div>
-            <h1 className="font-display text-[26px] font-semibold tracking-[-0.02em]" style={{ color: '#0F1F18' }}>Tickets</h1>
+            <h1 className="font-display text-[24px] sm:text-[26px] font-semibold tracking-[-0.02em]" style={{ color: '#0F1F18' }}>Tickets</h1>
             {subtitle && <p className="text-[13.5px] mt-0.5" style={{ color: '#6B7A72' }}>{subtitle}</p>}
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 flex-wrap sm:shrink-0">
             <Link href={`/api/events/${eventId}/export`}
-              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-xl text-[13px] font-medium border transition hover:bg-[#F5F3EE]"
+              className="inline-flex items-center gap-1.5 h-9 px-3 sm:px-4 rounded-xl text-[13px] font-medium border transition hover:bg-[#F5F3EE]"
               style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}>
               <ExternalLink size={13} strokeWidth={1.8} />
-              Sales report
+              <span className="hidden sm:inline">Sales report</span>
+              <span className="sm:hidden">Export</span>
             </Link>
             <button onClick={() => setCreateOpen(true)}
-              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-xl text-[13px] font-semibold text-white transition hover:opacity-90"
+              className="inline-flex items-center gap-1.5 h-9 px-3 sm:px-4 rounded-xl text-[13px] font-semibold text-white transition hover:opacity-90"
               style={{ background: '#1F4D3A' }}>
               <Plus size={14} strokeWidth={2.5} />
-              Create ticket type
+              <span className="hidden sm:inline">Create ticket type</span>
+              <span className="sm:hidden">Create</span>
             </button>
           </div>
         </div>

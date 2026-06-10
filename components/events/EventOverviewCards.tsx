@@ -53,7 +53,7 @@ export function EventOverviewCards({ cards, userPlan }: Props) {
 
   return (
     <>
-      <div className="grid sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-2 gap-3 sm:gap-4">
         {cards.map(card => {
           const icon = ICON_MAP[card.iconId] ?? <Sparkles size={18} strokeWidth={1.8} />;
           const locked = !canAccess(userPlan, card.minPlan);

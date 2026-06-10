@@ -128,7 +128,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[1100px] mx-auto px-6 lg:px-8 py-8">
+      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
 
         {/* ── Page header ── */}
         <div className="flex items-start justify-between mb-6 gap-4 flex-wrap">
@@ -146,7 +146,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* ── Stats strip ── */}
-        <div className="bg-white border rounded-2xl px-6 py-4 mb-5 flex flex-wrap items-center gap-x-5 gap-y-2"
+        <div className="bg-white border rounded-2xl px-4 sm:px-6 py-4 mb-5 flex flex-wrap items-center gap-x-5 gap-y-2"
           style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
           {[
             { value: allEvents.filter(e => e.status !== 'archived').length, label: 'events total' },
