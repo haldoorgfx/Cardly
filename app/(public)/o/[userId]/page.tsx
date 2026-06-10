@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .from('profiles')
     .select('full_name, organization')
     .eq('id', params.userId)
-    .single();
+    .maybeSingle();
 
   const name = profile?.organization ?? profile?.full_name ?? 'Organizer';
   return {
@@ -28,13 +28,24 @@ export default async function OrganizerProfilePage({ params }: Props) {
   const { userId } = params;
   const admin = createAdminClient();
 
-  // Profile
+  // Profile — try full select first; fall back to base columns if newer columns missing in DB
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: profile } = await (admin as any)
+  let { data: profile, error: profileError } = await (admin as any)
     .from('profiles')
     .select('id, full_name, avatar_url, bio, organization, city')
     .eq('id', userId)
-    .single();
+    .maybeSingle();
+
+  if (!profile && profileError) {
+    // Possibly some columns don't exist yet — retry with only guaranteed-base columns
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const fallback = await (admin as any)
+      .from('profiles')
+      .select('id, full_name, avatar_url, bio, city')
+      .eq('id', userId)
+      .maybeSingle();
+    profile = fallback.data;
+  }
 
   if (!profile) notFound();
 
