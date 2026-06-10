@@ -39,6 +39,16 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
   const [step, setStep] = useState(0);
   const [selectedTicketId, setSelectedTicketId] = useState(preselectedTicketId ?? tickets[0]?.id ?? '');
 
+  // Access code unlock
+  const [accessCodeInput, setAccessCodeInput] = useState('');
+  const [accessCodeVisible, setAccessCodeVisible] = useState(false);
+  const [accessCodeError, setAccessCodeError] = useState('');
+  const [unlocking, setUnlocking] = useState(false);
+  const [unlockedTickets, setUnlockedTickets] = useState<TicketRow[]>([]);
+
+  // PWYW
+  const [chosenPrice, setChosenPrice] = useState<string>('');
+
   // Step 1 — personal details
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -65,8 +75,11 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
   const [submitError, setSubmitError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const selectedTicket = tickets.find(t => t.id === selectedTicketId);
-  const isPaid = (selectedTicket?.price ?? 0) > 0;
+  const visibleTickets = [...tickets.filter(t => t.is_visible), ...unlockedTickets];
+  const selectedTicket = visibleTickets.find(t => t.id === selectedTicketId);
+  const isPWYW = !!(selectedTicket?.min_price && selectedTicket.min_price > 0);
+  const effectivePrice = isPWYW ? (parseFloat(chosenPrice) || 0) : (selectedTicket?.price ?? 0);
+  const isPaid = effectivePrice > 0;
   const isSoldOut = (t: TicketRow) => t.quantity !== null && t.quantity_sold >= t.quantity;
 
   // Dynamic steps: paid = Ticket/Details/Payment/Your card (4), free = Ticket/Details/Your card (3)
@@ -104,6 +117,32 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
     return Object.keys(errs).length === 0;
   }
 
+  // -- Access code unlock ----------------------------------------
+  async function handleUnlock() {
+    if (!accessCodeInput.trim()) return;
+    setUnlocking(true);
+    setAccessCodeError('');
+    try {
+      const res = await fetch(`/api/events/${eventId}/unlock`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: accessCodeInput.trim() }),
+      });
+      const data = await res.json();
+      if (!data.tickets?.length) {
+        setAccessCodeError('No tickets found for this code.');
+      } else {
+        setUnlockedTickets(data.tickets as TicketRow[]);
+        setSelectedTicketId(data.tickets[0].id);
+        setAccessCodeVisible(false);
+      }
+    } catch {
+      setAccessCodeError('Could not verify code. Try again.');
+    } finally {
+      setUnlocking(false);
+    }
+  }
+
   // -- Navigation -----------------------------------------------
   async function handleNext() {
     if (step === 1) {
@@ -123,6 +162,8 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
               attendee_phone: phone.trim() || undefined,
               ticket_type_id: selectedTicketId,
               custom_fields: customFieldValues,
+              ...(unlockedTickets.find(t => t.id === selectedTicketId) ? { access_code: accessCodeInput.trim() } : {}),
+              ...(isPWYW ? { chosen_price: parseFloat(chosenPrice) || 0 } : {}),
             }),
           });
           const data = await res.json();
@@ -322,7 +363,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                 </h2>
                 <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>{page.title}</p>
                 <div className="space-y-3">
-                  {tickets.filter(t => t.is_visible).map(t => {
+                  {visibleTickets.map(t => {
                     const sold = isSoldOut(t);
                     const sel = selectedTicketId === t.id;
                     const remaining = t.quantity !== null ? t.quantity - t.quantity_sold : null;
@@ -358,7 +399,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                               className="text-[15px] font-medium shrink-0"
                               style={{ fontFamily: 'Inter, system-ui, sans-serif', color: t.price === 0 ? '#2D7A4F' : '#1F4D3A' }}
                             >
-                              {sold ? 'Sold out' : t.price === 0 ? 'Free' : `${t.currency} ${t.price}`}
+                              {sold ? 'Sold out' : t.min_price ? `${t.currency} ${t.min_price}+` : t.price === 0 ? 'Free' : `${t.currency} ${t.price}`}
                             </span>
                           </div>
                           {t.description && <div className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>{t.description}</div>}
@@ -370,6 +411,75 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                     );
                   })}
                 </div>
+
+                {/* PWYW price input */}
+                {isPWYW && selectedTicket && (
+                  <div className="mt-4 p-4 rounded-xl" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
+                    <label className="block text-[13px] font-medium mb-2" style={{ color: '#0F1F18' }}>
+                      Choose your amount ({selectedTicket.currency})
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[15px] font-medium" style={{ color: '#6B7A72' }}>{selectedTicket.currency}</span>
+                      <input
+                        type="number"
+                        min={selectedTicket.min_price ?? 0}
+                        step="1"
+                        value={chosenPrice}
+                        onChange={e => setChosenPrice(e.target.value)}
+                        placeholder={String(selectedTicket.min_price ?? 0)}
+                        className="flex-1 h-10 px-3 rounded-lg text-[15px] outline-none transition"
+                        style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18', fontFamily: '"JetBrains Mono", monospace' }}
+                        onFocus={e => (e.target.style.borderColor = '#E8C57E')}
+                        onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
+                      />
+                    </div>
+                    <p className="text-[12px] mt-1" style={{ color: '#6B7A72' }}>Minimum: {selectedTicket.currency} {selectedTicket.min_price}</p>
+                  </div>
+                )}
+
+                {/* Access code unlock */}
+                {!accessCodeVisible && unlockedTickets.length === 0 && (
+                  <button
+                    onClick={() => setAccessCodeVisible(true)}
+                    className="mt-4 text-[13px]"
+                    style={{ color: '#6B7A72', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                  >
+                    Have an access code?
+                  </button>
+                )}
+                {accessCodeVisible && (
+                  <div className="mt-4 p-4 rounded-xl" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
+                    <label className="block text-[13px] font-medium mb-2" style={{ color: '#0F1F18' }}>Access code</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={accessCodeInput}
+                        onChange={e => setAccessCodeInput(e.target.value)}
+                        onKeyDown={e => e.key === 'Enter' && handleUnlock()}
+                        placeholder="Enter code"
+                        autoFocus
+                        className="flex-1 h-10 px-3 rounded-lg text-[14px] outline-none transition"
+                        style={{ background: '#FAF6EE', border: `1px solid ${accessCodeError ? '#B8423C' : '#E5E0D4'}`, color: '#0F1F18' }}
+                        onFocus={e => (e.target.style.borderColor = '#E8C57E')}
+                        onBlur={e => (e.target.style.borderColor = accessCodeError ? '#B8423C' : '#E5E0D4')}
+                      />
+                      <button
+                        onClick={handleUnlock}
+                        disabled={unlocking || !accessCodeInput.trim()}
+                        className="h-10 px-4 rounded-lg text-[14px] font-medium transition"
+                        style={{ background: '#1F4D3A', color: 'white', opacity: (unlocking || !accessCodeInput.trim()) ? 0.6 : 1 }}
+                      >
+                        {unlocking ? '…' : 'Unlock'}
+                      </button>
+                    </div>
+                    {accessCodeError && <p className="text-[12px] mt-1" style={{ color: '#B8423C' }}>{accessCodeError}</p>}
+                  </div>
+                )}
+                {unlockedTickets.length > 0 && (
+                  <div className="mt-3 flex items-center gap-2 text-[13px]" style={{ color: '#2D7A4F' }}>
+                    <span>✓</span><span>Access code applied — {unlockedTickets.length} ticket{unlockedTickets.length !== 1 ? 's' : ''} unlocked</span>
+                  </div>
+                )}
               </div>
             )}
 

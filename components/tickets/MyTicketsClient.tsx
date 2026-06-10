@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -127,6 +127,43 @@ function TicketCard({ reg, onShowQR }: { reg: Registration; onShowQR: () => void
   const ticketName = reg.ticket_types?.name ?? 'General';
   const cardNum = reg.id.slice(-4).toUpperCase();
 
+  // Transfer modal state
+  const [showTransfer, setShowTransfer] = useState(false);
+  const [transferName, setTransferName] = useState('');
+  const [transferEmail, setTransferEmail] = useState('');
+  const [transferring, setTransferring] = useState(false);
+  const [transferDone, setTransferDone] = useState(false);
+  const [transferError, setTransferError] = useState('');
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  async function handleTransfer() {
+    if (!transferName.trim() || !transferEmail.trim()) {
+      setTransferError('Name and email are required.');
+      return;
+    }
+    setTransferring(true);
+    setTransferError('');
+    try {
+      const res = await fetch(`/api/registrations/${reg.id}/transfer`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to_name: transferName.trim(), to_email: transferEmail.trim() }),
+      });
+      if (res.ok) {
+        setTransferDone(true);
+      } else {
+        const d = await res.json();
+        setTransferError(d.error ?? 'Transfer failed. Please try again.');
+      }
+    } catch {
+      setTransferError('Transfer failed. Please try again.');
+    } finally {
+      setTransferring(false);
+    }
+  }
+
+  void dialogRef; // used by ref
+
   return (
     <div
       className="overflow-hidden mb-5"
@@ -183,6 +220,15 @@ function TicketCard({ reg, onShowQR }: { reg: Registration; onShowQR: () => void
                 >
                   + Calendar
                 </a>
+              )}
+              {reg.status === 'confirmed' && (
+                <button
+                  onClick={e => { e.stopPropagation(); setShowTransfer(true); }}
+                  className="h-7 px-3 rounded-full text-[12px] font-medium transition hover:opacity-75"
+                  style={{ background: '#FAF6EE', color: '#6B7A72', border: '1px solid #E5E0D4' }}
+                >
+                  Transfer
+                </button>
               )}
               {reg.karta_card_url && (
                 <>
@@ -242,6 +288,71 @@ function TicketCard({ reg, onShowQR }: { reg: Registration; onShowQR: () => void
           <p className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>Full screen for scanning</p>
         </div>
       </div>
+
+      {/* Transfer modal */}
+      {showTransfer && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'rgba(15,31,24,0.4)' }}
+          onClick={() => !transferring && setShowTransfer(false)}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl p-6"
+            style={{ background: 'white', border: '1px solid #E5E0D4' }}
+            onClick={e => e.stopPropagation()}
+          >
+            {transferDone ? (
+              <div className="text-center py-4">
+                <div className="text-2xl mb-3">✓</div>
+                <h3 className="font-semibold text-[17px] mb-1" style={{ color: '#1F4D3A' }}>Ticket transferred</h3>
+                <p className="text-[14px] mb-4" style={{ color: '#6B7A72' }}>{transferName} will receive a confirmation email.</p>
+                <button
+                  onClick={() => { setShowTransfer(false); setTransferDone(false); setTransferName(''); setTransferEmail(''); }}
+                  className="h-10 px-5 rounded-lg text-[14px] font-medium"
+                  style={{ background: '#1F4D3A', color: 'white' }}
+                >Done</button>
+              </div>
+            ) : (
+              <>
+                <h3 className="font-semibold text-[17px] mb-1" style={{ color: '#0F1F18' }}>Transfer ticket</h3>
+                <p className="text-[13px] mb-4" style={{ color: '#6B7A72' }}>Enter the name and email of the person receiving your ticket. They&apos;ll get a confirmation email.</p>
+                <div className="space-y-3 mb-4">
+                  <input
+                    type="text" value={transferName} onChange={e => setTransferName(e.target.value)}
+                    placeholder="Full name" autoFocus
+                    className="w-full h-10 px-3 rounded-lg text-[14px] outline-none"
+                    style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18' }}
+                    onFocus={e => (e.target.style.borderColor = '#E8C57E')}
+                    onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
+                  />
+                  <input
+                    type="email" value={transferEmail} onChange={e => setTransferEmail(e.target.value)}
+                    placeholder="Email address"
+                    className="w-full h-10 px-3 rounded-lg text-[14px] outline-none"
+                    style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18' }}
+                    onFocus={e => (e.target.style.borderColor = '#E8C57E')}
+                    onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
+                  />
+                </div>
+                {transferError && <p className="text-[12px] mb-3" style={{ color: '#B8423C' }}>{transferError}</p>}
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowTransfer(false)}
+                    className="flex-1 h-10 rounded-lg text-[14px] font-medium"
+                    style={{ background: '#FAF6EE', color: '#6B7A72', border: '1px solid #E5E0D4' }}
+                  >Cancel</button>
+                  <button
+                    onClick={handleTransfer}
+                    disabled={transferring}
+                    className="flex-1 h-10 rounded-lg text-[14px] font-medium transition"
+                    style={{ background: '#1F4D3A', color: 'white', opacity: transferring ? 0.6 : 1 }}
+                  >{transferring ? 'Transferring…' : 'Transfer ticket'}</button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

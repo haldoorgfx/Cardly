@@ -95,7 +95,7 @@ export interface Session {
 }
 
 // ── Phase 1: Event registration types ────────────────────────────────────────
-export type RegistrationStatus = "pending" | "confirmed" | "checked_in" | "cancelled" | "refunded";
+export type RegistrationStatus = "pending" | "confirmed" | "checked_in" | "cancelled" | "refunded" | "pending_approval";
 export type PaymentStatus = "free" | "pending" | "paid" | "refunded" | "failed";
 export type PaymentProcessor = "stripe" | "flutterwave" | "waafipay" | "free";
 export type FieldType = "text" | "textarea" | "select" | "checkbox" | "radio" | "phone" | "url";
@@ -146,6 +146,8 @@ export interface TicketType {
   max_per_order: number;
   is_visible: boolean;
   position: number;
+  min_price: number | null;
+  access_code: string | null;
   created_at: string;
 }
 
@@ -466,6 +468,27 @@ export interface Database {
           slug?: string;
           description?: string | null;
         };
+        Relationships: [];
+      };
+      ticket_transfers: {
+        Row: {
+          id: string;
+          registration_id: string;
+          from_name: string;
+          from_email: string;
+          to_name: string;
+          to_email: string;
+          transferred_at: string;
+        };
+        Insert: {
+          registration_id: string;
+          from_name: string;
+          from_email: string;
+          to_name: string;
+          to_email: string;
+          transferred_at?: string;
+        };
+        Update: Record<string, never>;
         Relationships: [];
       };
       saved_events: {
@@ -970,6 +993,8 @@ export interface Database {
           max_per_order: number;
           is_visible: boolean;
           position: number;
+          min_price: number | null;
+          access_code: string | null;
           created_at: string;
         };
         Insert: {
@@ -987,6 +1012,8 @@ export interface Database {
           max_per_order?: number;
           is_visible?: boolean;
           position?: number;
+          min_price?: number | null;
+          access_code?: string | null;
           created_at?: string;
         };
         Update: {
@@ -1002,6 +1029,8 @@ export interface Database {
           max_per_order?: number;
           is_visible?: boolean;
           position?: number;
+          min_price?: number | null;
+          access_code?: string | null;
         };
         Relationships: [
           {
