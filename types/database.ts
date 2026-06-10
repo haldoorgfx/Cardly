@@ -325,6 +325,14 @@ export interface Database {
           notify_daily_summary: boolean;
           notify_card_shares: boolean;
           notify_product_updates: boolean;
+          // attendee columns (migration 010)
+          account_type: string;
+          interests: string[] | null;
+          city: string | null;
+          phone: string | null;
+          whatsapp_verified: boolean;
+          notification_prefs: Json | null;
+          onboarding_done: boolean;
         };
         Insert: {
           id: string;
@@ -357,6 +365,13 @@ export interface Database {
           notify_daily_summary?: boolean;
           notify_card_shares?: boolean;
           notify_product_updates?: boolean;
+          account_type?: string;
+          interests?: string[] | null;
+          city?: string | null;
+          phone?: string | null;
+          whatsapp_verified?: boolean;
+          notification_prefs?: Json | null;
+          onboarding_done?: boolean;
         };
         Update: {
           email?: string | null;
@@ -387,6 +402,52 @@ export interface Database {
           notify_daily_summary?: boolean;
           notify_card_shares?: boolean;
           notify_product_updates?: boolean;
+          account_type?: string;
+          interests?: string[] | null;
+          city?: string | null;
+          phone?: string | null;
+          whatsapp_verified?: boolean;
+          notification_prefs?: Json | null;
+          onboarding_done?: boolean;
+        };
+        Relationships: [];
+      };
+      saved_events: {
+        Row: {
+          id: string;
+          user_id: string;
+          event_page_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          event_page_id: string;
+          created_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          event_page_id?: string;
+        };
+        Relationships: [];
+      };
+      organizer_follows: {
+        Row: {
+          id: string;
+          follower_id: string;
+          organizer_id: string;
+          notify_new_events: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          follower_id: string;
+          organizer_id: string;
+          notify_new_events?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          notify_new_events?: boolean;
         };
         Relationships: [];
       };
@@ -395,7 +456,7 @@ export interface Database {
           id: string;
           user_id: string;
           event_id: string | null;
-          type: 'registration' | 'card_download' | 'ticket_sale' | 'milestone' | 'sponsor' | 'system';
+          type: 'registration' | 'card_download' | 'ticket_sale' | 'milestone' | 'sponsor' | 'system' | 'waitlist_spot' | 'new_event_from_follow' | 'reminder' | 'agenda_change' | 'card_ready' | 'receipt';
           title: string;
           body: string | null;
           action_url: string | null;
@@ -407,7 +468,7 @@ export interface Database {
           id?: string;
           user_id: string;
           event_id?: string | null;
-          type: 'registration' | 'card_download' | 'ticket_sale' | 'milestone' | 'sponsor' | 'system';
+          type: 'registration' | 'card_download' | 'ticket_sale' | 'milestone' | 'sponsor' | 'system' | 'waitlist_spot' | 'new_event_from_follow' | 'reminder' | 'agenda_change' | 'card_ready' | 'receipt';
           title: string;
           body?: string | null;
           action_url?: string | null;

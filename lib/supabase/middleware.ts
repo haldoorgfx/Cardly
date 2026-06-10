@@ -43,9 +43,27 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/team") ||
     request.nextUrl.pathname.startsWith("/admin");
 
+  // Attendee-protected routes — redirect to /account/login (not /login)
+  const isAttendeeProtected =
+    request.nextUrl.pathname.startsWith("/my-tickets") ||
+    request.nextUrl.pathname === "/account/profile" ||
+    request.nextUrl.pathname.startsWith("/account/profile/") ||
+    request.nextUrl.pathname === "/account/following" ||
+    request.nextUrl.pathname.startsWith("/account/following/") ||
+    request.nextUrl.pathname === "/account/notifications" ||
+    request.nextUrl.pathname.startsWith("/account/notifications/");
+
   if (isProtected && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
+    return NextResponse.redirect(url);
+  }
+
+  if (isAttendeeProtected && !user) {
+    const url = request.nextUrl.clone();
+    const next = request.nextUrl.pathname + request.nextUrl.search;
+    url.pathname = "/account/login";
+    url.searchParams.set("next", next);
     return NextResponse.redirect(url);
   }
 
