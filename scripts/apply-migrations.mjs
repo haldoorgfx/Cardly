@@ -119,6 +119,10 @@ async function main() {
       name: '035_registrations_user_id',
       sql: readFileSync(join(root, 'supabase/migrations/035_registrations_user_id.sql'), 'utf8')
     },
+    {
+      name: '036_event_staff',
+      sql: readFileSync(join(root, 'supabase/migrations/036_event_staff.sql'), 'utf8')
+    },
   ];
 
   for (const m of migrations) {

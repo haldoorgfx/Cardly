@@ -13,7 +13,7 @@ import {
   Home, Layout, CalendarDays, MessageSquare, Bell,
   Ticket, ScanLine, User, Network, Trophy, Briefcase, Video, Palette, ExternalLink,
   UserCircle, HelpCircle, Zap, ShoppingCart, Handshake, Clock, IdCard,
-  Tag, Plug, Globe, Download, Link2, Code2,
+  Tag, Plug, Globe, Download, Link2, Code2, UserCog, Share2,
 } from 'lucide-react';
 
 type Profile = {
@@ -109,16 +109,18 @@ const EVENT_NAV_SECTIONS = [
   {
     title: 'Insights',
     items: [
-      { id: 'analytics',       label: 'Analytics',       icon: <BarChart2 size={15} strokeWidth={1.8} />,   segment: 'analytics' },
-      { id: 'revenue',         label: 'Revenue',         icon: <TrendingUp size={15} strokeWidth={1.8} />,  segment: 'revenue' },
-      { id: 'reports',         label: 'Reports',         icon: <FileText size={15} strokeWidth={1.8} />,   segment: 'reports' },
-      { id: 'downloads',       label: 'Downloads',       icon: <Download size={15} strokeWidth={1.8} />,   segment: 'downloads' },
+      { id: 'analytics',         label: 'Analytics',         icon: <BarChart2 size={15} strokeWidth={1.8} />,   segment: 'analytics' },
+      { id: 'source-analytics', label: 'Sources',           icon: <Share2 size={15} strokeWidth={1.8} />,     segment: 'source-analytics' },
+      { id: 'revenue',           label: 'Revenue',           icon: <TrendingUp size={15} strokeWidth={1.8} />,  segment: 'revenue' },
+      { id: 'reports',           label: 'Reports',           icon: <FileText size={15} strokeWidth={1.8} />,   segment: 'reports' },
+      { id: 'downloads',         label: 'Downloads',         icon: <Download size={15} strokeWidth={1.8} />,   segment: 'downloads' },
     ],
   },
   {
     title: 'Configure',
     items: [
-      { id: 'settings',     label: 'Settings',     icon: <Sliders size={15} strokeWidth={1.8} />, segment: 'settings'     },
+      { id: 'settings',     label: 'Settings',     icon: <Sliders size={15} strokeWidth={1.8} />,  segment: 'settings'     },
+      { id: 'staff',        label: 'Staff roles',  icon: <UserCog size={15} strokeWidth={1.8} />, segment: 'staff'        },
       { id: 'embed',        label: 'Embed widgets', icon: <Code2 size={15} strokeWidth={1.8} />,   segment: 'embed'        },
       { id: 'integrations', label: 'Integrations', icon: <Plug size={15} strokeWidth={1.8} />,    segment: 'integrations' },
       { id: 'webhooks',     label: 'Webhooks',     icon: <Globe size={15} strokeWidth={1.8} />,   segment: 'webhooks'     },
