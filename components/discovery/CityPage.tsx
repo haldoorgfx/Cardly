@@ -6,7 +6,7 @@ import { Map } from 'lucide-react';
 import { EventCard, type DiscoveryEvent } from './EventCard';
 
 const DATE_CHIPS = ['All dates', 'Today', 'This weekend', 'This week'] as const;
-const CAT_CHIPS = ['Free', 'Music', 'Tech', 'Food', 'Business', 'Culture'] as const;
+const CAT_CHIPS = ['Music', 'Tech', 'Food', 'Business', 'Culture', 'Free'] as const;
 type DateChip = typeof DATE_CHIPS[number];
 type CatChip = typeof CAT_CHIPS[number];
 

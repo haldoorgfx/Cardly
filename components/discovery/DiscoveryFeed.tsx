@@ -6,7 +6,7 @@ import { Search, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 import { EventCard, type DiscoveryEvent } from './EventCard';
 
-const CATEGORIES = ['Music', 'Tech', 'Business', 'Culture', 'Food', 'Sports', 'Health', 'Free'] as const;
+const CATEGORIES = ['Music', 'Tech', 'Business', 'Culture', 'Food', 'Sports', 'Health', 'Film', 'Education'] as const;
 
 const CITIES = [
   'Djibouti City', 'Nairobi', 'Addis Ababa', 'Mogadishu', 'Kampala',
@@ -208,7 +208,7 @@ export function DiscoveryFeed({ events, savedIds, greeting, interests, followedO
         {CATEGORIES.map(cat => (
           <Link
             key={cat}
-            href={cat === 'Free' ? '/events/search?free=true' : `/events/category/${cat.toLowerCase()}`}
+            href={`/events/category/${cat.toLowerCase()}`}
             className="flex-none h-[34px] px-4 rounded-full text-[13px] font-medium whitespace-nowrap transition"
             style={{ background: '#FFFFFF', color: '#3A4A42', border: '1px solid #E5E0D4' }}
             onMouseEnter={e => {
