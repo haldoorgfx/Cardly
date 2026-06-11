@@ -68,7 +68,7 @@ export function Nav() {
 
             {/* Mobile hamburger */}
             <button
-              className="md:hidden h-9 w-9 rounded-md hover:bg-neutral-100 grid place-items-center text-neutral-600 transition"
+              className="md:hidden h-11 w-11 rounded-md hover:bg-neutral-100 grid place-items-center text-neutral-600 transition"
               onClick={() => setOpen(true)}
               aria-label="Open menu"
             >
@@ -93,7 +93,8 @@ export function Nav() {
               </Link>
               <button
                 onClick={() => setOpen(false)}
-                className="h-8 w-8 rounded-md hover:bg-neutral-100 grid place-items-center text-neutral-500 transition"
+                className="h-10 w-10 rounded-md hover:bg-neutral-100 grid place-items-center text-neutral-500 transition"
+                aria-label="Close menu"
               >
                 <X size={16} strokeWidth={2.2} />
               </button>
@@ -111,7 +112,7 @@ export function Nav() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setOpen(false)}
-                  className="flex items-center px-3 py-2.5 rounded-md text-[14px] text-[#3A4A42] hover:text-[#0F1F18] hover:bg-[#E8EFEB] transition"
+                  className="flex items-center px-3 py-3 rounded-md text-[14px] text-[#3A4A42] hover:text-[#0F1F18] hover:bg-[#E8EFEB] transition"
                 >
                   {item.label}
                 </a>
@@ -123,14 +124,14 @@ export function Nav() {
               <Link
                 href="/login"
                 onClick={() => setOpen(false)}
-                className="flex items-center justify-center w-full px-4 py-2 rounded-md border border-[#E5E0D4] text-[14px] font-medium text-[#3A4A42] hover:bg-[#E8EFEB] transition"
+                className="flex items-center justify-center w-full px-4 py-3 rounded-md border border-[#E5E0D4] text-[14px] font-medium text-[#3A4A42] hover:bg-[#E8EFEB] transition"
               >
                 Sign in
               </Link>
               <Link
                 href="/signup"
                 onClick={() => setOpen(false)}
-                className="flex items-center justify-center w-full h-9 px-4 rounded-md text-[14px] font-medium text-white bg-[#1F4D3A] hover:bg-[#163828] transition"
+                className="flex items-center justify-center w-full h-11 px-4 rounded-md text-[14px] font-medium text-white bg-[#1F4D3A] hover:bg-[#163828] transition"
               >
                 Get started
               </Link>

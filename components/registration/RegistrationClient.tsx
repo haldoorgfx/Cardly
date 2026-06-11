@@ -58,7 +58,7 @@ interface Props {
   utmSource?: string | null;
 }
 
-const INPUT = 'w-full rounded-xl px-4 py-3 text-[15px] outline-none transition border focus:border-[#E8C57E] focus:ring-[3px] focus:ring-[rgba(232,197,126,0.15)]';
+const INPUT = 'w-full rounded-xl px-4 py-3 text-[16px] outline-none transition border focus:border-[#E8C57E] focus:ring-[3px] focus:ring-[rgba(232,197,126,0.15)]';
 
 function fmt(price: number, currency: string) {
   if (price === 0) return 'Free';
@@ -683,7 +683,7 @@ export default function RegistrationClient({
                         value={accessCodeInput}
                         onChange={e => { setAccessCodeInput(e.target.value.toUpperCase()); setAccessCodeError(''); }}
                         placeholder="Enter code"
-                        className="flex-1 rounded-xl px-4 py-2.5 text-[14px] font-mono outline-none border"
+                        className="flex-1 rounded-xl px-4 py-2.5 text-[16px] font-mono outline-none border"
                         style={{ borderColor: accessCodeError ? '#B8423C' : '#E5E0D4', background: 'white', color: '#0F1F18' }}
                         onKeyDown={e => { if (e.key === 'Enter') handleUnlock(); }}
                       />

@@ -57,7 +57,7 @@ export function CardZoneFill({
                 <select
                   value={values[zone.id] ?? ''}
                   onChange={e => onChange(zone.id, e.target.value)}
-                  className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
+                  className="w-full h-12 px-3 rounded-lg text-[16px] outline-none transition"
                   style={{ background: '#FAF6EE', border: `1px solid ${err ? '#B8423C' : '#E5E0D4'}`, color: '#0F1F18' }}
                 >
                   <option value="">Select…</option>
@@ -80,7 +80,7 @@ export function CardZoneFill({
                   placeholder={zone.placeholder ?? ''}
                   maxLength={zone.maxChars ?? 500}
                   rows={3}
-                  className="w-full px-3 py-2.5 rounded-lg text-[14px] outline-none resize-none transition"
+                  className="w-full px-3 py-2.5 rounded-lg text-[16px] outline-none resize-none transition"
                   style={{ background: '#FAF6EE', border: `1px solid ${err ? '#B8423C' : '#E5E0D4'}`, color: '#0F1F18' }}
                   onFocus={e => (e.target.style.borderColor = '#E8C57E')}
                   onBlur={e => (e.target.style.borderColor = err ? '#B8423C' : '#E5E0D4')}
@@ -92,7 +92,7 @@ export function CardZoneFill({
                   onChange={e => onChange(zone.id, e.target.value)}
                   placeholder={zone.placeholder ?? ''}
                   maxLength={zone.maxChars ?? 200}
-                  className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
+                  className="w-full h-12 px-3 rounded-lg text-[16px] outline-none transition"
                   style={{ background: '#FAF6EE', border: `1px solid ${err ? '#B8423C' : '#E5E0D4'}`, color: '#0F1F18' }}
                   onFocus={e => (e.target.style.borderColor = '#E8C57E')}
                   onBlur={e => (e.target.style.borderColor = err ? '#B8423C' : '#E5E0D4')}
@@ -244,7 +244,7 @@ function PhotoField({ zone, previewUrl, error, onChange, onClear }: {
           onMouseLeave={e => (e.currentTarget.style.borderColor = error ? '#B8423C' : '#E5E0D4')}
         >
           <Camera size={20} strokeWidth={1.8} style={{ color: '#6B7A72', flexShrink: 0 }} />
-          <span className="text-[14px]" style={{ color: '#6B7A72' }}>Click to upload photo</span>
+          <span className="text-[16px]" style={{ color: '#6B7A72' }}>Click to upload photo</span>
         </button>
       )}
       <input
