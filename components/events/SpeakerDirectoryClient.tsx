@@ -156,16 +156,20 @@ export default function SpeakerDirectoryClient({ speakers, eventSlug }: Props) {
               className="relative overflow-hidden"
               style={{ aspectRatio: '3/4' }}
             >
-              {speaker.photo_url ? (
+              <div
+                className="w-full h-full flex items-center justify-center text-4xl font-semibold"
+                style={{ background: '#E8EFEB', color: '#1F4D3A' }}
+              >
+                {getInitials(speaker.name)}
+              </div>
+              {speaker.photo_url && (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={speaker.photo_url} alt={speaker.name} className="w-full h-full object-cover" />
-              ) : (
-                <div
-                  className="w-full h-full flex items-center justify-center text-4xl font-semibold"
-                  style={{ background: '#E8EFEB', color: '#1F4D3A' }}
-                >
-                  {getInitials(speaker.name)}
-                </div>
+                <img
+                  src={speaker.photo_url}
+                  alt={speaker.name}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
               )}
               {/* Type pill */}
               <span

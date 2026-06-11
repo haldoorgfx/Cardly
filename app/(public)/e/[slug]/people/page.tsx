@@ -54,7 +54,7 @@ export default async function PeoplePage({ params, searchParams }: Props) {
             Who&apos;s here
           </h1>
           <p className="text-[16px] mt-2" style={{ color: '#6B7A72' }}>
-            {enriched.length} people at {eventPage.title}
+            {enriched.length} {enriched.length === 1 ? 'person' : 'people'} at {eventPage.title}
           </p>
         </div>
         <PeopleDiscoveryClient

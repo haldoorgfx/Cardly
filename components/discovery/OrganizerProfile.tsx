@@ -88,12 +88,12 @@ export function OrganizerProfile({
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(10,20,14,0.6) 0%, transparent 60%)' }} />
       </div>
 
-      {/* â”€â”€ Profile header â€” overlaps banner by 44px â”€â”€â”€â”€â”€â”€â”€ */}
-      <div className="max-w-[1120px] mx-auto px-5">
-        <div className="flex flex-col sm:flex-row sm:items-end gap-5 -mt-11">
-          {/* Logo */}
+      {/* Profile header */}
+      <div className=”max-w-[1120px] mx-auto px-5”>
+        {/* Row 1: avatar (overlaps banner by 44px) + actions aligned to bottom */}
+        <div className=”flex items-end justify-between -mt-11”>
           <div
-            className="w-24 h-24 rounded-2xl flex items-center justify-center text-white font-display font-bold text-[28px] shrink-0"
+            className=”w-24 h-24 rounded-2xl flex items-center justify-center text-white font-display font-bold text-[28px] shrink-0”
             style={{
               background: avatarUrl ? undefined : 'linear-gradient(135deg, #1F4D3A, #2A6A50)',
               border: '3px solid #FFFFFF',
@@ -102,34 +102,15 @@ export function OrganizerProfile({
           >
             {avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+              <img src={avatarUrl} alt={displayName} className=”w-full h-full object-cover” />
             ) : initials}
           </div>
 
-          {/* Meta */}
-          <div className="flex-1 min-w-0 pb-1">
-            <h1
-              className="font-display font-semibold text-[26px] leading-tight"
-              style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}
-            >
-              {displayName}
-            </h1>
-            {bio && (
-              <p className="text-[14px] mt-1 line-clamp-2" style={{ color: '#6B7A72' }}>{bio}</p>
-            )}
-
-            {/* Stats */}
-            <div className="flex items-center gap-6 mt-3">
-              <Stat value={followerCount} label="followers" />
-              <Stat value={eventsHosted} label="events hosted" />
-            </div>
-          </div>
-
           {/* Actions */}
-          <div className="flex items-center gap-2 sm:pb-1 shrink-0">
+          <div className=”flex items-center gap-2 shrink-0”>
             <button
               onClick={handleFollow}
-              className="h-10 px-5 rounded-xl text-[14px] font-medium transition"
+              className=”h-10 px-5 rounded-xl text-[14px] font-medium transition”
               style={following
                 ? {
                     background: '#E8C57E',
@@ -143,15 +124,32 @@ export function OrganizerProfile({
                     border: '1px solid #1F4D3A',
                   }}
             >
-              {following ? 'âœ“ Following' : 'Follow'}
+              {following ? '✓ Following' : 'Follow'}
             </button>
             <button
-              className="h-10 px-4 rounded-xl text-[14px] font-medium flex items-center gap-1.5 transition"
+              className=”h-10 px-4 rounded-xl text-[14px] font-medium flex items-center gap-1.5 transition”
               style={{ background: 'transparent', color: '#1F4D3A', border: '1px solid #1F4D3A' }}
-              title="Subscribe to calendar (coming soon)"
+              title=”Subscribe to calendar (coming soon)”
             >
               <Calendar size={14} /> Calendar
             </button>
+          </div>
+        </div>
+
+        {/* Row 2: name + bio + stats — always below the banner, against cream background */}
+        <div className=”mt-4”>
+          <h1
+            className=”font-display font-semibold text-[26px] leading-tight”
+            style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}
+          >
+            {displayName}
+          </h1>
+          {bio && (
+            <p className=”text-[14px] mt-1 line-clamp-2” style={{ color: '#6B7A72' }}>{bio}</p>
+          )}
+          <div className=”flex items-center gap-6 mt-3”>
+            <Stat value={followerCount} label=”followers” />
+            <Stat value={eventsHosted} label=”events hosted” />
           </div>
         </div>
 

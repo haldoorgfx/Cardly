@@ -91,7 +91,7 @@ export function CategoryPage({ category, events, savedIds, cityCounts }: Categor
             {category} events
           </h1>
           <p className="text-[13px] mb-6" style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
-            {events.length} upcoming Â· East Africa &amp; beyond
+            {events.length} upcoming &middot; East Africa &amp; beyond
           </p>
 
           {/* Category chip rail */}
