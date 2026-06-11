@@ -170,7 +170,7 @@ export default function OnboardingClient() {
   const DONE = step === STEPS.length - 1;
 
   return (
-    <div className="min-h-screen grid" style={{ gridTemplateColumns: '300px 1fr' }}>
+    <div className="min-h-screen flex flex-col lg:grid" style={{ gridTemplateColumns: '300px 1fr' }}>
 
       {/* ── Left progress panel ── */}
       <div
