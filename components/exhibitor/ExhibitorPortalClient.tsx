@@ -181,7 +181,7 @@ function Overview({ leads, sessions }: { leads: Lead[]; sessions: Session[] }) {
           </span>
           <div>
             <div className="font-display text-[15px] font-semibold text-[#163828]">Capture leads at your booth</div>
-            <div className="text-[13px] text-[#3A4A42] mt-0.5">Scan an attendee's badge or Karta Card to save them instantly.</div>
+            <div className="text-[13px] text-[#3A4A42] mt-0.5">Scan an attendee&apos;s badge or Karta Card to save them instantly.</div>
           </div>
         </div>
         <button className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#E8C57E] text-[#163828] text-[13.5px] font-semibold hover:bg-[#C9A45E] transition-colors whitespace-nowrap shrink-0">

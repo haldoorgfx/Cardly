@@ -7,7 +7,7 @@ import { ExhibitorPortalClient } from '@/components/exhibitor/ExhibitorPortalCli
 
 interface Props { params: { slug: string; sponsorId: string } }
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata() {
   return { title: 'Exhibitor Portal' };
 }
 
@@ -32,6 +32,7 @@ export default async function ExhibitorPortalPage({ params }: Props) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let leads: any[] = [];
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data } = await (admin as any)
       .from('sponsor_leads')
       .select('*')
@@ -46,10 +47,12 @@ export default async function ExhibitorPortalPage({ params }: Props) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let sessions: any[] = [];
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data } = await (admin as any)
       .from('session_speakers')
       .select('sessions(id, title, starts_at, ends_at, room, session_type)')
       .eq('sponsor_id', params.sponsorId);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     sessions = (data ?? []).map((ss: any) => ss.sessions).filter(Boolean);
   } catch {
     sessions = [];
@@ -62,7 +65,9 @@ export default async function ExhibitorPortalPage({ params }: Props) {
         id: event.id,
         name: event.name,
         slug: event.slug,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         starts_at: (event as any).starts_at,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ends_at: (event as any).ends_at,
       }}
       leads={leads}

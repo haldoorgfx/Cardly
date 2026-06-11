@@ -7,7 +7,7 @@ import { SpeakerPortalClient } from '@/components/speaker/SpeakerPortalClient';
 
 interface Props { params: { slug: string; speakerId: string } }
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata() {
   return { title: 'Speaker Portal' };
 }
 
@@ -37,6 +37,7 @@ export default async function SpeakerPortalPage({ params }: Props) {
 
   const sessions = (sessionSpeakers ?? [])
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .map((ss: any) => ss.sessions)
     .filter(Boolean);
 
@@ -44,6 +45,7 @@ export default async function SpeakerPortalPage({ params }: Props) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let resources: any[] = [];
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data } = await (admin as any)
       .from('event_resources')
       .select('*')
@@ -57,6 +59,7 @@ export default async function SpeakerPortalPage({ params }: Props) {
   return (
     <SpeakerPortalClient
       speaker={speaker}
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       event={{ id: event.id, name: event.name, slug: event.slug, starts_at: (event as any).starts_at, ends_at: (event as any).ends_at }}
       sessions={sessions}
       resources={resources}

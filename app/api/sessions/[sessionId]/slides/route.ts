@@ -24,6 +24,7 @@ export async function POST(
 
   const { data: { publicUrl } } = admin.storage.from('event-assets').getPublicUrl(path);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error: updateError } = await (admin as any)
     .from('sessions')
     .update({ slides_url: publicUrl })

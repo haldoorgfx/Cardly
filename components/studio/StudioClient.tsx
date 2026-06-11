@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import {
-  ChevronLeft, ChevronRight, Undo2, Redo2, Copy, Eye, Play, Globe,
+  ChevronLeft, Undo2, Redo2, Copy, Eye, Play, Globe,
   LayoutGrid, LayoutTemplate, Palette, Image as ImageIcon, Plus,
   Type, ScanLine, AlignLeft, AlignCenter, AlignRight, AlignJustify,
   Lock, Upload, Check, HelpCircle,
@@ -28,7 +28,6 @@ const FONTS: Record<string, string> = {
   Inter: 'Inter, sans-serif',
   JetBrains: '"JetBrains Mono", monospace',
 };
-const WEIGHTS: Record<string, number> = { Light: 300, Reg: 400, SBd: 600, Bold: 700 };
 const CANVAS_W = 4500;
 const CANVAS_H = 5625;
 const SCALE = 0.084;
@@ -257,10 +256,10 @@ function CardCanvas({ sel, onSelect, ns, bg }: {
 /* ── Left Rail ──────────────────────────────────────────────────────── */
 function LeftRail({ tool, setTool }: { tool: RailTool; setTool: (t: RailTool) => void }) {
   const tabs: [RailTool, string, React.ReactNode][] = [
-    ['elements', 'Elements', <LayoutGrid size={20} strokeWidth={1.8} />],
-    ['templates', 'Templates', <LayoutTemplate size={20} strokeWidth={1.8} />],
-    ['brand', 'Brand', <Palette size={20} strokeWidth={1.8} />],
-    ['background', 'Background', <ImageIcon size={20} strokeWidth={1.8} />],
+    ['elements', 'Elements', <LayoutGrid key="elements" size={20} strokeWidth={1.8} />],
+    ['templates', 'Templates', <LayoutTemplate key="templates" size={20} strokeWidth={1.8} />],
+    ['brand', 'Brand', <Palette key="brand" size={20} strokeWidth={1.8} />],
+    ['background', 'Background', <ImageIcon key="background" size={20} strokeWidth={1.8} />],
   ];
   return (
     <div style={{ width: 68, background: '#FAF6EE', borderRight: '1px solid #E5E0D4', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '12px 0', gap: 4, flexShrink: 0 }}>
@@ -282,10 +281,10 @@ function LeftRail({ tool, setTool }: { tool: RailTool; setTool: (t: RailTool) =>
 /* ── Left Panel ─────────────────────────────────────────────────────── */
 function ElementsPanel({ sel, onSelect }: { sel: LayerId; onSelect: (id: LayerId) => void }) {
   const adds = [
-    ['Text field', <Type size={15} strokeWidth={1.8} />],
-    ['Photo zone', <ImageIcon size={15} strokeWidth={1.8} />],
-    ['QR code', <ScanLine size={15} strokeWidth={1.8} />],
-    ['Static text', <Type size={15} strokeWidth={1.8} />],
+    ['Text field', <Type key="text" size={15} strokeWidth={1.8} />],
+    ['Photo zone', <ImageIcon key="photo" size={15} strokeWidth={1.8} />],
+    ['QR code', <ScanLine key="qr" size={15} strokeWidth={1.8} />],
+    ['Static text', <Type key="static" size={15} strokeWidth={1.8} />],
   ];
   return (
     <div>
@@ -595,10 +594,10 @@ function RightPanel({ sel, ns, setNs }: { sel: LayerId; ns: TextStyle; setNs: (s
               <div style={{ fontSize: 11.5, color: '#6B7A72', marginBottom: 6 }}>Alignment</div>
               <IconSeg
                 options={[
-                  ['left', <AlignLeft size={14} strokeWidth={1.8} />],
-                  ['center', <AlignCenter size={14} strokeWidth={1.8} />],
-                  ['right', <AlignRight size={14} strokeWidth={1.8} />],
-                  ['justify', <AlignJustify size={14} strokeWidth={1.8} />],
+                  ['left', <AlignLeft key="left" size={14} strokeWidth={1.8} />],
+                  ['center', <AlignCenter key="center" size={14} strokeWidth={1.8} />],
+                  ['right', <AlignRight key="right" size={14} strokeWidth={1.8} />],
+                  ['justify', <AlignJustify key="justify" size={14} strokeWidth={1.8} />],
                 ]}
                 value={ns.align}
                 onChange={v => setNs({ ...ns, align: v as TextStyle['align'] })}

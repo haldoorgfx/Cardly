@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import {
   Search, Zap, Users, CalendarDays, ScanLine, CreditCard, HelpCircle,
-  ArrowRight, CheckCircle2, AlertCircle, Clock, ExternalLink,
+  ArrowRight, CheckCircle2,
 } from 'lucide-react';
 
 /* ── Data ────────────────────────────────────────────────────────── */

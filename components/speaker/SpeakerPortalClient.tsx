@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 import {
   Home, User, Calendar, CreditCard, FileText,
   CheckCircle2, Circle, Upload, Share2, Download,
-  ExternalLink, ChevronRight, X, Camera,
+  ExternalLink, ChevronRight, Camera,
 } from 'lucide-react';
 
 interface Speaker {
