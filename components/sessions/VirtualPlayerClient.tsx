@@ -60,7 +60,7 @@ export default function VirtualPlayerClient({ event, session, speakers, initialQ
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
       {/* Player region */}
-      <div style={{ display: 'grid', gridTemplateColumns: '65fr 35fr', height: 'calc(100vh - 64px)' }}>
+      <div className="flex flex-col lg:grid" style={{ gridTemplateColumns: '65fr 35fr', minHeight: 'calc(100vh - 64px)' }}>
 
         {/* Video column */}
         <div style={{ background: '#07120c', display: 'flex', flexDirection: 'column', position: 'relative' }}>
@@ -231,7 +231,7 @@ export default function VirtualPlayerClient({ event, session, speakers, initialQ
       </div>
 
       {/* Below: session info + related */}
-      <div className="max-w-[1000px] mx-auto px-10 py-10 pb-20">
+      <div className="max-w-[1000px] mx-auto px-4 sm:px-6 lg:px-10 py-10 pb-20">
         <div className="flex items-start justify-between gap-5 flex-wrap pb-7" style={{ borderBottom: '1px solid #E5E0D4' }}>
           <div className="flex-1 min-w-0">
             <h2 className="font-display font-normal text-[22px]" style={{ color: '#1F4D3A', letterSpacing: '-0.015em' }}>

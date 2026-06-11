@@ -352,7 +352,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
         </div>
 
         {/* Main grid */}
-        <div className="grid gap-6 lg:gap-8" style={{ gridTemplateColumns: 'minmax(0,1fr) 300px' }}>
+        <div className="flex flex-col lg:grid gap-6 lg:gap-8" style={{ gridTemplateColumns: 'minmax(0,1fr) 300px' }}>
           {/* -- Form area -- */}
           <div>
             {/* Step 0 — Ticket selection */}

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
@@ -74,7 +74,7 @@ export function OrganizerProfile({
 
   return (
     <div>
-      {/* ── Banner ──────────────────────────────────────────── */}
+      {/* â”€â”€ Banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="relative overflow-hidden" style={{ height: 240, background: '#0D2018' }}>
         {coverUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -88,7 +88,7 @@ export function OrganizerProfile({
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(10,20,14,0.6) 0%, transparent 60%)' }} />
       </div>
 
-      {/* ── Profile header — overlaps banner by 44px ─────── */}
+      {/* â”€â”€ Profile header â€” overlaps banner by 44px â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="max-w-[1120px] mx-auto px-5">
         <div className="flex flex-col sm:flex-row sm:items-end gap-5 -mt-11">
           {/* Logo */}
@@ -143,7 +143,7 @@ export function OrganizerProfile({
                     border: '1px solid #1F4D3A',
                   }}
             >
-              {following ? '✓ Following' : 'Follow'}
+              {following ? 'âœ“ Following' : 'Follow'}
             </button>
             <button
               className="h-10 px-4 rounded-xl text-[14px] font-medium flex items-center gap-1.5 transition"
@@ -155,7 +155,7 @@ export function OrganizerProfile({
           </div>
         </div>
 
-        {/* ── Upcoming events ──────────────────────────────── */}
+        {/* â”€â”€ Upcoming events â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         <div className="mt-12">
           <h2 className="font-display font-semibold text-[20px] mb-5" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
             Upcoming events
@@ -163,7 +163,7 @@ export function OrganizerProfile({
           {upcomingEvents.length === 0 ? (
             <p className="text-[14px]" style={{ color: '#6B7A72' }}>No upcoming events scheduled.</p>
           ) : (
-            <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
+            <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(280px, 100%), 1fr))' }}>
               {upcomingEvents.slice(0, 6).map(ev => (
                 <EventCard key={ev.id} page={ev} saved={savedSet.has(ev.id)} />
               ))}
@@ -171,7 +171,7 @@ export function OrganizerProfile({
           )}
         </div>
 
-        {/* ── Past events ──────────────────────────────────── */}
+        {/* â”€â”€ Past events â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         {pastEvents.length > 0 && (
           <div className="mt-12 pb-24">
             <h2 className="font-display font-semibold text-[20px] mb-5" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
@@ -228,3 +228,4 @@ function PastEventRow({ ev }: { ev: PastEvent }) {
     </Link>
   );
 }
+

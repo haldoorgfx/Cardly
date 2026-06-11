@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
@@ -91,7 +91,7 @@ export function CategoryPage({ category, events, savedIds, cityCounts }: Categor
             {category} events
           </h1>
           <p className="text-[13px] mb-6" style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
-            {events.length} upcoming · East Africa &amp; beyond
+            {events.length} upcoming Â· East Africa &amp; beyond
           </p>
 
           {/* Category chip rail */}
@@ -224,7 +224,7 @@ function Section({
       <h2 className="font-display font-semibold text-[20px] mb-5" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
         {label}
       </h2>
-      <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))' }}>
+      <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(240px, 100%), 1fr))' }}>
         {events.map(ev => (
           <EventCard
             key={ev.id}
@@ -238,3 +238,4 @@ function Section({
     </div>
   );
 }
+

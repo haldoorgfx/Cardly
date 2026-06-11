@@ -114,14 +114,14 @@ export default function MessagingClient({
 
   return (
     <div
+      className="flex flex-col lg:grid"
       style={{
-        display: 'grid',
         gridTemplateColumns: '320px 1fr',
         height: 'calc(100vh - 56px)',
       }}
     >
       {/* Left: inbox */}
-      <aside style={{ borderRight: '1px solid #E5E0D4', display: 'flex', flexDirection: 'column', background: 'white' }}>
+      <aside className="max-h-[50vh] lg:max-h-full" style={{ borderRight: '1px solid #E5E0D4', display: 'flex', flexDirection: 'column', background: 'white' }}>
         <div
           className="flex items-center justify-between px-5 py-4 shrink-0"
           style={{ borderBottom: '1px solid #E5E0D4' }}

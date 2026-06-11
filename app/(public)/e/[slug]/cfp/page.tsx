@@ -27,7 +27,7 @@ export default async function CFPPage({ params }: Props) {
     return (
       <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
         <PublicNav eventSlug={params.slug} eventName={event.name} />
-        <div className="max-w-[680px] mx-auto px-10 py-16 text-center">
+        <div className="max-w-[680px] mx-auto px-4 sm:px-10 py-16 text-center">
           <h1 className="font-display font-normal text-[32px] mb-4" style={{ color: '#1F4D3A', letterSpacing: '-0.025em' }}>
             Call for papers is closed
           </h1>
@@ -51,7 +51,7 @@ export default async function CFPPage({ params }: Props) {
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
       <PublicNav eventSlug={params.slug} eventName={event.name} />
 
-      <div className="max-w-[680px] mx-auto px-10 py-10 pb-24">
+      <div className="max-w-[680px] mx-auto px-4 sm:px-10 py-10 pb-24">
         <h1 className="font-display font-normal text-[32px]" style={{ color: '#1F4D3A', letterSpacing: '-0.025em' }}>
           Submit your abstract
         </h1>

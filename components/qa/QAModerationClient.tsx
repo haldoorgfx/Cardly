@@ -94,10 +94,9 @@ export default function QAModerationClient({ eventId, initialQuestions, initialP
 
   return (
     <div
-      className="grid"
+      className="flex flex-col lg:grid"
       style={{
         gridTemplateColumns: '440px 1fr',
-        height: 'calc(100vh - 200px)',
         minHeight: 480,
         border: '1px solid #E5E0D4',
         borderRadius: 16,
@@ -106,7 +105,7 @@ export default function QAModerationClient({ eventId, initialQuestions, initialP
       }}
     >
       {/* ── Left: Question queue ── */}
-      <aside style={{ borderRight: '1px solid #E5E0D4', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <aside className="max-h-[50vh] lg:max-h-full" style={{ borderRight: '1px solid #E5E0D4', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {/* Queue header */}
         <div className="px-6 pt-5 pb-3 shrink-0">
           <div className="font-display font-medium text-[18px]" style={{ color: '#1F4D3A' }}>Q&amp;A Moderation</div>

@@ -2,7 +2,7 @@ export default function AbstractsLoading() {
   return (
     <div className="animate-pulse" style={{ background: '#FAF6EE', minHeight: '100vh' }}>
       <div className="h-[72px]" style={{ background: 'white', borderBottom: '1px solid #E5E0D4' }} />
-      <div className="px-10 pt-7">
+      <div className="px-4 sm:px-6 lg:px-10 pt-7">
         <div className="flex gap-8 mb-4">
           {[80, 60, 55, 70].map((w, i) => (
             <div key={i} className="h-4 rounded" style={{ width: w, background: '#E5E0D4' }} />

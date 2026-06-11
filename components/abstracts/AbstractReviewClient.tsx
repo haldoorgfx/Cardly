@@ -116,7 +116,7 @@ export default function AbstractReviewClient({
   return (
     <div style={{ background: '#FAF6EE' }}>
       {/* Stats + tabs header */}
-      <div className="px-10 pt-7 pb-0">
+      <div className="px-4 sm:px-6 lg:px-10 pt-7 pb-0">
         <div className="flex flex-wrap gap-x-4 gap-y-1 mb-5">
           {[
             { label: 'submitted', value: counts.total },
@@ -149,15 +149,15 @@ export default function AbstractReviewClient({
 
       {/* Split panel */}
       <div
+        className="flex flex-col lg:grid"
         style={{
-          display: 'grid',
           gridTemplateColumns: '400px 1fr',
-          height: 'calc(100vh - 240px)',
           minHeight: 500,
+          height: 'auto',
         }}
       >
         {/* Left: abstract list */}
-        <div className="overflow-y-auto" style={{ borderRight: '1px solid #E5E0D4' }}>
+        <div className="overflow-y-auto max-h-[50vh] lg:max-h-full" style={{ borderRight: '1px solid #E5E0D4' }}>
           {filtered.length === 0 ? (
             <div className="py-12 text-center text-[13px]" style={{ color: '#6B7A72' }}>No abstracts in this filter.</div>
           ) : (
@@ -191,7 +191,7 @@ export default function AbstractReviewClient({
         </div>
 
         {/* Right: detail + review */}
-        <div className="overflow-y-auto px-10 py-8">
+        <div className="overflow-y-auto px-4 sm:px-6 lg:px-10 py-8">
           {!active ? (
             <div className="py-16 text-center text-[14px]" style={{ color: '#6B7A72' }}>Select an abstract to review.</div>
           ) : (

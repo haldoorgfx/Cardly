@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
@@ -244,7 +244,7 @@ function EventSection({
           </p>
         </div>
       </div>
-      <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))' }}>
+      <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(240px, 100%), 1fr))' }}>
         {events.map(ev => (
           <EventCard
             key={ev.id}
@@ -257,3 +257,4 @@ function EventSection({
     </div>
   );
 }
+
