@@ -6,20 +6,21 @@ import { PublicNav } from '@/components/events/PublicNav';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Discover Events â€” Karta',
+  title: 'Discover Events — Karta',
   description: 'Find events across East Africa and beyond. Music, tech, culture, food and more.',
 };
 
 export default async function EventDiscoveryPage() {
   const admin = createAdminClient();
 
-  // Fetch upcoming public events
+  // Fetch upcoming public events — include events where ends_at is null (dates not set via page editor)
+  const now = new Date().toISOString();
   const { data: pages } = await admin
     .from('event_pages')
     .select('id, event_id, title, tagline, cover_image_url, starts_at, ends_at, timezone, is_online, venue_name, city, country, category, price_from, organizer_name, custom_slug, series_name, events!inner(slug, user_id)')
     .eq('is_public', true)
-    .gte('ends_at', new Date().toISOString())
-    .order('starts_at', { ascending: true })
+    .or(`ends_at.gte.${now},ends_at.is.null`)
+    .order('starts_at', { ascending: true, nullsFirst: false })
     .limit(60);
 
   // Personalization: load profile if logged in

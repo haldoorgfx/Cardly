@@ -7,7 +7,7 @@ import { SearchAndMap } from '@/components/discovery/SearchAndMap';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Search Events â€” Karta',
+  title: 'Search Events — Karta',
 };
 
 interface Props {
@@ -37,8 +37,8 @@ export default async function SearchPage({ searchParams }: Props) {
     .from('event_pages')
     .select('id, event_id, title, tagline, cover_image_url, starts_at, ends_at, timezone, is_online, venue_name, venue_lat, venue_lng, city, country, category, price_from, organizer_name, custom_slug, series_name, events!inner(slug, user_id)')
     .eq('is_public', true)
-    .gte('ends_at', now.toISOString())
-    .order('starts_at', { ascending: true })
+    .or(`ends_at.gte.${now.toISOString()},ends_at.is.null`)
+    .order('starts_at', { ascending: true, nullsFirst: false })
     .limit(60);
 
   if (q) query = query.ilike('title', `%${q}%`);
