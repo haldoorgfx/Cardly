@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Check, Copy, AlertTriangle, Trash2, X } from 'lucide-react';
+import { PlacesAutocomplete, type PlaceResult } from '@/components/shared/PlacesAutocomplete';
 
 interface EventData {
   id: string;
@@ -13,7 +14,13 @@ interface EventData {
   ends_at: string | null;
   max_capacity: number | null;
   is_public: boolean;
+  is_online: boolean;
   venue_name: string | null;
+  venue_address: string | null;
+  venue_lat: number | null;
+  venue_lng: number | null;
+  city: string | null;
+  country: string | null;
   timezone: string;
 }
 
@@ -47,6 +54,16 @@ export function EventSettingsView({ event }: Props) {
   const [startsAt, setStartsAt] = useState(toLocalDate(event.starts_at));
   const [endsAt, setEndsAt] = useState(toLocalDate(event.ends_at));
   const [venue, setVenue] = useState(event.venue_name ?? '');
+  const [placeData, setPlaceData] = useState<PlaceResult | null>(
+    event.venue_lat && event.venue_lng ? {
+      venue_name: event.venue_name ?? '',
+      venue_address: event.venue_address ?? '',
+      city: event.city ?? '',
+      country: event.country ?? '',
+      lat: event.venue_lat,
+      lng: event.venue_lng,
+    } : null
+  );
   const [timezone, setTimezone] = useState(event.timezone);
   const [capacity, setCapacity] = useState(event.max_capacity?.toString() ?? '');
   const [waitlist, setWaitlist] = useState(false);
@@ -94,21 +111,43 @@ export function EventSettingsView({ event }: Props) {
     setError('');
     startTransition(async () => {
       try {
-        const res = await fetch(`/api/events/${event.id}`, {
+        // event_pages fields (location, dates, capacity, visibility)
+        const pageRes = await fetch(`/api/events/${event.id}/event-page`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            name: name.trim(),
-            starts_at: startsAt ? new Date(startsAt).toISOString() : null,
-            ends_at: endsAt ? new Date(endsAt).toISOString() : null,
-            max_capacity: capacity ? parseInt(capacity) : null,
-            is_public: isPublic,
+            title:         name.trim(),
+            starts_at:     startsAt ? new Date(startsAt).toISOString() : null,
+            ends_at:       endsAt   ? new Date(endsAt).toISOString()   : null,
+            max_capacity:  capacity ? parseInt(capacity)                : null,
+            is_public:     isPublic,
+            timezone,
+            venue_name:    placeData?.venue_name    ?? (venue.trim() || null),
+            venue_address: placeData?.venue_address ?? null,
+            venue_lat:     placeData?.lat           ?? null,
+            venue_lng:     placeData?.lng           ?? null,
+            city:          placeData?.city          ?? null,
+            country:       placeData?.country       ?? null,
           }),
         });
-        if (!res.ok) {
-          const d = await res.json();
+        if (!pageRes.ok) {
+          const d = await pageRes.json();
           throw new Error(d.error ?? 'Save failed');
         }
+
+        // events table fields (name only)
+        if (name.trim() !== event.name) {
+          const evRes = await fetch(`/api/events/${event.id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: name.trim() }),
+          });
+          if (!evRes.ok) {
+            const d = await evRes.json();
+            throw new Error(d.error ?? 'Save failed');
+          }
+        }
+
         setSaved(true);
         setTimeout(() => setSaved(false), 2500);
         router.refresh();
@@ -208,15 +247,17 @@ export function EventSettingsView({ event }: Props) {
                 </Field>
               </div>
               <Field label="Venue">
-                <input
+                <PlacesAutocomplete
                   value={venue}
-                  onChange={e => setVenue(e.target.value)}
-                  placeholder="Palais du Peuple, Djibouti City"
-                  className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
-                  style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
-                  onFocus={e => (e.target.style.borderColor = '#E8C57E')}
-                  onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
+                  onChange={v => { setVenue(v); if (!v) setPlaceData(null); }}
+                  onPlaceSelected={p => { setPlaceData(p); setVenue(p.venue_name || p.venue_address); }}
+                  placeholder="Search venue name or address"
                 />
+                {placeData?.venue_address && (
+                  <p className="mt-1 text-[12px] pl-1" style={{ color: '#6B7A72' }}>
+                    📍 {placeData.venue_address}
+                  </p>
+                )}
               </Field>
               <Field label="Timezone">
                 <input

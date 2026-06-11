@@ -2,9 +2,52 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { MapPin, Globe, Calendar, Clock, Users, Share2, Heart } from 'lucide-react';
+import { MapPin, Globe, Calendar, Clock, Users, Share2, Heart, ExternalLink } from 'lucide-react';
 import type { Database } from '@/types/database';
 import { AddToCalendarButton } from './AddToCalendarButton';
+import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
+
+function VenueMap({ lat, lng, venueName }: { lat: number; lng: number; venueName: string }) {
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? '',
+  });
+  if (!isLoaded) return <div className="w-full h-48 rounded-xl animate-pulse" style={{ background: '#E8EFEB' }} />;
+  return (
+    <div className="mt-4 rounded-xl overflow-hidden" style={{ height: 220, border: '1px solid #E5E0D4' }}>
+      <GoogleMap
+        mapContainerStyle={{ width: '100%', height: '100%' }}
+        center={{ lat, lng }}
+        zoom={15}
+        options={{
+          disableDefaultUI: true,
+          zoomControl: true,
+          styles: [
+            { featureType: 'water', stylers: [{ color: '#d4e8f0' }] },
+            { featureType: 'landscape', stylers: [{ color: '#f5f2ec' }] },
+            { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#ffffff' }] },
+            { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#d8ead3' }] },
+            { elementType: 'labels.text.fill', stylers: [{ color: '#3A4A42' }] },
+          ],
+        }}
+      >
+        <Marker
+          position={{ lat, lng }}
+          title={venueName}
+          icon={{
+            path: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z',
+            fillColor: '#1F4D3A',
+            fillOpacity: 1,
+            strokeColor: '#ffffff',
+            strokeWeight: 2,
+            scale: 1.6,
+            anchor: new window.google.maps.Point(12, 22),
+          }}
+        />
+      </GoogleMap>
+    </div>
+  );
+}
 
 function fmtTicketPrice(price: number, currency?: string | null): string {
   if (price === 0) return 'Free';
@@ -250,7 +293,7 @@ export function PublicEventPageClient({
                 ) : (
                   <div>
                     {page.venue_name && (
-                      <div className="font-medium text-[15px] mb-1" style={{ color: '#0F1F18' }}>
+                      <div className="font-medium text-[15px] mb-0.5" style={{ color: '#0F1F18' }}>
                         {page.venue_name}
                       </div>
                     )}
@@ -259,6 +302,37 @@ export function PublicEventPageClient({
                         {page.venue_address}
                       </div>
                     )}
+                    {/* Real map if coordinates available */}
+                    {page.venue_lat && page.venue_lng ? (
+                      <>
+                        <VenueMap
+                          lat={page.venue_lat}
+                          lng={page.venue_lng}
+                          venueName={page.venue_name ?? ''}
+                        />
+                        <a
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(page.venue_address || page.venue_name || '')}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-2 inline-flex items-center gap-1.5 text-[13px] font-medium hover:opacity-75 transition-opacity"
+                          style={{ color: '#1F4D3A' }}
+                        >
+                          <ExternalLink size={12} strokeWidth={2} />
+                          Open in Google Maps
+                        </a>
+                      </>
+                    ) : page.venue_address ? (
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(page.venue_address)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-2 inline-flex items-center gap-1.5 text-[13px] font-medium hover:opacity-75 transition-opacity"
+                        style={{ color: '#1F4D3A' }}
+                      >
+                        <ExternalLink size={12} strokeWidth={2} />
+                        Open in Google Maps
+                      </a>
+                    ) : null}
                   </div>
                 )}
               </section>

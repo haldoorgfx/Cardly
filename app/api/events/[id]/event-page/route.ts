@@ -42,6 +42,9 @@ const EventPageSchema = z.object({
   apply_vat:                  z.boolean().optional(),
   variant_id:                 z.string().uuid().nullable().optional(),
   city:                       z.string().max(100).trim().nullable().optional(),
+  country:                    z.string().max(100).trim().nullable().optional(),
+  venue_lat:                  z.number().nullable().optional(),
+  venue_lng:                  z.number().nullable().optional(),
   category:                   z.string().max(100).trim().nullable().optional(),
   series_name:                z.string().max(200).trim().nullable().optional(),
 }).superRefine((data, ctx) => {

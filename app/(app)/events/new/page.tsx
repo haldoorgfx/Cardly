@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { fetchWithRetry } from '@/lib/utils/fetch-retry';
 import { track } from '@/components/shared/PostHogProvider';
+import { PlacesAutocomplete, type PlaceResult } from '@/components/shared/PlacesAutocomplete';
 import {
-  ArrowLeft, ArrowRight, CalendarDays, MapPin, Wifi,
+  ArrowLeft, ArrowRight, CalendarDays, Wifi,
   Image as ImageIcon, Plus,
 } from 'lucide-react';
 
@@ -18,6 +19,7 @@ export default function NewEventPage() {
   const [startsAt, setStartsAt] = useState('');
   const [endsAt, setEndsAt]     = useState('');
   const [venue, setVenue]       = useState('');
+  const [placeData, setPlaceData] = useState<PlaceResult | null>(null);
   const [isOnline, setIsOnline] = useState(false);
   const [coverFile, setCoverFile] = useState<File | null>(null);
 
@@ -50,7 +52,12 @@ export default function NewEventPage() {
           name: name.trim(),
           starts_at: startsAt || null,
           ends_at:   endsAt   || null,
-          venue_name: isOnline ? null : (venue.trim() || null),
+          venue_name:    isOnline ? null : (placeData?.venue_name || venue.trim() || null),
+          venue_address: isOnline ? null : (placeData?.venue_address || null),
+          venue_lat:     isOnline ? null : (placeData?.lat ?? null),
+          venue_lng:     isOnline ? null : (placeData?.lng ?? null),
+          city:          isOnline ? null : (placeData?.city || null),
+          country:       isOnline ? null : (placeData?.country || null),
           is_online:  isOnline,
         }),
       });
@@ -158,29 +165,35 @@ export default function NewEventPage() {
               <div className="flex items-center justify-between mb-2">
                 <label className="text-[11px] font-mono font-semibold uppercase tracking-widest flex items-center gap-1.5"
                   style={{ color: '#6B7A72' }}>
-                  <MapPin size={10} strokeWidth={2} /> Venue
+                  Venue
                 </label>
                 <button
                   type="button"
-                  onClick={() => setIsOnline(v => !v)}
+                  onClick={() => { setIsOnline(v => !v); setPlaceData(null); setVenue(''); }}
                   className="flex items-center gap-1.5 text-[11px] font-mono font-semibold uppercase tracking-widest transition"
                   style={{ color: isOnline ? '#1F4D3A' : '#9BA8A1' }}>
                   <Wifi size={10} strokeWidth={2} />
-                  {isOnline ? 'Online event' : 'Online event'}
+                  {isOnline ? 'Switch to in-person' : 'Online event'}
                 </button>
               </div>
-              <input
-                value={venue}
-                onChange={e => setVenue(e.target.value)}
-                placeholder={isOnline ? 'Online — link shared after registration' : 'Venue name or address'}
-                disabled={isOnline}
-                className="w-full h-12 px-4 rounded-xl text-[14px] outline-none transition"
-                style={{
-                  background: isOnline ? '#F5F3EE' : 'white',
-                  border: '1.5px solid #E5E0D4',
-                  color: isOnline ? '#9BA8A1' : '#0F1F18',
-                }}
-              />
+              {isOnline ? (
+                <div className="w-full h-12 px-4 rounded-xl flex items-center text-[14px]"
+                  style={{ background: '#F5F3EE', border: '1.5px solid #E5E0D4', color: '#9BA8A1' }}>
+                  Online — streaming link shared after registration
+                </div>
+              ) : (
+                <PlacesAutocomplete
+                  value={venue}
+                  onChange={v => { setVenue(v); if (!v) setPlaceData(null); }}
+                  onPlaceSelected={p => { setPlaceData(p); setVenue(p.venue_name || p.venue_address); }}
+                  placeholder="Search venue name or address"
+                />
+              )}
+              {placeData && (
+                <p className="mt-1.5 text-[12px] pl-1" style={{ color: '#6B7A72' }}>
+                  📍 {placeData.venue_address}
+                </p>
+              )}
             </div>
 
             {/* Cover photo */}
