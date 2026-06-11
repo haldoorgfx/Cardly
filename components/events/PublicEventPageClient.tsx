@@ -237,7 +237,6 @@ export function PublicEventPageClient({
             {minPrice}
           </span>
           <AddToCalendarButton
-            pageId={page.id}
             title={page.title}
             description={page.description ?? null}
             startsAt={page.starts_at ?? ''}
