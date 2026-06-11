@@ -53,7 +53,7 @@ const INPUT = 'w-full rounded-xl px-4 py-3 text-[15px] outline-none transition b
 function fmt(price: number, currency: string) {
   if (price === 0) return 'Free';
   try {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: currency || 'USD', minimumFractionDigits: 0 }).format(price);
+    return new Intl.NumberFormat(undefined, { style: 'currency', currency: currency || 'USD', minimumFractionDigits: 0 }).format(price);
   } catch {
     return `${currency} ${price}`;
   }
@@ -61,7 +61,7 @@ function fmt(price: number, currency: string) {
 
 function dateStr(iso: string | null) {
   if (!iso) return '';
-  return new Date(iso).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+  return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 /** Derive attendee_name from zone values (looks for name-like zone) */

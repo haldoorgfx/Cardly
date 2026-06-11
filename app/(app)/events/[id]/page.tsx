@@ -85,7 +85,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
   const revCurrencies = new Set((revData ?? []).map(r => r.currency).filter(Boolean) as string[]);
   const revCurrency = revCurrencies.size === 1 ? Array.from(revCurrencies)[0] : null;
   const revenueDisplay = totalRevenue > 0 && revCurrency
-    ? (() => { try { return new Intl.NumberFormat('en-US', { style: 'currency', currency: revCurrency, minimumFractionDigits: 0 }).format(totalRevenue); } catch { return `${revCurrency} ${totalRevenue.toLocaleString()}`; } })()
+    ? (() => { try { return new Intl.NumberFormat(undefined, { style: 'currency', currency: revCurrency, minimumFractionDigits: 0 }).format(totalRevenue); } catch { return `${revCurrency} ${totalRevenue.toLocaleString()}`; } })()
     : '—';
   const registrations = regCount ?? 0;
   const checkedIn = checkedInCount ?? 0;
@@ -142,7 +142,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                     {ep.starts_at && (
                       <span className="inline-flex items-center gap-1.5">
                         <CalendarDays size={12} strokeWidth={1.8} />
-                        {new Date(ep.starts_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        {new Date(ep.starts_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
                       </span>
                     )}
                     {ep.starts_at && (ep.venue_name || ep.is_online) && (

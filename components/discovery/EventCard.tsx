@@ -38,14 +38,14 @@ interface EventCardProps {
 
 function fmtEventDate(iso: string, tz: string): string {
   try {
-    return new Date(iso).toLocaleDateString('en-US', {
+    return new Date(iso).toLocaleDateString(undefined, {
       timeZone: tz,
       weekday: 'short',
       month: 'short',
       day: 'numeric',
     });
   } catch {
-    return new Date(iso).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    return new Date(iso).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
   }
 }
 

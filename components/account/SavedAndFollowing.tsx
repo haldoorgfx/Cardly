@@ -38,7 +38,7 @@ interface Props {
 
 function fmtDate(iso: string | null | undefined) {
   if (!iso) return '';
-  return new Date(iso).toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+  return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
 }
 
 // ── Unfollow modal ────────────────────────────────────────────────────────────

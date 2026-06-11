@@ -53,7 +53,7 @@ export function UpgradeSlideOver({ feature, onClose }: Props) {
         {open && feature && (
           <>
             {/* Header */}
-            <div className="flex items-center justify-between px-6 pt-5 pb-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
+            <div className="flex items-center justify-between px-4 sm:px-6 pt-5 pb-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
               <span className="font-mono text-[10px] tracking-[0.2em] uppercase inline-flex items-center gap-1.5" style={{ color: '#C9A45E' }}>
                 <Sparkles size={11} strokeWidth={1.8} /> {planLabel} feature
               </span>
@@ -66,7 +66,7 @@ export function UpgradeSlideOver({ feature, onClose }: Props) {
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-6 py-6">
+            <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6">
               {/* Hero card */}
               <div
                 className="relative rounded-2xl p-6 mb-6 overflow-hidden"

@@ -89,7 +89,7 @@ function InnerForm({ returnUrl, amount, currency, eventTitle, ticketName }: Prop
     setProcessing(false);
   }
 
-  const formattedAmount = new Intl.NumberFormat('en-US', {
+  const formattedAmount = new Intl.NumberFormat(undefined, {
     style: 'currency', currency: currency.toUpperCase(),
   }).format(amount);
 

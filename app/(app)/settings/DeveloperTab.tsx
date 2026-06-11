@@ -248,7 +248,7 @@ function ApiKeysSection({ plan }: { plan: string }) {
                     {k.last_used_at ? relativeTime(k.last_used_at) : '—'}
                   </td>
                   <td className="px-4 py-3 font-mono text-[12px]" style={{ color: '#6B7A72' }}>
-                    {new Date(k.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    {new Date(k.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">

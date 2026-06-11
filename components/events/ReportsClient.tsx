@@ -26,7 +26,7 @@ interface Props {
 
 function fmtCurrency(amount: number, currency: string | null) {
   if (!currency) return amount.toLocaleString();
-  try { return new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 0 }).format(amount); }
+  try { return new Intl.NumberFormat(undefined, { style: 'currency', currency, minimumFractionDigits: 0 }).format(amount); }
   catch { return `${currency} ${amount.toLocaleString()}`; }
 }
 

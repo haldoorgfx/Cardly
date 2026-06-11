@@ -33,7 +33,7 @@ function statusLabel(s: string) {
 
 function fmtAmount(amount: number | null, currency: string | null) {
   if (!amount || !currency) return '—';
-  try { return new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 0 }).format(amount); }
+  try { return new Intl.NumberFormat(undefined, { style: 'currency', currency, minimumFractionDigits: 0 }).format(amount); }
   catch { return `${currency} ${amount.toLocaleString()}`; }
 }
 

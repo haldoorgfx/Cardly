@@ -222,7 +222,7 @@ function PastEventRow({ ev }: { ev: PastEvent }) {
       <div className="min-w-0 flex-1">
         <div className="font-medium text-[14px] truncate" style={{ color: '#0F1F18' }}>{ev.title}</div>
         <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
-          {new Date(ev.starts_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+          {new Date(ev.starts_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
         </div>
       </div>
     </Link>

@@ -9,7 +9,7 @@ function fmtTicketPrice(price: number, currency?: string | null): string {
   if (price === 0) return 'Free';
   const cur = currency || 'USD';
   try {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: cur, minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(price);
+    return new Intl.NumberFormat(undefined, { style: 'currency', currency: cur, minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(price);
   } catch {
     return `${cur} ${price.toLocaleString()}`;
   }
@@ -471,7 +471,7 @@ function TicketList({
           className="mt-3 text-center text-[12px]"
           style={{ color: '#6B7A72' }}
         >
-          Registration closes {new Date(page.registration_deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+          Registration closes {new Date(page.registration_deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
         </div>
       )}
 

@@ -21,10 +21,10 @@ function fmtMoney(n: number, currency: string | null | undefined): string {
   if (!currency || n === 0) return '—';
   // Get currency symbol for abbreviation labels
   let sym = currency;
-  try { sym = (0).toLocaleString('en-US', { style: 'currency', currency, minimumFractionDigits: 0 }).replace(/[\d,.\s]/g, '').trim() || currency; } catch { /* */ }
+  try { sym = (0).toLocaleString(undefined, { style: 'currency', currency, minimumFractionDigits: 0 }).replace(/[\d,.\s]/g, '').trim() || currency; } catch { /* */ }
   if (n >= 1_000_000) return `${sym}${(n / 1_000_000).toFixed(1)}M`;
   if (n >= 1_000)     return `${sym}${(n / 1_000).toFixed(1)}k`;
-  try { return new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 0 }).format(n); }
+  try { return new Intl.NumberFormat(undefined, { style: 'currency', currency, minimumFractionDigits: 0 }).format(n); }
   catch { return `${currency} ${n.toLocaleString()}`; }
 }
 
@@ -159,7 +159,7 @@ export default async function AnalyticsPage({
     const d     = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const nextD = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
     revMonths.push({
-      label:   d.toLocaleDateString('en-US', { month: 'short' }),
+      label:   d.toLocaleDateString(undefined, { month: 'short' }),
       revenue: allRegs.filter(r => { const rd = new Date(r.created_at); return rd >= d && rd < nextD; })
                       .reduce((s, r) => s + Number(r.amount_paid ?? 0), 0),
     });

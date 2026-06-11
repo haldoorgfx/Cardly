@@ -48,7 +48,7 @@ function timeAgo(iso: string | null): string {
   if (diff < 60)  return 'just now';
   if (diff < 120) return '1 min ago';
   if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
-  return new Date(iso).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+  return new Date(iso).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
 }
 
 function getInitials(name: string | null): string {
@@ -58,7 +58,7 @@ function getInitials(name: string | null): string {
 
 function fmt(amount: number, currency: string): string {
   if (!amount) return 'Free';
-  try { return new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 0 }).format(amount); }
+  try { return new Intl.NumberFormat(undefined, { style: 'currency', currency, minimumFractionDigits: 0 }).format(amount); }
   catch { return `${currency} ${amount}`; }
 }
 
@@ -184,7 +184,7 @@ function AttendeeModal({ reg, eventId, onClose, onCheckedIn }: {
   }
 
   const checkedInTime = isAlreadyIn && reg.checked_in_at
-    ? new Date(reg.checked_in_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+    ? new Date(reg.checked_in_at).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
     : null;
 
   return (

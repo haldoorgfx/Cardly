@@ -317,7 +317,7 @@ export function QRScanner({ eventId, eventName, totalRegistrations, initialCheck
                     </div>
                     {isCheckedIn && reg.checked_in_at && (
                       <div className="flex items-center gap-1 mt-1 text-[11px]" style={{ color: 'rgba(45,122,79,0.9)' }}>
-                        <Clock size={10} /> {new Date(reg.checked_in_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                        <Clock size={10} /> {new Date(reg.checked_in_at).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
                       </div>
                     )}
                   </div>
@@ -466,7 +466,7 @@ export function QRScanner({ eventId, eventName, totalRegistrations, initialCheck
             {flash.kind === 'success'
               ? (flash.ticket_type ? `${flash.ticket_type} · Checked in ✓` : 'Checked in ✓')
               : flash.kind === 'already_checked_in'
-              ? `Already in${flash.ticket_type ? ` · ${flash.ticket_type}` : ''} at ${new Date(flash.checked_in_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`
+              ? `Already in${flash.ticket_type ? ` · ${flash.ticket_type}` : ''} at ${new Date(flash.checked_in_at).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}`
               : flash.message}
           </div>
         </div>

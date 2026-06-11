@@ -63,7 +63,7 @@ function StatusPill({ status }: { status: Status }) {
 function formatCurrency(amount: number, currency: string) {
   if (amount === 0) return 'Free';
   try {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 0 }).format(amount);
+    return new Intl.NumberFormat(undefined, { style: 'currency', currency, minimumFractionDigits: 0 }).format(amount);
   } catch {
     return `${currency} ${amount}`;
   }
@@ -490,7 +490,7 @@ function ImportCSVModal({ eventId, ticketTypes, onClose, onImported }: {
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
       <div className="relative bg-white rounded-2xl w-full max-w-[560px] max-h-[90vh] flex flex-col" style={{ border: '1px solid #E5E0D4', boxShadow: '0 8px 40px rgba(15,31,24,0.18)' }}>
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 shrink-0" style={{ borderBottom: '1px solid #E5E0D4' }}>
+        <div className="flex items-center justify-between px-4 sm:px-6 py-5 shrink-0" style={{ borderBottom: '1px solid #E5E0D4' }}>
           <div>
             <h3 className="font-display text-[16px] font-semibold" style={{ color: '#0F1F18' }}>Import from CSV</h3>
             <p className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>Bulk-add attendees from a spreadsheet export</p>
@@ -500,7 +500,7 @@ function ImportCSVModal({ eventId, ticketTypes, onClose, onImported }: {
           </button>
         </div>
 
-        <div className="px-6 py-5 overflow-y-auto space-y-4 flex-1">
+        <div className="px-4 sm:px-6 py-5 overflow-y-auto space-y-4 flex-1">
           {apiError && (
             <div className="px-4 py-3 rounded-xl text-[13px] font-medium flex gap-2 items-start" style={{ background: '#FEF2F2', color: '#B8423C', border: '1px solid #FECACA' }}>
               <AlertCircle size={14} className="mt-0.5 shrink-0" />
@@ -882,7 +882,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
     ? '—'
     : Object.entries(revenueByCurrency)
         .map(([cur, amt]) => {
-          try { return new Intl.NumberFormat('en-US', { style: 'currency', currency: cur, minimumFractionDigits: 0 }).format(amt); }
+          try { return new Intl.NumberFormat(undefined, { style: 'currency', currency: cur, minimumFractionDigits: 0 }).format(amt); }
           catch { return `${cur} ${amt.toLocaleString()}`; }
         })
         .join(' + ');

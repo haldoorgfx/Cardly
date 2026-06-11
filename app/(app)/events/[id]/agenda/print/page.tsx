@@ -11,11 +11,11 @@ interface Props { params: Promise<{ id: string }> }
 
 function fmtTime(iso: string) {
   const d = new Date(iso);
-  return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+  return d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
 }
 
 function fmtDay(iso: string) {
-  return new Date(iso).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  return new Date(iso).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -61,7 +61,7 @@ export default async function AgendaPrintPage({ params }: Props) {
   const allSessions = ((sessions ?? []) as any[]).filter((s: any) => s.starts_at);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const grouped = groupByDay(allSessions as any[]);
-  const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  const today = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
 
   return (
     <>

@@ -37,7 +37,7 @@ export function WaafiPayStep({ registrationId, qrToken, amount, currency, eventT
     ? OPERATORS.find(op => op.prefix.some(p => digits.startsWith(p)))
     : null;
 
-  const formattedAmount = new Intl.NumberFormat('en-US', {
+  const formattedAmount = new Intl.NumberFormat(undefined, {
     style: 'currency', currency: currency.toUpperCase(),
     minimumFractionDigits: currency === 'SOS' || currency === 'DJF' ? 0 : 2,
   }).format(amount);

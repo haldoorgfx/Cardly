@@ -94,10 +94,10 @@ function QROverlay({ token, name, label, onClose }: QROverlayProps) {
 function fmtDate(iso: string | null | undefined) {
   if (!iso) return null;
   const d = new Date(iso);
-  const weekday = d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+  const weekday = d.toLocaleDateString(undefined, { weekday: 'short' }).toUpperCase();
   const day = d.getDate();
-  const month = d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
-  const time = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  const month = d.toLocaleDateString(undefined, { month: 'short' }).toUpperCase();
+  const time = d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
   return `${weekday} ${day} ${month} · ${time}`;
 }
 
@@ -114,7 +114,7 @@ function timeUntil(iso: string | null | undefined): string | null {
 
 function fmtPastDate(iso: string | null | undefined) {
   if (!iso) return '';
-  return new Date(iso).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+  return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 // ── Ticket card (D04) ─────────────────────────────────────────────────────────

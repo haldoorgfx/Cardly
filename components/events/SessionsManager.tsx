@@ -299,7 +299,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
               <div className="flex items-center gap-0.5 p-1 rounded-xl" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
                 {grouped.map(([dateKey]) => {
                   const d = new Date(dateKey);
-                  const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                  const label = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
                   const isActive = dateKey === currentDay;
                   return (
                     <button
@@ -495,7 +495,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
               const track = getTrack(session.track_id);
               const sessionSpeakers = session.session_speakers?.map((ss) => ss.speakers).filter(Boolean) ?? [];
               const startTime = session.starts_at
-                ? new Date(session.starts_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
+                ? new Date(session.starts_at).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })
                 : null;
               const duration = session.starts_at && session.ends_at
                 ? Math.round((new Date(session.ends_at).getTime() - new Date(session.starts_at).getTime()) / 60000) + 'm'

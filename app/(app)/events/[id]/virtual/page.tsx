@@ -121,7 +121,7 @@ export default async function VirtualPage({ params }: Props) {
                     <div className="flex-1 min-w-0">
                       <div className="text-[13.5px] font-medium truncate" style={{ color: '#0F1F18' }}>{ss.title}</div>
                       <div className="font-mono text-[11px] mt-0.5" style={{ color: '#6B7A72' }}>
-                        {start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} · {start.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}
+                        {start.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · {start.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })}
                       </div>
                     </div>
                     <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium shrink-0"

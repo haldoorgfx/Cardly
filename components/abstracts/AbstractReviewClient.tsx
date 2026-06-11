@@ -46,7 +46,7 @@ const DECISIONS: { key: AbstractStatus; label: string }[] = [
 
 function relDate(iso: string) {
   const d = new Date(iso);
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
 
 export default function AbstractReviewClient({

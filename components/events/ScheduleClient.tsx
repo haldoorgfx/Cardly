@@ -24,12 +24,12 @@ function getUniqueDates(sessions: Session[]): Date[] {
 }
 
 function formatDayTab(d: Date) {
-  return d.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' });
+  return d.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
 }
 
 function formatTime(iso: string) {
   if (!iso) return '';
-  return new Date(iso).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+  return new Date(iso).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
 }
 
 function isSameDay(a: Date, b: Date) {

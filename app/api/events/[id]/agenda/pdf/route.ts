@@ -32,7 +32,7 @@ function groupByDay(sessions: {
 
   return Array.from(map.entries()).map(([dateStr, daySessions]) => ({
     date: dateStr,
-    label: new Date(dateStr).toLocaleDateString('en-US', {
+    label: new Date(dateStr).toLocaleDateString(undefined, {
       weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
     }),
     sessions: daySessions.map(s => ({

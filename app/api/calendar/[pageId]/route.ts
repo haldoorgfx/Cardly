@@ -28,7 +28,7 @@ function toIcsDate(iso: string, tz?: string | null): string {
     );
   }
   // Local time with TZID
-  const local = new Date(d.toLocaleString('en-US', { timeZone: tz }));
+  const local = new Date(d.toLocaleString(undefined, { timeZone: tz }));
   return (
     `${local.getFullYear()}${pad(local.getMonth() + 1)}${pad(local.getDate())}` +
     `T${pad(local.getHours())}${pad(local.getMinutes())}${pad(local.getSeconds())}`

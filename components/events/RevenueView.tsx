@@ -23,7 +23,7 @@ interface Props {
 function fmt(amount: number, currency: string) {
   if (amount === 0) return 'Free';
   try {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 0 }).format(amount);
+    return new Intl.NumberFormat(undefined, { style: 'currency', currency, minimumFractionDigits: 0 }).format(amount);
   } catch {
     return `${currency} ${amount}`;
   }
@@ -31,7 +31,7 @@ function fmt(amount: number, currency: string) {
 
 function fmtShort(amount: number, currency: string) {
   try {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 0, notation: 'compact' }).format(amount);
+    return new Intl.NumberFormat(undefined, { style: 'currency', currency, minimumFractionDigits: 0, notation: 'compact' }).format(amount);
   } catch {
     return `${currency} ${amount}`;
   }

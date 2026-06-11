@@ -72,7 +72,7 @@ function dayLabel(iso: string): string {
 
 function fmtTime(iso: string): string {
   const d = new Date(iso);
-  return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  return d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
 }
 
 // ── Countdown for waitlist_spot ────────────────────────────────────────────────

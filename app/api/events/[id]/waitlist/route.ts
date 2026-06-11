@@ -77,7 +77,7 @@ export async function POST(
     eventTitle: page.title,
     eventSlug: params.id,
     eventDate: page.starts_at
-      ? new Date(page.starts_at).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+      ? new Date(page.starts_at).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
       : '',
     city: page.city ?? null,
   }).catch(() => {});
@@ -134,7 +134,7 @@ export async function PATCH(
     eventTitle: ep?.title ?? '',
     eventSlug,
     eventDate: ep?.starts_at
-      ? new Date(ep.starts_at).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+      ? new Date(ep.starts_at).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
       : '',
   }).catch(() => {});
 

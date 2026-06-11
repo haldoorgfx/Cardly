@@ -71,7 +71,7 @@ function slugify(s: string) {
 
 function fmtTime(iso: string) {
   const d = new Date(iso);
-  return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+  return d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
 }
 
 function fmtDay(iso: string) {

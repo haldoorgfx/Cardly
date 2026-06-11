@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
           to: updated.attendee_email,
           attendeeName: updated.attendee_name,
           eventTitle: ep?.title ?? '',
-          eventDate: ep?.starts_at ? new Date(ep.starts_at).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : '',
+          eventDate: ep?.starts_at ? new Date(ep.starts_at).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : '',
           eventVenue: ep?.is_online ? 'Online' : (ep?.venue_name ?? 'Venue TBA'),
           qrCodeUrl: `${appUrl}/api/qr/${updated.qr_code_token}`,
           kartaCardUrl: null,

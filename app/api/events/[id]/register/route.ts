@@ -262,7 +262,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
   const eventSlug = req.headers.get('x-event-slug') ?? params.id;
   const eventDateStr = eventPage.starts_at
-    ? new Date(eventPage.starts_at).toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric', year: 'numeric', timeZone: eventPage.timezone ?? undefined })
+    ? new Date(eventPage.starts_at).toLocaleDateString(undefined, { weekday: 'short', month: 'long', day: 'numeric', year: 'numeric', timeZone: eventPage.timezone ?? undefined })
     : '';
 
   if (requiresApproval) {

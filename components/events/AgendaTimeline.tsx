@@ -438,7 +438,7 @@ export function AgendaTimeline({ sessions, tracks, onSlotClick }: Props) {
 
       {grouped.map(([dateKey, daySessions]) => {
         const d     = new Date(dateKey);
-        const label = d.toLocaleDateString('en-US', {
+        const label = d.toLocaleDateString(undefined, {
           weekday: 'long', month: 'long', day: 'numeric',
         });
 

@@ -104,7 +104,7 @@ export default function MessagingClient({
   const groupByDay = (msgs: Message[]) => {
     const groups: { label: string; msgs: Message[] }[] = [];
     msgs.forEach(m => {
-      const day = new Date(m.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const day = new Date(m.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
       const last = groups[groups.length - 1];
       if (!last || last.label !== day) groups.push({ label: day, msgs: [m] });
       else last.msgs.push(m);

@@ -403,7 +403,7 @@ function ResultCard({
             {event.title}
           </div>
           <div className="text-[12px] mt-1" style={{ color: '#6B7A72' }}>
-            {new Date(event.starts_at).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+            {new Date(event.starts_at).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
             {(event.city || event.venue_name) && ` · ${event.city ?? event.venue_name}`}
           </div>
         </div>

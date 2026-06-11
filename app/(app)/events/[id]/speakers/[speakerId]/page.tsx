@@ -151,7 +151,7 @@ export default async function SpeakerDetailPage({ params }: Props) {
                       <div className="flex-1 min-w-0">
                         <div className="text-[13.5px] font-medium truncate" style={{ color: '#0F1F18' }}>{s.title}</div>
                         <div className="font-mono text-[11px] mt-0.5" style={{ color: '#6B7A72' }}>
-                          {s.starts_at ? new Date(s.starts_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'}
+                          {s.starts_at ? new Date(s.starts_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'}
                           {s.room ? ` · ${s.room}` : ''}
                         </div>
                       </div>

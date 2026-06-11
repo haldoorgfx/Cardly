@@ -634,7 +634,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                 <div className="flex-1 min-w-0">
                   <div className="font-medium text-[14px] leading-snug" style={{ color: '#0F1F18' }}>{page.title}</div>
                   <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
-                    {new Date(page.starts_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    {new Date(page.starts_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                   </div>
                 </div>
               </div>

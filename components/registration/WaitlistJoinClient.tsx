@@ -16,7 +16,7 @@ interface Props {
 
 function fmtDate(iso: string | null) {
   if (!iso) return null;
-  return new Date(iso).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+  return new Date(iso).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 export default function WaitlistJoinClient({ slug, title, coverUrl, startsAt, city, currentCount }: Props) {

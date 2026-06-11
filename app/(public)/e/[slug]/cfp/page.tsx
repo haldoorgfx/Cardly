@@ -40,7 +40,7 @@ export default async function CFPPage({ params }: Props) {
   }
 
   const deadline = cfp.deadline_at
-    ? new Date(cfp.deadline_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+    ? new Date(cfp.deadline_at).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })
     : 'TBD';
 
   const daysLeft = cfp.deadline_at

@@ -64,10 +64,10 @@ export default async function SessionDetailPage({ params }: Props) {
   const startsAt = session.starts_at ? new Date(session.starts_at) : null;
   const endsAt = session.ends_at ? new Date(session.ends_at) : null;
   const timeStr = startsAt
-    ? startsAt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
+    ? startsAt.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })
     : '—';
   const dateStr = startsAt
-    ? startsAt.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' })
+    ? startsAt.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })
     : null;
   const durationMin = startsAt && endsAt
     ? Math.round((endsAt.getTime() - startsAt.getTime()) / 60000)

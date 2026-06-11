@@ -59,7 +59,7 @@ async function getStripeData(customerId: string): Promise<{ paymentMethod: Payme
 
     const invoices: Invoice[] = invoiceList.data.map(inv => {
       const d = inv.created ? new Date(inv.created * 1000) : new Date();
-      const month = d.toLocaleString('en-US', { month: 'short' });
+      const month = d.toLocaleString(undefined, { month: 'short' });
       const year = d.getFullYear();
       const planNickname = inv.lines.data[0]?.description ?? 'Subscription';
       const amount = inv.amount_paid === 0
@@ -124,7 +124,7 @@ export default async function BillingPage({
   const hasPortal = !!profile?.stripe_customer_id;
 
   const periodEnd = profile?.current_period_end
-    ? new Date(profile.current_period_end).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+    ? new Date(profile.current_period_end).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
     : null;
 
   const cycle = profile?.billing_cycle;

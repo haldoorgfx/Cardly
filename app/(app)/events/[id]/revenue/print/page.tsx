@@ -11,7 +11,7 @@ interface Props { params: Promise<{ id: string }> }
 
 function fmtCurrency(amount: number, currency: string) {
   try {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 0 }).format(amount);
+    return new Intl.NumberFormat(undefined, { style: 'currency', currency, minimumFractionDigits: 0 }).format(amount);
   } catch {
     return `${currency} ${amount}`;
   }
@@ -36,7 +36,7 @@ export default async function RevenuePrintPage({ params }: Props) {
   const confirmed   = allRegs.filter(r => ['confirmed', 'checked_in'].includes(r.status));
   const totalRev    = confirmed.reduce((s, r) => s + (r.amount_paid ?? 0), 0);
   const currency    = confirmed.find(r => r.currency)?.currency ?? 'USD';
-  const today       = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  const today       = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
 
   // Per-ticket breakdown
   const breakdown = (ticketTypes ?? []).map(tt => {

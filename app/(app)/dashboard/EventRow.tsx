@@ -41,9 +41,9 @@ function formatDate(iso: string | null | undefined) {
   if (!iso) return null;
   const d = new Date(iso);
   return {
-    day:  d.toLocaleDateString('en-US', { day: 'numeric' }),
-    mon:  d.toLocaleDateString('en-US', { month: 'short' }),
-    year: d.toLocaleDateString('en-US', { year: 'numeric' }),
+    day:  d.toLocaleDateString(undefined, { day: 'numeric' }),
+    mon:  d.toLocaleDateString(undefined, { month: 'short' }),
+    year: d.toLocaleDateString(undefined, { year: 'numeric' }),
   };
 }
 
@@ -216,7 +216,7 @@ export default function EventRow({ event, index, regCount, revenue, currency }: 
       <td className="px-5 py-3.5 whitespace-nowrap">
         <span className="font-mono text-[13px] text-[#0F1F18]">
           {revenue > 0 && currency ? (() => {
-            try { return new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 0 }).format(revenue); }
+            try { return new Intl.NumberFormat(undefined, { style: 'currency', currency, minimumFractionDigits: 0 }).format(revenue); }
             catch { return `${currency} ${revenue.toLocaleString()}`; }
           })() : <span className="text-[#6B7A72]">—</span>}
         </span>

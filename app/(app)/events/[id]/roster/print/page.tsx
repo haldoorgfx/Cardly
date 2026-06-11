@@ -18,7 +18,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 function fmtDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-US', {
+  return new Date(iso).toLocaleDateString(undefined, {
     year: 'numeric', month: 'short', day: 'numeric',
   });
 }
@@ -40,7 +40,7 @@ export default async function RosterPrintPage({ params }: Props) {
 
   const ttMap = new Map((ticketTypes ?? []).map(t => [t.id, t.name]));
   const rows = regs ?? [];
-  const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  const today = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
 
   // Summary counts
   const confirmed  = rows.filter(r => ['confirmed', 'checked_in'].includes(r.status)).length;

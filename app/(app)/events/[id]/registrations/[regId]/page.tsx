@@ -60,15 +60,15 @@ export default async function AttendeeDetailPage({ params }: Props) {
   const gradIdx = reg.attendee_name.charCodeAt(0) % AVATAR_GRADS.length;
   const avatarGrad = AVATAR_GRADS[gradIdx];
   const statusStyle = STATUS_STYLE[reg.status] ?? STATUS_STYLE.pending;
-  const registeredDate = new Date(reg.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+  const registeredDate = new Date(reg.created_at).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' });
   const checkedInDate = reg.checked_in_at
-    ? new Date(reg.checked_in_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+    ? new Date(reg.checked_in_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
     : null;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const ticket = (reg as any).ticket_types as { name: string; price: number; currency: string } | null;
   const amountStr = reg.amount_paid > 0
-    ? new Intl.NumberFormat('en-US', { style: 'currency', currency: reg.currency || 'USD', minimumFractionDigits: 0 }).format(reg.amount_paid)
+    ? new Intl.NumberFormat(undefined, { style: 'currency', currency: reg.currency || 'USD', minimumFractionDigits: 0 }).format(reg.amount_paid)
     : 'Free';
 
   const timeline = [

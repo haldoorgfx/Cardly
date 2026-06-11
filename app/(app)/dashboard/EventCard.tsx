@@ -38,13 +38,13 @@ const STATUS_STYLE = {
 
 function formatDate(iso: string | null | undefined) {
   if (!iso) return null;
-  return new Date(iso).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+  return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 function fmtRevenue(amount: number, currency: string | null | undefined): string {
   if (!currency || amount === 0) return '';
   try {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 0 }).format(amount);
+    return new Intl.NumberFormat(undefined, { style: 'currency', currency, minimumFractionDigits: 0 }).format(amount);
   } catch {
     return `${currency} ${amount.toLocaleString()}`;
   }

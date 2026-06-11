@@ -24,7 +24,7 @@ const INPUT_STYLE = { background: 'white', border: '1px solid #E5E0D4', color: '
 
 function fmt(n: number) {
   try {
-    return new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(n);
+    return new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(n);
   } catch {
     return String(n);
   }

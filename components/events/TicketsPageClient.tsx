@@ -28,9 +28,9 @@ interface Props {
 function fmtMoney(n: number, currency = 'USD') {
   try {
     if (n >= 1_000_000) {
-      return new Intl.NumberFormat('en-US', { style: 'currency', currency, maximumFractionDigits: 1, notation: 'compact' }).format(n);
+      return new Intl.NumberFormat(undefined, { style: 'currency', currency, maximumFractionDigits: 1, notation: 'compact' }).format(n);
     }
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n);
+    return new Intl.NumberFormat(undefined, { style: 'currency', currency, maximumFractionDigits: 0 }).format(n);
   } catch {
     return `${currency} ${Math.round(n).toLocaleString()}`;
   }
@@ -72,7 +72,7 @@ function TicketTypeRow({ t, sold }: { t: TicketRow; sold: number }) {
   const isSoldOut = cap > 0 && sold >= cap;
   const priceStr  = t.price === 0
     ? 'Free'
-    : new Intl.NumberFormat('en-US', { style: 'currency', currency: t.currency || 'USD', maximumFractionDigits: 0 }).format(t.price);
+    : new Intl.NumberFormat(undefined, { style: 'currency', currency: t.currency || 'USD', maximumFractionDigits: 0 }).format(t.price);
 
   const isExpired   = !isSoldOut && !!t.sales_end && new Date(t.sales_end) < new Date();
   const statusLabel = isSoldOut ? 'Sold out' : isExpired ? 'Sales ended' : t.is_visible ? 'On sale' : 'Scheduled';
