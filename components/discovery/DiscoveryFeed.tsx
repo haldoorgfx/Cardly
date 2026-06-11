@@ -1,17 +1,12 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 import { EventCard, type DiscoveryEvent } from './EventCard';
 
 const CATEGORIES = ['Music', 'Tech', 'Business', 'Culture', 'Food', 'Sports', 'Health', 'Film', 'Education'] as const;
-
-const CITIES = [
-  'Djibouti City', 'Nairobi', 'Addis Ababa', 'Mogadishu', 'Kampala',
-  'Dar es Salaam', 'Kigali', 'Lagos', 'Accra', 'Cairo',
-];
 
 interface Section {
   label: string;
@@ -26,12 +21,15 @@ interface DiscoveryFeedProps {
   greeting: string | null;
   interests: string[];
   followedOrgIds: string[];
+  cities: string[];
 }
 
-export function DiscoveryFeed({ events, savedIds, greeting, interests, followedOrgIds }: DiscoveryFeedProps) {
+export function DiscoveryFeed({ events, savedIds, greeting, interests, followedOrgIds, cities }: DiscoveryFeedProps) {
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [cityOpen, setCityOpen] = useState(false);
+  const [dropdownPos, setDropdownPos] = useState<{ top: number; right: number } | null>(null);
+  const cityBtnRef = useRef<HTMLButtonElement>(null);
   const [savedSet, setSavedSet] = useState(new Set(savedIds));
 
   const now = new Date();
@@ -159,24 +157,38 @@ export function DiscoveryFeed({ events, savedIds, greeting, interests, followedO
               />
             </div>
 
-            {/* City selector */}
-            <div className="relative hidden sm:block">
+            {/* City selector — uses fixed positioning to escape overflow-hidden hero */}
+            <div className="hidden sm:block">
               <button
+                ref={cityBtnRef}
                 type="button"
-                onClick={() => setCityOpen(v => !v)}
+                onClick={() => {
+                  if (!cityOpen && cityBtnRef.current) {
+                    const rect = cityBtnRef.current.getBoundingClientRect();
+                    setDropdownPos({ top: rect.bottom + 6, right: window.innerWidth - rect.right });
+                  }
+                  setCityOpen(v => !v);
+                }}
                 className="h-11 px-4 rounded-xl text-[14px] font-medium flex items-center gap-1.5 whitespace-nowrap"
                 style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)', color: '#fff' }}
               >
                 All cities <ChevronDown size={13} />
               </button>
-              {cityOpen && (
+              {cityOpen && dropdownPos && (
                 <>
-                  <div className="fixed inset-0 z-10" onClick={() => setCityOpen(false)} />
+                  <div className="fixed inset-0 z-[200]" onClick={() => setCityOpen(false)} />
                   <div
-                    className="absolute right-0 top-12 z-20 rounded-xl overflow-hidden w-52"
-                    style={{ background: '#fff', border: '1px solid #E5E0D4', boxShadow: '0 8px 24px rgba(15,31,24,0.12)' }}
+                    className="fixed z-[201] rounded-xl w-56 overflow-y-auto"
+                    style={{
+                      top: dropdownPos.top,
+                      right: dropdownPos.right,
+                      maxHeight: 320,
+                      background: '#fff',
+                      border: '1px solid #E5E0D4',
+                      boxShadow: '0 8px 24px rgba(15,31,24,0.15)',
+                    }}
                   >
-                    {CITIES.map(city => (
+                    {cities.map(city => (
                       <Link
                         key={city}
                         href={`/events/city/${encodeURIComponent(city.toLowerCase().replace(/ /g, '-'))}`}

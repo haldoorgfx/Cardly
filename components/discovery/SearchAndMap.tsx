@@ -3,8 +3,9 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Search, Plus, Minus, RefreshCw } from 'lucide-react';
+import { Search } from 'lucide-react';
 import type { DiscoveryEvent } from './EventCard';
+import { GoogleMapView } from './GoogleMapView';
 
 interface SearchAndMapProps {
   events: DiscoveryEvent[];
@@ -14,82 +15,6 @@ interface SearchAndMapProps {
   cityParam: string;
 }
 
-// Pin component — positioned on the CSS-drawn map
-function MapPin({
-  event,
-  pct,
-  hovered,
-  onHover,
-}: {
-  event: DiscoveryEvent;
-  pct: { x: number; y: number };
-  hovered: boolean;
-  onHover: (id: string | null) => void;
-}) {
-  const priceLabel =
-    event.price_from === 0
-      ? 'Free'
-      : event.price_from != null
-      ? `$${event.price_from % 1 === 0 ? event.price_from.toFixed(0) : event.price_from.toFixed(2)}`
-      : '···';
-
-  return (
-    <Link
-      href={`/e/${event.custom_slug ?? event.events?.slug ?? event.event_id}`}
-      className="absolute flex flex-col items-center"
-      style={{
-        left: `${pct.x}%`,
-        top: `${pct.y}%`,
-        transform: 'translate(-50%, -100%)',
-        zIndex: hovered ? 3 : 1,
-        transition: 'z-index 0s',
-      }}
-      onMouseEnter={() => onHover(event.id)}
-      onMouseLeave={() => onHover(null)}
-    >
-      {/* Bubble */}
-      <div
-        className="px-2.5 py-1 rounded-full text-[11px] font-semibold whitespace-nowrap transition-all"
-        style={{
-          background: hovered ? '#1F4D3A' : '#FFFFFF',
-          color: hovered ? '#E8C57E' : '#0F1F18',
-          border: `1.5px solid ${hovered ? '#1F4D3A' : '#E5E0D4'}`,
-          boxShadow: hovered ? '0 4px 12px rgba(15,31,24,0.2)' : '0 1px 3px rgba(15,31,24,0.1)',
-          transform: hovered ? 'scale(1.12)' : 'scale(1)',
-          fontFamily: '"JetBrains Mono", monospace',
-        }}
-      >
-        {priceLabel}
-      </div>
-      {/* Tail */}
-      <div
-        style={{
-          width: 0,
-          height: 0,
-          borderLeft: '4px solid transparent',
-          borderRight: '4px solid transparent',
-          borderTop: `6px solid ${hovered ? '#1F4D3A' : '#FFFFFF'}`,
-          marginTop: -1,
-          filter: hovered ? 'none' : 'drop-shadow(0 1px 0px rgba(0,0,0,0.1))',
-        }}
-      />
-    </Link>
-  );
-}
-
-// Normalize lat/lng to % position within the map's bounding box
-function toMapPct(
-  lat: number,
-  lng: number,
-  bounds: { minLat: number; maxLat: number; minLng: number; maxLng: number }
-): { x: number; y: number } {
-  const pad = 0.1; // 10% padding
-  const latRange = (bounds.maxLat - bounds.minLat) || 1;
-  const lngRange = (bounds.maxLng - bounds.minLng) || 1;
-  const x = pad * 100 + ((lng - bounds.minLng) / lngRange) * (100 - 2 * pad * 100);
-  const y = pad * 100 + ((bounds.maxLat - lat) / latRange) * (100 - 2 * pad * 100);
-  return { x: Math.max(5, Math.min(95, x)), y: Math.max(5, Math.min(95, y)) };
-}
 
 export function SearchAndMap({ events, savedIds, query: initialQuery, totalCount, cityParam }: SearchAndMapProps) {
   const router = useRouter();
@@ -99,6 +24,15 @@ export function SearchAndMap({ events, savedIds, query: initialQuery, totalCount
   const [mobileView, setMobileView] = useState<'list' | 'map'>('list');
   const [savedSet, setSavedSet] = useState(new Set(savedIds));
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function handleBoundsChange(bounds: { n: number; s: number; e: number; w: number }) {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('n', bounds.n.toFixed(5));
+    params.set('s', bounds.s.toFixed(5));
+    params.set('e', bounds.e.toFixed(5));
+    params.set('w', bounds.w.toFixed(5));
+    router.push(`/events/search?${params.toString()}`);
+  }
 
   const handleSave = useCallback(async (pageId: string, save: boolean) => {
     setSavedSet(prev => {
@@ -133,28 +67,6 @@ export function SearchAndMap({ events, savedIds, query: initialQuery, totalCount
   }
 
   useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
-
-  // Events with coordinates for map
-  const mappable = events.filter(e => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const p = e as any;
-    return typeof p.venue_lat === 'number' && typeof p.venue_lng === 'number';
-  });
-
-  // Compute bounding box
-  const bounds = mappable.reduce(
-    (acc, e) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const p = e as any;
-      return {
-        minLat: Math.min(acc.minLat, p.venue_lat),
-        maxLat: Math.max(acc.maxLat, p.venue_lat),
-        minLng: Math.min(acc.minLng, p.venue_lng),
-        maxLng: Math.max(acc.maxLng, p.venue_lng),
-      };
-    },
-    { minLat: Infinity, maxLat: -Infinity, minLng: Infinity, maxLng: -Infinity }
-  );
 
   return (
     <div className="flex flex-col md:flex-row md:min-h-[calc(100vh-64px)]">
@@ -222,103 +134,17 @@ export function SearchAndMap({ events, savedIds, query: initialQuery, totalCount
         </div>
       </div>
 
-      {/* ── Right map pane ──────────────────────────────────── */}
+      {/* ── Right map pane — real Google Maps ───────────────── */}
       <div
         className={`${mobileView === 'list' ? 'hidden' : 'flex'} md:flex flex-1 relative overflow-hidden`}
-        style={{ minHeight: 400, background: '#E8EFEB' }}
+        style={{ minHeight: 400 }}
       >
-        {/* Street grid CSS map */}
-        <div className="absolute inset-0" style={{
-          background: '#E8EFEB',
-          backgroundImage: [
-            'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px)',
-            'linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
-            'linear-gradient(rgba(255,255,255,0.25) 1px, transparent 1px)',
-            'linear-gradient(90deg, rgba(255,255,255,0.25) 1px, transparent 1px)',
-          ].join(', '),
-          backgroundSize: '80px 80px, 80px 80px, 20px 20px, 20px 20px',
-        }} />
-
-        {/* Water region */}
-        <div
-          className="absolute"
-          style={{
-            right: 0,
-            top: 0,
-            width: '35%',
-            height: '60%',
-            background: 'linear-gradient(135deg, #B8D4E8 0%, #9DC0D8 100%)',
-            borderRadius: '0 0 0 60%',
-            opacity: 0.7,
-          }}
+        <GoogleMapView
+          events={events}
+          hoveredId={hoveredId}
+          onHover={setHoveredId}
+          onBoundsChange={handleBoundsChange}
         />
-
-        {/* Park region */}
-        <div
-          className="absolute"
-          style={{
-            left: '15%',
-            top: '45%',
-            width: '20%',
-            height: '15%',
-            background: '#C8DFC0',
-            borderRadius: '50% 40% 45% 55%',
-            opacity: 0.8,
-          }}
-        />
-
-        {/* Search area button */}
-        <button
-          className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-4 h-9 rounded-full text-[13px] font-medium z-10"
-          style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', boxShadow: '0 2px 8px rgba(15,31,24,0.1)', color: '#0F1F18' }}
-          onClick={() => { /* cosmetic in M2 */ }}
-        >
-          <RefreshCw size={13} style={{ color: '#6B7A72' }} />
-          Search this area
-        </button>
-
-        {/* Map controls */}
-        <div
-          className="absolute top-4 right-4 flex flex-col gap-1 z-10"
-          style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 8, overflow: 'hidden', boxShadow: '0 2px 8px rgba(15,31,24,0.1)' }}
-        >
-          <button className="w-9 h-9 flex items-center justify-center hover:bg-[#FAF6EE] transition-colors" style={{ color: '#0F1F18' }}>
-            <Plus size={14} />
-          </button>
-          <div style={{ height: 1, background: '#E5E0D4' }} />
-          <button className="w-9 h-9 flex items-center justify-center hover:bg-[#FAF6EE] transition-colors" style={{ color: '#0F1F18' }}>
-            <Minus size={14} />
-          </button>
-        </div>
-
-        {/* Map pins */}
-        {mappable.length > 0 && bounds.minLat !== Infinity && mappable.map(ev => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const p = ev as any;
-          const pct = toMapPct(p.venue_lat, p.venue_lng, bounds);
-          return (
-            <MapPin
-              key={ev.id}
-              event={ev}
-              pct={pct}
-              hovered={hoveredId === ev.id}
-              onHover={setHoveredId}
-            />
-          );
-        })}
-
-        {/* No mappable events message */}
-        {mappable.length === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div
-              className="rounded-xl px-5 py-4 text-center"
-              style={{ background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(8px)', border: '1px solid #E5E0D4' }}
-            >
-              <p className="text-[13px] font-medium mb-1" style={{ color: '#0F1F18' }}>No map data</p>
-              <p className="text-[12px]" style={{ color: '#6B7A72' }}>Events don&apos;t have location coordinates yet.</p>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* ── Mobile view toggle ──────────────────────────────── */}

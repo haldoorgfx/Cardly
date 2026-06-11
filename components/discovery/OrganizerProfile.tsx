@@ -1,8 +1,8 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Calendar } from 'lucide-react';
+import { Calendar, Check } from 'lucide-react';
 import { EventCard, type DiscoveryEvent } from './EventCard';
 
 interface PastEvent {
@@ -47,14 +47,12 @@ export function OrganizerProfile({
 
   const displayName = organization ?? name;
   const initials = displayName.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
-
   const coverUrl = upcomingEvents[0]?.cover_image_url ?? null;
 
   async function handleFollow() {
     const willFollow = !following;
     setFollowing(willFollow);
     setFollowerCount(c => c + (willFollow ? 1 : -1));
-
     try {
       if (willFollow) {
         await fetch('/api/account/follows', {
@@ -66,7 +64,6 @@ export function OrganizerProfile({
         await fetch(`/api/account/follows?organizer_id=${userId}`, { method: 'DELETE' });
       }
     } catch {
-      // revert optimistic update
       setFollowing(!willFollow);
       setFollowerCount(c => c + (willFollow ? -1 : 1));
     }
@@ -74,7 +71,7 @@ export function OrganizerProfile({
 
   return (
     <div>
-      {/* â”€â”€ Banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* Banner */}
       <div className="relative overflow-hidden" style={{ height: 240, background: '#0D2018' }}>
         {coverUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -89,11 +86,11 @@ export function OrganizerProfile({
       </div>
 
       {/* Profile header */}
-      <div className=”max-w-[1120px] mx-auto px-5”>
-        {/* Row 1: avatar (overlaps banner by 44px) + actions aligned to bottom */}
-        <div className=”flex items-end justify-between -mt-11”>
+      <div className="max-w-[1120px] mx-auto px-5">
+        {/* Row 1: avatar (overlaps banner by 44px) + actions */}
+        <div className="flex items-end justify-between -mt-11">
           <div
-            className=”w-24 h-24 rounded-2xl flex items-center justify-center text-white font-display font-bold text-[28px] shrink-0”
+            className="w-24 h-24 rounded-2xl flex items-center justify-center text-white font-display font-bold text-[28px] shrink-0"
             style={{
               background: avatarUrl ? undefined : 'linear-gradient(135deg, #1F4D3A, #2A6A50)',
               border: '3px solid #FFFFFF',
@@ -102,59 +99,51 @@ export function OrganizerProfile({
           >
             {avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={avatarUrl} alt={displayName} className=”w-full h-full object-cover” />
+              <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
             ) : initials}
           </div>
 
           {/* Actions */}
-          <div className=”flex items-center gap-2 shrink-0”>
+          <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={handleFollow}
-              className=”h-10 px-5 rounded-xl text-[14px] font-medium transition”
+              className="h-10 px-5 rounded-xl text-[14px] font-medium transition flex items-center gap-1.5"
               style={following
-                ? {
-                    background: '#E8C57E',
-                    color: '#0F1F18',
-                    border: '1px solid #C9A45E',
-                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)',
-                  }
-                : {
-                    background: 'transparent',
-                    color: '#1F4D3A',
-                    border: '1px solid #1F4D3A',
-                  }}
+                ? { background: '#E8C57E', color: '#0F1F18', border: '1px solid #C9A45E', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)' }
+                : { background: 'transparent', color: '#1F4D3A', border: '1px solid #1F4D3A' }}
             >
-              {following ? '✓ Following' : 'Follow'}
+              {following && <Check size={13} />}
+              {following ? 'Following' : 'Follow'}
             </button>
             <button
-              className=”h-10 px-4 rounded-xl text-[14px] font-medium flex items-center gap-1.5 transition”
+              className="h-10 px-4 rounded-xl text-[14px] font-medium flex items-center gap-1.5 transition"
               style={{ background: 'transparent', color: '#1F4D3A', border: '1px solid #1F4D3A' }}
-              title=”Subscribe to calendar (coming soon)”
+              title="Subscribe to calendar (coming soon)"
             >
               <Calendar size={14} /> Calendar
             </button>
           </div>
         </div>
 
-        {/* Row 2: name + bio + stats — always below the banner, against cream background */}
-        <div className=”mt-4”>
+        {/* Row 2: name + bio + stats — always on cream, never overlapping the banner */}
+        <div className="mt-4 mb-12">
           <h1
-            className=”font-display font-semibold text-[26px] leading-tight”
+            className="font-display font-semibold text-[26px] leading-tight"
             style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}
           >
             {displayName}
           </h1>
           {bio && (
-            <p className=”text-[14px] mt-1 line-clamp-2” style={{ color: '#6B7A72' }}>{bio}</p>
+            <p className="text-[14px] mt-1 line-clamp-2" style={{ color: '#6B7A72' }}>{bio}</p>
           )}
-          <div className=”flex items-center gap-6 mt-3”>
-            <Stat value={followerCount} label=”followers” />
-            <Stat value={eventsHosted} label=”events hosted” />
+          <div className="flex items-center gap-6 mt-3">
+            <Stat value={followerCount} label="followers" />
+            <Stat value={eventsHosted} label="events hosted" />
           </div>
         </div>
 
-        {/* â”€â”€ Upcoming events â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-        <div className="mt-12">
+        {/* Upcoming events */}
+        <div>
           <h2 className="font-display font-semibold text-[20px] mb-5" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
             Upcoming events
           </h2>
@@ -169,7 +158,7 @@ export function OrganizerProfile({
           )}
         </div>
 
-        {/* â”€â”€ Past events â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* Past events */}
         {pastEvents.length > 0 && (
           <div className="mt-12 pb-24">
             <h2 className="font-display font-semibold text-[20px] mb-5" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
@@ -190,10 +179,7 @@ export function OrganizerProfile({
 function Stat({ value, label }: { value: number; label: string }) {
   return (
     <div className="flex items-baseline gap-1.5">
-      <span
-        className="text-[18px] font-semibold"
-        style={{ color: '#0F1F18', fontFamily: '"JetBrains Mono", monospace' }}
-      >
+      <span className="text-[18px] font-semibold" style={{ color: '#0F1F18', fontFamily: '"JetBrains Mono", monospace' }}>
         {value.toLocaleString()}
       </span>
       <span className="text-[12px]" style={{ color: '#6B7A72' }}>{label}</span>
@@ -226,4 +212,3 @@ function PastEventRow({ ev }: { ev: PastEvent }) {
     </Link>
   );
 }
-

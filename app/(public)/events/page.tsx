@@ -57,6 +57,14 @@ export default async function EventDiscoveryPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const events = (pages ?? []) as any[];
 
+  // Extract distinct cities from live events (sorted by frequency)
+  const cityCounts: Record<string, number> = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (pages ?? []).forEach((p: any) => { if (p.city) cityCounts[p.city] = (cityCounts[p.city] ?? 0) + 1; });
+  const cities = Object.entries(cityCounts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([city]) => city);
+
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
       <PublicNav />
@@ -67,6 +75,7 @@ export default async function EventDiscoveryPage() {
           greeting={greeting}
           interests={interests}
           followedOrgIds={followedOrgIds}
+          cities={cities}
         />
       </div>
     </div>

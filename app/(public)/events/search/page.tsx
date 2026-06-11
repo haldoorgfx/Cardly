@@ -18,6 +18,8 @@ interface Props {
     free?: string;
     date?: string;
     format?: string;
+    // map bounds from "Search this area"
+    n?: string; s?: string; e?: string; w?: string;
   };
 }
 
@@ -52,6 +54,16 @@ export default async function SearchPage({ searchParams }: Props) {
   if (searchParams.format === 'online') query = query.eq('is_online', true);
   if (searchParams.format === 'inperson') query = query.eq('is_online', false);
   if (searchParams.date === 'week') query = query.lte('starts_at', weekEnd.toISOString());
+
+  // Map bounds from "Search this area"
+  const { n, s, e, w } = searchParams;
+  if (n && s && e && w) {
+    query = query
+      .gte('venue_lat', parseFloat(s))
+      .lte('venue_lat', parseFloat(n))
+      .gte('venue_lng', parseFloat(w))
+      .lte('venue_lng', parseFloat(e));
+  }
 
   const { data: pages } = await query;
   const events = (pages ?? []) as Parameters<typeof SearchAndMap>[0]['events'];
