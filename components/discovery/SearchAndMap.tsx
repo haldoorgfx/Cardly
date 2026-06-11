@@ -92,16 +92,22 @@ export function SearchAndMap({ events, savedIds, query: initialQuery, totalCount
 
           {/* Filter chips */}
           <div className="flex gap-2 mt-3 overflow-x-auto pb-0.5" style={{ scrollbarWidth: 'none' }}>
-            {['All', 'Free', 'This week', 'Online', 'Music', 'Tech'].map(chip => (
-              <Link
-                key={chip}
-                href={buildChipHref(chip, searchParams)}
-                className="flex-none h-[28px] px-3 rounded-full text-[12px] font-medium whitespace-nowrap"
-                style={{ background: '#FFFFFF', color: '#3A4A42', border: '1px solid #E5E0D4' }}
-              >
-                {chip}
-              </Link>
-            ))}
+            {['All', 'Free', 'This week', 'Online', 'Music', 'Tech'].map(chip => {
+              const active = isChipActive(chip, searchParams);
+              return (
+                <Link
+                  key={chip}
+                  href={buildChipHref(chip, searchParams)}
+                  className="flex-none h-[28px] px-3 rounded-full text-[12px] font-medium whitespace-nowrap transition-colors"
+                  style={active
+                    ? { background: '#1F4D3A', color: '#FFFFFF', border: '1px solid #1F4D3A' }
+                    : { background: '#FFFFFF', color: '#3A4A42', border: '1px solid #E5E0D4' }
+                  }
+                >
+                  {chip}
+                </Link>
+              );
+            })}
           </div>
         </div>
 
@@ -259,6 +265,18 @@ function ResultCard({
       </div>
     </Link>
   );
+}
+
+function isChipActive(chip: string, searchParams: ReturnType<typeof useSearchParams>): boolean {
+  const cat = searchParams.get('category');
+  const free = searchParams.get('free');
+  const date = searchParams.get('date');
+  const format = searchParams.get('format');
+  if (chip === 'All') return !cat && !free && !date && !format;
+  if (chip === 'Free') return free === 'true';
+  if (chip === 'This week') return date === 'week';
+  if (chip === 'Online') return format === 'online';
+  return cat?.toLowerCase() === chip.toLowerCase();
 }
 
 function buildChipHref(chip: string, searchParams: ReturnType<typeof useSearchParams>): string {
