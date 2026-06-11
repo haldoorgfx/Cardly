@@ -8,7 +8,7 @@ interface Thread {
   participant_a: string;
   participant_b: string;
   last_message_at: string | null;
-  registrations?: { id: string; attendee_name: string; avatar_url?: string | null; role?: string | null } | null;
+  registrations?: { id: string; attendee_name: string } | null;
   preview?: string;
   unread?: boolean;
 }
@@ -174,7 +174,7 @@ export default function MessagingClient({
                       {other?.attendee_name ?? 'Attendee'}
                     </div>
                     <div className="text-[13px] truncate mt-0.5" style={{ color: '#6B7A72' }}>
-                      {t.preview ?? other?.role ?? ''}
+                      {t.preview ?? ''}
                     </div>
                   </div>
                   {t.last_message_at && (
@@ -212,9 +212,6 @@ export default function MessagingClient({
                 <div className="font-display font-medium text-[17px]" style={{ color: '#1F4D3A' }}>
                   {partner?.attendee_name ?? 'Attendee'}
                 </div>
-                {partner?.role && (
-                  <div className="text-[13px]" style={{ color: '#6B7A72' }}>{partner.role}</div>
-                )}
               </div>
               <a
                 href={`/e/${eventId}/people`}
