@@ -34,7 +34,7 @@ export default async function RegisterPage({ params, searchParams }: Props) {
     }
   } catch { /* non-blocking — if auth fails, form starts empty */ }
 
-  const [ticketsRes, pageRes, variantRes] = await Promise.all([
+  const [ticketsRes, pageRes, variantRes, formFieldsRes] = await Promise.all([
     (admin as any)
       .from('ticket_types')
       .select('id, name, description, price, currency, quantity, quantity_sold, is_visible, min_price')
@@ -54,10 +54,17 @@ export default async function RegisterPage({ params, searchParams }: Props) {
       .order('position' as never)
       .limit(1)
       .maybeSingle(),
+    // Load custom registration form fields configured by the organizer
+    (admin as any)
+      .from('registration_form_fields')
+      .select('id, label, field_type, options, is_required, position')
+      .eq('event_id', event.id)
+      .order('position'),
   ]);
 
   const page = (pageRes as any).data;
   const tickets = (ticketsRes as any).data ?? [];
+  const formFields = (formFieldsRes as any).data ?? [];
   const rawVariant = variantRes.data;
 
   const canvasVariant = rawVariant && rawVariant.background_url
@@ -98,6 +105,7 @@ export default async function RegisterPage({ params, searchParams }: Props) {
           canvasVariant={canvasVariant}
           initialName={sessionName}
           initialEmail={sessionEmail}
+          formFields={formFields}
           referralCode={searchParams?.ref ?? null}
           utmSource={searchParams?.utm_source ?? null}
         />

@@ -55,6 +55,12 @@ const nextConfig = {
     return config;
   },
 
+  async redirects() {
+    return [
+      { source: '/brand-kit', destination: '/brand', permanent: true },
+    ];
+  },
+
   // ── Security headers ──────────────────────────────────────────────────────
   // Applied to every response. Blocks clickjacking, MIME sniffing, XSS, etc.
   async headers() {

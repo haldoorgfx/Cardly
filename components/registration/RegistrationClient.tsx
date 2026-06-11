@@ -32,6 +32,15 @@ interface CanvasVariant {
   zones: Zone[];
 }
 
+interface FormField {
+  id: string;
+  label: string;
+  field_type: 'text' | 'textarea' | 'select' | 'checkbox' | 'number' | string;
+  options: string[] | null;
+  is_required: boolean;
+  position: number;
+}
+
 interface Props {
   eventSlug: string;
   eventId: string;
@@ -42,6 +51,7 @@ interface Props {
   city: string | null;
   tickets: TicketType[];
   canvasVariant: CanvasVariant | null;
+  formFields?: FormField[];
   initialName?: string;
   initialEmail?: string;
   referralCode?: string | null;
@@ -240,6 +250,7 @@ async function blobToDataUrl(blob: Blob): Promise<string> {
 export default function RegistrationClient({
   eventSlug, eventId, eventName, eventSubtitle,
   coverUrl, startsAt, city, tickets, canvasVariant,
+  formFields = [],
   initialName = '', initialEmail = '',
   referralCode, utmSource,
 }: Props) {
@@ -252,6 +263,8 @@ export default function RegistrationClient({
   // Basic fields
   const [email, setEmail] = useState(initialEmail);
   const [name, setName] = useState(initialName);
+  const [phone, setPhone] = useState('');
+  const [customFieldValues, setCustomFieldValues] = useState<Record<string, string>>({});
 
   // Card zone state
   const [zoneValues, setZoneValues] = useState<Record<string, string>>(() => {
@@ -358,9 +371,14 @@ export default function RegistrationClient({
 
   function validateDetails(): Record<string, string> {
     const errs: Record<string, string> = {};
+    if (!name.trim()) errs.name = 'Full name is required';
     if (!email.trim()) errs.email = 'Email is required';
     else if (!EMAIL_RE.test(email)) errs.email = 'Enter a valid email address';
-    if (!canvasVariant && !name.trim()) errs.name = 'Full name is required';
+    for (const f of formFields) {
+      if (f.is_required && !customFieldValues[f.id]?.trim()) {
+        errs[`cf_${f.id}`] = `${f.label} is required`;
+      }
+    }
     return errs;
   }
 
@@ -382,6 +400,17 @@ export default function RegistrationClient({
         ? deriveAttendeeName(canvasVariant.zones, zoneValues, name || 'Attendee')
         : name;
 
+      const zoneCustomFields = canvasVariant
+        ? Object.fromEntries(
+            canvasVariant.zones
+              .filter(z => (z.type === 'text' || z.type === 'custom') && !z.hidden)
+              .flatMap(z => {
+                const v = zoneValues[z.id];
+                return v ? [[z.id, v]] : [];
+              }),
+          )
+        : {};
+
       const res = await fetch(`/api/events/${eventId}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-event-slug': eventSlug },
@@ -389,16 +418,8 @@ export default function RegistrationClient({
           ticket_type_id: selectedTicket?.id,
           attendee_name: attendeeName,
           attendee_email: email,
-          custom_fields: canvasVariant
-            ? Object.fromEntries(
-                canvasVariant.zones
-                  .filter(z => (z.type === 'text' || z.type === 'custom') && !z.hidden)
-                  .flatMap(z => {
-                    const v = zoneValues[z.id];
-                    return v ? [[z.id, v]] : [];
-                  }),
-              )
-            : {},
+          attendee_phone: phone.trim() || undefined,
+          custom_fields: { ...zoneCustomFields, ...customFieldValues },
           chosen_price: isPWYW ? effectivePrice : undefined,
           access_code: unlockedTickets.find(t => t.id === selectedTicket?.id) ? accessCodeInput || undefined : undefined,
           referral_code: referralCode ?? null,
@@ -697,8 +718,42 @@ export default function RegistrationClient({
                 This is how you&apos;ll appear on the attendee list and your Karta Card.
               </p>
               <div className="space-y-4">
+                {/* Full name — always required */}
                 <div>
-                  <label className="block text-[12px] mb-1.5" style={{ color: fieldErrors.email ? '#B8423C' : '#6B7A72' }}>Email</label>
+                  <label className="block text-[12px] mb-1.5" style={{ color: fieldErrors.name ? '#B8423C' : '#6B7A72' }}>
+                    Full name <span style={{ color: '#B8423C' }}>*</span>
+                  </label>
+                  <input
+                    type="text" value={name}
+                    onChange={e => {
+                      const val = e.target.value;
+                      setName(val);
+                      if (fieldErrors.name) setFieldErrors(p => ({ ...p, name: '' }));
+                      // Auto-sync to card name zones so the live preview updates
+                      if (canvasVariant) {
+                        setZoneValues(p => {
+                          const updated = { ...p };
+                          canvasVariant.zones.forEach(zone => {
+                            const lbl = (zone.label ?? '').toLowerCase();
+                            if ((zone.type === 'text' || zone.type === 'custom') && lbl.includes('name') && !lbl.includes('company') && !lbl.includes('org') && !lbl.includes('event')) {
+                              updated[zone.id] = val;
+                            }
+                          });
+                          return updated;
+                        });
+                      }
+                    }}
+                    placeholder="Amina Osman" className={INPUT}
+                    style={{ borderColor: fieldErrors.name ? '#B8423C' : '#E5E0D4', background: 'white', color: '#0F1F18' }}
+                  />
+                  {fieldErrors.name && <p className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>{fieldErrors.name}</p>}
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label className="block text-[12px] mb-1.5" style={{ color: fieldErrors.email ? '#B8423C' : '#6B7A72' }}>
+                    Email <span style={{ color: '#B8423C' }}>*</span>
+                  </label>
                   <input
                     type="email" value={email}
                     onChange={e => { setEmail(e.target.value); if (fieldErrors.email) setFieldErrors(p => ({ ...p, email: '' })); }}
@@ -707,7 +762,22 @@ export default function RegistrationClient({
                   />
                   {fieldErrors.email && <p className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>{fieldErrors.email}</p>}
                 </div>
-                {canvasVariant ? (
+
+                {/* Phone — optional */}
+                <div>
+                  <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>
+                    Phone number <span style={{ color: '#6B7A72', fontWeight: 400 }}>(optional)</span>
+                  </label>
+                  <input
+                    type="tel" value={phone}
+                    onChange={e => setPhone(e.target.value)}
+                    placeholder="+252 61 234 5678" className={INPUT}
+                    style={{ borderColor: '#E5E0D4', background: 'white', color: '#0F1F18' }}
+                  />
+                </div>
+
+                {/* Card zone fields — for personalising the Karta Card */}
+                {canvasVariant && (
                   <CardZoneFill
                     zones={canvasVariant.zones}
                     values={zoneValues}
@@ -720,18 +790,55 @@ export default function RegistrationClient({
                     backgroundWidth={canvasVariant.backgroundWidth}
                     backgroundHeight={canvasVariant.backgroundHeight}
                   />
-                ) : (
-                  <div>
-                    <label className="block text-[12px] mb-1.5" style={{ color: fieldErrors.name ? '#B8423C' : '#6B7A72' }}>Full name</label>
-                    <input
-                      type="text" value={name}
-                      onChange={e => { setName(e.target.value); if (fieldErrors.name) setFieldErrors(p => ({ ...p, name: '' })); }}
-                      placeholder="Amina Osman" className={INPUT}
-                      style={{ borderColor: fieldErrors.name ? '#B8423C' : '#E5E0D4', background: 'white', color: '#0F1F18' }}
-                    />
-                    {fieldErrors.name && <p className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>{fieldErrors.name}</p>}
-                  </div>
                 )}
+
+                {/* Custom form fields configured by the organizer */}
+                {formFields.map(f => {
+                  const err = fieldErrors[`cf_${f.id}`];
+                  const val = customFieldValues[f.id] ?? '';
+                  const set = (v: string) => {
+                    setCustomFieldValues(p => ({ ...p, [f.id]: v }));
+                    if (err) setFieldErrors(p => ({ ...p, [`cf_${f.id}`]: '' }));
+                  };
+                  const labelEl = (
+                    <label className="block text-[12px] mb-1.5" style={{ color: err ? '#B8423C' : '#6B7A72' }}>
+                      {f.label}{f.is_required && <span style={{ color: '#B8423C' }}> *</span>}
+                    </label>
+                  );
+                  if (f.field_type === 'textarea') return (
+                    <div key={f.id}>{labelEl}
+                      <textarea value={val} onChange={e => set(e.target.value)} rows={3}
+                        className={INPUT} style={{ borderColor: err ? '#B8423C' : '#E5E0D4', background: 'white', color: '#0F1F18', resize: 'vertical' }} />
+                      {err && <p className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>{err}</p>}
+                    </div>
+                  );
+                  if (f.field_type === 'select' && f.options?.length) return (
+                    <div key={f.id}>{labelEl}
+                      <select value={val} onChange={e => set(e.target.value)}
+                        className={INPUT} style={{ borderColor: err ? '#B8423C' : '#E5E0D4', background: 'white', color: val ? '#0F1F18' : '#6B7A72' }}>
+                        <option value="">Select…</option>
+                        {f.options.map(o => <option key={o} value={o}>{o}</option>)}
+                      </select>
+                      {err && <p className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>{err}</p>}
+                    </div>
+                  );
+                  if (f.field_type === 'checkbox') return (
+                    <div key={f.id} className="flex items-center gap-3">
+                      <input type="checkbox" checked={val === 'true'} onChange={e => set(e.target.checked ? 'true' : '')}
+                        className="w-4 h-4 rounded accent-[#1F4D3A]" />
+                      <span className="text-[14px]" style={{ color: '#0F1F18' }}>{f.label}{f.is_required && <span style={{ color: '#B8423C' }}> *</span>}</span>
+                      {err && <p className="text-[12px] font-medium" style={{ color: '#B8423C' }}>{err}</p>}
+                    </div>
+                  );
+                  return (
+                    <div key={f.id}>{labelEl}
+                      <input type={f.field_type === 'number' ? 'number' : 'text'} value={val} onChange={e => set(e.target.value)}
+                        placeholder={f.label} className={INPUT}
+                        style={{ borderColor: err ? '#B8423C' : '#E5E0D4', background: 'white', color: '#0F1F18' }} />
+                      {err && <p className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>{err}</p>}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
