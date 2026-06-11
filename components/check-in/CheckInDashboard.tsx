@@ -103,7 +103,7 @@ function PhoneScannerModal({ eventId, onClose }: { eventId: string; onClose: () 
           </button>
         </div>
 
-        <div className="px-6 py-5">
+        <div className="px-4 sm:px-6 py-5">
           {/* Instructions */}
           <p className="text-[13px] mb-4 leading-relaxed" style={{ color: '#3A4A42' }}>
             Open this on your phone to use the camera as a QR scanner. Check-ins appear on this dashboard within seconds.
@@ -204,7 +204,7 @@ function AttendeeModal({ reg, eventId, onClose, onCheckedIn }: {
           </button>
         </div>
 
-        <div className="px-6 py-5">
+        <div className="px-4 sm:px-6 py-5">
           {/* Avatar + name */}
           <div className="flex items-center gap-4 mb-5">
             <div className="w-12 h-12 rounded-full grid place-items-center text-[15px] font-bold text-white shrink-0"

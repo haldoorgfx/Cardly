@@ -66,7 +66,7 @@ function ComposeModal({
         </div>
 
         {sent ? (
-          <div className="px-6 py-10 text-center">
+          <div className="px-4 sm:px-6 py-10 text-center">
             <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: '#E8EFEB' }}>
               <CheckCircle2 size={22} strokeWidth={2} style={{ color: '#1F4D3A' }} />
             </div>
@@ -80,7 +80,7 @@ function ComposeModal({
           </div>
         ) : (
           <>
-            <div className="px-6 py-5 space-y-4">
+            <div className="px-4 sm:px-6 py-5 space-y-4">
               {error && (
                 <div className="px-4 py-3 rounded-xl text-[13px] font-medium" style={{ background: '#FEF2F2', color: '#B8423C', border: '1px solid #FECACA' }}>
                   {error}
@@ -122,7 +122,7 @@ function ComposeModal({
               </div>
             </div>
 
-            <div className="px-6 pb-5 flex gap-3">
+            <div className="px-4 sm:px-6 pb-5 flex gap-3">
               <button onClick={onClose} className="flex-1 h-10 rounded-xl text-[13px] font-medium border transition" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
                 Cancel
               </button>

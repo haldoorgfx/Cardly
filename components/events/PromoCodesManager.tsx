@@ -169,7 +169,7 @@ export function PromoCodesManager({ eventId, initialCodes }: Props) {
                 <X size={14} strokeWidth={2} />
               </button>
             </div>
-            <div className="px-6 py-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="px-4 sm:px-6 py-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
               {error && <p className="col-span-2 text-[13px] px-3 py-2 rounded-lg" style={{ background: '#FEF2F2', color: '#B8423C' }}>{error}</p>}
               <div>
                 <label className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Discount type</label>
@@ -206,7 +206,7 @@ export function PromoCodesManager({ eventId, initialCodes }: Props) {
                   onChange={e => setEditForm(f => ({ ...f, valid_until: e.target.value }))} />
               </div>
             </div>
-            <div className="px-6 pb-6 flex gap-3">
+            <div className="px-4 sm:px-6 pb-6 flex gap-3">
               <button onClick={() => setEditingCode(null)} className="flex-1 h-10 rounded-xl text-[13px] border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
               <button onClick={handleEdit} disabled={saving}
                 className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white disabled:opacity-60"

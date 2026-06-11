@@ -228,7 +228,7 @@ export function WebhooksView(_props: Props) {
             </div>
 
             {/* Modal body */}
-            <div className="px-6 py-5 space-y-5">
+            <div className="px-4 sm:px-6 py-5 space-y-5">
               {/* URL */}
               <div>
                 <label className="block text-[12.5px] font-medium mb-1.5" style={{ color: '#0F1F18' }}>

@@ -165,7 +165,7 @@ function EditAttendeeModal({ reg, eventId, ticketTypes, onClose, onSaved }: {
           </button>
         </div>
 
-        <div className="px-6 py-5 space-y-4">
+        <div className="px-4 sm:px-6 py-5 space-y-4">
           {apiError && (
             <div className="px-4 py-3 rounded-xl text-[13px] font-medium" style={{ background: '#FEF2F2', color: '#B8423C', border: '1px solid #FECACA' }}>
               {apiError}
@@ -220,7 +220,7 @@ function EditAttendeeModal({ reg, eventId, ticketTypes, onClose, onSaved }: {
           )}
         </div>
 
-        <div className="px-6 pb-5 pt-3 flex gap-3" style={{ borderTop: '1px solid #F0EBE3' }}>
+        <div className="px-4 sm:px-6 pb-5 pt-3 flex gap-3" style={{ borderTop: '1px solid #F0EBE3' }}>
           <button onClick={onClose} className="flex-1 h-10 rounded-xl text-[13px] font-medium border transition" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
             Cancel
           </button>
@@ -617,7 +617,7 @@ function ImportCSVModal({ eventId, ticketTypes, onClose, onImported }: {
         </div>
 
         {/* Footer */}
-        <div className="px-6 pb-5 pt-3 shrink-0 flex gap-3" style={{ borderTop: '1px solid #F0EBE3' }}>
+        <div className="px-4 sm:px-6 pb-5 pt-3 shrink-0 flex gap-3" style={{ borderTop: '1px solid #F0EBE3' }}>
           <button onClick={onClose} className="flex-1 h-10 rounded-xl text-[13px] font-medium border transition" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
             {result ? 'Close' : 'Cancel'}
           </button>
@@ -700,7 +700,7 @@ function AddManuallyModal({
         </div>
 
         {/* Form */}
-        <div className="px-6 py-5 space-y-4">
+        <div className="px-4 sm:px-6 py-5 space-y-4">
           {apiError && (
             <div className="px-4 py-3 rounded-xl text-[13px] font-medium" style={{ background: '#FEF2F2', color: '#B8423C', border: '1px solid #FECACA' }}>
               {apiError}
@@ -770,7 +770,7 @@ function AddManuallyModal({
         </div>
 
         {/* Footer */}
-        <div className="px-6 pb-5 flex gap-3">
+        <div className="px-4 sm:px-6 pb-5 flex gap-3">
           <button onClick={onClose} className="flex-1 h-10 rounded-xl text-[13px] font-medium border transition" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
             Cancel
           </button>

@@ -339,7 +339,7 @@ function CreateTicketModal({ onClose, eventId, defaultCurrency }: { onClose: () 
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
       <div className="relative bg-white rounded-2xl shadow-[0_8px_40px_rgba(15,31,24,0.18)] border border-[#E5E0D4] w-full max-w-[420px]">
-        <div className="px-6 py-5" style={{ borderBottom: '1px solid #E5E0D4' }}>
+        <div className="px-4 sm:px-6 py-5" style={{ borderBottom: '1px solid #E5E0D4' }}>
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-display text-[16px] font-semibold" style={{ color: '#0F1F18' }}>Create ticket type</h3>
@@ -351,7 +351,7 @@ function CreateTicketModal({ onClose, eventId, defaultCurrency }: { onClose: () 
           </div>
         </div>
 
-        <div className="px-6 py-5 space-y-4">
+        <div className="px-4 sm:px-6 py-5 space-y-4">
           {err && <p className="text-[12px] text-red-600">{err}</p>}
 
           <div>
@@ -402,7 +402,7 @@ function CreateTicketModal({ onClose, eventId, defaultCurrency }: { onClose: () 
           </div>
         </div>
 
-        <div className="px-6 pb-5 flex gap-3">
+        <div className="px-4 sm:px-6 pb-5 flex gap-3">
           <button onClick={onClose} className="flex-1 h-10 rounded-xl text-[13px] font-medium border transition"
             style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
           <button onClick={handleCreate} disabled={saving}

@@ -62,7 +62,7 @@ function EditAttendeeModal({
             <X size={14} strokeWidth={2} />
           </button>
         </div>
-        <div className="px-6 py-5 space-y-4">
+        <div className="px-4 sm:px-6 py-5 space-y-4">
           {error && <p className="text-[13px] px-3 py-2 rounded-lg" style={{ background: '#FEF2F2', color: '#B8423C' }}>{error}</p>}
           <div>
             <label className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Full name *</label>
@@ -81,7 +81,7 @@ function EditAttendeeModal({
               className="w-full h-10 px-3 rounded-lg text-[14px] outline-none border" style={{ borderColor: '#E5E0D4', background: 'white', color: '#0F1F18' }} />
           </div>
         </div>
-        <div className="px-6 pb-6 flex gap-3">
+        <div className="px-4 sm:px-6 pb-6 flex gap-3">
           <button onClick={onClose} className="flex-1 h-10 rounded-xl text-[13px] border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
           <button onClick={handleSave} disabled={saving}
             className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white disabled:opacity-60"
