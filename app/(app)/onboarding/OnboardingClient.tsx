@@ -244,7 +244,7 @@ export default function OnboardingClient() {
                 <p className="mt-3 text-[15px] leading-[1.6]" style={{ color: '#3A4A42' }}>
                   Let&apos;s tailor your workspace. What kind of events do you run?
                 </p>
-                <div className="mt-7 grid grid-cols-2 gap-3">
+                <div className="mt-7 grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {EVENT_TYPES.map(t => {
                     const on = evType === t.id;
                     return (

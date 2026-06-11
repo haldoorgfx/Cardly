@@ -22,7 +22,9 @@ export default async function SettingsPage() {
       notify_registrations, notify_daily_summary, notify_card_shares, notify_product_updates
     `)
     .eq('id', user.id)
-    .single();
+    .maybeSingle();
+
+  if (!profile) redirect('/dashboard');
 
   return (
     <>

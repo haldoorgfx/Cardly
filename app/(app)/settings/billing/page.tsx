@@ -348,7 +348,7 @@ export default async function BillingPage({
             <h3 className="font-semibold text-[14px] text-[#0F1F18]">Invoices</h3>
           </div>
           <div className="overflow-x-auto">
-          <table className="w-full" style={{ minWidth: 480 }}>
+          <table className="w-full" style={{ minWidth: 360 }}>
             <thead>
               <tr className="border-b border-border">
                 {['DATE', 'DESCRIPTION', 'AMOUNT', 'STATUS', ''].map(col => (

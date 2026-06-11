@@ -517,15 +517,11 @@ function PlatformFeatures() {
 
         {/* Karta Card feature tile */}
         <div
+          className="flex items-center justify-between gap-8 px-6 py-8 sm:px-10 sm:py-9"
           style={{
             background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 55%, #2A6A50 100%)',
             border: '1px solid rgba(232,197,126,0.35)',
             borderRadius: 16,
-            padding: '36px 40px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 32,
           }}
         >
           <div style={{ flex: 1 }}>
