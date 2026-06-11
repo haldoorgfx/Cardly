@@ -1,7 +1,7 @@
 import { requireAdmin } from '@/lib/auth/guards';
 import { AppShell } from '@/components/app/AppShell';
 
-export const metadata = { title: 'Admin — Karta' };
+export const metadata = { title: 'Admin' };
 
 export default async function AdminLayout({
   children,

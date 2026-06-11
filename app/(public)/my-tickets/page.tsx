@@ -6,7 +6,7 @@ import { PublicNav } from '@/components/events/PublicNav';
 import MyTicketsClient from '@/components/tickets/MyTicketsClient';
 import type { Metadata } from 'next';
 
-export const metadata: Metadata = { title: 'My tickets — Karta' };
+export const metadata: Metadata = { title: 'My tickets' };
 
 export default async function MyTicketsPage() {
   const supabase = createClient();

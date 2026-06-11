@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Exhibitor Portal — Karta',
+  title: 'Exhibitor Portal',
 };
 
 export default function ExhibitorLayout({ children }: { children: React.ReactNode }) {

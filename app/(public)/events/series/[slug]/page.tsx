@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { data } = await admin.from('event_series').select('name, description').eq('slug', params.slug).single();
   if (!data) return {};
   return {
-    title: `${data.name} — Karta`,
+    title: `${data.name}`,
     description: data.description ?? `All events in the ${data.name} series.`,
   };
 }

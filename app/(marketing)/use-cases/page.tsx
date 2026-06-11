@@ -13,7 +13,7 @@ import {
 import type { ForwardRefExoticComponent, RefAttributes } from 'react';
 
 export const metadata: Metadata = {
-  title: 'Use Cases — Karta Event Platform',
+  title: 'Use Cases',
   description:
     'From tech conferences to NGO campaigns, political rallies to African summits — Karta handles every type of event with full registration, agenda, networking, and the Karta Card.',
 };

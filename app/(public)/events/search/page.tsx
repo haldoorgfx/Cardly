@@ -7,7 +7,7 @@ import { SearchAndMap } from '@/components/discovery/SearchAndMap';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Search Events — Karta',
+  title: 'Search Events',
 };
 
 interface Props {

@@ -6,7 +6,7 @@ import { PublicNav } from '@/components/events/PublicNav';
 import ProfileSettings from '@/components/account/ProfileSettings';
 import type { Metadata } from 'next';
 
-export const metadata: Metadata = { title: 'Profile & preferences — Karta' };
+export const metadata: Metadata = { title: 'Profile & preferences' };
 
 export default async function AccountProfilePage() {
   const supabase = createClient();

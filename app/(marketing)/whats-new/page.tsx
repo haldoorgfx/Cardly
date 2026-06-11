@@ -3,7 +3,7 @@ import Reveal from '@/components/marketing/Reveal';
 import { NewsCTAClient } from './NewsCTAClient';
 
 export const metadata = {
-  title: "What's New — Karta",
+  title: "What's New",
   description:
     "A running changelog of everything shipped at Karta. New features, improvements, and fixes.",
 };

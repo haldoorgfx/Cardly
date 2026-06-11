@@ -6,7 +6,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Events by City — Karta',
+  title: 'Events by City',
   description: 'Browse upcoming events by city across East Africa and beyond.',
 };
 

@@ -18,7 +18,7 @@ function decodeCategory(slug: string): string {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const cat = decodeCategory(params.category);
   return {
-    title: `${cat} Events — Karta`,
+    title: `${cat} Events`,
     description: `Discover upcoming ${cat.toLowerCase()} events across East Africa and beyond.`,
   };
 }

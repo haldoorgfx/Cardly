@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import OnboardingWizard from '@/components/account/OnboardingWizard';
 import type { Metadata } from 'next';
 
-export const metadata: Metadata = { title: 'Set up your feed — Karta' };
+export const metadata: Metadata = { title: 'Set up your feed' };
 
 export default async function AccountSetupPage() {
   const supabase = createClient();

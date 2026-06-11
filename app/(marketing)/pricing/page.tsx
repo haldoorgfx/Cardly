@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import PricingContent from '@/components/marketing/PricingContent';
 
 export const metadata: Metadata = {
-  title: 'Pricing — Karta',
+  title: 'Pricing',
   description:
     'Start free with 1 event and 50 registrations. Upgrade to Pro ($19/mo) for unlimited events, or Studio ($49/mo) for the full platform including AI matchmaking, Q&A, and sponsor tools.',
   openGraph: {

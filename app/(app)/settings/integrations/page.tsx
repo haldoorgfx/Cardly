@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { SettingsTabs } from '@/components/settings/SettingsTabs';
 
-export const metadata = { title: 'Integrations — Karta' };
+export const metadata = { title: 'Integrations' };
 
 const INTEGRATIONS = [
   { name: 'Zapier', desc: 'Connect Karta to 5,000+ apps without code.', status: 'soon' },

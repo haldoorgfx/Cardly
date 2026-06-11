@@ -3,7 +3,7 @@ import { ArrowRight, BookOpen, Layers, CreditCard, Share2, Zap, HelpCircle } fro
 import Reveal from '@/components/marketing/Reveal';
 
 export const metadata = {
-  title: 'Help Center — Karta',
+  title: 'Help Center',
   description:
     'Guides and answers for Karta — getting started, the editor, sharing, billing, and more.',
 };

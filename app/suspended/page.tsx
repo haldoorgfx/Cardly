@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { signOut } from '@/app/(auth)/actions';
 
-export const metadata = { title: 'Account Suspended — Karta' };
+export const metadata = { title: 'Account Suspended' };
 
 export default async function SuspendedPage() {
   const supabase = createClient();

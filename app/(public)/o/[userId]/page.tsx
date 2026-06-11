@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const name = profile?.organization ?? profile?.full_name ?? 'Organizer';
   return {
-    title: `${name} — Karta`,
+    title: `${name}`,
     description: `Discover events by ${name} on Karta.`,
   };
 }

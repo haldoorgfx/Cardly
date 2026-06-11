@@ -6,7 +6,7 @@ import { PublicNav } from '@/components/events/PublicNav';
 import SavedAndFollowing from '@/components/account/SavedAndFollowing';
 import type { Metadata } from 'next';
 
-export const metadata: Metadata = { title: 'Saved & following — Karta' };
+export const metadata: Metadata = { title: 'Saved & following' };
 
 export default async function AccountFollowingPage() {
   const supabase = createClient();

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
 export const metadata = {
-  title: 'Article — Karta Blog',
+  title: 'Article',
   description: 'Read the full article on the Karta blog.',
 };
 

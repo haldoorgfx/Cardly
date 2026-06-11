@@ -2,7 +2,7 @@ import { CheckCircle2, AlertCircle, Clock } from 'lucide-react';
 import Reveal from '@/components/marketing/Reveal';
 
 export const metadata = {
-  title: 'System Status — Karta',
+  title: 'System Status',
   description: 'Live status for all Karta services.',
 };
 

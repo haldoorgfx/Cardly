@@ -14,7 +14,7 @@ function decodeCity(slug: string): string {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const city = decodeCity(params.city);
   return {
-    title: `Events in ${city} — Karta`,
+    title: `Events in ${city}`,
     description: `Discover upcoming events in ${city}. Music, tech, culture, food and more.`,
   };
 }

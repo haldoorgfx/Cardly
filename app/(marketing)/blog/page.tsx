@@ -4,7 +4,7 @@ import Reveal from '@/components/marketing/Reveal';
 import { NewsletterSectionClient } from './NewsletterSectionClient';
 
 export const metadata = {
-  title: 'Blog — Karta',
+  title: 'Blog',
   description:
     'Thoughts on campaigns, design, and building for Africa. Published by the Karta team.',
 };

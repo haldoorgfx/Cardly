@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import AttendeeAuth from '@/components/account/AttendeeAuth';
 
-export const metadata: Metadata = { title: 'Sign in — Karta' };
+export const metadata: Metadata = { title: 'Sign in' };
 
 export default function AttendeeLoginPage() {
   return (

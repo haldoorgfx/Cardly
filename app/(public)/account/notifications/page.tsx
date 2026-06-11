@@ -6,7 +6,7 @@ import { PublicNav } from '@/components/events/PublicNav';
 import NotificationsInbox from '@/components/account/NotificationsInbox';
 import type { Metadata } from 'next';
 
-export const metadata: Metadata = { title: 'Notifications — Karta' };
+export const metadata: Metadata = { title: 'Notifications' };
 
 export default async function AccountNotificationsPage() {
   const supabase = createClient();

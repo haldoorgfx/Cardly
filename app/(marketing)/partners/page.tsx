@@ -3,7 +3,7 @@ import { ArrowRight, Globe, Zap, Users, BarChart3 } from 'lucide-react';
 import Reveal from '@/components/marketing/Reveal';
 
 export const metadata = {
-  title: 'Partners — Karta',
+  title: 'Partners',
   description:
     'Grow your event business with Karta. Reseller, integration, and co-marketing programs for agencies and platforms.',
 };

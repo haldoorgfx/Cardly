@@ -1,6 +1,6 @@
 import { ContactFormClient } from './ContactFormClient';
 
-export const metadata = { title: 'Contact — Karta' };
+export const metadata = { title: 'Contact' };
 
 const REASONS = [
   "You're setting up a Pro or Studio account",
