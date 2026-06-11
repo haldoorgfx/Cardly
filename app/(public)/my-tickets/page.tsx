@@ -21,7 +21,7 @@ export default async function MyTicketsPage() {
     .select(`
       id, attendee_name, attendee_email, status, karta_card_url, qr_code_token, created_at,
       ticket_types(name, price),
-      events(id, name, slug, event_pages(id, title, cover_image_url, starts_at, ends_at, venue_name, city, is_online))
+      events(id, name, slug, event_pages(id, title, cover_image_url, starts_at, ends_at, venue_name, venue_address, is_online))
     `)
     .eq('attendee_email', (user.email ?? '').toLowerCase())
     .in('status', ['confirmed', 'checked_in', 'pending', 'pending_approval'])
@@ -86,7 +86,7 @@ type Registration = {
       starts_at: string | null;
       ends_at: string | null;
       venue_name: string | null;
-      city: string | null;
+      venue_address: string | null;
       is_online: boolean;
     }>;
   } | null;

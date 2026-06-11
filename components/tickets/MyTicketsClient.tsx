@@ -23,7 +23,7 @@ type Registration = {
       starts_at: string | null;
       ends_at: string | null;
       venue_name: string | null;
-      city: string | null;
+      venue_address: string | null;
       is_online: boolean;
     }>;
   } | null;
@@ -123,7 +123,7 @@ function TicketCard({ reg, onShowQR }: { reg: Registration; onShowQR: () => void
   const ep = reg.events?.event_pages?.[0];
   const dateStr = fmtDate(ep?.starts_at);
   const until = timeUntil(ep?.starts_at);
-  const venue = ep?.is_online ? 'Online' : [ep?.venue_name, ep?.city].filter(Boolean).join(' · ');
+  const venue = ep?.is_online ? 'Online' : (ep?.venue_name ?? ep?.venue_address ?? null);
   const ticketName = reg.ticket_types?.name ?? 'General';
   const cardNum = reg.id.slice(-4).toUpperCase();
 
