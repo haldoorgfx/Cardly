@@ -68,7 +68,7 @@ export function EventCard({
   const tagLabel = tagMode === 'city' ? page.city : page.category;
 
   const priceLabel =
-    page.price_from === null
+    page.price_from == null
       ? null
       : page.price_from === 0
       ? 'Free'

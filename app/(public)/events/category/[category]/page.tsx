@@ -41,14 +41,8 @@ export default async function CategoryEventPage({ params }: Props) {
 
   const safePages = pages ?? [];
 
-  // Compute city counts for this category
-  const cityCountMap = new Map<string, number>();
-  for (const p of safePages) {
-    if (p.city) cityCountMap.set(p.city, (cityCountMap.get(p.city) ?? 0) + 1);
-  }
-  const cityCounts = Array.from(cityCountMap.entries())
-    .sort((a, b) => b[1] - a[1])
-    .map(([city, count]) => ({ city, count }));
+  // city column requires pending DB migration — no city counts available yet
+  const cityCounts: { city: string; count: number }[] = [];
 
   let savedIds: string[] = [];
   try {
