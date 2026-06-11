@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
-export const metadata: Metadata = { title: 'Billing' };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: 'Billing' };
+}
 
 import { redirect } from 'next/navigation';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
