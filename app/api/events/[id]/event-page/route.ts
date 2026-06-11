@@ -13,7 +13,7 @@ const NullableDateTime = z.preprocess(
 /** Only columns that a client is allowed to write. Never event_id or internal fields. */
 const EventPageSchema = z.object({
   title:                      z.string().min(1, 'Title is required').max(200).trim().optional(),
-  description:                z.string().max(20_000).optional(),
+  description:                z.string().max(20_000).nullable().optional(),
   starts_at:                  NullableDateTime.optional(),
   ends_at:                    NullableDateTime.optional(),
   timezone:                   z.string().max(60).optional(),
@@ -27,14 +27,14 @@ const EventPageSchema = z.object({
   seo_description:            z.string().max(160, 'SEO description should be 160 characters or less').trim().optional(),
   cover_url:                  z.string().url('Invalid cover URL').nullable().optional()
                                 .or(z.literal('')).transform(v => v === '' ? null : v),
-  organizer_name:             z.string().max(100).trim().optional(),
+  organizer_name:             z.string().max(100).trim().nullable().optional(),
   organizer_email:            z.string().email('Invalid organiser email').max(254).nullable().optional()
                                 .or(z.literal('')).transform(v => v === '' ? null : v),
   organizer_website:          z.string().url('Invalid organiser website URL').max(500).nullable().optional()
                                 .or(z.literal('')).transform(v => v === '' ? null : v),
   custom_slug:                z.string().max(100)
                                 .regex(/^[a-z0-9-]*$/, 'Slug may only contain lowercase letters, numbers, and hyphens')
-                                .optional(),
+                                .nullable().optional(),
   payment_processor:          z.enum(['stripe', 'flutterwave', 'waafipay', 'free']).optional(),
   show_remaining_tickets:     z.boolean().optional(),
   require_approval:           z.boolean().optional(),
