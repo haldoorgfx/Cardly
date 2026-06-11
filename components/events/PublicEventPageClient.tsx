@@ -214,28 +214,30 @@ export function PublicEventPageClient({
 
         {/* Meta strip */}
         <div
-          className="flex flex-wrap gap-x-8 gap-y-2 py-5 text-[14px]"
+          className="flex items-start justify-between gap-4 py-5 text-[14px]"
           style={{ borderBottom: '1px solid #E5E0D4', fontFamily: 'Inter, system-ui, sans-serif', color: '#3A4A42' }}
         >
-          <span className="flex items-center gap-2">
-            <Calendar size={14} strokeWidth={2} style={{ color: '#1F4D3A' }} />
-            {dateStr}
-          </span>
-          <span className="flex items-center gap-2">
-            <Clock size={14} strokeWidth={2} style={{ color: '#1F4D3A' }} />
-            {timeStr} – {endTimeStr}
-          </span>
-          <span className="flex items-center gap-2">
-            {page.is_online
-              ? <Globe size={14} strokeWidth={2} style={{ color: '#1F4D3A' }} />
-              : <MapPin size={14} strokeWidth={2} style={{ color: '#1F4D3A' }} />
-            }
-            {locationLine}
-          </span>
-          <span className="flex items-center gap-2">
-            <Users size={14} strokeWidth={2} style={{ color: '#1F4D3A' }} />
-            {minPrice}
-          </span>
+          <div className="flex flex-wrap gap-x-6 gap-y-1.5 min-w-0">
+            <span className="flex items-center gap-2 shrink-0">
+              <Calendar size={14} strokeWidth={2} style={{ color: '#1F4D3A' }} />
+              {dateStr}
+            </span>
+            <span className="flex items-center gap-2 shrink-0">
+              <Clock size={14} strokeWidth={2} style={{ color: '#1F4D3A' }} />
+              {timeStr} – {endTimeStr}
+            </span>
+            <span className="flex items-center gap-2 min-w-0">
+              {page.is_online
+                ? <Globe size={14} strokeWidth={2} style={{ color: '#1F4D3A', flexShrink: 0 }} />
+                : <MapPin size={14} strokeWidth={2} style={{ color: '#1F4D3A', flexShrink: 0 }} />
+              }
+              <span className="truncate">{locationLine}</span>
+            </span>
+            <span className="flex items-center gap-2 shrink-0">
+              <Users size={14} strokeWidth={2} style={{ color: '#1F4D3A' }} />
+              {minPrice}
+            </span>
+          </div>
           <AddToCalendarButton
             title={page.title}
             description={page.description ?? null}
