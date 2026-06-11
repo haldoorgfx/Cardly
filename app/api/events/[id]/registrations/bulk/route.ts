@@ -81,7 +81,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   let imported = 0;
   if (toInsert.length > 0) {
-    const { error } = await admin.from('registrations').insert(toInsert);
+    const { error } = await admin.from('registrations').upsert(toInsert, { onConflict: 'event_id,attendee_email', ignoreDuplicates: true });
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     imported = toInsert.length;
 

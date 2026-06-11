@@ -136,6 +136,9 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     .single();
 
   if (regError) {
+    if (regError.code === '23505') {
+      return NextResponse.json({ error: 'You are already registered for this event.' }, { status: 409 });
+    }
     return NextResponse.json({ error: regError.message }, { status: 500 });
   }
 
