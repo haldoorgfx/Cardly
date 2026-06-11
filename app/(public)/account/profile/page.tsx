@@ -26,6 +26,7 @@ export default async function AccountProfilePage() {
 
   // Attempt to fetch the attendee-specific columns separately so a missing-column error
   // doesn't block the whole page load.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: attendeeData } = await (supabase as any)
     .from('profiles')
     .select('interests, city, phone, whatsapp_verified, notification_prefs')
