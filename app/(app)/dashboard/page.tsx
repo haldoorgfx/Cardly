@@ -18,7 +18,7 @@ export default async function DashboardPage() {
   if (!user) redirect('/login');
 
   const admin = createAdminClient();
-  const [{ data: events, error: eventsError }, { data: profile }] = await Promise.all([
+  const [{ data: events, error: eventsError }, { data: profile, error: profileError }] = await Promise.all([
     admin.from('events')
       .select('id, name, slug, status, view_count, download_count, updated_at, event_pages(starts_at, venue_name), event_variants(id, background_url, position)')
       .eq('user_id', user.id)
@@ -31,11 +31,11 @@ export default async function DashboardPage() {
   const isEmpty = allEvents.length === 0;
 
   // New users who haven't completed onboarding → redirect to the wizard.
-  // Only redirect if the DB queries succeeded (no errors) — if admin client
-  // fails, fall through to show the empty state rather than looping on /onboarding.
+  // Only redirect if BOTH queries succeeded (no errors) — if either fails,
+  // fall through to show the empty state rather than looping on /onboarding.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const completedOnboarding = (profile as any)?.onboarding_completed === true || !!profile?.full_name;
-  if (isEmpty && !completedOnboarding && !eventsError) {
+  if (isEmpty && !completedOnboarding && !eventsError && !profileError) {
     redirect('/onboarding');
   }
   const plan = (profile?.plan ?? 'free') as Plan;
