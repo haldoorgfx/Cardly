@@ -478,7 +478,15 @@ export interface Database {
           slug?: string;
           description?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "event_series_organizer_id_fkey";
+            columns: ["organizer_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       ticket_transfers: {
         Row: {
@@ -1422,7 +1430,22 @@ export interface Database {
         Row: { id: string; event_id: string; session_id: string | null; registration_id: string | null; question: string; is_anonymous: boolean; upvotes_count: number; status: string; is_featured: boolean; created_at: string };
         Insert: { id?: string; event_id: string; session_id?: string | null; registration_id?: string | null; question: string; is_anonymous?: boolean; upvotes_count?: number; status?: string; is_featured?: boolean; created_at?: string };
         Update: { status?: string; is_featured?: boolean; upvotes_count?: number };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "qa_questions_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "qa_questions_registration_id_fkey";
+            columns: ["registration_id"];
+            isOneToOne: false;
+            referencedRelation: "registrations";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       qa_upvotes: {
         Row: { question_id: string; registration_id: string; created_at: string };
@@ -1434,13 +1457,29 @@ export interface Database {
         Row: { id: string; event_id: string; session_id: string | null; organizer_id: string | null; question: string; is_active: boolean; is_closed: boolean; created_at: string };
         Insert: { id?: string; event_id: string; session_id?: string | null; organizer_id?: string | null; question: string; is_active?: boolean; is_closed?: boolean; created_at?: string };
         Update: { question?: string; is_active?: boolean; is_closed?: boolean };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "polls_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       poll_options: {
         Row: { id: string; poll_id: string; text: string; votes_count: number; position: number };
         Insert: { id?: string; poll_id: string; text: string; votes_count?: number; position?: number };
         Update: { text?: string; votes_count?: number; position?: number };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "poll_options_poll_id_fkey";
+            columns: ["poll_id"];
+            isOneToOne: false;
+            referencedRelation: "polls";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       poll_votes: {
         Row: { poll_id: string; option_id: string; registration_id: string; created_at: string };
