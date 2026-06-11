@@ -16,16 +16,18 @@ export default async function MyTicketsPage() {
   const admin = createAdminClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: regs } = await (admin as any)
+  const { data: regs, error: regsError } = await (admin as any)
     .from('registrations')
     .select(`
       id, attendee_name, attendee_email, status, karta_card_url, qr_code_token, created_at,
       ticket_types(name, price),
-      events!inner(id, name, slug, event_pages(id, title, cover_image_url, starts_at, ends_at, venue_name, city, is_online))
+      events(id, name, slug, event_pages(id, title, cover_image_url, starts_at, ends_at, venue_name, city, is_online))
     `)
-    .eq('attendee_email', user.email)
-    .in('status', ['confirmed', 'checked_in', 'pending'])
+    .eq('attendee_email', (user.email ?? '').toLowerCase())
+    .in('status', ['confirmed', 'checked_in', 'pending', 'pending_approval'])
     .order('created_at', { ascending: false });
+
+  if (regsError) console.error('[my-tickets] query error:', regsError);
 
   const allRegs = (regs ?? []) as Registration[];
   const now = new Date();

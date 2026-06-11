@@ -4,10 +4,21 @@ import { notFound } from 'next/navigation';
 import { createAdminClient } from '@/lib/supabase/server';
 import { ConfirmPage } from '@/components/registration/ConfirmPage';
 import type { Zone } from '@/types/database';
+import type { Metadata } from 'next';
 
 interface Props {
   params: { slug: string };
   searchParams: { reg?: string; payment_intent?: string; redirect_status?: string; processor?: string };
+}
+
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
+  const qrToken = searchParams.reg;
+  if (!qrToken) return { title: 'Registration Confirmed' };
+  const admin = createAdminClient();
+  const { data: registration } = await admin.from('registrations').select('event_id').eq('qr_code_token', qrToken).single();
+  if (!registration) return { title: 'Registration Confirmed' };
+  const { data: eventPage } = await admin.from('event_pages').select('title').eq('event_id', registration.event_id).single();
+  return { title: `Registration Confirmed — ${eventPage?.title ?? 'Event'}` };
 }
 
 export default async function RegisterConfirmPage({ params, searchParams }: Props) {
