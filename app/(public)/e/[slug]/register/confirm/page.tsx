@@ -50,8 +50,8 @@ export default async function RegisterConfirmPage({ params, searchParams }: Prop
   if (!registration.karta_card_url) {
     const variantId = eventPage?.variant_id;
     const { data: rawVariant } = variantId
-      ? await admin.from('event_variants').select('id, zones, background_url, background_width, background_height').eq('id', variantId).single()
-      : await admin.from('event_variants').select('id, zones, background_url, background_width, background_height').eq('event_id', registration.event_id).order('position').limit(1).single();
+      ? await admin.from('event_variants').select('id, zones, background_url, background_width, background_height').eq('id', variantId).maybeSingle()
+      : await admin.from('event_variants').select('id, zones, background_url, background_width, background_height').eq('event_id', registration.event_id).order('position').limit(1).maybeSingle();
 
     if (rawVariant) {
       variant = {
