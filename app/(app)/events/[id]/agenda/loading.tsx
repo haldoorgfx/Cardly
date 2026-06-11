@@ -2,7 +2,7 @@ export default function AgendaLoading() {
   return (
     <div className="animate-pulse" style={{ background: '#FAF6EE', minHeight: '100vh' }}>
       <div className="h-[72px]" style={{ background: 'white', borderBottom: '1px solid #E5E0D4' }} />
-      <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', height: 'calc(100vh - 72px)' }}>
+      <div className="flex flex-col lg:grid" style={{ gridTemplateColumns: '280px 1fr', height: 'calc(100vh - 72px)' }}>
         {/* Left sidebar skeleton */}
         <div style={{ borderRight: '1px solid #E5E0D4', background: 'white', padding: '20px 16px' }} className="space-y-3">
           <div className="h-4 rounded w-3/4" style={{ background: '#E5E0D4' }} />

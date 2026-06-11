@@ -82,8 +82,8 @@ export default async function BoothPage({ params }: Props) {
 
       {/* Body */}
       <div
-        className="max-w-[960px] mx-auto px-10 py-12"
-        style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 56, alignItems: 'start' }}
+        className="max-w-[960px] mx-auto px-4 sm:px-6 lg:px-10 py-12 flex flex-col-reverse lg:grid gap-10 lg:gap-14"
+        style={{ gridTemplateColumns: '1fr 280px', alignItems: 'start' }}
       >
         {/* Left: content */}
         <div>

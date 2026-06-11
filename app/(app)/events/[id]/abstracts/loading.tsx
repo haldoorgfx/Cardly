@@ -10,7 +10,7 @@ export default function AbstractsLoading() {
         </div>
         <div className="h-px w-full mb-0" style={{ background: '#E5E0D4' }} />
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '400px 1fr', height: 'calc(100vh - 160px)' }}>
+      <div className="flex flex-col lg:grid" style={{ gridTemplateColumns: '400px 1fr', height: 'calc(100vh - 160px)' }}>
         <div style={{ borderRight: '1px solid #E5E0D4', padding: '16px 24px' }} className="space-y-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="rounded-xl p-4" style={{ border: '1px solid #E5E0D4', background: 'white' }}>
