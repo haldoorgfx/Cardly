@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { ScanLine, Check, Users, Clock, Search, X, CheckCircle2, Smartphone, QrCode } from 'lucide-react';
+import { ScanLine, Check, Users, Clock, Search, X, CheckCircle2, Smartphone, QrCode, DoorOpen } from 'lucide-react';
+import Link from 'next/link';
 import { QRScanner } from './QRScanner';
 import type { RecentCheckin } from '@/app/(app)/events/[id]/check-in/page';
 
@@ -406,6 +407,12 @@ export default function CheckInDashboard({
               style={{ borderColor: '#E5E0D4', color: '#6B7A72', background: 'white' }}>
               <Smartphone size={14} strokeWidth={1.8} /> Scan with phone
             </button>
+            <Link
+              href={`/events/${eventId}/check-in/walk-in`}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[13.5px] font-medium border transition hover:border-[#1F4D3A]/40 hover:text-[#1F4D3A]"
+              style={{ borderColor: '#E5E0D4', color: '#6B7A72', background: 'white' }}>
+              <DoorOpen size={14} strokeWidth={1.8} /> Walk-in
+            </Link>
             <button
               onClick={() => setScannerOpen(true)}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13.5px] font-medium text-white transition hover:bg-[#163828]"
