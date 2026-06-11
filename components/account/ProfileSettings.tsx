@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Image from 'next/image';
+import { createClient } from '@/lib/supabase/client';
 
 const INTERESTS = [
   'Tech', 'Music', 'Business', 'Culture', 'Food & drink',
@@ -75,8 +76,13 @@ export default function ProfileSettings({ profile }: Props) {
   const [city, setCity] = useState(profile.city ?? '');
   const [showCityPicker, setShowCityPicker] = useState(false);
   const [prefs, setPrefs] = useState<NotifPrefs>(profile.notification_prefs ?? {});
+  const [fullName, setFullName] = useState(profile.full_name ?? '');
+  const [phone, setPhone] = useState(profile.phone ?? '');
+  const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url);
+  const [photoUploading, setPhotoUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   function toggleInterest(i: string) {
     setInterests(prev => prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i]);
@@ -89,12 +95,42 @@ export default function ProfileSettings({ profile }: Props) {
     setSaved(false);
   }
 
+  async function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPhotoUploading(true);
+    try {
+      const supabase = createClient();
+      const ext = file.name.split('.').pop() ?? 'jpg';
+      const path = `avatars/${profile.id}.${ext}`;
+      const { error: upErr } = await supabase.storage.from('uploads').upload(path, file, { upsert: true, contentType: file.type });
+      if (upErr) throw upErr;
+      const { data: { publicUrl } } = supabase.storage.from('uploads').getPublicUrl(path);
+      setAvatarUrl(publicUrl);
+      await fetch('/api/account/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ avatar_url: publicUrl }),
+      });
+    } catch (err) {
+      console.error('Photo upload failed', err);
+    } finally {
+      setPhotoUploading(false);
+    }
+  }
+
   async function save() {
     setSaving(true);
     await fetch('/api/account/profile', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ interests, city: city || null, notification_prefs: prefs }),
+      body: JSON.stringify({
+        full_name: fullName || null,
+        phone: phone || null,
+        interests,
+        city: city || null,
+        notification_prefs: prefs,
+      }),
     });
     setSaving(false);
     setSaved(true);
@@ -115,33 +151,68 @@ export default function ProfileSettings({ profile }: Props) {
 
       {/* Identity card */}
       <div
-        className="flex items-center gap-5 mt-8 p-5 sm:p-6 rounded-xl"
+        className="mt-8 p-5 sm:p-6 rounded-xl"
         style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}
       >
-        <div className="relative shrink-0 w-16 h-16 rounded-full overflow-hidden" style={{ border: '2px solid #E8C57E' }}>
-          {profile.avatar_url ? (
-            <Image src={profile.avatar_url} alt="" fill className="object-cover" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-white text-[22px] font-semibold"
-              style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }}>
-              {(profile.full_name ?? profile.email)[0].toUpperCase()}
-            </div>
-          )}
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="font-medium text-[19px] truncate" style={{ fontFamily: '"DM Sans", sans-serif', color: '#0F1F18' }}>
-            {profile.full_name ?? profile.email.split('@')[0]}
+        {/* Avatar row */}
+        <div className="flex items-center gap-5 mb-5">
+          <div className="relative shrink-0 w-16 h-16 rounded-full overflow-hidden" style={{ border: '2px solid #E8C57E' }}>
+            {avatarUrl ? (
+              <Image src={avatarUrl} alt="" fill className="object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-white text-[22px] font-semibold"
+                style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }}>
+                {(fullName || profile.email)[0].toUpperCase()}
+              </div>
+            )}
+            {photoUploading && (
+              <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.45)' }}>
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              </div>
+            )}
           </div>
-          <div className="text-[13px] mt-0.5 truncate" style={{ color: '#6B7A72' }}>
-            {profile.email}
+          <div className="flex-1 min-w-0">
+            <div className="text-[13px] truncate" style={{ color: '#6B7A72' }}>{profile.email}</div>
+          </div>
+          <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={photoUploading}
+            className="shrink-0 h-10 px-3.5 rounded-lg font-medium text-[13px] transition hover:bg-[#E8EFEB] disabled:opacity-50"
+            style={{ border: '1px solid #1F4D3A', color: '#1F4D3A', fontFamily: '"DM Sans", sans-serif' }}
+          >
+            {photoUploading ? 'Uploading…' : 'Edit photo'}
+          </button>
+        </div>
+        {/* Name + phone */}
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div>
+            <label className="block text-[12px] mb-1.5 font-medium" style={{ color: '#6B7A72' }}>Display name</label>
+            <input
+              type="text"
+              value={fullName}
+              onChange={e => { setFullName(e.target.value); setSaved(false); }}
+              placeholder="Your name"
+              className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
+              style={{ border: '1px solid #E5E0D4', background: '#FAFAF8', color: '#0F1F18', fontFamily: 'Inter, sans-serif' }}
+              onFocus={e => { e.target.style.borderColor = '#1F4D3A'; e.target.style.boxShadow = '0 0 0 3px rgba(31,77,58,0.12)'; }}
+              onBlur={e => { e.target.style.borderColor = '#E5E0D4'; e.target.style.boxShadow = 'none'; }}
+            />
+          </div>
+          <div>
+            <label className="block text-[12px] mb-1.5 font-medium" style={{ color: '#6B7A72' }}>Phone / WhatsApp</label>
+            <input
+              type="tel"
+              value={phone}
+              onChange={e => { setPhone(e.target.value); setSaved(false); }}
+              placeholder="+254 700 000000"
+              className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
+              style={{ border: '1px solid #E5E0D4', background: '#FAFAF8', color: '#0F1F18', fontFamily: 'Inter, sans-serif' }}
+              onFocus={e => { e.target.style.borderColor = '#1F4D3A'; e.target.style.boxShadow = '0 0 0 3px rgba(31,77,58,0.12)'; }}
+              onBlur={e => { e.target.style.borderColor = '#E5E0D4'; e.target.style.boxShadow = 'none'; }}
+            />
           </div>
         </div>
-        <button
-          className="shrink-0 h-10 px-3.5 rounded-lg font-medium text-[13px] transition hover:bg-[#E8EFEB]"
-          style={{ border: '1px solid #1F4D3A', color: '#1F4D3A', fontFamily: '"DM Sans", sans-serif' }}
-        >
-          Edit photo
-        </button>
       </div>
 
       {/* Interests */}
@@ -314,6 +385,9 @@ export default function ProfileSettings({ profile }: Props) {
           className="h-10 px-5 rounded-lg font-medium text-[14px] transition hover:bg-[#E8EFEB]"
           style={{ border: '1px solid #1F4D3A', color: '#1F4D3A', fontFamily: '"DM Sans", sans-serif' }}
           onClick={() => {
+            setFullName(profile.full_name ?? '');
+            setPhone(profile.phone ?? '');
+            setAvatarUrl(profile.avatar_url);
             setInterests(profile.interests ?? []);
             setCity(profile.city ?? '');
             setPrefs(profile.notification_prefs ?? {});

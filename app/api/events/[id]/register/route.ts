@@ -25,6 +25,15 @@ const RegisterSchema = z.object({
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   const admin = createAdminClient();
 
+  // Capture attendee user_id if they're logged in (optional — guests register without an account)
+  let attendeeUserId: string | null = null;
+  try {
+    const { createClient } = await import('@/lib/supabase/server');
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) attendeeUserId = user.id;
+  } catch { /* not authenticated — fine */ }
+
   let raw: unknown;
   try {
     raw = await req.json();
@@ -128,6 +137,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       referral_code: referral_code ? referral_code.toUpperCase() : null,
       utm_source: utm_source ?? null,
       chosen_price: isPayWhatYouWant ? (chosen_price ?? null) : null,
+      user_id: attendeeUserId,
       status: initialStatus,
       payment_status: isFree ? 'free' : 'pending',
       amount_paid: isFree ? 0 : effectivePrice,

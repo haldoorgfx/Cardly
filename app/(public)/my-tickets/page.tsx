@@ -23,7 +23,7 @@ export default async function MyTicketsPage() {
       ticket_types(name, price),
       events(id, name, slug, event_pages(id, title, cover_image_url, starts_at, ends_at, venue_name, city, is_online))
     `)
-    .eq('attendee_email', (user.email ?? '').toLowerCase())
+    .or(`attendee_email.eq.${(user.email ?? '').toLowerCase()},user_id.eq.${user.id}`)
     .in('status', ['confirmed', 'checked_in', 'pending', 'pending_approval'])
     .order('created_at', { ascending: false });
 
