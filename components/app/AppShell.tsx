@@ -13,7 +13,7 @@ import {
   Home, Layout, CalendarDays, MessageSquare, Bell,
   Ticket, ScanLine, User, Network, Trophy, Briefcase, Video, Palette, ExternalLink,
   UserCircle, HelpCircle, Zap, ShoppingCart, Handshake, Clock, IdCard,
-  Tag, Plug, Globe, Download, Link2, Code2, UserCog, Share2,
+  Tag, Plug, Globe, Download, Link2, Code2, UserCog, Share2, Images, Monitor,
 } from 'lucide-react';
 
 type Profile = {
@@ -89,6 +89,8 @@ const EVENT_NAV_SECTIONS = [
     items: [
       { id: 'engagement',   label: 'Engagement',   icon: <Network size={15} strokeWidth={1.8} />,       segment: 'engagement' },
       { id: 'polls',        label: 'Q&A & Polls',  icon: <MessageSquare size={15} strokeWidth={1.8} />, segment: 'q-and-a' },
+      { id: 'photos',       label: 'Photo wall',   icon: <Images size={15} strokeWidth={1.8} />,        segment: 'photos' },
+      { id: 'live',         label: 'Live display', icon: <Monitor size={15} strokeWidth={1.8} />,       segment: 'live' },
       { id: 'gamification', label: 'Gamification', icon: <Trophy size={15} strokeWidth={1.8} />,        segment: 'gamification' },
     ],
   },
