@@ -117,10 +117,25 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   }
 
   const checkedInAt = new Date().toISOString();
-  const { error } = await admin
+  const { data: updated, error } = await admin
     .from('registrations')
     .update({ status: 'checked_in', checked_in_at: checkedInAt, checked_in_by: user.id })
-    .eq('id', reg.id);
+    .eq('id', reg.id)
+    .neq('status', 'checked_in') // idempotent: skip if a concurrent request already checked in
+    .select('id')
+    .maybeSingle();
+
+  // Race lost — another request already checked this person in
+  if (!error && !updated) {
+    return NextResponse.json({
+      result: 'already_checked_in',
+      message: 'Already checked in',
+      attendee_name: reg.attendee_name,
+      attendee_email: reg.attendee_email,
+      ticket_type: reg.ticket_types?.name ?? null,
+      checked_in_at: reg.checked_in_at,
+    });
+  }
 
   if (error) return NextResponse.json({ error: 'Failed to check in' }, { status: 500 });
 

@@ -430,7 +430,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
             {speakers.length > 0 && (
               <div className="space-y-2">
                 <label className="font-mono text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>Speakers</label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   {speakers.map((sp) => (
                     <label key={sp.id} className="flex items-center gap-2 cursor-pointer">
                       <input

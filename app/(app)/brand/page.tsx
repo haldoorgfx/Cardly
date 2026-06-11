@@ -59,7 +59,7 @@ export default function BrandKitPage() {
 
   if (loading) {
     return (
-      <div className="px-6 lg:px-8 py-8">
+      <div className="px-4 sm:px-6 lg:px-8 py-8">
         <div className="animate-pulse space-y-4">
           <div className="h-10 bg-[#F0EDE8] rounded-xl w-40" />
           <div className="h-64 bg-[#F0EDE8] rounded-2xl" />
@@ -69,7 +69,7 @@ export default function BrandKitPage() {
   }
 
   return (
-    <div className="px-6 lg:px-8 py-8">
+    <div className="px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>

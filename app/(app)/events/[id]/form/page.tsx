@@ -22,7 +22,7 @@ export default async function FormBuilderPage({ params }: Props) {
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="px-6 lg:px-8 py-8 pb-24 max-w-[760px]">
+      <div className="px-4 sm:px-6 lg:px-8 py-8 pb-24 max-w-[760px]">
         <div className="mb-6">
           <h1
             className="font-display font-semibold text-[24px]"
