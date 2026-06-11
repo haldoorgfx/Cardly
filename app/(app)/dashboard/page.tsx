@@ -30,9 +30,12 @@ export default async function DashboardPage() {
   const allEvents = events ?? [];
   const isEmpty = allEvents.length === 0;
 
-  // New users who haven't completed onboarding → redirect to the wizard
+  // New users who haven't completed onboarding → redirect to the wizard.
+  // onboarding_completed column may not exist on older DBs; fall back to
+  // checking full_name (set by the onboarding API) as the completion signal.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  if (isEmpty && !(profile as any)?.onboarding_completed) {
+  const completedOnboarding = (profile as any)?.onboarding_completed === true || !!profile?.full_name;
+  if (isEmpty && !completedOnboarding) {
     redirect('/onboarding');
   }
   const plan = (profile?.plan ?? 'free') as Plan;

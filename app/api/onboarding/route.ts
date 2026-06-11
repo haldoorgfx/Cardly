@@ -21,12 +21,14 @@ export async function POST(req: NextRequest) {
 
   const admin = createAdminClient();
 
-  // Save org name + mark onboarding as completed
+  // Save org name + mark onboarding as completed.
+  // full_name is used as a completion signal on DBs that don't yet have
+  // the onboarding_completed column — always set it to something.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await (admin as any)
     .from('profiles')
     .update({
-      ...(body.orgName ? { full_name: body.orgName } : {}),
+      full_name: body.orgName?.trim() || 'My Organization',
       onboarding_completed: true,
     })
     .eq('id', user.id);
@@ -38,12 +40,26 @@ export async function POST(req: NextRequest) {
       .replace(/\s+/g, '-')
       .slice(0, 40) + '-' + Math.random().toString(36).slice(2, 6);
 
-    await admin.from('events').insert({
+    const { data: newEvent } = await admin.from('events').insert({
       user_id: user.id,
       name: body.evName.trim(),
       slug,
       status: 'draft',
-    });
+    }).select('id').single();
+
+    // Create companion event_pages row so the event editor works immediately
+    if (newEvent?.id) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (admin as any).from('event_pages').insert({
+        event_id: newEvent.id,
+        title:     body.evName.trim(),
+        is_public: false,
+        is_online: false,
+        ...(body.venue ? { venue_name: body.venue } : {}),
+        ...(body.evStart ? { starts_at: body.evStart } : {}),
+        ...(body.evEnd   ? { ends_at:   body.evEnd   } : {}),
+      });
+    }
   }
 
   // Invite team members
