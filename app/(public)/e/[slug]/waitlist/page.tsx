@@ -11,12 +11,12 @@ export default async function WaitlistPage({ params }: Props) {
   const admin = createAdminClient();
 
   // Two-step slug resolution — .or() with cross-table filter is broken in PostgREST
-  let page: { id: string; title: string; cover_image_url: string | null; starts_at: string | null; city: string | null; is_online: boolean } | null = null;
+  let page: { id: string; title: string; cover_image_url: string | null; starts_at: string | null; venue_name: string | null; is_online: boolean } | null = null;
 
   // 1. Try custom_slug first
   const { data: byCustom } = await admin
     .from('event_pages')
-    .select('id, title, cover_image_url, starts_at, city, is_online')
+    .select('id, title, cover_image_url, starts_at, venue_name, is_online')
     .eq('custom_slug', params.slug)
     .eq('is_public', true)
     .maybeSingle();
@@ -29,7 +29,7 @@ export default async function WaitlistPage({ params }: Props) {
     if (event) {
       const { data: byEvent } = await admin
         .from('event_pages')
-        .select('id, title, cover_image_url, starts_at, city, is_online')
+        .select('id, title, cover_image_url, starts_at, venue_name, is_online')
         .eq('event_id', event.id)
         .eq('is_public', true)
         .maybeSingle();
@@ -55,7 +55,7 @@ export default async function WaitlistPage({ params }: Props) {
         title={page.title}
         coverUrl={page.cover_image_url}
         startsAt={page.starts_at}
-        city={page.is_online ? 'Online' : (page.city ?? null)}
+        city={page.is_online ? 'Online' : (page.venue_name ?? null)}
         currentCount={count ?? 0}
       />
     </div>

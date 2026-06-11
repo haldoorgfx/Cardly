@@ -13,8 +13,9 @@ export const metadata: Metadata = {
 export default async function CitiesIndexPage() {
   const admin = createAdminClient();
 
-  // Aggregate cities with event counts
-  const { data: pages } = await admin
+  // city column added by migration 011_discovery_columns — shows empty state until applied
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: pages } = await (admin as any)
     .from('event_pages')
     .select('city')
     .eq('is_public', true)

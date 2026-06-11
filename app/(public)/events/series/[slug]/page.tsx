@@ -35,7 +35,7 @@ export default async function SeriesPage({ params }: Props) {
 
   const { data: pages } = await admin
     .from('event_pages')
-    .select('id, title, cover_image_url, starts_at, city, is_online, price_from, custom_slug, events!inner(slug, user_id)')
+    .select('id, title, cover_image_url, starts_at, is_online, custom_slug, venue_name, events!inner(slug, user_id)')
     .eq('series_id', series.id)
     .eq('is_public', true)
     .order('starts_at', { ascending: true });
@@ -146,7 +146,7 @@ function resolveSlug(ep: any): string {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function SeriesEventCard({ page }: { page: any }) {
   const slug = resolveSlug(page);
-  const price = page.price_from === 0 ? 'Free' : page.price_from != null ? `From $${page.price_from}` : null;
+  const price = null; // price_from requires pending DB migration
   return (
     <Link
       href={`/e/${slug}`}
@@ -170,7 +170,7 @@ function SeriesEventCard({ page }: { page: any }) {
         </div>
         <div className="flex items-center justify-between gap-2 mt-2">
           <span className="text-[12px] truncate" style={{ color: '#6B7A72' }}>
-            {page.is_online ? 'Online' : (page.city ?? 'Location TBA')}
+            {page.is_online ? 'Online' : (page.venue_name ?? 'Location TBA')}
           </span>
           {price && (
             <span className="text-[12px] font-semibold shrink-0" style={{ color: page.price_from === 0 ? '#C9A45E' : '#1F4D3A', fontFamily: '"JetBrains Mono", monospace' }}>
@@ -203,7 +203,7 @@ function SeriesPastRow({ page }: { page: any }) {
       <div className="min-w-0 flex-1">
         <div className="text-[14px] font-medium truncate" style={{ color: '#3A4A42' }}>{page.title}</div>
         <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
-          {fmtDate(page.starts_at)} · {page.is_online ? 'Online' : (page.city ?? '')}
+          {fmtDate(page.starts_at)} · {page.is_online ? 'Online' : (page.venue_name ?? '')}
         </div>
       </div>
       <span className="text-[12px] shrink-0" style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>Past</span>

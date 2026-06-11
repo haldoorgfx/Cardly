@@ -42,7 +42,7 @@ export async function GET(
   const admin = createAdminClient();
   const { data: page } = await admin
     .from('event_pages')
-    .select('id, title, description, starts_at, ends_at, timezone, venue_name, venue_address, city, country, is_online, online_url, custom_slug, events!inner(slug)')
+    .select('id, title, description, starts_at, ends_at, timezone, venue_name, venue_address, is_online, online_url, custom_slug, events!inner(slug)')
     .eq('id', params.pageId)
     .eq('is_public', true)
     .single();
@@ -52,7 +52,7 @@ export async function GET(
   const tz = page.timezone || 'UTC';
   const location = page.is_online
     ? (page.online_url ?? 'Online event')
-    : [page.venue_name, page.venue_address, page.city, page.country].filter(Boolean).join(', ');
+    : [page.venue_name, page.venue_address].filter(Boolean).join(', ');
 
   const slug = (page as { custom_slug?: string | null; events?: { slug: string } | null }).custom_slug
     ?? (page as { events?: { slug: string } | null }).events?.slug

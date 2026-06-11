@@ -15,9 +15,9 @@ export type DiscoveryEvent = {
   timezone: string;
   is_online: boolean;
   venue_name: string | null;
-  city: string | null;
-  category: string | null;
-  price_from: number | null;
+  city?: string | null;
+  category?: string | null;
+  price_from?: number | null;
   organizer_name: string | null;
   custom_slug: string | null;
   series_name: string | null;
