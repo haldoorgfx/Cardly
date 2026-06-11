@@ -236,7 +236,7 @@ export function DiscoveryFeed({ events, savedIds, greeting, interests, followedO
           {singleGridEvents.length === 0 ? (
             <EmptyState />
           ) : (
-            <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))' }}>
+            <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(240px, 100%), 1fr))' }}>
               {singleGridEvents.map(ev => (
                 <EventCard
                   key={ev.id}
@@ -304,7 +304,7 @@ function FeedSection({
           See all →
         </Link>
       </div>
-      <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))' }}>
+      <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(240px, 100%), 1fr))' }}>
         {section.events.map(ev => (
           <EventCard
             key={ev.id}

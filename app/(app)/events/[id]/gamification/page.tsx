@@ -16,7 +16,7 @@ export default async function GamificationPage({ params }: Props) {
   if (!event) redirect('/dashboard');
 
   return (
-    <div className="max-w-[760px] mx-auto px-6 py-10">
+    <div className="max-w-[760px] mx-auto px-4 sm:px-6 py-10">
       <div className="mb-8">
         <div className="font-mono text-[10px] tracking-[0.22em] uppercase mb-2" style={{ color: '#6B7A72' }}>Engagement</div>
         <h1 className="font-display font-bold text-[28px] tracking-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>Gamification</h1>

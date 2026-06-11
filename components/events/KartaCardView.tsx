@@ -49,7 +49,7 @@ export function KartaCardView({ eventId, eventName, eventSlug, eventStatus, tota
   const attendeeReady = isPublished && allVariants.length > 0 && hasDesign;
 
   return (
-    <div className="px-6 lg:px-8 py-8">
+    <div className="px-4 sm:px-6 lg:px-8 py-8">
 
       {/* ── Header ── */}
       <div className="flex items-start justify-between gap-4 mb-6">

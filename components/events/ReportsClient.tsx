@@ -107,7 +107,7 @@ export function ReportsClient({ eventName, totalRevenue, regCount, checkedIn, re
   const maxDay = Math.max(...days.map(d => d.count), 1);
 
   return (
-    <div className="max-w-[1200px] mx-auto px-6 py-8">
+    <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
         <div>

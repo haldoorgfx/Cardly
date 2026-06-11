@@ -37,7 +37,7 @@ export default async function VirtualPage({ params }: Props) {
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[1100px] mx-auto px-6 py-8">
+      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 py-8">
 
         {/* Stream panel */}
         <div className="rounded-2xl overflow-hidden mb-8 relative"

@@ -568,7 +568,7 @@ export default function CheckInDashboard({
           <div className="grid gap-4 content-start">
 
             {/* 3 stat cards */}
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 sm:grid-cols-3 gap-3">
               {[
                 { label: 'Checked in',            value: checkedIn.toString(), icon: <Check size={17} strokeWidth={2} /> },
                 { label: `of ${totalRegistrations}`, value: `${pct}%`,          icon: <Users size={17} strokeWidth={1.8} /> },

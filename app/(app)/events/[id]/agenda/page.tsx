@@ -29,7 +29,7 @@ export default async function AgendaPage({ params }: Props) {
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
       <AgendaTabs eventId={id} eventName={event.name} />
-      <div className="px-6 lg:px-8 py-8">
+      <div className="px-4 sm:px-6 lg:px-8 py-8">
         <AgendaView
           eventId={id}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -254,7 +254,7 @@ export function SponsorsClient({ eventId, eventName, sponsors: initial }: Props)
         />
       )}
 
-      <div className="max-w-[1100px] mx-auto px-6 py-8">
+      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 py-8">
 
         {/* Header */}
         <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">

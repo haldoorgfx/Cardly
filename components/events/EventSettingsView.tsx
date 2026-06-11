@@ -125,7 +125,7 @@ export function EventSettingsView({ event }: Props) {
   }[event.status] ?? { label: event.status, bg: '#F5F0E8', color: '#6B7A72', dot: '#6B7A72' };
 
   return (
-    <div className="max-w-[900px] mx-auto px-6 py-8 pb-24">
+    <div className="max-w-[900px] mx-auto px-4 sm:px-6 py-8 pb-24">
 
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-8">

@@ -196,7 +196,7 @@ function DayGrid({ daySessions, tracks, dateKey, onSlotClick }: DayGridProps) {
 
   return (
     <div className="overflow-x-auto">
-      <div style={{ minWidth: Math.max(480, columns.length * 160 + 60) }}>
+      <div style={{ minWidth: Math.max(320, columns.length * 160 + 60) }}>
 
         {/* ── Track column headers ──────────────────────────────────────────── */}
         <div className="grid mb-3" style={{ gridTemplateColumns: `52px repeat(${columns.length}, 1fr)`, gap: 8 }}>

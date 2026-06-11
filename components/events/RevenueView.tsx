@@ -143,7 +143,8 @@ export function RevenueView({ registrations }: Props) {
       </div>
 
       {/* Table */}
-      <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
+      <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid #E5E0D4' }}>
+      <div className="min-w-[420px]">
         {tab === 'tickets' ? (
           <>
             <div className="grid grid-cols-3 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider" style={{ background: '#F4F1EB', color: '#6B7A72', letterSpacing: '0.06em' }}>
@@ -199,6 +200,7 @@ export function RevenueView({ registrations }: Props) {
             ))}
           </>
         )}
+      </div>
       </div>
     </div>
   );

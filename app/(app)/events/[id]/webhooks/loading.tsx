@@ -4,7 +4,7 @@ function Skel({ w, h, className }: { w?: string; h?: string; className?: string 
 
 export default function WebhooksLoading() {
   return (
-    <div className="max-w-[900px] mx-auto px-6 py-8">
+    <div className="max-w-[900px] mx-auto px-4 sm:px-6 py-8">
       <div className="flex items-start justify-between mb-6">
         <div><Skel w="160px" h="28px" className="mb-2" /><Skel w="260px" h="16px" /></div>
         <Skel w="140px" h="36px" />

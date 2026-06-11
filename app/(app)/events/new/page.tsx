@@ -84,7 +84,7 @@ export default function NewEventPage() {
         </Link>
       </header>
 
-      <main className="max-w-[580px] mx-auto px-6 py-12">
+      <main className="max-w-[580px] mx-auto px-4 sm:px-6 py-12">
 
         {error && (
           <div className="mb-6 px-4 py-3 rounded-xl text-[13px]"

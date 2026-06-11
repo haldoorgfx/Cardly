@@ -92,7 +92,7 @@ export function WebhooksView(_props: Props) {
   }
 
   return (
-    <div className="max-w-[900px] mx-auto px-6 py-8">
+    <div className="max-w-[900px] mx-auto px-4 sm:px-6 py-8">
 
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-6">

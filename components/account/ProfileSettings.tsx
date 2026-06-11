@@ -137,7 +137,7 @@ export default function ProfileSettings({ profile }: Props) {
           </div>
         </div>
         <button
-          className="shrink-0 h-8 px-3.5 rounded-lg font-medium text-[13px] transition hover:bg-[#E8EFEB]"
+          className="shrink-0 h-10 px-3.5 rounded-lg font-medium text-[13px] transition hover:bg-[#E8EFEB]"
           style={{ border: '1px solid #1F4D3A', color: '#1F4D3A', fontFamily: '"DM Sans", sans-serif' }}
         >
           Edit photo
@@ -181,7 +181,7 @@ export default function ProfileSettings({ profile }: Props) {
 
         {!showCityPicker ? (
           <div
-            className="mt-4 flex items-center gap-3 h-12 px-4 rounded-xl max-w-[380px]"
+            className="mt-4 flex items-center gap-3 h-12 px-4 rounded-xl w-full sm:max-w-[380px]"
             style={{ border: '1px solid #E5E0D4', background: '#FFFFFF' }}
           >
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#6B7A72" strokeWidth="1.8">
@@ -200,7 +200,7 @@ export default function ProfileSettings({ profile }: Props) {
             </button>
           </div>
         ) : (
-          <div className="mt-4 max-w-[380px] grid gap-2">
+          <div className="mt-4 w-full sm:max-w-[380px] grid gap-2">
             {CITIES.map(c => (
               <button
                 key={c}
@@ -233,10 +233,10 @@ export default function ProfileSettings({ profile }: Props) {
         </p>
 
         <div className="mt-4 rounded-xl overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
-          {/* Header */}
+          {/* Header — hidden on mobile (toggles shown inline with label instead) */}
           <div
-            className="grid items-center px-5 py-3"
-            style={{ gridTemplateColumns: '1fr 120px 120px', background: '#F5F3EE', borderBottom: '1px solid #E5E0D4' }}
+            className="hidden sm:grid items-center px-5 py-3"
+            style={{ gridTemplateColumns: '1fr 100px 120px', background: '#F5F3EE', borderBottom: '1px solid #E5E0D4' }}
           >
             <span className="text-[11px] font-medium uppercase tracking-[0.06em]" style={{ color: '#6B7A72' }}>Type</span>
             <span className="text-[11px] font-medium uppercase tracking-[0.06em] text-center" style={{ color: '#6B7A72' }}>Email</span>
@@ -246,27 +246,36 @@ export default function ProfileSettings({ profile }: Props) {
           {NOTIF_ROWS.map((row, i) => (
             <div
               key={row.key}
-              className="grid items-center px-5 py-4"
-              style={{
-                gridTemplateColumns: '1fr 120px 120px',
-                borderBottom: i < NOTIF_ROWS.length - 1 ? '1px solid #E5E0D4' : 'none',
-              }}
+              className="px-5 py-4"
+              style={{ borderBottom: i < NOTIF_ROWS.length - 1 ? '1px solid #E5E0D4' : 'none' }}
             >
-              <div>
+              {/* Desktop: 3-column grid */}
+              <div className="hidden sm:grid items-center" style={{ gridTemplateColumns: '1fr 100px 120px' }}>
+                <div>
+                  <div className="text-[14px]" style={{ color: '#0F1F18' }}>{row.label}</div>
+                  <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{row.sub}</div>
+                </div>
+                <div className="flex justify-center">
+                  <Toggle on={prefs[`${row.key}_email`] !== false} onChange={() => togglePref(row.key, 'email')} />
+                </div>
+                <div className="flex justify-center">
+                  <Toggle on={!!prefs[`${row.key}_whatsapp`]} onChange={() => togglePref(row.key, 'whatsapp')} />
+                </div>
+              </div>
+              {/* Mobile: label + two toggles in a row */}
+              <div className="sm:hidden">
                 <div className="text-[14px]" style={{ color: '#0F1F18' }}>{row.label}</div>
-                <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{row.sub}</div>
-              </div>
-              <div className="flex justify-center">
-                <Toggle
-                  on={prefs[`${row.key}_email`] !== false}
-                  onChange={() => togglePref(row.key, 'email')}
-                />
-              </div>
-              <div className="flex justify-center">
-                <Toggle
-                  on={!!prefs[`${row.key}_whatsapp`]}
-                  onChange={() => togglePref(row.key, 'whatsapp')}
-                />
+                <div className="text-[12px] mt-0.5 mb-3" style={{ color: '#6B7A72' }}>{row.sub}</div>
+                <div className="flex items-center gap-6">
+                  <div className="flex items-center gap-2">
+                    <Toggle on={prefs[`${row.key}_email`] !== false} onChange={() => togglePref(row.key, 'email')} />
+                    <span className="text-[12px]" style={{ color: '#6B7A72' }}>Email</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Toggle on={!!prefs[`${row.key}_whatsapp`]} onChange={() => togglePref(row.key, 'whatsapp')} />
+                    <span className="text-[12px]" style={{ color: '#6B7A72' }}>WhatsApp</span>
+                  </div>
+                </div>
               </div>
             </div>
           ))}

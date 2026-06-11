@@ -2,7 +2,7 @@ export default function EngagementLoading() {
   return (
     <div className="animate-pulse" style={{ background: '#FAF6EE', minHeight: '100vh' }}>
       <div className="h-[72px]" style={{ background: 'white', borderBottom: '1px solid #E5E0D4' }} />
-      <div className="max-w-[900px] mx-auto px-6 py-8">
+      <div className="max-w-[900px] mx-auto px-4 sm:px-6 py-8">
         {/* Header */}
         <div className="h-7 rounded w-36 mb-1" style={{ background: '#E5E0D4' }} />
         <div className="h-4 rounded w-72 mb-8" style={{ background: '#F0EBE3' }} />

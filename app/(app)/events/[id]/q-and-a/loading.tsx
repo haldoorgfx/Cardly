@@ -6,7 +6,7 @@ function Skel({ className, style }: { className?: string; style?: CSSProperties 
 
 export default function QAndALoading() {
   return (
-    <div className="px-6 py-8 max-w-[1200px]">
+    <div className="px-4 sm:px-6 py-8 max-w-[1200px]">
       <Skel className="h-3 w-48 mb-6" />
       <div className="flex gap-2 mb-6">
         {Array.from({ length: 3 }).map((_, i) => <Skel key={i} className="h-9 w-24 rounded-full" />)}

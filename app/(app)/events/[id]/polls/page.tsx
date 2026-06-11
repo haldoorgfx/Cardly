@@ -24,7 +24,7 @@ export default async function PollsManagerPage({ params }: Props) {
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[800px] mx-auto px-6 py-8">
+      <div className="max-w-[800px] mx-auto px-4 sm:px-6 py-8">
         <div className="mb-6">
           <h1 className="font-display font-semibold text-[24px]" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>Polls</h1>
           <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>Create and launch live polls during sessions.</p>

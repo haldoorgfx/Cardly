@@ -176,7 +176,7 @@ export function DownloadsHub({ eventId, eventName, regs, sessions, ticketTypes, 
   }
 
   return (
-    <div className="max-w-[900px] mx-auto px-6 py-8">
+    <div className="max-w-[900px] mx-auto px-4 sm:px-6 py-8">
       {/* Header */}
       <div className="mb-8">
         <h1 className="font-display font-semibold text-[26px] tracking-[-0.02em] mb-1" style={{ color: '#0F1F18' }}>

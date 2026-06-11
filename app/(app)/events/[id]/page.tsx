@@ -161,7 +161,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
             <div className="flex items-center gap-2 shrink-0 sm:pb-0.5">
               <EventDetailActions eventId={id} eventName={event.name} status={event.status} />
               <Link href={`/events/${id}/publish`}
-                className="inline-flex items-center gap-1.5 h-8 px-3.5 text-[13px] font-semibold rounded-lg transition"
+                className="inline-flex items-center gap-1.5 h-10 px-3.5 text-[13px] font-semibold rounded-lg transition"
                 style={{ background: '#E8C57E', color: '#0F1F18' }}>
                 {event.status === 'published' ? 'Share →' : 'Publish →'}
               </Link>
@@ -277,7 +277,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                   {registrations} total
                 </span>
                 <a href={`/api/events/${id}/export`} download
-                  className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-lg border text-[12px] font-medium transition hover:bg-[#FAF6EE]"
+                  className="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg border text-[12px] font-medium transition hover:bg-[#FAF6EE]"
                   style={{ borderColor: '#E5E0D4', color: '#1F4D3A' }}>
                   <FileDown size={12} strokeWidth={2.2} />
                   Export

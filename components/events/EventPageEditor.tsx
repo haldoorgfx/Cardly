@@ -185,7 +185,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
   const isLastStep = step === STEPS.length;
 
   return (
-    <div className="max-w-[640px] mx-auto px-6 py-8 pb-28">
+    <div className="max-w-[640px] mx-auto px-4 sm:px-6 py-8 pb-28">
 
       {/* -- Step header ----------------------------------------------- */}
       <div className="flex items-start justify-between gap-4 mb-8">
