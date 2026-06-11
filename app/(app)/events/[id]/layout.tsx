@@ -15,9 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     .eq('id', id)
     .single();
   return {
-    title: {
-      default: event?.name ?? 'Event',
-    },
+    title: event?.name ?? 'Event',
   };
 }
 
