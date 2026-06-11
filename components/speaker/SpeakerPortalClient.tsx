@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 import {
   Home, User, Calendar, CreditCard, FileText,
   CheckCircle2, Circle, Upload, Share2, Download,
-  ExternalLink, ChevronRight, Camera,
+  ExternalLink, Camera,
 } from 'lucide-react';
 
 interface Speaker {
@@ -76,13 +76,6 @@ function fileSize(bytes: number | null) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-/* ── Checklist ─────────────────────────────────────────────────────── */
-const CHECKLIST = [
-  { id: 'profile', label: 'Complete your speaker profile', sub: 'Add bio, photo, and social links' },
-  { id: 'slides', label: 'Upload your slides', sub: 'PDF or link — due before the event' },
-  { id: 'card', label: 'Share your speaker card', sub: 'Post on LinkedIn or X to promote your talk' },
-  { id: 'review', label: 'Review your session details', sub: 'Confirm time, room, and format' },
-];
 
 /* ── Speaker Card ──────────────────────────────────────────────────── */
 function SpeakerCard({ speaker, event, size = 'lg' }: { speaker: Speaker; event: EventInfo; size?: 'sm' | 'lg' }) {
