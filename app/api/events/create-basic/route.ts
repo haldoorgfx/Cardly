@@ -25,6 +25,14 @@ export async function POST(req: NextRequest) {
 
   const admin = createAdminClient();
 
+  // Ensure a profile row exists — guards against signup trigger failures.
+  // This is a no-op for users who already have a row (ignoreDuplicates: true).
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (admin as any).from('profiles').upsert(
+    { id: user.id, email: user.email ?? '', full_name: (user.user_metadata?.full_name as string) || '' },
+    { onConflict: 'id', ignoreDuplicates: true },
+  );
+
   // Retry up to 3 times on slug collision
   let event: { id: string; slug: string } | null = null;
   for (let attempt = 0; attempt < 3; attempt++) {

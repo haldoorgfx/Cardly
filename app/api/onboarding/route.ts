@@ -21,6 +21,13 @@ export async function POST(req: NextRequest) {
 
   const admin = createAdminClient();
 
+  // Ensure profile row exists before updating it — guards against signup trigger failures.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (admin as any).from('profiles').upsert(
+    { id: user.id, email: user.email ?? '' },
+    { onConflict: 'id', ignoreDuplicates: true },
+  );
+
   // Save org name + mark onboarding as completed.
   // full_name is used as a completion signal on DBs that don't yet have
   // the onboarding_completed column — always set it to something.
