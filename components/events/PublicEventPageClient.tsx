@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { MapPin, Globe, Calendar, Clock, Users, Share2, Heart } from 'lucide-react';
 import type { Database } from '@/types/database';
+import { AddToCalendarButton } from './AddToCalendarButton';
 
 function fmtTicketPrice(price: number, currency?: string | null): string {
   if (price === 0) return 'Free';
@@ -192,15 +193,16 @@ export function PublicEventPageClient({
             <Users size={14} strokeWidth={2} style={{ color: '#1F4D3A' }} />
             {minPrice}
           </span>
-          <a
-            href={`/api/calendar/${page.id}`}
-            download
-            className="flex items-center gap-1.5 text-[13px] font-medium hover:opacity-75 transition-opacity ml-auto"
-            style={{ color: '#1F4D3A' }}
-          >
-            <Calendar size={13} strokeWidth={2} style={{ color: '#1F4D3A' }} />
-            Add to calendar
-          </a>
+          <AddToCalendarButton
+            pageId={page.id}
+            title={page.title}
+            description={page.description ?? null}
+            startsAt={page.starts_at ?? ''}
+            endsAt={page.ends_at ?? null}
+            timezone={page.timezone ?? null}
+            location={locationLine}
+            eventUrl={`https://karta.cre8so.com/e/${registrationSlug}`}
+          />
         </div>
 
         {/* Two-column layout */}
