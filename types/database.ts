@@ -1075,6 +1075,8 @@ export interface Database {
           source: string | null;
           referral_code: string | null;
           utm_source: string | null;
+          user_id: string | null;
+          chosen_price: number | null;
           created_at: string;
           updated_at: string;
         };
@@ -1100,6 +1102,8 @@ export interface Database {
           source?: string | null;
           referral_code?: string | null;
           utm_source?: string | null;
+          user_id?: string | null;
+          chosen_price?: number | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -1121,6 +1125,8 @@ export interface Database {
           karta_card_zone_data?: Json | null;
           referral_code?: string | null;
           utm_source?: string | null;
+          user_id?: string | null;
+          chosen_price?: number | null;
           updated_at?: string;
         };
         Relationships: [
@@ -1523,6 +1529,218 @@ export interface Database {
             columns: ["page_id"];
             isOneToOne: false;
             referencedRelation: "cms_pages";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      sponsors: {
+        Row: {
+          id: string;
+          event_id: string;
+          company_name: string;
+          tagline: string | null;
+          description: string | null;
+          logo_url: string | null;
+          cover_url: string | null;
+          website_url: string | null;
+          contact_email: string | null;
+          meeting_url: string | null;
+          booth_location: string | null;
+          booth_hours: string | null;
+          offerings: Json;
+          team_members: Json;
+          tier: string;
+          position: number;
+          is_visible: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          event_id: string;
+          company_name: string;
+          tagline?: string | null;
+          description?: string | null;
+          logo_url?: string | null;
+          cover_url?: string | null;
+          website_url?: string | null;
+          contact_email?: string | null;
+          meeting_url?: string | null;
+          booth_location?: string | null;
+          booth_hours?: string | null;
+          offerings?: Json;
+          team_members?: Json;
+          tier?: string;
+          position?: number;
+          is_visible?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          company_name?: string;
+          tagline?: string | null;
+          description?: string | null;
+          logo_url?: string | null;
+          cover_url?: string | null;
+          website_url?: string | null;
+          contact_email?: string | null;
+          meeting_url?: string | null;
+          booth_location?: string | null;
+          booth_hours?: string | null;
+          offerings?: Json;
+          team_members?: Json;
+          tier?: string;
+          position?: number;
+          is_visible?: boolean;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "sponsors_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      sponsor_leads: {
+        Row: {
+          id: string;
+          sponsor_id: string;
+          event_id: string;
+          registration_id: string | null;
+          attendee_name: string | null;
+          attendee_email: string | null;
+          note: string | null;
+          rating: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          sponsor_id: string;
+          event_id: string;
+          registration_id?: string | null;
+          attendee_name?: string | null;
+          attendee_email?: string | null;
+          note?: string | null;
+          rating?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          attendee_name?: string | null;
+          attendee_email?: string | null;
+          note?: string | null;
+          rating?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "sponsor_leads_sponsor_id_fkey";
+            columns: ["sponsor_id"];
+            isOneToOne: false;
+            referencedRelation: "sponsors";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      call_for_papers: {
+        Row: {
+          id: string;
+          event_id: string;
+          is_open: boolean;
+          deadline_at: string | null;
+          categories: string[];
+          max_words: number;
+          allow_pdf: boolean;
+          instructions: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          event_id: string;
+          is_open?: boolean;
+          deadline_at?: string | null;
+          categories?: string[];
+          max_words?: number;
+          allow_pdf?: boolean;
+          instructions?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          is_open?: boolean;
+          deadline_at?: string | null;
+          categories?: string[];
+          max_words?: number;
+          allow_pdf?: boolean;
+          instructions?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "call_for_papers_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: true;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      abstracts: {
+        Row: {
+          id: string;
+          event_id: string;
+          cfp_id: string | null;
+          title: string;
+          body: string;
+          authors: string | null;
+          authors_json: Json;
+          keywords: string[];
+          category: string | null;
+          pdf_url: string | null;
+          status: string;
+          review_notes: string | null;
+          assigned_session: string | null;
+          submitted_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          event_id: string;
+          cfp_id?: string | null;
+          title: string;
+          body: string;
+          authors?: string | null;
+          authors_json?: Json;
+          keywords?: string[];
+          category?: string | null;
+          pdf_url?: string | null;
+          status?: string;
+          review_notes?: string | null;
+          assigned_session?: string | null;
+          submitted_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          title?: string;
+          body?: string;
+          authors?: string | null;
+          authors_json?: Json;
+          keywords?: string[];
+          category?: string | null;
+          pdf_url?: string | null;
+          status?: string;
+          review_notes?: string | null;
+          assigned_session?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "abstracts_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
             referencedColumns: ["id"];
           }
         ];
