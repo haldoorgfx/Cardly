@@ -1,18 +1,42 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
-import { EventCard, type DiscoveryEvent } from './EventCard';
+import { Search, Calendar, MapPin, ArrowRight } from 'lucide-react';
+import type { DiscoveryEvent } from './EventCard';
 
-const CATEGORIES = ['Music', 'Tech', 'Business', 'Culture', 'Food', 'Sports', 'Health', 'Film', 'Education'] as const;
+const CATS = ['All', 'Tech', 'Music', 'NGO', 'Sports', 'Corporate', 'Religious', 'Education', 'Arts'] as const;
+type Cat = typeof CATS[number];
 
-interface Section {
-  label: string;
-  subtitle: string;
-  events: DiscoveryEvent[];
-  seeAllHref: string;
+const CAT_GRADIENT: Record<string, string> = {
+  Music:     'linear-gradient(150deg,#241733,#3a2a55 70%,#5a4a7a)',
+  Sports:    'linear-gradient(150deg,#2b160c,#5a3320 70%,#9a6038)',
+  Corporate: 'linear-gradient(150deg,#0b1a26,#1e3a55 70%,#3a6a90)',
+  Religious: 'linear-gradient(150deg,#1F4D3A,#2A6A50 45%,#C9A45E 125%)',
+  Arts:      'linear-gradient(150deg,#2b0f1a,#5a2036 70%,#a04a68)',
+  _default:  'linear-gradient(150deg,#0D1F17,#1F4D3A 60%,#2A6A50)',
+};
+
+function getGradient(cat: string | null | undefined) {
+  return CAT_GRADIENT[cat ?? ''] ?? CAT_GRADIENT._default;
+}
+
+function resolveSlug(page: DiscoveryEvent) {
+  return page.custom_slug ?? (page.events?.slug ?? page.event_id);
+}
+
+function fmtDate(iso: string, tz: string) {
+  try {
+    return new Date(iso).toLocaleDateString(undefined, { timeZone: tz, month: 'short', day: 'numeric' });
+  } catch {
+    return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  }
+}
+
+function priceLabel(p: number | null | undefined) {
+  if (p == null) return null;
+  return p === 0 ? 'Free' : `From $${p % 1 === 0 ? p.toFixed(0) : p.toFixed(2)}`;
 }
 
 interface DiscoveryFeedProps {
@@ -24,325 +48,267 @@ interface DiscoveryFeedProps {
   cities: string[];
 }
 
-export function DiscoveryFeed({ events, savedIds, greeting, interests, followedOrgIds, cities }: DiscoveryFeedProps) {
+export function DiscoveryFeed({ events }: DiscoveryFeedProps) {
   const router = useRouter();
+  const [cat, setCat] = useState<Cat>('All');
   const [query, setQuery] = useState('');
-  const [cityOpen, setCityOpen] = useState(false);
-  const [dropdownPos, setDropdownPos] = useState<{ top: number; right: number } | null>(null);
-  const cityBtnRef = useRef<HTMLButtonElement>(null);
-  const [savedSet, setSavedSet] = useState(new Set(savedIds));
 
   const now = new Date();
-  const weekEnd = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+  const upcoming = events.filter(e => !e.ends_at || new Date(e.ends_at) >= now);
 
-  const handleSave = useCallback(async (pageId: string, save: boolean) => {
-    setSavedSet(prev => {
-      const next = new Set(prev);
-      if (save) { next.add(pageId); } else { next.delete(pageId); }
-      return next;
-    });
-    try {
-      if (save) {
-        await fetch('/api/account/saved', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ event_page_id: pageId }),
-        });
-      } else {
-        await fetch(`/api/account/saved?event_page_id=${pageId}`, { method: 'DELETE' });
-      }
-    } catch { /* optimistic — ignore network errors */ }
-  }, []);
+  const featured = cat === 'All' ? (upcoming[0] ?? null) : null;
+  const filtered = cat === 'All'
+    ? upcoming.slice(1)
+    : upcoming.filter(e => e.category?.toLowerCase() === cat.toLowerCase());
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     if (query.trim()) router.push(`/events/search?q=${encodeURIComponent(query.trim())}`);
   }
 
-  // Section builders
-  const upcoming = events.filter(e => new Date(e.starts_at) >= now);
-  const thisWeek = upcoming.filter(e => new Date(e.starts_at) <= weekEnd);
-
-  const sections: Section[] = [];
-
-  if (interests.length > 0) {
-    const byInterest = upcoming.filter(e => e.category && interests.map(i => i.toLowerCase()).includes(e.category!.toLowerCase()));
-    if (byInterest.length > 0) {
-      sections.push({
-        label: 'Based on your interests',
-        subtitle: interests.slice(0, 3).join(', '),
-        events: byInterest.slice(0, 4),
-        seeAllHref: `/events/search?category=${encodeURIComponent(interests[0])}`,
-      });
-    }
-  }
-
-  if (followedOrgIds.length > 0) {
-    const followed = upcoming.filter(e => e.events?.user_id && followedOrgIds.includes(e.events.user_id));
-    if (followed.length > 0) {
-      sections.push({
-        label: 'From organizers you follow',
-        subtitle: 'New events from your follows',
-        events: followed.slice(0, 4),
-        seeAllHref: '/account/following',
-      });
-    }
-  }
-
-  if (thisWeek.length > 0) {
-    sections.push({
-      label: 'Happening this week',
-      subtitle: 'Starting in the next 7 days',
-      events: thisWeek.slice(0, 4),
-      seeAllHref: '/events/search?date=week',
-    });
-  }
-
-  const freeEvents = upcoming.filter(e => e.price_from === 0).slice(0, 4);
-  if (freeEvents.length > 0) {
-    sections.push({
-      label: 'Free to attend',
-      subtitle: 'No ticket cost',
-      events: freeEvents,
-      seeAllHref: '/events/search?free=true',
-    });
-  }
-
-  // Fallback: no personalized sections → single ranked grid
-  const showSingleGrid = sections.length === 0;
-  const singleGridEvents = upcoming.slice(0, 20);
-
   return (
-    <div>
-      {/* ── Hero ─────────────────────────────────────────────── */}
-      <div
-        className="rounded-2xl px-6 py-10 mb-8 relative overflow-hidden"
-        style={{
-          background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)',
-        }}
-      >
-        {/* Mesh dots */}
-        <div
-          className="absolute inset-0 opacity-10 pointer-events-none"
-          style={{
-            backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)',
-            backgroundSize: '28px 28px',
-          }}
-        />
+    <div style={{
+      background: '#FAF6EE',
+      backgroundImage: 'radial-gradient(circle, rgba(15,31,24,0.045) 1px, transparent 1px)',
+      backgroundSize: '24px 24px',
+      minHeight: '100vh',
+    }}>
+      {/* ── Hero ─────────────────────────────────────────── */}
+      <section>
+        <div className="mx-auto max-w-[1100px] px-5 lg:px-8 pt-14 lg:pt-20 pb-8 text-center">
+          <div className="inline-flex items-center gap-2 mb-6 rounded-full px-3.5 py-1.5 shadow-sm"
+            style={{ background: 'rgba(255,255,255,0.8)', border: '1px solid rgba(31,77,58,0.15)' }}>
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#E8C57E' }} />
+            <span className="text-[12.5px] font-medium" style={{ color: '#3A4A42' }}>Events on Karta</span>
+          </div>
 
-        <div className="relative">
-          {greeting && (
-            <p className="text-[14px] font-medium mb-1" style={{ color: 'rgba(232,197,126,0.9)' }}>
-              {greeting}
-            </p>
-          )}
-          <h1
-            className="font-display font-semibold leading-tight mb-6"
-            style={{ fontSize: 'clamp(24px,4vw,36px)', color: '#FFFFFF', letterSpacing: '-0.025em' }}
-          >
-            Find your next event
+          <h1 className="font-display font-bold leading-[1.02] mb-5"
+            style={{ fontSize: 'clamp(34px,5.5vw,58px)', color: '#1F4D3A', letterSpacing: '-0.035em' }}>
+            Discover events worth showing up for.
           </h1>
+          <p className="text-[16px] lg:text-[18px] leading-[1.55] mx-auto mb-8 max-w-[560px]"
+            style={{ color: '#3A4A42' }}>
+            From tech summits to festivals, find your next experience — and get a card worth sharing the moment you register.
+          </p>
 
-          {/* Search bar */}
-          <form onSubmit={handleSearch} className="flex gap-2">
-            <div className="flex-1 relative">
-              <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#6B7A72' }} />
+          <form onSubmit={handleSearch} className="mx-auto max-w-[560px]">
+            <div className="flex items-center gap-2.5 rounded-2xl px-4 py-3 shadow-sm"
+              style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', height: 52 }}>
+              <Search size={18} strokeWidth={1.8} style={{ color: '#6B7A72', flexShrink: 0 }} />
               <input
                 type="text"
-                placeholder="Search events, artists, topics…"
                 value={query}
                 onChange={e => setQuery(e.target.value)}
-                className="w-full h-11 pl-9 pr-4 rounded-xl text-[14px] outline-none"
-                style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', color: '#0F1F18' }}
+                placeholder="Search events, cities, topics…"
+                className="flex-1 text-[15px] outline-none bg-transparent"
+                style={{ color: '#0F1F18' }}
               />
-            </div>
-
-            {/* City selector — uses fixed positioning to escape overflow-hidden hero */}
-            <div className="hidden sm:block">
-              <button
-                ref={cityBtnRef}
-                type="button"
-                onClick={() => {
-                  if (!cityOpen && cityBtnRef.current) {
-                    const rect = cityBtnRef.current.getBoundingClientRect();
-                    setDropdownPos({ top: rect.bottom + 6, right: window.innerWidth - rect.right });
-                  }
-                  setCityOpen(v => !v);
-                }}
-                className="h-11 px-4 rounded-xl text-[14px] font-medium flex items-center gap-1.5 whitespace-nowrap"
-                style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)', color: '#fff' }}
-              >
-                All cities <ChevronDown size={13} />
+              <button type="submit"
+                className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-medium transition hover:opacity-90"
+                style={{ background: '#1F4D3A', color: '#FAF6EE', flexShrink: 0 }}>
+                Search
               </button>
-              {cityOpen && dropdownPos && (
-                <>
-                  <div className="fixed inset-0 z-[200]" onClick={() => setCityOpen(false)} />
-                  <div
-                    className="fixed z-[201] rounded-xl w-56 overflow-y-auto"
-                    style={{
-                      top: dropdownPos.top,
-                      right: dropdownPos.right,
-                      maxHeight: 320,
-                      background: '#fff',
-                      border: '1px solid #E5E0D4',
-                      boxShadow: '0 8px 24px rgba(15,31,24,0.15)',
-                    }}
-                  >
-                    {cities.map(city => (
-                      <Link
-                        key={city}
-                        href={`/events/city/${encodeURIComponent(city.toLowerCase().replace(/ /g, '-'))}`}
-                        onClick={() => setCityOpen(false)}
-                        className="block px-4 py-2.5 text-[13px] hover:bg-[#FAF6EE] transition-colors"
-                        style={{ color: '#0F1F18' }}
-                      >
-                        {city}
-                      </Link>
-                    ))}
-                  </div>
-                </>
-              )}
             </div>
-
-            <button
-              type="submit"
-              className="h-11 px-5 rounded-xl text-[14px] font-medium transition hover:opacity-90"
-              style={{ background: '#E8C57E', color: '#0F1F18' }}
-            >
-              Search
-            </button>
           </form>
         </div>
-      </div>
 
-      {/* ── Category chip rail ───────────────────────────────── */}
-      <div className="flex gap-2 mb-8 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
-        {CATEGORIES.map(cat => (
-          <Link
-            key={cat}
-            href={`/events/category/${cat.toLowerCase()}`}
-            className="flex-none h-[34px] px-4 rounded-full text-[13px] font-medium whitespace-nowrap transition"
-            style={{ background: '#FFFFFF', color: '#3A4A42', border: '1px solid #E5E0D4' }}
-            onMouseEnter={e => {
-              (e.currentTarget as HTMLElement).style.background = '#E8EFEB';
-              (e.currentTarget as HTMLElement).style.borderColor = '#1F4D3A';
-            }}
-            onMouseLeave={e => {
-              (e.currentTarget as HTMLElement).style.background = '#FFFFFF';
-              (e.currentTarget as HTMLElement).style.borderColor = '#E5E0D4';
-            }}
-          >
-            {cat}
-          </Link>
-        ))}
-      </div>
-
-      {/* ── Content ─────────────────────────────────────────── */}
-      {showSingleGrid ? (
-        <div>
-          <div className="flex items-baseline justify-between mb-5">
-            <h2 className="font-display font-semibold text-[20px]" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
-              Upcoming events
-            </h2>
+        {/* Category chips */}
+        <div className="mx-auto max-w-[1100px] px-5 lg:px-8">
+          <div className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
+            {CATS.map(c => (
+              <button key={c} onClick={() => setCat(c)}
+                className="shrink-0 px-4 py-2 rounded-full text-[13px] font-medium border transition-colors"
+                style={{
+                  background: cat === c ? '#1F4D3A' : '#FFFFFF',
+                  color: cat === c ? '#FAF6EE' : '#3A4A42',
+                  borderColor: cat === c ? '#1F4D3A' : '#E5E0D4',
+                }}>
+                {c}
+              </button>
+            ))}
           </div>
-          {singleGridEvents.length === 0 ? (
-            <EmptyState />
-          ) : (
-            <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(240px, 100%), 1fr))' }}>
-              {singleGridEvents.map(ev => (
-                <EventCard
-                  key={ev.id}
-                  page={ev}
-                  saved={savedSet.has(ev.id)}
-                  onSave={handleSave}
-                />
-              ))}
+        </div>
+      </section>
+
+      {/* ── Featured ─────────────────────────────────────── */}
+      {featured && (
+        <section className="mx-auto max-w-[1100px] px-5 lg:px-8 pt-6">
+          <div className="mb-3 text-[10px] tracking-[0.2em] uppercase"
+            style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
+            Featured this week
+          </div>
+          <Link href={`/e/${resolveSlug(featured)}`}
+            className="block rounded-3xl overflow-hidden group transition hover:-translate-y-0.5"
+            style={{ border: '1px solid #E5E0D4' }}>
+            <div className="relative overflow-hidden" style={{ height: 'clamp(180px,28vw,260px)' }}>
+              {featured.cover_image_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={featured.cover_image_url} alt={featured.title}
+                  className="absolute inset-0 w-full h-full object-cover transition group-hover:scale-[1.02]"
+                  style={{ transitionDuration: '400ms' }} />
+              ) : (
+                <div className="absolute inset-0" style={{ background: getGradient(featured.category) }} />
+              )}
+              {/* Wave lines */}
+              <svg aria-hidden viewBox="0 0 400 260" preserveAspectRatio="none"
+                className="absolute inset-0 w-full h-full" style={{ opacity: 0.1 }}>
+                {[0,1,2,3].map(i => (
+                  <path key={i} d={`M-40 ${60+i*55} Q110 ${-4+i*55} 220 ${100+i*55} T460 ${70+i*55}`}
+                    fill="none" stroke="#E8C57E" strokeWidth="1.5" />
+                ))}
+              </svg>
+              <div className="absolute inset-0"
+                style={{ background: 'linear-gradient(to top, rgba(10,20,14,0.72) 0%, rgba(10,20,14,0.08) 55%)' }} />
+              <div className="absolute inset-0 p-6 lg:p-8 flex flex-col justify-between">
+                {featured.category && (
+                  <span className="self-start text-[10px] tracking-[0.12em] uppercase px-2.5 py-1 rounded-full font-semibold"
+                    style={{ background: 'rgba(250,246,238,0.95)', color: '#163828', fontFamily: '"JetBrains Mono", monospace' }}>
+                    {featured.category}
+                  </span>
+                )}
+                <div>
+                  <div className="font-display font-bold leading-[1.02] max-w-[600px]"
+                    style={{ fontSize: 'clamp(22px,3vw,36px)', color: '#FFFFFF', letterSpacing: '-0.02em' }}>
+                    {featured.title}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3 mt-3 text-[13px]"
+                    style={{ color: 'rgba(255,255,255,0.85)', fontFamily: '"JetBrains Mono", monospace' }}>
+                    {featured.starts_at && (
+                      <span className="inline-flex items-center gap-1.5">
+                        <Calendar size={14} style={{ color: '#E8C57E' }} />
+                        {fmtDate(featured.starts_at, featured.timezone)}
+                      </span>
+                    )}
+                    {(featured.city || featured.venue_name) && (
+                      <span className="inline-flex items-center gap-1.5">
+                        <MapPin size={14} style={{ color: '#E8C57E' }} />
+                        {featured.city ?? featured.venue_name}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
-          )}
-        </div>
-      ) : (
-        <div className="flex flex-col gap-12">
-          {sections.map(section => (
-            <FeedSection
-              key={section.label}
-              section={section}
-              savedSet={savedSet}
-              onSave={handleSave}
-            />
-          ))}
-
-          {/* Catch-all "More events" if sections don't show everything */}
-          {upcoming.length > 8 && (
-            <FeedSection
-              section={{
-                label: 'More upcoming events',
-                subtitle: 'All upcoming events on Karta',
-                events: upcoming.slice(0, 4),
-                seeAllHref: '/events/search',
-              }}
-              savedSet={savedSet}
-              onSave={handleSave}
-            />
-          )}
-        </div>
+          </Link>
+        </section>
       )}
-    </div>
-  );
-}
 
-function FeedSection({
-  section,
-  savedSet,
-  onSave,
-}: {
-  section: Section;
-  savedSet: Set<string>;
-  onSave: (id: string, save: boolean) => void;
-}) {
-  return (
-    <div>
-      <div className="flex items-start justify-between mb-5">
-        <div>
-          <h2 className="font-display font-semibold text-[20px]" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
-            {section.label}
+      {/* ── Grid ─────────────────────────────────────────── */}
+      <section className="mx-auto max-w-[1100px] w-full px-5 lg:px-8 py-8">
+        <div className="mb-4 text-[10px] tracking-[0.2em] uppercase"
+          style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
+          {cat === 'All' ? 'Upcoming events' : `${cat} events`} · {filtered.length}
+        </div>
+
+        {filtered.length === 0 ? (
+          <div className="rounded-2xl flex items-center justify-center py-24 text-center"
+            style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
+            <div>
+              <div className="text-[16px] font-medium mb-2" style={{ color: '#0F1F18' }}>
+                No {cat === 'All' ? '' : cat + ' '}events yet
+              </div>
+              <div className="text-[14px]" style={{ color: '#6B7A72' }}>Check back soon</div>
+            </div>
+          </div>
+        ) : (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filtered.map(e => <DirCard key={e.id} page={e} />)}
+          </div>
+        )}
+      </section>
+
+      {/* ── Host CTA ─────────────────────────────────────── */}
+      <section className="relative overflow-hidden"
+        style={{ background: 'linear-gradient(135deg,#0D1F17,#1F4D3A 60%,#235741)' }}>
+        <div aria-hidden className="absolute inset-0"
+          style={{ background: 'radial-gradient(40% 80% at 80% 50%, rgba(232,197,126,0.22), transparent 60%)' }} />
+        <div className="relative mx-auto max-w-[1100px] px-5 lg:px-8 py-16 text-center">
+          <h2 className="font-display font-bold leading-[1.05]"
+            style={{ fontSize: 'clamp(24px,3.5vw,38px)', color: '#FFFFFF', letterSpacing: '-0.025em' }}>
+            Hosting something? List it on Karta.
           </h2>
-          <p className="text-[13px] mt-0.5" style={{ color: '#6B7A72' }}>{section.subtitle}</p>
+          <p className="mt-4 text-[15px] lg:text-[16px] leading-[1.55] mx-auto max-w-[480px]"
+            style={{ color: 'rgba(255,255,255,0.75)' }}>
+            Free to start. Sell tickets, run the day, and give every attendee a card they&apos;ll actually share.
+          </p>
+          <Link href="/account/login"
+            className="mt-7 inline-flex items-center gap-2 px-6 py-3.5 rounded-lg font-semibold text-[15px] transition hover:opacity-90"
+            style={{ background: '#E8C57E', color: '#163828' }}>
+            Create your event <ArrowRight size={16} />
+          </Link>
         </div>
-        <Link
-          href={section.seeAllHref}
-          className="text-[13px] font-medium shrink-0 mt-1"
-          style={{ color: '#1F4D3A' }}
-        >
-          See all →
-        </Link>
-      </div>
-      <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(240px, 100%), 1fr))' }}>
-        {section.events.map(ev => (
-          <EventCard
-            key={ev.id}
-            page={ev}
-            saved={savedSet.has(ev.id)}
-            onSave={onSave}
-          />
-        ))}
-      </div>
+      </section>
     </div>
   );
 }
 
-function EmptyState() {
+function DirCard({ page }: { page: DiscoveryEvent }) {
+  const slug = resolveSlug(page);
+  const price = priceLabel(page.price_from);
+
   return (
-    <div
-      className="rounded-2xl flex items-center justify-center py-24 text-center"
-      style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}
-    >
-      <div>
-        <div className="text-[16px] font-medium mb-2" style={{ color: '#0F1F18' }}>No events yet</div>
-        <div className="text-[14px]" style={{ color: '#6B7A72' }}>
-          Check back soon, or{' '}
-          <Link href="/events/new" className="underline" style={{ color: '#1F4D3A' }}>host your own</Link>.
+    <Link href={`/e/${slug}`}
+      className="group flex flex-col overflow-hidden rounded-2xl transition hover:-translate-y-0.5"
+      style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
+      {/* Cover */}
+      <div className="relative overflow-hidden" style={{ height: 140 }}>
+        {page.cover_image_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={page.cover_image_url} alt={page.title}
+            className="absolute inset-0 w-full h-full object-cover transition group-hover:scale-[1.03]"
+            style={{ transitionDuration: '400ms' }} />
+        ) : (
+          <>
+            <div className="absolute inset-0" style={{ background: getGradient(page.category) }} />
+            <svg aria-hidden viewBox="0 0 400 140" preserveAspectRatio="none"
+              className="absolute inset-0 w-full h-full" style={{ opacity: 0.1 }}>
+              {[0,1,2,3].map(i => (
+                <path key={i} d={`M-40 ${36+i*32} Q110 ${-2+i*32} 220 ${60+i*32} T460 ${40+i*32}`}
+                  fill="none" stroke="#E8C57E" strokeWidth="1.2" />
+              ))}
+            </svg>
+          </>
+        )}
+        <div className="absolute inset-0 p-3.5 flex flex-col justify-between">
+          {page.category && (
+            <span className="self-start text-[9px] tracking-[0.12em] uppercase px-2 py-1 rounded-full font-semibold"
+              style={{ background: 'rgba(250,246,238,0.95)', color: '#163828', fontFamily: '"JetBrains Mono", monospace' }}>
+              {page.category}
+            </span>
+          )}
         </div>
       </div>
-    </div>
+
+      {/* Body */}
+      <div className="p-4 flex-1 flex flex-col">
+        <div className="font-display font-semibold text-[16px] leading-snug tracking-tight line-clamp-2 mb-2"
+          style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>
+          {page.title}
+        </div>
+        <div className="flex items-center gap-2 text-[12px]"
+          style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
+          {page.starts_at && (
+            <>
+              <Calendar size={12} />
+              <span>{fmtDate(page.starts_at, page.timezone)}</span>
+            </>
+          )}
+          {(page.city || page.venue_name) && (
+            <>
+              <span style={{ color: '#E5E0D4' }}>·</span>
+              <MapPin size={12} />
+              <span className="truncate">{page.city ?? page.venue_name}</span>
+            </>
+          )}
+        </div>
+        <div className="mt-auto pt-3.5 flex items-center justify-between">
+          <span className="text-[13px] font-medium" style={{ color: '#1F4D3A' }}>{price ?? ''}</span>
+          <span className="inline-flex items-center gap-1 text-[12.5px] transition-colors group-hover:text-[#1F4D3A]"
+            style={{ color: '#3A4A42' }}>
+            View <ArrowRight size={13} />
+          </span>
+        </div>
+      </div>
+    </Link>
   );
 }

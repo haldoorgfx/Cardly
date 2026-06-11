@@ -66,19 +66,17 @@ export default async function EventDiscoveryPage() {
     .map(([city]) => city);
 
   return (
-    <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
+    <>
       <PublicNav />
-      <div className="max-w-[1120px] mx-auto px-5 py-10 pb-24">
-        <DiscoveryFeed
-          events={events}
-          savedIds={savedIds}
-          greeting={greeting}
-          interests={interests}
-          followedOrgIds={followedOrgIds}
-          cities={cities}
-        />
-      </div>
-    </div>
+      <DiscoveryFeed
+        events={events}
+        savedIds={savedIds}
+        greeting={greeting}
+        interests={interests}
+        followedOrgIds={followedOrgIds}
+        cities={cities}
+      />
+    </>
   );
 }
 
