@@ -194,7 +194,7 @@ export async function acceptInvite(
   // 1. Find the invite
   const { data: invite, error: inviteError } = await (db as any)
     .from("team_invites")
-    .select("id, team_id, accepted_at, expires_at")
+    .select("id, team_id, role, accepted_at, expires_at")
     .eq("token", token)
     .single();
 

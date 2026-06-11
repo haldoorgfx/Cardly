@@ -1527,6 +1527,114 @@ export interface Database {
           }
         ];
       };
+      feature_flags: {
+        Row: {
+          flag: string;
+          label: string;
+          description: string | null;
+          enabled: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          flag: string;
+          label: string;
+          description?: string | null;
+          enabled?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          flag?: string;
+          label?: string;
+          description?: string | null;
+          enabled?: boolean;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      feature_flag_overrides: {
+        Row: {
+          flag: string;
+          user_id: string;
+          enabled: boolean;
+        };
+        Insert: {
+          flag: string;
+          user_id: string;
+          enabled: boolean;
+        };
+        Update: {
+          flag?: string;
+          user_id?: string;
+          enabled?: boolean;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "feature_flag_overrides_flag_fkey";
+            columns: ["flag"];
+            isOneToOne: false;
+            referencedRelation: "feature_flags";
+            referencedColumns: ["flag"];
+          },
+          {
+            foreignKeyName: "feature_flag_overrides_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      white_label_settings: {
+        Row: {
+          user_id: string;
+          brand_name: string | null;
+          primary_color: string;
+          logo_url: string | null;
+          favicon_url: string | null;
+          custom_domain: string | null;
+          domain_verified: boolean;
+          from_name: string | null;
+          reply_to_email: string | null;
+          hide_powered_by: boolean;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          brand_name?: string | null;
+          primary_color?: string;
+          logo_url?: string | null;
+          favicon_url?: string | null;
+          custom_domain?: string | null;
+          domain_verified?: boolean;
+          from_name?: string | null;
+          reply_to_email?: string | null;
+          hide_powered_by?: boolean;
+          updated_at?: string;
+        };
+        Update: {
+          brand_name?: string | null;
+          primary_color?: string;
+          logo_url?: string | null;
+          favicon_url?: string | null;
+          custom_domain?: string | null;
+          domain_verified?: boolean;
+          from_name?: string | null;
+          reply_to_email?: string | null;
+          hide_powered_by?: boolean;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "white_label_settings_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
     };
     Views: {
       [_ in never]: never;

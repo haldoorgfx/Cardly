@@ -58,7 +58,7 @@ export default async function ExhibitorPage({ params }: Props) {
         sponsorId={sponsor.id}
         token={token}
         stats={stats}
-        boothNumber={sponsor.booth_number}
+        boothNumber={sponsor.booth_location}
         eventName={event.name}
       />
     </ExhibitorShell>
