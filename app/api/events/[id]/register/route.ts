@@ -115,7 +115,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const requiresApproval = !!eventRow?.checkout_require_approval && isFree;
   const initialStatus = requiresApproval ? 'pending_approval' : isFree ? 'confirmed' : 'pending';
 
-  const { data: registration, error: regError } = await admin
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: registration, error: regError } = await (admin as any)
     .from('registrations')
     .insert({
       event_id: params.id,
