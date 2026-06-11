@@ -252,8 +252,8 @@ function Hero() {
             </div>
           </div>
 
-          {/* RIGHT — 3-screen composite */}
-          <div className="relative flex items-center justify-center" style={{ minHeight: 360 }}>
+          {/* RIGHT — 3-screen composite (desktop only) */}
+          <div className="relative hidden lg:flex items-center justify-center" style={{ minHeight: 360 }}>
             {/* Back-left panel: DashboardMock */}
             <div
               className="absolute"

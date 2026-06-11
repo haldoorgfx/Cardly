@@ -930,7 +930,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
             {/* Left: hamburger + breadcrumb */}
             <div className="flex items-center gap-2 min-w-0 flex-1">
-              <button className="md:hidden h-8 w-8 rounded-lg hover:bg-[#F5F3EE] grid place-items-center shrink-0 transition"
+              <button className="md:hidden h-10 w-10 rounded-lg hover:bg-[#F5F3EE] grid place-items-center shrink-0 transition"
                 style={{ color: '#6B7A72' }}
                 onClick={() => setMobileNavOpen(true)} aria-label="Open menu">
                 <Menu size={16} strokeWidth={2} />
@@ -977,7 +977,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </button>
               {/* Mobile search icon only */}
               <button onClick={() => setCmdOpen(true)}
-                className="sm:hidden h-8 w-8 rounded-lg grid place-items-center transition hover:bg-[#F5F3EE]"
+                className="sm:hidden h-10 w-10 rounded-lg grid place-items-center transition hover:bg-[#F5F3EE]"
                 style={{ color: '#6B7A72' }} aria-label="Search">
                 <Search size={15} strokeWidth={2} />
               </button>
@@ -992,7 +992,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     setAccountMenuOpen(false);
                     if (next) fetchNotifications();
                   }}
-                  className="relative h-8 w-8 rounded-lg grid place-items-center transition hover:bg-[#F5F3EE]"
+                  className="relative h-10 w-10 rounded-lg grid place-items-center transition hover:bg-[#F5F3EE]"
                   style={{ color: '#6B7A72' }}
                   aria-label="Notifications">
                   <Bell size={15} strokeWidth={2} />
@@ -1004,7 +1004,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 {notifOpen && (
                   <>
                     <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} />
-                    <div className="absolute right-0 top-[44px] z-50 w-[340px] bg-white border border-[#E5E0D4] rounded-2xl shadow-[0_8px_40px_rgba(15,31,24,0.14)] overflow-hidden animate-dropIn">
+                    <div className="absolute right-0 top-[44px] z-50 w-[min(340px,calc(100vw-16px))] bg-white border border-[#E5E0D4] rounded-2xl shadow-[0_8px_40px_rgba(15,31,24,0.14)] overflow-hidden animate-dropIn">
                       {/* Header */}
                       <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
                         <span className="font-display text-[14px] font-semibold" style={{ color: '#0F1F18' }}>Notifications</span>
@@ -1067,7 +1067,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <div className="relative">
                 <button
                   onClick={() => setAccountMenuOpen(o => !o)}
-                  className="h-8 w-8 rounded-full grid place-items-center text-white text-[12px] font-semibold shrink-0 ring-2 ring-transparent hover:ring-[#1F4D3A]/30 transition-all"
+                  className="h-9 w-9 rounded-full grid place-items-center text-white text-[12px] font-semibold shrink-0 ring-2 ring-transparent hover:ring-[#1F4D3A]/30 transition-all"
                   style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}
                   aria-label="Account menu">
                   <span suppressHydrationWarning>{initials}</span>
@@ -1076,7 +1076,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 {accountMenuOpen && (
                   <>
                     <div className="fixed inset-0 z-40" onClick={() => setAccountMenuOpen(false)} />
-                    <div className="absolute right-0 top-[44px] z-50 w-[260px] bg-[#FAF6EE] border border-[#E5E0D4] rounded-2xl shadow-[0_8px_40px_rgba(15,31,24,0.15)] overflow-hidden animate-dropIn">
+                    <div className="absolute right-0 top-[44px] z-50 w-[min(260px,calc(100vw-16px))] bg-[#FAF6EE] border border-[#E5E0D4] rounded-2xl shadow-[0_8px_40px_rgba(15,31,24,0.15)] overflow-hidden animate-dropIn">
                       {/* Identity */}
                       <div className="px-4 py-3.5 flex items-center gap-3" style={{ borderBottom: '1px solid #E5E0D4' }}>
                         <div className="h-10 w-10 rounded-full grid place-items-center text-white text-[13px] font-bold shrink-0"
