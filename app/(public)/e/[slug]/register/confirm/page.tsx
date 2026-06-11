@@ -11,7 +11,7 @@ interface Props {
   searchParams: { reg?: string; payment_intent?: string; redirect_status?: string; processor?: string };
 }
 
-export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const qrToken = searchParams.reg;
   if (!qrToken) return { title: 'Registration Confirmed' };
   const admin = createAdminClient();
