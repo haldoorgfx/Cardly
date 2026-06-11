@@ -42,19 +42,24 @@ export default async function SpeakerPortalPage({ params }: Props) {
 
   // Event resources (if table exists)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: resources } = await (admin as any)
-    .from('event_resources')
-    .select('*')
-    .eq('event_id', event.id)
-    .order('created_at', { ascending: true })
-    .catch(() => ({ data: [] }));
+  let resources: any[] = [];
+  try {
+    const { data } = await (admin as any)
+      .from('event_resources')
+      .select('*')
+      .eq('event_id', event.id)
+      .order('created_at', { ascending: true });
+    resources = data ?? [];
+  } catch {
+    resources = [];
+  }
 
   return (
     <SpeakerPortalClient
       speaker={speaker}
       event={{ id: event.id, name: event.name, slug: event.slug, starts_at: (event as any).starts_at, ends_at: (event as any).ends_at }}
       sessions={sessions}
-      resources={resources ?? []}
+      resources={resources}
     />
   );
 }

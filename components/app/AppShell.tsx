@@ -885,6 +885,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return <UserNavContent pathname={pathname} onNavigate={onNavigate} />;
   }
 
+  if (pathname === '/studio') {
+    return <PlanContext.Provider value={ctxValue}>{children}</PlanContext.Provider>;
+  }
+
   return (
     <PlanContext.Provider value={ctxValue}>
       <div className="flex min-h-screen" style={{ background: '#FAF6EE' }}>
