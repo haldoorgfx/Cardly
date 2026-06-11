@@ -52,7 +52,7 @@ const EMPTY_SESSION: SessionForm = {
   room: '',
   capacity: '',
   speaker_ids: [],
-  is_published: false,
+  is_published: true,
 };
 
 function groupByDate(sessions: Session[]): [string, Session[]][] {
