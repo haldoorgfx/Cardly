@@ -30,7 +30,7 @@ export default async function RevenuePage({ params }: Props) {
   // All paid/confirmed registrations
   const { data: regs } = await admin
     .from('registrations')
-    .select('id, amount_paid, currency, status, payment_status, created_at, referral_code, ticket_types(name, price)')
+    .select('id, amount_paid, currency, status, payment_status, created_at, referral_code, utm_source, ticket_types(name, price)')
     .eq('event_id', id)
     .in('status', ['confirmed', 'checked_in', 'pending_approval'])
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -44,7 +44,7 @@ export default async function RevenuePage({ params }: Props) {
             Revenue
           </h1>
           <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>
-            Earnings breakdown by ticket type and promoter link.
+            Earnings breakdown by ticket type, promoter link, and UTM source.
           </p>
         </div>
         <RevenueView eventId={id} eventSlug={event.slug} registrations={regs ?? []} />

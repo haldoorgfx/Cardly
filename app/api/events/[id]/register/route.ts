@@ -126,6 +126,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       custom_fields: custom_fields ?? {},
       referral_code: referral_code ? referral_code.toUpperCase() : null,
       utm_source: utm_source ?? null,
+      chosen_price: isPayWhatYouWant ? (chosen_price ?? null) : null,
       status: initialStatus,
       payment_status: isFree ? 'free' : 'pending',
       amount_paid: isFree ? 0 : effectivePrice,
