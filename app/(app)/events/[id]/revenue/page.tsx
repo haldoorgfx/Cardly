@@ -1,5 +1,8 @@
 export const dynamic = 'force-dynamic';
 
+import type { Metadata } from 'next';
+export const metadata: Metadata = { title: 'Revenue' };
+
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { RevenueView } from '@/components/events/RevenueView';
