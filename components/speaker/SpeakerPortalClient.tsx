@@ -188,125 +188,217 @@ function SpeakerCard({ speaker, event, size = 'lg' }: { speaker: Speaker; event:
 
 /* ── Home Tab ──────────────────────────────────────────────────────── */
 function HomeTab({ speaker, event, sessions, onTab }: { speaker: Speaker; event: EventInfo; sessions: Session[]; onTab: (t: Tab) => void }) {
-  const done = {
-    profile: !!(speaker.bio && speaker.photo_url),
-    slides: false,
-    card: false,
-    review: sessions.length > 0,
-  };
-  const completedCount = Object.values(done).filter(Boolean).length;
+  const hasProfile = !!(speaker.bio && speaker.photo_url);
+  const hasHeadshot = !!speaker.photo_url;
+  const hasSessions = sessions.length > 0;
+  const hasSlides = false; // extend when slides_url is added to Session type
+
+  // Day-number helper
+  function sessionDay(s: Session): string {
+    if (!event.starts_at) return fmt(s.starts_at);
+    const eventDay = new Date(event.starts_at);
+    eventDay.setHours(0, 0, 0, 0);
+    const sessDay = new Date(s.starts_at);
+    sessDay.setHours(0, 0, 0, 0);
+    const diff = Math.round((sessDay.getTime() - eventDay.getTime()) / (1000 * 60 * 60 * 24));
+    return `Day ${diff + 1} · ${fmt(s.starts_at)}`;
+  }
+
+  const checklistItems = [
+    {
+      id: 'profile',
+      label: 'Complete your profile',
+      done: hasProfile,
+      action: () => onTab('profile'),
+      actionLabel: 'Do it →',
+    },
+    {
+      id: 'sessions',
+      label: `Confirm your ${sessions.length} session${sessions.length !== 1 ? 's' : ''}`,
+      done: hasSessions,
+      action: () => onTab('sessions'),
+      actionLabel: 'Do it →',
+    },
+    {
+      id: 'slides',
+      label: sessions.length > 0 ? `Upload slides for your ${sessions[0]?.session_type || 'session'}` : 'Upload your slides',
+      done: hasSlides,
+      action: () => onTab('sessions'),
+      actionLabel: 'Do it →',
+    },
+    {
+      id: 'headshot',
+      label: 'Add a headshot',
+      done: hasHeadshot,
+      action: () => onTab('profile'),
+      actionLabel: 'Do it →',
+    },
+  ];
+
+  // Key dates from sessions (up to 3), or fall back to event dates
+  const keyDates: { label: string; value: string }[] = sessions.slice(0, 3).map(s => ({
+    label: s.title.length > 28 ? s.title.slice(0, 28) + '…' : s.title,
+    value: `${fmt(s.starts_at)} · ${fmtTime(s.starts_at)}`,
+  }));
+  if (keyDates.length === 0 && event.starts_at) {
+    keyDates.push({ label: 'Event starts', value: fmt(event.starts_at) });
+    if (event.ends_at) keyDates.push({ label: 'Event ends', value: fmt(event.ends_at) });
+  }
 
   return (
     <div className="max-w-[900px] mx-auto px-4 sm:px-6 py-8 space-y-6">
-      {/* Welcome */}
-      <div>
-        <h1 className="font-display font-normal text-[28px] sm:text-[34px]" style={{ color: '#1F4D3A', letterSpacing: '-0.025em' }}>
-          Welcome, {speaker.name.split(' ')[0]}
-        </h1>
-        <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>
-          Here&apos;s everything you need to prepare for {event.name}.
-        </p>
+      {/* ── Hero banner ── */}
+      <div className="relative overflow-hidden rounded-2xl p-6 sm:p-8"
+        style={{ background: 'linear-gradient(135deg, #0D1F17 0%, #1F4D3A 60%, #2A6A50 100%)' }}>
+        {/* Dot mesh */}
+        <div className="absolute inset-0 pointer-events-none"
+          style={{ backgroundImage: 'radial-gradient(rgba(232,197,126,0.12) 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+        <div className="relative">
+          <div className="inline-flex items-center gap-1.5 mb-4 px-3 py-1.5 rounded-full text-[12px] font-medium"
+            style={{ background: 'rgba(232,197,126,0.15)', border: '1px solid rgba(232,197,126,0.35)', color: '#E8C57E' }}>
+            <span>+</span> You&apos;re speaking
+          </div>
+          <h1 className="font-display font-bold text-[26px] sm:text-[32px] mb-2"
+            style={{ color: '#FFFFFF', letterSpacing: '-0.025em' }}>
+            Welcome, {speaker.name.split(' ')[0]}.
+          </h1>
+          <p className="text-[14px] leading-relaxed max-w-[520px]" style={{ color: 'rgba(255,255,255,0.7)' }}>
+            {sessions.length > 0
+              ? `You have ${sessions.length} session${sessions.length !== 1 ? 's' : ''} at ${event.name}. Finish the steps below so attendees see you at your best.`
+              : `Complete the steps below so you're ready for ${event.name}.`
+            }
+          </p>
+        </div>
       </div>
 
       <div className="grid lg:grid-cols-[1fr_280px] gap-6">
         <div className="space-y-4">
-          {/* Checklist */}
-          <div style={{ background: '#fff', border: '1px solid #E5E0D4', borderRadius: 12, overflow: 'hidden' }}>
-            <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
-              <span className="font-semibold text-[14px]" style={{ color: '#0F1F18' }}>Your checklist</span>
-              <span className="text-[12px]" style={{ color: '#6B7A72' }}>{completedCount}/{CHECKLIST.length} done</span>
+          {/* ── Checklist ── */}
+          <div>
+            <div className="text-[10px] tracking-[0.18em] uppercase mb-3"
+              style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
+              Your checklist
             </div>
-            {CHECKLIST.map((item) => {
-              const isDone = done[item.id as keyof typeof done];
-              return (
+            <div className="space-y-2">
+              {checklistItems.map(item => (
                 <button
                   key={item.id}
-                  onClick={() => { if (item.id === 'profile') onTab('profile'); if (item.id === 'slides') onTab('sessions'); if (item.id === 'card') onTab('card'); }}
-                  className="w-full flex items-start gap-3 px-5 py-4 text-left hover:bg-[#FAF6EE] transition-colors"
-                  style={{ borderBottom: '1px solid #F0ECE4' }}
+                  onClick={item.action}
+                  className="w-full flex items-center gap-3 px-5 py-4 rounded-xl text-left transition-colors hover:border-[#1F4D3A]/30"
+                  style={{
+                    background: '#FFFFFF',
+                    border: '1px solid #E5E0D4',
+                  }}
                 >
-                  {isDone
-                    ? <CheckCircle2 size={18} style={{ color: '#2D7A4F', flexShrink: 0, marginTop: 1 }} />
-                    : <Circle size={18} style={{ color: '#C9C3B1', flexShrink: 0, marginTop: 1 }} />
+                  {item.done
+                    ? <CheckCircle2 size={18} style={{ color: '#2D7A4F', flexShrink: 0 }} />
+                    : <Circle size={18} style={{ color: '#C9C3B1', flexShrink: 0 }} />
                   }
-                  <div>
-                    <div className="text-[13px] font-medium" style={{ color: isDone ? '#6B7A72' : '#0F1F18', textDecoration: isDone ? 'line-through' : 'none' }}>
-                      {item.label}
-                    </div>
-                    <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{item.sub}</div>
-                  </div>
-                  {!isDone && <ChevronRight size={14} style={{ color: '#C9C3B1', marginLeft: 'auto', marginTop: 3, flexShrink: 0 }} />}
+                  <span className="flex-1 text-[13px] font-medium"
+                    style={{ color: item.done ? '#6B7A72' : '#0F1F18', textDecoration: item.done ? 'line-through' : 'none' }}>
+                    {item.label}
+                  </span>
+                  {!item.done && (
+                    <span className="text-[12px] font-medium shrink-0" style={{ color: '#1F4D3A' }}>
+                      {item.actionLabel}
+                    </span>
+                  )}
                 </button>
-              );
-            })}
+              ))}
+            </div>
           </div>
 
-          {/* Sessions */}
+          {/* ── Sessions ── */}
           {sessions.length > 0 && (
-            <div style={{ background: '#fff', border: '1px solid #E5E0D4', borderRadius: 12, overflow: 'hidden' }}>
-              <div className="px-5 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
-                <span className="font-semibold text-[14px]" style={{ color: '#0F1F18' }}>Your sessions</span>
+            <div>
+              <div className="text-[10px] tracking-[0.18em] uppercase mb-3"
+                style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
+                Your sessions
               </div>
-              {sessions.map((s) => (
-                <div key={s.id} className="flex items-center gap-4 px-5 py-4" style={{ borderBottom: '1px solid #F0ECE4' }}>
-                  <div style={{ width: 40, height: 40, borderRadius: 8, background: '#E8EFEB', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
-                    <Calendar size={16} style={{ color: '#1F4D3A' }} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-[13px] font-medium truncate" style={{ color: '#0F1F18' }}>{s.title}</div>
-                    <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>
-                      {fmt(s.starts_at)} · {fmtTime(s.starts_at)}–{fmtTime(s.ends_at)}
-                      {s.room && ` · ${s.room}`}
+              <div className="space-y-3">
+                {sessions.map((s) => (
+                  <div key={s.id}
+                    className="flex items-start gap-4 px-5 py-4 rounded-xl"
+                    style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
+                    <div style={{ width: 40, height: 40, borderRadius: 8, background: '#E8EFEB', display: 'grid', placeItems: 'center', flexShrink: 0, marginTop: 2 }}>
+                      <Calendar size={16} style={{ color: '#1F4D3A' }} />
                     </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[13px] font-medium mb-1" style={{ color: '#0F1F18' }}>{s.title}</div>
+                      <div className="flex items-center gap-1.5 text-[12px] mb-2" style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
+                        <span>{sessionDay(s)}</span>
+                        <span>·</span>
+                        <span>{fmtTime(s.starts_at)}–{fmtTime(s.ends_at)}</span>
+                        {s.room && <><span>·</span><span>{s.room}</span></>}
+                      </div>
+                      <div className="flex gap-2 flex-wrap">
+                        {s.tracks?.name && (
+                          <span className="text-[11px] px-2.5 py-0.5 rounded-full"
+                            style={{ background: '#F0ECE4', color: '#3A4A42', border: '1px solid #E5E0D4' }}>
+                            {s.tracks.name}
+                          </span>
+                        )}
+                        <span className="text-[11px] px-2.5 py-0.5 rounded-full font-medium"
+                          style={{ background: '#E8EFEB', color: '#2D7A4F', border: '1px solid #C9DDD1' }}>
+                          Confirmed
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => onTab('sessions')}
+                      className="shrink-0 flex items-center gap-1.5 h-8 px-3 rounded-lg text-[12px] font-medium transition-colors"
+                      style={{ background: '#E8EFEB', color: '#1F4D3A', border: '1px solid #C9DDD1', marginTop: 2 }}>
+                      <Upload size={11} />
+                      {hasSlides ? 'Slides ✓' : 'Upload slides'}
+                    </button>
                   </div>
-                  <span className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
-                    Confirmed
-                  </span>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           )}
         </div>
 
-        {/* Sidebar */}
+        {/* ── Sidebar ── */}
         <div className="space-y-4">
-          {/* Speaker card preview */}
-          <div style={{ background: '#fff', border: '1px solid #E5E0D4', borderRadius: 12, padding: '20px', textAlign: 'center' }}>
-            <div className="text-[11px] font-mono uppercase tracking-widest mb-4" style={{ color: '#6B7A72' }}>
-              Your card
+          {/* Key dates */}
+          {keyDates.length > 0 && (
+            <div style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 12, padding: '16px 20px' }}>
+              <div className="text-[10px] tracking-[0.18em] uppercase mb-3"
+                style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
+                Key dates
+              </div>
+              <div className="space-y-3">
+                {keyDates.map((d, i) => (
+                  <div key={i} className="flex items-start justify-between gap-2">
+                    <span className="text-[13px]" style={{ color: '#3A4A42' }}>{d.label}</span>
+                    <span className="text-[12px] font-medium shrink-0 text-right"
+                      style={{ color: '#1F4D3A', fontFamily: '"JetBrains Mono", monospace' }}>
+                      {d.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Speaker card */}
+          <div style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 12, padding: '20px', textAlign: 'center' }}>
+            <div className="text-[10px] tracking-[0.18em] uppercase mb-4"
+              style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
+              Your speaker card
             </div>
             <div className="flex justify-center mb-4">
               <SpeakerCard speaker={speaker} event={event} size="sm" />
             </div>
             <button
               onClick={() => onTab('card')}
-              className="w-full h-9 rounded-lg text-[13px] font-medium transition-colors"
+              className="w-full h-10 rounded-lg text-[13px] font-medium transition-colors flex items-center justify-center gap-2"
               style={{ background: '#1F4D3A', color: '#FAF6EE' }}
             >
-              View &amp; share card
+              <Share2 size={13} />
+              Share my card
             </button>
           </div>
-
-          {/* Key dates */}
-          {event.starts_at && (
-            <div style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', borderRadius: 12, padding: '16px 20px' }}>
-              <div className="text-[11px] font-mono uppercase tracking-widest mb-3" style={{ color: '#6B7A72' }}>
-                Key dates
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between text-[13px]">
-                  <span style={{ color: '#6B7A72' }}>Event starts</span>
-                  <span className="font-medium" style={{ color: '#0F1F18' }}>{fmt(event.starts_at)}</span>
-                </div>
-                {event.ends_at && (
-                  <div className="flex justify-between text-[13px]">
-                    <span style={{ color: '#6B7A72' }}>Event ends</span>
-                    <span className="font-medium" style={{ color: '#0F1F18' }}>{fmt(event.ends_at)}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
@@ -722,7 +814,8 @@ export function SpeakerPortalClient({ speaker: initialSpeaker, event, sessions, 
             </div>
             <span className="text-[13px] font-medium" style={{ color: '#0F1F18' }}>Karta</span>
             <span className="text-[13px]" style={{ color: '#C9C3B1' }}>/</span>
-            <span className="text-[13px]" style={{ color: '#6B7A72' }}>Speaker Portal</span>
+            <span className="text-[10px] tracking-[0.18em] uppercase font-medium"
+              style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>Speaker Portal</span>
           </div>
           <div className="flex items-center gap-3">
             <span className="text-[12px] hidden sm:block" style={{ color: '#6B7A72' }}>{event.name}</span>
