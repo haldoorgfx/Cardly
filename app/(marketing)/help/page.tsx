@@ -1,270 +1,342 @@
-import Link from 'next/link';
-import { ArrowRight, BookOpen, Layers, CreditCard, Share2, Zap, HelpCircle } from 'lucide-react';
-import Reveal from '@/components/marketing/Reveal';
+'use client';
 
-export const metadata = {
-  title: 'Help Center',
-  description:
-    'Guides and answers for Karta — getting started, the editor, sharing, billing, and more.',
-};
+import { useState } from 'react';
+import {
+  Search, Zap, Users, CalendarDays, ScanLine, CreditCard, HelpCircle,
+  ArrowRight, CheckCircle2, AlertCircle, Clock, ExternalLink,
+} from 'lucide-react';
 
+/* ── Data ────────────────────────────────────────────────────────── */
 const CATEGORIES = [
-  {
-    icon: <BookOpen size={22} strokeWidth={1.8} />,
-    title: 'Getting started',
-    desc: 'Create your first campaign in under 10 minutes.',
-    articles: ['Creating your first event', 'Uploading a background design', 'Defining zones', 'Publishing and sharing'],
-  },
-  {
-    icon: <Layers size={22} strokeWidth={1.8} />,
-    title: 'Editor',
-    desc: 'Zones, handles, fonts, and how the canvas works.',
-    articles: ['Adding a text zone', 'Adding a photo zone', 'Resizing and repositioning', 'Undo and redo'],
-  },
-  {
-    icon: <Share2 size={22} strokeWidth={1.8} />,
-    title: 'Sharing & attendees',
-    desc: 'How the attendee page works and how to distribute it.',
-    articles: ['The attendee link explained', 'WhatsApp & QR sharing', 'Download quality', 'Watermark behavior'],
-  },
-  {
-    icon: <CreditCard size={22} strokeWidth={1.8} />,
-    title: 'Billing',
-    desc: 'Plans, upgrades, invoices, and cancellation.',
-    articles: ['Plan comparison', 'Upgrading to Pro', 'Downloading invoices', 'Cancelling your plan'],
-  },
-  {
-    icon: <Zap size={22} strokeWidth={1.8} />,
-    title: 'Advanced',
-    desc: 'Variants, analytics, and white-label options.',
-    articles: ['Using card variants', 'View and download analytics', 'Custom domain for campaign links', 'White-label output (Studio)'],
-  },
-  {
-    icon: <HelpCircle size={22} strokeWidth={1.8} />,
-    title: 'Troubleshooting',
-    desc: 'Common issues and how to fix them.',
-    articles: ['Card not rendering', 'Photo upload errors', 'Slow download', 'Contacting support'],
-  },
+  { icon: <Zap size={20} strokeWidth={1.8} />, title: 'Getting started', count: 8, articles: ['Creating your first event', 'Setting up your event page', 'Inviting your team', 'Publishing and sharing your event'] },
+  { icon: <Users size={20} strokeWidth={1.8} />, title: 'Registration & tickets', count: 14, articles: ['Creating ticket types', 'Setting up promo codes', 'Managing registrations', 'Handling refunds'] },
+  { icon: <CalendarDays size={20} strokeWidth={1.8} />, title: 'Agenda & speakers', count: 9, articles: ['Building your agenda', 'Adding speakers', 'Managing sessions', 'Speaker portal access'] },
+  { icon: <ScanLine size={20} strokeWidth={1.8} />, title: 'Check-in', count: 6, articles: ['Setting up check-in', 'Using the QR scanner', 'Offline check-in', 'Check-in reports'] },
+  { icon: <CreditCard size={20} strokeWidth={1.8} />, title: 'The Karta Card', count: 7, articles: ['What is the Karta Card?', 'Customising your card design', 'Sharing on social media', 'Downloading your card'] },
+  { icon: <HelpCircle size={20} strokeWidth={1.8} />, title: 'Billing & plans', count: 11, articles: ['Plan comparison', 'Upgrading your plan', 'Downloading invoices', 'Cancelling a subscription'] },
 ];
 
 const POPULAR = [
-  { title: 'How do I remove the "Made with Karta" watermark?', category: 'Billing' },
-  { title: 'Can attendees edit their card after downloading?', category: 'Sharing' },
-  { title: 'What image size should I upload as the background?', category: 'Getting started' },
-  { title: 'How do I set a photo zone to circle crop?', category: 'Editor' },
-  { title: 'Can I have multiple variants of the same event?', category: 'Advanced' },
-  { title: 'How do I add a custom logo to the attendee page?', category: 'Advanced' },
+  { title: 'How do I publish my event page?', category: 'Getting started' },
+  { title: 'Can attendees edit their Karta Card after downloading?', category: 'Karta Card' },
+  { title: 'How do I set up promo codes?', category: 'Registration' },
+  { title: 'How do I add a speaker to a session?', category: 'Agenda' },
+  { title: 'What payment methods are supported?', category: 'Billing' },
 ];
 
-/* ── Hero ────────────────────────────────────────────────── */
-function HelpHero() {
+type SvcStatus = 'operational' | 'degraded' | 'outage';
+const SERVICES: { name: string; uptime: number; status: SvcStatus }[] = [
+  { name: 'API', uptime: 99.98, status: 'operational' },
+  { name: 'Web app', uptime: 99.95, status: 'operational' },
+  { name: 'Payments', uptime: 99.97, status: 'operational' },
+  { name: 'Email & notifications', uptime: 99.89, status: 'operational' },
+  { name: 'Check-in sync', uptime: 99.92, status: 'operational' },
+  { name: 'Streaming', uptime: 99.80, status: 'operational' },
+];
+
+const RELEASES = [
+  {
+    version: 'v2.8', date: 'Jun 2026', tag: 'Latest',
+    items: ['Speaker Portal — speakers can now manage their own profile, sessions, and card from a dedicated portal', 'Exhibitor Portal — lead capture, booth analytics, and team management for sponsors', 'Abstract submission & review workflow for conference organisers', 'Networking people discovery with match suggestions'],
+  },
+  {
+    version: 'v2.7', date: 'May 2026', tag: null,
+    items: ['Live Q&A and polling during sessions', 'Personal agenda builder for attendees', 'Stripe + Flutterwave payment integration', 'Bulk email communications editor'],
+  },
+  {
+    version: 'v2.6', date: 'Apr 2026', tag: null,
+    items: ['Karta Card customisation studio', 'Multi-track agenda support', 'Check-in via QR and badge scan', 'Attendee messaging inbox'],
+  },
+  {
+    version: 'v2.5', date: 'Mar 2026', tag: null,
+    items: ['Event page builder', 'Ticket types and promo codes', 'Speaker directory', 'Basic analytics dashboard'],
+  },
+];
+
+/* ── Help Center Tab ─────────────────────────────────────────────── */
+function HelpCenter() {
+  const [query, setQuery] = useState('');
+  const filtered = query
+    ? CATEGORIES.filter(c =>
+        c.title.toLowerCase().includes(query.toLowerCase()) ||
+        c.articles.some(a => a.toLowerCase().includes(query.toLowerCase()))
+      )
+    : CATEGORIES;
+
   return (
-    <section
-      className="relative overflow-hidden border-b"
-      style={{ borderColor: '#E5E0D4' }}
-    >
-      <div
-        aria-hidden
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: [
-            'radial-gradient(65% 55% at 50% 0%, rgba(31,77,58,0.09), transparent 60%)',
-            'radial-gradient(50% 45% at 90% 100%, rgba(232,197,126,0.10), transparent 65%)',
-          ].join(', '),
-        }}
-      />
-      <div
-        aria-hidden
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: 'radial-gradient(rgba(15,31,24,0.045) 1px, transparent 1px)',
-          backgroundSize: '24px 24px',
-        }}
-      />
-      <div className="relative mx-auto max-w-[1200px] px-5 lg:px-10 pt-14 lg:pt-20 pb-14 lg:pb-20 text-center">
-        <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-5">
-          Help center
-        </div>
-        <h1 className="font-display font-bold text-ink text-[44px] sm:text-[60px] lg:text-[72px] leading-[0.95] tracking-[-0.035em] max-w-[720px] mx-auto">
+    <div>
+      {/* Hero */}
+      <div className="text-center py-14 px-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
+        <h1 className="font-display font-bold text-[42px] sm:text-[56px] leading-tight tracking-[-0.03em] mb-4" style={{ color: '#0F1F18' }}>
           How can we help?
         </h1>
-        <p className="mt-5 text-ink-soft text-[17px] lg:text-[18px] leading-[1.55] max-w-[500px] mx-auto">
-          Guides, answers, and everything you need to run a successful campaign with Karta.
-        </p>
-
-        {/* Decorative search bar — links to contact */}
-        <Reveal>
-          <div className="mt-8 max-w-[520px] mx-auto">
-            <a
-              href="#categories"
-              className="flex items-center gap-3 w-full px-5 py-4 rounded-full text-left transition-shadow hover:shadow-md"
-              style={{
-                background: '#FFFFFF',
-                border: '1px solid #E5E0D4',
-                boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)',
-              }}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#6B7A72', flexShrink: 0 }}>
-                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-              </svg>
-              <span className="text-[14px]" style={{ color: '#6B7A72' }}>Search for help…</span>
-              <span
-                className="ml-auto font-mono text-[10px] tracking-[0.18em] px-2 py-0.5 rounded"
-                style={{ background: 'rgba(229,224,212,0.7)', color: '#6B7A72' }}
-              >
-                Browse ↓
-              </span>
-            </a>
-          </div>
-        </Reveal>
+        <p className="text-[15px] mb-8" style={{ color: '#6B7A72' }}>Search the docs, or browse by topic.</p>
+        <div className="max-w-[520px] mx-auto relative">
+          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: '#6B7A72' }} />
+          <input
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder="Search help articles…"
+            className="w-full h-12 pl-10 pr-4 rounded-full text-[14px] outline-none"
+            style={{ background: '#fff', border: '1px solid #E5E0D4', color: '#0F1F18', boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)' }}
+            onFocus={e => (e.target.style.borderColor = '#E8C57E')}
+            onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
+          />
+        </div>
       </div>
-    </section>
+
+      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 py-12 space-y-12">
+        {/* Categories */}
+        <div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filtered.map((cat) => (
+              <div key={cat.title} className="rounded-2xl p-6 transition-shadow hover:shadow-md cursor-pointer" style={{ background: '#fff', border: '1px solid #E5E0D4' }}>
+                <div className="w-10 h-10 rounded-xl grid place-items-center mb-4" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+                  {cat.icon}
+                </div>
+                <div className="font-semibold text-[15px] mb-1" style={{ color: '#0F1F18' }}>{cat.title}</div>
+                <div className="text-[12px] mb-4" style={{ color: '#6B7A72' }}>{cat.count} articles</div>
+                <ul className="space-y-1.5">
+                  {cat.articles.map(a => (
+                    <li key={a}>
+                      <a href="#" className="flex items-center gap-2 text-[12px] hover:underline" style={{ color: '#3A4A42' }}>
+                        <ArrowRight size={11} strokeWidth={2} style={{ color: '#1F4D3A', flexShrink: 0 }} />
+                        {a}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+          {filtered.length === 0 && (
+            <p className="text-center text-[14px] py-8" style={{ color: '#6B7A72' }}>No results for &quot;{query}&quot;</p>
+          )}
+        </div>
+
+        {/* Popular */}
+        {!query && (
+          <div>
+            <div className="font-mono text-[10px] uppercase tracking-widest mb-4" style={{ color: '#6B7A72' }}>Popular articles</div>
+            <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
+              {POPULAR.map((q, i) => (
+                <a
+                  key={i}
+                  href="#"
+                  className="flex items-center justify-between px-5 py-4 hover:bg-[#FAF6EE] transition-colors"
+                  style={{ borderBottom: i < POPULAR.length - 1 ? '1px solid #E5E0D4' : 'none', textDecoration: 'none' }}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-[10px] px-2 py-0.5 rounded-full font-mono" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>{q.category}</span>
+                    <span className="text-[13px]" style={{ color: '#0F1F18' }}>{q.title}</span>
+                  </div>
+                  <ArrowRight size={13} strokeWidth={2} style={{ color: '#C9C3B1', flexShrink: 0 }} />
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* CTA */}
+        <div className="rounded-2xl px-6 py-8 text-center" style={{ background: '#1F4D3A' }}>
+          <h3 className="font-display font-bold text-[20px] mb-2" style={{ color: '#FAF6EE' }}>Still need help?</h3>
+          <p className="text-[13px] mb-5" style={{ color: 'rgba(250,246,238,0.7)' }}>We read every message. Usually reply within a few hours.</p>
+          <a
+            href="mailto:hello@cre8so.com"
+            className="inline-flex items-center gap-2 h-10 px-6 rounded-full text-[13px] font-medium"
+            style={{ background: '#E8C57E', color: '#1F4D3A' }}
+          >
+            Email us <ArrowRight size={13} />
+          </a>
+        </div>
+      </div>
+    </div>
   );
 }
 
-/* ── Categories ──────────────────────────────────────────── */
-function Categories() {
-  return (
-    <section id="categories" className="mx-auto max-w-[1200px] px-5 lg:px-10 py-14 lg:py-20">
-      <Reveal>
-        <div className="mb-10">
-          <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-2">Browse by topic</div>
-          <h2 className="font-display font-bold text-ink text-[28px] sm:text-[36px] tracking-[-0.03em]">
-            Everything in one place
-          </h2>
-        </div>
-      </Reveal>
+/* ── Status Tab ──────────────────────────────────────────────────── */
+function StatusTab() {
+  const allOk = SERVICES.every(s => s.status === 'operational');
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5">
-        {CATEGORIES.map((cat, i) => (
-          <Reveal key={cat.title} delay={i * 70}>
-            <div
-              className="bg-surface rounded-2xl p-6 lg:p-7 flex flex-col h-full transition-shadow hover:shadow-md"
-              style={{ border: '1px solid #E5E0D4' }}
-            >
-              <div
-                className="w-11 h-11 rounded-xl grid place-items-center mb-5 text-primary"
-                style={{ background: 'rgba(31,77,58,0.08)', border: '1px solid rgba(31,77,58,0.12)' }}
-              >
-                {cat.icon}
-              </div>
-              <h3 className="font-display font-bold text-ink text-[18px] lg:text-[20px] tracking-tight mb-2">
-                {cat.title}
-              </h3>
-              <p className="text-ink-soft text-[13px] leading-[1.55] mb-5">
-                {cat.desc}
-              </p>
-              <ul className="space-y-2 mt-auto">
-                {cat.articles.map((art) => (
-                  <li key={art}>
-                    <a
-                      href="#"
-                      className="flex items-center gap-2 text-[13px] text-ink-soft hover:text-primary transition-colors group"
-                    >
-                      <ArrowRight size={12} strokeWidth={2} className="text-primary shrink-0 translate-x-0 group-hover:translate-x-0.5 transition-transform" />
-                      {art}
-                    </a>
+  return (
+    <div className="max-w-[820px] mx-auto px-4 sm:px-6 py-12 space-y-8">
+      {/* Overall */}
+      <div className="flex items-center gap-4 px-6 py-5 rounded-2xl" style={{ background: allOk ? '#E8EFEB' : '#FFF0EF', border: `1px solid ${allOk ? '#C9C3B1' : '#B8423C'}` }}>
+        <CheckCircle2 size={24} style={{ color: allOk ? '#2D7A4F' : '#B8423C', flexShrink: 0 }} />
+        <div>
+          <div className="font-semibold text-[15px]" style={{ color: '#0F1F18' }}>{allOk ? 'All systems operational' : 'Some systems experiencing issues'}</div>
+          <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>Last updated {new Date().toLocaleTimeString()}</div>
+        </div>
+      </div>
+
+      {/* Services */}
+      <div style={{ background: '#fff', border: '1px solid #E5E0D4', borderRadius: 16, overflow: 'hidden' }}>
+        <div className="px-5 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
+          <span className="font-semibold text-[14px]" style={{ color: '#0F1F18' }}>Service status</span>
+        </div>
+        {SERVICES.map((svc, i) => (
+          <div key={svc.name} className="flex items-center gap-4 px-5 py-4" style={{ borderBottom: i < SERVICES.length - 1 ? '1px solid #F0ECE4' : 'none' }}>
+            <div className="flex-1">
+              <div className="text-[13px] font-medium" style={{ color: '#0F1F18' }}>{svc.name}</div>
+            </div>
+            <div className="text-[12px] font-mono" style={{ color: '#6B7A72' }}>{svc.uptime}% uptime</div>
+            <div className="flex items-center gap-1.5">
+              <div style={{ width: 8, height: 8, borderRadius: '50%', background: svc.status === 'operational' ? '#2D7A4F' : svc.status === 'degraded' ? '#C97A2D' : '#B8423C' }} />
+              <span className="text-[12px] capitalize" style={{ color: svc.status === 'operational' ? '#2D7A4F' : svc.status === 'degraded' ? '#C97A2D' : '#B8423C' }}>
+                {svc.status}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Incident history */}
+      <div>
+        <div className="font-mono text-[10px] uppercase tracking-widest mb-4" style={{ color: '#6B7A72' }}>Incident history</div>
+        <div className="rounded-2xl px-5 py-6 text-center" style={{ background: '#fff', border: '1px solid #E5E0D4' }}>
+          <CheckCircle2 size={32} style={{ color: '#2D7A4F', margin: '0 auto 12px' }} />
+          <p className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>No incidents in the last 90 days</p>
+          <p className="text-[12px] mt-1" style={{ color: '#6B7A72' }}>99.94% average uptime across all services</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Changelog Tab ───────────────────────────────────────────────── */
+function ChangelogTab() {
+  return (
+    <div className="max-w-[760px] mx-auto px-4 sm:px-6 py-12 space-y-6">
+      <div>
+        <h2 className="font-display font-normal text-[26px]" style={{ color: '#0F1F18', letterSpacing: '-0.025em' }}>What&apos;s new</h2>
+        <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>Every release, every improvement.</p>
+      </div>
+      <div className="relative pl-6" style={{ borderLeft: '2px solid #E5E0D4' }}>
+        {RELEASES.map((rel) => (
+          <div key={rel.version} className="mb-10 relative">
+            <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#1F4D3A', position: 'absolute', left: -22, top: 6, border: '2px solid #FAF6EE' }} />
+            <div className="flex items-center gap-2 mb-3">
+              <span className="font-mono font-semibold text-[15px]" style={{ color: '#1F4D3A' }}>{rel.version}</span>
+              {rel.tag && (
+                <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ background: '#E8C57E', color: '#163828' }}>{rel.tag}</span>
+              )}
+              <span className="text-[12px]" style={{ color: '#6B7A72' }}>{rel.date}</span>
+            </div>
+            <div style={{ background: '#fff', border: '1px solid #E5E0D4', borderRadius: 12, padding: '16px 20px' }}>
+              <ul className="space-y-2">
+                {rel.items.map((item, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-[13px]" style={{ color: '#3A4A42' }}>
+                    <span style={{ color: '#2D7A4F', flexShrink: 0, marginTop: 2 }}>+</span>
+                    {item}
                   </li>
                 ))}
               </ul>
             </div>
-          </Reveal>
+          </div>
         ))}
       </div>
-    </section>
+    </div>
   );
 }
 
-/* ── Popular ─────────────────────────────────────────────── */
-function Popular() {
+/* ── Legal Tab ───────────────────────────────────────────────────── */
+function LegalTab() {
+  const [doc, setDoc] = useState<'privacy' | 'terms'>('privacy');
+
+  const PRIVACY = [
+    { title: 'Overview', body: 'Karta is an event management platform operated by Cre8so. We collect information you provide when creating events, registering for events, or using our services. This policy explains what we collect, why, and how you can control it.' },
+    { title: 'What we collect', body: 'We collect: account information (name, email, password hash), event data you create, registration data for events you attend, payment information processed through Stripe or Flutterwave (we do not store card numbers), and usage data to improve the platform.' },
+    { title: 'How we use your data', body: 'We use your data to: provide and improve our services, send transactional emails (registration confirmations, event reminders), process payments, and comply with legal obligations. We do not sell your personal data to third parties.' },
+    { title: 'Your rights', body: 'You may request access to, correction of, or deletion of your personal data at any time by emailing privacy@cre8so.com. We will respond within 30 days. You may also export your data from your account settings.' },
+  ];
+
+  const TERMS = [
+    { title: 'Acceptance', body: 'By using Karta you agree to these terms. If you are using Karta on behalf of an organisation, you represent that you have authority to bind that organisation.' },
+    { title: 'Permitted use', body: 'Karta is for lawful event organisation and attendance. You may not use the platform to host events that promote illegal activity, discrimination, or harassment. We reserve the right to suspend accounts that violate these terms.' },
+    { title: 'Payments & refunds', body: 'Event organisers set their own ticket prices and refund policies. Karta facilitates payment processing but is not responsible for organiser refund decisions. Platform fees are non-refundable.' },
+    { title: 'Liability', body: 'Karta is provided as-is. We are not liable for events that are cancelled, postponed, or modified by organisers. Our total liability is limited to the fees you paid to Karta in the 12 months preceding any claim.' },
+  ];
+
+  const sections = doc === 'privacy' ? PRIVACY : TERMS;
+
   return (
-    <section style={{ borderTop: '1px solid #E5E0D4', background: 'rgba(250,246,238,0.5)' }}>
-      <div className="mx-auto max-w-[1200px] px-5 lg:px-10 py-14 lg:py-20">
-        <Reveal>
-          <div className="mb-8">
-            <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-2">Most asked</div>
-            <h2 className="font-display font-bold text-ink text-[28px] sm:text-[36px] tracking-[-0.03em]">
-              Popular questions
-            </h2>
+    <div className="max-w-[760px] mx-auto px-4 sm:px-6 py-12 space-y-6">
+      {/* Toggle */}
+      <div className="inline-flex rounded-xl p-1" style={{ background: '#E8EFEB' }}>
+        {(['privacy', 'terms'] as const).map(d => (
+          <button
+            key={d}
+            onClick={() => setDoc(d)}
+            className="px-5 py-2 rounded-lg text-[13px] font-medium transition-colors capitalize"
+            style={{
+              background: doc === d ? '#fff' : 'transparent',
+              color: doc === d ? '#0F1F18' : '#6B7A72',
+              boxShadow: doc === d ? '0 1px 2px rgba(15,31,24,0.06)' : 'none',
+            }}
+          >
+            {d === 'privacy' ? 'Privacy Policy' : 'Terms of Service'}
+          </button>
+        ))}
+      </div>
+
+      <div className="text-[11px]" style={{ color: '#6B7A72' }}>Last updated: June 2026</div>
+
+      <div className="space-y-4">
+        {sections.map((s) => (
+          <div key={s.title} style={{ background: '#fff', border: '1px solid #E5E0D4', borderRadius: 12, padding: '20px' }}>
+            <h3 className="font-semibold text-[14px] mb-2" style={{ color: '#0F1F18' }}>{s.title}</h3>
+            <p className="text-[13px] leading-relaxed" style={{ color: '#3A4A42' }}>{s.body}</p>
           </div>
-        </Reveal>
-
-        <div
-          className="rounded-2xl overflow-hidden"
-          style={{ border: '1px solid #E5E0D4' }}
-        >
-          {POPULAR.map((q, i) => (
-            <Reveal key={i} delay={i * 50} distance={12}>
-              <a
-                href="#"
-                className="flex items-center justify-between px-6 py-4 bg-surface hover:bg-cream transition-colors group"
-                style={i < POPULAR.length - 1 ? { borderBottom: '1px solid #E5E0D4' } : {}}
-              >
-                <div className="flex items-center gap-4">
-                  <span
-                    className="font-mono text-[9px] tracking-[0.18em] uppercase shrink-0 px-2 py-0.5 rounded-full"
-                    style={{ background: 'rgba(31,77,58,0.08)', color: '#1F4D3A' }}
-                  >
-                    {q.category}
-                  </span>
-                  <span className="text-ink text-[14px] lg:text-[15px]">{q.title}</span>
-                </div>
-                <ArrowRight size={15} strokeWidth={2} className="text-muted shrink-0 ml-3 translate-x-0 group-hover:translate-x-0.5 group-hover:text-primary transition" />
-              </a>
-            </Reveal>
-          ))}
-        </div>
+        ))}
       </div>
-    </section>
+    </div>
   );
 }
 
-/* ── Contact CTA ─────────────────────────────────────────── */
-function ContactCTA() {
-  return (
-    <section className="bg-primary text-cream relative overflow-hidden">
-      <div
-        aria-hidden
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(232,197,126,0.10) 1px, transparent 1px)',
-          backgroundSize: '32px 32px',
-        }}
-      />
-      <div className="relative mx-auto max-w-[860px] px-5 lg:px-10 py-16 lg:py-20 text-center">
-        <h2 className="font-display font-bold text-cream text-[32px] sm:text-[44px] lg:text-[52px] leading-[1.0] tracking-[-0.035em]">
-          Still stuck?
-        </h2>
-        <p className="mt-4 text-[16px] lg:text-[17px] leading-[1.55] max-w-[500px] mx-auto" style={{ color: 'rgba(250,246,238,0.75)' }}>
-          We read every email. Usually reply within a few hours during business days.
-        </p>
-        <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-          <a
-            href="mailto:hello@cre8so.com"
-            className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full font-medium transition-colors bg-accent text-primary-dark hover:bg-accent-dark"
-          >
-            Email us <ArrowRight size={16} strokeWidth={2} />
-          </a>
-          <Link
-            href="/contact"
-            className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full font-medium transition-colors"
-            style={{ border: '1px solid rgba(250,246,238,0.25)', color: '#FAF6EE' }}
-          >
-            Contact form <ArrowRight size={15} strokeWidth={2} />
-          </Link>
-        </div>
-      </div>
-    </section>
-  );
-}
+/* ── Main Page ───────────────────────────────────────────────────── */
+const TABS = [
+  { id: 'help', label: 'Help center' },
+  { id: 'status', label: 'Status' },
+  { id: 'changelog', label: 'Changelog' },
+  { id: 'legal', label: 'Legal' },
+] as const;
+
+type HelpTab = typeof TABS[number]['id'];
 
 export default function HelpPage() {
+  const [active, setActive] = useState<HelpTab>('help');
+
   return (
-    <>
-      <HelpHero />
-      <Categories />
-      <Popular />
-      <Reveal><ContactCTA /></Reveal>
-    </>
+    <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
+      {/* Sub-nav */}
+      <div style={{ background: '#fff', borderBottom: '1px solid #E5E0D4', position: 'sticky', top: 0, zIndex: 30 }}>
+        <div className="max-w-[1100px] mx-auto px-4 sm:px-6 flex items-center justify-between h-12">
+          <nav className="flex gap-0">
+            {TABS.map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActive(tab.id)}
+                className="px-4 h-12 text-[13px] font-medium transition-colors"
+                style={{
+                  color: active === tab.id ? '#1F4D3A' : '#6B7A72',
+                  borderBottom: active === tab.id ? '2px solid #1F4D3A' : '2px solid transparent',
+                  background: 'none',
+                }}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </nav>
+          <a href="/" className="text-[12px] flex items-center gap-1" style={{ color: '#6B7A72' }}>
+            ← Product
+          </a>
+        </div>
+      </div>
+
+      {active === 'help' && <HelpCenter />}
+      {active === 'status' && <StatusTab />}
+      {active === 'changelog' && <ChangelogTab />}
+      {active === 'legal' && <LegalTab />}
+    </div>
   );
 }
