@@ -33,16 +33,25 @@ export default async function CategoryEventPage({ params }: Props) {
   const now = new Date().toISOString();
   const { data: pages } = await admin
     .from('event_pages')
-    .select('id, event_id, title, tagline, cover_image_url, starts_at, ends_at, timezone, is_online, venue_name, organizer_name, custom_slug, series_name, events!inner(slug, user_id)')
+    .select('id, event_id, title, tagline, cover_image_url, starts_at, ends_at, timezone, is_online, venue_name, city, country, category, price_from, organizer_name, custom_slug, series_name, events!inner(slug, user_id)')
     .eq('is_public', true)
+    .ilike('category', category)
     .or(`ends_at.gte.${now},ends_at.is.null`)
     .order('starts_at', { ascending: true, nullsFirst: false })
     .limit(80);
 
   const safePages = pages ?? [];
 
-  // city column requires pending DB migration — no city counts available yet
-  const cityCounts: { city: string; count: number }[] = [];
+  // Compute city counts for this category
+  const cityCountMap = new Map<string, number>();
+  for (const p of safePages) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const city = (p as any).city as string | null;
+    if (city) cityCountMap.set(city, (cityCountMap.get(city) ?? 0) + 1);
+  }
+  const cityCounts = Array.from(cityCountMap.entries())
+    .sort((a, b) => b[1] - a[1])
+    .map(([city, count]) => ({ city, count }));
 
   let savedIds: string[] = [];
   try {

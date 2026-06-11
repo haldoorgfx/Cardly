@@ -14,8 +14,8 @@ interface SavedEvent {
     title: string;
     cover_image_url: string | null;
     starts_at: string | null;
+    city: string | null;
     venue_name: string | null;
-    venue_address: string | null;
     events: { id: string; name: string; slug: string; user_id: string }[];
   } | null;
 }
@@ -186,7 +186,7 @@ export default function SavedAndFollowing({ initialSaves, initialFollows }: Prop
                         </div>
                         {ep?.events?.[0] && (
                           <div className="text-[13px] mt-0.5" style={{ color: '#6B7A72' }}>
-                            {ep.events[0].name !== ep.title ? ep.events[0].name : (ep.venue_name ?? ep.venue_address)}
+                            {ep.events[0].name !== ep.title ? ep.events[0].name : (ep.city ?? ep.venue_name)}
                           </div>
                         )}
                         <div className="flex items-center justify-between mt-3">

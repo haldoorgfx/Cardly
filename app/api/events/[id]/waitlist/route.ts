@@ -11,12 +11,12 @@ const joinSchema = z.object({
   email: z.string().email(),
 });
 
-type PageRow = { id: string; title: string; starts_at: string | null; venue_name: string | null };
+type PageRow = { id: string; title: string; starts_at: string | null; city: string | null };
 
 async function resolvePage(admin: ReturnType<typeof createAdminClient>, id: string): Promise<PageRow | null> {
   const { data: page } = await admin
     .from('event_pages')
-    .select('id, title, starts_at, venue_name')
+    .select('id, title, starts_at, city')
     .or(`custom_slug.eq.${id},id.eq.${id}`)
     .eq('is_public', true)
     .maybeSingle();
@@ -27,7 +27,7 @@ async function resolvePage(admin: ReturnType<typeof createAdminClient>, id: stri
   if (!event) return null;
   const { data: ep } = await admin
     .from('event_pages')
-    .select('id, title, starts_at, venue_name')
+    .select('id, title, starts_at, city')
     .eq('event_id', event.id)
     .eq('is_public', true)
     .maybeSingle();
@@ -79,7 +79,7 @@ export async function POST(
     eventDate: page.starts_at
       ? new Date(page.starts_at).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
       : '',
-    city: page.venue_name ?? null,
+    city: page.city ?? null,
   }).catch(() => {});
 
   return NextResponse.json({ position }, { status: 201 });

@@ -36,17 +36,19 @@ export default async function SearchPage({ searchParams }: Props) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let query = (admin as any)
     .from('event_pages')
-    .select('id, event_id, title, tagline, cover_image_url, starts_at, ends_at, timezone, is_online, venue_name, venue_lat, venue_lng, organizer_name, custom_slug, series_name, events!inner(slug, user_id)')
+    .select('id, event_id, title, tagline, cover_image_url, starts_at, ends_at, timezone, is_online, venue_name, venue_lat, venue_lng, city, country, category, price_from, organizer_name, custom_slug, series_name, events!inner(slug, user_id)')
     .eq('is_public', true)
     .or(`ends_at.gte.${now.toISOString()},ends_at.is.null`)
     .order('starts_at', { ascending: true, nullsFirst: false })
     .limit(60);
 
+  const catParam = searchParams.category ?? '';
+  const freeOnly = searchParams.free === 'true';
+
   if (q) query = query.ilike('title', `%${q}%`);
-  // city, category, price_from filters require pending DB migration — disabled until applied
-  // if (cityParam) query = query.ilike('city', cityParam);
-  // if (catParam) query = query.ilike('category', catParam);
-  // if (freeOnly) query = query.eq('price_from', 0);
+  if (cityParam) query = query.ilike('city', cityParam);
+  if (catParam) query = query.ilike('category', catParam);
+  if (freeOnly) query = query.eq('price_from', 0);
   if (searchParams.format === 'online') query = query.eq('is_online', true);
   if (searchParams.format === 'inperson') query = query.eq('is_online', false);
   if (searchParams.date === 'week') query = query.lte('starts_at', weekEnd.toISOString());
