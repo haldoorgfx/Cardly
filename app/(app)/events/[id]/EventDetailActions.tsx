@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { MoreHorizontal, Pencil, RotateCcw, Archive, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Pencil, RotateCcw, Archive, Trash2, Copy } from 'lucide-react';
 
 interface Props {
   eventId: string;
@@ -42,6 +42,19 @@ export default function EventDetailActions({ eventId, eventName, status }: Props
     setBusy(false);
     setRenaming(false);
     router.refresh();
+  }
+
+  async function doDuplicate() {
+    setBusy(true);
+    try {
+      const res = await fetch(`/api/events/${eventId}/duplicate`, { method: 'POST' });
+      const data = await res.json();
+      if (res.ok && data.id) {
+        router.push(`/events/${data.id}`);
+      }
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function doStatus(newStatus: string) {
@@ -134,6 +147,14 @@ export default function EventDetailActions({ eventId, eventName, status }: Props
           >
             <Pencil size={13} strokeWidth={1.8} />
             Rename event
+          </DropdownMenu.Item>
+
+          <DropdownMenu.Item
+            className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[#FAF6EE] cursor-pointer outline-none"
+            onSelect={doDuplicate}
+          >
+            <Copy size={13} strokeWidth={1.8} />
+            Duplicate event
           </DropdownMenu.Item>
 
           {status === 'published' && (

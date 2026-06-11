@@ -13,7 +13,7 @@ import {
   Home, Layout, CalendarDays, MessageSquare, Bell,
   Ticket, ScanLine, User, Network, Trophy, Briefcase, Video, Palette, ExternalLink,
   UserCircle, HelpCircle, Zap, ShoppingCart, Handshake, Clock, IdCard,
-  Tag, Plug, Globe, Download, Link2,
+  Tag, Plug, Globe, Download, Link2, Code2,
 } from 'lucide-react';
 
 type Profile = {
@@ -71,6 +71,7 @@ const EVENT_NAV_SECTIONS = [
       { id: 'promoter-links',  label: 'Promoter Links',  icon: <Link2 size={15} strokeWidth={1.8} />,   segment: 'promoter-links' },
       { id: 'orders',          label: 'Orders',          icon: <ShoppingCart size={15} strokeWidth={1.8} />,   segment: 'orders' },
       { id: 'waitlist',        label: 'Waitlist',        icon: <Clock size={15} strokeWidth={1.8} />,          segment: 'waitlist' },
+      { id: 'approvals',       label: 'Approvals',       icon: <ShieldCheck size={15} strokeWidth={1.8} />,    segment: 'approvals' },
       { id: 'check-in',        label: 'Check-in',        icon: <ScanLine size={15} strokeWidth={1.8} />,       segment: 'check-in' },
       { id: 'communications',  label: 'Communications',  icon: <Bell size={15} strokeWidth={1.8} />,           segment: 'communications' },
     ],
@@ -118,6 +119,7 @@ const EVENT_NAV_SECTIONS = [
     title: 'Configure',
     items: [
       { id: 'settings',     label: 'Settings',     icon: <Sliders size={15} strokeWidth={1.8} />, segment: 'settings'     },
+      { id: 'embed',        label: 'Embed widgets', icon: <Code2 size={15} strokeWidth={1.8} />,   segment: 'embed'        },
       { id: 'integrations', label: 'Integrations', icon: <Plug size={15} strokeWidth={1.8} />,    segment: 'integrations' },
       { id: 'webhooks',     label: 'Webhooks',     icon: <Globe size={15} strokeWidth={1.8} />,   segment: 'webhooks'     },
     ],

@@ -1,0 +1,194 @@
+'use client';
+
+import { useState } from 'react';
+import { Check, Copy, Code2, ExternalLink } from 'lucide-react';
+
+interface Props {
+  eventId: string;
+  eventName: string;
+  slug: string;
+  status: string;
+}
+
+const BASE = 'https://karta.cre8so.com';
+
+type WidgetId = 'button' | 'card' | 'schedule';
+
+const WIDGETS: { id: WidgetId; label: string; description: string }[] = [
+  { id: 'button',   label: 'Register button',  description: 'A styled CTA button that opens the registration page.' },
+  { id: 'card',     label: 'Event card',        description: 'A full event card with cover, date, and register link.' },
+  { id: 'schedule', label: 'Schedule embed',    description: 'Embedded agenda/schedule for the event.' },
+];
+
+function getCode(widget: WidgetId, slug: string): string {
+  const url = `${BASE}/e/${slug}`;
+  const iframeBase = `<iframe src="${url}`;
+  switch (widget) {
+    case 'button':
+      return `<!-- Karta Register Button -->
+<a href="${url}/register"
+   style="display:inline-block;background:#1F4D3A;color:#FAF6EE;font-family:Inter,sans-serif;font-size:15px;font-weight:600;padding:12px 24px;border-radius:10px;text-decoration:none;"
+   target="_blank" rel="noopener">
+  Register now
+</a>`;
+    case 'card':
+      return `<!-- Karta Event Card -->
+${iframeBase}/widget/card"
+  width="400" height="220"
+  frameborder="0" scrolling="no"
+  style="border-radius:16px;border:1px solid #E5E0D4;overflow:hidden;"
+  title="Event card">
+</iframe>`;
+    case 'schedule':
+      return `<!-- Karta Schedule Widget -->
+${iframeBase}/widget/schedule"
+  width="100%" height="600"
+  frameborder="0" scrolling="no"
+  style="border-radius:16px;border:1px solid #E5E0D4;overflow:hidden;"
+  title="Event schedule">
+</iframe>`;
+  }
+}
+
+function CodeBlock({ code }: { code: string }) {
+  const [copied, setCopied] = useState(false);
+
+  function copy() {
+    navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  return (
+    <div className="relative rounded-xl overflow-hidden" style={{ background: '#0F1F18', border: '1px solid rgba(255,255,255,0.07)' }}>
+      <div className="flex items-center justify-between px-4 py-2.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+        <span className="flex items-center gap-1.5 text-[11px]" style={{ color: 'rgba(255,255,255,0.4)', fontFamily: '"JetBrains Mono", monospace' }}>
+          <Code2 size={12} />
+          HTML
+        </span>
+        <button
+          onClick={copy}
+          className="flex items-center gap-1.5 text-[12px] px-2.5 py-1 rounded-lg transition-colors"
+          style={{ background: copied ? 'rgba(45,122,79,0.25)' : 'rgba(255,255,255,0.07)', color: copied ? '#2D7A4F' : 'rgba(255,255,255,0.6)' }}
+        >
+          {copied ? <Check size={11} /> : <Copy size={11} />}
+          {copied ? 'Copied!' : 'Copy'}
+        </button>
+      </div>
+      <pre className="p-4 text-[12px] leading-relaxed overflow-x-auto" style={{ color: '#E8C57E', fontFamily: '"JetBrains Mono", monospace', margin: 0 }}>
+        <code>{code}</code>
+      </pre>
+    </div>
+  );
+}
+
+export function EmbedWidgetsClient({ eventName, slug, status }: Props) {
+  const [active, setActive] = useState<WidgetId>('button');
+  const publicUrl = `${BASE}/e/${slug}`;
+
+  const isUnpublished = status !== 'published';
+
+  return (
+    <div className="max-w-[860px] mx-auto px-5 py-10">
+      {/* Header */}
+      <div className="mb-8">
+        <p className="text-[11px] tracking-[0.16em] uppercase mb-2 font-medium" style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
+          Configure
+        </p>
+        <h1 className="font-display font-semibold text-[26px] tracking-tight mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+          Embed widgets
+        </h1>
+        <p className="text-[14px] leading-relaxed" style={{ color: '#6B7A72' }}>
+          Paste these snippets into any website to show your event.
+        </p>
+      </div>
+
+      {isUnpublished && (
+        <div className="flex items-start gap-3 rounded-xl px-4 py-3.5 mb-8" style={{ background: '#FEF3CD', border: '1px solid #E8C57E' }}>
+          <span className="text-[13px] font-medium" style={{ color: '#7A5C00' }}>
+            Your event is not published yet. Widgets will show a placeholder until the event goes live.
+          </span>
+        </div>
+      )}
+
+      {/* Widget selector */}
+      <div className="grid sm:grid-cols-3 gap-3 mb-8">
+        {WIDGETS.map(w => (
+          <button
+            key={w.id}
+            onClick={() => setActive(w.id)}
+            className="text-left rounded-xl p-4 transition-all"
+            style={{
+              background: active === w.id ? '#1F4D3A' : '#FFFFFF',
+              border: `1px solid ${active === w.id ? '#1F4D3A' : '#E5E0D4'}`,
+            }}
+          >
+            <div className="text-[13px] font-semibold mb-1" style={{ color: active === w.id ? '#FAF6EE' : '#0F1F18' }}>
+              {w.label}
+            </div>
+            <div className="text-[12px] leading-snug" style={{ color: active === w.id ? 'rgba(250,246,238,0.7)' : '#6B7A72' }}>
+              {w.description}
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {/* Preview (for button widget) */}
+      {active === 'button' && (
+        <div className="rounded-xl p-6 mb-6 flex items-center justify-center" style={{ background: '#F5F2EC', border: '1px solid #E5E0D4', minHeight: 100 }}>
+          <a
+            href={`${publicUrl}/register`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ display: 'inline-block', background: '#1F4D3A', color: '#FAF6EE', fontFamily: 'Inter, sans-serif', fontSize: 15, fontWeight: 600, padding: '12px 24px', borderRadius: 10, textDecoration: 'none' }}
+          >
+            Register now
+          </a>
+        </div>
+      )}
+
+      {/* Code block */}
+      <CodeBlock code={getCode(active, slug)} />
+
+      {/* Instructions */}
+      <div className="mt-6 rounded-xl p-5" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
+        <h3 className="text-[13px] font-semibold mb-3" style={{ color: '#0F1F18' }}>How to use</h3>
+        <ol className="space-y-2">
+          {[
+            'Copy the code snippet above.',
+            'Open your website editor (Webflow, WordPress, Squarespace, Notion, etc.).',
+            'Paste it in an HTML / Embed block.',
+            'Save and publish your page.',
+          ].map((step, i) => (
+            <li key={i} className="flex items-start gap-3 text-[13px]" style={{ color: '#3A4A42' }}>
+              <span className="shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-semibold mt-0.5" style={{ background: '#E8EFEB', color: '#1F4D3A', fontFamily: '"JetBrains Mono", monospace' }}>
+                {i + 1}
+              </span>
+              {step}
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      {/* Public link */}
+      <div className="mt-4 flex items-center gap-3 rounded-xl px-4 py-3" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
+        <span className="text-[12px] text-[#6B7A72]" style={{ fontFamily: '"JetBrains Mono", monospace' }}>{publicUrl}</span>
+        <a
+          href={publicUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ml-auto flex items-center gap-1.5 text-[12px] font-medium hover:opacity-75 transition"
+          style={{ color: '#1F4D3A' }}
+        >
+          <ExternalLink size={12} />
+          Open event
+        </a>
+      </div>
+
+      {/* Event name */}
+      <p className="mt-3 text-center text-[12px]" style={{ color: '#6B7A72' }}>
+        Widgets for <span className="font-medium" style={{ color: '#0F1F18' }}>{eventName}</span>
+      </p>
+    </div>
+  );
+}
