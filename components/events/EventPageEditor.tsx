@@ -2,7 +2,8 @@
 
 import { useState, useRef, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Upload, Globe, MapPin, ExternalLink, ChevronRight, ChevronLeft, Check } from 'lucide-react';
+import { Upload, Globe, ExternalLink, ChevronRight, ChevronLeft, Check } from 'lucide-react';
+import { PlacesAutocomplete } from '@/components/shared/PlacesAutocomplete';
 import { TIMEZONES } from '@/lib/events/format';
 import type { Database } from '@/types/database';
 
@@ -478,18 +479,16 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
           ) : (
             <>
               <Field label="Venue name">
-                <div className="relative">
-                  <MapPin size={14} strokeWidth={2} className="absolute left-3 top-3 pointer-events-none" style={{ color: '#6B7A72' }} />
-                  <input
-                    value={venueName}
-                    onChange={e => setVenueName(e.target.value)}
-                    placeholder="Palais du Peuple"
-                    className="w-full h-10 pl-9 pr-3 rounded-lg text-[14px] outline-none transition"
-                    style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
-                    onFocus={e => (e.target.style.borderColor = '#E8C57E')}
-                    onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
-                  />
-                </div>
+                <PlacesAutocomplete
+                  value={venueName}
+                  onChange={v => setVenueName(v)}
+                  onPlaceSelected={p => {
+                    setVenueName(p.venue_name || p.venue_address);
+                    if (p.venue_address) setVenueAddress(p.venue_address);
+                    if (p.city) setCity(p.city);
+                  }}
+                  placeholder="Search a venue or address"
+                />
               </Field>
               <Field label="Venue address">
                 <input
