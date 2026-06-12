@@ -146,6 +146,18 @@ function Dropdown({
   );
 }
 
+/* ─── Full-width section band (alternating backgrounds) ─────────── */
+
+function Band({ bg, divider = true, children }: { bg: string; divider?: boolean; children: React.ReactNode }) {
+  return (
+    <div className="w-full" style={{ background: bg, borderTop: divider ? '1px solid #E5E0D4' : undefined }}>
+      <div className="mx-auto px-5 lg:px-10 py-12 lg:py-16" style={{ maxWidth: 1280 }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
 /* ─── Main ──────────────────────────────────────────────────────── */
 
 export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: Props) {
@@ -296,10 +308,9 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
         </div>
       </section>
 
-      <div className="mx-auto px-5 lg:px-10 py-10 lg:py-12" style={{ maxWidth: 1280 }}>
-
-        {/* ── Stats band ──────────────────────────────────────── */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 mb-12 overflow-hidden rounded-2xl" style={{ border: '1px solid #E5E0D4', gap: 1, background: '#E5E0D4' }}>
+      {/* ── Stats — white band ──────────────────────────────── */}
+      <Band bg="#FFFFFF">
+        <div className="grid grid-cols-2 lg:grid-cols-4 overflow-hidden rounded-2xl" style={{ border: '1px solid #E5E0D4', gap: 1, background: '#E5E0D4' }}>
           {STATS.map(s => (
             <div key={s.l} className="flex items-center gap-4 px-5 py-5" style={{ background: '#FFFFFF' }}>
               <div className="w-[52px] h-[52px] rounded-[14px] flex items-center justify-center shrink-0" style={{ background: '#1F4D3A' }}>
@@ -315,30 +326,33 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
             </div>
           ))}
         </div>
+      </Band>
 
-        {/* ── Explore by category ─────────────────────────────── */}
-        <div className="mb-12">
-          <h2 className="font-title font-bold text-[22px] sm:text-[26px] mb-5" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
-            Explore by category
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
-            {CATS_TILES.map(c => (
-              <button key={c.n}
-                onClick={() => { if (c.cat) { setActiveCat(c.cat); scrollToResults(); } else { router.push('/events/search'); } }}
-                className="rounded-2xl py-5 px-4 text-center border transition hover:-translate-y-[3px] hover:shadow-md block"
-                style={{ background: `${c.bg}55`, borderColor: '#E5E0D4' }}>
-                <div className="w-11 h-11 rounded-[12px] mx-auto mb-3 flex items-center justify-center" style={{ background: c.bg }}>
-                  <svg viewBox="0 0 24 24" className="w-[22px] h-[22px]" fill="none" stroke={c.fg} strokeWidth="1.9">
-                    <path d={c.path} />
-                  </svg>
-                </div>
-                <div className="font-display font-medium text-[14px]" style={{ color: '#0F1F18' }}>{c.n}</div>
-              </button>
-            ))}
-          </div>
+      {/* ── Explore by category — cream band ────────────────── */}
+      <Band bg="#FAF6EE">
+        <h2 className="font-title font-bold text-[22px] sm:text-[26px] mb-5" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+          Explore by category
+        </h2>
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+          {CATS_TILES.map(c => (
+            <button key={c.n}
+              onClick={() => { if (c.cat) { setActiveCat(c.cat); scrollToResults(); } else { router.push('/events/search'); } }}
+              className="rounded-2xl py-5 px-4 text-center border transition hover:-translate-y-[3px] hover:shadow-md block"
+              style={{ background: `${c.bg}55`, borderColor: '#E5E0D4' }}>
+              <div className="w-11 h-11 rounded-[12px] mx-auto mb-3 flex items-center justify-center" style={{ background: c.bg }}>
+                <svg viewBox="0 0 24 24" className="w-[22px] h-[22px]" fill="none" stroke={c.fg} strokeWidth="1.9">
+                  <path d={c.path} />
+                </svg>
+              </div>
+              <div className="font-display font-medium text-[14px]" style={{ color: '#0F1F18' }}>{c.n}</div>
+            </button>
+          ))}
         </div>
+      </Band>
 
-        {/* ── Featured (only with no active filter) ───────────── */}
+      {/* ── Featured + Results — white band ──────────────────── */}
+      <Band bg="#FFFFFF">
+        {/* Featured (only with no active filter) */}
         {featured && !hasFilter && (
           <Link href={`/e/${getSlug(featured)}`}
             className="relative block h-72 sm:h-80 rounded-[22px] overflow-hidden mb-10 group"
@@ -370,7 +384,7 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
           </Link>
         )}
 
-        {/* ── Results ─────────────────────────────────────────── */}
+        {/* Results */}
         <div ref={resultsRef} className="flex items-end justify-between gap-4 mb-5 scroll-mt-24">
           <div>
             <h2 className="font-title font-bold text-[22px] sm:text-[26px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
@@ -392,7 +406,7 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
             )}
             <button onClick={goToMap}
               className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full text-[13px] font-semibold transition hover:bg-[#E8EFEB]"
-              style={{ border: '1px solid #1F4D3A', color: '#1F4D3A', background: '#FFFFFF' }}>
+              style={{ border: '1px solid #1F4D3A', color: '#1F4D3A', background: '#FAF6EE' }}>
               <MapIcon size={14} /> View on map
             </button>
           </div>
@@ -405,96 +419,95 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
             ))}
           </div>
         ) : (
-          <div className="rounded-2xl py-16 px-6 text-center" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
+          <div className="rounded-2xl py-16 px-6 text-center" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }}>
             <Search size={28} style={{ color: '#C9C3B1' }} className="mx-auto mb-3" />
             <p className="font-display font-semibold text-[16px]" style={{ color: '#0F1F18' }}>No events found</p>
             <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>Try a different search or clear your filters.</p>
           </div>
         )}
+      </Band>
 
-        {/* ── Browse by city ──────────────────────────────────── */}
-        <div className="mt-14">
+      {/* ── Browse by city — sage band ──────────────────────── */}
+      <Band bg="#E8EFEB">
+        <h2 className="font-title font-bold text-[22px] sm:text-[26px] mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+          Browse by city
+        </h2>
+        <p className="text-[13px] mb-5" style={{ color: '#3A4A42' }}>Jump straight to what&apos;s happening in your city.</p>
+        <div className="flex flex-wrap gap-2.5">
+          {cities.slice(0, 16).map(c => (
+            <Link key={c} href={`/events/city/${citySlug(c)}`}
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full border text-[13px] font-medium transition hover:-translate-y-0.5 hover:shadow-sm hover:border-[#1F4D3A]"
+              style={{ background: '#FFFFFF', borderColor: '#D8E2DC', color: '#3A4A42', textDecoration: 'none' }}>
+              <MapPin size={13} style={{ color: '#1F4D3A' }} /> {c}
+            </Link>
+          ))}
+        </div>
+      </Band>
+
+      {/* ── Top hosts — cream band ──────────────────────────── */}
+      {hosts.length > 0 && (
+        <Band bg="#FAF6EE">
           <h2 className="font-title font-bold text-[22px] sm:text-[26px] mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
-            Browse by city
+            Top event hosts
           </h2>
-          <p className="text-[13px] mb-5" style={{ color: '#6B7A72' }}>Jump straight to what&apos;s happening in your city.</p>
-          <div className="flex flex-wrap gap-2.5">
-            {cities.slice(0, 16).map(c => (
-              <Link key={c} href={`/events/city/${citySlug(c)}`}
-                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full border text-[13px] font-medium transition hover:-translate-y-0.5 hover:shadow-sm hover:border-[#1F4D3A]"
-                style={{ background: '#FFFFFF', borderColor: '#E5E0D4', color: '#3A4A42', textDecoration: 'none' }}>
-                <MapPin size={13} style={{ color: '#1F4D3A' }} /> {c}
+          <p className="text-[13px] mb-5" style={{ color: '#6B7A72' }}>Organizers creating events worth showing up for.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {hosts.map((h, i) => (
+              <Link key={h.name}
+                href={h.userId ? `/o/${h.userId}` : `/events/search?q=${encodeURIComponent(h.name)}`}
+                className="group flex items-center gap-4 p-4 rounded-2xl transition hover:-translate-y-0.5 hover:shadow-md"
+                style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', textDecoration: 'none' }}>
+                {h.avatar ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={h.avatar} alt={h.name} className="w-12 h-12 rounded-[14px] object-cover shrink-0" style={{ border: '2px solid #E8EFEB' }} />
+                ) : (
+                  <div className="w-12 h-12 rounded-[14px] shrink-0 flex items-center justify-center text-white font-display font-semibold text-[15px]"
+                    style={{ background: HOST_BG[i % HOST_BG.length] }}>
+                    {initials(h.name)}
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <div className="font-display font-semibold text-[15px] truncate group-hover:text-[#1F4D3A] transition-colors" style={{ color: '#0F1F18' }}>{h.name}</div>
+                  <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>
+                    {h.count} event{h.count !== 1 ? 's' : ''} · Tap to view
+                  </div>
+                </div>
+                <span className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition group-hover:bg-[#1F4D3A] group-hover:text-white"
+                  style={{ border: '1px solid #E5E0D4', color: '#1F4D3A' }}>
+                  <ArrowRight size={15} />
+                </span>
               </Link>
             ))}
           </div>
-        </div>
+        </Band>
+      )}
 
-        {/* ── Top hosts ───────────────────────────────────────── */}
-        {hosts.length > 0 && (
-          <div className="mt-14">
-            <h2 className="font-title font-bold text-[22px] sm:text-[26px] mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
-              Top event hosts
-            </h2>
-            <p className="text-[13px] mb-5" style={{ color: '#6B7A72' }}>Organizers creating events worth showing up for.</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {hosts.map((h, i) => (
-                <Link key={h.name}
-                  href={h.userId ? `/o/${h.userId}` : `/events/search?q=${encodeURIComponent(h.name)}`}
-                  className="group flex items-center gap-4 p-4 rounded-2xl transition hover:-translate-y-0.5 hover:shadow-md"
-                  style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', textDecoration: 'none' }}>
-                  {h.avatar ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={h.avatar} alt={h.name} className="w-12 h-12 rounded-[14px] object-cover shrink-0" style={{ border: '2px solid #E8EFEB' }} />
-                  ) : (
-                    <div className="w-12 h-12 rounded-[14px] shrink-0 flex items-center justify-center text-white font-display font-semibold text-[15px]"
-                      style={{ background: HOST_BG[i % HOST_BG.length] }}>
-                      {initials(h.name)}
-                    </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <div className="font-display font-semibold text-[15px] truncate group-hover:text-[#1F4D3A] transition-colors" style={{ color: '#0F1F18' }}>{h.name}</div>
-                    <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>
-                      {h.count} event{h.count !== 1 ? 's' : ''} · Tap to view
-                    </div>
-                  </div>
-                  <span className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition group-hover:bg-[#1F4D3A] group-hover:text-white"
-                    style={{ border: '1px solid #E5E0D4', color: '#1F4D3A' }}>
-                    <ArrowRight size={15} />
-                  </span>
-                </Link>
-              ))}
-            </div>
+      {/* ── CTA — full-width forest band ──────────────────────── */}
+      <div className="relative w-full overflow-hidden" style={{ background: '#163828' }}>
+        <div aria-hidden className="absolute inset-0 pointer-events-none"
+          style={{ background: 'radial-gradient(50% 90% at 85% 50%, rgba(232,197,126,0.20), transparent 60%)' }} />
+        <div className="relative mx-auto px-5 lg:px-10 py-14 lg:py-20 flex flex-col lg:flex-row lg:items-center justify-between gap-8" style={{ maxWidth: 1280 }}>
+          <div className="max-w-xl">
+            <h3 className="font-title font-bold text-white" style={{ fontSize: 'clamp(24px,3vw,34px)', letterSpacing: '-0.025em', lineHeight: 1.1 }}>
+              Ready to host your next event?
+            </h3>
+            <p className="mt-3 text-[15px] leading-[1.6]" style={{ color: 'rgba(255,255,255,0.66)' }}>
+              Create a beautiful event page, sell tickets, and give every attendee a personalized Karta Card they&apos;ll share.
+            </p>
           </div>
-        )}
-
-        {/* ── CTA band ────────────────────────────────────────── */}
-        <div className="mt-16 relative rounded-[22px] overflow-hidden" style={{ background: '#163828' }}>
-          <div aria-hidden className="absolute inset-0 pointer-events-none"
-            style={{ background: 'radial-gradient(55% 90% at 88% 50%, rgba(232,197,126,0.22), transparent 60%)' }} />
-          <div className="relative px-7 py-10 sm:px-12 sm:py-14 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-            <div className="max-w-xl">
-              <h3 className="font-title font-bold text-white" style={{ fontSize: 'clamp(24px,3vw,32px)', letterSpacing: '-0.025em', lineHeight: 1.1 }}>
-                Ready to host your next event?
-              </h3>
-              <p className="mt-3 text-[15px] leading-[1.6]" style={{ color: 'rgba(255,255,255,0.66)' }}>
-                Create a beautiful event page, sell tickets, and give every attendee a personalized Karta Card they&apos;ll share.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-3 shrink-0">
-              <Link href="/events/new"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-[14px] transition hover:opacity-90"
-                style={{ background: '#E8C57E', color: '#163828', textDecoration: 'none' }}>
-                <Ticket size={16} /> Host an event
-              </Link>
-              <Link href="/how-it-works"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-medium text-[14px] transition hover:bg-white/5"
-                style={{ background: 'transparent', border: '1px solid rgba(232,197,126,0.4)', color: '#E8C57E', textDecoration: 'none' }}>
-                How it works
-              </Link>
-            </div>
+          <div className="flex flex-wrap gap-3 shrink-0">
+            <Link href="/events/new"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-[14px] transition hover:opacity-90"
+              style={{ background: '#E8C57E', color: '#163828', textDecoration: 'none' }}>
+              <Ticket size={16} /> Host an event
+            </Link>
+            <Link href="/how-it-works"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-medium text-[14px] transition hover:bg-white/5"
+              style={{ background: 'transparent', border: '1px solid rgba(232,197,126,0.4)', color: '#E8C57E', textDecoration: 'none' }}>
+              How it works
+            </Link>
           </div>
         </div>
-
       </div>
     </div>
   );
