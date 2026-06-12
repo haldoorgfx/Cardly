@@ -13,6 +13,18 @@ export async function POST(req: NextRequest, { params }: Params) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const adminAny = admin as any;
 
+  // Verify registration is confirmed (not pending/cancelled)
+  const { data: reg } = await adminAny
+    .from('registrations')
+    .select('id, status')
+    .eq('id', registrationId)
+    .eq('event_id', eventId)
+    .maybeSingle();
+  if (!reg) return NextResponse.json({ error: 'Registration not found' }, { status: 404 });
+  if (!['confirmed', 'checked_in'].includes(reg.status)) {
+    return NextResponse.json({ error: 'Only confirmed attendees can book sessions' }, { status: 403 });
+  }
+
   // Check capacity
   const { data: session } = await adminAny
     .from('sessions')

@@ -17,6 +17,11 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const { registration_id, ...rest } = parsed.data;
   const admin = createAdminClient();
 
+  const { data: epFb } = await admin.from('event_pages').select('starts_at').eq('event_id', params.id).maybeSingle();
+  if (epFb?.starts_at && new Date(epFb.starts_at) > new Date()) {
+    return NextResponse.json({ error: 'Feedback is not available yet — the event has not started' }, { status: 422 });
+  }
+
   const { error } = await admin
     .from('event_feedback')
     .upsert({ registration_id, event_id: params.id, ...rest }, { onConflict: 'registration_id,event_id' });

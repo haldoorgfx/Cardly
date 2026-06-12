@@ -12,6 +12,8 @@ interface Props {
   tickets: Ticket[];
   checkedIn: number;
   walkInsToday: number;
+  maxCapacity?: number | null;
+  confirmedCount?: number;
 }
 
 type Step = 'info' | 'ticket' | 'payment' | 'success';
@@ -30,12 +32,17 @@ function fmtPrice(price: number, currency: string) {
   catch { return `${currency} ${price}`; }
 }
 
-export function WalkInClient({ eventId, eventName, tickets, checkedIn, walkInsToday }: Props) {
+export function WalkInClient({ eventId, eventName, tickets, checkedIn, walkInsToday, maxCapacity, confirmedCount = 0 }: Props) {
   const [step, setStep] = useState<Step>('info');
   const [form, setForm] = useState<WalkInForm>({ name: '', email: '', phone: '', ticketId: tickets[0]?.id ?? '', payment: 'card' });
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [result, setResult] = useState<{ name: string; ticketName: string; ticketNumber: string } | null>(null);
   const [localWalkIns, setLocalWalkIns] = useState(walkInsToday);
+  const [localConfirmed, setLocalConfirmed] = useState(confirmedCount);
+
+  const remaining = maxCapacity != null ? maxCapacity - localConfirmed : null;
+  const isFull = remaining !== null && remaining <= 0;
 
   const selectedTicket = tickets.find(t => t.id === form.ticketId);
 
@@ -46,6 +53,7 @@ export function WalkInClient({ eventId, eventName, tickets, checkedIn, walkInsTo
   async function submit() {
     if (!form.name.trim() || !form.email.trim()) return;
     setSubmitting(true);
+    setSubmitError(null);
     const res = await fetch(`/api/events/${eventId}/walk-in`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -59,7 +67,11 @@ export function WalkInClient({ eventId, eventName, tickets, checkedIn, walkInsTo
         ticketNumber: data.ticket_number ?? data.id?.slice(-6).toUpperCase() ?? 'WALKIN',
       });
       setLocalWalkIns(w => w + 1);
+      setLocalConfirmed(c => c + 1);
       setStep('success');
+    } else {
+      const data = await res.json() as { error?: string };
+      setSubmitError(data.error ?? 'Registration failed');
     }
     setSubmitting(false);
   }
@@ -90,8 +102,21 @@ export function WalkInClient({ eventId, eventName, tickets, checkedIn, walkInsTo
         <div className="flex items-center gap-4 text-[12px]" style={{ color: 'rgba(255,255,255,0.5)', fontFamily: '"JetBrains Mono", monospace' }}>
           <span className="flex items-center gap-1.5"><Users size={12} /> {checkedIn} checked in</span>
           <span className="flex items-center gap-1.5"><DoorOpen size={12} /> {localWalkIns} walk-ins</span>
+          {remaining !== null && (
+            <span className="flex items-center gap-1.5" style={{ color: remaining <= 5 ? '#E8C57E' : 'rgba(255,255,255,0.5)' }}>
+              {remaining} spot{remaining !== 1 ? 's' : ''} left
+            </span>
+          )}
         </div>
       </div>
+
+      {isFull && (
+        <div className="max-w-xl mx-auto px-5 pt-6">
+          <div className="rounded-xl px-4 py-3 text-[13px] font-medium" style={{ background: 'rgba(184,66,60,0.15)', border: '1px solid rgba(184,66,60,0.3)', color: '#ff8080' }}>
+            This event is at full capacity — walk-in registration is not available.
+          </div>
+        </div>
+      )}
 
       {step === 'success' && result ? (
         <div className="max-w-md mx-auto px-5 py-16 text-center">
@@ -244,11 +269,16 @@ export function WalkInClient({ eventId, eventName, tickets, checkedIn, walkInsTo
                 </div>
               )}
 
+              {submitError && (
+                <div className="mb-4 px-3 py-2.5 rounded-xl text-[13px]" style={{ background: 'rgba(184,66,60,0.15)', border: '1px solid rgba(184,66,60,0.3)', color: '#ff8080' }}>
+                  {submitError}
+                </div>
+              )}
               <div className="flex gap-3">
                 <button onClick={() => setStep('ticket')} className="flex-1 py-3 rounded-2xl text-[14px] font-semibold border transition hover:opacity-70" style={{ borderColor: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)' }}>
                   Back
                 </button>
-                <button onClick={submit} disabled={submitting} className="flex-1 py-3 rounded-2xl text-[15px] font-semibold transition hover:opacity-90 disabled:opacity-50" style={{ background: '#E8C57E', color: '#0F1F18' }}>
+                <button onClick={submit} disabled={submitting || isFull} className="flex-1 py-3 rounded-2xl text-[15px] font-semibold transition hover:opacity-90 disabled:opacity-50" style={{ background: '#E8C57E', color: '#0F1F18' }}>
                   {submitting ? 'Registering…' : 'Register & check in'}
                 </button>
               </div>

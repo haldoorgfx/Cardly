@@ -31,6 +31,19 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (attendees.length > 1000)
     return NextResponse.json({ error: 'Maximum 1000 attendees per import' }, { status: 400 });
 
+  // Capacity check before import
+  const { data: ep } = await admin.from('event_pages').select('max_capacity').eq('event_id', params.id).maybeSingle();
+  if (ep?.max_capacity) {
+    const { count: confirmed } = await admin.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', params.id).in('status', ['confirmed', 'checked_in']);
+    const remaining = ep.max_capacity - (confirmed ?? 0);
+    if (remaining <= 0) {
+      return NextResponse.json({ error: 'This event is at full capacity — import cannot proceed' }, { status: 409 });
+    }
+    if (attendees.length > remaining) {
+      return NextResponse.json({ error: `Import exceeds capacity. Only ${remaining} spot${remaining === 1 ? '' : 's'} remain${remaining === 1 ? 's' : ''} but you are importing ${attendees.length} attendees.` }, { status: 409 });
+    }
+  }
+
   // Verify ticket type if provided
   let ticket: { id: string; price: number; currency: string } | null = null;
   if (ticket_type_id) {

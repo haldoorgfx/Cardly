@@ -66,6 +66,15 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (!attendee_name?.trim()) return NextResponse.json({ error: 'Name is required' }, { status: 400 });
   if (!attendee_email?.trim()) return NextResponse.json({ error: 'Email is required' }, { status: 400 });
 
+  // Capacity check
+  const { data: epManual } = await admin.from('event_pages').select('max_capacity').eq('event_id', params.id).maybeSingle();
+  if (epManual?.max_capacity) {
+    const { count: confirmed } = await admin.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', params.id).in('status', ['confirmed', 'checked_in']);
+    if ((confirmed ?? 0) >= epManual.max_capacity) {
+      return NextResponse.json({ error: 'This event is at full capacity — manual registration cannot be added' }, { status: 409 });
+    }
+  }
+
   // Verify ticket belongs to this event (if provided)
   let ticket: { id: string; name: string; price: number; currency: string } | null = null;
   if (ticket_type_id) {
@@ -139,6 +148,18 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   if (status !== undefined) {
     const VALID_STATUSES = ['pending', 'confirmed', 'checked_in', 'cancelled', 'refunded'];
     if (!VALID_STATUSES.includes(status)) return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
+
+    // Capacity check when manually promoting to confirmed or checked_in
+    if (status === 'confirmed' || status === 'checked_in') {
+      const { data: epPatch } = await admin.from('event_pages').select('max_capacity').eq('event_id', params.id).maybeSingle();
+      if (epPatch?.max_capacity) {
+        const { count: confirmedCount } = await admin.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', params.id).in('status', ['confirmed', 'checked_in']).neq('id', registrationId);
+        if ((confirmedCount ?? 0) >= epPatch.max_capacity) {
+          return NextResponse.json({ error: 'Cannot confirm — the event is at full capacity' }, { status: 409 });
+        }
+      }
+    }
+
     patch.status = status;
     if (status === 'checked_in') patch.checked_in_at = new Date().toISOString();
     else patch.checked_in_at = null;

@@ -112,6 +112,20 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     .single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
+  // Validate max_capacity is not being set below current confirmed count
+  if (parsed.data.max_capacity !== undefined && parsed.data.max_capacity !== null) {
+    const { count: confirmedCount } = await admin
+      .from('registrations')
+      .select('id', { count: 'exact', head: true })
+      .eq('event_id', params.id)
+      .in('status', ['confirmed', 'checked_in']);
+    if ((confirmedCount ?? 0) > parsed.data.max_capacity) {
+      return NextResponse.json({
+        error: `Cannot set capacity to ${parsed.data.max_capacity} — there are already ${confirmedCount} confirmed registrations.`,
+      }, { status: 422 });
+    }
+  }
+
   // Resolve series_id from series_name (create or find existing)
   let resolvedSeriesId: string | null | undefined = undefined;
   const { series_name, ...restData } = parsed.data;

@@ -33,6 +33,22 @@ export async function POST(req: Request, { params }: Params) {
   if (!email || !role) return NextResponse.json({ error: 'email and role required' }, { status: 400 });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = admin as any;
+
+  // Block duplicate active assignment (same email + role already active)
+  const { data: existing } = await db
+    .from('event_staff')
+    .select('id')
+    .eq('event_id', id)
+    .eq('email', email.toLowerCase())
+    .eq('role', role)
+    .neq('status', 'removed')
+    .maybeSingle();
+  if (existing) {
+    return NextResponse.json({ error: `${email} already has an active ${role} role for this event` }, { status: 409 });
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await (admin as any).from('event_staff').insert({
     event_id: id, owner_id: user.id, email, role, expires: expires ?? '24h_after', status: 'pending',
   }).select().single();

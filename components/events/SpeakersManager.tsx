@@ -143,10 +143,16 @@ export default function SpeakersManager({ eventId, initialSpeakers }: Props) {
   async function handleDelete(speakerId: string) {
     if (!confirm('Delete this speaker? This cannot be undone.')) return;
     setDeletingId(speakerId);
+    setError(null);
     try {
-      await fetch(`/api/events/${eventId}/speakers?speakerId=${speakerId}`, {
+      const res = await fetch(`/api/events/${eventId}/speakers?speakerId=${speakerId}`, {
         method: 'DELETE',
       });
+      if (!res.ok) {
+        const data = await res.json() as { error?: string };
+        setError(data.error ?? 'Failed to delete speaker');
+        return;
+      }
       setSpeakers((prev) => prev.filter((s) => s.id !== speakerId));
     } finally {
       setDeletingId(null);

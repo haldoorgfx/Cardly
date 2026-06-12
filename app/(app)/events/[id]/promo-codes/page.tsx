@@ -13,9 +13,10 @@ export default async function PromoCodesPage({ params }: Props) {
   if (!user) redirect('/login');
 
   const admin = createAdminClient();
-  const [{ data: event }, { data: codes }] = await Promise.all([
+  const [{ data: event }, { data: codes }, { data: eventPage }] = await Promise.all([
     admin.from('events').select('id, name, slug').eq('id', id).eq('user_id', user.id).single(),
     admin.from('promo_codes').select('*').eq('event_id', id).order('created_at', { ascending: false }),
+    admin.from('event_pages').select('starts_at, ends_at').eq('event_id', id).maybeSingle(),
   ]);
 
   if (!event) redirect('/dashboard');
@@ -32,7 +33,11 @@ export default async function PromoCodesPage({ params }: Props) {
           </p>
         </div>
         {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        <PromoCodesManager eventId={id} initialCodes={(codes ?? []) as any} />
+        <PromoCodesManager
+          eventId={id}
+          initialCodes={(codes ?? []) as any}
+          eventDates={{ starts_at: eventPage?.starts_at ?? null, ends_at: eventPage?.ends_at ?? null }}
+        />
       </div>
     </div>
   );

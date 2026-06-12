@@ -20,12 +20,16 @@ export default async function GroupRegistrationPage({ params }: Props) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const adminAny = admin as any;
 
-  const { data: tickets } = await adminAny
-    .from('ticket_types')
-    .select('id, name, description, price, currency, quantity, quantity_sold, is_visible')
-    .eq('event_id', event.id)
-    .eq('is_visible', true)
-    .order('price', { ascending: true });
+  const [{ data: tickets }, { data: ep }, { count: confirmedCount }] = await Promise.all([
+    adminAny
+      .from('ticket_types')
+      .select('id, name, description, price, currency, quantity, quantity_sold, is_visible')
+      .eq('event_id', event.id)
+      .eq('is_visible', true)
+      .order('price', { ascending: true }),
+    adminAny.from('event_pages').select('max_capacity').eq('event_id', event.id).maybeSingle(),
+    adminAny.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', event.id).in('status', ['confirmed', 'checked_in']),
+  ]);
 
   const available = (tickets ?? []).filter(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -38,6 +42,8 @@ export default async function GroupRegistrationPage({ params }: Props) {
       eventName={event.name}
       eventSlug={params.slug}
       tickets={available}
+      maxCapacity={ep?.max_capacity ?? null}
+      confirmedCount={confirmedCount ?? 0}
     />
   );
 }

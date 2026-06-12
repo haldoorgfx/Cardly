@@ -27,6 +27,7 @@ const STATUS_PILL: Record<string, { label: string; cls: string }> = {
 export function ApprovalsClient({ eventId, eventName, initialRegs }: Props) {
   const [regs, setRegs] = useState<Reg[]>(initialRegs);
   const [busy, setBusy] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'pending_approval' | 'confirmed' | 'rejected'>('all');
 
   const pending   = regs.filter(r => r.status === 'pending_approval').length;
@@ -37,6 +38,7 @@ export function ApprovalsClient({ eventId, eventName, initialRegs }: Props) {
 
   async function act(regId: string, action: 'approve' | 'reject') {
     setBusy(regId);
+    setActionError(null);
     const res = await fetch(`/api/events/${eventId}/approvals`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -45,12 +47,21 @@ export function ApprovalsClient({ eventId, eventName, initialRegs }: Props) {
     if (res.ok) {
       const updated = await res.json();
       setRegs(prev => prev.map(r => r.id === regId ? { ...r, status: updated.status } : r));
+    } else {
+      const data = await res.json() as { error?: string };
+      setActionError(data.error ?? 'Action failed. Please try again.');
     }
     setBusy(null);
   }
 
   return (
     <div className="max-w-[860px] mx-auto px-5 py-10">
+      {actionError && (
+        <div className="mb-5 px-4 py-3 rounded-xl text-[13px] font-medium" style={{ background: '#FEF2F2', color: '#B91C1C', border: '1px solid #FECACA' }}>
+          {actionError}
+        </div>
+      )}
+
       {/* Header */}
       <div className="mb-8">
         <p className="text-[11px] tracking-[0.16em] uppercase mb-2 font-medium" style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>

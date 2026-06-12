@@ -25,6 +25,8 @@ interface Props {
   eventName: string;
   eventSlug: string;
   tickets: TicketType[];
+  maxCapacity?: number | null;
+  confirmedCount?: number;
 }
 
 function fmt(price: number, currency: string) {
@@ -46,15 +48,18 @@ const DEMO_TICKETS: TicketType[] = [
   { id: 't3', name: 'Student', description: 'Valid student ID required at door', price: 0, currency: 'USD', quantity: 100, quantity_sold: 34 },
 ];
 
-export function GroupRegistrationClient({ eventId, eventName, eventSlug, tickets: dbTickets }: Props) {
+export function GroupRegistrationClient({ eventId, eventName, eventSlug, tickets: dbTickets, maxCapacity, confirmedCount = 0 }: Props) {
   const tickets = dbTickets.length > 0 ? dbTickets : DEMO_TICKETS;
 
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [attendees, setAttendees] = useState<Record<string, AttendeeFields[]>>({});
   const [expandedTicketId, setExpandedTicketId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [confirmedAttendees, setConfirmedAttendees] = useState<{ name: string; ticket: string }[]>([]);
+
+  const remaining = maxCapacity != null ? maxCapacity - confirmedCount : null;
 
   const totalTickets = useMemo(() => Object.values(quantities).reduce((a, b) => a + b, 0), [quantities]);
   const totalPrice = useMemo(() =>
@@ -118,6 +123,9 @@ export function GroupRegistrationClient({ eventId, eventName, eventSlug, tickets
         ticket: tickets.find(t => t.id === s.ticketTypeId)?.name ?? 'Ticket',
       })));
       setSuccess(true);
+    } else {
+      const data = await res.json() as { error?: string };
+      setSubmitError(data.error ?? 'Registration failed. Please try again.');
     }
   }
 
@@ -185,12 +193,34 @@ export function GroupRegistrationClient({ eventId, eventName, eventSlug, tickets
         style={{ background: 'rgba(250,246,238,0.95)', backdropFilter: 'blur(12px)', borderColor: '#E5E0D4' }}>
         <Link href={`/e/${eventSlug}`} style={{ color: '#6B7A72' }}><ArrowLeft size={18} /></Link>
         <span className="font-display font-semibold text-[16px]" style={{ color: '#0F1F18' }}>Group Registration</span>
-        {totalTickets > 0 && (
-          <span className="ml-auto flex items-center gap-1 text-[13px] font-semibold" style={{ color: '#1F4D3A' }}>
-            <Users size={14} /> {totalTickets} seat{totalTickets !== 1 ? 's' : ''}
-          </span>
-        )}
+        <div className="ml-auto flex items-center gap-2">
+          {remaining !== null && (
+            <span className="text-[12px] font-medium px-2.5 py-0.5 rounded-full"
+              style={{ background: remaining <= 5 ? '#FEF3C7' : '#E8EFEB', color: remaining <= 5 ? '#92400E' : '#1F4D3A' }}>
+              {remaining} spot{remaining !== 1 ? 's' : ''} left
+            </span>
+          )}
+          {totalTickets > 0 && (
+            <span className="flex items-center gap-1 text-[13px] font-semibold" style={{ color: '#1F4D3A' }}>
+              <Users size={14} /> {totalTickets} seat{totalTickets !== 1 ? 's' : ''}
+            </span>
+          )}
+        </div>
       </div>
+
+      {/* Full capacity banner */}
+      {remaining !== null && remaining <= 0 && (
+        <div className="px-5 py-3 text-[13px] font-medium text-center" style={{ background: '#FEF3C7', color: '#92400E', borderBottom: '1px solid #FDE68A' }}>
+          This event is at full capacity — no more registrations can be accepted.
+        </div>
+      )}
+
+      {/* Submit error banner */}
+      {submitError && (
+        <div className="px-5 py-3 text-[13px] font-medium text-center" style={{ background: '#FEF2F2', color: '#B91C1C', borderBottom: '1px solid #FECACA' }}>
+          {submitError}
+        </div>
+      )}
 
       <div className="max-w-[860px] mx-auto px-5 py-6 flex flex-col lg:flex-row gap-6">
         {/* Left — ticket selector + attendee forms */}
@@ -332,10 +362,10 @@ export function GroupRegistrationClient({ eventId, eventName, eventSlug, tickets
 
             <button
               onClick={submit}
-              disabled={totalTickets === 0 || submitting}
+              disabled={totalTickets === 0 || submitting || (remaining !== null && remaining <= 0)}
               className="w-full py-3 rounded-2xl text-[14px] font-semibold transition hover:opacity-90 disabled:opacity-40"
               style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
-              {submitting ? 'Processing…' : totalPrice === 0 ? `Register ${totalTickets || ''} seats` : `Pay ${fmt(totalPrice, primaryCurrency)}`}
+              {submitting ? 'Processing…' : (remaining !== null && remaining <= 0) ? 'Event full' : totalPrice === 0 ? `Register ${totalTickets || ''} seats` : `Pay ${fmt(totalPrice, primaryCurrency)}`}
             </button>
 
             <p className="text-[11px] text-center mt-3" style={{ color: '#C9C3B1' }}>
