@@ -308,8 +308,8 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
         </div>
       </section>
 
-      {/* ── Stats — sage band ───────────────────────────────── */}
-      <Band bg="#E4EEE7">
+      {/* ── Stats ───────────────────────────────────────────── */}
+      <Band bg="#FAF6EE" divider={false}>
         <div className="grid grid-cols-2 lg:grid-cols-4 overflow-hidden rounded-2xl" style={{ border: '1px solid #E5E0D4', gap: 1, background: '#E5E0D4' }}>
           {STATS.map(s => (
             <div key={s.l} className="flex items-center gap-4 px-5 py-5" style={{ background: '#FFFFFF' }}>
@@ -328,8 +328,8 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
         </div>
       </Band>
 
-      {/* ── Explore by category — white band ────────────────── */}
-      <Band bg="#FFFFFF">
+      {/* ── Explore by category ─────────────────────────────── */}
+      <Band bg="#FAF6EE">
         <h2 className="font-title font-bold text-[22px] sm:text-[26px] mb-5" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
           Explore by category
         </h2>
@@ -350,8 +350,8 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
         </div>
       </Band>
 
-      {/* ── Featured + Results — sage band ───────────────────── */}
-      <Band bg="#E4EEE7">
+      {/* ── Featured + Results ──────────────────────────────── */}
+      <Band bg="#FAF6EE">
         {/* Featured (only with no active filter) */}
         {featured && !hasFilter && (
           <Link href={`/e/${getSlug(featured)}`}
@@ -406,7 +406,7 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
             )}
             <button onClick={goToMap}
               className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full text-[13px] font-semibold transition hover:bg-[#E8EFEB]"
-              style={{ border: '1px solid #1F4D3A', color: '#1F4D3A', background: '#FAF6EE' }}>
+              style={{ border: '1px solid #1F4D3A', color: '#1F4D3A', background: '#FFFFFF' }}>
               <MapIcon size={14} /> View on map
             </button>
           </div>
@@ -419,7 +419,7 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
             ))}
           </div>
         ) : (
-          <div className="rounded-2xl py-16 px-6 text-center" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }}>
+          <div className="rounded-2xl py-16 px-6 text-center" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
             <Search size={28} style={{ color: '#C9C3B1' }} className="mx-auto mb-3" />
             <p className="font-display font-semibold text-[16px]" style={{ color: '#0F1F18' }}>No events found</p>
             <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>Try a different search or clear your filters.</p>
@@ -427,8 +427,8 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
         )}
       </Band>
 
-      {/* ── Browse by city — white band ─────────────────────── */}
-      <Band bg="#FFFFFF">
+      {/* ── Browse by city ──────────────────────────────────── */}
+      <Band bg="#FAF6EE">
         <h2 className="font-title font-bold text-[22px] sm:text-[26px] mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
           Browse by city
         </h2>
@@ -437,16 +437,16 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
           {cities.slice(0, 16).map(c => (
             <Link key={c} href={`/events/city/${citySlug(c)}`}
               className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full border text-[13px] font-medium transition hover:-translate-y-0.5 hover:shadow-sm hover:border-[#1F4D3A]"
-              style={{ background: '#FAF6EE', borderColor: '#E5E0D4', color: '#3A4A42', textDecoration: 'none' }}>
+              style={{ background: '#FFFFFF', borderColor: '#E5E0D4', color: '#3A4A42', textDecoration: 'none' }}>
               <MapPin size={13} style={{ color: '#1F4D3A' }} /> {c}
             </Link>
           ))}
         </div>
       </Band>
 
-      {/* ── Top hosts — sage band ───────────────────────────── */}
+      {/* ── Top hosts ───────────────────────────────────────── */}
       {hosts.length > 0 && (
-        <Band bg="#E4EEE7">
+        <Band bg="#FAF6EE">
           <h2 className="font-title font-bold text-[22px] sm:text-[26px] mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
             Top event hosts
           </h2>
