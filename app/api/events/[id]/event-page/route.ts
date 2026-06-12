@@ -13,6 +13,7 @@ const NullableDateTime = z.preprocess(
 /** Only columns that a client is allowed to write. Never event_id or internal fields. */
 const EventPageSchema = z.object({
   title:                      z.string().min(1, 'Title is required').max(200).trim().optional(),
+  tagline:                    z.string().max(300).trim().nullable().optional(),
   description:                z.string().max(20_000).nullable().optional(),
   starts_at:                  NullableDateTime.optional(),
   ends_at:                    NullableDateTime.optional(),
@@ -20,6 +21,7 @@ const EventPageSchema = z.object({
   venue_name:                 z.string().max(200).trim().optional(),
   venue_address:              z.string().max(400).trim().optional(),
   is_online:                  z.boolean().optional(),
+  online_url:                 z.string().max(500).trim().nullable().optional().or(z.literal('')).transform(v => v === '' ? null : v),
   is_public:                  z.boolean().optional(),
   registration_deadline:      NullableDateTime.optional(),
   max_capacity:               z.number().int().min(1, 'Capacity must be at least 1').nullable().optional(),
