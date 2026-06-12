@@ -429,6 +429,45 @@ export default async function AnalyticsPage({
           )}
         </div>
 
+        {/* ── Card sharing bar chart (w32 design) ─────────────────────────── */}
+        {perfEvents.length > 0 && (() => {
+          const topByCards = perfEvents
+            .filter(e => e.regs > 0)
+            .map(e => ({ name: e.name, pct: Math.round((e.cards / e.regs) * 100) }))
+            .sort((a, b) => b.pct - a.pct)
+            .slice(0, 5);
+
+          if (topByCards.length === 0) return null;
+
+          return (
+            <div className="mt-4 bg-white rounded-2xl p-6"
+              style={{ border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
+              <div className="font-display text-[15px] font-semibold mb-5" style={{ color: '#0F1F18' }}>
+                Card sharing across your events
+              </div>
+              <div className="space-y-4">
+                {topByCards.map((ev, i) => (
+                  <div key={i}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-[13px]" style={{ color: '#3A4A42', maxWidth: '70%', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                        {ev.name}
+                      </span>
+                      <span className="font-mono text-[13px] font-semibold" style={{ color: '#1F4D3A' }}>{ev.pct}%</span>
+                    </div>
+                    <div className="h-2.5 rounded-full overflow-hidden" style={{ background: '#E8EFEB' }}>
+                      <div className="h-full rounded-full transition-all" style={{ width: `${ev.pct}%`, background: '#1F4D3A' }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-[13px] mt-5 leading-relaxed" style={{ color: '#6B7A72' }}>
+                Attendees who receive their Karta Card share it at higher rates when the event design feels premium.
+                The more polished your card design, the more organic reach you get.
+              </p>
+            </div>
+          );
+        })()}
+
       </div>
     </div>
   );
