@@ -3,7 +3,8 @@
 import { useState, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Search, Heart, MapPin, Calendar, Globe, ChevronDown, ArrowRight, Map as MapIcon, Ticket } from 'lucide-react';
+import { Search, MapPin, Calendar, ChevronDown, ArrowRight, Map as MapIcon, Ticket } from 'lucide-react';
+import { EventCard } from './EventCard';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type EventPage = any;
@@ -72,56 +73,6 @@ function matchesWhen(iso: string | null | undefined, when: string): boolean {
   return true;
 }
 
-/* ─── Event card ────────────────────────────────────────────────── */
-
-function EventTile({ ep, saved, onSave }: { ep: EventPage; saved: boolean; onSave: (id: string) => void }) {
-  return (
-    <div className="rounded-2xl overflow-hidden transition hover:-translate-y-1 hover:shadow-lg"
-      style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', boxShadow: '0 1px 3px rgba(15,31,24,0.04)' }}>
-      <div className="relative aspect-[16/10]" style={{ background: 'linear-gradient(140deg, #143024, #1F4D3A 55%, #2A6A50)' }}>
-        {ep.cover_image_url && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={ep.cover_image_url} alt="" className="absolute inset-0 w-full h-full object-cover" />
-        )}
-        {ep.category && (
-          <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[11px] font-semibold capitalize"
-            style={{ background: 'rgba(15,31,24,0.55)', color: '#FAF6EE', backdropFilter: 'blur(4px)' }}>
-            {ep.category}
-          </span>
-        )}
-        <button onClick={() => onSave(ep.id)} aria-label="Save event"
-          className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition hover:scale-110"
-          style={{ background: 'rgba(15,31,24,0.45)', backdropFilter: 'blur(4px)' }}>
-          <Heart size={14} style={{ color: saved ? '#E8C57E' : '#FFFFFF', fill: saved ? '#E8C57E' : 'none' }} />
-        </button>
-      </div>
-      <Link href={`/e/${getSlug(ep)}`} style={{ textDecoration: 'none' }}>
-        <div className="p-4">
-          <h3 className="font-display font-semibold text-[15px] mb-0.5 line-clamp-1" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>{ep.title}</h3>
-          <p className="text-[12px] mb-2.5 line-clamp-1" style={{ color: '#6B7A72' }}>{organizerOf(ep)}</p>
-          <div className="flex items-center gap-3 text-[12px] mb-3" style={{ color: '#6B7A72' }}>
-            <span className="flex items-center gap-1">
-              <Calendar size={12} /> {fmtDate(ep.starts_at) || 'TBA'}
-            </span>
-            <span className="flex items-center gap-1 min-w-0">
-              {ep.is_online ? <Globe size={12} className="shrink-0" /> : <MapPin size={12} className="shrink-0" />}
-              <span className="truncate">{ep.is_online ? 'Online' : (ep.city ?? ep.venue_name ?? 'TBA')}</span>
-            </span>
-          </div>
-          <div className="flex items-center justify-between pt-3" style={{ borderTop: '1px solid #F0EDE4' }}>
-            <span className="font-display font-semibold text-[14px]" style={{ color: ep.price_from ? '#1F4D3A' : '#C9A45E' }}>
-              {priceLabel(ep.price_from)}
-            </span>
-            <span className="inline-flex items-center gap-1 text-[12px] font-medium" style={{ color: '#1F4D3A' }}>
-              View <ArrowRight size={12} />
-            </span>
-          </div>
-        </div>
-      </Link>
-    </div>
-  );
-}
-
 /* ─── Main ──────────────────────────────────────────────────────── */
 
 export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: Props) {
@@ -187,6 +138,7 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
     const p = new URLSearchParams();
     if (query) p.set('q', query);
     if (city) p.set('city', city);
+    if (activeCat !== 'All') p.set('category', activeCat.toLowerCase());
     const qs = p.toString();
     router.push(`/events/search${qs ? `?${qs}` : ''}`);
   }
@@ -356,7 +308,7 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
         {filtered.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {filtered.map((ep: EventPage) => (
-              <EventTile key={ep.id} ep={ep} saved={saved.has(ep.id)} onSave={toggleSave} />
+              <EventCard key={ep.id} page={ep} saved={saved.has(ep.id)} onSave={toggleSave} />
             ))}
           </div>
         ) : (
