@@ -26,6 +26,20 @@ export async function POST(req: NextRequest, { params }: Params) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const adminAny = admin as any;
 
+  const { data: ep } = await admin.from('event_pages').select('ends_at, max_capacity').eq('event_id', eventId).maybeSingle();
+  if (ep?.ends_at && new Date(ep.ends_at) < new Date()) {
+    return NextResponse.json({ error: 'This event has already ended — group registration is not available' }, { status: 422 });
+  }
+  if (ep?.max_capacity) {
+    const { count } = await admin.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', eventId).in('status', ['confirmed', 'checked_in']);
+    const remaining = ep.max_capacity - (count ?? 0);
+    if (seats.length > remaining) {
+      return NextResponse.json({
+        error: `Not enough capacity. Registering ${seats.length} people but only ${remaining} spot${remaining === 1 ? '' : 's'} remain${remaining === 1 ? 's' : ''}.`,
+      }, { status: 409 });
+    }
+  }
+
   const rows = seats.map((s: Seat) => ({
     event_id: eventId,
     ticket_type_id: s.ticketTypeId,

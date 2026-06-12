@@ -44,6 +44,16 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const { data: event } = await admin.from('events').select('id').eq('id', id).eq('user_id', user.id).single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
+  if (action === 'approve') {
+    const { data: ep } = await admin.from('event_pages').select('max_capacity').eq('event_id', id).maybeSingle();
+    if (ep?.max_capacity) {
+      const { count } = await admin.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', id).in('status', ['confirmed', 'checked_in']);
+      if ((count ?? 0) >= ep.max_capacity) {
+        return NextResponse.json({ error: 'Cannot approve — the event is at full capacity' }, { status: 409 });
+      }
+    }
+  }
+
   const newStatus = action === 'approve' ? 'confirmed' : 'rejected';
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

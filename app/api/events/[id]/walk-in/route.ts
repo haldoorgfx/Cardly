@@ -11,6 +11,17 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const { data: event } = await admin.from('events').select('id').eq('id', id).eq('user_id', user.id).single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
+  const { data: ep } = await admin.from('event_pages').select('ends_at, max_capacity').eq('event_id', id).maybeSingle();
+  if (ep?.ends_at && new Date(ep.ends_at) < new Date()) {
+    return NextResponse.json({ error: 'This event has already ended — walk-in registration is not available' }, { status: 422 });
+  }
+  if (ep?.max_capacity) {
+    const { count } = await admin.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', id).in('status', ['confirmed', 'checked_in']);
+    if ((count ?? 0) >= ep.max_capacity) {
+      return NextResponse.json({ error: 'This event is at full capacity — walk-in cannot be added' }, { status: 409 });
+    }
+  }
+
   const body = await req.json() as { name: string; email: string; phone?: string; ticketId?: string; payment?: string };
   const { name, email, phone, ticketId, payment } = body;
   if (!name || !email) return NextResponse.json({ error: 'name and email required' }, { status: 400 });

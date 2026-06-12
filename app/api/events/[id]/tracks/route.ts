@@ -51,6 +51,10 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
   if (!trackId) return NextResponse.json({ error: 'trackId required' }, { status: 400 });
 
   const admin = createAdminClient();
+
+  // Unlink sessions from this track before deleting (sessions remain, just untracked)
+  await admin.from('sessions').update({ track_id: null }).eq('track_id', trackId).eq('event_id', params.id);
+
   const { error } = await admin.from('tracks').delete().eq('id', trackId).eq('event_id', params.id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });

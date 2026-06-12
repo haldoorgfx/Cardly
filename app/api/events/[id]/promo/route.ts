@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 
+function fmtDate(iso: string) {
+  return new Date(iso).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
 // ── Shared validation schema ──────────────────────────────────────────────────
 
 const NullableDateTime = z.preprocess(
@@ -80,6 +84,22 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const { data: event } = await admin.from('events').select('id').eq('id', params.id).eq('user_id', user.id).single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
+  const { data: ep } = await admin.from('event_pages').select('starts_at, ends_at').eq('event_id', params.id).maybeSingle();
+  if (ep?.ends_at) {
+    if (parsed.data.valid_from && new Date(parsed.data.valid_from) >= new Date(ep.ends_at)) {
+      return NextResponse.json({ error: `Promo code cannot start on or after the event ends (${fmtDate(ep.ends_at)})` }, { status: 422 });
+    }
+    if (parsed.data.valid_until && new Date(parsed.data.valid_until) > new Date(ep.ends_at)) {
+      return NextResponse.json({ error: `Promo code cannot be valid after the event ends (${fmtDate(ep.ends_at)})` }, { status: 422 });
+    }
+  }
+  if (parsed.data.discount_type === 'fixed') {
+    const { data: cheapest } = await admin.from('ticket_types').select('price').eq('event_id', params.id).gt('price', 0).order('price', { ascending: true }).limit(1).maybeSingle();
+    if (cheapest && parsed.data.discount_value >= cheapest.price) {
+      return NextResponse.json({ error: `Fixed discount (${parsed.data.discount_value}) cannot equal or exceed the cheapest paid ticket price (${cheapest.price})` }, { status: 422 });
+    }
+  }
+
   const { data, error } = await admin
     .from('promo_codes')
     .insert({ event_id: params.id, ...parsed.data })
@@ -120,14 +140,14 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   const { data: event } = await admin.from('events').select('id').eq('id', params.id).eq('user_id', user.id).single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-  if (parsed.data.valid_from !== undefined || parsed.data.valid_until !== undefined) {
-    const { data: existing } = await admin
-      .from('promo_codes')
-      .select('valid_from, valid_until, discount_type')
-      .eq('id', codeId)
-      .eq('event_id', params.id)
-      .single();
+  const { data: existing } = await admin
+    .from('promo_codes')
+    .select('valid_from, valid_until, discount_type, discount_value')
+    .eq('id', codeId)
+    .eq('event_id', params.id)
+    .single();
 
+  if (parsed.data.valid_from !== undefined || parsed.data.valid_until !== undefined) {
     const effectiveFrom  = parsed.data.valid_from  ?? existing?.valid_from  ?? null;
     const effectiveUntil = parsed.data.valid_until ?? existing?.valid_until ?? null;
     if (effectiveFrom && effectiveUntil && new Date(effectiveUntil) <= new Date(effectiveFrom)) {
@@ -139,6 +159,29 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     const effectiveValue = parsed.data.discount_value;
     if (effectiveType === 'percent' && effectiveValue !== undefined && effectiveValue > 100) {
       return NextResponse.json({ error: 'Percent discount cannot exceed 100%' }, { status: 400 });
+    }
+  }
+
+  // Event date bounds (always check when dates or discount changes)
+  const { data: ep2 } = await admin.from('event_pages').select('starts_at, ends_at').eq('event_id', params.id).maybeSingle();
+  if (ep2?.ends_at) {
+    const effectiveFrom  = parsed.data.valid_from  !== undefined ? parsed.data.valid_from  : existing?.valid_from  ?? null;
+    const effectiveUntil = parsed.data.valid_until !== undefined ? parsed.data.valid_until : existing?.valid_until ?? null;
+    if (effectiveFrom && new Date(effectiveFrom) >= new Date(ep2.ends_at)) {
+      return NextResponse.json({ error: `Promo code cannot start on or after the event ends (${fmtDate(ep2.ends_at)})` }, { status: 422 });
+    }
+    if (effectiveUntil && new Date(effectiveUntil) > new Date(ep2.ends_at)) {
+      return NextResponse.json({ error: `Promo code cannot be valid after the event ends (${fmtDate(ep2.ends_at)})` }, { status: 422 });
+    }
+  }
+
+  // Fixed discount vs cheapest ticket price
+  const effectiveType  = parsed.data.discount_type  ?? existing?.discount_type;
+  const effectiveValue = parsed.data.discount_value ?? existing?.discount_value ?? 0;
+  if (effectiveType === 'fixed') {
+    const { data: cheapest } = await admin.from('ticket_types').select('price').eq('event_id', params.id).gt('price', 0).order('price', { ascending: true }).limit(1).maybeSingle();
+    if (cheapest && effectiveValue >= cheapest.price) {
+      return NextResponse.json({ error: `Fixed discount (${effectiveValue}) cannot equal or exceed the cheapest paid ticket price (${cheapest.price})` }, { status: 422 });
     }
   }
 

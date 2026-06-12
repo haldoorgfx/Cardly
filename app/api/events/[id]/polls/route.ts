@@ -46,6 +46,11 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const { data: event } = await admin.from('events').select('id').eq('id', params.id).eq('user_id', user.id).single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
+  const { data: epPoll } = await admin.from('event_pages').select('ends_at').eq('event_id', params.id).maybeSingle();
+  if (epPoll?.ends_at && new Date(epPoll.ends_at) < new Date()) {
+    return NextResponse.json({ error: 'Cannot create polls for an event that has already ended' }, { status: 422 });
+  }
+
   const { options, ...pollData } = parsed.data;
   const { data: poll, error } = await admin
     .from('polls')
@@ -67,6 +72,14 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   if (!pollId) return NextResponse.json({ error: 'pollId required' }, { status: 400 });
 
   const admin = createAdminClient();
+
+  if (is_active === true) {
+    const { data: epActive } = await admin.from('event_pages').select('ends_at').eq('event_id', params.id).maybeSingle();
+    if (epActive?.ends_at && new Date(epActive.ends_at) < new Date()) {
+      return NextResponse.json({ error: 'Cannot activate a poll after the event has ended' }, { status: 422 });
+    }
+  }
+
   const updates = { ...(is_active !== undefined && { is_active }), ...(is_closed !== undefined && { is_closed }) };
 
   const { data, error } = await admin

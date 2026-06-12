@@ -86,6 +86,20 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     .eq('id', params.id).eq('user_id', user.id).single();
   if (!event) return NextResponse.json({ error: 'Event not found' }, { status: 404 });
 
+  const { data: epDate } = await admin.from('event_pages').select('starts_at, ends_at').eq('event_id', params.id).maybeSingle();
+  if (epDate) {
+    const now = Date.now();
+    const OPEN_BEFORE_MS  = 4  * 60 * 60 * 1000; // 4 hours before start
+    const CLOSE_AFTER_MS  = 24 * 60 * 60 * 1000; // 24 hours after end
+    if (epDate.starts_at && now < new Date(epDate.starts_at).getTime() - OPEN_BEFORE_MS) {
+      const opensAt = new Date(new Date(epDate.starts_at).getTime() - OPEN_BEFORE_MS);
+      return NextResponse.json({ result: 'invalid', message: `Check-in has not opened yet. It opens at ${opensAt.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })} (4 hours before the event starts)` });
+    }
+    if (epDate.ends_at && now > new Date(epDate.ends_at).getTime() + CLOSE_AFTER_MS) {
+      return NextResponse.json({ result: 'invalid', message: `Check-in has closed. The event ended on ${new Date(epDate.ends_at).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}` });
+    }
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: reg } = await (admin as any)
     .from('registrations')

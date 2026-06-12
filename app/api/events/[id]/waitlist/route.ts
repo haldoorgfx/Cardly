@@ -11,12 +11,12 @@ const joinSchema = z.object({
   email: z.string().email(),
 });
 
-type PageRow = { id: string; title: string; starts_at: string | null; city: string | null };
+type PageRow = { id: string; title: string; starts_at: string | null; ends_at: string | null; city: string | null; event_id?: string | null };
 
 async function resolvePage(admin: ReturnType<typeof createAdminClient>, id: string): Promise<PageRow | null> {
   const { data: page } = await admin
     .from('event_pages')
-    .select('id, title, starts_at, city')
+    .select('id, title, starts_at, ends_at, city, event_id')
     .or(`custom_slug.eq.${id},id.eq.${id}`)
     .eq('is_public', true)
     .maybeSingle();
@@ -27,7 +27,7 @@ async function resolvePage(admin: ReturnType<typeof createAdminClient>, id: stri
   if (!event) return null;
   const { data: ep } = await admin
     .from('event_pages')
-    .select('id, title, starts_at, city')
+    .select('id, title, starts_at, ends_at, city, event_id')
     .eq('event_id', event.id)
     .eq('is_public', true)
     .maybeSingle();
@@ -50,6 +50,10 @@ export async function POST(
   const admin = createAdminClient();
   const page = await resolvePage(admin, params.id);
   if (!page) return NextResponse.json({ error: 'Event not found.' }, { status: 404 });
+
+  if (page.ends_at && new Date(page.ends_at) < new Date()) {
+    return NextResponse.json({ error: 'This event has already ended — the waitlist is closed.' }, { status: 422 });
+  }
 
   // Count existing waiting entries for position
   const { count } = await admin
@@ -112,7 +116,33 @@ export async function PATCH(
     .maybeSingle();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-  // Fetch + promote the entry
+  // Fetch entry first to check capacity before promoting
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: entryCheck } = await (admin as any)
+    .from('waitlist_entries')
+    .select('id, event_page_id')
+    .eq('id', parsed.data.entry_id)
+    .eq('status', 'waiting')
+    .maybeSingle();
+
+  if (entryCheck?.event_page_id) {
+    const { data: epInvite } = await admin
+      .from('event_pages')
+      .select('max_capacity, event_id')
+      .eq('id', entryCheck.event_page_id)
+      .maybeSingle();
+    if (epInvite?.max_capacity && epInvite.event_id) {
+      const { count: confirmedCount } = await admin
+        .from('registrations')
+        .select('id', { count: 'exact', head: true })
+        .eq('event_id', epInvite.event_id)
+        .in('status', ['confirmed', 'checked_in']);
+      if ((confirmedCount ?? 0) >= epInvite.max_capacity) {
+        return NextResponse.json({ error: 'Cannot invite — the event is already at full capacity. Increase capacity or cancel existing registrations first.' }, { status: 409 });
+      }
+    }
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: entry, error } = await (admin as any)
     .from('waitlist_entries')

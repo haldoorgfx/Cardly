@@ -80,6 +80,17 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
   if (!speakerId) return NextResponse.json({ error: 'speakerId required' }, { status: 400 });
 
   const admin = createAdminClient();
+
+  const { count: sessionCount } = await admin
+    .from('session_speakers')
+    .select('id', { count: 'exact', head: true })
+    .eq('speaker_id', speakerId);
+  if ((sessionCount ?? 0) > 0) {
+    return NextResponse.json({
+      error: `Cannot delete this speaker — they are assigned to ${sessionCount} session${sessionCount === 1 ? '' : 's'}. Remove them from all sessions first.`,
+    }, { status: 409 });
+  }
+
   const { error } = await admin.from('speakers').delete().eq('id', speakerId).eq('event_id', params.id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });

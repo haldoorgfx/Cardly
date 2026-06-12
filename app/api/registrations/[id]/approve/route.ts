@@ -32,6 +32,19 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (reg.events?.user_id !== user.id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   if (reg.status !== 'pending_approval') return NextResponse.json({ error: 'Registration is not pending approval' }, { status: 400 });
 
+  if (parsed.data.action === 'approve') {
+    const eventId = reg.events?.id;
+    if (eventId) {
+      const { data: ep } = await admin.from('event_pages').select('max_capacity').eq('event_id', eventId).maybeSingle();
+      if (ep?.max_capacity) {
+        const { count } = await admin.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', eventId).in('status', ['confirmed', 'checked_in']);
+        if ((count ?? 0) >= ep.max_capacity) {
+          return NextResponse.json({ error: 'Cannot approve — the event is at full capacity' }, { status: 409 });
+        }
+      }
+    }
+  }
+
   const newStatus = parsed.data.action === 'approve' ? 'confirmed' : 'cancelled';
   const { error: updateError } = await admin.from('registrations').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', params.id);
   if (updateError) return NextResponse.json({ error: 'Failed to update registration' }, { status: 500 });

@@ -38,6 +38,12 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
 
   const admin = createAdminClient();
+
+  const { data: epQa } = await admin.from('event_pages').select('ends_at').eq('event_id', params.id).maybeSingle();
+  if (epQa?.ends_at && new Date(epQa.ends_at) < new Date()) {
+    return NextResponse.json({ error: 'Q&A is closed — this event has already ended' }, { status: 422 });
+  }
+
   const { data, error } = await admin
     .from('qa_questions')
     .insert({ event_id: params.id, ...parsed.data })
