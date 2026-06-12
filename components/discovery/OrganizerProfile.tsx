@@ -96,24 +96,38 @@ export function OrganizerProfile({
       {/* Profile header — relative z-10 so the avatar sits ABOVE the banner
           (the banner is position:relative and would otherwise paint over it) */}
       <div className="relative z-10 max-w-[1120px] mx-auto px-5">
-        {/* Avatar (overlaps banner) + actions */}
-        <div className="flex items-end justify-between gap-4 -mt-12 sm:-mt-14">
-          <div
-            className="w-24 h-24 rounded-[20px] flex items-center justify-center text-white font-display font-bold text-[30px] shrink-0 overflow-hidden"
-            style={{
-              background: avatarUrl ? '#FFFFFF' : 'linear-gradient(135deg, #1F4D3A, #2A6A50)',
-              border: '4px solid #FAF6EE',
-              boxShadow: '0 8px 24px rgba(15,31,24,0.18)',
-            }}
-          >
-            {avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
-            ) : initials}
+        {/* Avatar — overlaps banner */}
+        <div
+          className="w-24 h-24 rounded-[20px] flex items-center justify-center text-white font-display font-bold text-[30px] overflow-hidden -mt-12 sm:-mt-14"
+          style={{
+            background: avatarUrl ? '#FFFFFF' : 'linear-gradient(135deg, #1F4D3A, #2A6A50)',
+            border: '4px solid #FAF6EE',
+            boxShadow: '0 8px 24px rgba(15,31,24,0.18)',
+          }}
+        >
+          {avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+          ) : initials}
+        </div>
+
+        {/* Name + stats (left) and actions (right) — all on the cream */}
+        <div className="mt-4 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div className="min-w-0">
+            <h1 className="font-title font-bold text-[26px] sm:text-[32px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.025em' }}>
+              {displayName}
+            </h1>
+            <div className="flex items-center gap-5 mt-2">
+              <Stat value={followerCount} label="followers" />
+              <Stat value={eventsHosted} label="events hosted" />
+            </div>
+            {bio && (
+              <p className="text-[14px] mt-3 max-w-2xl leading-relaxed" style={{ color: '#3A4A42' }}>{bio}</p>
+            )}
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-2 shrink-0 pb-1">
+          <div className="flex items-center gap-2 shrink-0 sm:mt-1">
             <button
               onClick={handleFollow}
               className="h-10 px-5 rounded-xl text-[14px] font-semibold transition flex items-center gap-1.5 hover:opacity-90"
@@ -132,20 +146,6 @@ export function OrganizerProfile({
               <Calendar size={14} /> Calendar
             </Link>
           </div>
-        </div>
-
-        {/* Name + stats + bio — on cream, below the banner */}
-        <div className="mt-4">
-          <h1 className="font-title font-bold text-[26px] sm:text-[32px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.025em' }}>
-            {displayName}
-          </h1>
-          <div className="flex items-center gap-5 mt-2">
-            <Stat value={followerCount} label="followers" />
-            <Stat value={eventsHosted} label="events hosted" />
-          </div>
-          {bio && (
-            <p className="text-[14px] mt-3 max-w-2xl leading-relaxed" style={{ color: '#3A4A42' }}>{bio}</p>
-          )}
         </div>
 
         {/* Upcoming events */}
