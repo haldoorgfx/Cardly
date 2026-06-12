@@ -89,6 +89,7 @@ const EVENT_NAV_SECTIONS = [
     title: 'Engagement',
     items: [
       { id: 'engagement',   label: 'Engagement',   icon: <Network size={15} strokeWidth={1.8} />,         segment: 'engagement' },
+      { id: 'newsfeed',     label: 'Newsfeed',     icon: <ScrollText size={15} strokeWidth={1.8} />,      segment: 'newsfeed' },
       { id: 'polls',        label: 'Q&A & Polls',  icon: <MessageSquare size={15} strokeWidth={1.8} />,   segment: 'q-and-a' },
       { id: 'community',    label: 'Community',    icon: <MessageCircle size={15} strokeWidth={1.8} />,   segment: 'community' },
       { id: 'photos',       label: 'Photo wall',   icon: <Images size={15} strokeWidth={1.8} />,          segment: 'photos' },
