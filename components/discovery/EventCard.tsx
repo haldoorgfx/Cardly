@@ -36,6 +36,11 @@ interface EventCardProps {
   onHover?: (id: string | null) => void;
 }
 
+const CAT_COLORS: Record<string, string> = {
+  tech: '#1F4D3A', music: '#C0436B', business: '#2C5BAA', sports: '#D2853A',
+  arts: '#7C4DC4', culture: '#7C4DC4', food: '#2D7A4F', health: '#C0436B', education: '#1F4D3A',
+};
+
 function fmtEventDate(iso: string, tz: string): string {
   try {
     return new Date(iso).toLocaleDateString(undefined, {
@@ -125,12 +130,12 @@ export function EventCard({
         {/* Category/city tag — top left */}
         {tagLabel && (
           <div
-            className="absolute top-3 left-3 px-2.5 py-1 rounded-lg text-[11px] font-medium"
-            style={{
-              background: 'rgba(10,20,14,0.6)',
-              backdropFilter: 'blur(8px)',
-              color: 'rgba(255,255,255,0.92)',
-            }}
+            className="absolute top-3 left-3 px-3 py-1 rounded-full text-[11px] font-semibold capitalize"
+            style={
+              tagMode === 'category'
+                ? { background: CAT_COLORS[tagLabel.toLowerCase()] ?? '#1F4D3A', color: '#FFFFFF' }
+                : { background: 'rgba(10,20,14,0.6)', backdropFilter: 'blur(8px)', color: 'rgba(255,255,255,0.92)' }
+            }
           >
             {tagLabel}
           </div>

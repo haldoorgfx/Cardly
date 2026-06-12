@@ -27,6 +27,25 @@ const WHEN_OPTIONS = [
 const HOST_BG = ['#1F4D3A', '#6B4D9E', '#C0436B', '#2C5BAA', '#D2853A', '#7C4DC4'];
 const NO_EVENTS: EventPage[] = [];
 
+const STATS = [
+  { v: '12,500+', l: 'Events',    s: 'Across all categories',   path: 'M3 4h18a2 2 0 012 2v14a2 2 0 01-2 2H3a2 2 0 01-2-2V6a2 2 0 012-2zM1 9h22M8 2v4M16 2v4' },
+  { v: '58,000+', l: 'Attendees', s: 'Joining experiences',     path: 'M16 11l2 2 4-4M3 20c0-3 2.7-5 6-5s6 2 6 5M9 12a4 4 0 100-8 4 4 0 000 8z' },
+  { v: '1,200+',  l: 'Hosts',     s: 'Creating amazing events', path: 'M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4zM9 12l2 2 4-4' },
+  { v: '45+',     l: 'Cities',    s: 'Worldwide',               path: 'M12 21a9 9 0 100-18 9 9 0 000 18zM3 12h18M12 3a14 14 0 010 18 14 14 0 010-18z' },
+];
+
+// Colourful category tiles. `cat` is the filter value (null = browse all).
+const CATS_TILES = [
+  { n: 'Tech',      cat: 'Tech',      bg: '#E8EFEB', fg: '#1F4D3A', path: 'M8 9l-3 3 3 3M16 9l3 3-3 3M13 6l-2 12' },
+  { n: 'Music',     cat: 'Music',     bg: '#FBE9EC', fg: '#C0436B', path: 'M9 18V4l12-2v14M6 18a3 3 0 100-6 3 3 0 000 6zM18 16a3 3 0 100-6 3 3 0 000 6z' },
+  { n: 'Business',  cat: 'Business',  bg: '#E7EEF8', fg: '#2C5BAA', path: 'M2 7h20v14a2 2 0 01-2 2H4a2 2 0 01-2-2V7zM8 7V5a2 2 0 012-2h4a2 2 0 012 2v2' },
+  { n: 'Sports',    cat: 'Sports',    bg: '#FBEEDD', fg: '#D2853A', path: 'M12 21a9 9 0 100-18 9 9 0 000 18zM12 3a14 14 0 000 18M3 12h18M5 6c3 2 11 2 14 0M5 18c3-2 11-2 14 0' },
+  { n: 'Arts',      cat: 'Arts',      bg: '#F0E9FA', fg: '#7C4DC4', path: 'M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.6-.7 1.6-1.7 0-.4-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1a1.6 1.6 0 011.7-1.7H16c3 0 5.5-2.5 5.5-5.5C22 6 17.5 2 12 2z' },
+  { n: 'Education', cat: 'Education', bg: '#E8EFEB', fg: '#1F4D3A', path: 'M22 10L12 5 2 10l10 5 10-5zM6 12v5c0 1 3 3 6 3s6-2 6-3v-5' },
+  { n: 'Health',    cat: 'Health',    bg: '#FBE9EC', fg: '#C0436B', path: 'M20.8 8.6a5 5 0 00-8.8-3 5 5 0 00-8.8 3c0 5 8.8 11 8.8 11s8.8-6 8.8-11z' },
+  { n: 'More',      cat: null,        bg: '#F0EDE8', fg: '#6B7A72', path: 'M5 12a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM12 12a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM19 12a1.5 1.5 0 100-3 1.5 1.5 0 000 3z' },
+];
+
 /* ─── Helpers ───────────────────────────────────────────────────── */
 
 function getSlug(ep: EventPage) { return ep.custom_slug ?? ep.events?.slug ?? ep.id; }
@@ -216,29 +235,43 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
 
-      {/* ── HERO ──────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 45%, #2A6A50 80%, #C9A45E 130%)' }} />
+      {/* ── HERO (light) ──────────────────────────────────────── */}
+      <section className="relative overflow-hidden" style={{ background: '#FAF6EE' }}>
         <div aria-hidden className="absolute inset-0 pointer-events-none" style={{
-          background: 'radial-gradient(40% 60% at 15% 20%, rgba(255,255,255,0.10), transparent 60%), radial-gradient(45% 70% at 90% 80%, rgba(232,197,126,0.28), transparent 60%)',
+          backgroundImage: 'radial-gradient(rgba(31,77,58,0.05) 1px, transparent 1px)',
+          backgroundSize: '22px 22px',
+          maskImage: 'radial-gradient(120% 80% at 50% 0%, #000 40%, transparent 100%)',
+          WebkitMaskImage: 'radial-gradient(120% 80% at 50% 0%, #000 40%, transparent 100%)',
         }} />
-        <div className="relative mx-auto px-5 lg:px-10 pt-14 pb-16 lg:pt-20 lg:pb-20 text-center" style={{ maxWidth: 1100 }}>
+        <div aria-hidden className="absolute inset-0 pointer-events-none" style={{
+          background: 'radial-gradient(45% 60% at 88% 15%, rgba(232,197,126,0.18), transparent 60%)',
+        }} />
+        <div className="relative mx-auto px-5 lg:px-10 pt-12 pb-14 lg:pt-16 lg:pb-16 text-center" style={{ maxWidth: 1100 }}>
           <span className="inline-flex items-center gap-2 px-4 h-[34px] rounded-full text-[13px] font-medium mb-6"
-            style={{ background: 'rgba(250,246,238,0.16)', color: '#FAF6EE', border: '1px solid rgba(250,246,238,0.25)' }}>
-            <span style={{ color: '#E8C57E' }}>✦</span> Events for every moment
+            style={{ background: '#FFFFFF', color: '#3A4A42', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
+            <span style={{ color: '#C9A45E' }}>✦</span> Events for every moment
           </span>
 
           <h1 className="font-title font-bold mx-auto"
-            style={{ fontSize: 'clamp(36px,6vw,64px)', lineHeight: 1.03, letterSpacing: '-0.035em', color: '#FAF6EE', maxWidth: 760 }}>
-            Discover events that move you
+            style={{ fontSize: 'clamp(38px,6.5vw,68px)', lineHeight: 1.02, letterSpacing: '-0.04em', color: '#0F1F18', maxWidth: 820 }}>
+            Discover events that{' '}
+            <span className="relative inline-block" style={{ color: '#1F4D3A' }}>
+              move
+              <svg viewBox="0 0 200 24" preserveAspectRatio="none" aria-hidden
+                className="absolute w-[104%] pointer-events-none"
+                style={{ left: '-2%', bottom: '-0.16em', height: '0.34em' }}>
+                <path d="M4 16 C 50 6, 150 6, 196 14" stroke="#E8C57E" strokeWidth="5" fill="none" strokeLinecap="round" />
+              </svg>
+            </span>{' '}
+            you.
           </h1>
-          <p className="mt-5 mx-auto" style={{ fontSize: 'clamp(15px,2vw,18px)', lineHeight: 1.6, color: 'rgba(250,246,238,0.82)', maxWidth: 520 }}>
+          <p className="mt-5 mx-auto" style={{ fontSize: 'clamp(15px,2vw,18px)', lineHeight: 1.6, color: '#6B7A72', maxWidth: 520 }}>
             Find conferences, festivals, workshops and experiences worth your time — near you or anywhere in the world.
           </p>
 
           {/* Search card */}
           <div className="mt-9 mx-auto rounded-[20px] text-left"
-            style={{ background: '#FFFFFF', boxShadow: '0 12px 48px rgba(15,31,24,0.24)', padding: 16, maxWidth: 780 }}>
+            style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', boxShadow: '0 12px 40px rgba(15,31,24,0.10)', padding: 16, maxWidth: 780 }}>
             {/* Search input row */}
             <div className="flex items-center gap-3 px-4" style={{ height: 56, borderBottom: '1px solid #E5E0D4' }}>
               <Search size={20} style={{ color: '#6B7A72', flexShrink: 0 }} />
@@ -287,19 +320,44 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
 
       <div className="mx-auto px-5 lg:px-10 py-10 lg:py-12" style={{ maxWidth: 1280 }}>
 
-        {/* ── Category chips ──────────────────────────────────── */}
-        <div className="flex gap-2 overflow-x-auto pb-2 mb-8" style={{ scrollbarWidth: 'none' }}>
-          {CATEGORIES.map(cat => (
-            <button key={cat} onClick={() => setActiveCat(cat)}
-              className="px-4 py-2 rounded-full text-[13px] font-semibold whitespace-nowrap shrink-0 transition"
-              style={{
-                background: activeCat === cat ? '#1F4D3A' : '#FFFFFF',
-                color: activeCat === cat ? '#FAF6EE' : '#3A4A42',
-                border: `1px solid ${activeCat === cat ? '#1F4D3A' : '#E5E0D4'}`,
-              }}>
-              {cat}
-            </button>
+        {/* ── Stats band ──────────────────────────────────────── */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 mb-12 overflow-hidden rounded-2xl" style={{ border: '1px solid #E5E0D4', gap: 1, background: '#E5E0D4' }}>
+          {STATS.map(s => (
+            <div key={s.l} className="flex items-center gap-4 px-5 py-5" style={{ background: '#FFFFFF' }}>
+              <div className="w-[52px] h-[52px] rounded-[14px] flex items-center justify-center shrink-0" style={{ background: '#1F4D3A' }}>
+                <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="#E8C57E" strokeWidth="1.7">
+                  <path d={s.path} />
+                </svg>
+              </div>
+              <div className="min-w-0">
+                <div className="font-display font-semibold text-[22px] leading-none" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>{s.v}</div>
+                <div className="font-display font-medium text-[13px] mt-1" style={{ color: '#0F1F18' }}>{s.l}</div>
+                <div className="text-[11px] mt-0.5 truncate" style={{ color: '#6B7A72' }}>{s.s}</div>
+              </div>
+            </div>
           ))}
+        </div>
+
+        {/* ── Explore by category ─────────────────────────────── */}
+        <div className="mb-12">
+          <h2 className="font-title font-bold text-[22px] sm:text-[26px] mb-5" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+            Explore by category
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+            {CATS_TILES.map(c => (
+              <button key={c.n}
+                onClick={() => { if (c.cat) { setActiveCat(c.cat); scrollToResults(); } else { router.push('/events/search'); } }}
+                className="rounded-2xl py-5 px-4 text-center border transition hover:-translate-y-[3px] hover:shadow-md block"
+                style={{ background: `${c.bg}55`, borderColor: '#E5E0D4' }}>
+                <div className="w-11 h-11 rounded-[12px] mx-auto mb-3 flex items-center justify-center" style={{ background: c.bg }}>
+                  <svg viewBox="0 0 24 24" className="w-[22px] h-[22px]" fill="none" stroke={c.fg} strokeWidth="1.9">
+                    <path d={c.path} />
+                  </svg>
+                </div>
+                <div className="font-display font-medium text-[14px]" style={{ color: '#0F1F18' }}>{c.n}</div>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* ── Featured (only with no active filter) ───────────── */}
