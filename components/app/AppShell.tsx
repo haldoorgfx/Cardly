@@ -14,7 +14,7 @@ import {
   Ticket, ScanLine, User, Network, Trophy, Briefcase, Video, Palette, ExternalLink,
   UserCircle, HelpCircle, Zap, ShoppingCart, Handshake, Clock, IdCard,
   Tag, Plug, Globe, Download, Link2, Code2, UserCog, Share2, Images, Monitor,
-  RefreshCw, Megaphone,
+  RefreshCw, Megaphone, Bot, MessageCircle,
 } from 'lucide-react';
 
 type Profile = {
@@ -88,11 +88,13 @@ const EVENT_NAV_SECTIONS = [
   {
     title: 'Engagement',
     items: [
-      { id: 'engagement',   label: 'Engagement',   icon: <Network size={15} strokeWidth={1.8} />,       segment: 'engagement' },
-      { id: 'polls',        label: 'Q&A & Polls',  icon: <MessageSquare size={15} strokeWidth={1.8} />, segment: 'q-and-a' },
-      { id: 'photos',       label: 'Photo wall',   icon: <Images size={15} strokeWidth={1.8} />,        segment: 'photos' },
-      { id: 'live',         label: 'Live display', icon: <Monitor size={15} strokeWidth={1.8} />,       segment: 'live' },
-      { id: 'gamification', label: 'Gamification', icon: <Trophy size={15} strokeWidth={1.8} />,        segment: 'gamification' },
+      { id: 'engagement',   label: 'Engagement',   icon: <Network size={15} strokeWidth={1.8} />,         segment: 'engagement' },
+      { id: 'polls',        label: 'Q&A & Polls',  icon: <MessageSquare size={15} strokeWidth={1.8} />,   segment: 'q-and-a' },
+      { id: 'community',    label: 'Community',    icon: <MessageCircle size={15} strokeWidth={1.8} />,   segment: 'community' },
+      { id: 'photos',       label: 'Photo wall',   icon: <Images size={15} strokeWidth={1.8} />,          segment: 'photos' },
+      { id: 'live',         label: 'Live display', icon: <Monitor size={15} strokeWidth={1.8} />,         segment: 'live' },
+      { id: 'gamification', label: 'Gamification', icon: <Trophy size={15} strokeWidth={1.8} />,          segment: 'gamification' },
+      { id: 'copilot',      label: 'AI Copilot',   icon: <Bot size={15} strokeWidth={1.8} />,             segment: 'copilot' },
     ],
   },
   {
@@ -684,6 +686,8 @@ const PAGE_LABELS: Record<string, string> = {
   'promoter-links':   'Promoter links',
   'promote':          'Promote listing',
   'series':           'Event series',
+  'community':        'Community',
+  'copilot':          'AI Copilot',
   'revenue':          'Revenue',
   'publish':        'Publish',
   'meetings':       '1:1 Meetings',

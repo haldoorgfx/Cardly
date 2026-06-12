@@ -54,19 +54,21 @@ export function PublicNav({ eventSlug }: PublicNavProps = {}) {
   const attendeeLinks = eventSlug ? [
     { href: '/events',                  label: 'Discover' },
     { href: '/my-tickets',              label: 'My tickets' },
-    { href: `/e/${eventSlug}/schedule`, label: 'Schedule' },
-    { href: `/e/${eventSlug}/people`,   label: 'Network' },
+    { href: `/e/${eventSlug}/schedule`,  label: 'Schedule' },
+    { href: `/e/${eventSlug}/people`,    label: 'Network' },
+    { href: `/e/${eventSlug}/community`, label: 'Community' },
   ] : [
     { href: '/events',              label: 'Discover' },
     { href: '/my-tickets',          label: 'My tickets' },
-    { href: '/account/following',   label: 'Following' },
+    { href: '/saved',               label: 'Saved' },
   ];
 
   // Nav links for organizer/marketing pages
   const organizerLinks = eventSlug ? [
-    { href: '/events',                  label: 'Discover' },
-    { href: `/e/${eventSlug}/schedule`, label: 'Schedule' },
-    { href: `/e/${eventSlug}/people`,   label: 'Network' },
+    { href: '/events',                   label: 'Discover' },
+    { href: `/e/${eventSlug}/schedule`,  label: 'Schedule' },
+    { href: `/e/${eventSlug}/people`,    label: 'Network' },
+    { href: `/e/${eventSlug}/community`, label: 'Community' },
   ] : [
     { href: '/events',       label: 'Discover' },
     { href: '/how-it-works', label: 'How it works' },
