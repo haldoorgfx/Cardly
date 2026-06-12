@@ -1,0 +1,60 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
+
+// GET — list pending applications
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const admin = createAdminClient();
+
+  // Verify ownership
+  const { data: event } = await admin.from('events').select('id').eq('id', id).eq('user_id', user.id).single();
+  if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+  // Registrations with status = 'pending_approval'
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data } = await (admin as any)
+    .from('registrations')
+    .select('id, attendee_name, attendee_email, attendee_data, created_at, status, ticket_type_id, ticket_types(name)')
+    .eq('event_id', id)
+    .in('status', ['pending_approval', 'approved', 'rejected'])
+    .order('created_at', { ascending: false });
+
+  return NextResponse.json(data ?? []);
+}
+
+// PATCH — approve or reject a registration
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const { registrationId, action } = await req.json() as { registrationId: string; action: 'approve' | 'reject' };
+  if (!registrationId || !['approve', 'reject'].includes(action)) {
+    return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
+  }
+
+  const admin = createAdminClient();
+
+  // Verify ownership of event
+  const { data: event } = await admin.from('events').select('id').eq('id', id).eq('user_id', user.id).single();
+  if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+  const newStatus = action === 'approve' ? 'confirmed' : 'rejected';
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (admin as any)
+    .from('registrations')
+    .update({ status: newStatus })
+    .eq('id', registrationId)
+    .eq('event_id', id)
+    .select('id, status')
+    .single();
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json(data);
+}

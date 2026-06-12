@@ -6,7 +6,7 @@ function Skel({ className, style }: { className?: string; style?: CSSProperties 
 
 export default function DashboardLoading() {
   return (
-    <div className="px-8 py-8 max-w-[1400px]">
+    <div className="px-4 sm:px-6 py-8 max-w-[1400px]">
       {/* Header */}
       <div className="flex items-end justify-between flex-wrap gap-4">
         <div>
@@ -18,7 +18,7 @@ export default function DashboardLoading() {
       </div>
 
       {/* Stats */}
-      <div className="mt-8 grid grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {[0, 1, 2].map(i => (
           <div key={i} className="rounded-2xl bg-white border border-[#E5E0D4] p-5">
             <Skel className="h-3 w-28 mb-4" />

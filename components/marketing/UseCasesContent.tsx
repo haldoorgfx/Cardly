@@ -212,7 +212,7 @@ function UseCaseSection({ u }: { u: UseCase }) {
               </span>
               {u.label}
             </div>
-            <h2 className="font-display font-bold text-ink text-[32px] sm:text-[42px] lg:text-[52px] leading-[1.02] tracking-[-0.03em]">
+            <h2 className="font-title font-bold text-ink text-[32px] sm:text-[42px] lg:text-[52px] leading-[1.02]">
               {u.headline}
             </h2>
             <p className="mt-5 text-ink-soft text-[16px] lg:text-[18px] leading-[1.6]">

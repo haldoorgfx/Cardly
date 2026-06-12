@@ -69,12 +69,12 @@ export default function MobileFallback({ eventId, eventName, variantSlug }: Mobi
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
           }}>cl</div>
           <span style={{
-            fontFamily: 'JetBrains Mono, monospace', fontSize: 11,
+            fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11,
             color: '#6B7A72', letterSpacing: '0.06em',
           }}>karta</span>
         </a>
         <span style={{
-          fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
+          fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
           color: '#6B7A72', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 600,
         }}>Editor</span>
       </div>
@@ -96,7 +96,7 @@ export default function MobileFallback({ eventId, eventName, variantSlug }: Mobi
 
           {/* Mono label */}
           <div style={{
-            fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
+            fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
             color: '#6B7A72', letterSpacing: '0.1em',
             textTransform: 'uppercase', fontWeight: 600,
           }}>Editor · Desktop required</div>
@@ -167,7 +167,7 @@ export default function MobileFallback({ eventId, eventName, variantSlug }: Mobi
                 whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
               }}>{eventName}</div>
               <div style={{
-                fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
+                fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
                 color: '#6B7A72', letterSpacing: '0.04em', marginTop: 2,
               }}>karta.cre8so.com/events/{eventId.slice(0, 8)}</div>
             </div>
@@ -213,7 +213,7 @@ export default function MobileFallback({ eventId, eventName, variantSlug }: Mobi
             padding: '6px 10px',
             background: '#E8EFEB',
             borderRadius: 999,
-            fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
+            fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
             color: '#1F4D3A', letterSpacing: '0.04em',
           }}>
             <Smartphone size={12} strokeWidth={1.8} />
@@ -224,7 +224,7 @@ export default function MobileFallback({ eventId, eventName, variantSlug }: Mobi
         {/* Powered by */}
         <div style={{
           marginTop: 20,
-          fontFamily: 'JetBrains Mono, monospace', fontSize: 11,
+          fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11,
           color: '#6B7A72', letterSpacing: '0.04em',
         }}>
           powered by <span style={{ color: '#0F1F18', fontWeight: 500 }}>karta</span>

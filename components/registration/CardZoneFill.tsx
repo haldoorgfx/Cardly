@@ -28,8 +28,8 @@ export function CardZoneFill({
   const previewH = backgroundHeight ? backgroundHeight * scale : PREVIEW_W * (7 / 5);
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6">
-      {/* ── Form fields ── */}
+    <div className="flex flex-col gap-6">
+      {/* -- Form fields -- */}
       <div className="flex-1 min-w-0 space-y-4">
         <p className="text-[13px]" style={{ color: '#6B7A72' }}>
           Personalise your card. It&apos;ll be generated when you confirm.
@@ -57,7 +57,7 @@ export function CardZoneFill({
                 <select
                   value={values[zone.id] ?? ''}
                   onChange={e => onChange(zone.id, e.target.value)}
-                  className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
+                  className="w-full h-12 px-3 rounded-lg text-[16px] outline-none transition"
                   style={{ background: '#FAF6EE', border: `1px solid ${err ? '#B8423C' : '#E5E0D4'}`, color: '#0F1F18' }}
                 >
                   <option value="">Select…</option>
@@ -80,7 +80,7 @@ export function CardZoneFill({
                   placeholder={zone.placeholder ?? ''}
                   maxLength={zone.maxChars ?? 500}
                   rows={3}
-                  className="w-full px-3 py-2.5 rounded-lg text-[14px] outline-none resize-none transition"
+                  className="w-full px-3 py-2.5 rounded-lg text-[16px] outline-none resize-none transition"
                   style={{ background: '#FAF6EE', border: `1px solid ${err ? '#B8423C' : '#E5E0D4'}`, color: '#0F1F18' }}
                   onFocus={e => (e.target.style.borderColor = '#E8C57E')}
                   onBlur={e => (e.target.style.borderColor = err ? '#B8423C' : '#E5E0D4')}
@@ -92,7 +92,7 @@ export function CardZoneFill({
                   onChange={e => onChange(zone.id, e.target.value)}
                   placeholder={zone.placeholder ?? ''}
                   maxLength={zone.maxChars ?? 200}
-                  className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
+                  className="w-full h-12 px-3 rounded-lg text-[16px] outline-none transition"
                   style={{ background: '#FAF6EE', border: `1px solid ${err ? '#B8423C' : '#E5E0D4'}`, color: '#0F1F18' }}
                   onFocus={e => (e.target.style.borderColor = '#E8C57E')}
                   onBlur={e => (e.target.style.borderColor = err ? '#B8423C' : '#E5E0D4')}
@@ -104,9 +104,9 @@ export function CardZoneFill({
         })}
       </div>
 
-      {/* ── Live preview ── */}
+      {/* -- Live preview -- only on mobile; desktop uses the sidebar in RegistrationClient */}
       {backgroundUrl && (
-        <div className="lg:w-[280px] shrink-0">
+        <div className="lg:hidden shrink-0">
           <div className="text-[11px] font-mono uppercase tracking-widest mb-2 text-center" style={{ color: '#6B7A72' }}>
             Preview
           </div>
@@ -173,7 +173,7 @@ export function CardZoneFill({
                       fontWeight,
                       color: text ? textColor : 'rgba(255,255,255,0.3)',
                       textAlign,
-                      fontFamily: zone.font === 'JetBrains Mono' ? 'JetBrains Mono, monospace' : zone.font === 'DM Sans' ? 'DM Sans, sans-serif' : 'Inter, sans-serif',
+                      fontFamily: zone.font === 'JetBrains Mono' ? 'Inter, system-ui, sans-serif' : zone.font === 'DM Sans' ? 'DM Sans, sans-serif' : 'Inter, sans-serif',
                       lineHeight: zone.lineHeight ?? 1.3,
                       letterSpacing: zone.letterSpacing ? `${zone.letterSpacing * scale}px` : undefined,
                       textTransform: zone.textTransform as React.CSSProperties['textTransform'] ?? undefined,
@@ -244,7 +244,7 @@ function PhotoField({ zone, previewUrl, error, onChange, onClear }: {
           onMouseLeave={e => (e.currentTarget.style.borderColor = error ? '#B8423C' : '#E5E0D4')}
         >
           <Camera size={20} strokeWidth={1.8} style={{ color: '#6B7A72', flexShrink: 0 }} />
-          <span className="text-[14px]" style={{ color: '#6B7A72' }}>Click to upload photo</span>
+          <span className="text-[16px]" style={{ color: '#6B7A72' }}>Click to upload photo</span>
         </button>
       )}
       <input

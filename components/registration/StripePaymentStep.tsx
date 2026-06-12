@@ -89,7 +89,7 @@ function InnerForm({ returnUrl, amount, currency, eventTitle, ticketName }: Prop
     setProcessing(false);
   }
 
-  const formattedAmount = new Intl.NumberFormat('en-US', {
+  const formattedAmount = new Intl.NumberFormat(undefined, {
     style: 'currency', currency: currency.toUpperCase(),
   }).format(amount);
 
@@ -112,7 +112,7 @@ function InnerForm({ returnUrl, amount, currency, eventTitle, ticketName }: Prop
         <span className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>{ticketName}</span>
         <span
           className="text-[17px] font-semibold"
-          style={{ fontFamily: 'JetBrains Mono, monospace', color: '#1F4D3A' }}
+          style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#1F4D3A' }}
         >
           {formattedAmount}
         </span>
@@ -153,7 +153,7 @@ function InnerForm({ returnUrl, amount, currency, eventTitle, ticketName }: Prop
             Processing…
           </>
         ) : (
-          <>Pay {formattedAmount} →</>
+          <>Pay {formattedAmount} &rarr;</>
         )}
       </button>
 

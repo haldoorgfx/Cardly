@@ -126,7 +126,8 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
   return (
     <form onSubmit={handleSave}>
       <div
-        style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 48, alignItems: 'start' }}
+        className="flex flex-col lg:grid gap-8 lg:gap-12"
+        style={{ gridTemplateColumns: '1fr 280px', alignItems: 'start' }}
       >
         {/* Left: settings */}
         <div className="space-y-8">

@@ -1,41 +1,43 @@
 export const dynamic = 'force-dynamic';
 
 import { createAdminClient } from '@/lib/supabase/server';
-import { DiscoveryGrid } from '@/components/events/DiscoveryGrid';
+import { DiscoverHomeClient } from '@/components/discovery/DiscoverHomeClient';
+import { PublicNav } from '@/components/events/PublicNav';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Discover Events — Karta',
-  description: 'Find events and get your personalized Karta Card.',
+  description: 'Find events near you — music, tech, culture, food and more. Register and get your Karta Card.',
 };
 
 export default async function EventDiscoveryPage() {
-  const admin = createAdminClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = createAdminClient() as any;
+  const now = new Date().toISOString();
 
-  const { data: pages } = await admin
-    .from('event_pages')
-    .select('id, event_id, title, tagline, cover_image_url, starts_at, ends_at, timezone, is_online, venue_name, venue_address, custom_slug, organizer_name, events!event_id(slug)')
-    .eq('is_public', true)
-    .gte('ends_at', new Date().toISOString())
-    .order('starts_at', { ascending: true })
-    .limit(48);
+  const SELECT =
+    'id, event_id, title, tagline, cover_image_url, starts_at, ends_at, timezone, is_online, venue_name, city, country, category, price_from, organizer_name, custom_slug, series_name, events!inner(slug, user_id, status, profiles(full_name, avatar_url))';
+
+  const [{ data: featured }, { data: events }] = await Promise.all([
+    db.from('event_pages')
+      .select(SELECT)
+      .eq('is_public', true)
+      .or(`ends_at.gte.${now},ends_at.is.null`)
+      .order('starts_at', { ascending: true, nullsFirst: false })
+      .limit(1)
+      .maybeSingle(),
+    db.from('event_pages')
+      .select(SELECT)
+      .eq('is_public', true)
+      .or(`ends_at.gte.${now},ends_at.is.null`)
+      .order('starts_at', { ascending: true, nullsFirst: false })
+      .limit(48),
+  ]);
 
   return (
-    <div className="max-w-[1120px] mx-auto px-5 py-12">
-      {/* Hero */}
-      <div className="mb-10">
-        <h1
-          className="font-display font-semibold leading-tight"
-          style={{ fontSize: 'clamp(28px, 5vw, 40px)', color: '#0F1F18', letterSpacing: '-0.025em' }}
-        >
-          Find your next event
-        </h1>
-        <p className="mt-3 text-[16px]" style={{ color: '#6B7A72' }}>
-          Events from organizers around the world — with personalized Karta Cards.
-        </p>
-      </div>
-
-      <DiscoveryGrid pages={pages ?? []} />
-    </div>
+    <>
+      <PublicNav />
+      <DiscoverHomeClient featured={featured ?? null} events={events ?? []} />
+    </>
   );
 }

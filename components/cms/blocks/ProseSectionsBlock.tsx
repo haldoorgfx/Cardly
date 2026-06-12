@@ -10,7 +10,7 @@ export function ProseSectionsBlock({ content }: { content: ProseSectionsContent 
           {eyebrow}
         </div>
       )}
-      <h1 className="font-display font-bold text-[40px] sm:text-[48px] leading-[1.05] mb-3 text-[#0F1F18]">
+      <h1 className="font-title font-bold text-[40px] sm:text-[48px] leading-[1.05] mb-3 text-[#0F1F18]">
         {headline}
       </h1>
       {updatedAt && (

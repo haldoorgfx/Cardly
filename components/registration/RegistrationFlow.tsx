@@ -39,6 +39,16 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
   const [step, setStep] = useState(0);
   const [selectedTicketId, setSelectedTicketId] = useState(preselectedTicketId ?? tickets[0]?.id ?? '');
 
+  // Access code unlock
+  const [accessCodeInput, setAccessCodeInput] = useState('');
+  const [accessCodeVisible, setAccessCodeVisible] = useState(false);
+  const [accessCodeError, setAccessCodeError] = useState('');
+  const [unlocking, setUnlocking] = useState(false);
+  const [unlockedTickets, setUnlockedTickets] = useState<TicketRow[]>([]);
+
+  // PWYW
+  const [chosenPrice, setChosenPrice] = useState<string>('');
+
   // Step 1 — personal details
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -65,8 +75,11 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
   const [submitError, setSubmitError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const selectedTicket = tickets.find(t => t.id === selectedTicketId);
-  const isPaid = (selectedTicket?.price ?? 0) > 0;
+  const visibleTickets = [...tickets.filter(t => t.is_visible), ...unlockedTickets];
+  const selectedTicket = visibleTickets.find(t => t.id === selectedTicketId);
+  const isPWYW = !!(selectedTicket?.min_price && selectedTicket.min_price > 0);
+  const effectivePrice = isPWYW ? (parseFloat(chosenPrice) || 0) : (selectedTicket?.price ?? 0);
+  const isPaid = effectivePrice > 0;
   const isSoldOut = (t: TicketRow) => t.quantity !== null && t.quantity_sold >= t.quantity;
 
   // Dynamic steps: paid = Ticket/Details/Payment/Your card (4), free = Ticket/Details/Your card (3)
@@ -74,7 +87,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
     ? [{ label: 'Ticket' }, { label: 'Details' }, { label: 'Payment' }, { label: 'Your card' }]
     : [{ label: 'Ticket' }, { label: 'Details' }, { label: 'Your card' }];
 
-  // ── Validation ───────────────────────────────────────────────
+  // -- Validation -----------------------------------------------
   function validateDetails(): boolean {
     const errs: Record<string, string> = {};
     if (!name.trim()) errs['name'] = 'Name is required';
@@ -104,7 +117,33 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
     return Object.keys(errs).length === 0;
   }
 
-  // ── Navigation ───────────────────────────────────────────────
+  // -- Access code unlock ----------------------------------------
+  async function handleUnlock() {
+    if (!accessCodeInput.trim()) return;
+    setUnlocking(true);
+    setAccessCodeError('');
+    try {
+      const res = await fetch(`/api/events/${eventId}/unlock`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: accessCodeInput.trim() }),
+      });
+      const data = await res.json();
+      if (!data.tickets?.length) {
+        setAccessCodeError('No tickets found for this code.');
+      } else {
+        setUnlockedTickets(data.tickets as TicketRow[]);
+        setSelectedTicketId(data.tickets[0].id);
+        setAccessCodeVisible(false);
+      }
+    } catch {
+      setAccessCodeError('Could not verify code. Try again.');
+    } finally {
+      setUnlocking(false);
+    }
+  }
+
+  // -- Navigation -----------------------------------------------
   async function handleNext() {
     if (step === 1) {
       if (!validateDetails()) return;
@@ -123,6 +162,8 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
               attendee_phone: phone.trim() || undefined,
               ticket_type_id: selectedTicketId,
               custom_fields: customFieldValues,
+              ...(unlockedTickets.find(t => t.id === selectedTicketId) ? { access_code: accessCodeInput.trim() } : {}),
+              ...(isPWYW ? { chosen_price: parseFloat(chosenPrice) || 0 } : {}),
             }),
           });
           const data = await res.json();
@@ -161,7 +202,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // ── Photo crop ───────────────────────────────────────────────
+  // -- Photo crop -----------------------------------------------
   const handlePhotoSelect = useCallback((zone: Zone, file: File, srcUrl: string) => {
     setCropTarget({ zone, srcUrl, file });
   }, []);
@@ -178,7 +219,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
     setPhotoUrls(p => { const n = { ...p }; delete n[zoneId]; return n; });
   }, []);
 
-  // ── Submit ───────────────────────────────────────────────────
+  // -- Submit ---------------------------------------------------
   async function handleSubmit() {
     if (!validateZones()) return;
     setSubmitting(true);
@@ -227,7 +268,9 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
           }
         }
         fd.append('fields', JSON.stringify(enrichedZoneValues));
-        fd.append('idempotencyKey', `reg-${registration_id}`);
+        // No idempotency key for the flow-time preview render — it's best-effort.
+        // ConfirmPage uses registration.id (valid UUID) as its idempotency key.
+        fd.append('registrationId', registration_id);
         for (const [zoneId, file] of Object.entries(photoFiles)) {
           fd.append(`photo_${zoneId}`, file);
         }
@@ -235,16 +278,19 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
         const renderRes = await fetch('/api/render', { method: 'POST', body: fd });
         if (renderRes.ok) {
           const cardId = renderRes.headers.get('x-card-id');
-          // Save zone data to registration (best-effort)
-          fetch(`/api/events/${eventId}/registrations`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              registrationId: registration_id,
-              karta_card_zone_data: enrichedZoneValues,
-              karta_card_url: cardId ? `/c/${eventSlug}/card/${cardId}` : null,
-            }),
-          }).catch(() => {});
+          // Only send PATCH if cardId is available; otherwise the render API already
+          // updated karta_card_url directly via registrationId.
+          if (cardId) {
+            fetch(`/api/events/${eventId}/registrations`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                registrationId: registration_id,
+                karta_card_zone_data: enrichedZoneValues,
+                karta_card_url: `/c/${eventSlug}/card/${cardId}`,
+              }),
+            }).catch(() => {});
+          }
 
           // Store card blob in sessionStorage for immediate download on confirm page
           const blob = await renderRes.blob();
@@ -266,7 +312,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
     }
   }
 
-  // ── Summary sidebar ──────────────────────────────────────────
+  // -- Summary sidebar ------------------------------------------
   const summaryTicket = selectedTicket;
 
   return (
@@ -306,8 +352,8 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
         </div>
 
         {/* Main grid */}
-        <div className="grid gap-6 lg:gap-8" style={{ gridTemplateColumns: 'minmax(0,1fr) 300px' }}>
-          {/* ── Form area ── */}
+        <div className="flex flex-col lg:grid gap-6 lg:gap-8" style={{ gridTemplateColumns: 'minmax(0,1fr) 300px' }}>
+          {/* -- Form area -- */}
           <div>
             {/* Step 0 — Ticket selection */}
             {step === 0 && (
@@ -317,7 +363,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                 </h2>
                 <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>{page.title}</p>
                 <div className="space-y-3">
-                  {tickets.filter(t => t.is_visible).map(t => {
+                  {visibleTickets.map(t => {
                     const sold = isSoldOut(t);
                     const sel = selectedTicketId === t.id;
                     const remaining = t.quantity !== null ? t.quantity - t.quantity_sold : null;
@@ -351,9 +397,9 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                             </span>
                             <span
                               className="text-[15px] font-medium shrink-0"
-                              style={{ fontFamily: 'JetBrains Mono, monospace', color: t.price === 0 ? '#2D7A4F' : '#1F4D3A' }}
+                              style={{ fontFamily: 'Inter, system-ui, sans-serif', color: t.price === 0 ? '#2D7A4F' : '#1F4D3A' }}
                             >
-                              {sold ? 'Sold out' : t.price === 0 ? 'Free' : `${t.currency} ${t.price}`}
+                              {sold ? 'Sold out' : t.min_price ? `${t.currency} ${t.min_price}+` : t.price === 0 ? 'Free' : `${t.currency} ${t.price}`}
                             </span>
                           </div>
                           {t.description && <div className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>{t.description}</div>}
@@ -365,6 +411,75 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                     );
                   })}
                 </div>
+
+                {/* PWYW price input */}
+                {isPWYW && selectedTicket && (
+                  <div className="mt-4 p-4 rounded-xl" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
+                    <label className="block text-[13px] font-medium mb-2" style={{ color: '#0F1F18' }}>
+                      Choose your amount ({selectedTicket.currency})
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[15px] font-medium" style={{ color: '#6B7A72' }}>{selectedTicket.currency}</span>
+                      <input
+                        type="number"
+                        min={selectedTicket.min_price ?? 0}
+                        step="1"
+                        value={chosenPrice}
+                        onChange={e => setChosenPrice(e.target.value)}
+                        placeholder={String(selectedTicket.min_price ?? 0)}
+                        className="flex-1 h-10 px-3 rounded-lg text-[15px] outline-none transition"
+                        style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18', fontFamily: '"JetBrains Mono", monospace' }}
+                        onFocus={e => (e.target.style.borderColor = '#E8C57E')}
+                        onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
+                      />
+                    </div>
+                    <p className="text-[12px] mt-1" style={{ color: '#6B7A72' }}>Minimum: {selectedTicket.currency} {selectedTicket.min_price}</p>
+                  </div>
+                )}
+
+                {/* Access code unlock */}
+                {!accessCodeVisible && unlockedTickets.length === 0 && (
+                  <button
+                    onClick={() => setAccessCodeVisible(true)}
+                    className="mt-4 text-[13px]"
+                    style={{ color: '#6B7A72', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                  >
+                    Have an access code?
+                  </button>
+                )}
+                {accessCodeVisible && (
+                  <div className="mt-4 p-4 rounded-xl" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
+                    <label className="block text-[13px] font-medium mb-2" style={{ color: '#0F1F18' }}>Access code</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={accessCodeInput}
+                        onChange={e => setAccessCodeInput(e.target.value)}
+                        onKeyDown={e => e.key === 'Enter' && handleUnlock()}
+                        placeholder="Enter code"
+                        autoFocus
+                        className="flex-1 h-10 px-3 rounded-lg text-[14px] outline-none transition"
+                        style={{ background: '#FAF6EE', border: `1px solid ${accessCodeError ? '#B8423C' : '#E5E0D4'}`, color: '#0F1F18' }}
+                        onFocus={e => (e.target.style.borderColor = '#E8C57E')}
+                        onBlur={e => (e.target.style.borderColor = accessCodeError ? '#B8423C' : '#E5E0D4')}
+                      />
+                      <button
+                        onClick={handleUnlock}
+                        disabled={unlocking || !accessCodeInput.trim()}
+                        className="h-10 px-4 rounded-lg text-[14px] font-medium transition"
+                        style={{ background: '#1F4D3A', color: 'white', opacity: (unlocking || !accessCodeInput.trim()) ? 0.6 : 1 }}
+                      >
+                        {unlocking ? '…' : 'Unlock'}
+                      </button>
+                    </div>
+                    {accessCodeError && <p className="text-[12px] mt-1" style={{ color: '#B8423C' }}>{accessCodeError}</p>}
+                  </div>
+                )}
+                {unlockedTickets.length > 0 && (
+                  <div className="mt-3 flex items-center gap-2 text-[13px]" style={{ color: '#2D7A4F' }}>
+                    <span>✓</span><span>Access code applied — {unlockedTickets.length} ticket{unlockedTickets.length !== 1 ? 's' : ''} unlocked</span>
+                  </div>
+                )}
               </div>
             )}
 
@@ -499,7 +614,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
             )}
           </div>
 
-          {/* ── Summary sidebar ── */}
+          {/* -- Summary sidebar -- */}
           <div className="hidden lg:block">
             <div
               className="rounded-2xl p-5 sticky"
@@ -518,8 +633,8 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-medium text-[14px] leading-snug" style={{ color: '#0F1F18' }}>{page.title}</div>
-                  <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72', fontFamily: 'JetBrains Mono, monospace' }}>
-                    {new Date(page.starts_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
+                    {new Date(page.starts_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                   </div>
                 </div>
               </div>
@@ -542,7 +657,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
           </div>
         </div>
 
-        {/* ── Bottom nav bar — hidden on paid step 2 (Stripe has its own submit) ── */}
+        {/* -- Bottom nav bar — hidden on paid step 2 (Stripe has its own submit) -- */}
         {!(step === 2 && isPaid) && (
           <div
             className="fixed bottom-0 left-0 right-0 flex items-center justify-between gap-4 px-4 sm:px-6 py-4 z-30"
@@ -590,7 +705,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                     Generating your card…
                   </>
                 ) : (
-                  'Confirm & get my card →'
+                  'Confirm & get my card ->'
                 )}
               </button>
             )}
@@ -610,7 +725,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
   );
 }
 
-// ── Helper components ──────────────────────────────────────────
+// -- Helper components ------------------------------------------
 
 function RField({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
   return (
@@ -678,7 +793,7 @@ function SumRow({ label, value, mono }: { label: string; value: string; mono?: b
     <div className="flex items-center justify-between gap-2 text-[13px]">
       <span style={{ color: '#6B7A72' }}>{label}</span>
       <span
-        style={{ color: '#0F1F18', fontFamily: mono ? 'JetBrains Mono, monospace' : undefined, fontWeight: mono ? 500 : 400 }}
+        style={{ color: '#0F1F18', fontFamily: mono ? 'Inter, system-ui, sans-serif' : undefined, fontWeight: mono ? 500 : 400 }}
       >
         {value}
       </span>

@@ -23,7 +23,7 @@ const FOOTER_LINKS = {
 export function Footer() {
   return (
     <footer className="border-t border-[#E5E0D4]" style={{ background: "#FAF6EE" }}>
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 pt-14 pb-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 pt-14 pb-10">
 
         {/* Top: brand col + link cols */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">

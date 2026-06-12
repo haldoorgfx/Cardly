@@ -3,10 +3,10 @@
 // RightSidebar — context-switching panel matching editor-shared.jsx / D2.1–D2.3 design.
 //
 // Modes:
-//   preview     → PreviewPanel
-//   multiselect → MultiSelectPanel
-//   zone        → children (RightRail from CanvasEditor) + LayersPanel + ShortcutsBlock
-//   event       → EventPanel + LayersPanel + ShortcutsBlock
+//   preview     -> PreviewPanel
+//   multiselect -> MultiSelectPanel
+//   zone        -> children (RightRail from CanvasEditor) + LayersPanel + ShortcutsBlock
+//   event       -> EventPanel + LayersPanel + ShortcutsBlock
 //
 // Layers and Shortcuts are ALWAYS rendered in this sidebar (below the top panel).
 
@@ -19,7 +19,7 @@ import {
   Pencil, Upload, Image as ImageIcon,
 } from 'lucide-react';
 
-/* ── Design tokens (matching editor-shared.jsx) ──────────────────── */
+/* -- Design tokens (matching editor-shared.jsx) -------------------- */
 const T = {
   cream:       '#FAF6EE',
   surface:     '#FFFFFF',
@@ -35,14 +35,14 @@ const T = {
   success:     '#2D7A4F',
 };
 
-/* ── PanelCard ───────────────────────────────────────────────────── */
+/* -- PanelCard ----------------------------------------------------- */
 function PanelCard({
   label, children, trailing,
 }: { label: string; children: React.ReactNode; trailing?: React.ReactNode }) {
   return (
     <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 6, padding: '10px 12px' }}>
       <div className="flex items-center justify-between mb-2">
-        <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: T.muted, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+        <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: T.muted, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
           {label}
         </div>
         {trailing}
@@ -52,17 +52,17 @@ function PanelCard({
   );
 }
 
-/* ── Section label ───────────────────────────────────────────────── */
+/* -- Section label ------------------------------------------------- */
 function SectionLabel({ children, count }: { children: React.ReactNode; count?: number }) {
   return (
-    <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: T.muted, letterSpacing: '0.1em', textTransform: 'uppercase' }} className="flex items-center gap-1.5">
+    <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: T.muted, letterSpacing: '0.1em', textTransform: 'uppercase' }} className="flex items-center gap-1.5">
       <span>{children}</span>
       {count !== undefined && <span style={{ opacity: 0.7 }}>· {count}</span>}
     </div>
   );
 }
 
-/* ── Event Panel ─────────────────────────────────────────────────── */
+/* -- Event Panel --------------------------------------------------- */
 interface EventPanelProps {
   nameVal: string;
   setNameVal: (v: string) => void;
@@ -127,11 +127,11 @@ function EventPanel({
             height: 32, padding: '0 10px',
             background: T.cream, border: `1px solid ${T.border}`,
             borderRadius: 6,
-            fontFamily: 'JetBrains Mono, monospace', fontSize: 11,
+            fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11,
             color: T.ink,
           }}
         >
-          {bgW} × {bgH} px
+          {bgW} &times; {bgH} px
         </div>
       </PanelCard>
 
@@ -161,8 +161,8 @@ function EventPanel({
               {backgroundUrl ? 'background.png' : 'No background'}
             </div>
             {bgW > 0 && (
-              <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: T.muted, marginTop: 2, letterSpacing: '0.02em' }}>
-                {bgW} × {bgH}
+              <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: T.muted, marginTop: 2, letterSpacing: '0.02em' }}>
+                {bgW} &times; {bgH}
               </div>
             )}
             <label
@@ -186,7 +186,7 @@ function EventPanel({
   );
 }
 
-/* ── Preview Panel ───────────────────────────────────────────────── */
+/* -- Preview Panel ------------------------------------------------- */
 function PreviewPanel() {
   return (
     <aside
@@ -210,15 +210,15 @@ function PreviewPanel() {
         <kbd style={{
           background: T.cream, border: `1px solid ${T.border}`,
           borderRadius: 4, padding: '1px 5px',
-          fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
-        }}>⌘P</kbd>
+          fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
+        }}>CmdP</kbd>
         {' '}to resume editing.
       </p>
     </aside>
   );
 }
 
-/* ── Multi-select Panel ──────────────────────────────────────────── */
+/* -- Multi-select Panel -------------------------------------------- */
 interface MultiSelectPanelProps {
   selectedIds: string[];
   alignSelected: (axis: 'left' | 'centerH' | 'right' | 'top' | 'middleV' | 'bottom') => void;
@@ -248,7 +248,7 @@ function MultiSelectPanel({ selectedIds, alignSelected, distributeSelected, remo
       </p>
 
       <div className="mt-5 w-full text-left space-y-3">
-        <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: T.muted, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+        <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: T.muted, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
           Align
         </div>
         <div className="grid grid-cols-3 gap-1">
@@ -274,7 +274,7 @@ function MultiSelectPanel({ selectedIds, alignSelected, distributeSelected, remo
 
         {selectedIds.length >= 3 && (
           <>
-            <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: T.muted, letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 8 }}>
+            <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: T.muted, letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 8 }}>
               Distribute
             </div>
             <div className="grid grid-cols-2 gap-1">
@@ -314,7 +314,7 @@ function MultiSelectPanel({ selectedIds, alignSelected, distributeSelected, remo
   );
 }
 
-/* ── Public composite sidebar ────────────────────────────────────── */
+/* -- Public composite sidebar -------------------------------------- */
 export type RightSidebarMode = 'preview' | 'multiselect' | 'event' | 'zone';
 
 export interface RightSidebarProps {

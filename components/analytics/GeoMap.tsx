@@ -113,7 +113,7 @@ export default function GeoMap({ cityData, totalCards }: Props) {
                       textAnchor="middle"
                       y={-(r + 5)}
                       style={{
-                        fontFamily: 'JetBrains Mono, monospace',
+                        fontFamily: 'Inter, system-ui, sans-serif',
                         fontSize: 6,
                         fontWeight: 500,
                         fill: '#0F1F18',
@@ -153,7 +153,7 @@ export default function GeoMap({ cityData, totalCards }: Props) {
             className="h-7 w-7 rounded-lg bg-white border border-[#E5E0D4] shadow-soft text-[#0F1F18]/60 hover:text-[#1F4D3A] hover:border-[#1F4D3A]/30 disabled:opacity-30 disabled:cursor-not-allowed transition flex items-center justify-center text-[15px] font-light leading-none"
             title="Zoom out"
           >
-            −
+            -
           </button>
           {(zoom !== DEFAULT_ZOOM || center[0] !== DEFAULT_CENTER[0] || center[1] !== DEFAULT_CENTER[1]) && (
             <button
@@ -185,7 +185,7 @@ export default function GeoMap({ cityData, totalCards }: Props) {
       </div>
 
       {/* Legend */}
-      <div className="grid grid-cols-3 gap-3 mt-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
         {legendCities.map(({ city, count }, i) => {
           const pct = hasRealData && totalCards > 0
             ? Math.round((count / totalCards) * 100)

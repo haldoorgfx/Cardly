@@ -8,7 +8,7 @@ export async function GET(_req: NextRequest, { params }: { params: { token: stri
 
   const { data: reg } = await admin
     .from('registrations')
-    .select('event_id, events!event_id(slug)')
+    .select('event_id, events!inner(slug)')
     .eq('qr_code_token', params.token)
     .single();
 

@@ -190,7 +190,7 @@ export default function HowItWorksPage() {
           </div>
 
           <h1
-            className="font-display font-bold text-[#1F4D3A] leading-[1.0] tracking-tight"
+            className="font-title font-bold text-[#1F4D3A] leading-[1.0]"
             style={{ fontSize: 'clamp(40px, 6vw, 64px)' }}
           >
             From first ticket to last card shared.
@@ -305,7 +305,7 @@ export default function HowItWorksPage() {
                 Unique to Karta
               </div>
               <h2
-                className="font-display font-bold text-[28px] sm:text-[36px] leading-tight tracking-tight"
+                className="font-title font-bold text-[28px] sm:text-[36px] leading-tight"
                 style={{ color: '#E8C57E' }}
               >
                 The Karta Card
@@ -363,7 +363,7 @@ export default function HowItWorksPage() {
       >
         <div className="mx-auto max-w-[900px] px-5 lg:px-10 py-20 lg:py-28 text-center">
           <h2
-            className="font-display font-bold leading-[1.0] tracking-tight text-[#FAF6EE]"
+            className="font-title font-bold leading-[1.0] text-[#FAF6EE]"
             style={{ fontSize: 'clamp(32px, 5vw, 52px)' }}
           >
             Ready to run your first event?

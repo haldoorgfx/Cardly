@@ -3,7 +3,7 @@ import { ArrowRight, Globe, Zap, Users, BarChart3 } from 'lucide-react';
 import Reveal from '@/components/marketing/Reveal';
 
 export const metadata = {
-  title: 'Partners — Karta',
+  title: 'Partners',
   description:
     'Grow your event business with Karta. Reseller, integration, and co-marketing programs for agencies and platforms.',
 };
@@ -87,7 +87,7 @@ function PartnersHero() {
           <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-5">
             Partners
           </div>
-          <h1 className="font-display font-bold text-ink text-[44px] sm:text-[60px] lg:text-[78px] leading-[0.95] tracking-[-0.035em]">
+          <h1 className="font-title font-bold text-ink text-[44px] sm:text-[60px] lg:text-[78px] leading-[0.95]">
             Grow with Karta.{' '}
             <span className="text-primary">We grow with you.</span>
           </h1>
@@ -174,7 +174,7 @@ function Programs() {
           <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-4">
             Programs
           </div>
-          <h2 className="font-display font-bold text-ink text-[34px] sm:text-[44px] lg:text-[52px] leading-[1.02] tracking-[-0.035em]">
+          <h2 className="font-title font-bold text-ink text-[34px] sm:text-[44px] lg:text-[52px] leading-[1.02]">
             Three ways to work with us.
           </h2>
           <p className="mt-4 text-ink-soft text-[16px] lg:text-[17px] leading-[1.6]">
@@ -263,7 +263,7 @@ function WhyPartner() {
             <div className="font-mono text-[11px] tracking-[0.22em] uppercase mb-4" style={{ color: '#E8C57E' }}>
               Why Karta
             </div>
-            <h2 className="font-display font-bold text-cream text-[32px] sm:text-[42px] lg:text-[50px] leading-[1.02] tracking-[-0.035em]">
+            <h2 className="font-title font-bold text-cream text-[32px] sm:text-[42px] lg:text-[50px] leading-[1.02]">
               Partner with a team that&apos;s serious about this.
             </h2>
           </div>
@@ -308,7 +308,7 @@ function PartnerCTA() {
         }}
       />
       <div className="relative mx-auto max-w-[860px] px-5 lg:px-10 py-20 lg:py-24 text-center">
-        <h2 className="font-display font-bold text-ink text-[36px] sm:text-[48px] lg:text-[58px] leading-[1.0] tracking-[-0.035em]">
+        <h2 className="font-title font-bold text-ink text-[36px] sm:text-[48px] lg:text-[58px] leading-[1.0]">
           Ready to partner?
         </h2>
         <p className="mt-5 text-ink-soft text-[16px] lg:text-[17px] leading-[1.55] max-w-[520px] mx-auto">

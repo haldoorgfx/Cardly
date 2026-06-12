@@ -14,7 +14,7 @@ export function HeroBlock({ content }: { content: HeroContent }) {
               {eyebrow}
             </div>
           )}
-          <h1 className="font-display font-bold text-[#0F1F18] leading-[0.97] tracking-[-0.035em] text-[48px] sm:text-[64px] lg:text-[76px]">
+          <h1 className="font-title font-bold text-[#0F1F18] leading-[0.97] text-[48px] sm:text-[64px] lg:text-[76px]">
             {headlineAccent ? (
               <>
                 {headline.replace(headlineAccent, '')}{' '}
@@ -68,7 +68,7 @@ export function HeroBlock({ content }: { content: HeroContent }) {
               {eyebrow}
             </div>
           )}
-          <h1 className="font-display font-bold text-[#0F1F18] leading-[0.97] tracking-[-0.035em] text-[48px] sm:text-[64px] lg:text-[76px]">
+          <h1 className="font-title font-bold text-[#0F1F18] leading-[0.97] text-[48px] sm:text-[64px] lg:text-[76px]">
             {headlineAccent ? (
               <>
                 {headline.replace(headlineAccent, '')}{' '}

@@ -95,7 +95,7 @@ export interface Session {
 }
 
 // ── Phase 1: Event registration types ────────────────────────────────────────
-export type RegistrationStatus = "pending" | "confirmed" | "checked_in" | "cancelled" | "refunded";
+export type RegistrationStatus = "pending" | "confirmed" | "checked_in" | "cancelled" | "refunded" | "pending_approval";
 export type PaymentStatus = "free" | "pending" | "paid" | "refunded" | "failed";
 export type PaymentProcessor = "stripe" | "flutterwave" | "waafipay" | "free";
 export type FieldType = "text" | "textarea" | "select" | "checkbox" | "radio" | "phone" | "url";
@@ -146,6 +146,8 @@ export interface TicketType {
   max_per_order: number;
   is_visible: boolean;
   position: number;
+  min_price: number | null;
+  access_code: string | null;
   created_at: string;
 }
 
@@ -169,8 +171,18 @@ export interface Registration {
   karta_card_url: string | null;
   karta_card_zone_data: Record<string, unknown> | null;
   source: string | null;
+  referral_code: string | null;
+  utm_source: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface PromoterCode {
+  id: string;
+  event_id: string;
+  code: string;
+  label: string | null;
+  created_at: string;
 }
 
 export interface RegistrationFormField {
@@ -315,6 +327,26 @@ export interface Database {
           suspended: boolean;
           suspended_at: string | null;
           suspended_reason: string | null;
+          // preferences (migration 026)
+          organization: string | null;
+          timezone: string | null;
+          language: string | null;
+          currency: string | null;
+          date_format: string | null;
+          notify_registrations: boolean;
+          notify_daily_summary: boolean;
+          notify_card_shares: boolean;
+          notify_product_updates: boolean;
+          // attendee columns (migration 010)
+          account_type: string;
+          interests: string[] | null;
+          city: string | null;
+          phone: string | null;
+          whatsapp_verified: boolean;
+          notification_prefs: Json | null;
+          onboarding_done: boolean;
+          // discovery columns (migration 011)
+          bio: string | null;
         };
         Insert: {
           id: string;
@@ -338,6 +370,23 @@ export interface Database {
           suspended?: boolean;
           suspended_at?: string | null;
           suspended_reason?: string | null;
+          organization?: string | null;
+          timezone?: string | null;
+          language?: string | null;
+          currency?: string | null;
+          date_format?: string | null;
+          notify_registrations?: boolean;
+          notify_daily_summary?: boolean;
+          notify_card_shares?: boolean;
+          notify_product_updates?: boolean;
+          account_type?: string;
+          interests?: string[] | null;
+          city?: string | null;
+          phone?: string | null;
+          whatsapp_verified?: boolean;
+          notification_prefs?: Json | null;
+          onboarding_done?: boolean;
+          bio?: string | null;
         };
         Update: {
           email?: string | null;
@@ -359,6 +408,173 @@ export interface Database {
           suspended?: boolean;
           suspended_at?: string | null;
           suspended_reason?: string | null;
+          organization?: string | null;
+          timezone?: string | null;
+          language?: string | null;
+          currency?: string | null;
+          date_format?: string | null;
+          notify_registrations?: boolean;
+          notify_daily_summary?: boolean;
+          notify_card_shares?: boolean;
+          notify_product_updates?: boolean;
+          account_type?: string;
+          interests?: string[] | null;
+          city?: string | null;
+          phone?: string | null;
+          whatsapp_verified?: boolean;
+          notification_prefs?: Json | null;
+          onboarding_done?: boolean;
+          bio?: string | null;
+        };
+        Relationships: [];
+      };
+      waitlist_entries: {
+        Row: {
+          id: string;
+          event_page_id: string;
+          email: string;
+          name: string;
+          status: 'waiting' | 'invited' | 'registered' | 'expired';
+          position: number | null;
+          notified_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          event_page_id: string;
+          email: string;
+          name: string;
+          status?: 'waiting' | 'invited' | 'registered' | 'expired';
+          position?: number | null;
+          notified_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          status?: 'waiting' | 'invited' | 'registered' | 'expired';
+          position?: number | null;
+          notified_at?: string | null;
+        };
+        Relationships: [];
+      };
+      event_series: {
+        Row: {
+          id: string;
+          organizer_id: string;
+          name: string;
+          slug: string;
+          description: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          organizer_id: string;
+          name: string;
+          slug: string;
+          description?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          name?: string;
+          slug?: string;
+          description?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "event_series_organizer_id_fkey";
+            columns: ["organizer_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      ticket_transfers: {
+        Row: {
+          id: string;
+          registration_id: string;
+          from_name: string;
+          from_email: string;
+          to_name: string;
+          to_email: string;
+          transferred_at: string;
+        };
+        Insert: {
+          registration_id: string;
+          from_name: string;
+          from_email: string;
+          to_name: string;
+          to_email: string;
+          transferred_at?: string;
+        };
+        Update: Record<string, never>;
+        Relationships: [];
+      };
+      saved_events: {
+        Row: {
+          id: string;
+          user_id: string;
+          event_page_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          event_page_id: string;
+          created_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          event_page_id?: string;
+        };
+        Relationships: [];
+      };
+      organizer_follows: {
+        Row: {
+          id: string;
+          follower_id: string;
+          organizer_id: string;
+          notify_new_events: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          follower_id: string;
+          organizer_id: string;
+          notify_new_events?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          notify_new_events?: boolean;
+        };
+        Relationships: [];
+      };
+      notifications: {
+        Row: {
+          id: string;
+          user_id: string;
+          event_id: string | null;
+          type: 'registration' | 'card_download' | 'ticket_sale' | 'milestone' | 'sponsor' | 'system' | 'waitlist_spot' | 'new_event_from_follow' | 'reminder' | 'agenda_change' | 'card_ready' | 'receipt';
+          title: string;
+          body: string | null;
+          action_url: string | null;
+          icon: string;
+          read_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          event_id?: string | null;
+          type: 'registration' | 'card_download' | 'ticket_sale' | 'milestone' | 'sponsor' | 'system' | 'waitlist_spot' | 'new_event_from_follow' | 'reminder' | 'agenda_change' | 'card_ready' | 'receipt';
+          title: string;
+          body?: string | null;
+          action_url?: string | null;
+          icon?: string;
+          read_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          read_at?: string | null;
         };
         Relationships: [];
       };
@@ -376,6 +592,10 @@ export interface Database {
           moderation_status: ModerationStatus;
           view_count: number;
           download_count: number;
+          checkout_collect_details: boolean;
+          checkout_require_approval: boolean;
+          checkout_show_remaining: boolean;
+          checkout_apply_vat: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -392,6 +612,10 @@ export interface Database {
           moderation_status?: ModerationStatus;
           view_count?: number;
           download_count?: number;
+          checkout_collect_details?: boolean;
+          checkout_require_approval?: boolean;
+          checkout_show_remaining?: boolean;
+          checkout_apply_vat?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -406,6 +630,10 @@ export interface Database {
           moderation_status?: ModerationStatus;
           view_count?: number;
           download_count?: number;
+          checkout_collect_details?: boolean;
+          checkout_require_approval?: boolean;
+          checkout_show_remaining?: boolean;
+          checkout_apply_vat?: boolean;
           updated_at?: string;
         };
         Relationships: [
@@ -680,6 +908,12 @@ export interface Database {
           payment_processor: PaymentProcessor;
           organizer_name: string | null;
           organizer_avatar_url: string | null;
+          city: string | null;
+          country: string | null;
+          category: string | null;
+          price_from: number | null;
+          series_id: string | null;
+          series_name: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -709,6 +943,12 @@ export interface Database {
           payment_processor?: PaymentProcessor;
           organizer_name?: string | null;
           organizer_avatar_url?: string | null;
+          city?: string | null;
+          country?: string | null;
+          category?: string | null;
+          price_from?: number | null;
+          series_id?: string | null;
+          series_name?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -736,6 +976,12 @@ export interface Database {
           payment_processor?: PaymentProcessor;
           organizer_name?: string | null;
           organizer_avatar_url?: string | null;
+          city?: string | null;
+          country?: string | null;
+          category?: string | null;
+          price_from?: number | null;
+          series_id?: string | null;
+          series_name?: string | null;
           updated_at?: string;
         };
         // Note: payment_processor check constraint updated in migration 018 to include 'waafipay'
@@ -765,6 +1011,8 @@ export interface Database {
           max_per_order: number;
           is_visible: boolean;
           position: number;
+          min_price: number | null;
+          access_code: string | null;
           created_at: string;
         };
         Insert: {
@@ -782,6 +1030,8 @@ export interface Database {
           max_per_order?: number;
           is_visible?: boolean;
           position?: number;
+          min_price?: number | null;
+          access_code?: string | null;
           created_at?: string;
         };
         Update: {
@@ -797,6 +1047,8 @@ export interface Database {
           max_per_order?: number;
           is_visible?: boolean;
           position?: number;
+          min_price?: number | null;
+          access_code?: string | null;
         };
         Relationships: [
           {
@@ -829,6 +1081,10 @@ export interface Database {
           karta_card_url: string | null;
           karta_card_zone_data: Json | null;
           source: string | null;
+          referral_code: string | null;
+          utm_source: string | null;
+          user_id: string | null;
+          chosen_price: number | null;
           created_at: string;
           updated_at: string;
         };
@@ -852,6 +1108,10 @@ export interface Database {
           karta_card_url?: string | null;
           karta_card_zone_data?: Json | null;
           source?: string | null;
+          referral_code?: string | null;
+          utm_source?: string | null;
+          user_id?: string | null;
+          chosen_price?: number | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -871,6 +1131,10 @@ export interface Database {
           checked_in_by?: string | null;
           karta_card_url?: string | null;
           karta_card_zone_data?: Json | null;
+          referral_code?: string | null;
+          utm_source?: string | null;
+          user_id?: string | null;
+          chosen_price?: number | null;
           updated_at?: string;
         };
         Relationships: [
@@ -912,6 +1176,35 @@ export interface Database {
         Relationships: [
           {
             foreignKeyName: "reg_form_fields_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      promoter_codes: {
+        Row: {
+          id: string;
+          event_id: string;
+          code: string;
+          label: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          event_id: string;
+          code: string;
+          label?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          code?: string;
+          label?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "promoter_codes_event_id_fkey";
             columns: ["event_id"];
             isOneToOne: false;
             referencedRelation: "events";
@@ -1137,7 +1430,22 @@ export interface Database {
         Row: { id: string; event_id: string; session_id: string | null; registration_id: string | null; question: string; is_anonymous: boolean; upvotes_count: number; status: string; is_featured: boolean; created_at: string };
         Insert: { id?: string; event_id: string; session_id?: string | null; registration_id?: string | null; question: string; is_anonymous?: boolean; upvotes_count?: number; status?: string; is_featured?: boolean; created_at?: string };
         Update: { status?: string; is_featured?: boolean; upvotes_count?: number };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "qa_questions_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "qa_questions_registration_id_fkey";
+            columns: ["registration_id"];
+            isOneToOne: false;
+            referencedRelation: "registrations";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       qa_upvotes: {
         Row: { question_id: string; registration_id: string; created_at: string };
@@ -1149,13 +1457,29 @@ export interface Database {
         Row: { id: string; event_id: string; session_id: string | null; organizer_id: string | null; question: string; is_active: boolean; is_closed: boolean; created_at: string };
         Insert: { id?: string; event_id: string; session_id?: string | null; organizer_id?: string | null; question: string; is_active?: boolean; is_closed?: boolean; created_at?: string };
         Update: { question?: string; is_active?: boolean; is_closed?: boolean };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "polls_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       poll_options: {
         Row: { id: string; poll_id: string; text: string; votes_count: number; position: number };
         Insert: { id?: string; poll_id: string; text: string; votes_count?: number; position?: number };
         Update: { text?: string; votes_count?: number; position?: number };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "poll_options_poll_id_fkey";
+            columns: ["poll_id"];
+            isOneToOne: false;
+            referencedRelation: "polls";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       poll_votes: {
         Row: { poll_id: string; option_id: string; registration_id: string; created_at: string };
@@ -1244,6 +1568,326 @@ export interface Database {
             columns: ["page_id"];
             isOneToOne: false;
             referencedRelation: "cms_pages";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      sponsors: {
+        Row: {
+          id: string;
+          event_id: string;
+          company_name: string;
+          tagline: string | null;
+          description: string | null;
+          logo_url: string | null;
+          cover_url: string | null;
+          website_url: string | null;
+          contact_email: string | null;
+          meeting_url: string | null;
+          booth_location: string | null;
+          booth_hours: string | null;
+          offerings: Json;
+          team_members: Json;
+          tier: string;
+          position: number;
+          is_visible: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          event_id: string;
+          company_name: string;
+          tagline?: string | null;
+          description?: string | null;
+          logo_url?: string | null;
+          cover_url?: string | null;
+          website_url?: string | null;
+          contact_email?: string | null;
+          meeting_url?: string | null;
+          booth_location?: string | null;
+          booth_hours?: string | null;
+          offerings?: Json;
+          team_members?: Json;
+          tier?: string;
+          position?: number;
+          is_visible?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          company_name?: string;
+          tagline?: string | null;
+          description?: string | null;
+          logo_url?: string | null;
+          cover_url?: string | null;
+          website_url?: string | null;
+          contact_email?: string | null;
+          meeting_url?: string | null;
+          booth_location?: string | null;
+          booth_hours?: string | null;
+          offerings?: Json;
+          team_members?: Json;
+          tier?: string;
+          position?: number;
+          is_visible?: boolean;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "sponsors_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      sponsor_leads: {
+        Row: {
+          id: string;
+          sponsor_id: string;
+          event_id: string;
+          registration_id: string | null;
+          attendee_name: string | null;
+          attendee_email: string | null;
+          note: string | null;
+          rating: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          sponsor_id: string;
+          event_id: string;
+          registration_id?: string | null;
+          attendee_name?: string | null;
+          attendee_email?: string | null;
+          note?: string | null;
+          rating?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          attendee_name?: string | null;
+          attendee_email?: string | null;
+          note?: string | null;
+          rating?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "sponsor_leads_sponsor_id_fkey";
+            columns: ["sponsor_id"];
+            isOneToOne: false;
+            referencedRelation: "sponsors";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      call_for_papers: {
+        Row: {
+          id: string;
+          event_id: string;
+          is_open: boolean;
+          deadline_at: string | null;
+          categories: string[];
+          max_words: number;
+          allow_pdf: boolean;
+          instructions: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          event_id: string;
+          is_open?: boolean;
+          deadline_at?: string | null;
+          categories?: string[];
+          max_words?: number;
+          allow_pdf?: boolean;
+          instructions?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          is_open?: boolean;
+          deadline_at?: string | null;
+          categories?: string[];
+          max_words?: number;
+          allow_pdf?: boolean;
+          instructions?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "call_for_papers_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: true;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      abstracts: {
+        Row: {
+          id: string;
+          event_id: string;
+          cfp_id: string | null;
+          title: string;
+          body: string;
+          authors: string | null;
+          authors_json: Json;
+          keywords: string[];
+          category: string | null;
+          pdf_url: string | null;
+          status: string;
+          review_notes: string | null;
+          assigned_session: string | null;
+          submitted_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          event_id: string;
+          cfp_id?: string | null;
+          title: string;
+          body: string;
+          authors?: string | null;
+          authors_json?: Json;
+          keywords?: string[];
+          category?: string | null;
+          pdf_url?: string | null;
+          status?: string;
+          review_notes?: string | null;
+          assigned_session?: string | null;
+          submitted_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          title?: string;
+          body?: string;
+          authors?: string | null;
+          authors_json?: Json;
+          keywords?: string[];
+          category?: string | null;
+          pdf_url?: string | null;
+          status?: string;
+          review_notes?: string | null;
+          assigned_session?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "abstracts_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      feature_flags: {
+        Row: {
+          flag: string;
+          label: string;
+          description: string | null;
+          enabled: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          flag: string;
+          label: string;
+          description?: string | null;
+          enabled?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          flag?: string;
+          label?: string;
+          description?: string | null;
+          enabled?: boolean;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      feature_flag_overrides: {
+        Row: {
+          flag: string;
+          user_id: string;
+          enabled: boolean;
+        };
+        Insert: {
+          flag: string;
+          user_id: string;
+          enabled: boolean;
+        };
+        Update: {
+          flag?: string;
+          user_id?: string;
+          enabled?: boolean;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "feature_flag_overrides_flag_fkey";
+            columns: ["flag"];
+            isOneToOne: false;
+            referencedRelation: "feature_flags";
+            referencedColumns: ["flag"];
+          },
+          {
+            foreignKeyName: "feature_flag_overrides_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      white_label_settings: {
+        Row: {
+          user_id: string;
+          brand_name: string | null;
+          primary_color: string;
+          logo_url: string | null;
+          favicon_url: string | null;
+          custom_domain: string | null;
+          domain_verified: boolean;
+          from_name: string | null;
+          reply_to_email: string | null;
+          hide_powered_by: boolean;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          brand_name?: string | null;
+          primary_color?: string;
+          logo_url?: string | null;
+          favicon_url?: string | null;
+          custom_domain?: string | null;
+          domain_verified?: boolean;
+          from_name?: string | null;
+          reply_to_email?: string | null;
+          hide_powered_by?: boolean;
+          updated_at?: string;
+        };
+        Update: {
+          brand_name?: string | null;
+          primary_color?: string;
+          logo_url?: string | null;
+          favicon_url?: string | null;
+          custom_domain?: string | null;
+          domain_verified?: boolean;
+          from_name?: string | null;
+          reply_to_email?: string | null;
+          hide_powered_by?: boolean;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "white_label_settings_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "profiles";
             referencedColumns: ["id"];
           }
         ];

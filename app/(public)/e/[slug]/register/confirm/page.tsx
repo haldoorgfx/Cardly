@@ -4,10 +4,21 @@ import { notFound } from 'next/navigation';
 import { createAdminClient } from '@/lib/supabase/server';
 import { ConfirmPage } from '@/components/registration/ConfirmPage';
 import type { Zone } from '@/types/database';
+import type { Metadata } from 'next';
 
 interface Props {
   params: { slug: string };
   searchParams: { reg?: string; payment_intent?: string; redirect_status?: string; processor?: string };
+}
+
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const qrToken = searchParams.reg;
+  if (!qrToken) return { title: 'Registration Confirmed' };
+  const admin = createAdminClient();
+  const { data: registration } = await admin.from('registrations').select('event_id').eq('qr_code_token', qrToken).single();
+  if (!registration) return { title: 'Registration Confirmed' };
+  const { data: eventPage } = await admin.from('event_pages').select('title').eq('event_id', registration.event_id).single();
+  return { title: `Registration Confirmed — ${eventPage?.title ?? 'Event'}` };
 }
 
 export default async function RegisterConfirmPage({ params, searchParams }: Props) {
@@ -25,7 +36,7 @@ export default async function RegisterConfirmPage({ params, searchParams }: Prop
   if (!registration) notFound();
 
   const [{ data: eventPage }, { data: ticket }] = await Promise.all([
-    admin.from('event_pages').select('title, event_id, variant_id, events!event_id(slug)').eq('event_id', registration.event_id).single(),
+    admin.from('event_pages').select('title, event_id, variant_id, events!inner(slug)').eq('event_id', registration.event_id).single(),
     registration.ticket_type_id
       ? admin.from('ticket_types').select('name, price, currency').eq('id', registration.ticket_type_id).single()
       : Promise.resolve({ data: null }),
@@ -39,8 +50,8 @@ export default async function RegisterConfirmPage({ params, searchParams }: Prop
   if (!registration.karta_card_url) {
     const variantId = eventPage?.variant_id;
     const { data: rawVariant } = variantId
-      ? await admin.from('event_variants').select('id, zones, background_url, background_width, background_height').eq('id', variantId).single()
-      : await admin.from('event_variants').select('id, zones, background_url, background_width, background_height').eq('event_id', registration.event_id).order('position').limit(1).single();
+      ? await admin.from('event_variants').select('id, zones, background_url, background_width, background_height').eq('id', variantId).maybeSingle()
+      : await admin.from('event_variants').select('id, zones, background_url, background_width, background_height').eq('event_id', registration.event_id).order('position').limit(1).maybeSingle();
 
     if (rawVariant) {
       variant = {

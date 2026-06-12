@@ -10,6 +10,7 @@ import DashboardContent from './DashboardContent';
 import React from 'react';
 import { CalendarDays, Ticket, Users, ScanLine, Plus, IdCard } from 'lucide-react';
 import { PLANS, type Plan } from '@/lib/billing/plans';
+import { formatRevenue } from '@/lib/events/format';
 
 export default async function DashboardPage() {
   const supabase = createClient();
@@ -17,7 +18,7 @@ export default async function DashboardPage() {
   if (!user) redirect('/login');
 
   const admin = createAdminClient();
-  const [{ data: events }, { data: profile }] = await Promise.all([
+  const [{ data: events, error: eventsError }, { data: profile, error: profileError }] = await Promise.all([
     admin.from('events')
       .select('id, name, slug, status, view_count, download_count, updated_at, event_pages(starts_at, venue_name), event_variants(id, background_url, position)')
       .eq('user_id', user.id)
@@ -29,9 +30,12 @@ export default async function DashboardPage() {
   const allEvents = events ?? [];
   const isEmpty = allEvents.length === 0;
 
-  // New users who haven't completed onboarding → redirect to the wizard
+  // New users who haven't completed onboarding → redirect to the wizard.
+  // Only redirect if BOTH queries succeeded (no errors) — if either fails,
+  // fall through to show the empty state rather than looping on /onboarding.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  if (isEmpty && !(profile as any)?.onboarding_completed) {
+  const completedOnboarding = (profile as any)?.onboarding_completed === true || !!profile?.full_name;
+  if (isEmpty && !completedOnboarding && !eventsError && !profileError) {
     redirect('/onboarding');
   }
   const plan = (profile?.plan ?? 'free') as Plan;
@@ -84,20 +88,22 @@ export default async function DashboardPage() {
 
   // ─── Registrations + revenue ───────────────────────────────────────────────
   const eventIds = allEvents.map(e => e.id);
-  const regsByEvent: Record<string, { count: number; revenue: number; checkedIn: number }> = {};
+  const regsByEvent: Record<string, { count: number; revenue: number; checkedIn: number; currencies: Set<string> }> = {};
   let totalRegistrations = 0;
   let totalRevenue = 0;
   let totalCheckedIn = 0;
+  const allCurrencies = new Set<string>();
   if (eventIds.length > 0) {
     const { data: regs } = await admin
       .from('registrations')
-      .select('event_id, amount_paid, status')
+      .select('event_id, amount_paid, status, currency')
       .in('event_id', eventIds)
       .in('status', ['confirmed', 'checked_in']);
     for (const r of regs ?? []) {
-      if (!regsByEvent[r.event_id]) regsByEvent[r.event_id] = { count: 0, revenue: 0, checkedIn: 0 };
+      if (!regsByEvent[r.event_id]) regsByEvent[r.event_id] = { count: 0, revenue: 0, checkedIn: 0, currencies: new Set() };
       regsByEvent[r.event_id].count   += 1;
       regsByEvent[r.event_id].revenue += Number(r.amount_paid ?? 0);
+      if (r.currency) { regsByEvent[r.event_id].currencies.add(r.currency); allCurrencies.add(r.currency); }
       totalRegistrations += 1;
       totalRevenue       += Number(r.amount_paid ?? 0);
       if (r.status === 'checked_in') {
@@ -106,6 +112,8 @@ export default async function DashboardPage() {
       }
     }
   }
+  // Platform currency is USD — always display revenue totals in USD
+  const totalCurrency = totalRevenue > 0 ? 'USD' : null;
 
   const checkInRate = totalRegistrations > 0 ? Math.round((totalCheckedIn / totalRegistrations) * 100) : 0;
   const firstLiveEvent = allEvents.find(e => e.status === 'published');
@@ -123,7 +131,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[1100px] mx-auto px-6 lg:px-8 py-8">
+      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
 
         {/* ── Page header ── */}
         <div className="flex items-start justify-between mb-6 gap-4 flex-wrap">
@@ -141,12 +149,12 @@ export default async function DashboardPage() {
         </div>
 
         {/* ── Stats strip ── */}
-        <div className="bg-white border rounded-2xl px-6 py-4 mb-5 flex flex-wrap items-center gap-x-5 gap-y-2"
+        <div className="bg-white border rounded-2xl px-4 sm:px-6 py-4 mb-5 flex flex-wrap items-center gap-x-5 gap-y-2"
           style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
           {[
             { value: allEvents.filter(e => e.status !== 'archived').length, label: 'events total' },
             { value: totalRegistrations.toLocaleString(), label: 'registrations' },
-            { value: totalRevenue > 0 ? '$' + totalRevenue.toLocaleString() : '$0', label: 'revenue' },
+            { value: totalRevenue > 0 ? formatRevenue(totalRevenue, totalCurrency) : '—', label: 'revenue' },
             { value: `${checkInRate}%`, label: 'check-in rate', last: true },
           ].map((s, i) => (
             <div key={i} className="flex items-center gap-5">

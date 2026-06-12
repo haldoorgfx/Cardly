@@ -33,21 +33,7 @@ const TMP_FONTS = '/tmp/karta-fonts';
 const MAX_PHOTO_BYTES = 10 * 1024 * 1024; // 10 MB
 const MAX_FIELD_CHARS = 500;
 
-// ── Per-IP rate limiter ───────────────────────────────────────────────────────
-// In-memory sliding window: 10 renders per IP per 60 s.
-// Not distributed (each Lambda instance has its own bucket) but stops trivial abuse.
-const rlMap = new Map<string, { count: number; resetAt: number }>();
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const entry = rlMap.get(ip);
-  if (!entry || now > entry.resetAt) {
-    rlMap.set(ip, { count: 1, resetAt: now + 60_000 });
-    return false;
-  }
-  if (entry.count >= 10) return true;
-  entry.count++;
-  return false;
-}
+// Rate limiting for /api/render is now handled by middleware (lib/ratelimit.ts)
 let fontsWritten = false;
 
 // ── Font setup ────────────────────────────────────────────────────────────────
@@ -94,18 +80,31 @@ const ALLOWED_STORAGE_HOST = process.env.NEXT_PUBLIC_SUPABASE_URL
   ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname
   : null;
 
-async function fetchBuffer(url: string): Promise<Buffer> {
-  // SSRF guard — only fetch from our own Supabase storage origin
+async function fetchBuffer(url: string | null | undefined): Promise<Buffer> {
+  // Null guard — variant has no background yet
+  if (!url) throw new Error('NO_BACKGROUND: This card variant has no background image. Please upload a design in the editor first.');
+
+  // SSRF guard — only allow HTTPS requests to our own Supabase storage origin.
+  // Validate URL first (throws if malformed), then check hostname separately.
+  let parsed: URL;
   try {
-    const parsed = new URL(url);
-    if (ALLOWED_STORAGE_HOST && parsed.hostname !== ALLOWED_STORAGE_HOST) {
-      throw new Error('Background image must be hosted on Karta storage');
-    }
-  } catch (e) {
-    throw new Error(e instanceof Error ? e.message : 'Invalid background URL');
+    parsed = new URL(url);
+  } catch {
+    throw new Error(`INVALID_URL: The background image URL is malformed: "${url}"`);
   }
+
+  if (parsed.protocol !== 'https:') {
+    throw new Error('INVALID_URL: Background image URL must use HTTPS.');
+  }
+
+  if (ALLOWED_STORAGE_HOST && parsed.hostname !== ALLOWED_STORAGE_HOST) {
+    // Log the offending host so it's visible in Vercel logs
+    console.warn('[render] SSRF guard blocked host:', parsed.hostname, '— expected:', ALLOWED_STORAGE_HOST);
+    throw new Error(`HOST_BLOCKED: Background image host "${parsed.hostname}" is not allowed. Expected "${ALLOWED_STORAGE_HOST}".`);
+  }
+
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`Failed to fetch background image (${res.status})`);
+  if (!res.ok) throw new Error(`FETCH_FAILED: Background image returned HTTP ${res.status} from ${parsed.hostname}`);
   return Buffer.from(await res.arrayBuffer());
 }
 
@@ -149,16 +148,26 @@ async function buildTextOp(zone: Zone, text: string, canvasW: number, canvasH: n
   // Composite the rendered text block centred inside a zone-sized transparent canvas
   // so the final composite step always receives a buffer with the exact zone dimensions.
   const { width: tW = 0, height: tH = 0 } = await sharp(textBuf).metadata();
+
+  // If the rendered text is larger than the zone (e.g. long text at large font wraps
+  // to multiple lines that exceed zone.h), clip it to the zone bounds before compositing.
+  // sharp throws "Image to composite must have same dimensions or smaller" otherwise.
+  const safeTW = Math.min(tW, zW);
+  const safeTH = Math.min(tH, zH);
+  const safeTextBuf = (safeTW < tW || safeTH < tH)
+    ? await sharp(textBuf).extract({ left: 0, top: 0, width: safeTW, height: safeTH }).toBuffer()
+    : textBuf;
+
   const leftInZone = align === 'center'
-    ? Math.max(0, Math.floor((zW - tW) / 2))
+    ? Math.max(0, Math.floor((zW - safeTW) / 2))
     : align === 'right'
-    ? Math.max(0, zW - tW - 8)
+    ? Math.max(0, zW - safeTW - 8)
     : 8;
-  const topInZone = Math.max(0, Math.floor((zH - tH) / 2));
+  const topInZone = Math.max(0, Math.floor((zH - safeTH) / 2));
 
   const zoneCanvas = await sharp({
     create: { width: zW, height: zH, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } },
-  }).composite([{ input: textBuf, left: leftInZone, top: topInZone }]).png().toBuffer();
+  }).composite([{ input: safeTextBuf, left: leftInZone, top: topInZone }]).png().toBuffer();
 
   return {
     input: zoneCanvas,
@@ -238,12 +247,7 @@ function decodeDataUrl(dataUrl: string): Buffer | null {
 }
 
 export async function POST(req: NextRequest) {
-  // Rate limit by IP — stops trivial abuse of this public endpoint
-  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
-  if (isRateLimited(ip)) {
-    return NextResponse.json({ error: 'Too many requests. Please wait a minute and try again.' }, { status: 429 });
-  }
-
+  // Rate limiting handled by middleware (lib/ratelimit.ts — 'render' tier: 10 req/60s per IP)
   const supabase = createAdminClient();
 
   // The attendee page POSTs multipart/form-data (photo files); the developer
@@ -261,6 +265,7 @@ export async function POST(req: NextRequest) {
   let formData: FormData | null = null;
 
   let idempotencyKey: string | null = null;
+  let registrationId: string | null = null;
 
   if (isJson) {
     const JsonBodySchema = z.object({
@@ -268,6 +273,7 @@ export async function POST(req: NextRequest) {
       fields:          z.record(z.string(), z.string()).optional(),
       photoDataUrl:    z.string().optional(),
       idempotencyKey:  z.string().optional(),
+      registrationId:  z.string().optional(),
     });
     const raw = await req.json().catch(() => ({}));
     const body = JsonBodySchema.safeParse(raw);
@@ -277,6 +283,7 @@ export async function POST(req: NextRequest) {
     variantId = body.data.variantId ?? '';
     fields = body.data.fields ?? {};
     idempotencyKey = body.data.idempotencyKey ?? null;
+    registrationId = body.data.registrationId ?? null;
     if (body.data.photoDataUrl) jsonPhotoBuffer = decodeDataUrl(body.data.photoDataUrl);
   } else {
     formData = await req.formData();
@@ -291,6 +298,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid fields payload' }, { status: 400 });
     }
     idempotencyKey = (formData.get('idempotencyKey') as string | null) ?? null;
+    registrationId = (formData.get('registrationId') as string | null) ?? null;
   }
 
   // Idempotency check — if this key was already rendered, return 409 immediately.
@@ -447,10 +455,14 @@ export async function POST(req: NextRequest) {
 
   const cardId = cardRow?.id ?? null;
 
-  // Fire counters — AWAIT so the function doesn't freeze before they land.
+  // Fire counters + link card URL — all awaited so they land before the response goes out.
+  // (Vercel terminates the function after the response is sent, so void/fire-and-forget is not safe here.)
   await Promise.allSettled([
     supabase.from('events').update({ download_count: newDownloadCount }).eq('id', eventId),
     incrementCardsThisMonth(event.user_id),
+    ...(registrationId && outputUrl
+      ? [supabase.from('registrations').update({ karta_card_url: outputUrl }).eq('id', registrationId)]
+      : []),
   ]);
 
   // Webhooks + notification emails are best-effort — don't block the PNG response.

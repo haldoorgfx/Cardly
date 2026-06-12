@@ -3,15 +3,18 @@
 import React, { useEffect, useState, useRef, useCallback, createContext, useContext } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { identify } from '@/components/shared/PostHogProvider';
 import { createClient } from '@/lib/supabase/client';
 import { PLANS } from '@/lib/billing/plans';
 import {
-  LayoutGrid, TrendingUp, LayoutTemplate, Settings2, Users, LogOut, Menu, Search, Plus, ChevronRight, CreditCard,
+  LayoutGrid, TrendingUp, Settings2, Users, LogOut, Menu, Search, Plus, ChevronRight, CreditCard,
   BarChart2, FileText, Eye, X, ArrowLeft, ShieldCheck,
-  Flag, Image as ImageIcon, ScrollText, Sliders, Gavel,
-  Home, Layout, CalendarDays, MessageSquare, Bell, Plug, Globe,
-  Ticket, ScanLine, User, Network, Trophy, Briefcase, Video, Palette, Key, Tag, ExternalLink,
-  UserCircle, HelpCircle, Zap,
+  ScrollText, Sliders,
+  Home, Layout, CalendarDays, MessageSquare, Bell,
+  Ticket, ScanLine, User, Network, Trophy, Briefcase, Video, Palette, ExternalLink,
+  UserCircle, HelpCircle, Zap, ShoppingCart, Handshake, Clock, IdCard,
+  Tag, Plug, Globe, Download, Link2, Code2, UserCog, Share2, Images, Monitor,
+  RefreshCw, Megaphone, Bot, MessageCircle,
 } from 'lucide-react';
 
 type Profile = {
@@ -64,6 +67,12 @@ const EVENT_NAV_SECTIONS = [
       { id: 'event-page',      label: 'Event Page',      icon: <Layout size={15} strokeWidth={1.8} />,         segment: 'event-page' },
       { id: 'tickets',         label: 'Tickets',         icon: <Ticket size={15} strokeWidth={1.8} />,         segment: 'tickets' },
       { id: 'registrations',   label: 'Registrations',   icon: <Users size={15} strokeWidth={1.8} />,          segment: 'registrations' },
+      { id: 'form',            label: 'Reg. Form',       icon: <FileText size={15} strokeWidth={1.8} />,       segment: 'form'        },
+      { id: 'promo-codes',      label: 'Promo Codes',      icon: <Tag size={15} strokeWidth={1.8} />,     segment: 'promo-codes' },
+      { id: 'promoter-links',  label: 'Promoter Links',  icon: <Link2 size={15} strokeWidth={1.8} />,   segment: 'promoter-links' },
+      { id: 'orders',          label: 'Orders',          icon: <ShoppingCart size={15} strokeWidth={1.8} />,   segment: 'orders' },
+      { id: 'waitlist',        label: 'Waitlist',        icon: <Clock size={15} strokeWidth={1.8} />,          segment: 'waitlist' },
+      { id: 'approvals',       label: 'Approvals',       icon: <ShieldCheck size={15} strokeWidth={1.8} />,    segment: 'approvals' },
       { id: 'check-in',        label: 'Check-in',        icon: <ScanLine size={15} strokeWidth={1.8} />,       segment: 'check-in' },
       { id: 'communications',  label: 'Communications',  icon: <Bell size={15} strokeWidth={1.8} />,           segment: 'communications' },
     ],
@@ -79,9 +88,21 @@ const EVENT_NAV_SECTIONS = [
   {
     title: 'Engagement',
     items: [
-      { id: 'networking',   label: 'Networking',   icon: <Network size={15} strokeWidth={1.8} />,      segment: 'engagement' },
-      { id: 'q-and-a',      label: 'Q&A & Polls',  icon: <MessageSquare size={15} strokeWidth={1.8} />, segment: 'q-and-a' },
-      { id: 'gamification', label: 'Gamification', icon: <Trophy size={15} strokeWidth={1.8} />,        segment: 'polls' },
+      { id: 'engagement',   label: 'Engagement',   icon: <Network size={15} strokeWidth={1.8} />,         segment: 'engagement' },
+      { id: 'newsfeed',     label: 'Newsfeed',     icon: <ScrollText size={15} strokeWidth={1.8} />,      segment: 'newsfeed' },
+      { id: 'polls',        label: 'Q&A & Polls',  icon: <MessageSquare size={15} strokeWidth={1.8} />,   segment: 'q-and-a' },
+      { id: 'community',    label: 'Community',    icon: <MessageCircle size={15} strokeWidth={1.8} />,   segment: 'community' },
+      { id: 'photos',       label: 'Photo wall',   icon: <Images size={15} strokeWidth={1.8} />,          segment: 'photos' },
+      { id: 'live',         label: 'Live display', icon: <Monitor size={15} strokeWidth={1.8} />,         segment: 'live' },
+      { id: 'gamification', label: 'Gamification', icon: <Trophy size={15} strokeWidth={1.8} />,          segment: 'gamification' },
+      { id: 'copilot',      label: 'AI Copilot',   icon: <Bot size={15} strokeWidth={1.8} />,             segment: 'copilot' },
+    ],
+  },
+  {
+    title: 'On-site',
+    items: [
+      { id: 'meetings',    label: '1:1 Meetings',   icon: <Handshake size={15} strokeWidth={1.8} />, segment: 'meetings'    },
+      { id: 'karta-card',  label: 'Cards & Badges', icon: <IdCard size={15} strokeWidth={1.8} />,    segment: 'karta-card'  },
     ],
   },
   {
@@ -89,18 +110,28 @@ const EVENT_NAV_SECTIONS = [
     items: [
       { id: 'sponsors', label: 'Sponsors', icon: <Briefcase size={15} strokeWidth={1.8} />, segment: 'sponsors' },
       { id: 'virtual',  label: 'Virtual',  icon: <Video size={15} strokeWidth={1.8} />,     segment: 'virtual'  },
+      { id: 'promote',  label: 'Promote',  icon: <Megaphone size={15} strokeWidth={1.8} />, segment: 'promote'  },
+      { id: 'series',   label: 'Series',   icon: <RefreshCw size={15} strokeWidth={1.8} />, segment: 'series'   },
     ],
   },
   {
     title: 'Insights',
     items: [
-      { id: 'analytics', label: 'Analytics', icon: <BarChart2 size={15} strokeWidth={1.8} />, segment: 'analytics' },
+      { id: 'analytics',         label: 'Analytics',         icon: <BarChart2 size={15} strokeWidth={1.8} />,   segment: 'analytics' },
+      { id: 'source-analytics', label: 'Sources',           icon: <Share2 size={15} strokeWidth={1.8} />,     segment: 'source-analytics' },
+      { id: 'revenue',           label: 'Revenue',           icon: <TrendingUp size={15} strokeWidth={1.8} />,  segment: 'revenue' },
+      { id: 'reports',           label: 'Reports',           icon: <FileText size={15} strokeWidth={1.8} />,   segment: 'reports' },
+      { id: 'downloads',         label: 'Downloads',         icon: <Download size={15} strokeWidth={1.8} />,   segment: 'downloads' },
     ],
   },
   {
     title: 'Configure',
     items: [
-      { id: 'settings', label: 'Settings', icon: <Sliders size={15} strokeWidth={1.8} />, segment: 'settings' },
+      { id: 'settings',     label: 'Settings',     icon: <Sliders size={15} strokeWidth={1.8} />,  segment: 'settings'     },
+      { id: 'staff',        label: 'Staff roles',  icon: <UserCog size={15} strokeWidth={1.8} />, segment: 'staff'        },
+      { id: 'embed',        label: 'Embed widgets', icon: <Code2 size={15} strokeWidth={1.8} />,   segment: 'embed'        },
+      { id: 'integrations', label: 'Integrations', icon: <Plug size={15} strokeWidth={1.8} />,    segment: 'integrations' },
+      { id: 'webhooks',     label: 'Webhooks',     icon: <Globe size={15} strokeWidth={1.8} />,   segment: 'webhooks'     },
     ],
   },
 ];
@@ -115,79 +146,22 @@ const EVENT_STATUS_BADGE: Record<string, { cls: string; dot: string; label: stri
 
 const PLATFORM_SECTIONS = [
   {
-    title: null,
+    title: 'Platform',
     items: [
-      { href: '/dashboard',  label: 'Events',     icon: <LayoutGrid size={15} strokeWidth={1.8} />,   matchPrefix: true  },
-      { href: '/analytics',  label: 'Analytics',  icon: <TrendingUp size={15} strokeWidth={1.8} />,   matchPrefix: false },
-      { href: '/templates',  label: 'Templates',  icon: <LayoutTemplate size={15} strokeWidth={1.8} />, matchPrefix: false },
+      { href: '/dashboard',  label: 'Events',    icon: <LayoutGrid size={15} strokeWidth={1.8} />,    matchPrefix: true  },
+      { href: '/analytics',  label: 'Analytics', icon: <TrendingUp size={15} strokeWidth={1.8} />,    matchPrefix: false },
     ],
   },
   {
     title: 'Workspace',
     items: [
-      { href: '/brand',             label: 'Brand Kit', icon: <Palette size={15} strokeWidth={1.8} />,  matchPrefix: false },
-      { href: '/team',              label: 'Team',      icon: <Users size={15} strokeWidth={1.8} />,    matchPrefix: false },
-      { href: '/settings/billing',  label: 'Billing',   icon: <CreditCard size={15} strokeWidth={1.8} />, matchPrefix: false },
-      { href: '/settings',          label: 'Settings',  icon: <Settings2 size={15} strokeWidth={1.8} />,  matchPrefix: false },
-    ],
-  },
-  {
-    title: 'Developer',
-    items: [
-      { href: '/settings/api-keys',   label: 'API Keys',    icon: <Key size={15} strokeWidth={1.8} />,       matchPrefix: false },
-      { href: '/settings/webhooks',   label: 'Webhooks',    icon: <Plug size={15} strokeWidth={1.8} />,      matchPrefix: false },
-      { href: '/settings/integrations', label: 'Integrations', icon: <Globe size={15} strokeWidth={1.8} />, matchPrefix: false },
-      { href: '/brand',               label: 'White Label', icon: <Tag size={15} strokeWidth={1.8} />,       matchPrefix: false },
+      { href: '/brand',      label: 'Brand Kit',  icon: <Palette size={15} strokeWidth={1.8} />,        matchPrefix: false },
+      { href: '/team',       label: 'Team',       icon: <Users size={15} strokeWidth={1.8} />,          matchPrefix: false },
+      { href: '/settings',   label: 'Settings',   icon: <Settings2 size={15} strokeWidth={1.8} />,      matchPrefix: true  },
     ],
   },
 ];
 
-
-// ─── Admin nav ────────────────────────────────────────────────────────────────
-
-type AdminNavSection = {
-  label: string;
-  items: { href: string; label: string; icon: React.ReactNode; superAdminOnly?: boolean }[];
-};
-
-const ADMIN_SECTIONS: AdminNavSection[] = [
-  {
-    label: 'Overview',
-    items: [
-      { href: '/admin/analytics', label: 'Platform Stats', icon: <BarChart2 size={14} strokeWidth={1.8} /> },
-    ],
-  },
-  {
-    label: 'Users',
-    items: [
-      { href: '/admin/users', label: 'Accounts',     icon: <Users size={14} strokeWidth={1.8} /> },
-      { href: '/admin/audit', label: 'Activity Log', icon: <ScrollText size={14} strokeWidth={1.8} /> },
-    ],
-  },
-  {
-    label: 'Content',
-    items: [
-      { href: '/admin/content',   label: 'Pages',     icon: <FileText size={14} strokeWidth={1.8} /> },
-      { href: '/admin/media',     label: 'Media',     icon: <ImageIcon size={14} strokeWidth={1.8} /> },
-      { href: '/admin/changelog', label: 'Changelog', icon: <ScrollText size={14} strokeWidth={1.8} /> },
-    ],
-  },
-  {
-    label: 'Product',
-    items: [
-      { href: '/admin/theme',     label: 'Appearance',    icon: <Sliders size={14} strokeWidth={1.8} /> },
-      { href: '/admin/templates', label: 'Templates',     icon: <LayoutTemplate size={14} strokeWidth={1.8} />, superAdminOnly: true },
-      { href: '/admin/flags',     label: 'Feature Flags', icon: <Flag size={14} strokeWidth={1.8} />,          superAdminOnly: true },
-    ],
-  },
-  {
-    label: 'Business',
-    items: [
-      { href: '/admin/billing', label: 'Revenue',    icon: <CreditCard size={14} strokeWidth={1.8} />, superAdminOnly: true },
-      { href: '/admin/events',  label: 'Moderation', icon: <Gavel size={14} strokeWidth={1.8} />,      superAdminOnly: true },
-    ],
-  },
-];
 
 // ─── Shared nav item ──────────────────────────────────────────────────────────
 
@@ -209,7 +183,7 @@ function NavItem({ href, icon, label, badge, active, onNavigate }: {
         <span className="shrink-0">{icon}</span>
         <span className="flex-1 leading-none">{label}</span>
         {badge && (
-          <span className="text-[9px] font-mono font-medium px-1.5 py-0.5 rounded-md tracking-wide"
+          <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-md tracking-wide"
             style={{ color: '#6B7A72', background: '#F5F3EE' }}>
             {badge}
           </span>
@@ -219,12 +193,36 @@ function NavItem({ href, icon, label, badge, active, onNavigate }: {
   );
 }
 
+// ─── Inline admin nav items (merged into user sidebar for admins) ─────────────
+// Each section maps to a group title + items shown inside the Admin section.
+
+type InlineAdminSection = {
+  label: string;
+  items: { href: string; label: string; icon: React.ReactNode; superAdminOnly?: boolean }[];
+};
+
+const INLINE_ADMIN_SECTIONS: InlineAdminSection[] = [
+  {
+    label: '',
+    items: [
+      { href: '/admin/analytics', label: 'Platform Stats',  icon: <BarChart2 size={14} strokeWidth={1.8} /> },
+      { href: '/admin/users',     label: 'Accounts',        icon: <Users size={14} strokeWidth={1.8} /> },
+      { href: '/admin/billing',   label: 'Revenue',         icon: <CreditCard size={14} strokeWidth={1.8} />, superAdminOnly: true },
+      { href: '/admin/audit',     label: 'Activity Log',    icon: <ScrollText size={14} strokeWidth={1.8} /> },
+    ],
+  },
+];
+
 // ─── User sidebar content ─────────────────────────────────────────────────────
 
 function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
-  const { profile, eventCount, planPct, logoUrl } = usePlanCtx();
+  const { profile, eventCount, planPct, planLabel, logoUrl } = usePlanCtx();
   const planLimit = profile ? (PLAN_LIMITS[profile.plan] ?? 1) : 1;
   const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
+  const isSuperAdmin = profile?.role === 'super_admin';
+  const [adminOpen, setAdminOpen] = useState(true);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const handleSignOut = async () => {
     const supabase = createClient();
@@ -232,38 +230,63 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
     window.location.href = '/login';
   };
 
+  const ctaLabel = profile?.plan === 'studio'
+    ? '✓ Studio plan'
+    : profile?.plan === 'pro'
+    ? '+ Studio plan'
+    : '+ Pro plan';
+
   return (
     <>
-      {/* Logo */}
-      <Link href="/" onClick={onNavigate}
-        className="h-14 px-4 flex items-center gap-2.5 shrink-0 transition-opacity hover:opacity-70"
-        style={{ borderBottom: '1px solid #E5E0D4' }}>
-        {logoUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={logoUrl} alt="Logo" className="max-h-[32px] max-w-[140px] object-contain" />
-        ) : (
-          <>
-            <span className="inline-block w-6 h-6 rounded-md shrink-0"
-              style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #E8C57E 100%)' }} />
-            <span className="font-display text-[19px] font-bold tracking-tight" style={{ color: '#0F1F18' }}>Karta</span>
-          </>
+      {/* Logo + user identity header */}
+      <div className="px-4 pt-3.5 pb-3 shrink-0" style={{ borderBottom: '1px solid #E5E0D4' }}>
+        <div className="flex items-center justify-between mb-2">
+          {mounted && logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={logoUrl} alt="Logo" className="max-h-[28px] max-w-[120px] object-contain" />
+          ) : (
+            <Link href="/" onClick={onNavigate} className="flex items-center gap-2 transition-opacity hover:opacity-80">
+              <span className="inline-block w-6 h-6 rounded-md shrink-0"
+                style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #E8C57E 100%)' }} />
+              <span className="font-display text-[19px] font-bold tracking-tight" style={{ color: '#0F1F18' }}>
+                Karta
+              </span>
+            </Link>
+          )}
+          {mounted && planLabel && (
+            <span className="text-[9px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md"
+              style={{ background: '#E8EFEB', color: '#1F4D3A', border: '1px solid #C9DDD3' }}>
+              {planLabel}
+            </span>
+          )}
+        </div>
+        {mounted && profile?.full_name && (
+          <p className="text-[12.5px] font-medium px-0.5" style={{ color: '#6B7A72' }}>
+            {profile.full_name}
+          </p>
         )}
-      </Link>
+      </div>
 
-      {/* Nav */}
+      {/* Nav sections */}
       <nav className="flex-1 px-3 py-4 overflow-y-auto space-y-5">
         {PLATFORM_SECTIONS.map((section, si) => (
           <div key={si}>
             {section.title && (
-              <div className="px-2.5 mb-1.5 text-[10px] font-mono uppercase tracking-widest" style={{ color: '#9BA8A1' }}>
+              <div className="px-2.5 mb-1.5 text-[9.5px] font-semibold uppercase tracking-[0.08em]"
+                style={{ color: '#9BA8A1' }}>
                 {section.title}
               </div>
             )}
             <ul className="space-y-0.5">
               {section.items.map(item => {
-                const active = item.matchPrefix
-                  ? (pathname === item.href || pathname.startsWith('/events'))
-                  : pathname === item.href || pathname.startsWith(item.href + '/');
+                let active = false;
+                if (item.href === '/dashboard') {
+                  active = pathname === '/dashboard' || pathname.startsWith('/events');
+                } else if (item.matchPrefix) {
+                  active = pathname === item.href || pathname.startsWith(item.href + '/');
+                } else {
+                  active = pathname === item.href;
+                }
                 return (
                   <NavItem key={item.href} href={item.href} icon={item.icon} label={item.label}
                     active={active} onNavigate={onNavigate} />
@@ -272,152 +295,68 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
             </ul>
           </div>
         ))}
+
+        {/* Admin section — inline for admin users */}
+        {mounted && isAdmin && (
+          <div>
+            <button
+              onClick={() => setAdminOpen(o => !o)}
+              className="w-full px-2.5 mb-1.5 flex items-center justify-between text-[9.5px] font-semibold uppercase tracking-[0.08em] transition-colors hover:text-[#6B7A72]"
+              style={{ color: '#9BA8A1' }}>
+              <span className="flex items-center gap-1.5">
+                Admin
+                <ShieldCheck size={9} strokeWidth={2} />
+              </span>
+              <ChevronRight size={10} strokeWidth={2.5}
+                className="transition-transform duration-200"
+                style={{ transform: adminOpen ? 'rotate(90deg)' : 'rotate(0deg)' }} />
+            </button>
+            {adminOpen && (
+              <ul className="space-y-0.5">
+                {INLINE_ADMIN_SECTIONS[0].items
+                  .filter(i => isSuperAdmin || !i.superAdminOnly)
+                  .map(item => (
+                    <NavItem
+                      key={item.href + item.label}
+                      href={item.href}
+                      icon={item.icon}
+                      label={item.label}
+                      active={pathname.startsWith(item.href)}
+                      onNavigate={onNavigate}
+                    />
+                  ))}
+              </ul>
+            )}
+          </div>
+        )}
       </nav>
 
-      {/* Usage mini-card */}
+      {/* Events usage bar */}
       <div className="px-3 pb-2 shrink-0">
         <div className="rounded-xl p-3" style={{ background: '#F5F3EE', border: '1px solid #E5E0D4' }}>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-mono uppercase tracking-widest" style={{ color: '#9BA8A1' }}>Events</span>
-            <span className="text-[10px] font-mono" style={{ color: '#6B7A72' }}>
+            <span className="text-[9.5px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9BA8A1' }}>Events</span>
+            <span suppressHydrationWarning className="text-[10px] font-medium tabular-nums" style={{ color: '#6B7A72' }}>
               {eventCount}&nbsp;/&nbsp;{planLimit === Infinity ? '∞' : planLimit}
             </span>
           </div>
           <div className="h-1 rounded-full overflow-hidden" style={{ background: '#E5E0D4' }}>
-            <div className="h-full rounded-full transition-all duration-500"
+            <div suppressHydrationWarning className="h-full rounded-full transition-all duration-500"
               style={{ width: `${planPct}%`, background: planPct >= 90 ? '#C97A2D' : '#1F4D3A' }} />
           </div>
-          {profile?.plan !== 'studio' && (
-            <Link href="/settings/billing" onClick={onNavigate}
-              className="block mt-2 text-[10px] font-mono transition-colors hover:text-[#1F4D3A]"
-              style={{ color: '#9BA8A1' }}>
-              Upgrade for more →
-            </Link>
-          )}
         </div>
       </div>
 
-      {/* Admin panel entry — only for admins */}
-      {isAdmin && (
-        <div className="px-3 pb-2 shrink-0">
-          <Link
-            href="/admin/analytics"
-            onClick={onNavigate}
-            className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[12.5px] transition-colors group"
-            style={{ background: '#E8EFEB', border: '1px solid #C9DDD3' }}
-          >
-            <div className="h-6 w-6 rounded-md grid place-items-center shrink-0"
-              style={{ background: '#D0E5D9' }}>
-              <ShieldCheck size={12} strokeWidth={1.8} style={{ color: '#1F4D3A' }} />
-            </div>
-            <span className="flex-1 leading-none" style={{ color: '#1F4D3A' }}>Admin panel</span>
-            <ArrowLeft size={12} strokeWidth={2} className="rotate-180 shrink-0 transition-transform group-hover:translate-x-0.5"
-              style={{ color: '#3A6B50' }} />
-          </Link>
+      {/* Operations + plan CTA */}
+      <div className="px-3 pb-3 shrink-0">
+        <div className="px-2.5 mb-2 text-[9.5px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9BA8A1' }}>
+          Operations
         </div>
-      )}
-
-      {/* Sign out */}
-      <div className="px-3 py-2 shrink-0 border-t" style={{ borderColor: '#E5E0D4' }}>
-        <button onClick={handleSignOut}
-          className="w-full flex items-center gap-3 px-2.5 py-[7px] rounded-lg text-[13.5px] transition-colors text-left hover:bg-[#F5F3EE]"
-          style={{ color: '#6B7A72' }}>
-          <LogOut size={15} strokeWidth={1.7} className="shrink-0" />
-          <span className="leading-none">Sign out</span>
-        </button>
-      </div>
-    </>
-  );
-}
-
-// ─── Admin sidebar content ────────────────────────────────────────────────────
-
-function AdminNavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
-  const { profile, logoUrl } = usePlanCtx();
-  const isSuperAdmin = profile?.role === 'super_admin';
-
-  const handleSignOut = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    window.location.href = '/login';
-  };
-
-  return (
-    <>
-      {/* Header */}
-      <div className="h-14 px-4 flex items-center gap-3 shrink-0" style={{ borderBottom: '1px solid #E5E0D4' }}>
-        {logoUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={logoUrl} alt="Logo" className="max-h-[28px] max-w-[100px] object-contain" />
-        ) : (
-          <div className="h-7 w-7 rounded-lg grid place-items-center shrink-0"
-            style={{ background: '#E8EFEB' }}>
-            <ShieldCheck size={14} strokeWidth={1.8} style={{ color: '#1F4D3A' }} />
-          </div>
-        )}
-        <span className="font-display text-[14px] font-bold tracking-tight" style={{ color: '#1F4D3A' }}>
-          Admin Panel
-        </span>
-      </div>
-
-      {/* Back to app */}
-      <div className="px-3 pt-3 shrink-0">
-        <Link
-          href="/dashboard"
-          onClick={onNavigate}
-          className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-[12.5px] transition-colors hover:bg-[#F5F3EE]"
-          style={{ color: '#6B7A72' }}
-        >
-          <ArrowLeft size={13} strokeWidth={2} className="shrink-0" />
-          Back to workspace
+        <Link href="/settings/billing" onClick={onNavigate}
+          className="flex items-center justify-center gap-1.5 w-full px-3 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all hover:opacity-90"
+          style={{ background: '#1F4D3A' }}>
+          <span suppressHydrationWarning>{ctaLabel}</span>
         </Link>
-      </div>
-
-      <div className="mx-3 mt-2 h-px" style={{ background: '#E5E0D4' }} />
-
-      {/* Admin nav — flat sections */}
-      <nav className="flex-1 px-3 py-4 overflow-y-auto space-y-5">
-        {ADMIN_SECTIONS.map(section => {
-          const visibleItems = section.items.filter(i => isSuperAdmin || !i.superAdminOnly);
-          if (visibleItems.length === 0) return null;
-          return (
-            <div key={section.label}>
-              <div className="px-2.5 mb-1.5 text-[10px] font-mono uppercase tracking-widest"
-                style={{ color: '#9BA8A1' }}>
-                {section.label}
-              </div>
-              <ul className="space-y-0.5">
-                {visibleItems.map(item => (
-                  <NavItem
-                    key={item.href}
-                    href={item.href}
-                    icon={item.icon}
-                    label={item.label}
-                    active={pathname.startsWith(item.href)}
-                    onNavigate={onNavigate}
-                  />
-                ))}
-              </ul>
-            </div>
-          );
-        })}
-      </nav>
-
-      {/* Admin identity */}
-      <div className="px-3 pb-2 shrink-0">
-        <div className="rounded-xl px-3 py-2.5 flex items-center gap-2.5"
-          style={{ background: '#E8EFEB', border: '1px solid #C9DDD3' }}>
-          <div className="h-7 w-7 rounded-full grid place-items-center shrink-0 text-[11px] font-bold"
-            style={{ background: '#D0E5D9', color: '#1F4D3A' }}>
-            {profile?.full_name?.[0]?.toUpperCase() ?? 'A'}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-[12px] font-medium truncate" style={{ color: '#0F1F18' }}>{profile?.full_name ?? 'Admin'}</div>
-            <div className="text-[10px] font-mono" style={{ color: '#6B7A72' }}>
-              {isSuperAdmin ? 'Super admin' : 'Admin'}
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Sign out */}
@@ -513,10 +452,12 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
         </Link>
         <div className="font-display text-[14px] font-semibold leading-snug tracking-tight line-clamp-2 px-0.5"
           style={{ color: '#0F1F18' }}>
-          {event ? event.name : <span style={{ color: '#C9C3B1' }}>Loading…</span>}
+          {event ? event.name : (
+            <span className="inline-block w-36 h-4 rounded animate-pulse" style={{ background: '#E5E0D4' }} />
+          )}
         </div>
         {badge && (
-          <span className="mt-2 inline-flex items-center gap-1.5 text-[10px] font-mono tracking-[0.1em] uppercase px-2 py-0.5 rounded-full border"
+          <span className="mt-2 inline-flex items-center gap-1.5 text-[9.5px] font-semibold tracking-[0.06em] uppercase px-2 py-0.5 rounded-full border"
             style={event?.status === 'published'
               ? { background: '#E8EFEB', color: '#2D7A4F', borderColor: '#C9DDD3' }
               : event?.status === 'draft'
@@ -533,7 +474,7 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
         {EVENT_NAV_SECTIONS.map((section, si) => (
           <div key={si} className="mb-4">
             {section.title && (
-              <div className="px-2.5 mb-1.5 text-[10px] font-mono uppercase tracking-widest" style={{ color: '#9BA8A1' }}>
+              <div className="px-2.5 mb-1.5 text-[9.5px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9BA8A1' }}>
                 {section.title}
               </div>
             )}
@@ -616,10 +557,13 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
   }, [results, selected, navigate, onClose]);
 
   const quickActions = [
-    { label: 'New event',  href: '/events/new',  icon: <Plus size={13} strokeWidth={1.8} /> },
-    { label: 'Analytics',  href: '/analytics',   icon: <TrendingUp size={13} strokeWidth={1.8} /> },
-    { label: 'Settings',   href: '/settings',    icon: <Settings2 size={13} strokeWidth={1.8} /> },
-    { label: 'Pricing',    href: '/pricing',     icon: <ChevronRight size={13} strokeWidth={1.8} /> },
+    { label: 'New event',       href: '/events/new',       icon: <Plus size={13} strokeWidth={1.8} /> },
+    { label: 'My Events',       href: '/dashboard',        icon: <LayoutGrid size={13} strokeWidth={1.8} /> },
+    { label: 'Analytics',       href: '/analytics',        icon: <TrendingUp size={13} strokeWidth={1.8} /> },
+    { label: 'Team',            href: '/team',             icon: <Users size={13} strokeWidth={1.8} /> },
+    { label: 'Brand Kit',       href: '/brand',            icon: <Palette size={13} strokeWidth={1.8} /> },
+    { label: 'Settings',        href: '/settings',         icon: <Settings2 size={13} strokeWidth={1.8} /> },
+    { label: 'Billing & Plans', href: '/settings/billing', icon: <CreditCard size={13} strokeWidth={1.8} /> },
   ];
 
   return (
@@ -719,13 +663,18 @@ function usePlanCtx() { return useContext(PlanContext); }
 const PAGE_LABELS: Record<string, string> = {
   '':               'Overview',
   'registrations':  'Registrations',
+  'orders':         'Orders',
+  'waitlist':       'Waitlist',
   'event-page':     'Event page',
   'agenda':         'Agenda',
-  'engagement':     'Networking',
+  'engagement':     'Engagement',
   'sponsors':       'Sponsors',
   'virtual':        'Virtual',
   'analytics':      'Analytics',
-  'edit':           'Karta Card',
+  'reports':        'Reports',
+  'downloads':      'Downloads',
+  'edit':           'Card Editor',
+  'karta-card':     'Cards & Badges',
   'check-in':       'Check-in',
   'tickets':        'Tickets',
   'speakers':       'Speakers',
@@ -734,18 +683,34 @@ const PAGE_LABELS: Record<string, string> = {
   'q-and-a':        'Q&A',
   'abstracts':      'Abstracts',
   'form':           'Registration form',
-  'promo-codes':    'Promo codes',
+  'promo-codes':      'Promo codes',
+  'promoter-links':   'Promoter links',
+  'promote':          'Promote listing',
+  'series':           'Event series',
+  'community':        'Community',
+  'copilot':          'AI Copilot',
+  'revenue':          'Revenue',
   'publish':        'Publish',
+  'meetings':       '1:1 Meetings',
+  'badges':         'Cards & Badges',
+  'gamification':   'Gamification',
+  'integrations':   'Integrations',
+  'webhooks':       'Webhooks',
 };
 
 function getPageBreadcrumbs(pathname: string, eventName: string | null): { label: string; href?: string }[] {
   if (pathname === '/dashboard')                         return [{ label: 'My Events' }];
-  if (pathname === '/analytics')                         return [{ label: 'Portfolio' }];
+  if (pathname === '/analytics')                         return [{ label: 'Analytics' }];
   if (pathname === '/team')                              return [{ label: 'Team' }];
-  if (pathname === '/templates')                         return [{ label: 'Templates' }];
   if (pathname === '/brand')                             return [{ label: 'Brand Kit' }];
   if (pathname.startsWith('/settings/billing'))          return [{ label: 'Settings', href: '/settings' }, { label: 'Billing' }];
   if (pathname.startsWith('/settings/reset-password'))   return [{ label: 'Settings', href: '/settings' }, { label: 'Reset Password' }];
+  if (pathname.startsWith('/settings/api-keys'))         return [{ label: 'Settings', href: '/settings' }, { label: 'API Keys' }];
+  if (pathname.startsWith('/settings/webhooks'))         return [{ label: 'Settings', href: '/settings' }, { label: 'Webhooks' }];
+  if (pathname.startsWith('/settings/integrations'))     return [{ label: 'Settings', href: '/settings' }, { label: 'Integrations' }];
+  if (pathname.startsWith('/settings/developer'))        return [{ label: 'Settings', href: '/settings' }, { label: 'Developer' }];
+  if (pathname.startsWith('/settings/white-label'))      return [{ label: 'Settings', href: '/settings' }, { label: 'White Label' }];
+  if (pathname === '/white-label')                       return [{ label: 'Settings', href: '/settings' }, { label: 'White Label' }];
   if (pathname.startsWith('/settings'))                  return [{ label: 'Settings' }];
   if (pathname.startsWith('/admin'))                     return [{ label: 'Admin' }];
 
@@ -754,24 +719,89 @@ function getPageBreadcrumbs(pathname: string, eventName: string | null): { label
     const eventBase = m[1];
     const seg = m[2] ?? '';
     const pageName = PAGE_LABELS[seg] ?? seg.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-    const name = eventName ?? 'Event';
+    const name = eventName ?? '…';
     return [{ label: name, href: `/events/${eventBase}` }, { label: pageName }];
   }
 
   return [];
 }
 
+// ─── Notification item ────────────────────────────────────────────────────────
+
+const NOTIF_ICONS: Record<string, React.ReactNode> = {
+  users:     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+  card:      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>,
+  dollar:    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
+  briefcase: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>,
+  clock:     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+};
+
+interface Notification {
+  id: string;
+  icon: string;
+  title: string;
+  body: string | null;
+  action_url: string | null;
+  read_at: string | null;
+  created_at: string;
+}
+
+function formatNotifTime(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return 'just now';
+  if (m < 60) return `${m}m`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h`;
+  const d = Math.floor(h / 24);
+  if (d === 1) return 'Yesterday';
+  return `${d}d`;
+}
+
+function NotifItem({ notif, onRead }: { notif: Notification; onRead: (id: string, url: string | null) => void }) {
+  return (
+    <button
+      onClick={() => onRead(notif.id, notif.action_url)}
+      className="w-full text-left flex items-start gap-3 px-5 py-3 hover:bg-[#FAF6EE] transition-colors">
+      <div className="h-8 w-8 rounded-lg grid place-items-center shrink-0 mt-0.5"
+        style={{ background: '#F0EDE8', color: '#1F4D3A' }}>
+        {NOTIF_ICONS[notif.icon] ?? NOTIF_ICONS.clock}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-[13px] leading-snug" style={{ color: '#0F1F18' }}>{notif.title}</p>
+        {notif.body && <p className="text-[11.5px] mt-0.5 truncate" style={{ color: '#6B7A72' }}>{notif.body}</p>}
+        <p className="text-[11px] mt-0.5 font-mono" style={{ color: '#9BA8A1' }}>{formatNotifTime(notif.created_at)}</p>
+      </div>
+      {!notif.read_at && (
+        <span className="h-2 w-2 rounded-full shrink-0 mt-2" style={{ background: '#E8C57E' }} />
+      )}
+    </button>
+  );
+}
+
 // ─── AppShell ─────────────────────────────────────────────────────────────────
+
+function readProfileCache(): Profile | null {
+  if (typeof window === 'undefined') return null;
+  try { return JSON.parse(sessionStorage.getItem('karta_profile') || 'null'); }
+  catch { return null; }
+}
+function writeProfileCache(p: Profile) {
+  try { sessionStorage.setItem('karta_profile', JSON.stringify(p)); } catch {}
+}
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(() => readProfileCache());
   const [eventCount, setEventCount] = useState(0);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifLoading, setNotifLoading] = useState(false);
   const [impersonating, setImpersonating] = useState<ImpersonatedUser | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [contextEventName, setContextEventName] = useState<string | null>(null);
@@ -781,17 +811,47 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) { router.push('/login'); return; }
+      const userId = data.user.id;
       Promise.all([
-        supabase.from('profiles').select('full_name, email, plan, role').eq('id', data.user.id).single(),
-        supabase.from('events').select('id', { count: 'exact', head: true }).eq('user_id', data.user.id).neq('status', 'archived'),
+        supabase.from('profiles').select('full_name, email, plan, role').eq('id', userId).single(),
+        supabase.from('events').select('id', { count: 'exact', head: true }).eq('user_id', userId).neq('status', 'archived'),
         supabase.from('site_settings').select('logo_light_url').eq('id', 1).single(),
       ]).then(([{ data: p }, { count }, { data: s }]) => {
-        setProfile(p);
+        if (p) {
+          setProfile(p);
+          writeProfileCache(p);
+          // Tell PostHog who this user is — connects all events to this person
+          identify(userId, { email: p.email, plan: p.plan, role: p.role, name: p.full_name });
+        }
         setEventCount(count ?? 0);
         setLogoUrl((s as { logo_light_url?: string | null } | null)?.logo_light_url ?? null);
       });
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function fetchNotifications() {
+    setNotifLoading(true);
+    fetch('/api/notifications?limit=20')
+      .then(r => r.json())
+      .then(d => setNotifications(d.notifications ?? []))
+      .finally(() => setNotifLoading(false));
+  }
+
+  function handleMarkAllRead() {
+    fetch('/api/notifications', { method: 'PATCH' }).then(() =>
+      setNotifications(prev => prev.map(n => ({ ...n, read_at: n.read_at ?? new Date().toISOString() })))
+    );
+  }
+
+  function handleNotifRead(id: string, url: string | null) {
+    if (!notifications.find(n => n.id === id)?.read_at) {
+      fetch(`/api/notifications/${id}`, { method: 'PATCH' }).then(() =>
+        setNotifications(prev => prev.map(n => n.id === id ? { ...n, read_at: new Date().toISOString() } : n))
+      );
+    }
+    setNotifOpen(false);
+    if (url) router.push(url);
+  }
 
   useEffect(() => {
     const cookieVal = document.cookie.split('; ').find(r => r.startsWith('karta_impersonating='))?.split('=')[1];
@@ -830,16 +890,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   const ctxValue: PlanCtx = { profile, eventCount, initials, planPct, planLabel, logoUrl, contextEventName, setContextEventName };
 
-  const isFullScreen = /\/events\/[^/]+\/(edit|publish)/.test(pathname) || pathname === '/onboarding';
+  const isFullScreen = /\/events\/[^/]+\/edit/.test(pathname) || pathname === '/onboarding' || /\/events\/[^/]+\/(agenda|roster|revenue)\/print/.test(pathname);
   if (isFullScreen) return <>{children}</>;
 
   const eventId = getEventIdFromPath(pathname);
   const isEventRoute = !!eventId && !isAdminRoute;
 
   function SidebarInner({ onNavigate }: { onNavigate?: () => void }) {
-    if (isAdminRoute) return <AdminNavContent pathname={pathname} onNavigate={onNavigate} />;
     if (isEventRoute && eventId) return <EventNavContent pathname={pathname} eventId={eventId} onNavigate={onNavigate} />;
     return <UserNavContent pathname={pathname} onNavigate={onNavigate} />;
+  }
+
+  if (pathname === '/studio') {
+    return <PlanContext.Provider value={ctxValue}>{children}</PlanContext.Provider>;
   }
 
   return (
@@ -884,84 +947,167 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
           <header className="h-14 bg-white px-4 md:px-6 flex items-center gap-3 shrink-0 sticky top-0 z-40 border-b"
             style={{ borderColor: '#E5E0D4' }}>
-            {/* Mobile hamburger */}
-            <button className="md:hidden h-8 w-8 rounded-lg hover:bg-[#F5F3EE] grid place-items-center shrink-0 transition"
-              style={{ color: '#6B7A72' }}
-              onClick={() => setMobileNavOpen(true)} aria-label="Open menu">
-              <Menu size={16} strokeWidth={2} />
-            </button>
 
-            {/* Breadcrumb */}
-            {(() => {
-              const crumbs = getPageBreadcrumbs(pathname, contextEventName);
-              return (
-                <nav className="flex items-center gap-1.5 flex-1 min-w-0 text-[13px]" aria-label="Breadcrumb">
-                  <Link href="/" className="font-display font-bold tracking-tight shrink-0 hover:opacity-70 transition-opacity"
-                    style={{ color: '#0F1F18' }}>
-                    Karta
-                  </Link>
-                  {crumbs.map((crumb, i) => (
-                    <span key={i} className="flex items-center gap-1.5 min-w-0">
-                      <span style={{ color: '#C9C3B1' }}>/</span>
-                      {crumb.href ? (
-                        <Link href={crumb.href} className="truncate hover:text-[#1F4D3A] transition-colors"
-                          style={{ color: '#6B7A72' }}>
-                          {crumb.label}
-                        </Link>
-                      ) : (
-                        <span className="truncate font-medium" style={{ color: '#0F1F18' }}>
-                          {crumb.label}
-                        </span>
-                      )}
-                    </span>
-                  ))}
-                </nav>
-              );
-            })()}
-
-            {/* Right side: search + bell + avatar */}
-            <div className="flex items-center gap-1.5 shrink-0 ml-auto">
-              <button onClick={() => setCmdOpen(true)}
-                className="h-8 w-8 rounded-lg grid place-items-center transition hover:bg-[#F5F3EE]"
+            {/* Left: hamburger + breadcrumb */}
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <button className="md:hidden h-10 w-10 rounded-lg hover:bg-[#F5F3EE] grid place-items-center shrink-0 transition"
                 style={{ color: '#6B7A72' }}
+                onClick={() => setMobileNavOpen(true)} aria-label="Open menu">
+                <Menu size={16} strokeWidth={2} />
+              </button>
+              {(() => {
+                const crumbs = getPageBreadcrumbs(pathname, contextEventName);
+                return (
+                  <nav className="hidden sm:flex items-center gap-1.5 min-w-0 text-[13px]" aria-label="Breadcrumb">
+                    <Link href="/" className="font-display font-bold tracking-tight shrink-0 hover:opacity-70 transition-opacity"
+                      style={{ color: '#0F1F18' }}>
+                      Karta
+                    </Link>
+                    {crumbs.map((crumb, i) => (
+                      <span key={i} className="flex items-center gap-1.5 min-w-0">
+                        <span style={{ color: '#C9C3B1' }}>/</span>
+                        {crumb.href ? (
+                          <Link href={crumb.href} className="truncate hover:text-[#1F4D3A] transition-colors"
+                            style={{ color: '#6B7A72' }}>
+                            {crumb.label}
+                          </Link>
+                        ) : (
+                          <span className="truncate font-medium" style={{ color: '#0F1F18' }}>
+                            {crumb.label}
+                          </span>
+                        )}
+                      </span>
+                    ))}
+                  </nav>
+                );
+              })()}
+            </div>
+
+            {/* Right: search + bell + avatar */}
+            <div className="flex items-center gap-2 shrink-0">
+              {/* Search bar */}
+              <button onClick={() => setCmdOpen(true)}
+                className="hidden sm:flex h-8 items-center gap-2 px-3 rounded-xl transition hover:shadow-[0_0_0_2px_#1F4D3A20]"
+                style={{ color: '#6B7A72', border: '1px solid #E5E0D4', background: '#FAF6EE', width: '200px' }}
                 aria-label="Search (⌘K)">
+                <Search size={13} strokeWidth={2} className="shrink-0" style={{ color: '#9BA8A1' }} />
+                <span className="flex-1 text-left text-[12.5px]" style={{ color: '#9BA8A1' }}>Search…</span>
+                <kbd className="flex items-center gap-0.5 text-[10px] font-mono px-1.5 py-0.5 rounded-md shrink-0"
+                  style={{ background: '#F0EDE8', color: '#9BA8A1', border: '1px solid #E5E0D4' }}>⌘K</kbd>
+              </button>
+              {/* Mobile search icon only */}
+              <button onClick={() => setCmdOpen(true)}
+                className="sm:hidden h-10 w-10 rounded-lg grid place-items-center transition hover:bg-[#F5F3EE]"
+                style={{ color: '#6B7A72' }} aria-label="Search">
                 <Search size={15} strokeWidth={2} />
               </button>
 
-              {/* Bell */}
-              <button
-                className="relative h-8 w-8 rounded-lg grid place-items-center transition hover:bg-[#F5F3EE]"
-                style={{ color: '#6B7A72' }}
-                aria-label="Notifications">
-                <Bell size={15} strokeWidth={2} />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full ring-2 ring-white" style={{ background: '#E8C57E' }} />
-              </button>
+
+              {/* Bell + Notifications panel */}
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    const next = !notifOpen;
+                    setNotifOpen(next);
+                    setAccountMenuOpen(false);
+                    if (next) fetchNotifications();
+                  }}
+                  className="relative h-10 w-10 rounded-lg grid place-items-center transition hover:bg-[#F5F3EE]"
+                  style={{ color: '#6B7A72' }}
+                  aria-label="Notifications">
+                  <Bell size={15} strokeWidth={2} />
+                  {notifications.some(n => !n.read_at) && (
+                    <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full ring-2 ring-white" style={{ background: '#E8C57E' }} />
+                  )}
+                </button>
+
+                {notifOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} />
+                    <div className="absolute right-0 top-[44px] z-50 w-[min(340px,calc(100vw-16px))] bg-white border border-[#E5E0D4] rounded-2xl shadow-[0_8px_40px_rgba(15,31,24,0.14)] overflow-hidden animate-dropIn">
+                      {/* Header */}
+                      <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
+                        <span className="font-display text-[14px] font-semibold" style={{ color: '#0F1F18' }}>Notifications</span>
+                        {notifications.some(n => !n.read_at) && (
+                          <button onClick={handleMarkAllRead}
+                            className="text-[10px] font-mono font-medium uppercase tracking-widest transition hover:text-[#1F4D3A]"
+                            style={{ color: '#9BA8A1' }}>
+                            Mark all read
+                          </button>
+                        )}
+                      </div>
+
+                      {/* List */}
+                      <div className="max-h-[380px] overflow-y-auto">
+                        {notifLoading ? (
+                          <div className="px-5 py-8 text-center text-[13px]" style={{ color: '#9BA8A1' }}>Loading…</div>
+                        ) : notifications.length === 0 ? (
+                          <div className="px-5 py-8 text-center">
+                            <Bell size={22} strokeWidth={1.5} className="mx-auto mb-2" style={{ color: '#C9C3B1' }} />
+                            <p className="text-[13px]" style={{ color: '#9BA8A1' }}>No notifications yet</p>
+                          </div>
+                        ) : (() => {
+                          const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+                          const today = notifications.filter(n => new Date(n.created_at) >= todayStart);
+                          const earlier = notifications.filter(n => new Date(n.created_at) < todayStart);
+                          return (
+                            <>
+                              {today.length > 0 && (
+                                <div>
+                                  <div className="px-5 pt-3 pb-1.5 text-[9.5px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9BA8A1' }}>Today</div>
+                                  {today.map(n => <NotifItem key={n.id} notif={n} onRead={handleNotifRead} />)}
+                                </div>
+                              )}
+                              {earlier.length > 0 && (
+                                <div>
+                                  <div className="px-5 pt-3 pb-1.5 text-[9.5px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9BA8A1' }}>Earlier</div>
+                                  {earlier.map(n => <NotifItem key={n.id} notif={n} onRead={handleNotifRead} />)}
+                                </div>
+                              )}
+                            </>
+                          );
+                        })()}
+                      </div>
+
+                      {/* Footer */}
+                      <div className="px-5 py-3.5 border-t text-center" style={{ borderColor: '#E5E0D4' }}>
+                        <button
+                          onClick={() => { setNotifOpen(false); router.push('/notifications'); }}
+                          className="text-[13px] font-medium transition hover:text-[#163828]"
+                          style={{ color: '#1F4D3A' }}>
+                          View all notifications
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
 
               {/* Avatar → AccountMenu */}
               <div className="relative">
                 <button
                   onClick={() => setAccountMenuOpen(o => !o)}
-                  className="h-8 w-8 rounded-full grid place-items-center text-white text-[12px] font-semibold shrink-0 ring-2 ring-transparent hover:ring-[#1F4D3A]/30 transition-all"
+                  className="h-9 w-9 rounded-full grid place-items-center text-white text-[12px] font-semibold shrink-0 ring-2 ring-transparent hover:ring-[#1F4D3A]/30 transition-all"
                   style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}
                   aria-label="Account menu">
-                  {initials}
+                  <span suppressHydrationWarning>{initials}</span>
                 </button>
 
                 {accountMenuOpen && (
                   <>
                     <div className="fixed inset-0 z-40" onClick={() => setAccountMenuOpen(false)} />
-                    <div className="absolute right-0 top-[44px] z-50 w-[260px] bg-[#FAF6EE] border border-[#E5E0D4] rounded-2xl shadow-[0_8px_40px_rgba(15,31,24,0.15)] overflow-hidden animate-dropIn">
+                    <div className="absolute right-0 top-[44px] z-50 w-[min(260px,calc(100vw-16px))] bg-[#FAF6EE] border border-[#E5E0D4] rounded-2xl shadow-[0_8px_40px_rgba(15,31,24,0.15)] overflow-hidden animate-dropIn">
                       {/* Identity */}
                       <div className="px-4 py-3.5 flex items-center gap-3" style={{ borderBottom: '1px solid #E5E0D4' }}>
                         <div className="h-10 w-10 rounded-full grid place-items-center text-white text-[13px] font-bold shrink-0"
                           style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}>
-                          {initials}
+                          <span suppressHydrationWarning>{initials}</span>
                         </div>
                         <div className="min-w-0">
-                          <div className="text-[13.5px] font-semibold text-[#0F1F18] leading-tight truncate">
+                          <div suppressHydrationWarning className="text-[13.5px] font-semibold text-[#0F1F18] leading-tight truncate">
                             {profile?.full_name ?? '—'}
                           </div>
-                          <div className="font-mono text-[11px] text-[#6B7A72] truncate">{profile?.email ?? ''}</div>
+                          <div suppressHydrationWarning className="font-mono text-[11px] text-[#6B7A72] truncate">{profile?.email ?? ''}</div>
                         </div>
                       </div>
 
@@ -1001,10 +1147,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                       <div className="px-3 pb-3 pt-0">
                         <div className="rounded-xl p-3 mb-2"
                           style={{ background: 'linear-gradient(135deg, rgba(232,197,126,0.18), rgba(31,77,58,0.06))' }}>
-                          <div className="flex items-center gap-1.5 text-[12px] font-semibold" style={{ color: '#C9A45E' }}>
+                          <div suppressHydrationWarning className="flex items-center gap-1.5 text-[12px] font-semibold" style={{ color: '#C9A45E' }}>
                             <Zap size={12} strokeWidth={2} /> {planLabel} plan
                           </div>
-                          <div className="text-[11.5px] text-[#6B7A72] mt-0.5">
+                          <div suppressHydrationWarning className="text-[11.5px] text-[#6B7A72] mt-0.5">
                             {planLabel === 'Studio' ? "You're on the full platform." : 'Upgrade for more features.'}
                           </div>
                         </div>

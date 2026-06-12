@@ -437,16 +437,14 @@ function TrustStrip() {
     <section style={{ background: C.cream, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '56px 20px' }}>
         <div
+          className="grid grid-cols-2 lg:grid-cols-4"
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
             gap: 1,
             background: C.border,
             border: `1px solid ${C.border}`,
             borderRadius: 16,
             overflow: 'hidden',
           }}
-          className="lg:grid-cols-4"
         >
           {TRUST_TILES.map(([title, body]) => (
             <div key={title} style={{ background: C.cream, padding: '20px 24px' }}>
@@ -505,6 +503,7 @@ function ComparisonTable() {
         </div>
 
         {/* Table wrapper */}
+        <div style={{ overflowX: 'auto', borderRadius: 16 }}>
         <div style={{
           position: 'relative',
           background: C.surface,
@@ -512,6 +511,7 @@ function ComparisonTable() {
           borderRadius: 16,
           overflow: 'hidden',
           maxHeight: expanded ? undefined : 480,
+          minWidth: 480,
         }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead style={{
@@ -590,6 +590,7 @@ function ComparisonTable() {
               }}
             />
           )}
+        </div>
         </div>
 
         {/* Toggle */}

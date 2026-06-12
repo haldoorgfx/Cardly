@@ -73,7 +73,7 @@ export function CardMockup({
       <div style={{ position: 'absolute', inset: 0, padding: Math.round(width * 0.075), display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         {/* Top */}
         <div>
-          <div style={{ fontSize: Math.round(width * 0.028), fontFamily: 'JetBrains Mono, monospace', color: 'rgba(255,255,255,0.35)', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: Math.round(width * 0.025) }}>
+          <div style={{ fontSize: Math.round(width * 0.028), fontFamily: 'Inter, system-ui, sans-serif', color: 'rgba(255,255,255,0.35)', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: Math.round(width * 0.025) }}>
             {org}
           </div>
           <div style={{ fontSize: Math.round(width * 0.055), fontWeight: 700, color: 'white', lineHeight: 1.15, fontFamily: 'DM Sans, system-ui, sans-serif', letterSpacing: '-0.02em' }}>
@@ -85,7 +85,7 @@ export function CardMockup({
 
         {/* Role badge */}
         <div style={{ display: 'inline-block' }}>
-          <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: Math.round(width * 0.028), letterSpacing: '0.14em', color: 'rgba(255,255,255,0.55)', textTransform: 'uppercase', display: 'block', marginBottom: Math.round(width * 0.02) }}>
+          <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: Math.round(width * 0.028), letterSpacing: '0.14em', color: 'rgba(255,255,255,0.55)', textTransform: 'uppercase', display: 'block', marginBottom: Math.round(width * 0.02) }}>
             {role}
           </span>
         </div>
@@ -112,10 +112,10 @@ export function CardMockup({
             <div style={{ fontWeight: 600, fontSize: Math.round(width * 0.045), color: 'white', fontFamily: 'DM Sans, system-ui, sans-serif', lineHeight: 1.2 }}>
               {name}
             </div>
-            <div style={{ fontSize: Math.round(width * 0.032), color: 'rgba(255,255,255,0.55)', fontFamily: 'JetBrains Mono, monospace', marginTop: 2, letterSpacing: '0.04em' }}>
+            <div style={{ fontSize: Math.round(width * 0.032), color: 'rgba(255,255,255,0.55)', fontFamily: 'Inter, system-ui, sans-serif', marginTop: 2, letterSpacing: '0.04em' }}>
               {title}
             </div>
-            <div style={{ fontSize: Math.round(width * 0.026), color: 'rgba(255,255,255,0.35)', fontFamily: 'JetBrains Mono, monospace', marginTop: 2, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+            <div style={{ fontSize: Math.round(width * 0.026), color: 'rgba(255,255,255,0.35)', fontFamily: 'Inter, system-ui, sans-serif', marginTop: 2, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
               {date} · {location}
             </div>
           </div>

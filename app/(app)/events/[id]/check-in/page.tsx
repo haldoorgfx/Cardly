@@ -38,16 +38,18 @@ export default async function CheckInPage({ params }: Props) {
       .eq('event_id', id).in('status', ['confirmed', 'checked_in']),
     admin.from('registrations').select('*', { count: 'exact', head: true })
       .eq('event_id', id).eq('status', 'checked_in'),
-    admin.from('registrations')
-      .select('id, attendee_name, checked_in_at')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (admin as any).from('registrations')
+      .select('id, attendee_name, checked_in_at, ticket_types(name)')
       .eq('event_id', id).eq('status', 'checked_in')
       .order('checked_in_at', { ascending: false }).limit(10),
   ]);
 
-  const recentCheckins: RecentCheckin[] = (recentRaw ?? []).map((r) => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const recentCheckins: RecentCheckin[] = ((recentRaw ?? []) as any[]).map((r) => ({
     id: r.id,
     attendee_name: r.attendee_name ?? null,
-    ticket_type: null,
+    ticket_type: r.ticket_types?.name ?? null,
     checked_in_at: r.checked_in_at ?? null,
   }));
 

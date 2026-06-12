@@ -57,7 +57,7 @@ export default async function BoothPage({ params }: Props) {
           style={{ background: 'linear-gradient(to bottom, transparent 40%, rgba(15,31,24,0.72) 100%)' }}
         />
         <div className="absolute inset-x-0 bottom-0 pb-10">
-          <div className="max-w-[960px] mx-auto px-10">
+          <div className="max-w-[960px] mx-auto px-4 sm:px-6 lg:px-10">
             {sponsor.logo_url && (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -82,8 +82,8 @@ export default async function BoothPage({ params }: Props) {
 
       {/* Body */}
       <div
-        className="max-w-[960px] mx-auto px-10 py-12"
-        style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 56, alignItems: 'start' }}
+        className="max-w-[960px] mx-auto px-4 sm:px-6 lg:px-10 py-12 flex flex-col-reverse lg:grid gap-10 lg:gap-14"
+        style={{ gridTemplateColumns: '1fr 280px', alignItems: 'start' }}
       >
         {/* Left: content */}
         <div>

@@ -173,7 +173,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     await admin.from('leaderboard_points').insert({
       event_id: params.id,
       registration_id: sender_id,
-      action_type: 'message_sent',
+      action_type: 'connection_made',
       points: 5,
       ref_id: thread.id,
     });

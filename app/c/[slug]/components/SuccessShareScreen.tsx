@@ -117,7 +117,7 @@ function CaptionCard({ eventName }: { eventName: string }) {
       display: 'flex', flexDirection: 'column', gap: 10,
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-        <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: '#6B7A72', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+        <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: '#6B7A72', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
           Suggested caption
         </div>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6B7A72' }}>
@@ -347,7 +347,7 @@ export default function SuccessShareScreen({
             <ArrowLeft size={14} strokeWidth={2}/> Back to preview
           </button>
 
-          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: '#6B7A72', letterSpacing: '0.04em', textAlign: 'center' }}>
+          <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: '#6B7A72', letterSpacing: '0.04em', textAlign: 'center' }}>
             powered by <span style={{ color: '#0F1F18', fontWeight: 500 }}>karta</span>
           </div>
         </div>
@@ -389,7 +389,7 @@ export default function SuccessShareScreen({
                 flexShrink: 0,
               }}/>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: '#6B7A72', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4 }}>Saved file</div>
+                <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: '#6B7A72', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4 }}>Saved file</div>
                 <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#0F1F18', lineHeight: 1.2 }}>
                   {eventName.toLowerCase().replace(/\s+/g, '-')}-card.png
                 </div>
@@ -410,7 +410,7 @@ export default function SuccessShareScreen({
 
           <ForwardPrompt pageUrl={pageUrl}/>
 
-          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: '#6B7A72', letterSpacing: '0.04em' }}>
+          <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: '#6B7A72', letterSpacing: '0.04em' }}>
             powered by <span style={{ color: '#0F1F18', fontWeight: 500 }}>karta</span>
           </div>
         </div>

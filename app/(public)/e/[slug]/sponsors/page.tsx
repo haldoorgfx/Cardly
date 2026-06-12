@@ -128,7 +128,7 @@ export default async function SponsorsPage({ params }: Props) {
 
         {/* Organizer CTA */}
         <div
-          className="mt-20 rounded-2xl px-10 py-9 text-center"
+          className="mt-20 rounded-2xl px-4 sm:px-10 py-9 text-center"
           style={{ background: 'white', border: '1px solid #E5E0D4' }}
         >
           <h3

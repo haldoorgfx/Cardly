@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import OnboardingClient from './OnboardingClient';
 
-export const metadata = { title: 'Get started — Karta' };
+export const metadata = { title: 'Get started' };
 
 export default async function OnboardingPage() {
   const supabase = createClient();

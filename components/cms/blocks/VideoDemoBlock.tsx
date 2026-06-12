@@ -19,7 +19,7 @@ export function VideoDemoBlock({ content }: VideoDemoBlockProps) {
             </div>
           )}
           <h2
-            className="font-display font-bold text-[28px] sm:text-[38px] lg:text-[44px] leading-[1.02] tracking-tight"
+            className="font-title font-bold text-[28px] sm:text-[38px] lg:text-[44px] leading-[1.02]"
             style={{ color: '#0F1F18' }}
           >
             {content.headline}

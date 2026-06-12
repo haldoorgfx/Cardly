@@ -3,6 +3,9 @@ import "./globals.css";
 import { ThemeProvider } from "@/lib/theme/ThemeProvider";
 import { CookieConsent } from "@/components/shared/CookieConsent";
 import { Analytics } from "@vercel/analytics/next";
+import { PostHogProvider } from "@/components/shared/PostHogProvider";
+import { CrispChat } from "@/components/shared/CrispChat";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://karta.cre8so.com"),
@@ -45,7 +48,7 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
           rel="stylesheet"
         />
         <script
@@ -95,9 +98,14 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
-        <ThemeProvider>{children}</ThemeProvider>
-        <CookieConsent />
-        <Analytics />
+        <Suspense>
+          <PostHogProvider>
+            <ThemeProvider>{children}</ThemeProvider>
+            <CookieConsent />
+            <CrispChat />
+            <Analytics />
+          </PostHogProvider>
+        </Suspense>
       </body>
     </html>
   );

@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
-import { Download, Share2, Check, ChevronRight } from 'lucide-react';
+import { useEffect, useLayoutEffect, useState, useCallback } from 'react';
+import { Share2, Check, ChevronRight, Download } from 'lucide-react';
 import { CardZoneFill } from './CardZoneFill';
 import { PhotoCropModal } from './PhotoCropModal';
+import PreviewDownloadScreen from '@/app/c/[slug]/components/PreviewDownloadScreen';
 import type { Database, Zone } from '@/types/database';
 
 type RegRow = Database['public']['Tables']['registrations']['Row'];
@@ -78,9 +79,21 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
   const initialPhase: Phase = isPaidReturn ? 'verifying' : (hasCard ? 'done' : (variant ? 'card' : 'done'));
 
   const [phase, setPhase] = useState<Phase>(initialPhase);
+
+  // Check sessionStorage synchronously before first paint — if the registration flow
+  // already generated the card, jump straight to 'done' without showing the form.
+  useLayoutEffect(() => {
+    if (isPaidReturn || hasCard) return;
+    try {
+      const stored = sessionStorage.getItem(`card_${registration.qr_code_token}`);
+      if (stored) {
+        setCardDataUrl(stored);
+        setPhase('done');
+      }
+    } catch { /* ignore */ }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
   const [cardDataUrl, setCardDataUrl] = useState<string | null>(null);
-  const [downloaded, setDownloaded] = useState(false);
 
   // Card step state (for post-payment personalisation)
   const [zoneValues, setZoneValues] = useState<Record<string, string>>(() => {
@@ -124,7 +137,8 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
       const fd = new FormData();
       fd.append('variantId', variant.id);
       fd.append('fields', JSON.stringify(enriched));
-      fd.append('idempotencyKey', `reg-${registration.id}-card`);
+      fd.append('idempotencyKey', registration.id); // valid UUID — safe for idempotency_key column
+      fd.append('registrationId', registration.id);
       for (const [zoneId, file] of Object.entries(photoFiles)) {
         fd.append(`photo_${zoneId}`, file);
       }
@@ -137,17 +151,25 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
         setCardDataUrl(dataUrl);
         try { sessionStorage.setItem(`card_${registration.qr_code_token}`, dataUrl); } catch { /* ignore */ }
 
-        fetch(`/api/events/${registration.event_id}/registrations`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            registrationId: registration.id,
-            karta_card_zone_data: enriched,
-            karta_card_url: cardId ? `/c/${eventSlug}/card/${cardId}` : null,
-          }),
-        }).catch(() => {});
+        // Only update karta_card_url via PATCH if we have a cardId.
+        // When cardId is null (generated_cards insert failed), the render API
+        // already updated registrations.karta_card_url with the storage URL directly.
+        if (cardId) {
+          fetch(`/api/events/${registration.event_id}/registrations`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              registrationId: registration.id,
+              karta_card_zone_data: enriched,
+              karta_card_url: `/c/${eventSlug}/card/${cardId}`,
+            }),
+          }).catch(() => {});
+        }
+        setPhase('done');
+      } else {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.detail ?? body?.error ?? `Render failed (${res.status})`);
       }
-      setPhase('done');
     } catch (err) {
       setCardError(err instanceof Error ? err.message : 'Card generation failed');
     } finally {
@@ -155,13 +177,7 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
     }
   }
 
-  // Retrieve card from sessionStorage on mount
-  useEffect(() => {
-    try {
-      const stored = sessionStorage.getItem(`card_${registration.qr_code_token}`);
-      if (stored) setCardDataUrl(stored);
-    } catch { /* ignore */ }
-  }, [registration.qr_code_token]);
+  // sessionStorage check is handled in useLayoutEffect above (before first paint)
 
   // Verify payment on paid return (Stripe or Flutterwave)
   useEffect(() => {
@@ -208,8 +224,6 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
     a.href = cardDataUrl;
     a.download = `karta-card-${registration.attendee_name.replace(/\s+/g, '-').toLowerCase()}.png`;
     a.click();
-    setDownloaded(true);
-    setTimeout(() => setDownloaded(false), 2500);
   }
 
   async function handleShare() {
@@ -357,7 +371,34 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
     );
   }
 
-  // ── Phase: done (QR + card + share) ──────────────────────────
+  // ── Phase: done — card available → use PreviewDownloadScreen ────
+  if (cardDataUrl && variant) {
+    return (
+      <>
+        {/* Confetti stage */}
+        <div id="confetti-stage" className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 50 }} />
+
+        {/* QR pill — always accessible at top */}
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 px-3 py-1.5 rounded-full" style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 2px 8px rgba(15,31,24,0.08)' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={`/api/qr/${registration.qr_code_token}`} alt="QR" style={{ width: 28, height: 28, background: 'white', padding: 2, borderRadius: 4 }} />
+          <span className="text-[11px] font-mono" style={{ color: '#6B7A72' }}>Show at door · {registration.attendee_name}</span>
+        </div>
+
+        <PreviewDownloadScreen
+          eventName={eventTitle}
+          backgroundWidth={variant.background_width ?? 1200}
+          backgroundHeight={variant.background_height ?? 800}
+          resultUrl={cardDataUrl}
+          cardId={null}
+          onDownload={handleDownload}
+          onEdit={() => setPhase('card')}
+        />
+      </>
+    );
+  }
+
+  // ── Phase: done — no card (QR only) ──────────────────────────
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center px-5 py-16 relative overflow-hidden"
@@ -376,83 +417,54 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
 
       <div className="relative z-10 flex flex-col items-center text-center max-w-[360px] w-full">
 
-        {/* Kicker — YOUR CARD · READY */}
+        {/* Kicker */}
         <div className="flex items-center gap-2 mb-6">
           <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#E8C57E' }} />
           <span className="text-[11px] font-semibold uppercase tracking-[0.18em]" style={{ color: '#C9A45E' }}>
-            Your card · ready
+            Registration confirmed
           </span>
         </div>
 
-        {/* Karta Card display */}
-        {cardDataUrl ? (
-          <div
-            className="w-full max-w-[280px] rounded-2xl overflow-hidden mb-8"
-            style={{
-              boxShadow: '0 4px 24px rgba(31,77,58,0.12), 0 20px 60px rgba(31,77,58,0.15)',
-              animation: 'breathe 3.4s ease-in-out infinite',
-            }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={cardDataUrl} alt="Your Karta Card" className="w-full h-auto block" />
-          </div>
-        ) : (
-          /* QR Code fallback when card is not available */
-          <div className="mb-8 flex flex-col items-center gap-4">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={`/api/qr/${registration.qr_code_token}`}
-              alt="Check-in QR code"
-              className="rounded-xl"
-              style={{ width: 200, height: 200, background: 'white', padding: 12 }}
-            />
-            <p className="text-[13px]" style={{ color: '#6B7A72' }}>
-              Show this QR at the door
-            </p>
-          </div>
-        )}
+        {/* QR Code */}
+        <div className="mb-8 flex flex-col items-center gap-4">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`/api/qr/${registration.qr_code_token}`}
+            alt="Check-in QR code"
+            className="rounded-xl"
+            style={{ width: 200, height: 200, background: 'white', padding: 12 }}
+          />
+          <p className="text-[13px]" style={{ color: '#6B7A72' }}>
+            Show this QR at the door
+          </p>
+        </div>
 
         {/* Attendee name */}
         <h1 className="font-display font-semibold text-[26px] mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
           {registration.attendee_name}
         </h1>
-        <p className="text-[14px] mb-2" style={{ color: '#6B7A72' }}>
+        <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>
           {ticketName ?? 'Registered'} · {eventTitle}
         </p>
 
-        {/* QR code (always shown when card is visible too) */}
-        {cardDataUrl && (
-          <div className="flex items-center gap-2 mb-6 px-3 py-1.5 rounded-lg" style={{ background: 'rgba(31,77,58,0.06)', border: '1px solid #E5E0D4' }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={`/api/qr/${registration.qr_code_token}`}
-              alt="QR"
-              className="rounded"
-              style={{ width: 36, height: 36, background: 'white', padding: 3 }}
-            />
-            <span className="text-[12px]" style={{ color: '#6B7A72', fontFamily: 'JetBrains Mono, monospace' }}>
-              Show at door for check-in
-            </span>
-          </div>
-        )}
+        {/* Registered check */}
+        <div className="flex items-center gap-2 mb-6 px-4 py-2 rounded-xl" style={{ background: 'rgba(45,122,79,0.08)', border: '1px solid rgba(45,122,79,0.2)' }}>
+          <Check size={14} strokeWidth={2.5} style={{ color: '#2D7A4F' }} />
+          <span className="text-[13px] font-medium" style={{ color: '#2D7A4F' }}>You&apos;re registered</span>
+        </div>
 
-        {/* Download button */}
-        {cardDataUrl && (
-          <button
-            onClick={handleDownload}
-            className="w-full h-12 rounded-xl font-semibold text-[15px] flex items-center justify-center gap-2 transition mb-4"
-            style={{
-              background: downloaded ? '#2D7A4F' : '#1F4D3A',
-              color: 'white',
-            }}
-          >
-            {downloaded ? (
-              <><Check size={16} strokeWidth={2.5} /> Saved to your device</>
-            ) : (
-              <><Download size={16} strokeWidth={2} /> Download your Karta Card</>
-            )}
-          </button>
-        )}
+        {/* Download ticket */}
+        <a
+          href={`/api/qr/${registration.qr_code_token}`}
+          download={`ticket-${registration.attendee_name.replace(/\s+/g, '-').toLowerCase()}.png`}
+          className="flex items-center gap-2 h-11 px-5 rounded-xl font-medium text-[14px] transition mb-5"
+          style={{ background: 'white', border: '1px solid #E5E0D4', color: '#1F4D3A', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}
+          onMouseEnter={e => (e.currentTarget.style.borderColor = '#1F4D3A')}
+          onMouseLeave={e => (e.currentTarget.style.borderColor = '#E5E0D4')}
+        >
+          <Download size={15} strokeWidth={2} />
+          Save ticket
+        </a>
 
         {/* Share platforms */}
         <div className="flex gap-3 justify-center">
@@ -494,13 +506,6 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
           Back to event →
         </a>
       </div>
-
-      <style>{`
-        @keyframes breathe {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.02); }
-        }
-      `}</style>
     </div>
   );
 }

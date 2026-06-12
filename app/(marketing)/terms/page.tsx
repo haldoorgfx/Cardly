@@ -5,7 +5,7 @@ export default function TermsPage() {
         <div className="text-[11px] tracking-[0.18em] font-mono text-brand-primary mb-4">
           LEGAL
         </div>
-        <h1 className="font-display font-bold text-[40px] sm:text-[48px] leading-[1.05] mb-3">
+        <h1 className="font-title font-bold text-[40px] sm:text-[48px] leading-[1.05] mb-3">
           Terms of Service
         </h1>
         <p className="text-[13px] font-mono text-brand-ink/45 mb-10">

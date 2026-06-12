@@ -20,6 +20,7 @@ interface TopBarProps {
   undo: () => void;
   redo: () => void;
   savedAt: string;
+  saveError: boolean;
   previewMode: boolean;
   setPreviewMode: (fn: (p: boolean) => boolean) => void;
   showShortcuts: boolean;
@@ -29,6 +30,7 @@ interface TopBarProps {
   styleFlash: boolean;
   copyStyle: () => void;
   pasteStyle: () => void;
+  eventSlug: string;
   router: AppRouterInstance;
 }
 
@@ -38,7 +40,7 @@ export default function TopBar({
   previewMode, setPreviewMode,
   showShortcuts, setShowShortcuts,
   selected, copiedStyle, styleFlash, copyStyle, pasteStyle,
-  router,
+  eventSlug, router, saveError,
 }: TopBarProps) {
   return (
     <header
@@ -47,9 +49,9 @@ export default function TopBar({
     >
       {/* Left — back + breadcrumb */}
       <a
-        href="/dashboard"
+        href={`/events/${eventId}/karta-card`}
         className="h-8 w-8 rounded-lg hover:bg-cream grid place-items-center text-ink/70 shrink-0 transition"
-        title="Back to dashboard"
+        title="Back to Cards &amp; Badges"
       >
         <ArrowLeft size={16} strokeWidth={1.8} />
       </a>
@@ -57,8 +59,8 @@ export default function TopBar({
       <div className="h-5 w-px bg-border shrink-0" />
 
       {/* Karta mark */}
-      <a href="/dashboard" className="shrink-0">
-        <span className="h-7 w-7 rounded-lg grid place-items-center text-white font-display font-bold text-[13px] bg-primary">C</span>
+      <a href={`/events/${eventId}/karta-card`} className="shrink-0">
+        <span className="h-7 w-7 rounded-lg grid place-items-center text-white font-display font-bold text-[13px] bg-primary">K</span>
       </a>
 
       {/* Breadcrumb */}
@@ -113,9 +115,18 @@ export default function TopBar({
       </div>
 
       {/* Saved indicator */}
-      <div className="flex items-center gap-1.5 text-[11px] text-ink/45 font-mono mx-1 shrink-0">
-        <CheckCircle2 size={12} strokeWidth={2.2} className="text-success" />
-        <span>Saved {savedAt}</span>
+      <div className="flex items-center gap-1.5 text-[11px] font-mono mx-1 shrink-0">
+        {saveError ? (
+          <>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#B8423C" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+            <span className="text-[#B8423C]">Save failed — edit to retry</span>
+          </>
+        ) : (
+          <>
+            <CheckCircle2 size={12} strokeWidth={2.2} className="text-success" />
+            <span className="text-ink/45">Saved {savedAt}</span>
+          </>
+        )}
       </div>
 
       {/* Copy / paste style (only when a zone is selected) */}
@@ -168,9 +179,12 @@ export default function TopBar({
           <span className="text-[10px] font-mono opacity-50 ml-0.5">⌘P</span>
         </button>
 
-        {/* Test */}
+        {/* Test — opens attendee page in new tab with preview bypass */}
         <a
-          href={`/events/${eventId}`}
+          href={`/c/${eventSlug}?preview=${eventId}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Preview attendee experience"
           className="inline-flex items-center gap-1.5 text-[12.5px] text-ink/80 bg-white border border-border px-3 py-1.5 rounded-lg hover:bg-cream transition"
         >
           <Play size={13} strokeWidth={2.2} />Test

@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { Play, Volume2, Maximize2, ChevronUp, Send } from 'lucide-react';
+import { useState, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { Play, Volume2, Maximize2, ChevronUp, Send, BookmarkPlus, BookmarkCheck } from 'lucide-react';
 import Link from 'next/link';
 
 interface Speaker { id: string; full_name: string; avatar_url?: string | null; title?: string | null }
@@ -23,21 +24,52 @@ function timeStr(iso: string) {
 }
 
 export default function VirtualPlayerClient({ event, session, speakers, initialQuestions, relatedSessions }: Props) {
+  const searchParams = useSearchParams();
+  const regId = searchParams.get('reg');
+
   const [playing, setPlaying] = useState(false);
   const [sideTab, setSideTab] = useState<'qa' | 'chat' | 'people'>('qa');
   const [questions, setQuestions] = useState(initialQuestions);
   const [voted, setVoted] = useState<Set<string>>(new Set());
   const [newQ, setNewQ] = useState('');
   const [sending, setSending] = useState(false);
+  const [inAgenda, setInAgenda] = useState(false);
+  const [agendaLoading, setAgendaLoading] = useState(false);
 
-  const upvote = (qId: string) => {
+  const upvote = useCallback((qId: string) => {
     setVoted(prev => {
       const next = new Set(prev);
       const wasOn = next.has(qId);
       if (wasOn) { next.delete(qId); } else { next.add(qId); }
-      setQuestions(qs => qs.map(q => q.id === qId ? { ...q, upvotes_count: q.upvotes_count + (wasOn ? -1 : 1) } : q).sort((a, b) => b.upvotes_count - a.upvotes_count));
+      setQuestions(qs =>
+        qs.map(q => q.id === qId ? { ...q, upvotes_count: q.upvotes_count + (wasOn ? -1 : 1) } : q)
+          .sort((a, b) => b.upvotes_count - a.upvotes_count)
+      );
+      // Persist when the attendee has a registration
+      if (regId) {
+        fetch(`/api/events/${event.id}/q-and-a`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question_id: qId, registration_id: regId }),
+        }).catch(() => {});
+      }
       return next;
     });
+  }, [regId, event.id]);
+
+  const toggleAgenda = async () => {
+    if (!regId) return; // must be registered
+    setAgendaLoading(true);
+    try {
+      const res = await fetch(`/api/sessions/${session.id}/agenda`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ registration_id: regId, action: inAgenda ? 'remove' : 'add' }),
+      });
+      if (res.ok) setInAgenda(v => !v);
+    } finally {
+      setAgendaLoading(false);
+    }
   };
 
   const submitQuestion = async () => {
@@ -47,7 +79,7 @@ export default function VirtualPlayerClient({ event, session, speakers, initialQ
       const res = await fetch(`/api/events/${event.id}/q-and-a`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: newQ.trim(), session_id: session.id }),
+        body: JSON.stringify({ question: newQ.trim(), session_id: session.id, registration_id: regId ?? undefined }),
       });
       const data = await res.json() as { question: Question };
       if (data.question) setQuestions(prev => [data.question, ...prev]);
@@ -60,7 +92,7 @@ export default function VirtualPlayerClient({ event, session, speakers, initialQ
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
       {/* Player region */}
-      <div style={{ display: 'grid', gridTemplateColumns: '65fr 35fr', height: 'calc(100vh - 64px)' }}>
+      <div className="flex flex-col lg:grid" style={{ gridTemplateColumns: '65fr 35fr', minHeight: 'calc(100vh - 64px)' }}>
 
         {/* Video column */}
         <div style={{ background: '#07120c', display: 'flex', flexDirection: 'column', position: 'relative' }}>
@@ -231,7 +263,7 @@ export default function VirtualPlayerClient({ event, session, speakers, initialQ
       </div>
 
       {/* Below: session info + related */}
-      <div className="max-w-[1000px] mx-auto px-10 py-10 pb-20">
+      <div className="max-w-[1000px] mx-auto px-4 sm:px-6 lg:px-10 py-10 pb-20">
         <div className="flex items-start justify-between gap-5 flex-wrap pb-7" style={{ borderBottom: '1px solid #E5E0D4' }}>
           <div className="flex-1 min-w-0">
             <h2 className="font-display font-normal text-[22px]" style={{ color: '#1F4D3A', letterSpacing: '-0.015em' }}>
@@ -260,12 +292,31 @@ export default function VirtualPlayerClient({ event, session, speakers, initialQ
               </p>
             )}
           </div>
-          <button
-            className="px-4 py-2.5 rounded-xl text-[13px] font-medium shrink-0 transition-colors hover:bg-[#E8EFEB]"
-            style={{ background: 'white', border: '1px solid #E5E0D4', color: '#1F4D3A' }}
-          >
-            Add to agenda
-          </button>
+          {regId ? (
+            <button
+              onClick={toggleAgenda}
+              disabled={agendaLoading}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-medium shrink-0 transition-colors"
+              style={{
+                background: inAgenda ? '#E8EFEB' : 'white',
+                border: `1px solid ${inAgenda ? '#1F4D3A' : '#E5E0D4'}`,
+                color: '#1F4D3A',
+                opacity: agendaLoading ? 0.6 : 1,
+              }}
+            >
+              {inAgenda ? <BookmarkCheck size={14} /> : <BookmarkPlus size={14} />}
+              {inAgenda ? 'Saved to agenda' : 'Add to agenda'}
+            </button>
+          ) : (
+            <Link
+              href={`/e/${event.slug}/register`}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-medium shrink-0 transition-colors hover:bg-[#E8EFEB]"
+              style={{ background: 'white', border: '1px solid #E5E0D4', color: '#1F4D3A', textDecoration: 'none' }}
+            >
+              <BookmarkPlus size={14} />
+              Add to agenda
+            </Link>
+          )}
         </div>
 
         {relatedSessions.length > 0 && (

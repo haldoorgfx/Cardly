@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Check, Copy, AlertTriangle, Trash2 } from 'lucide-react';
+import { Check, Copy, AlertTriangle, Trash2, X } from 'lucide-react';
+import { PlacesAutocomplete, type PlaceResult } from '@/components/shared/PlacesAutocomplete';
 
 interface EventData {
   id: string;
@@ -13,7 +14,13 @@ interface EventData {
   ends_at: string | null;
   max_capacity: number | null;
   is_public: boolean;
+  is_online: boolean;
   venue_name: string | null;
+  venue_address: string | null;
+  venue_lat: number | null;
+  venue_lng: number | null;
+  city: string | null;
+  country: string | null;
   timezone: string;
 }
 
@@ -47,6 +54,16 @@ export function EventSettingsView({ event }: Props) {
   const [startsAt, setStartsAt] = useState(toLocalDate(event.starts_at));
   const [endsAt, setEndsAt] = useState(toLocalDate(event.ends_at));
   const [venue, setVenue] = useState(event.venue_name ?? '');
+  const [placeData, setPlaceData] = useState<PlaceResult | null>(
+    event.venue_lat && event.venue_lng ? {
+      venue_name: event.venue_name ?? '',
+      venue_address: event.venue_address ?? '',
+      city: event.city ?? '',
+      country: event.country ?? '',
+      lat: event.venue_lat,
+      lng: event.venue_lng,
+    } : null
+  );
   const [timezone, setTimezone] = useState(event.timezone);
   const [capacity, setCapacity] = useState(event.max_capacity?.toString() ?? '');
   const [waitlist, setWaitlist] = useState(false);
@@ -64,25 +81,73 @@ export function EventSettingsView({ event }: Props) {
   const [requireLogin, setRequireLogin] = useState(false);
   const [allowNetworking, setAllowNetworking] = useState(true);
 
+  // Danger zone
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState('');
+  const [deleteError, setDeleteError] = useState('');
+  const [deleting, setDeleting] = useState(false);
+
+  async function handleDelete() {
+    if (deleteConfirm !== event.name) {
+      setDeleteError('Event name does not match');
+      return;
+    }
+    setDeleting(true);
+    setDeleteError('');
+    try {
+      const res = await fetch(`/api/events/${event.id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const d = await res.json() as { error?: string };
+        throw new Error(d.error ?? 'Delete failed');
+      }
+      router.push('/dashboard');
+    } catch (e) {
+      setDeleteError(e instanceof Error ? e.message : 'Delete failed');
+      setDeleting(false);
+    }
+  }
+
   async function handleSave() {
     setError('');
     startTransition(async () => {
       try {
-        const res = await fetch(`/api/events/${event.id}`, {
+        // event_pages fields (location, dates, capacity, visibility)
+        const pageRes = await fetch(`/api/events/${event.id}/event-page`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            name: name.trim(),
-            starts_at: startsAt ? new Date(startsAt).toISOString() : null,
-            ends_at: endsAt ? new Date(endsAt).toISOString() : null,
-            max_capacity: capacity ? parseInt(capacity) : null,
-            is_public: isPublic,
+            title:         name.trim(),
+            starts_at:     startsAt ? new Date(startsAt).toISOString() : null,
+            ends_at:       endsAt   ? new Date(endsAt).toISOString()   : null,
+            max_capacity:  capacity ? parseInt(capacity)                : null,
+            is_public:     isPublic,
+            timezone,
+            venue_name:    placeData?.venue_name    ?? (venue.trim() || null),
+            venue_address: placeData?.venue_address ?? null,
+            venue_lat:     placeData?.lat           ?? null,
+            venue_lng:     placeData?.lng           ?? null,
+            city:          placeData?.city          ?? null,
+            country:       placeData?.country       ?? null,
           }),
         });
-        if (!res.ok) {
-          const d = await res.json();
+        if (!pageRes.ok) {
+          const d = await pageRes.json();
           throw new Error(d.error ?? 'Save failed');
         }
+
+        // events table fields (name only)
+        if (name.trim() !== event.name) {
+          const evRes = await fetch(`/api/events/${event.id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: name.trim() }),
+          });
+          if (!evRes.ok) {
+            const d = await evRes.json();
+            throw new Error(d.error ?? 'Save failed');
+          }
+        }
+
         setSaved(true);
         setTimeout(() => setSaved(false), 2500);
         router.refresh();
@@ -99,7 +164,7 @@ export function EventSettingsView({ event }: Props) {
   }[event.status] ?? { label: event.status, bg: '#F5F0E8', color: '#6B7A72', dot: '#6B7A72' };
 
   return (
-    <div className="max-w-[900px] mx-auto px-6 py-8 pb-24">
+    <div className="max-w-[900px] mx-auto px-4 sm:px-6 py-8 pb-24">
 
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-8">
@@ -120,22 +185,24 @@ export function EventSettingsView({ event }: Props) {
         </button>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 mb-7 p-1 rounded-xl" style={{ background: '#F5F0E8', display: 'inline-flex' }}>
-        {TABS.map(t => (
-          <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            className="h-8 px-4 rounded-lg text-[13px] font-medium transition"
-            style={{
-              background: tab === t.id ? 'white' : 'transparent',
-              color: tab === t.id ? '#0F1F18' : '#6B7A72',
-              boxShadow: tab === t.id ? '0 1px 3px rgba(15,31,24,0.08)' : 'none',
-            }}
-          >
-            {t.label}
-          </button>
-        ))}
+      {/* Tabs — sticky so they stay visible when scrolling */}
+      <div className="sticky top-0 z-10 -mx-6 px-6 py-2.5 mb-4 overflow-x-auto" style={{ background: '#FAF6EE' }}>
+        <div className="flex gap-1 p-1 rounded-xl whitespace-nowrap" style={{ background: '#F5F0E8', display: 'inline-flex' }}>
+          {TABS.map(t => (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              className="h-8 px-4 rounded-lg text-[13px] font-medium transition"
+              style={{
+                background: tab === t.id ? 'white' : 'transparent',
+                color: tab === t.id ? '#0F1F18' : '#6B7A72',
+                boxShadow: tab === t.id ? '0 1px 3px rgba(15,31,24,0.08)' : 'none',
+              }}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {error && <p className="mb-4 text-[13px]" style={{ color: '#B8423C' }}>{error}</p>}
@@ -155,7 +222,7 @@ export function EventSettingsView({ event }: Props) {
                   onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
                 />
               </Field>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Field label="Starts">
                   <input
                     type="datetime-local"
@@ -180,15 +247,17 @@ export function EventSettingsView({ event }: Props) {
                 </Field>
               </div>
               <Field label="Venue">
-                <input
+                <PlacesAutocomplete
                   value={venue}
-                  onChange={e => setVenue(e.target.value)}
-                  placeholder="Palais du Peuple, Djibouti City"
-                  className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
-                  style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
-                  onFocus={e => (e.target.style.borderColor = '#E8C57E')}
-                  onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
+                  onChange={v => { setVenue(v); if (!v) setPlaceData(null); }}
+                  onPlaceSelected={p => { setPlaceData(p); setVenue(p.venue_name || p.venue_address); }}
+                  placeholder="Search venue name or address"
                 />
+                {placeData?.venue_address && (
+                  <p className="mt-1 text-[12px] pl-1" style={{ color: '#6B7A72' }}>
+                    📍 {placeData.venue_address}
+                  </p>
+                )}
               </Field>
               <Field label="Timezone">
                 <input
@@ -281,19 +350,96 @@ export function EventSettingsView({ event }: Props) {
           <DangerCard
             title="Duplicate event"
             desc="Create a copy of this event with the same settings and ticket types."
-            action={<button className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-medium border transition" style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}><Copy size={13} strokeWidth={2} /> Duplicate</button>}
+            action={
+              <button disabled className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-medium border transition opacity-40 cursor-not-allowed" style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}>
+                <Copy size={13} strokeWidth={2} /> Duplicate
+              </button>
+            }
           />
           <DangerCard
-            title="Cancel event"
-            desc="Notify all attendees and process refunds."
-            action={<button className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-medium border transition" style={{ borderColor: '#FBD38D', color: '#C97A2D' }}><AlertTriangle size={13} strokeWidth={2} /> Cancel</button>}
+            title="Archive event"
+            desc="Hide this event from your dashboard without deleting any data."
+            action={
+              <button
+                onClick={async () => {
+                  const res = await fetch(`/api/events/${event.id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'archived' }),
+                  });
+                  if (res.ok) router.push('/dashboard');
+                }}
+                className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-medium border transition hover:border-[#C97A2D]/60"
+                style={{ borderColor: '#FBD38D', color: '#C97A2D' }}
+              >
+                <AlertTriangle size={13} strokeWidth={2} /> Archive
+              </button>
+            }
           />
           <DangerCard
             title="Delete event"
             desc="Permanently remove this event and all its data. Can't be undone."
             danger
-            action={<button className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-medium border transition" style={{ borderColor: '#FCA5A5', color: '#B8423C' }}><Trash2 size={13} strokeWidth={2} /> Delete</button>}
+            action={
+              <button
+                onClick={() => { setDeleteOpen(true); setDeleteConfirm(''); setDeleteError(''); }}
+                className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-medium border transition hover:border-[#B8423C]/60"
+                style={{ borderColor: '#FCA5A5', color: '#B8423C' }}
+              >
+                <Trash2 size={13} strokeWidth={2} /> Delete
+              </button>
+            }
           />
+        </div>
+      )}
+
+      {/* Delete confirmation modal */}
+      {deleteOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setDeleteOpen(false)} />
+          <div className="relative bg-white rounded-2xl w-full max-w-[460px] p-6" style={{ border: '1px solid #E5E0D4', boxShadow: '0 8px 40px rgba(15,31,24,0.18)' }}>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl grid place-items-center" style={{ background: 'rgba(184,66,60,0.1)' }}>
+                  <Trash2 size={16} strokeWidth={2} style={{ color: '#B8423C' }} />
+                </div>
+                <h3 className="font-display text-[16px] font-semibold" style={{ color: '#0F1F18' }}>Delete event</h3>
+              </div>
+              <button onClick={() => setDeleteOpen(false)} className="h-7 w-7 rounded-lg grid place-items-center hover:bg-[#F5F3EE]" style={{ color: '#6B7A72' }}>
+                <X size={14} strokeWidth={2.2} />
+              </button>
+            </div>
+
+            <p className="text-[13px] mb-1" style={{ color: '#6B7A72' }}>
+              This will permanently delete <strong style={{ color: '#0F1F18' }}>{event.name}</strong> and all its data — registrations, tickets, sessions, and media. This cannot be undone.
+            </p>
+            <p className="text-[13px] mb-4" style={{ color: '#6B7A72' }}>
+              Type <strong style={{ color: '#0F1F18' }}>{event.name}</strong> to confirm.
+            </p>
+
+            <input
+              value={deleteConfirm}
+              onChange={e => { setDeleteConfirm(e.target.value); setDeleteError(''); }}
+              placeholder={event.name}
+              className="w-full h-10 px-3 rounded-lg text-[14px] outline-none mb-3"
+              style={{ border: `1.5px solid ${deleteError ? '#B8423C' : '#E5E0D4'}`, background: 'white', color: '#0F1F18' }}
+            />
+            {deleteError && <p className="text-[12px] mb-3" style={{ color: '#B8423C' }}>{deleteError}</p>}
+
+            <div className="flex gap-3">
+              <button onClick={() => setDeleteOpen(false)} className="flex-1 h-10 rounded-xl text-[13px] font-medium border transition" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleting || deleteConfirm !== event.name}
+                className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white transition disabled:opacity-40"
+                style={{ background: '#B8423C' }}
+              >
+                {deleting ? 'Deleting…' : 'Delete event'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -356,7 +502,7 @@ function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) =>
 function DangerCard({ title, desc, action, danger }: { title: string; desc: string; action: React.ReactNode; danger?: boolean }) {
   return (
     <div
-      className="flex items-center justify-between gap-4 p-5 rounded-2xl"
+      className="flex items-start sm:items-center justify-between gap-4 flex-wrap p-5 rounded-2xl"
       style={{
         background: danger ? 'rgba(184,66,60,0.04)' : 'white',
         border: danger ? '1px solid rgba(184,66,60,0.2)' : '1px solid #E5E0D4',

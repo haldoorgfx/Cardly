@@ -6,7 +6,7 @@ function Skel({ className, style }: { className?: string; style?: CSSProperties 
 
 export default function EventPageEditorLoading() {
   return (
-    <div className="px-6 py-8 max-w-[1200px]">
+    <div className="px-4 sm:px-6 py-8 max-w-[1200px]">
       <Skel className="h-3 w-48 mb-6" />
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="space-y-4">

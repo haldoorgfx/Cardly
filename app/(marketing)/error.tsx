@@ -18,7 +18,7 @@ export default function MarketingError({
     <div className="min-h-screen bg-[#FAF6EE] grid place-items-center px-6 py-16">
       <div className="text-center max-w-[420px]">
         <div className="text-[11px] font-mono tracking-widest text-[#0F1F18]/40 mb-4">ERROR</div>
-        <h1 className="font-display font-bold text-[32px] leading-tight tracking-tight text-[#0F1F18]">
+        <h1 className="font-title font-bold text-[32px] leading-tight text-[#0F1F18]">
           Something went wrong
         </h1>
         <p className="text-[15px] text-[#6B7A72] mt-4 leading-relaxed">

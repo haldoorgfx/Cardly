@@ -194,7 +194,7 @@ function Hero() {
             </div>
 
             <h1
-              className="font-display font-bold leading-[1.0]"
+              className="font-title font-bold leading-[1.0]"
               style={{
                 fontSize: 'clamp(40px, 5vw, 62px)',
                 color: '#1F4D3A',
@@ -252,8 +252,8 @@ function Hero() {
             </div>
           </div>
 
-          {/* RIGHT — 3-screen composite */}
-          <div className="relative flex items-center justify-center" style={{ minHeight: 360 }}>
+          {/* RIGHT — 3-screen composite (desktop only) */}
+          <div className="relative hidden lg:flex items-center justify-center" style={{ minHeight: 360 }}>
             {/* Back-left panel: DashboardMock */}
             <div
               className="absolute"
@@ -468,7 +468,7 @@ function PlatformFeatures() {
             Everything for your event
           </div>
           <h2
-            className="font-display font-bold"
+            className="font-title font-bold"
             style={{ fontSize: 'clamp(30px, 4vw, 48px)', color: '#0F1F18', letterSpacing: '-0.03em', lineHeight: 1.05 }}
           >
             One platform. Every phase of your event.
@@ -517,15 +517,11 @@ function PlatformFeatures() {
 
         {/* Karta Card feature tile */}
         <div
+          className="flex items-center justify-between gap-8 px-6 py-8 sm:px-10 sm:py-9"
           style={{
             background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 55%, #2A6A50 100%)',
             border: '1px solid rgba(232,197,126,0.35)',
             borderRadius: 16,
-            padding: '36px 40px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 32,
           }}
         >
           <div style={{ flex: 1 }}>
@@ -551,7 +547,7 @@ function PlatformFeatures() {
               Unique to Karta
             </span>
             <div
-              className="font-display font-bold"
+              className="font-title font-bold"
               style={{ fontSize: 30, color: '#E8C57E', letterSpacing: '-0.03em', marginBottom: 12 }}
             >
               Karta Card
@@ -709,7 +705,7 @@ function KartaDifference() {
               The Karta difference
             </span>
             <h2
-              className="font-display font-bold"
+              className="font-title font-bold"
               style={{ fontSize: 'clamp(28px, 3.5vw, 46px)', color: '#0F1F18', letterSpacing: '-0.03em', lineHeight: 1.05, marginBottom: 18 }}
             >
               Every attendee leaves with a card worth sharing.
@@ -841,7 +837,7 @@ function HowItWorks() {
             How Karta works
           </div>
           <h2
-            className="font-display font-bold"
+            className="font-title font-bold"
             style={{ fontSize: 'clamp(28px, 4vw, 48px)', color: '#0F1F18', letterSpacing: '-0.03em', lineHeight: 1.05 }}
           >
             From first ticket to last card shared.
@@ -985,7 +981,7 @@ function UseCases() {
             Use cases
           </div>
           <h2
-            className="font-display font-bold"
+            className="font-title font-bold"
             style={{ fontSize: 'clamp(28px, 4vw, 48px)', color: '#0F1F18', letterSpacing: '-0.03em', lineHeight: 1.05 }}
           >
             Whatever you&apos;re organizing, Karta handles it.
@@ -1265,7 +1261,7 @@ function Pricing() {
             Pricing
           </div>
           <h2
-            className="font-display font-bold"
+            className="font-title font-bold"
             style={{ fontSize: 'clamp(28px, 4vw, 48px)', color: '#0F1F18', letterSpacing: '-0.03em' }}
           >
             Start free. Pay as you grow.
@@ -1438,7 +1434,7 @@ function FAQSection() {
             FAQ
           </div>
           <h2
-            className="font-display font-bold"
+            className="font-title font-bold"
             style={{ fontSize: 'clamp(28px, 4vw, 44px)', color: '#0F1F18', letterSpacing: '-0.03em' }}
           >
             Questions we get every week.
@@ -1482,7 +1478,7 @@ function FinalCTA() {
 
       <div className="relative mx-auto px-5 lg:px-10 text-center" style={{ maxWidth: 760 }}>
         <h2
-          className="font-display font-bold"
+          className="font-title font-bold"
           style={{
             fontSize: 'clamp(30px, 5vw, 54px)',
             color: '#FAF6EE',

@@ -4,7 +4,7 @@ create extension if not exists "pgcrypto";
 -- ─────────────────────────────────────────
 -- PROFILES (extends auth.users)
 -- ─────────────────────────────────────────
-create table profiles (
+create table if not exists profiles (
   id          uuid primary key references auth.users on delete cascade,
   email       text unique,
   full_name   text,
@@ -26,6 +26,7 @@ begin
 end;
 $$;
 
+drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function handle_new_user();
@@ -33,7 +34,7 @@ create trigger on_auth_user_created
 -- ─────────────────────────────────────────
 -- EVENTS
 -- ─────────────────────────────────────────
-create table events (
+create table if not exists events (
   id                uuid primary key default gen_random_uuid(),
   user_id           uuid not null references profiles(id) on delete cascade,
   name              text not null,
@@ -58,6 +59,7 @@ begin
 end;
 $$;
 
+drop trigger if exists events_updated_at on events;
 create trigger events_updated_at
   before update on events
   for each row execute function set_updated_at();
@@ -65,7 +67,7 @@ create trigger events_updated_at
 -- ─────────────────────────────────────────
 -- GENERATED CARDS
 -- ─────────────────────────────────────────
-create table generated_cards (
+create table if not exists generated_cards (
   id             uuid primary key default gen_random_uuid(),
   event_id       uuid not null references events(id) on delete cascade,
   attendee_name  text,
@@ -82,22 +84,27 @@ alter table events enable row level security;
 alter table generated_cards enable row level security;
 
 -- Profiles: users can only read/write their own row
+drop policy if exists "profiles: own row" on profiles;
 create policy "profiles: own row" on profiles
   for all using (auth.uid() = id);
 
 -- Events: owners have full access
+drop policy if exists "events: owner access" on events;
 create policy "events: owner access" on events
   for all using (auth.uid() = user_id);
 
 -- Events: public can read published events by slug (for attendee page)
+drop policy if exists "events: public read published" on events;
 create policy "events: public read published" on events
   for select using (status = 'published');
 
 -- Generated cards: anyone can insert (attendees)
+drop policy if exists "generated_cards: public insert" on generated_cards;
 create policy "generated_cards: public insert" on generated_cards
   for insert with check (true);
 
 -- Generated cards: event owners can read their cards
+drop policy if exists "generated_cards: owner read" on generated_cards;
 create policy "generated_cards: owner read" on generated_cards
   for select using (
     exists (

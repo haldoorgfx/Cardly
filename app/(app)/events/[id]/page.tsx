@@ -33,6 +33,15 @@ const STATUS_STYLE = {
   archived:  { label: 'Archived', cls: 'bg-[#FAF6EE] text-[#6B7A72] border-[#E5E0D4]',     dot: '#6B7A72', pulse: false },
 };
 
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<import('next').Metadata> {
+  const { id } = await params;
+  const admin = createAdminClient();
+  const { data: event } = await admin.from('events').select('name').eq('id', id).single();
+  return {
+    title: event?.name ?? 'Event Overview',
+  };
+}
+
 export default async function EventDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = createClient();
@@ -56,7 +65,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
     admin.from('events').select('id, name, slug, status, view_count, download_count, user_id, created_at, event_pages(starts_at, ends_at, venue_name, is_online)').eq('id', id).eq('user_id', user.id).single(),
     admin.from('event_variants').select('id, variant_name, variant_slug, background_url, background_width, background_height, zones, position').eq('event_id', id).order('position', { ascending: true }),
     admin.from('registrations').select('id, attendee_name, status, created_at').eq('event_id', id).order('created_at', { ascending: false }).limit(5),
-    admin.from('registrations').select('amount_paid').eq('event_id', id).in('status', ['confirmed', 'checked_in']),
+    admin.from('registrations').select('amount_paid, currency').eq('event_id', id).in('status', ['confirmed', 'checked_in']),
     admin.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', id).in('status', ['confirmed', 'checked_in']),
     admin.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', id).eq('status', 'checked_in'),
     admin.from('sessions').select('id', { count: 'exact', head: true }).eq('event_id', id),
@@ -73,6 +82,11 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
   void (firstVariant?.zones as unknown as Zone[]);
 
   const totalRevenue = (revData ?? []).reduce((s, r) => s + Number(r.amount_paid ?? 0), 0);
+  const revCurrencies = new Set((revData ?? []).map(r => r.currency).filter(Boolean) as string[]);
+  const revCurrency = revCurrencies.size === 1 ? Array.from(revCurrencies)[0] : null;
+  const revenueDisplay = totalRevenue > 0 && revCurrency
+    ? (() => { try { return new Intl.NumberFormat(undefined, { style: 'currency', currency: revCurrency, minimumFractionDigits: 0 }).format(totalRevenue); } catch { return `${revCurrency} ${totalRevenue.toLocaleString()}`; } })()
+    : '—';
   const registrations = regCount ?? 0;
   const checkedIn = checkedInCount ?? 0;
   const checkInRate = registrations > 0 ? Math.round((checkedIn / registrations) * 100) : 0;
@@ -91,7 +105,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
     { id: 'check-in',       label: 'Check-in',       iconId: 'scan',      desc: 'Scan attendees at the door',                href: `/events/${id}/check-in`,       badge: event.status === 'published' ? `${checkInRate}% checked in` : 'Go live →' },
     { id: 'networking',     label: 'Networking',     iconId: 'network',   desc: 'Attendee connections and matchmaking',      href: `/events/${id}/engagement`,     badge: null, minPlan: 'pro' },
     { id: 'q-and-a',        label: 'Q&A & Polls',    iconId: 'message',   desc: 'Live session engagement',                  href: `/events/${id}/q-and-a`,        badge: null, minPlan: 'pro' },
-    { id: 'gamification',   label: 'Gamification',   iconId: 'trophy',    desc: 'Points, leaderboard and badges',            href: `/events/${id}/polls`,          badge: null, minPlan: 'pro' },
+    { id: 'gamification',   label: 'Gamification',   iconId: 'trophy',    desc: 'Points, leaderboard and badges',            href: `/events/${id}/gamification`,   badge: null, minPlan: 'pro' },
     { id: 'sponsors',       label: 'Sponsors',       iconId: 'briefcase', desc: 'Manage sponsors and exhibitors',            href: `/events/${id}/engagement`,     badge: null, minPlan: 'studio' },
     { id: 'virtual',        label: 'Virtual',        iconId: 'video',     desc: 'Stream sessions online',                   href: `/events/${id}/engagement`,     badge: null, minPlan: 'studio' },
     { id: 'analytics',      label: 'Analytics',      iconId: 'chart',     desc: 'Registration funnel and engagement data',  href: `/events/${id}/analytics`,      badge: 'View →' },
@@ -103,15 +117,15 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
 
       {/* ── Cover hero ── */}
-      <div className="relative" style={{ background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 55%, #2A6A50 100%)', height: 190 }}>
+      <div className="relative" style={{ background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 55%, #2A6A50 100%)', minHeight: 190 }}>
         <div aria-hidden className="absolute inset-0" style={{ background: 'radial-gradient(60% 120% at 90% 0%, rgba(232,197,126,0.28), transparent 55%)' }} />
         <svg aria-hidden viewBox="0 0 1200 190" preserveAspectRatio="none" className="absolute inset-0 w-full h-full" style={{ opacity: 0.08 }}>
           {Array.from({ length: 5 }).map((_, i) => (
             <path key={i} d={`M -40 ${30 + i * 32} Q 320 ${-8 + i * 32} 640 ${60 + i * 32} T 1280 ${36 + i * 32}`} fill="none" stroke="#E8C57E" strokeWidth="1.5" />
           ))}
         </svg>
-        <div className="relative max-w-[1100px] mx-auto px-6 lg:px-8 h-full flex flex-col justify-end pb-5">
-          <div className="flex items-end justify-between gap-4 flex-wrap">
+        <div className="relative max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-5 flex flex-col justify-end">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4">
             <div>
               <span className={`inline-flex items-center gap-1.5 text-[10px] font-mono tracking-[0.1em] uppercase px-2 py-0.5 rounded-full border bg-[#FAF6EE]/95 mb-3 ${st.cls}`}>
                 <span className={`w-1.5 h-1.5 rounded-full ${st.pulse ? 'animate-pulse' : ''}`} style={{ background: st.dot }} />
@@ -128,7 +142,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                     {ep.starts_at && (
                       <span className="inline-flex items-center gap-1.5">
                         <CalendarDays size={12} strokeWidth={1.8} />
-                        {new Date(ep.starts_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        {new Date(ep.starts_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
                       </span>
                     )}
                     {ep.starts_at && (ep.venue_name || ep.is_online) && (
@@ -144,10 +158,10 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                 );
               })()}
             </div>
-            <div className="flex items-center gap-2 shrink-0 pb-0.5">
+            <div className="flex items-center gap-2 shrink-0 sm:pb-0.5">
               <EventDetailActions eventId={id} eventName={event.name} status={event.status} />
               <Link href={`/events/${id}/publish`}
-                className="inline-flex items-center gap-1.5 h-8 px-3.5 text-[13px] font-semibold rounded-lg transition"
+                className="inline-flex items-center gap-1.5 h-10 px-3.5 text-[13px] font-semibold rounded-lg transition"
                 style={{ background: '#E8C57E', color: '#0F1F18' }}>
                 {event.status === 'published' ? 'Share →' : 'Publish →'}
               </Link>
@@ -156,23 +170,25 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
         </div>
       </div>
 
-      <div className="max-w-[1100px] mx-auto px-6 lg:px-8 py-6 space-y-6">
+      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
         {/* ── Stats bar ── */}
-        <div className="bg-white rounded-2xl border px-6 py-4 flex flex-wrap items-center gap-x-8 gap-y-3"
+        <div className="bg-white rounded-2xl border px-5 py-4"
           style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
-          {[
-            { value: registrations.toLocaleString(), label: 'registered' },
-            { value: totalRevenue > 0 ? '$' + totalRevenue.toLocaleString() : '$0', label: 'revenue' },
-            { value: `${checkedIn.toLocaleString()} checked in (${checkInRate}%)`, label: '' },
-            { value: event.download_count.toLocaleString(), label: 'cards shared' },
-          ].map((s, i) => (
-            <div key={i} className="flex items-baseline gap-2">
-              <span className="font-mono text-[20px] text-[#0F1F18] tracking-tight leading-none font-bold">{s.value}</span>
-              {s.label && <span className="text-[13px] text-[#6B7A72]">{s.label}</span>}
-              {i < 3 && <span className="text-[#E5E0D4] hidden sm:inline ml-3">·</span>}
-            </div>
-          ))}
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center gap-x-8 gap-y-3">
+            {[
+              { value: registrations.toLocaleString(), label: 'registered' },
+              { value: revenueDisplay, label: 'revenue' },
+              { value: checkedIn > 0 ? `${checkedIn} (${checkInRate}%)` : `${checkInRate}%`, label: 'checked in' },
+              { value: event.download_count.toLocaleString(), label: 'cards shared' },
+            ].map((s, i) => (
+              <div key={i} className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
+                <span className="font-mono text-[18px] sm:text-[20px] text-[#0F1F18] tracking-tight leading-none font-bold">{s.value}</span>
+                <span className="text-[11px] sm:text-[13px] text-[#6B7A72]">{s.label}</span>
+                {i < 3 && <span className="text-[#E5E0D4] hidden sm:inline ml-3">·</span>}
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* ── Attention items ── */}
@@ -187,7 +203,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
         ) : (
           <div className="grid gap-2.5">
             {event.status === 'draft' && (
-              <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl"
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 px-4 py-3 rounded-xl"
                 style={{ background: 'linear-gradient(135deg, rgba(232,197,126,0.14), rgba(31,77,58,0.05))', border: '1px solid rgba(232,197,126,0.5)' }}>
                 <span className="text-[13.5px] font-medium" style={{ color: '#163828' }}>
                   This event is still a draft — publish it to open registration.
@@ -261,7 +277,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                   {registrations} total
                 </span>
                 <a href={`/api/events/${id}/export`} download
-                  className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-lg border text-[12px] font-medium transition hover:bg-[#FAF6EE]"
+                  className="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg border text-[12px] font-medium transition hover:bg-[#FAF6EE]"
                   style={{ borderColor: '#E5E0D4', color: '#1F4D3A' }}>
                   <FileDown size={12} strokeWidth={2.2} />
                   Export

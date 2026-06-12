@@ -17,8 +17,9 @@ export default async function AgendaPage({ params }: Props) {
   if (!user) redirect('/login');
 
   const admin = createAdminClient();
-  const [{ data: event }, { data: sessions }, { data: speakers }, { data: tracks }] = await Promise.all([
+  const [{ data: event }, { data: eventPage }, { data: sessions }, { data: speakers }, { data: tracks }] = await Promise.all([
     admin.from('events').select('id, name, slug').eq('id', id).eq('user_id', user.id).single(),
+    admin.from('event_pages').select('starts_at, ends_at').eq('event_id', id).maybeSingle(),
     admin.from('sessions').select('*, tracks(id,name,color), session_speakers(speaker_id, position, speakers(id,name,photo_url))').eq('event_id', id).order('starts_at', { ascending: true }),
     admin.from('speakers').select('id, name, photo_url, role').eq('event_id', id).order('position', { ascending: true }),
     admin.from('tracks').select('*').eq('event_id', id).order('position', { ascending: true }),
@@ -29,15 +30,7 @@ export default async function AgendaPage({ params }: Props) {
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
       <AgendaTabs eventId={id} eventName={event.name} />
-      <div className="max-w-[1200px] mx-auto px-6 py-8">
-        <div className="mb-6">
-          <h1 className="font-display font-semibold text-[24px]" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
-            Agenda
-          </h1>
-          <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>
-            Build your event schedule — add sessions, assign speakers, organise by track.
-          </p>
-        </div>
+      <div className="px-4 sm:px-6 lg:px-8 py-8">
         <AgendaView
           eventId={id}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -46,6 +39,7 @@ export default async function AgendaPage({ params }: Props) {
           speakers={(speakers ?? []) as any}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           initialTracks={(tracks ?? []) as any}
+          eventDates={{ starts_at: eventPage?.starts_at ?? null, ends_at: eventPage?.ends_at ?? null }}
         />
       </div>
     </div>

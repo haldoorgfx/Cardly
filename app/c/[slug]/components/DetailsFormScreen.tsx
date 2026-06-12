@@ -37,7 +37,7 @@ function FieldLabel({ children, required }: { children: React.ReactNode; require
   return (
     <label style={{
       display: 'flex', alignItems: 'center', gap: 4,
-      fontFamily: 'JetBrains Mono, monospace',
+      fontFamily: 'Inter, system-ui, sans-serif',
       fontSize: 12, color: '#3A4A42',
       letterSpacing: '0.02em', marginBottom: 6, textTransform: 'lowercase',
     }}>
@@ -456,7 +456,7 @@ export default function DetailsFormScreen({
               display: 'inline-flex', alignItems: 'center', gap: 6,
               padding: '4px 10px',
               background: '#E8EFEB', borderRadius: 999,
-              fontFamily: 'JetBrains Mono, monospace',
+              fontFamily: 'Inter, system-ui, sans-serif',
               fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase',
               color: '#1F4D3A',
             }}>
@@ -542,7 +542,7 @@ export default function DetailsFormScreen({
               display: 'inline-flex', alignItems: 'center', gap: 6,
               padding: '4px 10px',
               background: '#E8EFEB', borderRadius: 999,
-              fontFamily: 'JetBrains Mono, monospace',
+              fontFamily: 'Inter, system-ui, sans-serif',
               fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase',
               color: '#1F4D3A',
             }}>

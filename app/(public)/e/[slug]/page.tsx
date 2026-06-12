@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation';
 import { createAdminClient } from '@/lib/supabase/server';
 import { formatEventDateRange, formatMinPrice } from '@/lib/events/format';
 import { PublicEventPageClient } from '@/components/events/PublicEventPageClient';
+import { PublicNav } from '@/components/events/PublicNav';
+import { geocodeAddress } from '@/lib/events/geocode';
 import type { Metadata } from 'next';
 
 interface Props {
@@ -42,9 +44,9 @@ async function resolveEventPage(slug: string) {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const page = await resolveEventPage(params.slug);
-  if (!page) return { title: 'Event — Karta' };
+  if (!page) return { title: 'Event' };
   return {
-    title: page.seo_title ?? `${page.title} — Karta`,
+    title: page.seo_title ?? page.title,
     description: page.seo_description ?? page.tagline ?? undefined,
     openGraph: {
       title: page.seo_title ?? page.title,
@@ -59,22 +61,121 @@ export default async function PublicEventPage({ params, searchParams }: Props) {
   if (!page) notFound();
 
   const admin = createAdminClient();
-  const { data: tickets } = await admin
-    .from('ticket_types')
-    .select('*')
-    .eq('event_id', page.event_id)
-    .eq('is_visible', true)
-    .order('position');
+  const [ticketsRes, eventRes] = await Promise.all([
+    admin
+      .from('ticket_types')
+      .select('*')
+      .eq('event_id', page.event_id)
+      .eq('is_visible', true)
+      .order('position'),
+    admin
+      .from('events')
+      .select('user_id')
+      .eq('id', page.event_id)
+      .single(),
+  ]);
 
-  const allTickets = tickets ?? [];
+  const allTickets = ticketsRes.data ?? [];
+  const organizerUserId = eventRes.data?.user_id ?? null;
   const { date, time, endTime } = formatEventDateRange(page.starts_at, page.ends_at, page.timezone);
+
+  // Organizer profile (avatar + city fallback for the map)
+  let organizerAvatarUrl: string | null = page.organizer_avatar_url ?? null;
+  let organizerCity: string | null = null;
+  if (organizerUserId) {
+    const { data: organizerProfile } = await admin
+      .from('profiles')
+      .select('avatar_url, city')
+      .eq('id', organizerUserId)
+      .single();
+    organizerAvatarUrl = organizerAvatarUrl ?? organizerProfile?.avatar_url ?? null;
+    organizerCity = organizerProfile?.city ?? null;
+  }
   const minPrice = formatMinPrice(allTickets);
   const registrationSlug = params.slug;
   const isPreview = searchParams.preview === '1';
   const editorEventId = searchParams.event_id ?? null;
 
+  // Series info
+  let seriesSlug: string | null = null;
+  if (page.series_id) {
+    const { data: series } = await admin.from('event_series').select('slug').eq('id', page.series_id).single();
+    seriesSlug = series?.slug ?? null;
+  }
+
+  // Sessions + speakers for agenda/speakers sections
+  const [sessionsRes, speakersRes] = await Promise.all([
+    admin.from('sessions').select('id, title, starts_at, ends_at, room, session_type')
+      .eq('event_id', page.event_id)
+      .eq('is_published', true)
+      .order('starts_at')
+      .limit(10),
+    admin.from('speakers').select('id, name, headline, role, photo_url, speaker_type')
+      .eq('event_id', page.event_id)
+      .order('position')
+      .limit(6),
+  ]);
+  const sessions = sessionsRes.data ?? [];
+  const speakers = speakersRes.data ?? [];
+
+  // ── Real attendees (confirmed registrations) ─────────────────────
+  const { data: regRows, count: attendeeCount } = await admin
+    .from('registrations')
+    .select('attendee_name, user_id', { count: 'exact' })
+    .eq('event_id', page.event_id)
+    .in('status', ['confirmed', 'checked_in'])
+    .order('created_at', { ascending: false })
+    .limit(8);
+
+  const regList = regRows ?? [];
+  // Resolve avatars for registrations linked to a profile
+  const userIds = regList.map(r => r.user_id).filter((v): v is string => !!v);
+  const avatarByUser: Record<string, string> = {};
+  if (userIds.length) {
+    const { data: avatarProfiles } = await admin
+      .from('profiles')
+      .select('id, avatar_url')
+      .in('id', userIds);
+    for (const p of avatarProfiles ?? []) {
+      if (p.avatar_url) avatarByUser[p.id] = p.avatar_url;
+    }
+  }
+  const attendees = regList.map(r => ({
+    name: r.attendee_name,
+    avatarUrl: r.user_id ? avatarByUser[r.user_id] ?? null : null,
+  }));
+
+  // ── Resolve venue coordinates (stored → geocode → organizer city) ─
+  let venueLat = page.venue_lat as number | null;
+  let venueLng = page.venue_lng as number | null;
+  if (!page.is_online && (venueLat == null || venueLng == null)) {
+    // Prefer the specific street address; fall back to venue name + city.
+    const venueQuery =
+      page.venue_address?.trim() ||
+      [page.venue_name, page.city, page.country].filter(Boolean).join(', ');
+    const coords = venueQuery ? await geocodeAddress(venueQuery) : null;
+    if (coords) {
+      venueLat = coords.lat;
+      venueLng = coords.lng;
+      // Persist so we never geocode this event again
+      await admin
+        .from('event_pages')
+        .update({ venue_lat: coords.lat, venue_lng: coords.lng })
+        .eq('id', page.id);
+    } else {
+      // Fallback: organizer's city
+      const fallbackQuery = [organizerCity, page.country].filter(Boolean).join(', ');
+      const fallback = fallbackQuery ? await geocodeAddress(fallbackQuery) : null;
+      if (fallback) {
+        venueLat = fallback.lat;
+        venueLng = fallback.lng;
+      }
+    }
+  }
+
   return (
     <>
+      <PublicNav eventSlug={params.slug} />
       {/* Preview bar — shown when organizer clicks "Preview" in event-page editor */}
       {isPreview && editorEventId && (
         <div
@@ -119,6 +220,16 @@ export default async function PublicEventPage({ params, searchParams }: Props) {
         endTimeStr={endTime}
         minPrice={minPrice}
         registrationSlug={registrationSlug}
+        organizerUserId={organizerUserId}
+        seriesSlug={seriesSlug}
+        seriesName={page.series_name ?? null}
+        sessions={sessions}
+        speakers={speakers}
+        attendees={attendees}
+        attendeeCount={attendeeCount ?? 0}
+        organizerAvatarUrl={organizerAvatarUrl}
+        venueLat={venueLat}
+        venueLng={venueLng}
       />
     </>
   );

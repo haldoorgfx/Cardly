@@ -1,5 +1,10 @@
 export const dynamic = 'force-dynamic';
 
+import type { Metadata } from 'next';
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: 'Team' };
+}
+
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { getMyTeam, getTeamMembers, getTeamInvites } from '@/lib/teams/queries';
@@ -17,11 +22,13 @@ export default async function TeamPage() {
     .eq('id', user.id)
     .single();
 
-  const isActivePaid =
-    profile?.subscription_status === 'active' ||
-    profile?.subscription_status === 'trialing';
+  // Only downgrade if subscription explicitly failed/cancelled.
+  // This correctly handles manually-assigned plans with no Stripe subscription.
+  const subscriptionFailed =
+    profile?.subscription_status === 'canceled' ||
+    profile?.subscription_status === 'past_due';
   const plan =
-    !isActivePaid && profile?.plan !== 'free' ? 'free' : (profile?.plan ?? 'free');
+    subscriptionFailed && profile?.plan !== 'free' ? 'free' : (profile?.plan ?? 'free');
   const isStudio = plan === 'studio';
 
   let team = null;

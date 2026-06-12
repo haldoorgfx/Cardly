@@ -20,7 +20,7 @@ export default async function MessagesPage({ params, searchParams }: Props) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: threads } = regId ? await (admin as any)
     .from('message_threads')
-    .select('id, participant_a, participant_b, last_message_at, registrations!participant_b(id, attendee_name, avatar_url, role)')
+    .select('id, participant_a, participant_b, last_message_at, registrations!participant_b(id, attendee_name)')
     .or(`participant_a.eq.${regId},participant_b.eq.${regId}`)
     .order('last_message_at', { ascending: false })
     : { data: [] };

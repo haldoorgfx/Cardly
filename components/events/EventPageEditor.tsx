@@ -2,7 +2,8 @@
 
 import { useState, useRef, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Upload, Globe, MapPin, ExternalLink, ChevronRight, ChevronLeft, Check } from 'lucide-react';
+import { Upload, Globe, ExternalLink, ChevronRight, ChevronLeft, Check } from 'lucide-react';
+import { PlacesAutocomplete } from '@/components/shared/PlacesAutocomplete';
 import { TIMEZONES } from '@/lib/events/format';
 import type { Database } from '@/types/database';
 
@@ -11,6 +12,7 @@ type EventPageRow = Database['public']['Tables']['event_pages']['Row'];
 interface Props {
   eventId: string;
   eventSlug: string;
+  eventName?: string;
   existing: EventPageRow | null;
 }
 
@@ -31,7 +33,7 @@ const STEPS = [
   { id: 4, label: 'Settings',      short: 'Settings'    },
 ];
 
-export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
+export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -42,7 +44,7 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
   const [coverUploading, setCoverUploading] = useState(false);
   const [coverError, setCoverError] = useState('');
 
-  const [title, setTitle] = useState(existing?.title ?? '');
+  const [title, setTitle] = useState(existing?.title || eventName || '');
   const [tagline, setTagline] = useState(existing?.tagline ?? '');
   const [description, setDescription] = useState(existing?.description ?? '');
   const [venueName, setVenueName] = useState(existing?.venue_name ?? '');
@@ -60,12 +62,16 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
     (existing?.payment_processor as 'stripe' | 'flutterwave' | 'waafipay' | 'free') ?? 'stripe'
   );
   const [organizerName, setOrganizerName] = useState(existing?.organizer_name ?? '');
+  const [city, setCity] = useState((existing as { city?: string | null } | null)?.city ?? '');
+  const [category, setCategory] = useState((existing as { category?: string | null } | null)?.category ?? '');
+  const [seriesName, setSeriesName] = useState((existing as { series_name?: string | null } | null)?.series_name ?? '');
   const [seoTitle, setSeoTitle] = useState(existing?.seo_title ?? '');
   const [seoDescription, setSeoDescription] = useState(existing?.seo_description ?? '');
 
-  const [stepError, setStepError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [saveError, setSaveError] = useState('');
-  const [saved, setSaved] = useState(false);
+
+  function fe(field: string) { return fieldErrors[field]; }
 
   async function handleCoverUpload(file: File) {
     setCoverUploading(true);
@@ -84,32 +90,46 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
     }
   }
 
-  function validateStep(s: number): string {
-    if (s === 1 && !title.trim()) return 'Event title is required';
-    if (s === 3 && !startsAt) return 'Start date is required';
-    if (s === 3 && !endsAt) return 'End date is required';
-    return '';
+  function validateStep(s: number): Record<string, string> {
+    const errs: Record<string, string> = {};
+    if (s === 1) {
+      if (!title.trim()) errs.title = 'Event title is required';
+    }
+    if (s === 3) {
+      if (!startsAt) errs.startsAt = 'Start date is required';
+      if (!endsAt) errs.endsAt = 'End date is required';
+      if (startsAt && endsAt && endsAt <= startsAt) errs.endsAt = 'End must be after start';
+      if (deadline && startsAt && deadline >= startsAt) errs.deadline = 'Deadline must be before the event starts';
+    }
+    return errs;
   }
 
   function goNext() {
-    const err = validateStep(step);
-    if (err) { setStepError(err); return; }
-    setStepError('');
+    const errs = validateStep(step);
+    if (Object.keys(errs).length > 0) { setFieldErrors(errs); return; }
+    setFieldErrors({});
+    setSaveError('');
     setStep(s => Math.min(s + 1, STEPS.length));
   }
 
   function goBack() {
-    setStepError('');
+    setFieldErrors({});
+    setSaveError('');
     setStep(s => Math.max(s - 1, 1));
   }
 
   async function handleSave() {
     setSaveError('');
-    const err = validateStep(step);
-    if (err) { setSaveError(err); return; }
-    if (!title.trim()) { setSaveError('Title is required'); return; }
-    if (!startsAt) { setSaveError('Start date/time is required'); return; }
-    if (!endsAt) { setSaveError('End date/time is required'); return; }
+    // Validate all steps before final save
+    const allErrs = { ...validateStep(1), ...validateStep(3) };
+    if (Object.keys(allErrs).length > 0) {
+      setFieldErrors(allErrs);
+      // Jump to the first step with an error
+      if (allErrs.title) { setStep(1); }
+      else if (allErrs.startsAt || allErrs.endsAt || allErrs.deadline) { setStep(3); }
+      return;
+    }
+    setFieldErrors({});
 
     startTransition(async () => {
       try {
@@ -131,6 +151,9 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
           custom_slug: customSlug.trim() || null,
           payment_processor: paymentProcessor,
           organizer_name: organizerName.trim() || null,
+          city: city.trim() || null,
+          category: category.trim() || null,
+          series_name: seriesName.trim() || null,
           seo_title: seoTitle.trim() || null,
           seo_description: seoDescription.trim() || null,
         };
@@ -143,11 +166,17 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error ?? 'Save failed');
 
-        setSaved(true);
-        setTimeout(() => setSaved(false), 2500);
-        router.refresh();
+        router.push(`/events/${eventId}`);
       } catch (err) {
-        setSaveError(err instanceof Error ? err.message : 'Save failed');
+        const msg = err instanceof Error ? err.message : 'Save failed';
+        // Never show raw DB errors to users
+        if (msg.includes('unique constraint') || msg.includes('duplicate key')) {
+          setSaveError('This event page already exists. Please refresh and try again.');
+        } else if (msg.includes('not null') || msg.includes('violates')) {
+          setSaveError('Some required fields are missing. Please check your inputs.');
+        } else {
+          setSaveError(msg);
+        }
       }
     });
   }
@@ -157,9 +186,9 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
   const isLastStep = step === STEPS.length;
 
   return (
-    <div className="max-w-[640px] mx-auto px-6 py-8 pb-28">
+    <div className="max-w-[640px] mx-auto px-4 sm:px-6 py-8 pb-28">
 
-      {/* ── Step header ─────────────────────────────────────────────── */}
+      {/* -- Step header ----------------------------------------------- */}
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>
           <p className="text-[11px] font-mono font-medium mb-1" style={{ color: '#6B7A72', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
@@ -181,13 +210,13 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
         </a>
       </div>
 
-      {/* ── Progress dots ─────────────────────────────────────────────── */}
+      {/* -- Progress dots ----------------------------------------------- */}
       <div className="flex items-center gap-2 mb-10">
         {STEPS.map((s, i) => (
           <div key={s.id} className="flex items-center gap-2">
             <button
               onClick={() => {
-                if (s.id < step) { setStep(s.id); setStepError(''); }
+                if (s.id < step) { setStep(s.id); setFieldErrors({}); setSaveError(''); }
               }}
               disabled={s.id > step}
               className="flex items-center gap-1.5 transition"
@@ -219,7 +248,7 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
         ))}
       </div>
 
-      {/* ── Step 1: Cover & name ─────────────────────────────────────── */}
+      {/* -- Step 1: Cover & name --------------------------------------- */}
       {step === 1 && (
         <div className="space-y-6">
           {/* Cover image */}
@@ -289,16 +318,16 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
           />
           {coverError && <p className="text-[12px]" style={{ color: '#B8423C' }}>{coverError}</p>}
 
-          <Field label="Event title *">
+          <Field label="Event title *" error={fe('title')}>
             <input
               value={title}
-              onChange={e => setTitle(e.target.value)}
+              onChange={e => { setTitle(e.target.value); if (fieldErrors.title) setFieldErrors(p => ({ ...p, title: '' })); }}
               placeholder="AfriTech Summit 2026"
               autoFocus
               className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
-              style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
-              onFocus={e => (e.target.style.borderColor = '#E8C57E')}
-              onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
+              style={{ background: 'white', border: `1px solid ${fe('title') ? '#B8423C' : '#E5E0D4'}`, color: '#0F1F18' }}
+              onFocus={e => (e.target.style.borderColor = fe('title') ? '#B8423C' : '#E8C57E')}
+              onBlur={e => (e.target.style.borderColor = fe('title') ? '#B8423C' : '#E5E0D4')}
             />
           </Field>
 
@@ -325,10 +354,24 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
               onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
             />
           </Field>
+
+          <Field label="Category">
+            <select
+              value={category}
+              onChange={e => setCategory(e.target.value)}
+              className="w-full h-10 px-3 rounded-lg text-[14px] outline-none"
+              style={{ background: 'white', border: '1px solid #E5E0D4', color: category ? '#0F1F18' : '#6B7A72' }}
+            >
+              <option value="">Select a category</option>
+              {['Tech', 'Music', 'Business', 'Culture', 'Food', 'Sports', 'Health', 'Film', 'Education'].map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </Field>
         </div>
       )}
 
-      {/* ── Step 2: Description ──────────────────────────────────────── */}
+      {/* -- Step 2: Description ---------------------------------------- */}
       {step === 2 && (
         <div className="space-y-3">
           <p className="text-[13px]" style={{ color: '#6B7A72' }}>
@@ -356,30 +399,30 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
         </div>
       )}
 
-      {/* ── Step 3: When & where ─────────────────────────────────────── */}
+      {/* -- Step 3: When & where --------------------------------------- */}
       {step === 3 && (
         <div className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Start *">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field label="Start *" error={fe('startsAt')}>
               <input
                 type="datetime-local"
                 value={startsAt}
-                onChange={e => setStartsAt(e.target.value)}
+                onChange={e => { setStartsAt(e.target.value); setFieldErrors(p => ({ ...p, startsAt: '', endsAt: '' })); }}
                 className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
-                style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
-                onFocus={e => (e.target.style.borderColor = '#E8C57E')}
-                onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
+                style={{ background: 'white', border: `1px solid ${fe('startsAt') ? '#B8423C' : '#E5E0D4'}`, color: '#0F1F18' }}
+                onFocus={e => (e.target.style.borderColor = fe('startsAt') ? '#B8423C' : '#E8C57E')}
+                onBlur={e => (e.target.style.borderColor = fe('startsAt') ? '#B8423C' : '#E5E0D4')}
               />
             </Field>
-            <Field label="End *">
+            <Field label="End *" error={fe('endsAt')}>
               <input
                 type="datetime-local"
                 value={endsAt}
-                onChange={e => setEndsAt(e.target.value)}
+                onChange={e => { setEndsAt(e.target.value); setFieldErrors(p => ({ ...p, endsAt: '' })); }}
                 className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
-                style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
-                onFocus={e => (e.target.style.borderColor = '#E8C57E')}
-                onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
+                style={{ background: 'white', border: `1px solid ${fe('endsAt') ? '#B8423C' : '#E5E0D4'}`, color: '#0F1F18' }}
+                onFocus={e => (e.target.style.borderColor = fe('endsAt') ? '#B8423C' : '#E8C57E')}
+                onBlur={e => (e.target.style.borderColor = fe('endsAt') ? '#B8423C' : '#E5E0D4')}
               />
             </Field>
           </div>
@@ -397,17 +440,17 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
             </select>
           </Field>
 
-          <Field label="Registration deadline">
+          <Field label="Registration deadline" error={fe('deadline')}>
             <input
               type="datetime-local"
               value={deadline}
-              onChange={e => setDeadline(e.target.value)}
+              onChange={e => { setDeadline(e.target.value); setFieldErrors(p => ({ ...p, deadline: '' })); }}
               className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
-              style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
-              onFocus={e => (e.target.style.borderColor = '#E8C57E')}
-              onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
+              style={{ background: 'white', border: `1px solid ${fe('deadline') ? '#B8423C' : '#E5E0D4'}`, color: '#0F1F18' }}
+              onFocus={e => (e.target.style.borderColor = fe('deadline') ? '#B8423C' : '#E8C57E')}
+              onBlur={e => (e.target.style.borderColor = fe('deadline') ? '#B8423C' : '#E5E0D4')}
             />
-            <p className="text-[12px] mt-1" style={{ color: '#6B7A72' }}>Leave blank to allow registration until the event starts.</p>
+            {!fe('deadline') && <p className="text-[12px] mt-1" style={{ color: '#6B7A72' }}>Leave blank to allow registration until the event starts.</p>}
           </Field>
 
           <div style={{ borderTop: '1px solid #E5E0D4', paddingTop: 24 }}>
@@ -436,18 +479,16 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
           ) : (
             <>
               <Field label="Venue name">
-                <div className="relative">
-                  <MapPin size={14} strokeWidth={2} className="absolute left-3 top-3 pointer-events-none" style={{ color: '#6B7A72' }} />
-                  <input
-                    value={venueName}
-                    onChange={e => setVenueName(e.target.value)}
-                    placeholder="Palais du Peuple"
-                    className="w-full h-10 pl-9 pr-3 rounded-lg text-[14px] outline-none transition"
-                    style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
-                    onFocus={e => (e.target.style.borderColor = '#E8C57E')}
-                    onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
-                  />
-                </div>
+                <PlacesAutocomplete
+                  value={venueName}
+                  onChange={v => setVenueName(v)}
+                  onPlaceSelected={p => {
+                    setVenueName(p.venue_name || p.venue_address);
+                    if (p.venue_address) setVenueAddress(p.venue_address);
+                    if (p.city) setCity(p.city);
+                  }}
+                  placeholder="Search a venue or address"
+                />
               </Field>
               <Field label="Venue address">
                 <input
@@ -460,12 +501,34 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
                   onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
                 />
               </Field>
+              <Field label="City">
+                <input
+                  value={city}
+                  onChange={e => setCity(e.target.value)}
+                  placeholder="Djibouti City"
+                  className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
+                  style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
+                  onFocus={e => (e.target.style.borderColor = '#E8C57E')}
+                  onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
+                />
+              </Field>
+              <Field label="Series name">
+                <input
+                  value={seriesName}
+                  onChange={e => setSeriesName(e.target.value)}
+                  placeholder="Leave blank if standalone event"
+                  className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
+                  style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
+                  onFocus={e => (e.target.style.borderColor = '#E8C57E')}
+                  onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
+                />
+              </Field>
             </>
           )}
         </div>
       )}
 
-      {/* ── Step 4: Settings ─────────────────────────────────────────── */}
+      {/* -- Step 4: Settings ------------------------------------------- */}
       {step === 4 && (
         <div className="space-y-8">
           {/* Capacity & visibility */}
@@ -491,6 +554,16 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
                 value={isPublic}
                 onChange={setIsPublic}
               />
+              {!isPublic && (
+                <div className="flex items-start gap-3 px-4 py-3 rounded-xl" style={{ background: 'rgba(201,122,45,0.08)', border: '1px solid rgba(201,122,45,0.25)' }}>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#C97A2D" strokeWidth="2" className="shrink-0 mt-0.5">
+                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                  </svg>
+                  <p className="text-[13px]" style={{ color: '#C97A2D' }}>
+                    <strong>Registration page is hidden.</strong> Attendees cannot find or access this event until you turn on &ldquo;Public event&rdquo;.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -503,7 +576,7 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
             <div className="space-y-2">
               {[
                 { value: 'stripe',      label: 'Stripe',      desc: 'Credit/debit cards worldwide. Recommended for international events.' },
-                { value: 'flutterwave', label: 'Flutterwave', desc: 'NGN, KES, GHS, ZAR and more African currencies. Hosted redirect checkout.' },
+                { value: 'flutterwave', label: 'Flutterwave', desc: 'Accepts local African currencies (KES, GHS, ZAR, etc.). Ticket prices in USD, charged in local currency.' },
                 { value: 'waafipay',    label: 'WaafiPay',    desc: 'EVC Plus, eDahab, Somtel and Djibouti mobile money. Best for Somalia & Djibouti.' },
                 { value: 'free',        label: 'Free only',   desc: 'No payment collection — all tickets must be free.' },
               ].map(opt => (
@@ -543,7 +616,7 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
                 <div className="flex items-center rounded-lg overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
                   <span
                     className="px-3 h-10 flex items-center text-[13px] shrink-0"
-                    style={{ background: '#F5F5F4', borderRight: '1px solid #E5E0D4', color: '#6B7A72', fontFamily: 'JetBrains Mono, monospace' }}
+                    style={{ background: '#F5F5F4', borderRight: '1px solid #E5E0D4', color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}
                   >
                     karta.cre8so.com/e/
                   </span>
@@ -552,11 +625,11 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
                     onChange={e => setCustomSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
                     placeholder={eventSlug}
                     className="flex-1 h-10 px-3 text-[13px] outline-none"
-                    style={{ background: 'white', color: '#0F1F18', fontFamily: 'JetBrains Mono, monospace' }}
+                    style={{ background: 'white', color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}
                   />
                 </div>
                 <p className="text-[12px] mt-1" style={{ color: '#6B7A72' }}>
-                  Leave blank to use the default: <code style={{ fontFamily: 'JetBrains Mono, monospace' }}>{eventSlug}</code>
+                  Leave blank to use the default: <code style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>{eventSlug}</code>
                 </p>
               </Field>
               <Field label="SEO title">
@@ -587,7 +660,7 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
         </div>
       )}
 
-      {/* ── Bottom nav bar ───────────────────────────────────────────── */}
+      {/* -- Bottom nav bar --------------------------------------------- */}
       <div
         className="fixed bottom-0 left-[252px] right-0 flex items-center justify-between gap-4 px-6 py-4"
         style={{ background: 'white', borderTop: '1px solid #E5E0D4', zIndex: 40 }}
@@ -603,10 +676,11 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
               Back
             </button>
           )}
-          {(stepError || saveError) && (
-            <p className="text-[13px]" style={{ color: '#B8423C' }}>{stepError || saveError}</p>
+          {(Object.keys(fieldErrors).length > 0 || saveError) && (
+            <p className="text-[13px]" style={{ color: '#B8423C' }}>
+              {saveError || 'Please fix the highlighted fields above'}
+            </p>
           )}
-          {saved && <p className="text-[13px]" style={{ color: '#2D7A4F' }}>Changes saved.</p>}
         </div>
 
         <div className="flex items-center gap-3">
@@ -628,7 +702,7 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
                 className="inline-flex items-center h-9 px-5 rounded-lg text-white text-[13px] font-semibold transition hover:opacity-90 disabled:opacity-60"
                 style={{ background: '#1F4D3A' }}
               >
-                {isPending ? 'Saving…' : saved ? '✓ Saved' : 'Save changes'}
+                {isPending ? 'Saving…' : 'Save changes'}
               </button>
             </>
           ) : (
@@ -647,7 +721,7 @@ export function EventPageEditor({ eventId, eventSlug, existing }: Props) {
   );
 }
 
-/* ── Helpers ── */
+/* -- Helpers -- */
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -659,7 +733,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
         textTransform: 'uppercase',
         borderBottom: '1px solid #E5E0D4',
         fontSize: 11,
-        fontFamily: 'JetBrains Mono, monospace',
+        fontFamily: 'Inter, system-ui, sans-serif',
         fontWeight: 600,
       }}
     >
@@ -668,13 +742,14 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, children, error }: { label: string; children: React.ReactNode; error?: string }) {
   return (
     <div>
-      <label className="block text-[12px] font-medium mb-1.5" style={{ color: '#3A4A42', letterSpacing: '0.02em' }}>
+      <label className="block text-[12px] font-medium mb-1.5" style={{ color: error ? '#B8423C' : '#3A4A42', letterSpacing: '0.02em' }}>
         {label}
       </label>
       {children}
+      {error && <p className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>{error}</p>}
     </div>
   );
 }

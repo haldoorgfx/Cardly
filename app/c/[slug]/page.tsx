@@ -43,21 +43,35 @@ export async function generateMetadata(
   };
 }
 
-export default async function AttendeePage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function AttendeePage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ preview?: string }>;
+}) {
   const { slug } = await params;
+  const { preview } = await searchParams;
   const admin = createAdminClient();
+  const isPreview = Boolean(preview);
 
-  const { data: event } = await admin
+  // In preview mode (from Test button in editor), allow draft events.
+  // The preview token must match the event's own ID — obscurity-sufficient for a designer preview.
+  let baseQuery = admin
     .from('events')
     .select('id, name, slug, status, view_count')
-    .eq('slug', slug)
-    .eq('status', 'published')
-    .single();
+    .eq('slug', slug);
+
+  if (!isPreview) {
+    baseQuery = baseQuery.eq('status', 'published');
+  }
+
+  const { data: event } = await baseQuery.single();
 
   if (!event) notFound();
 
-  // View count is incremented client-side via ViewTracker (sessionStorage dedup)
-  // so a single user refreshing the page only counts once per session.
+  // Verify preview token matches event ID to prevent enumeration of draft events
+  if (isPreview && preview !== event.id) notFound();
 
   const { data: variantsData } = await admin
     .from('event_variants')
@@ -67,14 +81,38 @@ export default async function AttendeePage({ params }: { params: Promise<{ slug:
 
   const variants = (variantsData ?? []) as unknown as Variant[];
 
-  if (variants.length === 0) notFound();
+  // No variants yet — show a friendly empty state instead of a hard 404
+  if (variants.length === 0) {
+    return (
+      <div className="min-h-screen bg-cream flex flex-col items-center justify-center px-6 text-center">
+        <div className="h-16 w-16 rounded-2xl bg-primary/10 grid place-items-center mb-6">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="text-primary">
+            <rect x="3" y="3" width="18" height="18" rx="3" />
+            <path d="M8 12h8M12 8v8" />
+          </svg>
+        </div>
+        <h1 className="font-display font-bold text-2xl text-ink mb-2">No card design yet</h1>
+        <p className="text-muted text-[15px] max-w-xs leading-relaxed">
+          {isPreview
+            ? 'This is a preview. Go back to the canvas editor and add a variant with a background image and zones.'
+            : 'The organizer hasn\'t finished setting up the card design yet. Check back soon.'}
+        </p>
+      </div>
+    );
+  }
 
   // Single variant — skip the picker and go straight to the form
   if (variants.length === 1) {
     const v = variants[0];
     return (
       <>
-        <ViewTracker eventId={event.id} />
+        {/* Don't count views in preview mode */}
+        {!isPreview && <ViewTracker eventId={event.id} />}
+        {isPreview && (
+          <div className="fixed top-0 left-0 right-0 z-50 bg-amber-500/90 text-white text-center text-[12px] font-mono py-1.5 px-4">
+            🔍 Preview mode — this is how attendees will see your card. Not publicly visible until published.
+          </div>
+        )}
         <AttendeeFlow
           variantId={v.id}
           eventId={event.id}
@@ -91,7 +129,12 @@ export default async function AttendeePage({ params }: { params: Promise<{ slug:
   // Multiple variants — show the picker
   return (
     <>
-      <ViewTracker eventId={event.id} />
+      {!isPreview && <ViewTracker eventId={event.id} />}
+      {isPreview && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-amber-500/90 text-white text-center text-[12px] font-mono py-1.5 px-4">
+          🔍 Preview mode — this is how attendees will see your card. Not publicly visible until published.
+        </div>
+      )}
       <VariantPickerClient
         eventName={event.name}
         eventSlug={event.slug}

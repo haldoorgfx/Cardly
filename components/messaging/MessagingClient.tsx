@@ -8,7 +8,7 @@ interface Thread {
   participant_a: string;
   participant_b: string;
   last_message_at: string | null;
-  registrations?: { id: string; attendee_name: string; avatar_url?: string | null; role?: string | null } | null;
+  registrations?: { id: string; attendee_name: string } | null;
   preview?: string;
   unread?: boolean;
 }
@@ -104,7 +104,7 @@ export default function MessagingClient({
   const groupByDay = (msgs: Message[]) => {
     const groups: { label: string; msgs: Message[] }[] = [];
     msgs.forEach(m => {
-      const day = new Date(m.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const day = new Date(m.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
       const last = groups[groups.length - 1];
       if (!last || last.label !== day) groups.push({ label: day, msgs: [m] });
       else last.msgs.push(m);
@@ -114,14 +114,14 @@ export default function MessagingClient({
 
   return (
     <div
+      className="flex flex-col lg:grid"
       style={{
-        display: 'grid',
         gridTemplateColumns: '320px 1fr',
         height: 'calc(100vh - 56px)',
       }}
     >
       {/* Left: inbox */}
-      <aside style={{ borderRight: '1px solid #E5E0D4', display: 'flex', flexDirection: 'column', background: 'white' }}>
+      <aside className="max-h-[50vh] lg:max-h-full" style={{ borderRight: '1px solid #E5E0D4', display: 'flex', flexDirection: 'column', background: 'white' }}>
         <div
           className="flex items-center justify-between px-5 py-4 shrink-0"
           style={{ borderBottom: '1px solid #E5E0D4' }}
@@ -174,7 +174,7 @@ export default function MessagingClient({
                       {other?.attendee_name ?? 'Attendee'}
                     </div>
                     <div className="text-[13px] truncate mt-0.5" style={{ color: '#6B7A72' }}>
-                      {t.preview ?? other?.role ?? ''}
+                      {t.preview ?? ''}
                     </div>
                   </div>
                   {t.last_message_at && (
@@ -212,9 +212,6 @@ export default function MessagingClient({
                 <div className="font-display font-medium text-[17px]" style={{ color: '#1F4D3A' }}>
                   {partner?.attendee_name ?? 'Attendee'}
                 </div>
-                {partner?.role && (
-                  <div className="text-[13px]" style={{ color: '#6B7A72' }}>{partner.role}</div>
-                )}
               </div>
               <a
                 href={`/e/${eventId}/people`}

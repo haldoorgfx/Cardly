@@ -4,7 +4,7 @@ import Reveal from '@/components/marketing/Reveal';
 import { NewsletterSectionClient } from './NewsletterSectionClient';
 
 export const metadata = {
-  title: 'Blog — Karta',
+  title: 'Blog',
   description:
     'Thoughts on campaigns, design, and building for Africa. Published by the Karta team.',
 };
@@ -101,7 +101,7 @@ function BlogHero() {
         <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-5">
           Blog
         </div>
-        <h1 className="font-display font-bold text-ink text-[44px] sm:text-[60px] lg:text-[72px] leading-[0.95] tracking-[-0.035em] max-w-[820px]">
+        <h1 className="font-title font-bold text-ink text-[44px] sm:text-[60px] lg:text-[72px] leading-[0.95] max-w-[820px]">
           Thoughts on campaigns,{' '}
           <span className="text-primary">design, and Africa.</span>
         </h1>
@@ -158,7 +158,7 @@ function FeaturedPost() {
                 {FEATURED.category}
               </span>
             </div>
-            <h2 className="font-display font-bold text-ink text-[26px] sm:text-[32px] lg:text-[36px] leading-[1.05] tracking-[-0.03em] mb-4 group-hover:text-primary transition-colors">
+            <h2 className="font-title font-bold text-ink text-[26px] sm:text-[32px] lg:text-[36px] leading-[1.05] mb-4 group-hover:text-primary transition-colors">
               {FEATURED.title}
             </h2>
             <p className="text-ink-soft text-[15px] lg:text-[16px] leading-[1.65] mb-6">

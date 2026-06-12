@@ -1,27 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 
-// In-memory rate limit: 3 reports per IP per 10 minutes
-const rlMap = new Map<string, { count: number; resetAt: number }>();
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const entry = rlMap.get(ip);
-  if (!entry || now > entry.resetAt) {
-    rlMap.set(ip, { count: 1, resetAt: now + 10 * 60_000 });
-    return false;
-  }
-  if (entry.count >= 3) return true;
-  entry.count++;
-  return false;
-}
+// Rate limiting handled by middleware (lib/ratelimit.ts — 'standard' tier: 60 req/60s per IP)
 
 // POST /api/report — flag an event for admin review.
 // Public endpoint — no auth required (attendees are not logged in).
 export async function POST(req: NextRequest) {
-  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
-  if (isRateLimited(ip)) {
-    return NextResponse.json({ error: 'Too many reports. Try again later.' }, { status: 429 });
-  }
 
   let eventId: string;
   try {

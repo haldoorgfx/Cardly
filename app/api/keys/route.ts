@@ -26,8 +26,10 @@ export async function POST(req: NextRequest) {
     .eq('id', user.id)
     .single();
 
-  const isActive = profile?.subscription_status === 'active' || profile?.subscription_status === 'trialing';
-  const plan = (!isActive && profile?.plan !== 'free') ? 'free' : (profile?.plan ?? 'free');
+  const subscriptionFailed =
+    profile?.subscription_status === 'canceled' ||
+    profile?.subscription_status === 'past_due';
+  const plan = (subscriptionFailed && profile?.plan !== 'free') ? 'free' : (profile?.plan ?? 'free');
 
   if (plan !== 'studio') {
     return NextResponse.json({ error: 'API keys require the Studio plan.' }, { status: 402 });

@@ -18,6 +18,7 @@ interface Props {
   index:      number;
   regCount:   number;
   revenue:    number;
+  currency?:  string | null;
   checkinPct?: number;
 }
 
@@ -37,10 +38,19 @@ const STATUS_STYLE = {
 
 function formatDate(iso: string | null | undefined) {
   if (!iso) return null;
-  return new Date(iso).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+  return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-export default function EventCard({ event, index, regCount, revenue, checkinPct = 0 }: Props) {
+function fmtRevenue(amount: number, currency: string | null | undefined): string {
+  if (!currency || amount === 0) return '';
+  try {
+    return new Intl.NumberFormat(undefined, { style: 'currency', currency, minimumFractionDigits: 0 }).format(amount);
+  } catch {
+    return `${currency} ${amount.toLocaleString()}`;
+  }
+}
+
+export default function EventCard({ event, index, regCount, revenue, currency, checkinPct = 0 }: Props) {
   const router = useRouter();
   const [renaming,      setRenaming]      = useState(false);
   const [nameVal,       setNameVal]       = useState(event.name);
@@ -204,9 +214,9 @@ export default function EventCard({ event, index, regCount, revenue, checkinPct 
         {/* Stats */}
         <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[12px] text-[#6B7A72]">
           <span><span className="text-[#1F4D3A] font-semibold">{regCount}</span> registered</span>
-          {!isDraft && revenue > 0 && (
+          {!isDraft && revenue > 0 && currency && (
             <><span className="text-[#E5E0D4]">·</span>
-            <span><span className="text-[#1F4D3A] font-semibold">${revenue.toLocaleString()}</span></span></>
+            <span><span className="text-[#1F4D3A] font-semibold">{fmtRevenue(revenue, currency)}</span></span></>
           )}
           {checkinPct > 0 && (
             <><span className="text-[#E5E0D4]">·</span>

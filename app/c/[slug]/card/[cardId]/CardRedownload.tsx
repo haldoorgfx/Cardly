@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import { Download } from 'lucide-react';
 
 interface Props {
@@ -9,7 +10,42 @@ interface Props {
   createdAt: string;
 }
 
+function useConfetti(stageRef: { current: HTMLDivElement | null }) {
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    const colors = ['#E8C57E', '#C9A45E', '#1F4D3A', '#2D7A4F', '#F5E9CC'];
+    const pieces: HTMLDivElement[] = [];
+    for (let i = 0; i < 28; i++) {
+      const c = document.createElement('div');
+      c.style.cssText = `
+        position:absolute;width:8px;height:8px;top:-20px;opacity:0;z-index:0;pointer-events:none;
+        left:${15 + Math.random() * 70}%;
+        background:${colors[i % colors.length]};
+        border-radius:${Math.random() > 0.5 ? '50%' : '1px'};
+      `;
+      const dur = 2600 + Math.random() * 1800;
+      const delay = Math.random() * 600;
+      const x = (Math.random() * 2 - 1) * 120;
+      const h = stage.offsetHeight * 0.7;
+      c.animate(
+        [
+          { transform: 'translate(0,0) rotate(0)', opacity: 1 },
+          { transform: `translate(${x}px,${h}px) rotate(${Math.random() * 540}deg)`, opacity: 0 },
+        ],
+        { duration: dur, delay, easing: 'cubic-bezier(.2,.6,.4,1)', fill: 'forwards' },
+      );
+      stage.appendChild(c);
+      pieces.push(c);
+    }
+    return () => { pieces.forEach(p => p.remove()); };
+  }, [stageRef]);
+}
+
 export default function CardRedownload({ eventName, attendeeName, outputUrl, createdAt }: Props) {
+  const stageRef = useRef<HTMLDivElement | null>(null);
+  useConfetti(stageRef);
+
   const handleDownload = () => {
     const a = document.createElement('a');
     a.href     = outputUrl;
@@ -21,69 +57,104 @@ export default function CardRedownload({ eventName, attendeeName, outputUrl, cre
     year: 'numeric', month: 'long', day: 'numeric',
   });
 
-  return (
-    <div style={{
-      minHeight: '100vh', background: '#FAF6EE',
-      fontFamily: 'Inter, sans-serif', color: '#0F1F18',
-      display: 'flex', flexDirection: 'column', alignItems: 'center',
-      justifyContent: 'center', padding: '40px 20px',
-    }}>
-      <div style={{ width: '100%', maxWidth: 440, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24 }}>
+  const keyframes = `
+    @keyframes breathe  { 0%,100%{transform:scale(1)} 50%{transform:scale(1.02)} }
+    @keyframes cardIn   { from{opacity:0;transform:translateY(14px) scale(0.97)} to{opacity:1;transform:translateY(0) scale(1)} }
+    @keyframes dotPulse { 0%,100%{box-shadow:0 0 0 3px rgba(232,197,126,0.25)} 50%{box-shadow:0 0 0 6px rgba(232,197,126,0.15)} }
+  `;
 
-        {/* Header */}
-        <div style={{ textAlign: 'center' }}>
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 8,
-            padding: '6px 14px', background: '#E8EFEB', borderRadius: 999,
-            fontFamily: 'JetBrains Mono, monospace', fontSize: 11,
-            letterSpacing: '0.08em', textTransform: 'uppercase', color: '#1F4D3A',
-            marginBottom: 16,
-          }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#1F4D3A' }} />
-            Your card · saved
-          </div>
-          <h1 style={{
-            fontFamily: 'DM Sans, sans-serif', fontWeight: 700,
-            fontSize: 32, lineHeight: 1.1, letterSpacing: '-0.03em',
-            margin: '0 0 8px',
-          }}>
-            {attendeeName ? `${attendeeName}'s card` : 'Your event card'}
-          </h1>
-          <p style={{ margin: 0, fontSize: 14, color: '#6B7A72' }}>
-            {eventName} · Generated {date}
-          </p>
+  return (
+    <div
+      ref={stageRef}
+      style={{
+        position: 'relative', minHeight: '100vh',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        padding: '56px 24px', overflow: 'hidden',
+        fontFamily: 'Inter, system-ui, sans-serif', color: '#0F1F18', background: '#FAF6EE',
+      }}
+    >
+      <style>{keyframes}</style>
+
+      {/* Gold atmosphere */}
+      <div style={{
+        position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none',
+        background: `
+          radial-gradient(ellipse 55% 45% at 50% 42%, rgba(232,197,126,0.30) 0%, transparent 60%),
+          radial-gradient(ellipse 70% 60% at 50% 60%, rgba(31,77,58,0.16) 0%, transparent 65%)
+        `,
+      }}/>
+
+      <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 340, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
+
+        {/* Kicker */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 9,
+          fontWeight: 500, fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase',
+          color: '#C9A45E', marginBottom: 28,
+        }}>
+          <span style={{
+            width: 6, height: 6, borderRadius: '50%', background: '#E8C57E',
+            boxShadow: '0 0 0 4px rgba(232,197,126,0.25)',
+            animation: 'dotPulse 2s ease-in-out infinite',
+            display: 'inline-block',
+          }}/>
+          {attendeeName ? `${attendeeName}'s card` : 'Your card · Saved'}
         </div>
 
-        {/* Card image */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={outputUrl}
-          alt={`${attendeeName ?? 'Your'} personalized card for ${eventName}`}
-          style={{
-            width: '100%', maxWidth: 340,
-            borderRadius: 16,
-            boxShadow: '0 4px 12px rgba(15,31,24,0.08), 0 24px 60px rgba(31,77,58,0.14)',
-          }}
-        />
+        {/* Card with breathe + glow */}
+        <div style={{ animation: 'breathe 3.4s ease-in-out infinite', animationDelay: '0.4s' }}>
+          <div style={{ position: 'relative', borderRadius: 14, overflow: 'hidden', animation: 'cardIn 500ms ease-out both' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={outputUrl}
+              alt={`${attendeeName ?? 'Your'} personalized card for ${eventName}`}
+              style={{
+                display: 'block',
+                width: 'min(300px, calc(100vw - 80px))',
+                objectFit: 'cover',
+                borderRadius: 14,
+                boxShadow: '0 0 40px rgba(232,197,126,0.30), 0 0 90px rgba(232,197,126,0.12), 0 18px 50px rgba(13,31,23,0.35)',
+              }}
+            />
+            {/* Guilloche */}
+            <div style={{
+              position: 'absolute', inset: 0, borderRadius: 14, pointerEvents: 'none', opacity: 0.5,
+              backgroundImage: 'repeating-linear-gradient(115deg, rgba(232,197,126,0.05) 0 2px, transparent 2px 9px)',
+            }}/>
+          </div>
+        </div>
+
+        {/* Event + date */}
+        <p style={{
+          margin: '20px 0 0', fontSize: 12, color: '#6B7A72', textAlign: 'center', lineHeight: 1.5,
+        }}>
+          {eventName} · {date}
+        </p>
 
         {/* Download */}
         <button
           onClick={handleDownload}
           style={{
-            width: '100%', maxWidth: 340, height: 56,
+            marginTop: 32, width: '100%', height: 52,
             background: '#1F4D3A', color: '#FAF6EE',
             border: 'none', borderRadius: 14,
             fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 16,
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10,
             cursor: 'pointer',
             boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 12px 32px rgba(31,77,58,0.22)',
+            transition: 'background .15s',
           }}
+          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#163828'; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#1F4D3A'; }}
         >
-          <Download size={18} strokeWidth={2.2} /> Download PNG
+          <Download size={18} strokeWidth={2.2}/> Download card
         </button>
 
-        <p style={{ fontSize: 12, color: '#6B7A72', textAlign: 'center', margin: 0 }}>
-          Powered by <a href="https://karta.cre8so.com" style={{ color: '#1F4D3A', textDecoration: 'none', fontWeight: 600 }}>Karta</a>
+        <p style={{
+          marginTop: 24, fontSize: 11, color: '#6B7A72', textAlign: 'center',
+          letterSpacing: '0.04em',
+        }}>
+          powered by <a href="https://karta.cre8so.com" style={{ color: '#0F1F18', textDecoration: 'none', fontWeight: 500 }}>karta</a>
         </p>
       </div>
     </div>

@@ -37,7 +37,7 @@ export function WaafiPayStep({ registrationId, qrToken, amount, currency, eventT
     ? OPERATORS.find(op => op.prefix.some(p => digits.startsWith(p)))
     : null;
 
-  const formattedAmount = new Intl.NumberFormat('en-US', {
+  const formattedAmount = new Intl.NumberFormat(undefined, {
     style: 'currency', currency: currency.toUpperCase(),
     minimumFractionDigits: currency === 'SOS' || currency === 'DJF' ? 0 : 2,
   }).format(amount);
@@ -92,7 +92,7 @@ export function WaafiPayStep({ registrationId, qrToken, amount, currency, eventT
         <span className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>{ticketName}</span>
         <span
           className="text-[17px] font-semibold"
-          style={{ fontFamily: 'JetBrains Mono, monospace', color: '#1F4D3A' }}
+          style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#1F4D3A' }}
         >
           {formattedAmount}
         </span>
@@ -134,14 +134,14 @@ export function WaafiPayStep({ registrationId, qrToken, amount, currency, eventT
             onChange={e => setLocalNumber(e.target.value)}
             placeholder="61 234 5678"
             className="flex-1 h-11 pr-3 text-[15px] outline-none"
-            style={{ color: '#0F1F18', fontFamily: 'JetBrains Mono, monospace', background: 'transparent' }}
+            style={{ color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif', background: 'transparent' }}
           />
         </div>
 
         {/* Operator hint */}
         {detectedOperator && !error && (
           <p className="text-[12px] mt-1.5 flex items-center gap-1" style={{ color: '#2D7A4F' }}>
-            <span>✓</span> Detected: {detectedOperator.name}
+            <span>&#10003;</span> Detected: {detectedOperator.name}
           </p>
         )}
         {error && (
@@ -154,7 +154,7 @@ export function WaafiPayStep({ registrationId, qrToken, amount, currency, eventT
         className="flex gap-3 px-4 py-3 rounded-xl mb-5 text-[13px]"
         style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }}
       >
-        <span style={{ fontSize: 16 }}>📱</span>
+        <span style={{ fontSize: 16 }}>&#128241;</span>
         <div style={{ color: '#3A4A42', lineHeight: 1.5 }}>
           You&apos;ll receive a push notification or USSD prompt on your phone to approve the payment.
           Keep your phone nearby.

@@ -2,14 +2,8 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import {
-  Users, Copy, Check, Trash2, Crown,
-  Shield, User, Clock, Mail, ChevronDown,
-  Lock, Flag, Pencil, BarChart2, Phone,
-} from 'lucide-react';
+import { Settings, Search, ChevronDown, Shield, Users, Lock, Flag, Pencil, BarChart2, Phone } from 'lucide-react';
 import type { Team, TeamMember, TeamInvite } from '@/lib/teams/queries';
-
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface Props {
   userId: string;
@@ -21,9 +15,7 @@ interface Props {
   invites: TeamInvite[];
 }
 
-// ─── Upsell features list ─────────────────────────────────────────────────────
-
-const FEATURES: { icon: React.ReactNode; label: string }[] = [
+const FEATURES = [
   { icon: <Users size={11} strokeWidth={2} color="#1F4D3A" />, label: 'Unlimited team seats' },
   { icon: <Lock size={11} strokeWidth={2} color="#1F4D3A" />, label: 'Role-based permissions' },
   { icon: <Flag size={11} strokeWidth={2} color="#1F4D3A" />, label: 'Shared brand kit' },
@@ -32,83 +24,76 @@ const FEATURES: { icon: React.ReactNode; label: string }[] = [
   { icon: <Phone size={11} strokeWidth={2} color="#1F4D3A" />, label: 'Priority support' },
 ];
 
-// ─── Role badge ───────────────────────────────────────────────────────────────
-
-function RoleBadge({ role }: { role: string }) {
-  if (role === 'owner') {
-    return (
-      <span
-        className="inline-flex items-center gap-1 text-[10.5px] font-mono px-2.5 py-1 rounded-full"
-        style={{ background: 'rgba(232,197,126,0.18)', color: '#C9A45E', border: '1px solid rgba(232,197,126,0.35)' }}
-      >
-        <Crown size={9} strokeWidth={2.5} /> Owner
-      </span>
-    );
-  }
-  if (role === 'admin') {
-    return (
-      <span
-        className="inline-flex items-center gap-1 text-[10.5px] font-mono px-2.5 py-1 rounded-full"
-        style={{ background: 'rgba(31,77,58,0.08)', color: '#1F4D3A', border: '1px solid rgba(31,77,58,0.15)' }}
-      >
-        <Shield size={9} strokeWidth={2.5} /> Admin
-      </span>
-    );
-  }
-  return (
-    <span
-      className="inline-flex items-center gap-1 text-[10.5px] font-mono px-2.5 py-1 rounded-full"
-      style={{ background: '#F5F5F0', color: '#6B7A72', border: '1px solid #E5E0D4' }}
-    >
-      <User size={9} strokeWidth={2.5} /> Member
-    </span>
-  );
-}
-
-// ─── Avatar ───────────────────────────────────────────────────────────────────
-
 function Avatar({ name, email }: { name: string | null; email: string | null }) {
-  const letter = (name ?? email ?? 'U')[0].toUpperCase();
+  const initials = ((name ?? email ?? 'U')
+    .split(' ')
+    .map(w => w[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase());
   return (
     <div
       className="h-9 w-9 rounded-full grid place-items-center text-white text-[12px] font-bold shrink-0"
       style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}
     >
-      {letter}
+      {initials}
     </div>
   );
 }
 
-// ─── Copy-to-clipboard button ─────────────────────────────────────────────────
+function RoleBadge({ role }: { role: string }) {
+  const styles: Record<string, { bg: string; color: string; border: string }> = {
+    owner:         { bg: 'rgba(232,197,126,0.15)', color: '#C9A45E',  border: 'rgba(232,197,126,0.4)' },
+    admin:         { bg: 'rgba(31,77,58,0.08)',    color: '#1F4D3A',  border: 'rgba(31,77,58,0.2)' },
+    editor:        { bg: 'transparent',            color: '#3A4A42',  border: '#E5E0D4' },
+    member:        { bg: 'transparent',            color: '#3A4A42',  border: '#E5E0D4' },
+    'check-in':    { bg: 'transparent',            color: '#3A4A42',  border: '#E5E0D4' },
+  };
+  const s = styles[role] ?? styles.member;
+  const label =
+    role === 'owner'     ? 'Owner'
+    : role === 'admin'   ? 'Admin'
+    : role === 'editor'  ? 'Editor'
+    : role === 'check-in'? 'Check-in staff'
+    : 'Editor';
 
-function CopyButton({ text }: { text: string }) {
-  const [copied, setCopied] = useState(false);
-  function copy() {
-    navigator.clipboard.writeText(text).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  }
   return (
-    <button
-      onClick={copy}
-      title="Copy invite link"
-      className="h-7 w-7 rounded-md grid place-items-center transition-colors hover:bg-[#E8EFEB]"
-      style={{ color: copied ? '#1F4D3A' : '#6B7A72' }}
+    <span
+      className="inline-flex items-center text-[11.5px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap"
+      style={{ background: s.bg, color: s.color, border: `1px solid ${s.border}` }}
     >
-      {copied ? <Check size={13} strokeWidth={2.5} /> : <Copy size={13} />}
-    </button>
+      {role === 'owner' && <Shield size={9} strokeWidth={2.5} className="mr-1" />}
+      {label}
+    </span>
   );
 }
 
-// ─── Non-studio upsell ────────────────────────────────────────────────────────
+function StatusBadge({ status }: { status: 'active' | 'pending' }) {
+  if (status === 'active') {
+    return (
+      <span
+        className="inline-flex items-center gap-1.5 text-[11.5px] font-medium px-2.5 py-1 rounded-full"
+        style={{ background: '#F0FAF4', color: '#1F4D3A', border: '1px solid #A8D5B5' }}
+      >
+        <span className="h-1.5 w-1.5 rounded-full bg-[#2D7A4F]" />
+        Active
+      </span>
+    );
+  }
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 text-[11.5px] font-medium px-2.5 py-1 rounded-full"
+      style={{ background: '#FFF7ED', color: '#C97A2D', border: '1px solid #FBD5A0' }}
+    >
+      <span className="h-1.5 w-1.5 rounded-full bg-[#C97A2D]" />
+      Pending
+    </span>
+  );
+}
 
 function UpsellCard() {
   return (
-    <div
-      className="rounded-2xl overflow-hidden"
-      style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}
-    >
+    <div className="bg-white rounded-2xl border border-border shadow-soft overflow-hidden">
       <div style={{ height: 3, background: 'linear-gradient(90deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)' }} />
       <div className="p-6">
         <div className="flex items-start gap-4 mb-6">
@@ -118,7 +103,7 @@ function UpsellCard() {
           >
             <Users size={20} strokeWidth={1.8} />
           </div>
-          <div className="flex-1 min-w-0">
+          <div>
             <div className="flex items-center gap-2 mb-0.5">
               <h2 className="font-display font-bold text-[17px] text-[#0F1F18]">Team collaboration</h2>
               <span
@@ -133,10 +118,7 @@ function UpsellCard() {
             </p>
           </div>
         </div>
-        <div
-          className="grid grid-cols-2 gap-3 rounded-xl p-4 mb-6"
-          style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }}
-        >
+        <div className="grid grid-cols-2 gap-3 rounded-xl p-4 mb-6" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }}>
           {FEATURES.map(f => (
             <div key={f.label} className="flex items-center gap-2.5">
               <div className="h-6 w-6 rounded-md grid place-items-center shrink-0" style={{ background: 'rgba(31,77,58,0.08)' }}>
@@ -149,192 +131,19 @@ function UpsellCard() {
         <div className="flex items-center gap-4">
           <Link
             href="/settings/billing"
-            className="inline-flex items-center gap-2 h-9 px-5 text-[13px] font-semibold text-white rounded-lg hover:opacity-90 transition"
+            className="inline-flex items-center gap-2 h-9 px-5 text-[13px] font-semibold text-white rounded-xl hover:opacity-90 transition"
             style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }}
           >
             Start Studio trial →
           </Link>
-          <span className="text-[12px] text-[#6B7A72]">14 days free · $49/mo after · cancel anytime</span>
+          <span className="text-[12px] text-[#6B7A72]">14 days free · $49/mo after</span>
         </div>
       </div>
     </div>
   );
 }
 
-// ─── Create team form ─────────────────────────────────────────────────────────
-
-function CreateTeamForm() {
-  const [name, setName] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!name.trim()) return;
-    setLoading(true);
-    setError('');
-    try {
-      const res = await fetch('/api/teams', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim() }),
-      });
-      const json = await res.json();
-      if (!res.ok) { setError(json.error ?? 'Failed to create team.'); return; }
-      window.location.reload();
-    } catch {
-      setError('Something went wrong.');
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  return (
-    <div
-      className="rounded-2xl"
-      style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}
-    >
-      <div className="p-6">
-        <h2 className="font-display font-bold text-[17px] text-[#0F1F18] mb-1">Create your team</h2>
-        <p className="text-[13px] text-[#6B7A72] mb-5">Give your workspace a name to get started.</p>
-        <form onSubmit={submit} className="flex gap-3">
-          <input
-            type="text"
-            value={name}
-            onChange={e => setName(e.target.value)}
-            placeholder="e.g. Acme Events"
-            maxLength={80}
-            className="flex-1 h-9 px-3 text-[13.5px] rounded-lg border outline-none transition focus:border-[#1F4D3A] focus:ring-[3px] focus:ring-[rgba(31,77,58,0.12)]"
-            style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
-          />
-          <button
-            type="submit"
-            disabled={loading || !name.trim()}
-            className="h-9 px-5 text-[13px] font-semibold rounded-lg text-white transition disabled:opacity-50"
-            style={{ background: '#1F4D3A' }}
-          >
-            {loading ? 'Creating…' : 'Create team'}
-          </button>
-        </form>
-        {error && <p className="mt-2 text-[12px] text-[#B8423C]">{error}</p>}
-      </div>
-    </div>
-  );
-}
-
-// ─── Member row ───────────────────────────────────────────────────────────────
-
-function MemberRow({
-  member,
-  isCurrentUser,
-  isOwner,
-  teamId,
-  ownerId,
-  onUpdate,
-}: {
-  member: TeamMember;
-  isCurrentUser: boolean;
-  isOwner: boolean;
-  teamId: string;
-  ownerId: string;
-  onUpdate: () => void;
-}) {
-  const [roleOpen, setRoleOpen] = useState(false);
-  const [busy, setBusy] = useState(false);
-
-  const canChangeRole = isOwner && member.user_id !== ownerId;
-  const canRemove = isOwner || isCurrentUser;
-
-  async function changeRole(role: 'admin' | 'member') {
-    setRoleOpen(false);
-    setBusy(true);
-    await fetch(`/api/teams/${teamId}/members/${member.user_id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ role }),
-    });
-    onUpdate();
-    setBusy(false);
-  }
-
-  async function remove() {
-    if (!confirm(isCurrentUser ? 'Leave this team?' : `Remove ${member.profile.email} from the team?`)) return;
-    setBusy(true);
-    await fetch(`/api/teams/${teamId}/members/${member.user_id}`, { method: 'DELETE' });
-    onUpdate();
-    setBusy(false);
-  }
-
-  const isTeamOwner = member.user_id === ownerId;
-
-  return (
-    <div className="flex items-center gap-3 px-6 py-3.5 border-b last:border-b-0" style={{ borderColor: '#E5E0D4', opacity: busy ? 0.5 : 1 }}>
-      <Avatar name={member.profile.full_name} email={member.profile.email} />
-      <div className="flex-1 min-w-0">
-        <div className="text-[13.5px] font-medium text-[#0F1F18] truncate">
-          {member.profile.full_name ?? member.profile.email}
-          {isCurrentUser && <span className="ml-1.5 text-[11px] text-[#6B7A72]">(you)</span>}
-        </div>
-        {member.profile.full_name && (
-          <div className="text-[12px] text-[#6B7A72] truncate">{member.profile.email}</div>
-        )}
-      </div>
-
-      <div className="flex items-center gap-2">
-        {/* Role badge / dropdown */}
-        {canChangeRole ? (
-          <div className="relative">
-            <button
-              onClick={() => setRoleOpen(o => !o)}
-              className="inline-flex items-center gap-1 text-[10.5px] font-mono px-2.5 py-1 rounded-full transition hover:opacity-80"
-              style={{ background: 'rgba(31,77,58,0.08)', color: '#1F4D3A', border: '1px solid rgba(31,77,58,0.15)' }}
-            >
-              {member.role === 'admin' ? <Shield size={9} strokeWidth={2.5} /> : <User size={9} strokeWidth={2.5} />}
-              {member.role.charAt(0).toUpperCase() + member.role.slice(1)}
-              <ChevronDown size={9} strokeWidth={2.5} />
-            </button>
-            {roleOpen && (
-              <div
-                className="absolute right-0 top-full mt-1 w-32 rounded-xl overflow-hidden z-10"
-                style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 4px 12px rgba(15,31,24,0.1)' }}
-              >
-                {(['admin', 'member'] as const).map(r => (
-                  <button
-                    key={r}
-                    onClick={() => changeRole(r)}
-                    className="w-full text-left px-3 py-2.5 text-[12.5px] hover:bg-[#FAF6EE] transition"
-                    style={{ color: r === member.role ? '#1F4D3A' : '#3A4A42' }}
-                  >
-                    {r.charAt(0).toUpperCase() + r.slice(1)}
-                    {r === member.role && ' ✓'}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        ) : (
-          <RoleBadge role={isTeamOwner ? 'owner' : member.role} />
-        )}
-
-        {/* Remove button */}
-        {canRemove && !isTeamOwner && (
-          <button
-            onClick={remove}
-            title={isCurrentUser ? 'Leave team' : 'Remove member'}
-            className="h-7 w-7 rounded-md grid place-items-center transition-colors hover:bg-red-50"
-            style={{ color: '#B8423C' }}
-          >
-            <Trash2 size={13} />
-          </button>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ─── Invite form ──────────────────────────────────────────────────────────────
-
-function InviteForm({ teamId, onInvited }: { teamId: string; onInvited: (invite: TeamInvite) => void }) {
+function InviteModal({ teamId, onClose, onInvited }: { teamId: string; onClose: () => void; onInvited: (invite: TeamInvite) => void }) {
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<'admin' | 'member'>('member');
   const [loading, setLoading] = useState(false);
@@ -343,8 +152,7 @@ function InviteForm({ teamId, onInvited }: { teamId: string; onInvited: (invite:
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!email.trim()) return;
-    setLoading(true);
-    setError('');
+    setLoading(true); setError('');
     try {
       const res = await fetch(`/api/teams/${teamId}/invites`, {
         method: 'POST',
@@ -353,8 +161,8 @@ function InviteForm({ teamId, onInvited }: { teamId: string; onInvited: (invite:
       });
       const json = await res.json();
       if (!res.ok) { setError(json.error ?? 'Failed to send invite.'); return; }
-      setEmail('');
       onInvited(json as TeamInvite);
+      onClose();
     } catch {
       setError('Something went wrong.');
     } finally {
@@ -363,81 +171,51 @@ function InviteForm({ teamId, onInvited }: { teamId: string; onInvited: (invite:
   }
 
   return (
-    <form onSubmit={submit} className="flex gap-2">
-      <input
-        type="email"
-        value={email}
-        onChange={e => setEmail(e.target.value)}
-        placeholder="colleague@email.com"
-        className="flex-1 h-9 px-3 text-[13px] rounded-lg border outline-none transition focus:border-[#1F4D3A] focus:ring-[3px] focus:ring-[rgba(31,77,58,0.12)]"
-        style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
-      />
-      <select
-        value={role}
-        onChange={e => setRole(e.target.value as 'admin' | 'member')}
-        className="h-9 px-2 text-[12.5px] rounded-lg border outline-none transition focus:border-[#1F4D3A] cursor-pointer"
-        style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}
-      >
-        <option value="member">Member</option>
-        <option value="admin">Admin</option>
-      </select>
-      <button
-        type="submit"
-        disabled={loading || !email.trim()}
-        className="h-9 px-4 text-[13px] font-semibold rounded-lg text-white transition disabled:opacity-50"
-        style={{ background: '#1F4D3A' }}
-      >
-        {loading ? 'Sending…' : 'Invite'}
-      </button>
-      {error && <p className="mt-1 text-[12px] text-[#B8423C]">{error}</p>}
-    </form>
-  );
-}
-
-// ─── Invite row ───────────────────────────────────────────────────────────────
-
-function InviteRow({ invite, baseUrl, teamId, onRevoked }: { invite: TeamInvite; baseUrl: string; teamId: string; onRevoked: (id: string) => void }) {
-  const link = `${baseUrl}/team/invite/${invite.token}`;
-  const [revoking, setRevoking] = useState(false);
-
-  async function revoke() {
-    if (!confirm(`Revoke invite for ${invite.email}?`)) return;
-    setRevoking(true);
-    await fetch(`/api/teams/${teamId}/invites/${invite.id}`, { method: 'DELETE' });
-    onRevoked(invite.id);
-    setRevoking(false);
-  }
-
-  return (
-    <div className="flex items-center gap-3 px-6 py-3.5 border-b last:border-b-0" style={{ borderColor: '#E5E0D4', opacity: revoking ? 0.5 : 1 }}>
-      <div
-        className="h-9 w-9 rounded-full grid place-items-center shrink-0"
-        style={{ background: '#FAF6EE', border: '1px dashed #C9C3B1' }}
-      >
-        <Mail size={14} strokeWidth={1.8} color="#6B7A72" />
+    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-lift w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
+        <h2 className="font-display font-bold text-[18px] text-[#0F1F18] mb-1">Invite member</h2>
+        <p className="text-[13px] text-[#6B7A72] mb-5">They&apos;ll receive a link to join your team.</p>
+        <form onSubmit={submit} className="space-y-3">
+          <div>
+            <label className="block text-[11px] font-mono tracking-widest text-[#6B7A72] uppercase mb-1.5">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="colleague@email.com"
+              className="w-full h-10 px-3 rounded-xl border border-border text-[13.5px] focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-[11px] font-mono tracking-widest text-[#6B7A72] uppercase mb-1.5">Role</label>
+            <select
+              value={role}
+              onChange={e => setRole(e.target.value as 'admin' | 'member')}
+              className="w-full h-10 px-3 rounded-xl border border-border text-[13.5px] outline-none transition cursor-pointer"
+            >
+              <option value="admin">Admin</option>
+              <option value="member">Editor</option>
+            </select>
+          </div>
+          {error && <p className="text-[12px] text-[#B8423C]">{error}</p>}
+          <div className="flex gap-3 pt-2">
+            <button type="button" onClick={onClose} className="flex-1 h-10 rounded-xl border border-border text-[13.5px] font-medium text-[#3A4A42] hover:bg-cream transition">
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading || !email.trim()}
+              className="flex-1 h-10 rounded-xl text-[13.5px] font-semibold text-white bg-primary hover:opacity-95 disabled:opacity-50 transition"
+            >
+              {loading ? 'Sending…' : 'Send invite'}
+            </button>
+          </div>
+        </form>
       </div>
-      <div className="flex-1 min-w-0">
-        <div className="text-[13.5px] font-medium text-[#0F1F18] truncate">{invite.email}</div>
-        <div className="text-[11.5px] text-[#6B7A72] flex items-center gap-1">
-          <Clock size={10} strokeWidth={2} />
-          Pending invite · expires {new Date(invite.expires_at).toLocaleDateString()}
-        </div>
-      </div>
-      <RoleBadge role={invite.role} />
-      <CopyButton text={link} />
-      <button
-        onClick={revoke}
-        title="Revoke invite"
-        className="h-7 w-7 rounded-md grid place-items-center transition-colors hover:bg-red-50"
-        style={{ color: '#B8423C' }}
-      >
-        <Trash2 size={13} />
-      </button>
     </div>
   );
 }
-
-// ─── Main component ───────────────────────────────────────────────────────────
 
 export function TeamClient({
   userId,
@@ -446,163 +224,229 @@ export function TeamClient({
   members: initialMembers,
   invites: initialInvites,
 }: Props) {
-  const [team] = useState(initialTeam);
   const [members] = useState(initialMembers);
   const [invites, setInvites] = useState(initialInvites);
+  const [search, setSearch] = useState('');
+  const [roleFilter] = useState('All roles');
+  const [showInviteModal, setShowInviteModal] = useState(false);
 
-  function reload() { window.location.reload(); }
+  const isOwner = initialTeam ? initialTeam.owner_id === userId : false;
+  const totalCount = members.length;
+  const pendingCount = invites.length;
 
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-  const isOwner = team ? team.owner_id === userId : false;
+  // Filter members by search
+  const filteredMembers = members.filter(m => {
+    const q = search.toLowerCase();
+    return (
+      (m.profile.full_name ?? '').toLowerCase().includes(q) ||
+      (m.profile.email ?? '').toLowerCase().includes(q)
+    );
+  });
+
+  if (plan !== 'studio') {
+    return (
+      <div className="px-8 py-8 max-w-[720px]">
+        <div className="flex items-start justify-between gap-4 mb-8">
+          <div>
+            <h1 className="font-display font-bold text-[32px] leading-tight text-[#0F1F18]">Team</h1>
+            <p className="text-[14px] text-[#6B7A72] mt-1">Manage collaborators and workspace access.</p>
+          </div>
+          <a
+            href="/settings/billing"
+            className="inline-flex items-center gap-1.5 h-9 px-5 rounded-xl text-[13.5px] font-semibold text-white shrink-0 mt-1 transition hover:opacity-90"
+            style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }}
+          >
+            + Invite member
+          </a>
+        </div>
+        <UpsellCard />
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-full flex flex-col" style={{ background: '#FAF6EE' }}>
-      {/* Page header */}
-      <div
-        className="relative overflow-hidden px-6 pt-7 pb-6 border-b shrink-0"
-        style={{ background: '#FAF6EE', borderColor: '#E5E0D4' }}
-      >
-        <div
-          className="absolute pointer-events-none"
-          style={{ top: '-50%', right: '-5%', width: 260, height: 260, background: 'radial-gradient(ellipse, rgba(31,77,58,0.07) 0%, transparent 70%)', filter: 'blur(40px)' }}
+    <div className="px-8 py-8 max-w-[860px]">
+      {showInviteModal && initialTeam && (
+        <InviteModal
+          teamId={initialTeam.id}
+          onClose={() => setShowInviteModal(false)}
+          onInvited={invite => {
+            setInvites(prev => [invite, ...prev]);
+            setShowInviteModal(false);
+          }}
         />
-        <div className="relative">
-          <div className="flex items-end justify-between gap-4 flex-wrap">
-            <div>
-              <h1 className="font-display font-bold text-[28px] text-[#0F1F18] leading-tight tracking-tight">
-                {team ? team.name : 'Team'}
-              </h1>
-              <p className="text-[13px] text-[#6B7A72] mt-1">
-                {team
-                  ? `${members.length} member${members.length !== 1 ? 's' : ''} · ${invites.length} pending invite${invites.length !== 1 ? 's' : ''}`
-                  : 'Manage collaborators and workspace access.'}
-              </p>
-            </div>
-          </div>
+      )}
+
+      {/* Header */}
+      <div className="flex items-start justify-between gap-4 mb-8">
+        <div>
+          <h1 className="font-display font-bold text-[32px] leading-tight text-[#0F1F18]">Team</h1>
+          <p className="text-[14px] text-[#6B7A72] mt-1">
+            {totalCount} member{totalCount !== 1 ? 's' : ''}
+            {pendingCount > 0 && ` · ${pendingCount} pending invite${pendingCount !== 1 ? 's' : ''}`}
+          </p>
         </div>
+        {isOwner && (
+          <button
+            onClick={() => setShowInviteModal(true)}
+            className="inline-flex items-center gap-1.5 h-9 px-5 rounded-xl text-[13.5px] font-semibold text-white bg-primary hover:opacity-95 transition shrink-0 mt-1"
+          >
+            + Invite member
+          </button>
+        )}
       </div>
 
-      {/* Content */}
-      <div className="flex-1 px-6 py-6">
-        <div className="max-w-2xl flex flex-col gap-5">
+      {/* Search + filter */}
+      <div className="flex items-center gap-3 mb-5">
+        <div className="relative flex-1 max-w-xs">
+          <Search size={14} strokeWidth={2} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7A72]" />
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search members..."
+            className="w-full h-9 pl-9 pr-3 rounded-xl border border-border bg-white text-[13px] text-[#0F1F18] placeholder:text-[#6B7A72]/60 focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition"
+          />
+        </div>
+        <button className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-xl border border-border bg-white text-[13px] text-[#3A4A42] hover:bg-cream transition">
+          {roleFilter}
+          <ChevronDown size={13} strokeWidth={2} />
+        </button>
+      </div>
 
-          {/* Non-studio: upsell */}
-          {plan !== 'studio' && <UpsellCard />}
+      {/* Members table */}
+      <div className="overflow-x-auto rounded-2xl border border-border shadow-soft">
+      <div className="bg-white" style={{ minWidth: 520 }}>
+        {/* Table header */}
+        <div
+          className="grid items-center px-5 py-3 border-b border-border"
+          style={{ gridTemplateColumns: '1fr 110px 120px 100px 36px' }}
+        >
+          {['MEMBER', 'ROLE', 'EVENT ACCESS', 'STATUS', ''].map(col => (
+            <div key={col} className="text-[10.5px] font-mono tracking-widest text-[#6B7A72]">
+              {col}
+            </div>
+          ))}
+        </div>
 
-          {/* Studio, no team: create form */}
-          {plan === 'studio' && !team && <CreateTeamForm />}
+        {/* Active members */}
+        {filteredMembers.map(m => {
+          const isMe = m.user_id === userId;
+          const isTeamOwner = m.user_id === (initialTeam?.owner_id ?? '');
+          const displayRole = isTeamOwner ? 'owner' : m.role === 'admin' ? 'admin' : 'editor';
 
-          {/* Studio, has team: full management */}
-          {plan === 'studio' && team && (
-            <>
-              {/* Members card */}
-              <div
-                className="rounded-2xl"
-                style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}
-              >
-                <div
-                  className="flex items-center justify-between px-6 py-4 border-b"
-                  style={{ borderColor: '#E5E0D4' }}
-                >
-                  <div>
-                    <div className="text-[10.5px] font-mono tracking-widest text-[#6B7A72]/60 uppercase mb-0.5">Members</div>
-                    <div className="text-[13.5px] font-semibold text-[#0F1F18]">{members.length} member{members.length !== 1 ? 's' : ''}</div>
+          return (
+            <div
+              key={m.user_id}
+              className="grid items-center px-5 py-3.5 border-b border-border last:border-0 hover:bg-cream/30 transition-colors"
+              style={{ gridTemplateColumns: '1fr 110px 120px 100px 36px' }}
+            >
+              {/* Member */}
+              <div className="flex items-center gap-3 min-w-0">
+                <Avatar name={m.profile.full_name} email={m.profile.email} />
+                <div className="min-w-0">
+                  <div className="text-[13.5px] font-medium text-[#0F1F18] truncate">
+                    {m.profile.full_name ?? m.profile.email}
+                    {isMe && <span className="ml-1.5 text-[11px] text-[#6B7A72] font-normal">(you)</span>}
                   </div>
-                </div>
-
-                {members.length === 0 && (
-                  <div className="mx-6 my-6 rounded-xl border border-dashed flex flex-col items-center py-8 gap-2"
-                    style={{ borderColor: 'rgba(31,77,58,0.2)', background: 'rgba(31,77,58,0.02)' }}>
-                    <Users size={20} strokeWidth={1.6} color="#1F4D3A" style={{ opacity: 0.45 }} />
-                    <div className="text-[13px] text-[#6B7A72]">No members yet.</div>
-                  </div>
-                )}
-
-                {members.map(m => (
-                  <MemberRow
-                    key={m.user_id}
-                    member={m}
-                    isCurrentUser={m.user_id === userId}
-                    isOwner={isOwner}
-                    teamId={team.id}
-                    ownerId={team.owner_id}
-                    onUpdate={reload}
-                  />
-                ))}
-              </div>
-
-              {/* Invite form card */}
-              {isOwner && (
-                <div
-                  className="rounded-2xl"
-                  style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}
-                >
-                  <div className="px-6 py-4 border-b" style={{ borderColor: '#E5E0D4' }}>
-                    <div className="text-[10.5px] font-mono tracking-widest text-[#6B7A72]/60 uppercase mb-0.5">Invite member</div>
-                    <div className="text-[13px] text-[#6B7A72]">They&apos;ll receive a link to join your team.</div>
-                  </div>
-                  <div className="px-6 py-4">
-                    <InviteForm
-                      teamId={team.id}
-                      onInvited={invite => setInvites(prev => [invite, ...prev])}
-                    />
-                  </div>
-
-                  {/* Pending invites */}
-                  {invites.length > 0 && (
-                    <>
-                      <div className="px-6 pt-2 pb-2 border-t" style={{ borderColor: '#E5E0D4' }}>
-                        <div className="text-[10.5px] font-mono tracking-widest text-[#6B7A72]/60 uppercase">Pending invites</div>
-                      </div>
-                      {invites.map(inv => (
-                        <InviteRow
-                          key={inv.id}
-                          invite={inv}
-                          baseUrl={baseUrl}
-                          teamId={team.id}
-                          onRevoked={id => setInvites(prev => prev.filter(i => i.id !== id))}
-                        />
-                      ))}
-                    </>
+                  {m.profile.full_name && (
+                    <div className="text-[12px] text-[#6B7A72] truncate">{m.profile.email}</div>
                   )}
                 </div>
-              )}
+              </div>
 
-              {/* Danger zone */}
-              {isOwner && (
-                <div
-                  className="rounded-2xl"
-                  style={{ background: 'white', border: '1px solid rgba(184,66,60,0.2)' }}
-                >
-                  <div className="px-6 py-4">
-                    <div className="text-[13.5px] font-semibold text-[#0F1F18] mb-0.5">Delete team</div>
-                    <p className="text-[12.5px] text-[#6B7A72] mb-4">
-                      This will remove all members and cannot be undone.
-                    </p>
-                    <button
-                      onClick={async () => {
-                        if (!confirm(`Delete "${team.name}"? This cannot be undone.`)) return;
-                        await fetch(`/api/teams/${team.id}`, { method: 'DELETE' });
-                        window.location.reload();
-                      }}
-                      className="h-8 px-4 text-[12.5px] font-semibold rounded-lg border transition hover:bg-red-50"
-                      style={{ borderColor: 'rgba(184,66,60,0.35)', color: '#B8423C' }}
-                    >
-                      Delete team
-                    </button>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
+              {/* Role */}
+              <div><RoleBadge role={displayRole} /></div>
 
-          {/* Footer note */}
-          <div className="flex items-center gap-2 text-[12px] text-[#6B7A72]/60 px-1">
-            <Clock size={12} strokeWidth={2} />
-            Team roles, audit log, and SSO are coming in a future release.
+              {/* Event access */}
+              <div className="text-[13px] text-[#3A4A42]">
+                {isTeamOwner || displayRole === 'admin' ? 'All events' : '—'}
+              </div>
+
+              {/* Status */}
+              <div><StatusBadge status="active" /></div>
+
+              {/* Settings gear */}
+              <div className="flex justify-center">
+                {isOwner && !isTeamOwner && (
+                  <button
+                    className="h-7 w-7 rounded-lg grid place-items-center text-[#6B7A72] hover:bg-[#E8EFEB] hover:text-[#0F1F18] transition"
+                    title="Member settings"
+                    onClick={() => {/* future: open member settings */}}
+                  >
+                    <Settings size={14} strokeWidth={1.8} />
+                  </button>
+                )}
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Pending invites */}
+        {invites.map(inv => (
+          <div
+            key={inv.id}
+            className="grid items-center px-5 py-3.5 border-b border-border last:border-0 hover:bg-cream/30 transition-colors"
+            style={{ gridTemplateColumns: '1fr 110px 120px 100px 36px' }}
+          >
+            {/* Member (pending) */}
+            <div className="flex items-center gap-3 min-w-0">
+              <div
+                className="h-9 w-9 rounded-full grid place-items-center shrink-0"
+                style={{ background: '#FAF6EE', border: '1px dashed #C9C3B1' }}
+              >
+                <span className="text-[14px] text-[#6B7A72]">?</span>
+              </div>
+              <div className="min-w-0">
+                <div className="text-[13.5px] font-medium text-[#0F1F18] truncate">{inv.email}</div>
+                <div className="text-[12px] text-[#6B7A72]">Pending invite</div>
+              </div>
+            </div>
+
+            {/* Role */}
+            <div><RoleBadge role={inv.role === 'admin' ? 'admin' : 'editor'} /></div>
+
+            {/* Event access */}
+            <div className="text-[13px] text-[#6B7A72]">1 event</div>
+
+            {/* Status */}
+            <div><StatusBadge status="pending" /></div>
+
+            {/* Settings gear */}
+            <div className="flex justify-center">
+              <button
+                className="h-7 w-7 rounded-lg grid place-items-center text-[#6B7A72] hover:bg-[#E8EFEB] transition"
+                title="Revoke invite"
+                onClick={async () => {
+                  if (!initialTeam) return;
+                  await fetch(`/api/teams/${initialTeam.id}/invites/${inv.id}`, { method: 'DELETE' });
+                  setInvites(prev => prev.filter(i => i.id !== inv.id));
+                }}
+              >
+                <Settings size={14} strokeWidth={1.8} />
+              </button>
+            </div>
           </div>
+        ))}
 
-        </div>
+        {filteredMembers.length === 0 && invites.length === 0 && (
+          <div className="px-5 py-10 text-center text-[13px] text-[#6B7A72]">
+            No members found.
+          </div>
+        )}
+      </div>
+      </div>
+
+      {/* Roles info banner */}
+      <div
+        className="mt-4 flex items-start gap-3 px-4 py-3 rounded-xl text-[12.5px] text-[#3A4A42]"
+        style={{ background: '#F5F2EC', border: '1px solid #E5E0D4' }}
+      >
+        <Shield size={14} strokeWidth={1.8} className="shrink-0 mt-0.5 text-[#6B7A72]" />
+        <span>
+          <strong>Roles control access.</strong>{' '}
+          Owners and Admins manage everything; Editors manage assigned events; Check-in staff can only scan attendees at the door.
+        </span>
       </div>
     </div>
   );

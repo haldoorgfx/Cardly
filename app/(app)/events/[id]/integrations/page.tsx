@@ -1,8 +1,14 @@
 export const dynamic = 'force-dynamic';
 
+import type { Metadata } from 'next';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { IntegrationsView } from '@/components/events/IntegrationsView';
+
+export const metadata: Metadata = {
+  title: 'Integrations',
+  description: 'Connect Karta to your tools.',
+};
 
 export default async function IntegrationsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

@@ -118,5 +118,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: variantError.message }, { status: 500 });
   }
 
+  // Create a draft event_pages row so the event page editor has something to work with
+  // and /e/[slug]/register can resolve once the event is published.
+  // is_public = false — stays private until the organiser clicks Publish.
+  // Best-effort: non-fatal if it fails (e.g. unique constraint on re-create).
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (admin as any).from('event_pages').insert({ event_id: event.id, title: name, is_public: false });
+
   return NextResponse.json({ id: event.id, slug: event.slug });
 }

@@ -43,7 +43,7 @@ const TooltipStyle = {
     border: '1px solid #E5E0D4',
     borderRadius: '10px',
     fontSize: '12px',
-    fontFamily: 'JetBrains Mono, monospace',
+    fontFamily: 'Inter, system-ui, sans-serif',
     color: '#0F1F18',
     boxShadow: '0 4px 16px rgba(15,31,24,0.08)',
   },
@@ -58,7 +58,7 @@ export function AnalyticsClient({ stats, userGrowth, cardGrowth, planDist }: Pro
 
   return (
     <div className="space-y-8">
-      {/* ── Stat cards ──────────────────────────────────── */}
+      {/* -- Stat cards ------------------------------------ */}
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
         <StatCard label="Total users" value={stats.totalUsers} />
         <StatCard label="New this month" value={stats.newUsersThisMonth} sub="signups" />
@@ -73,7 +73,7 @@ export function AnalyticsClient({ stats, userGrowth, cardGrowth, planDist }: Pro
         />
       </div>
 
-      {/* ── User growth chart ────────────────────────── */}
+      {/* -- User growth chart -------------------------- */}
       <div className="bg-white border border-[#E5E0D4] rounded-2xl p-6">
         <h2 className="font-display font-semibold text-[16px] text-[#0F1F18] mb-1">User growth</h2>
         <p className="text-[12px] text-[#6B7A72] mb-5">New signups per day — last 30 days</p>
@@ -89,13 +89,13 @@ export function AnalyticsClient({ stats, userGrowth, cardGrowth, planDist }: Pro
             <XAxis
               dataKey="date"
               tickFormatter={formatDateShort}
-              tick={{ fontSize: 10, fontFamily: 'JetBrains Mono, monospace', fill: '#6B7A72' }}
+              tick={{ fontSize: 10, fontFamily: 'Inter, system-ui, sans-serif', fill: '#6B7A72' }}
               tickLine={false}
               axisLine={false}
               interval={6}
             />
             <YAxis
-              tick={{ fontSize: 10, fontFamily: 'JetBrains Mono, monospace', fill: '#6B7A72' }}
+              tick={{ fontSize: 10, fontFamily: 'Inter, system-ui, sans-serif', fill: '#6B7A72' }}
               tickLine={false}
               axisLine={false}
               allowDecimals={false}
@@ -120,7 +120,7 @@ export function AnalyticsClient({ stats, userGrowth, cardGrowth, planDist }: Pro
         </ResponsiveContainer>
       </div>
 
-      {/* ── Cards generated chart ─────────────────── */}
+      {/* -- Cards generated chart ------------------- */}
       <div className="bg-white border border-[#E5E0D4] rounded-2xl p-6">
         <h2 className="font-display font-semibold text-[16px] text-[#0F1F18] mb-1">Cards generated</h2>
         <p className="text-[12px] text-[#6B7A72] mb-5">Attendee card downloads per day — last 30 days</p>
@@ -130,13 +130,13 @@ export function AnalyticsClient({ stats, userGrowth, cardGrowth, planDist }: Pro
             <XAxis
               dataKey="date"
               tickFormatter={formatDateShort}
-              tick={{ fontSize: 10, fontFamily: 'JetBrains Mono, monospace', fill: '#6B7A72' }}
+              tick={{ fontSize: 10, fontFamily: 'Inter, system-ui, sans-serif', fill: '#6B7A72' }}
               tickLine={false}
               axisLine={false}
               interval={6}
             />
             <YAxis
-              tick={{ fontSize: 10, fontFamily: 'JetBrains Mono, monospace', fill: '#6B7A72' }}
+              tick={{ fontSize: 10, fontFamily: 'Inter, system-ui, sans-serif', fill: '#6B7A72' }}
               tickLine={false}
               axisLine={false}
               allowDecimals={false}
@@ -153,7 +153,7 @@ export function AnalyticsClient({ stats, userGrowth, cardGrowth, planDist }: Pro
         </ResponsiveContainer>
       </div>
 
-      {/* ── Plan distribution ─────────────────────── */}
+      {/* -- Plan distribution ----------------------- */}
       <div className="grid md:grid-cols-2 gap-6">
         <div className="bg-white border border-[#E5E0D4] rounded-2xl p-6">
           <h2 className="font-display font-semibold text-[16px] text-[#0F1F18] mb-1">Plan distribution</h2>
@@ -179,7 +179,7 @@ export function AnalyticsClient({ stats, userGrowth, cardGrowth, planDist }: Pro
                 </Pie>
                 <Legend
                   formatter={(value) => (
-                    <span style={{ fontSize: 11, fontFamily: 'JetBrains Mono, monospace', color: '#3A4A42', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                    <span style={{ fontSize: 11, fontFamily: 'Inter, system-ui, sans-serif', color: '#3A4A42', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                       {value}
                     </span>
                   )}

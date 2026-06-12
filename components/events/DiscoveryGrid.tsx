@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { useState } from 'react';
@@ -83,7 +83,7 @@ export function DiscoveryGrid({ pages }: { pages: PageWithSlug[] }) {
           </div>
         </div>
       ) : (
-        <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
+        <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(260px, 100%), 1fr))' }}>
           {filtered.map(p => (
             <EventCard key={p.id} page={p} slug={resolveSlug(p)} />
           ))}
@@ -111,7 +111,7 @@ function EventCard({ page, slug }: { page: PageWithSlug; slug: string }) {
       onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 4px 12px rgba(15,31,24,0.08), 0 24px 60px rgba(31,77,58,0.12)')}
       onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 1px 2px rgba(15,31,24,0.04)')}
     >
-      {/* Cover image — 4:3 aspect */}
+      {/* Cover image â€” 4:3 aspect */}
       <div className="relative overflow-hidden" style={{ paddingTop: '75%' }}>
         {page.cover_image_url ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -144,7 +144,7 @@ function EventCard({ page, slug }: { page: PageWithSlug; slug: string }) {
             background: 'rgba(10,20,14,0.6)',
             backdropFilter: 'blur(8px)',
             color: 'rgba(255,255,255,0.9)',
-            fontFamily: 'JetBrains Mono, monospace',
+            fontFamily: 'Inter, system-ui, sans-serif',
           }}
         >
           {formatShortDate(page.starts_at, page.timezone)}
@@ -175,3 +175,4 @@ function EventCard({ page, slug }: { page: PageWithSlug; slug: string }) {
     </Link>
   );
 }
+
