@@ -92,7 +92,6 @@ function matchesWhen(iso: string | null | undefined, when: string): boolean {
   return true;
 }
 
-function cap(s: string) { return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase(); }
 function citySlug(c: string) { return c.toLowerCase().replace(/\s+/g, '-'); }
 
 /* ─── Custom dropdown (brand-styled menu, replaces native <select>) ─ */
@@ -173,18 +172,6 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
     return Array.from(new Set([...real, ...fallback]));
   }, [events]);
 
-  // Real "popular" categories — by how many live events use each (not hardcoded)
-  const popular = useMemo(() => {
-    const counts: Record<string, number> = {};
-    events.forEach((e: EventPage) => {
-      const c = (e.category ?? '').trim();
-      if (c) counts[cap(c)] = (counts[cap(c)] ?? 0) + 1;
-    });
-    const top = Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([c]) => c);
-    const fallback = ['Tech', 'Music', 'Business', 'Sports'];
-    return Array.from(new Set([...top, ...fallback])).slice(0, 5);
-  }, [events]);
-
   const hasFilter = !!(query || activeCat !== 'All' || city || when !== 'any');
 
   const filtered = useMemo(() => events.filter((ep: EventPage) => {
@@ -236,7 +223,7 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
 
       {/* ── HERO (light) ──────────────────────────────────────── */}
-      <section className="relative overflow-hidden" style={{ background: '#FAF6EE' }}>
+      <section className="relative" style={{ background: '#FAF6EE' }}>
         <div aria-hidden className="absolute inset-0 pointer-events-none" style={{
           backgroundImage: 'radial-gradient(rgba(31,77,58,0.05) 1px, transparent 1px)',
           backgroundSize: '22px 22px',
@@ -304,15 +291,6 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
                 style={{ background: '#1F4D3A', color: '#FFFFFF', boxShadow: '0 4px 12px rgba(31,77,58,0.25)' }}>
                 Find events <ArrowRight size={16} />
               </button>
-            </div>
-
-            {/* Popular (real-time, by event count) */}
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 pt-3.5 px-1 text-[13px]" style={{ color: '#6B7A72' }}>
-              <span className="font-medium" style={{ color: '#3A4A42' }}>Popular:</span>
-              {popular.map(tag => (
-                <button key={tag} onClick={() => { setActiveCat(tag); scrollToResults(); }}
-                  className="font-medium transition hover:opacity-70" style={{ color: '#1F4D3A' }}>{tag}</button>
-              ))}
             </div>
           </div>
         </div>
