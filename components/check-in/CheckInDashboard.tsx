@@ -129,6 +129,7 @@ function PhoneScannerModal({ eventId, onClose }: { eventId: string; onClose: () 
           <div className="rounded-2xl p-5 flex flex-col items-center gap-3 mb-4"
             style={{ background: '#F5F3EE', border: '1px solid #E5E0D4' }}>
             {qrDataUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
               <img src={qrDataUrl} alt="Scanner QR code" width={200} height={200} className="rounded-xl" />
             ) : (
               <div className="w-[200px] h-[200px] rounded-xl grid place-items-center" style={{ background: '#E5E0D4' }}>

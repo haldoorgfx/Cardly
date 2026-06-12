@@ -300,6 +300,7 @@ export default function OnboardingClient() {
                         onChange={handleLogoChange}
                       />
                       {logoPreview ? (
+                        // eslint-disable-next-line @next/next/no-img-element
                         <img src={logoPreview} alt="Logo preview" className="w-full h-full object-cover rounded-2xl" />
                       ) : (
                         <Plus size={20} />

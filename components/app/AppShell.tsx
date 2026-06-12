@@ -14,6 +14,7 @@ import {
   Ticket, ScanLine, User, Network, Trophy, Briefcase, Video, Palette, ExternalLink,
   UserCircle, HelpCircle, Zap, ShoppingCart, Handshake, Clock, IdCard,
   Tag, Plug, Globe, Download, Link2, Code2, UserCog, Share2, Images, Monitor,
+  RefreshCw, Megaphone,
 } from 'lucide-react';
 
 type Profile = {
@@ -106,6 +107,8 @@ const EVENT_NAV_SECTIONS = [
     items: [
       { id: 'sponsors', label: 'Sponsors', icon: <Briefcase size={15} strokeWidth={1.8} />, segment: 'sponsors' },
       { id: 'virtual',  label: 'Virtual',  icon: <Video size={15} strokeWidth={1.8} />,     segment: 'virtual'  },
+      { id: 'promote',  label: 'Promote',  icon: <Megaphone size={15} strokeWidth={1.8} />, segment: 'promote'  },
+      { id: 'series',   label: 'Series',   icon: <RefreshCw size={15} strokeWidth={1.8} />, segment: 'series'   },
     ],
   },
   {
@@ -679,6 +682,8 @@ const PAGE_LABELS: Record<string, string> = {
   'form':           'Registration form',
   'promo-codes':      'Promo codes',
   'promoter-links':   'Promoter links',
+  'promote':          'Promote listing',
+  'series':           'Event series',
   'revenue':          'Revenue',
   'publish':        'Publish',
   'meetings':       '1:1 Meetings',
