@@ -90,15 +90,15 @@ export function SearchAndMap({ events, savedIds, query: initialQuery, totalCount
             />
           </div>
 
-          {/* Filter chips */}
-          <div className="flex flex-wrap gap-2 mt-3">
-            {['All', 'Free', 'This week', 'Online', 'Music', 'Tech', 'Sports', 'Culture', 'Food', 'Business', 'Health', 'Arts'].map(chip => {
+          {/* Filters — single tidy row: quick toggles + a category dropdown */}
+          <div className="flex items-center gap-2 mt-3">
+            {['All', 'Free', 'This week', 'Online'].map(chip => {
               const active = isChipActive(chip, searchParams);
               return (
                 <Link
                   key={chip}
                   href={buildChipHref(chip, searchParams)}
-                  className="flex-none h-[28px] px-3 rounded-full text-[12px] font-medium whitespace-nowrap transition-colors"
+                  className="flex-none h-[30px] px-3 rounded-full text-[12px] font-medium whitespace-nowrap transition-colors flex items-center"
                   style={active
                     ? { background: '#1F4D3A', color: '#FFFFFF', border: '1px solid #1F4D3A' }
                     : { background: '#FFFFFF', color: '#3A4A42', border: '1px solid #E5E0D4' }
@@ -108,6 +108,33 @@ export function SearchAndMap({ events, savedIds, query: initialQuery, totalCount
                 </Link>
               );
             })}
+            {/* Category dropdown — holds all categories without crowding the row */}
+            {(() => {
+              const cat = searchParams.get('category') ?? '';
+              return (
+                <select
+                  value={cat}
+                  onChange={e => {
+                    const params = new URLSearchParams(searchParams.toString());
+                    const v = e.target.value;
+                    if (v) { params.set('category', v); params.delete('free'); }
+                    else params.delete('category');
+                    router.push(`/events/search?${params.toString()}`);
+                  }}
+                  className="flex-none h-[30px] pl-3 pr-7 rounded-full text-[12px] font-medium cursor-pointer outline-none appearance-none"
+                  style={{
+                    border: `1px solid ${cat ? '#1F4D3A' : '#E5E0D4'}`,
+                    background: `${cat ? '#1F4D3A' : '#FFFFFF'} url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23${cat ? 'FFFFFF' : '6B7A72'}' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 9px center`,
+                    color: cat ? '#FFFFFF' : '#3A4A42',
+                  }}
+                >
+                  <option value="">All categories</option>
+                  {['Music', 'Tech', 'Sports', 'Culture', 'Food', 'Business', 'Health', 'Arts'].map(c => (
+                    <option key={c} value={c.toLowerCase()}>{c}</option>
+                  ))}
+                </select>
+              );
+            })()}
           </div>
         </div>
 
