@@ -8,10 +8,13 @@ const WORLD_CENTER = { lat: 12.0, lng: 20.0 };
 const WORLD_ZOOM = 3;
 const MAX_DEFAULT_ZOOM = 11; // never auto-zoom tighter than a city view
 
-function priceBubbleLabel(price?: number | null): string {
-  if (price === 0) return 'Free';
-  if (price != null) return `$${Math.round(price)}`;
-  return 'Tickets';
+function pinLabel(startsAt?: string | null): string {
+  if (!startsAt) return 'Event';
+  try {
+    return new Date(startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric' });
+  } catch {
+    return 'Event';
+  }
 }
 
 interface Props {
@@ -135,7 +138,7 @@ export function GoogleMapView({ events, hoveredId, onHover, onBoundsChange }: Pr
         {mappable.map(ev => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const p = ev as any;
-          const price = priceBubbleLabel(ev.price_from);
+          const label = pinLabel(ev.starts_at);
           const active = hoveredId === ev.id || selectedId === ev.id;
 
           return (
@@ -165,7 +168,7 @@ export function GoogleMapView({ events, hoveredId, onHover, onBoundsChange }: Pr
                   transition: 'all 0.15s',
                   zIndex: active ? 3 : 1,
                 }}>
-                  {price}
+                  {label}
                 </div>
                 <div style={{
                   width: 0, height: 0,
