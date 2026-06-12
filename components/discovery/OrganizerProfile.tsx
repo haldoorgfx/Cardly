@@ -93,8 +93,9 @@ export function OrganizerProfile({
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(10,20,14,0.55) 0%, transparent 55%)' }} />
       </div>
 
-      {/* Profile header */}
-      <div className="max-w-[1120px] mx-auto px-5">
+      {/* Profile header — relative z-10 so the avatar sits ABOVE the banner
+          (the banner is position:relative and would otherwise paint over it) */}
+      <div className="relative z-10 max-w-[1120px] mx-auto px-5">
         {/* Avatar (overlaps banner) + actions */}
         <div className="flex items-end justify-between gap-4 -mt-12 sm:-mt-14">
           <div
