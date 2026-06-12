@@ -1,82 +1,43 @@
-﻿export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic';
 
-import { createAdminClient, createClient } from '@/lib/supabase/server';
-import { DiscoveryFeed } from '@/components/discovery/DiscoveryFeed';
+import { createAdminClient } from '@/lib/supabase/server';
+import { DiscoverHomeClient } from '@/components/discovery/DiscoverHomeClient';
 import { PublicNav } from '@/components/events/PublicNav';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Discover Events',
-  description: 'Find events across East Africa and beyond. Music, tech, culture, food and more.',
+  title: 'Discover Events — Karta',
+  description: 'Find events near you — music, tech, culture, food and more. Register and get your Karta Card.',
 };
 
 export default async function EventDiscoveryPage() {
-  const admin = createAdminClient();
-
-  // Fetch upcoming public events — include events where ends_at is null (dates not set via page editor)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = createAdminClient() as any;
   const now = new Date().toISOString();
-  const { data: pages } = await admin
-    .from('event_pages')
-    .select('id, event_id, title, tagline, cover_image_url, starts_at, ends_at, timezone, is_online, venue_name, city, country, category, price_from, organizer_name, custom_slug, series_name, events!inner(slug, user_id)')
-    .eq('is_public', true)
-    .or(`ends_at.gte.${now},ends_at.is.null`)
-    .order('starts_at', { ascending: true, nullsFirst: false })
-    .limit(60);
 
-  // Personalization: load profile if logged in
-  let greeting: string | null = null;
-  let interests: string[] = [];
-  let followedOrgIds: string[] = [];
-  let savedIds: string[] = [];
+  const SELECT =
+    'id, event_id, title, tagline, cover_image_url, starts_at, ends_at, timezone, is_online, venue_name, city, country, category, price_from, organizer_name, custom_slug, series_name, events!inner(slug, user_id, status, profiles(full_name, avatar_url))';
 
-  try {
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (user) {
-      const hour = new Date().getHours();
-      const timeOfDay = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
-
-      const [profileRes, followsRes, savedRes] = await Promise.all([
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (admin as any).from('profiles').select('full_name, interests').eq('id', user.id).single(),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (admin as any).from('organizer_follows').select('organizer_id').eq('follower_id', user.id),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (admin as any).from('saved_events').select('event_page_id').eq('user_id', user.id),
-      ]);
-
-      const firstName = profileRes.data?.full_name?.split(' ')[0] ?? user.email?.split('@')[0] ?? null;
-      greeting = firstName ? `Good ${timeOfDay}, ${firstName}` : null;
-      interests = profileRes.data?.interests ?? [];
-      followedOrgIds = (followsRes.data ?? []).map((r: { organizer_id: string }) => r.organizer_id);
-      savedIds = (savedRes.data ?? []).map((r: { event_page_id: string }) => r.event_page_id);
-    }
-  } catch { /* non-blocking */ }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const events = (pages ?? []) as any[];
-
-  // Extract distinct cities from live events (sorted by frequency)
-  const cityCounts: Record<string, number> = {};
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (pages ?? []).forEach((p: any) => { if (p.city) cityCounts[p.city] = (cityCounts[p.city] ?? 0) + 1; });
-  const cities = Object.entries(cityCounts)
-    .sort((a, b) => b[1] - a[1])
-    .map(([city]) => city);
+  const [{ data: featured }, { data: events }] = await Promise.all([
+    db.from('event_pages')
+      .select(SELECT)
+      .eq('is_public', true)
+      .or(`ends_at.gte.${now},ends_at.is.null`)
+      .order('starts_at', { ascending: true, nullsFirst: false })
+      .limit(1)
+      .maybeSingle(),
+    db.from('event_pages')
+      .select(SELECT)
+      .eq('is_public', true)
+      .or(`ends_at.gte.${now},ends_at.is.null`)
+      .order('starts_at', { ascending: true, nullsFirst: false })
+      .limit(48),
+  ]);
 
   return (
     <>
       <PublicNav />
-      <DiscoveryFeed
-        events={events}
-        savedIds={savedIds}
-        greeting={greeting}
-        interests={interests}
-        followedOrgIds={followedOrgIds}
-        cities={cities}
-      />
+      <DiscoverHomeClient featured={featured ?? null} events={events ?? []} />
     </>
   );
 }
-
