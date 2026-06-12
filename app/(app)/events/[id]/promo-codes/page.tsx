@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { PromoCodesManager } from '@/components/events/PromoCodesManager';
+import { PromoCodesManager, type PromoCode } from '@/components/events/PromoCodesManager';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -32,10 +32,9 @@ export default async function PromoCodesPage({ params }: Props) {
             Create discount codes — percent or fixed, with usage limits and date windows.
           </p>
         </div>
-        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         <PromoCodesManager
           eventId={id}
-          initialCodes={(codes ?? []) as any}
+          initialCodes={(codes ?? []) as PromoCode[]}
           eventDates={{ starts_at: eventPage?.starts_at ?? null, ends_at: eventPage?.ends_at ?? null }}
         />
       </div>

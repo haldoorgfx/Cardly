@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Plus, Trash2, Copy, Check, Pencil, X } from 'lucide-react';
 
-interface PromoCode {
+export interface PromoCode {
   id: string;
   code: string;
   discount_type: 'percent' | 'fixed';
@@ -53,7 +53,6 @@ function CopyCode({ code }: { code: string }) {
 
 export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) {
   const eventEndMax = eventDates?.ends_at ? toDatetimeLocal(eventDates.ends_at) : undefined;
-  const eventStartMin = eventDates?.starts_at ? toDatetimeLocal(eventDates.starts_at) : undefined;
   const [codes, setCodes] = useState(initialCodes);
   const [showForm, setShowForm] = useState(false);
   const [editingCode, setEditingCode] = useState<PromoCode | null>(null);
