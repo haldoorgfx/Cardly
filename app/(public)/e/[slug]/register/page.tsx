@@ -8,7 +8,7 @@ import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 import RegistrationClient from '@/components/registration/RegistrationClient';
 import type { Zone } from '@/types/database';
 
-interface Props { params: { slug: string }; searchParams?: { ref?: string; utm_source?: string } }
+interface Props { params: { slug: string }; searchParams?: { ref?: string; utm_source?: string; ticket?: string } }
 
 export default async function RegisterPage({ params, searchParams }: Props) {
   const admin = createAdminClient();
@@ -108,6 +108,7 @@ export default async function RegisterPage({ params, searchParams }: Props) {
           formFields={formFields}
           referralCode={searchParams?.ref ?? null}
           utmSource={searchParams?.utm_source ?? null}
+          initialTicketId={searchParams?.ticket ?? null}
         />
       </div>
     </div>

@@ -5,6 +5,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { formatEventDateRange, formatMinPrice } from '@/lib/events/format';
 import { PublicEventPageClient } from '@/components/events/PublicEventPageClient';
 import { PublicNav } from '@/components/events/PublicNav';
+import { geocodeAddress } from '@/lib/events/geocode';
 import type { Metadata } from 'next';
 
 interface Props {
@@ -77,6 +78,19 @@ export default async function PublicEventPage({ params, searchParams }: Props) {
   const allTickets = ticketsRes.data ?? [];
   const organizerUserId = eventRes.data?.user_id ?? null;
   const { date, time, endTime } = formatEventDateRange(page.starts_at, page.ends_at, page.timezone);
+
+  // Organizer profile (avatar + city fallback for the map)
+  let organizerAvatarUrl: string | null = page.organizer_avatar_url ?? null;
+  let organizerCity: string | null = null;
+  if (organizerUserId) {
+    const { data: organizerProfile } = await admin
+      .from('profiles')
+      .select('avatar_url, city')
+      .eq('id', organizerUserId)
+      .single();
+    organizerAvatarUrl = organizerAvatarUrl ?? organizerProfile?.avatar_url ?? null;
+    organizerCity = organizerProfile?.city ?? null;
+  }
   const minPrice = formatMinPrice(allTickets);
   const registrationSlug = params.slug;
   const isPreview = searchParams.preview === '1';
@@ -103,6 +117,61 @@ export default async function PublicEventPage({ params, searchParams }: Props) {
   ]);
   const sessions = sessionsRes.data ?? [];
   const speakers = speakersRes.data ?? [];
+
+  // ── Real attendees (confirmed registrations) ─────────────────────
+  const { data: regRows, count: attendeeCount } = await admin
+    .from('registrations')
+    .select('attendee_name, user_id', { count: 'exact' })
+    .eq('event_id', page.event_id)
+    .in('status', ['confirmed', 'checked_in'])
+    .order('created_at', { ascending: false })
+    .limit(8);
+
+  const regList = regRows ?? [];
+  // Resolve avatars for registrations linked to a profile
+  const userIds = regList.map(r => r.user_id).filter((v): v is string => !!v);
+  const avatarByUser: Record<string, string> = {};
+  if (userIds.length) {
+    const { data: avatarProfiles } = await admin
+      .from('profiles')
+      .select('id, avatar_url')
+      .in('id', userIds);
+    for (const p of avatarProfiles ?? []) {
+      if (p.avatar_url) avatarByUser[p.id] = p.avatar_url;
+    }
+  }
+  const attendees = regList.map(r => ({
+    name: r.attendee_name,
+    avatarUrl: r.user_id ? avatarByUser[r.user_id] ?? null : null,
+  }));
+
+  // ── Resolve venue coordinates (stored → geocode → organizer city) ─
+  let venueLat = page.venue_lat as number | null;
+  let venueLng = page.venue_lng as number | null;
+  if (!page.is_online && (venueLat == null || venueLng == null)) {
+    // Prefer the specific street address; fall back to venue name + city.
+    const venueQuery =
+      page.venue_address?.trim() ||
+      [page.venue_name, page.city, page.country].filter(Boolean).join(', ');
+    const coords = venueQuery ? await geocodeAddress(venueQuery) : null;
+    if (coords) {
+      venueLat = coords.lat;
+      venueLng = coords.lng;
+      // Persist so we never geocode this event again
+      await admin
+        .from('event_pages')
+        .update({ venue_lat: coords.lat, venue_lng: coords.lng })
+        .eq('id', page.id);
+    } else {
+      // Fallback: organizer's city
+      const fallbackQuery = [organizerCity, page.country].filter(Boolean).join(', ');
+      const fallback = fallbackQuery ? await geocodeAddress(fallbackQuery) : null;
+      if (fallback) {
+        venueLat = fallback.lat;
+        venueLng = fallback.lng;
+      }
+    }
+  }
 
   return (
     <>
@@ -156,6 +225,11 @@ export default async function PublicEventPage({ params, searchParams }: Props) {
         seriesName={page.series_name ?? null}
         sessions={sessions}
         speakers={speakers}
+        attendees={attendees}
+        attendeeCount={attendeeCount ?? 0}
+        organizerAvatarUrl={organizerAvatarUrl}
+        venueLat={venueLat}
+        venueLng={venueLng}
       />
     </>
   );

@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ExternalLink } from 'lucide-react';
 import type { Database } from '@/types/database';
 import { AddToCalendarButton } from './AddToCalendarButton';
-import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
+import { bannerGradientFor, avatarColorFor, initialsOf, placeholderInitials } from '@/lib/events/placeholder';
 
 /* ─── Types ─────────────────────────────────────────────────────── */
 
@@ -30,6 +30,11 @@ interface Speaker {
   speaker_type?: string | null;
 }
 
+interface Attendee {
+  name: string;
+  avatarUrl?: string | null;
+}
+
 interface Props {
   page: EventPageRow;
   tickets: TicketTypeRow[];
@@ -43,6 +48,11 @@ interface Props {
   seriesName?: string | null;
   sessions?: Session[];
   speakers?: Speaker[];
+  attendees?: Attendee[];
+  attendeeCount?: number;
+  organizerAvatarUrl?: string | null;
+  venueLat?: number | null;
+  venueLng?: number | null;
 }
 
 /* ─── Helpers ───────────────────────────────────────────────────── */
@@ -65,54 +75,90 @@ function fmtSessionTime(iso: string) {
   }
 }
 
-function initialsOf(name: string) {
-  return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
-}
+/* ─── Avatar with broken-image fallback to initials ─────────────── */
 
-const AVATAR_COLORS = ['#1F4D3A', '#6B4D9E', '#C0436B', '#2C5BAA', '#D2853A', '#7C4DC4'];
-
-/* ─── Google map ────────────────────────────────────────────────── */
-
-function VenueMap({ lat, lng, venueName }: { lat: number; lng: number; venueName: string }) {
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? '',
-  });
-  if (!isLoaded) return <div className="w-full h-[220px] rounded-2xl animate-pulse" style={{ background: '#E8EFEB' }} />;
+function Avatar({
+  src, name, size, fontSize, seed, style,
+}: { src?: string | null; name: string; size: number; fontSize: number; seed?: string; style?: React.CSSProperties }) {
+  const [broken, setBroken] = useState(false);
+  const showImg = src && !broken;
+  if (showImg) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={src!}
+        alt={name}
+        onError={() => setBroken(true)}
+        className="rounded-full object-cover"
+        style={{ width: size, height: size, ...style }}
+      />
+    );
+  }
   return (
-    <div className="rounded-2xl overflow-hidden" style={{ height: 220, border: '1px solid #E5E0D4' }}>
-      <GoogleMap
-        mapContainerStyle={{ width: '100%', height: '100%' }}
-        center={{ lat, lng }}
-        zoom={15}
-        options={{
-          disableDefaultUI: true,
-          zoomControl: true,
-          styles: [
-            { featureType: 'water', stylers: [{ color: '#d4e8f0' }] },
-            { featureType: 'landscape', stylers: [{ color: '#f5f2ec' }] },
-            { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#ffffff' }] },
-            { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#d8ead3' }] },
-            { elementType: 'labels.text.fill', stylers: [{ color: '#3A4A42' }] },
-          ],
-        }}
-      >
-        <Marker
-          position={{ lat, lng }}
-          title={venueName}
-          icon={{
-            path: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z',
-            fillColor: '#1F4D3A',
-            fillOpacity: 1,
-            strokeColor: '#ffffff',
-            strokeWeight: 2,
-            scale: 1.6,
-            anchor: new window.google.maps.Point(12, 22),
-          }}
-        />
-      </GoogleMap>
+    <div
+      className="rounded-full flex items-center justify-center font-bold text-white"
+      style={{ width: size, height: size, fontSize, background: avatarColorFor(seed ?? name), ...style }}
+    >
+      {initialsOf(name)}
     </div>
   );
+}
+
+/* ─── Real OpenStreetMap embed (no API key required) ────────────── */
+
+function OsmEmbed({ lat, lng, venueName }: { lat: number; lng: number; venueName: string }) {
+  const d = 0.008; // bbox half-size (~zoom 15)
+  const bbox = `${lng - d}%2C${lat - d}%2C${lng + d}%2C${lat + d}`;
+  const src = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat}%2C${lng}`;
+  return (
+    <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
+      <iframe
+        title={`Map of ${venueName}`}
+        src={src}
+        loading="lazy"
+        className="w-full"
+        style={{ height: 240, border: 0, display: 'block' }}
+      />
+    </div>
+  );
+}
+
+/**
+ * Renders a real map. If server-resolved coordinates are missing, geocodes the
+ * address client-side (Nominatim, no key) so the page never blocks on it.
+ */
+function VenueMap({
+  lat, lng, geoQuery, venueName,
+}: { lat: number | null; lng: number | null; geoQuery: string; venueName: string }) {
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
+    lat != null && lng != null ? { lat, lng } : null,
+  );
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    if (coords || !geoQuery.trim()) return;
+    let active = true;
+    (async () => {
+      try {
+        const res = await fetch(
+          'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(geoQuery),
+          { headers: { 'Accept-Language': 'en' } },
+        );
+        const data = await res.json();
+        if (!active) return;
+        if (data?.[0]) setCoords({ lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) });
+        else setFailed(true);
+      } catch {
+        if (active) setFailed(true);
+      }
+    })();
+    return () => { active = false; };
+  }, [coords, geoQuery]);
+
+  if (coords) return <OsmEmbed lat={coords.lat} lng={coords.lng} venueName={venueName} />;
+  if (failed) return <MapPlaceholder />;
+  // Loading state while geocoding
+  return <div className="w-full rounded-2xl animate-pulse" style={{ height: 240, background: '#EFEBDF', border: '1px solid #E5E0D4' }} />;
 }
 
 /* ─── Map placeholder (no coords) ───────────────────────────────── */
@@ -135,14 +181,12 @@ function MapPlaceholder() {
 /* ─── Ticket list ───────────────────────────────────────────────── */
 
 function TicketList({
-  tickets, selectedTicket, setSelectedTicket, qty, setQty,
+  tickets, selectedTicket, setSelectedTicket,
   registerHref, page, minPrice, registrationSlug,
 }: {
   tickets: TicketTypeRow[];
   selectedTicket: string;
   setSelectedTicket: (id: string) => void;
-  qty: number;
-  setQty: (n: number) => void;
   registerHref: string;
   page: EventPageRow;
   minPrice: string;
@@ -153,7 +197,7 @@ function TicketList({
   const allSoldOut = hasTickets && tickets.every(isSoldOut);
   const registrationClosed = !!(page.registration_deadline && new Date(page.registration_deadline) < new Date());
   const selectedObj = tickets.find(t => t.id === selectedTicket);
-  const total = selectedObj ? fmtTicketPrice(selectedObj.price * qty, selectedObj.currency) : minPrice;
+  const total = selectedObj ? fmtTicketPrice(selectedObj.price, selectedObj.currency) : minPrice;
 
   return (
     <div className="rounded-[20px] overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', boxShadow: '0 4px 24px rgba(15,31,24,0.08)' }}>
@@ -218,21 +262,9 @@ function TicketList({
           <div className="text-[14px] py-2 mb-3" style={{ color: '#3A4A42' }}>Registration · Free</div>
         )}
 
-        {/* Qty row */}
-        {hasTickets && !allSoldOut && (
-          <div className="flex items-center justify-between mt-2 mb-4" style={{ color: '#3A4A42' }}>
-            <span className="text-[14px]">Quantity</span>
-            <div className="inline-flex items-center overflow-hidden rounded-full" style={{ border: '1px solid #E5E0D4' }}>
-              <button onClick={() => setQty(Math.max(1, qty - 1))} className="w-9 h-9 flex items-center justify-center text-[17px] font-medium transition hover:bg-[#F0EDE8]" style={{ color: '#1F4D3A', background: '#FFFFFF', border: 'none' }}>−</button>
-              <span className="w-9 text-center font-mono font-medium text-[14px]" style={{ color: '#0F1F18' }}>{qty}</span>
-              <button onClick={() => setQty(qty + 1)} className="w-9 h-9 flex items-center justify-center text-[17px] font-medium transition hover:bg-[#F0EDE8]" style={{ color: '#1F4D3A', background: '#FFFFFF', border: 'none' }}>+</button>
-            </div>
-          </div>
-        )}
-
         {/* Total */}
         {hasTickets && (
-          <div className="flex items-center justify-between pt-4 mb-4" style={{ borderTop: '1px solid #E5E0D4' }}>
+          <div className="flex items-center justify-between pt-4 mt-2 mb-4" style={{ borderTop: '1px solid #E5E0D4' }}>
             <span className="font-title font-semibold text-[15px]" style={{ color: '#0F1F18' }}>Total</span>
             <span className="font-title font-extrabold text-[24px]" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>{total}</span>
           </div>
@@ -282,10 +314,11 @@ export function PublicEventPageClient({
   page, tickets, dateStr, timeStr, endTimeStr, minPrice,
   registrationSlug, organizerUserId, seriesSlug, seriesName,
   sessions = [], speakers = [],
+  attendees = [], attendeeCount = 0, organizerAvatarUrl = null,
+  venueLat = null, venueLng = null,
 }: Props) {
   const [savedHeart, setSavedHeart] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<string>(tickets[0]?.id ?? '');
-  const [qty, setQty] = useState(1);
 
   const selectedTicketObj = tickets.find(t => t.id === selectedTicket);
   const registerHref = selectedTicket
@@ -293,7 +326,12 @@ export function PublicEventPageClient({
     : `/e/${registrationSlug}/register`;
   const registrationClosed = !!(page.registration_deadline && new Date(page.registration_deadline) < new Date());
   const allSoldOut = tickets.length > 0 && tickets.every(t => t.quantity !== null && t.quantity_sold >= t.quantity);
-  const totalPrice = selectedTicketObj ? fmtTicketPrice(selectedTicketObj.price * qty, selectedTicketObj.currency) : minPrice;
+  const totalPrice = selectedTicketObj ? fmtTicketPrice(selectedTicketObj.price, selectedTicketObj.currency) : minPrice;
+
+  // Build attendee avatar models (real first, padded with deterministic placeholders)
+  const hasRealAttendees = attendees.length > 0;
+  const shownAttendees = attendees.slice(0, 5);
+  const placeholderInits = placeholderInitials(page.id, 4);
 
   const locationLine = page.is_online
     ? 'Online event'
@@ -339,13 +377,18 @@ export function PublicEventPageClient({
         </nav>
 
         {/* ── Hero ────────────────────────────────────────── */}
-        <div className="relative overflow-hidden mt-4" style={{ borderRadius: 22, height: 380 }}>
+        <div className="relative overflow-hidden mt-4 h-[280px] sm:h-[340px] lg:h-[380px]" style={{ borderRadius: 22 }}>
           {/* Background */}
           {page.cover_image_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={page.cover_image_url} alt={page.title} className="absolute inset-0 w-full h-full object-cover" />
           ) : (
-            <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg, #0D2018 0%, #1F4D3A 50%, #2A6A50 100%)' }} />
+            <div className="absolute inset-0" style={{ background: bannerGradientFor(page.id) }}>
+              {/* subtle texture so empty banners aren't flat */}
+              <div className="absolute inset-0" style={{
+                backgroundImage: 'radial-gradient(circle at 18% 22%, rgba(255,255,255,0.10), transparent 38%), radial-gradient(circle at 82% 78%, rgba(255,255,255,0.06), transparent 42%)',
+              }} />
+            </div>
           )}
           {/* Scrim */}
           <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(10,20,14,0.92) 0%, rgba(10,20,14,0.4) 45%, transparent 75%)' }} />
@@ -406,6 +449,22 @@ export function PublicEventPageClient({
               )}
             </div>
           </div>
+
+          {/* Add to calendar — bottom-right of banner (desktop/tablet) */}
+          {page.starts_at && (
+            <div className="hidden sm:block absolute bottom-6 right-6 z-10">
+              <AddToCalendarButton
+                variant="solid"
+                title={page.title}
+                description={page.description ?? null}
+                startsAt={page.starts_at}
+                endsAt={page.ends_at ?? null}
+                timezone={page.timezone ?? null}
+                location={locationLine}
+                eventUrl={`https://karta.cre8so.com/e/${registrationSlug}`}
+              />
+            </div>
+          )}
         </div>
 
         {/* ── 2-col layout ────────────────────────────────── */}
@@ -416,24 +475,31 @@ export function PublicEventPageClient({
 
             {/* Attending bar */}
             <div className="flex flex-wrap items-center gap-4 p-5 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
-              {/* Avatar stack (decorative) */}
+              {/* Avatar stack */}
               <div className="flex">
-                {[0, 1, 2, 3].map(i => (
-                  <div key={i} className="w-[38px] h-[38px] rounded-full flex items-center justify-center text-[12px] font-bold text-white"
-                    style={{ border: '2px solid #FFFFFF', marginLeft: i > 0 ? -12 : 0, zIndex: 4 - i, background: AVATAR_COLORS[i % AVATAR_COLORS.length] }}>
-                    {String.fromCharCode(65 + i)}
-                  </div>
-                ))}
+                {hasRealAttendees
+                  ? shownAttendees.map((a, i) => (
+                      <div key={i} style={{ marginLeft: i > 0 ? -12 : 0, zIndex: 6 - i, borderRadius: '50%', border: '2px solid #FFFFFF' }}>
+                        <Avatar src={a.avatarUrl} name={a.name} size={38} fontSize={12} seed={a.name + i} />
+                      </div>
+                    ))
+                  : placeholderInits.map((init, i) => (
+                      <div key={i} className="w-[38px] h-[38px] rounded-full flex items-center justify-center text-[12px] font-bold text-white"
+                        style={{ border: '2px solid #FFFFFF', marginLeft: i > 0 ? -12 : 0, zIndex: 4 - i, background: avatarColorFor(init + i), opacity: 0.6 }}>
+                        {init}
+                      </div>
+                    ))}
               </div>
               <div className="text-[14px]" style={{ color: '#3A4A42' }}>
-                People are attending
+                {hasRealAttendees ? (
+                  <><span className="font-semibold" style={{ color: '#0F1F18' }}>{attendeeCount.toLocaleString()}</span> {attendeeCount === 1 ? 'person is' : 'people are'} attending</>
+                ) : (
+                  'Be the first to attend'
+                )}
               </div>
               {(page.organizer_name || organizerUserId) && (
                 <div className="ml-auto flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-[11px] flex items-center justify-center text-[13px] font-bold text-white"
-                    style={{ background: '#1F4D3A' }}>
-                    {initialsOf(page.organizer_name ?? 'K')}
-                  </div>
+                  <Avatar src={organizerAvatarUrl} name={page.organizer_name ?? 'Karta'} size={40} fontSize={13} seed={page.organizer_name ?? 'Karta'} style={{ borderRadius: 11 }} />
                   <div>
                     <div className="text-[12px]" style={{ color: '#6B7A72' }}>Hosted by</div>
                     {organizerUserId ? (
@@ -448,18 +514,23 @@ export function PublicEventPageClient({
               )}
             </div>
 
-            {/* Add to calendar */}
-            <div className="mt-3 flex justify-end">
-              <AddToCalendarButton
-                title={page.title}
-                description={page.description ?? null}
-                startsAt={page.starts_at ?? ''}
-                endsAt={page.ends_at ?? null}
-                timezone={page.timezone ?? null}
-                location={locationLine}
-                eventUrl={`https://karta.cre8so.com/e/${registrationSlug}`}
-              />
-            </div>
+            {/* Add to calendar — mobile (banner button is hidden on small screens) */}
+            {page.starts_at && (
+              <div className="sm:hidden mt-3">
+                <AddToCalendarButton
+                  variant="solid"
+                  className="w-full justify-center border"
+                  style={{ borderColor: '#1F4D3A' }}
+                  title={page.title}
+                  description={page.description ?? null}
+                  startsAt={page.starts_at}
+                  endsAt={page.ends_at ?? null}
+                  timezone={page.timezone ?? null}
+                  location={locationLine}
+                  eventUrl={`https://karta.cre8so.com/e/${registrationSlug}`}
+                />
+              </div>
+            )}
 
             {/* About block */}
             {page.description && (
@@ -519,21 +590,15 @@ export function PublicEventPageClient({
                   Speakers
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  {speakers.map((s, i) => (
+                  {speakers.map((s) => (
                     <div key={s.id} className="text-center">
-                      {s.photo_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={s.photo_url} alt={s.name}
-                          className="w-[84px] h-[84px] rounded-full mx-auto mb-3 object-cover"
-                          style={{ border: '2px solid #E5E0D4' }} />
-                      ) : (
-                        <div className="w-[84px] h-[84px] rounded-full mx-auto mb-3 flex items-center justify-center text-[22px] font-bold text-white"
-                          style={{ background: AVATAR_COLORS[i % AVATAR_COLORS.length] }}>
-                          {initialsOf(s.name)}
-                        </div>
-                      )}
+                      <div className="mx-auto mb-3 w-[84px] h-[84px]">
+                        <Avatar src={s.photo_url} name={s.name} size={84} fontSize={22} seed={s.id} />
+                      </div>
                       <div className="font-title font-semibold text-[14px]" style={{ color: '#0F1F18' }}>{s.name}</div>
-                      <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{s.headline ?? s.role}</div>
+                      {(s.headline ?? s.role) && (
+                        <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{s.headline ?? s.role}</div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -554,19 +619,20 @@ export function PublicEventPageClient({
                   </div>
                 ) : (
                   <>
-                    {page.venue_lat && page.venue_lng ? (
-                      <VenueMap lat={page.venue_lat} lng={page.venue_lng} venueName={page.venue_name ?? ''} />
-                    ) : (
-                      <MapPlaceholder />
-                    )}
+                    <VenueMap
+                      lat={venueLat}
+                      lng={venueLng}
+                      geoQuery={page.venue_address?.trim() || [page.venue_name, page.city, page.country].filter(Boolean).join(', ')}
+                      venueName={page.venue_name ?? page.title}
+                    />
                     <div className="mt-3.5 text-[14px]" style={{ color: '#3A4A42' }}>
                       {page.venue_name && (
                         <span className="font-title font-semibold text-[15px] block mb-1" style={{ color: '#0F1F18' }}>{page.venue_name}</span>
                       )}
                       {page.venue_address}
                     </div>
-                    {page.venue_address && (
-                      <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(page.venue_address)}`}
+                    {(page.venue_address || (venueLat != null && venueLng != null)) && (
+                      <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(page.venue_address || `${venueLat},${venueLng}`)}`}
                         target="_blank" rel="noopener noreferrer"
                         className="mt-2 inline-flex items-center gap-1.5 text-[13px] font-medium hover:opacity-75 transition-opacity"
                         style={{ color: '#1F4D3A' }}>
@@ -585,8 +651,6 @@ export function PublicEventPageClient({
                 tickets={tickets}
                 selectedTicket={selectedTicket}
                 setSelectedTicket={setSelectedTicket}
-                qty={qty}
-                setQty={setQty}
                 registerHref={registerHref}
                 page={page}
                 minPrice={minPrice}
@@ -602,8 +666,6 @@ export function PublicEventPageClient({
               tickets={tickets}
               selectedTicket={selectedTicket}
               setSelectedTicket={setSelectedTicket}
-              qty={qty}
-              setQty={setQty}
               registerHref={registerHref}
               page={page}
               minPrice={minPrice}
@@ -619,7 +681,7 @@ export function PublicEventPageClient({
         <div className="flex-1 min-w-0">
           <div className="font-title font-extrabold text-[20px]" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>
             {totalPrice}
-            <small className="font-sans font-normal text-[12px] ml-1" style={{ color: '#6B7A72' }}>· {qty} ticket{qty !== 1 ? 's' : ''}</small>
+            <small className="font-sans font-normal text-[12px] ml-1" style={{ color: '#6B7A72' }}>· per ticket</small>
           </div>
         </div>
         {registrationClosed ? (
