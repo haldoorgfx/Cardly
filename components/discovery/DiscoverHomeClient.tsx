@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Search, MapPin, Calendar, ChevronDown, ArrowRight, Map as MapIcon, Ticket } from 'lucide-react';
+import { Search, MapPin, Calendar, ChevronDown, ArrowRight, Map as MapIcon, Ticket, Check, Tag } from 'lucide-react';
 import { EventCard } from './EventCard';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -73,6 +73,61 @@ function matchesWhen(iso: string | null | undefined, when: string): boolean {
   return true;
 }
 
+function cap(s: string) { return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase(); }
+function citySlug(c: string) { return c.toLowerCase().replace(/\s+/g, '-'); }
+
+/* ─── Custom dropdown (brand-styled menu, replaces native <select>) ─ */
+
+interface Opt { value: string; label: string }
+
+function Dropdown({
+  icon, value, placeholder, options, onChange,
+}: { icon: React.ReactNode; value: string; placeholder: string; options: Opt[]; onChange: (v: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function onDoc(e: MouseEvent) { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); }
+    function onEsc(e: KeyboardEvent) { if (e.key === 'Escape') setOpen(false); }
+    document.addEventListener('mousedown', onDoc);
+    document.addEventListener('keydown', onEsc);
+    return () => { document.removeEventListener('mousedown', onDoc); document.removeEventListener('keydown', onEsc); };
+  }, [open]);
+
+  const selected = options.find(o => o.value === value);
+  const isPlaceholder = !selected || selected.value === '' || selected.value === 'All' || selected.value === 'any';
+
+  return (
+    <div ref={ref} className="relative">
+      <button type="button" onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center gap-2 h-[46px] px-3.5 rounded-xl text-[14px] transition"
+        style={{ border: `1px solid ${open ? '#1F4D3A' : '#E5E0D4'}`, background: '#FAF6EE', color: isPlaceholder ? '#3A4A42' : '#0F1F18' }}>
+        {icon}
+        <span className="flex-1 text-left truncate">{selected ? selected.label : placeholder}</span>
+        <ChevronDown size={16} style={{ color: '#6B7A72', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform .15s' }} />
+      </button>
+      {open && (
+        <div className="absolute z-40 mt-2 left-0 right-0 rounded-2xl p-1.5 overflow-y-auto"
+          style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', boxShadow: '0 14px 40px rgba(15,31,24,0.18)', maxHeight: 288 }}>
+          {options.map(o => {
+            const sel = o.value === value;
+            return (
+              <button key={o.value || '_'} type="button"
+                onClick={() => { onChange(o.value); setOpen(false); }}
+                className={`w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl text-[14px] text-left transition ${sel ? '' : 'hover:bg-[#F5F2EA]'}`}
+                style={{ ...(sel ? { background: '#E8EFEB' } : {}), color: sel ? '#1F4D3A' : '#3A4A42', fontWeight: sel ? 600 : 500 }}>
+                <span className="truncate">{o.label}</span>
+                {sel && <Check size={15} style={{ color: '#1F4D3A', flexShrink: 0 }} />}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ─── Main ──────────────────────────────────────────────────────── */
 
 export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: Props) {
@@ -92,8 +147,23 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
     const counts: Record<string, number> = {};
     events.forEach((e: EventPage) => { if (e.city) counts[e.city] = (counts[e.city] ?? 0) + 1; });
     const real = Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([c]) => c);
-    const fallback = ['Lagos', 'Nairobi', 'Accra', 'Dakar', 'Cape Town', 'Cairo', 'Kigali', 'Djibouti'];
+    const fallback = [
+      'Lagos', 'Nairobi', 'Accra', 'Dakar', 'Cape Town', 'Cairo', 'Kigali', 'Djibouti',
+      'Johannesburg', 'Addis Ababa', 'Kampala', 'Dar es Salaam', 'Abidjan', 'Casablanca', 'Mombasa', 'Tunis',
+    ];
     return Array.from(new Set([...real, ...fallback]));
+  }, [events]);
+
+  // Real "popular" categories — by how many live events use each (not hardcoded)
+  const popular = useMemo(() => {
+    const counts: Record<string, number> = {};
+    events.forEach((e: EventPage) => {
+      const c = (e.category ?? '').trim();
+      if (c) counts[cap(c)] = (counts[cap(c)] ?? 0) + 1;
+    });
+    const top = Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([c]) => c);
+    const fallback = ['Tech', 'Music', 'Business', 'Sports'];
+    return Array.from(new Set([...top, ...fallback])).slice(0, 5);
   }, [events]);
 
   const hasFilter = !!(query || activeCat !== 'All' || city || when !== 'any');
@@ -143,10 +213,6 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
     router.push(`/events/search${qs ? `?${qs}` : ''}`);
   }
 
-  const SELECT_CLS = 'appearance-none cursor-pointer bg-transparent outline-none w-full text-[14px]';
-  const selWrap = 'relative flex items-center gap-2 h-[46px] px-3.5 rounded-xl';
-  const selWrapStyle = { border: '1px solid #E5E0D4', background: '#FAF6EE', color: '#3A4A42' } as const;
-
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
 
@@ -184,33 +250,21 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
 
             {/* Filter controls */}
             <div className="grid grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_auto] gap-2.5 pt-3.5">
-              {/* Location */}
-              <div className={selWrap} style={selWrapStyle}>
-                <MapPin size={16} style={{ color: '#6B7A72', flexShrink: 0 }} />
-                <select value={city} onChange={e => setCity(e.target.value)} className={SELECT_CLS} style={{ color: city ? '#0F1F18' : '#3A4A42' }}>
-                  <option value="">Anywhere</option>
-                  {cities.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
-                <ChevronDown size={16} style={{ color: '#6B7A72', flexShrink: 0 }} />
-              </div>
-              {/* Date */}
-              <div className={selWrap} style={selWrapStyle}>
-                <Calendar size={16} style={{ color: '#6B7A72', flexShrink: 0 }} />
-                <select value={when} onChange={e => setWhen(e.target.value)} className={SELECT_CLS} style={{ color: when !== 'any' ? '#0F1F18' : '#3A4A42' }}>
-                  {WHEN_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                </select>
-                <ChevronDown size={16} style={{ color: '#6B7A72', flexShrink: 0 }} />
-              </div>
-              {/* Category */}
-              <div className={selWrap} style={selWrapStyle}>
-                <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="#6B7A72" strokeWidth="1.8">
-                  <path d="M20.6 13.4L11 3.8a2 2 0 00-1.4-.6H4a1 1 0 00-1 1v5.6a2 2 0 00.6 1.4l9.6 9.6a2 2 0 002.8 0l4.6-4.6a2 2 0 000-2.8zM7.5 7.5a1 1 0 100-2 1 1 0 000 2z"/>
-                </svg>
-                <select value={activeCat} onChange={e => setActiveCat(e.target.value)} className={SELECT_CLS} style={{ color: activeCat !== 'All' ? '#0F1F18' : '#3A4A42' }}>
-                  {CATEGORIES.map(c => <option key={c} value={c}>{c === 'All' ? 'Any category' : c}</option>)}
-                </select>
-                <ChevronDown size={16} style={{ color: '#6B7A72', flexShrink: 0 }} />
-              </div>
+              <Dropdown
+                icon={<MapPin size={16} style={{ color: '#6B7A72', flexShrink: 0 }} />}
+                value={city} placeholder="Anywhere" onChange={setCity}
+                options={[{ value: '', label: 'Anywhere' }, ...cities.map(c => ({ value: c, label: c }))]}
+              />
+              <Dropdown
+                icon={<Calendar size={16} style={{ color: '#6B7A72', flexShrink: 0 }} />}
+                value={when} placeholder="Any time" onChange={setWhen}
+                options={WHEN_OPTIONS}
+              />
+              <Dropdown
+                icon={<Tag size={16} style={{ color: '#6B7A72', flexShrink: 0 }} />}
+                value={activeCat} placeholder="Any category" onChange={setActiveCat}
+                options={CATEGORIES.map(c => ({ value: c, label: c === 'All' ? 'Any category' : c }))}
+              />
               {/* Search button */}
               <button onClick={scrollToResults}
                 className="col-span-2 lg:col-span-1 h-[46px] px-6 rounded-xl font-semibold text-[14px] flex items-center justify-center gap-2 transition hover:opacity-90"
@@ -219,17 +273,13 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
               </button>
             </div>
 
-            {/* Popular + map */}
+            {/* Popular (real-time, by event count) */}
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 pt-3.5 px-1 text-[13px]" style={{ color: '#6B7A72' }}>
               <span className="font-medium" style={{ color: '#3A4A42' }}>Popular:</span>
-              {['Tech', 'Music', 'Business', 'Sports'].map(tag => (
+              {popular.map(tag => (
                 <button key={tag} onClick={() => { setActiveCat(tag); scrollToResults(); }}
                   className="font-medium transition hover:opacity-70" style={{ color: '#1F4D3A' }}>{tag}</button>
               ))}
-              <button onClick={goToMap}
-                className="ml-auto inline-flex items-center gap-1.5 font-semibold transition hover:opacity-80" style={{ color: '#1F4D3A' }}>
-                <MapIcon size={14} /> Explore on map
-              </button>
             </div>
           </div>
         </div>
@@ -297,12 +347,19 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
               {when !== 'any' && ` · ${WHEN_OPTIONS.find(w => w.value === when)?.label}`}
             </p>
           </div>
-          {hasFilter && (
-            <button onClick={() => { setQuery(''); setActiveCat('All'); setCity(''); setWhen('any'); }}
-              className="text-[13px] font-medium shrink-0 transition hover:opacity-70" style={{ color: '#1F4D3A' }}>
-              Clear filters
+          <div className="flex items-center gap-3 shrink-0">
+            {hasFilter && (
+              <button onClick={() => { setQuery(''); setActiveCat('All'); setCity(''); setWhen('any'); }}
+                className="text-[13px] font-medium transition hover:opacity-70" style={{ color: '#6B7A72' }}>
+                Clear filters
+              </button>
+            )}
+            <button onClick={goToMap}
+              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full text-[13px] font-semibold transition hover:bg-[#E8EFEB]"
+              style={{ border: '1px solid #1F4D3A', color: '#1F4D3A', background: '#FFFFFF' }}>
+              <MapIcon size={14} /> View on map
             </button>
-          )}
+          </div>
         </div>
 
         {filtered.length > 0 ? (
@@ -324,14 +381,14 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
           <h2 className="font-title font-bold text-[22px] sm:text-[26px] mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
             Browse by city
           </h2>
-          <p className="text-[13px] mb-5" style={{ color: '#6B7A72' }}>Find what&apos;s happening near you.</p>
+          <p className="text-[13px] mb-5" style={{ color: '#6B7A72' }}>Jump straight to what&apos;s happening in your city.</p>
           <div className="flex flex-wrap gap-2.5">
-            {cities.slice(0, 10).map(c => (
-              <button key={c} onClick={() => { setCity(c); scrollToResults(); }}
-                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full border text-[13px] font-medium transition hover:-translate-y-0.5 hover:shadow-sm"
-                style={{ background: city === c ? '#1F4D3A' : '#FFFFFF', borderColor: city === c ? '#1F4D3A' : '#E5E0D4', color: city === c ? '#FAF6EE' : '#3A4A42' }}>
-                <MapPin size={13} style={{ color: city === c ? '#E8C57E' : '#1F4D3A' }} /> {c}
-              </button>
+            {cities.slice(0, 16).map(c => (
+              <Link key={c} href={`/events/city/${citySlug(c)}`}
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full border text-[13px] font-medium transition hover:-translate-y-0.5 hover:shadow-sm hover:border-[#1F4D3A]"
+                style={{ background: '#FFFFFF', borderColor: '#E5E0D4', color: '#3A4A42', textDecoration: 'none' }}>
+                <MapPin size={13} style={{ color: '#1F4D3A' }} /> {c}
+              </Link>
             ))}
           </div>
         </div>
@@ -339,20 +396,19 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
         {/* ── Top hosts ───────────────────────────────────────── */}
         {hosts.length > 0 && (
           <div className="mt-14">
-            <div className="flex items-end justify-between gap-4 mb-5">
-              <h2 className="font-title font-bold text-[22px] sm:text-[26px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
-                Top event hosts
-              </h2>
-            </div>
+            <h2 className="font-title font-bold text-[22px] sm:text-[26px] mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+              Top event hosts
+            </h2>
+            <p className="text-[13px] mb-5" style={{ color: '#6B7A72' }}>Organizers creating events worth showing up for.</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {hosts.map((h, i) => (
                 <Link key={h.name}
                   href={h.userId ? `/o/${h.userId}` : `/events/search?q=${encodeURIComponent(h.name)}`}
-                  className="flex items-center gap-4 p-4 rounded-2xl transition hover:-translate-y-0.5 hover:shadow-md"
+                  className="group flex items-center gap-4 p-4 rounded-2xl transition hover:-translate-y-0.5 hover:shadow-md"
                   style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', textDecoration: 'none' }}>
                   {h.avatar ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={h.avatar} alt={h.name} className="w-12 h-12 rounded-[14px] object-cover shrink-0" />
+                    <img src={h.avatar} alt={h.name} className="w-12 h-12 rounded-[14px] object-cover shrink-0" style={{ border: '2px solid #E8EFEB' }} />
                   ) : (
                     <div className="w-12 h-12 rounded-[14px] shrink-0 flex items-center justify-center text-white font-display font-semibold text-[15px]"
                       style={{ background: HOST_BG[i % HOST_BG.length] }}>
@@ -360,11 +416,14 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <div className="font-display font-semibold text-[15px] truncate" style={{ color: '#0F1F18' }}>{h.name}</div>
-                    <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{h.count} event{h.count !== 1 ? 's' : ''}</div>
+                    <div className="font-display font-semibold text-[15px] truncate group-hover:text-[#1F4D3A] transition-colors" style={{ color: '#0F1F18' }}>{h.name}</div>
+                    <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>
+                      {h.count} event{h.count !== 1 ? 's' : ''} · Tap to view
+                    </div>
                   </div>
-                  <span className="inline-flex items-center gap-1 text-[13px] font-medium shrink-0" style={{ color: '#1F4D3A' }}>
-                    View <ArrowRight size={13} />
+                  <span className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition group-hover:bg-[#1F4D3A] group-hover:text-white"
+                    style={{ border: '1px solid #E5E0D4', color: '#1F4D3A' }}>
+                    <ArrowRight size={15} />
                   </span>
                 </Link>
               ))}

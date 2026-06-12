@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Calendar, Check } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Calendar, Check, Plus, CalendarClock, ArrowRight } from 'lucide-react';
 import { EventCard, type DiscoveryEvent } from './EventCard';
 
 interface PastEvent {
@@ -41,12 +42,13 @@ export function OrganizerProfile({
   isFollowing: initialFollowing,
   savedIds,
 }: OrganizerProfileProps) {
+  const router = useRouter();
   const [following, setFollowing] = useState(initialFollowing);
   const [followerCount, setFollowerCount] = useState(initialFollowerCount);
   const [savedSet] = useState(new Set(savedIds));
 
   const displayName = organization ?? name;
-  const initials = displayName.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
+  const initials = displayName.split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
   const coverUrl = upcomingEvents[0]?.cover_image_url ?? null;
 
   async function handleFollow() {
@@ -54,15 +56,21 @@ export function OrganizerProfile({
     setFollowing(willFollow);
     setFollowerCount(c => c + (willFollow ? 1 : -1));
     try {
-      if (willFollow) {
-        await fetch('/api/account/follows', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ organizer_id: userId }),
-        });
-      } else {
-        await fetch(`/api/account/follows?organizer_id=${userId}`, { method: 'DELETE' });
+      const res = willFollow
+        ? await fetch('/api/account/follows', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ organizer_id: userId }),
+          })
+        : await fetch(`/api/account/follows?organizer_id=${userId}`, { method: 'DELETE' });
+      if (res.status === 401) {
+        // Not signed in — send them to login and come back here
+        router.push(`/account/login?next=/o/${userId}`);
+        setFollowing(!willFollow);
+        setFollowerCount(c => c + (willFollow ? -1 : 1));
+        return;
       }
+      if (!res.ok) throw new Error('follow failed');
     } catch {
       setFollowing(!willFollow);
       setFollowerCount(c => c + (willFollow ? -1 : 1));
@@ -72,83 +80,86 @@ export function OrganizerProfile({
   return (
     <div>
       {/* Banner */}
-      <div className="relative overflow-hidden" style={{ height: 240, background: '#0D2018' }}>
+      <div className="relative overflow-hidden h-[150px] sm:h-[200px]" style={{ background: '#143024' }}>
         {coverUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={coverUrl} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60" />
+          <img src={coverUrl} alt="" className="absolute inset-0 w-full h-full object-cover" style={{ opacity: 0.45 }} />
         ) : (
-          <div
-            className="absolute inset-0"
-            style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)', opacity: 0.5 }}
-          />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 50%, #2A6A50 85%, #C9A45E 130%)' }} />
         )}
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(10,20,14,0.6) 0%, transparent 60%)' }} />
+        <div aria-hidden className="absolute inset-0" style={{
+          background: 'radial-gradient(45% 80% at 85% 30%, rgba(232,197,126,0.22), transparent 60%)',
+        }} />
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(10,20,14,0.55) 0%, transparent 55%)' }} />
       </div>
 
       {/* Profile header */}
       <div className="max-w-[1120px] mx-auto px-5">
-        {/* Row 1: avatar (overlaps banner by 44px) + actions */}
-        <div className="flex items-end justify-between -mt-11">
-          <div
-            className="w-24 h-24 rounded-2xl flex items-center justify-center text-white font-display font-bold text-[28px] shrink-0"
-            style={{
-              background: avatarUrl ? undefined : 'linear-gradient(135deg, #1F4D3A, #2A6A50)',
-              border: '3px solid #FFFFFF',
-              overflow: 'hidden',
-            }}
-          >
-            {avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
-            ) : initials}
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 -mt-12 sm:-mt-14">
+          {/* Avatar + identity */}
+          <div className="flex items-end gap-4 min-w-0">
+            <div
+              className="w-24 h-24 rounded-[20px] flex items-center justify-center text-white font-display font-bold text-[30px] shrink-0 overflow-hidden"
+              style={{
+                background: avatarUrl ? '#FFFFFF' : 'linear-gradient(135deg, #1F4D3A, #2A6A50)',
+                border: '4px solid #FAF6EE',
+                boxShadow: '0 8px 24px rgba(15,31,24,0.18)',
+              }}
+            >
+              {avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+              ) : initials}
+            </div>
+            <div className="min-w-0 pb-1">
+              <h1 className="font-title font-bold text-[24px] sm:text-[30px] leading-tight truncate" style={{ color: '#0F1F18', letterSpacing: '-0.025em' }}>
+                {displayName}
+              </h1>
+              <div className="flex items-center gap-4 mt-1.5">
+                <Stat value={followerCount} label="followers" />
+                <Stat value={eventsHosted} label="events" />
+              </div>
+            </div>
           </div>
 
           {/* Actions */}
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={handleFollow}
-              className="h-10 px-5 rounded-xl text-[14px] font-medium transition flex items-center gap-1.5"
+              className="h-10 px-5 rounded-xl text-[14px] font-semibold transition flex items-center gap-1.5 hover:opacity-90"
               style={following
-                ? { background: '#E8C57E', color: '#0F1F18', border: '1px solid #C9A45E', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)' }
-                : { background: 'transparent', color: '#1F4D3A', border: '1px solid #1F4D3A' }}
+                ? { background: '#E8EFEB', color: '#1F4D3A', border: '1px solid #1F4D3A' }
+                : { background: '#1F4D3A', color: '#FFFFFF', border: '1px solid #1F4D3A' }}
             >
-              {following && <Check size={13} />}
+              {following ? <Check size={14} /> : <Plus size={14} />}
               {following ? 'Following' : 'Follow'}
             </button>
-            <button
-              className="h-10 px-4 rounded-xl text-[14px] font-medium flex items-center gap-1.5 transition"
-              style={{ background: 'transparent', color: '#1F4D3A', border: '1px solid #1F4D3A' }}
-              title="Subscribe to calendar (coming soon)"
+            <Link
+              href={`/o/${userId}/calendar`}
+              className="h-10 px-4 rounded-xl text-[14px] font-medium flex items-center gap-1.5 transition hover:bg-[#E8EFEB]"
+              style={{ background: '#FFFFFF', color: '#1F4D3A', border: '1px solid #1F4D3A', textDecoration: 'none' }}
             >
               <Calendar size={14} /> Calendar
-            </button>
+            </Link>
           </div>
         </div>
 
-        {/* Row 2: name + bio + stats — always on cream, never overlapping the banner */}
-        <div className="mt-4 mb-12">
-          <h1
-            className="font-display font-semibold text-[26px] leading-tight"
-            style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}
-          >
-            {displayName}
-          </h1>
-          {bio && (
-            <p className="text-[14px] mt-1 line-clamp-2" style={{ color: '#6B7A72' }}>{bio}</p>
-          )}
-          <div className="flex items-center gap-6 mt-3">
-            <Stat value={followerCount} label="followers" />
-            <Stat value={eventsHosted} label="events hosted" />
-          </div>
-        </div>
+        {/* Bio */}
+        {bio && (
+          <p className="text-[14px] mt-4 max-w-2xl leading-relaxed" style={{ color: '#3A4A42' }}>{bio}</p>
+        )}
 
         {/* Upcoming events */}
-        <div>
-          <h2 className="font-display font-semibold text-[20px] mb-5" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
+        <div className="mt-10">
+          <h2 className="font-title font-bold text-[22px] mb-5" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
             Upcoming events
           </h2>
           {upcomingEvents.length === 0 ? (
-            <p className="text-[14px]" style={{ color: '#6B7A72' }}>No upcoming events scheduled.</p>
+            <div className="rounded-2xl py-12 px-6 text-center" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
+              <CalendarClock size={26} style={{ color: '#C9C3B1' }} className="mx-auto mb-3" />
+              <p className="font-display font-semibold text-[15px]" style={{ color: '#0F1F18' }}>No upcoming events</p>
+              <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>Follow to get notified when {displayName} announces something new.</p>
+            </div>
           ) : (
             <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(280px, 100%), 1fr))' }}>
               {upcomingEvents.slice(0, 6).map(ev => (
@@ -161,12 +172,12 @@ export function OrganizerProfile({
         {/* Past events */}
         {pastEvents.length > 0 && (
           <div className="mt-12 pb-24">
-            <h2 className="font-display font-semibold text-[20px] mb-5" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
+            <h2 className="font-title font-bold text-[22px] mb-5" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
               Past events
             </h2>
-            <div className="flex flex-col gap-2">
-              {pastEvents.slice(0, 12).map(ev => (
-                <PastEventRow key={ev.id} ev={ev} />
+            <div className="rounded-2xl overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
+              {pastEvents.slice(0, 12).map((ev, i) => (
+                <PastEventRow key={ev.id} ev={ev} first={i === 0} />
               ))}
             </div>
           </div>
@@ -179,21 +190,21 @@ export function OrganizerProfile({
 function Stat({ value, label }: { value: number; label: string }) {
   return (
     <div className="flex items-baseline gap-1.5">
-      <span className="text-[18px] font-semibold" style={{ color: '#0F1F18', fontFamily: '"JetBrains Mono", monospace' }}>
+      <span className="text-[17px] font-bold" style={{ color: '#0F1F18', fontFamily: '"JetBrains Mono", monospace' }}>
         {value.toLocaleString()}
       </span>
-      <span className="text-[12px]" style={{ color: '#6B7A72' }}>{label}</span>
+      <span className="text-[13px]" style={{ color: '#6B7A72' }}>{label}</span>
     </div>
   );
 }
 
-function PastEventRow({ ev }: { ev: PastEvent }) {
+function PastEventRow({ ev, first }: { ev: PastEvent; first: boolean }) {
   const slug = ev.custom_slug ?? ev.events?.slug ?? ev.id;
   return (
     <Link
       href={`/e/${slug}`}
-      className="flex items-center gap-4 rounded-xl px-4 py-3 transition hover:bg-[#F0F5F2]"
-      style={{ opacity: 0.8 }}
+      className="group flex items-center gap-4 px-4 py-3 transition hover:bg-[#F7F4ED]"
+      style={{ borderTop: first ? 'none' : '1px solid #F0EDE4', textDecoration: 'none' }}
     >
       <div className="rounded-lg overflow-hidden shrink-0" style={{ width: 56, height: 42 }}>
         {ev.cover_image_url ? (
@@ -204,11 +215,12 @@ function PastEventRow({ ev }: { ev: PastEvent }) {
         )}
       </div>
       <div className="min-w-0 flex-1">
-        <div className="font-medium text-[14px] truncate" style={{ color: '#0F1F18' }}>{ev.title}</div>
+        <div className="font-display font-medium text-[14px] truncate group-hover:text-[#1F4D3A] transition-colors" style={{ color: '#0F1F18' }}>{ev.title}</div>
         <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
           {new Date(ev.starts_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
         </div>
       </div>
+      <ArrowRight size={16} style={{ color: '#C9C3B1' }} className="shrink-0 group-hover:text-[#1F4D3A] transition-colors" />
     </Link>
   );
 }
