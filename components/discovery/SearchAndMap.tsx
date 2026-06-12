@@ -91,7 +91,7 @@ export function SearchAndMap({ events, savedIds, query: initialQuery, totalCount
           </div>
 
           {/* Filter chips */}
-          <div className="flex gap-2 mt-3 overflow-x-auto pb-0.5" style={{ scrollbarWidth: 'none' }}>
+          <div className="flex flex-wrap gap-2 mt-3">
             {['All', 'Free', 'This week', 'Online', 'Music', 'Tech', 'Sports', 'Culture', 'Food', 'Business', 'Health', 'Arts'].map(chip => {
               const active = isChipActive(chip, searchParams);
               return (
