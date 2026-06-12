@@ -14,6 +14,7 @@ interface Props {
   eventSlug: string;
   eventName?: string;
   existing: EventPageRow | null;
+  onComplete?: () => void;
 }
 
 function toLocalDatetimeValue(isoString: string | null): string {
@@ -33,7 +34,7 @@ const STEPS = [
   { id: 4, label: 'Settings',      short: 'Settings'    },
 ];
 
-export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Props) {
+export function EventPageEditor({ eventId, eventSlug, eventName, existing, onComplete }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -166,7 +167,11 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
         const data = await res.json();
         if (!res.ok) throw new Error(data.error ?? 'Save failed');
 
-        router.push(`/events/${eventId}`);
+        if (onComplete) {
+          onComplete();
+        } else {
+          router.push(`/events/${eventId}`);
+        }
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Save failed';
         // Never show raw DB errors to users
@@ -702,7 +707,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing }: Pro
                 className="inline-flex items-center h-9 px-5 rounded-lg text-white text-[13px] font-semibold transition hover:opacity-90 disabled:opacity-60"
                 style={{ background: '#1F4D3A' }}
               >
-                {isPending ? 'Saving…' : 'Save changes'}
+                {isPending ? 'Saving…' : onComplete ? 'Save & Continue' : 'Save changes'}
               </button>
             </>
           ) : (

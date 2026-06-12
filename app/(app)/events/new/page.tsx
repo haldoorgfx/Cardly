@@ -66,7 +66,7 @@ export default function NewEventPage() {
       if (!res.ok) throw new Error(data.error ?? 'Failed to create event');
 
       track('event_created', { event_id: data.id });
-      router.push(`/events/${data.id}`);
+      router.push(`/events/${data.id}/setup`);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong');
       setLoading(false);
