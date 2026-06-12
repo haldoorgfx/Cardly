@@ -2,19 +2,85 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { MapPin, Globe, Calendar, Clock, Users, Share2, Heart, ExternalLink } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import type { Database } from '@/types/database';
 import { AddToCalendarButton } from './AddToCalendarButton';
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
+
+/* ─── Types ─────────────────────────────────────────────────────── */
+
+type EventPageRow = Database['public']['Tables']['event_pages']['Row'];
+type TicketTypeRow = Database['public']['Tables']['ticket_types']['Row'];
+
+interface Session {
+  id: string;
+  title: string;
+  starts_at: string;
+  ends_at?: string | null;
+  room?: string | null;
+  session_type?: string | null;
+}
+
+interface Speaker {
+  id: string;
+  name: string;
+  headline?: string | null;
+  role?: string | null;
+  photo_url?: string | null;
+  speaker_type?: string | null;
+}
+
+interface Props {
+  page: EventPageRow;
+  tickets: TicketTypeRow[];
+  dateStr: string;
+  timeStr: string;
+  endTimeStr: string;
+  minPrice: string;
+  registrationSlug: string;
+  organizerUserId?: string | null;
+  seriesSlug?: string | null;
+  seriesName?: string | null;
+  sessions?: Session[];
+  speakers?: Speaker[];
+}
+
+/* ─── Helpers ───────────────────────────────────────────────────── */
+
+function fmtTicketPrice(price: number, currency?: string | null): string {
+  if (price === 0) return 'Free';
+  const cur = currency || 'USD';
+  try {
+    return new Intl.NumberFormat(undefined, { style: 'currency', currency: cur, minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(price);
+  } catch {
+    return `${cur} ${price.toLocaleString()}`;
+  }
+}
+
+function fmtSessionTime(iso: string) {
+  try {
+    return new Date(iso).toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit', hour12: false });
+  } catch {
+    return '';
+  }
+}
+
+function initialsOf(name: string) {
+  return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+}
+
+const AVATAR_COLORS = ['#1F4D3A', '#6B4D9E', '#C0436B', '#2C5BAA', '#D2853A', '#7C4DC4'];
+
+/* ─── Google map ────────────────────────────────────────────────── */
 
 function VenueMap({ lat, lng, venueName }: { lat: number; lng: number; venueName: string }) {
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? '',
   });
-  if (!isLoaded) return <div className="w-full h-48 rounded-xl animate-pulse" style={{ background: '#E8EFEB' }} />;
+  if (!isLoaded) return <div className="w-full h-[220px] rounded-2xl animate-pulse" style={{ background: '#E8EFEB' }} />;
   return (
-    <div className="mt-4 rounded-xl overflow-hidden" style={{ height: 220, border: '1px solid #E5E0D4' }}>
+    <div className="rounded-2xl overflow-hidden" style={{ height: 220, border: '1px solid #E5E0D4' }}>
       <GoogleMap
         mapContainerStyle={{ width: '100%', height: '100%' }}
         center={{ lat, lng }}
@@ -49,38 +115,177 @@ function VenueMap({ lat, lng, venueName }: { lat: number; lng: number; venueName
   );
 }
 
-function fmtTicketPrice(price: number, currency?: string | null): string {
-  if (price === 0) return 'Free';
-  const cur = currency || 'USD';
-  try {
-    return new Intl.NumberFormat(undefined, { style: 'currency', currency: cur, minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(price);
-  } catch {
-    return `${cur} ${price.toLocaleString()}`;
-  }
+/* ─── Map placeholder (no coords) ───────────────────────────────── */
+
+function MapPlaceholder() {
+  return (
+    <div className="relative rounded-2xl overflow-hidden" style={{ height: 220, background: '#EFEBDF', border: '1px solid #E5E0D4' }}>
+      <div className="absolute inset-0" style={{
+        backgroundImage: 'linear-gradient(rgba(15,31,24,0.06) 1.5px, transparent 1.5px), linear-gradient(90deg, rgba(15,31,24,0.06) 1.5px, transparent 1.5px)',
+        backgroundSize: '48px 48px',
+      }} />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full"
+        style={{ width: 40, height: 40, borderRadius: '50% 50% 50% 0', background: '#1F4D3A', rotate: '-45deg', boxShadow: '0 4px 12px rgba(15,31,24,0.2)' }}>
+        <div className="absolute" style={{ top: 11, left: 11, width: 18, height: 18, borderRadius: '50%', background: '#E8C57E' }} />
+      </div>
+    </div>
+  );
 }
 
-type EventPageRow = Database['public']['Tables']['event_pages']['Row'];
-type TicketTypeRow = Database['public']['Tables']['ticket_types']['Row'];
+/* ─── Ticket list ───────────────────────────────────────────────── */
 
-interface Props {
-  page: EventPageRow;
+function TicketList({
+  tickets, selectedTicket, setSelectedTicket, qty, setQty,
+  registerHref, page, minPrice, registrationSlug,
+}: {
   tickets: TicketTypeRow[];
-  dateStr: string;
-  timeStr: string;
-  endTimeStr: string;
+  selectedTicket: string;
+  setSelectedTicket: (id: string) => void;
+  qty: number;
+  setQty: (n: number) => void;
+  registerHref: string;
+  page: EventPageRow;
   minPrice: string;
   registrationSlug: string;
-  organizerUserId?: string | null;
-  seriesSlug?: string | null;
-  seriesName?: string | null;
+}) {
+  const isSoldOut = (t: TicketTypeRow) => t.quantity !== null && t.quantity_sold >= t.quantity;
+  const hasTickets = tickets.length > 0;
+  const allSoldOut = hasTickets && tickets.every(isSoldOut);
+  const registrationClosed = !!(page.registration_deadline && new Date(page.registration_deadline) < new Date());
+  const selectedObj = tickets.find(t => t.id === selectedTicket);
+  const total = selectedObj ? fmtTicketPrice(selectedObj.price * qty, selectedObj.currency) : minPrice;
+
+  return (
+    <div className="rounded-[20px] overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', boxShadow: '0 4px 24px rgba(15,31,24,0.08)' }}>
+      {/* Price header */}
+      <div className="flex items-baseline justify-between px-6 py-5" style={{ borderBottom: '1px solid #E5E0D4' }}>
+        <div>
+          <div className="text-[12px]" style={{ color: '#6B7A72' }}>From</div>
+          <div className="font-title font-extrabold text-[30px] leading-none mt-0.5" style={{ color: '#1F4D3A', letterSpacing: '-0.03em' }}>
+            {selectedObj ? fmtTicketPrice(selectedObj.price, selectedObj.currency) : minPrice}
+            <span className="font-sans font-normal text-[13px] ml-1" style={{ color: '#6B7A72' }}>/ ticket</span>
+          </div>
+        </div>
+        {hasTickets && !allSoldOut && (
+          <span className="text-[12px] font-medium px-3 py-1 rounded-full" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+            ● Selling now
+          </span>
+        )}
+      </div>
+
+      {/* Ticket tiers */}
+      <div className="px-6 pt-4 pb-2">
+        {tickets.map(ticket => {
+          const soldOut = isSoldOut(ticket);
+          const selected = selectedTicket === ticket.id;
+          const remaining = ticket.quantity !== null ? ticket.quantity - ticket.quantity_sold : null;
+          return (
+            <button
+              key={ticket.id}
+              disabled={soldOut}
+              onClick={() => !soldOut && setSelectedTicket(ticket.id)}
+              className="w-full text-left mb-3 rounded-[14px] transition"
+              style={{
+                border: selected ? '1.5px solid #1F4D3A' : '1px solid #E5E0D4',
+                background: selected ? '#E8EFEB' : 'transparent',
+                padding: '15px 16px',
+                opacity: soldOut ? 0.55 : 1,
+                cursor: soldOut ? 'not-allowed' : 'pointer',
+              }}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="font-title font-semibold text-[15px]" style={{ color: '#0F1F18' }}>{ticket.name}</div>
+                  {ticket.description && (
+                    <div className="text-[12px] mt-0.5 leading-snug" style={{ color: '#6B7A72' }}>{ticket.description}</div>
+                  )}
+                </div>
+                <div className="font-mono font-medium text-[15px] shrink-0" style={{ color: soldOut ? '#6B7A72' : '#0F1F18', textDecoration: soldOut ? 'line-through' : 'none' }}>
+                  {soldOut ? 'Sold out' : fmtTicketPrice(ticket.price, ticket.currency)}
+                </div>
+              </div>
+              {remaining !== null && !soldOut && remaining <= 20 && (
+                <div className="text-[11px] mt-2 font-medium" style={{ color: '#C9A45E' }}>
+                  {remaining} left at this price
+                </div>
+              )}
+            </button>
+          );
+        })}
+
+        {/* No tickets */}
+        {tickets.length === 0 && (
+          <div className="text-[14px] py-2 mb-3" style={{ color: '#3A4A42' }}>Registration · Free</div>
+        )}
+
+        {/* Qty row */}
+        {hasTickets && !allSoldOut && (
+          <div className="flex items-center justify-between mt-2 mb-4" style={{ color: '#3A4A42' }}>
+            <span className="text-[14px]">Quantity</span>
+            <div className="inline-flex items-center overflow-hidden rounded-full" style={{ border: '1px solid #E5E0D4' }}>
+              <button onClick={() => setQty(Math.max(1, qty - 1))} className="w-9 h-9 flex items-center justify-center text-[17px] font-medium transition hover:bg-[#F0EDE8]" style={{ color: '#1F4D3A', background: '#FFFFFF', border: 'none' }}>−</button>
+              <span className="w-9 text-center font-mono font-medium text-[14px]" style={{ color: '#0F1F18' }}>{qty}</span>
+              <button onClick={() => setQty(qty + 1)} className="w-9 h-9 flex items-center justify-center text-[17px] font-medium transition hover:bg-[#F0EDE8]" style={{ color: '#1F4D3A', background: '#FFFFFF', border: 'none' }}>+</button>
+            </div>
+          </div>
+        )}
+
+        {/* Total */}
+        {hasTickets && (
+          <div className="flex items-center justify-between pt-4 mb-4" style={{ borderTop: '1px solid #E5E0D4' }}>
+            <span className="font-title font-semibold text-[15px]" style={{ color: '#0F1F18' }}>Total</span>
+            <span className="font-title font-extrabold text-[24px]" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>{total}</span>
+          </div>
+        )}
+
+        {/* CTA */}
+        {registrationClosed ? (
+          <div className="flex items-center justify-center h-12 rounded-xl text-[15px] font-semibold" style={{ background: '#F5F0E8', color: '#6B7A72', border: '1px solid #E5E0D4' }}>
+            Registration closed
+          </div>
+        ) : allSoldOut ? (
+          <Link href={`/e/${registrationSlug}/waitlist`}
+            className="flex items-center justify-center h-12 rounded-xl font-semibold text-[15px] transition hover:opacity-90"
+            style={{ background: '#E8C57E', color: '#0F1F18', textDecoration: 'none' }}>
+            Join waitlist
+          </Link>
+        ) : (
+          <Link href={registerHref}
+            className="flex items-center justify-center h-12 rounded-xl text-white font-semibold text-[15px] transition hover:opacity-90"
+            style={{ background: '#E8C57E', color: '#0F1F18', textDecoration: 'none' }}>
+            Get tickets
+          </Link>
+        )}
+
+        {/* Note */}
+        <div className="flex items-center justify-center gap-1.5 mt-3 text-[11px]" style={{ color: '#6B7A72' }}>
+          <svg viewBox="0 0 24 24" className="w-3 h-3 shrink-0" fill="none" stroke="#1F4D3A" strokeWidth="2">
+            <path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4z"/>
+          </svg>
+          Secure checkout · QR ticket + Karta Card to your phone
+        </div>
+
+        {/* Deadline */}
+        {page.registration_deadline && !registrationClosed && (
+          <div className="mt-2 text-center text-[12px]" style={{ color: '#6B7A72' }}>
+            Registration closes {new Date(page.registration_deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
+/* ─── Main component ────────────────────────────────────────────── */
+
 export function PublicEventPageClient({
-  page, tickets, dateStr, timeStr, endTimeStr, minPrice, registrationSlug, organizerUserId,
-  seriesSlug, seriesName,
+  page, tickets, dateStr, timeStr, endTimeStr, minPrice,
+  registrationSlug, organizerUserId, seriesSlug, seriesName,
+  sessions = [], speakers = [],
 }: Props) {
   const [savedHeart, setSavedHeart] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<string>(tickets[0]?.id ?? '');
+  const [qty, setQty] = useState(1);
 
   const selectedTicketObj = tickets.find(t => t.id === selectedTicket);
   const registerHref = selectedTicket
@@ -88,6 +293,11 @@ export function PublicEventPageClient({
     : `/e/${registrationSlug}/register`;
   const registrationClosed = !!(page.registration_deadline && new Date(page.registration_deadline) < new Date());
   const allSoldOut = tickets.length > 0 && tickets.every(t => t.quantity !== null && t.quantity_sold >= t.quantity);
+  const totalPrice = selectedTicketObj ? fmtTicketPrice(selectedTicketObj.price * qty, selectedTicketObj.currency) : minPrice;
+
+  const locationLine = page.is_online
+    ? 'Online event'
+    : [page.venue_name, page.venue_address].filter(Boolean).join(' · ') || 'Venue TBA';
 
   function handleShare() {
     if (navigator.share) {
@@ -97,256 +307,287 @@ export function PublicEventPageClient({
     }
   }
 
-  const locationLine = page.is_online
-    ? 'Online event'
-    : [page.venue_name, page.venue_address].filter(Boolean).join(' · ') || 'Venue TBA';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const tags: string[] = (page as any).tags ?? [];
 
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
 
-      {/* -- Hero ----------------------------------------------------- */}
-      <div
-        className="relative overflow-hidden w-full"
-        style={{ height: 440 }}
-      >
-        {/* Cover image or gradient fallback */}
-        {page.cover_image_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={page.cover_image_url}
-            alt={page.title}
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-        ) : (
-          <div
-            className="absolute inset-0"
-            style={{ background: 'linear-gradient(160deg, #0D2018 0%, #1F4D3A 50%, #2A6A50 100%)' }}
-          />
-        )}
+      {/* ── Wrapper ─────────────────────────────────────────── */}
+      <div className="mx-auto px-6 lg:px-10" style={{ maxWidth: 1240 }}>
 
-        {/* Dark scrim — bottom to top */}
-        <div
-          className="absolute inset-0"
-          style={{ background: 'linear-gradient(to top, rgba(10,20,14,0.90) 0%, rgba(10,20,14,0.45) 40%, transparent 75%)' }}
-        />
+        {/* ── Breadcrumb ───────────────────────────────────── */}
+        <nav className="flex items-center flex-wrap gap-2 pt-6 pb-3.5 text-[13px]" style={{ color: '#6B7A72' }}>
+          <Link href="/events" style={{ color: '#6B7A72', textDecoration: 'none' }}
+            className="hover:text-[#1F4D3A] transition-colors">Discover</Link>
+          <svg viewBox="0 0 24 24" className="w-3 h-3 shrink-0" fill="none" stroke="#E5E0D4" strokeWidth="2.5">
+            <path d="M9 18l6-6-6-6"/>
+          </svg>
+          {page.category && (
+            <>
+              <Link href={`/events/category/${page.category.toLowerCase()}`}
+                style={{ color: '#6B7A72', textDecoration: 'none' }}
+                className="hover:text-[#1F4D3A] transition-colors capitalize">
+                {page.category}
+              </Link>
+              <svg viewBox="0 0 24 24" className="w-3 h-3 shrink-0" fill="none" stroke="#E5E0D4" strokeWidth="2.5">
+                <path d="M9 18l6-6-6-6"/>
+              </svg>
+            </>
+          )}
+          <span className="font-medium truncate max-w-[260px]" style={{ color: '#1F4D3A' }}>{page.title}</span>
+        </nav>
 
-        {/* Share + Heart icons — top right */}
-        <div className="absolute top-5 right-5 flex gap-2.5 z-10">
-          <button
-            onClick={handleShare}
-            className="h-10 w-10 rounded-full flex items-center justify-center transition"
-            style={{ background: 'rgba(10,20,14,0.55)', backdropFilter: 'blur(10px)' }}
-            aria-label="Share"
-          >
-            <Share2 size={16} strokeWidth={2} color="white" />
-          </button>
-          <button
-            onClick={() => setSavedHeart(v => !v)}
-            className="h-10 w-10 rounded-full flex items-center justify-center transition"
-            style={{ background: 'rgba(10,20,14,0.55)', backdropFilter: 'blur(10px)' }}
-            aria-label="Save"
-          >
-            <Heart
-              size={16}
-              strokeWidth={2}
-              fill={savedHeart ? '#E8C57E' : 'none'}
-              color={savedHeart ? '#E8C57E' : 'white'}
-            />
-          </button>
-        </div>
+        {/* ── Hero ────────────────────────────────────────── */}
+        <div className="relative overflow-hidden mt-4" style={{ borderRadius: 22, height: 380 }}>
+          {/* Background */}
+          {page.cover_image_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={page.cover_image_url} alt={page.title} className="absolute inset-0 w-full h-full object-cover" />
+          ) : (
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg, #0D2018 0%, #1F4D3A 50%, #2A6A50 100%)' }} />
+          )}
+          {/* Scrim */}
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(10,20,14,0.92) 0%, rgba(10,20,14,0.4) 45%, transparent 75%)' }} />
 
-        {/* Hero caption — bottom */}
-        <div className="absolute bottom-0 left-0 right-0 z-10">
-          <div className="max-w-[1000px] mx-auto px-5 pb-8 flex items-end justify-between gap-6">
-            <div className="flex-1 min-w-0">
-              {seriesSlug && seriesName && (
-                <Link
-                  href={`/events/series/${seriesSlug}`}
-                  className="inline-flex items-center gap-1.5 text-[11px] font-medium mb-2 hover:opacity-80 transition-opacity"
-                  style={{ color: '#E8C57E', fontFamily: '"JetBrains Mono", monospace', letterSpacing: '0.05em' }}
-                >
-                  ↗ Series: {seriesName}
-                </Link>
+          {/* Category + Series tag */}
+          {(page.category || seriesSlug) && (
+            <span className="absolute top-5 left-5 z-10 px-3 py-[6px] rounded-full text-[11px] font-semibold uppercase tracking-[0.06em]"
+              style={{ background: '#E8C57E', color: '#0F1F18' }}>
+              {seriesSlug && seriesName ? `Series: ${seriesName}` : page.category}
+            </span>
+          )}
+
+          {/* Tools: save + share */}
+          <div className="absolute top-[18px] right-[18px] z-10 flex gap-2.5">
+            <button onClick={() => setSavedHeart(v => !v)}
+              className="w-[42px] h-[42px] rounded-full flex items-center justify-center transition"
+              style={{ background: 'rgba(250,246,238,0.92)' }}
+              aria-label="Save">
+              <svg viewBox="0 0 24 24" className="w-[18px] h-[18px]" fill={savedHeart ? '#B8423C' : 'none'} stroke={savedHeart ? '#B8423C' : '#3A4A42'} strokeWidth="1.9">
+                <path d="M12 21s-8-5.3-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 10c0 5.7-8 11-8 11z"/>
+              </svg>
+            </button>
+            <button onClick={handleShare}
+              className="w-[42px] h-[42px] rounded-full flex items-center justify-center transition"
+              style={{ background: 'rgba(250,246,238,0.92)' }}
+              aria-label="Share">
+              <svg viewBox="0 0 24 24" className="w-[18px] h-[18px]" fill="none" stroke="#3A4A42" strokeWidth="1.9">
+                <path d="M4 12v8a1 1 0 001 1h14a1 1 0 001-1v-8M16 6l-4-4-4 4M12 2v14"/>
+              </svg>
+            </button>
+          </div>
+
+          {/* Caption */}
+          <div className="absolute bottom-0 left-0 right-0 z-10 px-9 pb-8">
+            <h1 className="font-title font-extrabold leading-[1.02] text-white"
+              style={{ fontSize: 'clamp(30px,5vw,52px)', letterSpacing: '-0.035em', maxWidth: 760 }}>
+              {page.title}
+            </h1>
+            <div className="flex flex-wrap items-center gap-5 mt-4">
+              {dateStr && (
+                <span className="flex items-center gap-2 text-[14px]" style={{ color: 'rgba(255,255,255,0.9)' }}>
+                  <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="#E8C57E" strokeWidth="1.9">
+                    <rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>
+                  </svg>
+                  {dateStr}{timeStr ? ` · ${timeStr}` : ''}{endTimeStr ? ` – ${endTimeStr}` : ''}
+                </span>
               )}
-              {page.organizer_name && (
-                organizerUserId ? (
-                  <Link
-                    href={`/o/${organizerUserId}`}
-                    className="text-[16px] font-medium mb-2 font-display hover:opacity-80 transition-opacity"
-                    style={{ color: '#E8C57E', display: 'block' }}
-                  >
-                    {page.organizer_name} →
-                  </Link>
-                ) : (
-                  <div
-                    className="text-[16px] font-medium mb-2 font-display"
-                    style={{ color: '#E8C57E' }}
-                  >
-                    {page.organizer_name}
-                  </div>
-                )
+              {locationLine && (
+                <span className="flex items-center gap-2 text-[14px]" style={{ color: 'rgba(255,255,255,0.9)' }}>
+                  <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="#E8C57E" strokeWidth="1.9">
+                    {page.is_online
+                      ? <><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18a14 14 0 010-18z"/></>
+                      : <><path d="M12 21s-6-5.2-6-10a6 6 0 0112 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></>
+                    }
+                  </svg>
+                  {locationLine}
+                </span>
               )}
-              <h1
-                className="font-display font-semibold leading-tight"
-                style={{
-                  fontSize: 'clamp(24px, 4vw, 40px)',
-                  letterSpacing: '-0.025em',
-                  color: 'white',
-                  maxWidth: 600,
-                }}
-              >
-                {page.title}
-              </h1>
-            </div>
-            <div
-              className="text-right shrink-0 hidden sm:block"
-              style={{ color: 'rgba(255,255,255,0.85)', fontSize: 14, fontFamily: 'Inter, system-ui, sans-serif' }}
-            >
-              <div>{dateStr}</div>
-              <div className="mt-1">{timeStr} – {endTimeStr}</div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* -- Main layout --------------------------------------------- */}
-      <div className="max-w-[1000px] mx-auto px-5">
+        {/* ── 2-col layout ────────────────────────────────── */}
+        <div className="grid lg:grid-cols-[1fr_380px] gap-8 lg:gap-11 pt-9 pb-24" style={{ alignItems: 'start' }}>
 
-        {/* Meta strip */}
-        <div
-          className="flex items-start justify-between gap-4 py-5 text-[14px]"
-          style={{ borderBottom: '1px solid #E5E0D4', fontFamily: 'Inter, system-ui, sans-serif', color: '#3A4A42' }}
-        >
-          <div className="flex flex-wrap gap-x-6 gap-y-1.5 min-w-0">
-            <span className="flex items-center gap-2 shrink-0">
-              <Calendar size={14} strokeWidth={2} style={{ color: '#1F4D3A' }} />
-              {dateStr}
-            </span>
-            <span className="flex items-center gap-2 shrink-0">
-              <Clock size={14} strokeWidth={2} style={{ color: '#1F4D3A' }} />
-              {timeStr} – {endTimeStr}
-            </span>
-            <span className="flex items-center gap-2 min-w-0">
-              {page.is_online
-                ? <Globe size={14} strokeWidth={2} style={{ color: '#1F4D3A', flexShrink: 0 }} />
-                : <MapPin size={14} strokeWidth={2} style={{ color: '#1F4D3A', flexShrink: 0 }} />
-              }
-              <span className="truncate">{locationLine}</span>
-            </span>
-            <span className="flex items-center gap-2 shrink-0">
-              <Users size={14} strokeWidth={2} style={{ color: '#1F4D3A' }} />
-              {minPrice}
-            </span>
-          </div>
-          <AddToCalendarButton
-            title={page.title}
-            description={page.description ?? null}
-            startsAt={page.starts_at ?? ''}
-            endsAt={page.ends_at ?? null}
-            timezone={page.timezone ?? null}
-            location={locationLine}
-            eventUrl={`https://karta.cre8so.com/e/${registrationSlug}`}
-          />
-        </div>
-
-        {/* Two-column layout */}
-        <div
-          className="grid gap-8 py-10 lg:grid-cols-[1fr_340px]"
-          style={{ alignItems: 'start' }}
-        >
-          {/* -- Content column ------------------------------------ */}
+          {/* LEFT */}
           <div className="min-w-0">
 
-            {/* About */}
+            {/* Attending bar */}
+            <div className="flex flex-wrap items-center gap-4 p-5 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
+              {/* Avatar stack (decorative) */}
+              <div className="flex">
+                {[0, 1, 2, 3].map(i => (
+                  <div key={i} className="w-[38px] h-[38px] rounded-full flex items-center justify-center text-[12px] font-bold text-white"
+                    style={{ border: '2px solid #FFFFFF', marginLeft: i > 0 ? -12 : 0, zIndex: 4 - i, background: AVATAR_COLORS[i % AVATAR_COLORS.length] }}>
+                    {String.fromCharCode(65 + i)}
+                  </div>
+                ))}
+              </div>
+              <div className="text-[14px]" style={{ color: '#3A4A42' }}>
+                People are attending
+              </div>
+              {(page.organizer_name || organizerUserId) && (
+                <div className="ml-auto flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-[11px] flex items-center justify-center text-[13px] font-bold text-white"
+                    style={{ background: '#1F4D3A' }}>
+                    {initialsOf(page.organizer_name ?? 'K')}
+                  </div>
+                  <div>
+                    <div className="text-[12px]" style={{ color: '#6B7A72' }}>Hosted by</div>
+                    {organizerUserId ? (
+                      <Link href={`/o/${organizerUserId}`} className="font-title font-semibold text-[14px] hover:opacity-80 transition-opacity" style={{ color: '#0F1F18', textDecoration: 'none' }}>
+                        {page.organizer_name}
+                      </Link>
+                    ) : (
+                      <div className="font-title font-semibold text-[14px]" style={{ color: '#0F1F18' }}>{page.organizer_name}</div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Add to calendar */}
+            <div className="mt-3 flex justify-end">
+              <AddToCalendarButton
+                title={page.title}
+                description={page.description ?? null}
+                startsAt={page.starts_at ?? ''}
+                endsAt={page.ends_at ?? null}
+                timezone={page.timezone ?? null}
+                location={locationLine}
+                eventUrl={`https://karta.cre8so.com/e/${registrationSlug}`}
+              />
+            </div>
+
+            {/* About block */}
             {page.description && (
-              <section className="mb-10">
-                <h2
-                  className="font-display font-medium mb-4"
-                  style={{ fontSize: 22, color: '#0F1F18', letterSpacing: '-0.015em' }}
-                >
+              <div className="mt-9">
+                <h2 className="font-title font-bold text-[22px] mb-4" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
                   About this event
                 </h2>
-                <div
-                  className="text-[15px] leading-relaxed whitespace-pre-line"
-                  style={{ color: '#3A4A42' }}
-                >
+                <div className="text-[15px] leading-[1.7] whitespace-pre-line" style={{ color: '#3A4A42' }}>
                   {page.description}
                 </div>
-              </section>
+                {tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    {tags.map(tag => (
+                      <span key={tag} className="h-8 px-3.5 rounded-full flex items-center text-[13px]"
+                        style={{ background: '#F0EDE8', border: '1px solid #E5E0D4', color: '#3A4A42' }}>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
 
-            {/* Venue / online info */}
+            {/* Agenda block */}
+            {sessions.length > 0 && (
+              <div className="mt-9">
+                <h2 className="font-title font-bold text-[22px] mb-4" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+                  Agenda
+                </h2>
+                <div className="overflow-hidden rounded-2xl" style={{ border: '1px solid #E5E0D4' }}>
+                  {sessions.map((s, i) => (
+                    <div key={s.id}
+                      className="grid gap-4 px-6 py-4"
+                      style={{
+                        gridTemplateColumns: '84px 1fr',
+                        borderBottom: i < sessions.length - 1 ? '1px solid #E5E0D4' : 'none',
+                      }}>
+                      <span className="font-mono font-medium text-[13px]" style={{ color: '#C9A45E' }}>
+                        {fmtSessionTime(s.starts_at)}
+                      </span>
+                      <div>
+                        <div className="font-title font-semibold text-[15px]" style={{ color: '#0F1F18' }}>{s.title}</div>
+                        {s.room && (
+                          <div className="text-[13px] mt-0.5" style={{ color: '#6B7A72' }}>{s.room}</div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Speakers block */}
+            {speakers.length > 0 && (
+              <div className="mt-9">
+                <h2 className="font-title font-bold text-[22px] mb-4" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+                  Speakers
+                </h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  {speakers.map((s, i) => (
+                    <div key={s.id} className="text-center">
+                      {s.photo_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={s.photo_url} alt={s.name}
+                          className="w-[84px] h-[84px] rounded-full mx-auto mb-3 object-cover"
+                          style={{ border: '2px solid #E5E0D4' }} />
+                      ) : (
+                        <div className="w-[84px] h-[84px] rounded-full mx-auto mb-3 flex items-center justify-center text-[22px] font-bold text-white"
+                          style={{ background: AVATAR_COLORS[i % AVATAR_COLORS.length] }}>
+                          {initialsOf(s.name)}
+                        </div>
+                      )}
+                      <div className="font-title font-semibold text-[14px]" style={{ color: '#0F1F18' }}>{s.name}</div>
+                      <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{s.headline ?? s.role}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Location block */}
             {(page.venue_name || page.is_online) && (
-              <section className="mb-10">
-                <h2
-                  className="font-display font-medium mb-4"
-                  style={{ fontSize: 22, color: '#0F1F18', letterSpacing: '-0.015em' }}
-                >
-                  {page.is_online ? 'Online event' : 'Venue'}
+              <div className="mt-9">
+                <h2 className="font-title font-bold text-[22px] mb-4" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+                  Location
                 </h2>
                 {page.is_online ? (
                   <div className="text-[15px]" style={{ color: '#3A4A42' }}>
                     {page.online_url
-                      ? <span>Join link will be shared with registered attendees.</span>
-                      : <span>Details will be sent after registration.</span>
-                    }
+                      ? 'Join link will be shared with registered attendees.'
+                      : 'Details will be sent after registration.'}
                   </div>
                 ) : (
-                  <div>
-                    {page.venue_name && (
-                      <div className="font-medium text-[15px] mb-0.5" style={{ color: '#0F1F18' }}>
-                        {page.venue_name}
-                      </div>
-                    )}
-                    {page.venue_address && (
-                      <div className="text-[14px]" style={{ color: '#6B7A72' }}>
-                        {page.venue_address}
-                      </div>
-                    )}
-                    {/* Real map if coordinates available */}
+                  <>
                     {page.venue_lat && page.venue_lng ? (
-                      <>
-                        <VenueMap
-                          lat={page.venue_lat}
-                          lng={page.venue_lng}
-                          venueName={page.venue_name ?? ''}
-                        />
-                        <a
-                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(page.venue_address || page.venue_name || '')}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="mt-2 inline-flex items-center gap-1.5 text-[13px] font-medium hover:opacity-75 transition-opacity"
-                          style={{ color: '#1F4D3A' }}
-                        >
-                          <ExternalLink size={12} strokeWidth={2} />
-                          Open in Google Maps
-                        </a>
-                      </>
-                    ) : page.venue_address ? (
-                      <a
-                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(page.venue_address)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <VenueMap lat={page.venue_lat} lng={page.venue_lng} venueName={page.venue_name ?? ''} />
+                    ) : (
+                      <MapPlaceholder />
+                    )}
+                    <div className="mt-3.5 text-[14px]" style={{ color: '#3A4A42' }}>
+                      {page.venue_name && (
+                        <span className="font-title font-semibold text-[15px] block mb-1" style={{ color: '#0F1F18' }}>{page.venue_name}</span>
+                      )}
+                      {page.venue_address}
+                    </div>
+                    {page.venue_address && (
+                      <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(page.venue_address)}`}
+                        target="_blank" rel="noopener noreferrer"
                         className="mt-2 inline-flex items-center gap-1.5 text-[13px] font-medium hover:opacity-75 transition-opacity"
-                        style={{ color: '#1F4D3A' }}
-                      >
+                        style={{ color: '#1F4D3A' }}>
                         <ExternalLink size={12} strokeWidth={2} />
                         Open in Google Maps
                       </a>
-                    ) : null}
-                  </div>
+                    )}
+                  </>
                 )}
-              </section>
+              </div>
             )}
 
-            {/* Mobile: show tickets inline before sidebar on small screens */}
-            <div className="lg:hidden">
+            {/* Mobile ticket panel */}
+            <div className="lg:hidden mt-9">
               <TicketList
                 tickets={tickets}
                 selectedTicket={selectedTicket}
                 setSelectedTicket={setSelectedTicket}
+                qty={qty}
+                setQty={setQty}
                 registerHref={registerHref}
-                selectedTicketObj={selectedTicketObj}
                 page={page}
                 minPrice={minPrice}
                 registrationSlug={registrationSlug}
@@ -355,14 +596,15 @@ export function PublicEventPageClient({
 
           </div>
 
-          {/* -- Sidebar: registration card ------------------------ */}
+          {/* RIGHT: sticky ticket panel (desktop) */}
           <aside className="hidden lg:block" style={{ position: 'sticky', top: 88 }}>
             <TicketList
               tickets={tickets}
               selectedTicket={selectedTicket}
               setSelectedTicket={setSelectedTicket}
+              qty={qty}
+              setQty={setQty}
               registerHref={registerHref}
-              selectedTicketObj={selectedTicketObj}
               page={page}
               minPrice={minPrice}
               registrationSlug={registrationSlug}
@@ -371,197 +613,35 @@ export function PublicEventPageClient({
         </div>
       </div>
 
-      {/* -- Mobile bottom bar ---------------------------------------- */}
-      <div
-        className="fixed bottom-0 left-0 right-0 lg:hidden flex items-center gap-3 px-4 py-3 z-50"
-        style={{ background: 'white', borderTop: '1px solid #E5E0D4', boxShadow: '0 -4px 16px rgba(15,31,24,0.08)' }}
-      >
+      {/* ── Mobile sticky bar ───────────────────────────────── */}
+      <div className="fixed bottom-0 left-0 right-0 lg:hidden flex items-center gap-3 px-5 py-3 z-50"
+        style={{ background: '#FFFFFF', borderTop: '1px solid #E5E0D4', boxShadow: '0 -4px 20px rgba(15,31,24,0.08)' }}>
         <div className="flex-1 min-w-0">
-          <div
-            className="text-[17px] font-medium"
-            style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#1F4D3A' }}
-          >
-            {selectedTicketObj
-              ? fmtTicketPrice(selectedTicketObj.price, selectedTicketObj.currency)
-              : minPrice}
-          </div>
-          <div className="text-[12px] truncate" style={{ color: '#6B7A72' }}>
-            {selectedTicketObj?.name ?? 'Select a ticket'}
+          <div className="font-title font-extrabold text-[20px]" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>
+            {totalPrice}
+            <small className="font-sans font-normal text-[12px] ml-1" style={{ color: '#6B7A72' }}>· {qty} ticket{qty !== 1 ? 's' : ''}</small>
           </div>
         </div>
         {registrationClosed ? (
-          <div
-            className="inline-flex items-center h-11 px-6 rounded-xl font-display font-semibold text-[15px] shrink-0"
-            style={{ background: '#F5F0E8', color: '#6B7A72', border: '1px solid #E5E0D4' }}
-          >
+          <div className="inline-flex items-center h-11 px-6 rounded-xl font-semibold text-[14px]"
+            style={{ background: '#F5F0E8', color: '#6B7A72', border: '1px solid #E5E0D4' }}>
             Closed
           </div>
         ) : allSoldOut ? (
-          <Link
-            href={`/e/${registrationSlug}/waitlist`}
-            className="inline-flex items-center h-11 px-6 rounded-xl font-display font-semibold text-[15px] transition hover:opacity-90 shrink-0"
-            style={{ background: '#E8C57E', color: '#0F1F18' }}
-          >
+          <Link href={`/e/${registrationSlug}/waitlist`}
+            className="inline-flex items-center h-11 px-6 rounded-xl font-semibold text-[14px] transition hover:opacity-90"
+            style={{ background: '#E8C57E', color: '#0F1F18', textDecoration: 'none' }}>
             Join waitlist
           </Link>
         ) : (
-          <Link
-            href={registerHref}
-            className="inline-flex items-center h-11 px-6 rounded-xl text-white font-display font-semibold text-[15px] transition hover:opacity-90 shrink-0"
-            style={{ background: '#1F4D3A' }}
-          >
-            Register now
+          <Link href={registerHref}
+            className="inline-flex items-center h-11 px-6 rounded-xl font-semibold text-[14px] transition hover:opacity-90"
+            style={{ background: '#E8C57E', color: '#0F1F18', textDecoration: 'none' }}>
+            Get tickets
           </Link>
         )}
       </div>
-      {/* Spacer so content isn't hidden behind mobile bar */}
       <div className="h-20 lg:hidden" />
-    </div>
-  );
-}
-
-/* -- Ticket list (shared between sidebar and mobile inline) -- */
-function TicketList({
-  tickets, selectedTicket, setSelectedTicket, registerHref, selectedTicketObj, page, minPrice, registrationSlug,
-}: {
-  tickets: TicketTypeRow[];
-  selectedTicket: string;
-  setSelectedTicket: (id: string) => void;
-  registerHref: string;
-  selectedTicketObj: TicketTypeRow | undefined;
-  page: EventPageRow;
-  minPrice: string;
-  registrationSlug: string;
-}) {
-  const isSoldOut = (t: TicketTypeRow) =>
-    t.quantity !== null && t.quantity_sold >= t.quantity;
-  const hasTickets = tickets.length > 0;
-  const allSoldOut = hasTickets && tickets.every(isSoldOut);
-  const registrationClosed = !!(page.registration_deadline && new Date(page.registration_deadline) < new Date());
-
-  return (
-    <div
-      className="rounded-2xl p-6"
-      style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)' }}
-    >
-      {/* Price headline */}
-      <div
-        className="text-[28px] font-medium mb-1"
-        style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#1F4D3A' }}
-      >
-        {selectedTicketObj
-          ? fmtTicketPrice(selectedTicketObj.price, selectedTicketObj.currency)
-          : minPrice
-        }
-      </div>
-      <div className="text-[13px] mb-5" style={{ color: '#6B7A72' }}>
-        {selectedTicketObj?.name ?? (hasTickets ? 'Select a ticket below' : 'Registration')}
-      </div>
-
-      {/* Ticket options */}
-      {tickets.map(ticket => {
-        const soldOut = isSoldOut(ticket);
-        const selected = selectedTicket === ticket.id;
-        return (
-          <button
-            key={ticket.id}
-            disabled={soldOut}
-            onClick={() => !soldOut && setSelectedTicket(ticket.id)}
-            className="w-full text-left flex items-start gap-3 p-4 rounded-xl mb-2 transition"
-            style={{
-              border: selected ? '2px solid #1F4D3A' : '1px solid #E5E0D4',
-              background: selected ? 'rgba(31,77,58,0.04)' : 'white',
-              opacity: soldOut ? 0.5 : 1,
-              cursor: soldOut ? 'not-allowed' : 'pointer',
-            }}
-          >
-            {/* Radio indicator */}
-            <div
-              className="mt-0.5 shrink-0 rounded-full flex items-center justify-center"
-              style={{
-                width: 18, height: 18,
-                border: selected ? '1.5px solid #1F4D3A' : '1.5px solid #C9C3B1',
-                background: selected ? '#1F4D3A' : 'transparent',
-              }}
-            >
-              {selected && <div className="w-2 h-2 rounded-full bg-white" />}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between gap-2">
-                <span
-                  className="text-[14px] font-medium leading-snug"
-                  style={{ color: soldOut ? '#6B7A72' : '#0F1F18' }}
-                >
-                  {ticket.name}
-                </span>
-                <span
-                  className="text-[14px] shrink-0"
-                  style={{ fontFamily: 'Inter, system-ui, sans-serif', color: ticket.price === 0 ? '#2D7A4F' : '#1F4D3A', fontWeight: 500 }}
-                >
-                  {soldOut ? 'Sold out' : fmtTicketPrice(ticket.price, ticket.currency)}
-                </span>
-              </div>
-              {ticket.description && (
-                <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>
-                  {ticket.description}
-                </div>
-              )}
-              {ticket.quantity !== null && !soldOut && ticket.quantity - ticket.quantity_sold <= 20 && (
-                <div className="text-[11px] mt-1" style={{ color: '#C97A2D' }}>
-                  {ticket.quantity - ticket.quantity_sold} left
-                </div>
-              )}
-            </div>
-          </button>
-        );
-      })}
-
-      {/* CTA */}
-      {registrationClosed ? (
-        <div
-          className="mt-4 flex items-center justify-center h-12 rounded-xl text-[15px] font-display font-semibold"
-          style={{ background: '#F5F0E8', color: '#6B7A72', border: '1px solid #E5E0D4' }}
-        >
-          Registration closed
-        </div>
-      ) : allSoldOut ? (
-        <Link
-          href={`/e/${registrationSlug}/waitlist`}
-          className="mt-4 flex items-center justify-center h-12 rounded-xl font-display font-semibold text-[15px] transition hover:opacity-90"
-          style={{ background: '#E8C57E', color: '#0F1F18' }}
-        >
-          Join waitlist
-        </Link>
-      ) : (
-        <Link
-          href={registerHref}
-          className="mt-4 flex items-center justify-center h-12 rounded-xl text-white font-display font-semibold text-[15px] transition hover:opacity-90"
-          style={{ background: '#1F4D3A' }}
-        >
-          Register now
-        </Link>
-      )}
-
-      {/* Registration deadline note */}
-      {page.registration_deadline && !registrationClosed && (
-        <div
-          className="mt-3 text-center text-[12px]"
-          style={{ color: '#6B7A72' }}
-        >
-          Registration closes {new Date(page.registration_deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-        </div>
-      )}
-
-      {/* Capacity note */}
-      {page.max_capacity && (
-        <div
-          className="mt-2 text-center text-[12px] flex items-center justify-center gap-1"
-          style={{ color: '#6B7A72' }}
-        >
-          <Users size={11} strokeWidth={2} />
-          Limited to {page.max_capacity} attendees
-        </div>
-      )}
     </div>
   );
 }

@@ -89,6 +89,21 @@ export default async function PublicEventPage({ params, searchParams }: Props) {
     seriesSlug = series?.slug ?? null;
   }
 
+  // Sessions + speakers for agenda/speakers sections
+  const [sessionsRes, speakersRes] = await Promise.all([
+    admin.from('sessions').select('id, title, starts_at, ends_at, room, session_type')
+      .eq('event_id', page.event_id)
+      .eq('is_published', true)
+      .order('starts_at')
+      .limit(10),
+    admin.from('speakers').select('id, name, headline, role, photo_url, speaker_type')
+      .eq('event_id', page.event_id)
+      .order('position')
+      .limit(6),
+  ]);
+  const sessions = sessionsRes.data ?? [];
+  const speakers = speakersRes.data ?? [];
+
   return (
     <>
       <PublicNav eventSlug={params.slug} />
@@ -139,6 +154,8 @@ export default async function PublicEventPage({ params, searchParams }: Props) {
         organizerUserId={organizerUserId}
         seriesSlug={seriesSlug}
         seriesName={page.series_name ?? null}
+        sessions={sessions}
+        speakers={speakers}
       />
     </>
   );
