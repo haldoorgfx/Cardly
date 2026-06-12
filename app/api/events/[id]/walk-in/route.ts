@@ -22,8 +22,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     }
   }
 
-  const body = await req.json() as { name: string; email: string; phone?: string; ticketId?: string; payment?: string };
-  const { name, email, phone, ticketId, payment } = body;
+  const body = await req.json() as { name: string; email: string; phone?: string; ticketId?: string };
+  const { name, email, phone, ticketId } = body;
   if (!name || !email) return NextResponse.json({ error: 'name and email required' }, { status: 400 });
 
   // Generate QR token
@@ -40,7 +40,6 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     qr_code_token: qr,
     amount_paid: 0,
     source: 'walk_in',
-    payment_method: payment ?? 'cash',
     checked_in_at: new Date().toISOString(),
   }).select('id').single();
 
