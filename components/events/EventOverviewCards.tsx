@@ -94,7 +94,7 @@ export function EventOverviewCards({ cards, userPlan }: Props) {
             <Link
               key={card.id}
               href={card.href}
-              className="group flex flex-col p-5 rounded-2xl transition-all hover:-translate-y-0.5"
+              className="group flex flex-col p-5 rounded-2xl transition-all hover:-translate-y-0.5 hover:border-[#1F4D3A]/40"
               style={{
                 background: card.gold
                   ? 'linear-gradient(135deg, rgba(232,197,126,0.16), rgba(31,77,58,0.06))'
@@ -103,8 +103,6 @@ export function EventOverviewCards({ cards, userPlan }: Props) {
                 boxShadow: '0 1px 2px rgba(15,31,24,0.04)',
                 textDecoration: 'none',
               }}
-              onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(31,77,58,0.4)')}
-              onMouseLeave={e => (e.currentTarget.style.borderColor = '#E5E0D4')}
             >
               <div className="flex items-start justify-between mb-3">
                 <div
