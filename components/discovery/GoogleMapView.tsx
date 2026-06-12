@@ -1,11 +1,18 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { GoogleMap, useJsApiLoader, OverlayView, InfoWindow } from '@react-google-maps/api';
 import type { DiscoveryEvent } from './EventCard';
 
-const AFRICA_CENTER = { lat: 2.0, lng: 25.0 };
-const AFRICA_ZOOM = 4;
+const WORLD_CENTER = { lat: 12.0, lng: 20.0 };
+const WORLD_ZOOM = 3;
+const MAX_DEFAULT_ZOOM = 11; // never auto-zoom tighter than a city view
+
+function priceBubbleLabel(price?: number | null): string {
+  if (price === 0) return 'Free';
+  if (price != null) return `$${Math.round(price)}`;
+  return 'Tickets';
+}
 
 interface Props {
   events: DiscoveryEvent[];
@@ -25,21 +32,50 @@ export function GoogleMapView({ events, hoveredId, onHover, onBoundsChange }: Pr
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const mappable = events.filter(e => typeof (e as any).venue_lat === 'number' && typeof (e as any).venue_lng === 'number');
+  const mappable = useMemo(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    () => events.filter(e => typeof (e as any).venue_lat === 'number' && typeof (e as any).venue_lng === 'number'),
+    [events],
+  );
 
   const onLoad = useCallback((mapInstance: google.maps.Map) => {
     setMap(mapInstance);
-    if (mappable.length === 0) return;
 
-    const bounds = new google.maps.LatLngBounds();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    mappable.forEach(e => bounds.extend({ lat: (e as any).venue_lat, lng: (e as any).venue_lng }));
-    mapInstance.fitBounds(bounds, 80);
-    if (mappable.length === 1) mapInstance.setZoom(14);
-  }, [mappable]); // eslint-disable-line react-hooks/exhaustive-deps
+    // 1) Fit the current events so something is always visible immediately,
+    //    but never zoom in tighter than a city.
+    if (mappable.length > 0) {
+      const bounds = new google.maps.LatLngBounds();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mappable.forEach(e => bounds.extend({ lat: (e as any).venue_lat, lng: (e as any).venue_lng }));
+      mapInstance.fitBounds(bounds, 80);
+      google.maps.event.addListenerOnce(mapInstance, 'idle', () => {
+        const z = mapInstance.getZoom() ?? WORLD_ZOOM;
+        if (z > MAX_DEFAULT_ZOOM) mapInstance.setZoom(MAX_DEFAULT_ZOOM);
+      });
+    }
+
+    // 2) Default to the user's region if they allow location — "events near me".
+    if (typeof navigator !== 'undefined' && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          mapInstance.setCenter({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+          mapInstance.setZoom(8);
+        },
+        () => { /* denied — keep the fitted view */ },
+        { timeout: 6000, maximumAge: 600_000 },
+      );
+    }
+  }, [mappable]);
 
   const onUnmount = useCallback(() => setMap(null), []);
+
+  // Keep the map and the list in sync: hovering a list card pans to its pin.
+  useEffect(() => {
+    if (!map || !hoveredId) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const e = mappable.find(x => x.id === hoveredId) as any;
+    if (e) map.panTo({ lat: e.venue_lat, lng: e.venue_lng });
+  }, [hoveredId, map, mappable]);
 
   const handleSearchArea = useCallback(() => {
     if (!map || !onBoundsChange) return;
@@ -83,8 +119,8 @@ export function GoogleMapView({ events, hoveredId, onHover, onBoundsChange }: Pr
     <div className="relative w-full h-full">
       <GoogleMap
         mapContainerStyle={{ width: '100%', height: '100%' }}
-        center={AFRICA_CENTER}
-        zoom={AFRICA_ZOOM}
+        center={WORLD_CENTER}
+        zoom={WORLD_ZOOM}
         onLoad={onLoad}
         onUnmount={onUnmount}
         options={{
@@ -99,7 +135,7 @@ export function GoogleMapView({ events, hoveredId, onHover, onBoundsChange }: Pr
         {mappable.map(ev => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const p = ev as any;
-          const price = ev.price_from === 0 ? 'Free' : ev.price_from != null ? `$${Math.round(ev.price_from)}` : '···';
+          const price = priceBubbleLabel(ev.price_from);
           const active = hoveredId === ev.id || selectedId === ev.id;
 
           return (
