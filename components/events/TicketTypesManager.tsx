@@ -1,12 +1,18 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { Plus, Pencil, Trash2, Eye, EyeOff, ChevronUp, ChevronDown, Tag, Users } from 'lucide-react';
+import { Plus, Pencil, Trash2, Eye, EyeOff, ChevronUp, ChevronDown, Tag, Users, CalendarDays, AlertCircle } from 'lucide-react';
 import type { Database } from '@/types/database';
 
 type TicketRow = Database['public']['Tables']['ticket_types']['Row'];
 
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'NGN', 'KES', 'GHS', 'ZAR', 'UGX', 'TZS'];
+
+export interface EventDates {
+  starts_at: string | null;
+  ends_at: string | null;
+  max_capacity: number | null;
+}
 
 interface FormState {
   name: string;
@@ -24,11 +30,27 @@ interface FormState {
   is_visible: boolean;
 }
 
-function blankForm(): FormState {
+function fmtDate(iso: string) {
+  return new Date(iso).toLocaleString('en-US', {
+    month: 'short', day: 'numeric', year: 'numeric',
+    hour: '2-digit', minute: '2-digit',
+  });
+}
+
+// Convert UTC ISO to datetime-local input value (browser local time)
+function toLocalInput(iso: string): string {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function blankForm(eventDates?: EventDates): FormState {
   return {
     name: '', description: '', isFree: true, price: '', currency: 'USD',
     isLimited: false, quantity: '',
-    hasSalesWindow: false, sales_start: '', sales_end: '',
+    hasSalesWindow: false,
+    sales_start: '',
+    sales_end: eventDates?.ends_at ? toLocalInput(eventDates.ends_at) : '',
     min_per_order: '1', max_per_order: '10', is_visible: true,
   };
 }
@@ -69,20 +91,23 @@ function formToBody(f: FormState) {
 interface Props {
   eventId: string;
   initialTickets: TicketRow[];
+  eventDates?: EventDates;
 }
 
 type PanelState = 'closed' | 'new' | { editing: string };
 
-export function TicketTypesManager({ eventId, initialTickets }: Props) {
+export function TicketTypesManager({ eventId, initialTickets, eventDates }: Props) {
+  const ev = eventDates ?? { starts_at: null, ends_at: null, max_capacity: null };
+
   const [tickets, setTickets] = useState<TicketRow[]>(initialTickets);
   const [panel, setPanel] = useState<PanelState>('closed');
-  const [form, setForm] = useState<FormState>(blankForm());
+  const [form, setForm] = useState<FormState>(blankForm(ev));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  const openNew = () => { setForm(blankForm()); setError(''); setPanel('new'); };
+  const openNew = () => { setForm(blankForm(ev)); setError(''); setPanel('new'); };
   const openEdit = (t: TicketRow) => { setForm(rowToForm(t)); setError(''); setPanel({ editing: t.id }); };
   const closePanel = () => { setPanel('closed'); setError(''); };
 
@@ -93,11 +118,61 @@ export function TicketTypesManager({ eventId, initialTickets }: Props) {
     setForm(prev => ({ ...prev, [key]: val }));
   }, []);
 
-  async function handleSave() {
-    if (!form.name.trim()) { setError('Name is required'); return; }
+  // Capacity accounting
+  const totalAllocated = tickets
+    .filter(t => t.quantity !== null && t.id !== editingId)
+    .reduce((sum, t) => sum + (t.quantity ?? 0), 0);
+  const remainingCapacity = ev.max_capacity !== null ? ev.max_capacity - totalAllocated : null;
+
+  function clientValidate(): string | null {
+    if (!form.name.trim()) return 'Ticket name is required';
+
     if (!form.isFree && (!form.price || parseFloat(form.price) <= 0)) {
-      setError('Enter a price greater than 0'); return;
+      return 'Enter a price greater than 0';
     }
+
+    if (form.isLimited) {
+      const qty = parseInt(form.quantity);
+      if (!form.quantity || isNaN(qty) || qty < 1) return 'Quantity must be at least 1';
+      if (ev.max_capacity !== null && qty > (remainingCapacity ?? Infinity)) {
+        return remainingCapacity !== null && remainingCapacity <= 0
+          ? `Event capacity (${ev.max_capacity}) is already fully allocated`
+          : `Quantity (${qty}) exceeds available capacity. Max you can allocate: ${remainingCapacity}`;
+      }
+    }
+
+    const min = parseInt(form.min_per_order);
+    const max = parseInt(form.max_per_order);
+    if (isNaN(min) || min < 1) return 'Min per order must be at least 1';
+    if (isNaN(max) || max < 1) return 'Max per order must be at least 1';
+    if (min > max) return `Min per order (${min}) cannot be greater than max per order (${max})`;
+
+    if (form.hasSalesWindow) {
+      if (!form.sales_start && !form.sales_end) {
+        return 'Set at least a start or end date for the sales window, or turn it off';
+      }
+      if (form.sales_start && form.sales_end) {
+        if (new Date(form.sales_start) >= new Date(form.sales_end)) {
+          return 'Sales start must be before sales end';
+        }
+      }
+      if (ev.ends_at) {
+        if (form.sales_end && new Date(form.sales_end) > new Date(ev.ends_at)) {
+          return `Sales cannot end after the event ends (${fmtDate(ev.ends_at)})`;
+        }
+        if (form.sales_start && new Date(form.sales_start) >= new Date(ev.ends_at)) {
+          return `Sales cannot start on or after the event end (${fmtDate(ev.ends_at)})`;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  async function handleSave() {
+    const validationErr = clientValidate();
+    if (validationErr) { setError(validationErr); return; }
+
     setSaving(true); setError('');
     try {
       if (isEditing && editingId) {
@@ -160,7 +235,6 @@ export function TicketTypesManager({ eventId, initialTickets }: Props) {
     if (swapIdx < 0 || swapIdx >= next.length) return;
     [next[idx], next[swapIdx]] = [next[swapIdx], next[idx]];
     setTickets(next);
-    // Persist positions
     await Promise.all([
       fetch(`/api/events/${eventId}/tickets`, {
         method: 'PATCH', headers: { 'Content-Type': 'application/json' },
@@ -176,8 +250,47 @@ export function TicketTypesManager({ eventId, initialTickets }: Props) {
   const soldOut = (t: TicketRow) => t.quantity !== null && t.quantity_sold >= t.quantity;
   const remaining = (t: TicketRow) => t.quantity !== null ? t.quantity - t.quantity_sold : null;
 
+  // Datetime-local min/max from event dates
+  const eventStartInput = ev.starts_at ? toLocalInput(ev.starts_at) : undefined;
+  const eventEndInput = ev.ends_at ? toLocalInput(ev.ends_at) : undefined;
+
   return (
     <div>
+
+      {/* ── Event date + capacity banner ─────────────────────────── */}
+      {(ev.starts_at || ev.ends_at || ev.max_capacity !== null) && (
+        <div
+          className="mb-5 px-4 py-3 rounded-xl flex flex-wrap items-center gap-x-6 gap-y-2 text-[12.5px]"
+          style={{ background: '#E8EFEB', border: '1px solid rgba(31,77,58,0.2)', color: '#1F4D3A' }}
+        >
+          {(ev.starts_at || ev.ends_at) && (
+            <span className="flex items-center gap-1.5">
+              <CalendarDays size={13} strokeWidth={2} />
+              {ev.starts_at && fmtDate(ev.starts_at)}
+              {ev.starts_at && ev.ends_at && <span style={{ color: 'rgba(31,77,58,0.5)' }}>→</span>}
+              {ev.ends_at && fmtDate(ev.ends_at)}
+            </span>
+          )}
+          {ev.max_capacity !== null && (
+            <span className="flex items-center gap-2 ml-auto">
+              <Users size={13} strokeWidth={2} />
+              <span>
+                <strong>{totalAllocated}</strong>
+                <span style={{ color: 'rgba(31,77,58,0.6)' }}> / {ev.max_capacity} spots allocated</span>
+              </span>
+              <div className="w-16 h-1.5 rounded-full" style={{ background: 'rgba(31,77,58,0.15)' }}>
+                <div
+                  className="h-full rounded-full transition-all"
+                  style={{
+                    width: `${Math.min(100, (totalAllocated / ev.max_capacity) * 100)}%`,
+                    background: totalAllocated >= ev.max_capacity ? '#B8423C' : '#1F4D3A',
+                  }}
+                />
+              </div>
+            </span>
+          )}
+        </div>
+      )}
 
       {/* ── Ticket list ──────────────────────────────────────────── */}
       {tickets.length === 0 && panel === 'closed' ? (
@@ -185,10 +298,7 @@ export function TicketTypesManager({ eventId, initialTickets }: Props) {
           className="rounded-2xl flex flex-col items-center justify-center py-16 text-center mb-6"
           style={{ background: 'white', border: '2px dashed #E5E0D4' }}
         >
-          <div
-            className="h-12 w-12 rounded-xl flex items-center justify-center mb-4"
-            style={{ background: 'rgba(31,77,58,0.08)' }}
-          >
+          <div className="h-12 w-12 rounded-xl flex items-center justify-center mb-4" style={{ background: 'rgba(31,77,58,0.08)' }}>
             <Tag size={20} strokeWidth={1.8} style={{ color: '#1F4D3A' }} />
           </div>
           <div className="font-display font-semibold text-[17px] mb-1" style={{ color: '#0F1F18' }}>
@@ -232,18 +342,11 @@ export function TicketTypesManager({ eventId, initialTickets }: Props) {
           className="rounded-2xl mb-4"
           style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)' }}
         >
-          <div
-            className="flex items-center justify-between px-5 py-4"
-            style={{ borderBottom: '1px solid #E5E0D4' }}
-          >
+          <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
             <h3 className="font-display font-semibold text-[16px]" style={{ color: '#0F1F18' }}>
               {isEditing ? 'Edit ticket type' : 'New ticket type'}
             </h3>
-            <button
-              onClick={closePanel}
-              className="text-[13px] font-medium transition hover:text-[#1F4D3A]"
-              style={{ color: '#6B7A72' }}
-            >
+            <button onClick={closePanel} className="text-[13px] font-medium transition hover:text-[#1F4D3A]" style={{ color: '#6B7A72' }}>
               Cancel
             </button>
           </div>
@@ -328,7 +431,7 @@ export function TicketTypesManager({ eventId, initialTickets }: Props) {
 
             {/* Quantity */}
             <FField label="Quantity">
-              <div className="flex items-center gap-3 mb-2">
+              <div className="flex items-center gap-2 mb-2">
                 <button
                   onClick={() => setF('isLimited', false)}
                   className="flex-1 h-10 rounded-lg text-[14px] font-medium transition"
@@ -353,17 +456,30 @@ export function TicketTypesManager({ eventId, initialTickets }: Props) {
                 </button>
               </div>
               {form.isLimited && (
-                <input
-                  type="number"
-                  value={form.quantity}
-                  onChange={e => setF('quantity', e.target.value)}
-                  placeholder="e.g. 200"
-                  min={1}
-                  className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
-                  style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18' }}
-                  onFocus={e => (e.target.style.borderColor = '#E8C57E')}
-                  onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
-                />
+                <>
+                  <input
+                    type="number"
+                    value={form.quantity}
+                    onChange={e => setF('quantity', e.target.value)}
+                    placeholder="e.g. 200"
+                    min={1}
+                    max={remainingCapacity !== null ? remainingCapacity : undefined}
+                    className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
+                    style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18' }}
+                    onFocus={e => (e.target.style.borderColor = '#E8C57E')}
+                    onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
+                  />
+                  {remainingCapacity !== null && (
+                    <p
+                      className="text-[12px] mt-1"
+                      style={{ color: remainingCapacity <= 0 ? '#B8423C' : '#6B7A72' }}
+                    >
+                      {remainingCapacity <= 0
+                        ? `Event capacity (${ev.max_capacity}) is fully allocated — reduce other ticket quantities first`
+                        : `${remainingCapacity} spot${remainingCapacity !== 1 ? 's' : ''} available from event capacity of ${ev.max_capacity}`}
+                    </p>
+                  )}
+                </>
               )}
             </FField>
 
@@ -386,7 +502,7 @@ export function TicketTypesManager({ eventId, initialTickets }: Props) {
                   type="number"
                   value={form.max_per_order}
                   onChange={e => setF('max_per_order', e.target.value)}
-                  min={1}
+                  min={parseInt(form.min_per_order) || 1}
                   className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
                   style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18' }}
                   onFocus={e => (e.target.style.borderColor = '#E8C57E')}
@@ -394,6 +510,12 @@ export function TicketTypesManager({ eventId, initialTickets }: Props) {
                 />
               </FField>
             </div>
+            {parseInt(form.min_per_order) > parseInt(form.max_per_order) && (
+              <p className="text-[12px] -mt-2 flex items-center gap-1" style={{ color: '#C97A2D' }}>
+                <AlertCircle size={12} strokeWidth={2} />
+                Min per order cannot exceed max per order
+              </p>
+            )}
 
             {/* Sales window toggle */}
             <div>
@@ -416,29 +538,47 @@ export function TicketTypesManager({ eventId, initialTickets }: Props) {
               </button>
 
               {form.hasSalesWindow && (
-                <div className="grid grid-cols-2 gap-3 mt-3">
-                  <FField label="Sales start">
-                    <input
-                      type="datetime-local"
-                      value={form.sales_start}
-                      onChange={e => setF('sales_start', e.target.value)}
-                      className="w-full h-10 px-3 rounded-lg text-[13px] outline-none transition"
-                      style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18' }}
-                      onFocus={e => (e.target.style.borderColor = '#E8C57E')}
-                      onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
-                    />
-                  </FField>
-                  <FField label="Sales end">
-                    <input
-                      type="datetime-local"
-                      value={form.sales_end}
-                      onChange={e => setF('sales_end', e.target.value)}
-                      className="w-full h-10 px-3 rounded-lg text-[13px] outline-none transition"
-                      style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18' }}
-                      onFocus={e => (e.target.style.borderColor = '#E8C57E')}
-                      onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
-                    />
-                  </FField>
+                <div className="mt-3 space-y-3">
+                  {ev.ends_at && (
+                    <p className="text-[12px] flex items-center gap-1.5" style={{ color: '#6B7A72' }}>
+                      <CalendarDays size={12} strokeWidth={2} />
+                      Sales must close by <strong>{fmtDate(ev.ends_at)}</strong> (event end)
+                    </p>
+                  )}
+                  <div className="grid grid-cols-2 gap-3">
+                    <FField label="Sales start">
+                      <input
+                        type="datetime-local"
+                        value={form.sales_start}
+                        onChange={e => setF('sales_start', e.target.value)}
+                        max={eventEndInput}
+                        className="w-full h-10 px-3 rounded-lg text-[13px] outline-none transition"
+                        style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18' }}
+                        onFocus={e => (e.target.style.borderColor = '#E8C57E')}
+                        onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
+                      />
+                    </FField>
+                    <FField label="Sales end">
+                      <input
+                        type="datetime-local"
+                        value={form.sales_end}
+                        onChange={e => setF('sales_end', e.target.value)}
+                        min={form.sales_start || eventStartInput}
+                        max={eventEndInput}
+                        className="w-full h-10 px-3 rounded-lg text-[13px] outline-none transition"
+                        style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18' }}
+                        onFocus={e => (e.target.style.borderColor = '#E8C57E')}
+                        onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
+                      />
+                    </FField>
+                  </div>
+                  {/* Inline warning if sales_end is after event end */}
+                  {form.sales_end && ev.ends_at && new Date(form.sales_end) > new Date(ev.ends_at) && (
+                    <p className="text-[12px] flex items-center gap-1" style={{ color: '#C97A2D' }}>
+                      <AlertCircle size={12} strokeWidth={2} />
+                      Sales end is after the event ends — adjust it to {fmtDate(ev.ends_at)} or earlier
+                    </p>
+                  )}
                 </div>
               )}
             </div>
@@ -463,7 +603,15 @@ export function TicketTypesManager({ eventId, initialTickets }: Props) {
             </div>
 
             {/* Error + actions */}
-            {error && <p className="text-[13px]" style={{ color: '#B8423C' }}>{error}</p>}
+            {error && (
+              <div
+                className="flex items-start gap-2 px-3 py-2.5 rounded-lg text-[13px]"
+                style={{ background: 'rgba(184,66,60,0.07)', border: '1px solid rgba(184,66,60,0.2)', color: '#B8423C' }}
+              >
+                <AlertCircle size={14} strokeWidth={2} className="mt-0.5 shrink-0" />
+                {error}
+              </div>
+            )}
             <div className="flex justify-end gap-3 pt-2">
               <button
                 onClick={closePanel}
@@ -504,10 +652,7 @@ export function TicketTypesManager({ eventId, initialTickets }: Props) {
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
             <div className="absolute inset-0 bg-black/30" onClick={() => setConfirmDelete(null)} />
-            <div
-              className="relative w-full max-w-[400px] rounded-2xl p-6"
-              style={{ background: 'white', border: '1px solid #E5E0D4' }}
-            >
+            <div className="relative w-full max-w-[400px] rounded-2xl p-6" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
               <h3 className="font-display font-semibold text-[18px] mb-2" style={{ color: '#0F1F18' }}>
                 Delete &ldquo;{target?.name}&rdquo;?
               </h3>
@@ -516,11 +661,13 @@ export function TicketTypesManager({ eventId, initialTickets }: Props) {
                   This ticket has <strong>{target?.quantity_sold}</strong> sale{target?.quantity_sold !== 1 ? 's' : ''}. Deleting it will not refund or cancel those registrations.
                 </p>
               ) : (
-                <p className="text-[14px] mb-5" style={{ color: '#6B7A72' }}>
-                  This cannot be undone.
+                <p className="text-[14px] mb-5" style={{ color: '#6B7A72' }}>This cannot be undone.</p>
+              )}
+              {error && (
+                <p className="text-[13px] mb-3 flex items-center gap-1" style={{ color: '#B8423C' }}>
+                  <AlertCircle size={13} strokeWidth={2} />{error}
                 </p>
               )}
-              {error && <p className="text-[13px] mb-3" style={{ color: '#B8423C' }}>{error}</p>}
               <div className="flex gap-3">
                 <button
                   onClick={() => { setConfirmDelete(null); setError(''); }}
@@ -563,6 +710,10 @@ function TicketCard({
   onMove: (dir: -1 | 1) => void;
 }) {
   const isFree = ticket.price === 0;
+  const isExpired = !soldOut && !!ticket.sales_end && new Date(ticket.sales_end) < new Date();
+  const statusLabel = soldOut ? 'Sold out' : isExpired ? 'Sales ended' : ticket.is_visible ? 'On sale' : 'Scheduled';
+  const statusColor = soldOut || isExpired ? '#B8423C' : ticket.is_visible ? '#2D7A4F' : '#C97A2D';
+  const statusBg = soldOut || isExpired ? 'rgba(184,66,60,0.08)' : ticket.is_visible ? 'rgba(45,122,79,0.08)' : 'rgba(201,122,45,0.08)';
 
   return (
     <div
@@ -574,66 +725,37 @@ function TicketCard({
       }}
     >
       <div className="flex items-center gap-3 px-4 py-3.5">
-
-        {/* Reorder arrows */}
+        {/* Reorder */}
         <div className="flex flex-col gap-0.5 shrink-0">
-          <button
-            onClick={() => onMove(-1)}
-            disabled={idx === 0}
-            className="h-5 w-5 rounded flex items-center justify-center transition disabled:opacity-20"
-            style={{ color: '#6B7A72' }}
-          >
+          <button onClick={() => onMove(-1)} disabled={idx === 0} className="h-5 w-5 rounded flex items-center justify-center transition disabled:opacity-20" style={{ color: '#6B7A72' }}>
             <ChevronUp size={13} strokeWidth={2.5} />
           </button>
-          <button
-            onClick={() => onMove(1)}
-            disabled={idx === total - 1}
-            className="h-5 w-5 rounded flex items-center justify-center transition disabled:opacity-20"
-            style={{ color: '#6B7A72' }}
-          >
+          <button onClick={() => onMove(1)} disabled={idx === total - 1} className="h-5 w-5 rounded flex items-center justify-center transition disabled:opacity-20" style={{ color: '#6B7A72' }}>
             <ChevronDown size={13} strokeWidth={2.5} />
           </button>
         </div>
 
-        {/* Name + description */}
+        {/* Name + meta */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span
-              className="font-medium text-[14px]"
-              style={{ color: ticket.is_visible ? '#0F1F18' : '#6B7A72' }}
-            >
+            <span className="font-medium text-[14px]" style={{ color: ticket.is_visible ? '#0F1F18' : '#6B7A72' }}>
               {ticket.name}
             </span>
             {!ticket.is_visible && (
-              <span
-                className="text-[10px] font-mono px-1.5 py-0.5 rounded"
-                style={{ background: '#F5F5F4', color: '#6B7A72' }}
-              >
-                HIDDEN
-              </span>
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded" style={{ background: '#F5F5F4', color: '#6B7A72' }}>HIDDEN</span>
             )}
-            {soldOut && (
-              <span
-                className="text-[10px] font-mono px-1.5 py-0.5 rounded"
-                style={{ background: 'rgba(184,66,60,0.1)', color: '#B8423C' }}
-              >
-                SOLD OUT
-              </span>
-            )}
+            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded" style={{ background: statusBg, color: statusColor }}>
+              {statusLabel.toUpperCase()}
+            </span>
           </div>
           {ticket.description && (
-            <div className="text-[12px] mt-0.5 truncate" style={{ color: '#6B7A72' }}>
-              {ticket.description}
-            </div>
+            <div className="text-[12px] mt-0.5 truncate" style={{ color: '#6B7A72' }}>{ticket.description}</div>
           )}
         </div>
 
         {/* Quantity */}
         <div className="text-right shrink-0">
-          <div
-            className="flex items-center gap-1 text-[12px]"
-            style={{ color: '#6B7A72', fontFamily: 'JetBrains Mono, monospace' }}
-          >
+          <div className="flex items-center gap-1 text-[12px]" style={{ color: '#6B7A72', fontFamily: 'JetBrains Mono, monospace' }}>
             <Users size={11} strokeWidth={2} />
             {ticket.quantity === null
               ? <span title="Unlimited">∞</span>
@@ -645,46 +767,19 @@ function TicketCard({
         </div>
 
         {/* Price */}
-        <div
-          className="shrink-0 text-[14px] font-medium min-w-[48px] text-right"
-          style={{ fontFamily: 'JetBrains Mono, monospace', color: isFree ? '#2D7A4F' : '#1F4D3A' }}
-        >
+        <div className="shrink-0 text-[14px] font-medium min-w-[48px] text-right" style={{ fontFamily: 'JetBrains Mono, monospace', color: isFree ? '#2D7A4F' : '#1F4D3A' }}>
           {isFree ? 'Free' : `${ticket.currency} ${ticket.price}`}
         </div>
 
         {/* Actions */}
         <div className="flex items-center gap-1 shrink-0 ml-1">
-          <button
-            onClick={onToggleVisibility}
-            title={ticket.is_visible ? 'Hide' : 'Show'}
-            className="h-8 w-8 rounded-lg flex items-center justify-center transition"
-            style={{ color: '#6B7A72' }}
-            onMouseEnter={e => (e.currentTarget.style.background = '#F5F5F4')}
-            onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-          >
-            {ticket.is_visible
-              ? <Eye size={15} strokeWidth={2} />
-              : <EyeOff size={15} strokeWidth={2} />
-            }
+          <button onClick={onToggleVisibility} title={ticket.is_visible ? 'Hide' : 'Show'} className="h-8 w-8 rounded-lg flex items-center justify-center transition" style={{ color: '#6B7A72' }} onMouseEnter={e => (e.currentTarget.style.background = '#F5F5F4')} onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+            {ticket.is_visible ? <Eye size={15} strokeWidth={2} /> : <EyeOff size={15} strokeWidth={2} />}
           </button>
-          <button
-            onClick={onEdit}
-            title="Edit"
-            className="h-8 w-8 rounded-lg flex items-center justify-center transition"
-            style={{ color: '#6B7A72' }}
-            onMouseEnter={e => (e.currentTarget.style.background = '#F5F5F4')}
-            onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-          >
+          <button onClick={onEdit} title="Edit" className="h-8 w-8 rounded-lg flex items-center justify-center transition" style={{ color: '#6B7A72' }} onMouseEnter={e => (e.currentTarget.style.background = '#F5F5F4')} onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
             <Pencil size={14} strokeWidth={2} />
           </button>
-          <button
-            onClick={onDelete}
-            title="Delete"
-            className="h-8 w-8 rounded-lg flex items-center justify-center transition"
-            style={{ color: '#6B7A72' }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(184,66,60,0.08)'; e.currentTarget.style.color = '#B8423C'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#6B7A72'; }}
-          >
+          <button onClick={onDelete} title="Delete" className="h-8 w-8 rounded-lg flex items-center justify-center transition" style={{ color: '#6B7A72' }} onMouseEnter={e => { e.currentTarget.style.background = 'rgba(184,66,60,0.08)'; e.currentTarget.style.color = '#B8423C'; }} onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#6B7A72'; }}>
             <Trash2 size={14} strokeWidth={2} />
           </button>
         </div>

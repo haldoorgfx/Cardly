@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Plus, Trash2, X, ChevronDown, ChevronUp, User, MapPin, Settings } from 'lucide-react';
+import { Plus, Trash2, X, ChevronDown, ChevronUp, User, MapPin, Settings, CalendarDays, AlertCircle } from 'lucide-react';
 import type { Session, Track, SessionType } from '@/types/database';
 
 interface SpeakerOption {
@@ -10,11 +10,17 @@ interface SpeakerOption {
   photo_url: string | null;
 }
 
+export interface EventDates {
+  starts_at: string | null;
+  ends_at: string | null;
+}
+
 interface Props {
   eventId: string;
   initialSessions: Session[];
   speakers: SpeakerOption[];
   initialTracks: Track[];
+  eventDates?: EventDates;
 }
 
 const SESSION_TYPES: { value: SessionType; label: string }[] = [
@@ -55,6 +61,19 @@ const EMPTY_SESSION: SessionForm = {
   is_published: false,
 };
 
+function fmtDate(iso: string) {
+  return new Date(iso).toLocaleString('en-US', {
+    month: 'short', day: 'numeric', year: 'numeric',
+    hour: '2-digit', minute: '2-digit',
+  });
+}
+
+function toLocalInput(iso: string): string {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 function groupByDate(sessions: Session[]): [string, Session[]][] {
   const map = new Map<string, Session[]>();
   const sorted = [...sessions].sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime());
@@ -66,7 +85,9 @@ function groupByDate(sessions: Session[]): [string, Session[]][] {
   return Array.from(map.entries());
 }
 
-export default function SessionsManager({ eventId, initialSessions, speakers, initialTracks }: Props) {
+export default function SessionsManager({ eventId, initialSessions, speakers, initialTracks, eventDates }: Props) {
+  const ev = eventDates ?? { starts_at: null, ends_at: null };
+
   const [sessions, setSessions] = useState<Session[]>(initialSessions);
   const [tracks, setTracks] = useState<Track[]>(initialTracks);
   const [tracksOpen, setTracksOpen] = useState(false);
@@ -82,8 +103,6 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const grouped = useMemo(() => groupByDate(sessions), [sessions]);
-
-  // Day tabs — unique date keys from sessions
   const dayKeys = useMemo(() => grouped.map(([k]) => k), [grouped]);
   const currentDay = activeDay && dayKeys.includes(activeDay) ? activeDay : (dayKeys[0] ?? null);
   const activeSessions = useMemo(
@@ -91,7 +110,10 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
     [grouped, currentDay]
   );
 
-  // Track management
+  // datetime-local min/max from event dates
+  const eventStartInput = ev.starts_at ? toLocalInput(ev.starts_at) : undefined;
+  const eventEndInput = ev.ends_at ? toLocalInput(ev.ends_at) : undefined;
+
   async function handleAddTrack() {
     if (!trackForm.name.trim()) return;
     const res = await fetch(`/api/events/${eventId}/tracks`, {
@@ -112,7 +134,6 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
     setTracks((prev) => prev.filter((t) => t.id !== trackId));
   }
 
-  // Session form helpers
   function openAdd() {
     setEditingSession(null);
     setSessionForm(EMPTY_SESSION);
@@ -154,8 +175,40 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
     }));
   }
 
+  function clientValidate(): string | null {
+    if (!sessionForm.title.trim()) return 'Title is required';
+    if (!sessionForm.starts_at) return 'Start time is required';
+    if (!sessionForm.ends_at) return 'End time is required';
+
+    const start = new Date(sessionForm.starts_at);
+    const end = new Date(sessionForm.ends_at);
+
+    if (isNaN(start.getTime())) return 'Start time is not a valid date';
+    if (isNaN(end.getTime())) return 'End time is not a valid date';
+    if (start >= end) return 'Session start must be before session end';
+
+    if (ev.starts_at && start < new Date(ev.starts_at)) {
+      return `Session cannot start before the event begins (${fmtDate(ev.starts_at)})`;
+    }
+    if (ev.ends_at && end > new Date(ev.ends_at)) {
+      return `Session cannot end after the event ends (${fmtDate(ev.ends_at)})`;
+    }
+    if (ev.ends_at && start > new Date(ev.ends_at)) {
+      return `Session start (${fmtDate(sessionForm.starts_at)}) is after the event has ended (${fmtDate(ev.ends_at)})`;
+    }
+
+    if (sessionForm.capacity) {
+      const cap = parseInt(sessionForm.capacity);
+      if (isNaN(cap) || cap < 1) return 'Capacity must be at least 1';
+    }
+
+    return null;
+  }
+
   async function handleSaveSession() {
-    if (!sessionForm.title.trim()) { setError('Title is required.'); return; }
+    const validationErr = clientValidate();
+    if (validationErr) { setError(validationErr); return; }
+
     setSaving(true); setError(null);
     try {
       const payload = {
@@ -169,8 +222,9 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ sessionId: editingSession.id, ...payload }),
         });
-        if (!res.ok) throw new Error('Failed to update.');
-        const { session: updated }: { session: Session } = await res.json();
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error ?? 'Failed to update');
+        const { session: updated }: { session: Session } = data;
         setSessions((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
       } else {
         const res = await fetch(`/api/events/${eventId}/sessions`, {
@@ -178,13 +232,14 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
-        if (!res.ok) throw new Error('Failed to create.');
-        const { session: created }: { session: Session } = await res.json();
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error ?? 'Failed to create');
+        const { session: created }: { session: Session } = data;
         setSessions((prev) => [...prev, created]);
       }
       closeForm();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Error.');
+      setError(e instanceof Error ? e.message : 'An error occurred');
     } finally {
       setSaving(false);
     }
@@ -224,21 +279,14 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
             <div className="pt-3 space-y-2">
               {tracks.map((track) => (
                 <div key={track.id} className="flex items-center gap-2">
-                  <span
-                    className="w-3 h-3 rounded-full shrink-0"
-                    style={{ background: track.color }}
-                  />
+                  <span className="w-3 h-3 rounded-full shrink-0" style={{ background: track.color }} />
                   <span className="text-sm flex-1" style={{ color: '#0F1F18' }}>{track.name}</span>
-                  <button
-                    onClick={() => handleDeleteTrack(track.id)}
-                    className="p-1 rounded hover:bg-red-50"
-                  >
+                  <button onClick={() => handleDeleteTrack(track.id)} className="p-1 rounded hover:bg-red-50">
                     <Trash2 size={13} color="#B8423C" />
                   </button>
                 </div>
               ))}
             </div>
-
             {showTrackForm ? (
               <div className="flex items-center gap-2 flex-wrap pt-1">
                 <input
@@ -262,26 +310,15 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
                     />
                   ))}
                 </div>
-                <button
-                  onClick={handleAddTrack}
-                  className="px-3 py-1.5 rounded-lg text-sm font-medium text-white"
-                  style={{ background: '#1F4D3A' }}
-                >
+                <button onClick={handleAddTrack} className="px-3 py-1.5 rounded-lg text-sm font-medium text-white" style={{ background: '#1F4D3A' }}>
                   Add
                 </button>
-                <button
-                  onClick={() => setShowTrackForm(false)}
-                  className="p-1.5 rounded hover:bg-gray-100"
-                >
+                <button onClick={() => setShowTrackForm(false)} className="p-1.5 rounded hover:bg-gray-100">
                   <X size={14} color="#6B7A72" />
                 </button>
               </div>
             ) : (
-              <button
-                onClick={() => setShowTrackForm(true)}
-                className="flex items-center gap-1 text-sm font-medium"
-                style={{ color: '#1F4D3A' }}
-              >
+              <button onClick={() => setShowTrackForm(true)} className="flex items-center gap-1 text-sm font-medium" style={{ color: '#1F4D3A' }}>
                 <Plus size={14} /> Add track
               </button>
             )}
@@ -294,7 +331,6 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-3 flex-wrap flex-1">
             <h2 className="font-display text-[18px] font-semibold" style={{ color: '#0F1F18' }}>Sessions</h2>
-            {/* Day tabs */}
             {dayKeys.length > 1 && (
               <div className="flex items-center gap-0.5 p-1 rounded-xl" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
                 {grouped.map(([dateKey]) => {
@@ -337,28 +373,56 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
               </button>
             </div>
 
+            {/* Event date hint */}
+            {(ev.starts_at || ev.ends_at) && (
+              <div
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[12px]"
+                style={{ background: '#E8EFEB', color: '#1F4D3A' }}
+              >
+                <CalendarDays size={12} strokeWidth={2} />
+                Sessions must be within:{' '}
+                <strong>
+                  {ev.starts_at && fmtDate(ev.starts_at)}
+                  {ev.starts_at && ev.ends_at && ' → '}
+                  {ev.ends_at && fmtDate(ev.ends_at)}
+                </strong>
+              </div>
+            )}
+
             {error && (
-              <p className="text-sm px-3 py-2 rounded-lg bg-red-50" style={{ color: '#B8423C' }}>{error}</p>
+              <div
+                className="flex items-start gap-2 px-3 py-2.5 rounded-lg text-[13px]"
+                style={{ background: 'rgba(184,66,60,0.07)', border: '1px solid rgba(184,66,60,0.2)', color: '#B8423C' }}
+              >
+                <AlertCircle size={14} strokeWidth={2} className="mt-0.5 shrink-0" />
+                {error}
+              </div>
             )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="sm:col-span-2 space-y-1">
-                <label className="text-xs font-medium" style={{ color: '#6B7A72' }}>Title <span style={{ color: '#B8423C' }}>*</span></label>
+                <label className="text-xs font-medium" style={{ color: '#6B7A72' }}>
+                  Title <span style={{ color: '#B8423C' }}>*</span>
+                </label>
                 <input
-                  className="w-full border rounded-lg px-3 py-2 text-sm"
+                  className="w-full border rounded-lg px-3 py-2 text-sm outline-none transition"
                   style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
                   value={sessionForm.title}
                   onChange={(e) => setSessionForm((f) => ({ ...f, title: e.target.value }))}
+                  onFocus={e => (e.target.style.borderColor = '#E8C57E')}
+                  onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
                 />
               </div>
               <div className="sm:col-span-2 space-y-1">
                 <label className="text-xs font-medium" style={{ color: '#6B7A72' }}>Description</label>
                 <textarea
-                  className="w-full border rounded-lg px-3 py-2 text-sm resize-none"
+                  className="w-full border rounded-lg px-3 py-2 text-sm resize-none outline-none"
                   style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
                   rows={3}
                   value={sessionForm.description}
                   onChange={(e) => setSessionForm((f) => ({ ...f, description: e.target.value }))}
+                  onFocus={e => (e.target.style.borderColor = '#E8C57E')}
+                  onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
                 />
               </div>
               <div className="space-y-1">
@@ -385,25 +449,46 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
                 </select>
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium" style={{ color: '#6B7A72' }}>Start</label>
+                <label className="text-xs font-medium" style={{ color: '#6B7A72' }}>
+                  Start <span style={{ color: '#B8423C' }}>*</span>
+                </label>
                 <input
                   type="datetime-local"
-                  className="w-full border rounded-lg px-3 py-2 text-sm"
-                  style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
+                  className="w-full border rounded-lg px-3 py-2 text-sm outline-none"
+                  style={{ borderColor: sessionForm.starts_at ? '#E5E0D4' : 'rgba(184,66,60,0.4)', color: '#0F1F18' }}
                   value={sessionForm.starts_at}
+                  min={eventStartInput}
+                  max={sessionForm.ends_at || eventEndInput}
                   onChange={(e) => setSessionForm((f) => ({ ...f, starts_at: e.target.value }))}
+                  onFocus={e => (e.target.style.borderColor = '#E8C57E')}
+                  onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium" style={{ color: '#6B7A72' }}>End</label>
+                <label className="text-xs font-medium" style={{ color: '#6B7A72' }}>
+                  End <span style={{ color: '#B8423C' }}>*</span>
+                </label>
                 <input
                   type="datetime-local"
-                  className="w-full border rounded-lg px-3 py-2 text-sm"
-                  style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
+                  className="w-full border rounded-lg px-3 py-2 text-sm outline-none"
+                  style={{ borderColor: sessionForm.ends_at ? '#E5E0D4' : 'rgba(184,66,60,0.4)', color: '#0F1F18' }}
                   value={sessionForm.ends_at}
+                  min={sessionForm.starts_at || eventStartInput}
+                  max={eventEndInput}
                   onChange={(e) => setSessionForm((f) => ({ ...f, ends_at: e.target.value }))}
+                  onFocus={e => (e.target.style.borderColor = '#E8C57E')}
+                  onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
                 />
               </div>
+
+              {/* Inline time conflict warning */}
+              {sessionForm.starts_at && sessionForm.ends_at && new Date(sessionForm.starts_at) >= new Date(sessionForm.ends_at) && (
+                <div className="sm:col-span-2 flex items-center gap-1.5 text-[12px]" style={{ color: '#C97A2D' }}>
+                  <AlertCircle size={12} strokeWidth={2} />
+                  Start time must be before end time
+                </div>
+              )}
+
               <div className="space-y-1">
                 <label className="text-xs font-medium" style={{ color: '#6B7A72' }}>Room</label>
                 <input
@@ -412,17 +497,22 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
                   value={sessionForm.room}
                   onChange={(e) => setSessionForm((f) => ({ ...f, room: e.target.value }))}
                   placeholder="Room / Hall"
+                  onFocus={e => (e.target.style.borderColor = '#E8C57E')}
+                  onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium" style={{ color: '#6B7A72' }}>Capacity</label>
+                <label className="text-xs font-medium" style={{ color: '#6B7A72' }}>Capacity (optional)</label>
                 <input
                   type="number"
                   className="w-full border rounded-lg px-3 py-2 text-sm"
                   style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
                   value={sessionForm.capacity}
+                  min={1}
                   onChange={(e) => setSessionForm((f) => ({ ...f, capacity: e.target.value }))}
                   placeholder="e.g. 100"
+                  onFocus={e => (e.target.style.borderColor = '#E8C57E')}
+                  onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
                 />
               </div>
             </div>
@@ -463,7 +553,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
                 className="px-4 py-2 rounded-lg text-sm font-medium text-white disabled:opacity-60"
                 style={{ background: '#1F4D3A' }}
               >
-                {saving ? 'Saving…' : 'Save'}
+                {saving ? 'Saving…' : editingSession ? 'Save changes' : 'Add session'}
               </button>
               <button
                 onClick={closeForm}
@@ -483,7 +573,14 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
             </div>
             <div>
               <div className="font-display text-[16px] font-semibold" style={{ color: '#0F1F18' }}>No sessions yet</div>
-              <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>Add sessions to build your agenda.</p>
+              <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>
+                Add sessions to build your agenda.
+                {ev.starts_at && ev.ends_at && (
+                  <span> Sessions must fall within{' '}
+                    <strong>{fmtDate(ev.starts_at)}</strong> and <strong>{fmtDate(ev.ends_at)}</strong>.
+                  </span>
+                )}
+              </p>
             </div>
             <button onClick={openAdd} className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-[13.5px] font-medium text-white" style={{ background: '#1F4D3A' }}>
               <Plus size={15} strokeWidth={2} /> Add first session
@@ -510,44 +607,32 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
                   key={session.id}
                   className="bg-white border border-[#E5E0D4] rounded-2xl px-5 py-4 flex items-center gap-5 hover:border-[#1F4D3A]/40 transition-colors"
                 >
-                  {/* Time */}
                   <div className="text-center shrink-0 w-[52px]">
                     {startTime && <div className="font-mono text-[15px] tracking-tight" style={{ color: '#1F4D3A' }}>{startTime}</div>}
                     {duration && <div className="font-mono text-[10px] mt-0.5" style={{ color: '#6B7A72' }}>{duration}</div>}
                   </div>
-
-                  {/* Track color bar */}
                   <span className="w-1 self-stretch rounded-full shrink-0" style={{ background: track?.color ?? '#E5E0D4', minHeight: 32 }} />
-
-                  {/* Content */}
                   <div className="min-w-0 flex-1">
                     <div className="font-display text-[14.5px] font-semibold tracking-tight leading-snug" style={{ color: '#0F1F18' }}>{session.title}</div>
                     <div className="flex items-center gap-2.5 mt-1.5 font-mono text-[11px] flex-wrap" style={{ color: '#6B7A72' }}>
-                      {speakerText && (
-                        <span className="inline-flex items-center gap-1"><User size={11} strokeWidth={1.8} />{speakerText}</span>
-                      )}
+                      {speakerText && <span className="inline-flex items-center gap-1"><User size={11} strokeWidth={1.8} />{speakerText}</span>}
                       {speakerText && session.room && <span style={{ color: '#E5E0D4' }}>·</span>}
-                      {session.room && (
-                        <span className="inline-flex items-center gap-1"><MapPin size={11} strokeWidth={1.8} />{session.room}</span>
-                      )}
+                      {session.room && <span className="inline-flex items-center gap-1"><MapPin size={11} strokeWidth={1.8} />{session.room}</span>}
                     </div>
                   </div>
-
-                  {/* Track pill */}
                   {track && (
                     <span className="hidden sm:inline-flex items-center text-[10.5px] font-mono font-medium px-2 py-0.5 rounded-full shrink-0" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
                       {track.name}
                     </span>
                   )}
-
-                  {/* Status pill */}
-                  <span className={`inline-flex items-center text-[10.5px] font-mono font-medium px-2 py-0.5 rounded-full shrink-0 ${session.is_published ? 'text-emerald-700' : 'text-amber-700'}`}
+                  <span
+                    className="inline-flex items-center text-[10.5px] font-mono font-medium px-2 py-0.5 rounded-full shrink-0"
                     style={session.is_published
-                      ? { background: '#ECFDF5', borderColor: '#BBF7D0', border: '1px solid #BBF7D0' }
-                      : { background: '#FFFBEB', borderColor: '#FDE68A', border: '1px solid #FDE68A' }}>
+                      ? { background: '#ECFDF5', border: '1px solid #BBF7D0', color: '#065f46' }
+                      : { background: '#FFFBEB', border: '1px solid #FDE68A', color: '#92400e' }}
+                  >
                     {session.is_published ? 'Confirmed' : 'Draft'}
                   </span>
-
                   <button
                     onClick={() => openEdit(session)}
                     className="w-8 h-8 grid place-items-center rounded-lg transition shrink-0 hover:bg-[#E8EFEB] hover:text-[#1F4D3A]"

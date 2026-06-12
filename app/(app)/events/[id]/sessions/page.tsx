@@ -16,8 +16,9 @@ export default async function SessionsPage({ params }: Props) {
   if (!user) redirect('/login');
 
   const admin = createAdminClient();
-  const [{ data: event }, { data: sessions }, { data: speakers }, { data: tracks }] = await Promise.all([
+  const [{ data: event }, { data: eventPage }, { data: sessions }, { data: speakers }, { data: tracks }] = await Promise.all([
     admin.from('events').select('id, name, slug').eq('id', params.id).eq('user_id', user.id).single(),
+    admin.from('event_pages').select('starts_at, ends_at').eq('event_id', params.id).maybeSingle(),
     admin.from('sessions').select('*, tracks(id,name,color), session_speakers(speaker_id, position, speakers(id,name,photo_url))').eq('event_id', params.id).order('starts_at', { ascending: true }),
     admin.from('speakers').select('id, name, photo_url, role').eq('event_id', params.id).order('position', { ascending: true }),
     admin.from('tracks').select('*').eq('event_id', params.id).order('position', { ascending: true }),
@@ -45,6 +46,10 @@ export default async function SessionsPage({ params }: Props) {
           speakers={(speakers ?? []) as any}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           initialTracks={(tracks ?? []) as any}
+          eventDates={{
+            starts_at: eventPage?.starts_at ?? null,
+            ends_at: eventPage?.ends_at ?? null,
+          }}
         />
       </div>
     </div>

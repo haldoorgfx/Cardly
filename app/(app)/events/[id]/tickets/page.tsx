@@ -13,8 +13,9 @@ export default async function TicketsPage({ params }: Props) {
   if (!user) redirect('/login');
 
   const admin = createAdminClient();
-  const [{ data: event }, { data: tickets }] = await Promise.all([
+  const [{ data: event }, { data: eventPage }, { data: tickets }] = await Promise.all([
     admin.from('events').select('id, name, slug').eq('id', params.id).eq('user_id', user.id).single(),
+    admin.from('event_pages').select('starts_at, ends_at, max_capacity').eq('event_id', params.id).maybeSingle(),
     admin.from('ticket_types').select('*').eq('event_id', params.id).order('position'),
   ]);
 
@@ -35,7 +36,15 @@ export default async function TicketsPage({ params }: Props) {
             Create free and paid ticket tiers. Quantity caps are enforced — overselling is prevented at the database level.
           </p>
         </div>
-        <TicketTypesManager eventId={params.id} initialTickets={tickets ?? []} />
+        <TicketTypesManager
+          eventId={params.id}
+          initialTickets={tickets ?? []}
+          eventDates={{
+            starts_at: eventPage?.starts_at ?? null,
+            ends_at: eventPage?.ends_at ?? null,
+            max_capacity: eventPage?.max_capacity ?? null,
+          }}
+        />
       </div>
     </div>
   );
