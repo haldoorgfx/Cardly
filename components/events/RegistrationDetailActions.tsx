@@ -102,9 +102,11 @@ export function RegistrationDetailActions({
   const [showEdit, setShowEdit] = useState(false);
   const [status, setStatus]     = useState(currentStatus);
   const [loading, setLoading]   = useState(false);
+  const [statusError, setStatusError] = useState<string | null>(null);
 
   async function changeStatus(newStatus: Status) {
     setLoading(true);
+    setStatusError(null);
     try {
       const res = await fetch(`/api/events/${eventId}/registrations`, {
         method: 'PATCH',
@@ -114,6 +116,9 @@ export function RegistrationDetailActions({
       if (res.ok) {
         setStatus(newStatus);
         router.refresh();
+      } else {
+        const data = await res.json() as { error?: string };
+        setStatusError(data.error ?? 'Action failed. Please try again.');
       }
     } finally {
       setLoading(false);
@@ -133,6 +138,12 @@ export function RegistrationDetailActions({
           onClose={() => setShowEdit(false)}
           onSaved={() => { setShowEdit(false); router.refresh(); }}
         />
+      )}
+
+      {statusError && (
+        <p className="w-full text-[13px] px-3 py-2 rounded-lg" style={{ background: '#FEF2F2', color: '#B8423C', border: '1px solid #FECACA' }}>
+          {statusError}
+        </p>
       )}
 
       {/* Edit info */}

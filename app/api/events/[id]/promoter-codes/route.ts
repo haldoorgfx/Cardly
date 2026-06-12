@@ -71,6 +71,12 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message ?? 'Validation failed' }, { status: 400 });
 
   const admin = createAdminClient();
+
+  const { data: ep } = await admin.from('event_pages').select('ends_at').eq('event_id', params.id).maybeSingle();
+  if (ep?.ends_at && new Date(ep.ends_at) < new Date()) {
+    return NextResponse.json({ error: 'Cannot create promoter codes for an event that has already ended' }, { status: 422 });
+  }
+
   const { data, error } = await admin
     .from('promoter_codes')
     .insert({ event_id: params.id, code: parsed.data.code, label: parsed.data.label ?? null })

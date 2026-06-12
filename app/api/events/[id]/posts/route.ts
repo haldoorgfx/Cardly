@@ -16,6 +16,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const { data: event } = await db.from('events').select('id').eq('id', id).eq('user_id', user.id).single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
+  const { data: ep } = await db.from('event_pages').select('ends_at').eq('event_id', id).maybeSingle();
+  if (ep?.ends_at && new Date(ep.ends_at) < new Date()) {
+    return NextResponse.json({ error: 'Cannot create posts for an event that has already ended' }, { status: 422 });
+  }
+
   const { data, error } = await db.from('event_posts').insert({
     event_id: id,
     body,

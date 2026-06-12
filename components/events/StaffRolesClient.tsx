@@ -50,10 +50,12 @@ export function StaffRolesClient({ eventId, eventName, initialStaff, ownerEmail 
   const [invRole, setInvRole] = useState('check_in');
   const [invExpires, setInvExpires] = useState('24h_after');
   const [inviting, setInviting] = useState(false);
+  const [inviteError, setInviteError] = useState<string | null>(null);
 
   async function invite() {
     if (!invEmail.trim()) return;
     setInviting(true);
+    setInviteError(null);
     const res = await fetch(`/api/events/${eventId}/staff`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -66,6 +68,9 @@ export function StaffRolesClient({ eventId, eventName, initialStaff, ownerEmail 
       setInvRole('check_in');
       setInvExpires('24h_after');
       setShowModal(false);
+    } else {
+      const data = await res.json() as { error?: string };
+      setInviteError(data.error ?? 'Invite failed. Please try again.');
     }
     setInviting(false);
   }
@@ -266,6 +271,12 @@ export function StaffRolesClient({ eventId, eventName, initialStaff, ownerEmail 
                 {EXPIRES_OPTIONS.map(o => <option key={o.id} value={o.id}>{o.label}</option>)}
               </select>
             </div>
+
+            {inviteError && (
+              <div className="mb-4 px-3 py-2.5 rounded-xl text-[13px] font-medium" style={{ background: '#FEF2F2', color: '#B91C1C', border: '1px solid #FECACA' }}>
+                {inviteError}
+              </div>
+            )}
 
             <div className="flex gap-3">
               <button
