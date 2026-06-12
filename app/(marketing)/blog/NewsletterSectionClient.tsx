@@ -9,7 +9,7 @@ export function NewsletterSectionClient() {
         <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-4">
           Stay in the loop
         </div>
-        <h2 className="font-display font-bold text-ink text-[30px] sm:text-[38px] lg:text-[44px] leading-[1.02] tracking-[-0.03em] mb-4">
+        <h2 className="font-title font-bold text-ink text-[30px] sm:text-[38px] lg:text-[44px] leading-[1.02] mb-4">
           New posts, straight to you.
         </h2>
         <p className="text-ink-soft text-[15px] leading-[1.6] mb-7 max-w-[440px] mx-auto">

@@ -66,7 +66,7 @@ function ChangelogHero({ latest }: { latest?: DBEntry }) {
         <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-5">
           Changelog
         </div>
-        <h1 className="font-display font-bold text-ink text-[44px] sm:text-[60px] lg:text-[68px] leading-[0.95] tracking-[-0.035em] max-w-[760px]">
+        <h1 className="font-title font-bold text-ink text-[44px] sm:text-[60px] lg:text-[68px] leading-[0.95] max-w-[760px]">
           What&rsquo;s new in Karta
         </h1>
         <p className="mt-5 text-ink-soft text-[17px] lg:text-[18px] leading-[1.55] max-w-[520px]">

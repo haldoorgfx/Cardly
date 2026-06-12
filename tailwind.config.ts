@@ -32,6 +32,7 @@ const config: Config = {
       },
       fontFamily: {
         display: ['"DM Sans"', "system-ui", "sans-serif"],
+        title:   ['"Plus Jakarta Sans"', "system-ui", "sans-serif"],
         sans:    ["Inter", "system-ui", "sans-serif"],
         mono:    ["ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
       },

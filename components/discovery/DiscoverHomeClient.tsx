@@ -69,8 +69,8 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
       {/* Hero */}
       <div className="relative px-5 py-14 text-center overflow-hidden"
         style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)' }}>
-        <h1 className="font-display font-bold text-[36px] sm:text-[44px] mb-3 mx-auto max-w-xl"
-          style={{ color: '#FAF6EE', letterSpacing: '-0.03em', lineHeight: 1.1 }}>
+        <h1 className="font-title font-bold text-[36px] sm:text-[44px] mb-3 mx-auto max-w-xl"
+          style={{ color: '#FAF6EE', lineHeight: 1.1 }}>
           Find your next event
         </h1>
         <p className="text-[16px] mb-8 mx-auto max-w-md" style={{ color: 'rgba(250,246,238,0.8)' }}>

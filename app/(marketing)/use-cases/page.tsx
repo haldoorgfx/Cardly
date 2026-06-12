@@ -270,7 +270,7 @@ export default function UseCasesPage() {
           </div>
 
           <h1
-            className="font-display font-bold text-[#1F4D3A] leading-[1.02] tracking-tight max-w-[820px]"
+            className="font-title font-bold text-[#1F4D3A] leading-[1.02] max-w-[820px]"
             style={{ fontSize: 'clamp(36px, 5.5vw, 56px)' }}
           >
             Whatever you&apos;re organizing, Karta handles it.
@@ -301,7 +301,7 @@ export default function UseCasesPage() {
             {/* Left */}
             <div className="lg:w-[300px] shrink-0">
               <h2
-                className="font-display font-bold text-[#0F1F18] leading-tight tracking-tight"
+                className="font-title font-bold text-[#0F1F18] leading-tight"
                 style={{ fontSize: 'clamp(26px, 3.5vw, 36px)' }}
               >
                 Every use case. One platform.
@@ -357,7 +357,7 @@ export default function UseCasesPage() {
       >
         <div className="mx-auto max-w-[900px] px-5 lg:px-10 py-20 lg:py-28 text-center">
           <h2
-            className="font-display font-bold leading-[1.0] tracking-tight text-[#FAF6EE]"
+            className="font-title font-bold leading-[1.0] text-[#FAF6EE]"
             style={{ fontSize: 'clamp(30px, 5vw, 48px)' }}
           >
             Start with your next event.

@@ -40,7 +40,7 @@ export default function BlogArticlePage() {
             Coming soon
           </div>
 
-          <h1 className="font-display font-bold text-ink text-[36px] sm:text-[48px] lg:text-[56px] leading-[1.0] tracking-[-0.035em] mb-6">
+          <h1 className="font-title font-bold text-ink text-[36px] sm:text-[48px] lg:text-[56px] leading-[1.0] mb-6">
             This article is on its way.
           </h1>
           <p className="text-ink-soft text-[17px] lg:text-[18px] leading-[1.55] max-w-[560px]">

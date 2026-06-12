@@ -23,7 +23,7 @@ export default function ContactPage() {
         </div>
 
         {/* Headline */}
-        <h1 className="font-display font-bold text-[52px] sm:text-[68px] leading-[0.95] tracking-[-0.03em] text-[#0F1F18] mb-4">
+        <h1 className="font-title font-bold text-[52px] sm:text-[68px] leading-[0.95] text-[#0F1F18] mb-4">
           Let&apos;s talk.
         </h1>
         <p className="text-[17px] text-[#6B7A72] max-w-[480px] leading-relaxed mb-14">

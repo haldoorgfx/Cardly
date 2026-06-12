@@ -35,7 +35,7 @@ export function TabInterfaceBlock({ content }: { content: TabInterfaceContent })
         {/* Active tab content */}
         <div className="grid lg:grid-cols-[1fr_1fr] gap-10 lg:gap-16 items-start">
           <div>
-            <h3 className="font-display font-bold text-[#0F1F18] text-[28px] sm:text-[36px] lg:text-[44px] leading-[1.05] tracking-tight">
+            <h3 className="font-title font-bold text-[#0F1F18] text-[28px] sm:text-[36px] lg:text-[44px] leading-[1.05]">
               {tab.headline}
             </h3>
             <p className="mt-4 text-[#3A4A42] text-[16px] lg:text-[17px] leading-[1.65]">

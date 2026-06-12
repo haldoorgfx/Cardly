@@ -19,7 +19,7 @@ export function SectionHeaderBlock({ content, compact = false }: SectionHeaderBl
           {content.eyebrow}
         </div>
       )}
-      <h2 className="font-display font-bold text-[32px] sm:text-[42px] lg:text-[52px] leading-[1.01] tracking-tight" style={{ color: '#0F1F18' }}>
+      <h2 className="font-title font-bold text-[32px] sm:text-[42px] lg:text-[52px] leading-[1.01]" style={{ color: '#0F1F18' }}>
         {content.headline}
       </h2>
       {content.subtext && (

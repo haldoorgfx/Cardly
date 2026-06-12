@@ -55,7 +55,7 @@ export function Testimonials() {
           <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-4">
             Testimonials
           </div>
-          <h2 className="font-display font-bold text-ink text-[34px] sm:text-[42px] lg:text-[48px] leading-[1.05] tracking-[-0.03em]">
+          <h2 className="font-title font-bold text-ink text-[34px] sm:text-[42px] lg:text-[48px] leading-[1.05]">
             Organisers who&apos;ve made the switch.
           </h2>
         </div>

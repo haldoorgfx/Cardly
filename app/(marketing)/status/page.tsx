@@ -110,7 +110,7 @@ function StatusHero() {
           </span>
         </div>
 
-        <h1 className="font-display font-bold text-ink text-[42px] sm:text-[56px] lg:text-[64px] leading-[0.95] tracking-[-0.035em] max-w-[700px]">
+        <h1 className="font-title font-bold text-ink text-[42px] sm:text-[56px] lg:text-[64px] leading-[0.95] max-w-[700px]">
           {allGood ? 'Everything is running.' : 'We\'re investigating an issue.'}
         </h1>
         <p className="mt-5 text-ink-soft text-[16px] leading-[1.55] max-w-[520px]">
@@ -151,7 +151,7 @@ function ServicesList() {
         <div className="flex items-end justify-between mb-8">
           <div>
             <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-2">Components</div>
-            <h2 className="font-display font-bold text-ink text-[28px] sm:text-[34px] tracking-[-0.03em]">
+            <h2 className="font-title font-bold text-ink text-[28px] sm:text-[34px]">
               Service status
             </h2>
           </div>
@@ -192,7 +192,7 @@ function Incidents() {
         <Reveal>
           <div className="mb-8">
             <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-2">History</div>
-            <h2 className="font-display font-bold text-ink text-[28px] sm:text-[34px] tracking-[-0.03em]">
+            <h2 className="font-title font-bold text-ink text-[28px] sm:text-[34px]">
               Recent incidents
             </h2>
           </div>

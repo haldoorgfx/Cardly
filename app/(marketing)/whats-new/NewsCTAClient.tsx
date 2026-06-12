@@ -15,7 +15,7 @@ export function NewsCTAClient() {
         }}
       />
       <div className="relative mx-auto max-w-[760px] px-5 lg:px-10 py-16 lg:py-20 text-center">
-        <h2 className="font-display font-bold text-cream text-[30px] sm:text-[40px] lg:text-[48px] leading-[1.02] tracking-[-0.035em]">
+        <h2 className="font-title font-bold text-cream text-[30px] sm:text-[40px] lg:text-[48px] leading-[1.02]">
           Get release notes by email.
         </h2>
         <p

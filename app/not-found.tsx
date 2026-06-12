@@ -11,7 +11,7 @@ export default function NotFound() {
           K
         </div>
         <div className="text-[11px] font-mono tracking-widest mb-4" style={{ color: 'rgba(15,31,24,0.4)' }}>404</div>
-        <h1 className="font-display font-bold text-[36px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.025em' }}>
+        <h1 className="font-title font-bold text-[36px] leading-tight" style={{ color: '#0F1F18' }}>
           Page not found.
         </h1>
         <p className="text-[15px] mt-3 leading-relaxed" style={{ color: 'rgba(15,31,24,0.6)' }}>

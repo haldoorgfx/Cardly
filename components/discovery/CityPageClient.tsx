@@ -64,7 +64,7 @@ export function CityPageClient({ city, events: dbEvents }: Props) {
         </div>
         <div className="flex items-center gap-3 mb-2">
           <MapPin size={22} style={{ color: '#1F4D3A' }} />
-          <h1 className="font-display font-bold text-[32px]" style={{ color: '#0F1F18', letterSpacing: '-0.03em' }}>
+          <h1 className="font-title font-bold text-[32px]" style={{ color: '#0F1F18' }}>
             Events in {city}
           </h1>
         </div>

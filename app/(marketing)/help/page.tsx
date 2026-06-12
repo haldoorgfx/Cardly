@@ -67,7 +67,7 @@ function HelpCenter() {
     <div>
       {/* Hero */}
       <div className="text-center py-14 px-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
-        <h1 className="font-display font-bold text-[42px] sm:text-[56px] leading-tight tracking-[-0.03em] mb-4" style={{ color: '#0F1F18' }}>
+        <h1 className="font-title font-bold text-[42px] sm:text-[56px] leading-tight mb-4" style={{ color: '#0F1F18' }}>
           How can we help?
         </h1>
         <p className="text-[15px] mb-8" style={{ color: '#6B7A72' }}>Search the docs, or browse by topic.</p>

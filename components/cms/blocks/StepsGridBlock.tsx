@@ -30,7 +30,7 @@ export function StepsGridBlock({ content }: { content: StepsGridContent }) {
                       </span>
                     )}
                   </div>
-                  <h3 className="font-display font-bold text-[#0F1F18] text-[26px] sm:text-[32px] lg:text-[36px] leading-[1.05] tracking-tight">
+                  <h3 className="font-title font-bold text-[#0F1F18] text-[26px] sm:text-[32px] lg:text-[36px] leading-[1.05]">
                     {step.title}
                   </h3>
                   <p className="mt-4 text-[#3A4A42] text-[16px] lg:text-[17px] leading-[1.65]">

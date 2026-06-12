@@ -21,7 +21,7 @@ export function CtaBlock({ content }: { content: CtaContent }) {
         <div aria-hidden className="absolute pointer-events-none" style={{ top: '-40%', left: '50%', transform: 'translateX(-50%)', width: 640, height: 640, borderRadius: '50%', background: 'radial-gradient(circle, rgba(232,197,126,0.22), transparent 65%)', filter: 'blur(40px)' }} />
       )}
       <div className="relative mx-auto max-w-[920px] px-5 lg:px-10 py-24 lg:py-32 text-center">
-        <h2 className={`font-display font-bold text-[44px] sm:text-[58px] lg:text-[72px] leading-[0.98] tracking-[-0.035em] ${background === 'default' ? 'text-[#0F1F18]' : ''}`}>
+        <h2 className={`font-title font-bold text-[44px] sm:text-[58px] lg:text-[72px] leading-[0.98] ${background === 'default' ? 'text-[#0F1F18]' : ''}`}>
           {headline}
         </h2>
         {subtext && (

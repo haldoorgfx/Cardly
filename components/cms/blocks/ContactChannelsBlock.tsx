@@ -65,7 +65,7 @@ export function ContactChannelsBlock({ content }: ContactChannelsBlockProps) {
             </div>
           )}
           <h2
-            className="font-display font-bold text-[36px] sm:text-[48px] leading-[1.02] tracking-tight mb-4"
+            className="font-title font-bold text-[36px] sm:text-[48px] leading-[1.02] mb-4"
             style={{ color: '#0F1F18' }}
           >
             {content.header.headline}
