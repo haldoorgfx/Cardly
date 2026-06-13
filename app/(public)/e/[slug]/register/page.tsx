@@ -20,6 +20,7 @@ export default async function RegisterPage({ params, searchParams }: Props) {
   // Pre-fill registration form for logged-in users
   let sessionName = '';
   let sessionEmail = '';
+  let alreadyRegistered = false;
   try {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -31,6 +32,18 @@ export default async function RegisterPage({ params, searchParams }: Props) {
         .eq('id', user.id)
         .single();
       if (profile?.full_name) sessionName = profile.full_name;
+
+      // Detect an existing registration up front so we don't make the
+      // attendee fill out the whole form only to be rejected at Confirm.
+      const { data: existing } = await (admin as any)
+        .from('registrations')
+        .select('id')
+        .eq('event_id', event.id)
+        .or(`attendee_email.eq.${sessionEmail.toLowerCase()},user_id.eq.${user.id}`)
+        .in('status', ['confirmed', 'checked_in', 'pending', 'pending_approval'])
+        .limit(1)
+        .maybeSingle();
+      alreadyRegistered = !!existing;
     }
   } catch { /* non-blocking — if auth fails, form starts empty */ }
 
@@ -64,7 +77,15 @@ export default async function RegisterPage({ params, searchParams }: Props) {
 
   const page = (pageRes as any).data;
   const tickets = (ticketsRes as any).data ?? [];
-  const formFields = (formFieldsRes as any).data ?? [];
+  // Dedupe custom fields by label so a misconfigured form never shows the
+  // same field twice to attendees (e.g. two "Job Title" fields).
+  const seenLabels = new Set<string>();
+  const formFields = ((formFieldsRes as any).data ?? []).filter((f: any) => {
+    const key = (f.label ?? '').trim().toLowerCase();
+    if (!key || seenLabels.has(key)) return false;
+    seenLabels.add(key);
+    return true;
+  });
   const rawVariant = variantRes.data;
 
   const canvasVariant = rawVariant && rawVariant.background_url
@@ -109,6 +130,7 @@ export default async function RegisterPage({ params, searchParams }: Props) {
           referralCode={searchParams?.ref ?? null}
           utmSource={searchParams?.utm_source ?? null}
           initialTicketId={searchParams?.ticket ?? null}
+          alreadyRegistered={alreadyRegistered}
         />
       </div>
     </div>

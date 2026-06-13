@@ -24,7 +24,7 @@ const WHEN_OPTIONS = [
   { value: 'month', label: 'This month' },
 ];
 
-const HOST_BG = ['#1F4D3A', '#6B4D9E', '#C0436B', '#2C5BAA', '#D2853A', '#7C4DC4'];
+const HOST_BG = ['#1F4D3A', '#163828', '#2A6A50', '#3E7E5E', '#C9A45E', '#245C44'];
 const NO_EVENTS: EventPage[] = [];
 
 const STATS = [
@@ -34,15 +34,15 @@ const STATS = [
   { v: '45+',     l: 'Cities',    s: 'Worldwide',               path: 'M12 21a9 9 0 100-18 9 9 0 000 18zM3 12h18M12 3a14 14 0 010 18 14 14 0 010-18z' },
 ];
 
-// Colourful category tiles. `cat` is the filter value (null = browse all).
+// Category tiles — on-brand only: forest-soft + gold-soft tints, neutral for "More".
 const CATS_TILES = [
   { n: 'Tech',      cat: 'Tech',      bg: '#E8EFEB', fg: '#1F4D3A', path: 'M8 9l-3 3 3 3M16 9l3 3-3 3M13 6l-2 12' },
-  { n: 'Music',     cat: 'Music',     bg: '#FBE9EC', fg: '#C0436B', path: 'M9 18V4l12-2v14M6 18a3 3 0 100-6 3 3 0 000 6zM18 16a3 3 0 100-6 3 3 0 000 6z' },
-  { n: 'Business',  cat: 'Business',  bg: '#E7EEF8', fg: '#2C5BAA', path: 'M2 7h20v14a2 2 0 01-2 2H4a2 2 0 01-2-2V7zM8 7V5a2 2 0 012-2h4a2 2 0 012 2v2' },
-  { n: 'Sports',    cat: 'Sports',    bg: '#FBEEDD', fg: '#D2853A', path: 'M12 21a9 9 0 100-18 9 9 0 000 18zM12 3a14 14 0 000 18M3 12h18M5 6c3 2 11 2 14 0M5 18c3-2 11-2 14 0' },
-  { n: 'Arts',      cat: 'Arts',      bg: '#F0E9FA', fg: '#7C4DC4', path: 'M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.6-.7 1.6-1.7 0-.4-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1a1.6 1.6 0 011.7-1.7H16c3 0 5.5-2.5 5.5-5.5C22 6 17.5 2 12 2z' },
-  { n: 'Education', cat: 'Education', bg: '#E8EFEB', fg: '#1F4D3A', path: 'M22 10L12 5 2 10l10 5 10-5zM6 12v5c0 1 3 3 6 3s6-2 6-3v-5' },
-  { n: 'Health',    cat: 'Health',    bg: '#FBE9EC', fg: '#C0436B', path: 'M20.8 8.6a5 5 0 00-8.8-3 5 5 0 00-8.8 3c0 5 8.8 11 8.8 11s8.8-6 8.8-11z' },
+  { n: 'Music',     cat: 'Music',     bg: '#F3EAD7', fg: '#C9A45E', path: 'M9 18V4l12-2v14M6 18a3 3 0 100-6 3 3 0 000 6zM18 16a3 3 0 100-6 3 3 0 000 6z' },
+  { n: 'Business',  cat: 'Business',  bg: '#E8EFEB', fg: '#1F4D3A', path: 'M2 7h20v14a2 2 0 01-2 2H4a2 2 0 01-2-2V7zM8 7V5a2 2 0 012-2h4a2 2 0 012 2v2' },
+  { n: 'Sports',    cat: 'Sports',    bg: '#F3EAD7', fg: '#C9A45E', path: 'M12 21a9 9 0 100-18 9 9 0 000 18zM12 3a14 14 0 000 18M3 12h18M5 6c3 2 11 2 14 0M5 18c3-2 11-2 14 0' },
+  { n: 'Arts',      cat: 'Arts',      bg: '#E8EFEB', fg: '#1F4D3A', path: 'M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.6-.7 1.6-1.7 0-.4-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1a1.6 1.6 0 011.7-1.7H16c3 0 5.5-2.5 5.5-5.5C22 6 17.5 2 12 2z' },
+  { n: 'Education', cat: 'Education', bg: '#F3EAD7', fg: '#C9A45E', path: 'M22 10L12 5 2 10l10 5 10-5zM6 12v5c0 1 3 3 6 3s6-2 6-3v-5' },
+  { n: 'Health',    cat: 'Health',    bg: '#E8EFEB', fg: '#1F4D3A', path: 'M20.8 8.6a5 5 0 00-8.8-3 5 5 0 00-8.8 3c0 5 8.8 11 8.8 11s8.8-6 8.8-11z' },
   { n: 'More',      cat: null,        bg: '#F0EDE8', fg: '#6B7A72', path: 'M5 12a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM12 12a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM19 12a1.5 1.5 0 100-3 1.5 1.5 0 000 3z' },
 ];
 

@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Check, Lock, Unlock, ChevronDown } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import type { Zone } from '@/types/database';
 import EventCardPreview from '@/app/c/[slug]/components/EventCardPreview';
 import { CardZoneFill } from './CardZoneFill';
@@ -56,6 +57,7 @@ interface Props {
   referralCode?: string | null;
   utmSource?: string | null;
   initialTicketId?: string | null;
+  alreadyRegistered?: boolean;
 }
 
 const INPUT = 'w-full rounded-xl px-4 py-3 text-[16px] outline-none transition border focus:border-[#E8C57E] focus:ring-[3px] focus:ring-[rgba(232,197,126,0.15)]';
@@ -120,6 +122,7 @@ export default function RegistrationClient({
   formFields = [],
   initialName = '', initialEmail = '',
   referralCode, utmSource, initialTicketId = null,
+  alreadyRegistered = false,
 }: Props) {
   const router = useRouter();
 
@@ -427,6 +430,33 @@ export default function RegistrationClient({
               onSuccess={() => router.push(`/e/${eventSlug}/register/confirm?reg=${pendingRegToken}&processor=waafipay`)}
             />
           ) : null}
+        </div>
+      </div>
+    );
+  }
+
+  // Caught up front: this attendee already has a registration for this event.
+  if (alreadyRegistered) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-5 py-12" style={{ background: '#FAF6EE' }}>
+        <div className="w-full max-w-[420px] bg-white rounded-2xl border p-8 text-center" style={{ borderColor: '#E5E0D4' }}>
+          <div className="mx-auto mb-4 flex items-center justify-center rounded-full" style={{ width: 44, height: 44, background: '#E8EFEB', color: '#1F4D3A' }}>
+            <Check size={22} strokeWidth={2.2} />
+          </div>
+          <h1 className="font-display font-semibold text-[22px] mb-1.5" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>
+            You&apos;re already registered
+          </h1>
+          <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>
+            You already have a ticket for {eventName}. Your Karta Card and door QR are in My tickets.
+          </p>
+          <div className="flex flex-col gap-2.5">
+            <Link href="/my-tickets" className="inline-flex items-center justify-center h-11 rounded-xl text-white text-[14px] font-medium transition hover:bg-[#163828]" style={{ background: '#1F4D3A' }}>
+              View my ticket
+            </Link>
+            <Link href={`/e/${eventSlug}`} className="inline-flex items-center justify-center h-11 rounded-xl text-[14px] font-medium border transition hover:border-[#1F4D3A]/40" style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}>
+              Back to event
+            </Link>
+          </div>
         </div>
       </div>
     );
