@@ -435,8 +435,8 @@ export default function RegistrationClient({
   const STEPS = canvasVariant
     ? ['Ticket', 'Details', isFree ? 'Confirm' : 'Pay', 'Your card']
     : ['Ticket', 'Details', isFree ? 'Confirm' : 'Pay'];
-  const previewValues = canvasVariant ? zoneValues : {};
-  const previewPhotoUrls = canvasVariant ? zonePhotoUrls : {};
+  const previewValues = zoneValues;
+  const previewPhotoUrls = zonePhotoUrls;
 
   return (
     <div className="min-h-screen" style={{ background: '#FAF6EE' }}>
@@ -839,60 +839,71 @@ export default function RegistrationClient({
         {/* Right sidebar: card preview + order summary */}
         {canvasVariant && (
           <aside className="sticky hidden lg:block" style={{ top: 88 }}>
-            <div className="mb-4">
+            {/* Card preview — always shown; on step 3 it's the main focus */}
+            <div className={step === 3 ? 'mb-0' : 'mb-4'}>
               <div className="text-[11px] font-semibold uppercase tracking-wider mb-3" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
-                Your Karta Card
+                {step === 3 ? 'Live preview' : 'Your Karta Card'}
               </div>
-              <EventCardPreview
-                backgroundUrl={canvasVariant.backgroundUrl}
-                backgroundWidth={canvasVariant.backgroundWidth ?? 1200}
-                backgroundHeight={canvasVariant.backgroundHeight ?? 800}
-                zones={canvasVariant.zones}
-                values={previewValues}
-                photoUrls={previewPhotoUrls}
-                style={{ borderRadius: 16, boxShadow: '0 4px 12px rgba(15,31,24,0.08), 0 16px 40px rgba(31,77,58,0.10)' }}
-              />
-              {step === 1 && (
+              <div className={step === 3 ? 'rounded-2xl overflow-hidden' : ''} style={step === 3 ? { border: '1px solid #E5E0D4', boxShadow: '0 4px 12px rgba(15,31,24,0.08), 0 16px 40px rgba(31,77,58,0.10)' } : undefined}>
+                {step === 3 && (
+                  <div className="px-4 pt-4 pb-2 text-[11px] font-semibold text-center uppercase tracking-widest" style={{ background: 'white', color: '#6B7A72' }}>
+                    Updates as you type
+                  </div>
+                )}
+                <EventCardPreview
+                  backgroundUrl={canvasVariant.backgroundUrl}
+                  backgroundWidth={canvasVariant.backgroundWidth ?? 1200}
+                  backgroundHeight={canvasVariant.backgroundHeight ?? 800}
+                  zones={canvasVariant.zones}
+                  values={previewValues}
+                  photoUrls={previewPhotoUrls}
+                  style={step === 3 ? { borderRadius: 0 } : { borderRadius: 16, boxShadow: '0 4px 12px rgba(15,31,24,0.08), 0 16px 40px rgba(31,77,58,0.10)' }}
+                />
+              </div>
+              {(step === 1) && (
                 <p className="text-[11px] mt-2 text-center" style={{ color: '#6B7A72' }}>Preview updates as you type</p>
               )}
             </div>
-            <div className="rounded-2xl p-6" style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)' }}>
-              <div className="flex items-center gap-3 pb-4 mb-1" style={{ borderBottom: '1px solid #E5E0D4' }}>
-                {coverUrl ? (
-                  <Image src={coverUrl} alt={eventName} width={48} height={48} className="w-12 h-12 rounded-xl object-cover shrink-0" unoptimized />
-                ) : (
-                  <div className="w-12 h-12 rounded-xl shrink-0" style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }} />
-                )}
-                <div>
-                  <div className="font-display font-medium text-[15px]" style={{ color: '#0F1F18' }}>{eventName}</div>
-                  {(startsAt || city) && (
-                    <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>
-                      {startsAt ? dateStr(startsAt) : ''}{city ? ` · ${city}` : ''}
-                    </div>
+            {/* Order summary — hidden on step 3 (card personalisation step) */}
+            {step < 3 && (
+              <div className="rounded-2xl p-6 mt-4" style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)' }}>
+                <div className="flex items-center gap-3 pb-4 mb-1" style={{ borderBottom: '1px solid #E5E0D4' }}>
+                  {coverUrl ? (
+                    <Image src={coverUrl} alt={eventName} width={48} height={48} className="w-12 h-12 rounded-xl object-cover shrink-0" unoptimized />
+                  ) : (
+                    <div className="w-12 h-12 rounded-xl shrink-0" style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }} />
                   )}
+                  <div>
+                    <div className="font-display font-medium text-[15px]" style={{ color: '#0F1F18' }}>{eventName}</div>
+                    {(startsAt || city) && (
+                      <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>
+                        {startsAt ? dateStr(startsAt) : ''}{city ? ` · ${city}` : ''}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-              {selectedTicket && (
-                <>
-                  <div className="flex justify-between py-2.5 text-[14px]" style={{ color: '#3A4A42' }}>
-                    <span>{selectedTicket.name}</span>
-                    <span className="font-title font-semibold" style={{ color: '#0F1F18' }}>
-                      {isPWYW && chosenPrice ? fmt(parseFloat(chosenPrice) || 0, selectedTicket.currency) : fmt(selectedTicket.price, selectedTicket.currency)}
-                    </span>
-                  </div>
-                  {fee > 0 && (
+                {selectedTicket && (
+                  <>
                     <div className="flex justify-between py-2.5 text-[14px]" style={{ color: '#3A4A42' }}>
-                      <span>Service fee</span>
-                      <span className="font-title font-medium">{fmt(fee, selectedTicket.currency)}</span>
+                      <span>{selectedTicket.name}</span>
+                      <span className="font-title font-semibold" style={{ color: '#0F1F18' }}>
+                        {isPWYW && chosenPrice ? fmt(parseFloat(chosenPrice) || 0, selectedTicket.currency) : fmt(selectedTicket.price, selectedTicket.currency)}
+                      </span>
                     </div>
-                  )}
-                  <div className="flex justify-between items-baseline pt-3 mt-1" style={{ borderTop: '1px solid #E5E0D4' }}>
-                    <span className="font-display font-medium text-[15px]" style={{ color: '#0F1F18' }}>Total</span>
-                    <span className="font-title font-bold text-[22px]" style={{ color: '#1F4D3A' }}>{fmt(total, selectedTicket.currency)}</span>
-                  </div>
-                </>
-              )}
-            </div>
+                    {fee > 0 && (
+                      <div className="flex justify-between py-2.5 text-[14px]" style={{ color: '#3A4A42' }}>
+                        <span>Service fee</span>
+                        <span className="font-title font-medium">{fmt(fee, selectedTicket.currency)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between items-baseline pt-3 mt-1" style={{ borderTop: '1px solid #E5E0D4' }}>
+                      <span className="font-display font-medium text-[15px]" style={{ color: '#0F1F18' }}>Total</span>
+                      <span className="font-title font-bold text-[22px]" style={{ color: '#1F4D3A' }}>{fmt(total, selectedTicket.currency)}</span>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
           </aside>
         )}
 

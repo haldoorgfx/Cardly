@@ -245,7 +245,7 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
         <div aria-hidden className="absolute inset-0 pointer-events-none" style={{
           background: 'radial-gradient(45% 60% at 88% 15%, rgba(232,197,126,0.18), transparent 60%)',
         }} />
-        <div className="relative mx-auto px-5 lg:px-10 pt-12 pb-14 lg:pt-16 lg:pb-16 text-center" style={{ maxWidth: 1100 }}>
+        <div className="relative mx-auto px-5 lg:px-10 pt-12 pb-14 lg:pt-16 lg:pb-16 text-center" style={{ maxWidth: 1280 }}>
           <span className="inline-flex items-center gap-2 px-4 h-[34px] rounded-full text-[13px] font-medium mb-6"
             style={{ background: '#FFFFFF', color: '#3A4A42', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
             <span style={{ color: '#C9A45E' }}>✦</span> Events for every moment
@@ -270,7 +270,7 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
 
           {/* Search card */}
           <div className="mt-9 mx-auto rounded-[20px] text-left"
-            style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', boxShadow: '0 12px 40px rgba(15,31,24,0.10)', padding: 16, maxWidth: 780 }}>
+            style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', boxShadow: '0 12px 40px rgba(15,31,24,0.10)', padding: 16, maxWidth: 920 }}>
             {/* Search input row */}
             <div className="flex items-center gap-3 px-4" style={{ height: 56, borderBottom: '1px solid #E5E0D4' }}>
               <Search size={20} style={{ color: '#6B7A72', flexShrink: 0 }} />
