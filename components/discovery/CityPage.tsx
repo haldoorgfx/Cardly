@@ -97,7 +97,7 @@ export function CityPage({ city, events, savedIds, eventCount }: CityPageProps) 
           >
             Events in {city}
           </h1>
-          <p className="text-[13px] mt-1" style={{ color: 'rgba(255,255,255,0.75)', fontFamily: '"JetBrains Mono", monospace' }}>
+          <p className="text-[13px] mt-1" style={{ color: 'rgba(255,255,255,0.75)', fontFamily: 'Inter, system-ui, sans-serif' }}>
             {eventCount} upcoming event{eventCount !== 1 ? 's' : ''}
           </p>
         </div>
@@ -239,7 +239,7 @@ function EventSection({
           <h2 className="font-display font-semibold text-[20px]" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
             {label}
           </h2>
-          <p className="text-[12px] mt-0.5" style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
+          <p className="text-[12px] mt-0.5" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
             {dateRange}
           </p>
         </div>

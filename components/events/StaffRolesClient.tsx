@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { X, UserPlus, Send, Trash2, Crown } from 'lucide-react';
@@ -101,7 +101,7 @@ export function StaffRolesClient({ eventId, eventName, initialStaff, ownerEmail 
         {/* Header */}
         <div className="flex items-start justify-between mb-8">
           <div>
-            <p className="text-[11px] tracking-[0.16em] uppercase mb-2 font-medium" style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
+            <p className="text-[11px] tracking-[0.16em] uppercase mb-2 font-medium" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
               Configure
             </p>
             <h1 className="font-display font-semibold text-[26px] tracking-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
@@ -132,7 +132,7 @@ export function StaffRolesClient({ eventId, eventName, initialStaff, ownerEmail 
               <div className="font-medium text-[14px]" style={{ color: '#0F1F18' }}>You</div>
               <div className="text-[12px]" style={{ color: '#6B7A72' }}>{ownerEmail} · Owner · full access, all events</div>
             </div>
-            <span className="flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full" style={{ background: '#163828', color: '#E8C57E', fontFamily: '"JetBrains Mono", monospace' }}>
+            <span className="flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full" style={{ background: '#163828', color: '#E8C57E', fontFamily: 'Inter, system-ui, sans-serif' }}>
               <Crown size={10} /> ORG ADMIN
             </span>
           </div>
@@ -164,7 +164,7 @@ export function StaffRolesClient({ eventId, eventName, initialStaff, ownerEmail 
                   <div className="flex items-center gap-2 shrink-0">
                     {isPending ? (
                       <>
-                        <span className="text-[11px] font-medium px-2.5 py-1 rounded-full" style={{ background: '#FEF3C7', color: '#92400E', border: '1px solid #FDE68A', fontFamily: '"JetBrains Mono", monospace' }}>
+                        <span className="text-[11px] font-medium px-2.5 py-1 rounded-full" style={{ background: '#FEF3C7', color: '#92400E', border: '1px solid #FDE68A', fontFamily: 'Inter, system-ui, sans-serif' }}>
                           {roleLabel(s.role)} · pending
                         </span>
                         <button
@@ -204,7 +204,7 @@ export function StaffRolesClient({ eventId, eventName, initialStaff, ownerEmail 
         </div>
 
         {/* Role definitions grid */}
-        <h2 className="text-[13px] font-semibold mb-4" style={{ color: '#6B7A72', letterSpacing: '0.04em', textTransform: 'uppercase', fontFamily: '"JetBrains Mono", monospace' }}>
+        <h2 className="text-[13px] font-semibold mb-4" style={{ color: '#6B7A72', letterSpacing: '0.04em', textTransform: 'uppercase', fontFamily: 'Inter, system-ui, sans-serif' }}>
           What each role can do
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

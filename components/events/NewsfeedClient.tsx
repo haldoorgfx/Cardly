@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useRef } from 'react';
 import { ImageIcon, Gift, Clock, Send, X, Pin, Info } from 'lucide-react';
@@ -128,7 +128,7 @@ export function NewsfeedClient({ eventId, eventName, initialPosts }: Props) {
                   <div key={p.id} className="flex items-start gap-4 px-5 py-4"
                     style={{ background: '#FFFFFF', borderBottom: i < scheduled.length - 1 ? '1px solid #E5E0D4' : 'none' }}>
                     <div className="shrink-0 mt-0.5">
-                      <div className="text-[11px] font-semibold" style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
+                      <div className="text-[11px] font-semibold" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
                         {p.scheduled_at ? fmtDateTime(p.scheduled_at) : '—'}
                       </div>
                     </div>
@@ -162,7 +162,7 @@ export function NewsfeedClient({ eventId, eventName, initialPosts }: Props) {
                 {published.map((p: Post) => (
                   <div key={p.id} className="rounded-2xl px-5 py-4" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-[11px]" style={{ color: '#C9C3B1', fontFamily: '"JetBrains Mono", monospace' }}>
+                      <span className="text-[11px]" style={{ color: '#C9C3B1', fontFamily: 'Inter, system-ui, sans-serif' }}>
                         {p.published_at ? fmtTime(p.published_at) : '—'}
                       </span>
                       {p.is_pinned && (

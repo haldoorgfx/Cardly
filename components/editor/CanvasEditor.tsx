@@ -187,7 +187,7 @@ const BRAND_COLORS = [
 ];
 
 const FONTS = [
-  'DM Sans','Inter','JetBrains Mono','Space Grotesk','Playfair Display',
+  'DM Sans','Inter','Inter','Space Grotesk','Playfair Display',
   'Poppins','Montserrat','Raleway','Nunito','Lato',
   'Oswald','Roboto','Work Sans','Merriweather','Lora',
   'Cormorant Garamond','Bebas Neue','Anton','Georgia','Times New Roman',
@@ -1791,7 +1791,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
 /* ----------------------------------------------------------
    RIGHT RAIL COMPONENT
 ---------------------------------------------------------- */
-const EDITOR_FONTS = ['DM Sans', 'Inter', 'JetBrains Mono'];
+const EDITOR_FONTS = ['DM Sans', 'Inter', 'Inter'];
 
 function RightRail({
   selected, bgW, bgH,

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useRef } from 'react';
 import Image from 'next/image';
@@ -364,7 +364,7 @@ export default function ProfileSettings({ profile }: Props) {
             <div className="flex-1 text-[13px] font-medium" style={{ color: '#1F4D3A' }}>
               WhatsApp connected. Tickets and reminders arrive as messages.
             </div>
-            <span style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: 13, color: '#0F1F18' }}>
+            <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, color: '#0F1F18' }}>
               {profile.phone.replace(/(\+\d{3})\s?\d+\s?\d+\s?(\d{2})$/, '$1 ·· ·· $2')}
             </span>
           </div>

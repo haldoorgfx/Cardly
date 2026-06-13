@@ -73,18 +73,18 @@ function buildConfirmationHtml(p: RegistrationConfirmEmailParams, appUrl: string
     <p style="font-size:15px;color:#3A4A42;margin:0 0 24px;">Hi ${p.attendeeName}, your spot is confirmed.</p>
 
     <div style="background:white;border:1px solid #E5E0D4;border-radius:12px;padding:20px;margin-bottom:20px;">
-      <div style="font-size:12px;font-family:'JetBrains Mono',monospace;color:#6B7A72;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">Event details</div>
+      <div style="font-size:12px;font-family:Inter,sans-serif;color:#6B7A72;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">Event details</div>
       <div style="font-weight:600;font-size:16px;margin-bottom:6px;">${p.eventTitle}</div>
       <div style="font-size:14px;color:#3A4A42;margin-bottom:4px;">${p.eventDate}</div>
       <div style="font-size:14px;color:#3A4A42;margin-bottom:12px;">${p.eventVenue}</div>
-      <div style="font-size:12px;font-family:'JetBrains Mono',monospace;color:#1F4D3A;background:#E8EFEB;padding:4px 10px;border-radius:4px;display:inline-block;">
+      <div style="font-size:12px;font-family:Inter,sans-serif;color:#1F4D3A;background:#E8EFEB;padding:4px 10px;border-radius:4px;display:inline-block;">
         ${p.ticketType}
       </div>
     </div>
 
     ${p.qrCodeUrl ? `
     <div style="text-align:center;background:white;border:1px solid #E5E0D4;border-radius:12px;padding:20px;margin-bottom:20px;">
-      <div style="font-size:12px;font-family:'JetBrains Mono',monospace;color:#6B7A72;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">Your check-in QR code</div>
+      <div style="font-size:12px;font-family:Inter,sans-serif;color:#6B7A72;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">Your check-in QR code</div>
       <img src="${p.qrCodeUrl}" alt="Check-in QR code" width="160" height="160" style="border-radius:8px;" />
       <p style="font-size:12px;color:#6B7A72;margin:10px 0 0;">Show this at the door</p>
     </div>
@@ -165,12 +165,12 @@ function buildWaitlistConfirmHtml(p: WaitlistConfirmEmailParams, appUrl: string)
     </div>
 
     <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:26px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">
-      You&apos;re #<span style="color:#E8C57E;font-family:'JetBrains Mono',monospace;">${p.position}</span> in line
+      You&apos;re #<span style="color:#E8C57E;font-family:Inter,sans-serif;">${p.position}</span> in line
     </h1>
     <p style="font-size:15px;color:#3A4A42;margin:0 0 24px;">Hi ${p.name}, we&apos;ve added you to the waitlist for ${p.eventTitle}.</p>
 
     <div style="background:white;border:1px solid #E5E0D4;border-radius:12px;padding:20px;margin-bottom:20px;">
-      <div style="font-size:12px;font-family:'JetBrains Mono',monospace;color:#6B7A72;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">Event details</div>
+      <div style="font-size:12px;font-family:Inter,sans-serif;color:#6B7A72;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">Event details</div>
       <div style="font-weight:600;font-size:16px;margin-bottom:6px;">${p.eventTitle}</div>
       ${p.eventDate ? `<div style="font-size:14px;color:#3A4A42;margin-bottom:4px;">${p.eventDate}</div>` : ''}
       ${p.city ? `<div style="font-size:14px;color:#3A4A42;">${p.city}</div>` : ''}
@@ -207,7 +207,7 @@ function buildWaitlistInviteHtml(p: WaitlistInviteEmailParams, appUrl: string) {
     <p style="font-size:15px;color:#3A4A42;margin:0 0 24px;">A spot just opened for <strong>${p.eventTitle}</strong>. You&apos;re invited to register — act fast, this may not last long.</p>
 
     <div style="background:white;border:1px solid #E5E0D4;border-radius:12px;padding:20px;margin-bottom:24px;">
-      <div style="font-size:12px;font-family:'JetBrains Mono',monospace;color:#6B7A72;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">Event</div>
+      <div style="font-size:12px;font-family:Inter,sans-serif;color:#6B7A72;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">Event</div>
       <div style="font-weight:600;font-size:16px;margin-bottom:6px;">${p.eventTitle}</div>
       ${p.eventDate ? `<div style="font-size:14px;color:#3A4A42;">${p.eventDate}</div>` : ''}
     </div>
@@ -252,7 +252,7 @@ export async function sendPendingApprovalEmail(params: ApprovalEmailParams) {
     <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:24px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">Hi ${params.name},</h1>
     <p style="font-size:15px;color:#3A4A42;margin:0 0 16px;">We received your registration for <strong>${params.eventTitle}</strong>. The organiser reviews applications manually — you&apos;ll hear back by email once a decision is made.</p>
     <div style="background:white;border:1px solid #E5E0D4;border-radius:12px;padding:16px 20px;margin-bottom:20px;">
-      <div style="font-size:12px;font-family:'JetBrains Mono',monospace;color:#6B7A72;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">Event</div>
+      <div style="font-size:12px;font-family:Inter,sans-serif;color:#6B7A72;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">Event</div>
       <div style="font-weight:600;">${params.eventTitle}</div>
       ${params.eventDate ? `<div style="font-size:14px;color:#3A4A42;margin-top:4px;">${params.eventDate}</div>` : ''}
     </div>
@@ -280,7 +280,7 @@ export async function sendApprovedEmail(params: ApprovalEmailParams & { qrCodeUr
     <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:24px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">Great news, ${params.name}!</h1>
     <p style="font-size:15px;color:#3A4A42;margin:0 0 16px;">Your registration for <strong>${params.eventTitle}</strong> has been approved. Your spot is confirmed.</p>
     <div style="text-align:center;background:white;border:1px solid #E5E0D4;border-radius:12px;padding:20px;margin-bottom:20px;">
-      <div style="font-size:12px;font-family:'JetBrains Mono',monospace;color:#6B7A72;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;">Your check-in QR code</div>
+      <div style="font-size:12px;font-family:Inter,sans-serif;color:#6B7A72;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;">Your check-in QR code</div>
       <img src="${params.qrCodeUrl}" alt="QR code" width="160" height="160" style="border-radius:8px;" />
       <p style="font-size:12px;color:#6B7A72;margin:10px 0 0;">Show this at the door</p>
     </div>
@@ -332,7 +332,7 @@ export async function sendTransferEmail(params: { to: string; name: string; even
     <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:24px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">Hi ${params.name},</h1>
     <p style="font-size:15px;color:#3A4A42;margin:0 0 16px;">Someone transferred their ticket for <strong>${params.eventTitle}</strong> to you. Your spot is confirmed.</p>
     <div style="text-align:center;background:white;border:1px solid #E5E0D4;border-radius:12px;padding:20px;margin-bottom:20px;">
-      <div style="font-size:12px;font-family:'JetBrains Mono',monospace;color:#6B7A72;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;">Your check-in QR code</div>
+      <div style="font-size:12px;font-family:Inter,sans-serif;color:#6B7A72;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;">Your check-in QR code</div>
       <img src="${params.qrCodeUrl}" alt="QR code" width="160" height="160" style="border-radius:8px;" />
     </div>
     <div style="text-align:center;padding:20px 0;border-top:1px solid #E5E0D4;">

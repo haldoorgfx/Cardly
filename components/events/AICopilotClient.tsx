@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useRef, useEffect } from 'react';
 import { Send, Sparkles, TrendingUp, Users, ScanLine, MessageSquare } from 'lucide-react';
@@ -109,18 +109,18 @@ export function AICopilotClient({ eventName, stats }: Omit<Props, 'eventId'> & {
         <div className="ml-auto flex items-center gap-4">
           <div className="hidden sm:flex items-center gap-1.5 text-[13px]" style={{ color: '#6B7A72' }}>
             <Users size={13} style={{ color: '#1F4D3A' }} />
-            <span className="font-semibold" style={{ color: '#0F1F18', fontFamily: '"JetBrains Mono", monospace' }}>{stats.registrations.toLocaleString()}</span>
+            <span className="font-semibold" style={{ color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}>{stats.registrations.toLocaleString()}</span>
             <span>regs</span>
           </div>
           <div className="hidden sm:flex items-center gap-1.5 text-[13px]" style={{ color: '#6B7A72' }}>
             <ScanLine size={13} style={{ color: '#2D7A4F' }} />
-            <span className="font-semibold" style={{ color: '#0F1F18', fontFamily: '"JetBrains Mono", monospace' }}>{stats.checkedIn.toLocaleString()}</span>
+            <span className="font-semibold" style={{ color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}>{stats.checkedIn.toLocaleString()}</span>
             <span>checked in</span>
           </div>
           {stats.registrations > 0 && (
             <div className="hidden sm:flex items-center gap-1.5 text-[13px]" style={{ color: '#6B7A72' }}>
               <TrendingUp size={13} style={{ color: '#E8C57E' }} />
-              <span className="font-semibold" style={{ color: '#0F1F18', fontFamily: '"JetBrains Mono", monospace' }}>
+              <span className="font-semibold" style={{ color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}>
                 {Math.round((stats.checkedIn / stats.registrations) * 100)}%
               </span>
               <span>rate</span>

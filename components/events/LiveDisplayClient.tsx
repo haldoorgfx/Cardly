@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import { ChevronUp } from 'lucide-react';
@@ -67,7 +67,7 @@ export function LiveDisplayClient({ eventId, sessionLabel, initialQuestions, act
             karta
           </div>
           <div className="h-5 w-px" style={{ background: 'rgba(255,255,255,0.2)' }} />
-          <div className="text-[13px] font-semibold tracking-[0.12em] uppercase" style={{ color: '#E8C57E', fontFamily: '"JetBrains Mono", monospace' }}>
+          <div className="text-[13px] font-semibold tracking-[0.12em] uppercase" style={{ color: '#E8C57E', fontFamily: 'Inter, system-ui, sans-serif' }}>
             {mode === 'qa' ? 'LIVE Q&A' : mode === 'poll' ? 'POLL RESULTS' : 'SOCIAL WALL'} · {sessionLabel}
           </div>
         </div>
@@ -160,7 +160,7 @@ export function LiveDisplayClient({ eventId, sessionLabel, initialQuestions, act
       {/* Footer with CTA + mode switcher */}
       <div className="shrink-0 px-8 pb-6 flex items-end justify-between">
         <div className="rounded-2xl px-5 py-3" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
-          <div className="text-[12px] mb-0.5" style={{ color: 'rgba(255,255,255,0.5)', fontFamily: '"JetBrains Mono", monospace', letterSpacing: '0.08em' }}>
+          <div className="text-[12px] mb-0.5" style={{ color: 'rgba(255,255,255,0.5)', fontFamily: 'Inter, system-ui, sans-serif', letterSpacing: '0.08em' }}>
             SUBMIT YOUR QUESTION
           </div>
           <div className="text-[20px] font-display font-bold" style={{ color: '#E8C57E' }}>

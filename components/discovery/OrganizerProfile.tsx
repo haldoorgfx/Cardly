@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
@@ -189,7 +189,7 @@ export function OrganizerProfile({
 function Stat({ value, label }: { value: number; label: string }) {
   return (
     <div className="flex items-baseline gap-1.5">
-      <span className="text-[17px] font-bold" style={{ color: '#0F1F18', fontFamily: '"JetBrains Mono", monospace' }}>
+      <span className="text-[17px] font-bold" style={{ color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}>
         {value.toLocaleString()}
       </span>
       <span className="text-[13px]" style={{ color: '#6B7A72' }}>{label}</span>
@@ -215,7 +215,7 @@ function PastEventRow({ ev, first }: { ev: PastEvent; first: boolean }) {
       </div>
       <div className="min-w-0 flex-1">
         <div className="font-display font-medium text-[14px] truncate group-hover:text-[#1F4D3A] transition-colors" style={{ color: '#0F1F18' }}>{ev.title}</div>
-        <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
+        <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
           {new Date(ev.starts_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
         </div>
       </div>

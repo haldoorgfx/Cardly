@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
@@ -114,7 +114,7 @@ export function CityPageClient({ city, events: dbEvents }: Props) {
         {Object.entries(byDay).map(([day, dayEvents]) => (
           <div key={day} className="mb-8">
             <div className="text-[11px] font-bold tracking-[0.12em] uppercase mb-3"
-              style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
+              style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
               {day}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">

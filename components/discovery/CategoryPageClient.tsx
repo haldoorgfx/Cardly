@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
@@ -101,7 +101,7 @@ export function CategoryPageClient({ category, events: dbEvents }: Props) {
       <div className="px-5 py-10 max-w-6xl mx-auto">
         <div className="flex items-start justify-between gap-4 mb-6">
           <div>
-            <p className="text-[12px] font-semibold uppercase tracking-widest mb-2" style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
+            <p className="text-[12px] font-semibold uppercase tracking-widest mb-2" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
               Category
             </p>
             <h1 className="font-display font-bold text-[34px]" style={{ color: '#0F1F18', letterSpacing: '-0.03em' }}>

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import Image from 'next/image';
@@ -132,7 +132,7 @@ export default function SavedAndFollowing({ initialSaves, initialFollows }: Prop
             }}
           >
             {t.label}
-            <span style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: 12 }}>{t.count}</span>
+            <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12 }}>{t.count}</span>
           </button>
         ))}
       </div>
@@ -190,7 +190,7 @@ export default function SavedAndFollowing({ initialSaves, initialFollows }: Prop
                           </div>
                         )}
                         <div className="flex items-center justify-between mt-3">
-                          <span style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: 11, color: '#6B7A72' }}>
+                          <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: '#6B7A72' }}>
                             {fmtDate(ep?.starts_at)}
                           </span>
                         </div>
@@ -244,7 +244,7 @@ export default function SavedAndFollowing({ initialSaves, initialFollows }: Prop
                         {name}
                       </div>
                       <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>
-                        <span style={{ fontFamily: '"JetBrains Mono", monospace', color: '#3A4A42', fontWeight: 500 }}>
+                        <span style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#3A4A42', fontWeight: 500 }}>
                           {follow.follower_count.toLocaleString()}
                         </span>{' '}
                         followers

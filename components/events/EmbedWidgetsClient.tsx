@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { Check, Copy, Code2, ExternalLink } from 'lucide-react';
@@ -62,7 +62,7 @@ function CodeBlock({ code }: { code: string }) {
   return (
     <div className="relative rounded-xl overflow-hidden" style={{ background: '#0F1F18', border: '1px solid rgba(255,255,255,0.07)' }}>
       <div className="flex items-center justify-between px-4 py-2.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-        <span className="flex items-center gap-1.5 text-[11px]" style={{ color: 'rgba(255,255,255,0.4)', fontFamily: '"JetBrains Mono", monospace' }}>
+        <span className="flex items-center gap-1.5 text-[11px]" style={{ color: 'rgba(255,255,255,0.4)', fontFamily: 'Inter, system-ui, sans-serif' }}>
           <Code2 size={12} />
           HTML
         </span>
@@ -75,7 +75,7 @@ function CodeBlock({ code }: { code: string }) {
           {copied ? 'Copied!' : 'Copy'}
         </button>
       </div>
-      <pre className="p-4 text-[12px] leading-relaxed overflow-x-auto" style={{ color: '#E8C57E', fontFamily: '"JetBrains Mono", monospace', margin: 0 }}>
+      <pre className="p-4 text-[12px] leading-relaxed overflow-x-auto" style={{ color: '#E8C57E', fontFamily: 'Inter, system-ui, sans-serif', margin: 0 }}>
         <code>{code}</code>
       </pre>
     </div>
@@ -92,7 +92,7 @@ export function EmbedWidgetsClient({ eventName, slug, status }: Props) {
     <div className="max-w-[860px] mx-auto px-5 py-10">
       {/* Header */}
       <div className="mb-8">
-        <p className="text-[11px] tracking-[0.16em] uppercase mb-2 font-medium" style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
+        <p className="text-[11px] tracking-[0.16em] uppercase mb-2 font-medium" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
           Configure
         </p>
         <h1 className="font-display font-semibold text-[26px] tracking-tight mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
@@ -161,7 +161,7 @@ export function EmbedWidgetsClient({ eventName, slug, status }: Props) {
             'Save and publish your page.',
           ].map((step, i) => (
             <li key={i} className="flex items-start gap-3 text-[13px]" style={{ color: '#3A4A42' }}>
-              <span className="shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-semibold mt-0.5" style={{ background: '#E8EFEB', color: '#1F4D3A', fontFamily: '"JetBrains Mono", monospace' }}>
+              <span className="shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-semibold mt-0.5" style={{ background: '#E8EFEB', color: '#1F4D3A', fontFamily: 'Inter, system-ui, sans-serif' }}>
                 {i + 1}
               </span>
               {step}
@@ -172,7 +172,7 @@ export function EmbedWidgetsClient({ eventName, slug, status }: Props) {
 
       {/* Public link */}
       <div className="mt-4 flex items-center gap-3 rounded-xl px-4 py-3" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
-        <span className="text-[12px] text-[#6B7A72]" style={{ fontFamily: '"JetBrains Mono", monospace' }}>{publicUrl}</span>
+        <span className="text-[12px] text-[#6B7A72]" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>{publicUrl}</span>
         <a
           href={publicUrl}
           target="_blank"

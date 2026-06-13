@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import {
@@ -26,7 +26,7 @@ interface TextStyle {
 const FONTS: Record<string, string> = {
   DM: '"DM Sans", sans-serif',
   Inter: 'Inter, sans-serif',
-  JetBrains: '"JetBrains Mono", monospace',
+  JetBrains: 'Inter, system-ui, sans-serif',
 };
 const CANVAS_W = 4500;
 const CANVAS_H = 5625;
@@ -212,7 +212,7 @@ function CardCanvas({ sel, onSelect, ns, bg }: {
       {/* Event label */}
       {zone('evtitle',
         { top: PREVIEW_H * 0.06, left: PREVIEW_W * 0.07, right: PREVIEW_W * 0.07, textAlign: 'center' },
-        <div style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: 6, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(232,197,126,0.8)' }}>
+        <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 6, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(232,197,126,0.8)' }}>
           AFRICA TECH FESTIVAL 2026
         </div>
       )}
@@ -245,9 +245,9 @@ function CardCanvas({ sel, onSelect, ns, bg }: {
 
       {/* Bottom bar */}
       <div style={{ position: 'absolute', bottom: PREVIEW_H * 0.04, left: PREVIEW_W * 0.06, right: PREVIEW_W * 0.06 + 52, display: 'flex', alignItems: 'center', gap: 6 }}>
-        <span style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: 5.5, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#E8C57E' }}>ATTENDEE</span>
+        <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 5.5, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#E8C57E' }}>ATTENDEE</span>
         <span style={{ flex: 1, height: 1, background: 'rgba(250,246,238,0.15)' }} />
-        <span style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: 5, color: 'rgba(250,246,238,0.4)' }}>12 MAR</span>
+        <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 5, color: 'rgba(250,246,238,0.4)' }}>12 MAR</span>
       </div>
     </div>
   );

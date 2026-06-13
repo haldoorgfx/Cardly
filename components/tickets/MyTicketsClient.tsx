@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useRef } from 'react';
 import Link from 'next/link';
@@ -79,7 +79,7 @@ function QROverlay({ token, name, label, onClose }: QROverlayProps) {
         {name}
       </div>
       <div className="mt-1.5 text-center px-6"
-        style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: 13, color: '#E8C57E' }}>
+        style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, color: '#E8C57E' }}>
         {label}
       </div>
       <div className="mt-5 text-[13px] text-center px-6" style={{ color: 'rgba(255,255,255,0.55)' }}>
@@ -188,7 +188,7 @@ function TicketCard({ reg, onShowQR }: { reg: Registration; onShowQR: () => void
           {/* Body */}
           <div className="p-5 sm:p-6 flex flex-col">
             {dateStr && (
-              <div style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: 12, color: '#C9A45E', fontWeight: 500 }}>
+              <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, color: '#C9A45E', fontWeight: 500 }}>
                 {dateStr}{until && <span className="ml-3" style={{ color: '#6B7A72' }}>— {until}</span>}
               </div>
             )}
@@ -240,7 +240,7 @@ function TicketCard({ reg, onShowQR }: { reg: Registration; onShowQR: () => void
                       KARTA №{cardNum}
                     </div>
                   </div>
-                  <span style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: 11, color: '#6B7A72' }}>
+                  <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: '#6B7A72' }}>
                     Card №{cardNum}
                   </span>
                 </>
@@ -377,7 +377,7 @@ function PastCard({ reg }: { reg: Registration }) {
         <div className="font-medium text-[14px] truncate" style={{ fontFamily: '"DM Sans", sans-serif', color: '#0F1F18' }}>
           {reg.events?.name ?? ep?.title}
         </div>
-        <div style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: 11, color: '#6B7A72', marginTop: 2 }}>
+        <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: '#6B7A72', marginTop: 2 }}>
           {fmtPastDate(ep?.starts_at)} · attended
         </div>
       </div>

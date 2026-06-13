@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useMemo } from 'react';
 import { ArrowLeft, Mail, Phone, Download, Flame, Zap, Snowflake, ChevronDown } from 'lucide-react';
@@ -41,7 +41,7 @@ function ScoreRing({ score, tier }: { score: number; tier: string }) {
           style={{ transition: 'stroke-dashoffset 0.6s ease' }} />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center font-bold text-[13px]"
-        style={{ color, fontFamily: '"JetBrains Mono", monospace' }}>
+        style={{ color, fontFamily: 'Inter, system-ui, sans-serif' }}>
         {score}
       </div>
     </div>
@@ -247,7 +247,7 @@ export function LeadScoringClient({ eventSlug, eventName, leads: dbLeads }: Prop
 
       {/* Event label */}
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full text-[11px] font-semibold tracking-widest uppercase"
-        style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.25)', fontFamily: '"JetBrains Mono", monospace', backdropFilter: 'blur(8px)' }}>
+        style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.25)', fontFamily: 'Inter, system-ui, sans-serif', backdropFilter: 'blur(8px)' }}>
         {eventName}
       </div>
     </div>

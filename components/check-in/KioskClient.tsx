@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useRef, useCallback } from 'react';
 import { Search, X, Check, ArrowLeft } from 'lucide-react';
@@ -91,7 +91,7 @@ export function KioskClient({ eventId, eventName }: Props) {
 
       {/* Event name */}
       <div className="absolute top-6 right-6 text-[12px] font-semibold tracking-[0.1em] uppercase z-10"
-        style={{ color: 'rgba(255,255,255,0.3)', fontFamily: '"JetBrains Mono", monospace' }}>
+        style={{ color: 'rgba(255,255,255,0.3)', fontFamily: 'Inter, system-ui, sans-serif' }}>
         {eventName}
       </div>
 

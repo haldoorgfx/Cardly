@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
@@ -65,7 +65,7 @@ export default function WaitlistJoinClient({ slug, title, coverUrl, startsAt, ci
           <div className="font-display font-semibold text-[18px] mb-2" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
             {title}
           </div>
-          <div className="flex flex-wrap gap-x-4 gap-y-1 text-[13px]" style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-[13px]" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
             {dateStr && (
               <span className="flex items-center gap-1.5">
                 <Calendar size={11} style={{ color: '#1F4D3A' }} /> {dateStr}
@@ -103,7 +103,7 @@ export default function WaitlistJoinClient({ slug, title, coverUrl, startsAt, ci
           </p>
           <div
             className="text-[42px] font-medium mb-4"
-            style={{ color: '#1F4D3A', fontFamily: '"JetBrains Mono", monospace', lineHeight: 1.1 }}
+            style={{ color: '#1F4D3A', fontFamily: 'Inter, system-ui, sans-serif', lineHeight: 1.1 }}
           >
             #{position}
           </div>
@@ -132,7 +132,7 @@ export default function WaitlistJoinClient({ slug, title, coverUrl, startsAt, ci
             >
               <Users size={14} style={{ color: '#1F4D3A' }} />
               <span>
-                <span className="font-medium" style={{ color: '#0F1F18', fontFamily: '"JetBrains Mono", monospace' }}>
+                <span className="font-medium" style={{ color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}>
                   {currentCount}
                 </span>{' '}
                 {currentCount === 1 ? 'person' : 'people'} ahead of you

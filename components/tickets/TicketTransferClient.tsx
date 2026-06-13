@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { ArrowRight, Check, Clock, X } from 'lucide-react';
@@ -58,7 +58,7 @@ export function TicketTransferClient({ registration: reg }: Props) {
           <img src={ep.cover_image_url} alt="" className="w-full h-28 object-cover" />
         )}
         <div className="p-5">
-          <div className="text-[11px] font-semibold tracking-[0.1em] uppercase mb-1" style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
+          <div className="text-[11px] font-semibold tracking-[0.1em] uppercase mb-1" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
             {ticketName}
           </div>
           <div className="font-display font-semibold text-[18px] mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>

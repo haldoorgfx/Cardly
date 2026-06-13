@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -154,7 +154,7 @@ export default function AttendeeAuth() {
               className="text-center outline-none transition-all"
               style={{
                 width: 52, height: 60,
-                fontFamily: '"JetBrains Mono", monospace',
+                fontFamily: 'Inter, system-ui, sans-serif',
                 fontWeight: 500, fontSize: 24,
                 color: '#0F1F18',
                 border: `1px solid ${d ? '#1F4D3A' : '#E5E0D4'}`,
@@ -178,7 +178,7 @@ export default function AttendeeAuth() {
 
         <p className="text-[13px] mt-4" style={{ color: '#6B7A72' }}>
           {countdown > 0 ? (
-            <>Didn&apos;t get it? Resend in <strong style={{ fontFamily: '"JetBrains Mono", monospace', color: '#0F1F18' }}>0:{String(countdown).padStart(2, '0')}</strong> · check spam too</>
+            <>Didn&apos;t get it? Resend in <strong style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#0F1F18' }}>0:{String(countdown).padStart(2, '0')}</strong> · check spam too</>
           ) : (
             <button type="button" onClick={handleResend} className="font-medium hover:underline" style={{ color: '#1F4D3A' }}>
               Resend code

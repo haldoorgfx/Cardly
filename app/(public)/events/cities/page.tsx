@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic';
+﻿export const dynamic = 'force-dynamic';
 
 import { createAdminClient } from '@/lib/supabase/server';
 import { PublicNav } from '@/components/events/PublicNav';
@@ -68,7 +68,7 @@ export default async function CitiesIndexPage() {
                   style={{ color: '#0F1F18' }}
                 >
                   {city}{' '}
-                  <span style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: 12, color: '#6B7A72' }}>
+                  <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, color: '#6B7A72' }}>
                     {count}
                   </span>
                 </Link>

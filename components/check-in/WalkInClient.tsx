@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { ArrowLeft, Check, Users, DoorOpen } from 'lucide-react';
@@ -92,14 +92,14 @@ export function WalkInClient({ eventId, eventName, tickets, checkedIn, walkInsTo
           </Link>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold tracking-[0.14em] px-2 py-0.5 rounded-full" style={{ background: '#E8C57E', color: '#0F1F18', fontFamily: '"JetBrains Mono", monospace' }}>
+              <span className="text-[10px] font-bold tracking-[0.14em] px-2 py-0.5 rounded-full" style={{ background: '#E8C57E', color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}>
                 DOOR MODE
               </span>
             </div>
             <div className="text-[13px] font-semibold mt-0.5" style={{ color: '#FAF6EE' }}>{eventName}</div>
           </div>
         </div>
-        <div className="flex items-center gap-4 text-[12px]" style={{ color: 'rgba(255,255,255,0.5)', fontFamily: '"JetBrains Mono", monospace' }}>
+        <div className="flex items-center gap-4 text-[12px]" style={{ color: 'rgba(255,255,255,0.5)', fontFamily: 'Inter, system-ui, sans-serif' }}>
           <span className="flex items-center gap-1.5"><Users size={12} /> {checkedIn} checked in</span>
           <span className="flex items-center gap-1.5"><DoorOpen size={12} /> {localWalkIns} walk-ins</span>
           {remaining !== null && (
@@ -127,7 +127,7 @@ export function WalkInClient({ eventId, eventName, tickets, checkedIn, walkInsTo
             Welcome, {result.name.split(' ')[0]}!
           </h2>
           <p className="text-[14px] mb-2" style={{ color: 'rgba(255,255,255,0.5)' }}>{result.ticketName}</p>
-          <div className="text-[20px] font-semibold mb-8" style={{ color: '#E8C57E', fontFamily: '"JetBrains Mono", monospace' }}>
+          <div className="text-[20px] font-semibold mb-8" style={{ color: '#E8C57E', fontFamily: 'Inter, system-ui, sans-serif' }}>
             #{result.ticketNumber}
           </div>
           <p className="text-[13px] mb-8" style={{ color: 'rgba(255,255,255,0.4)' }}>

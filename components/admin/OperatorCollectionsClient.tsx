@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { Plus, CheckCircle2, XCircle, Radio, Clock, LayoutGrid, List, AlertCircle } from 'lucide-react';
@@ -130,7 +130,7 @@ export function OperatorCollectionsClient({ collections: dbCollections, promoted
 
                 {/* Count */}
                 <div className="text-right shrink-0">
-                  <div className="font-bold text-[20px]" style={{ color: '#1F4D3A', fontFamily: '"JetBrains Mono", monospace' }}>
+                  <div className="font-bold text-[20px]" style={{ color: '#1F4D3A', fontFamily: 'Inter, system-ui, sans-serif' }}>
                     {col.event_count ?? 0}
                   </div>
                   <div className="text-[11px]" style={{ color: '#6B7A72' }}>events</div>
@@ -195,14 +195,14 @@ export function OperatorCollectionsClient({ collections: dbCollections, promoted
                             {ep?.city && ep?.venue_name ? `${ep.venue_name}, ${ep.city}` : ep?.city ?? ep?.venue_name ?? 'Location TBA'}
                             {ep?.starts_at ? ` · ${new Date(ep.starts_at).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' })}` : ''}
                           </p>
-                          <p className="text-[11px] mt-0.5" style={{ color: '#C9C3B1', fontFamily: '"JetBrains Mono", monospace' }}>
+                          <p className="text-[11px] mt-0.5" style={{ color: '#C9C3B1', fontFamily: 'Inter, system-ui, sans-serif' }}>
                             Submitted {new Date(p.submitted_at).toLocaleDateString('en', { month: 'short', day: 'numeric' })}
                           </p>
                         </div>
 
                         {/* Quality score */}
                         <div className="text-right shrink-0">
-                          <div className="font-bold text-[18px]" style={{ color: score >= total ? '#2D7A4F' : score >= total - 1 ? '#C97A2D' : '#B8423C', fontFamily: '"JetBrains Mono", monospace' }}>
+                          <div className="font-bold text-[18px]" style={{ color: score >= total ? '#2D7A4F' : score >= total - 1 ? '#C97A2D' : '#B8423C', fontFamily: 'Inter, system-ui, sans-serif' }}>
                             {score}/{total}
                           </div>
                           <div className="text-[10px]" style={{ color: '#6B7A72' }}>quality</div>

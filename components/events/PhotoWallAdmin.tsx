@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { Check, X, Star, Images, Heart } from 'lucide-react';
@@ -62,7 +62,7 @@ export function PhotoWallAdmin({ eventId, eventName, initialPhotos }: Props) {
     <div className="max-w-[1000px] mx-auto px-5 py-10">
       {/* Header */}
       <div className="mb-8">
-        <p className="text-[11px] tracking-[0.16em] uppercase mb-2 font-medium" style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
+        <p className="text-[11px] tracking-[0.16em] uppercase mb-2 font-medium" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
           Engagement
         </p>
         <h1 className="font-display font-semibold text-[26px] tracking-tight mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
@@ -157,7 +157,7 @@ export function PhotoWallAdmin({ eventId, eventName, initialPhotos }: Props) {
                         <div className="text-[11px] truncate" style={{ color: '#6B7A72' }}>{photo.caption}</div>
                       )}
                     </div>
-                    <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full shrink-0 ${pill.cls}`} style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+                    <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full shrink-0 ${pill.cls}`} style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
                       {pill.label}
                     </span>
                   </div>

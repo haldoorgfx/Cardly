@@ -71,7 +71,7 @@ export default async function SeriesPage({ params }: Props) {
           <div className="relative">
             <div
               className="text-[11px] font-medium mb-3 tracking-widest uppercase"
-              style={{ color: '#E8C57E', fontFamily: '"JetBrains Mono", monospace' }}
+              style={{ color: '#E8C57E', fontFamily: 'Inter, system-ui, sans-serif' }}
             >
               Event series
             </div>
@@ -87,7 +87,7 @@ export default async function SeriesPage({ params }: Props) {
               </p>
             )}
             <div className="flex items-center gap-3 flex-wrap">
-              <span className="text-[13px]" style={{ color: 'rgba(255,255,255,0.65)', fontFamily: '"JetBrains Mono", monospace' }}>
+              <span className="text-[13px]" style={{ color: 'rgba(255,255,255,0.65)', fontFamily: 'Inter, system-ui, sans-serif' }}>
                 {events.length} event{events.length !== 1 ? 's' : ''}
               </span>
               {organizer?.full_name && (
@@ -162,7 +162,7 @@ function SeriesEventCard({ page }: { page: any }) {
         )}
       </div>
       <div className="p-4">
-        <div className="text-[11px] font-medium mb-1" style={{ color: '#C9A45E', fontFamily: '"JetBrains Mono", monospace' }}>
+        <div className="text-[11px] font-medium mb-1" style={{ color: '#C9A45E', fontFamily: 'Inter, system-ui, sans-serif' }}>
           {fmtDate(page.starts_at)}
         </div>
         <div className="font-display font-medium text-[15px] leading-snug mb-1" style={{ color: '#0F1F18' }}>
@@ -173,7 +173,7 @@ function SeriesEventCard({ page }: { page: any }) {
             {page.is_online ? 'Online' : (page.city ?? 'Location TBA')}
           </span>
           {price && (
-            <span className="text-[12px] font-semibold shrink-0" style={{ color: page.price_from === 0 ? '#C9A45E' : '#1F4D3A', fontFamily: '"JetBrains Mono", monospace' }}>
+            <span className="text-[12px] font-semibold shrink-0" style={{ color: page.price_from === 0 ? '#C9A45E' : '#1F4D3A', fontFamily: 'Inter, system-ui, sans-serif' }}>
               {price}
             </span>
           )}
@@ -202,11 +202,11 @@ function SeriesPastRow({ page }: { page: any }) {
       </div>
       <div className="min-w-0 flex-1">
         <div className="text-[14px] font-medium truncate" style={{ color: '#3A4A42' }}>{page.title}</div>
-        <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
+        <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
           {fmtDate(page.starts_at)} · {page.is_online ? 'Online' : (page.city ?? '')}
         </div>
       </div>
-      <span className="text-[12px] shrink-0" style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>Past</span>
+      <span className="text-[12px] shrink-0" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>Past</span>
     </Link>
   );
 }

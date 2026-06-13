@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
@@ -428,7 +428,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                         onChange={e => setChosenPrice(e.target.value)}
                         placeholder={String(selectedTicket.min_price ?? 0)}
                         className="flex-1 h-10 px-3 rounded-lg text-[15px] outline-none transition"
-                        style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18', fontFamily: '"JetBrains Mono", monospace' }}
+                        style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}
                         onFocus={e => (e.target.style.borderColor = '#E8C57E')}
                         onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
                       />

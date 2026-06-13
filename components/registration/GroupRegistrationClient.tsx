@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useMemo } from 'react';
 import { Plus, Minus, ChevronDown, ChevronUp, CheckCircle2, ArrowLeft, Users } from 'lucide-react';
@@ -253,7 +253,7 @@ export function GroupRegistrationClient({ eventId, eventName, eventSlug, tickets
                         style={{ background: '#F5F2EC', border: '1px solid #E5E0D4', color: '#3A4A42' }}>
                         <Minus size={13} />
                       </button>
-                      <span className="font-semibold text-[15px] w-6 text-center" style={{ color: '#0F1F18', fontFamily: '"JetBrains Mono", monospace' }}>
+                      <span className="font-semibold text-[15px] w-6 text-center" style={{ color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}>
                         {qty}
                       </span>
                       <button onClick={() => setQty(t.id, 1)}
@@ -343,7 +343,7 @@ export function GroupRegistrationClient({ eventId, eventName, eventSlug, tickets
                       <span style={{ color: '#3A4A42' }}>
                         {quantities[t.id]}× {t.name}
                       </span>
-                      <span className="font-semibold" style={{ color: '#0F1F18', fontFamily: '"JetBrains Mono", monospace' }}>
+                      <span className="font-semibold" style={{ color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}>
                         {t.price === 0 ? 'Free' : fmt((quantities[t.id] ?? 0) * t.price, t.currency)}
                       </span>
                     </div>

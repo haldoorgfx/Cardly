@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -97,7 +97,7 @@ export default function OnboardingWizard({ userId, userEmail, userName }: Props)
           <div key={s} className="flex-1 h-1 rounded-full transition-colors"
             style={{ background: s <= step ? '#1F4D3A' : '#E5E0D4' }} />
         ))}
-        <span className="ml-2.5 text-[12px] shrink-0" style={{ fontFamily: '"JetBrains Mono", monospace', color: '#6B7A72' }}>
+        <span className="ml-2.5 text-[12px] shrink-0" style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#6B7A72' }}>
           {step} / 3
         </span>
       </div>
@@ -133,7 +133,7 @@ export default function OnboardingWizard({ userId, userEmail, userName }: Props)
             ))}
           </div>
 
-          <p className="mt-4 text-[12px]" style={{ fontFamily: '"JetBrains Mono", monospace', color: '#6B7A72' }}>
+          <p className="mt-4 text-[12px]" style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#6B7A72' }}>
             <strong style={{ color: '#1F4D3A', fontWeight: 500 }}>{interestCount}</strong>{' '}
             {interestCount >= 3 ? 'selected · nice — that\'s enough to start' : `selected · pick ${3 - interestCount} more`}
           </p>
@@ -179,7 +179,7 @@ export default function OnboardingWizard({ userId, userEmail, userName }: Props)
                 <span className="flex-1 font-medium text-[15px]" style={{ fontFamily: '"DM Sans", sans-serif', color: '#0F1F18' }}>
                   {c.name}
                 </span>
-                <span style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: 12, color: '#6B7A72' }}>
+                <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, color: '#6B7A72' }}>
                   {c.count} events
                 </span>
               </button>
@@ -270,7 +270,7 @@ export default function OnboardingWizard({ userId, userEmail, userName }: Props)
                   border: '1px solid #E5E0D4',
                   background: '#FAF6EE',
                   color: '#0F1F18',
-                  fontFamily: '"JetBrains Mono", monospace',
+                  fontFamily: 'Inter, system-ui, sans-serif',
                 }}
                 onFocus={e => (e.target.style.borderColor = '#E8C57E')}
                 onBlur={e => (e.target.style.borderColor = '#E5E0D4')}

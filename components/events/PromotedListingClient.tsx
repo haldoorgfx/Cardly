@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { TrendingUp, MousePointer, Ticket, DollarSign, Pause, RefreshCw, LayoutGrid } from 'lucide-react';
@@ -193,7 +193,7 @@ export function PromotedListingClient({ eventId, eventName, campaign }: Props) {
               ].map(row => (
                 <div key={row.label} className="flex items-center justify-between text-[13px]">
                   <span style={{ color: '#3A4A42' }}>{row.label}</span>
-                  <span className="font-semibold" style={{ color: '#1F4D3A', fontFamily: '"JetBrains Mono", monospace' }}>{row.val}</span>
+                  <span className="font-semibold" style={{ color: '#1F4D3A', fontFamily: 'Inter, system-ui, sans-serif' }}>{row.val}</span>
                 </div>
               ))}
             </div>

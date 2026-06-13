@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useCallback } from 'react';
 import { Plus, Pencil, Trash2, Eye, EyeOff, ChevronUp, ChevronDown, Tag, Users, CalendarDays, AlertCircle, Upload } from 'lucide-react';
@@ -796,7 +796,7 @@ function TicketCard({
 
         {/* Quantity */}
         <div className="text-right shrink-0">
-          <div className="flex items-center gap-1 text-[12px]" style={{ color: '#6B7A72', fontFamily: 'JetBrains Mono, monospace' }}>
+          <div className="flex items-center gap-1 text-[12px]" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
             <Users size={11} strokeWidth={2} />
             {ticket.quantity === null
               ? <span title="Unlimited">∞</span>
@@ -808,7 +808,7 @@ function TicketCard({
         </div>
 
         {/* Price */}
-        <div className="shrink-0 text-[14px] font-medium min-w-[48px] text-right" style={{ fontFamily: 'JetBrains Mono, monospace', color: isFree ? '#2D7A4F' : '#1F4D3A' }}>
+        <div className="shrink-0 text-[14px] font-medium min-w-[48px] text-right" style={{ fontFamily: 'Inter, system-ui, sans-serif', color: isFree ? '#2D7A4F' : '#1F4D3A' }}>
           {isFree ? 'Free' : `${ticket.currency} ${ticket.price}`}
         </div>
 

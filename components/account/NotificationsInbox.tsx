@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
@@ -188,13 +188,13 @@ export default function NotificationsInbox({ initialNotifs }: Props) {
                       <p className="text-[13px] mt-1 leading-snug" style={{ color: '#3A4A42' }}>
                         {n.body}
                         {countdown && (
-                          <span className="ml-1 font-medium" style={{ fontFamily: '"JetBrains Mono", monospace', color: '#C9A45E' }}>
+                          <span className="ml-1 font-medium" style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#C9A45E' }}>
                             {countdown}
                           </span>
                         )}
                       </p>
                     )}
-                    <span className="block mt-1.5 text-[11px]" style={{ fontFamily: '"JetBrains Mono", monospace', color: '#9BA8A1' }}>
+                    <span className="block mt-1.5 text-[11px]" style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#9BA8A1' }}>
                       {fmtTime(n.created_at)}
                     </span>
 

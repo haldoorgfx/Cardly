@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -113,7 +113,7 @@ export function SearchAndMap({ events, savedIds, query: initialQuery, totalCount
 
         {/* Result count */}
         <div className="px-5 py-3" style={{ borderBottom: '1px solid #E5E0D4' }}>
-          <p className="text-[12px]" style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
+          <p className="text-[12px]" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
             {totalCount} event{totalCount !== 1 ? 's' : ''} match{totalCount === 1 ? 'es' : ''}{cityParam ? ` in ${cityParam}` : ''}
           </p>
         </div>
@@ -227,7 +227,7 @@ function ResultCard({
       <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
         <div>
           {event.category && (
-            <div className="text-[11px] font-medium mb-0.5" style={{ color: '#E8C57E', fontFamily: '"JetBrains Mono", monospace' }}>
+            <div className="text-[11px] font-medium mb-0.5" style={{ color: '#E8C57E', fontFamily: 'Inter, system-ui, sans-serif' }}>
               {event.category}
             </div>
           )}
@@ -246,7 +246,7 @@ function ResultCard({
               className="text-[12px] font-semibold"
               style={{
                 color: event.price_from === 0 ? '#C9A45E' : '#1F4D3A',
-                fontFamily: '"JetBrains Mono", monospace',
+                fontFamily: 'Inter, system-ui, sans-serif',
               }}
             >
               {priceLabel}

@@ -66,7 +66,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   fonts: {
     display: 'DM Sans',
     body:    'Inter',
-    mono:    'JetBrains Mono',
+    mono:    'Inter',
   },
   gradients: {
     hero: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)',

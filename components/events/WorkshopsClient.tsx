@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useMemo } from 'react';
 import { Clock, MapPin, Users, CheckCircle2, X } from 'lucide-react';
@@ -35,7 +35,7 @@ function CapacityBar({ filled, capacity }: { filled: number; capacity: number })
       <div className="flex-1 rounded-full overflow-hidden" style={{ height: 4, background: '#E5E0D4' }}>
         <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: color }} />
       </div>
-      <span className="text-[11px] font-semibold shrink-0" style={{ color, fontFamily: '"JetBrains Mono", monospace' }}>
+      <span className="text-[11px] font-semibold shrink-0" style={{ color, fontFamily: 'Inter, system-ui, sans-serif' }}>
         {pct >= 100 ? 'Full' : `${filled}/${capacity}`}
       </span>
     </div>
@@ -153,7 +153,7 @@ export function WorkshopsClient({ eventId, eventSlug, sessions, bookedIds: initi
         {Object.entries(displayByDay).map(([day, daySessions]) => (
           <div key={day} className="mb-7">
             <div className="text-[11px] font-bold tracking-[0.12em] uppercase mb-3"
-              style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
+              style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
               {day}
             </div>
             <div className="flex flex-col gap-2">

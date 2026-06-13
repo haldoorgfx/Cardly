@@ -90,7 +90,7 @@ export function CategoryPage({ category, events, savedIds, cityCounts }: Categor
           >
             {category} events
           </h1>
-          <p className="text-[13px] mb-6" style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
+          <p className="text-[13px] mb-6" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
             {events.length} upcoming &middot; East Africa &amp; beyond
           </p>
 
@@ -194,7 +194,7 @@ export function CategoryPage({ category, events, savedIds, cityCounts }: Categor
                 style={{ color: '#0F1F18' }}
               >
                 {city}{' '}
-                <span style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: 12, color: '#6B7A72' }}>
+                <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, color: '#6B7A72' }}>
                   {count}
                 </span>
               </Link>

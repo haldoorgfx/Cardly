@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useRef } from 'react';
 import {
@@ -111,7 +111,7 @@ function SpeakerCard({ speaker, event, size = 'lg' }: { speaker: Speaker; event:
 
       {/* Event name */}
       <div style={{
-        fontSize: size === 'lg' ? 9 : 6, fontFamily: 'JetBrains Mono, monospace',
+        fontSize: size === 'lg' ? 9 : 6, fontFamily: 'Inter, system-ui, sans-serif',
         letterSpacing: '0.15em', textTransform: 'uppercase',
         color: 'rgba(232,197,126,0.85)', marginBottom: size === 'lg' ? 14 : 8,
         position: 'relative',
@@ -269,7 +269,7 @@ function HomeTab({ speaker, event, sessions, onTab }: { speaker: Speaker; event:
           {/* ── Checklist ── */}
           <div>
             <div className="text-[10px] tracking-[0.18em] uppercase mb-3"
-              style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
+              style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
               Your checklist
             </div>
             <div className="space-y-2">
@@ -305,7 +305,7 @@ function HomeTab({ speaker, event, sessions, onTab }: { speaker: Speaker; event:
           {sessions.length > 0 && (
             <div>
               <div className="text-[10px] tracking-[0.18em] uppercase mb-3"
-                style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
+                style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
                 Your sessions
               </div>
               <div className="space-y-3">
@@ -318,7 +318,7 @@ function HomeTab({ speaker, event, sessions, onTab }: { speaker: Speaker; event:
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-[13px] font-medium mb-1" style={{ color: '#0F1F18' }}>{s.title}</div>
-                      <div className="flex items-center gap-1.5 text-[12px] mb-2" style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
+                      <div className="flex items-center gap-1.5 text-[12px] mb-2" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
                         <span>{sessionDay(s)}</span>
                         <span>·</span>
                         <span>{fmtTime(s.starts_at)}–{fmtTime(s.ends_at)}</span>
@@ -357,7 +357,7 @@ function HomeTab({ speaker, event, sessions, onTab }: { speaker: Speaker; event:
           {keyDates.length > 0 && (
             <div style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 12, padding: '16px 20px' }}>
               <div className="text-[10px] tracking-[0.18em] uppercase mb-3"
-                style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
+                style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
                 Key dates
               </div>
               <div className="space-y-3">
@@ -365,7 +365,7 @@ function HomeTab({ speaker, event, sessions, onTab }: { speaker: Speaker; event:
                   <div key={i} className="flex items-start justify-between gap-2">
                     <span className="text-[13px]" style={{ color: '#3A4A42' }}>{d.label}</span>
                     <span className="text-[12px] font-medium shrink-0 text-right"
-                      style={{ color: '#1F4D3A', fontFamily: '"JetBrains Mono", monospace' }}>
+                      style={{ color: '#1F4D3A', fontFamily: 'Inter, system-ui, sans-serif' }}>
                       {d.value}
                     </span>
                   </div>
@@ -377,7 +377,7 @@ function HomeTab({ speaker, event, sessions, onTab }: { speaker: Speaker; event:
           {/* Speaker card */}
           <div style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 12, padding: '20px', textAlign: 'center' }}>
             <div className="text-[10px] tracking-[0.18em] uppercase mb-4"
-              style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
+              style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
               Your speaker card
             </div>
             <div className="flex justify-center mb-4">
@@ -808,7 +808,7 @@ export function SpeakerPortalClient({ speaker: initialSpeaker, event, sessions, 
             <span className="text-[13px] font-medium" style={{ color: '#0F1F18' }}>Karta</span>
             <span className="text-[13px]" style={{ color: '#C9C3B1' }}>/</span>
             <span className="text-[10px] tracking-[0.18em] uppercase font-medium"
-              style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>Speaker Portal</span>
+              style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>Speaker Portal</span>
           </div>
           <div className="flex items-center gap-3">
             <span className="text-[12px] hidden sm:block" style={{ color: '#6B7A72' }}>{event.name}</span>

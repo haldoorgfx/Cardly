@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { Heart } from 'lucide-react';
@@ -168,7 +168,7 @@ export function EventCard({
               background: 'rgba(10,20,14,0.6)',
               backdropFilter: 'blur(8px)',
               color: '#E8C57E',
-              fontFamily: '"JetBrains Mono", monospace',
+              fontFamily: 'Inter, system-ui, sans-serif',
             }}
           >
             {trendBadge}
@@ -181,7 +181,7 @@ export function EventCard({
         {/* Date */}
         <div
           className="text-[11px] font-medium mb-1"
-          style={{ color: '#C9A45E', fontFamily: '"JetBrains Mono", monospace' }}
+          style={{ color: '#C9A45E', fontFamily: 'Inter, system-ui, sans-serif' }}
         >
           {fmtEventDate(page.starts_at, page.timezone)}
         </div>
@@ -206,7 +206,7 @@ export function EventCard({
           <div className="mt-1 mb-1">
             <span
               className="inline-block px-2 py-0.5 rounded-full text-[10px] font-medium"
-              style={{ background: 'rgba(31,77,58,0.08)', color: '#1F4D3A', fontFamily: '"JetBrains Mono", monospace' }}
+              style={{ background: 'rgba(31,77,58,0.08)', color: '#1F4D3A', fontFamily: 'Inter, system-ui, sans-serif' }}
             >
               Series
             </span>
@@ -221,7 +221,7 @@ export function EventCard({
           {priceLabel && (
             <div
               className="text-[12px] font-semibold shrink-0"
-              style={{ color: priceColor, fontFamily: '"JetBrains Mono", monospace' }}
+              style={{ color: priceColor, fontFamily: 'Inter, system-ui, sans-serif' }}
             >
               {priceLabel}
             </div>

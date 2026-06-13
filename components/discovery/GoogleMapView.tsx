@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { GoogleMap, useJsApiLoader, OverlayView, InfoWindow } from '@react-google-maps/api';
@@ -159,7 +159,7 @@ export function GoogleMapView({ events, hoveredId, onHover, onBoundsChange }: Pr
                   fontSize: 11,
                   fontWeight: 600,
                   whiteSpace: 'nowrap',
-                  fontFamily: '"JetBrains Mono", monospace',
+                  fontFamily: 'Inter, system-ui, sans-serif',
                   background: active ? '#1F4D3A' : '#FFFFFF',
                   color: active ? '#E8C57E' : '#0F1F18',
                   border: `1.5px solid ${active ? '#1F4D3A' : '#E5E0D4'}`,

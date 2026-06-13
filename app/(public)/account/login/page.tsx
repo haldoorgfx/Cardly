@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+﻿import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import AttendeeAuth from '@/components/account/AttendeeAuth';
 
@@ -51,7 +51,7 @@ export default function AttendeeLoginPage() {
                 <div className="font-semibold text-[16px] text-white" style={{ fontFamily: '"DM Sans", sans-serif' }}>
                   Amina Osman
                 </div>
-                <div style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: 10, color: '#E8C57E', marginTop: 2 }}>
+                <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: '#E8C57E', marginTop: 2 }}>
                   VIP · №0198
                 </div>
               </div>
@@ -60,7 +60,7 @@ export default function AttendeeLoginPage() {
         </div>
 
         {/* Footer stat */}
-        <div className="relative z-10" style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>
+        <div className="relative z-10" style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>
           2M+ REGISTRATIONS · EAST AFRICA&apos;S EVENT MARKETPLACE
         </div>
       </div>

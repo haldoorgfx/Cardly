@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
@@ -116,7 +116,7 @@ export function OrganizerCalendarClient({ userId, name, avatarUrl, bio, follower
         ) : (
           Object.entries(byMonth).map(([month, monthEvents]) => (
             <div key={month} className="mb-8">
-              <div className="text-[11px] font-bold tracking-[0.14em] uppercase mb-3" style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
+              <div className="text-[11px] font-bold tracking-[0.14em] uppercase mb-3" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
                 {month}
               </div>
               <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4', background: '#FFFFFF' }}>
@@ -127,7 +127,7 @@ export function OrganizerCalendarClient({ userId, name, avatarUrl, bio, follower
                       {/* Date column */}
                       {dt ? (
                         <div className="w-16 shrink-0 text-center">
-                          <div className="font-display font-bold text-[22px] leading-none" style={{ color: '#0F1F18', fontFamily: '"JetBrains Mono", monospace' }}>{dt.day}</div>
+                          <div className="font-display font-bold text-[22px] leading-none" style={{ color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}>{dt.day}</div>
                           <div className="text-[10px] font-semibold tracking-[0.1em] mt-0.5" style={{ color: '#6B7A72' }}>{dt.month} · {dt.dow}</div>
                         </div>
                       ) : (
@@ -189,7 +189,7 @@ export function OrganizerCalendarClient({ userId, name, avatarUrl, bio, follower
             {subscribeTypes.ics && (
               <div className="mt-3 mb-5">
                 <div className="text-[11px] font-medium mb-1.5" style={{ color: '#6B7A72' }}>ICS URL</div>
-                <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-[11px] break-all" style={{ background: '#F0EDE6', fontFamily: '"JetBrains Mono", monospace', color: '#3A4A42' }}>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-[11px] break-all" style={{ background: '#F0EDE6', fontFamily: 'Inter, system-ui, sans-serif', color: '#3A4A42' }}>
                   <span className="flex-1 truncate">{icsUrl}</span>
                   <CopyICS url={icsUrl} />
                 </div>

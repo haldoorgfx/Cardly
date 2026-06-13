@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
@@ -86,7 +86,7 @@ export default function AboutPage() {
           {/* overline */}
           <p
             style={{
-              fontFamily: '"JetBrains Mono", monospace',
+              fontFamily: 'Inter, system-ui, sans-serif',
               fontSize: 11,
               letterSpacing: '0.22em',
               textTransform: 'uppercase',
@@ -203,7 +203,7 @@ export default function AboutPage() {
           >
             <p
               style={{
-                fontFamily: '"JetBrains Mono", monospace',
+                fontFamily: 'Inter, system-ui, sans-serif',
                 fontSize: 11,
                 letterSpacing: '0.22em',
                 textTransform: 'uppercase',
@@ -323,7 +323,7 @@ export default function AboutPage() {
             >
               <p
                 style={{
-                  fontFamily: '"JetBrains Mono", monospace',
+                  fontFamily: 'Inter, system-ui, sans-serif',
                   fontSize: 10,
                   letterSpacing: '0.20em',
                   textTransform: 'uppercase',
@@ -361,7 +361,7 @@ export default function AboutPage() {
             >
               <p
                 style={{
-                  fontFamily: '"JetBrains Mono", monospace',
+                  fontFamily: 'Inter, system-ui, sans-serif',
                   fontSize: 10,
                   letterSpacing: '0.20em',
                   textTransform: 'uppercase',
@@ -410,7 +410,7 @@ export default function AboutPage() {
                 border: `1px solid rgba(232,197,126,0.35)`,
                 borderRadius: 99,
                 padding: '4px 12px',
-                fontFamily: '"JetBrains Mono", monospace',
+                fontFamily: 'Inter, system-ui, sans-serif',
                 fontSize: 11,
                 letterSpacing: '0.16em',
                 textTransform: 'uppercase' as const,
@@ -468,7 +468,7 @@ export default function AboutPage() {
         <div style={{ textAlign: 'center', marginBottom: 48 }}>
           <p
             style={{
-              fontFamily: '"JetBrains Mono", monospace',
+              fontFamily: 'Inter, system-ui, sans-serif',
               fontSize: 11,
               letterSpacing: '0.22em',
               textTransform: 'uppercase',
@@ -608,7 +608,7 @@ export default function AboutPage() {
               </p>
               <p
                 style={{
-                  fontFamily: '"JetBrains Mono", monospace',
+                  fontFamily: 'Inter, system-ui, sans-serif',
                   fontSize: 11,
                   letterSpacing: '0.12em',
                   textTransform: 'uppercase',
@@ -672,7 +672,7 @@ export default function AboutPage() {
                   </p>
                   <p
                     style={{
-                      fontFamily: '"JetBrains Mono", monospace',
+                      fontFamily: 'Inter, system-ui, sans-serif',
                       fontSize: 11,
                       letterSpacing: '0.12em',
                       textTransform: 'uppercase',
@@ -700,7 +700,7 @@ export default function AboutPage() {
         <div style={{ maxWidth: 800, margin: '0 auto', textAlign: 'center' }}>
           <p
             style={{
-              fontFamily: '"JetBrains Mono", monospace',
+              fontFamily: 'Inter, system-ui, sans-serif',
               fontSize: 11,
               letterSpacing: '0.22em',
               textTransform: 'uppercase',
@@ -834,7 +834,7 @@ export default function AboutPage() {
           <p
             style={{
               marginTop: 40,
-              fontFamily: '"JetBrains Mono", monospace',
+              fontFamily: 'Inter, system-ui, sans-serif',
               fontSize: 11,
               letterSpacing: '0.18em',
               color: 'rgba(250,246,238,0.40)',

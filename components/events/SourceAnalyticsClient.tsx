@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { Copy, Check, Download } from 'lucide-react';
@@ -75,7 +75,7 @@ export function SourceAnalyticsClient({ eventName, publicSlug, sources, total }:
       {/* Header */}
       <div className="flex items-start justify-between mb-8">
         <div>
-          <p className="text-[11px] tracking-[0.16em] uppercase mb-2 font-medium" style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>
+          <p className="text-[11px] tracking-[0.16em] uppercase mb-2 font-medium" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
             Insights
           </p>
           <h1 className="font-display font-semibold text-[26px] tracking-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
@@ -96,7 +96,7 @@ export function SourceAnalyticsClient({ eventName, publicSlug, sources, total }:
         <div className="rounded-2xl p-6 mb-6 relative overflow-hidden"
           style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)' }}>
           <div className="relative z-10">
-            <p className="text-[12px] font-medium mb-1 opacity-75" style={{ color: '#FAF6EE', fontFamily: '"JetBrains Mono", monospace', letterSpacing: '0.1em' }}>
+            <p className="text-[12px] font-medium mb-1 opacity-75" style={{ color: '#FAF6EE', fontFamily: 'Inter, system-ui, sans-serif', letterSpacing: '0.1em' }}>
               FROM SHARED KARTA CARDS
             </p>
             <p className="font-display font-bold text-[36px]" style={{ color: '#E8C57E', letterSpacing: '-0.02em' }}>
@@ -132,7 +132,7 @@ export function SourceAnalyticsClient({ eventName, publicSlug, sources, total }:
                     <div className="h-full rounded-full transition-all" style={{ width: `${s.pct}%`, background: sourceColor(s.name) }} />
                   </div>
                   <span className="text-[13px] font-semibold w-8 text-right shrink-0" style={{ color: '#0F1F18' }}>{s.count}</span>
-                  <span className="text-[12px] w-9 text-right shrink-0" style={{ color: '#6B7A72', fontFamily: '"JetBrains Mono", monospace' }}>{s.pct}%</span>
+                  <span className="text-[12px] w-9 text-right shrink-0" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>{s.pct}%</span>
                 </div>
               ))}
             </div>
@@ -140,7 +140,7 @@ export function SourceAnalyticsClient({ eventName, publicSlug, sources, total }:
 
           {/* Auto-tagged sources note */}
           <div className="mt-5 pt-4 text-[12px]" style={{ borderTop: '1px solid #F0EDE6', color: '#6B7A72' }}>
-            <span className="font-medium" style={{ color: '#3A4A42' }}>Auto-tagged:</span> <code style={{ fontFamily: '"JetBrains Mono", monospace' }}>src=card</code> on every shared Karta Card · <code style={{ fontFamily: '"JetBrains Mono", monospace' }}>src=embed</code> on widgets · <code style={{ fontFamily: '"JetBrains Mono", monospace' }}>src=feed</code> from the marketplace.
+            <span className="font-medium" style={{ color: '#3A4A42' }}>Auto-tagged:</span> <code style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>src=card</code> on every shared Karta Card · <code style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>src=embed</code> on widgets · <code style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>src=feed</code> from the marketplace.
           </div>
         </div>
 
@@ -159,7 +159,7 @@ export function SourceAnalyticsClient({ eventName, publicSlug, sources, total }:
                   <span className="text-[12px] font-medium" style={{ color: '#3A4A42' }}>{link.label}</span>
                   <CopyButton text={link.url} />
                 </div>
-                <div className="px-3 py-2 rounded-lg text-[11px] break-all" style={{ background: '#F0EDE6', color: '#3A4A42', fontFamily: '"JetBrains Mono", monospace' }}>
+                <div className="px-3 py-2 rounded-lg text-[11px] break-all" style={{ background: '#F0EDE6', color: '#3A4A42', fontFamily: 'Inter, system-ui, sans-serif' }}>
                   {link.url.replace(BASE + '/', '').split('?').map((part, i) => (
                     i === 0
                       ? <span key={i} style={{ color: '#0F1F18' }}>{BASE}/{part}?</span>
