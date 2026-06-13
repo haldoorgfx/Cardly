@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { createAdminClient } from '@/lib/supabase/server';
 import { DiscoverHomeClient } from '@/components/discovery/DiscoverHomeClient';
 import { PublicNav } from '@/components/events/PublicNav';
+import { MarketingFooter } from '@/components/marketing/MarketingFooter';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -38,6 +39,7 @@ export default async function EventDiscoveryPage() {
     <>
       <PublicNav />
       <DiscoverHomeClient featured={featured ?? null} events={events ?? []} />
+      <MarketingFooter />
     </>
   );
 }

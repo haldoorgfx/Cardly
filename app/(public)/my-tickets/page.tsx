@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Mic, Store, ArrowRight } from 'lucide-react';
 import { PublicNav } from '@/components/events/PublicNav';
+import { MarketingFooter } from '@/components/marketing/MarketingFooter';
 import MyTicketsClient from '@/components/tickets/MyTicketsClient';
 import type { Metadata } from 'next';
 
@@ -151,6 +152,7 @@ export default async function MyTicketsPage() {
           </section>
         )}
       </div>
+      <MarketingFooter />
     </div>
   );
 }
