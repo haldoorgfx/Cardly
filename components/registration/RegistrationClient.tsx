@@ -495,7 +495,7 @@ export default function RegistrationClient({
                           {t.description && <div className="text-[13px] mt-0.5" style={{ color: '#6B7A72' }}>{t.description}</div>}
                           {sold && <div className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>Sold out</div>}
                         </div>
-                        <div className="font-mono font-medium text-[18px] shrink-0" style={{ color: t.price === 0 && !t.min_price ? '#C9A45E' : '#1F4D3A' }}>
+                        <div className="font-title font-bold text-[18px] shrink-0" style={{ color: t.price === 0 && !t.min_price ? '#C9A45E' : '#1F4D3A' }}>
                           {displayPrice}
                         </div>
                       </button>
@@ -726,17 +726,17 @@ export default function RegistrationClient({
                 <div className="rounded-2xl p-5" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
                   <div className="flex items-center justify-between py-2 text-[14px]" style={{ color: '#3A4A42' }}>
                     <span>{selectedTicket?.name}</span>
-                    <span className="font-mono">{fmt(effectivePrice, selectedTicket?.currency ?? 'USD')}</span>
+                    <span className="font-title font-semibold">{fmt(effectivePrice, selectedTicket?.currency ?? 'USD')}</span>
                   </div>
                   {fee > 0 && (
                     <div className="flex items-center justify-between py-2 text-[14px]" style={{ color: '#3A4A42' }}>
                       <span>Service fee</span>
-                      <span className="font-mono">{fmt(fee, selectedTicket?.currency ?? 'USD')}</span>
+                      <span className="font-title font-medium">{fmt(fee, selectedTicket?.currency ?? 'USD')}</span>
                     </div>
                   )}
                   <div className="flex items-center justify-between pt-3 mt-1 text-[15px] font-semibold" style={{ borderTop: '1px solid #E5E0D4' }}>
                     <span style={{ color: '#0F1F18' }}>Total</span>
-                    <span className="font-mono" style={{ color: '#1F4D3A' }}>{fmt(total, selectedTicket?.currency ?? 'USD')}</span>
+                    <span className="font-title font-bold" style={{ color: '#1F4D3A' }}>{fmt(total, selectedTicket?.currency ?? 'USD')}</span>
                   </div>
                 </div>
               )}
@@ -840,19 +840,19 @@ export default function RegistrationClient({
                 <>
                   <div className="flex justify-between py-2.5 text-[14px]" style={{ color: '#3A4A42' }}>
                     <span>{selectedTicket.name}</span>
-                    <span className="font-mono" style={{ color: '#0F1F18' }}>
+                    <span className="font-title font-semibold" style={{ color: '#0F1F18' }}>
                       {isPWYW && chosenPrice ? fmt(parseFloat(chosenPrice) || 0, selectedTicket.currency) : fmt(selectedTicket.price, selectedTicket.currency)}
                     </span>
                   </div>
                   {fee > 0 && (
                     <div className="flex justify-between py-2.5 text-[14px]" style={{ color: '#3A4A42' }}>
                       <span>Service fee</span>
-                      <span className="font-mono">{fmt(fee, selectedTicket.currency)}</span>
+                      <span className="font-title font-medium">{fmt(fee, selectedTicket.currency)}</span>
                     </div>
                   )}
                   <div className="flex justify-between items-baseline pt-3 mt-1" style={{ borderTop: '1px solid #E5E0D4' }}>
                     <span className="font-display font-medium text-[15px]" style={{ color: '#0F1F18' }}>Total</span>
-                    <span className="font-mono font-medium text-[22px]" style={{ color: '#1F4D3A' }}>{fmt(total, selectedTicket.currency)}</span>
+                    <span className="font-title font-bold text-[22px]" style={{ color: '#1F4D3A' }}>{fmt(total, selectedTicket.currency)}</span>
                   </div>
                 </>
               )}
@@ -883,17 +883,17 @@ export default function RegistrationClient({
                 <>
                   <div className="flex justify-between py-2.5 text-[14px]" style={{ color: '#3A4A42' }}>
                     <span>{selectedTicket.name}</span>
-                    <span className="font-mono" style={{ color: '#0F1F18' }}>{fmt(selectedTicket.price, selectedTicket.currency)}</span>
+                    <span className="font-title font-semibold" style={{ color: '#0F1F18' }}>{fmt(selectedTicket.price, selectedTicket.currency)}</span>
                   </div>
                   {fee > 0 && (
                     <div className="flex justify-between py-2.5 text-[14px]" style={{ color: '#3A4A42' }}>
                       <span>Service fee</span>
-                      <span className="font-mono">{fmt(fee, selectedTicket.currency)}</span>
+                      <span className="font-title font-medium">{fmt(fee, selectedTicket.currency)}</span>
                     </div>
                   )}
                   <div className="flex justify-between items-baseline pt-3 mt-1" style={{ borderTop: '1px solid #E5E0D4' }}>
                     <span className="font-display font-medium text-[15px]" style={{ color: '#0F1F18' }}>Total</span>
-                    <span className="font-mono font-medium text-[22px]" style={{ color: '#1F4D3A' }}>{fmt(total, selectedTicket.currency)}</span>
+                    <span className="font-title font-bold text-[22px]" style={{ color: '#1F4D3A' }}>{fmt(total, selectedTicket.currency)}</span>
                   </div>
                 </>
               )}

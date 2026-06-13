@@ -207,17 +207,17 @@ export function CheckoutClient({ eventName, eventSlug, coverImage, startsAt, ven
                   {ticket ? (
                     <div className="flex items-center justify-between text-[13px]">
                       <span style={{ color: '#3A4A42' }}>{ticket.name} × 1</span>
-                      <span className="font-mono" style={{ color: '#0F1F18' }}>${ticketPrice.toFixed(2)}</span>
+                      <span className="font-title font-semibold" style={{ color: '#0F1F18' }}>${ticketPrice.toFixed(2)}</span>
                     </div>
                   ) : (
                     <div className="flex items-center justify-between text-[13px]">
                       <span style={{ color: '#3A4A42' }}>General × 1</span>
-                      <span className="font-mono" style={{ color: '#0F1F18' }}>$20.00</span>
+                      <span className="font-title font-semibold" style={{ color: '#0F1F18' }}>$20.00</span>
                     </div>
                   )}
                   <div className="flex items-center justify-between text-[12px]" style={{ color: '#6B7A72' }}>
                     <span>Platform fee</span>
-                    <span className="font-mono">${platformFee.toFixed(2)}</span>
+                    <span className="font-title font-medium">${platformFee.toFixed(2)}</span>
                   </div>
                 </div>
 
@@ -236,7 +236,7 @@ export function CheckoutClient({ eventName, eventSlug, coverImage, startsAt, ven
                 {/* Total */}
                 <div className="flex items-center justify-between mb-4">
                   <span className="font-bold text-[15px]" style={{ color: '#0F1F18' }}>Total</span>
-                  <span className="font-mono font-bold text-[18px]" style={{ color: '#C9A45E' }}>
+                  <span className="font-title font-bold text-[18px]" style={{ color: '#C9A45E' }}>
                     ${total.toFixed(2)}
                   </span>
                 </div>

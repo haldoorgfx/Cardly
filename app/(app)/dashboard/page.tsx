@@ -159,7 +159,7 @@ export default async function DashboardPage() {
           ].map((s, i) => (
             <div key={i} className="flex items-center gap-5">
               <div>
-                <span className="font-mono text-[20px] text-[#1F4D3A] tracking-tight">{s.value}</span>
+                <span className="font-title font-bold text-[20px] text-[#1F4D3A] tracking-tight">{s.value}</span>
                 <span className="ml-2 text-[13px] text-[#6B7A72]">{s.label}</span>
               </div>
               {!s.last && <span className="text-[#E5E0D4] hidden sm:inline">·</span>}

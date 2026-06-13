@@ -85,7 +85,7 @@ function HorizontalBar({ label, value, max, currency }: { label: string; value: 
       <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: '#E5E0D4' }}>
         <div className="h-full rounded-full" style={{ width: `${pct}%`, background: '#1F4D3A' }} />
       </div>
-      <div className="font-mono text-[13px] min-w-[60px] text-right" style={{ color: value === 0 ? '#2D7A4F' : '#1F4D3A' }}>
+      <div className="font-title font-semibold text-[13px] min-w-[60px] text-right" style={{ color: value === 0 ? '#2D7A4F' : '#1F4D3A' }}>
         {value === 0 ? 'Free' : formatCurrency(value, currency)}
       </div>
     </div>
@@ -121,7 +121,7 @@ export function EventAnalyticsView({
             { value: `${cardRate}%`, label: 'cards downloaded' },
           ].map((s, i) => (
             <span key={i}>
-              <span className="font-mono font-medium text-[20px]" style={{ color: '#1F4D3A' }}>{s.value}</span>
+              <span className="font-title font-bold text-[20px]" style={{ color: '#1F4D3A' }}>{s.value}</span>
               <span className="text-[13px] ml-1.5" style={{ color: '#6B7A72' }}>{s.label}</span>
               {i < 3 && <span className="mx-3 text-[13px]" style={{ color: '#E5E0D4' }}>·</span>}
             </span>
@@ -154,7 +154,7 @@ export function EventAnalyticsView({
           </div>
           <div className="mt-4 pt-4 flex justify-between" style={{ borderTop: '1px solid #E5E0D4' }}>
             <span className="text-[13px]" style={{ color: '#6B7A72' }}>Total revenue</span>
-            <span className="font-mono font-medium text-[15px]" style={{ color: '#1F4D3A' }}>
+            <span className="font-title font-semibold text-[15px]" style={{ color: '#1F4D3A' }}>
               {formatCurrency(totalRevenue, revenueCurrency)}
             </span>
           </div>
@@ -169,7 +169,7 @@ export function EventAnalyticsView({
         ].map(s => (
           <div key={s.label} className="rounded-2xl px-6 py-5" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
             <div className="font-display font-medium text-[16px] mb-3" style={{ color: '#1F4D3A' }}>{s.label}</div>
-            <div className="font-mono font-medium text-[32px]" style={{ color: '#0F1F18' }}>{s.pct}%</div>
+            <div className="font-title font-bold text-[32px]" style={{ color: '#0F1F18' }}>{s.pct}%</div>
             <div className="w-full h-2 rounded-full overflow-hidden mt-3 mb-2" style={{ background: '#E5E0D4' }}>
               <div className="h-full rounded-full" style={{ width: `${s.pct}%`, background: '#1F4D3A' }} />
             </div>
