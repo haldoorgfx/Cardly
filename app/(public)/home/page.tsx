@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { PublicNav } from '@/components/events/PublicNav';
 import {
   CalendarDays, Ticket, Store, Bookmark, Users, ArrowRight, Plus,
-  Settings, Bell, ShieldCheck, MapPin, Compass, Mic,
+  MapPin, Compass, Mic,
 } from 'lucide-react';
 import type { Metadata } from 'next';
 
@@ -89,8 +89,6 @@ export default async function HomePage() {
   ]);
 
   const profile = profileRes.data ?? null;
-  const role = (profile?.role ?? 'user') as string;
-  const isAdmin = role === 'admin' || role === 'super_admin';
   const firstName = (profile?.full_name ?? user.email?.split('@')[0] ?? 'there').split(' ')[0];
 
   const hosting = (hostingRes.data ?? []) as HostEvent[];
@@ -293,28 +291,6 @@ export default async function HomePage() {
             </div>
           </div>
         )}
-
-        {/* Quick links footer */}
-        <div className="mt-4 pt-7 border-t" style={{ borderColor: '#E5E0D4' }}>
-          <div className="flex flex-wrap gap-2.5">
-            {hosting.length === 0 && (
-              <Link href="/events/new" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-[13.5px] font-medium border transition hover:border-[#1F4D3A]/40" style={{ borderColor: '#E5E0D4', color: '#1F4D3A', background: 'white' }}>
-                <Plus size={15} strokeWidth={2} /> Host an event
-              </Link>
-            )}
-            <Link href="/account/profile" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-[13.5px] border transition hover:border-[#1F4D3A]/40" style={{ borderColor: '#E5E0D4', color: '#6B7A72', background: 'white' }}>
-              <Settings size={15} strokeWidth={1.8} /> Profile & preferences
-            </Link>
-            <Link href="/account/notifications" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-[13.5px] border transition hover:border-[#1F4D3A]/40" style={{ borderColor: '#E5E0D4', color: '#6B7A72', background: 'white' }}>
-              <Bell size={15} strokeWidth={1.8} /> Notifications
-            </Link>
-            {isAdmin && (
-              <Link href="/admin/analytics" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-[13.5px] border transition hover:border-[#1F4D3A]/40" style={{ borderColor: '#E5E0D4', color: '#6B7A72', background: 'white' }}>
-                <ShieldCheck size={15} strokeWidth={1.8} /> Admin tools
-              </Link>
-            )}
-          </div>
-        </div>
 
       </div>
     </div>

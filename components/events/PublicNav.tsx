@@ -184,20 +184,10 @@ export function PublicNav({ eventSlug }: PublicNavProps = {}) {
                         Home
                       </Link>
                       {isAttendee && (
-                        <>
-                          <Link href="/my-tickets" onClick={() => setAvatarMenuOpen(false)}
-                            className="flex items-center px-4 py-2.5 text-[13px] hover:bg-[#FAF6EE] transition-colors" style={{ color: '#0F1F18' }}>
-                            My tickets
-                          </Link>
-                          <Link href="/account/profile" onClick={() => setAvatarMenuOpen(false)}
-                            className="flex items-center px-4 py-2.5 text-[13px] hover:bg-[#FAF6EE] transition-colors" style={{ color: '#0F1F18' }}>
-                            Profile &amp; preferences
-                          </Link>
-                          <Link href="/account/notifications" onClick={() => setAvatarMenuOpen(false)}
-                            className="flex items-center px-4 py-2.5 text-[13px] hover:bg-[#FAF6EE] transition-colors" style={{ color: '#0F1F18' }}>
-                            Notifications
-                          </Link>
-                        </>
+                        <Link href="/my-tickets" onClick={() => setAvatarMenuOpen(false)}
+                          className="flex items-center px-4 py-2.5 text-[13px] hover:bg-[#FAF6EE] transition-colors" style={{ color: '#0F1F18' }}>
+                          My tickets
+                        </Link>
                       )}
                       {!isAttendee && (
                         <Link href="/dashboard" onClick={() => setAvatarMenuOpen(false)}
@@ -205,6 +195,14 @@ export function PublicNav({ eventSlug }: PublicNavProps = {}) {
                           Dashboard
                         </Link>
                       )}
+                      <Link href="/account/profile" onClick={() => setAvatarMenuOpen(false)}
+                        className="flex items-center px-4 py-2.5 text-[13px] hover:bg-[#FAF6EE] transition-colors" style={{ color: '#0F1F18' }}>
+                        Profile &amp; preferences
+                      </Link>
+                      <Link href="/account/notifications" onClick={() => setAvatarMenuOpen(false)}
+                        className="flex items-center px-4 py-2.5 text-[13px] hover:bg-[#FAF6EE] transition-colors" style={{ color: '#0F1F18' }}>
+                        Notifications
+                      </Link>
                       <div className="border-t" style={{ borderColor: '#E5E0D4' }} />
                       <button onClick={handleSignOut}
                         className="w-full flex items-center px-4 py-2.5 text-[13px] hover:bg-[#FAF6EE] transition-colors" style={{ color: '#B8423C' }}>
@@ -260,15 +258,21 @@ export function PublicNav({ eventSlug }: PublicNavProps = {}) {
               Home
             </Link>
           )}
-          {user && isAttendee && (
+          {user && (
             <>
-              <Link href="/account/notifications" onClick={() => setMenuOpen(false)}
-                className="text-[15px] font-medium py-2.5 border-b" style={{ color: '#0F1F18', borderColor: '#F0EDE7' }}>
-                Notifications
-              </Link>
+              {!isAttendee && (
+                <Link href="/dashboard" onClick={() => setMenuOpen(false)}
+                  className="text-[15px] font-medium py-2.5 border-b" style={{ color: '#0F1F18', borderColor: '#F0EDE7' }}>
+                  Dashboard
+                </Link>
+              )}
               <Link href="/account/profile" onClick={() => setMenuOpen(false)}
                 className="text-[15px] font-medium py-2.5 border-b" style={{ color: '#0F1F18', borderColor: '#F0EDE7' }}>
                 Profile & preferences
+              </Link>
+              <Link href="/account/notifications" onClick={() => setMenuOpen(false)}
+                className="text-[15px] font-medium py-2.5 border-b" style={{ color: '#0F1F18', borderColor: '#F0EDE7' }}>
+                Notifications
               </Link>
             </>
           )}
