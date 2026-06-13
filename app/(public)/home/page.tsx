@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { PublicNav } from '@/components/events/PublicNav';
 import {
   CalendarDays, Ticket, Store, Bookmark, Users, ArrowRight, Plus,
-  Settings, Bell, ShieldCheck, MapPin, Compass,
+  Settings, Bell, ShieldCheck, MapPin, Compass, Mic,
 } from 'lucide-react';
 import type { Metadata } from 'next';
 
@@ -28,6 +28,7 @@ const STATUS = {
 type HostEvent = { id: string; name: string; slug: string; status: string; event_pages?: Array<{ starts_at: string | null; venue_name: string | null }> | null };
 type Attending = { id: string; status: string; events: { name: string; slug: string; event_pages?: Array<{ starts_at: string | null; city: string | null; venue_name: string | null; is_online: boolean }> | null } | null };
 type Booth = { id: string; company_name: string; logo_url: string | null; tier: string | null; slug: string };
+type Speaking = { id: string; name: string; eventName: string; slug: string };
 
 /* ── section shell ───────────────────────────────────────────────────── */
 
@@ -68,7 +69,7 @@ export default async function HomePage() {
   const adminAny = admin as any;
   const email = (user.email ?? '').toLowerCase();
 
-  const [profileRes, hostingRes, attendingRes, sponsorRes, savedRes, followingRes] = await Promise.all([
+  const [profileRes, hostingRes, attendingRes, sponsorRes, savedRes, followingRes, speakerRes] = await Promise.all([
     adminAny.from('profiles').select('full_name, role, plan').eq('id', user.id).single(),
     admin.from('events')
       .select('id, name, slug, status, event_pages(starts_at, venue_name)')
@@ -84,6 +85,7 @@ export default async function HomePage() {
     email ? adminAny.from('sponsors').select('id, company_name, logo_url, tier, event_id').ilike('contact_email', email) : Promise.resolve({ data: [] }),
     adminAny.from('saved_events').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
     adminAny.from('organizer_follows').select('id', { count: 'exact', head: true }).eq('follower_id', user.id),
+    email ? adminAny.from('speakers').select('id, name, event_id').ilike('email', email) : Promise.resolve({ data: [] }),
   ]);
 
   const profile = profileRes.data ?? null;
@@ -106,29 +108,38 @@ export default async function HomePage() {
     return true;
   }).slice(0, 6);
 
-  // Exhibiting — resolve event slugs for the sponsor rows
+  // Exhibiting + Speaking — resolve event slug/name for the matched rows
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sponsorRows = (sponsorRes.data ?? []) as any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const speakerRows = (speakerRes?.data ?? []) as any[];
   let booths: Booth[] = [];
-  if (sponsorRows.length > 0) {
-    const eventIds = Array.from(new Set(sponsorRows.map(s => s.event_id)));
-    const { data: evs } = await adminAny.from('events').select('id, slug, status').in('id', eventIds);
+  let speaking: Speaking[] = [];
+  const eventIds = Array.from(new Set(
+    sponsorRows.map(s => s.event_id).concat(speakerRows.map(s => s.event_id))
+  ));
+  if (eventIds.length > 0) {
+    const { data: evs } = await adminAny.from('events').select('id, slug, name').in('id', eventIds);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const slugById = new Map((evs ?? []).map((e: any) => [e.id, e.slug]));
+    const byId = new Map<string, any>((evs ?? []).map((e: any) => [e.id, e]));
     booths = sponsorRows
-      .filter(s => slugById.has(s.event_id))
-      .map(s => ({ id: s.id, company_name: s.company_name, logo_url: s.logo_url, tier: s.tier, slug: slugById.get(s.event_id) as string }));
+      .filter(s => byId.has(s.event_id))
+      .map(s => ({ id: s.id, company_name: s.company_name, logo_url: s.logo_url, tier: s.tier, slug: byId.get(s.event_id).slug as string }));
+    speaking = speakerRows
+      .filter(s => byId.has(s.event_id))
+      .map(s => ({ id: s.id, name: s.name, eventName: byId.get(s.event_id).name as string, slug: byId.get(s.event_id).slug as string }));
   }
 
   const savedCount = (savedRes.count ?? 0) as number;
   const followingCount = (followingRes.count ?? 0) as number;
 
-  const hasAnything = hosting.length > 0 || attending.length > 0 || booths.length > 0 || savedCount > 0 || followingCount > 0;
+  const hasAnything = hosting.length > 0 || attending.length > 0 || booths.length > 0 || speaking.length > 0 || savedCount > 0 || followingCount > 0;
 
   // Summary line
   const bits: string[] = [];
   if (hosting.length) bits.push(`hosting ${hosting.length}`);
   if (attending.length) bits.push(`attending ${attending.length}`);
+  if (speaking.length) bits.push(`speaking at ${speaking.length}`);
   if (booths.length) bits.push(`${booths.length} booth${booths.length !== 1 ? 's' : ''}`);
   const summary = bits.length ? `You're ${bits.join(' · ')}.` : 'Find your next event below.';
 
@@ -194,6 +205,28 @@ export default async function HomePage() {
                   </Link>
                 );
               })}
+            </div>
+          </Section>
+        )}
+
+        {/* Speaking */}
+        {speaking.length > 0 && (
+          <Section icon={<Mic size={15} strokeWidth={1.9} />} title="Speaking" count={speaking.length}>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {speaking.map(s => (
+                <Link key={s.id} href={`/s/${s.slug}/${s.id}`}
+                  className="group bg-white rounded-2xl border p-4 flex items-center gap-3 transition-colors hover:border-[#1F4D3A]/40"
+                  style={{ borderColor: '#E5E0D4' }}>
+                  <span className="grid place-items-center w-10 h-10 rounded-lg shrink-0" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+                    <Mic size={16} strokeWidth={1.8} />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-medium text-[14px] truncate" style={{ color: '#0F1F18' }}>{s.eventName}</div>
+                    <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>Open speaker portal</div>
+                  </div>
+                  <ArrowRight size={14} strokeWidth={2} className="opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: '#1F4D3A' }} />
+                </Link>
+              ))}
             </div>
           </Section>
         )}

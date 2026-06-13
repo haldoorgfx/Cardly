@@ -54,6 +54,7 @@ interface FormState {
   company: string;
   bio: string;
   photo_url: string;
+  email: string;
   speaker_type: SpeakerType;
   is_featured: boolean;
   linkedin_url: string;
@@ -68,6 +69,7 @@ const EMPTY_FORM: FormState = {
   company: '',
   bio: '',
   photo_url: '',
+  email: '',
   speaker_type: 'speaker',
   is_featured: false,
   linkedin_url: '',
@@ -119,6 +121,7 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
       company: speaker.company ?? '',
       bio: speaker.bio ?? '',
       photo_url: speaker.photo_url ?? '',
+      email: speaker.email ?? '',
       speaker_type: speaker.speaker_type,
       is_featured: speaker.is_featured,
       linkedin_url: speaker.linkedin_url ?? '',
@@ -338,6 +341,23 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
           </label>
 
           {/* Progressive disclosure: social / contact links */}
+          <div className="space-y-1">
+            <label className="text-[10px] tracking-[0.12em] uppercase flex items-center gap-1" style={{ color: '#6B7A72' }}>
+              <AtSign size={11} /> Email <span className="normal-case tracking-normal text-[11px]" style={{ color: '#9AA39C' }}>— optional</span>
+            </label>
+            <input
+              type="email"
+              className="w-full border rounded-lg px-3 py-2 text-sm"
+              style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
+              value={form.email}
+              onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+              placeholder="amina@example.com"
+            />
+            <p className="text-[11px]" style={{ color: '#9AA39C' }}>
+              When the speaker signs in with this email, their portal appears automatically on their home.
+            </p>
+          </div>
+
           {!showMore ? (
             <button
               type="button"

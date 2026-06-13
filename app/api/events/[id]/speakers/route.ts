@@ -9,6 +9,7 @@ const SpeakerSchema = z.object({
   photo_url: z.string().optional(),
   company: z.string().optional(),
   role: z.string().optional(),
+  email: z.string().optional(),
   linkedin_url: z.string().optional(),
   twitter_url: z.string().optional(),
   website_url: z.string().optional(),

@@ -164,6 +164,7 @@ const speakers: ImportEntity = {
     { key: 'headline',     label: 'Headline',     type: 'text', example: 'CEO at Acme', aliases: ['tagline'] },
     { key: 'role',         label: 'Role',         type: 'text', example: 'Chief Executive', aliases: ['position', 'job title', 'title'] },
     { key: 'company',      label: 'Company',      type: 'text', example: 'Acme Inc', aliases: ['organization', 'org'] },
+    { key: 'email',        label: 'Email',        type: 'text', example: 'amina@example.com', aliases: ['e-mail', 'speaker email', 'contact email'] },
     { key: 'bio',          label: 'Bio',          type: 'text', example: 'Amina has 15 years…', aliases: ['biography', 'about'] },
     { key: 'photo_url',    label: 'Photo URL',    type: 'text', example: 'https://…/amina.jpg', aliases: ['photo', 'image', 'avatar'] },
     { key: 'speaker_type', label: 'Type',         type: 'enum', enumValues: SPEAKER_TYPES, example: 'keynote', help: SPEAKER_TYPES.join(', ') },
@@ -174,7 +175,7 @@ const speakers: ImportEntity = {
     if (!name) return { error: 'Name is required' };
 
     const payload: Record<string, unknown> = { name };
-    for (const key of ['headline', 'role', 'company', 'bio', 'photo_url'] as const) {
+    for (const key of ['headline', 'role', 'company', 'email', 'bio', 'photo_url'] as const) {
       if ((row[key] ?? '').trim()) payload[key] = row[key].trim();
     }
 
