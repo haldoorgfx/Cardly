@@ -17,6 +17,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   for (const key of ALLOWED) {
     if (key in body && typeof body[key] === 'boolean') patch[key] = body[key];
   }
+  // fee_bearer is an enum, not a boolean — who pays the platform fee.
+  if (body.fee_bearer === 'absorb' || body.fee_bearer === 'pass') patch.fee_bearer = body.fee_bearer;
   if (Object.keys(patch).length === 0) return NextResponse.json({ error: 'No valid fields' }, { status: 400 });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

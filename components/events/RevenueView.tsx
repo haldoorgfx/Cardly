@@ -1,11 +1,13 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Download, TrendingUp, Users, CreditCard, Link2 } from 'lucide-react';
+import { Download, TrendingUp, Users, CreditCard } from 'lucide-react';
 
 interface Reg {
   id: string;
   amount_paid: number;
+  platform_fee?: number | null;
+  organizer_net?: number | null;
   currency: string;
   status: string;
   payment_status: string;
@@ -58,6 +60,11 @@ export function RevenueView({ registrations }: Props) {
 
   const paidRegs = useMemo(() => registrations.filter(r => r.payment_status === 'paid' || r.payment_status === 'free'), [registrations]);
   const totalRevenue = useMemo(() => paidRegs.reduce((s, r) => s + (r.amount_paid ?? 0), 0), [paidRegs]);
+  const totalFee = useMemo(() => paidRegs.reduce((s, r) => s + (r.platform_fee ?? 0), 0), [paidRegs]);
+  const totalNet = useMemo(
+    () => paidRegs.reduce((s, r) => s + (r.organizer_net ?? ((r.amount_paid ?? 0) - (r.platform_fee ?? 0))), 0),
+    [paidRegs],
+  );
   const primaryCurrency = paidRegs.find(r => r.amount_paid > 0)?.currency ?? 'USD';
   const totalCount = registrations.length;
   const paidCount = paidRegs.filter(r => r.payment_status === 'paid').length;
@@ -123,13 +130,16 @@ export function RevenueView({ registrations }: Props) {
 
   return (
     <div>
-      {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-        <StatCard icon={<TrendingUp size={16} />} label="Gross revenue" value={fmtShort(totalRevenue, primaryCurrency)} />
-        <StatCard icon={<Users size={16} />} label="Attendees" value={String(totalCount)} sub={`${paidCount} paid · ${freeCount} free`} />
-        <StatCard icon={<CreditCard size={16} />} label="Paid tickets" value={String(paidCount)} />
-        <StatCard icon={<Link2 size={16} />} label="Via promoter" value={String(paidRegs.filter(r => r.referral_code).length)} />
+      {/* Stats — the money story: gross → fee → what you're owed */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-2">
+        <StatCard icon={<TrendingUp size={16} />} label="Gross collected" value={fmtShort(totalRevenue, primaryCurrency)} sub={`${paidCount} paid · ${freeCount} free`} />
+        <StatCard icon={<CreditCard size={16} />} label="Platform fee" value={totalFee > 0 ? fmtShort(totalFee, primaryCurrency) : '—'} />
+        <StatCard icon={<TrendingUp size={16} />} label="Net payable" value={fmtShort(totalNet, primaryCurrency)} sub="what you'll receive" />
+        <StatCard icon={<Users size={16} />} label="Attendees" value={String(totalCount)} />
       </div>
+      <p className="text-[12px] mb-8" style={{ color: '#6B7A72' }}>
+        Net payable is your revenue after Karta&apos;s platform fee. Payouts are processed manually for now — we&apos;ll be in touch to settle.
+      </p>
 
       {/* Tab bar + export */}
       <div className="flex items-center justify-between mb-4">

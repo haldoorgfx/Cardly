@@ -30,7 +30,7 @@ export default async function RevenuePage({ params }: Props) {
   // All paid/confirmed registrations
   const { data: regs } = await admin
     .from('registrations')
-    .select('id, amount_paid, currency, status, payment_status, created_at, referral_code, utm_source, ticket_types(name, price)')
+    .select('id, amount_paid, platform_fee, organizer_net, currency, status, payment_status, created_at, referral_code, utm_source, ticket_types(name, price)')
     .eq('event_id', id)
     .in('status', ['confirmed', 'checked_in', 'pending_approval'])
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

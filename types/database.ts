@@ -597,6 +597,7 @@ export interface Database {
           checkout_require_approval: boolean;
           checkout_show_remaining: boolean;
           checkout_apply_vat: boolean;
+          fee_bearer: 'absorb' | 'pass';
           created_at: string;
           updated_at: string;
         };
@@ -617,6 +618,7 @@ export interface Database {
           checkout_require_approval?: boolean;
           checkout_show_remaining?: boolean;
           checkout_apply_vat?: boolean;
+          fee_bearer?: 'absorb' | 'pass';
           created_at?: string;
           updated_at?: string;
         };
@@ -635,6 +637,7 @@ export interface Database {
           checkout_require_approval?: boolean;
           checkout_show_remaining?: boolean;
           checkout_apply_vat?: boolean;
+          fee_bearer?: 'absorb' | 'pass';
           updated_at?: string;
         };
         Relationships: [
@@ -1075,6 +1078,9 @@ export interface Database {
           stripe_payment_intent_id: string | null;
           flutterwave_tx_ref: string | null;
           amount_paid: number;
+          platform_fee: number;
+          organizer_net: number | null;
+          fee_bearer: 'absorb' | 'pass';
           currency: string;
           qr_code_token: string;
           checked_in_at: string | null;
@@ -1102,6 +1108,9 @@ export interface Database {
           stripe_payment_intent_id?: string | null;
           flutterwave_tx_ref?: string | null;
           amount_paid?: number;
+          platform_fee?: number;
+          organizer_net?: number | null;
+          fee_bearer?: 'absorb' | 'pass';
           currency?: string;
           qr_code_token?: string;
           checked_in_at?: string | null;

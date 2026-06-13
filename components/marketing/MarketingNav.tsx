@@ -118,7 +118,7 @@ function MobileOverlay({
 
           {/* Nav links */}
           <nav className="flex flex-col">
-            {[['Use cases', '/use-cases'], ['Pricing', '/pricing'], ["What's new", '/whats-new']].map(([label, href]) => (
+            {[['Discover events', '/events'], ['Use cases', '/use-cases'], ['Pricing', '/pricing'], ["What's new", '/whats-new']].map(([label, href]) => (
               <Link
                 key={href}
                 href={href}
@@ -238,6 +238,8 @@ export function MarketingNav() {
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-8 text-[14px] text-ink-soft">
+
+            <Link href="/events" className="font-medium hover:text-primary transition-colors" style={{ color: '#1F4D3A' }}>Discover events</Link>
 
             {/* Product dropdown */}
             <div

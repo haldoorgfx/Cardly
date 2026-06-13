@@ -4,6 +4,8 @@ import { sendRegistrationConfirmEmail, sendPendingApprovalEmail } from '@/lib/re
 import { createTicketPaymentIntent } from '@/lib/payments/stripe';
 import { initFlutterwavePayment, isFlutterwaveCurrency, type FlutterwaveCurrency } from '@/lib/payments/flutterwave';
 import { isWaafiPayCurrency } from '@/lib/payments/waafipay';
+import { splitTicketAmount, type FeeBearer } from '@/lib/billing/fees';
+import type { Plan } from '@/lib/billing/plans';
 import { z } from 'zod';
 
 // ── Input validation ──────────────────────────────────────────────────────────
@@ -120,9 +122,28 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   // 5. Create registration
   const isFree = effectivePrice === 0;
-  const { data: eventRow } = await admin.from('events').select('checkout_require_approval').eq('id', params.id).single();
+  const { data: eventRow } = await admin.from('events').select('checkout_require_approval, user_id').eq('id', params.id).single();
   const requiresApproval = !!eventRow?.checkout_require_approval && isFree;
   const initialStatus = requiresApproval ? 'pending_approval' : isFree ? 'confirmed' : 'pending';
+
+  // Platform fee (paid tickets only). The split depends on the organizer's plan
+  // (Studio = 0%) and who bears the fee. organizer_net = charged − platform_fee.
+  // fee_bearer is read defensively so this works before migration 040 is applied.
+  let feeBearer: FeeBearer = 'absorb';
+  let organizerPlan: Plan = 'free';
+  if (!isFree) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: fb } = await (admin as any).from('events').select('fee_bearer').eq('id', params.id).single();
+    if (fb?.fee_bearer === 'pass') feeBearer = 'pass';
+    if (eventRow?.user_id) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: orgProfile } = await (admin as any).from('profiles').select('plan').eq('id', eventRow.user_id).single();
+      organizerPlan = (orgProfile?.plan as Plan) ?? 'free';
+    }
+  }
+  const split = isFree
+    ? { charged: 0, platformFee: 0, organizerNet: 0 }
+    : splitTicketAmount(effectivePrice, organizerPlan, feeBearer);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: registration, error: regError } = await (admin as any)
@@ -140,7 +161,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       user_id: attendeeUserId,
       status: initialStatus,
       payment_status: isFree ? 'free' : 'pending',
-      amount_paid: isFree ? 0 : effectivePrice,
+      amount_paid: isFree ? 0 : split.charged,
       currency: ticket.currency,
       source: 'web',
     })
@@ -152,6 +173,16 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       return NextResponse.json({ error: 'You are already registered for this event.' }, { status: 409 });
     }
     return NextResponse.json({ error: regError.message }, { status: 500 });
+  }
+
+  // Record the platform-fee split (best-effort — the columns exist after
+  // migration 040; before that this no-ops and registration still succeeds).
+  if (!isFree) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (admin as any)
+      .from('registrations')
+      .update({ platform_fee: split.platformFee, organizer_net: split.organizerNet, fee_bearer: feeBearer })
+      .eq('id', registration.id);
   }
 
   // 6. Atomically increment ticket quantity sold (free tickets only — paid increment after payment)
@@ -195,7 +226,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
       const eventSlugHdr = req.headers.get('x-event-slug') ?? params.id;
       const fwResult = await initFlutterwavePayment({
-        amount:        effectivePrice,
+        amount:        split.charged,
         currency:      ticket.currency as FlutterwaveCurrency,
         txRef:         registration.qr_code_token,
         customerEmail: registration.attendee_email,
@@ -230,7 +261,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       payment_status:    'pending',
       payment_required:  true,
       payment_processor: 'waafipay',
-      amount:            effectivePrice,
+      amount:            split.charged,
       currency:          ticket.currency,
       ticket_name:       ticket.name,
     }, { status: 201 });
@@ -239,7 +270,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (!isFree) {
     let clientSecret: string | null = null;
     try {
-      const amountInCents = Math.round(effectivePrice * 100);
+      const amountInCents = Math.round(split.charged * 100);
       const pi = await createTicketPaymentIntent({
         amount: amountInCents,
         currency: ticket.currency,
@@ -267,7 +298,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       payment_status: 'pending',
       payment_required: true,
       client_secret: clientSecret,
-      amount: effectivePrice,
+      amount: split.charged,
       currency: ticket.currency,
       ticket_name: ticket.name,
     }, { status: 201 });

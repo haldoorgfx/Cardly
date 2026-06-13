@@ -227,7 +227,7 @@ function Hero() {
                 Start free <ArrowRight size={15} strokeWidth={2} />
               </Link>
               <Link
-                href="/#platform"
+                href="/events"
                 className="inline-flex items-center gap-2 rounded-full font-medium transition-colors"
                 style={{
                   background: 'transparent',
@@ -237,7 +237,7 @@ function Hero() {
                   fontSize: 15,
                 }}
               >
-                See the platform <ArrowRight size={15} strokeWidth={2} />
+                Browse events <ArrowRight size={15} strokeWidth={2} />
               </Link>
             </div>
 
@@ -1536,10 +1536,63 @@ function FinalCTA() {
 /* ─────────────────────────────────────────────────────────
    PAGE ASSEMBLY
 ───────────────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────
+   ATTENDEE BAND — talks to people who want to browse + register
+───────────────────────────────────────────────────────── */
+function AttendeeBand() {
+  const cats = ['Tech', 'Music', 'Business', 'Culture', 'Sports', 'Arts', 'Food'];
+  return (
+    <section style={{ background: '#E8EFEB', paddingTop: 64, paddingBottom: 64 }}>
+      <div className="mx-auto px-5 lg:px-10 text-center" style={{ maxWidth: 1100 }}>
+        <div className="inline-flex items-center rounded-full px-3 py-1.5 mb-5"
+          style={{ background: '#FFFFFF', border: '1px solid rgba(31,77,58,0.15)', color: '#1F4D3A', fontSize: 12, fontWeight: 600, letterSpacing: '0.04em' }}>
+          For attendees
+        </div>
+        <h2 className="font-title font-bold" style={{ fontSize: 'clamp(26px,4vw,38px)', color: '#1F4D3A', letterSpacing: '-0.03em', lineHeight: 1.1 }}>
+          Looking for an event to attend?
+        </h2>
+        <p className="mt-3 mx-auto" style={{ fontSize: 16, color: '#3A4A42', maxWidth: 480, lineHeight: 1.6 }}>
+          Browse conferences, festivals and workshops near you — register in seconds and get your personalized Karta Card.
+        </p>
+
+        {/* Search → events marketplace */}
+        <form action="/events/search" method="get"
+          className="mt-7 mx-auto flex items-center gap-2 rounded-2xl p-2"
+          style={{ maxWidth: 560, background: '#FFFFFF', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)' }}>
+          <svg className="ml-3 shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B7A72" strokeWidth="2"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
+          <input name="q" placeholder="Search events, topics or cities"
+            className="flex-1 bg-transparent outline-none" style={{ fontSize: 15, color: '#0F1F18', padding: '8px 4px' }} />
+          <button type="submit" className="inline-flex items-center gap-1.5 rounded-xl font-medium shrink-0"
+            style={{ background: '#1F4D3A', color: '#FAF6EE', padding: '10px 18px', fontSize: 14 }}>
+            Find events <ArrowRight size={15} strokeWidth={2} />
+          </button>
+        </form>
+
+        {/* Category chips */}
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+          {cats.map((c) => (
+            <Link key={c} href={`/events/category/${c.toLowerCase()}`}
+              className="inline-flex items-center rounded-full px-4 py-2 text-[13px] font-medium"
+              style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', color: '#3A4A42' }}>
+              {c}
+            </Link>
+          ))}
+          <Link href="/events"
+            className="inline-flex items-center gap-1 rounded-full px-4 py-2 text-[13px] font-semibold"
+            style={{ color: '#1F4D3A' }}>
+            See all <ArrowRight size={13} strokeWidth={2} />
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function LandingPage() {
   return (
     <>
       <Hero />
+      <AttendeeBand />
       <TrustStrip />
       <PlatformFeatures />
       <KartaDifference />
