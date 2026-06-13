@@ -25,7 +25,7 @@ export async function signIn(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect("/home");
+  redirect("/dashboard");
 }
 
 export async function signUp(formData: FormData) {

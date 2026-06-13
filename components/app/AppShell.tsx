@@ -1114,7 +1114,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                       {/* Nav items */}
                       <div className="py-1.5">
                         {[
-                          { href: '/home',              icon: <Home size={14} strokeWidth={1.8} />,       label: 'Home' },
                           { href: '/settings',          icon: <UserCircle size={14} strokeWidth={1.8} />, label: 'Your profile' },
                           { href: '/settings/billing',  icon: <CreditCard size={14} strokeWidth={1.8} />, label: 'Billing & plan' },
                           { href: '/settings',          icon: <Settings2 size={14} strokeWidth={1.8} />,  label: 'Account settings' },

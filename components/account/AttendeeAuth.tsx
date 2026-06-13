@@ -9,7 +9,7 @@ type State = 'email' | 'otp';
 export default function AttendeeAuth() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get('next') ?? '/home';
+  const next = searchParams.get('next') ?? '/my-tickets';
 
   const [state, setState] = useState<State>('email');
   const [email, setEmail] = useState('');
