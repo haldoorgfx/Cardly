@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { X, Check } from 'lucide-react';
 
 type Registration = {
   id: string;
@@ -52,10 +53,11 @@ function QROverlay({ token, name, label, onClose }: QROverlayProps) {
     >
       <button
         className="absolute top-6 right-7 flex items-center justify-center rounded-full"
-        style={{ width: 44, height: 44, border: '1px solid rgba(255,255,255,0.25)', color: '#fff', fontSize: 18 }}
+        style={{ width: 44, height: 44, border: '1px solid rgba(255,255,255,0.25)', color: '#fff' }}
         onClick={onClose}
+        aria-label="Close"
       >
-        ✕
+        <X size={18} strokeWidth={2} />
       </button>
 
       {/* Large QR */}
@@ -188,8 +190,8 @@ function TicketCard({ reg, onShowQR }: { reg: Registration; onShowQR: () => void
           {/* Body */}
           <div className="p-5 sm:p-6 flex flex-col">
             {dateStr && (
-              <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, color: '#C9A45E', fontWeight: 500 }}>
-                {dateStr}{until && <span className="ml-3" style={{ color: '#6B7A72' }}>— {until}</span>}
+              <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, color: '#6B7A72', fontWeight: 500, letterSpacing: '0.02em' }}>
+                {dateStr}{until && <span className="ml-2.5 font-semibold" style={{ color: '#1F4D3A' }}>· {until}</span>}
               </div>
             )}
             <Link
@@ -303,7 +305,9 @@ function TicketCard({ reg, onShowQR }: { reg: Registration; onShowQR: () => void
           >
             {transferDone ? (
               <div className="text-center py-4">
-                <div className="text-2xl mb-3">✓</div>
+                <div className="mx-auto mb-3 flex items-center justify-center rounded-full" style={{ width: 40, height: 40, background: '#E8EFEB', color: '#1F4D3A' }}>
+                  <Check size={20} strokeWidth={2.2} />
+                </div>
                 <h3 className="font-semibold text-[17px] mb-1" style={{ color: '#1F4D3A' }}>Ticket transferred</h3>
                 <p className="text-[14px] mb-4" style={{ color: '#6B7A72' }}>{transferName} will receive a confirmation email.</p>
                 <button
