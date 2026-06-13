@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Trash2, Copy, Check, Pencil, X } from 'lucide-react';
+import { Plus, Trash2, Copy, Check, Pencil, X, Upload } from 'lucide-react';
+import { ImportWizard } from '@/components/shared/ImportWizard';
+import { IMPORT_ENTITIES } from '@/lib/import/entities';
 
 export interface PromoCode {
   id: string;
@@ -59,6 +61,15 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [error, setError] = useState('');
+  const [showImport, setShowImport] = useState(false);
+
+  async function reloadCodes() {
+    const res = await fetch(`/api/events/${eventId}/promo`);
+    if (res.ok) {
+      const { promo_codes: fresh }: { promo_codes: PromoCode[] } = await res.json();
+      setCodes(fresh);
+    }
+  }
 
   const [form, setForm] = useState({
     code: '',
@@ -235,16 +246,34 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
         </div>
       )}
 
+      <ImportWizard
+        open={showImport}
+        onClose={() => setShowImport(false)}
+        eventId={eventId}
+        entity={IMPORT_ENTITIES.promo}
+        onComplete={reloadCodes}
+      />
+
       {/* Create button */}
       {!showForm && (
-        <button
-          onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-medium mb-6"
-          style={{ background: '#1F4D3A', color: 'white' }}
-        >
-          <Plus size={15} />
-          Create promo code
-        </button>
+        <div className="flex items-center gap-2 mb-6">
+          <button
+            onClick={() => setShowForm(true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-medium"
+            style={{ background: '#1F4D3A', color: 'white' }}
+          >
+            <Plus size={15} />
+            Create promo code
+          </button>
+          <button
+            onClick={() => setShowImport(true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-medium border transition hover:bg-[#F5F3EE]"
+            style={{ borderColor: '#E5E0D4', color: '#1F4D3A' }}
+          >
+            <Upload size={15} />
+            Import
+          </button>
+        </div>
       )}
 
       {/* Create form */}

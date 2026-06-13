@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Plus, Trash2, X, ChevronDown, ChevronUp, User, MapPin, Settings, CalendarDays, AlertCircle } from 'lucide-react';
+import { Plus, Trash2, X, ChevronDown, ChevronUp, User, MapPin, Settings, CalendarDays, AlertCircle, Upload } from 'lucide-react';
 import type { Session, Track, SessionType } from '@/types/database';
+import { ImportWizard } from '@/components/shared/ImportWizard';
+import { IMPORT_ENTITIES } from '@/lib/import/entities';
 
 interface SpeakerOption {
   id: string;
@@ -98,7 +100,16 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
   const [showSessionForm, setShowSessionForm] = useState(false);
   const [editingSession, setEditingSession] = useState<Session | null>(null);
   const [sessionForm, setSessionForm] = useState<SessionForm>(EMPTY_SESSION);
+  const [showImport, setShowImport] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  async function reloadSessions() {
+    const res = await fetch(`/api/events/${eventId}/sessions`);
+    if (res.ok) {
+      const { sessions: fresh }: { sessions: Session[] } = await res.json();
+      setSessions(fresh);
+    }
+  }
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -352,15 +363,32 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
             )}
           </div>
           {!showSessionForm && (
-            <button
-              onClick={openAdd}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[13.5px] font-medium text-white transition hover:bg-[#163828]"
-              style={{ background: '#1F4D3A' }}
-            >
-              <Plus size={15} strokeWidth={2} /> Add session
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowImport(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[13.5px] font-medium border transition hover:bg-[#F5F3EE]"
+                style={{ borderColor: '#E5E0D4', color: '#1F4D3A' }}
+              >
+                <Upload size={15} strokeWidth={2} /> Import
+              </button>
+              <button
+                onClick={openAdd}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[13.5px] font-medium text-white transition hover:bg-[#163828]"
+                style={{ background: '#1F4D3A' }}
+              >
+                <Plus size={15} strokeWidth={2} /> Add session
+              </button>
+            </div>
           )}
         </div>
+
+        <ImportWizard
+          open={showImport}
+          onClose={() => setShowImport(false)}
+          eventId={eventId}
+          entity={IMPORT_ENTITIES.sessions}
+          onComplete={reloadSessions}
+        />
 
         {showSessionForm && (
           <div className="bg-white border rounded-2xl p-5 space-y-4" style={{ borderColor: '#E5E0D4' }}>

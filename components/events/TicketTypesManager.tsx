@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { Plus, Pencil, Trash2, Eye, EyeOff, ChevronUp, ChevronDown, Tag, Users, CalendarDays, AlertCircle } from 'lucide-react';
+import { Plus, Pencil, Trash2, Eye, EyeOff, ChevronUp, ChevronDown, Tag, Users, CalendarDays, AlertCircle, Upload } from 'lucide-react';
 import type { Database } from '@/types/database';
+import { ImportWizard } from '@/components/shared/ImportWizard';
+import { IMPORT_ENTITIES } from '@/lib/import/entities';
 
 type TicketRow = Database['public']['Tables']['ticket_types']['Row'];
 
@@ -106,6 +108,15 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
   const [error, setError] = useState('');
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [showImport, setShowImport] = useState(false);
+
+  async function reloadTickets() {
+    const res = await fetch(`/api/events/${eventId}/tickets`);
+    if (res.ok) {
+      const { tickets: fresh }: { tickets: TicketRow[] } = await res.json();
+      setTickets(fresh);
+    }
+  }
 
   const openNew = () => { setForm(blankForm(ev)); setError(''); setPanel('new'); };
   const openEdit = (t: TicketRow) => { setForm(rowToForm(t)); setError(''); setPanel({ editing: t.id }); };
@@ -257,6 +268,26 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
   return (
     <div>
 
+      <ImportWizard
+        open={showImport}
+        onClose={() => setShowImport(false)}
+        eventId={eventId}
+        entity={IMPORT_ENTITIES.tickets}
+        onComplete={reloadTickets}
+      />
+
+      {panel === 'closed' && tickets.length > 0 && (
+        <div className="flex justify-end mb-3">
+          <button
+            onClick={() => setShowImport(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-[13px] font-medium border transition hover:bg-[#F5F3EE]"
+            style={{ borderColor: '#E5E0D4', color: '#1F4D3A' }}
+          >
+            <Upload size={14} strokeWidth={2} /> Import
+          </button>
+        </div>
+      )}
+
       {/* ── Event date + capacity banner ─────────────────────────── */}
       {(ev.starts_at || ev.ends_at || ev.max_capacity !== null) && (
         <div
@@ -307,14 +338,24 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
           <div className="text-[14px] mb-6 max-w-[320px]" style={{ color: '#6B7A72' }}>
             Add at least one ticket type before publishing your event. Free tickets need no payment setup.
           </div>
-          <button
-            onClick={openNew}
-            className="inline-flex items-center gap-2 h-10 px-5 rounded-xl text-white text-[14px] font-semibold transition hover:opacity-90"
-            style={{ background: '#1F4D3A' }}
-          >
-            <Plus size={14} strokeWidth={2.5} />
-            Add ticket type
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={openNew}
+              className="inline-flex items-center gap-2 h-10 px-5 rounded-xl text-white text-[14px] font-semibold transition hover:opacity-90"
+              style={{ background: '#1F4D3A' }}
+            >
+              <Plus size={14} strokeWidth={2.5} />
+              Add ticket type
+            </button>
+            <button
+              onClick={() => setShowImport(true)}
+              className="inline-flex items-center gap-2 h-10 px-5 rounded-xl text-[14px] font-semibold border transition hover:bg-[#F5F3EE]"
+              style={{ borderColor: '#E5E0D4', color: '#1F4D3A' }}
+            >
+              <Upload size={14} strokeWidth={2.5} />
+              Import
+            </button>
+          </div>
         </div>
       ) : (
         <div className="space-y-3 mb-4">

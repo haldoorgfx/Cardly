@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Pencil, Trash2, Plus, X, Sparkles, ExternalLink } from 'lucide-react';
+import { Pencil, Trash2, Plus, X, Sparkles, ExternalLink, Upload } from 'lucide-react';
 import type { Speaker, SpeakerType } from '@/types/database';
+import { ImportWizard } from '@/components/shared/ImportWizard';
+import { IMPORT_ENTITIES } from '@/lib/import/entities';
 
 interface Props {
   eventId: string;
@@ -74,6 +76,15 @@ export default function SpeakersManager({ eventId, initialSpeakers }: Props) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [showImport, setShowImport] = useState(false);
+
+  async function reloadSpeakers() {
+    const res = await fetch(`/api/events/${eventId}/speakers`);
+    if (res.ok) {
+      const { speakers: fresh }: { speakers: Speaker[] } = await res.json();
+      setSpeakers(fresh);
+    }
+  }
 
   function openAdd() {
     setEditingSpeaker(null);
@@ -171,16 +182,33 @@ export default function SpeakersManager({ eventId, initialSpeakers }: Props) {
         </div>
         <div className="flex items-center gap-2">
           {!showForm && (
-            <button
-              onClick={openAdd}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-[13.5px] font-medium text-white transition hover:bg-[#163828]"
-              style={{ background: '#1F4D3A' }}
-            >
-              <Plus size={15} strokeWidth={2} /> Add speaker
-            </button>
+            <>
+              <button
+                onClick={() => setShowImport(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-[13.5px] font-medium border transition hover:bg-[#F5F3EE]"
+                style={{ borderColor: '#E5E0D4', color: '#1F4D3A' }}
+              >
+                <Upload size={15} strokeWidth={2} /> Import
+              </button>
+              <button
+                onClick={openAdd}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-[13.5px] font-medium text-white transition hover:bg-[#163828]"
+                style={{ background: '#1F4D3A' }}
+              >
+                <Plus size={15} strokeWidth={2} /> Add speaker
+              </button>
+            </>
           )}
         </div>
       </div>
+
+      <ImportWizard
+        open={showImport}
+        onClose={() => setShowImport(false)}
+        eventId={eventId}
+        entity={IMPORT_ENTITIES.speakers}
+        onComplete={reloadSpeakers}
+      />
 
       {showForm && (
         <div className="bg-white border rounded-2xl p-5 space-y-4" style={{ borderColor: '#E5E0D4' }}>
