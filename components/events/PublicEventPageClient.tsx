@@ -104,76 +104,26 @@ function Avatar({
   );
 }
 
-/* ─── Real OpenStreetMap embed (no API key required) ────────────── */
+/* ─── Google Maps embed — works from address text, no API key ────── */
 
-function OsmEmbed({ lat, lng, venueName }: { lat: number; lng: number; venueName: string }) {
-  const d = 0.008; // bbox half-size (~zoom 15)
-  const bbox = `${lng - d}%2C${lat - d}%2C${lng + d}%2C${lat + d}`;
-  const src = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat}%2C${lng}`;
+function VenueMap({
+  lat, lng, geoQuery, venueName,
+}: { lat: number | null; lng: number | null; geoQuery: string; venueName: string }) {
+  // Prefer precise coordinates, fall back to address text search
+  const query = (lat != null && lng != null) ? `${lat},${lng}` : geoQuery;
+  if (!query.trim()) return null;
+  const src = `https://maps.google.com/maps?q=${encodeURIComponent(query)}&output=embed&z=15`;
   return (
     <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
       <iframe
         title={`Map of ${venueName}`}
         src={src}
         loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
         className="w-full"
         style={{ height: 240, border: 0, display: 'block' }}
+        allowFullScreen
       />
-    </div>
-  );
-}
-
-/**
- * Renders a real map. If server-resolved coordinates are missing, geocodes the
- * address client-side (Nominatim, no key) so the page never blocks on it.
- */
-function VenueMap({
-  lat, lng, geoQuery, venueName,
-}: { lat: number | null; lng: number | null; geoQuery: string; venueName: string }) {
-  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
-    lat != null && lng != null ? { lat, lng } : null,
-  );
-  const [failed, setFailed] = useState(false);
-
-  useEffect(() => {
-    if (coords || !geoQuery.trim()) return;
-    let active = true;
-    (async () => {
-      try {
-        const res = await fetch(
-          'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(geoQuery),
-          { headers: { 'Accept-Language': 'en' } },
-        );
-        const data = await res.json();
-        if (!active) return;
-        if (data?.[0]) setCoords({ lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) });
-        else setFailed(true);
-      } catch {
-        if (active) setFailed(true);
-      }
-    })();
-    return () => { active = false; };
-  }, [coords, geoQuery]);
-
-  if (coords) return <OsmEmbed lat={coords.lat} lng={coords.lng} venueName={venueName} />;
-  if (failed) return <MapPlaceholder />;
-  // Loading state while geocoding
-  return <div className="w-full rounded-2xl animate-pulse" style={{ height: 240, background: '#EFEBDF', border: '1px solid #E5E0D4' }} />;
-}
-
-/* ─── Map placeholder (no coords) ───────────────────────────────── */
-
-function MapPlaceholder() {
-  return (
-    <div className="relative rounded-2xl overflow-hidden" style={{ height: 220, background: '#EFEBDF', border: '1px solid #E5E0D4' }}>
-      <div className="absolute inset-0" style={{
-        backgroundImage: 'linear-gradient(rgba(15,31,24,0.06) 1.5px, transparent 1.5px), linear-gradient(90deg, rgba(15,31,24,0.06) 1.5px, transparent 1.5px)',
-        backgroundSize: '48px 48px',
-      }} />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full"
-        style={{ width: 40, height: 40, borderRadius: '50% 50% 50% 0', background: '#1F4D3A', rotate: '-45deg', boxShadow: '0 4px 12px rgba(15,31,24,0.2)' }}>
-        <div className="absolute" style={{ top: 11, left: 11, width: 18, height: 18, borderRadius: '50%', background: '#E8C57E' }} />
-      </div>
     </div>
   );
 }
