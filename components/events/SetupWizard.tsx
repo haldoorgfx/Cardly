@@ -183,7 +183,7 @@ export function SetupWizard({
               description="Add speakers and sessions. You can skip this and come back later."
               optional
             />
-            <SpeakersManager eventId={eventId} initialSpeakers={initialSpeakers} />
+            <SpeakersManager eventId={eventId} slug={eventSlug} initialSpeakers={initialSpeakers} />
           </div>
         )}
 

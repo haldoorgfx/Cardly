@@ -50,35 +50,36 @@ export function PublicNav({ eventSlug }: PublicNavProps = {}) {
 
   const isAttendee = profile?.account_type === 'attendee' || (user && !profile);
 
-  // Nav links for attendee-scoped pages
-  const attendeeLinks = eventSlug ? [
-    { href: '/events',                  label: 'Discover' },
-    { href: '/my-tickets',              label: 'My tickets' },
+  // Event-scoped nav — the event's own sections (same for everyone viewing the event)
+  const eventLinks = [
+    { href: `/e/${eventSlug}`,           label: 'Overview', exact: true },
     { href: `/e/${eventSlug}/schedule`,  label: 'Schedule' },
+    { href: `/e/${eventSlug}/speakers`,  label: 'Speakers' },
+    { href: `/e/${eventSlug}/sponsors`,  label: 'Sponsors' },
     { href: `/e/${eventSlug}/people`,    label: 'Network' },
-    { href: `/e/${eventSlug}/community`, label: 'Community' },
-  ] : [
-    { href: '/events',              label: 'Discover' },
-    { href: '/my-tickets',          label: 'My tickets' },
-    { href: '/saved',               label: 'Saved' },
   ];
 
-  // Nav links for organizer/marketing pages
-  const organizerLinks = eventSlug ? [
-    { href: '/events',                   label: 'Discover' },
-    { href: `/e/${eventSlug}/schedule`,  label: 'Schedule' },
-    { href: `/e/${eventSlug}/people`,    label: 'Network' },
-    { href: `/e/${eventSlug}/community`, label: 'Community' },
-  ] : [
+  // Global nav for attendees (no event context)
+  const attendeeLinks = [
+    { href: '/home',       label: 'Home' },
+    { href: '/events',     label: 'Discover' },
+    { href: '/my-tickets', label: 'My tickets' },
+    { href: '/saved',      label: 'Saved' },
+  ];
+
+  // Global nav for organizers / signed-out visitors
+  const organizerLinks = [
     { href: '/events',       label: 'Discover' },
     { href: '/how-it-works', label: 'How it works' },
     { href: '/pricing',      label: 'Pricing' },
   ];
 
-  const navLinks = (user && isAttendee) ? attendeeLinks : organizerLinks;
+  const navLinks = eventSlug
+    ? eventLinks
+    : (user && isAttendee) ? attendeeLinks : organizerLinks;
 
-  function isActive(href: string) {
-    if (href === '/events') return pathname === '/events';
+  function isActive(href: string, exact?: boolean) {
+    if (href === '/events' || exact) return pathname === href;
     return pathname === href || pathname.startsWith(href + '/');
   }
 
@@ -111,7 +112,7 @@ export function PublicNav({ eventSlug }: PublicNavProps = {}) {
               key={link.href}
               href={link.href}
               className="text-[14px] font-medium transition-colors"
-              style={{ color: isActive(link.href) ? '#1F4D3A' : '#3A4A42' }}
+              style={{ color: isActive(link.href, (link as { exact?: boolean }).exact) ? '#1F4D3A' : '#3A4A42' }}
             >
               {link.label}
             </Link>
