@@ -189,12 +189,6 @@ export function PublicNav({ eventSlug }: PublicNavProps = {}) {
                           My tickets
                         </Link>
                       )}
-                      {!isAttendee && (
-                        <Link href="/dashboard" onClick={() => setAvatarMenuOpen(false)}
-                          className="flex items-center px-4 py-2.5 text-[13px] hover:bg-[#FAF6EE] transition-colors" style={{ color: '#0F1F18' }}>
-                          Dashboard
-                        </Link>
-                      )}
                       <Link href="/account/profile" onClick={() => setAvatarMenuOpen(false)}
                         className="flex items-center px-4 py-2.5 text-[13px] hover:bg-[#FAF6EE] transition-colors" style={{ color: '#0F1F18' }}>
                         Profile &amp; preferences
