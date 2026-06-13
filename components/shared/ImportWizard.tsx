@@ -195,7 +195,7 @@ export function ImportWizard({ open, onClose, eventId, entity, onComplete }: Pro
             const active = order[step] >= i;
             return (
               <div key={s} className="flex items-center gap-1.5">
-                <span className="w-5 h-5 rounded-full grid place-items-center text-[10px] font-mono font-semibold"
+                <span className="w-5 h-5 rounded-full grid place-items-center text-[10px] font-semibold"
                   style={{ background: active ? C.forest : '#FFF', color: active ? '#FFF' : C.muted, border: `1px solid ${active ? C.forest : C.border}` }}>
                   {i + 1}
                 </span>
@@ -258,7 +258,7 @@ export function ImportWizard({ open, onClose, eventId, entity, onComplete }: Pro
             <div className="space-y-3">
               <p className="text-[12.5px]" style={{ color: C.muted }}>
                 <span className="font-medium" style={{ color: C.ink }}>{rows.length}</span> rows found in{' '}
-                <span className="font-mono">{fileName}</span>. Match each Karta field to a column from your file.
+                <span className="">{fileName}</span>. Match each Karta field to a column from your file.
               </p>
               <div className="space-y-2">
                 {entity.fields.map(field => (
@@ -310,11 +310,11 @@ export function ImportWizard({ open, onClose, eventId, entity, onComplete }: Pro
                   <table className="w-full text-[12.5px]">
                     <thead className="sticky top-0" style={{ background: C.cream }}>
                       <tr>
-                        <th className="text-left font-mono text-[10px] uppercase tracking-wider px-3 py-2" style={{ color: C.muted }}>#</th>
+                        <th className="text-left  text-[10px] uppercase tracking-wider px-3 py-2" style={{ color: C.muted }}>#</th>
                         {entity.fields.filter(f => mapping[f.key] >= 0).slice(0, 3).map(f => (
-                          <th key={f.key} className="text-left font-mono text-[10px] uppercase tracking-wider px-3 py-2" style={{ color: C.muted }}>{f.label}</th>
+                          <th key={f.key} className="text-left  text-[10px] uppercase tracking-wider px-3 py-2" style={{ color: C.muted }}>{f.label}</th>
                         ))}
-                        <th className="text-left font-mono text-[10px] uppercase tracking-wider px-3 py-2" style={{ color: C.muted }}>Status</th>
+                        <th className="text-left  text-[10px] uppercase tracking-wider px-3 py-2" style={{ color: C.muted }}>Status</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -379,13 +379,13 @@ export function ImportWizard({ open, onClose, eventId, entity, onComplete }: Pro
 
               {failedResults.length > 0 && (
                 <div className="border rounded-xl overflow-hidden" style={{ borderColor: C.border }}>
-                  <div className="px-3 py-2 text-[11px] font-mono uppercase tracking-wider" style={{ color: C.muted, background: C.cream }}>
+                  <div className="px-3 py-2 text-[11px] uppercase tracking-wider" style={{ color: C.muted, background: C.cream }}>
                     Rows to fix
                   </div>
                   <div className="max-h-[220px] overflow-y-auto">
                     {failedResults.map(r => (
                       <div key={r.index} className="flex items-start gap-2 px-3 py-2 text-[12.5px]" style={{ borderTop: `1px solid ${C.border}` }}>
-                        <span className="font-mono shrink-0" style={{ color: C.muted }}>Row {r.index}</span>
+                        <span className=" shrink-0" style={{ color: C.muted }}>Row {r.index}</span>
                         <span style={{ color: C.danger }}>{r.message}</span>
                       </div>
                     ))}

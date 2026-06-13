@@ -61,11 +61,11 @@ export function ExhibitorShell({ token, companyName, tier, boothNumber, logoUrl,
             <span className="w-7 h-7 rounded-lg shrink-0" style={{ background: 'linear-gradient(135deg,#1F4D3A,#2A6A50 60%,#E8C57E)' }} />
             <div className="leading-none">
               <div className="font-display text-[15px] font-bold" style={{ color: '#1F4D3A' }}>Karta</div>
-              <div className="font-mono text-[8.5px] tracking-[0.16em] uppercase mt-0.5" style={{ color: '#6B7A72' }}>Exhibitor Portal</div>
+              <div className=" text-[8.5px] tracking-[0.16em] uppercase mt-0.5" style={{ color: '#6B7A72' }}>Exhibitor Portal</div>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span className="hidden sm:inline font-mono text-[11px]" style={{ color: '#6B7A72' }}>{eventName}</span>
+            <span className="hidden sm:inline  text-[11px]" style={{ color: '#6B7A72' }}>{eventName}</span>
             {logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={logoUrl} alt={companyName} className="h-8 w-8 rounded-full object-cover border" style={{ borderColor: '#E5E0D4' }} />
@@ -89,7 +89,7 @@ export function ExhibitorShell({ token, companyName, tier, boothNumber, logoUrl,
                   </span>
                 )}
                 {boothNumber && (
-                  <span className="font-mono text-[11px]" style={{ color: 'rgba(250,246,238,0.7)' }}>Booth {boothNumber}</span>
+                  <span className=" text-[11px]" style={{ color: 'rgba(250,246,238,0.7)' }}>Booth {boothNumber}</span>
                 )}
               </div>
               <h1 className="font-display text-[28px] font-bold tracking-[-0.02em]" style={{ color: '#FAF6EE' }}>{companyName}</h1>

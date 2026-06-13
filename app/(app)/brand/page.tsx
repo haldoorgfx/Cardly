@@ -200,7 +200,7 @@ export default function BrandKitPage() {
                   />
                   <div className="min-w-0">
                     <div className="text-[12.5px] font-medium text-[#0F1F18] leading-tight">{color.name}</div>
-                    <div className="text-[10.5px] font-mono text-[#6B7A72] truncate">{color.hex}</div>
+                    <div className="text-[10.5px] text-[#6B7A72] truncate">{color.hex}</div>
                   </div>
                 </div>
               ))}
@@ -253,7 +253,7 @@ export default function BrandKitPage() {
               <div className="px-5 pt-5 pb-4">
                 <div className="flex items-center justify-between mb-6">
                   <div
-                    className="text-[9px] font-mono tracking-widest uppercase"
+                    className="text-[9px] tracking-widest uppercase"
                     style={{ color: 'rgba(232,197,126,0.8)' }}
                   >
                     AFRICA TECH FEST
@@ -265,7 +265,7 @@ export default function BrandKitPage() {
                 </div>
 
                 <div
-                  className="text-[8px] font-mono tracking-widest uppercase mb-3"
+                  className="text-[8px] tracking-widest uppercase mb-3"
                   style={{ color: 'rgba(250,246,238,0.45)' }}
                 >
                   I&apos;M SPEAKING AT
@@ -297,7 +297,7 @@ export default function BrandKitPage() {
                 style={{ background: 'rgba(0,0,0,0.2)' }}
               >
                 <div
-                  className="text-[9px] font-mono tracking-widest uppercase"
+                  className="text-[9px] tracking-widest uppercase"
                   style={{ color: 'rgba(250,246,238,0.45)' }}
                 >
                   12 MAR · LAGOS

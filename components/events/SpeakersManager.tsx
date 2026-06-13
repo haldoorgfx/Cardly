@@ -241,7 +241,7 @@ export default function SpeakersManager({ eventId, initialSpeakers }: Props) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
-              <label className="font-mono text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>
+              <label className=" text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>
                 Name <span style={{ color: '#B8423C' }}>*</span>
               </label>
               <input
@@ -253,7 +253,7 @@ export default function SpeakersManager({ eventId, initialSpeakers }: Props) {
               />
             </div>
             <div className="space-y-1">
-              <label className="font-mono text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>Headline</label>
+              <label className=" text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>Headline</label>
               <input
                 className="w-full border rounded-lg px-3 py-2 text-sm"
                 style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
@@ -263,7 +263,7 @@ export default function SpeakersManager({ eventId, initialSpeakers }: Props) {
               />
             </div>
             <div className="space-y-1">
-              <label className="font-mono text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>Role</label>
+              <label className=" text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>Role</label>
               <input
                 className="w-full border rounded-lg px-3 py-2 text-sm"
                 style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
@@ -273,7 +273,7 @@ export default function SpeakersManager({ eventId, initialSpeakers }: Props) {
               />
             </div>
             <div className="space-y-1">
-              <label className="font-mono text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>Company</label>
+              <label className=" text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>Company</label>
               <input
                 className="w-full border rounded-lg px-3 py-2 text-sm"
                 style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
@@ -283,7 +283,7 @@ export default function SpeakersManager({ eventId, initialSpeakers }: Props) {
               />
             </div>
             <div className="space-y-1 sm:col-span-2">
-              <label className="font-mono text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>Bio</label>
+              <label className=" text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>Bio</label>
               <textarea
                 className="w-full border rounded-lg px-3 py-2 text-sm resize-none"
                 style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
@@ -294,7 +294,7 @@ export default function SpeakersManager({ eventId, initialSpeakers }: Props) {
               />
             </div>
             <div className="space-y-1">
-              <label className="font-mono text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>Photo URL</label>
+              <label className=" text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>Photo URL</label>
               <input
                 className="w-full border rounded-lg px-3 py-2 text-sm"
                 style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
@@ -304,7 +304,7 @@ export default function SpeakersManager({ eventId, initialSpeakers }: Props) {
               />
             </div>
             <div className="space-y-1">
-              <label className="font-mono text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>Speaker type</label>
+              <label className=" text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>Speaker type</label>
               <select
                 className="w-full border rounded-lg px-3 py-2 text-sm"
                 style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
@@ -341,7 +341,7 @@ export default function SpeakersManager({ eventId, initialSpeakers }: Props) {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
               <div className="space-y-1">
-                <label className="font-mono text-[10px] tracking-[0.12em] uppercase flex items-center gap-1" style={{ color: '#6B7A72' }}>
+                <label className=" text-[10px] tracking-[0.12em] uppercase flex items-center gap-1" style={{ color: '#6B7A72' }}>
                   <Link2 size={11} /> LinkedIn
                 </label>
                 <input
@@ -353,7 +353,7 @@ export default function SpeakersManager({ eventId, initialSpeakers }: Props) {
                 />
               </div>
               <div className="space-y-1">
-                <label className="font-mono text-[10px] tracking-[0.12em] uppercase flex items-center gap-1" style={{ color: '#6B7A72' }}>
+                <label className=" text-[10px] tracking-[0.12em] uppercase flex items-center gap-1" style={{ color: '#6B7A72' }}>
                   <AtSign size={11} /> Twitter / X
                 </label>
                 <input
@@ -365,7 +365,7 @@ export default function SpeakersManager({ eventId, initialSpeakers }: Props) {
                 />
               </div>
               <div className="space-y-1">
-                <label className="font-mono text-[10px] tracking-[0.12em] uppercase flex items-center gap-1" style={{ color: '#6B7A72' }}>
+                <label className=" text-[10px] tracking-[0.12em] uppercase flex items-center gap-1" style={{ color: '#6B7A72' }}>
                   <Globe size={11} /> Website
                 </label>
                 <input
@@ -441,7 +441,7 @@ export default function SpeakersManager({ eventId, initialSpeakers }: Props) {
                     </div>
                   )}
                   {speaker.is_featured && (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-mono font-medium px-2 py-0.5 rounded-full border" style={{ color: '#C9A45E', borderColor: 'rgba(201,164,94,0.4)', background: 'rgba(232,197,126,0.12)' }}>
+                    <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full border" style={{ color: '#C9A45E', borderColor: 'rgba(201,164,94,0.4)', background: 'rgba(232,197,126,0.12)' }}>
                       <Sparkles size={9} strokeWidth={2} /> Featured
                     </span>
                   )}
@@ -453,12 +453,12 @@ export default function SpeakersManager({ eventId, initialSpeakers }: Props) {
                   <div className="text-[12.5px] mt-0.5" style={{ color: '#3A4A42' }}>{speaker.role || speaker.headline}</div>
                 )}
                 {speaker.company && (
-                  <div className="font-mono text-[11px] mt-0.5" style={{ color: '#6B7A72' }}>{speaker.company}</div>
+                  <div className=" text-[11px] mt-0.5" style={{ color: '#6B7A72' }}>{speaker.company}</div>
                 )}
 
                 {/* Footer */}
                 <div className="flex items-center justify-between mt-4 pt-3 flex-1 items-end" style={{ borderTop: '1px solid rgba(229,224,212,0.7)' }}>
-                  <span className="inline-flex items-center text-[10.5px] font-mono font-medium px-2 py-0.5 rounded-full" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+                  <span className="inline-flex items-center text-[10.5px] font-medium px-2 py-0.5 rounded-full" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
                     {TYPE_LABELS[speaker.speaker_type]}
                   </span>
                   <div className="flex items-center gap-1">

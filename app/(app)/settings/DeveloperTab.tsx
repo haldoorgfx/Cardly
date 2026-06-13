@@ -116,7 +116,7 @@ function ApiKeysSection({ plan }: { plan: string }) {
       {/* Base URL strip */}
       <div className="flex items-center gap-3 flex-wrap py-4 mb-2" style={{ borderBottom: '1px solid #E5E0D4' }}>
         <span className="text-[13px]" style={{ color: '#6B7A72' }}>Base URL:</span>
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full font-mono text-[13px]" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#1F4D3A' }}>
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full  text-[13px]" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#1F4D3A' }}>
           {BASE_URL}
           <CopyBtn text={BASE_URL} />
         </div>
@@ -130,7 +130,7 @@ function ApiKeysSection({ plan }: { plan: string }) {
         <div className="mb-5 rounded-2xl p-5" style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 4px 12px rgba(15,31,24,0.08)' }}>
           <div className="font-display font-medium text-[18px] mb-1" style={{ color: '#1F4D3A' }}>Your new API key</div>
           <div className="text-[13px] mb-4" style={{ color: '#6B7A72' }}>Copy this key now — it won&apos;t be shown again.</div>
-          <div className="rounded-xl px-4 py-3 font-mono text-[14px] break-all mb-4" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+          <div className="rounded-xl px-4 py-3  text-[14px] break-all mb-4" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
             {newKey}
           </div>
           <div className="flex gap-2.5">
@@ -230,7 +230,7 @@ function ApiKeysSection({ plan }: { plan: string }) {
                     <span className="font-display font-medium text-[14px]" style={{ color: '#1F4D3A' }}>{k.name}</span>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full font-mono text-[12px] w-fit" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#1F4D3A' }}>
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full  text-[12px] w-fit" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#1F4D3A' }}>
                       {k.key_prefix}…
                       <CopyBtn text={k.key_prefix} />
                     </div>
@@ -244,10 +244,10 @@ function ApiKeysSection({ plan }: { plan: string }) {
                       ))}
                     </div>
                   </td>
-                  <td className="px-4 py-3 font-mono text-[12px]" style={{ color: '#6B7A72' }}>
+                  <td className="px-4 py-3  text-[12px]" style={{ color: '#6B7A72' }}>
                     {k.last_used_at ? relativeTime(k.last_used_at) : '—'}
                   </td>
-                  <td className="px-4 py-3 font-mono text-[12px]" style={{ color: '#6B7A72' }}>
+                  <td className="px-4 py-3  text-[12px]" style={{ color: '#6B7A72' }}>
                     {new Date(k.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                   </td>
                   <td className="px-4 py-3">
@@ -378,7 +378,7 @@ function WebhooksSection() {
               <Webhook size={13} strokeWidth={2} color="#6B7A72" className="shrink-0" />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-[13px] font-mono text-[#0F1F18] truncate">{h.url}</span>
+                  <span className="text-[13px] text-[#0F1F18] truncate">{h.url}</span>
                   <a href={h.url} target="_blank" rel="noopener noreferrer" className="shrink-0 text-[#6B7A72] hover:text-[#1F4D3A]">
                     <ExternalLink size={11} strokeWidth={2} />
                   </a>
@@ -391,7 +391,7 @@ function WebhooksSection() {
               </div>
               <button
                 onClick={() => toggle(h.id, !h.enabled)}
-                className="text-[11px] font-mono px-2 py-1 rounded-lg transition"
+                className="text-[11px] px-2 py-1 rounded-lg transition"
                 style={{ background: h.enabled ? 'rgba(31,77,58,0.08)' : '#F5F5F0', color: h.enabled ? '#1F4D3A' : '#6B7A72' }}
               >
                 {h.enabled ? 'Enabled' : 'Disabled'}
@@ -410,7 +410,7 @@ function WebhooksSection() {
       )}
 
       <p className="mt-3 text-[12px] text-[#6B7A72]">
-        Each request includes an <code className="font-mono text-[11px] bg-[#FAF6EE] px-1 py-0.5 rounded-md">X-Karta-Signature</code> header (HMAC-SHA256) for verification.
+        Each request includes an <code className=" text-[11px] bg-[#FAF6EE] px-1 py-0.5 rounded-md">X-Karta-Signature</code> header (HMAC-SHA256) for verification.
       </p>
     </div>
   );
@@ -427,7 +427,7 @@ export function DeveloperTab({ plan }: { plan: string }) {
           <Key size={15} strokeWidth={2} color="#1F4D3A" />
           <div className="text-[13.5px] font-semibold text-[#0F1F18]">API keys</div>
           {plan === 'studio' && (
-            <span className="ml-auto text-[10px] font-mono px-2 py-0.5 rounded-full" style={{ background: 'rgba(31,77,58,0.08)', color: '#1F4D3A' }}>
+            <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(31,77,58,0.08)', color: '#1F4D3A' }}>
               STUDIO
             </span>
           )}

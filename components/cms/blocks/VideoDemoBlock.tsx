@@ -12,7 +12,7 @@ export function VideoDemoBlock({ content }: VideoDemoBlockProps) {
         <div className="text-center mb-8 lg:mb-10">
           {content.label && (
             <div
-              className="font-mono text-[11px] tracking-[0.22em] uppercase mb-4"
+              className=" text-[11px] tracking-[0.22em] uppercase mb-4"
               style={{ color: '#1F4D3A' }}
             >
               {content.label}
@@ -61,7 +61,7 @@ export function VideoDemoBlock({ content }: VideoDemoBlockProps) {
             {content.placeholder && (
               <div className="absolute top-5 left-5">
                 <span
-                  className="font-mono text-[10px] tracking-[0.18em] uppercase"
+                  className=" text-[10px] tracking-[0.18em] uppercase"
                   style={{ color: '#E8C57E' }}
                 >
                   {content.placeholder}
@@ -91,7 +91,7 @@ export function VideoDemoBlock({ content }: VideoDemoBlockProps) {
 
         {content.caption && (
           <p
-            className="mt-4 text-center font-mono text-[13px] tracking-[0.08em]"
+            className="mt-4 text-center  text-[13px] tracking-[0.08em]"
             style={{ color: '#6B7A72' }}
           >
             {content.caption}

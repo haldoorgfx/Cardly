@@ -30,7 +30,7 @@ export function FeaturesGridBlock({ content }: { content: FeaturesGridContent })
               {(card.icon || card.label) && (
                 <div className="flex items-center gap-3 mb-5">
                   {card.icon && (
-                    <span className={`w-10 h-10 rounded-lg grid place-items-center border font-mono text-[13px] shrink-0 ${
+                    <span className={`w-10 h-10 rounded-lg grid place-items-center border  text-[13px] shrink-0 ${
                       dark
                         ? 'border-[rgba(250,246,238,0.15)] text-[#E8C57E]'
                         : 'border-[#E5E0D4] text-[#1F4D3A] bg-[#E8EFEB]'
@@ -39,7 +39,7 @@ export function FeaturesGridBlock({ content }: { content: FeaturesGridContent })
                     </span>
                   )}
                   {card.label && (
-                    <span className={`font-mono text-[10px] tracking-[0.22em] uppercase ${dark ? 'text-[#E8C57E]' : 'text-[#1F4D3A]'}`}>
+                    <span className={` text-[10px] tracking-[0.22em] uppercase ${dark ? 'text-[#E8C57E]' : 'text-[#1F4D3A]'}`}>
                       {card.label}
                     </span>
                   )}

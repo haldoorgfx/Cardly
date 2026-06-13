@@ -132,7 +132,7 @@ export function PromoterLinksManager({ eventId, eventSlug, initialCodes, appUrl 
 
           {/* Preview */}
           {form.code && (
-            <div className="rounded-lg px-3 py-2 mb-3 font-mono text-[12px] break-all" style={{ background: '#F4F1EB', color: '#3A4A42' }}>
+            <div className="rounded-lg px-3 py-2 mb-3  text-[12px] break-all" style={{ background: '#F4F1EB', color: '#3A4A42' }}>
               {baseUrl}?ref={form.code}
             </div>
           )}
@@ -186,23 +186,23 @@ export function PromoterLinksManager({ eventId, eventSlug, initialCodes, appUrl 
                 {/* Left: code + label + link */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-mono font-semibold text-[14px] tracking-wider px-2.5 py-0.5 rounded-md" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+                    <span className=" font-semibold text-[14px] tracking-wider px-2.5 py-0.5 rounded-md" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
                       {c.code}
                     </span>
                     {c.label && <span className="text-[13px]" style={{ color: '#6B7A72' }}>{c.label}</span>}
                   </div>
-                  <p className="font-mono text-[11px] mt-1.5 truncate" style={{ color: '#9BA6A0' }}>{link}</p>
+                  <p className=" text-[11px] mt-1.5 truncate" style={{ color: '#9BA6A0' }}>{link}</p>
                 </div>
 
                 {/* Stats */}
                 <div className="flex items-center gap-4 shrink-0">
                   <div className="text-center">
-                    <p className="font-mono font-semibold text-[15px]" style={{ color: '#0F1F18' }}>{c.uses}</p>
+                    <p className=" font-semibold text-[15px]" style={{ color: '#0F1F18' }}>{c.uses}</p>
                     <p className="text-[11px]" style={{ color: '#6B7A72' }}>registrations</p>
                   </div>
                   {c.revenue > 0 && (
                     <div className="text-center">
-                      <p className="font-mono font-semibold text-[15px] flex items-center gap-1" style={{ color: '#1F4D3A' }}>
+                      <p className=" font-semibold text-[15px] flex items-center gap-1" style={{ color: '#1F4D3A' }}>
                         <TrendingUp size={12} />{fmt(c.revenue)}
                       </p>
                       <p className="text-[11px]" style={{ color: '#6B7A72' }}>revenue</p>

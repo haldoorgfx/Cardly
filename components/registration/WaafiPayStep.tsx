@@ -191,7 +191,7 @@ export function WaafiPayStep({ registrationId, qrToken, amount, currency, eventT
 
       {/* Supported networks */}
       <div className="mt-5 pt-4" style={{ borderTop: '1px solid #E5E0D4' }}>
-        <div className="text-[11px] font-mono uppercase tracking-widest mb-2 text-center" style={{ color: '#6B7A72' }}>
+        <div className="text-[11px] uppercase tracking-widest mb-2 text-center" style={{ color: '#6B7A72' }}>
           Supported networks
         </div>
         <div className="flex flex-wrap justify-center gap-2">

@@ -84,7 +84,7 @@ function PartnersHero() {
 
       <div className="relative mx-auto max-w-[1200px] px-5 lg:px-10 pt-16 lg:pt-24 pb-14 lg:pb-20">
         <div className="max-w-[820px]">
-          <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-5">
+          <div className=" text-[11px] tracking-[0.22em] text-primary uppercase mb-5">
             Partners
           </div>
           <h1 className="font-title font-bold text-ink text-[44px] sm:text-[60px] lg:text-[78px] leading-[0.95]">
@@ -129,7 +129,7 @@ function PartnersHero() {
                 <div className="font-display font-bold text-primary text-[28px] lg:text-[36px] tracking-[-0.03em] leading-none">
                   {n}
                 </div>
-                <div className="mt-2 font-mono text-[10px] tracking-[0.16em] uppercase text-muted">
+                <div className="mt-2  text-[10px] tracking-[0.16em] uppercase text-muted">
                   {l}
                 </div>
               </div>
@@ -146,7 +146,7 @@ function PartnerLogos() {
   return (
     <section style={{ borderBottom: '1px solid #E5E0D4', background: 'rgba(250,246,238,0.5)' }}>
       <div className="mx-auto max-w-[1200px] px-5 lg:px-10 py-10 lg:py-12">
-        <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-muted text-center mb-8">
+        <div className=" text-[10px] tracking-[0.22em] uppercase text-muted text-center mb-8">
           Trusted by event teams across Africa and the Middle East
         </div>
         <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-5">
@@ -171,7 +171,7 @@ function Programs() {
     <section id="programs" className="mx-auto max-w-[1200px] px-5 lg:px-10 py-16 lg:py-24">
       <Reveal>
         <div className="max-w-[680px] mb-12 lg:mb-16">
-          <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-4">
+          <div className=" text-[11px] tracking-[0.22em] text-primary uppercase mb-4">
             Programs
           </div>
           <h2 className="font-title font-bold text-ink text-[34px] sm:text-[44px] lg:text-[52px] leading-[1.02]">
@@ -197,7 +197,7 @@ function Programs() {
                 >
                   {prog.icon}
                 </div>
-                <span className="font-mono text-[10px] tracking-[0.20em] uppercase text-muted">
+                <span className=" text-[10px] tracking-[0.20em] uppercase text-muted">
                   {prog.tag}
                 </span>
               </div>
@@ -260,7 +260,7 @@ function WhyPartner() {
       <div className="relative mx-auto max-w-[1200px] px-5 lg:px-10 py-16 lg:py-24">
         <Reveal>
           <div className="max-w-[680px] mb-12">
-            <div className="font-mono text-[11px] tracking-[0.22em] uppercase mb-4" style={{ color: '#E8C57E' }}>
+            <div className=" text-[11px] tracking-[0.22em] uppercase mb-4" style={{ color: '#E8C57E' }}>
               Why Karta
             </div>
             <h2 className="font-title font-bold text-cream text-[32px] sm:text-[42px] lg:text-[50px] leading-[1.02]">

@@ -196,7 +196,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
       {/* -- Step header ----------------------------------------------- */}
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>
-          <p className="text-[11px] font-mono font-medium mb-1" style={{ color: '#6B7A72', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+          <p className="text-[11px] font-medium mb-1" style={{ color: '#6B7A72', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             Step {step} of {STEPS.length}
           </p>
           <h1 className="font-display font-semibold text-[22px]" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
@@ -474,7 +474,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
                 value={onlineUrl}
                 onChange={e => setOnlineUrl(e.target.value)}
                 placeholder="https://zoom.us/j/..."
-                className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition font-mono"
+                className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition "
                 style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18', fontSize: 13 }}
                 onFocus={e => (e.target.style.borderColor = '#E8C57E')}
                 onBlur={e => (e.target.style.borderColor = '#E5E0D4')}

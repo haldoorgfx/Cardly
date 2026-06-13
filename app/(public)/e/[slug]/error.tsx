@@ -57,7 +57,7 @@ export default function PublicEventError({
       </div>
 
       {error.digest && (
-        <p className="mt-8 text-[11px] font-mono" style={{ color: '#6B7A72' }}>
+        <p className="mt-8 text-[11px]" style={{ color: '#6B7A72' }}>
           ref: {error.digest}
         </p>
       )}

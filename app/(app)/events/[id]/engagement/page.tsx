@@ -79,7 +79,7 @@ export default async function EngagementPage({ params }: Props) {
                 <div className="flex items-center gap-2">
                   <span className="font-display text-[15px] font-semibold tracking-tight text-[#0F1F18]">{card.label}</span>
                   {card.comingSoon && (
-                    <span className="text-[9px] font-mono font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-md"
+                    <span className="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-md"
                       style={{ background: '#F5F3EE', color: '#9BA8A1', border: '1px solid #E5E0D4' }}>
                       Coming soon
                     </span>

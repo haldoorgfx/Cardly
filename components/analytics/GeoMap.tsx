@@ -171,13 +171,13 @@ export default function GeoMap({ cityData, totalCards }: Props) {
 
         {/* Drag hint */}
         <div className="absolute bottom-3 left-3 pointer-events-none">
-          <span className="text-[9.5px] font-mono text-[#0F1F18]/30">drag to pan · scroll to zoom</span>
+          <span className="text-[9.5px] text-[#0F1F18]/30">drag to pan · scroll to zoom</span>
         </div>
 
         {/* No-data badge */}
         {!hasRealData && (
           <div className="absolute bottom-3 left-0 right-0 flex justify-center pointer-events-none">
-            <span className="bg-white/80 backdrop-blur-sm text-[10.5px] font-mono text-[#0F1F18]/40 px-2.5 py-1 rounded-lg border border-[#E5E0D4]/60">
+            <span className="bg-white/80 backdrop-blur-sm text-[10.5px] text-[#0F1F18]/40 px-2.5 py-1 rounded-lg border border-[#E5E0D4]/60">
               Waiting for real attendee data
             </span>
           </div>
@@ -197,7 +197,7 @@ export default function GeoMap({ cityData, totalCards }: Props) {
                 style={{ background: dotColors[i] ?? '#E5E0D4' }}
               />
               <span className="flex-1 text-[#0F1F18]/70 truncate">{city}</span>
-              <span className="font-mono text-[#0F1F18]/50">
+              <span className=" text-[#0F1F18]/50">
                 {pct !== null ? `${pct}%` : '—'}
               </span>
             </div>
@@ -210,7 +210,7 @@ export default function GeoMap({ cityData, totalCards }: Props) {
             <div className="flex items-center gap-2 text-[12px]">
               <span className="h-2 w-2 rounded-full shrink-0 bg-[#E5E0D4]" />
               <span className="flex-1 text-[#0F1F18]/70">Other</span>
-              <span className="font-mono text-[#0F1F18]/50">{otherPct}%</span>
+              <span className=" text-[#0F1F18]/50">{otherPct}%</span>
             </div>
           );
         })()}

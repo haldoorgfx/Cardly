@@ -71,7 +71,7 @@ export function EventCompletionCard({ items, status, publishHref }: Props) {
               </span>
               <span className="flex-1 text-[13.5px]" style={{ color: item.done ? '#6B7A72' : '#0F1F18', textDecoration: item.done ? 'line-through' : 'none' }}>
                 {item.label}
-                {item.optional && <span className="ml-1.5 text-[11px] font-mono" style={{ color: '#9BA8A1' }}>optional</span>}
+                {item.optional && <span className="ml-1.5 text-[11px]" style={{ color: '#9BA8A1' }}>optional</span>}
               </span>
               {!item.done && (
                 <Link href={item.href}

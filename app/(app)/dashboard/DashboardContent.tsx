@@ -69,7 +69,7 @@ export default function DashboardContent({ events, atLimit, regsByEvent }: Props
                   : { color: '#6B7A72' }}
               >
                 {f.label}
-                <span className="ml-1.5 font-mono text-[11px]"
+                <span className="ml-1.5  text-[11px]"
                   style={{ color: filter === f.key ? '#3A4A42' : '#6B7A72' }}>
                   {counts[f.key]}
                 </span>

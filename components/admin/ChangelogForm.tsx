@@ -102,7 +102,7 @@ export function ChangelogForm({ entry, onSave, onCancel }: Props) {
                   key={o.value}
                   type="button"
                   onClick={() => setForm(f => ({ ...f, type: o.value }))}
-                  className="px-3 py-1 rounded-full text-[12px] font-mono transition border"
+                  className="px-3 py-1 rounded-full text-[12px] transition border"
                   style={form.type === o.value
                     ? { background: o.color, color: '#FAF6EE', borderColor: o.color }
                     : { background: 'transparent', color: '#6B7A72', borderColor: '#E5E0D4' }
@@ -121,7 +121,7 @@ export function ChangelogForm({ entry, onSave, onCancel }: Props) {
               value={form.version}
               onChange={e => setForm(f => ({ ...f, version: e.target.value }))}
               placeholder="v1.5.0"
-              className="w-full h-9 px-3 rounded-lg border text-[13px] font-mono outline-none focus:ring-2 focus:ring-[#1F4D3A]/20 focus:border-[#1F4D3A]/40 transition"
+              className="w-full h-9 px-3 rounded-lg border text-[13px] outline-none focus:ring-2 focus:ring-[#1F4D3A]/20 focus:border-[#1F4D3A]/40 transition"
               style={{ borderColor: '#E5E0D4' }}
             />
           </div>

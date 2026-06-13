@@ -133,7 +133,7 @@ function Toggle({ on, onClick }: { on: boolean; onClick: () => void }) {
 }
 
 function PLabel({ children }: { children: React.ReactNode }) {
-  return <div className="font-mono text-[9.5px] tracking-[0.18em] uppercase text-[#6B7A72] mb-2">{children}</div>;
+  return <div className=" text-[9.5px] tracking-[0.18em] uppercase text-[#6B7A72] mb-2">{children}</div>;
 }
 
 /* ── Decorative QR ─────────────────────────────────────────────────── */
@@ -579,7 +579,7 @@ function RightPanel({ sel, ns, setNs }: { sel: LayerId; ns: TextStyle; setNs: (s
                   <button
                     key={s}
                     onClick={() => setNs({ ...ns, size: s })}
-                    className="py-1.5 rounded-md text-[11px] font-mono border transition-colors"
+                    className="py-1.5 rounded-md text-[11px] border transition-colors"
                     style={{ background: ns.size === s ? '#1F4D3A' : '#FAF6EE', color: ns.size === s ? '#FAF6EE' : '#6B7A72', border: '1px solid #E5E0D4' }}
                   >
                     {s}

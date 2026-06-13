@@ -70,7 +70,7 @@ export default async function DashboardPage() {
               <div key={s.n} className="bg-white rounded-2xl border p-5" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
                 <div className="flex items-center justify-between mb-4">
                   <span className="w-9 h-9 rounded-lg grid place-items-center text-[#1F4D3A]" style={{ background: '#E8EFEB' }}>{s.icon}</span>
-                  <span className="font-mono text-[11px] text-[#6B7A72]/50">{s.n}</span>
+                  <span className=" text-[11px] text-[#6B7A72]/50">{s.n}</span>
                 </div>
                 <div className="font-display text-[15px] font-semibold text-[#0F1F18] tracking-tight">{s.title}</div>
                 <p className="text-[13px] text-[#6B7A72] mt-1.5 leading-[1.5]">{s.body}</p>
@@ -205,7 +205,7 @@ export default async function DashboardPage() {
         {/* ── Attention strip ── */}
         {attentionItems.length > 0 && (
           <div className="mb-8">
-            <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-amber-700/90 mb-3 flex items-center gap-2">
+            <div className=" text-[10px] tracking-[0.2em] uppercase text-amber-700/90 mb-3 flex items-center gap-2">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" style={{ color: '#B45309' }}>
                 <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
               </svg>
@@ -229,7 +229,7 @@ export default async function DashboardPage() {
         )}
 
         {/* ── Events grid ── */}
-        <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#6B7A72] mb-3">Your events</div>
+        <div className=" text-[10px] tracking-[0.2em] uppercase text-[#6B7A72] mb-3">Your events</div>
         <DashboardContent events={allEvents} atLimit={atLimit} regsByEvent={regsByEvent} draftCount={draftCount} activeCount={activeCount} />
 
       </div>

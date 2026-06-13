@@ -72,8 +72,8 @@ export function BadgesClient({ eventName, ticketTypes, regCount }: Props) {
           { label: 'Printed', value: '—' },
         ].map(s => (
           <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
-            <div className="font-mono text-[9.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#6B7A72' }}>{s.label}</div>
-            <div className="font-mono text-[24px] leading-none" style={{ color: '#1F4D3A' }}>{s.value}</div>
+            <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#6B7A72' }}>{s.label}</div>
+            <div className=" text-[24px] leading-none" style={{ color: '#1F4D3A' }}>{s.value}</div>
           </div>
         ))}
       </div>
@@ -83,7 +83,7 @@ export function BadgesClient({ eventName, ticketTypes, regCount }: Props) {
         <div className="grid gap-5 content-start">
           {/* Variant */}
           <div className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
-            <div className="font-mono text-[9.5px] tracking-[0.14em] uppercase mb-3" style={{ color: '#6B7A72' }}>Badge variant</div>
+            <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-3" style={{ color: '#6B7A72' }}>Badge variant</div>
             <div className="grid grid-cols-2 gap-2">
               {VARIANTS.map(v => (
                 <button key={v.id} onClick={() => setVariant(v.id)}
@@ -102,7 +102,7 @@ export function BadgesClient({ eventName, ticketTypes, regCount }: Props) {
 
           {/* Elements */}
           <div className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
-            <div className="font-mono text-[9.5px] tracking-[0.14em] uppercase mb-3" style={{ color: '#6B7A72' }}>Elements</div>
+            <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-3" style={{ color: '#6B7A72' }}>Elements</div>
             <div className="grid gap-3">
               {TOGGLE_OPTIONS.map(opt => (
                 <div key={opt.id} className="flex items-center justify-between">
@@ -121,7 +121,7 @@ export function BadgesClient({ eventName, ticketTypes, regCount }: Props) {
 
           {/* Paper / printer */}
           <div className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
-            <div className="font-mono text-[9.5px] tracking-[0.14em] uppercase mb-3" style={{ color: '#6B7A72' }}>Paper size</div>
+            <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-3" style={{ color: '#6B7A72' }}>Paper size</div>
             <div className="grid grid-cols-2 gap-2">
               {SIZES.map(s => (
                 <button key={s} onClick={() => setSize(s)}
@@ -141,7 +141,7 @@ export function BadgesClient({ eventName, ticketTypes, regCount }: Props) {
         {/* Preview */}
         <div className="bg-white rounded-2xl p-6 flex flex-col items-center justify-center min-h-[500px]"
           style={{ border: '1px solid #E5E0D4', background: '#FAF6EE' }}>
-          <div className="font-mono text-[9.5px] tracking-[0.14em] uppercase mb-6" style={{ color: '#6B7A72' }}>Live preview</div>
+          <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-6" style={{ color: '#6B7A72' }}>Live preview</div>
 
           {/* Badge card */}
           <div className="relative bg-white rounded-2xl shadow-lg overflow-hidden" style={{ width: 240, minHeight: 320 }}>
@@ -170,7 +170,7 @@ export function BadgesClient({ eventName, ticketTypes, regCount }: Props) {
               )}
 
               {/* Badge type label */}
-              <div className="mt-3 px-3 py-1 rounded-full font-mono text-[10px] tracking-[0.12em] uppercase"
+              <div className="mt-3 px-3 py-1 rounded-full  text-[10px] tracking-[0.12em] uppercase"
                 style={{ background: `${strip}18`, color: strip }}>
                 {VARIANTS.find(v => v.id === variant)?.label}
               </div>
@@ -190,7 +190,7 @@ export function BadgesClient({ eventName, ticketTypes, regCount }: Props) {
             </div>
           </div>
 
-          <p className="font-mono text-[10.5px] mt-4" style={{ color: '#9BA8A1' }}>
+          <p className=" text-[10.5px] mt-4" style={{ color: '#9BA8A1' }}>
             {size} · {VARIANTS.find(v => v.id === variant)?.label} variant
           </p>
         </div>

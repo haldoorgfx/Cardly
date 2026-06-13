@@ -109,7 +109,7 @@ export default function QAModerationClient({ eventId, initialQuestions, initialP
         {/* Queue header */}
         <div className="px-6 pt-5 pb-3 shrink-0">
           <div className="font-display font-medium text-[18px]" style={{ color: '#1F4D3A' }}>Q&amp;A Moderation</div>
-          <div className="font-mono text-[12px] mt-1" style={{ color: '#6B7A72' }}>
+          <div className=" text-[12px] mt-1" style={{ color: '#6B7A72' }}>
             {questions.length} question{questions.length !== 1 ? 's' : ''} · sorted by votes
           </div>
         </div>
@@ -128,7 +128,7 @@ export default function QAModerationClient({ eventId, initialQuestions, initialP
             >
               {t.label}
               {t.count > 0 && t.key !== 'all' && (
-                <span className="ml-1.5 font-mono text-[11px] opacity-70">{t.count}</span>
+                <span className="ml-1.5  text-[11px] opacity-70">{t.count}</span>
               )}
             </button>
           ))}
@@ -163,7 +163,7 @@ export default function QAModerationClient({ eventId, initialQuestions, initialP
                   <div className="flex gap-3">
                     {/* Vote count */}
                     <span
-                      className="font-mono font-semibold text-[17px] w-7 text-right shrink-0 pt-0.5"
+                      className=" font-semibold text-[17px] w-7 text-right shrink-0 pt-0.5"
                       style={{ color: '#1F4D3A' }}
                     >
                       {q.upvotes_count}
@@ -256,7 +256,7 @@ export default function QAModerationClient({ eventId, initialQuestions, initialP
             Session live
           </span>
         </div>
-        <div className="font-mono text-[13px] mb-6" style={{ color: '#6B7A72' }}>
+        <div className=" text-[13px] mb-6" style={{ color: '#6B7A72' }}>
           {questions.length} questions · {pendingCount} pending
         </div>
 
@@ -272,7 +272,7 @@ export default function QAModerationClient({ eventId, initialQuestions, initialP
               className="rounded-xl p-4 text-center"
               style={{ background: 'white', border: '1px solid #E5E0D4' }}
             >
-              <div className="font-mono font-semibold text-[24px]" style={{ color: '#1F4D3A' }}>{s.value}</div>
+              <div className=" font-semibold text-[24px]" style={{ color: '#1F4D3A' }}>{s.value}</div>
               <div className="text-[12px] mt-1" style={{ color: '#6B7A72' }}>{s.label}</div>
             </div>
           ))}
@@ -297,7 +297,7 @@ export default function QAModerationClient({ eventId, initialQuestions, initialP
                     <div key={opt.id}>
                       <div className="flex justify-between text-[12px] mb-1" style={{ color: '#3A4A42' }}>
                         <span>{opt.text}</span>
-                        <span className="font-mono font-medium" style={{ color: '#1F4D3A' }}>{pct}%</span>
+                        <span className=" font-medium" style={{ color: '#1F4D3A' }}>{pct}%</span>
                       </div>
                       <div className="h-1.5 rounded-full overflow-hidden" style={{ background: '#E8EFEB' }}>
                         <div

@@ -65,7 +65,7 @@ export default function TopBar({
 
       {/* Breadcrumb */}
       <div className="flex items-center gap-1.5 text-[13px] min-w-0">
-        <a href="/dashboard" className="text-ink/40 font-mono text-[11px] hover:text-ink/60 transition shrink-0">Events</a>
+        <a href="/dashboard" className="text-ink/40  text-[11px] hover:text-ink/60 transition shrink-0">Events</a>
         <span className="text-ink/30 shrink-0">/</span>
 
         {editName ? (
@@ -115,7 +115,7 @@ export default function TopBar({
       </div>
 
       {/* Saved indicator */}
-      <div className="flex items-center gap-1.5 text-[11px] font-mono mx-1 shrink-0">
+      <div className="flex items-center gap-1.5 text-[11px] mx-1 shrink-0">
         {saveError ? (
           <>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#B8423C" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
@@ -135,7 +135,7 @@ export default function TopBar({
           <button
             onClick={copyStyle}
             title="Copy style (⌘⌥C)"
-            className={`h-8 px-2.5 rounded-lg text-[11.5px] font-mono flex items-center gap-1.5 transition ${styleFlash ? 'bg-primary text-white' : 'hover:bg-cream text-ink/65'}`}
+            className={`h-8 px-2.5 rounded-lg text-[11.5px] flex items-center gap-1.5 transition ${styleFlash ? 'bg-primary text-white' : 'hover:bg-cream text-ink/65'}`}
           >
             <Wand2 size={13} strokeWidth={1.8} />
             {styleFlash ? 'Copied!' : 'Copy style'}
@@ -144,7 +144,7 @@ export default function TopBar({
             <button
               onClick={pasteStyle}
               title="Paste style (⌘⌥V)"
-              className="h-8 px-2.5 rounded-lg text-[11.5px] font-mono flex items-center gap-1.5 hover:bg-primary/10 hover:text-primary text-ink/65 transition border border-dashed border-primary/30"
+              className="h-8 px-2.5 rounded-lg text-[11.5px] flex items-center gap-1.5 hover:bg-primary/10 hover:text-primary text-ink/65 transition border border-dashed border-primary/30"
             >
               <Wand2 size={13} strokeWidth={1.8} />
               Paste style
@@ -176,7 +176,7 @@ export default function TopBar({
         >
           <Eye size={13} strokeWidth={2} />
           {previewMode ? 'Editing' : 'Preview'}
-          <span className="text-[10px] font-mono opacity-50 ml-0.5">⌘P</span>
+          <span className="text-[10px] opacity-50 ml-0.5">⌘P</span>
         </button>
 
         {/* Test — opens attendee page in new tab with preview bypass */}

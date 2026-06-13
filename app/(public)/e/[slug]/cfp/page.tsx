@@ -62,7 +62,7 @@ export default async function CFPPage({ params }: Props) {
           className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[14px] mt-3 mb-8"
           style={{ background: 'white', border: '1px solid #E5E0D4' }}
         >
-          <b className="font-mono font-medium" style={{ color: '#1F4D3A' }}>Deadline: {deadline}</b>
+          <b className=" font-medium" style={{ color: '#1F4D3A' }}>Deadline: {deadline}</b>
           {daysLeft > 0 && (
             <span style={{ color: '#6B7A72' }}>· {daysLeft} day{daysLeft !== 1 ? 's' : ''} remaining</span>
           )}

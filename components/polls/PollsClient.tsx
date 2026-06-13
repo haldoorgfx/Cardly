@@ -74,7 +74,7 @@ function PollCard({ poll, eventId, registrationId, initialVote }: { poll: Poll; 
                   />
                   <div className="relative flex items-center justify-between px-4 py-3.5">
                     <span className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>{opt.text}</span>
-                    <span className="font-mono text-[14px] font-semibold" style={{ color: isWinner ? '#1F4D3A' : '#6B7A72' }}>{pct}%</span>
+                    <span className=" text-[14px] font-semibold" style={{ color: isWinner ? '#1F4D3A' : '#6B7A72' }}>{pct}%</span>
                   </div>
                 </div>
               )}
@@ -82,7 +82,7 @@ function PollCard({ poll, eventId, registrationId, initialVote }: { poll: Poll; 
           );
         })}
       </div>
-      <p className="font-mono text-[12px] mt-3" style={{ color: '#6B7A72' }}>{totalVotes} response{totalVotes !== 1 ? 's' : ''}</p>
+      <p className=" text-[12px] mt-3" style={{ color: '#6B7A72' }}>{totalVotes} response{totalVotes !== 1 ? 's' : ''}</p>
     </div>
   );
 }

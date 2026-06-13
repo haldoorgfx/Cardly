@@ -17,7 +17,7 @@ export function CategoryGridBlock({ content }: { content: CategoryGridContent })
           {categories.map((cat, i) => (
             <div key={i} className="bg-white border border-[#E5E0D4] rounded-2xl p-6 lg:p-7">
               <div className="flex items-center gap-3 mb-5">
-                <span className="w-10 h-10 rounded-xl bg-[#E8EFEB] text-[#1F4D3A] grid place-items-center font-mono text-[15px]">
+                <span className="w-10 h-10 rounded-xl bg-[#E8EFEB] text-[#1F4D3A] grid place-items-center  text-[15px]">
                   {cat.icon}
                 </span>
                 <h3 className="font-display font-semibold text-[#0F1F18] text-[17px] tracking-tight">

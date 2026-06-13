@@ -63,7 +63,7 @@ function ChangelogHero({ latest }: { latest?: DBEntry }) {
         }}
       />
       <div className="relative mx-auto max-w-[1200px] px-5 lg:px-10 pt-14 lg:pt-20 pb-12 lg:pb-16">
-        <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-5">
+        <div className=" text-[11px] tracking-[0.22em] text-primary uppercase mb-5">
           Changelog
         </div>
         <h1 className="font-title font-bold text-ink text-[44px] sm:text-[60px] lg:text-[68px] leading-[0.95] max-w-[760px]">
@@ -81,7 +81,7 @@ function ChangelogHero({ latest }: { latest?: DBEntry }) {
               <span className="text-[13px] text-ink-soft">
                 Latest: <span className="text-ink font-medium">{latest.title}</span>
               </span>
-              <span className="font-mono text-[10px] tracking-[0.14em] uppercase text-muted">
+              <span className=" text-[10px] tracking-[0.14em] uppercase text-muted">
                 {formatDate(latest.published_at ?? latest.created_at)}
               </span>
             </div>
@@ -107,7 +107,7 @@ function ChangelogEntries({ entries }: { entries: DBEntry[] }) {
 
       {/* Timeline nav */}
       <aside className="hidden lg:block sticky top-24">
-        <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-muted mb-4">Releases</div>
+        <div className=" text-[10px] tracking-[0.22em] uppercase text-muted mb-4">Releases</div>
         <nav className="space-y-2">
           {entries.map((entry) => {
             const anchor = entry.version ?? entry.id.slice(0, 8);
@@ -118,8 +118,8 @@ function ChangelogEntries({ entries }: { entries: DBEntry[] }) {
                 className="block py-1 border-l-2 pl-3 transition-colors hover:text-primary"
                 style={{ borderColor: 'rgba(229,224,212,0.7)', color: '#6B7A72', fontSize: '13px' }}
               >
-                <span className="font-mono font-medium">{entry.version ?? '—'}</span>
-                <div className="font-mono text-[10px] tracking-[0.10em] mt-0.5" style={{ color: 'rgba(107,122,114,0.6)' }}>
+                <span className=" font-medium">{entry.version ?? '—'}</span>
+                <div className=" text-[10px] tracking-[0.10em] mt-0.5" style={{ color: 'rgba(107,122,114,0.6)' }}>
                   {formatDate(entry.published_at ?? entry.created_at)}
                 </div>
               </a>
@@ -140,13 +140,13 @@ function ChangelogEntries({ entries }: { entries: DBEntry[] }) {
                 <div className="flex flex-wrap items-center gap-3 mb-5">
                   {entry.version && (
                     <span
-                      className="font-mono font-bold text-[13px] tracking-[-0.01em] px-3 py-1 rounded-lg"
+                      className=" font-bold text-[13px] tracking-[-0.01em] px-3 py-1 rounded-lg"
                       style={{ background: '#1F4D3A', color: '#FAF6EE' }}
                     >
                       {entry.version}
                     </span>
                   )}
-                  <span className="font-mono text-[11px] tracking-[0.14em] uppercase text-muted">
+                  <span className=" text-[11px] tracking-[0.14em] uppercase text-muted">
                     {formatDate(entry.published_at ?? entry.created_at)}
                   </span>
                 </div>
@@ -164,7 +164,7 @@ function ChangelogEntries({ entries }: { entries: DBEntry[] }) {
                     className="flex items-center gap-3 px-5 py-3.5 bg-surface"
                   >
                     <span
-                      className="inline-flex items-center px-2 py-0.5 rounded-full font-mono text-[9px] tracking-[0.16em] uppercase shrink-0"
+                      className="inline-flex items-center px-2 py-0.5 rounded-full  text-[9px] tracking-[0.16em] uppercase shrink-0"
                       style={style}
                     >
                       {style.label}

@@ -36,7 +36,7 @@ function ChannelCard({ channel }: { channel: ContactChannel }) {
         {channel.label}
       </div>
       <div
-        className="font-mono text-[14px]"
+        className=" text-[14px]"
         style={{ color: '#1F4D3A' }}
       >
         {channel.href.replace('mailto:', '')}
@@ -58,7 +58,7 @@ export function ContactChannelsBlock({ content }: ContactChannelsBlockProps) {
         <div className="mb-12">
           {content.header.eyebrow && (
             <div
-              className="font-mono text-[11px] tracking-[0.18em] uppercase mb-4"
+              className=" text-[11px] tracking-[0.18em] uppercase mb-4"
               style={{ color: '#1F4D3A' }}
             >
               {content.header.eyebrow}
@@ -96,7 +96,7 @@ export function ContactChannelsBlock({ content }: ContactChannelsBlockProps) {
           }}
         >
           <div
-            className="font-mono text-[11px] tracking-widest uppercase mb-4"
+            className=" text-[11px] tracking-widest uppercase mb-4"
             style={{ color: 'rgba(15,31,24,0.40)' }}
           >
             Good reasons to reach out

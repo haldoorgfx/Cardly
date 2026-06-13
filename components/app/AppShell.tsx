@@ -597,13 +597,13 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
           )}
           {results.length > 0 && (
             <div className="p-1.5">
-              <div className="px-2.5 py-1.5 text-[10px] font-mono text-[#6B7A72]/70 uppercase tracking-widest">Events</div>
+              <div className="px-2.5 py-1.5 text-[10px] text-[#6B7A72]/70 uppercase tracking-widest">Events</div>
               {results.map((r, i) => (
                 <button key={r.id} onClick={() => navigate(r)} onMouseEnter={() => setSelected(i)}
                   className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left transition-colors ${i === selected ? 'bg-[#F5F5F4]' : 'hover:bg-[#F5F5F4]/60'}`}>
                   <div className="flex-1 min-w-0">
                     <div className="text-[13px] font-medium text-[#0F1F18] truncate">{r.name}</div>
-                    <div className="text-[11px] text-[#6B7A72] font-mono">/{r.slug}</div>
+                    <div className="text-[11px] text-[#6B7A72]">/{r.slug}</div>
                   </div>
                   <span className={`text-[10px] px-2 py-0.5 rounded-full border ${r.status === 'published' ? 'border-emerald-200 bg-emerald-50 text-emerald-600' : r.status === 'archived' ? 'border-rose-200 bg-rose-50 text-rose-500' : 'border-amber-200 bg-amber-50 text-amber-600'}`}>
                     {r.status}
@@ -614,7 +614,7 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
           )}
           {!query.trim() && (
             <div className="p-1.5">
-              <div className="px-2.5 py-1.5 text-[10px] font-mono text-[#6B7A72]/70 uppercase tracking-widest">Quick actions</div>
+              <div className="px-2.5 py-1.5 text-[10px] text-[#6B7A72]/70 uppercase tracking-widest">Quick actions</div>
               {quickActions.map((a, i) => (
                 <Link key={a.href} href={a.href} onClick={onClose}
                   className={`flex items-center gap-3 px-2.5 py-2 rounded-xl transition-colors ${i === selected ? 'bg-[#F5F5F4]' : 'hover:bg-[#F5F5F4]/60'}`}>
@@ -770,7 +770,7 @@ function NotifItem({ notif, onRead }: { notif: Notification; onRead: (id: string
       <div className="flex-1 min-w-0">
         <p className="text-[13px] leading-snug" style={{ color: '#0F1F18' }}>{notif.title}</p>
         {notif.body && <p className="text-[11.5px] mt-0.5 truncate" style={{ color: '#6B7A72' }}>{notif.body}</p>}
-        <p className="text-[11px] mt-0.5 font-mono" style={{ color: '#9BA8A1' }}>{formatNotifTime(notif.created_at)}</p>
+        <p className="text-[11px] mt-0.5 " style={{ color: '#9BA8A1' }}>{formatNotifTime(notif.created_at)}</p>
       </div>
       {!notif.read_at && (
         <span className="h-2 w-2 rounded-full shrink-0 mt-2" style={{ background: '#E8C57E' }} />
@@ -992,7 +992,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 aria-label="Search (⌘K)">
                 <Search size={13} strokeWidth={2} className="shrink-0" style={{ color: '#9BA8A1' }} />
                 <span className="flex-1 text-left text-[12.5px]" style={{ color: '#9BA8A1' }}>Search…</span>
-                <kbd className="flex items-center gap-0.5 text-[10px] font-mono px-1.5 py-0.5 rounded-md shrink-0"
+                <kbd className="flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded-md shrink-0"
                   style={{ background: '#F0EDE8', color: '#9BA8A1', border: '1px solid #E5E0D4' }}>⌘K</kbd>
               </button>
               {/* Mobile search icon only */}
@@ -1030,7 +1030,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                         <span className="font-display text-[14px] font-semibold" style={{ color: '#0F1F18' }}>Notifications</span>
                         {notifications.some(n => !n.read_at) && (
                           <button onClick={handleMarkAllRead}
-                            className="text-[10px] font-mono font-medium uppercase tracking-widest transition hover:text-[#1F4D3A]"
+                            className="text-[10px] font-medium uppercase tracking-widest transition hover:text-[#1F4D3A]"
                             style={{ color: '#9BA8A1' }}>
                             Mark all read
                           </button>
@@ -1107,7 +1107,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                           <div suppressHydrationWarning className="text-[13.5px] font-semibold text-[#0F1F18] leading-tight truncate">
                             {profile?.full_name ?? '—'}
                           </div>
-                          <div suppressHydrationWarning className="font-mono text-[11px] text-[#6B7A72] truncate">{profile?.email ?? ''}</div>
+                          <div suppressHydrationWarning className=" text-[11px] text-[#6B7A72] truncate">{profile?.email ?? ''}</div>
                         </div>
                       </div>
 

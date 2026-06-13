@@ -47,7 +47,7 @@ export default async function AuditPage({
     <div className="p-6 lg:p-10 max-w-[1100px]">
       {/* Header */}
       <div className="mb-8">
-        <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#6B7A72] mb-2">
+        <div className=" text-[10px] tracking-[0.22em] uppercase text-[#6B7A72] mb-2">
           Admin · Audit Log
         </div>
         <h1 className="font-display font-bold text-[28px] text-[#0F1F18] tracking-tight">
@@ -65,7 +65,7 @@ export default async function AuditPage({
       />
 
       {/* Count */}
-      <div className="mb-4 text-[12px] font-mono text-[#6B7A72]">
+      <div className="mb-4 text-[12px] text-[#6B7A72]">
         {count ?? 0} {count === 1 ? 'entry' : 'entries'}
         {page > 1 && ` — page ${page} of ${totalPages}`}
       </div>
@@ -77,7 +77,7 @@ export default async function AuditPage({
       {totalPages > 1 && (
         <div className="mt-6 flex items-center justify-between">
           <PaginationLink page={page - 1} disabled={page <= 1} label="← Previous" searchParams={searchParams} />
-          <span className="text-[13px] text-[#6B7A72] font-mono">
+          <span className="text-[13px] text-[#6B7A72]">
             {page} / {totalPages}
           </span>
           <PaginationLink page={page + 1} disabled={page >= totalPages} label="Next →" searchParams={searchParams} />
@@ -102,13 +102,13 @@ function PaginationLink({
 
   if (disabled) {
     return (
-      <span className="text-[13px] text-[#6B7A72]/40 font-mono px-3 py-1.5">{label}</span>
+      <span className="text-[13px] text-[#6B7A72]/40  px-3 py-1.5">{label}</span>
     );
   }
   return (
     <a
       href={`/admin/audit?${params.toString()}`}
-      className="text-[13px] font-mono text-[#1F4D3A] hover:underline px-3 py-1.5 rounded-lg hover:bg-[#E8EFEB] transition-colors"
+      className="text-[13px] text-[#1F4D3A] hover:underline px-3 py-1.5 rounded-lg hover:bg-[#E8EFEB] transition-colors"
     >
       {label}
     </a>

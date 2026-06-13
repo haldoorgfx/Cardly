@@ -117,7 +117,7 @@ function HelpCenter() {
         {/* Popular */}
         {!query && (
           <div>
-            <div className="font-mono text-[10px] uppercase tracking-widest mb-4" style={{ color: '#6B7A72' }}>Popular articles</div>
+            <div className=" text-[10px] uppercase tracking-widest mb-4" style={{ color: '#6B7A72' }}>Popular articles</div>
             <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
               {POPULAR.map((q, i) => (
                 <a
@@ -127,7 +127,7 @@ function HelpCenter() {
                   style={{ borderBottom: i < POPULAR.length - 1 ? '1px solid #E5E0D4' : 'none', textDecoration: 'none' }}
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-[10px] px-2 py-0.5 rounded-full font-mono" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>{q.category}</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full " style={{ background: '#E8EFEB', color: '#1F4D3A' }}>{q.category}</span>
                     <span className="text-[13px]" style={{ color: '#0F1F18' }}>{q.title}</span>
                   </div>
                   <ArrowRight size={13} strokeWidth={2} style={{ color: '#C9C3B1', flexShrink: 0 }} />
@@ -179,7 +179,7 @@ function StatusTab() {
             <div className="flex-1">
               <div className="text-[13px] font-medium" style={{ color: '#0F1F18' }}>{svc.name}</div>
             </div>
-            <div className="text-[12px] font-mono" style={{ color: '#6B7A72' }}>{svc.uptime}% uptime</div>
+            <div className="text-[12px]" style={{ color: '#6B7A72' }}>{svc.uptime}% uptime</div>
             <div className="flex items-center gap-1.5">
               <div style={{ width: 8, height: 8, borderRadius: '50%', background: svc.status === 'operational' ? '#2D7A4F' : svc.status === 'degraded' ? '#C97A2D' : '#B8423C' }} />
               <span className="text-[12px] capitalize" style={{ color: svc.status === 'operational' ? '#2D7A4F' : svc.status === 'degraded' ? '#C97A2D' : '#B8423C' }}>
@@ -192,7 +192,7 @@ function StatusTab() {
 
       {/* Incident history */}
       <div>
-        <div className="font-mono text-[10px] uppercase tracking-widest mb-4" style={{ color: '#6B7A72' }}>Incident history</div>
+        <div className=" text-[10px] uppercase tracking-widest mb-4" style={{ color: '#6B7A72' }}>Incident history</div>
         <div className="rounded-2xl px-5 py-6 text-center" style={{ background: '#fff', border: '1px solid #E5E0D4' }}>
           <CheckCircle2 size={32} style={{ color: '#2D7A4F', margin: '0 auto 12px' }} />
           <p className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>No incidents in the last 90 days</p>
@@ -216,7 +216,7 @@ function ChangelogTab() {
           <div key={rel.version} className="mb-10 relative">
             <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#1F4D3A', position: 'absolute', left: -22, top: 6, border: '2px solid #FAF6EE' }} />
             <div className="flex items-center gap-2 mb-3">
-              <span className="font-mono font-semibold text-[15px]" style={{ color: '#1F4D3A' }}>{rel.version}</span>
+              <span className=" font-semibold text-[15px]" style={{ color: '#1F4D3A' }}>{rel.version}</span>
               {rel.tag && (
                 <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ background: '#E8C57E', color: '#163828' }}>{rel.tag}</span>
               )}

@@ -72,7 +72,7 @@ export default function NotificationsPage() {
         </div>
         {unreadCount > 0 && (
           <button onClick={handleMarkAll}
-            className="text-[12px] font-mono uppercase tracking-widest px-3 py-1.5 rounded-lg border transition hover:bg-[#F5F3EE]"
+            className="text-[12px] uppercase tracking-widest px-3 py-1.5 rounded-lg border transition hover:bg-[#F5F3EE]"
             style={{ color: '#6B7A72', borderColor: '#E5E0D4' }}>
             Mark all read
           </button>
@@ -104,7 +104,7 @@ export default function NotificationsPage() {
               <div className="flex-1 min-w-0">
                 <p className="text-[13.5px] font-medium leading-snug" style={{ color: '#0F1F18' }}>{n.title}</p>
                 {n.body && <p className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>{n.body}</p>}
-                <p className="text-[11px] mt-1 font-mono" style={{ color: '#9BA8A1' }}>{fmtTime(n.created_at)}</p>
+                <p className="text-[11px] mt-1 " style={{ color: '#9BA8A1' }}>{fmtTime(n.created_at)}</p>
               </div>
               {!n.read_at && (
                 <span className="h-2 w-2 rounded-full shrink-0 mt-2" style={{ background: '#E8C57E' }} />

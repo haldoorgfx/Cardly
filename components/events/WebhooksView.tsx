@@ -149,10 +149,10 @@ export function WebhooksView(_props: Props) {
               <Plug size={15} strokeWidth={2} style={{ color: ep.status === 'Active' ? '#1F4D3A' : '#B8423C' }} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[12.5px] font-mono truncate" style={{ color: '#0F1F18' }}>{ep.url}</p>
-              <p className="text-[11px] font-mono mt-0.5 truncate" style={{ color: '#6B7A72' }}>{ep.events}</p>
+              <p className="text-[12.5px] truncate" style={{ color: '#0F1F18' }}>{ep.url}</p>
+              <p className="text-[11px] mt-0.5 truncate" style={{ color: '#6B7A72' }}>{ep.events}</p>
             </div>
-            <span className="text-[11px] font-mono hidden sm:block" style={{ color: '#6B7A72' }}>{ep.lastDelivery}</span>
+            <span className="text-[11px] hidden sm:block" style={{ color: '#6B7A72' }}>{ep.lastDelivery}</span>
             <StatusPill status={ep.status} />
           </div>
         ))}
@@ -181,10 +181,10 @@ export function WebhooksView(_props: Props) {
               borderBottom: i < SAMPLE_DELIVERIES.length - 1 ? '1px solid #F5F0E8' : 'none',
             }}
           >
-            <span className="text-[12.5px] font-mono" style={{ color: '#0F1F18' }}>{d.event}</span>
+            <span className="text-[12.5px]" style={{ color: '#0F1F18' }}>{d.event}</span>
             <div>
               <span
-                className="inline-flex items-center gap-1 h-5 px-2 rounded-full text-[11px] font-mono font-medium"
+                className="inline-flex items-center gap-1 h-5 px-2 rounded-full text-[11px] font-medium"
                 style={{
                   background: d.response === '200' ? 'rgba(45,122,79,0.1)' : 'rgba(184,66,60,0.1)',
                   color: d.response === '200' ? '#2D7A4F' : '#B8423C',
@@ -197,7 +197,7 @@ export function WebhooksView(_props: Props) {
                 {d.response}
               </span>
             </div>
-            <span className="text-[12px] font-mono" style={{ color: '#6B7A72' }}>{d.when}</span>
+            <span className="text-[12px]" style={{ color: '#6B7A72' }}>{d.when}</span>
           </div>
         ))}
       </div>
@@ -287,7 +287,7 @@ export function WebhooksView(_props: Props) {
                           </svg>
                         )}
                       </div>
-                      <span className="text-[11px] font-mono" style={{ color: selectedEvents.includes(ev) ? '#1F4D3A' : '#3A4A42' }}>
+                      <span className="text-[11px]" style={{ color: selectedEvents.includes(ev) ? '#1F4D3A' : '#3A4A42' }}>
                         {ev}
                       </span>
                     </label>

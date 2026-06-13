@@ -205,7 +205,7 @@ export default async function BillingPage({
           <div className="flex items-start justify-between">
             <div>
               <div
-                className="text-[10px] font-mono tracking-[0.18em] uppercase mb-2"
+                className="text-[10px] tracking-[0.18em] uppercase mb-2"
                 style={{ color: 'rgba(250,246,238,0.55)' }}
               >
                 CURRENT PLAN
@@ -221,7 +221,7 @@ export default async function BillingPage({
             </div>
             {isTrialing && (
               <span
-                className="text-[11px] font-mono px-2.5 py-1 rounded-full"
+                className="text-[11px] px-2.5 py-1 rounded-full"
                 style={{ background: 'rgba(232,197,126,0.18)', color: '#E8C57E', border: '1px solid rgba(232,197,126,0.3)' }}
               >
                 TRIAL
@@ -234,10 +234,10 @@ export default async function BillingPage({
             {/* Events */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <span className="text-[12px] font-mono" style={{ color: 'rgba(250,246,238,0.65)' }}>
+                <span className="text-[12px]" style={{ color: 'rgba(250,246,238,0.65)' }}>
                   Events
                 </span>
-                <span className="text-[12px] font-mono" style={{ color: 'rgba(250,246,238,0.65)' }}>
+                <span className="text-[12px]" style={{ color: 'rgba(250,246,238,0.65)' }}>
                   {eventsCount} / {limits.events === null ? '∞' : limits.events}
                 </span>
               </div>
@@ -252,10 +252,10 @@ export default async function BillingPage({
             {/* Registrations (cards this month) */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <span className="text-[12px] font-mono" style={{ color: 'rgba(250,246,238,0.65)' }}>
+                <span className="text-[12px]" style={{ color: 'rgba(250,246,238,0.65)' }}>
                   Registrations this month
                 </span>
-                <span className="text-[12px] font-mono" style={{ color: 'rgba(250,246,238,0.65)' }}>
+                <span className="text-[12px]" style={{ color: 'rgba(250,246,238,0.65)' }}>
                   {cardsUsed} / {limits.cardsPerMonth}
                 </span>
               </div>
@@ -274,7 +274,7 @@ export default async function BillingPage({
           {/* Renewal */}
           {periodEnd && (
             <div
-              className="text-[12px] font-mono"
+              className="text-[12px]"
               style={{ color: 'rgba(250,246,238,0.45)' }}
             >
               {profile?.cancel_at_period_end ? 'Cancels' : isTrialing ? 'Trial ends' : 'Renews'} {periodEnd}
@@ -354,7 +354,7 @@ export default async function BillingPage({
                 {['DATE', 'DESCRIPTION', 'AMOUNT', 'STATUS', ''].map(col => (
                   <th
                     key={col}
-                    className="px-6 py-3 text-left text-[10.5px] font-mono tracking-widest text-[#6B7A72]"
+                    className="px-6 py-3 text-left text-[10.5px] tracking-widest text-[#6B7A72]"
                   >
                     {col}
                   </th>
@@ -370,7 +370,7 @@ export default async function BillingPage({
                   <td className="px-6 py-4 text-[13px] text-[#3A4A42]">
                     {inv.description}
                   </td>
-                  <td className="px-6 py-4 text-[13px] font-mono text-[#0F1F18] whitespace-nowrap">
+                  <td className="px-6 py-4 text-[13px] text-[#0F1F18] whitespace-nowrap">
                     {inv.amount}
                   </td>
                   <td className="px-6 py-4">

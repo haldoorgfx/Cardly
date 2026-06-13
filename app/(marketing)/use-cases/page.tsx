@@ -194,7 +194,7 @@ function AfricanSummitsCard() {
         <TopoLines stroke="#E8C57E" opacity={0.14} />
         {/* "Built for Africa" badge */}
         <div
-          className="relative z-10 inline-flex items-center gap-1.5 font-mono text-[10px] font-semibold tracking-[0.16em] uppercase px-2.5 py-1 rounded-full"
+          className="relative z-10 inline-flex items-center gap-1.5  text-[10px] font-semibold tracking-[0.16em] uppercase px-2.5 py-1 rounded-full"
           style={{ background: '#E8C57E', color: '#163828' }}
         >
           {/* Djibouti flag — simplified inline */}
@@ -265,7 +265,7 @@ export default function UseCasesPage() {
         />
 
         <div className="relative mx-auto max-w-[1200px] px-5 lg:px-10 pt-16 lg:pt-24 pb-12 lg:pb-16">
-          <div className="font-mono text-[11px] tracking-[0.22em] uppercase text-[#1F4D3A] mb-5">
+          <div className=" text-[11px] tracking-[0.22em] uppercase text-[#1F4D3A] mb-5">
             Use cases
           </div>
 

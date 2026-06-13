@@ -85,7 +85,7 @@ function LogoUploadCard({
         ) : (
           <div className="flex flex-col items-center gap-1">
             <ImageIcon size={16} strokeWidth={1.5} style={{ color: previewTextColor }} />
-            <span className="text-[10px] font-mono" style={{ color: previewTextColor }}>No logo</span>
+            <span className="text-[10px]" style={{ color: previewTextColor }}>No logo</span>
           </div>
         )}
       </div>
@@ -261,7 +261,7 @@ export function ThemeEditorClient({ settings }: Props) {
               <input
                 value={form.colors[key]}
                 onChange={e => setColor(key, e.target.value)}
-                className="w-[96px] h-8 px-2 rounded-lg border font-mono text-[12px] outline-none focus:ring-2 focus:ring-[#1F4D3A]/20 focus:border-[#1F4D3A]/40 transition text-center shrink-0"
+                className="w-[96px] h-8 px-2 rounded-lg border  text-[12px] outline-none focus:ring-2 focus:ring-[#1F4D3A]/20 focus:border-[#1F4D3A]/40 transition text-center shrink-0"
                 style={{ borderColor: '#E5E0D4' }}
                 placeholder="#000000"
                 pattern="^#[0-9A-Fa-f]{6}$"
@@ -311,7 +311,7 @@ export function ThemeEditorClient({ settings }: Props) {
         <input
           value={form.gradients.hero}
           onChange={e => setGradient(e.target.value)}
-          className="w-full h-10 px-3 rounded-lg border font-mono text-[12px] outline-none focus:ring-2 focus:ring-[#1F4D3A]/20 focus:border-[#1F4D3A]/40 transition"
+          className="w-full h-10 px-3 rounded-lg border  text-[12px] outline-none focus:ring-2 focus:ring-[#1F4D3A]/20 focus:border-[#1F4D3A]/40 transition"
           style={{ borderColor: '#E5E0D4' }}
           placeholder="linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)"
         />

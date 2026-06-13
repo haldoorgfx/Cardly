@@ -133,7 +133,7 @@ export default function VirtualPlayerClient({ event, session, speakers, initialQ
             )}
 
             {/* LIVE badge */}
-            <div className="absolute top-4 right-4 flex items-center gap-2 font-mono text-[12px] text-white z-10">
+            <div className="absolute top-4 right-4 flex items-center gap-2  text-[12px] text-white z-10">
               <span
                 className="w-2 h-2 rounded-full"
                 style={{ background: '#B8423C', boxShadow: '0 0 0 3px rgba(184,66,60,0.3)', animation: 'pulse 1.4s infinite' }}
@@ -154,8 +154,8 @@ export default function VirtualPlayerClient({ event, session, speakers, initialQ
             <div className="flex-1 h-1 rounded-full relative" style={{ background: 'rgba(255,255,255,0.2)' }}>
               <div className="absolute left-0 top-0 bottom-0 rounded-full" style={{ width: '42%', background: '#E8C57E' }} />
             </div>
-            <span className="font-mono text-[12px]" style={{ color: 'rgba(255,255,255,0.7)' }}>24:18 / 58:00</span>
-            <span className="font-mono text-[11px] px-1.5 py-0.5 rounded" style={{ border: '1px solid rgba(255,255,255,0.25)', color: 'rgba(255,255,255,0.7)' }}>1080p</span>
+            <span className=" text-[12px]" style={{ color: 'rgba(255,255,255,0.7)' }}>24:18 / 58:00</span>
+            <span className=" text-[11px] px-1.5 py-0.5 rounded" style={{ border: '1px solid rgba(255,255,255,0.25)', color: 'rgba(255,255,255,0.7)' }}>1080p</span>
             <Maximize2 size={18} color="rgba(255,255,255,0.85)" className="cursor-pointer" />
           </div>
         </div>
@@ -215,7 +215,7 @@ export default function VirtualPlayerClient({ event, session, speakers, initialQ
                         >
                           <ChevronUp size={13} color={isVoted ? 'white' : '#6B7A72'} />
                         </div>
-                        <span className="font-mono font-medium text-[12px]" style={{ color: '#1F4D3A' }}>{q.upvotes_count}</span>
+                        <span className=" font-medium text-[12px]" style={{ color: '#1F4D3A' }}>{q.upvotes_count}</span>
                       </button>
                       <div className="flex-1 min-w-0">
                         {q.is_featured && (
@@ -333,7 +333,7 @@ export default function VirtualPlayerClient({ event, session, speakers, initialQ
                   <div className="h-28" style={{ background: 'linear-gradient(135deg, #E8EFEB, #E5E0D4)' }} />
                   <div className="p-3.5">
                     <div className="font-medium text-[14px] leading-snug" style={{ color: '#1F4D3A' }}>{r.title}</div>
-                    <div className="font-mono text-[12px] mt-1.5" style={{ color: '#6B7A72' }}>
+                    <div className=" text-[12px] mt-1.5" style={{ color: '#6B7A72' }}>
                       {timeStr(r.starts_at)}{r.track ? ` · ${r.track}` : ''}
                     </div>
                   </div>

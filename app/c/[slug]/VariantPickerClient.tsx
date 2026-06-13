@@ -20,7 +20,7 @@ export default function VariantPickerClient({ eventName, eventSlug, variants }: 
     >
       <div className="w-full max-w-[375px]">
         <div className="text-center mb-10">
-          <div className="text-[11px] font-mono tracking-widest text-white/40 mb-2">GET YOUR CARD</div>
+          <div className="text-[11px] tracking-widest text-white/40 mb-2">GET YOUR CARD</div>
           <h1 className="font-display font-bold text-white text-[24px] leading-tight mb-2">{eventName}</h1>
           <p className="text-white/50 text-[14px]">I am attending as…</p>
         </div>
@@ -50,7 +50,7 @@ export default function VariantPickerClient({ eventName, eventSlug, variants }: 
           ))}
         </div>
 
-        <div className="mt-10 text-center text-[11px] font-mono text-white/20">
+        <div className="mt-10 text-center text-[11px] text-white/20">
           Powered by{' '}
           <span
             style={{

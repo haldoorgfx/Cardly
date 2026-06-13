@@ -34,7 +34,7 @@ function TicketsMock() {
             <span className="w-2 h-2 rounded-full bg-[#2D7A4F] shrink-0" />
             {name}
           </span>
-          <span className="font-mono text-[#0F1F18] font-semibold">{price}</span>
+          <span className=" text-[#0F1F18] font-semibold">{price}</span>
         </div>
       ))}
     </div>
@@ -56,7 +56,7 @@ function AgendaMock() {
           style={{ background: i % 2 === 0 ? '#F7F5F0' : 'transparent' }}
         >
           <span
-            className="font-mono text-[10px] bg-[#E8EFEB] text-[#1F4D3A] px-1.5 py-0.5 rounded shrink-0"
+            className=" text-[10px] bg-[#E8EFEB] text-[#1F4D3A] px-1.5 py-0.5 rounded shrink-0"
           >
             {time}
           </span>
@@ -185,7 +185,7 @@ export default function HowItWorksPage() {
         />
 
         <div className="relative mx-auto max-w-[1200px] px-5 lg:px-10 pt-16 lg:pt-24 pb-12 lg:pb-18">
-          <div className="font-mono text-[11px] tracking-[0.22em] uppercase text-[#1F4D3A] mb-5">
+          <div className=" text-[11px] tracking-[0.22em] uppercase text-[#1F4D3A] mb-5">
             How Karta works
           </div>
 
@@ -246,7 +246,7 @@ export default function HowItWorksPage() {
                       className="w-[22px] h-[22px] rounded-full grid place-items-center ring-4 ring-[#FAF6EE]"
                       style={{ background: '#E8C57E' }}
                     >
-                      <span className="font-mono text-[11px] font-semibold text-[#163828] leading-none">
+                      <span className=" text-[11px] font-semibold text-[#163828] leading-none">
                         {s.n}
                       </span>
                     </div>
@@ -299,7 +299,7 @@ export default function HowItWorksPage() {
             {/* Left */}
             <div className="flex-1">
               <div
-                className="inline-block font-mono text-[10px] tracking-[0.2em] uppercase px-3 py-1 rounded-full mb-5"
+                className="inline-block  text-[10px] tracking-[0.2em] uppercase px-3 py-1 rounded-full mb-5"
                 style={{ background: 'rgba(232,197,126,0.15)', color: '#E8C57E', border: '1px solid rgba(232,197,126,0.3)' }}
               >
                 Unique to Karta
@@ -337,7 +337,7 @@ export default function HowItWorksPage() {
                     transform: `rotate(${c.deg})`,
                   }}
                 >
-                  <div className="font-mono text-[8px] tracking-[0.18em] text-[#FAF6EE]/50 uppercase">
+                  <div className=" text-[8px] tracking-[0.18em] text-[#FAF6EE]/50 uppercase">
                     Karta · 2026
                   </div>
                   <div
@@ -349,7 +349,7 @@ export default function HowItWorksPage() {
                   <div className="font-display font-semibold text-[11px] text-[#FAF6EE] leading-tight">
                     {c.name}
                   </div>
-                  <div className="font-mono text-[9px] text-[#FAF6EE]/55">{c.role}</div>
+                  <div className=" text-[9px] text-[#FAF6EE]/55">{c.role}</div>
                 </div>
               ))}
             </div>

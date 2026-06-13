@@ -79,8 +79,8 @@ export default async function LeaderboardPage({ params, searchParams }: Props) {
                       </div>
                       <div className="text-center">
                         <div className="font-display font-medium text-[13px] truncate max-w-[80px]" style={{ color: '#0F1F18' }}>{entry.attendee_name.split(' ')[0]}</div>
-                        <div className="font-mono text-[13px] font-semibold" style={{ color: isFirst ? '#E8C57E' : '#1F4D3A' }}>{entry.total_points}pts</div>
-                        <div className="font-mono text-[11px]" style={{ color: '#6B7A72' }}>#{entry.rank}</div>
+                        <div className=" text-[13px] font-semibold" style={{ color: isFirst ? '#E8C57E' : '#1F4D3A' }}>{entry.total_points}pts</div>
+                        <div className=" text-[11px]" style={{ color: '#6B7A72' }}>#{entry.rank}</div>
                       </div>
                     </div>
                   );
@@ -93,10 +93,10 @@ export default async function LeaderboardPage({ params, searchParams }: Props) {
               <div className="rounded-2xl overflow-hidden" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
                 {rest.map((entry, i) => (
                   <div key={entry.registration_id} className="flex items-center gap-3 px-4 py-3" style={{ borderBottom: i < rest.length - 1 ? '1px solid #F0EBE3' : 'none' }}>
-                    <span className="font-mono text-[13px] w-8" style={{ color: '#6B7A72' }}>#{entry.rank}</span>
+                    <span className=" text-[13px] w-8" style={{ color: '#6B7A72' }}>#{entry.rank}</span>
                     <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-[12px] font-display font-semibold shrink-0" style={{ background: '#1F4D3A' }}>{initials(entry.attendee_name)}</div>
                     <span className="flex-1 text-[14px] font-medium" style={{ color: '#0F1F18' }}>{entry.attendee_name}</span>
-                    <span className="font-mono text-[14px] font-semibold" style={{ color: '#1F4D3A' }}>{entry.total_points}pts</span>
+                    <span className=" text-[14px] font-semibold" style={{ color: '#1F4D3A' }}>{entry.total_points}pts</span>
                   </div>
                 ))}
               </div>
@@ -106,7 +106,7 @@ export default async function LeaderboardPage({ params, searchParams }: Props) {
             {myEntry && myEntry.rank > 10 && (
               <div className="mt-4 rounded-xl px-4 py-3" style={{ background: '#E8EFEB', border: '1px solid #1F4D3A' }}>
                 <span className="text-[14px]" style={{ color: '#1F4D3A' }}>
-                  You&apos;re <strong>#{myEntry.rank}</strong> with <strong className="font-mono">{myEntry.total_points}pts</strong>
+                  You&apos;re <strong>#{myEntry.rank}</strong> with <strong className="">{myEntry.total_points}pts</strong>
                 </span>
               </div>
             )}

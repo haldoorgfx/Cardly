@@ -525,7 +525,7 @@ export default function RegistrationClient({
                     Choose your amount <span className="font-normal" style={{ color: '#6B7A72' }}>(minimum {selectedTicket.currency} {selectedTicket.min_price})</span>
                   </label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 font-mono text-[15px]" style={{ color: '#6B7A72' }}>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2  text-[15px]" style={{ color: '#6B7A72' }}>
                       {selectedTicket.currency}
                     </span>
                     <input
@@ -563,7 +563,7 @@ export default function RegistrationClient({
                         value={accessCodeInput}
                         onChange={e => { setAccessCodeInput(e.target.value.toUpperCase()); setAccessCodeError(''); }}
                         placeholder="Enter code"
-                        className="flex-1 rounded-xl px-4 py-2.5 text-[16px] font-mono outline-none border"
+                        className="flex-1 rounded-xl px-4 py-2.5 text-[16px] outline-none border"
                         style={{ borderColor: accessCodeError ? '#B8423C' : '#E5E0D4', background: 'white', color: '#0F1F18' }}
                         onKeyDown={e => { if (e.key === 'Enter') handleUnlock(); }}
                       />

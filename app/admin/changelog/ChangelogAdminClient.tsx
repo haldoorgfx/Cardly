@@ -71,7 +71,7 @@ export function ChangelogAdminClient({ initialEntries }: { initialEntries: Chang
     <div>
       {/* Toolbar */}
       <div className="flex items-center justify-between mb-5">
-        <div className="text-[12px] font-mono text-[#6B7A72]">
+        <div className="text-[12px] text-[#6B7A72]">
           {entries.length} {entries.length === 1 ? 'entry' : 'entries'} ·{' '}
           {entries.filter(e => e.published).length} published
         </div>
@@ -100,7 +100,7 @@ export function ChangelogAdminClient({ initialEntries }: { initialEntries: Chang
             >
               {/* Type badge */}
               <span
-                className="mt-0.5 inline-flex items-center px-2 py-0.5 rounded-full font-mono text-[9px] tracking-[0.14em] uppercase shrink-0"
+                className="mt-0.5 inline-flex items-center px-2 py-0.5 rounded-full  text-[9px] tracking-[0.14em] uppercase shrink-0"
                 style={TYPE_STYLES[entry.type]}
               >
                 {entry.type}
@@ -110,7 +110,7 @@ export function ChangelogAdminClient({ initialEntries }: { initialEntries: Chang
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   {entry.version && (
-                    <span className="font-mono text-[11px] font-bold text-[#1F4D3A]">{entry.version}</span>
+                    <span className=" text-[11px] font-bold text-[#1F4D3A]">{entry.version}</span>
                   )}
                   <span className="font-display font-semibold text-[14px] text-[#0F1F18] leading-snug">
                     {entry.title}
@@ -119,7 +119,7 @@ export function ChangelogAdminClient({ initialEntries }: { initialEntries: Chang
                 <p className="mt-1 text-[12px] text-[#6B7A72] leading-relaxed line-clamp-2">
                   {entry.description}
                 </p>
-                <div className="mt-1.5 flex items-center gap-3 text-[11px] font-mono text-[#6B7A72]/70">
+                <div className="mt-1.5 flex items-center gap-3 text-[11px] text-[#6B7A72]/70">
                   <span>{formatDate(entry.created_at)}</span>
                   {entry.published && entry.published_at && (
                     <span className="text-[#2D7A4F]">Published {formatDate(entry.published_at)}</span>

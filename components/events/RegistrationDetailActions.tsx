@@ -65,17 +65,17 @@ function EditAttendeeModal({
         <div className="px-4 sm:px-6 py-5 space-y-4">
           {error && <p className="text-[13px] px-3 py-2 rounded-lg" style={{ background: '#FEF2F2', color: '#B8423C' }}>{error}</p>}
           <div>
-            <label className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Full name *</label>
+            <label className="block  text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Full name *</label>
             <input value={name} onChange={e => setName(e.target.value)}
               className="w-full h-10 px-3 rounded-lg text-[14px] outline-none border" style={{ borderColor: '#E5E0D4', background: 'white', color: '#0F1F18' }} />
           </div>
           <div>
-            <label className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Email *</label>
+            <label className="block  text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Email *</label>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)}
               className="w-full h-10 px-3 rounded-lg text-[14px] outline-none border" style={{ borderColor: '#E5E0D4', background: 'white', color: '#0F1F18' }} />
           </div>
           <div>
-            <label className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Phone (optional)</label>
+            <label className="block  text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Phone (optional)</label>
             <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
               placeholder="+254 700 000 000"
               className="w-full h-10 px-3 rounded-lg text-[14px] outline-none border" style={{ borderColor: '#E5E0D4', background: 'white', color: '#0F1F18' }} />

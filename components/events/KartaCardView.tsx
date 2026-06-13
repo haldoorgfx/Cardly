@@ -246,7 +246,7 @@ export function KartaCardView({ eventId, eventName, eventSlug, eventStatus, tota
                       </div>
                     </div>
                     {i === 0 && (
-                      <span className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+                      <span className="text-[10px] font-medium px-1.5 py-0.5 rounded" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
                         PRIMARY
                       </span>
                     )}
@@ -270,7 +270,7 @@ export function KartaCardView({ eventId, eventName, eventSlug, eventStatus, tota
                     <div key={ch.name} className="flex items-center gap-3">
                       <div className="h-2.5 w-2.5 rounded-full shrink-0" style={{ background: ch.color }} />
                       <span className="text-[13px] flex-1" style={{ color: '#0F1F18' }}>{ch.name}</span>
-                      <span className="text-[12px] font-mono" style={{ color: '#6B7A72' }}>{ch.pct}%</span>
+                      <span className="text-[12px]" style={{ color: '#6B7A72' }}>{ch.pct}%</span>
                     </div>
                   ))}
                   <p className="text-[12px] pt-2" style={{ color: '#6B7A72' }}>
@@ -429,7 +429,7 @@ function DonutChart({ total, channels }: { total: number; channels: typeof SHARE
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="text-[20px] font-bold" style={{ color: '#0F1F18' }}>{total}</span>
-        <span className="text-[10px] font-mono" style={{ color: '#6B7A72', letterSpacing: '0.06em' }}>SHARES</span>
+        <span className="text-[10px]" style={{ color: '#6B7A72', letterSpacing: '0.06em' }}>SHARES</span>
       </div>
     </div>
   );

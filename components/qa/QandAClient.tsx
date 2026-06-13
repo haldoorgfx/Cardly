@@ -131,7 +131,7 @@ export default function QandAClient({ eventId, registrationId, initialQuestions,
                 style={{ color: upvotedIds.has(q.id) ? '#1F4D3A' : '#6B7A72' }}
               >
                 <ChevronUp size={20} strokeWidth={upvotedIds.has(q.id) ? 2.5 : 1.8} />
-                <span className="font-mono text-[14px] font-semibold">{q.upvotes_count}</span>
+                <span className=" text-[14px] font-semibold">{q.upvotes_count}</span>
               </button>
 
               {/* Content */}

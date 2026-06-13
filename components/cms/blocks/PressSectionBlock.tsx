@@ -13,7 +13,7 @@ export function PressSectionBlock({ content }: PressSectionBlockProps) {
       <div className="mx-auto max-w-[1200px] px-5 lg:px-10 py-16 lg:py-20">
         {content.label && (
           <p
-            className="font-mono text-[11px] tracking-[0.22em] uppercase mb-8 text-center"
+            className=" text-[11px] tracking-[0.22em] uppercase mb-8 text-center"
             style={{ color: '#1F4D3A' }}
           >
             {content.label}
@@ -35,7 +35,7 @@ export function PressSectionBlock({ content }: PressSectionBlockProps) {
                   {mention.publication}
                 </div>
                 <div
-                  className="font-mono text-[9px] tracking-[0.18em] uppercase"
+                  className=" text-[9px] tracking-[0.18em] uppercase"
                   style={{ color: '#6B7A72' }}
                 >
                   {mention.date}

@@ -646,25 +646,25 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
                   className="bg-white border border-[#E5E0D4] rounded-2xl px-5 py-4 flex items-center gap-5 hover:border-[#1F4D3A]/40 transition-colors"
                 >
                   <div className="text-center shrink-0 w-[52px]">
-                    {startTime && <div className="font-mono text-[15px] tracking-tight" style={{ color: '#1F4D3A' }}>{startTime}</div>}
-                    {duration && <div className="font-mono text-[10px] mt-0.5" style={{ color: '#6B7A72' }}>{duration}</div>}
+                    {startTime && <div className=" text-[15px] tracking-tight" style={{ color: '#1F4D3A' }}>{startTime}</div>}
+                    {duration && <div className=" text-[10px] mt-0.5" style={{ color: '#6B7A72' }}>{duration}</div>}
                   </div>
                   <span className="w-1 self-stretch rounded-full shrink-0" style={{ background: track?.color ?? '#E5E0D4', minHeight: 32 }} />
                   <div className="min-w-0 flex-1">
                     <div className="font-display text-[14.5px] font-semibold tracking-tight leading-snug" style={{ color: '#0F1F18' }}>{session.title}</div>
-                    <div className="flex items-center gap-2.5 mt-1.5 font-mono text-[11px] flex-wrap" style={{ color: '#6B7A72' }}>
+                    <div className="flex items-center gap-2.5 mt-1.5  text-[11px] flex-wrap" style={{ color: '#6B7A72' }}>
                       {speakerText && <span className="inline-flex items-center gap-1"><User size={11} strokeWidth={1.8} />{speakerText}</span>}
                       {speakerText && session.room && <span style={{ color: '#E5E0D4' }}>·</span>}
                       {session.room && <span className="inline-flex items-center gap-1"><MapPin size={11} strokeWidth={1.8} />{session.room}</span>}
                     </div>
                   </div>
                   {track && (
-                    <span className="hidden sm:inline-flex items-center text-[10.5px] font-mono font-medium px-2 py-0.5 rounded-full shrink-0" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+                    <span className="hidden sm:inline-flex items-center text-[10.5px] font-medium px-2 py-0.5 rounded-full shrink-0" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
                       {track.name}
                     </span>
                   )}
                   <span
-                    className="inline-flex items-center text-[10.5px] font-mono font-medium px-2 py-0.5 rounded-full shrink-0"
+                    className="inline-flex items-center text-[10.5px] font-medium px-2 py-0.5 rounded-full shrink-0"
                     style={session.is_published
                       ? { background: '#ECFDF5', border: '1px solid #BBF7D0', color: '#065f46' }
                       : { background: '#FFFBEB', border: '1px solid #FDE68A', color: '#92400e' }}

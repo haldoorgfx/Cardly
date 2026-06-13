@@ -54,7 +54,7 @@ export function UpgradeSlideOver({ feature, onClose }: Props) {
           <>
             {/* Header */}
             <div className="flex items-center justify-between px-4 sm:px-6 pt-5 pb-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
-              <span className="font-mono text-[10px] tracking-[0.2em] uppercase inline-flex items-center gap-1.5" style={{ color: '#C9A45E' }}>
+              <span className=" text-[10px] tracking-[0.2em] uppercase inline-flex items-center gap-1.5" style={{ color: '#C9A45E' }}>
                 <Sparkles size={11} strokeWidth={1.8} /> {planLabel} feature
               </span>
               <button
@@ -92,7 +92,7 @@ export function UpgradeSlideOver({ feature, onClose }: Props) {
                 {FEATURE_COPY[feature.id] ?? 'Unlock the full Karta platform — networking, live engagement, sponsor tools and more.'}
               </p>
 
-              <div className="mt-6 mb-3 font-mono text-[10px] tracking-[0.18em] uppercase" style={{ color: '#9BA8A1' }}>
+              <div className="mt-6 mb-3  text-[10px] tracking-[0.18em] uppercase" style={{ color: '#9BA8A1' }}>
                 What you get on {planLabel}
               </div>
               <ul className="space-y-3">

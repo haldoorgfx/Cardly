@@ -30,7 +30,7 @@ type StatusType = 'operational' | 'degraded' | 'outage';
 function StatusBadge({ status }: { status: StatusType }) {
   if (status === 'operational') {
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono font-medium tracking-[0.12em] uppercase"
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium tracking-[0.12em] uppercase"
         style={{ background: 'rgba(45,122,79,0.10)', color: '#2D7A4F' }}>
         <CheckCircle2 size={12} strokeWidth={2.5} /> Operational
       </span>
@@ -38,14 +38,14 @@ function StatusBadge({ status }: { status: StatusType }) {
   }
   if (status === 'degraded') {
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono font-medium tracking-[0.12em] uppercase"
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium tracking-[0.12em] uppercase"
         style={{ background: 'rgba(201,122,45,0.10)', color: '#C97A2D' }}>
         <AlertCircle size={12} strokeWidth={2.5} /> Degraded
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono font-medium tracking-[0.12em] uppercase"
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium tracking-[0.12em] uppercase"
       style={{ background: 'rgba(184,66,60,0.10)', color: '#B8423C' }}>
       <AlertCircle size={12} strokeWidth={2.5} /> Outage
     </span>
@@ -80,7 +80,7 @@ function StatusHero() {
         }}
       />
       <div className="relative mx-auto max-w-[1200px] px-5 lg:px-10 pt-14 lg:pt-20 pb-14 lg:pb-20">
-        <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-5">
+        <div className=" text-[11px] tracking-[0.22em] text-primary uppercase mb-5">
           System Status
         </div>
 
@@ -128,10 +128,10 @@ function StatusHero() {
                 <div className="font-display font-bold text-primary text-[26px] lg:text-[30px] tracking-[-0.03em] leading-none">
                   {value}
                 </div>
-                <div className="mt-1.5 font-mono text-[9px] tracking-[0.16em] uppercase text-muted">
+                <div className="mt-1.5  text-[9px] tracking-[0.16em] uppercase text-muted">
                   {label}
                 </div>
-                <div className="mt-0.5 font-mono text-[9px] tracking-[0.12em] uppercase" style={{ color: 'rgba(107,122,114,0.6)' }}>
+                <div className="mt-0.5  text-[9px] tracking-[0.12em] uppercase" style={{ color: 'rgba(107,122,114,0.6)' }}>
                   {period}
                 </div>
               </div>
@@ -150,12 +150,12 @@ function ServicesList() {
       <Reveal>
         <div className="flex items-end justify-between mb-8">
           <div>
-            <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-2">Components</div>
+            <div className=" text-[11px] tracking-[0.22em] text-primary uppercase mb-2">Components</div>
             <h2 className="font-title font-bold text-ink text-[28px] sm:text-[34px]">
               Service status
             </h2>
           </div>
-          <div className="font-mono text-[10px] tracking-[0.16em] uppercase text-muted">
+          <div className=" text-[10px] tracking-[0.16em] uppercase text-muted">
             Updated every 60s
           </div>
         </div>
@@ -173,7 +173,7 @@ function ServicesList() {
             >
               <div>
                 <div className="font-medium text-ink text-[14px] lg:text-[15px]">{svc.name}</div>
-                <div className="font-mono text-[10px] tracking-[0.10em] text-muted mt-0.5">{svc.desc}</div>
+                <div className=" text-[10px] tracking-[0.10em] text-muted mt-0.5">{svc.desc}</div>
               </div>
               <StatusBadge status={svc.status} />
             </div>
@@ -191,7 +191,7 @@ function Incidents() {
       <div className="mx-auto max-w-[1200px] px-5 lg:px-10 py-14 lg:py-20">
         <Reveal>
           <div className="mb-8">
-            <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-2">History</div>
+            <div className=" text-[11px] tracking-[0.22em] text-primary uppercase mb-2">History</div>
             <h2 className="font-title font-bold text-ink text-[28px] sm:text-[34px]">
               Recent incidents
             </h2>
@@ -228,14 +228,14 @@ function Incidents() {
                         <span className="font-display font-semibold text-ink text-[16px]">{inc.title}</span>
                         {inc.resolved && (
                           <span
-                            className="font-mono text-[9px] tracking-[0.18em] uppercase px-2 py-0.5 rounded-full"
+                            className=" text-[9px] tracking-[0.18em] uppercase px-2 py-0.5 rounded-full"
                             style={{ background: 'rgba(45,122,79,0.10)', color: '#2D7A4F' }}
                           >
                             Resolved
                           </span>
                         )}
                       </div>
-                      <div className="font-mono text-[10px] tracking-[0.14em] uppercase text-muted mb-3">{inc.date}</div>
+                      <div className=" text-[10px] tracking-[0.14em] uppercase text-muted mb-3">{inc.date}</div>
                       <p className="text-ink-soft text-[14px] leading-[1.6]">{inc.body}</p>
                     </div>
                   </div>

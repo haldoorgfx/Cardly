@@ -21,7 +21,7 @@ export default function AttendeeError({
           <span className="text-white text-[22px] font-bold" style={{ fontFamily: 'DM Sans, sans-serif' }}>C</span>
         </div>
 
-        <div className="text-[11px] font-mono tracking-widest text-[#0F1F18]/40 mb-3">
+        <div className="text-[11px] tracking-widest text-[#0F1F18]/40 mb-3">
           SOMETHING WENT WRONG
         </div>
         <h1 className="text-[28px] font-bold text-[#0F1F18] leading-tight tracking-tight" style={{ fontFamily: 'DM Sans, sans-serif' }}>

@@ -546,7 +546,7 @@ function ProfileTab({ speaker, onSaved }: { speaker: Speaker; onSaved: (s: Parti
 
         {/* Directory preview */}
         <div>
-          <div className="text-[11px] font-mono uppercase tracking-widest mb-3" style={{ color: '#6B7A72' }}>
+          <div className="text-[11px] uppercase tracking-widest mb-3" style={{ color: '#6B7A72' }}>
             Directory preview
           </div>
           <div style={{ background: '#fff', border: '1px solid #E5E0D4', borderRadius: 12, padding: '20px' }}>

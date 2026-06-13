@@ -118,7 +118,7 @@ function PhoneScannerModal({ eventId, onClose }: { eventId: string; onClose: () 
               'Scan attendee badges — check-ins update here live',
             ].map((step, i) => (
               <div key={i} className="flex items-start gap-3">
-                <span className="w-5 h-5 rounded-full grid place-items-center text-[11px] font-mono font-bold shrink-0 mt-0.5"
+                <span className="w-5 h-5 rounded-full grid place-items-center text-[11px] font-bold shrink-0 mt-0.5"
                   style={{ background: '#E8EFEB', color: '#1F4D3A' }}>{i + 1}</span>
                 <span className="text-[13px]" style={{ color: '#3A4A42' }}>{step}</span>
               </div>
@@ -138,7 +138,7 @@ function PhoneScannerModal({ eventId, onClose }: { eventId: string; onClose: () 
             )}
             <div className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#2D7A4F' }} />
-              <span className="font-mono text-[10px] tracking-[0.1em] uppercase" style={{ color: '#6B7A72' }}>Updates live</span>
+              <span className=" text-[10px] tracking-[0.1em] uppercase" style={{ color: '#6B7A72' }}>Updates live</span>
             </div>
           </div>
 
@@ -235,7 +235,7 @@ function AttendeeModal({ reg, eventId, onClose, onCheckedIn }: {
             <Row label="Badge ID" value={reg.qr_code_token.slice(0, 8).toUpperCase()} mono muted />
             <div className="flex items-center justify-between">
               <span className="text-[13px]" style={{ color: '#6B7A72' }}>Status</span>
-              <span className={`text-[11px] font-mono uppercase px-2 py-0.5 rounded-full ${
+              <span className={`text-[11px] uppercase px-2 py-0.5 rounded-full ${
                 isAlreadyIn ? 'bg-emerald-50 text-emerald-700' :
                 reg.status === 'pending' ? 'bg-amber-50 text-amber-700' : 'bg-[#E8EFEB] text-[#1F4D3A]'
               }`}>
@@ -282,7 +282,7 @@ function Row({ label, value, mono, muted }: { label: string; value: string; mono
   return (
     <div className="flex items-center justify-between">
       <span className="text-[13px]" style={{ color: '#6B7A72' }}>{label}</span>
-      <span className={mono ? 'font-mono text-[12px]' : 'text-[13px] font-medium'}
+      <span className={mono ? ' text-[12px]' : 'text-[13px] font-medium'}
         style={{ color: muted ? '#9BA8A1' : '#0F1F18' }}>
         {value}
       </span>
@@ -439,16 +439,16 @@ export default function CheckInDashboard({
 
               {/* Panel header */}
               <div className="flex items-center justify-between px-5 pt-5 pb-3 shrink-0">
-                <span className="font-mono text-[10px] tracking-[0.18em] uppercase"
+                <span className=" text-[10px] tracking-[0.18em] uppercase"
                   style={{ color: 'rgba(250,246,238,0.55)' }}>
                   {hasSearch ? 'Search results' : 'QR Scanner'}
                 </span>
                 {hasSearch ? (
-                  <span className="font-mono text-[10px]" style={{ color: 'rgba(250,246,238,0.35)' }}>
+                  <span className=" text-[10px]" style={{ color: 'rgba(250,246,238,0.35)' }}>
                     {searching ? 'searching…' : `${searchResults.length} found`}
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1.5 text-[9.5px] font-mono tracking-[0.1em] uppercase px-2 py-0.5 rounded-full border"
+                  <span className="inline-flex items-center gap-1.5 text-[9.5px] tracking-[0.1em] uppercase px-2 py-0.5 rounded-full border"
                     style={{ color: 'rgb(110,231,183)', borderColor: 'rgba(52,211,153,0.3)', background: 'rgba(52,211,153,0.1)' }}>
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> Ready
                   </span>
@@ -533,9 +533,9 @@ export default function CheckInDashboard({
                             </div>
                           </div>
                           {isIn ? (
-                            <span className="text-[10px] font-mono shrink-0" style={{ color: '#4ADE80' }}>✓ IN</span>
+                            <span className="text-[10px] shrink-0" style={{ color: '#4ADE80' }}>✓ IN</span>
                           ) : (
-                            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full shrink-0"
+                            <span className="text-[10px] px-2 py-0.5 rounded-full shrink-0"
                               style={{ background: 'rgba(232,197,126,0.15)', color: '#E8C57E' }}>
                               CHECK IN
                             </span>
@@ -592,8 +592,8 @@ export default function CheckInDashboard({
                   <div className="w-8 h-8 rounded-lg grid place-items-center mb-3" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
                     {s.icon}
                   </div>
-                  <div className="font-mono text-[22px] tracking-tight leading-none" style={{ color: '#1F4D3A' }}>{s.value}</div>
-                  <div className="font-mono text-[10px] tracking-[0.1em] uppercase mt-1.5" style={{ color: '#6B7A72' }}>{s.label}</div>
+                  <div className=" text-[22px] tracking-tight leading-none" style={{ color: '#1F4D3A' }}>{s.value}</div>
+                  <div className=" text-[10px] tracking-[0.1em] uppercase mt-1.5" style={{ color: '#6B7A72' }}>{s.label}</div>
                 </div>
               ))}
             </div>
@@ -602,7 +602,7 @@ export default function CheckInDashboard({
             <div className="bg-white border rounded-2xl px-5 py-4" style={{ borderColor: '#E5E0D4' }}>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[13px]" style={{ color: '#3A4A42' }}>Arrivals progress</span>
-                <span className="font-mono text-[12px]" style={{ color: '#1F4D3A' }}>{checkedIn} / {totalRegistrations}</span>
+                <span className=" text-[12px]" style={{ color: '#1F4D3A' }}>{checkedIn} / {totalRegistrations}</span>
               </div>
               <div className="h-2.5 rounded-full overflow-hidden" style={{ background: '#E5E0D4' }}>
                 <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: '#1F4D3A' }} />
@@ -613,7 +613,7 @@ export default function CheckInDashboard({
             <div className="bg-white border rounded-2xl overflow-hidden" style={{ borderColor: '#E5E0D4' }}>
               <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
                 <span className="font-display text-[14px] font-semibold" style={{ color: '#0F1F18' }}>Live check-in feed</span>
-                <span className="inline-flex items-center gap-1.5 text-[9.5px] font-mono tracking-[0.1em] uppercase px-2 py-0.5 rounded-full border"
+                <span className="inline-flex items-center gap-1.5 text-[9.5px] tracking-[0.1em] uppercase px-2 py-0.5 rounded-full border"
                   style={{ color: '#065F46', borderColor: '#BBF7D0', background: '#ECFDF5' }}>
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
                 </span>
@@ -636,11 +636,11 @@ export default function CheckInDashboard({
                           {entry.attendee_name ?? 'Unknown attendee'}
                         </div>
                         {entry.ticket_type && (
-                          <div className="font-mono text-[11px]" style={{ color: '#6B7A72' }}>{entry.ticket_type}</div>
+                          <div className=" text-[11px]" style={{ color: '#6B7A72' }}>{entry.ticket_type}</div>
                         )}
                       </div>
                       <Check size={14} strokeWidth={2.5} style={{ color: '#2D7A4F' }} className="shrink-0" />
-                      <span className="font-mono text-[11px] w-[60px] text-right shrink-0" style={{ color: '#9BA8A1' }}>
+                      <span className=" text-[11px] w-[60px] text-right shrink-0" style={{ color: '#9BA8A1' }}>
                         {timeAgo(entry.checked_in_at)}
                       </span>
                     </div>

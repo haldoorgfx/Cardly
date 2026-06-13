@@ -783,9 +783,9 @@ function TicketCard({
               {ticket.name}
             </span>
             {!ticket.is_visible && (
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded" style={{ background: '#F5F5F4', color: '#6B7A72' }}>HIDDEN</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: '#F5F5F4', color: '#6B7A72' }}>HIDDEN</span>
             )}
-            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded" style={{ background: statusBg, color: statusColor }}>
+            <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: statusBg, color: statusColor }}>
               {statusLabel.toUpperCase()}
             </span>
           </div>

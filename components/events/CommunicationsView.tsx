@@ -95,7 +95,7 @@ function ComposeModal({
               </div>
 
               <div>
-                <label className="block text-[11px] font-mono uppercase tracking-widest mb-1.5" style={{ color: fieldErrors.subject ? '#B8423C' : '#6B7A72' }}>Subject *</label>
+                <label className="block text-[11px] uppercase tracking-widest mb-1.5" style={{ color: fieldErrors.subject ? '#B8423C' : '#6B7A72' }}>Subject *</label>
                 <input
                   value={subject}
                   onChange={e => { setSubject(e.target.value); if (fieldErrors.subject) setFieldErrors(p => ({ ...p, subject: '' })); }}
@@ -108,7 +108,7 @@ function ComposeModal({
               </div>
 
               <div>
-                <label className="block text-[11px] font-mono uppercase tracking-widest mb-1.5" style={{ color: fieldErrors.message ? '#B8423C' : '#6B7A72' }}>Message *</label>
+                <label className="block text-[11px] uppercase tracking-widest mb-1.5" style={{ color: fieldErrors.message ? '#B8423C' : '#6B7A72' }}>Message *</label>
                 <textarea
                   value={message}
                   onChange={e => { setMessage(e.target.value); if (fieldErrors.message) setFieldErrors(p => ({ ...p, message: '' })); }}
@@ -243,7 +243,7 @@ export function CommunicationsView({ eventId, eventName, registrantCount }: Prop
               <span className="text-[13px] truncate" style={{ color: '#0F1F18' }}>You&apos;re in! Here&apos;s everything you need</span>
             </div>
             <div><span className="inline-flex items-center h-5 px-2 rounded-full text-[11px] font-medium whitespace-nowrap" style={{ background: 'rgba(232,197,126,0.2)', color: '#9A7A3A' }}>Confirmation</span></div>
-            <span className="text-[12.5px] font-mono" style={{ color: '#6B7A72' }}>
+            <span className="text-[12.5px]" style={{ color: '#6B7A72' }}>
               {registrantCount > 0 ? registrantCount : '—'}
             </span>
             <div><span className="inline-flex items-center gap-1 h-5 px-2 rounded-full text-[11px] font-medium whitespace-nowrap" style={{ background: 'rgba(31,77,58,0.08)', color: '#1F4D3A' }}>
@@ -260,7 +260,7 @@ export function CommunicationsView({ eventId, eventName, registrantCount }: Prop
               <span className="text-[13px] truncate" style={{ color: '#0F1F18' }}>Your event is tomorrow</span>
             </div>
             <div><span className="inline-flex items-center h-5 px-2 rounded-full text-[11px] font-medium whitespace-nowrap" style={{ background: '#F5F0E8', color: '#6B7A72' }}>Reminder</span></div>
-            <span className="text-[12.5px] font-mono" style={{ color: '#6B7A72' }}>—</span>
+            <span className="text-[12.5px]" style={{ color: '#6B7A72' }}>—</span>
             <div><span className="inline-flex items-center gap-1 h-5 px-2 rounded-full text-[11px] font-medium whitespace-nowrap" style={{ background: 'rgba(201,122,45,0.1)', color: '#C97A2D' }}>
               Scheduled · day before
             </span></div>
@@ -310,7 +310,7 @@ function CampaignCard({ subject, type, typeStyle, recipients, status, statusStyl
       <div className="flex items-center gap-2 flex-wrap pl-9">
         <span className="inline-flex items-center h-5 px-2 rounded-full text-[11px] font-medium" style={typeStyle}>{type}</span>
         {recipients !== null && (
-          <span className="text-[12px] font-mono" style={{ color: '#6B7A72' }}>{recipients} recipients</span>
+          <span className="text-[12px]" style={{ color: '#6B7A72' }}>{recipients} recipients</span>
         )}
         <span className="inline-flex items-center gap-1 h-5 px-2 rounded-full text-[11px] font-medium" style={statusStyle}>
           {status}{statusSub && <span className="opacity-70">· {statusSub}</span>}

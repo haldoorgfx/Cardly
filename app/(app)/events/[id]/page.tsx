@@ -137,7 +137,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
         <div className="relative max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-5 flex flex-col justify-end">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4">
             <div>
-              <span className={`inline-flex items-center gap-1.5 text-[10px] font-mono tracking-[0.1em] uppercase px-2 py-0.5 rounded-full border bg-[#FAF6EE]/95 mb-3 ${st.cls}`}>
+              <span className={`inline-flex items-center gap-1.5 text-[10px] tracking-[0.1em] uppercase px-2 py-0.5 rounded-full border bg-[#FAF6EE]/95 mb-3 ${st.cls}`}>
                 <span className={`w-1.5 h-1.5 rounded-full ${st.pulse ? 'animate-pulse' : ''}`} style={{ background: st.dot }} />
                 {st.label}
               </span>
@@ -148,7 +148,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                 const ep = Array.isArray(event.event_pages) ? event.event_pages[0] : event.event_pages;
                 if (!ep) return null;
                 return (
-                  <div className="flex items-center gap-2.5 mt-2 font-mono text-[12.5px]" style={{ color: 'rgba(250,246,238,0.75)' }}>
+                  <div className="flex items-center gap-2.5 mt-2  text-[12.5px]" style={{ color: 'rgba(250,246,238,0.75)' }}>
                     {ep.starts_at && (
                       <span className="inline-flex items-center gap-1.5">
                         <CalendarDays size={12} strokeWidth={1.8} />
@@ -193,7 +193,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
               { value: event.download_count.toLocaleString(), label: 'cards shared' },
             ].map((s, i) => (
               <div key={i} className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
-                <span className="font-mono text-[18px] sm:text-[20px] text-[#0F1F18] tracking-tight leading-none font-bold">{s.value}</span>
+                <span className=" text-[18px] sm:text-[20px] text-[#0F1F18] tracking-tight leading-none font-bold">{s.value}</span>
                 <span className="text-[11px] sm:text-[13px] text-[#6B7A72]">{s.label}</span>
                 {i < 3 && <span className="text-[#E5E0D4] hidden sm:inline ml-3">·</span>}
               </div>
@@ -206,7 +206,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
 
         {/* ── Action cards grid ── */}
         <div>
-          <p className="text-[10px] font-mono uppercase tracking-[0.2em] mb-4" style={{ color: '#9BA8A1' }}>
+          <p className="text-[10px] uppercase tracking-[0.2em] mb-4" style={{ color: '#9BA8A1' }}>
             Manage this event
           </p>
           <EventOverviewCards cards={ACTION_CARDS} userPlan={profile?.plan ?? 'free'} />
@@ -216,7 +216,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
         {(recentRegs ?? []).length > 0 && (
           <div className="bg-white rounded-2xl border overflow-hidden" style={{ borderColor: '#E5E0D4' }}>
             <div className="px-5 py-4 border-b flex items-center justify-between" style={{ borderColor: '#E5E0D4' }}>
-              <span className="font-mono text-[10px] tracking-[0.2em] uppercase" style={{ color: '#6B7A72' }}>Recent registrations</span>
+              <span className=" text-[10px] tracking-[0.2em] uppercase" style={{ color: '#6B7A72' }}>Recent registrations</span>
               <div className="flex items-center gap-3">
                 <span className="flex items-center gap-1.5 text-[11px] text-emerald-600">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -242,7 +242,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     {reg.status === 'checked_in' && (
-                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(45,122,79,0.1)', color: '#2D7A4F' }}>Checked in</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(45,122,79,0.1)', color: '#2D7A4F' }}>Checked in</span>
                     )}
                     <span className="text-[11px]" style={{ color: '#6B7A72' }}>{timeAgo(reg.created_at)}</span>
                   </div>

@@ -163,7 +163,7 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
                     value={settings.primary_color}
                     onChange={e => set('primary_color', e.target.value)}
                     placeholder="#1F4D3A"
-                    className={`w-36 ${INPUT} font-mono ${INPUT_FOCUS}`}
+                    className={`w-36 ${INPUT} ${INPUT_FOCUS}`}
                     style={INPUT_STYLE}
                   />
                   <input
@@ -201,7 +201,7 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
                   Add this CNAME record to your DNS provider:
                 </p>
                 <div
-                  className="rounded-xl px-4 py-3 font-mono text-[13px] break-all"
+                  className="rounded-xl px-4 py-3  text-[13px] break-all"
                   style={{ background: '#E8EFEB', color: '#1F4D3A' }}
                 >
                   CNAME&nbsp;&nbsp;{settings.custom_domain}&nbsp;&nbsp;→&nbsp;&nbsp;karta.cre8so.com
@@ -299,7 +299,7 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
                 <div className="font-display font-medium text-[14px] mb-1" style={{ color: '#0F1F18' }}>
                   Annual Developer Summit
                 </div>
-                <div className="font-mono text-[11px] mb-3" style={{ color: '#6B7A72' }}>
+                <div className=" text-[11px] mb-3" style={{ color: '#6B7A72' }}>
                   12 Mar · 09:00 · Lagos
                 </div>
                 <div

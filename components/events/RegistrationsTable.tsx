@@ -173,7 +173,7 @@ function EditAttendeeModal({ reg, eventId, ticketTypes, onClose, onSaved }: {
           )}
 
           <div>
-            <label className="block text-[11px] font-mono uppercase tracking-widest mb-1.5" style={{ color: errors.name ? '#B8423C' : '#6B7A72' }}>Full name *</label>
+            <label className="block text-[11px] uppercase tracking-widest mb-1.5" style={{ color: errors.name ? '#B8423C' : '#6B7A72' }}>Full name *</label>
             <input
               value={name} onChange={e => { setName(e.target.value); if (errors.name) setErrors(p => ({ ...p, name: '' })); }}
               autoFocus
@@ -184,7 +184,7 @@ function EditAttendeeModal({ reg, eventId, ticketTypes, onClose, onSaved }: {
           </div>
 
           <div>
-            <label className="block text-[11px] font-mono uppercase tracking-widest mb-1.5" style={{ color: errors.email ? '#B8423C' : '#6B7A72' }}>Email *</label>
+            <label className="block text-[11px] uppercase tracking-widest mb-1.5" style={{ color: errors.email ? '#B8423C' : '#6B7A72' }}>Email *</label>
             <input
               type="email" value={email} onChange={e => { setEmail(e.target.value); if (errors.email) setErrors(p => ({ ...p, email: '' })); }}
               className="w-full h-10 px-3 rounded-lg text-[14px] outline-none"
@@ -194,7 +194,7 @@ function EditAttendeeModal({ reg, eventId, ticketTypes, onClose, onSaved }: {
           </div>
 
           <div>
-            <label className="block text-[11px] font-mono uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Phone (optional)</label>
+            <label className="block text-[11px] uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Phone (optional)</label>
             <input
               type="tel" value={phone} onChange={e => setPhone(e.target.value)}
               placeholder="+254 700 000 000"
@@ -205,7 +205,7 @@ function EditAttendeeModal({ reg, eventId, ticketTypes, onClose, onSaved }: {
 
           {ticketTypes.length > 0 && (
             <div>
-              <label className="block text-[11px] font-mono uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Ticket type</label>
+              <label className="block text-[11px] uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Ticket type</label>
               <select
                 value={ticketId} onChange={e => setTicketId(e.target.value)}
                 className="w-full h-10 px-3 rounded-lg text-[13px] outline-none"
@@ -566,7 +566,7 @@ function ImportCSVModal({ eventId, ticketTypes, onClose, onImported }: {
                       <thead style={{ background: '#FAF6EE', position: 'sticky', top: 0 }}>
                         <tr>
                           {['Name', 'Email', 'Phone', ''].map(h => (
-                            <th key={h} className="px-3 py-2 font-mono text-[9.5px] uppercase tracking-wider" style={{ color: '#6B7A72' }}>{h}</th>
+                            <th key={h} className="px-3 py-2  text-[9.5px] uppercase tracking-wider" style={{ color: '#6B7A72' }}>{h}</th>
                           ))}
                         </tr>
                       </thead>
@@ -595,7 +595,7 @@ function ImportCSVModal({ eventId, ticketTypes, onClose, onImported }: {
               {/* Ticket type */}
               {ticketTypes.length > 0 && (
                 <div>
-                  <label className="block text-[11px] font-mono uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Assign ticket type (optional)</label>
+                  <label className="block text-[11px] uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Assign ticket type (optional)</label>
                   <div className="relative">
                     <select
                       value={ticketId}
@@ -708,7 +708,7 @@ function AddManuallyModal({
           )}
 
           <div>
-            <label className="block text-[11px] font-mono uppercase tracking-widest mb-1.5" style={{ color: errors.name ? '#B8423C' : '#6B7A72' }}>Full name *</label>
+            <label className="block text-[11px] uppercase tracking-widest mb-1.5" style={{ color: errors.name ? '#B8423C' : '#6B7A72' }}>Full name *</label>
             <input
               value={name} onChange={e => { setName(e.target.value); if (errors.name) setErrors(p => ({ ...p, name: '' })); }}
               placeholder="Amina Osman" autoFocus
@@ -719,7 +719,7 @@ function AddManuallyModal({
           </div>
 
           <div>
-            <label className="block text-[11px] font-mono uppercase tracking-widest mb-1.5" style={{ color: errors.email ? '#B8423C' : '#6B7A72' }}>Email *</label>
+            <label className="block text-[11px] uppercase tracking-widest mb-1.5" style={{ color: errors.email ? '#B8423C' : '#6B7A72' }}>Email *</label>
             <input
               type="email" value={email} onChange={e => { setEmail(e.target.value); if (errors.email) setErrors(p => ({ ...p, email: '' })); }}
               placeholder="amina@example.com"
@@ -730,7 +730,7 @@ function AddManuallyModal({
           </div>
 
           <div>
-            <label className="block text-[11px] font-mono uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Phone (optional)</label>
+            <label className="block text-[11px] uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Phone (optional)</label>
             <input
               type="tel" value={phone} onChange={e => setPhone(e.target.value)}
               placeholder="+254 700 000 000"
@@ -740,7 +740,7 @@ function AddManuallyModal({
           </div>
 
           <div>
-            <label className="block text-[11px] font-mono uppercase tracking-widest mb-1.5" style={{ color: errors.ticketId ? '#B8423C' : '#6B7A72' }}>Ticket type {ticketTypes.length > 0 ? '*' : '(optional)'}</label>
+            <label className="block text-[11px] uppercase tracking-widest mb-1.5" style={{ color: errors.ticketId ? '#B8423C' : '#6B7A72' }}>Ticket type {ticketTypes.length > 0 ? '*' : '(optional)'}</label>
             {ticketTypes.length === 0 ? (
               <p className="text-[13px]" style={{ color: '#9BA8A1' }}>No ticket types yet — attendee will be added as a free walk-in.</p>
             ) : (
@@ -759,7 +759,7 @@ function AddManuallyModal({
           </div>
 
           <div>
-            <label className="block text-[11px] font-mono uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Notes (optional)</label>
+            <label className="block text-[11px] uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Notes (optional)</label>
             <input
               value={notes} onChange={e => setNotes(e.target.value)}
               placeholder="VIP guest, walk-in at gate…"
@@ -925,7 +925,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
         ].map((s, i, arr) => (
           <div key={s.label} className="flex items-center gap-5">
             <div>
-              <span className="font-mono text-[20px] font-medium" style={{ color: '#1F4D3A' }}>{s.value}</span>
+              <span className=" text-[20px] font-medium" style={{ color: '#1F4D3A' }}>{s.value}</span>
               <span className="ml-2 text-[13px]" style={{ color: '#6B7A72' }}>{s.label}</span>
             </div>
             {i < arr.length - 1 && <span className="hidden sm:inline" style={{ color: '#E5E0D4' }}>·</span>}
@@ -1014,7 +1014,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
               <thead>
                 <tr style={{ background: '#FAF6EE', borderBottom: '1px solid #E5E0D4' }}>
                   {['Name', 'Ticket', 'Amount', 'Status', 'Card', 'Registered', 'Checked in', ''].map(h => (
-                    <th key={h} className="px-5 py-3 font-mono text-[10px] tracking-[0.12em] uppercase font-semibold whitespace-nowrap" style={{ color: '#6B7A72' }}>
+                    <th key={h} className="px-5 py-3  text-[10px] tracking-[0.12em] uppercase font-semibold whitespace-nowrap" style={{ color: '#6B7A72' }}>
                       {h}
                     </th>
                   ))}
@@ -1033,7 +1033,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
                     <td className="px-5 py-3.5 text-[13px]" style={{ color: '#3A4A42' }}>
                       {reg.ticket_types?.name ?? 'General'}
                     </td>
-                    <td className="px-5 py-3.5 font-mono text-[13px]" style={{ color: '#1F4D3A' }}>
+                    <td className="px-5 py-3.5  text-[13px]" style={{ color: '#1F4D3A' }}>
                       {formatCurrency(reg.amount_paid, reg.currency)}
                     </td>
                     <td className="px-5 py-3.5">
@@ -1050,10 +1050,10 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
                         <span className="text-[12px]" style={{ color: '#C9C3B1' }}>—</span>
                       )}
                     </td>
-                    <td className="px-5 py-3.5 font-mono text-[12px]" style={{ color: '#6B7A72' }}>
+                    <td className="px-5 py-3.5  text-[12px]" style={{ color: '#6B7A72' }}>
                       {new Date(reg.created_at).toLocaleDateString()}
                     </td>
-                    <td className="px-5 py-3.5 font-mono text-[12px]" style={{ color: reg.checked_in_at ? '#1F4D3A' : '#C9C3B1' }}>
+                    <td className="px-5 py-3.5  text-[12px]" style={{ color: reg.checked_in_at ? '#1F4D3A' : '#C9C3B1' }}>
                       {reg.checked_in_at ? new Date(reg.checked_in_at).toLocaleTimeString() : '—'}
                     </td>
                     <td className="px-5 py-3.5">

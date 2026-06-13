@@ -137,7 +137,7 @@ export function TeamTab({ members: initial, token }: Props) {
                 <Avatar name={displayName} idx={i} />
                 <div className="min-w-0 flex-1">
                   <div className="text-[13.5px] font-medium truncate" style={{ color: '#0F1F18' }}>{displayName}</div>
-                  <div className="font-mono text-[11px] mt-0.5" style={{ color: '#6B7A72' }}>{displayRole}</div>
+                  <div className=" text-[11px] mt-0.5" style={{ color: '#6B7A72' }}>{displayRole}</div>
                 </div>
                 {statusPill(m.status)}
                 {/* "You" pill — first active member */}

@@ -22,7 +22,7 @@ const AVATAR_GRADS = [
 function InfoRow({ label, children, last }: { label: string; children: React.ReactNode; last?: boolean }) {
   return (
     <div className={`flex items-center justify-between gap-4 py-2.5 ${last ? '' : 'border-b'}`} style={{ borderColor: '#E5E0D4' }}>
-      <span className="font-mono text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>{label}</span>
+      <span className=" text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>{label}</span>
       <span className="text-[13.5px] text-right" style={{ color: '#0F1F18' }}>{children}</span>
     </div>
   );
@@ -113,7 +113,7 @@ export default async function AttendeeDetailPage({ params }: Props) {
                 {STATUS_LABEL[reg.status] ?? reg.status}
               </span>
             </div>
-            <div className="font-mono text-[12.5px] mt-2" style={{ color: '#6B7A72' }}>{reg.attendee_email}</div>
+            <div className=" text-[12.5px] mt-2" style={{ color: '#6B7A72' }}>{reg.attendee_email}</div>
           </div>
           <div className="flex items-center gap-2 shrink-0 flex-wrap">
             <Link href={`/events/${id}/check-in`}
@@ -148,7 +148,7 @@ export default async function AttendeeDetailPage({ params }: Props) {
                       <span className="absolute -left-6 top-1 w-3 h-3 rounded-full ring-4"
                         style={{ background: item.color, outline: '3px solid white', outlineOffset: '-1px' }} />
                       <div className="text-[13px] leading-snug" style={{ color: '#0F1F18' }}>{item.text}</div>
-                      <div className="font-mono text-[11px] mt-0.5" style={{ color: '#6B7A72' }}>{item.when}</div>
+                      <div className=" text-[11px] mt-0.5" style={{ color: '#6B7A72' }}>{item.when}</div>
                     </div>
                   ))}
                 </div>

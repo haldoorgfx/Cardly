@@ -1332,7 +1332,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
                 )}
 
                 {previewMode && (
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white/70 text-[11px] font-mono px-3 py-1.5 rounded-full pointer-events-none">
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white/70 text-[11px] px-3 py-1.5 rounded-full pointer-events-none">
                     PREVIEW — CmdP to edit
                   </div>
                 )}
@@ -1455,7 +1455,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
                           aria-label="Font size value"
                           value={selected.size ?? 32}
                           onChange={e => { const v = Number(e.target.value); if (v >= 8) updateZone(selected.id, { size: v }); }}
-                          className="h-7 w-9 text-center text-[11px] font-mono outline-none"
+                          className="h-7 w-9 text-center text-[11px] outline-none"
                           style={{ background: '#FAF6EE', border: 'none', color: '#0F1F18' }}
                         />
                         <button
@@ -1571,7 +1571,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
 
                   {/* -- Opacity -- */}
                   <div role="group" aria-label={`Opacity: ${opacity}%`} className="flex items-center gap-1.5 px-1 shrink-0">
-                    <span className="text-[10px] font-mono w-7 text-right select-none tabular-nums" style={{ color: 'rgba(15,31,24,0.45)' }}>{opacity}%</span>
+                    <span className="text-[10px] w-7 text-right select-none tabular-nums" style={{ color: 'rgba(15,31,24,0.45)' }}>{opacity}%</span>
                     <input
                       type="range" min="10" max="100" value={opacity}
                       aria-label="Opacity"
@@ -1645,7 +1645,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
 
           {/* Multi-select badge — viewport-fixed, not inside scroll area */}
           {selectedIds.length > 1 && !previewMode && (
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-primary text-white text-[11.5px] font-mono px-3 py-1.5 rounded-full shadow-lift pointer-events-none z-10">
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-primary text-white text-[11.5px] px-3 py-1.5 rounded-full shadow-lift pointer-events-none z-10">
               {selectedIds.length} elements selected · Backspace delete · drag to move
             </div>
           )}
@@ -1777,7 +1777,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
               ['Cmd+wheel','Zoom in/out'],['Shift+rotate','Snap to 15°'],['Cmd+click variant','Switch variant'],
             ].map(([k, v]) => (
               <div key={k} className="flex items-center justify-between py-1 border-b border-border/50">
-                <span className="font-mono text-[11px] bg-cream px-1.5 py-0.5 rounded text-[#0F1F18]/70">{k}</span>
+                <span className=" text-[11px] bg-cream px-1.5 py-0.5 rounded text-[#0F1F18]/70">{k}</span>
                 <span className="text-[#0F1F18]/60">{v}</span>
               </div>
             ))}
@@ -1903,7 +1903,7 @@ function RightRail({
             <PropRow label="Text content">
               <input value={selected.sample ?? ''} onChange={e => upd({ sample: e.target.value })} className="prop-input" placeholder="Text shown on the card" />
             </PropRow>
-            <div className="text-[10.5px] font-mono text-warning bg-warning/8 border border-warning/20 rounded-lg px-2.5 py-1.5 leading-relaxed">
+            <div className="text-[10.5px] text-warning bg-warning/8 border border-warning/20 rounded-lg px-2.5 py-1.5 leading-relaxed">
               Static — this text is baked into every card, not editable by attendees.
             </div>
           </>
@@ -1912,9 +1912,9 @@ function RightRail({
             {/* Field setup guide */}
             <div className="rounded-lg px-2.5 py-2 text-[10.5px] leading-relaxed space-y-0.5" style={{background:'rgba(31,77,58,0.07)',border:'1px solid rgba(31,77,58,0.15)'}}>
               <div className="font-semibold text-primary text-[10px] uppercase tracking-wide mb-1">Attendee sees:</div>
-              <div className="text-ink-soft"><span className="font-mono text-primary">Label</span> &rarr; field title in the form</div>
-              <div className="text-ink-soft"><span className="font-mono text-primary">Placeholder</span> &rarr; hint below the title</div>
-              <div className="text-ink-soft"><span className="font-mono text-primary">Preview text</span> &rarr; sample shown on card</div>
+              <div className="text-ink-soft"><span className=" text-primary">Label</span> &rarr; field title in the form</div>
+              <div className="text-ink-soft"><span className=" text-primary">Placeholder</span> &rarr; hint below the title</div>
+              <div className="text-ink-soft"><span className=" text-primary">Preview text</span> &rarr; sample shown on card</div>
             </div>
             <PropRow label="Placeholder">
               <input value={selected.placeholder ?? ''} onChange={e => upd({ placeholder: e.target.value })} className="prop-input" placeholder="e.g. Enter your full name" />
@@ -1937,7 +1937,7 @@ function RightRail({
                     value={selected.maxChars ?? ''}
                     placeholder="-ž"
                     onChange={e => upd({ maxChars: e.target.value ? Number(e.target.value) : undefined })}
-                    className="w-14 h-7 text-center border border-border rounded-lg text-[12px] font-mono outline-none focus:border-primary"
+                    className="w-14 h-7 text-center border border-border rounded-lg text-[12px] outline-none focus:border-primary"
                   />
                 </div>
               </PropRow>
@@ -2083,11 +2083,11 @@ function RightRail({
             <PropRow label={`Size · ${selected.size ?? 32}px`}>
               <div className="flex items-center gap-2">
                 <input type="range" min="8" max="300" value={selected.size ?? 32} onChange={e => upd({ size: Number(e.target.value) })} className="flex-1 accent-primary" style={{ height: 4 }} />
-                <input type="number" min="8" max="300" value={selected.size ?? 32} onChange={e => upd({ size: Number(e.target.value) })} className="w-14 h-7 text-center border border-border rounded-lg text-[12px] font-mono outline-none focus:border-primary" />
+                <input type="number" min="8" max="300" value={selected.size ?? 32} onChange={e => upd({ size: Number(e.target.value) })} className="w-14 h-7 text-center border border-border rounded-lg text-[12px] outline-none focus:border-primary" />
               </div>
               <div className="flex flex-wrap gap-1 mt-1.5">
                 {[12, 18, 24, 32, 48, 64, 96, 128].map(s => (
-                  <button key={s} onClick={() => upd({ size: s })} className={`h-6 px-2 text-[10.5px] font-mono rounded-lg border transition ${(selected.size ?? 32) === s ? 'bg-primary text-white border-primary' : 'border-border hover:bg-cream text-[#0F1F18]/55'}`}>{s}</button>
+                  <button key={s} onClick={() => upd({ size: s })} className={`h-6 px-2 text-[10.5px] rounded-lg border transition ${(selected.size ?? 32) === s ? 'bg-primary text-white border-primary' : 'border-border hover:bg-cream text-[#0F1F18]/55'}`}>{s}</button>
                 ))}
                 {/* Auto-height: expand zone height to fit text at current font size */}
                 <button
@@ -2101,7 +2101,7 @@ function RightRail({
                     const autoH = Math.ceil(rawLinesCount * (selected.size ?? 32) * (selected.lineHeight ?? 1.2)) + 16;
                     upd({ h: Math.max(selected.h, autoH) });
                   }}
-                  className="h-6 px-2 text-[10.5px] font-mono rounded-lg border border-dashed transition border-warning/60 text-warning hover:bg-warning/10 flex items-center gap-1"
+                  className="h-6 px-2 text-[10.5px] rounded-lg border border-dashed transition border-warning/60 text-warning hover:bg-warning/10 flex items-center gap-1"
                 >
                   <AlignVerticalJustifyEnd size={10} strokeWidth={2} />
                   Auto-height
@@ -2168,7 +2168,7 @@ function RightRail({
                 <PropRow label="Shadow color">
                   <div className="flex items-center gap-2">
                     <input type="color" value={selected.shadowColor?.startsWith('#') ? selected.shadowColor : '#000000'} onChange={e => upd({ shadowColor: e.target.value })} className="h-7 w-7 rounded border border-border cursor-pointer" />
-                    <input value={selected.shadowColor ?? ''} onChange={e => upd({ shadowColor: e.target.value })} className="prop-input flex-1 font-mono text-[11px]" />
+                    <input value={selected.shadowColor ?? ''} onChange={e => upd({ shadowColor: e.target.value })} className="prop-input flex-1  text-[11px]" />
                   </div>
                 </PropRow>
                 <PropRow label={`Blur · ${selected.shadowBlur ?? 12}px`}>
@@ -2211,12 +2211,12 @@ function RightRail({
         <PropRow label={`Rotation · ${selected.rotation ?? 0}°`}>
           <div className="flex items-center gap-2">
             <input type="range" min="0" max="359" value={selected.rotation ?? 0} onChange={e => upd({ rotation: Number(e.target.value) })} className="flex-1 accent-primary" style={{ height: 4 }} />
-            <input type="number" min="0" max="359" value={selected.rotation ?? 0} onChange={e => upd({ rotation: Number(e.target.value) })} className="w-14 h-7 text-center border border-border rounded-lg text-[12px] font-mono outline-none focus:border-primary" />
+            <input type="number" min="0" max="359" value={selected.rotation ?? 0} onChange={e => upd({ rotation: Number(e.target.value) })} className="w-14 h-7 text-center border border-border rounded-lg text-[12px] outline-none focus:border-primary" />
           </div>
         </PropRow>
         <div className="flex gap-1.5">
           {[0, 45, 90, 135, 180, 270].map(d => (
-            <button key={d} onClick={() => upd({ rotation: d })} className={`flex-1 h-7 text-[10.5px] font-mono rounded-lg border transition ${(selected.rotation ?? 0) === d ? 'bg-primary/10 text-primary border-primary/30' : 'border-border hover:bg-cream text-[#0F1F18]/55'}`}>{d}°</button>
+            <button key={d} onClick={() => upd({ rotation: d })} className={`flex-1 h-7 text-[10.5px] rounded-lg border transition ${(selected.rotation ?? 0) === d ? 'bg-primary/10 text-primary border-primary/30' : 'border-border hover:bg-cream text-[#0F1F18]/55'}`}>{d}°</button>
           ))}
         </div>
         <PropToggle label="Locked" value={!!selected.locked} onChange={v => upd({ locked: v })} />
@@ -2245,21 +2245,21 @@ function RightRail({
           <button
             onClick={() => setAspectLock(!aspectLock)}
             title="Lock aspect ratio"
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[11.5px] font-mono transition ${aspectLock ? 'bg-primary/10 text-primary border-primary/30' : 'border-border text-[#0F1F18]/50 hover:bg-cream'}`}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[11.5px] transition ${aspectLock ? 'bg-primary/10 text-primary border-primary/30' : 'border-border text-[#0F1F18]/50 hover:bg-cream'}`}
           >
             {aspectLock ? <Lock size={12} strokeWidth={1.8} /> : <LockOpen size={12} strokeWidth={1.8} />}
             {aspectLock ? 'Ratio locked' : 'Lock ratio'}
           </button>
-          <span className="text-[10.5px] font-mono text-[#0F1F18]/35">{selected.w} : {selected.h}</span>
+          <span className="text-[10.5px] text-[#0F1F18]/35">{selected.w} : {selected.h}</span>
         </div>
         {/* Alignment quick buttons */}
         <div className="mt-3 grid grid-cols-3 gap-1">
-          <button onClick={() => upd({ x: 0 })} className="py-1.5 text-[10.5px] font-mono text-[#0F1F18]/55 border border-border rounded-lg hover:bg-cream transition" title="Align left edge">Left</button>
-          <button onClick={() => upd({ x: Math.round(bgW / 2 - selected.w / 2) })} className="py-1.5 text-[10.5px] font-mono text-[#0F1F18]/55 border border-border rounded-lg hover:bg-cream transition" title="Center horizontally">Ctr H</button>
-          <button onClick={() => upd({ x: bgW - selected.w })} className="py-1.5 text-[10.5px] font-mono text-[#0F1F18]/55 border border-border rounded-lg hover:bg-cream transition" title="Align right edge">Right</button>
-          <button onClick={() => upd({ y: 0 })} className="py-1.5 text-[10.5px] font-mono text-[#0F1F18]/55 border border-border rounded-lg hover:bg-cream transition" title="Align top edge">Top</button>
-          <button onClick={() => upd({ y: Math.round(bgH / 2 - selected.h / 2) })} className="py-1.5 text-[10.5px] font-mono text-[#0F1F18]/55 border border-border rounded-lg hover:bg-cream transition" title="Center vertically">Ctr V</button>
-          <button onClick={() => upd({ y: bgH - selected.h })} className="py-1.5 text-[10.5px] font-mono text-[#0F1F18]/55 border border-border rounded-lg hover:bg-cream transition" title="Align bottom edge">Bot</button>
+          <button onClick={() => upd({ x: 0 })} className="py-1.5 text-[10.5px] text-[#0F1F18]/55 border border-border rounded-lg hover:bg-cream transition" title="Align left edge">Left</button>
+          <button onClick={() => upd({ x: Math.round(bgW / 2 - selected.w / 2) })} className="py-1.5 text-[10.5px] text-[#0F1F18]/55 border border-border rounded-lg hover:bg-cream transition" title="Center horizontally">Ctr H</button>
+          <button onClick={() => upd({ x: bgW - selected.w })} className="py-1.5 text-[10.5px] text-[#0F1F18]/55 border border-border rounded-lg hover:bg-cream transition" title="Align right edge">Right</button>
+          <button onClick={() => upd({ y: 0 })} className="py-1.5 text-[10.5px] text-[#0F1F18]/55 border border-border rounded-lg hover:bg-cream transition" title="Align top edge">Top</button>
+          <button onClick={() => upd({ y: Math.round(bgH / 2 - selected.h / 2) })} className="py-1.5 text-[10.5px] text-[#0F1F18]/55 border border-border rounded-lg hover:bg-cream transition" title="Center vertically">Ctr V</button>
+          <button onClick={() => upd({ y: bgH - selected.h })} className="py-1.5 text-[10.5px] text-[#0F1F18]/55 border border-border rounded-lg hover:bg-cream transition" title="Align bottom edge">Bot</button>
         </div>
       </PropSection>
 
@@ -2271,7 +2271,7 @@ function RightRail({
               rows={4}
               value={(selected.options ?? []).join('\n')}
               onChange={e => upd({ options: e.target.value.split('\n').filter(Boolean) })}
-              className="prop-input !h-auto py-2 resize-none font-mono text-[11.5px] leading-relaxed"
+              className="prop-input !h-auto py-2 resize-none  text-[11.5px] leading-relaxed"
             />
           </PropRow>
         </PropSection>
@@ -2564,7 +2564,7 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, zoom, onPointerDow
         {isTextScaledDown && !previewMode && (
           <div
             title={'Text scaled to fit (actual: ' + zone.size + 'px). Resize zone height or reduce font size.'}
-            className="absolute pointer-events-none flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-mono font-medium"
+            className="absolute pointer-events-none flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-medium"
             style={{
               bottom: -2, right: 0, transform: 'translateY(100%)',
               background: '#C97A2D', color: '#fff', opacity: 0.9, zIndex: 10,
@@ -2612,7 +2612,7 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, zoom, onPointerDow
 
       {/* Label tag */}
       {!previewMode && (
-        <span className="absolute pointer-events-none font-mono text-[9.5px] px-1.5 py-px rounded text-white whitespace-nowrap" style={{ background: dashColor, top: -2, left: 0, transform: 'translateY(-100%)' }}>
+        <span className="absolute pointer-events-none  text-[9.5px] px-1.5 py-px rounded text-white whitespace-nowrap" style={{ background: dashColor, top: -2, left: 0, transform: 'translateY(-100%)' }}>
           {zone.label}{zone.required && ' *'}{zone.locked && ' '}{rotation !== 0 && ` ${rotation}°`}
         </span>
       )}
@@ -2654,7 +2654,7 @@ function ZoneEl({ zone, selected, multiSelected, previewMode, zoom, onPointerDow
           {(['nw','n','ne','e','se','s','sw','w'] as const).map(dir => (
             <HandleEl key={dir} dir={dir} round={isPhoto && zone.shape === 'circle'} color={dashColor} zoom={zoom} onPointerDown={e => onHandle(e, dir)} />
           ))}
-          <span className="absolute font-mono text-white whitespace-nowrap pointer-events-none" style={{ fontSize: 9.5 / zoom, background: dashColor, bottom: -26 / zoom, left: '50%', transform: 'translateX(-50%)', padding: `${2/zoom}px ${6/zoom}px`, borderRadius: 4/zoom }}>
+          <span className="absolute  text-white whitespace-nowrap pointer-events-none" style={{ fontSize: 9.5 / zoom, background: dashColor, bottom: -26 / zoom, left: '50%', transform: 'translateX(-50%)', padding: `${2/zoom}px ${6/zoom}px`, borderRadius: 4/zoom }}>
             {zone.w} &times; {zone.h}{rotation !== 0 ? ` · ${rotation}°` : ''}
           </span>
         </>
@@ -2709,7 +2709,7 @@ function HandleEl({ dir, round, color, zoom, onPointerDown }: {
 function PropSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="px-4 py-4 border-b border-border">
-      <div className="text-[10.5px] font-mono tracking-widest text-[#0F1F18]/40 mb-3">{title.toUpperCase()}</div>
+      <div className="text-[10.5px] tracking-widest text-[#0F1F18]/40 mb-3">{title.toUpperCase()}</div>
       <div className="space-y-3">{children}</div>
     </div>
   );
@@ -2751,8 +2751,8 @@ function Segmented({ value, onChange, options }: { value: string; onChange: (v: 
 function NumberProp({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) {
   return (
     <label className="block">
-      <div className="text-[10px] font-mono uppercase tracking-widest text-[#0F1F18]/40 mb-1">{label}</div>
-      <input type="number" value={value} onChange={e => onChange(Number(e.target.value))} className="prop-input font-mono text-[12px]" />
+      <div className="text-[10px] uppercase tracking-widest text-[#0F1F18]/40 mb-1">{label}</div>
+      <input type="number" value={value} onChange={e => onChange(Number(e.target.value))} className="prop-input  text-[12px]" />
     </label>
   );
 }
@@ -2762,7 +2762,7 @@ function ColorRow({ value, onChange, BRAND_COLORS }: { value: string; onChange: 
     <div className="space-y-1.5">
       <div className="flex items-center gap-2">
         <input type="color" value={value.startsWith('#') ? value : '#ffffff'} onChange={e => onChange(e.target.value)} className="h-7 w-7 rounded border border-border cursor-pointer bg-white shrink-0" />
-        <input value={value} onChange={e => onChange(e.target.value)} className="prop-input flex-1 font-mono text-[11px] uppercase" style={{ minWidth: 72 }} />
+        <input value={value} onChange={e => onChange(e.target.value)} className="prop-input flex-1  text-[11px] uppercase" style={{ minWidth: 72 }} />
       </div>
       <div className="flex gap-1 flex-wrap">
         {BRAND_COLORS.map(s => (

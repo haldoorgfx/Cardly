@@ -68,7 +68,7 @@ export function CheckoutClient({ eventName, eventSlug, coverImage, startsAt, ven
         {seconds > 0 && (
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full text-[12px] font-semibold"
             style={{ background: '#FDF6E3', border: '1px solid #EDD98A', color: seconds < 60 ? '#B8423C' : '#8B6914' }}>
-            Tickets held for <span className="font-mono">{mins}:{secs}</span>
+            Tickets held for <span className="">{mins}:{secs}</span>
           </div>
         )}
       </div>
@@ -85,7 +85,7 @@ export function CheckoutClient({ eventName, eventSlug, coverImage, startsAt, ven
               {/* Step 1: Your details */}
               <div className="rounded-2xl p-5" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-mono font-bold"
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold"
                     style={{ background: '#1F4D3A', color: '#FAF6EE' }}>1</div>
                   <h2 className="font-semibold text-[15px]" style={{ color: '#0F1F18' }}>Your details</h2>
                 </div>
@@ -116,7 +116,7 @@ export function CheckoutClient({ eventName, eventSlug, coverImage, startsAt, ven
               {/* Step 2: Payment */}
               <div className="rounded-2xl p-5" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-mono font-bold"
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold"
                     style={{ background: '#1F4D3A', color: '#FAF6EE' }}>2</div>
                   <h2 className="font-semibold text-[15px]" style={{ color: '#0F1F18' }}>Payment</h2>
                 </div>
@@ -153,7 +153,7 @@ export function CheckoutClient({ eventName, eventSlug, coverImage, startsAt, ven
                       <label className="block text-[12px] font-semibold mb-1.5" style={{ color: '#6B7A72' }}>Card number</label>
                       <input value={cardNum} onChange={e => setCardNum(e.target.value)}
                         placeholder="4242 4242 4242 4242"
-                        className="w-full px-4 py-3 rounded-xl text-[14px] outline-none font-mono"
+                        className="w-full px-4 py-3 rounded-xl text-[14px] outline-none "
                         style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18' }} />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
@@ -161,14 +161,14 @@ export function CheckoutClient({ eventName, eventSlug, coverImage, startsAt, ven
                         <label className="block text-[12px] font-semibold mb-1.5" style={{ color: '#6B7A72' }}>Expiry</label>
                         <input value={expiry} onChange={e => setExpiry(e.target.value)}
                           placeholder="08 / 28"
-                          className="w-full px-4 py-3 rounded-xl text-[14px] outline-none font-mono"
+                          className="w-full px-4 py-3 rounded-xl text-[14px] outline-none "
                           style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18' }} />
                       </div>
                       <div>
                         <label className="block text-[12px] font-semibold mb-1.5" style={{ color: '#6B7A72' }}>CVC</label>
                         <input value={cvc} onChange={e => setCvc(e.target.value)}
                           placeholder="•••" maxLength={4}
-                          className="w-full px-4 py-3 rounded-xl text-[14px] outline-none font-mono"
+                          className="w-full px-4 py-3 rounded-xl text-[14px] outline-none "
                           style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18' }} />
                       </div>
                     </div>
@@ -194,7 +194,7 @@ export function CheckoutClient({ eventName, eventSlug, coverImage, startsAt, ven
                   <div className="min-w-0">
                     <div className="font-semibold text-[13px] truncate" style={{ color: '#0F1F18' }}>{eventName}</div>
                     {(startsAt || venueName || city) && (
-                      <div className="text-[10px] font-mono mt-0.5" style={{ color: '#6B7A72' }}>
+                      <div className="text-[10px] mt-0.5" style={{ color: '#6B7A72' }}>
                         {startsAt ? fmtDateTime(startsAt) : ''}
                         {(venueName || city) && ` · ${venueName ?? city}`}
                       </div>

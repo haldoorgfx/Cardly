@@ -144,7 +144,7 @@ export default function SpeakerProfileClient({ speaker, sessions, eventSlug }: P
                       <p className="font-display text-[15px] font-medium" style={{ color: '#0F1F18' }}>
                         {session.title}
                       </p>
-                      <p className="font-mono text-[12px] mt-1" style={{ color: '#6B7A72' }}>
+                      <p className=" text-[12px] mt-1" style={{ color: '#6B7A72' }}>
                         {formatTimeRange(session.starts_at, session.ends_at)}
                         {session.room ? ` · ${session.room}` : ''}
                       </p>

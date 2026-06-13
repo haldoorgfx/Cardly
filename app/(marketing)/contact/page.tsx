@@ -19,7 +19,7 @@ export default function ContactPage() {
         {/* Eyebrow */}
         <div className="inline-flex items-center gap-2 mb-6">
           <span className="h-px w-8 bg-[#1F4D3A]/30" />
-          <span className="font-mono text-[11px] tracking-[0.22em] uppercase text-[#1F4D3A]">Contact</span>
+          <span className=" text-[11px] tracking-[0.22em] uppercase text-[#1F4D3A]">Contact</span>
         </div>
 
         {/* Headline */}
@@ -35,7 +35,7 @@ export default function ContactPage() {
 
         {/* Good reasons — below the fold, extra info */}
         <div className="mt-16 pt-12" style={{ borderTop: '1px solid #E5E0D4' }}>
-          <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#6B7A72] mb-5">
+          <div className=" text-[10px] tracking-[0.22em] uppercase text-[#6B7A72] mb-5">
             Good reasons to reach out
           </div>
           <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">

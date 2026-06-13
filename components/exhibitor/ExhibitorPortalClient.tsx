@@ -123,9 +123,9 @@ function Stat({ label, value, sub, accent }: { label: string; value: string | nu
       className={`rounded-2xl border p-5 ${accent ? 'border-[#E8C57E]/50' : 'border-[#E5E0D4] bg-white'}`}
       style={accent ? { background: 'linear-gradient(135deg, rgba(232,197,126,0.14), rgba(31,77,58,0.05))' } : undefined}
     >
-      <div className="font-mono text-[9.5px] tracking-[0.14em] uppercase text-[#6B7A72] mb-2">{label}</div>
-      <div className="font-mono text-[26px] text-[#1F4D3A] tracking-tight leading-none">{value}</div>
-      {sub && <div className="font-mono text-[11px] text-emerald-600 mt-2">{sub}</div>}
+      <div className=" text-[9.5px] tracking-[0.14em] uppercase text-[#6B7A72] mb-2">{label}</div>
+      <div className=" text-[26px] text-[#1F4D3A] tracking-tight leading-none">{value}</div>
+      {sub && <div className=" text-[11px] text-emerald-600 mt-2">{sub}</div>}
     </div>
   );
 }
@@ -136,7 +136,7 @@ function LeadQualityBar({ label, count, total, color }: { label: string; count: 
     <div>
       <div className="flex items-center justify-between mb-1.5 text-[13px]">
         <span className="text-[#3A4A42]">{label}</span>
-        <span className="font-mono text-[#6B7A72]">{count} · {pct}%</span>
+        <span className=" text-[#6B7A72]">{count} · {pct}%</span>
       </div>
       <div className="h-2.5 rounded-full bg-[#E8EFEB]/60 overflow-hidden">
         <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: color }} />
@@ -224,7 +224,7 @@ function Overview({ leads, sessions }: { leads: Lead[]; sessions: Session[] }) {
                   </span>
                   <div className="min-w-0">
                     <div className="text-[13px] font-medium text-[#0F1F18] truncate">{s.title}</div>
-                    <div className="font-mono text-[10.5px] text-[#6B7A72] mt-0.5">{formatSessionTime(s)}</div>
+                    <div className=" text-[10.5px] text-[#6B7A72] mt-0.5">{formatSessionTime(s)}</div>
                   </div>
                 </div>
               ))}
@@ -282,7 +282,7 @@ function Leads({ leads }: { leads: Lead[] }) {
                 <Avatar name={name} size={38} gradient={gradients[i % 2]} />
                 <div className="min-w-0 flex-1">
                   <div className="text-[13.5px] font-medium text-[#0F1F18] truncate">{name}</div>
-                  <div className="font-mono text-[11px] text-[#6B7A72] truncate">{l.attendee_email ?? ''}</div>
+                  <div className=" text-[11px] text-[#6B7A72] truncate">{l.attendee_email ?? ''}</div>
                 </div>
                 <span className={`inline-flex items-center text-[11px] font-medium px-2.5 py-1 rounded-full border ${style.pill}`}>{style.label}</span>
                 <button className="w-8 h-8 grid place-items-center rounded-lg text-[#6B7A72] hover:bg-[#E8EFEB] hover:text-[#1F4D3A] transition-colors shrink-0">
@@ -331,7 +331,7 @@ function BoothProfile({ sponsor }: { sponsor: Sponsor }) {
         <Panel title="Booth profile">
           <div className="grid gap-4">
             <div>
-              <label className="font-mono text-[9.5px] tracking-[0.14em] uppercase text-[#6B7A72] mb-1.5 block">Company name</label>
+              <label className=" text-[9.5px] tracking-[0.14em] uppercase text-[#6B7A72] mb-1.5 block">Company name</label>
               <input
                 value={form.company_name}
                 onChange={e => setForm(f => ({ ...f, company_name: e.target.value }))}
@@ -339,7 +339,7 @@ function BoothProfile({ sponsor }: { sponsor: Sponsor }) {
               />
             </div>
             <div>
-              <label className="font-mono text-[9.5px] tracking-[0.14em] uppercase text-[#6B7A72] mb-1.5 block">Tagline</label>
+              <label className=" text-[9.5px] tracking-[0.14em] uppercase text-[#6B7A72] mb-1.5 block">Tagline</label>
               <input
                 value={form.tagline}
                 onChange={e => setForm(f => ({ ...f, tagline: e.target.value }))}
@@ -347,7 +347,7 @@ function BoothProfile({ sponsor }: { sponsor: Sponsor }) {
               />
             </div>
             <div>
-              <label className="font-mono text-[9.5px] tracking-[0.14em] uppercase text-[#6B7A72] mb-1.5 block">About</label>
+              <label className=" text-[9.5px] tracking-[0.14em] uppercase text-[#6B7A72] mb-1.5 block">About</label>
               <textarea
                 value={form.description}
                 onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
@@ -357,7 +357,7 @@ function BoothProfile({ sponsor }: { sponsor: Sponsor }) {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="font-mono text-[9.5px] tracking-[0.14em] uppercase text-[#6B7A72] mb-1.5 block">Website</label>
+                <label className=" text-[9.5px] tracking-[0.14em] uppercase text-[#6B7A72] mb-1.5 block">Website</label>
                 <input
                   value={form.website_url}
                   onChange={e => setForm(f => ({ ...f, website_url: e.target.value }))}
@@ -365,7 +365,7 @@ function BoothProfile({ sponsor }: { sponsor: Sponsor }) {
                 />
               </div>
               <div>
-                <label className="font-mono text-[9.5px] tracking-[0.14em] uppercase text-[#6B7A72] mb-1.5 block">Booth</label>
+                <label className=" text-[9.5px] tracking-[0.14em] uppercase text-[#6B7A72] mb-1.5 block">Booth</label>
                 <input
                   value={form.booth_location}
                   onChange={e => setForm(f => ({ ...f, booth_location: e.target.value }))}
@@ -448,10 +448,10 @@ function Resources({ sponsor }: { sponsor: Sponsor }) {
               </span>
               <div className="min-w-0 flex-1">
                 <div className="text-[13.5px] font-medium text-[#0F1F18]">{r.title}</div>
-                <div className="font-mono text-[11px] text-[#6B7A72] mt-0.5">{r.type ?? 'Link'}</div>
+                <div className=" text-[11px] text-[#6B7A72] mt-0.5">{r.type ?? 'Link'}</div>
               </div>
               {r.opens != null && (
-                <span className="font-mono text-[11px] text-[#6B7A72]">{r.opens} opens</span>
+                <span className=" text-[11px] text-[#6B7A72]">{r.opens} opens</span>
               )}
             </div>
           ))}
@@ -493,7 +493,7 @@ function Team({ sponsor }: { sponsor: Sponsor }) {
               <Avatar name={m.name} size={38} gradient={gradients[i % 3]} />
               <div className="min-w-0 flex-1">
                 <div className="text-[13.5px] font-medium text-[#0F1F18]">{m.name}</div>
-                {m.role && <div className="font-mono text-[11px] text-[#6B7A72] mt-0.5">{m.role}</div>}
+                {m.role && <div className=" text-[11px] text-[#6B7A72] mt-0.5">{m.role}</div>}
               </div>
               {i === 0 && (
                 <span className="inline-flex items-center text-[11px] font-medium px-2.5 py-1 rounded-full border bg-[#E8EFEB] text-[#1F4D3A] border-[#1F4D3A]/20">You</span>
@@ -531,11 +531,11 @@ export function ExhibitorPortalClient({ sponsor, event, leads, sessions }: Props
             <span className="w-7 h-7 rounded-lg shrink-0" style={{ background: 'linear-gradient(135deg,#1F4D3A,#2A6A50 60%,#E8C57E)' }} />
             <div className="leading-none">
               <div className="font-display text-[15px] font-bold text-[#1F4D3A]">Karta</div>
-              <div className="font-mono text-[8.5px] tracking-[0.16em] uppercase text-[#6B7A72] mt-0.5">Exhibitor Portal</div>
+              <div className=" text-[8.5px] tracking-[0.16em] uppercase text-[#6B7A72] mt-0.5">Exhibitor Portal</div>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span className="hidden sm:inline font-mono text-[11px] text-[#6B7A72]">{event.name}</span>
+            <span className="hidden sm:inline  text-[11px] text-[#6B7A72]">{event.name}</span>
             <span
               className="w-8 h-8 rounded-full grid place-items-center text-white font-display font-semibold text-[11px] shrink-0"
               style={{ background: 'linear-gradient(135deg,#1F4D3A,#2A6A50)' }}
@@ -553,7 +553,7 @@ export function ExhibitorPortalClient({ sponsor, event, leads, sessions }: Props
           <div className="flex items-center gap-2 mb-3">
             <span className={`inline-flex items-center text-[11px] font-medium px-2.5 py-1 rounded-full border ${pill}`}>{label}</span>
             {sponsor.booth_location && (
-              <span className="font-mono text-[11px] text-white/70">Booth {sponsor.booth_location}</span>
+              <span className=" text-[11px] text-white/70">Booth {sponsor.booth_location}</span>
             )}
           </div>
           <h1 className="font-display text-[28px] font-bold text-white tracking-[-0.02em]">{sponsor.company_name}</h1>

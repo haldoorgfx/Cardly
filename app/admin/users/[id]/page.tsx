@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic';
 function Badge({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
   return (
     <span
-      className="inline-flex items-center px-2.5 py-1 rounded-full font-mono text-[11px] tracking-[0.1em] uppercase"
+      className="inline-flex items-center px-2.5 py-1 rounded-full  text-[11px] tracking-[0.1em] uppercase"
       style={style}
     >
       {children}
@@ -23,7 +23,7 @@ function Badge({ children, style }: { children: React.ReactNode; style?: React.C
 function Field({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="py-3 flex items-start gap-4 border-b border-[#E5E0D4] last:border-0">
-      <span className="text-[12px] font-mono text-[#6B7A72] w-36 shrink-0 pt-0.5">{label}</span>
+      <span className="text-[12px] text-[#6B7A72] w-36 shrink-0 pt-0.5">{label}</span>
       <span className="text-[13px] text-[#0F1F18] flex-1">{value}</span>
     </div>
   );
@@ -69,7 +69,7 @@ export default async function UserDetailPage({ params }: { params: { id: string 
   return (
     <div className="p-6 lg:p-10 max-w-[800px]">
       {/* Breadcrumb */}
-      <div className="mb-6 flex items-center gap-2 text-[12px] text-[#6B7A72] font-mono">
+      <div className="mb-6 flex items-center gap-2 text-[12px] text-[#6B7A72]">
         <Link href="/admin/users" className="hover:text-[#1F4D3A] transition-colors">Users</Link>
         <span>/</span>
         <span className="text-[#0F1F18]">{profile.full_name ?? profile.email}</span>
@@ -87,7 +87,7 @@ export default async function UserDetailPage({ params }: { params: { id: string 
               <h1 className="font-display font-bold text-[26px] text-[#0F1F18] tracking-tight">
                 {profile.full_name ?? '(no name)'}
               </h1>
-              <div className="text-[13px] font-mono text-[#6B7A72] mt-0.5">{profile.email}</div>
+              <div className="text-[13px] text-[#6B7A72] mt-0.5">{profile.email}</div>
               <div className="flex items-center gap-2 mt-2.5">
                 <Badge style={planStyle}>{profile.plan}</Badge>
                 <Badge style={roleStyle}>{profile.role}</Badge>
@@ -108,10 +108,10 @@ export default async function UserDetailPage({ params }: { params: { id: string 
       {/* Details card */}
       <div className="bg-white border border-[#E5E0D4] rounded-2xl overflow-hidden mb-6">
         <div className="px-5 py-3 border-b border-[#E5E0D4] bg-[#FAF6EE]">
-          <h2 className="text-[12px] font-mono text-[#6B7A72] uppercase tracking-[0.14em]">Account details</h2>
+          <h2 className="text-[12px] text-[#6B7A72] uppercase tracking-[0.14em]">Account details</h2>
         </div>
         <div className="px-5">
-          <Field label="User ID" value={<span className="font-mono text-[11px] break-all">{profile.id}</span>} />
+          <Field label="User ID" value={<span className=" text-[11px] break-all">{profile.id}</span>} />
           <Field label="Email" value={profile.email ?? '—'} />
           <Field label="Name" value={profile.full_name ?? '—'} />
           <Field label="Plan" value={<Badge style={planStyle}>{profile.plan}</Badge>} />
@@ -120,10 +120,10 @@ export default async function UserDetailPage({ params }: { params: { id: string 
           <Field label="Events created" value={eventCount} />
           <Field label="Cards generated" value={cardCount} />
           {profile.stripe_customer_id && (
-            <Field label="Stripe customer" value={<span className="font-mono text-[11px]">{profile.stripe_customer_id}</span>} />
+            <Field label="Stripe customer" value={<span className=" text-[11px]">{profile.stripe_customer_id}</span>} />
           )}
           {profile.stripe_subscription_id && (
-            <Field label="Stripe subscription" value={<span className="font-mono text-[11px]">{profile.stripe_subscription_id}</span>} />
+            <Field label="Stripe subscription" value={<span className=" text-[11px]">{profile.stripe_subscription_id}</span>} />
           )}
           <Field label="Subscription status" value={profile.subscription_status ?? 'none'} />
           {profile.suspended && (
@@ -139,15 +139,15 @@ export default async function UserDetailPage({ params }: { params: { id: string 
       {auditEntries && auditEntries.length > 0 && (
         <div className="bg-white border border-[#E5E0D4] rounded-2xl overflow-hidden mb-6">
           <div className="px-5 py-3 border-b border-[#E5E0D4] bg-[#FAF6EE]">
-            <h2 className="text-[12px] font-mono text-[#6B7A72] uppercase tracking-[0.14em]">Recent audit activity</h2>
+            <h2 className="text-[12px] text-[#6B7A72] uppercase tracking-[0.14em]">Recent audit activity</h2>
           </div>
           <div className="divide-y divide-[#E5E0D4]">
             {auditEntries.map((entry, i) => (
               <div key={i} className="px-5 py-3 flex items-center gap-4">
-                <span className="font-mono text-[11px] bg-[#FAF6EE] border border-[#E5E0D4] px-2 py-0.5 rounded-md text-[#3A4A42]">
+                <span className=" text-[11px] bg-[#FAF6EE] border border-[#E5E0D4] px-2 py-0.5 rounded-md text-[#3A4A42]">
                   {entry.action}
                 </span>
-                <span className="text-[11px] text-[#6B7A72] font-mono ml-auto">
+                <span className="text-[11px] text-[#6B7A72] ml-auto">
                   {new Date(entry.created_at).toLocaleString()}
                 </span>
                 {entry.actor_email && (
@@ -161,7 +161,7 @@ export default async function UserDetailPage({ params }: { params: { id: string 
 
       <Link
         href="/admin/users"
-        className="inline-flex items-center gap-2 text-[13px] text-[#1F4D3A] hover:underline font-mono"
+        className="inline-flex items-center gap-2 text-[13px] text-[#1F4D3A] hover:underline "
       >
         ← Back to users
       </Link>

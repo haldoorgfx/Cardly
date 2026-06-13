@@ -206,14 +206,14 @@ function InvoicesPanel({ user, onClose }: { user: BillingUserRow; onClose: () =>
                 <div key={inv.id} className="border border-[#E5E0D4] rounded-xl p-4">
                   <div className="flex items-start justify-between mb-2">
                     <div>
-                      <div className="font-mono text-[12px] text-[#0F1F18]">{inv.number ?? inv.id}</div>
+                      <div className=" text-[12px] text-[#0F1F18]">{inv.number ?? inv.id}</div>
                       <div className="text-[11px] text-[#6B7A72] mt-0.5">
                         {new Date(inv.created * 1000).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                       </div>
                     </div>
                     <div className="text-right">
                       <div className="font-semibold text-[14px] text-[#0F1F18]">{formatAmount(inv.amount, inv.currency)}</div>
-                      <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full ${inv.status === 'paid' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${inv.status === 'paid' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
                         {inv.status}
                       </span>
                     </div>
@@ -221,11 +221,11 @@ function InvoicesPanel({ user, onClose }: { user: BillingUserRow; onClose: () =>
                   <div className="flex items-center gap-2 mt-3 pt-2 border-t border-[#E5E0D4]">
                     {inv.pdf && (
                       <a href={inv.pdf} target="_blank" rel="noopener noreferrer"
-                        className="text-[11px] text-[#1F4D3A] hover:underline font-mono">PDF ↗</a>
+                        className="text-[11px] text-[#1F4D3A] hover:underline ">PDF ↗</a>
                     )}
                     {inv.hosted && (
                       <a href={inv.hosted} target="_blank" rel="noopener noreferrer"
-                        className="text-[11px] text-[#1F4D3A] hover:underline font-mono">View ↗</a>
+                        className="text-[11px] text-[#1F4D3A] hover:underline ">View ↗</a>
                     )}
                     {inv.status === 'paid' && (
                       <div className="ml-auto flex items-center gap-2">
@@ -233,7 +233,7 @@ function InvoicesPanel({ user, onClose }: { user: BillingUserRow; onClose: () =>
                           value={refundAmount}
                           onChange={e => setRefundAmount(e.target.value)}
                           placeholder="Partial $ (blank=full)"
-                          className="h-7 w-32 border border-[#E5E0D4] rounded-lg px-2 text-[11px] outline-none font-mono"
+                          className="h-7 w-32 border border-[#E5E0D4] rounded-lg px-2 text-[11px] outline-none "
                         />
                         <button
                           onClick={() => issueRefund(inv.id, inv.amount)}
@@ -317,7 +317,7 @@ export function BillingAdminClient({ users: initialUsers, total, page, totalPage
         )}
       </div>
 
-      <div className="mb-4 text-[12px] font-mono text-[#6B7A72]">
+      <div className="mb-4 text-[12px] text-[#6B7A72]">
         {total} {total === 1 ? 'user' : 'users'}{page > 1 && ` — page ${page} of ${totalPages}`}
       </div>
 
@@ -329,12 +329,12 @@ export function BillingAdminClient({ users: initialUsers, total, page, totalPage
           <table className="w-full text-[13px]">
             <thead>
               <tr style={{ background: '#FAF6EE', borderBottom: '1px solid #E5E0D4' }}>
-                <th className="text-left px-4 py-3 font-mono text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">User</th>
-                <th className="text-left px-4 py-3 font-mono text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Plan</th>
-                <th className="text-left px-4 py-3 font-mono text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Subscription</th>
-                <th className="text-left px-4 py-3 font-mono text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Period ends</th>
-                <th className="text-left px-4 py-3 font-mono text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Cards / mo</th>
-                <th className="text-left px-4 py-3 font-mono text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Actions</th>
+                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">User</th>
+                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Plan</th>
+                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Subscription</th>
+                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Period ends</th>
+                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Cards / mo</th>
+                <th className="text-left px-4 py-3  text-[10px] tracking-[0.14em] uppercase text-[#6B7A72]">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-[#E5E0D4]">
@@ -346,31 +346,31 @@ export function BillingAdminClient({ users: initialUsers, total, page, totalPage
                   <tr key={u.id} className="hover:bg-[#FAF6EE]/50 transition-colors">
                     <td className="px-4 py-3">
                       <div className="font-medium text-[#0F1F18]">{u.full_name ?? '—'}</div>
-                      <div className="text-[11px] font-mono text-[#6B7A72]">{u.email}</div>
+                      <div className="text-[11px] text-[#6B7A72]">{u.email}</div>
                       {u.stripe_customer_id && (
-                        <div className="text-[10px] font-mono text-[#6B7A72]/50 mt-0.5">{u.stripe_customer_id}</div>
+                        <div className="text-[10px] text-[#6B7A72]/50 mt-0.5">{u.stripe_customer_id}</div>
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full font-mono text-[10px] tracking-[0.1em] uppercase" style={planStyle}>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full  text-[10px] tracking-[0.1em] uppercase" style={planStyle}>
                         {u.plan}
                       </span>
                       {u.billing_cycle && u.billing_cycle !== 'none' && (
-                        <div className="text-[10px] font-mono text-[#6B7A72] mt-0.5">{u.billing_cycle}</div>
+                        <div className="text-[10px] text-[#6B7A72] mt-0.5">{u.billing_cycle}</div>
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full font-mono text-[10px]" style={{ background: subStyle.bg, color: subStyle.color }}>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full  text-[10px]" style={{ background: subStyle.bg, color: subStyle.color }}>
                         {u.subscription_status}
                       </span>
                       {u.cancel_at_period_end && (
                         <div className="text-[10px] text-[#C97A2D] mt-0.5">cancels at period end</div>
                       )}
                     </td>
-                    <td className="px-4 py-3 font-mono text-[11px] text-[#6B7A72]">
+                    <td className="px-4 py-3  text-[11px] text-[#6B7A72]">
                       {formatDate(u.current_period_end)}
                     </td>
-                    <td className="px-4 py-3 font-mono text-[11px] text-[#6B7A72]">
+                    <td className="px-4 py-3  text-[11px] text-[#6B7A72]">
                       {u.cards_this_month}
                     </td>
                     <td className="px-4 py-3">
@@ -403,7 +403,7 @@ export function BillingAdminClient({ users: initialUsers, total, page, totalPage
       {totalPages > 1 && (
         <div className="mt-6 flex items-center justify-between">
           <PagLink page={page - 1} disabled={page <= 1} label="← Previous" filters={defaultFilters} pathname={pathname} />
-          <span className="text-[13px] text-[#6B7A72] font-mono">{page} / {totalPages}</span>
+          <span className="text-[13px] text-[#6B7A72]">{page} / {totalPages}</span>
           <PagLink page={page + 1} disabled={page >= totalPages} label="Next →" filters={defaultFilters} pathname={pathname} />
         </div>
       )}
@@ -421,8 +421,8 @@ function PagLink({ page, disabled, label, filters, pathname }: {
   if (filters.q)    params.set('q',    filters.q);
   if (filters.plan) params.set('plan', filters.plan);
   params.set('page', String(page));
-  if (disabled) return <span className="text-[13px] text-[#6B7A72]/40 font-mono px-3 py-1.5">{label}</span>;
+  if (disabled) return <span className="text-[13px] text-[#6B7A72]/40  px-3 py-1.5">{label}</span>;
   return (
-    <a href={`${pathname}?${params.toString()}`} className="text-[13px] font-mono text-[#1F4D3A] hover:underline px-3 py-1.5 rounded-lg hover:bg-[#E8EFEB] transition-colors">{label}</a>
+    <a href={`${pathname}?${params.toString()}`} className="text-[13px] text-[#1F4D3A] hover:underline px-3 py-1.5 rounded-lg hover:bg-[#E8EFEB] transition-colors">{label}</a>
   );
 }

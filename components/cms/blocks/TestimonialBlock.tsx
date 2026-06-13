@@ -80,7 +80,7 @@ export function TestimonialBlock({ content }: TestimonialBlockProps) {
               {content.authorName}
             </div>
             <div
-              className="font-mono text-[10px] tracking-[0.16em] uppercase mt-1"
+              className=" text-[10px] tracking-[0.16em] uppercase mt-1"
               style={{ color: '#6B7A72' }}
             >
               {content.authorRole}

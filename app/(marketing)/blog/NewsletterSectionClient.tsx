@@ -6,7 +6,7 @@ export function NewsletterSectionClient() {
   return (
     <section style={{ borderTop: '1px solid #E5E0D4' }}>
       <div className="mx-auto max-w-[680px] px-5 py-16 lg:py-20 text-center">
-        <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-4">
+        <div className=" text-[11px] tracking-[0.22em] text-primary uppercase mb-4">
           Stay in the loop
         </div>
         <h2 className="font-title font-bold text-ink text-[30px] sm:text-[38px] lg:text-[44px] leading-[1.02] mb-4">

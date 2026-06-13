@@ -39,8 +39,8 @@ const TABS = [
 function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
     <div className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
-      <div className="font-mono text-[9.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#6B7A72' }}>{label}</div>
-      <div className="font-mono text-[24px] leading-none tracking-tight" style={{ color: '#1F4D3A' }}>{value}</div>
+      <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#6B7A72' }}>{label}</div>
+      <div className=" text-[24px] leading-none tracking-tight" style={{ color: '#1F4D3A' }}>{value}</div>
     </div>
   );
 }
@@ -142,8 +142,8 @@ export function ReportsClient({ eventName, totalRevenue, regCount, checkedIn, re
             <div aria-hidden className="absolute inset-0" style={{ background: 'radial-gradient(60% 100% at 90% 0%, rgba(232,197,126,0.26), transparent 55%)' }} />
             <div className="relative grid sm:grid-cols-[1.4fr_1fr] gap-5 items-center">
               <div>
-                <div className="font-mono text-[10px] tracking-[0.16em] uppercase mb-2" style={{ color: '#E8C57E' }}>Event revenue</div>
-                <div className="font-mono text-[40px] leading-none" style={{ color: '#FAF6EE' }}>
+                <div className=" text-[10px] tracking-[0.16em] uppercase mb-2" style={{ color: '#E8C57E' }}>Event revenue</div>
+                <div className=" text-[40px] leading-none" style={{ color: '#FAF6EE' }}>
                   {primaryCurrency ? fmtCurrency(totalRevenue, primaryCurrency) : totalRevenue.toLocaleString()}
                 </div>
                 <div className="text-[13px] mt-2" style={{ color: 'rgba(250,246,238,0.75)' }}>
@@ -158,8 +158,8 @@ export function ReportsClient({ eventName, totalRevenue, regCount, checkedIn, re
                   ['Check-in rate', `${checkInPct}%`],
                 ].map(([label, value]) => (
                   <div key={label as string} className="rounded-xl px-3 py-2.5" style={{ background: 'rgba(250,246,238,0.1)', border: '1px solid rgba(250,246,238,0.15)' }}>
-                    <div className="font-mono text-[16px]" style={{ color: '#FAF6EE' }}>{value}</div>
-                    <div className="font-mono text-[8.5px] tracking-[0.12em] uppercase mt-1" style={{ color: 'rgba(250,246,238,0.55)' }}>{label}</div>
+                    <div className=" text-[16px]" style={{ color: '#FAF6EE' }}>{value}</div>
+                    <div className=" text-[8.5px] tracking-[0.12em] uppercase mt-1" style={{ color: 'rgba(250,246,238,0.55)' }}>{label}</div>
                   </div>
                 ))}
               </div>
@@ -184,7 +184,7 @@ export function ReportsClient({ eventName, totalRevenue, regCount, checkedIn, re
                   return (
                     <div key={d.date} className="flex-1 flex flex-col items-center justify-end" style={{ height: 120 }} title={`${d.date}: ${d.count}`}>
                       <div className="w-full rounded-sm transition-all" style={{ height: barH, background: d.count > 0 ? '#1F4D3A' : '#E8EFEB' }} />
-                      <div className="font-mono text-[8px] rotate-45 origin-left mt-1 shrink-0" style={{ color: '#9BA8A1' }}>{d.date.split(' ')[1]}</div>
+                      <div className=" text-[8px] rotate-45 origin-left mt-1 shrink-0" style={{ color: '#9BA8A1' }}>{d.date.split(' ')[1]}</div>
                     </div>
                   );
                 })}
@@ -203,7 +203,7 @@ export function ReportsClient({ eventName, totalRevenue, regCount, checkedIn, re
                       <div key={tt.id}>
                         <div className="flex items-center justify-between mb-1.5 text-[13px]">
                           <span style={{ color: '#3A4A42' }}>{tt.name}</span>
-                          <span className="font-mono" style={{ color: '#6B7A72' }}>
+                          <span className="" style={{ color: '#6B7A72' }}>
                             {tt.count} sold · {tt.revenue === 0 ? 'Free' : (primaryCurrency ? fmtCurrency(tt.revenue, primaryCurrency) : tt.revenue.toLocaleString())}
                           </span>
                         </div>
@@ -240,7 +240,7 @@ export function ReportsClient({ eventName, totalRevenue, regCount, checkedIn, re
                 <thead>
                   <tr className="border-b" style={{ borderColor: '#E5E0D4' }}>
                     {['Name', 'Ticket', 'Amount', 'Status', 'Date'].map(h => (
-                      <th key={h} className="text-left py-2 px-3 font-mono text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>{h}</th>
+                      <th key={h} className="text-left py-2 px-3  text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -251,14 +251,14 @@ export function ReportsClient({ eventName, totalRevenue, regCount, checkedIn, re
                       <td className="py-2.5 px-3" style={{ color: '#3A4A42' }}>
                         {ticketTypes.find(t => t.id === r.ticket_type_id)?.name ?? '—'}
                       </td>
-                      <td className="py-2.5 px-3 font-mono text-[12px]" style={{ color: '#1F4D3A' }}>
+                      <td className="py-2.5 px-3  text-[12px]" style={{ color: '#1F4D3A' }}>
                         {fmtCurrency(r.amount_paid ?? 0, r.currency)}
                       </td>
                       <td className="py-2.5 px-3" style={{ color: '#6B7A72' }}>
                         {r.status === 'checked_in' ? 'Checked In'
                           : r.status.charAt(0).toUpperCase() + r.status.slice(1).replace(/_/g, ' ')}
                       </td>
-                      <td className="py-2.5 px-3 font-mono text-[11px]" style={{ color: '#6B7A72' }}>
+                      <td className="py-2.5 px-3  text-[11px]" style={{ color: '#6B7A72' }}>
                         {new Date(r.created_at).toLocaleDateString()}
                       </td>
                     </tr>
@@ -266,7 +266,7 @@ export function ReportsClient({ eventName, totalRevenue, regCount, checkedIn, re
                 </tbody>
               </table>
               {regs.length > 8 && (
-                <div className="px-3 py-2.5 font-mono text-[11px]" style={{ color: '#6B7A72', borderTop: '1px solid rgba(229,224,212,0.6)' }}>
+                <div className="px-3 py-2.5  text-[11px]" style={{ color: '#6B7A72', borderTop: '1px solid rgba(229,224,212,0.6)' }}>
                   Showing 8 of {regs.length} rows
                 </div>
               )}

@@ -15,7 +15,7 @@ export function SectionHeaderBlock({ content, compact = false }: SectionHeaderBl
   const inner = (
     <div className={`${alignClass} ${maxWidthClass}`}>
       {content.eyebrow && (
-        <div className="font-mono text-[11px] tracking-[0.22em] uppercase mb-5" style={{ color: '#1F4D3A' }}>
+        <div className=" text-[11px] tracking-[0.22em] uppercase mb-5" style={{ color: '#1F4D3A' }}>
           {content.eyebrow}
         </div>
       )}

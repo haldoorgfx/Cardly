@@ -382,7 +382,7 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 px-3 py-1.5 rounded-full" style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 2px 8px rgba(15,31,24,0.08)' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={`/api/qr/${registration.qr_code_token}`} alt="QR" style={{ width: 28, height: 28, background: 'white', padding: 2, borderRadius: 4 }} />
-          <span className="text-[11px] font-mono" style={{ color: '#6B7A72' }}>Show at door · {registration.attendee_name}</span>
+          <span className="text-[11px]" style={{ color: '#6B7A72' }}>Show at door · {registration.attendee_name}</span>
         </div>
 
         <PreviewDownloadScreen

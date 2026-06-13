@@ -97,7 +97,7 @@ export default function SessionDetailClient({ session, relatedSessions, registra
           </h1>
 
           {/* Meta row */}
-          <p className="font-mono text-[13px] mt-3" style={{ color: '#6B7A72' }}>
+          <p className=" text-[13px] mt-3" style={{ color: '#6B7A72' }}>
             {formatTime(session.starts_at)}
             {' · '}
             {formatTime(session.ends_at)}
@@ -195,7 +195,7 @@ export default function SessionDetailClient({ session, relatedSessions, registra
                       )}
                       <div className="flex-1 min-w-0">
                         <p className="text-[14px] font-medium truncate" style={{ color: '#0F1F18' }}>{s.title}</p>
-                        <p className="font-mono text-[12px]" style={{ color: '#6B7A72' }}>
+                        <p className=" text-[12px]" style={{ color: '#6B7A72' }}>
                           {s.starts_at ? formatShortTime(s.starts_at) : ''}
                           {s.room ? ` · ${s.room}` : ''}
                         </p>
@@ -220,12 +220,12 @@ export default function SessionDetailClient({ session, relatedSessions, registra
               </div>
               <div>
                 <p
-                  className="font-mono"
+                  className=""
                   style={{ fontSize: 22, color: '#1F4D3A', fontWeight: 500 }}
                 >
                   {formatTime(session.starts_at)}
                 </p>
-                <p className="font-mono text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>
+                <p className=" text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>
                   ends {formatTime(session.ends_at)} · {duration} min
                 </p>
               </div>
@@ -233,7 +233,7 @@ export default function SessionDetailClient({ session, relatedSessions, registra
                 <p className="text-[14px]" style={{ color: '#6B7A72' }}>{session.room}</p>
               )}
               {session.capacity && (
-                <p className="font-mono text-[13px]" style={{ color: '#6B7A72' }}>
+                <p className=" text-[13px]" style={{ color: '#6B7A72' }}>
                   {session.registrations_count} / {session.capacity} seats
                 </p>
               )}

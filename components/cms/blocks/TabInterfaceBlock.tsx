@@ -26,7 +26,7 @@ export function TabInterfaceBlock({ content }: { content: TabInterfaceContent })
                   : 'border border-[#E5E0D4] text-[#3A4A42] hover:border-[#1F4D3A] hover:text-[#1F4D3A] bg-white'
               }`}
             >
-              {t.icon && <span className="font-mono text-[12px]">{t.icon}</span>}
+              {t.icon && <span className=" text-[12px]">{t.icon}</span>}
               {t.label}
             </button>
           ))}
@@ -46,7 +46,7 @@ export function TabInterfaceBlock({ content }: { content: TabInterfaceContent })
           <div className="space-y-4">
             {tab.problems && tab.problems.length > 0 && (
               <div className="rounded-2xl border border-[#E5E0D4] overflow-hidden bg-white p-5">
-                <div className="font-mono text-[10px] tracking-[0.18em] uppercase text-[#6B7A72] mb-4">Problems solved</div>
+                <div className=" text-[10px] tracking-[0.18em] uppercase text-[#6B7A72] mb-4">Problems solved</div>
                 <ul className="space-y-2">
                   {tab.problems.map((p, pi) => (
                     <li key={pi} className="flex items-start gap-2.5 text-[14px] text-[#3A4A42]">
@@ -59,13 +59,13 @@ export function TabInterfaceBlock({ content }: { content: TabInterfaceContent })
             )}
             {tab.examples && tab.examples.length > 0 && (
               <div className="rounded-2xl border border-[#E5E0D4] overflow-hidden bg-white p-5">
-                <div className="font-mono text-[10px] tracking-[0.18em] uppercase text-[#6B7A72] mb-4">Examples</div>
+                <div className=" text-[10px] tracking-[0.18em] uppercase text-[#6B7A72] mb-4">Examples</div>
                 <ul className="space-y-2">
                   {tab.examples.map((ex, ei) => (
                     <li key={ei} className="flex items-center justify-between">
                       <span className="text-[14px] font-medium text-[#0F1F18]">{ex.title}</span>
                       {ex.role && (
-                        <span className="text-[11px] font-mono text-[#6B7A72] bg-[#FAF6EE] px-2 py-0.5 rounded-full">{ex.role}</span>
+                        <span className="text-[11px] text-[#6B7A72] bg-[#FAF6EE] px-2 py-0.5 rounded-full">{ex.role}</span>
                       )}
                     </li>
                   ))}

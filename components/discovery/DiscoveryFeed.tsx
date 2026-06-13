@@ -379,7 +379,7 @@ export function DiscoveryFeed({ events }: DiscoveryFeedProps) {
               </svg>
             </div>
             <div>
-              <div className="font-mono font-medium text-[17px]" style={{ color: '#0F1F18' }}>{upcoming.length || 120}</div>
+              <div className=" font-medium text-[17px]" style={{ color: '#0F1F18' }}>{upcoming.length || 120}</div>
               <div className="text-[12px]" style={{ color: '#6B7A72' }}>people registered today</div>
             </div>
           </div>
@@ -390,7 +390,7 @@ export function DiscoveryFeed({ events }: DiscoveryFeedProps) {
               </svg>
             </div>
             <div>
-              <div className="font-mono font-medium text-[17px]" style={{ color: '#0F1F18' }}>{upcoming.length || 32}</div>
+              <div className=" font-medium text-[17px]" style={{ color: '#0F1F18' }}>{upcoming.length || 32}</div>
               <div className="text-[12px]" style={{ color: '#6B7A72' }}>events listed</div>
             </div>
           </div>

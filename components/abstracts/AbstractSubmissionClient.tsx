@@ -103,7 +103,7 @@ export default function AbstractSubmissionClient({
           <div key={i} className="flex items-center gap-2">
             <div className="flex items-center gap-2.5">
               <div
-                className="w-6 h-6 rounded-full flex items-center justify-center font-mono text-[12px] shrink-0 transition-colors"
+                className="w-6 h-6 rounded-full flex items-center justify-center  text-[12px] shrink-0 transition-colors"
                 style={{
                   background: i < step ? '#E8EFEB' : i === step ? '#1F4D3A' : 'transparent',
                   border: `1.5px solid ${i <= step ? '#1F4D3A' : '#E5E0D4'}`,
@@ -151,7 +151,7 @@ export default function AbstractSubmissionClient({
               style={{ ...INPUT_STYLE, minHeight: 180, lineHeight: 1.6 }}
             />
             <div
-              className="font-mono text-[12px] text-right mt-1.5"
+              className=" text-[12px] text-right mt-1.5"
               style={{ color: wordCount > maxWords ? '#B8423C' : wordCount > maxWords * 0.9 ? '#C97A2D' : '#6B7A72' }}
             >
               {wordCount} / {maxWords} words

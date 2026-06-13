@@ -56,8 +56,8 @@ export function MeetingsClient({ eventName }: Props) {
           { label: 'No-shows', value: '—' },
         ].map(s => (
           <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
-            <div className="font-mono text-[9.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#6B7A72' }}>{s.label}</div>
-            <div className="font-mono text-[24px] leading-none" style={{ color: '#1F4D3A' }}>{s.value}</div>
+            <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#6B7A72' }}>{s.label}</div>
+            <div className=" text-[24px] leading-none" style={{ color: '#1F4D3A' }}>{s.value}</div>
           </div>
         ))}
       </div>
@@ -87,12 +87,12 @@ export function MeetingsClient({ eventName }: Props) {
               <div className="grid items-center gap-2 mb-2" style={{ gridTemplateColumns: '56px repeat(5, 1fr)' }}>
                 <span />
                 {TABLES.map((t, i) => (
-                  <div key={i} className="text-center font-mono text-[9.5px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>{t}</div>
+                  <div key={i} className="text-center  text-[9.5px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>{t}</div>
                 ))}
               </div>
               {SLOTS.map((s, r) => (
                 <div key={r} className="grid items-stretch gap-2 mb-2" style={{ gridTemplateColumns: '56px repeat(5, 1fr)' }}>
-                  <span className="font-mono text-[12px] flex items-center" style={{ color: '#3A4A42' }}>{s}</span>
+                  <span className=" text-[12px] flex items-center" style={{ color: '#3A4A42' }}>{s}</span>
                   {TABLES.map((_, c) => {
                     if (!booked(r, c)) {
                       return <div key={c} className="rounded-lg h-[44px]" style={{ border: '1px dashed #E5E0D4', background: 'rgba(250,246,238,0.4)' }} />;
@@ -142,7 +142,7 @@ export function MeetingsClient({ eventName }: Props) {
                   <span className="font-medium">{(r.to as [string, number])[0]}</span>
                 </div>
                 <div className="text-[12.5px] mt-0.5" style={{ color: '#3A4A42' }}>{r.topic}</div>
-                <div className="font-mono text-[10.5px] tracking-[0.1em] uppercase mt-1" style={{ color: '#6B7A72' }}>{r.when}</div>
+                <div className=" text-[10.5px] tracking-[0.1em] uppercase mt-1" style={{ color: '#6B7A72' }}>{r.when}</div>
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <button onClick={() => dismiss(i)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12.5px] font-medium border transition-colors"
@@ -179,8 +179,8 @@ export function MeetingsClient({ eventName }: Props) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[['Meeting length', '30 min'], ['Tables', '5'], ['From', '10:00'], ['Until', '16:00']].map(([label, val]) => (
                 <div key={label}>
-                  <div className="font-mono text-[9.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>{label}</div>
-                  <div className="border rounded-lg px-3 py-2.5 text-[13.5px] font-mono" style={{ borderColor: '#E5E0D4', color: '#3A4A42', background: 'rgba(250,246,238,0.5)' }}>{val}</div>
+                  <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>{label}</div>
+                  <div className="border rounded-lg px-3 py-2.5 text-[13.5px]" style={{ borderColor: '#E5E0D4', color: '#3A4A42', background: 'rgba(250,246,238,0.5)' }}>{val}</div>
                 </div>
               ))}
             </div>

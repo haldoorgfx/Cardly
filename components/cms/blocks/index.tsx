@@ -90,7 +90,7 @@ export function BlockRenderer({ block }: { block: CmsBlock }) {
     case 'videoDemo':       return <VideoDemoBlock      content={c as VideoDemoContent} />;
     default:
       return (
-        <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-700 font-mono">
+        <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-700 ">
           Unknown block type: {block.type}
         </div>
       );

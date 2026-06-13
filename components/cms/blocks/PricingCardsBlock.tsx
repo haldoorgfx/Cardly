@@ -28,7 +28,7 @@ export function PricingCardsBlock({ content }: { content: PricingCardsContent })
                 : { background: '#FFFFFF' }
               }>
               {plan.badge && (
-                <div className="absolute -top-3 right-7 inline-flex items-center gap-1.5 font-mono text-[10px] tracking-[0.16em] uppercase bg-[#E8C57E] text-[#163828] px-2.5 py-1 rounded-full font-semibold">
+                <div className="absolute -top-3 right-7 inline-flex items-center gap-1.5  text-[10px] tracking-[0.16em] uppercase bg-[#E8C57E] text-[#163828] px-2.5 py-1 rounded-full font-semibold">
                   {plan.badge}
                 </div>
               )}

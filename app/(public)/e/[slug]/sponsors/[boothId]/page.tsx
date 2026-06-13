@@ -176,12 +176,12 @@ export default async function BoothPage({ params }: Props) {
             style={{ top: 88, background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)' }}
           >
             {sponsor.booth_location && (
-              <div className="font-mono font-normal text-[18px] mb-2" style={{ color: '#1F4D3A' }}>
+              <div className=" font-normal text-[18px] mb-2" style={{ color: '#1F4D3A' }}>
                 {sponsor.booth_location}
               </div>
             )}
             {sponsor.booth_hours && (
-              <div className="font-mono text-[13px] mb-5" style={{ color: '#6B7A72' }}>
+              <div className=" text-[13px] mb-5" style={{ color: '#6B7A72' }}>
                 Open: {sponsor.booth_hours}
               </div>
             )}

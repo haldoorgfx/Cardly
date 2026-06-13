@@ -117,8 +117,8 @@ export function OrdersClient({ orders }: Props) {
           { label: 'Refunded', value: orders.filter(o => o.status === 'refunded').length },
         ].map(s => (
           <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
-            <div className="font-mono text-[9.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#6B7A72' }}>{s.label}</div>
-            <div className="font-mono text-[22px] leading-none tracking-tight" style={{ color: '#1F4D3A' }}>{s.value}</div>
+            <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#6B7A72' }}>{s.label}</div>
+            <div className=" text-[22px] leading-none tracking-tight" style={{ color: '#1F4D3A' }}>{s.value}</div>
           </div>
         ))}
       </div>
@@ -158,12 +158,12 @@ export function OrdersClient({ orders }: Props) {
                     <Avatar name={o.attendee_name ?? '?'} idx={i} />
                     <div className="min-w-0 flex-1">
                       <div className="text-[13.5px] font-medium truncate" style={{ color: '#0F1F18' }}>{o.attendee_name ?? '—'}</div>
-                      <div className="font-mono text-[11px] mt-0.5 truncate" style={{ color: '#6B7A72' }}>
+                      <div className=" text-[11px] mt-0.5 truncate" style={{ color: '#6B7A72' }}>
                         {o.ticket_types?.name ?? '—'} · {fmtDate(o.created_at)}
                       </div>
                     </div>
                     <div className="text-right shrink-0">
-                      <div className="font-mono text-[13.5px]" style={{ color: '#1F4D3A' }}>{fmtAmount(o.amount_paid, o.currency)}</div>
+                      <div className=" text-[13.5px]" style={{ color: '#1F4D3A' }}>{fmtAmount(o.amount_paid, o.currency)}</div>
                       <span className="inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded-full border mt-0.5"
                         style={{ background: ss.bg, color: ss.color, borderColor: ss.border }}>
                         {statusLabel(o.status)}
@@ -194,7 +194,7 @@ export function OrdersClient({ orders }: Props) {
                     <Avatar name={selectedOrder.attendee_name ?? '?'} idx={0} />
                     <div>
                       <div className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>{selectedOrder.attendee_name ?? '—'}</div>
-                      <div className="font-mono text-[11px]" style={{ color: '#6B7A72' }}>{selectedOrder.attendee_email ?? '—'}</div>
+                      <div className=" text-[11px]" style={{ color: '#6B7A72' }}>{selectedOrder.attendee_email ?? '—'}</div>
                     </div>
                   </div>
                   {[
@@ -205,8 +205,8 @@ export function OrdersClient({ orders }: Props) {
                   ].map((row, i, arr) => (
                     <div key={row.label} className={`flex items-center justify-between py-2.5 ${i < arr.length - 1 ? 'border-b' : ''}`}
                       style={{ borderColor: 'rgba(229,224,212,0.6)' }}>
-                      <span className="font-mono text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>{row.label}</span>
-                      <span className={`text-[13.5px] ${row.mono ? 'font-mono text-[12px]' : ''}`} style={{ color: '#0F1F18' }}>{row.value}</span>
+                      <span className=" text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>{row.label}</span>
+                      <span className={`text-[13.5px] ${row.mono ? ' text-[12px]' : ''}`} style={{ color: '#0F1F18' }}>{row.value}</span>
                     </div>
                   ))}
                 </div>

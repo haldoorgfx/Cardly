@@ -196,7 +196,7 @@ export default function EventRow({ event, index, regCount, revenue, currency }: 
       {/* DATE */}
       <td className="px-5 py-3.5 whitespace-nowrap">
         {dateInfo ? (
-          <div className="font-mono text-[12px] leading-tight">
+          <div className=" text-[12px] leading-tight">
             <div className="text-[#0F1F18]">{dateInfo.day} {dateInfo.mon}</div>
             <div className="text-[#6B7A72]">{dateInfo.year}</div>
           </div>
@@ -207,14 +207,14 @@ export default function EventRow({ event, index, regCount, revenue, currency }: 
 
       {/* TICKETS (registration count) */}
       <td className="px-5 py-3.5 whitespace-nowrap">
-        <span className="font-mono text-[13px] text-[#0F1F18] font-medium">
+        <span className=" text-[13px] text-[#0F1F18] font-medium">
           {regCount.toLocaleString()}
         </span>
       </td>
 
       {/* REVENUE */}
       <td className="px-5 py-3.5 whitespace-nowrap">
-        <span className="font-mono text-[13px] text-[#0F1F18]">
+        <span className=" text-[13px] text-[#0F1F18]">
           {revenue > 0 && currency ? (() => {
             try { return new Intl.NumberFormat(undefined, { style: 'currency', currency, minimumFractionDigits: 0 }).format(revenue); }
             catch { return `${currency} ${revenue.toLocaleString()}`; }

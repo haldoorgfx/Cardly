@@ -194,7 +194,7 @@ function TicketList({
                     <div className="text-[12px] mt-0.5 leading-snug" style={{ color: '#6B7A72' }}>{ticket.description}</div>
                   )}
                 </div>
-                <div className="font-mono font-medium text-[15px] shrink-0" style={{ color: soldOut ? '#6B7A72' : '#0F1F18', textDecoration: soldOut ? 'line-through' : 'none' }}>
+                <div className=" font-medium text-[15px] shrink-0" style={{ color: soldOut ? '#6B7A72' : '#0F1F18', textDecoration: soldOut ? 'line-through' : 'none' }}>
                   {soldOut ? 'Sold out' : fmtTicketPrice(ticket.price, ticket.currency)}
                 </div>
               </div>
@@ -524,7 +524,7 @@ export function PublicEventPageClient({
                         gridTemplateColumns: '84px 1fr',
                         borderBottom: i < sessions.length - 1 ? '1px solid #E5E0D4' : 'none',
                       }}>
-                      <span className="font-mono font-medium text-[13px]" style={{ color: '#C9A45E' }}>
+                      <span className=" font-medium text-[13px]" style={{ color: '#C9A45E' }}>
                         {fmtSessionTime(s.starts_at)}
                       </span>
                       <div>

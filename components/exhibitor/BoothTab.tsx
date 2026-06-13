@@ -28,7 +28,7 @@ function Field({ label, value, onChange, area, readOnly }: {
 }) {
   return (
     <div>
-      <div className="font-mono text-[9.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>{label}</div>
+      <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>{label}</div>
       {area ? (
         <textarea
           value={value}

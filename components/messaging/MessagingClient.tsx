@@ -178,7 +178,7 @@ export default function MessagingClient({
                     </div>
                   </div>
                   {t.last_message_at && (
-                    <div className="font-mono text-[11px] shrink-0 self-start mt-1" style={{ color: '#6B7A72' }}>
+                    <div className=" text-[11px] shrink-0 self-start mt-1" style={{ color: '#6B7A72' }}>
                       {timeAgo(t.last_message_at)}
                     </div>
                   )}
@@ -242,7 +242,7 @@ export default function MessagingClient({
               ) : (
                 groupByDay(messages).map(group => (
                   <div key={group.label}>
-                    <div className="font-mono text-[11px] text-center my-3" style={{ color: '#6B7A72' }}>
+                    <div className=" text-[11px] text-center my-3" style={{ color: '#6B7A72' }}>
                       {group.label}
                     </div>
                     {group.msgs.map(m => {

@@ -84,7 +84,7 @@ export default function BillingActions({
           </button>
         )}
         {isTrialing && (
-          <p className="mt-3 text-[12px] font-mono text-[#6B7A72]">
+          <p className="mt-3 text-[12px] text-[#6B7A72]">
             Your trial ends soon. Add a payment method to keep access.
           </p>
         )}
@@ -126,7 +126,7 @@ export default function BillingActions({
               </div>
               <div className="text-right shrink-0 ml-4">
                 <div className="font-display font-bold text-[22px] text-[#0F1F18] leading-none">${p.monthly}<span className="text-[13px] font-normal text-[#6B7A72]">/mo</span></div>
-                <div className="font-mono text-[11px] text-[#6B7A72] mt-0.5">or ${p.annual}/mo billed yearly</div>
+                <div className=" text-[11px] text-[#6B7A72] mt-0.5">or ${p.annual}/mo billed yearly</div>
               </div>
             </div>
             <ul className="mt-4 grid grid-cols-2 gap-y-1.5 gap-x-3">

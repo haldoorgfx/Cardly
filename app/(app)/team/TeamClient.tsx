@@ -107,7 +107,7 @@ function UpsellCard() {
             <div className="flex items-center gap-2 mb-0.5">
               <h2 className="font-display font-bold text-[17px] text-[#0F1F18]">Team collaboration</h2>
               <span
-                className="text-[9px] font-mono tracking-widest px-2 py-0.5 rounded-full"
+                className="text-[9px] tracking-widest px-2 py-0.5 rounded-full"
                 style={{ background: 'rgba(232,197,126,0.18)', color: '#C9A45E', border: '1px solid rgba(232,197,126,0.35)' }}
               >
                 STUDIO
@@ -177,7 +177,7 @@ function InviteModal({ teamId, onClose, onInvited }: { teamId: string; onClose: 
         <p className="text-[13px] text-[#6B7A72] mb-5">They&apos;ll receive a link to join your team.</p>
         <form onSubmit={submit} className="space-y-3">
           <div>
-            <label className="block text-[11px] font-mono tracking-widest text-[#6B7A72] uppercase mb-1.5">Email</label>
+            <label className="block text-[11px] tracking-widest text-[#6B7A72] uppercase mb-1.5">Email</label>
             <input
               type="email"
               value={email}
@@ -188,7 +188,7 @@ function InviteModal({ teamId, onClose, onInvited }: { teamId: string; onClose: 
             />
           </div>
           <div>
-            <label className="block text-[11px] font-mono tracking-widest text-[#6B7A72] uppercase mb-1.5">Role</label>
+            <label className="block text-[11px] tracking-widest text-[#6B7A72] uppercase mb-1.5">Role</label>
             <select
               value={role}
               onChange={e => setRole(e.target.value as 'admin' | 'member')}
@@ -323,7 +323,7 @@ export function TeamClient({
           style={{ gridTemplateColumns: '1fr 110px 120px 100px 36px' }}
         >
           {['MEMBER', 'ROLE', 'EVENT ACCESS', 'STATUS', ''].map(col => (
-            <div key={col} className="text-[10.5px] font-mono tracking-widest text-[#6B7A72]">
+            <div key={col} className="text-[10.5px] tracking-widest text-[#6B7A72]">
               {col}
             </div>
           ))}

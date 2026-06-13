@@ -6,7 +6,7 @@ export function ProseSectionsBlock({ content }: { content: ProseSectionsContent 
   return (
     <section className="max-w-[820px] mx-auto px-5 lg:px-10 pt-20 pb-28">
       {eyebrow && (
-        <div className="text-[11px] tracking-[0.18em] font-mono text-[#1F4D3A] mb-4 uppercase">
+        <div className="text-[11px] tracking-[0.18em] text-[#1F4D3A] mb-4 uppercase">
           {eyebrow}
         </div>
       )}
@@ -14,7 +14,7 @@ export function ProseSectionsBlock({ content }: { content: ProseSectionsContent 
         {headline}
       </h1>
       {updatedAt && (
-        <p className="text-[13px] font-mono text-[#6B7A72]/60 mb-10">
+        <p className="text-[13px] text-[#6B7A72]/60 mb-10">
           Last updated: {updatedAt}
         </p>
       )}

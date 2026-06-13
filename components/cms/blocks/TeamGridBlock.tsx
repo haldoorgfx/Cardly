@@ -44,7 +44,7 @@ export function TeamGridBlock({ content }: { content: TeamGridContent }) {
                 </div>
               )}
               <div className="mt-4 font-display font-semibold text-[#0F1F18] text-[16px] tracking-tight">{m.name}</div>
-              <div className="font-mono text-[10px] tracking-[0.14em] uppercase text-[#1F4D3A] mt-1.5">{m.role}</div>
+              <div className=" text-[10px] tracking-[0.14em] uppercase text-[#1F4D3A] mt-1.5">{m.role}</div>
               {m.location && (
                 <div className="mt-1 text-[12px] text-[#6B7A72]">{m.location}</div>
               )}

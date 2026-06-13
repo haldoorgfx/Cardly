@@ -45,7 +45,7 @@ export default async function SuspendedPage() {
 
         <p className="text-xs text-[#6B7A72] mb-6">
           If you believe this is a mistake, please contact support with your account email:{' '}
-          <span className="font-mono text-[#0F1F18]">{user.email}</span>
+          <span className=" text-[#0F1F18]">{user.email}</span>
         </p>
 
         <div className="flex flex-col gap-3">

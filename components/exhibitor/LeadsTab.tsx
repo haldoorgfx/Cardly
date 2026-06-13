@@ -116,14 +116,14 @@ function LeadPanel({
         <div className="px-5 py-4 space-y-3">
           <div>
             <div className="font-display text-[16px] font-semibold" style={{ color: '#0F1F18' }}>{lead.attendee_name ?? 'Unknown'}</div>
-            {lead.attendee_email && <div className="font-mono text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{lead.attendee_email}</div>}
+            {lead.attendee_email && <div className=" text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{lead.attendee_email}</div>}
             {(lead.role || lead.company) && (
               <div className="text-[13px] mt-0.5" style={{ color: '#3A4A42' }}>
                 {[lead.role, lead.company].filter(Boolean).join(' · ')}
               </div>
             )}
             {(lead.captured_at || lead.created_at) && (
-              <div className="font-mono text-[11px] mt-1" style={{ color: '#6B7A72' }}>
+              <div className=" text-[11px] mt-1" style={{ color: '#6B7A72' }}>
                 Captured {new Date(lead.captured_at ?? lead.created_at).toLocaleDateString()}
               </div>
             )}
@@ -131,7 +131,7 @@ function LeadPanel({
 
           {/* Rating */}
           <div>
-            <div className="font-mono text-[10px] tracking-[0.12em] uppercase mb-2" style={{ color: '#6B7A72' }}>Rating</div>
+            <div className=" text-[10px] tracking-[0.12em] uppercase mb-2" style={{ color: '#6B7A72' }}>Rating</div>
             <div className="flex gap-2">
               {(['hot', 'warm', 'cold'] as const).map(r => {
                 const s = RATING_STYLES[r];
@@ -157,7 +157,7 @@ function LeadPanel({
 
           {/* Note */}
           <div>
-            <div className="font-mono text-[10px] tracking-[0.12em] uppercase mb-2" style={{ color: '#6B7A72' }}>Note</div>
+            <div className=" text-[10px] tracking-[0.12em] uppercase mb-2" style={{ color: '#6B7A72' }}>Note</div>
             <textarea
               value={note}
               onChange={e => setNote(e.target.value)}
@@ -285,7 +285,7 @@ export function LeadsTab({ leads: initialLeads, token }: Props) {
                   <div className="text-[13.5px] font-medium truncate" style={{ color: '#0F1F18' }}>
                     {lead.attendee_name ?? 'Unknown'}
                   </div>
-                  <div className="font-mono text-[11px] truncate mt-0.5" style={{ color: '#6B7A72' }}>
+                  <div className=" text-[11px] truncate mt-0.5" style={{ color: '#6B7A72' }}>
                     {subtitle || lead.attendee_email || '—'}
                   </div>
                 </div>

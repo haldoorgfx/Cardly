@@ -132,7 +132,7 @@ export default function PollsManagerClient({ eventId, initialPolls }: Props) {
                       {poll.is_closed && <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#6B7A72' }}>CLOSED</span>}
                     </div>
                     <p className="font-display font-medium text-[15px]" style={{ color: '#0F1F18' }}>{poll.question}</p>
-                    <p className="font-mono text-[12px] mt-1" style={{ color: '#6B7A72' }}>{totalVotes} vote{totalVotes !== 1 ? 's' : ''}</p>
+                    <p className=" text-[12px] mt-1" style={{ color: '#6B7A72' }}>{totalVotes} vote{totalVotes !== 1 ? 's' : ''}</p>
                   </div>
                   <div className="flex gap-2 shrink-0">
                     {!poll.is_closed && (
@@ -165,7 +165,7 @@ export default function PollsManagerClient({ eventId, initialPolls }: Props) {
                       <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: '#E5E0D4' }}>
                         <div className="h-full rounded-full" style={{ width: `${pct}%`, background: '#1F4D3A' }} />
                       </div>
-                      <span className="font-mono text-[12px] w-10 text-right" style={{ color: '#6B7A72' }}>{pct}%</span>
+                      <span className=" text-[12px] w-10 text-right" style={{ color: '#6B7A72' }}>{pct}%</span>
                     </div>
                   );
                 })}

@@ -29,11 +29,11 @@ export function UseCasesGridBlock({ content }: { content: UseCasesGridContent })
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2.5 mb-4">
                   {c.icon && (
-                    <span className="w-9 h-9 rounded-full bg-[#E8EFEB] text-[#1F4D3A] grid place-items-center shrink-0 font-mono text-[13px]">
+                    <span className="w-9 h-9 rounded-full bg-[#E8EFEB] text-[#1F4D3A] grid place-items-center shrink-0  text-[13px]">
                       {c.icon}
                     </span>
                   )}
-                  <span className="font-mono text-[10px] tracking-[0.2em] text-[#1F4D3A] uppercase">{c.label}</span>
+                  <span className=" text-[10px] tracking-[0.2em] text-[#1F4D3A] uppercase">{c.label}</span>
                 </div>
                 <h3 className="font-display font-semibold text-[#0F1F18] text-[19px] lg:text-[22px] leading-[1.15] tracking-[-0.02em]">
                   {c.title}

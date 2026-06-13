@@ -272,7 +272,7 @@ export function QRScanner({ eventId, eventName, totalRegistrations, initialCheck
             <X size={16} strokeWidth={1.8} /> Close
           </button>
           <div className="font-display font-medium text-[14px] text-white">Manual check-in</div>
-          <div className="font-mono text-[13px]" style={{ color: '#E8C57E' }}>{checkedIn}/{totalRegistrations}</div>
+          <div className=" text-[13px]" style={{ color: '#E8C57E' }}>{checkedIn}/{totalRegistrations}</div>
         </div>
 
         {/* Search input */}
@@ -369,7 +369,7 @@ export function QRScanner({ eventId, eventName, totalRegistrations, initialCheck
         </div>
 
         <div className="text-right">
-          <div className="font-mono text-[13px]" style={{ color: '#E8C57E' }}>
+          <div className=" text-[13px]" style={{ color: '#E8C57E' }}>
             {checkedIn} / {totalRegistrations}
           </div>
           <div className="text-[10px] tracking-wider uppercase" style={{ color: 'rgba(255,255,255,0.35)' }}>

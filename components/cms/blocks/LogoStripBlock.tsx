@@ -20,7 +20,7 @@ export function LogoStripBlock({ content }: LogoStripBlockProps) {
       <div className="mx-auto max-w-[1200px] px-5 lg:px-10 py-10 lg:py-12">
         {content.label && (
           <p
-            className="text-center font-mono text-[11px] tracking-[0.22em] uppercase mb-8"
+            className="text-center  text-[11px] tracking-[0.22em] uppercase mb-8"
             style={{ color: '#6B7A72' }}
           >
             {content.label}
@@ -40,7 +40,7 @@ export function LogoStripBlock({ content }: LogoStripBlockProps) {
             ) : (
               <div
                 key={i}
-                className="flex items-center justify-center w-12 h-12 rounded-full border font-mono text-[12px] font-semibold tracking-wider"
+                className="flex items-center justify-center w-12 h-12 rounded-full border  text-[12px] font-semibold tracking-wider"
                 style={{
                   borderColor: '#E5E0D4',
                   color: '#6B7A72',

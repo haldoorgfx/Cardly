@@ -172,10 +172,10 @@ export function SpeedNetworkingClient({ eventName, eventSlug, attendees: dbAtten
             <div className="relative p-6">
               {/* Top row */}
               <div className="flex items-center justify-between mb-6">
-                <span className="text-[11px] font-mono font-bold tracking-widest" style={{ color: '#E8C57E' }}>
+                <span className="text-[11px] font-bold tracking-widest" style={{ color: '#E8C57E' }}>
                   ROUND {roundIdx + 1} OF {totalRounds} · TABLE {roundIdx + 1}
                 </span>
-                <span className={`font-mono font-bold text-[38px] leading-none ${warn ? 'text-[#E8C57E]' : 'text-white'}`}>
+                <span className={` font-bold text-[38px] leading-none ${warn ? 'text-[#E8C57E]' : 'text-white'}`}>
                   {mins}:{secs}
                 </span>
               </div>
@@ -198,7 +198,7 @@ export function SpeedNetworkingClient({ eventName, eventSlug, attendees: dbAtten
 
               {/* Icebreaker */}
               <div className="rounded-xl p-4 mb-5" style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}>
-                <div className="text-[10px] font-mono font-bold tracking-widest mb-2" style={{ color: '#E8C57E' }}>ICEBREAKER</div>
+                <div className="text-[10px] font-bold tracking-widest mb-2" style={{ color: '#E8C57E' }}>ICEBREAKER</div>
                 <p className="text-[14px]" style={{ color: 'rgba(255,255,255,0.88)', lineHeight: 1.5 }}>{icebreaker}</p>
               </div>
 
@@ -226,7 +226,7 @@ export function SpeedNetworkingClient({ eventName, eventSlug, attendees: dbAtten
               Round {roundIdx + 1} done — move tables
             </h2>
             <p className="text-[13px] mb-5" style={{ color: '#6B7A72', lineHeight: 1.5 }}>
-              Next round starts in <strong className="font-mono">0:{betweenSeconds.toString().padStart(2, '0')}</strong> ·
+              Next round starts in <strong className="">0:{betweenSeconds.toString().padStart(2, '0')}</strong> ·
               you&rsquo;ve exchanged contacts with <strong>{exchanged}</strong> of {roundIdx + 1} matches so far
             </p>
 
@@ -240,7 +240,7 @@ export function SpeedNetworkingClient({ eventName, eventSlug, attendees: dbAtten
               <span className="font-display font-semibold text-[14px]" style={{ color: '#1F4D3A' }}>
                 Next: {nextMatch.attendee_name}
               </span>
-              <span className="text-[12px] font-mono ml-auto" style={{ color: '#6B7A72' }}>
+              <span className="text-[12px] ml-auto" style={{ color: '#6B7A72' }}>
                 Table {roundIdx + 2}
               </span>
             </div>

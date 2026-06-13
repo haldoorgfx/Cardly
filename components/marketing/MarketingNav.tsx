@@ -94,7 +94,7 @@ function MobileOverlay({
         </div>
 
         <div className="px-5 pt-5 pb-10 flex-1 flex flex-col">
-          <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-muted mb-4">Platform</div>
+          <div className=" text-[10px] tracking-[0.22em] uppercase text-muted mb-4">Platform</div>
 
           {/* Feature grid */}
           <div className="grid grid-cols-2 gap-2 mb-7">
@@ -171,8 +171,8 @@ function MobileOverlay({
           </div>
 
           <div className="mt-auto pt-10 flex items-center justify-between">
-            <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-muted">karta.cre8so.com</div>
-            <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-primary">Built for the world</div>
+            <div className=" text-[10px] tracking-[0.22em] uppercase text-muted">karta.cre8so.com</div>
+            <div className=" text-[10px] tracking-[0.22em] uppercase text-primary">Built for the world</div>
           </div>
         </div>
       </div>
@@ -266,7 +266,7 @@ export function MarketingNav() {
                   <div className="grid grid-cols-2 gap-2">
                     {(['Manage', 'Engage'] as const).map((col) => (
                       <div key={col} className={col === 'Engage' ? 'pl-3 border-l border-border/70' : ''}>
-                        <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-muted px-2.5 pt-1.5 pb-2">{col}</div>
+                        <div className=" text-[10px] tracking-[0.22em] uppercase text-muted px-2.5 pt-1.5 pb-2">{col}</div>
                         <div className="grid">
                           {PRODUCT_MENU[col].map((item) => {
                             const IconC = item.icon;

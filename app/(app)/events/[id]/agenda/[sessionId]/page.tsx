@@ -22,7 +22,7 @@ const AVATAR_GRADS = [
 function InfoRow({ label, children, last }: { label: string; children: React.ReactNode; last?: boolean }) {
   return (
     <div className={`flex items-center justify-between gap-4 py-2.5 ${last ? '' : 'border-b'}`} style={{ borderColor: '#E5E0D4' }}>
-      <span className="font-mono text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>{label}</span>
+      <span className=" text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>{label}</span>
       <span className="text-[13.5px] text-right" style={{ color: '#0F1F18' }}>{children}</span>
     </div>
   );
@@ -107,7 +107,7 @@ export default async function SessionDetailPage({ params }: Props) {
             <h1 className="font-display text-[24px] font-semibold leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
               {session.title}
             </h1>
-            <div className="flex items-center gap-4 mt-2 font-mono text-[12.5px] flex-wrap" style={{ color: '#6B7A72' }}>
+            <div className="flex items-center gap-4 mt-2  text-[12.5px] flex-wrap" style={{ color: '#6B7A72' }}>
               {startsAt && (
                 <span className="inline-flex items-center gap-1.5">
                   <Clock size={13} /> {timeStr}{durationMin ? ` · ${durationMin}m` : ''}
@@ -167,7 +167,7 @@ export default async function SessionDetailPage({ params }: Props) {
                         )}
                         <div className="min-w-0">
                           <div className="text-[13px] font-medium truncate" style={{ color: '#0F1F18' }}>{sp.name}</div>
-                          {sp.company && <div className="font-mono text-[10.5px]" style={{ color: '#6B7A72' }}>{sp.company}</div>}
+                          {sp.company && <div className=" text-[10.5px]" style={{ color: '#6B7A72' }}>{sp.company}</div>}
                         </div>
                       </Link>
                     );
@@ -184,10 +184,10 @@ export default async function SessionDetailPage({ params }: Props) {
               <div className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
                 <div className="font-display text-[14.5px] font-semibold mb-4" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>Attendance</div>
                 <div className="text-center py-1">
-                  <div className="font-mono text-[30px] font-medium leading-none tracking-tight" style={{ color: '#1F4D3A' }}>
+                  <div className=" text-[30px] font-medium leading-none tracking-tight" style={{ color: '#1F4D3A' }}>
                     {session.registrations_count}
                   </div>
-                  <div className="font-mono text-[10px] tracking-[0.12em] uppercase mt-1.5" style={{ color: '#6B7A72' }}>
+                  <div className=" text-[10px] tracking-[0.12em] uppercase mt-1.5" style={{ color: '#6B7A72' }}>
                     registered · cap {session.capacity}
                   </div>
                   <div className="mt-3 h-2 rounded-full overflow-hidden" style={{ background: '#E5E0D4' }}>

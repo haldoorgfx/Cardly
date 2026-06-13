@@ -313,14 +313,14 @@ export function MediaLibraryClient({
 
               {/* URL copy */}
               <div className="mt-4">
-                <label className="block text-[11px] font-mono uppercase tracking-[0.12em] text-[#6B7A72] mb-1">
+                <label className="block text-[11px] uppercase tracking-[0.12em] text-[#6B7A72] mb-1">
                   URL
                 </label>
                 <div className="flex items-center gap-2">
                   <input
                     readOnly
                     value={selected.url}
-                    className="flex-1 h-8 px-3 rounded-lg border border-[#E5E0D4] text-[12px] font-mono text-[#3A4A42] bg-[#FAF6EE] focus:outline-none"
+                    className="flex-1 h-8 px-3 rounded-lg border border-[#E5E0D4] text-[12px] text-[#3A4A42] bg-[#FAF6EE] focus:outline-none"
                     onClick={(e) => (e.target as HTMLInputElement).select()}
                   />
                   <button
@@ -334,7 +334,7 @@ export function MediaLibraryClient({
 
               {/* Alt text */}
               <div className="mt-4">
-                <label className="block text-[11px] font-mono uppercase tracking-[0.12em] text-[#6B7A72] mb-1">
+                <label className="block text-[11px] uppercase tracking-[0.12em] text-[#6B7A72] mb-1">
                   Alt text
                 </label>
                 {editingId === selected.id ? (

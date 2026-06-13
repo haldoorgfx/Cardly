@@ -67,7 +67,7 @@ function LeadModal({ token, onClose, onAdded }: { token: string; onClose: () => 
           {/* Name + Email */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <div className="font-mono text-[9.5px] tracking-[0.14em] uppercase mb-1" style={{ color: '#6B7A72' }}>Name *</div>
+              <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-1" style={{ color: '#6B7A72' }}>Name *</div>
               <input
                 type="text" placeholder="Jane Smith" value={form.attendee_name} onChange={e => set('attendee_name')(e.target.value)}
                 className="w-full border rounded-lg px-3 py-2 text-[13.5px] outline-none focus:ring-2 bg-white"
@@ -75,7 +75,7 @@ function LeadModal({ token, onClose, onAdded }: { token: string; onClose: () => 
               />
             </div>
             <div>
-              <div className="font-mono text-[9.5px] tracking-[0.14em] uppercase mb-1" style={{ color: '#6B7A72' }}>Email</div>
+              <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-1" style={{ color: '#6B7A72' }}>Email</div>
               <input
                 type="email" placeholder="jane@…" value={form.attendee_email} onChange={e => set('attendee_email')(e.target.value)}
                 className="w-full border rounded-lg px-3 py-2 text-[13.5px] outline-none focus:ring-2 bg-white"
@@ -87,7 +87,7 @@ function LeadModal({ token, onClose, onAdded }: { token: string; onClose: () => 
           {/* Company + Role */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <div className="font-mono text-[9.5px] tracking-[0.14em] uppercase mb-1" style={{ color: '#6B7A72' }}>Company</div>
+              <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-1" style={{ color: '#6B7A72' }}>Company</div>
               <input
                 type="text" placeholder="Acme Corp" value={form.company} onChange={e => set('company')(e.target.value)}
                 className="w-full border rounded-lg px-3 py-2 text-[13.5px] outline-none focus:ring-2 bg-white"
@@ -95,7 +95,7 @@ function LeadModal({ token, onClose, onAdded }: { token: string; onClose: () => 
               />
             </div>
             <div>
-              <div className="font-mono text-[9.5px] tracking-[0.14em] uppercase mb-1" style={{ color: '#6B7A72' }}>Role</div>
+              <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-1" style={{ color: '#6B7A72' }}>Role</div>
               <input
                 type="text" placeholder="CTO" value={form.role} onChange={e => set('role')(e.target.value)}
                 className="w-full border rounded-lg px-3 py-2 text-[13.5px] outline-none focus:ring-2 bg-white"
@@ -106,7 +106,7 @@ function LeadModal({ token, onClose, onAdded }: { token: string; onClose: () => 
 
           {/* Rating */}
           <div>
-            <div className="font-mono text-[9.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#6B7A72' }}>Lead rating</div>
+            <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#6B7A72' }}>Lead rating</div>
             <div className="grid grid-cols-3 gap-2">
               {RATINGS.map(r => (
                 <button
@@ -128,7 +128,7 @@ function LeadModal({ token, onClose, onAdded }: { token: string; onClose: () => 
 
           {/* Notes */}
           <div>
-            <div className="font-mono text-[9.5px] tracking-[0.14em] uppercase mb-1" style={{ color: '#6B7A72' }}>Notes</div>
+            <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-1" style={{ color: '#6B7A72' }}>Notes</div>
             <textarea
               rows={2} placeholder="What did you discuss…" value={form.note} onChange={e => set('note')(e.target.value)}
               className="w-full border rounded-lg px-3 py-2 text-[13.5px] outline-none focus:ring-2 resize-none bg-white"
@@ -174,9 +174,9 @@ function Stat({ label, value, sub, accent }: { label: string; value: string | nu
           : { background: '#FFFFFF', borderColor: '#E5E0D4' }
       }
     >
-      <div className="font-mono text-[9.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#6B7A72' }}>{label}</div>
-      <div className="font-mono text-[26px] tracking-tight leading-none" style={{ color: '#1F4D3A' }}>{value}</div>
-      {sub && <div className="font-mono text-[11px] mt-2" style={{ color: '#2D7A4F' }}>{sub}</div>}
+      <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-2" style={{ color: '#6B7A72' }}>{label}</div>
+      <div className=" text-[26px] tracking-tight leading-none" style={{ color: '#1F4D3A' }}>{value}</div>
+      {sub && <div className=" text-[11px] mt-2" style={{ color: '#2D7A4F' }}>{sub}</div>}
     </div>
   );
 }
@@ -276,7 +276,7 @@ export function OverviewTab({ stats: initialStats, boothNumber, token }: Props) 
                 <div key={i}>
                   <div className="flex items-center justify-between mb-1.5 text-[13px]">
                     <span style={{ color: '#3A4A42' }}>{bar.label}</span>
-                    <span className="font-mono" style={{ color: '#6B7A72' }}>{bar.count} · {pct}%</span>
+                    <span className="" style={{ color: '#6B7A72' }}>{bar.count} · {pct}%</span>
                   </div>
                   <div className="h-2.5 rounded-full overflow-hidden" style={{ background: 'rgba(232,239,235,0.6)' }}>
                     <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: bar.color }} />
@@ -299,7 +299,7 @@ export function OverviewTab({ stats: initialStats, boothNumber, token }: Props) 
                   </span>
                   <div className="min-w-0">
                     <div className="text-[13px] font-medium" style={{ color: '#0F1F18' }}>Product demo at booth</div>
-                    <div className="font-mono text-[10.5px] mt-0.5" style={{ color: '#6B7A72' }}>Booth {boothNumber}</div>
+                    <div className=" text-[10.5px] mt-0.5" style={{ color: '#6B7A72' }}>Booth {boothNumber}</div>
                   </div>
                 </div>
               )

@@ -98,7 +98,7 @@ export function MarketingFooter() {
           {/* Link columns */}
           {FOOTER_COLS.map((col) => (
             <div key={col.title}>
-              <div className="font-mono text-[10px] tracking-[0.22em] uppercase mb-4" style={{ color: '#E8C57E' }}>
+              <div className=" text-[10px] tracking-[0.22em] uppercase mb-4" style={{ color: '#E8C57E' }}>
                 {col.title}
               </div>
               <ul className="space-y-2.5">
@@ -128,7 +128,7 @@ export function MarketingFooter() {
           </div>
           {/* Made in Djibouti badge */}
           <div
-            className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.22em] uppercase px-3 py-1.5 rounded-full"
+            className="inline-flex items-center gap-2  text-[10px] tracking-[0.22em] uppercase px-3 py-1.5 rounded-full"
             style={{ color: '#E8C57E', background: 'rgba(250,246,238,0.05)', border: '1px solid rgba(250,246,238,0.15)' }}
           >
             {/* Djibouti flag mini */}

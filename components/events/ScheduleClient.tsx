@@ -167,7 +167,7 @@ export default function ScheduleClient({ sessions, tracks, registrationId, saved
                 {/* Time column */}
                 <div className="w-14 shrink-0 flex flex-col items-center pt-3.5">
                   <span
-                    className="font-mono text-[13px] font-medium"
+                    className=" text-[13px] font-medium"
                     style={{ color: '#1F4D3A' }}
                   >
                     {formatTime(session.starts_at)}

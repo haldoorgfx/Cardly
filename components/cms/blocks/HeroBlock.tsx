@@ -10,7 +10,7 @@ export function HeroBlock({ content }: { content: HeroContent }) {
       <section className="relative overflow-hidden">
         <div className="relative mx-auto max-w-[920px] px-5 lg:px-10 py-20 lg:py-32 text-center">
           {eyebrow && (
-            <div className="font-mono text-[11px] tracking-[0.18em] uppercase mb-5" style={{ color: 'rgba(31,77,58,0.8)' }}>
+            <div className=" text-[11px] tracking-[0.18em] uppercase mb-5" style={{ color: 'rgba(31,77,58,0.8)' }}>
               {eyebrow}
             </div>
           )}
@@ -64,7 +64,7 @@ export function HeroBlock({ content }: { content: HeroContent }) {
       <div className="relative mx-auto max-w-[1200px] px-5 lg:px-10 pt-12 pb-20 lg:pt-20 lg:pb-28 grid lg:grid-cols-[1fr_1.15fr] gap-12 lg:gap-4 items-center">
         <div className="order-2 lg:order-1">
           {eyebrow && (
-            <div className="font-mono text-[11px] tracking-[0.18em] uppercase mb-5" style={{ color: 'rgba(31,77,58,0.8)' }}>
+            <div className=" text-[11px] tracking-[0.18em] uppercase mb-5" style={{ color: 'rgba(31,77,58,0.8)' }}>
               {eyebrow}
             </div>
           )}
@@ -109,7 +109,7 @@ export function HeroBlock({ content }: { content: HeroContent }) {
               {statsStrip.map((s) => (
                 <div key={s.label} className="px-4 py-3.5" style={{ background: '#FAF6EE' }}>
                   <div className="font-display font-bold text-[#1F4D3A] text-[22px] tracking-[-0.03em] leading-none">{s.value}</div>
-                  <div className="mt-1.5 font-mono text-[9px] tracking-[0.16em] uppercase text-[#6B7A72]">{s.label}</div>
+                  <div className="mt-1.5  text-[9px] tracking-[0.16em] uppercase text-[#6B7A72]">{s.label}</div>
                 </div>
               ))}
             </div>

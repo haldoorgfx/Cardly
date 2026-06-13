@@ -53,7 +53,7 @@ export default async function VirtualPage({ params }: Props) {
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full mb-4"
               style={{ background: 'rgba(45,122,79,0.3)', border: '1px solid rgba(45,122,79,0.5)' }}>
               <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#2D7A4F' }} />
-              <span className="font-mono text-[11px] tracking-widest uppercase" style={{ color: '#A8C2B5' }}>Live Stream</span>
+              <span className=" text-[11px] tracking-widest uppercase" style={{ color: '#A8C2B5' }}>Live Stream</span>
             </div>
             <h2 className="font-display text-[22px] font-semibold mb-2" style={{ color: 'white', letterSpacing: '-0.02em' }}>
               {event.name}
@@ -83,7 +83,7 @@ export default async function VirtualPage({ params }: Props) {
                 style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
                 <s.icon size={16} strokeWidth={1.8} />
               </div>
-              <div className="font-mono text-[24px] font-medium leading-none" style={{ color: '#0F1F18' }}>{s.value}</div>
+              <div className=" text-[24px] font-medium leading-none" style={{ color: '#0F1F18' }}>{s.value}</div>
               <div className="text-[12.5px] mt-1.5" style={{ color: '#6B7A72' }}>{s.label}</div>
             </div>
           ))}
@@ -120,7 +120,7 @@ export default async function VirtualPage({ params }: Props) {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-[13.5px] font-medium truncate" style={{ color: '#0F1F18' }}>{ss.title}</div>
-                      <div className="font-mono text-[11px] mt-0.5" style={{ color: '#6B7A72' }}>
+                      <div className=" text-[11px] mt-0.5" style={{ color: '#6B7A72' }}>
                         {start.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · {start.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })}
                       </div>
                     </div>

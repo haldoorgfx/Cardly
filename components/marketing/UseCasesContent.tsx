@@ -206,7 +206,7 @@ function UseCaseSection({ u }: { u: UseCase }) {
         {/* Header */}
         <Reveal>
           <div className="max-w-[820px] mb-12 lg:mb-16">
-            <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-5 inline-flex items-center gap-2">
+            <div className=" text-[11px] tracking-[0.22em] text-primary uppercase mb-5 inline-flex items-center gap-2">
               <span className="w-7 h-7 rounded-full bg-primary-soft text-primary grid place-items-center shrink-0">
                 {u.icon}
               </span>
@@ -243,7 +243,7 @@ function UseCaseSection({ u }: { u: UseCase }) {
                 backgroundSize: '20px 20px',
               }}
             />
-            <div className="relative font-mono text-[10px] tracking-[0.22em] uppercase text-primary mb-8">
+            <div className="relative  text-[10px] tracking-[0.22em] uppercase text-primary mb-8">
               Example variants
             </div>
 
@@ -280,7 +280,7 @@ function UseCaseSection({ u }: { u: UseCase }) {
               >
                 See template <ArrowRight size={14} strokeWidth={2} />
               </Link>
-              <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-muted">
+              <span className=" text-[10px] tracking-[0.18em] uppercase text-muted">
                 {u.template}
               </span>
             </div>
@@ -290,13 +290,13 @@ function UseCaseSection({ u }: { u: UseCase }) {
           {/* RIGHT — problems + quote */}
           <Reveal delay={120}>
           <div>
-            <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-muted mb-5">
+            <div className=" text-[10px] tracking-[0.22em] uppercase text-muted mb-5">
               What Karta fixes
             </div>
             <ol className="space-y-5">
               {u.problems.map((p, i) => (
                 <li key={i} className="flex items-start gap-4">
-                  <span className="shrink-0 font-mono text-[12px] font-semibold bg-primary text-cream w-7 h-7 rounded-full grid place-items-center mt-0.5">
+                  <span className="shrink-0  text-[12px] font-semibold bg-primary text-cream w-7 h-7 rounded-full grid place-items-center mt-0.5">
                     {String(i + 1).padStart(2, '0')}
                   </span>
                   <p className="text-ink text-[16px] lg:text-[17px] leading-[1.5] tracking-[-0.005em]">
@@ -317,10 +317,10 @@ function UseCaseSection({ u }: { u: UseCase }) {
               <blockquote className="font-display text-ink text-[17px] lg:text-[19px] leading-[1.4] tracking-[-0.01em] italic">
                 &ldquo;{u.quote.text}&rdquo;
               </blockquote>
-              <figcaption className="mt-4 font-mono text-[10px] tracking-[0.18em] uppercase text-muted">
+              <figcaption className="mt-4  text-[10px] tracking-[0.18em] uppercase text-muted">
                 {u.quote.who}
               </figcaption>
-              <div className="mt-1 font-mono text-[9px] tracking-[0.18em] uppercase" style={{ color: 'rgba(107,122,114,0.6)' }}>
+              <div className="mt-1  text-[9px] tracking-[0.18em] uppercase" style={{ color: 'rgba(107,122,114,0.6)' }}>
                 [placeholder]
               </div>
             </figure>

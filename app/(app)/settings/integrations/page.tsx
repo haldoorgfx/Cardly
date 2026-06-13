@@ -35,7 +35,7 @@ export default async function IntegrationsPage() {
                 style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
                 {int.name[0]}
               </div>
-              <span className="font-mono text-[9.5px] tracking-[0.14em] uppercase px-2 py-1 rounded-full"
+              <span className=" text-[9.5px] tracking-[0.14em] uppercase px-2 py-1 rounded-full"
                 style={{ background: '#F5F3EE', color: '#6B7A72', border: '1px solid #E5E0D4' }}>
                 Soon
               </span>

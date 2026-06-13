@@ -34,7 +34,7 @@ export default function BlogArticlePage() {
           </Link>
 
           <div
-            className="inline-flex items-center px-3 py-1 rounded-full font-mono text-[9px] tracking-[0.20em] uppercase mb-5"
+            className="inline-flex items-center px-3 py-1 rounded-full  text-[9px] tracking-[0.20em] uppercase mb-5"
             style={{ background: 'rgba(31,77,58,0.08)', color: '#1F4D3A' }}
           >
             Coming soon

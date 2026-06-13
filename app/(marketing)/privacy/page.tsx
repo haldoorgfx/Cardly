@@ -2,13 +2,13 @@ export default function PrivacyPage() {
   return (
     <>
       <section className="max-w-[820px] mx-auto px-6 pt-20 pb-28">
-        <div className="text-[11px] tracking-[0.18em] font-mono text-brand-primary mb-4">
+        <div className="text-[11px] tracking-[0.18em] text-brand-primary mb-4">
           LEGAL
         </div>
         <h1 className="font-title font-bold text-[40px] sm:text-[48px] leading-[1.05] mb-3">
           Privacy Policy
         </h1>
-        <p className="text-[13px] font-mono text-brand-ink/45 mb-10">
+        <p className="text-[13px] text-brand-ink/45 mb-10">
           Last updated: May 2026
         </p>
 

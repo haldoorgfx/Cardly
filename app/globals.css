@@ -24,6 +24,7 @@
     --input:               38 20% 86%;
     --ring:                155 42% 21%;  /* primary */
     --radius:              0.75rem;
+    --font-sans:           "Inter", system-ui, sans-serif;
   }
 
   html,

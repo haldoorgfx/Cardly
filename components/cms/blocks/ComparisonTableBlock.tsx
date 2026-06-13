@@ -35,7 +35,7 @@ export function ComparisonTableBlock({ content }: { content: ComparisonTableCont
             <div key={gi}>
               {/* Group label */}
               <div className="px-5 py-3 bg-[#F5F3EF] border-b border-[#E5E0D4]">
-                <span className="font-mono text-[11px] tracking-[0.18em] uppercase text-[#6B7A72]">
+                <span className=" text-[11px] tracking-[0.18em] uppercase text-[#6B7A72]">
                   {group.label}
                 </span>
               </div>

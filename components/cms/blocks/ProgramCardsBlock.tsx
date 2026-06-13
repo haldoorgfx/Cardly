@@ -18,12 +18,12 @@ export function ProgramCardsBlock({ content }: { content: ProgramCardsContent })
             <div key={i} className="bg-white border border-[#E5E0D4] rounded-2xl p-6 lg:p-7 flex flex-col">
               <div className="flex items-center gap-3 mb-4">
                 {p.icon && (
-                  <span className="w-10 h-10 rounded-xl bg-[#E8EFEB] text-[#1F4D3A] grid place-items-center font-mono text-[15px]">
+                  <span className="w-10 h-10 rounded-xl bg-[#E8EFEB] text-[#1F4D3A] grid place-items-center  text-[15px]">
                     {p.icon}
                   </span>
                 )}
                 {p.tag && (
-                  <span className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#C9A45E] bg-[rgba(232,197,126,0.15)] px-2 py-0.5 rounded-full">
+                  <span className=" text-[10px] tracking-[0.16em] uppercase text-[#C9A45E] bg-[rgba(232,197,126,0.15)] px-2 py-0.5 rounded-full">
                     {p.tag}
                   </span>
                 )}

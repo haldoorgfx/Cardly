@@ -312,7 +312,7 @@ export default function TemplatesPage() {
                 activeCategory === cat.key ? 'bg-[#0F1F18] text-white' : 'bg-white border border-[#E5E0D4] text-[#0F1F18]/65 hover:bg-[#FAF6EE] hover:text-[#0F1F18]'
               }`}>
               {cat.label}
-              <span className={`ml-1.5 font-mono text-[10.5px] ${activeCategory === cat.key ? 'opacity-50' : 'opacity-40'}`}>{cat.count}</span>
+              <span className={`ml-1.5  text-[10.5px] ${activeCategory === cat.key ? 'opacity-50' : 'opacity-40'}`}>{cat.count}</span>
             </button>
           ))}
           <div className="flex-1" />
@@ -354,7 +354,7 @@ export default function TemplatesPage() {
 
                   {/* POPULAR / NEW badge */}
                   {tmpl.badge && !isLoading && (
-                    <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[9px] font-mono tracking-widest text-white z-10"
+                    <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[9px] tracking-widest text-white z-10"
                       style={{ background:'linear-gradient(135deg,#1F4D3A,#E8C57E)' }}>
                       {tmpl.badge}
                     </div>
@@ -377,7 +377,7 @@ export default function TemplatesPage() {
                 <div className="mt-3 flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <div className="font-display font-semibold text-[14px] leading-tight truncate">{tmpl.name}</div>
-                    <div className="text-[11px] font-mono text-[#0F1F18]/40 tracking-wide mt-0.5">{tmpl.catLabel}</div>
+                    <div className="text-[11px] text-[#0F1F18]/40 tracking-wide mt-0.5">{tmpl.catLabel}</div>
                   </div>
                   <button onClick={e => toggleFav(tmpl.id, e)}
                     className={`h-7 w-7 rounded-lg grid place-items-center shrink-0 transition hover:bg-[#FAF6EE] ${favorites.has(tmpl.id) ? 'text-[#E8C57E]' : 'text-[#0F1F18]/25 hover:text-[#0F1F18]/50'}`}>
@@ -401,7 +401,7 @@ export default function TemplatesPage() {
           <div className="mt-12">
             <div className="flex items-center gap-3 mb-4">
               <div className="h-px flex-1 bg-[#E5E0D4]" />
-              <span className="text-[10px] font-mono text-[#6B7A72] uppercase tracking-widest">Platform templates</span>
+              <span className="text-[10px] text-[#6B7A72] uppercase tracking-widest">Platform templates</span>
               <div className="h-px flex-1 bg-[#E5E0D4]" />
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
@@ -433,7 +433,7 @@ export default function TemplatesPage() {
                   <div className="p-3">
                     <div className="font-medium text-[13px] text-[#0F1F18] truncate">{t.name}</div>
                     {t.category && (
-                      <div className="text-[10px] font-mono text-[#6B7A72] uppercase tracking-wide mt-0.5">{t.category}</div>
+                      <div className="text-[10px] text-[#6B7A72] uppercase tracking-wide mt-0.5">{t.category}</div>
                     )}
                   </div>
                 </div>
@@ -444,7 +444,7 @@ export default function TemplatesPage() {
 
         {/* Coming soon */}
         <div className="mt-12 rounded-2xl border border-dashed border-[#1F4D3A]/20 bg-gradient-to-br from-[#1F4D3A]/[0.03] to-[#E8C57E]/[0.03] px-8 py-8 text-center">
-          <div className="text-[10px] font-mono tracking-widest text-[#1F4D3A]/60 mb-2 uppercase">Coming soon</div>
+          <div className="text-[10px] tracking-widest text-[#1F4D3A]/60 mb-2 uppercase">Coming soon</div>
           <div className="font-display font-bold text-[22px]">Submit your own template</div>
           <p className="text-[13.5px] text-[#0F1F18]/55 mt-2 max-w-[420px] mx-auto">Save any event design as a reusable template and share it with the community.</p>
           <Link href="/pricing" className="mt-5 inline-flex items-center gap-2 text-[13px] font-semibold text-white px-6 py-3 rounded-xl hover:opacity-95 transition"

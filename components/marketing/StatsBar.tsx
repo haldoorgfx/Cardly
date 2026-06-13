@@ -44,7 +44,7 @@ export async function StatsBar() {
                 {s.value}
               </span>
               <span
-                className="font-mono text-[11px] tracking-[0.15em] uppercase"
+                className=" text-[11px] tracking-[0.15em] uppercase"
                 style={{ color: 'rgba(250,246,238,0.55)' }}
               >
                 {s.label}

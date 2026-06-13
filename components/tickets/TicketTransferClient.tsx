@@ -69,7 +69,7 @@ export function TicketTransferClient({ registration: reg }: Props) {
               {new Date(ep.starts_at).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })}
             </div>
           )}
-          <div className="mt-3 text-[12px] font-mono" style={{ color: '#3A4A42' }}>#{ticketNum}</div>
+          <div className="mt-3 text-[12px]" style={{ color: '#3A4A42' }}>#{ticketNum}</div>
         </div>
       </div>
 

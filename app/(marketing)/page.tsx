@@ -27,7 +27,7 @@ function DashboardMock() {
         width: '100%',
       }}
     >
-      <div style={{ color: 'rgba(250,246,238,0.5)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', fontFamily: 'var(--font-mono)', marginBottom: 14 }}>
+      <div style={{ color: 'rgba(250,246,238,0.5)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', marginBottom: 14 }}>
         Event Analytics
       </div>
       <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 56 }}>
@@ -45,7 +45,7 @@ function DashboardMock() {
       </div>
       <div style={{ marginTop: 12, display: 'flex', gap: 12 }}>
         {['847 reg.', '412 check-ins', '1,200 cards'].map((s) => (
-          <div key={s} style={{ fontSize: 9, color: 'rgba(250,246,238,0.45)', fontFamily: 'var(--font-mono)', letterSpacing: '0.1em' }}>{s}</div>
+          <div key={s} style={{ fontSize: 9, color: 'rgba(250,246,238,0.45)', fontFamily: 'var(--font-sans)', letterSpacing: '0.1em' }}>{s}</div>
         ))}
       </div>
     </div>
@@ -68,8 +68,8 @@ function EventPageMock() {
         Pan-African Climate Summit
       </div>
       <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
-        <span style={{ fontSize: 9, background: '#E8EFEB', color: '#1F4D3A', borderRadius: 100, padding: '3px 8px', fontFamily: 'var(--font-mono)' }}>Mar 15 · Nairobi</span>
-        <span style={{ fontSize: 9, background: '#FAF6EE', color: '#6B7A72', borderRadius: 100, padding: '3px 8px', fontFamily: 'var(--font-mono)', border: '1px solid #E5E0D4' }}>2,400 attending</span>
+        <span style={{ fontSize: 9, background: '#E8EFEB', color: '#1F4D3A', borderRadius: 100, padding: '3px 8px', fontFamily: 'var(--font-sans)' }}>Mar 15 · Nairobi</span>
+        <span style={{ fontSize: 9, background: '#FAF6EE', color: '#6B7A72', borderRadius: 100, padding: '3px 8px', fontFamily: 'var(--font-sans)', border: '1px solid #E5E0D4' }}>2,400 attending</span>
       </div>
       <div
         style={{
@@ -122,7 +122,7 @@ function CardConfirmMock() {
             <div style={{ fontSize: 8, color: 'rgba(250,246,238,0.6)', marginTop: 1 }}>Climate Policy Lead</div>
           </div>
         </div>
-        <div style={{ position: 'absolute', bottom: 8, right: 10, fontSize: 7, color: 'rgba(232,197,126,0.8)', fontFamily: 'var(--font-mono)', letterSpacing: '0.12em' }}>KARTA</div>
+        <div style={{ position: 'absolute', bottom: 8, right: 10, fontSize: 7, color: 'rgba(232,197,126,0.8)', fontFamily: 'var(--font-sans)', letterSpacing: '0.12em' }}>KARTA</div>
       </div>
       <div
         style={{
@@ -185,7 +185,7 @@ function Hero() {
                 border: '1px solid rgba(31,77,58,0.2)',
                 color: '#1F4D3A',
                 fontSize: 12,
-                fontFamily: 'var(--font-mono)',
+                fontFamily: 'var(--font-sans)',
                 letterSpacing: '0.04em',
               }}
             >
@@ -322,7 +322,7 @@ function TrustStrip() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           {/* Left: trusted by */}
           <div className="flex flex-wrap items-center gap-3">
-            <span style={{ fontSize: 12, color: '#6B7A72', fontFamily: 'var(--font-mono)', letterSpacing: '0.04em' }}>
+            <span style={{ fontSize: 12, color: '#6B7A72', fontFamily: 'var(--font-sans)', letterSpacing: '0.04em' }}>
               Trusted by organizations across Africa:
             </span>
             {[
@@ -338,7 +338,7 @@ function TrustStrip() {
                   background: '#FFFFFF',
                   fontSize: 11,
                   color: '#3A4A42',
-                  fontFamily: 'var(--font-mono)',
+                  fontFamily: 'var(--font-sans)',
                   letterSpacing: '0.06em',
                 }}
               >
@@ -367,7 +367,7 @@ function TrustStrip() {
             style={{
               fontSize: 12,
               color: '#6B7A72',
-              fontFamily: 'var(--font-mono)',
+              fontFamily: 'var(--font-sans)',
               letterSpacing: '0.06em',
               whiteSpace: 'nowrap',
             }}
@@ -458,7 +458,7 @@ function PlatformFeatures() {
           <div
             style={{
               fontSize: 11,
-              fontFamily: 'var(--font-mono)',
+              fontFamily: 'var(--font-sans)',
               letterSpacing: '0.22em',
               textTransform: 'uppercase',
               color: '#1F4D3A',
@@ -537,7 +537,7 @@ function PlatformFeatures() {
                 borderRadius: 100,
                 padding: '4px 12px',
                 fontSize: 11,
-                fontFamily: 'var(--font-mono)',
+                fontFamily: 'var(--font-sans)',
                 letterSpacing: '0.12em',
                 textTransform: 'uppercase',
                 marginBottom: 16,
@@ -588,7 +588,7 @@ function RegistrationFormMock() {
       </div>
       {['Full name', 'Email address', 'Job title'].map((label) => (
         <div key={label} style={{ marginBottom: 8 }}>
-          <div style={{ fontSize: 9, color: '#6B7A72', fontFamily: 'var(--font-mono)', letterSpacing: '0.1em', marginBottom: 3 }}>{label}</div>
+          <div style={{ fontSize: 9, color: '#6B7A72', fontFamily: 'var(--font-sans)', letterSpacing: '0.1em', marginBottom: 3 }}>{label}</div>
           <div style={{ height: 28, borderRadius: 6, background: '#FAF6EE', border: '1px solid #E5E0D4' }} />
         </div>
       ))}
@@ -605,7 +605,7 @@ function GeneratedCardMock() {
         borderRadius: 16,
         padding: '20px',
         width: '100%',
-        boxShadow: '0 0 40px rgba(232,197,126,0.25), 0 16px 48px rgba(31,77,58,0.35)',
+        boxShadow: '0 24px 60px rgba(31,77,58,0.28)',
         position: 'relative',
       }}
     >
@@ -619,7 +619,7 @@ function GeneratedCardMock() {
           background: '#E8C57E',
           color: '#163828',
           fontSize: 10,
-          fontFamily: 'var(--font-mono)',
+          fontFamily: 'var(--font-sans)',
           fontWeight: 700,
           letterSpacing: '0.1em',
           borderRadius: 100,
@@ -657,7 +657,7 @@ function GeneratedCardMock() {
               textAlign: 'center',
               fontSize: 9,
               color: 'rgba(250,246,238,0.6)',
-              fontFamily: 'var(--font-mono)',
+              fontFamily: 'var(--font-sans)',
               letterSpacing: '0.06em',
             }}
           >
@@ -696,7 +696,7 @@ function KartaDifference() {
                 borderRadius: 100,
                 padding: '4px 12px',
                 fontSize: 11,
-                fontFamily: 'var(--font-mono)',
+                fontFamily: 'var(--font-sans)',
                 letterSpacing: '0.12em',
                 textTransform: 'uppercase',
                 marginBottom: 18,
@@ -767,7 +767,7 @@ function StepMock({ type }: { type: 'event' | 'tickets' | 'agenda' | 'register' 
       <div style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 8, padding: '12px', marginTop: 12 }}>
         {['Free · $0', 'General · $25', 'VIP · $80'].map((t, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '5px 0', borderBottom: i < 2 ? '1px solid #E5E0D4' : 'none' }}>
-            <div style={{ fontSize: 9, color: '#0F1F18', fontFamily: 'var(--font-mono)' }}>{t}</div>
+            <div style={{ fontSize: 9, color: '#0F1F18', fontFamily: 'var(--font-sans)' }}>{t}</div>
             <div style={{ width: 14, height: 14, borderRadius: 3, background: '#E8EFEB' }} />
           </div>
         ))}
@@ -780,7 +780,7 @@ function StepMock({ type }: { type: 'event' | 'tickets' | 'agenda' | 'register' 
         {['09:00 — Opening keynote', '10:30 — Panel discussion', '12:00 — Networking lunch'].map((s, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 0', borderBottom: i < 2 ? '1px solid #F0EDE5' : 'none' }}>
             <div style={{ width: 3, height: 22, borderRadius: 2, background: i === 0 ? '#E8C57E' : '#E8EFEB', flexShrink: 0 }} />
-            <div style={{ fontSize: 8, color: '#3A4A42', fontFamily: 'var(--font-mono)' }}>{s}</div>
+            <div style={{ fontSize: 8, color: '#3A4A42', fontFamily: 'var(--font-sans)' }}>{s}</div>
           </div>
         ))}
       </div>
@@ -794,7 +794,7 @@ function StepMock({ type }: { type: 'event' | 'tickets' | 'agenda' | 'register' 
         ))}
         <div style={{ height: 20, background: '#1F4D3A', borderRadius: 100, marginTop: 6 }} />
         <div style={{ marginTop: 8, height: 28, background: 'linear-gradient(135deg, #163828, #1F4D3A)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ fontSize: 7, color: '#E8C57E', fontFamily: 'var(--font-mono)', letterSpacing: '0.1em' }}>KARTA CARD READY</div>
+          <div style={{ fontSize: 7, color: '#E8C57E', fontFamily: 'var(--font-sans)', letterSpacing: '0.1em' }}>KARTA CARD READY</div>
         </div>
       </div>
     );
@@ -827,7 +827,7 @@ function HowItWorks() {
           <div
             style={{
               fontSize: 11,
-              fontFamily: 'var(--font-mono)',
+              fontFamily: 'var(--font-sans)',
               letterSpacing: '0.22em',
               textTransform: 'uppercase',
               color: '#1F4D3A',
@@ -971,7 +971,7 @@ function UseCases() {
           <div
             style={{
               fontSize: 11,
-              fontFamily: 'var(--font-mono)',
+              fontFamily: 'var(--font-sans)',
               letterSpacing: '0.22em',
               textTransform: 'uppercase',
               color: '#1F4D3A',
@@ -1061,7 +1061,7 @@ function UseCases() {
                   border: '1px solid rgba(232,197,126,0.4)',
                   color: '#E8C57E',
                   fontSize: 10,
-                  fontFamily: 'var(--font-mono)',
+                  fontFamily: 'var(--font-sans)',
                   letterSpacing: '0.12em',
                   textTransform: 'uppercase',
                   borderRadius: 100,
@@ -1166,7 +1166,7 @@ function PricingCard({
             background: '#E8C57E',
             color: '#163828',
             fontSize: 10,
-            fontFamily: 'var(--font-mono)',
+            fontFamily: 'var(--font-sans)',
             fontWeight: 700,
             letterSpacing: '0.12em',
             textTransform: 'uppercase',
@@ -1181,7 +1181,7 @@ function PricingCard({
 
       {popular && (
         <div style={{ background: '#E8EFEB', borderRadius: 8, padding: '8px 12px', marginBottom: 16 }}>
-          <div style={{ fontSize: 11, color: '#1F4D3A', fontFamily: 'var(--font-mono)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+          <div style={{ fontSize: 11, color: '#1F4D3A', fontFamily: 'var(--font-sans)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
             Most organizers start here
           </div>
         </div>
@@ -1251,7 +1251,7 @@ function Pricing() {
           <div
             style={{
               fontSize: 11,
-              fontFamily: 'var(--font-mono)',
+              fontFamily: 'var(--font-sans)',
               letterSpacing: '0.22em',
               textTransform: 'uppercase',
               color: '#1F4D3A',
@@ -1326,7 +1326,7 @@ function Testimonial() {
         <div
           style={{
             fontSize: 11,
-            fontFamily: 'var(--font-mono)',
+            fontFamily: 'var(--font-sans)',
             letterSpacing: '0.22em',
             textTransform: 'uppercase',
             color: '#1F4D3A',
@@ -1370,7 +1370,7 @@ function Testimonial() {
           </div>
           <div>
             <div style={{ fontSize: 14, fontWeight: 600, color: '#0F1F18', fontFamily: 'var(--font-display)' }}>Amara Yusuf</div>
-            <div style={{ fontSize: 12, color: '#6B7A72', fontFamily: 'var(--font-mono)' }}>Comms Lead · Pan-African Climate Summit</div>
+            <div style={{ fontSize: 12, color: '#6B7A72', fontFamily: 'var(--font-sans)' }}>Comms Lead · Pan-African Climate Summit</div>
           </div>
         </div>
       </div>
@@ -1424,7 +1424,7 @@ function FAQSection() {
           <div
             style={{
               fontSize: 11,
-              fontFamily: 'var(--font-mono)',
+              fontFamily: 'var(--font-sans)',
               letterSpacing: '0.22em',
               textTransform: 'uppercase',
               color: '#1F4D3A',

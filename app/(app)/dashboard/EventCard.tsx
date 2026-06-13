@@ -22,14 +22,6 @@ interface Props {
   checkinPct?: number;
 }
 
-// Forest-branded gradients — one per slot, cycles
-const GRADS = [
-  'linear-gradient(135deg, #163828 0%, #1F4D3A 55%, #2A6A50 100%)',
-  'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 45%, #C9A45E 120%)',
-  'linear-gradient(150deg, #122e21 0%, #1F4D3A 70%, #2A6A50 100%)',
-  'linear-gradient(160deg, #1F4D3A 0%, #3E7E5E 100%)',
-];
-
 const STATUS_STYLE = {
   published: { label: 'Live',     cls: 'bg-emerald-50 text-emerald-700 border-emerald-200', dot: '#2D7A4F', pulse: true },
   draft:     { label: 'Draft',    cls: 'bg-amber-50 text-amber-700 border-amber-200',       dot: '#C9A45E', pulse: false },
@@ -50,7 +42,7 @@ function fmtRevenue(amount: number, currency: string | null | undefined): string
   }
 }
 
-export default function EventCard({ event, index, regCount, revenue, currency, checkinPct = 0 }: Props) {
+export default function EventCard({ event, regCount, revenue, currency, checkinPct = 0 }: Props) {
   const router = useRouter();
   const [renaming,      setRenaming]      = useState(false);
   const [nameVal,       setNameVal]       = useState(event.name);
@@ -64,7 +56,7 @@ export default function EventCard({ event, index, regCount, revenue, currency, c
 
   const st = STATUS_STYLE[event.status as keyof typeof STATUS_STYLE] ?? STATUS_STYLE.draft;
   const coverImg  = (event.event_variants ?? []).sort((a, b) => a.position - b.position)[0]?.background_url;
-  const coverGrad = GRADS[index % GRADS.length];
+  const initial   = (event.name?.trim()?.[0] ?? '?').toUpperCase();
   const eventDate = formatDate(event.event_pages?.[0]?.starts_at);
   const venue     = event.event_pages?.[0]?.venue_name;
 
@@ -109,9 +101,9 @@ export default function EventCard({ event, index, regCount, revenue, currency, c
   const Menu = (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
-        <button className="h-7 w-7 rounded-lg flex items-center justify-center transition" style={{ color: 'rgba(255,255,255,0.6)' }} disabled={busy}
-          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.15)')}
-          onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+        <button className="h-7 w-7 rounded-full flex items-center justify-center transition shadow-[0_1px_3px_rgba(15,31,24,0.12)]" style={{ background: 'rgba(255,255,255,0.92)', color: '#3A4A42' }} disabled={busy}
+          onMouseEnter={e => (e.currentTarget.style.background = '#FFFFFF')}
+          onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.92)')}>
           <MoreVertical size={14} strokeWidth={1.8} />
         </button>
       </DropdownMenu.Trigger>
@@ -169,14 +161,19 @@ export default function EventCard({ event, index, regCount, revenue, currency, c
       style={{ borderColor: '#E5E0D4' }}>
 
       {/* ── Cover ── */}
-      <div className="relative h-[88px]"
+      <div className="relative h-[88px] overflow-hidden"
         style={coverImg
           ? { backgroundImage: `url(${coverImg})`, backgroundSize: 'cover', backgroundPosition: 'center' }
-          : { background: coverGrad }}>
-        <div aria-hidden className="absolute inset-0" style={{ background: 'radial-gradient(70% 90% at 92% 8%, rgba(232,197,126,0.28), transparent 60%)' }} />
+          : { background: '#E8EFEB' }}>
+        {!coverImg && (
+          <span aria-hidden className="absolute -bottom-3 right-3 font-display font-semibold leading-none select-none"
+            style={{ fontSize: 92, color: '#1F4D3A', opacity: 0.12, letterSpacing: '-0.04em' }}>
+            {initial}
+          </span>
+        )}
 
         {/* Status pill */}
-        <span className={`absolute top-3 left-3 inline-flex items-center gap-1.5 text-[9.5px] font-mono tracking-[0.1em] uppercase px-2 py-0.5 rounded-full border ${st.cls} bg-cream/95`}
+        <span className={`absolute top-3 left-3 inline-flex items-center gap-1.5 text-[9.5px] tracking-[0.1em] uppercase px-2 py-0.5 rounded-full border ${st.cls} bg-cream/95`}
           style={{ background: 'rgba(250,246,238,0.95)' }}>
           <span className={`w-1.5 h-1.5 rounded-full ${st.pulse ? 'animate-pulse' : ''}`} style={{ background: st.dot }} />
           {st.label}
@@ -204,7 +201,7 @@ export default function EventCard({ event, index, regCount, revenue, currency, c
 
         {/* Date + venue */}
         {(eventDate || venue) && (
-          <div className="flex items-center gap-2 mt-1 font-mono text-[12px] text-[#6B7A72] flex-wrap">
+          <div className="flex items-center gap-2 mt-1  text-[12px] text-[#6B7A72] flex-wrap">
             {eventDate && <span className="inline-flex items-center gap-1"><Calendar size={12} strokeWidth={1.8} />{eventDate}</span>}
             {eventDate && venue && <span className="text-[#E5E0D4]">·</span>}
             {venue && <span className="inline-flex items-center gap-1"><MapPin size={12} strokeWidth={1.8} />{venue}</span>}
@@ -212,7 +209,7 @@ export default function EventCard({ event, index, regCount, revenue, currency, c
         )}
 
         {/* Stats */}
-        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[12px] text-[#6B7A72]">
+        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1  text-[12px] text-[#6B7A72]">
           <span><span className="text-[#1F4D3A] font-semibold">{regCount}</span> registered</span>
           {!isDraft && revenue > 0 && currency && (
             <><span className="text-[#E5E0D4]">·</span>

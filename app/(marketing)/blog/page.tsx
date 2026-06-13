@@ -98,7 +98,7 @@ function BlogHero() {
         }}
       />
       <div className="relative mx-auto max-w-[1200px] px-5 lg:px-10 pt-14 lg:pt-20 pb-12 lg:pb-16">
-        <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-5">
+        <div className=" text-[11px] tracking-[0.22em] text-primary uppercase mb-5">
           Blog
         </div>
         <h1 className="font-title font-bold text-ink text-[44px] sm:text-[60px] lg:text-[72px] leading-[0.95] max-w-[820px]">
@@ -146,13 +146,13 @@ function FeaturedPost() {
           <div>
             <div className="flex items-center gap-3 mb-5">
               <span
-                className="font-mono text-[9px] tracking-[0.22em] uppercase px-2.5 py-1 rounded-full"
+                className=" text-[9px] tracking-[0.22em] uppercase px-2.5 py-1 rounded-full"
                 style={{ background: 'rgba(31,77,58,0.08)', color: '#1F4D3A' }}
               >
                 Featured
               </span>
               <span
-                className="font-mono text-[9px] tracking-[0.22em] uppercase px-2.5 py-1 rounded-full"
+                className=" text-[9px] tracking-[0.22em] uppercase px-2.5 py-1 rounded-full"
                 style={{ background: 'rgba(232,197,126,0.15)', color: '#C9A45E' }}
               >
                 {FEATURED.category}
@@ -165,9 +165,9 @@ function FeaturedPost() {
               {FEATURED.excerpt}
             </p>
             <div className="flex items-center gap-4">
-              <span className="font-mono text-[10px] tracking-[0.14em] uppercase text-muted">{FEATURED.date}</span>
+              <span className=" text-[10px] tracking-[0.14em] uppercase text-muted">{FEATURED.date}</span>
               <span className="h-1 w-1 rounded-full bg-border" />
-              <span className="font-mono text-[10px] tracking-[0.14em] uppercase text-muted">{FEATURED.readTime}</span>
+              <span className=" text-[10px] tracking-[0.14em] uppercase text-muted">{FEATURED.readTime}</span>
             </div>
           </div>
 
@@ -204,7 +204,7 @@ function PostGrid() {
   return (
     <section className="mx-auto max-w-[1200px] px-5 lg:px-10 py-12 lg:py-16">
       <Reveal>
-        <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-8">
+        <div className=" text-[11px] tracking-[0.22em] text-primary uppercase mb-8">
           All posts
         </div>
       </Reveal>
@@ -231,7 +231,7 @@ function PostGrid() {
                 />
                 <div className="absolute top-4 left-4">
                   <span
-                    className="font-mono text-[9px] tracking-[0.18em] uppercase px-2.5 py-1 rounded-full"
+                    className=" text-[9px] tracking-[0.18em] uppercase px-2.5 py-1 rounded-full"
                     style={{ background: 'rgba(250,246,238,0.15)', color: '#FAF6EE', border: '1px solid rgba(250,246,238,0.20)' }}
                   >
                     {post.category}
@@ -249,9 +249,9 @@ function PostGrid() {
                 </p>
                 <div className="flex items-center justify-between mt-auto pt-4" style={{ borderTop: '1px solid #E5E0D4' }}>
                   <div className="flex items-center gap-3">
-                    <span className="font-mono text-[9px] tracking-[0.14em] uppercase text-muted">{post.date}</span>
+                    <span className=" text-[9px] tracking-[0.14em] uppercase text-muted">{post.date}</span>
                     <span className="h-1 w-1 rounded-full" style={{ background: '#E5E0D4' }} />
-                    <span className="font-mono text-[9px] tracking-[0.14em] uppercase text-muted">{post.readTime}</span>
+                    <span className=" text-[9px] tracking-[0.14em] uppercase text-muted">{post.readTime}</span>
                   </div>
                   <ArrowRight size={14} strokeWidth={2} className="text-muted group-hover:text-primary group-hover:translate-x-0.5 transition" />
                 </div>

@@ -107,7 +107,7 @@ export function CardZoneFill({
       {/* -- Live preview -- only on mobile; desktop uses the sidebar in RegistrationClient */}
       {backgroundUrl && (
         <div className="lg:hidden shrink-0">
-          <div className="text-[11px] font-mono uppercase tracking-widest mb-2 text-center" style={{ color: '#6B7A72' }}>
+          <div className="text-[11px] uppercase tracking-widest mb-2 text-center" style={{ color: '#6B7A72' }}>
             Preview
           </div>
           <div

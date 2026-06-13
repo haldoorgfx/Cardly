@@ -118,7 +118,7 @@ export function ContactFormClient() {
             {/* Name + Email */}
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-[11px] font-mono tracking-[0.16em] uppercase text-[#6B7A72] mb-2">
+                <label className="block text-[11px] tracking-[0.16em] uppercase text-[#6B7A72] mb-2">
                   Full name
                 </label>
                 <input
@@ -132,7 +132,7 @@ export function ContactFormClient() {
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-mono tracking-[0.16em] uppercase text-[#6B7A72] mb-2">
+                <label className="block text-[11px] tracking-[0.16em] uppercase text-[#6B7A72] mb-2">
                   Work email
                 </label>
                 <input
@@ -149,7 +149,7 @@ export function ContactFormClient() {
 
             {/* Topic */}
             <div>
-              <label className="block text-[11px] font-mono tracking-[0.16em] uppercase text-[#6B7A72] mb-2">
+              <label className="block text-[11px] tracking-[0.16em] uppercase text-[#6B7A72] mb-2">
                 Topic
               </label>
               <select
@@ -167,7 +167,7 @@ export function ContactFormClient() {
 
             {/* Message */}
             <div>
-              <label className="block text-[11px] font-mono tracking-[0.16em] uppercase text-[#6B7A72] mb-2">
+              <label className="block text-[11px] tracking-[0.16em] uppercase text-[#6B7A72] mb-2">
                 Message
               </label>
               <textarea
@@ -220,7 +220,7 @@ export function ContactFormClient() {
                 {item.icon}
               </div>
               <div className="min-w-0">
-                <div className="text-[11px] font-mono tracking-[0.14em] uppercase text-[#6B7A72] mb-0.5">
+                <div className="text-[11px] tracking-[0.14em] uppercase text-[#6B7A72] mb-0.5">
                   {item.title}
                 </div>
                 <div className="text-[14px] font-semibold text-[#0F1F18] truncate">
@@ -248,7 +248,7 @@ export function ContactFormClient() {
         >
           <div className="flex items-center gap-2 mb-1.5">
             <span className="h-1.5 w-1.5 rounded-full shrink-0" style={{ background: '#2D7A4F' }} />
-            <span className="text-[10px] font-mono tracking-[0.16em] uppercase" style={{ color: '#1F4D3A' }}>
+            <span className="text-[10px] tracking-[0.16em] uppercase" style={{ color: '#1F4D3A' }}>
               Response time
             </span>
           </div>

@@ -52,7 +52,7 @@ export function Testimonials() {
       <div className="relative mx-auto max-w-[1200px] px-5 lg:px-10 py-20 lg:py-28">
         {/* Header */}
         <div className="text-center mb-14">
-          <div className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase mb-4">
+          <div className=" text-[11px] tracking-[0.22em] text-primary uppercase mb-4">
             Testimonials
           </div>
           <h2 className="font-title font-bold text-ink text-[34px] sm:text-[42px] lg:text-[48px] leading-[1.05]">
@@ -98,7 +98,7 @@ export function Testimonials() {
                   <div className="text-[14px] font-semibold text-ink leading-tight">
                     {t.name}
                   </div>
-                  <div className="text-[11px] text-muted font-mono tracking-[0.1em] uppercase mt-0.5">
+                  <div className="text-[11px] text-muted  tracking-[0.1em] uppercase mt-0.5">
                     {t.role} · {t.org}
                   </div>
                 </div>
