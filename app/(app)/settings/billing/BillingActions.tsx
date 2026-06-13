@@ -1,6 +1,6 @@
 'use client';
 
-import { useTransition } from 'react';
+import { useTransition, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Plan } from '@/lib/billing/plans';
 
@@ -43,6 +43,7 @@ export default function BillingActions({
   isTrialing: boolean;
 }) {
   const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   function openPortal() {
@@ -54,6 +55,7 @@ export default function BillingActions({
   }
 
   function checkout(targetPlan: Exclude<Plan, 'free'>, billingCycle: 'monthly' | 'annual') {
+    setError(null);
     startTransition(async () => {
       try {
         const res = await fetch('/api/billing/create-checkout', {
@@ -63,9 +65,13 @@ export default function BillingActions({
         });
         if (res.status === 401) { router.push('/login'); return; }
         const data = await res.json();
-        if (data.url) window.location.href = data.url;
+        if (data.url) { window.location.href = data.url; return; }
+        // Non-OK / no URL — surface it instead of dying silently.
+        setError(data.error === 'Price not configured'
+          ? 'Checkout isn’t available yet — billing is still being set up. Please try again shortly.'
+          : (data.error ?? 'Could not start checkout. Please try again.'));
       } catch {
-        // silently fail
+        setError('Could not start checkout. Please check your connection and try again.');
       }
     });
   }
@@ -97,6 +103,12 @@ export default function BillingActions({
 
   return (
     <div className="mt-6 space-y-4">
+
+      {error && (
+        <div className="rounded-xl px-4 py-3 text-[13px]" style={{ background: 'rgba(184,66,60,0.08)', border: '1px solid rgba(184,66,60,0.25)', color: '#B8423C' }}>
+          {error}
+        </div>
+      )}
 
       {/* Trial callout */}
       <div className="rounded-2xl p-5 flex items-start gap-4"
