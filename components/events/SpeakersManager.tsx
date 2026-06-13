@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Pencil, Trash2, Plus, X, Sparkles, ExternalLink, Upload } from 'lucide-react';
+import { Pencil, Trash2, Plus, X, Sparkles, ExternalLink, Upload, ChevronDown, Link2, AtSign, Globe } from 'lucide-react';
 import type { Speaker, SpeakerType } from '@/types/database';
 import { ImportWizard } from '@/components/shared/ImportWizard';
 import { IMPORT_ENTITIES } from '@/lib/import/entities';
@@ -55,6 +55,9 @@ interface FormState {
   photo_url: string;
   speaker_type: SpeakerType;
   is_featured: boolean;
+  linkedin_url: string;
+  twitter_url: string;
+  website_url: string;
 }
 
 const EMPTY_FORM: FormState = {
@@ -66,6 +69,9 @@ const EMPTY_FORM: FormState = {
   photo_url: '',
   speaker_type: 'speaker',
   is_featured: false,
+  linkedin_url: '',
+  twitter_url: '',
+  website_url: '',
 };
 
 export default function SpeakersManager({ eventId, initialSpeakers }: Props) {
@@ -77,6 +83,7 @@ export default function SpeakersManager({ eventId, initialSpeakers }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showImport, setShowImport] = useState(false);
+  const [showMore, setShowMore] = useState(false);
 
   async function reloadSpeakers() {
     const res = await fetch(`/api/events/${eventId}/speakers`);
@@ -90,6 +97,7 @@ export default function SpeakersManager({ eventId, initialSpeakers }: Props) {
     setEditingSpeaker(null);
     setForm(EMPTY_FORM);
     setError(null);
+    setShowMore(false);
     setShowForm(true);
   }
 
@@ -104,7 +112,11 @@ export default function SpeakersManager({ eventId, initialSpeakers }: Props) {
       photo_url: speaker.photo_url ?? '',
       speaker_type: speaker.speaker_type,
       is_featured: speaker.is_featured,
+      linkedin_url: speaker.linkedin_url ?? '',
+      twitter_url: speaker.twitter_url ?? '',
+      website_url: speaker.website_url ?? '',
     });
+    setShowMore(!!(speaker.linkedin_url || speaker.twitter_url || speaker.website_url));
     setError(null);
     setShowForm(true);
   }
@@ -315,6 +327,57 @@ export default function SpeakersManager({ eventId, initialSpeakers }: Props) {
             />
             <span className="text-sm" style={{ color: '#0F1F18' }}>Featured speaker</span>
           </label>
+
+          {/* Progressive disclosure: social / contact links */}
+          {!showMore ? (
+            <button
+              type="button"
+              onClick={() => setShowMore(true)}
+              className="inline-flex items-center gap-1 text-[13px] font-medium"
+              style={{ color: '#1F4D3A' }}
+            >
+              <ChevronDown size={14} strokeWidth={2} /> Show more — social links
+            </button>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+              <div className="space-y-1">
+                <label className="font-mono text-[10px] tracking-[0.12em] uppercase flex items-center gap-1" style={{ color: '#6B7A72' }}>
+                  <Link2 size={11} /> LinkedIn
+                </label>
+                <input
+                  className="w-full border rounded-lg px-3 py-2 text-sm"
+                  style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
+                  value={form.linkedin_url}
+                  onChange={(e) => setForm((f) => ({ ...f, linkedin_url: e.target.value }))}
+                  placeholder="https://linkedin.com/in/…"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="font-mono text-[10px] tracking-[0.12em] uppercase flex items-center gap-1" style={{ color: '#6B7A72' }}>
+                  <AtSign size={11} /> Twitter / X
+                </label>
+                <input
+                  className="w-full border rounded-lg px-3 py-2 text-sm"
+                  style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
+                  value={form.twitter_url}
+                  onChange={(e) => setForm((f) => ({ ...f, twitter_url: e.target.value }))}
+                  placeholder="https://x.com/…"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="font-mono text-[10px] tracking-[0.12em] uppercase flex items-center gap-1" style={{ color: '#6B7A72' }}>
+                  <Globe size={11} /> Website
+                </label>
+                <input
+                  className="w-full border rounded-lg px-3 py-2 text-sm"
+                  style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
+                  value={form.website_url}
+                  onChange={(e) => setForm((f) => ({ ...f, website_url: e.target.value }))}
+                  placeholder="https://…"
+                />
+              </div>
+            </div>
+          )}
 
           <div className="flex gap-2 pt-1">
             <button

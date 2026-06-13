@@ -453,16 +453,26 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
                   onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
                 />
               </div>
-              <div className="space-y-1">
+              <div className="sm:col-span-2 space-y-1">
                 <label className="text-xs font-medium" style={{ color: '#6B7A72' }}>Type</label>
-                <select
-                  className="w-full border rounded-lg px-3 py-2 text-sm"
-                  style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}
-                  value={sessionForm.session_type}
-                  onChange={(e) => setSessionForm((f) => ({ ...f, session_type: e.target.value as SessionType }))}
-                >
-                  {SESSION_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
-                </select>
+                <div className="flex flex-wrap gap-1.5">
+                  {SESSION_TYPES.map((t) => {
+                    const active = sessionForm.session_type === t.value;
+                    return (
+                      <button
+                        key={t.value}
+                        type="button"
+                        onClick={() => setSessionForm((f) => ({ ...f, session_type: t.value }))}
+                        className="px-3 py-1.5 rounded-lg text-[12.5px] font-medium transition"
+                        style={active
+                          ? { background: '#1F4D3A', color: 'white' }
+                          : { background: 'white', color: '#6B7A72', border: '1px solid #E5E0D4' }}
+                      >
+                        {t.label}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-medium" style={{ color: '#6B7A72' }}>Track</label>

@@ -4,10 +4,11 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import {
-  ArrowRight, CalendarDays, CheckCircle2, FileDown, MapPin, Wifi,
+  ArrowRight, CalendarDays, FileDown, MapPin, Wifi,
 } from 'lucide-react';
 import EventDetailActions from './EventDetailActions';
 import { EventOverviewCards, type OverviewCard } from '@/components/events/EventOverviewCards';
+import { EventCompletionCard, type ChecklistItem } from '@/components/events/EventCompletionCard';
 import type { Zone, Variant } from '@/types/database';
 
 function timeAgo(dateStr: string) {
@@ -95,6 +96,15 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
   const ticketTypes = ticketTypeCount ?? 0;
 
   const st = STATUS_STYLE[event.status as keyof typeof STATUS_STYLE] ?? STATUS_STYLE.draft;
+
+  const epOverview = Array.isArray(event.event_pages) ? event.event_pages[0] : event.event_pages;
+  const CHECKLIST: ChecklistItem[] = [
+    { label: 'Event details & page', done: !!(epOverview?.starts_at), href: `/events/${id}/event-page`, cta: 'Set up' },
+    { label: 'Karta Card design',    done: !!firstVariant,             href: `/events/${id}/edit`,       cta: 'Upload' },
+    { label: 'Tickets',              done: ticketTypes > 0,            href: `/events/${id}/tickets`,    cta: 'Add' },
+    { label: 'Agenda & sessions',    done: sessions > 0,               href: `/events/${id}/agenda`,     cta: 'Build', optional: true },
+    { label: 'Speakers',             done: speakers > 0,               href: `/events/${id}/speakers`,   cta: 'Add', optional: true },
+  ];
 
   const ACTION_CARDS: OverviewCard[] = [
     { id: 'event-page',     label: 'Event Page',     iconId: 'layout',    desc: 'Edit your public event page',               href: `/events/${id}/event-page`,     badge: event.status === 'published' ? 'Published' : 'Draft', badgeGreen: event.status === 'published' },
@@ -191,72 +201,8 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
           </div>
         </div>
 
-        {/* ── Attention items ── */}
-        {event.status === 'published' && registrations > 0 && ticketTypes > 0 && sessions > 0 && speakers > 0 && firstVariant ? (
-          <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl"
-            style={{ background: 'rgba(45,122,79,0.06)', border: '1px solid rgba(45,122,79,0.2)' }}>
-            <CheckCircle2 size={15} strokeWidth={2} style={{ color: '#2D7A4F', flexShrink: 0 }} />
-            <span className="text-[13.5px] font-medium" style={{ color: '#1A5C38' }}>
-              Your event is live and healthy — registrations and cards are flowing.
-            </span>
-          </div>
-        ) : (
-          <div className="grid gap-2.5">
-            {event.status === 'draft' && (
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 px-4 py-3 rounded-xl"
-                style={{ background: 'linear-gradient(135deg, rgba(232,197,126,0.14), rgba(31,77,58,0.05))', border: '1px solid rgba(232,197,126,0.5)' }}>
-                <span className="text-[13.5px] font-medium" style={{ color: '#163828' }}>
-                  This event is still a draft — publish it to open registration.
-                </span>
-                <Link href={`/events/${id}/publish`}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[12.5px] font-semibold shrink-0 transition-colors"
-                  style={{ background: '#E8C57E', color: '#0F1F18' }}>
-                  Publish event <ArrowRight size={13} strokeWidth={2} />
-                </Link>
-              </div>
-            )}
-            {ticketTypes === 0 && (
-              <div className="flex items-center justify-between gap-3 bg-white rounded-xl px-4 py-3 border" style={{ borderColor: '#E5E0D4' }}>
-                <span className="text-[13.5px]" style={{ color: '#6B7A72' }}>No tickets set up yet.</span>
-                <Link href={`/events/${id}/tickets`}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[12.5px] font-medium shrink-0 transition hover:bg-[#E8EFEB]"
-                  style={{ border: '1px solid rgba(31,77,58,0.25)', color: '#1F4D3A' }}>
-                  Add tickets <ArrowRight size={13} strokeWidth={2} />
-                </Link>
-              </div>
-            )}
-            {sessions === 0 && (
-              <div className="flex items-center justify-between gap-3 bg-white rounded-xl px-4 py-3 border" style={{ borderColor: '#E5E0D4' }}>
-                <span className="text-[13.5px]" style={{ color: '#6B7A72' }}>Your agenda has no sessions yet.</span>
-                <Link href={`/events/${id}/agenda`}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[12.5px] font-medium shrink-0 transition hover:bg-[#E8EFEB]"
-                  style={{ border: '1px solid rgba(31,77,58,0.25)', color: '#1F4D3A' }}>
-                  Build agenda <ArrowRight size={13} strokeWidth={2} />
-                </Link>
-              </div>
-            )}
-            {speakers === 0 && (
-              <div className="flex items-center justify-between gap-3 bg-white rounded-xl px-4 py-3 border" style={{ borderColor: '#E5E0D4' }}>
-                <span className="text-[13.5px]" style={{ color: '#6B7A72' }}>No speakers added yet.</span>
-                <Link href={`/events/${id}/speakers`}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[12.5px] font-medium shrink-0 transition hover:bg-[#E8EFEB]"
-                  style={{ border: '1px solid rgba(31,77,58,0.25)', color: '#1F4D3A' }}>
-                  Add speakers <ArrowRight size={13} strokeWidth={2} />
-                </Link>
-              </div>
-            )}
-            {!firstVariant && (
-              <div className="flex items-center justify-between gap-3 bg-white rounded-xl px-4 py-3 border" style={{ borderColor: '#E5E0D4' }}>
-                <span className="text-[13.5px]" style={{ color: '#6B7A72' }}>No Karta Card design uploaded yet.</span>
-                <Link href={`/events/${id}/edit`}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[12.5px] font-medium shrink-0 transition hover:bg-[#E8EFEB]"
-                  style={{ border: '1px solid rgba(31,77,58,0.25)', color: '#1F4D3A' }}>
-                  Upload design <ArrowRight size={13} strokeWidth={2} />
-                </Link>
-              </div>
-            )}
-          </div>
-        )}
+        {/* ── Setup completion card ── */}
+        <EventCompletionCard items={CHECKLIST} status={event.status} publishHref={`/events/${id}/publish`} />
 
         {/* ── Action cards grid ── */}
         <div>
