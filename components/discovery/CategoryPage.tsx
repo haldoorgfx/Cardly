@@ -100,7 +100,7 @@ export function CategoryPage({ category, events, savedIds, cityCounts }: Categor
               <Link
                 key={cat}
                 href={`/events/category/${cat.toLowerCase()}`}
-                className="flex-none h-[30px] px-4 rounded-full text-[12px] font-medium whitespace-nowrap transition"
+                className="inline-flex items-center justify-center flex-none h-[30px] px-4 rounded-full text-[12px] font-medium whitespace-nowrap transition"
                 style={{
                   background: cat === category ? '#1F4D3A' : '#FFFFFF',
                   color: cat === category ? '#FFFFFF' : '#3A4A42',
@@ -119,7 +119,7 @@ export function CategoryPage({ category, events, savedIds, cityCounts }: Categor
         <select
           value={cityFilter}
           onChange={e => setCityFilter(e.target.value)}
-          className="h-9 px-3 rounded-full text-[13px] outline-none"
+          className="h-9 px-3 rounded-full text-[13px] outline-none text-center"
           style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', color: '#3A4A42' }}
         >
           <option value="all">All cities</option>
@@ -129,7 +129,7 @@ export function CategoryPage({ category, events, savedIds, cityCounts }: Categor
         <select
           value={dateFilter}
           onChange={e => setDateFilter(e.target.value)}
-          className="h-9 px-3 rounded-full text-[13px] outline-none"
+          className="h-9 px-3 rounded-full text-[13px] outline-none text-center"
           style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', color: '#3A4A42' }}
         >
           <option value="any">Any date</option>
@@ -140,7 +140,7 @@ export function CategoryPage({ category, events, savedIds, cityCounts }: Categor
         <select
           value={priceFilter}
           onChange={e => setPriceFilter(e.target.value)}
-          className="h-9 px-3 rounded-full text-[13px] outline-none"
+          className="h-9 px-3 rounded-full text-[13px] outline-none text-center"
           style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', color: '#3A4A42' }}
         >
           <option value="any">Any price</option>
@@ -151,7 +151,7 @@ export function CategoryPage({ category, events, savedIds, cityCounts }: Categor
         <select
           value={formatFilter}
           onChange={e => setFormatFilter(e.target.value)}
-          className="h-9 px-3 rounded-full text-[13px] outline-none"
+          className="h-9 px-3 rounded-full text-[13px] outline-none text-center"
           style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', color: '#3A4A42' }}
         >
           <option value="all">In-person + virtual</option>

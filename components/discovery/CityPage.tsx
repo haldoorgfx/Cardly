@@ -118,7 +118,7 @@ export function CityPage({ city, events, savedIds, eventCount }: CityPageProps) 
           <button
             key={chip}
             onClick={() => setDateChip(chip)}
-            className="flex-none h-[30px] px-3.5 rounded-full text-[12px] font-medium transition whitespace-nowrap"
+            className="inline-flex items-center justify-center flex-none h-[30px] px-3.5 rounded-full text-[12px] font-medium transition whitespace-nowrap"
             style={{
               background: dateChip === chip ? '#1F4D3A' : '#FFFFFF',
               color: dateChip === chip ? '#FFFFFF' : '#3A4A42',
@@ -133,7 +133,7 @@ export function CityPage({ city, events, savedIds, eventCount }: CityPageProps) 
           <button
             key={chip}
             onClick={() => setCatChip(catChip === chip ? null : chip)}
-            className="flex-none h-[30px] px-3.5 rounded-full text-[12px] font-medium transition whitespace-nowrap"
+            className="inline-flex items-center justify-center flex-none h-[30px] px-3.5 rounded-full text-[12px] font-medium transition whitespace-nowrap"
             style={{
               background: catChip === chip ? '#1F4D3A' : '#FFFFFF',
               color: catChip === chip ? '#FFFFFF' : '#3A4A42',

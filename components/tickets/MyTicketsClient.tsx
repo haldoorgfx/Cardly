@@ -205,7 +205,7 @@ function TicketCard({ reg, onShowQR }: { reg: Registration; onShowQR: () => void
 
             <div className="mt-auto pt-4 flex items-center gap-2.5 flex-wrap">
               <span
-                className="h-7 px-3 rounded-full text-[12px] font-medium"
+                className="inline-flex items-center justify-center h-7 px-3 rounded-full text-[12px] font-medium"
                 style={{ background: '#E8EFEB', color: '#1F4D3A', fontFamily: '"DM Sans", sans-serif' }}
               >
                 {ticketName}
@@ -214,7 +214,7 @@ function TicketCard({ reg, onShowQR }: { reg: Registration; onShowQR: () => void
                 <a
                   href={`/api/calendar/${ep.id}`}
                   download
-                  className="h-7 px-3 rounded-full text-[12px] font-medium transition hover:opacity-75"
+                  className="inline-flex items-center justify-center h-7 px-3 rounded-full text-[12px] font-medium transition hover:opacity-75"
                   style={{ background: '#FAF6EE', color: '#1F4D3A', border: '1px solid #E5E0D4' }}
                   onClick={e => e.stopPropagation()}
                 >
@@ -224,7 +224,7 @@ function TicketCard({ reg, onShowQR }: { reg: Registration; onShowQR: () => void
               {reg.status === 'confirmed' && (
                 <button
                   onClick={e => { e.stopPropagation(); setShowTransfer(true); }}
-                  className="h-7 px-3 rounded-full text-[12px] font-medium transition hover:opacity-75"
+                  className="inline-flex items-center justify-center h-7 px-3 rounded-full text-[12px] font-medium transition hover:opacity-75"
                   style={{ background: '#FAF6EE', color: '#6B7A72', border: '1px solid #E5E0D4' }}
                 >
                   Transfer

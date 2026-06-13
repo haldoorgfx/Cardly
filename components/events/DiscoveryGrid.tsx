@@ -57,7 +57,7 @@ export function DiscoveryGrid({ pages }: { pages: PageWithSlug[] }) {
           <button
             key={filter}
             onClick={() => setActiveFilter(filter)}
-            className="flex-none h-[34px] px-4 rounded-full text-[13px] font-medium transition whitespace-nowrap"
+            className="inline-flex items-center justify-center flex-none h-[34px] px-4 rounded-full text-[13px] font-medium transition whitespace-nowrap"
             style={{
               background: activeFilter === filter ? '#1F4D3A' : 'white',
               color: activeFilter === filter ? 'white' : '#3A4A42',

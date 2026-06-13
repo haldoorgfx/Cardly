@@ -155,7 +155,7 @@ export default function TemplatePickerModal({ eventId, onVariantCreated, onUploa
             <button
               key={c.key}
               onClick={() => setCat(c.key)}
-              className={`h-7 px-3 rounded-full text-[12px] font-medium whitespace-nowrap transition-all ${
+              className={`inline-flex items-center justify-center h-7 px-3 rounded-full text-[12px] font-medium whitespace-nowrap transition-all ${
                 cat === c.key
                   ? 'bg-[#0F1F18] text-white'
                   : 'bg-white border border-[#E5E0D4] text-[#0F1F18]/65 hover:bg-[#FAF6EE]'

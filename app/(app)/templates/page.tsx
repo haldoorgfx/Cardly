@@ -308,7 +308,7 @@ export default function TemplatesPage() {
         <div className="flex items-center gap-2 flex-wrap">
           {CATEGORIES.map(cat => (
             <button key={cat.key} onClick={() => setActiveCategory(cat.key)}
-              className={`h-9 px-4 rounded-full text-[12.5px] font-medium transition-all duration-150 ${
+              className={`inline-flex items-center justify-center h-9 px-4 rounded-full text-[12.5px] font-medium transition-all duration-150 ${
                 activeCategory === cat.key ? 'bg-[#0F1F18] text-white' : 'bg-white border border-[#E5E0D4] text-[#0F1F18]/65 hover:bg-[#FAF6EE] hover:text-[#0F1F18]'
               }`}>
               {cat.label}

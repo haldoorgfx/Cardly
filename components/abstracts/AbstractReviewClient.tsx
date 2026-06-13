@@ -237,7 +237,7 @@ export default function AbstractReviewClient({
                     <button
                       key={d.key}
                       onClick={() => setDecision(prev => ({ ...prev, [active.id]: d.key }))}
-                      className="h-9 px-4 rounded-full text-[13px] font-medium transition-colors"
+                      className="inline-flex items-center justify-center h-9 px-4 rounded-full text-[13px] font-medium transition-colors"
                       style={{
                         background: currentDecision(active.id) === d.key ? '#1F4D3A' : 'white',
                         border: `1px solid ${currentDecision(active.id) === d.key ? '#1F4D3A' : '#E5E0D4'}`,
