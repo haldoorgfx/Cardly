@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Download } from 'lucide-react';
+import { Download, ChevronDown } from 'lucide-react';
 
 type AbstractStatus = 'pending' | 'accept' | 'reject' | 'revision' | 'waitlist';
 
@@ -260,15 +260,18 @@ export default function AbstractReviewClient({
                 {sessions.length > 0 && (
                   <div className="mt-4">
                     <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>Assign to session</label>
-                    <select
-                      value={assignedSession[active.id] ?? active.assigned_session ?? ''}
-                      onChange={e => setAssignedSession(prev => ({ ...prev, [active.id]: e.target.value }))}
-                      className="w-full rounded-xl px-4 py-2.5 text-[14px] outline-none appearance-none"
-                      style={{ border: '1px solid #E5E0D4', background: 'white', color: '#0F1F18' }}
-                    >
-                      <option value="">— No session assigned —</option>
-                      {sessions.map(s => <option key={s.id} value={s.id}>{s.title}</option>)}
-                    </select>
+                    <div className="relative">
+                      <select
+                        value={assignedSession[active.id] ?? active.assigned_session ?? ''}
+                        onChange={e => setAssignedSession(prev => ({ ...prev, [active.id]: e.target.value }))}
+                        className="w-full rounded-xl pl-4 pr-10 py-2.5 text-[14px] outline-none appearance-none cursor-pointer"
+                        style={{ border: '1px solid #E5E0D4', background: 'white', color: '#0F1F18' }}
+                      >
+                        <option value="">— No session assigned —</option>
+                        {sessions.map(s => <option key={s.id} value={s.id}>{s.title}</option>)}
+                      </select>
+                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#6B7A72' }} />
+                    </div>
                   </div>
                 )}
 

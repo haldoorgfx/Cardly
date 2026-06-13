@@ -316,9 +316,12 @@ export default function TemplatesPage() {
             </button>
           ))}
           <div className="flex-1" />
-          <select className="h-9 px-3 rounded-full bg-white border border-[#E5E0D4] text-[12.5px] outline-none cursor-pointer hover:bg-[#FAF6EE] transition">
-            <option>Most popular</option><option>Newest</option><option>A–Z</option>
-          </select>
+          <div className="relative">
+            <select className="h-9 pl-4 pr-8 rounded-full bg-white border border-[#E5E0D4] text-[12.5px] outline-none cursor-pointer hover:bg-[#FAF6EE] transition appearance-none">
+              <option>Most popular</option><option>Newest</option><option>A–Z</option>
+            </select>
+            <svg className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6B7A72" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
         </div>
       </div>
 

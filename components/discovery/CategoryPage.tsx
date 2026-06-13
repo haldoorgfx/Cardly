@@ -116,48 +116,60 @@ export function CategoryPage({ category, events, savedIds, cityCounts }: Categor
 
       {/* Filter row */}
       <div className="flex flex-wrap gap-2 mb-8">
-        <select
-          value={cityFilter}
-          onChange={e => setCityFilter(e.target.value)}
-          className="h-9 px-3 rounded-full text-[13px] outline-none text-center"
-          style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', color: '#3A4A42' }}
-        >
-          <option value="all">All cities</option>
-          {uniqueCities.map(c => <option key={c} value={c}>{c}</option>)}
-        </select>
+        <div className="relative">
+          <select
+            value={cityFilter}
+            onChange={e => setCityFilter(e.target.value)}
+            className="h-9 pl-4 pr-8 rounded-full text-[13px] outline-none appearance-none cursor-pointer"
+            style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', color: '#3A4A42' }}
+          >
+            <option value="all">All cities</option>
+            {uniqueCities.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+          <svg className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6B7A72" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
 
-        <select
-          value={dateFilter}
-          onChange={e => setDateFilter(e.target.value)}
-          className="h-9 px-3 rounded-full text-[13px] outline-none text-center"
-          style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', color: '#3A4A42' }}
-        >
-          <option value="any">Any date</option>
-          <option value="week">This week</option>
-          <option value="month">This month</option>
-        </select>
+        <div className="relative">
+          <select
+            value={dateFilter}
+            onChange={e => setDateFilter(e.target.value)}
+            className="h-9 pl-4 pr-8 rounded-full text-[13px] outline-none appearance-none cursor-pointer"
+            style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', color: '#3A4A42' }}
+          >
+            <option value="any">Any date</option>
+            <option value="week">This week</option>
+            <option value="month">This month</option>
+          </select>
+          <svg className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6B7A72" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
 
-        <select
-          value={priceFilter}
-          onChange={e => setPriceFilter(e.target.value)}
-          className="h-9 px-3 rounded-full text-[13px] outline-none text-center"
-          style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', color: '#3A4A42' }}
-        >
-          <option value="any">Any price</option>
-          <option value="free">Free</option>
-          <option value="paid">Paid</option>
-        </select>
+        <div className="relative">
+          <select
+            value={priceFilter}
+            onChange={e => setPriceFilter(e.target.value)}
+            className="h-9 pl-4 pr-8 rounded-full text-[13px] outline-none appearance-none cursor-pointer"
+            style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', color: '#3A4A42' }}
+          >
+            <option value="any">Any price</option>
+            <option value="free">Free</option>
+            <option value="paid">Paid</option>
+          </select>
+          <svg className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6B7A72" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
 
-        <select
-          value={formatFilter}
-          onChange={e => setFormatFilter(e.target.value)}
-          className="h-9 px-3 rounded-full text-[13px] outline-none text-center"
-          style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', color: '#3A4A42' }}
-        >
-          <option value="all">In-person + virtual</option>
-          <option value="inperson">In-person</option>
-          <option value="online">Virtual</option>
-        </select>
+        <div className="relative">
+          <select
+            value={formatFilter}
+            onChange={e => setFormatFilter(e.target.value)}
+            className="h-9 pl-4 pr-8 rounded-full text-[13px] outline-none appearance-none cursor-pointer"
+            style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', color: '#3A4A42' }}
+          >
+            <option value="all">In-person + virtual</option>
+            <option value="inperson">In-person</option>
+            <option value="online">Virtual</option>
+          </select>
+          <svg className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6B7A72" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
       </div>
 
       {/* Event sections */}
