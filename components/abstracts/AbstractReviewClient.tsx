@@ -125,7 +125,7 @@ export default function AbstractReviewClient({
             { label: 'pending review', value: counts.pending },
           ].map(s => (
             <span key={s.label} className="text-[14px]" style={{ color: '#6B7A72' }}>
-              <b className="font-mono font-medium text-[16px]" style={{ color: '#1F4D3A' }}>{s.value}</b>{' '}{s.label}
+              <b className="font-title font-bold text-[16px]" style={{ color: '#1F4D3A' }}>{s.value}</b>{' '}{s.label}
             </span>
           ))}
         </div>
@@ -182,7 +182,7 @@ export default function AbstractReviewClient({
                     <span className="inline-flex items-center h-5 px-2.5 rounded-full text-[11px] font-medium" style={STATUS_STYLE[st]}>
                       {STATUS_LABEL[st]}
                     </span>
-                    <span className="ml-auto font-mono text-[11px]" style={{ color: '#6B7A72' }}>{relDate(a.submitted_at)}</span>
+                    <span className="ml-auto text-[11px]" style={{ color: '#6B7A72' }}>{relDate(a.submitted_at)}</span>
                   </div>
                 </div>
               );
@@ -205,7 +205,7 @@ export default function AbstractReviewClient({
                 <span className="inline-flex items-center h-6 px-2.5 rounded-full text-[11px] font-medium" style={{ background: '#F0EBE3', color: '#3A4A42' }}>
                   {active.category}
                 </span>
-                <span className="font-mono text-[13px]" style={{ color: '#6B7A72' }}>
+                <span className="text-[13px]" style={{ color: '#6B7A72' }}>
                   Submitted {relDate(active.submitted_at)}
                 </span>
               </div>

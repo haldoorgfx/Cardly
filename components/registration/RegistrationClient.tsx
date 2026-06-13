@@ -126,9 +126,10 @@ export default function RegistrationClient({
   // If the attendee arrived from the event page with a chosen ticket, honor it.
   const preselected = initialTicketId ? tickets.find(t => t.id === initialTicketId) ?? null : null;
 
-  // step 0 = ticket, 1 = details, 2 = review/pay.
+  // step 0 = ticket, 1 = details, 2 = review/pay, 3 = your card (canvas events only).
   // Land straight on Details when a ticket was already picked on the event page.
-  const [step, setStep] = useState<0 | 1 | 2>(preselected ? 1 : 0);
+  const [step, setStep] = useState<0 | 1 | 2 | 3>(preselected ? 1 : 0);
+  const [confirmedToken, setConfirmedToken] = useState<string | null>(null);
   const [selectedTicket, setSelectedTicket] = useState<TicketType | null>(() => preselected ?? pickDefaultTicket(tickets));
 
   // Basic fields
@@ -354,30 +355,11 @@ export default function RegistrationClient({
 
       const token = data.qr_code_token;
 
-      // Pre-generate card for free registrations
+      // For canvas events: go to "Your card" step so the attendee can personalise before redirect
       if (canvasVariant) {
-        try {
-          const fd = new FormData();
-          fd.append('variantId', canvasVariant.id);
-          const enriched = { ...zoneValues };
-          const firstNameZone = canvasVariant.zones.find(z => {
-            const lbl = (z.label ?? '').toLowerCase();
-            return (z.type === 'text' || z.type === 'custom') && lbl.includes('name') && !lbl.includes('company') && !lbl.includes('org');
-          });
-          if (firstNameZone && !enriched[firstNameZone.id]) enriched[firstNameZone.id] = attendeeName;
-          fd.append('fields', JSON.stringify(enriched));
-          fd.append('idempotencyKey', `reg-${token}-card`);
-          if (data.registration_id) fd.append('registrationId', data.registration_id);
-          for (const [zoneId, file] of Object.entries(zonePhotoFiles)) {
-            fd.append(`photo_${zoneId}`, file);
-          }
-          const renderRes = await fetch('/api/render', { method: 'POST', body: fd });
-          if (renderRes.ok) {
-            const blob = await renderRes.blob();
-            const dataUrl = await blobToDataUrl(blob);
-            try { sessionStorage.setItem(`card_${token}`, dataUrl); } catch { /* ignore */ }
-          }
-        } catch { /* non-blocking */ }
+        setConfirmedToken(token);
+        setStep(3);
+        return;
       }
 
       router.push(`/e/${eventSlug}/register/confirm?reg=${token}`);
@@ -386,6 +368,36 @@ export default function RegistrationClient({
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleCardFinish = async () => {
+    if (!confirmedToken || !canvasVariant) return;
+    setSubmitting(true);
+    try {
+      const attendeeName = deriveAttendeeName(canvasVariant.zones, zoneValues, name || 'Attendee');
+      const fd = new FormData();
+      fd.append('variantId', canvasVariant.id);
+      const enriched = { ...zoneValues };
+      const firstNameZone = canvasVariant.zones.find(z => {
+        const lbl = (z.label ?? '').toLowerCase();
+        return (z.type === 'text' || z.type === 'custom') && lbl.includes('name') && !lbl.includes('company') && !lbl.includes('org');
+      });
+      if (firstNameZone && !enriched[firstNameZone.id]) enriched[firstNameZone.id] = attendeeName;
+      fd.append('fields', JSON.stringify(enriched));
+      fd.append('idempotencyKey', `reg-${confirmedToken}-card`);
+      for (const [zoneId, file] of Object.entries(zonePhotoFiles)) {
+        fd.append(`photo_${zoneId}`, file);
+      }
+      const renderRes = await fetch('/api/render', { method: 'POST', body: fd });
+      if (renderRes.ok) {
+        const blob = await renderRes.blob();
+        const dataUrl = await blobToDataUrl(blob);
+        try { sessionStorage.setItem(`card_${confirmedToken}`, dataUrl); } catch { /* ignore */ }
+      }
+    } catch { /* non-blocking */ } finally {
+      setSubmitting(false);
+    }
+    router.push(`/e/${eventSlug}/register/confirm?reg=${confirmedToken}`);
   };
 
   // Payment screens (after registration created for paid tickets)
@@ -420,13 +432,15 @@ export default function RegistrationClient({
     );
   }
 
-  const STEPS = ['Ticket', 'Details', isFree ? 'Confirm' : 'Pay'];
+  const STEPS = canvasVariant
+    ? ['Ticket', 'Details', isFree ? 'Confirm' : 'Pay', 'Your card']
+    : ['Ticket', 'Details', isFree ? 'Confirm' : 'Pay'];
   const previewValues = canvasVariant ? zoneValues : {};
   const previewPhotoUrls = canvasVariant ? zonePhotoUrls : {};
 
   return (
     <div className="min-h-screen" style={{ background: '#FAF6EE' }}>
-      <div className={`max-w-[1100px] mx-auto px-5 py-8 pb-20 ${canvasVariant ? 'lg:grid lg:grid-cols-[1fr_340px] lg:gap-12 lg:items-start' : ''}`}>
+      <div className="max-w-[1100px] mx-auto px-5 py-8 pb-20 lg:grid lg:grid-cols-[1fr_340px] lg:gap-12 lg:items-start">
         {/* Left: form */}
         <div>
           {/* Step indicator */}
@@ -435,7 +449,7 @@ export default function RegistrationClient({
               <div key={i} className="flex items-center gap-2.5">
                 <div className="flex items-center gap-2">
                   <div
-                    className="w-6 h-6 rounded-full flex items-center justify-center font-mono text-[11px] shrink-0 transition-all"
+                    className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-medium shrink-0 transition-all"
                     style={{
                       background: i < step ? '#E8EFEB' : i === step ? '#1F4D3A' : 'transparent',
                       border: `1.5px solid ${i <= step ? '#1F4D3A' : '#E5E0D4'}`,
@@ -642,22 +656,6 @@ export default function RegistrationClient({
                   />
                 </div>
 
-                {/* Card zone fields — for personalising the Karta Card */}
-                {canvasVariant && (
-                  <CardZoneFill
-                    zones={canvasVariant.zones}
-                    values={zoneValues}
-                    photoUrls={zonePhotoUrls}
-                    errors={fieldErrors}
-                    onChange={(id, v) => setZoneValues(p => ({ ...p, [id]: v }))}
-                    onPhotoSelect={handlePhotoSelect}
-                    onPhotoClear={handlePhotoClear}
-                    backgroundUrl={canvasVariant.backgroundUrl}
-                    backgroundWidth={canvasVariant.backgroundWidth}
-                    backgroundHeight={canvasVariant.backgroundHeight}
-                  />
-                )}
-
                 {/* Custom form fields configured by the organizer */}
                 {formFields.map(f => {
                   const err = fieldErrors[`cf_${f.id}`];
@@ -743,6 +741,30 @@ export default function RegistrationClient({
             </div>
           )}
 
+          {/* Step 3: Your card */}
+          {step === 3 && canvasVariant && (
+            <div>
+              <h2 className="font-display font-normal text-[28px] mb-1.5" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>
+                Design your Karta Card
+              </h2>
+              <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>
+                Personalise your card — it&apos;ll be sent to you with your ticket confirmation.
+              </p>
+              <CardZoneFill
+                zones={canvasVariant.zones}
+                values={zoneValues}
+                photoUrls={zonePhotoUrls}
+                errors={fieldErrors}
+                onChange={(id, v) => setZoneValues(p => ({ ...p, [id]: v }))}
+                onPhotoSelect={handlePhotoSelect}
+                onPhotoClear={handlePhotoClear}
+                backgroundUrl={canvasVariant.backgroundUrl}
+                backgroundWidth={canvasVariant.backgroundWidth}
+                backgroundHeight={canvasVariant.backgroundHeight}
+              />
+            </div>
+          )}
+
           {/* Nav buttons */}
           <div className="mt-8">
             {submitError && (
@@ -755,7 +777,7 @@ export default function RegistrationClient({
                 onClick={() => {
                   setSubmitError('');
                   if (step === 0) router.push(`/e/${eventSlug}`);
-                  else setStep(s => (s - 1) as 0 | 1 | 2);
+                  else setStep(s => (s - 1) as 0 | 1 | 2 | 3);
                 }}
                 className="px-5 py-2.5 rounded-xl font-medium text-[14px] transition-colors"
                 style={{ background: '#E8EFEB', color: '#1F4D3A' }}
@@ -773,7 +795,7 @@ export default function RegistrationClient({
                       const errs = validateDetails();
                       if (Object.keys(errs).length > 0) { setFieldErrors(errs); return; }
                     }
-                    setStep(s => (s + 1) as 0 | 1 | 2);
+                    setStep(s => (s + 1) as 0 | 1 | 2 | 3);
                   }}
                   disabled={step === 0 && !selectedTicket}
                   className="ml-auto px-6 py-2.5 rounded-xl font-medium text-[14px] text-white disabled:opacity-50"
@@ -781,7 +803,7 @@ export default function RegistrationClient({
                 >
                   Continue →
                 </button>
-              ) : (
+              ) : step === 2 ? (
                 <button
                   onClick={handleSubmit}
                   disabled={submitting}
@@ -794,6 +816,20 @@ export default function RegistrationClient({
                     </svg>
                   )}
                   {submitting ? 'Processing…' : isFree ? 'Confirm registration' : `Pay ${fmt(total, selectedTicket?.currency ?? 'USD')} →`}
+                </button>
+              ) : (
+                <button
+                  onClick={handleCardFinish}
+                  disabled={submitting}
+                  className="ml-auto px-6 py-2.5 rounded-xl font-medium text-[14px] text-white disabled:opacity-50 flex items-center gap-2"
+                  style={{ background: '#1F4D3A' }}
+                >
+                  {submitting && (
+                    <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
+                    </svg>
+                  )}
+                  {submitting ? 'Generating card…' : 'Get my card →'}
                 </button>
               )}
             </div>
@@ -830,7 +866,7 @@ export default function RegistrationClient({
                 <div>
                   <div className="font-display font-medium text-[15px]" style={{ color: '#0F1F18' }}>{eventName}</div>
                   {(startsAt || city) && (
-                    <div className="font-mono text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>
+                    <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>
                       {startsAt ? dateStr(startsAt) : ''}{city ? ` · ${city}` : ''}
                     </div>
                   )}
@@ -873,7 +909,7 @@ export default function RegistrationClient({
                 <div>
                   <div className="font-display font-medium text-[15px]" style={{ color: '#0F1F18' }}>{eventName}</div>
                   {(startsAt || city) && (
-                    <div className="font-mono text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>
+                    <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>
                       {startsAt ? dateStr(startsAt) : ''}{city ? ` · ${city}` : ''}
                     </div>
                   )}
