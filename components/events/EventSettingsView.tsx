@@ -23,6 +23,7 @@ interface EventData {
   city: string | null;
   country: string | null;
   timezone: string;
+  fee_bearer: 'absorb' | 'pass';
 }
 
 interface Props {
@@ -76,6 +77,17 @@ export function EventSettingsView({ event }: Props) {
   const [customQuestion, setCustomQuestion] = useState(true);
   const [requireApproval, setRequireApproval] = useState(false);
   const [closeAtCapacity, setCloseAtCapacity] = useState(true);
+
+  // Platform fee — who bears Karta's per-ticket fee. Saves instantly.
+  const [passFee, setPassFee] = useState(event.fee_bearer === 'pass');
+  function savePassFee(v: boolean) {
+    setPassFee(v);
+    fetch(`/api/events/${event.id}/checkout-settings`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fee_bearer: v ? 'pass' : 'absorb' }),
+    }).catch(() => setPassFee(!v));
+  }
 
   // Privacy
   const [isPublic, setIsPublic] = useState(event.is_public);
@@ -329,6 +341,18 @@ export function EventSettingsView({ event }: Props) {
                 <Toggle value={item.val} onChange={item.set} />
               </InfoRow>
             ))}
+          </div>
+          <div className="mt-4 pt-4" style={{ borderTop: '1px solid #F0EDE7' }}>
+            <div className="text-[11px] font-semibold uppercase tracking-wider mb-1" style={{ color: '#6B7A72', letterSpacing: '0.06em' }}>Platform fee</div>
+            <InfoRow
+              label="Pass the platform fee to attendees"
+              desc={passFee
+                ? "Karta's fee is added on top at checkout — you keep 100% of your ticket price."
+                : "You absorb Karta's fee — attendees pay the exact ticket price, the fee comes out of your revenue."}
+              last
+            >
+              <Toggle value={passFee} onChange={savePassFee} />
+            </InfoRow>
           </div>
         </Panel>
       )}

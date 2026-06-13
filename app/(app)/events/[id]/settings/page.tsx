@@ -31,6 +31,12 @@ export default async function EventSettingsPage({ params }: { params: Promise<{ 
     .eq('event_id', id)
     .single();
 
+  // Read fee_bearer defensively — the column exists after migration 040.
+  let feeBearer: 'absorb' | 'pass' = 'absorb';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: fb } = await (admin as any).from('events').select('fee_bearer').eq('id', id).single();
+  if (fb?.fee_bearer === 'pass') feeBearer = 'pass';
+
   return (
     <EventSettingsView
       event={{
@@ -38,6 +44,7 @@ export default async function EventSettingsPage({ params }: { params: Promise<{ 
         name: event.name,
         slug: event.slug,
         status: event.status,
+        fee_bearer: feeBearer,
         starts_at: page?.starts_at ?? null,
         ends_at: page?.ends_at ?? null,
         max_capacity: page?.max_capacity ?? null,
