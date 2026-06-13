@@ -40,13 +40,20 @@ export async function POST(req: NextRequest) {
     }
 
     // tx_ref = qr_code_token
-    const { error } = await admin
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: updated, error } = await (admin as any)
       .from('registrations')
       .update({ payment_status: 'paid', status: 'confirmed', updated_at: new Date().toISOString() })
       .eq('qr_code_token', tx_ref)
-      .eq('payment_status', 'pending'); // idempotent guard
+      .eq('payment_status', 'pending') // idempotent guard
+      .select('ticket_type_id')
+      .maybeSingle();
 
     if (error) console.error('[FW webhook] DB update failed:', error.message);
+    // First pending→paid transition only — increment sold count once.
+    if (updated?.ticket_type_id) {
+      await admin.rpc('increment_ticket_quantity_sold', { ticket_id: updated.ticket_type_id, qty: 1 });
+    }
   } else if (status === 'failed') {
     await admin
       .from('registrations')

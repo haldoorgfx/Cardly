@@ -35,10 +35,15 @@ export async function POST(req: NextRequest) {
         })
         .eq('stripe_payment_intent_id', pi.id)
         .eq('payment_status', 'pending') // idempotent guard
-        .select('attendee_name, attendee_email, qr_code_token, ticket_types(name), events!inner(slug, event_pages(title, starts_at, venue_name, is_online))')
+        .select('attendee_name, attendee_email, qr_code_token, ticket_type_id, ticket_types(name), events!inner(slug, event_pages(title, starts_at, venue_name, is_online))')
         .maybeSingle();
       if (error) console.error('[Stripe webhook] update failed:', error.message);
       if (updated) {
+        // Only the first pending→paid transition returns a row, so this
+        // increment runs exactly once per paid ticket (prevents overselling).
+        if (updated.ticket_type_id) {
+          await admin.rpc('increment_ticket_quantity_sold', { ticket_id: updated.ticket_type_id, qty: 1 });
+        }
         const ep = updated.events?.event_pages?.[0];
         sendRegistrationConfirmEmail({
           to: updated.attendee_email,

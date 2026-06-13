@@ -42,9 +42,13 @@ export async function POST(req: NextRequest) {
       .eq('qr_code_token', String(invoiceId))
       .eq('payment_status', 'pending')
       .select('id, attendee_name, attendee_email, event_id, ticket_type_id, qr_code_token')
-      .single();
+      .maybeSingle();
 
     if (updated) {
+      // First pending→paid flip only — increment sold count once.
+      if (updated.ticket_type_id) {
+        await admin.rpc('increment_ticket_quantity_sold', { ticket_id: updated.ticket_type_id, qty: 1 });
+      }
       const [{ data: eventPage }, { data: ticket }] = await Promise.all([
         admin.from('event_pages').select('title, starts_at, timezone, venue_name, venue_address, is_online').eq('event_id', updated.event_id).single(),
         admin.from('ticket_types').select('name').eq('id', updated.ticket_type_id ?? '').single(),

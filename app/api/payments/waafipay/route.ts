@@ -46,8 +46,9 @@ export async function POST(req: NextRequest) {
   });
 
   if (result.success) {
-    // Mark registration as paid
-    await admin
+    // Mark registration as paid — guarded flip returns a row only the first time.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: flipped } = await (admin as any)
       .from('registrations')
       .update({
         payment_status:  'paid',
@@ -56,10 +57,12 @@ export async function POST(req: NextRequest) {
         updated_at:      new Date().toISOString(),
       })
       .eq('id', registration_id)
-      .eq('payment_status', 'pending');
+      .eq('payment_status', 'pending')
+      .select('id')
+      .maybeSingle();
 
-    // Increment ticket quantity (now that payment is confirmed)
-    if (reg.ticket_type_id) {
+    // Increment sold count only on the first pending→paid flip (prevents oversell + double-count).
+    if (flipped && reg.ticket_type_id) {
       await admin.rpc('increment_ticket_quantity_sold', { ticket_id: reg.ticket_type_id!, qty: 1 });
     }
 
