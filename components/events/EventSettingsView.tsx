@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Check, Copy, AlertTriangle, Trash2, X } from 'lucide-react';
 import { PlacesAutocomplete, type PlaceResult } from '@/components/shared/PlacesAutocomplete';
+import { EventFeaturesManager } from '@/components/events/EventFeaturesManager';
 
 interface EventData {
   id: string;
@@ -28,10 +29,11 @@ interface Props {
   event: EventData;
 }
 
-type Tab = 'general' | 'registration' | 'privacy' | 'danger';
+type Tab = 'general' | 'features' | 'registration' | 'privacy' | 'danger';
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'general',      label: 'General'      },
+  { id: 'features',     label: 'Features'     },
   { id: 'registration', label: 'Registration' },
   { id: 'privacy',      label: 'Privacy'      },
   { id: 'danger',       label: 'Danger zone'  },
@@ -305,6 +307,11 @@ export function EventSettingsView({ event }: Props) {
             </div>
           </Panel>
         </div>
+      )}
+
+      {/* Features tab */}
+      {tab === 'features' && (
+        <EventFeaturesManager eventId={event.id} />
       )}
 
       {/* Registration tab */}

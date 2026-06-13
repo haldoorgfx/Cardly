@@ -270,6 +270,12 @@ export function PublicEventPageClient({
   const [savedHeart, setSavedHeart] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<string>(tickets[0]?.id ?? '');
 
+  // Per-event feature toggles + custom menu (jsonb columns; absent pre-migration → defaults).
+  const features = (page as unknown as { features?: Record<string, boolean> }).features ?? {};
+  const featureOn = (key: string) => features[key] !== false;
+  const customMenu = ((page as unknown as { custom_menu?: { id: string; label: string; type: string; url?: string; content?: string }[] }).custom_menu ?? [])
+    .filter(m => m && m.label);
+
   const selectedTicketObj = tickets.find(t => t.id === selectedTicket);
   const registerHref = selectedTicket
     ? `/e/${registrationSlug}/register?ticket=${selectedTicket}`
@@ -505,7 +511,7 @@ export function PublicEventPageClient({
             )}
 
             {/* Agenda block */}
-            {sessions.length > 0 && (
+            {featureOn('schedule') && sessions.length > 0 && (
               <div className="mt-9">
                 <h2 className="font-title font-bold text-[22px] mb-4" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
                   Agenda
@@ -533,8 +539,35 @@ export function PublicEventPageClient({
               </div>
             )}
 
+            {/* Custom menu block */}
+            {customMenu.length > 0 && (
+              <div className="mt-9">
+                <h2 className="font-title font-bold text-[22px] mb-4" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+                  More info
+                </h2>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  {customMenu.map((m) => (
+                    m.type === 'link' && m.url ? (
+                      <a key={m.id} href={m.url} target="_blank" rel="noopener noreferrer"
+                        className="flex items-center justify-between gap-3 px-4 py-3.5 rounded-2xl transition hover:border-[#1F4D3A]/40"
+                        style={{ border: '1px solid #E5E0D4', background: '#FFFFFF' }}>
+                        <span className="font-title font-semibold text-[14.5px]" style={{ color: '#0F1F18' }}>{m.label}</span>
+                        <span className="text-[13px]" style={{ color: '#C9A45E' }}>↗</span>
+                      </a>
+                    ) : m.type === 'page' && m.content ? (
+                      <details key={m.id} className="px-4 py-3.5 rounded-2xl sm:col-span-2"
+                        style={{ border: '1px solid #E5E0D4', background: '#FFFFFF' }}>
+                        <summary className="font-title font-semibold text-[14.5px] cursor-pointer" style={{ color: '#0F1F18' }}>{m.label}</summary>
+                        <div className="text-[14px] leading-[1.7] whitespace-pre-line mt-2" style={{ color: '#3A4A42' }}>{m.content}</div>
+                      </details>
+                    ) : null
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Speakers block */}
-            {speakers.length > 0 && (
+            {featureOn('speakers') && speakers.length > 0 && (
               <div className="mt-9">
                 <h2 className="font-title font-bold text-[22px] mb-4" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
                   Speakers
