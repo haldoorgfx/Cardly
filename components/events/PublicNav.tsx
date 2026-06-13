@@ -178,6 +178,10 @@ export function PublicNav({ eventSlug }: PublicNavProps = {}) {
                         </p>
                         <p className="text-[12px] truncate mt-0.5" style={{ color: '#6B7A72' }}>{user.email}</p>
                       </div>
+                      <Link href="/home" onClick={() => setAvatarMenuOpen(false)}
+                        className="flex items-center px-4 py-2.5 text-[13px] font-medium hover:bg-[#FAF6EE] transition-colors" style={{ color: '#1F4D3A' }}>
+                        Home
+                      </Link>
                       {isAttendee && (
                         <>
                           <Link href="/my-tickets" onClick={() => setAvatarMenuOpen(false)}
@@ -249,6 +253,12 @@ export function PublicNav({ eventSlug }: PublicNavProps = {}) {
               {link.label}
             </Link>
           ))}
+          {user && (
+            <Link href="/home" onClick={() => setMenuOpen(false)}
+              className="text-[15px] font-medium py-2.5 border-b" style={{ color: '#1F4D3A', borderColor: '#F0EDE7' }}>
+              Home
+            </Link>
+          )}
           {user && isAttendee && (
             <>
               <Link href="/account/notifications" onClick={() => setMenuOpen(false)}
