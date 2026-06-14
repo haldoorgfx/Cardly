@@ -185,18 +185,23 @@ export function MarketingNav() {
   const [open, setOpen] = useState(false);
   const [productOpen, setProductOpen] = useState(false);
   const [user, setUser] = useState<SupaUser | null>(null);
+  const [accountType, setAccountType] = useState<string | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const pathname = usePathname();
+  const isAttendee = accountType === 'attendee';
 
   useEffect(() => {
     const supabase = createClient();
-    Promise.all([
-      supabase.auth.getUser(),
-      supabase.from('site_settings').select('logo_url').eq('id', 1).single(),
-    ]).then(([{ data: authData }, { data: settings }]) => {
-      setUser(authData.user ?? null);
-      setLogoUrl(settings?.logo_url ?? null);
+    supabase.from('site_settings').select('logo_url').eq('id', 1).single()
+      .then(({ data }) => setLogoUrl(data?.logo_url ?? null));
+    supabase.auth.getUser().then(({ data }) => {
+      const u = data.user ?? null;
+      setUser(u);
+      if (u) {
+        supabase.from('profiles').select('account_type').eq('id', u.id).single()
+          .then(({ data: p }) => setAccountType((p?.account_type as string | null) ?? null));
+      }
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
       setUser(session?.user ?? null);
@@ -346,12 +351,28 @@ export function MarketingNav() {
                     <div className="text-[13px] font-medium text-ink truncate">{(user.user_metadata?.full_name as string | undefined) ?? 'Account'}</div>
                     <div className="text-[12px] text-muted truncate">{user.email}</div>
                   </div>
-                  <Link href="/dashboard" className="flex items-center gap-2.5 px-4 py-3 text-[13px] text-ink-soft hover:bg-primary-soft hover:text-primary transition-colors">
-                    <LayoutDashboard size={14} strokeWidth={2} /> Dashboard
-                  </Link>
-                  <Link href="/settings" className="flex items-center gap-2.5 px-4 py-3 text-[13px] text-ink-soft hover:bg-primary-soft hover:text-primary transition-colors" style={{ borderTop: '1px solid rgba(229,224,212,0.6)' }}>
-                    Settings
-                  </Link>
+                  {isAttendee ? (
+                    <>
+                      <Link href="/my-tickets" className="flex items-center gap-2.5 px-4 py-3 text-[13px] text-ink-soft hover:bg-primary-soft hover:text-primary transition-colors">
+                        <Ticket size={14} strokeWidth={2} /> My tickets
+                      </Link>
+                      <Link href="/account/profile" className="flex items-center gap-2.5 px-4 py-3 text-[13px] text-ink-soft hover:bg-primary-soft hover:text-primary transition-colors" style={{ borderTop: '1px solid rgba(229,224,212,0.6)' }}>
+                        Profile &amp; preferences
+                      </Link>
+                      <Link href="/account/notifications" className="flex items-center gap-2.5 px-4 py-3 text-[13px] text-ink-soft hover:bg-primary-soft hover:text-primary transition-colors" style={{ borderTop: '1px solid rgba(229,224,212,0.6)' }}>
+                        Notifications
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <Link href="/dashboard" className="flex items-center gap-2.5 px-4 py-3 text-[13px] text-ink-soft hover:bg-primary-soft hover:text-primary transition-colors">
+                        <LayoutDashboard size={14} strokeWidth={2} /> Dashboard
+                      </Link>
+                      <Link href="/settings" className="flex items-center gap-2.5 px-4 py-3 text-[13px] text-ink-soft hover:bg-primary-soft hover:text-primary transition-colors" style={{ borderTop: '1px solid rgba(229,224,212,0.6)' }}>
+                        Settings
+                      </Link>
+                    </>
+                  )}
                   <button
                     onClick={handleSignOut}
                     className="w-full flex items-center gap-2.5 px-4 py-3 text-[13px] text-left hover:bg-red-50 transition-colors"
