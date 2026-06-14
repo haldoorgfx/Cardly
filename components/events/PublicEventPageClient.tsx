@@ -448,7 +448,9 @@ export function PublicEventPageClient({
               </div>
               <div className="text-[14px]" style={{ color: '#3A4A42' }}>
                 {hasRealAttendees ? (
-                  <><span className="font-semibold" style={{ color: '#0F1F18' }}>{attendeeCount.toLocaleString()}</span> {attendeeCount === 1 ? 'person is' : 'people are'} attending</>
+                  <Link href={`/e/${registrationSlug}/people`} className="hover:opacity-70 transition" style={{ color: 'inherit', textDecoration: 'none' }}>
+                    <span className="font-semibold" style={{ color: '#0F1F18' }}>{attendeeCount.toLocaleString()}</span> {attendeeCount === 1 ? 'person is' : 'people are'} attending <span style={{ color: '#1F4D3A', fontWeight: 600 }}>→</span>
+                  </Link>
                 ) : (
                   'Be the first to attend'
                 )}
@@ -513,9 +515,14 @@ export function PublicEventPageClient({
             {/* Agenda block */}
             {featureOn('schedule') && sessions.length > 0 && (
               <div className="mt-9">
-                <h2 className="font-title font-bold text-[22px] mb-4" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
-                  Agenda
-                </h2>
+                <div className="flex items-end justify-between mb-4">
+                  <h2 className="font-title font-bold text-[22px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+                    Schedule
+                  </h2>
+                  <Link href={`/e/${registrationSlug}/schedule`} className="text-[13px] font-semibold shrink-0 hover:opacity-70 transition" style={{ color: '#1F4D3A' }}>
+                    See full schedule →
+                  </Link>
+                </div>
                 <div className="overflow-hidden rounded-2xl" style={{ border: '1px solid #E5E0D4' }}>
                   {sessions.map((s, i) => (
                     <div key={s.id}
@@ -569,9 +576,14 @@ export function PublicEventPageClient({
             {/* Speakers block */}
             {featureOn('speakers') && speakers.length > 0 && (
               <div className="mt-9">
-                <h2 className="font-title font-bold text-[22px] mb-4" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
-                  Speakers
-                </h2>
+                <div className="flex items-end justify-between mb-4">
+                  <h2 className="font-title font-bold text-[22px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+                    Speakers
+                  </h2>
+                  <Link href={`/e/${registrationSlug}/speakers`} className="text-[13px] font-semibold shrink-0 hover:opacity-70 transition" style={{ color: '#1F4D3A' }}>
+                    See all speakers →
+                  </Link>
+                </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                   {speakers.map((s) => (
                     <div key={s.id} className="text-center">
