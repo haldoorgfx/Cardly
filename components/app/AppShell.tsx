@@ -422,6 +422,15 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
   const rest = pathname.startsWith(prefix) ? pathname.slice(prefix.length) : '';
   const activeSegment = rest === '' || rest === '/' ? '' : rest.split('/').filter(Boolean)[0] ?? '';
 
+  // Which section holds the current page — kept open so you never lose your place.
+  const activeSectionIndex = EVENT_NAV_SECTIONS.findIndex(s =>
+    s.items.some(it => ('activeOn' in it ? it.activeOn : it.segment) === activeSegment),
+  );
+
+  // Collapsible section groups — first section ("Manage") open by default.
+  const [openSections, setOpenSections] = useState<Record<number, boolean>>({ 0: true });
+  const toggleSection = (si: number) => setOpenSections(p => ({ ...p, [si]: !(p[si] ?? false) }));
+
   const badge = event?.status ? (EVENT_STATUS_BADGE[event.status] ?? EVENT_STATUS_BADGE.archived) : null;
 
   return (
@@ -469,30 +478,45 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
         )}
       </div>
 
-      {/* Event nav */}
+      {/* Event nav — collapsible section groups */}
       <nav className="flex-1 px-3 py-3 overflow-y-auto">
-        {EVENT_NAV_SECTIONS.map((section, si) => (
-          <div key={si} className="mb-4">
-            {section.title && (
-              <div className="px-2.5 mb-1.5 text-[9.5px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9BA8A1' }}>
-                {section.title}
-              </div>
-            )}
-            <ul className="space-y-0.5">
-              {section.items.map(item => {
-                const href = item.segment === ''
-                  ? `/events/${eventId}`
-                  : `/events/${eventId}/${item.segment}`;
-                const matchKey = 'activeOn' in item ? item.activeOn : item.segment;
-                const active = activeSegment === matchKey;
-                return (
-                  <NavItem key={item.id} href={href} icon={item.icon} label={item.label}
-                    active={active} onNavigate={onNavigate} />
-                );
-              })}
-            </ul>
-          </div>
-        ))}
+        {EVENT_NAV_SECTIONS.map((section, si) => {
+          const open = (openSections[si] ?? false) || si === activeSectionIndex;
+          return (
+            <div key={si} className="mb-1.5">
+              <button
+                type="button"
+                onClick={() => toggleSection(si)}
+                aria-expanded={open}
+                className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg transition-colors hover:bg-[#F5F3EE]"
+              >
+                <span className="text-[9.5px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9BA8A1' }}>
+                  {section.title}
+                </span>
+                <ChevronRight
+                  size={13}
+                  strokeWidth={2.2}
+                  style={{ color: '#9BA8A1', transform: open ? 'rotate(90deg)' : 'none', transition: 'transform .15s' }}
+                />
+              </button>
+              {open && (
+                <ul className="space-y-0.5 mt-0.5 mb-2">
+                  {section.items.map(item => {
+                    const href = item.segment === ''
+                      ? `/events/${eventId}`
+                      : `/events/${eventId}/${item.segment}`;
+                    const matchKey = 'activeOn' in item ? item.activeOn : item.segment;
+                    const active = activeSegment === matchKey;
+                    return (
+                      <NavItem key={item.id} href={href} icon={item.icon} label={item.label}
+                        active={active} onNavigate={onNavigate} />
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+          );
+        })}
       </nav>
 
       {/* Footer */}
