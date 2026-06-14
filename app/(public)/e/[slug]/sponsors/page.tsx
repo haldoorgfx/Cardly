@@ -2,7 +2,6 @@ export const dynamic = 'force-dynamic';
 
 import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
-import { PublicNav } from '@/components/events/PublicNav';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 import Link from 'next/link';
 
@@ -50,7 +49,6 @@ export default async function SponsorsPage({ params }: Props) {
 
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
-      <PublicNav eventSlug={params.slug} eventName={event.name} />
 
       <div className="max-w-[800px] mx-auto px-5 pb-24">
         {/* Header */}

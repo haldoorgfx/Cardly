@@ -3,7 +3,6 @@ export const dynamic = 'force-dynamic';
 
 import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
-import { PublicNav } from '@/components/events/PublicNav';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 import RegistrationClient from '@/components/registration/RegistrationClient';
 import type { Zone } from '@/types/database';
@@ -101,7 +100,6 @@ export default async function RegisterPage({ params, searchParams }: Props) {
 
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
-      <PublicNav eventSlug={params.slug} eventName={event.name} />
 
       {/* Mesh gradient */}
       <div

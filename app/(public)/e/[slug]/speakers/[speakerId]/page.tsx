@@ -2,7 +2,6 @@ export const dynamic = 'force-dynamic';
 
 import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
-import { PublicNav } from '@/components/events/PublicNav';
 import SpeakerProfileClient from '@/components/events/SpeakerProfileClient';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 
@@ -29,7 +28,6 @@ export default async function SpeakerProfilePage({ params }: Props) {
 
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
-      <PublicNav eventSlug={params.slug} eventName={event.name} />
       {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       <SpeakerProfileClient speaker={speaker as any} sessions={(sessions ?? []) as any} eventSlug={params.slug} />
     </div>

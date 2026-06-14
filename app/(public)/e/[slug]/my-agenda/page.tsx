@@ -2,7 +2,6 @@ export const dynamic = 'force-dynamic';
 
 import { createAdminClient } from '@/lib/supabase/server';
 import { notFound, redirect } from 'next/navigation';
-import { PublicNav } from '@/components/events/PublicNav';
 import PersonalAgendaClient from '@/components/events/PersonalAgendaClient';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 
@@ -15,7 +14,7 @@ export default async function MyAgendaPage({ params, searchParams }: Props) {
 
   const resolved = await resolvePublicSlug(params.slug);
   if (!resolved) notFound();
-  const { eventPageTitle, event } = resolved;
+  const { eventPageTitle } = resolved;
   const eventPage = { title: eventPageTitle };
 
   const { data: agendaRows } = await admin
@@ -32,7 +31,6 @@ export default async function MyAgendaPage({ params, searchParams }: Props) {
 
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
-      <PublicNav eventSlug={params.slug} eventName={event.name} />
       <div className="max-w-[700px] mx-auto px-5 py-10">
         <div className="mb-8">
           <h1 className="font-display font-normal text-[28px]" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>

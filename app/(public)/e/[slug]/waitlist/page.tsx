@@ -2,7 +2,6 @@ export const dynamic = 'force-dynamic';
 
 import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
-import { PublicNav } from '@/components/events/PublicNav';
 import WaitlistJoinClient from '@/components/registration/WaitlistJoinClient';
 
 interface Props { params: { slug: string } }
@@ -48,7 +47,6 @@ export default async function WaitlistPage({ params }: Props) {
 
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
-      <PublicNav />
       <WaitlistJoinClient
         slug={params.slug}
         pageId={page.id}

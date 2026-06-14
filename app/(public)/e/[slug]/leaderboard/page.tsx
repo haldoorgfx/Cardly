@@ -2,7 +2,6 @@ export const dynamic = 'force-dynamic';
 
 import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
-import { PublicNav } from '@/components/events/PublicNav';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 
 interface Props { params: { slug: string }; searchParams: { reg?: string } }
@@ -50,7 +49,6 @@ export default async function LeaderboardPage({ params, searchParams }: Props) {
 
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
-      <PublicNav eventSlug={params.slug} eventName={event.name} />
       <div className="max-w-[700px] mx-auto px-5 py-10">
         <h1 className="font-display font-normal text-[32px] mb-2" style={{ color: '#1F4D3A', letterSpacing: '-0.025em' }}>Leaderboard</h1>
         <p className="text-[15px] mb-8" style={{ color: '#6B7A72' }}>{eventPage.title}</p>

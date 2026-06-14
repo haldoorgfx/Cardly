@@ -2,7 +2,6 @@ export const dynamic = 'force-dynamic';
 
 import { createAdminClient } from '@/lib/supabase/server';
 import { notFound, redirect } from 'next/navigation';
-import { PublicNav } from '@/components/events/PublicNav';
 import FeedbackClient from '@/components/events/FeedbackClient';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 
@@ -26,7 +25,6 @@ export default async function FeedbackPage({ params, searchParams }: Props) {
 
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
-      <PublicNav eventSlug={params.slug} eventName={event.name} />
       <div className="max-w-[680px] mx-auto px-5 py-10">
         <FeedbackClient
           eventId={event.id}

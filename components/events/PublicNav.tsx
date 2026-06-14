@@ -61,14 +61,14 @@ export function PublicNav({ eventSlug }: PublicNavProps = {}) {
 
   // Global nav for attendees (no event context)
   const attendeeLinks = [
-    { href: '/events',     label: 'Discover' },
+    { href: '/events',     label: 'Discover events' },
     { href: '/my-tickets', label: 'My tickets' },
     { href: '/saved',      label: 'Saved' },
   ];
 
   // Global nav for organizers / signed-out visitors
   const organizerLinks = [
-    { href: '/events',       label: 'Discover' },
+    { href: '/events',       label: 'Discover events' },
     { href: '/how-it-works', label: 'How it works' },
     { href: '/pricing',      label: 'Pricing' },
   ];

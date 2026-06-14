@@ -2,7 +2,6 @@ export const dynamic = 'force-dynamic';
 
 import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
-import { PublicNav } from '@/components/events/PublicNav';
 import { WorkshopsClient } from '@/components/events/WorkshopsClient';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 
@@ -37,7 +36,6 @@ export default async function WorkshopsPage({ params, searchParams }: Props) {
 
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
-      <PublicNav eventSlug={params.slug} eventName={event.name} />
       <WorkshopsClient
         eventId={event.id}
         eventSlug={params.slug}

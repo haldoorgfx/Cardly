@@ -2,7 +2,6 @@ export const dynamic = 'force-dynamic';
 
 import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
-import { PublicNav } from '@/components/events/PublicNav';
 import ScheduleClient from '@/components/events/ScheduleClient';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 
@@ -33,7 +32,6 @@ export default async function SchedulePage({ params, searchParams }: Props) {
 
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
-      <PublicNav eventSlug={params.slug} eventName={event.name} />
       <div className="max-w-[1000px] mx-auto px-5 py-10">
         <div className="mb-8">
           <h1 className="font-display font-normal text-[32px]" style={{ color: '#1F4D3A', letterSpacing: '-0.025em' }}>

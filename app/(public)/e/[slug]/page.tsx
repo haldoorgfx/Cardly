@@ -4,7 +4,6 @@ import { notFound } from 'next/navigation';
 import { createAdminClient } from '@/lib/supabase/server';
 import { formatEventDateRange, formatMinPrice } from '@/lib/events/format';
 import { PublicEventPageClient } from '@/components/events/PublicEventPageClient';
-import { PublicNav } from '@/components/events/PublicNav';
 import { geocodeAddress } from '@/lib/events/geocode';
 import type { Metadata } from 'next';
 
@@ -175,7 +174,6 @@ export default async function PublicEventPage({ params, searchParams }: Props) {
 
   return (
     <>
-      <PublicNav eventSlug={params.slug} />
       {/* Preview bar — shown when organizer clicks "Preview" in event-page editor */}
       {isPreview && editorEventId && (
         <div

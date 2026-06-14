@@ -1,4 +1,4 @@
-import { MarketingNav } from '@/components/marketing/MarketingNav';
+import { PublicNav } from '@/components/events/PublicNav';
 import { MarketingFooter } from '@/components/marketing/MarketingFooter';
 
 export default function MarketingLayout({
@@ -13,7 +13,7 @@ export default function MarketingLayout({
         backgroundSize: '24px 24px',
       }}
     >
-      <MarketingNav />
+      <PublicNav />
       <main>{children}</main>
       <MarketingFooter />
     </div>

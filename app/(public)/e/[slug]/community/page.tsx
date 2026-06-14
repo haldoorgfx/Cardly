@@ -3,7 +3,6 @@ export const dynamic = 'force-dynamic';
 import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
-import { PublicNav } from '@/components/events/PublicNav';
 import { CommunityChatClient } from '@/components/events/CommunityChatClient';
 
 interface Props { params: { slug: string }; searchParams: { reg?: string; channel?: string } }
@@ -33,7 +32,6 @@ export default async function CommunityPage({ params, searchParams }: Props) {
 
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
-      <PublicNav eventSlug={params.slug} eventName={event.name} />
       <CommunityChatClient
         eventId={event.id}
         eventName={event.name}

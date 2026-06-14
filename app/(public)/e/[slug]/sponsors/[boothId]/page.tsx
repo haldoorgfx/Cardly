@@ -2,7 +2,6 @@ export const dynamic = 'force-dynamic';
 
 import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
-import { PublicNav } from '@/components/events/PublicNav';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 import { Check } from 'lucide-react';
 
@@ -36,7 +35,6 @@ export default async function BoothPage({ params }: Props) {
 
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
-      <PublicNav eventSlug={params.slug} eventName={event.name} />
 
       {/* Hero */}
       <div

@@ -2,7 +2,6 @@ export const dynamic = 'force-dynamic';
 
 import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
-import { PublicNav } from '@/components/events/PublicNav';
 import SessionDetailClient from '@/components/events/SessionDetailClient';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 
@@ -42,7 +41,6 @@ export default async function SessionDetailPage({ params, searchParams }: Props)
 
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
-      <PublicNav eventSlug={params.slug} eventName={event.name} />
       <SessionDetailClient
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         session={session as any}
