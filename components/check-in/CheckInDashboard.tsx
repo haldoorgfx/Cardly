@@ -163,24 +163,28 @@ function AttendeeModal({ reg, eventId, onClose, onCheckedIn }: {
   onCheckedIn: (id: string) => void;
 }) {
   const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const isAlreadyIn = reg.status === 'checked_in' || status === 'done';
 
   async function doCheckIn() {
     setStatus('loading');
+    setErrorMsg(null);
     try {
       const res  = await fetch(`/api/events/${eventId}/checkin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ qr_code_token: reg.qr_code_token }),
       });
-      const data = await res.json() as { result: string };
+      const data = await res.json().catch(() => ({})) as { result?: string; message?: string; error?: string };
       if (data.result === 'success' || data.result === 'already_checked_in') {
         setStatus('done');
         onCheckedIn(reg.id);
       } else {
+        setErrorMsg(data.message ?? data.error ?? 'Something went wrong. Try again.');
         setStatus('error');
       }
     } catch {
+      setErrorMsg('Network error — check your connection and try again.');
       setStatus('error');
     }
   }
@@ -251,7 +255,7 @@ function AttendeeModal({ reg, eventId, onClose, onCheckedIn }: {
           {status === 'error' && (
             <div className="px-4 py-3 rounded-xl text-[13px] mb-3"
               style={{ background: '#FEF2F2', color: '#B8423C', border: '1px solid #FECACA' }}>
-              Something went wrong. Try again.
+              {errorMsg ?? 'Something went wrong. Try again.'}
             </div>
           )}
 
