@@ -151,20 +151,22 @@ export default function SpeakerDirectoryClient({ speakers, eventSlug }: Props) {
       )}
 
       {/* Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {gridSpeakers.map((speaker) => (
           <Link
             key={speaker.id}
             href={`/e/${eventSlug}/speakers/${speaker.id}`}
-            className="block group bg-white border rounded-2xl overflow-hidden transition-colors"
+            className="block group bg-white border rounded-2xl overflow-hidden transition-all duration-200 hover:-translate-y-1"
             style={{ borderColor: '#E5E0D4' }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#E8C57E'; e.currentTarget.style.boxShadow = '0 12px 28px rgba(31,77,58,0.14)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#E5E0D4'; e.currentTarget.style.boxShadow = 'none'; }}
           >
             <div
               className="relative overflow-hidden"
-              style={{ aspectRatio: '3/4' }}
+              style={{ aspectRatio: '1/1' }}
             >
               <div
-                className="w-full h-full flex items-center justify-center text-4xl font-semibold"
+                className="w-full h-full flex items-center justify-center text-3xl font-semibold"
                 style={{ background: '#E8EFEB', color: '#1F4D3A' }}
               >
                 {getInitials(speaker.name)}
@@ -174,29 +176,24 @@ export default function SpeakerDirectoryClient({ speakers, eventSlug }: Props) {
                 <img
                   src={speaker.photo_url}
                   alt={speaker.name}
-                  className="absolute inset-0 w-full h-full object-cover"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                   onError={(e) => { e.currentTarget.style.display = 'none'; }}
                 />
               )}
               {/* Type pill */}
               <span
-                className="absolute top-3 left-3 text-[11px] font-medium px-2 py-0.5 rounded-full"
+                className="absolute top-2.5 left-2.5 text-[11px] font-medium px-2 py-0.5 rounded-full"
                 style={{ background: 'rgba(31,77,58,0.85)', color: '#fff' }}
               >
                 {speaker.speaker_type ? TYPE_LABELS[speaker.speaker_type] ?? speaker.speaker_type : 'Speaker'}
               </span>
-              {/* Hover gold border overlay */}
-              <div
-                className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl"
-                style={{ boxShadow: 'inset 0 0 0 1px #E8C57E' }}
-              />
             </div>
-            <div className="px-4 py-3" style={{ borderTop: '1px solid #E5E0D4' }}>
-              <p className="font-display text-[15px] font-medium" style={{ color: '#0F1F18' }}>
+            <div className="px-3.5 py-3" style={{ borderTop: '1px solid #E5E0D4' }}>
+              <p className="font-display text-[14px] font-medium truncate" style={{ color: '#0F1F18' }}>
                 {speaker.name}
               </p>
               {(speaker.role || speaker.company) && (
-                <p className="text-[13px] mt-0.5" style={{ color: '#6B7A72' }}>
+                <p className="text-[12px] mt-0.5 truncate" style={{ color: '#6B7A72' }}>
                   {[speaker.role, speaker.company].filter(Boolean).join(' · ')}
                 </p>
               )}
