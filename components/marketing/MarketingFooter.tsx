@@ -1,8 +1,9 @@
 import Link from 'next/link';
+import { Compass } from 'lucide-react';
 
 const FOOTER_COLS = [
   {
-    title: 'Platform',
+    title: 'Product',
     links: [
       { label: 'Registration',  href: '/pricing' },
       { label: 'Agenda',        href: '/pricing' },
@@ -73,6 +74,14 @@ export function MarketingFooter() {
             <p style={{ color: 'rgba(250,246,238,0.65)' }} className="text-[14px] leading-[1.55] max-w-[280px]">
               The event platform that makes every attendee proud to be there.
             </p>
+            <Link
+              href="/events"
+              className="inline-flex items-center gap-2 mt-5 px-4 py-2.5 rounded-full text-[14px] font-semibold transition hover:opacity-90"
+              style={{ background: '#E8C57E', color: '#163828' }}
+            >
+              <Compass size={16} strokeWidth={2.2} />
+              Discover events
+            </Link>
             <div className="flex items-center gap-2.5 mt-6">
               {/* Social icons — simple SVG anchors */}
               {[

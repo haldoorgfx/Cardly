@@ -8,7 +8,7 @@ import {
   ChevronDown, Ticket, LayoutGrid, User, BarChart2,
   ScanLine, Network, MessageSquare, Trophy, Briefcase,
   CreditCard, Sparkles, Compass, Building2, Newspaper,
-  Mail, Handshake, LifeBuoy,
+  Mail, Handshake,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import type { User as SupaUser } from '@supabase/supabase-js';
@@ -65,7 +65,6 @@ const COMPANY_MENU = [
   { icon: Mail,       name: 'Contact',     desc: 'Talk to our team',             href: '/contact' },
   { icon: Handshake,  name: 'Partners',    desc: 'Become a Karta partner',       href: '/partners' },
   { icon: Briefcase,  name: 'Careers',     desc: 'Join the team',                href: '/contact' },
-  { icon: LifeBuoy,   name: 'Help Center', desc: 'Guides and support',           href: '/help' },
 ] as const;
 
 /* ── Mobile overlay ──────────────────────────────────── */
