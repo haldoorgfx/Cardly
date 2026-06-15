@@ -7,7 +7,8 @@ import {
   ArrowRight, Menu, X, LayoutDashboard, LogOut,
   ChevronDown, Ticket, LayoutGrid, User, BarChart2,
   ScanLine, Network, MessageSquare, Trophy, Briefcase,
-  CreditCard, Sparkles, Compass,
+  CreditCard, Sparkles, Compass, Building2, Newspaper,
+  Mail, Handshake, LifeBuoy,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import type { User as SupaUser } from '@supabase/supabase-js';
@@ -56,6 +57,16 @@ const PRODUCT_MENU = {
     { icon: CreditCard,    name: 'Karta Card',          desc: 'Personalized cards for every attendee', gold: true },
   ],
 } as const;
+
+/* ── Company menu data ───────────────────────────────── */
+const COMPANY_MENU = [
+  { icon: Building2,  name: 'About',       desc: 'Our story and mission',        href: '/about' },
+  { icon: Newspaper,  name: 'Blog',        desc: 'News, guides and updates',     href: '/blog' },
+  { icon: Mail,       name: 'Contact',     desc: 'Talk to our team',             href: '/contact' },
+  { icon: Handshake,  name: 'Partners',    desc: 'Become a Karta partner',       href: '/partners' },
+  { icon: Briefcase,  name: 'Careers',     desc: 'Join the team',                href: '/contact' },
+  { icon: LifeBuoy,   name: 'Help Center', desc: 'Guides and support',           href: '/help' },
+] as const;
 
 /* ── Mobile overlay ──────────────────────────────────── */
 function MobileOverlay({
@@ -118,7 +129,7 @@ function MobileOverlay({
 
           {/* Nav links */}
           <nav className="flex flex-col">
-            {[['Discover events', '/events'], ['Use cases', '/use-cases'], ['Pricing', '/pricing'], ['About', '/about']].map(([label, href]) => (
+            {[['Discover events', '/events'], ['Use cases', '/use-cases'], ['Pricing', '/pricing']].map(([label, href]) => (
               <Link
                 key={href}
                 href={href}
@@ -142,6 +153,27 @@ function MobileOverlay({
               </Link>
             )}
           </nav>
+
+          {/* Company */}
+          <div className=" text-[10px] tracking-[0.22em] uppercase text-muted mt-7 mb-3">Company</div>
+          <div className="grid grid-cols-2 gap-2">
+            {COMPANY_MENU.map((item) => {
+              const IconC = item.icon;
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  onClick={onClose}
+                  className="flex items-center gap-2.5 bg-surface border border-border rounded-xl px-3 py-2.5"
+                >
+                  <span className="w-7 h-7 rounded-lg grid place-items-center shrink-0 bg-primary-soft text-primary">
+                    <IconC size={14} strokeWidth={1.8} />
+                  </span>
+                  <span className="text-[12px] font-medium leading-tight text-ink">{item.name}</span>
+                </Link>
+              );
+            })}
+          </div>
 
           {/* CTAs */}
           <div className="mt-8 grid gap-3">
@@ -184,6 +216,7 @@ function MobileOverlay({
 export function MarketingNav() {
   const [open, setOpen] = useState(false);
   const [productOpen, setProductOpen] = useState(false);
+  const [companyOpen, setCompanyOpen] = useState(false);
   const [user, setUser] = useState<SupaUser | null>(null);
   const [accountType, setAccountType] = useState<string | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -209,7 +242,7 @@ export function MarketingNav() {
     return () => subscription.unsubscribe();
   }, []);
 
-  useEffect(() => { setOpen(false); setUserMenuOpen(false); setProductOpen(false); }, [pathname]);
+  useEffect(() => { setOpen(false); setUserMenuOpen(false); setProductOpen(false); setCompanyOpen(false); }, [pathname]);
   useEffect(() => { document.body.style.overflow = open ? 'hidden' : ''; return () => { document.body.style.overflow = ''; }; }, [open]);
   useEffect(() => {
     if (!userMenuOpen) return;
@@ -311,7 +344,54 @@ export function MarketingNav() {
 
             <Link href="/use-cases" className="font-semibold hover:text-primary transition-colors">Use cases</Link>
             <Link href="/pricing" className="font-semibold hover:text-primary transition-colors">Pricing</Link>
-            <Link href="/about" className="font-semibold hover:text-primary transition-colors">About</Link>
+
+            {/* Company dropdown */}
+            <div
+              className="relative"
+              onMouseEnter={() => setCompanyOpen(true)}
+              onMouseLeave={() => setCompanyOpen(false)}
+            >
+              <button
+                className={`inline-flex items-center gap-1.5 py-5 font-semibold transition-colors ${companyOpen ? 'text-primary' : 'hover:text-primary'}`}
+                aria-expanded={companyOpen}
+                aria-haspopup="true"
+              >
+                Company
+                <ChevronDown
+                  size={14}
+                  strokeWidth={2}
+                  style={{ transform: companyOpen ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }}
+                />
+              </button>
+
+              {/* Dropdown */}
+              <div
+                className={`absolute right-0 top-[60px] w-[440px] transition-all duration-150 ${companyOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-1 pointer-events-none'}`}
+              >
+                <div className="bg-cream border border-border rounded-2xl p-3 shadow-2xl" style={{ boxShadow: '0 24px 60px rgba(15,31,24,0.15)' }}>
+                  <div className="grid grid-cols-2 gap-1">
+                    {COMPANY_MENU.map((item) => {
+                      const IconC = item.icon;
+                      return (
+                        <Link
+                          key={item.name}
+                          href={item.href}
+                          className="group flex items-start gap-3 rounded-xl p-2.5 hover:bg-primary-soft/60 transition-colors"
+                        >
+                          <span className="mt-0.5 w-8 h-8 rounded-lg grid place-items-center shrink-0 bg-primary-soft text-primary">
+                            <IconC size={16} strokeWidth={1.8} />
+                          </span>
+                          <span className="min-w-0">
+                            <span className="block font-display text-[14px] font-semibold tracking-tight text-ink">{item.name}</span>
+                            <span className="block text-[12px] text-muted leading-snug mt-0.5">{item.desc}</span>
+                          </span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
           </nav>
 
           {/* Desktop CTAs — signed out */}
