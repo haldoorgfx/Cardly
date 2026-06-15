@@ -848,7 +848,50 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
   const [loading, setLoading]         = useState(false);
   const [addOpen, setAddOpen]         = useState(false);
   const [importOpen, setImportOpen]   = useState(false);
+  const [selected, setSelected]       = useState<Set<string>>(new Set());
+  const [bulkBusy, setBulkBusy]       = useState(false);
   const searchTimeout                 = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const allSelected = rows.length > 0 && rows.every(r => selected.has(r.id));
+  function toggleAll() {
+    setSelected(allSelected ? new Set() : new Set(rows.map(r => r.id)));
+  }
+  function toggleOne(id: string) {
+    setSelected(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+  function clearSelection() { setSelected(new Set()); }
+
+  async function bulkStatus(status: Status) {
+    const ids = Array.from(selected);
+    if (ids.length === 0) return;
+    if (status === 'cancelled' && !confirm(`Cancel ${ids.length} registration${ids.length !== 1 ? 's' : ''}? This can be undone per-attendee later.`)) return;
+    setBulkBusy(true);
+    const now = new Date().toISOString();
+    // Optimistic update
+    setRows(r => r.map(row => ids.includes(row.id)
+      ? { ...row, status, checked_in_at: status === 'checked_in' ? now : row.checked_in_at }
+      : row));
+    try {
+      await Promise.all(ids.map(id =>
+        fetch(`/api/events/${eventId}/registrations`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ registrationId: id, status }),
+        }).catch(() => {})
+      ));
+    } finally {
+      setBulkBusy(false);
+      clearSelection();
+    }
+  }
+
+  function exportSelected() {
+    exportCSV(rows.filter(r => selected.has(r.id)), eventSlug);
+  }
   const isFirstRender                 = useRef(true);
   const PAGE = 50;
 
@@ -1024,6 +1067,42 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
         </div>
       </div>
 
+      {/* ── Bulk action bar ── */}
+      {selected.size > 0 && (
+        <div className="flex flex-wrap items-center gap-2 mb-3 px-4 py-2.5 rounded-xl" style={{ background: '#E8EFEB', border: '1px solid rgba(31,77,58,0.25)' }}>
+          <span className="text-[13px] font-semibold" style={{ color: '#1F4D3A' }}>{selected.size} selected</span>
+          <div className="flex items-center gap-2 ml-auto">
+            <button
+              onClick={() => bulkStatus('checked_in')}
+              disabled={bulkBusy}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+              style={{ background: '#1F4D3A' }}
+            >
+              <CheckCircle2 size={13} strokeWidth={2} /> Check in
+            </button>
+            <button
+              onClick={exportSelected}
+              disabled={bulkBusy}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] font-medium border transition hover:bg-white disabled:opacity-50"
+              style={{ borderColor: '#C9C3B1', color: '#1F4D3A', background: 'white' }}
+            >
+              <Download size={13} strokeWidth={2} /> Export
+            </button>
+            <button
+              onClick={() => bulkStatus('cancelled')}
+              disabled={bulkBusy}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] font-medium border transition hover:bg-white disabled:opacity-50"
+              style={{ borderColor: 'rgba(184,66,60,0.4)', color: '#B8423C', background: 'white' }}
+            >
+              <XCircle size={13} strokeWidth={2} /> Cancel
+            </button>
+            <button onClick={clearSelection} disabled={bulkBusy} className="text-[12.5px] font-medium px-2 transition hover:underline disabled:opacity-50" style={{ color: '#6B7A72' }}>
+              Clear
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ── Table ── */}
       <div className="rounded-2xl overflow-x-auto" style={{ border: '1px solid #E5E0D4' }}>
         {loading && rows.length === 0 ? (
@@ -1041,6 +1120,9 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
             <table className="w-full text-left" style={{ minWidth: 640 }}>
               <thead>
                 <tr style={{ background: '#FAF6EE', borderBottom: '1px solid #E5E0D4' }}>
+                  <th className="pl-5 pr-1 py-3 w-px">
+                    <input type="checkbox" checked={allSelected} onChange={toggleAll} aria-label="Select all" className="w-4 h-4 rounded accent-[#1F4D3A] cursor-pointer align-middle" />
+                  </th>
                   {['Name', 'Ticket', 'Amount', 'Status', 'Card', 'Registered', 'Checked in', ''].map(h => (
                     <th key={h} className="px-5 py-3  text-[10px] tracking-[0.12em] uppercase font-semibold whitespace-nowrap" style={{ color: '#6B7A72' }}>
                       {h}
@@ -1050,7 +1132,10 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
               </thead>
               <tbody>
                 {rows.map((reg, i) => (
-                  <tr key={reg.id} style={{ background: i % 2 === 0 ? 'white' : '#FAF6EE', borderBottom: '1px solid #F0EBE3' }}>
+                  <tr key={reg.id} style={{ background: selected.has(reg.id) ? '#F0F7F3' : i % 2 === 0 ? 'white' : '#FAF6EE', borderBottom: '1px solid #F0EBE3' }}>
+                    <td className="pl-5 pr-1 py-3.5 w-px">
+                      <input type="checkbox" checked={selected.has(reg.id)} onChange={() => toggleOne(reg.id)} aria-label={`Select ${reg.attendee_name}`} className="w-4 h-4 rounded accent-[#1F4D3A] cursor-pointer align-middle" />
+                    </td>
                     <td className="px-5 py-3.5">
                       <Link href={`/events/${eventId}/registrations/${reg.id}`}
                         className="font-medium text-[14px] hover:underline block" style={{ color: '#0F1F18', textDecoration: 'none' }}>
