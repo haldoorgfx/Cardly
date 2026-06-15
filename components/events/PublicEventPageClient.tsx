@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { ExternalLink, LayoutGrid, CalendarDays, Mic, Store, Users } from 'lucide-react';
 import type { Database } from '@/types/database';
 import { AddToCalendarButton } from './AddToCalendarButton';
-import { SpeakerDirectoryClient } from './SpeakerDirectoryClient';
+import SpeakerDirectoryClient from './SpeakerDirectoryClient';
 import { bannerGradientFor, avatarColorFor, initialsOf, placeholderInitials } from '@/lib/events/placeholder';
 
 /* ─── Types ─────────────────────────────────────────────────────── */
