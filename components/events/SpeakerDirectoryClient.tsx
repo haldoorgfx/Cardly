@@ -106,45 +106,65 @@ export default function SpeakerDirectoryClient({ speakers, eventSlug }: Props) {
         </p>
       )}
 
-      {/* Featured speaker */}
+      {/* Featured speaker — split card (image left, content right) */}
       {showFeatured && featuredSpeaker && (
-        <Link href={`/e/${eventSlug}/speakers/${featuredSpeaker.id}`} className="block">
-          <div
-            className="relative w-full rounded-2xl overflow-hidden"
-            style={{ height: 300, background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #163828 100%)' }}
-          >
-            {featuredSpeaker.photo_url && (
-              <div
-                className="absolute inset-0 bg-cover bg-center"
-                style={{ backgroundImage: `url(${featuredSpeaker.photo_url})` }}
-              />
-            )}
-            {!featuredSpeaker.photo_url && (
-              <div className="absolute inset-0 flex items-center justify-center opacity-10">
-                <span className="text-[120px] font-bold text-white leading-none">
-                  {getInitials(featuredSpeaker.name)}
-                </span>
-              </div>
-            )}
+        <Link
+          href={`/e/${eventSlug}/speakers/${featuredSpeaker.id}`}
+          className="group block rounded-2xl overflow-hidden border transition-all duration-200 hover:-translate-y-0.5"
+          style={{ borderColor: '#E5E0D4', background: '#fff' }}
+          onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#E8C57E'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(31,77,58,0.14)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#E5E0D4'; e.currentTarget.style.boxShadow = 'none'; }}
+        >
+          <div className="flex flex-col sm:flex-row">
+            {/* Image / initials — contained, never letterboxed */}
             <div
-              className="absolute inset-0"
-              style={{ background: 'linear-gradient(to bottom, transparent 30%, rgba(15,31,24,0.78) 100%)' }}
-            />
-            <div className="absolute bottom-5 left-5">
+              className="relative shrink-0 w-full sm:w-[240px] overflow-hidden"
+              style={{ aspectRatio: '4/3' }}
+            >
+              {featuredSpeaker.photo_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={featuredSpeaker.photo_url}
+                  alt={featuredSpeaker.name}
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+              ) : (
+                <div
+                  className="absolute inset-0 flex items-center justify-center font-display font-semibold"
+                  style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 100%)', color: 'rgba(255,255,255,0.92)', fontSize: 56 }}
+                >
+                  {getInitials(featuredSpeaker.name)}
+                </div>
+              )}
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 min-w-0 p-5 sm:p-6 flex flex-col justify-center">
               <span
-                className="inline-block text-[11px] font-medium px-2 py-0.5 rounded-full mb-2"
-                style={{ background: 'rgba(232,197,126,0.2)', color: '#E8C57E', border: '1px solid #E8C57E' }}
+                className="inline-flex items-center gap-1.5 self-start text-[11px] font-semibold uppercase tracking-[0.06em] px-2.5 py-1 rounded-full mb-3"
+                style={{ background: '#FBF3DF', color: '#C9A45E' }}
               >
+                <svg viewBox="0 0 24 24" className="w-3 h-3" fill="currentColor"><path d="M12 2l2.9 6.3 6.9.7-5.1 4.6 1.4 6.8L12 17.8 5.9 20.4l1.4-6.8L2.2 9l6.9-.7z" /></svg>
                 Featured
               </span>
-              <h2 className="font-display text-[28px] font-normal leading-tight text-white">
+              <h2 className="font-display text-[24px] sm:text-[26px] font-bold leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
                 {featuredSpeaker.name}
               </h2>
               {(featuredSpeaker.role || featuredSpeaker.company) && (
-                <p className="text-[14px] mt-0.5" style={{ color: '#E8C57E' }}>
+                <p className="text-[14px] mt-1" style={{ color: '#3A4A42' }}>
                   {[featuredSpeaker.role, featuredSpeaker.company].filter(Boolean).join(' · ')}
                 </p>
               )}
+              {featuredSpeaker.bio && (
+                <p className="text-[14px] mt-2.5 leading-relaxed line-clamp-2" style={{ color: '#6B7A72' }}>
+                  {featuredSpeaker.bio}
+                </p>
+              )}
+              <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold mt-4" style={{ color: '#1F4D3A' }}>
+                View profile
+                <span className="transition-transform group-hover:translate-x-1">→</span>
+              </span>
             </div>
           </div>
         </Link>
