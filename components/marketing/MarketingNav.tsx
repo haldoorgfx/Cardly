@@ -118,7 +118,7 @@ function MobileOverlay({
 
           {/* Nav links */}
           <nav className="flex flex-col">
-            {[['Discover events', '/events'], ['Use cases', '/use-cases'], ['Pricing', '/pricing']].map(([label, href]) => (
+            {[['Discover events', '/events'], ['Use cases', '/use-cases'], ['Pricing', '/pricing'], ['About', '/about']].map(([label, href]) => (
               <Link
                 key={href}
                 href={href}
@@ -244,19 +244,6 @@ export function MarketingNav() {
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-7 text-[14px]" style={{ color: '#0F1F18' }}>
 
-            {/* Discover events — primary, distinct from the rest */}
-            <Link
-              href="/events"
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full font-semibold transition-all hover:opacity-90"
-              style={{ background: '#E8EFEB', color: '#1F4D3A' }}
-            >
-              <Compass size={15} strokeWidth={2.2} />
-              Discover events
-            </Link>
-
-            {/* Divider */}
-            <span aria-hidden className="h-5 w-px" style={{ background: '#E5E0D4' }} />
-
             {/* Product dropdown */}
             <div
               className="relative"
@@ -324,11 +311,22 @@ export function MarketingNav() {
 
             <Link href="/use-cases" className="font-semibold hover:text-primary transition-colors">Use cases</Link>
             <Link href="/pricing" className="font-semibold hover:text-primary transition-colors">Pricing</Link>
+            <Link href="/about" className="font-semibold hover:text-primary transition-colors">About</Link>
           </nav>
 
           {/* Desktop CTAs — signed out */}
           {!user && (
-            <div className="hidden md:flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-3">
+              {/* Discover events — primary action, set apart from the marketing nav */}
+              <Link
+                href="/events"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full font-semibold text-[14px] transition-all hover:opacity-90"
+                style={{ background: '#E8EFEB', color: '#1F4D3A' }}
+              >
+                <Compass size={15} strokeWidth={2.2} />
+                Discover events
+              </Link>
+              <span aria-hidden className="h-5 w-px" style={{ background: '#E5E0D4' }} />
               <Link href="/login" className="px-3 py-2 text-[14px] text-ink-soft hover:text-primary transition-colors">Sign in</Link>
               <Link href="/signup" className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-md bg-primary text-cream text-[14px] font-medium hover:bg-primary-dark transition-colors">
                 Start free <ArrowRight size={15} strokeWidth={2} />
@@ -338,7 +336,17 @@ export function MarketingNav() {
 
           {/* Desktop CTAs — signed in */}
           {user && (
-            <div className="hidden md:flex items-center gap-2 relative">
+            <div className="hidden md:flex items-center gap-3 relative">
+              {/* Discover events — primary action, set apart */}
+              <Link
+                href="/events"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full font-semibold text-[14px] transition-all hover:opacity-90"
+                style={{ background: '#E8EFEB', color: '#1F4D3A' }}
+              >
+                <Compass size={15} strokeWidth={2.2} />
+                Discover events
+              </Link>
+              <span aria-hidden className="h-5 w-px" style={{ background: '#E5E0D4' }} />
               <button
                 onClick={(e) => { e.stopPropagation(); setUserMenuOpen(v => !v); }}
                 className="flex items-center gap-2 pl-1 pr-3 py-1 rounded-full hover:bg-primary-soft transition-colors"
