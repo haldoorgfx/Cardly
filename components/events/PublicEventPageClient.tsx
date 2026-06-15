@@ -1,17 +1,19 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, LayoutGrid, CalendarDays, Mic, Store, Users } from 'lucide-react';
 import type { Database } from '@/types/database';
 import { AddToCalendarButton } from './AddToCalendarButton';
+import { SpeakerDirectoryClient } from './SpeakerDirectoryClient';
 import { bannerGradientFor, avatarColorFor, initialsOf, placeholderInitials } from '@/lib/events/placeholder';
-import { EventSectionTabs } from './EventSectionTabs';
 
 /* ─── Types ─────────────────────────────────────────────────────── */
 
 type EventPageRow = Database['public']['Tables']['event_pages']['Row'];
 type TicketTypeRow = Database['public']['Tables']['ticket_types']['Row'];
+type Tab = 'overview' | 'schedule' | 'speakers' | 'sponsors' | 'network';
 
 interface Session {
   id: string;
@@ -20,6 +22,7 @@ interface Session {
   ends_at?: string | null;
   room?: string | null;
   session_type?: string | null;
+  description?: string | null;
 }
 
 interface Speaker {
@@ -29,6 +32,17 @@ interface Speaker {
   role?: string | null;
   photo_url?: string | null;
   speaker_type?: string | null;
+  is_featured?: boolean | null;
+}
+
+interface Sponsor {
+  id: string;
+  company_name: string;
+  tagline?: string | null;
+  logo_url?: string | null;
+  website_url?: string | null;
+  tier?: string | null;
+  position?: number | null;
 }
 
 interface Attendee {
@@ -49,12 +63,25 @@ interface Props {
   seriesName?: string | null;
   sessions?: Session[];
   speakers?: Speaker[];
+  sponsors?: Sponsor[];
   attendees?: Attendee[];
   attendeeCount?: number;
   organizerAvatarUrl?: string | null;
   venueLat?: number | null;
   venueLng?: number | null;
+  initialTab?: string;
 }
+
+const TAB_SECTIONS = [
+  { key: 'overview' as Tab, label: 'Overview', icon: LayoutGrid,   feature: null },
+  { key: 'schedule' as Tab, label: 'Schedule', icon: CalendarDays, feature: 'schedule' },
+  { key: 'speakers' as Tab, label: 'Speakers', icon: Mic,          feature: 'speakers' },
+  { key: 'sponsors' as Tab, label: 'Sponsors', icon: Store,        feature: 'sponsors' },
+  { key: 'network'  as Tab, label: 'Network',  icon: Users,        feature: 'networking' },
+] as const;
+
+const VALID_TABS: Tab[] = ['overview', 'schedule', 'speakers', 'sponsors', 'network'];
+const TIER_ORDER = ['platinum', 'gold', 'silver', 'standard', 'partner', 'media'];
 
 /* ─── Helpers ───────────────────────────────────────────────────── */
 
@@ -71,6 +98,14 @@ function fmtTicketPrice(price: number, currency?: string | null): string {
 function fmtSessionTime(iso: string) {
   try {
     return new Date(iso).toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit', hour12: false });
+  } catch {
+    return '';
+  }
+}
+
+function fmtSessionDay(iso: string) {
+  try {
+    return new Date(iso).toLocaleDateString('en', { weekday: 'long', month: 'long', day: 'numeric' });
   } catch {
     return '';
   }
@@ -105,12 +140,11 @@ function Avatar({
   );
 }
 
-/* ─── Google Maps embed — works from address text, no API key ────── */
+/* ─── Google Maps embed ─────────────────────────────────────────── */
 
 function VenueMap({
   lat, lng, geoQuery, venueName,
 }: { lat: number | null; lng: number | null; geoQuery: string; venueName: string }) {
-  // Prefer precise coordinates, fall back to address text search
   const query = (lat != null && lng != null) ? `${lat},${lng}` : geoQuery;
   if (!query.trim()) return null;
   const src = `https://maps.google.com/maps?q=${encodeURIComponent(query)}&output=embed&z=15`;
@@ -152,7 +186,6 @@ function TicketList({
 
   return (
     <div className="rounded-[20px] overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', boxShadow: '0 4px 24px rgba(15,31,24,0.08)' }}>
-      {/* Price header */}
       <div className="flex items-baseline justify-between px-6 py-5" style={{ borderBottom: '1px solid #E5E0D4' }}>
         <div>
           <div className="text-[12px]" style={{ color: '#6B7A72' }}>From</div>
@@ -168,7 +201,6 @@ function TicketList({
         )}
       </div>
 
-      {/* Ticket tiers */}
       <div className="px-6 pt-4 pb-2">
         {tickets.map(ticket => {
           const soldOut = isSoldOut(ticket);
@@ -195,7 +227,7 @@ function TicketList({
                     <div className="text-[12px] mt-0.5 leading-snug" style={{ color: '#6B7A72' }}>{ticket.description}</div>
                   )}
                 </div>
-                <div className=" font-medium text-[15px] shrink-0" style={{ color: soldOut ? '#6B7A72' : '#0F1F18', textDecoration: soldOut ? 'line-through' : 'none' }}>
+                <div className="font-medium text-[15px] shrink-0" style={{ color: soldOut ? '#6B7A72' : '#0F1F18', textDecoration: soldOut ? 'line-through' : 'none' }}>
                   {soldOut ? 'Sold out' : fmtTicketPrice(ticket.price, ticket.currency)}
                 </div>
               </div>
@@ -208,12 +240,10 @@ function TicketList({
           );
         })}
 
-        {/* No tickets */}
         {tickets.length === 0 && (
           <div className="text-[14px] py-2 mb-3" style={{ color: '#3A4A42' }}>Registration · Free</div>
         )}
 
-        {/* Total */}
         {hasTickets && (
           <div className="flex items-center justify-between pt-4 mt-2 mb-4" style={{ borderTop: '1px solid #E5E0D4' }}>
             <span className="font-title font-semibold text-[15px]" style={{ color: '#0F1F18' }}>Total</span>
@@ -221,7 +251,6 @@ function TicketList({
           </div>
         )}
 
-        {/* CTA */}
         {registrationClosed ? (
           <div className="flex items-center justify-center h-12 rounded-xl text-[15px] font-semibold" style={{ background: '#F5F0E8', color: '#6B7A72', border: '1px solid #E5E0D4' }}>
             Registration closed
@@ -240,7 +269,6 @@ function TicketList({
           </Link>
         )}
 
-        {/* Note */}
         <div className="flex items-center justify-center gap-1.5 mt-3 text-[11px]" style={{ color: '#6B7A72' }}>
           <svg viewBox="0 0 24 24" className="w-3 h-3 shrink-0" fill="none" stroke="#1F4D3A" strokeWidth="2">
             <path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4z"/>
@@ -248,7 +276,6 @@ function TicketList({
           Secure checkout · QR ticket + Karta Card to your phone
         </div>
 
-        {/* Deadline */}
         {page.registration_deadline && !registrationClosed && (
           <div className="mt-2 text-center text-[12px]" style={{ color: '#6B7A72' }}>
             Registration closes {new Date(page.registration_deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
@@ -264,14 +291,18 @@ function TicketList({
 export function PublicEventPageClient({
   page, tickets, dateStr, timeStr, endTimeStr, minPrice,
   registrationSlug, organizerUserId, seriesSlug, seriesName,
-  sessions = [], speakers = [],
+  sessions = [], speakers = [], sponsors = [],
   attendees = [], attendeeCount = 0, organizerAvatarUrl = null,
   venueLat = null, venueLng = null,
+  initialTab,
 }: Props) {
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState<Tab>(() =>
+    VALID_TABS.includes(initialTab as Tab) ? (initialTab as Tab) : 'overview'
+  );
   const [savedHeart, setSavedHeart] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<string>(tickets[0]?.id ?? '');
 
-  // Per-event feature toggles + custom menu (jsonb columns; absent pre-migration → defaults).
   const features = (page as unknown as { features?: Record<string, boolean> }).features ?? {};
   const featureOn = (key: string) => features[key] !== false;
   const customMenu = ((page as unknown as { custom_menu?: { id: string; label: string; type: string; url?: string; content?: string }[] }).custom_menu ?? [])
@@ -285,7 +316,6 @@ export function PublicEventPageClient({
   const allSoldOut = tickets.length > 0 && tickets.every(t => t.quantity !== null && t.quantity_sold >= t.quantity);
   const totalPrice = selectedTicketObj ? fmtTicketPrice(selectedTicketObj.price, selectedTicketObj.currency) : minPrice;
 
-  // Build attendee avatar models (real first, padded with deterministic placeholders)
   const hasRealAttendees = attendees.length > 0;
   const shownAttendees = attendees.slice(0, 5);
   const placeholderInits = placeholderInitials(page.id, 4);
@@ -293,6 +323,9 @@ export function PublicEventPageClient({
   const locationLine = page.is_online
     ? 'Online event'
     : [page.venue_name, page.venue_address].filter(Boolean).join(' · ') || 'Venue TBA';
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const tags: string[] = (page as any).tags ?? [];
 
   function handleShare() {
     if (navigator.share) {
@@ -302,16 +335,40 @@ export function PublicEventPageClient({
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tags: string[] = (page as any).tags ?? [];
+  function switchTab(tab: Tab) {
+    setActiveTab(tab);
+    const url = tab === 'overview'
+      ? `/e/${registrationSlug}`
+      : `/e/${registrationSlug}?tab=${tab}`;
+    router.replace(url, { scroll: false });
+  }
+
+  const visibleTabs = TAB_SECTIONS.filter(t => !t.feature || featureOn(t.feature));
+
+  // Group sessions by day for schedule tab
+  const sessionsByDay = sessions.reduce<{ day: string; sessions: Session[] }[]>((acc, s) => {
+    const day = fmtSessionDay(s.starts_at);
+    const existing = acc.find(g => g.day === day);
+    if (existing) existing.sessions.push(s);
+    else acc.push({ day, sessions: [s] });
+    return acc;
+  }, []);
+
+  // Group sponsors by tier
+  const sponsorsByTier = sponsors.reduce<Record<string, Sponsor[]>>((acc, s) => {
+    const tier = (s.tier ?? 'standard').toLowerCase();
+    if (!acc[tier]) acc[tier] = [];
+    acc[tier].push(s);
+    return acc;
+  }, {});
+  const sponsorTiers = TIER_ORDER.filter(t => sponsorsByTier[t]?.length);
 
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
 
-      {/* ── Wrapper ─────────────────────────────────────────── */}
+      {/* ── Breadcrumb + Hero ─────────────────────────────── */}
       <div className="mx-auto px-6 lg:px-10" style={{ maxWidth: 1240 }}>
 
-        {/* ── Breadcrumb ───────────────────────────────────── */}
         <nav className="flex items-center flex-wrap gap-2 pt-6 pb-3.5 text-[13px]" style={{ color: '#6B7A72' }}>
           <Link href="/events" style={{ color: '#6B7A72', textDecoration: 'none' }}
             className="hover:text-[#1F4D3A] transition-colors">Discover</Link>
@@ -333,24 +390,20 @@ export function PublicEventPageClient({
           <span className="font-medium truncate max-w-[260px]" style={{ color: '#1F4D3A' }}>{page.title}</span>
         </nav>
 
-        {/* ── Hero ────────────────────────────────────────── */}
+        {/* Hero banner */}
         <div className="relative overflow-hidden mt-4 h-[280px] sm:h-[340px] lg:h-[380px]" style={{ borderRadius: 22 }}>
-          {/* Background */}
           {page.cover_image_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={page.cover_image_url} alt={page.title} className="absolute inset-0 w-full h-full object-cover" />
           ) : (
             <div className="absolute inset-0" style={{ background: bannerGradientFor(page.id) }}>
-              {/* subtle texture so empty banners aren't flat */}
               <div className="absolute inset-0" style={{
                 backgroundImage: 'radial-gradient(circle at 18% 22%, rgba(255,255,255,0.10), transparent 38%), radial-gradient(circle at 82% 78%, rgba(255,255,255,0.06), transparent 42%)',
               }} />
             </div>
           )}
-          {/* Scrim */}
           <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(10,20,14,0.92) 0%, rgba(10,20,14,0.4) 45%, transparent 75%)' }} />
 
-          {/* Category + Series tag */}
           {(page.category || seriesSlug) && (
             <span className="absolute top-5 left-5 z-10 px-3 py-[6px] rounded-full text-[11px] font-semibold uppercase tracking-[0.06em]"
               style={{ background: '#E8C57E', color: '#0F1F18' }}>
@@ -358,7 +411,6 @@ export function PublicEventPageClient({
             </span>
           )}
 
-          {/* Tools: save + share */}
           <div className="absolute top-[18px] right-[18px] z-10 flex gap-2.5">
             <button onClick={() => setSavedHeart(v => !v)}
               className="w-[42px] h-[42px] rounded-full flex items-center justify-center transition"
@@ -378,7 +430,6 @@ export function PublicEventPageClient({
             </button>
           </div>
 
-          {/* Caption */}
           <div className="absolute bottom-0 left-0 right-0 z-10 px-9 pb-8">
             <h1 className="font-title font-extrabold leading-[1.02] text-white"
               style={{ fontSize: 'clamp(30px,5vw,52px)', letterSpacing: '-0.035em', maxWidth: 760 }}>
@@ -407,7 +458,6 @@ export function PublicEventPageClient({
             </div>
           </div>
 
-          {/* Add to calendar — bottom-right of banner (desktop/tablet) */}
           {page.starts_at && (
             <div className="hidden sm:block absolute bottom-6 right-6 z-10">
               <AddToCalendarButton
@@ -423,232 +473,328 @@ export function PublicEventPageClient({
             </div>
           )}
         </div>
+      </div>
 
-      </div>{/* close max-w wrapper */}
+      {/* ── Sticky Tab Bar ────────────────────────────────── */}
+      {visibleTabs.length > 1 && (
+        <div
+          className="sticky z-30"
+          style={{ top: 65, background: 'rgba(250,246,238,0.95)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #E5E0D4' }}
+        >
+          <div
+            className="mx-auto px-6 lg:px-10 flex items-center gap-1 overflow-x-auto"
+            style={{ maxWidth: 1240, height: 52, scrollbarWidth: 'none' }}
+          >
+            {visibleTabs.map(t => {
+              const active = activeTab === t.key;
+              const Icon = t.icon;
+              return (
+                <button
+                  key={t.key}
+                  onClick={() => switchTab(t.key)}
+                  className="shrink-0 inline-flex items-center gap-1.5 px-3.5 h-full text-[14px] font-medium border-b-2 transition-colors"
+                  style={active
+                    ? { color: '#1F4D3A', borderColor: '#1F4D3A', background: 'none', cursor: 'pointer' }
+                    : { color: '#6B7A72', borderColor: 'transparent', background: 'none', cursor: 'pointer' }}
+                >
+                  <Icon size={15} strokeWidth={active ? 2.2 : 1.8} />
+                  {t.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
-      {/* Section tabs — sticky below the hero, above the content */}
-      <EventSectionTabs />
+      {/* ══════════════════════════════════════════════════
+          OVERVIEW TAB
+      ══════════════════════════════════════════════════ */}
+      {activeTab === 'overview' && (
+        <div className="mx-auto px-6 lg:px-10" style={{ maxWidth: 1240 }}>
+          <div className="grid lg:grid-cols-[1fr_380px] gap-8 lg:gap-11 pt-9 pb-24" style={{ alignItems: 'start' }}>
 
-      <div className="mx-auto px-6 lg:px-10" style={{ maxWidth: 1240 }}>
-        {/* ── 2-col layout ────────────────────────────────── */}
-        <div className="grid lg:grid-cols-[1fr_380px] gap-8 lg:gap-11 pt-9 pb-24" style={{ alignItems: 'start' }}>
+            {/* LEFT */}
+            <div className="min-w-0">
 
-          {/* LEFT */}
-          <div className="min-w-0">
-
-            {/* Attending bar */}
-            <div className="flex flex-wrap items-center gap-4 p-5 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
-              {/* Avatar stack */}
-              <div className="flex">
-                {hasRealAttendees
-                  ? shownAttendees.map((a, i) => (
-                      <div key={i} style={{ marginLeft: i > 0 ? -12 : 0, zIndex: 6 - i, borderRadius: '50%', border: '2px solid #FFFFFF' }}>
-                        <Avatar src={a.avatarUrl} name={a.name} size={38} fontSize={12} seed={a.name + i} />
-                      </div>
-                    ))
-                  : placeholderInits.map((init, i) => (
-                      <div key={i} className="w-[38px] h-[38px] rounded-full flex items-center justify-center text-[12px] font-bold text-white"
-                        style={{ border: '2px solid #FFFFFF', marginLeft: i > 0 ? -12 : 0, zIndex: 4 - i, background: avatarColorFor(init + i), opacity: 0.6 }}>
-                        {init}
-                      </div>
-                    ))}
-              </div>
-              <div className="text-[14px]" style={{ color: '#3A4A42' }}>
-                {hasRealAttendees ? (
-                  <Link href={`/e/${registrationSlug}/people`} className="hover:opacity-70 transition" style={{ color: 'inherit', textDecoration: 'none' }}>
-                    <span className="font-semibold" style={{ color: '#0F1F18' }}>{attendeeCount.toLocaleString()}</span> {attendeeCount === 1 ? 'person is' : 'people are'} attending <span style={{ color: '#1F4D3A', fontWeight: 600 }}>→</span>
-                  </Link>
-                ) : (
-                  'Be the first to attend'
+              {/* Attending bar */}
+              <div className="flex flex-wrap items-center gap-4 p-5 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
+                <div className="flex">
+                  {hasRealAttendees
+                    ? shownAttendees.map((a, i) => (
+                        <div key={i} style={{ marginLeft: i > 0 ? -12 : 0, zIndex: 6 - i, borderRadius: '50%', border: '2px solid #FFFFFF' }}>
+                          <Avatar src={a.avatarUrl} name={a.name} size={38} fontSize={12} seed={a.name + i} />
+                        </div>
+                      ))
+                    : placeholderInits.map((init, i) => (
+                        <div key={i} className="w-[38px] h-[38px] rounded-full flex items-center justify-center text-[12px] font-bold text-white"
+                          style={{ border: '2px solid #FFFFFF', marginLeft: i > 0 ? -12 : 0, zIndex: 4 - i, background: avatarColorFor(init + i), opacity: 0.6 }}>
+                          {init}
+                        </div>
+                      ))}
+                </div>
+                <div className="text-[14px]" style={{ color: '#3A4A42' }}>
+                  {hasRealAttendees ? (
+                    <button onClick={() => switchTab('network')} className="hover:opacity-70 transition text-left" style={{ color: 'inherit', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
+                      <span className="font-semibold" style={{ color: '#0F1F18' }}>{attendeeCount.toLocaleString()}</span> {attendeeCount === 1 ? 'person is' : 'people are'} attending <span style={{ color: '#1F4D3A', fontWeight: 600 }}>→</span>
+                    </button>
+                  ) : (
+                    'Be the first to attend'
+                  )}
+                </div>
+                {(page.organizer_name || organizerUserId) && (
+                  <div className="ml-auto flex items-center gap-3">
+                    <Avatar src={organizerAvatarUrl} name={page.organizer_name ?? 'Karta'} size={40} fontSize={13} seed={page.organizer_name ?? 'Karta'} style={{ borderRadius: 11 }} />
+                    <div>
+                      <div className="text-[12px]" style={{ color: '#6B7A72' }}>Hosted by</div>
+                      {organizerUserId ? (
+                        <Link href={`/o/${organizerUserId}`} className="font-title font-semibold text-[14px] hover:opacity-80 transition-opacity" style={{ color: '#0F1F18', textDecoration: 'none' }}>
+                          {page.organizer_name}
+                        </Link>
+                      ) : (
+                        <div className="font-title font-semibold text-[14px]" style={{ color: '#0F1F18' }}>{page.organizer_name}</div>
+                      )}
+                    </div>
+                  </div>
                 )}
               </div>
-              {(page.organizer_name || organizerUserId) && (
-                <div className="ml-auto flex items-center gap-3">
-                  <Avatar src={organizerAvatarUrl} name={page.organizer_name ?? 'Karta'} size={40} fontSize={13} seed={page.organizer_name ?? 'Karta'} style={{ borderRadius: 11 }} />
-                  <div>
-                    <div className="text-[12px]" style={{ color: '#6B7A72' }}>Hosted by</div>
-                    {organizerUserId ? (
-                      <Link href={`/o/${organizerUserId}`} className="font-title font-semibold text-[14px] hover:opacity-80 transition-opacity" style={{ color: '#0F1F18', textDecoration: 'none' }}>
-                        {page.organizer_name}
-                      </Link>
-                    ) : (
-                      <div className="font-title font-semibold text-[14px]" style={{ color: '#0F1F18' }}>{page.organizer_name}</div>
+
+              {/* Add to calendar — mobile */}
+              {page.starts_at && (
+                <div className="sm:hidden mt-3">
+                  <AddToCalendarButton
+                    variant="solid"
+                    className="w-full justify-center border"
+                    style={{ borderColor: '#1F4D3A' }}
+                    title={page.title}
+                    description={page.description ?? null}
+                    startsAt={page.starts_at}
+                    endsAt={page.ends_at ?? null}
+                    timezone={page.timezone ?? null}
+                    location={locationLine}
+                    eventUrl={`https://karta.cre8so.com/e/${registrationSlug}`}
+                  />
+                </div>
+              )}
+
+              {/* About */}
+              {page.description && (
+                <div className="mt-9">
+                  <h2 className="font-title font-bold text-[22px] mb-4" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+                    About this event
+                  </h2>
+                  <div className="text-[15px] leading-[1.7] whitespace-pre-line" style={{ color: '#3A4A42' }}>
+                    {page.description}
+                  </div>
+                  {tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-4">
+                      {tags.map(tag => (
+                        <span key={tag} className="h-8 px-3.5 rounded-full flex items-center text-[13px]"
+                          style={{ background: '#F0EDE8', border: '1px solid #E5E0D4', color: '#3A4A42' }}>
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Schedule preview */}
+              {featureOn('schedule') && sessions.length > 0 && (
+                <div className="mt-9">
+                  <div className="flex items-end justify-between mb-4">
+                    <h2 className="font-title font-bold text-[22px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+                      Schedule
+                    </h2>
+                    <button onClick={() => switchTab('schedule')} className="text-[13px] font-semibold shrink-0 hover:opacity-70 transition" style={{ color: '#1F4D3A', background: 'none', border: 'none', cursor: 'pointer' }}>
+                      See full schedule →
+                    </button>
+                  </div>
+                  <div className="overflow-hidden rounded-2xl" style={{ border: '1px solid #E5E0D4' }}>
+                    {sessions.slice(0, 8).map((s, i, arr) => (
+                      <div key={s.id}
+                        className="grid gap-4 px-6 py-4"
+                        style={{
+                          gridTemplateColumns: '84px 1fr',
+                          borderBottom: i < arr.length - 1 ? '1px solid #E5E0D4' : 'none',
+                        }}>
+                        <span className="font-medium text-[13px]" style={{ color: '#C9A45E' }}>
+                          {fmtSessionTime(s.starts_at)}
+                        </span>
+                        <div>
+                          <div className="font-title font-semibold text-[15px]" style={{ color: '#0F1F18' }}>{s.title}</div>
+                          {s.room && (
+                            <div className="text-[13px] mt-0.5" style={{ color: '#6B7A72' }}>{s.room}</div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {sessions.length > 8 && (
+                    <button onClick={() => switchTab('schedule')} className="mt-3 w-full py-3 rounded-2xl text-[14px] font-medium transition hover:opacity-80" style={{ background: '#F0EDE8', color: '#1F4D3A', border: 'none', cursor: 'pointer' }}>
+                      View all {sessions.length} sessions →
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Speakers preview */}
+              {featureOn('speakers') && speakers.length > 0 && (
+                <div className="mt-9">
+                  <div className="flex items-end justify-between mb-4">
+                    <h2 className="font-title font-bold text-[22px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+                      Speakers
+                    </h2>
+                    {speakers.length > 6 && (
+                      <button onClick={() => switchTab('speakers')} className="text-[13px] font-semibold shrink-0 hover:opacity-70 transition" style={{ color: '#1F4D3A', background: 'none', border: 'none', cursor: 'pointer' }}>
+                        See all speakers →
+                      </button>
                     )}
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    {speakers.slice(0, 6).map((s) => (
+                      <div key={s.id} className="text-center">
+                        <div className="mx-auto mb-3 w-[84px] h-[84px]">
+                          <Avatar src={s.photo_url} name={s.name} size={84} fontSize={22} seed={s.id} />
+                        </div>
+                        <div className="font-title font-semibold text-[14px]" style={{ color: '#0F1F18' }}>{s.name}</div>
+                        {(s.headline ?? s.role) && (
+                          <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{s.headline ?? s.role}</div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  {speakers.length > 6 && (
+                    <button onClick={() => switchTab('speakers')} className="mt-4 w-full py-3 rounded-2xl text-[14px] font-medium transition hover:opacity-80" style={{ background: '#F0EDE8', color: '#1F4D3A', border: 'none', cursor: 'pointer' }}>
+                      View all {speakers.length} speakers →
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Sponsors preview */}
+              {featureOn('sponsors') && sponsors.length > 0 && (
+                <div className="mt-9">
+                  <div className="flex items-end justify-between mb-4">
+                    <h2 className="font-title font-bold text-[22px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+                      Sponsors
+                    </h2>
+                    {sponsors.length > 8 && (
+                      <button onClick={() => switchTab('sponsors')} className="text-[13px] font-semibold shrink-0 hover:opacity-70 transition" style={{ color: '#1F4D3A', background: 'none', border: 'none', cursor: 'pointer' }}>
+                        See all →
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    {sponsors.slice(0, 8).map(s => (
+                      s.website_url ? (
+                        <a key={s.id} href={s.website_url} target="_blank" rel="noopener noreferrer"
+                          className="flex items-center justify-center px-4 py-3 rounded-xl transition hover:opacity-80"
+                          style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', minWidth: 100 }}>
+                          {s.logo_url
+                            // eslint-disable-next-line @next/next/no-img-element
+                            ? <img src={s.logo_url} alt={s.company_name} style={{ maxHeight: 32, maxWidth: 100, objectFit: 'contain' }} />
+                            : <span className="font-title font-semibold text-[13px]" style={{ color: '#0F1F18' }}>{s.company_name}</span>
+                          }
+                        </a>
+                      ) : (
+                        <div key={s.id} className="flex items-center justify-center px-4 py-3 rounded-xl"
+                          style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', minWidth: 100 }}>
+                          {s.logo_url
+                            // eslint-disable-next-line @next/next/no-img-element
+                            ? <img src={s.logo_url} alt={s.company_name} style={{ maxHeight: 32, maxWidth: 100, objectFit: 'contain' }} />
+                            : <span className="font-title font-semibold text-[13px]" style={{ color: '#0F1F18' }}>{s.company_name}</span>
+                          }
+                        </div>
+                      )
+                    ))}
                   </div>
                 </div>
               )}
-            </div>
 
-            {/* Add to calendar — mobile (banner button is hidden on small screens) */}
-            {page.starts_at && (
-              <div className="sm:hidden mt-3">
-                <AddToCalendarButton
-                  variant="solid"
-                  className="w-full justify-center border"
-                  style={{ borderColor: '#1F4D3A' }}
-                  title={page.title}
-                  description={page.description ?? null}
-                  startsAt={page.starts_at}
-                  endsAt={page.ends_at ?? null}
-                  timezone={page.timezone ?? null}
-                  location={locationLine}
-                  eventUrl={`https://karta.cre8so.com/e/${registrationSlug}`}
-                />
-              </div>
-            )}
-
-            {/* About block */}
-            {page.description && (
-              <div className="mt-9">
-                <h2 className="font-title font-bold text-[22px] mb-4" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
-                  About this event
-                </h2>
-                <div className="text-[15px] leading-[1.7] whitespace-pre-line" style={{ color: '#3A4A42' }}>
-                  {page.description}
-                </div>
-                {tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-4">
-                    {tags.map(tag => (
-                      <span key={tag} className="h-8 px-3.5 rounded-full flex items-center text-[13px]"
-                        style={{ background: '#F0EDE8', border: '1px solid #E5E0D4', color: '#3A4A42' }}>
-                        {tag}
-                      </span>
+              {/* Custom menu */}
+              {customMenu.length > 0 && (
+                <div className="mt-9">
+                  <h2 className="font-title font-bold text-[22px] mb-4" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+                    More info
+                  </h2>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {customMenu.map((m) => (
+                      m.type === 'link' && m.url ? (
+                        <a key={m.id} href={m.url} target="_blank" rel="noopener noreferrer"
+                          className="flex items-center justify-between gap-3 px-4 py-3.5 rounded-2xl transition hover:border-[#1F4D3A]/40"
+                          style={{ border: '1px solid #E5E0D4', background: '#FFFFFF' }}>
+                          <span className="font-title font-semibold text-[14.5px]" style={{ color: '#0F1F18' }}>{m.label}</span>
+                          <span className="text-[13px]" style={{ color: '#C9A45E' }}>↗</span>
+                        </a>
+                      ) : m.type === 'page' && m.content ? (
+                        <details key={m.id} className="px-4 py-3.5 rounded-2xl sm:col-span-2"
+                          style={{ border: '1px solid #E5E0D4', background: '#FFFFFF' }}>
+                          <summary className="font-title font-semibold text-[14.5px] cursor-pointer" style={{ color: '#0F1F18' }}>{m.label}</summary>
+                          <div className="text-[14px] leading-[1.7] whitespace-pre-line mt-2" style={{ color: '#3A4A42' }}>{m.content}</div>
+                        </details>
+                      ) : null
                     ))}
                   </div>
-                )}
-              </div>
-            )}
-
-            {/* Agenda block */}
-            {featureOn('schedule') && sessions.length > 0 && (
-              <div className="mt-9">
-                <div className="flex items-end justify-between mb-4">
-                  <h2 className="font-title font-bold text-[22px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
-                    Schedule
-                  </h2>
-                  <Link href={`/e/${registrationSlug}/schedule`} className="text-[13px] font-semibold shrink-0 hover:opacity-70 transition" style={{ color: '#1F4D3A' }}>
-                    See full schedule →
-                  </Link>
                 </div>
-                <div className="overflow-hidden rounded-2xl" style={{ border: '1px solid #E5E0D4' }}>
-                  {sessions.map((s, i) => (
-                    <div key={s.id}
-                      className="grid gap-4 px-6 py-4"
-                      style={{
-                        gridTemplateColumns: '84px 1fr',
-                        borderBottom: i < sessions.length - 1 ? '1px solid #E5E0D4' : 'none',
-                      }}>
-                      <span className=" font-medium text-[13px]" style={{ color: '#C9A45E' }}>
-                        {fmtSessionTime(s.starts_at)}
-                      </span>
-                      <div>
-                        <div className="font-title font-semibold text-[15px]" style={{ color: '#0F1F18' }}>{s.title}</div>
-                        {s.room && (
-                          <div className="text-[13px] mt-0.5" style={{ color: '#6B7A72' }}>{s.room}</div>
+              )}
+
+              {/* Location */}
+              {(page.venue_name || page.is_online) && (
+                <div className="mt-9">
+                  <h2 className="font-title font-bold text-[22px] mb-4" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+                    Location
+                  </h2>
+                  {page.is_online ? (
+                    <div className="text-[15px]" style={{ color: '#3A4A42' }}>
+                      {page.online_url
+                        ? 'Join link will be shared with registered attendees.'
+                        : 'Details will be sent after registration.'}
+                    </div>
+                  ) : (
+                    <>
+                      <VenueMap
+                        lat={venueLat}
+                        lng={venueLng}
+                        geoQuery={page.venue_address?.trim() || [page.venue_name, page.city, page.country].filter(Boolean).join(', ')}
+                        venueName={page.venue_name ?? page.title}
+                      />
+                      <div className="mt-3.5 text-[14px]" style={{ color: '#3A4A42' }}>
+                        {page.venue_name && (
+                          <span className="font-title font-semibold text-[15px] block mb-1" style={{ color: '#0F1F18' }}>{page.venue_name}</span>
                         )}
+                        {page.venue_address}
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Custom menu block */}
-            {customMenu.length > 0 && (
-              <div className="mt-9">
-                <h2 className="font-title font-bold text-[22px] mb-4" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
-                  More info
-                </h2>
-                <div className="grid sm:grid-cols-2 gap-3">
-                  {customMenu.map((m) => (
-                    m.type === 'link' && m.url ? (
-                      <a key={m.id} href={m.url} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center justify-between gap-3 px-4 py-3.5 rounded-2xl transition hover:border-[#1F4D3A]/40"
-                        style={{ border: '1px solid #E5E0D4', background: '#FFFFFF' }}>
-                        <span className="font-title font-semibold text-[14.5px]" style={{ color: '#0F1F18' }}>{m.label}</span>
-                        <span className="text-[13px]" style={{ color: '#C9A45E' }}>↗</span>
-                      </a>
-                    ) : m.type === 'page' && m.content ? (
-                      <details key={m.id} className="px-4 py-3.5 rounded-2xl sm:col-span-2"
-                        style={{ border: '1px solid #E5E0D4', background: '#FFFFFF' }}>
-                        <summary className="font-title font-semibold text-[14.5px] cursor-pointer" style={{ color: '#0F1F18' }}>{m.label}</summary>
-                        <div className="text-[14px] leading-[1.7] whitespace-pre-line mt-2" style={{ color: '#3A4A42' }}>{m.content}</div>
-                      </details>
-                    ) : null
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Speakers block */}
-            {featureOn('speakers') && speakers.length > 0 && (
-              <div className="mt-9">
-                <div className="flex items-end justify-between mb-4">
-                  <h2 className="font-title font-bold text-[22px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
-                    Speakers
-                  </h2>
-                  <Link href={`/e/${registrationSlug}/speakers`} className="text-[13px] font-semibold shrink-0 hover:opacity-70 transition" style={{ color: '#1F4D3A' }}>
-                    See all speakers →
-                  </Link>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  {speakers.map((s) => (
-                    <div key={s.id} className="text-center">
-                      <div className="mx-auto mb-3 w-[84px] h-[84px]">
-                        <Avatar src={s.photo_url} name={s.name} size={84} fontSize={22} seed={s.id} />
-                      </div>
-                      <div className="font-title font-semibold text-[14px]" style={{ color: '#0F1F18' }}>{s.name}</div>
-                      {(s.headline ?? s.role) && (
-                        <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{s.headline ?? s.role}</div>
+                      {(page.venue_address || (venueLat != null && venueLng != null)) && (
+                        <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(page.venue_address || `${venueLat},${venueLng}`)}`}
+                          target="_blank" rel="noopener noreferrer"
+                          className="mt-2 inline-flex items-center gap-1.5 text-[13px] font-medium hover:opacity-75 transition-opacity"
+                          style={{ color: '#1F4D3A' }}>
+                          <ExternalLink size={12} strokeWidth={2} />
+                          Open in Google Maps
+                        </a>
                       )}
-                    </div>
-                  ))}
+                    </>
+                  )}
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Location block */}
-            {(page.venue_name || page.is_online) && (
-              <div className="mt-9">
-                <h2 className="font-title font-bold text-[22px] mb-4" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
-                  Location
-                </h2>
-                {page.is_online ? (
-                  <div className="text-[15px]" style={{ color: '#3A4A42' }}>
-                    {page.online_url
-                      ? 'Join link will be shared with registered attendees.'
-                      : 'Details will be sent after registration.'}
-                  </div>
-                ) : (
-                  <>
-                    <VenueMap
-                      lat={venueLat}
-                      lng={venueLng}
-                      geoQuery={page.venue_address?.trim() || [page.venue_name, page.city, page.country].filter(Boolean).join(', ')}
-                      venueName={page.venue_name ?? page.title}
-                    />
-                    <div className="mt-3.5 text-[14px]" style={{ color: '#3A4A42' }}>
-                      {page.venue_name && (
-                        <span className="font-title font-semibold text-[15px] block mb-1" style={{ color: '#0F1F18' }}>{page.venue_name}</span>
-                      )}
-                      {page.venue_address}
-                    </div>
-                    {(page.venue_address || (venueLat != null && venueLng != null)) && (
-                      <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(page.venue_address || `${venueLat},${venueLng}`)}`}
-                        target="_blank" rel="noopener noreferrer"
-                        className="mt-2 inline-flex items-center gap-1.5 text-[13px] font-medium hover:opacity-75 transition-opacity"
-                        style={{ color: '#1F4D3A' }}>
-                        <ExternalLink size={12} strokeWidth={2} />
-                        Open in Google Maps
-                      </a>
-                    )}
-                  </>
-                )}
+              {/* Mobile ticket panel */}
+              <div className="lg:hidden mt-9">
+                <TicketList
+                  tickets={tickets}
+                  selectedTicket={selectedTicket}
+                  setSelectedTicket={setSelectedTicket}
+                  registerHref={registerHref}
+                  page={page}
+                  minPrice={minPrice}
+                  registrationSlug={registrationSlug}
+                />
               </div>
-            )}
 
-            {/* Mobile ticket panel */}
-            <div className="lg:hidden mt-9">
+            </div>
+
+            {/* RIGHT: sticky ticket panel (desktop) */}
+            <aside className="hidden lg:block" style={{ position: 'sticky', top: 120 }}>
               <TicketList
                 tickets={tickets}
                 selectedTicket={selectedTicket}
@@ -658,54 +804,204 @@ export function PublicEventPageClient({
                 minPrice={minPrice}
                 registrationSlug={registrationSlug}
               />
+            </aside>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════
+          SCHEDULE TAB
+      ══════════════════════════════════════════════════ */}
+      {activeTab === 'schedule' && (
+        <div className="mx-auto px-6 lg:px-10 pt-9 pb-24" style={{ maxWidth: 1240 }}>
+          {sessions.length === 0 ? (
+            <div className="py-16 text-center">
+              <CalendarDays size={40} strokeWidth={1.4} style={{ color: '#C9C3B1', margin: '0 auto 16px' }} />
+              <p className="text-[15px]" style={{ color: '#6B7A72' }}>Schedule not yet published</p>
             </div>
-
-          </div>
-
-          {/* RIGHT: sticky ticket panel (desktop) */}
-          <aside className="hidden lg:block" style={{ position: 'sticky', top: 120 }}>
-            <TicketList
-              tickets={tickets}
-              selectedTicket={selectedTicket}
-              setSelectedTicket={setSelectedTicket}
-              registerHref={registerHref}
-              page={page}
-              minPrice={minPrice}
-              registrationSlug={registrationSlug}
-            />
-          </aside>
+          ) : (
+            <div className="space-y-10">
+              {sessionsByDay.map(({ day, sessions: daySessions }) => (
+                <div key={day}>
+                  <div className="font-title font-bold text-[18px] mb-4 pb-3" style={{ color: '#1F4D3A', borderBottom: '2px solid #E8C57E', letterSpacing: '-0.01em' }}>
+                    {day}
+                  </div>
+                  <div className="overflow-hidden rounded-2xl" style={{ border: '1px solid #E5E0D4' }}>
+                    {daySessions.map((s, i) => (
+                      <div key={s.id}
+                        className="grid gap-4 px-6 py-5"
+                        style={{
+                          gridTemplateColumns: '90px 1fr',
+                          borderBottom: i < daySessions.length - 1 ? '1px solid #E5E0D4' : 'none',
+                          background: '#FFFFFF',
+                        }}>
+                        <div>
+                          <div className="font-medium text-[13px]" style={{ color: '#C9A45E' }}>{fmtSessionTime(s.starts_at)}</div>
+                          {s.ends_at && (
+                            <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{fmtSessionTime(s.ends_at)}</div>
+                          )}
+                        </div>
+                        <div>
+                          <div className="font-title font-semibold text-[15px]" style={{ color: '#0F1F18' }}>{s.title}</div>
+                          {s.session_type && (
+                            <span className="inline-block mt-1 text-[11px] font-semibold uppercase tracking-[0.05em] px-2 py-0.5 rounded-full"
+                              style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+                              {s.session_type}
+                            </span>
+                          )}
+                          {s.room && (
+                            <div className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>📍 {s.room}</div>
+                          )}
+                          {s.description && (
+                            <div className="text-[13px] mt-1.5 leading-relaxed" style={{ color: '#3A4A42' }}>{s.description}</div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-      </div>
+      )}
 
-      {/* ── Mobile sticky bar ───────────────────────────────── */}
-      <div className="fixed bottom-0 left-0 right-0 lg:hidden flex items-center gap-3 px-5 py-3 z-50"
-        style={{ background: '#FFFFFF', borderTop: '1px solid #E5E0D4', boxShadow: '0 -4px 20px rgba(15,31,24,0.08)' }}>
-        <div className="flex-1 min-w-0">
-          <div className="font-title font-extrabold text-[20px]" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>
-            {totalPrice}
-            <small className="font-sans font-normal text-[12px] ml-1" style={{ color: '#6B7A72' }}>· per ticket</small>
-          </div>
+      {/* ══════════════════════════════════════════════════
+          SPEAKERS TAB
+      ══════════════════════════════════════════════════ */}
+      {activeTab === 'speakers' && (
+        <div className="pt-6 pb-24">
+          {speakers.length === 0 ? (
+            <div className="py-16 text-center">
+              <Mic size={40} strokeWidth={1.4} style={{ color: '#C9C3B1', margin: '0 auto 16px' }} />
+              <p className="text-[15px]" style={{ color: '#6B7A72' }}>Speaker lineup coming soon</p>
+            </div>
+          ) : (
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            <SpeakerDirectoryClient speakers={speakers as any} eventSlug={registrationSlug} />
+          )}
         </div>
-        {registrationClosed ? (
-          <div className="inline-flex items-center h-11 px-6 rounded-xl font-semibold text-[14px]"
-            style={{ background: '#F5F0E8', color: '#6B7A72', border: '1px solid #E5E0D4' }}>
-            Closed
+      )}
+
+      {/* ══════════════════════════════════════════════════
+          SPONSORS TAB
+      ══════════════════════════════════════════════════ */}
+      {activeTab === 'sponsors' && (
+        <div className="mx-auto px-6 lg:px-10 pt-9 pb-24" style={{ maxWidth: 1240 }}>
+          {sponsors.length === 0 ? (
+            <div className="py-16 text-center">
+              <Store size={40} strokeWidth={1.4} style={{ color: '#C9C3B1', margin: '0 auto 16px' }} />
+              <p className="text-[15px]" style={{ color: '#6B7A72' }}>Sponsors will be announced soon</p>
+            </div>
+          ) : (
+            <div className="space-y-10">
+              {sponsorTiers.map(tier => (
+                <div key={tier}>
+                  <div className="font-title font-bold text-[18px] mb-5 capitalize" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>
+                    {tier === 'platinum' ? '💎 Platinum' : tier === 'gold' ? '🥇 Gold' : tier === 'silver' ? '🥈 Silver' : tier === 'standard' ? 'Standard' : tier === 'partner' ? 'Partners' : tier === 'media' ? 'Media Partners' : tier}
+                  </div>
+                  <div className={`grid gap-4 ${tier === 'platinum' ? 'grid-cols-1 sm:grid-cols-2' : tier === 'gold' ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-3 sm:grid-cols-4 lg:grid-cols-5'}`}>
+                    {sponsorsByTier[tier].map(s => {
+                      const logoSize = tier === 'platinum' ? 64 : tier === 'gold' ? 48 : 36;
+                      const inner = (
+                        <div className="flex flex-col items-center justify-center gap-3 p-5 rounded-2xl h-full transition hover:opacity-90"
+                          style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
+                          {s.logo_url ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={s.logo_url} alt={s.company_name} style={{ maxHeight: logoSize, maxWidth: '100%', objectFit: 'contain' }} />
+                          ) : (
+                            <div className="font-title font-bold" style={{ fontSize: tier === 'platinum' ? 18 : 14, color: '#0F1F18' }}>{s.company_name}</div>
+                          )}
+                          {s.tagline && tier === 'platinum' && (
+                            <div className="text-[13px] text-center" style={{ color: '#6B7A72' }}>{s.tagline}</div>
+                          )}
+                          {s.logo_url && (
+                            <div className="font-medium text-[12px]" style={{ color: '#3A4A42' }}>{s.company_name}</div>
+                          )}
+                        </div>
+                      );
+                      return s.website_url ? (
+                        <a key={s.id} href={s.website_url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                          {inner}
+                        </a>
+                      ) : (
+                        <div key={s.id}>{inner}</div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════
+          NETWORK TAB
+      ══════════════════════════════════════════════════ */}
+      {activeTab === 'network' && (
+        <div className="mx-auto px-6 lg:px-10 pt-9 pb-24" style={{ maxWidth: 1240 }}>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="font-title font-bold text-[22px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+              {attendeeCount > 0 ? `${attendeeCount.toLocaleString()} attending` : 'Attendees'}
+            </h2>
           </div>
-        ) : allSoldOut ? (
-          <Link href={`/e/${registrationSlug}/waitlist`}
-            className="inline-flex items-center h-11 px-6 rounded-xl font-semibold text-[14px] transition hover:opacity-90"
-            style={{ background: '#E8C57E', color: '#0F1F18', textDecoration: 'none' }}>
-            Join waitlist
-          </Link>
-        ) : (
-          <Link href={registerHref}
-            className="inline-flex items-center h-11 px-6 rounded-xl font-semibold text-[14px] transition hover:opacity-90"
-            style={{ background: '#E8C57E', color: '#0F1F18', textDecoration: 'none' }}>
-            Get tickets
-          </Link>
-        )}
-      </div>
-      <div className="h-20 lg:hidden" />
+          {attendees.length === 0 ? (
+            <div className="py-16 text-center">
+              <Users size={40} strokeWidth={1.4} style={{ color: '#C9C3B1', margin: '0 auto 16px' }} />
+              <p className="text-[15px] mb-4" style={{ color: '#6B7A72' }}>No attendees yet — be the first!</p>
+              <Link href={registerHref}
+                className="inline-flex items-center h-11 px-6 rounded-xl font-semibold text-[14px] transition hover:opacity-90"
+                style={{ background: '#E8C57E', color: '#0F1F18', textDecoration: 'none' }}>
+                Register now
+              </Link>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+              {attendees.map((a, i) => (
+                <div key={i} className="flex flex-col items-center gap-2 py-4">
+                  <Avatar src={a.avatarUrl} name={a.name} size={64} fontSize={18} seed={a.name + i} />
+                  <div className="text-[13px] font-medium text-center truncate w-full px-2" style={{ color: '#0F1F18' }}>{a.name}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Mobile sticky CTA (overview only) ───────────── */}
+      {activeTab === 'overview' && (
+        <>
+          <div className="fixed bottom-0 left-0 right-0 lg:hidden flex items-center gap-3 px-5 py-3 z-50"
+            style={{ background: '#FFFFFF', borderTop: '1px solid #E5E0D4', boxShadow: '0 -4px 20px rgba(15,31,24,0.08)' }}>
+            <div className="flex-1 min-w-0">
+              <div className="font-title font-extrabold text-[20px]" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>
+                {totalPrice}
+                <small className="font-sans font-normal text-[12px] ml-1" style={{ color: '#6B7A72' }}>· per ticket</small>
+              </div>
+            </div>
+            {registrationClosed ? (
+              <div className="inline-flex items-center h-11 px-6 rounded-xl font-semibold text-[14px]"
+                style={{ background: '#F5F0E8', color: '#6B7A72', border: '1px solid #E5E0D4' }}>
+                Closed
+              </div>
+            ) : allSoldOut ? (
+              <Link href={`/e/${registrationSlug}/waitlist`}
+                className="inline-flex items-center h-11 px-6 rounded-xl font-semibold text-[14px] transition hover:opacity-90"
+                style={{ background: '#E8C57E', color: '#0F1F18', textDecoration: 'none' }}>
+                Join waitlist
+              </Link>
+            ) : (
+              <Link href={registerHref}
+                className="inline-flex items-center h-11 px-6 rounded-xl font-semibold text-[14px] transition hover:opacity-90"
+                style={{ background: '#E8C57E', color: '#0F1F18', textDecoration: 'none' }}>
+                Get tickets
+              </Link>
+            )}
+          </div>
+          <div className="h-20 lg:hidden" />
+        </>
+      )}
     </div>
   );
 }
