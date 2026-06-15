@@ -6,6 +6,7 @@ import { ExternalLink } from 'lucide-react';
 import type { Database } from '@/types/database';
 import { AddToCalendarButton } from './AddToCalendarButton';
 import { bannerGradientFor, avatarColorFor, initialsOf, placeholderInitials } from '@/lib/events/placeholder';
+import { EventSectionTabs } from './EventSectionTabs';
 
 /* ─── Types ─────────────────────────────────────────────────────── */
 
@@ -423,6 +424,12 @@ export function PublicEventPageClient({
           )}
         </div>
 
+      </div>{/* close max-w wrapper */}
+
+      {/* Section tabs — sticky below the hero, above the content */}
+      <EventSectionTabs />
+
+      <div className="mx-auto px-6 lg:px-10" style={{ maxWidth: 1240 }}>
         {/* ── 2-col layout ────────────────────────────────── */}
         <div className="grid lg:grid-cols-[1fr_380px] gap-8 lg:gap-11 pt-9 pb-24" style={{ alignItems: 'start' }}>
 
@@ -656,7 +663,7 @@ export function PublicEventPageClient({
           </div>
 
           {/* RIGHT: sticky ticket panel (desktop) */}
-          <aside className="hidden lg:block" style={{ position: 'sticky', top: 88 }}>
+          <aside className="hidden lg:block" style={{ position: 'sticky', top: 120 }}>
             <TicketList
               tickets={tickets}
               selectedTicket={selectedTicket}
