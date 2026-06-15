@@ -406,9 +406,11 @@ export default function CheckInDashboard({
             </p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
+            {/* Scan with phone — only useful on desktop (hands a QR to open the scanner on a phone).
+                On a phone the organizer just taps "Open scanner" directly, so hide it on mobile. */}
             <button
               onClick={() => setPhoneModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[13.5px] font-medium border transition hover:border-[#1F4D3A]/40 hover:text-[#1F4D3A]"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[13.5px] font-medium border transition hover:border-[#1F4D3A]/40 hover:text-[#1F4D3A]"
               style={{ borderColor: '#E5E0D4', color: '#6B7A72', background: 'white' }}>
               <Smartphone size={14} strokeWidth={1.8} /> Scan with phone
             </button>

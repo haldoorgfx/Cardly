@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { BrowserMultiFormatReader, type IScannerControls } from '@zxing/browser';
 import { X, Search, Check, Clock } from 'lucide-react';
 import Link from 'next/link';
+import { extractToken } from '@/lib/qr/token';
 
 type ScanResult =
   | { kind: 'success'; name: string; email: string; ticket_type: string | null }
@@ -163,11 +164,7 @@ export function QRScanner({ eventId, eventName, totalRegistrations, initialCheck
           videoEl,
           (result, err) => {
             if (result) {
-              const text = result.getText().trim();
-              let token: string | null = null;
-              const urlMatch = text.match(/[?&]token=([0-9a-f]{32})/i);
-              if (urlMatch) token = urlMatch[1];
-              else if (/^[0-9a-f]{32}$/i.test(text)) token = text;
+              const token = extractToken(result.getText());
               if (token) handleToken(token);
             }
             if (err && err?.name !== 'NotFoundException') console.error(err);

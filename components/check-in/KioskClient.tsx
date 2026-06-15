@@ -1,8 +1,10 @@
-﻿'use client';
+'use client';
 
-import { useState, useRef, useCallback } from 'react';
-import { Search, X, Check, ArrowLeft } from 'lucide-react';
+import { useState, useRef, useCallback, useEffect } from 'react';
+import { BrowserMultiFormatReader, type IScannerControls } from '@zxing/browser';
+import { Search, X, Check, ArrowLeft, CameraOff } from 'lucide-react';
 import Link from 'next/link';
+import { extractToken } from '@/lib/qr/token';
 
 interface Props { eventId: string; eventName: string; }
 
@@ -13,7 +15,21 @@ interface AttendeeResult {
   attendee_name: string | null;
   attendee_email: string | null;
   status: string;
+  qr_code_token: string;
   ticket_types: { name: string } | null;
+}
+
+function beep(ok: boolean) {
+  try {
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.value = ok ? 880 : 220;
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+    osc.start(); osc.stop(ctx.currentTime + 0.25);
+  } catch {}
 }
 
 export function KioskClient({ eventId, eventName }: Props) {
@@ -21,20 +37,28 @@ export function KioskClient({ eventId, eventName }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
   const [results, setResults] = useState<AttendeeResult[]>([]);
   const [searching, setSearching] = useState(false);
-  const [checkedInAttendee, setCheckedInAttendee] = useState<AttendeeResult | null>(null);
+  const [checkedInAttendee, setCheckedInAttendee] = useState<{ name: string | null; ticket: string | null } | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string>('Please see a crew member for help.');
   const [countdown, setCountdown] = useState(6);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+  const [retry, setRetry] = useState(0);
+
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const controlsRef = useRef<IScannerControls | null>(null);
+  const processingRef = useRef(false);
 
   const startCountdown = useCallback(() => {
     setCountdown(6);
     countdownRef.current = setInterval(() => {
       setCountdown(c => {
         if (c <= 1) {
-          clearInterval(countdownRef.current!);
+          if (countdownRef.current) clearInterval(countdownRef.current);
           setState('scan');
           setCheckedInAttendee(null);
           setSearchQuery('');
+          setResults([]);
           return 6;
         }
         return c - 1;
@@ -42,32 +66,50 @@ export function KioskClient({ eventId, eventName }: Props) {
     }, 1000);
   }, []);
 
-  async function checkIn(regId: string) {
-    const res = await fetch(`/api/events/${eventId}/checkin`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ registrationId: regId }),
-    });
-    if (res.ok) {
-      const found = results.find(r => r.id === regId) ?? null;
-      setCheckedInAttendee(found);
-      setState('success');
-      startCountdown();
-    } else {
+  // Check in by token (from camera) or by reg's token (from manual search)
+  const checkInByToken = useCallback(async (token: string) => {
+    if (processingRef.current) return;
+    processingRef.current = true;
+    try {
+      const res = await fetch(`/api/events/${eventId}/checkin`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ qr_code_token: token }),
+      });
+      const data = await res.json().catch(() => ({})) as {
+        result?: string; message?: string; attendee_name?: string; ticket_type?: string | null;
+      };
+      if (data.result === 'success' || data.result === 'already_checked_in') {
+        beep(true);
+        setCheckedInAttendee({ name: data.attendee_name ?? null, ticket: data.ticket_type ?? null });
+        setState('success');
+        startCountdown();
+      } else {
+        beep(false);
+        setErrorMsg(data.message ?? 'Ticket not recognised.');
+        setState('error');
+        setTimeout(() => setState('scan'), 3500);
+      }
+    } catch {
+      beep(false);
+      setErrorMsg('Connection problem. Please try again.');
       setState('error');
-      setTimeout(() => setState('scan'), 3000);
+      setTimeout(() => setState('scan'), 3500);
+    } finally {
+      // brief debounce so one QR isn't read repeatedly
+      setTimeout(() => { processingRef.current = false; }, 2500);
     }
-  }
+  }, [eventId, startCountdown]);
 
   async function handleSearch(q: string) {
     setSearchQuery(q);
     if (q.length < 2) { setResults([]); return; }
     setSearching(true);
-    const res = await fetch(`/api/events/${eventId}/checkin?q=${encodeURIComponent(q)}`);
-    if (res.ok) {
-      const data = await res.json();
-      setResults(data);
-    }
+    try {
+      const res = await fetch(`/api/events/${eventId}/checkin?q=${encodeURIComponent(q)}`);
+      const data = await res.json().catch(() => ({ results: [] }));
+      setResults(data.results ?? []);
+    } catch { setResults([]); }
     setSearching(false);
   }
 
@@ -76,79 +118,127 @@ export function KioskClient({ eventId, eventName }: Props) {
     setTimeout(() => searchRef.current?.focus(), 100);
   }
 
+  // Camera lifecycle — only while in 'scan' state
+  useEffect(() => {
+    if (state !== 'scan') return;
+    let cancelled = false;
+    const videoEl = videoRef.current;
+    if (!videoEl) return;
+    setCameraError(null);
+
+    const reader = new BrowserMultiFormatReader();
+    BrowserMultiFormatReader.listVideoInputDevices()
+      .then(devices => {
+        if (cancelled) return;
+        const deviceId =
+          devices.find(d => /back|rear|environment/i.test(d.label))?.deviceId ?? devices[0]?.deviceId;
+        return reader.decodeFromVideoDevice(deviceId ?? undefined, videoEl, (result) => {
+          if (result) {
+            const token = extractToken(result.getText());
+            if (token) checkInByToken(token);
+          }
+        });
+      })
+      .then(controls => {
+        if (cancelled) { controls?.stop(); return; }
+        controlsRef.current = controls ?? null;
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        const msg = e instanceof Error ? e.message : '';
+        setCameraError(/denied|permission|not allowed/i.test(msg) ? 'blocked' : 'unavailable');
+      });
+
+    return () => {
+      cancelled = true;
+      controlsRef.current?.stop();
+      controlsRef.current = null;
+    };
+  }, [state, retry, checkInByToken]);
+
+  useEffect(() => () => { if (countdownRef.current) clearInterval(countdownRef.current); }, []);
+
   return (
     <div className="fixed inset-0 overflow-hidden flex flex-col items-center justify-center select-none"
-      style={{ background: 'linear-gradient(160deg, #0F1F18 0%, #1A3D2B 50%, #0F1F18 100%)' }}
-      onClick={() => state === 'scan' && openSearch()}>
+      style={{ background: 'linear-gradient(160deg, #0F1F18 0%, #1A3D2B 50%, #0F1F18 100%)' }}>
 
-      {/* Back button */}
+      {/* Back */}
       <Link href={`/events/${eventId}/check-in`}
-        className="absolute top-6 left-6 flex items-center gap-2 px-3 py-2 rounded-xl text-[13px] font-medium transition hover:opacity-70 z-10"
-        style={{ color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.05)' }}
-        onClick={e => e.stopPropagation()}>
+        className="absolute top-6 left-6 flex items-center gap-2 px-3 py-2 rounded-xl text-[13px] font-medium transition hover:opacity-70 z-30"
+        style={{ color: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.06)' }}>
         <ArrowLeft size={14} /> Exit kiosk
       </Link>
-
-      {/* Event name */}
-      <div className="absolute top-6 right-6 text-[12px] font-semibold tracking-[0.1em] uppercase z-10"
-        style={{ color: 'rgba(255,255,255,0.3)', fontFamily: 'Inter, system-ui, sans-serif' }}>
+      <div className="absolute top-6 right-6 text-[12px] font-semibold tracking-[0.1em] uppercase z-30"
+        style={{ color: 'rgba(255,255,255,0.3)' }}>
         {eventName}
       </div>
 
       {/* SCAN STATE */}
       {state === 'scan' && (
-        <div className="flex flex-col items-center">
-          {/* Scan frame */}
-          <div className="relative mb-8" style={{ width: 260, height: 260 }}>
-            {/* Animated corner brackets */}
-            {[
-              { top: 0, left: 0, borderTop: '3px solid #E8C57E', borderLeft: '3px solid #E8C57E', borderRadius: '12px 0 0 0' },
-              { top: 0, right: 0, borderTop: '3px solid #E8C57E', borderRight: '3px solid #E8C57E', borderRadius: '0 12px 0 0' },
-              { bottom: 0, left: 0, borderBottom: '3px solid #E8C57E', borderLeft: '3px solid #E8C57E', borderRadius: '0 0 0 12px' },
-              { bottom: 0, right: 0, borderBottom: '3px solid #E8C57E', borderRight: '3px solid #E8C57E', borderRadius: '0 0 12px 0' },
-            ].map((s, i) => (
-              <div key={i} className="absolute" style={{ ...s, width: 40, height: 40 }} />
-            ))}
-            {/* Scanline */}
-            <div className="absolute left-4 right-4" style={{ top: '50%', height: 2, background: 'rgba(232,197,126,0.5)', boxShadow: '0 0 12px rgba(232,197,126,0.6)', animation: 'scanline 2s ease-in-out infinite' }} />
-            {/* Center QR placeholder */}
-            <div className="absolute inset-8 flex items-center justify-center rounded-xl" style={{ border: '1px dashed rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.03)' }}>
-              <svg viewBox="0 0 80 80" width={60} height={60} style={{ opacity: 0.15 }}>
-                <rect x="4" y="4" width="32" height="32" rx="4" fill="none" stroke="#FAF6EE" strokeWidth="4"/>
-                <rect x="44" y="4" width="32" height="32" rx="4" fill="none" stroke="#FAF6EE" strokeWidth="4"/>
-                <rect x="4" y="44" width="32" height="32" rx="4" fill="none" stroke="#FAF6EE" strokeWidth="4"/>
-                <rect x="12" y="12" width="16" height="16" fill="#FAF6EE"/>
-                <rect x="52" y="12" width="16" height="16" fill="#FAF6EE"/>
-                <rect x="12" y="52" width="16" height="16" fill="#FAF6EE"/>
-                <rect x="48" y="48" width="8" height="8" fill="#FAF6EE"/>
-                <rect x="60" y="48" width="8" height="8" fill="#FAF6EE"/>
-                <rect x="48" y="60" width="8" height="8" fill="#FAF6EE"/>
-                <rect x="60" y="60" width="8" height="8" fill="#FAF6EE"/>
-              </svg>
+        <div className="flex flex-col items-center w-full h-full justify-center">
+          {/* Live camera */}
+          {!cameraError && (
+            <div className="relative rounded-3xl overflow-hidden mb-8" style={{ width: 320, height: 320, maxWidth: '80vw', maxHeight: '80vw' }}>
+              <video ref={videoRef} className="w-full h-full object-cover" muted playsInline />
+              {/* Corner brackets */}
+              {(['tl','tr','bl','br'] as const).map(c => (
+                <span key={c} className="absolute" style={{
+                  width: 44, height: 44,
+                  top: c.startsWith('t') ? 12 : 'auto', bottom: c.startsWith('b') ? 12 : 'auto',
+                  left: c.endsWith('l') ? 12 : 'auto', right: c.endsWith('r') ? 12 : 'auto',
+                  borderTop: c.startsWith('t') ? '3px solid #E8C57E' : 'none',
+                  borderBottom: c.startsWith('b') ? '3px solid #E8C57E' : 'none',
+                  borderLeft: c.endsWith('l') ? '3px solid #E8C57E' : 'none',
+                  borderRight: c.endsWith('r') ? '3px solid #E8C57E' : 'none',
+                  borderRadius: c === 'tl' ? '10px 0 0 0' : c === 'tr' ? '0 10px 0 0' : c === 'bl' ? '0 0 0 10px' : '0 0 10px 0',
+                }} />
+              ))}
             </div>
-          </div>
+          )}
 
-          <h2 className="font-display font-bold text-[28px] mb-2" style={{ color: '#FAF6EE', letterSpacing: '-0.02em' }}>
-            Scan your ticket
+          {/* Camera blocked / unavailable */}
+          {cameraError && (
+            <div className="flex flex-col items-center mb-8 text-center px-6">
+              <div className="w-16 h-16 rounded-full grid place-items-center mb-4" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                <CameraOff size={26} style={{ color: 'rgba(255,255,255,0.4)' }} />
+              </div>
+              <div className="text-[16px] font-medium mb-1" style={{ color: '#FAF6EE' }}>
+                {cameraError === 'blocked' ? 'Camera access blocked' : 'Camera unavailable'}
+              </div>
+              <p className="text-[13px] max-w-[280px]" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                {cameraError === 'blocked'
+                  ? 'Allow camera access in your browser, then tap Try again — or search by name.'
+                  : 'Search attendees by name instead.'}
+              </p>
+              {cameraError === 'blocked' && (
+                <button onClick={() => { setCameraError(null); setRetry(r => r + 1); }}
+                  className="mt-4 px-5 py-2.5 rounded-full text-[14px] font-semibold transition hover:opacity-90"
+                  style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
+                  Try again
+                </button>
+              )}
+            </div>
+          )}
+
+          <h2 className="font-display font-bold text-[28px] mb-2 text-center px-6" style={{ color: '#FAF6EE', letterSpacing: '-0.02em' }}>
+            {cameraError ? 'Find your registration' : 'Scan your ticket'}
           </h2>
-          <p className="text-[14px] mb-8" style={{ color: 'rgba(255,255,255,0.45)' }}>
-            Hold your QR code up to the camera
-          </p>
-          <button
-            onClick={e => { e.stopPropagation(); openSearch(); }}
+          {!cameraError && (
+            <p className="text-[14px] mb-8" style={{ color: 'rgba(255,255,255,0.45)' }}>
+              Hold your QR code up to the camera
+            </p>
+          )}
+          <button onClick={openSearch}
             className="flex items-center gap-2 px-5 py-3 rounded-2xl text-[14px] font-semibold transition hover:opacity-80"
-            style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.1)' }}>
+            style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.12)' }}>
             <Search size={16} /> Search by name instead
           </button>
-          <p className="text-[12px] mt-6" style={{ color: 'rgba(255,255,255,0.25)' }}>
-            Tap anywhere to search
-          </p>
         </div>
       )}
 
       {/* SEARCH STATE */}
       {state === 'search' && (
-        <div className="w-full max-w-lg px-6" onClick={e => e.stopPropagation()}>
+        <div className="w-full max-w-lg px-6">
           <div className="relative mb-4">
             <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: 'rgba(255,255,255,0.4)' }} />
             <input
@@ -158,7 +248,6 @@ export function KioskClient({ eventId, eventName }: Props) {
               placeholder="Search by name or email…"
               className="w-full pl-11 pr-12 py-4 rounded-2xl text-[16px] outline-none"
               style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(232,197,126,0.4)', color: '#FAF6EE' }}
-              onClick={e => e.stopPropagation()}
             />
             <button onClick={() => { setState('scan'); setSearchQuery(''); setResults([]); }}
               className="absolute right-4 top-1/2 -translate-y-1/2" style={{ color: 'rgba(255,255,255,0.4)' }}>
@@ -166,14 +255,12 @@ export function KioskClient({ eventId, eventName }: Props) {
             </button>
           </div>
 
-          {searching && (
-            <div className="text-center py-8" style={{ color: 'rgba(255,255,255,0.4)' }}>Searching…</div>
-          )}
+          {searching && <div className="text-center py-8" style={{ color: 'rgba(255,255,255,0.4)' }}>Searching…</div>}
 
           {results.length > 0 && (
             <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
               {results.map((r, i) => (
-                <button key={r.id} onClick={() => checkIn(r.id)}
+                <button key={r.id} onClick={() => r.status !== 'checked_in' && checkInByToken(r.qr_code_token)}
                   className="w-full flex items-center gap-4 px-5 py-4 transition hover:bg-white/5 text-left"
                   style={{ borderBottom: i < results.length - 1 ? '1px solid rgba(255,255,255,0.06)' : undefined, background: 'rgba(255,255,255,0.03)' }}>
                   <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-[14px] shrink-0"
@@ -205,16 +292,17 @@ export function KioskClient({ eventId, eventName }: Props) {
 
       {/* SUCCESS STATE */}
       {state === 'success' && checkedInAttendee && (
-        <div className="flex flex-col items-center text-center px-6" onClick={() => { clearInterval(countdownRef.current!); setState('scan'); setCheckedInAttendee(null); }}>
+        <div className="flex flex-col items-center text-center px-6"
+          onClick={() => { if (countdownRef.current) clearInterval(countdownRef.current); setState('scan'); setCheckedInAttendee(null); }}>
           <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6"
             style={{ background: 'rgba(45,122,79,0.2)', border: '2px solid #2D7A4F', animation: 'successPop 0.4s ease-out' }}>
             <Check size={36} style={{ color: '#2D7A4F' }} />
           </div>
           <h2 className="font-display font-bold text-[36px] mb-1" style={{ color: '#FAF6EE', letterSpacing: '-0.02em' }}>
-            Welcome, {checkedInAttendee.attendee_name?.split(' ')[0] ?? 'friend'}!
+            Welcome, {checkedInAttendee.name?.split(' ')[0] ?? 'friend'}!
           </h2>
           <p className="text-[16px] mb-2" style={{ color: 'rgba(255,255,255,0.5)' }}>
-            {checkedInAttendee.ticket_types?.name ?? 'General'} · Checked in
+            {checkedInAttendee.ticket ?? 'General'} · Checked in
           </p>
           <p className="text-[13px] mt-4" style={{ color: 'rgba(255,255,255,0.3)' }}>
             Returning to scan in {countdown}s · Tap to continue
@@ -224,20 +312,16 @@ export function KioskClient({ eventId, eventName }: Props) {
 
       {/* ERROR STATE */}
       {state === 'error' && (
-        <div className="flex flex-col items-center text-center">
+        <div className="flex flex-col items-center text-center px-6">
           <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6" style={{ background: 'rgba(184,66,60,0.2)', border: '2px solid #B8423C' }}>
             <X size={36} style={{ color: '#B8423C' }} />
           </div>
-          <h2 className="font-display font-bold text-[28px] mb-2" style={{ color: '#FAF6EE' }}>Check-in failed</h2>
-          <p style={{ color: 'rgba(255,255,255,0.5)' }}>Please see a crew member for help.</p>
+          <h2 className="font-display font-bold text-[28px] mb-2" style={{ color: '#FAF6EE' }}>Couldn&apos;t check in</h2>
+          <p className="max-w-[300px]" style={{ color: 'rgba(255,255,255,0.5)' }}>{errorMsg}</p>
         </div>
       )}
 
       <style>{`
-        @keyframes scanline {
-          0%, 100% { transform: translateY(-60px); }
-          50% { transform: translateY(60px); }
-        }
         @keyframes successPop {
           0% { transform: scale(0.6); opacity: 0; }
           80% { transform: scale(1.08); }
