@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { Search, Download, CheckCircle2, Clock, XCircle, RotateCcw, ExternalLink, UserPlus, X, MoreHorizontal, Upload, AlertCircle, CheckCircle, ChevronDown, Pencil, Copy } from 'lucide-react';
@@ -263,10 +263,29 @@ function RowActionsMenu({
 
   const MENU_W = 188;
   function openMenu() {
+    // Provisional position; useLayoutEffect refines it with the real menu height
     const rect = btnRef.current?.getBoundingClientRect();
     if (rect) setMenuPos({ top: rect.bottom + 4, left: Math.max(8, rect.right - MENU_W) });
     setOpen(true);
   }
+
+  // Smart placement: open down if there's room, else up, else clamp into the viewport.
+  // Runs after the menu mounts so we can measure its real height.
+  useLayoutEffect(() => {
+    if (!open || !menuRef.current || !btnRef.current) return;
+    const btn = btnRef.current.getBoundingClientRect();
+    const menuH = menuRef.current.offsetHeight;
+    const menuW = menuRef.current.offsetWidth || MENU_W;
+    const margin = 8;
+    let left = Math.min(Math.max(margin, btn.right - menuW), window.innerWidth - menuW - margin);
+    if (left < margin) left = margin;
+    const spaceBelow = window.innerHeight - btn.bottom;
+    let top: number;
+    if (spaceBelow >= menuH + margin) top = btn.bottom + 4;            // down
+    else if (btn.top >= menuH + margin) top = btn.top - menuH - 4;     // up
+    else top = Math.max(margin, window.innerHeight - menuH - margin);  // clamp
+    setMenuPos(prev => (prev && prev.top === top && prev.left === left ? prev : { top, left }));
+  }, [open]);
 
   // Close on outside click, scroll, or resize (the menu is portaled & fixed, so it
   // must close when the page moves rather than float out of place).
@@ -367,7 +386,7 @@ function RowActionsMenu({
         <div
           ref={menuRef}
           className="fixed w-[188px] rounded-xl bg-white py-1.5"
-          style={{ top: menuPos.top, left: menuPos.left, zIndex: 70, border: '1px solid #E5E0D4', boxShadow: '0 8px 28px rgba(15,31,24,0.18)' }}
+          style={{ top: menuPos.top, left: menuPos.left, zIndex: 70, border: '1px solid #E5E0D4', boxShadow: '0 8px 28px rgba(15,31,24,0.18)', maxHeight: 'calc(100vh - 16px)', overflowY: 'auto' }}
         >
           {/* Edit */}
           <button
