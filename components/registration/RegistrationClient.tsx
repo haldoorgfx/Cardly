@@ -160,6 +160,12 @@ export default function RegistrationClient({
   // M5: PWYW
   const [chosenPrice, setChosenPrice] = useState('');
 
+  // Promo / discount code
+  const [promoInput, setPromoInput] = useState('');
+  const [appliedPromo, setAppliedPromo] = useState<{ code: string; discount_amount: number } | null>(null);
+  const [promoError, setPromoError] = useState('');
+  const [promoChecking, setPromoChecking] = useState(false);
+
   // M5: Access codes
   const [showAccessCode, setShowAccessCode] = useState(false);
   const [accessCodeInput, setAccessCodeInput] = useState('');
@@ -189,10 +195,44 @@ export default function RegistrationClient({
   const effectivePrice = isPWYW
     ? (parseFloat(chosenPrice) || 0)
     : (selectedTicket?.price ?? 0);
-  const isFree = effectivePrice === 0;
-  const fee = !isFree ? Math.round(effectivePrice * 0.035 * 100) / 100 : 0;
-  const total = effectivePrice + fee;
+  const promoDiscount = appliedPromo ? Math.min(effectivePrice, appliedPromo.discount_amount) : 0;
+  const priceAfterPromo = Math.max(0, Math.round((effectivePrice - promoDiscount) * 100) / 100);
+  const isFree = priceAfterPromo === 0;
+  const fee = priceAfterPromo > 0 ? Math.round(priceAfterPromo * 0.035 * 100) / 100 : 0;
+  const total = priceAfterPromo + fee;
+  const ccy = selectedTicket?.currency ?? 'USD';
   const allTickets = [...tickets, ...unlockedTickets];
+
+  async function applyPromo() {
+    const code = promoInput.trim();
+    if (!code || !selectedTicket) return;
+    setPromoChecking(true);
+    setPromoError('');
+    try {
+      const res = await fetch(`/api/events/${eventId}/promo/validate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, ticket_type_id: selectedTicket.id, amount: effectivePrice }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!data.valid) {
+        setAppliedPromo(null);
+        setPromoError(data.error ?? 'That code isn’t valid.');
+        return;
+      }
+      setAppliedPromo({ code: code.toUpperCase(), discount_amount: data.discount_amount ?? 0 });
+    } catch {
+      setPromoError('Couldn’t check that code. Please try again.');
+    } finally {
+      setPromoChecking(false);
+    }
+  }
+
+  function clearPromo() {
+    setAppliedPromo(null);
+    setPromoInput('');
+    setPromoError('');
+  }
 
   // Photo crop handlers
   const handlePhotoSelect = useCallback((zone: Zone, file: File, srcUrl: string) => {
@@ -299,6 +339,7 @@ export default function RegistrationClient({
           access_code: unlockedTickets.find(t => t.id === selectedTicket?.id) ? accessCodeInput || undefined : undefined,
           referral_code: referralCode ?? null,
           utm_source: utmSource ?? null,
+          promo_code: appliedPromo?.code ?? null,
         }),
       });
 
@@ -522,7 +563,7 @@ export default function RegistrationClient({
                       <button
                         key={t.id}
                         disabled={sold}
-                        onClick={() => { setSelectedTicket(t); setChosenPrice(''); setSubmitError(''); setFieldErrors({}); }}
+                        onClick={() => { setSelectedTicket(t); setChosenPrice(''); setSubmitError(''); setFieldErrors({}); clearPromo(); }}
                         className="w-full text-left flex items-center gap-4 p-5 rounded-2xl transition-all"
                         style={{ border: `1px solid ${isSelected ? '#1F4D3A' : '#E5E0D4'}`, background: 'white', boxShadow: isSelected ? 'inset 0 0 0 1px #1F4D3A' : 'none', opacity: sold ? 0.5 : 1 }}
                       >
@@ -563,7 +604,7 @@ export default function RegistrationClient({
                       min={selectedTicket.min_price ?? 0}
                       step="any"
                       value={chosenPrice}
-                      onChange={e => { setChosenPrice(e.target.value); setFieldErrors(p => ({ ...p, chosenPrice: '' })); }}
+                      onChange={e => { setChosenPrice(e.target.value); setFieldErrors(p => ({ ...p, chosenPrice: '' })); if (appliedPromo) clearPromo(); }}
                       placeholder={String(selectedTicket.min_price ?? 0)}
                       className={INPUT}
                       style={{ borderColor: fieldErrors.chosenPrice ? '#B8423C' : '#E5E0D4', background: 'white', color: '#0F1F18', paddingLeft: '3.5rem' }}
@@ -743,7 +784,7 @@ export default function RegistrationClient({
               <h2 className="font-display font-normal text-[28px] mb-1.5" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>
                 {isFree ? 'Confirm registration' : 'Review & pay'}
               </h2>
-              {isFree ? (
+              {effectivePrice === 0 ? (
                 <div className="rounded-2xl p-6" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
                   <div className="font-display font-medium text-[18px] mb-2" style={{ color: '#1F4D3A' }}>Free ticket</div>
                   <p className="text-[14px]" style={{ color: '#6B7A72' }}>
@@ -754,17 +795,53 @@ export default function RegistrationClient({
                 <div className="rounded-2xl p-5" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
                   <div className="flex items-center justify-between py-2 text-[14px]" style={{ color: '#3A4A42' }}>
                     <span>{selectedTicket?.name}</span>
-                    <span className="font-title font-semibold">{fmt(effectivePrice, selectedTicket?.currency ?? 'USD')}</span>
+                    <span className="font-title font-semibold">{fmt(effectivePrice, ccy)}</span>
                   </div>
+
+                  {/* Promo code */}
+                  {!appliedPromo ? (
+                    <div className="py-3" style={{ borderTop: '1px solid #F0EDE6', borderBottom: '1px solid #F0EDE6', margin: '6px 0' }}>
+                      <div className="flex gap-2">
+                        <input
+                          value={promoInput}
+                          onChange={e => { setPromoInput(e.target.value.toUpperCase()); setPromoError(''); }}
+                          onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); applyPromo(); } }}
+                          placeholder="Promo code"
+                          className="flex-1 rounded-xl px-3 py-2 text-[14px] outline-none border"
+                          style={{ borderColor: promoError ? '#B8423C' : '#E5E0D4', background: '#FAF6EE', color: '#0F1F18' }}
+                        />
+                        <button
+                          type="button"
+                          onClick={applyPromo}
+                          disabled={promoChecking || !promoInput.trim()}
+                          className="px-4 py-2 rounded-xl text-[13px] font-semibold border transition hover:opacity-80 disabled:opacity-50"
+                          style={{ borderColor: '#1F4D3A', color: '#1F4D3A' }}
+                        >
+                          {promoChecking ? '…' : 'Apply'}
+                        </button>
+                      </div>
+                      {promoError && <p className="text-[12px] mt-1.5 font-medium" style={{ color: '#B8423C' }}>{promoError}</p>}
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between py-2 text-[14px]" style={{ color: '#2D7A4F' }}>
+                      <span className="inline-flex items-center gap-1.5">
+                        <Check size={14} strokeWidth={2.5} />
+                        Promo “{appliedPromo.code}”
+                        <button type="button" onClick={clearPromo} className="ml-1 text-[12px] underline" style={{ color: '#6B7A72' }}>remove</button>
+                      </span>
+                      <span className="font-title font-semibold">−{fmt(promoDiscount, ccy)}</span>
+                    </div>
+                  )}
+
                   {fee > 0 && (
                     <div className="flex items-center justify-between py-2 text-[14px]" style={{ color: '#3A4A42' }}>
                       <span>Service fee</span>
-                      <span className="font-title font-medium">{fmt(fee, selectedTicket?.currency ?? 'USD')}</span>
+                      <span className="font-title font-medium">{fmt(fee, ccy)}</span>
                     </div>
                   )}
                   <div className="flex items-center justify-between pt-3 mt-1 text-[15px] font-semibold" style={{ borderTop: '1px solid #E5E0D4' }}>
                     <span style={{ color: '#0F1F18' }}>Total</span>
-                    <span className="font-title font-bold" style={{ color: '#1F4D3A' }}>{fmt(total, selectedTicket?.currency ?? 'USD')}</span>
+                    <span className="font-title font-bold" style={{ color: '#1F4D3A' }}>{fmt(total, ccy)}</span>
                   </div>
                 </div>
               )}
@@ -920,6 +997,12 @@ export default function RegistrationClient({
                         {isPWYW && chosenPrice ? fmt(parseFloat(chosenPrice) || 0, selectedTicket.currency) : fmt(selectedTicket.price, selectedTicket.currency)}
                       </span>
                     </div>
+                    {appliedPromo && promoDiscount > 0 && (
+                      <div className="flex justify-between py-2.5 text-[14px]" style={{ color: '#2D7A4F' }}>
+                        <span>Promo “{appliedPromo.code}”</span>
+                        <span className="font-title font-medium">−{fmt(promoDiscount, selectedTicket.currency)}</span>
+                      </div>
+                    )}
                     {fee > 0 && (
                       <div className="flex justify-between py-2.5 text-[14px]" style={{ color: '#3A4A42' }}>
                         <span>Service fee</span>
@@ -962,6 +1045,12 @@ export default function RegistrationClient({
                     <span>{selectedTicket.name}</span>
                     <span className="font-title font-semibold" style={{ color: '#0F1F18' }}>{fmt(selectedTicket.price, selectedTicket.currency)}</span>
                   </div>
+                  {appliedPromo && promoDiscount > 0 && (
+                    <div className="flex justify-between py-2.5 text-[14px]" style={{ color: '#2D7A4F' }}>
+                      <span>Promo “{appliedPromo.code}”</span>
+                      <span className="font-title font-medium">−{fmt(promoDiscount, selectedTicket.currency)}</span>
+                    </div>
+                  )}
                   {fee > 0 && (
                     <div className="flex justify-between py-2.5 text-[14px]" style={{ color: '#3A4A42' }}>
                       <span>Service fee</span>

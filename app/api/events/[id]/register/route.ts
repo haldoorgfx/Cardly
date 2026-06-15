@@ -19,6 +19,8 @@ const RegisterSchema = z.object({
   chosen_price:    z.number().min(0).optional(),
   // Access code — unlocks hidden tickets
   access_code:     z.string().max(100).optional(),
+  // Promo / discount code
+  promo_code:      z.string().max(64).optional().nullable(),
   // Attribution
   referral_code:   z.string().max(64).optional().nullable(),
   utm_source:      z.string().max(100).optional().nullable(),
@@ -51,7 +53,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     );
   }
 
-  const { attendee_name, attendee_email, ticket_type_id, attendee_phone, custom_fields, chosen_price, access_code, referral_code, utm_source } = parsed.data;
+  const { attendee_name, attendee_email, ticket_type_id, attendee_phone, custom_fields, chosen_price, access_code, referral_code, utm_source, promo_code } = parsed.data;
 
   // 1. Verify event has a public event_page
   const { data: eventPage } = await admin
@@ -107,6 +109,32 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     return NextResponse.json({ error: 'TICKET_SOLD_OUT', detail: 'This ticket is sold out' }, { status: 409 });
   }
 
+  // 3b. Validate promo code (server-authoritative) and compute discount
+  let promoDiscount = 0;
+  let appliedPromo: { id: string; uses_count: number; max_uses: number | null } | null = null;
+  if (promo_code && promo_code.trim() && effectivePrice > 0) {
+    const { data: promo } = await admin
+      .from('promo_codes')
+      .select('id, discount_type, discount_value, max_uses, uses_count, valid_from, valid_until')
+      .eq('event_id', params.id)
+      .eq('code', promo_code.trim().toUpperCase())
+      .single();
+    if (!promo) return NextResponse.json({ error: 'That promo code isn’t valid for this event.' }, { status: 400 });
+    const nowD = new Date();
+    if (promo.valid_from && new Date(promo.valid_from) > nowD)
+      return NextResponse.json({ error: 'This promo code isn’t active yet.' }, { status: 400 });
+    if (promo.valid_until && new Date(promo.valid_until) < nowD)
+      return NextResponse.json({ error: 'This promo code has expired.' }, { status: 400 });
+    if (promo.max_uses !== null && promo.uses_count >= promo.max_uses)
+      return NextResponse.json({ error: 'This promo code has reached its usage limit.' }, { status: 400 });
+    promoDiscount = promo.discount_type === 'percent'
+      ? Math.min(effectivePrice, (effectivePrice * Number(promo.discount_value)) / 100)
+      : Math.min(effectivePrice, Number(promo.discount_value));
+    promoDiscount = Math.round(promoDiscount * 100) / 100;
+    appliedPromo = { id: promo.id, uses_count: promo.uses_count, max_uses: promo.max_uses };
+  }
+  const chargedPrice = Math.max(0, Math.round((effectivePrice - promoDiscount) * 100) / 100);
+
   // 4. Check overall event capacity
   if (eventPage.max_capacity) {
     const { count } = await admin
@@ -120,8 +148,9 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     }
   }
 
-  // 5. Create registration
-  const isFree = effectivePrice === 0;
+  // 5. Create registration (isFree reflects the amount actually charged — a
+  // 100%-off promo makes the ticket free and skips payment entirely)
+  const isFree = chargedPrice === 0;
   const { data: eventRow } = await admin.from('events').select('checkout_require_approval, user_id').eq('id', params.id).single();
   const requiresApproval = !!eventRow?.checkout_require_approval && isFree;
   const initialStatus = requiresApproval ? 'pending_approval' : isFree ? 'confirmed' : 'pending';
@@ -143,7 +172,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   }
   const split = isFree
     ? { charged: 0, platformFee: 0, organizerNet: 0 }
-    : splitTicketAmount(effectivePrice, organizerPlan, feeBearer);
+    : splitTicketAmount(chargedPrice, organizerPlan, feeBearer);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: registration, error: regError } = await (admin as any)
@@ -173,6 +202,15 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       return NextResponse.json({ error: 'You are already registered for this event.' }, { status: 409 });
     }
     return NextResponse.json({ error: regError.message }, { status: 500 });
+  }
+
+  // Count the promo redemption (guarded against the usage cap so it can't exceed max_uses)
+  if (appliedPromo) {
+    let upd = admin.from('promo_codes')
+      .update({ uses_count: appliedPromo.uses_count + 1 })
+      .eq('id', appliedPromo.id);
+    if (appliedPromo.max_uses !== null) upd = upd.lt('uses_count', appliedPromo.max_uses);
+    await upd;
   }
 
   // Record the platform-fee split (best-effort — the columns exist after
