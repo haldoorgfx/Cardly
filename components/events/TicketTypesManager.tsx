@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import { useState, useCallback } from 'react';
-import { Plus, Pencil, Trash2, Eye, EyeOff, ChevronUp, ChevronDown, Tag, Users, CalendarDays, AlertCircle, Upload } from 'lucide-react';
+import { Plus, Pencil, Trash2, Eye, EyeOff, ChevronUp, ChevronDown, Tag, Users, CalendarDays, AlertCircle, Upload, X } from 'lucide-react';
 import type { Database } from '@/types/database';
 import { ImportWizard } from '@/components/shared/ImportWizard';
 import { IMPORT_ENTITIES } from '@/lib/import/entities';
@@ -267,6 +267,10 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
 
   return (
     <div>
+      <style>{`
+        @keyframes drawerIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+      `}</style>
 
       <ImportWizard
         open={showImport}
@@ -276,14 +280,21 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
         onComplete={reloadTickets}
       />
 
-      {panel === 'closed' && tickets.length > 0 && (
-        <div className="flex justify-end mb-3">
+      {tickets.length > 0 && (
+        <div className="flex justify-end items-center gap-2 mb-3">
           <button
             onClick={() => setShowImport(true)}
             className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-[13px] font-medium border transition hover:bg-[#F5F3EE]"
             style={{ borderColor: '#E5E0D4', color: '#1F4D3A' }}
           >
             <Upload size={14} strokeWidth={2} /> Import
+          </button>
+          <button
+            onClick={openNew}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[13px] font-semibold text-white transition hover:opacity-90"
+            style={{ background: '#1F4D3A' }}
+          >
+            <Plus size={14} strokeWidth={2.5} /> Add ticket type
           </button>
         </div>
       )}
@@ -377,22 +388,24 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
         </div>
       )}
 
-      {/* ── Add / Edit panel ─────────────────────────────────────── */}
+      {/* ── Add / Edit drawer (right slide-over) ─────────────────── */}
       {panel !== 'closed' && (
-        <div
-          className="rounded-2xl mb-4"
-          style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)' }}
-        >
-          <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
-            <h3 className="font-display font-semibold text-[16px]" style={{ color: '#0F1F18' }}>
-              {isEditing ? 'Edit ticket type' : 'New ticket type'}
-            </h3>
-            <button onClick={closePanel} className="text-[13px] font-medium transition hover:text-[#1F4D3A]" style={{ color: '#6B7A72' }}>
-              Cancel
-            </button>
-          </div>
+        <div className="fixed inset-0 z-50 flex justify-end">
+          <div className="absolute inset-0 bg-black/30 animate-[fadeIn_0.15s_ease-out]" onClick={closePanel} />
+          <div
+            className="relative h-full w-full max-w-[460px] flex flex-col"
+            style={{ background: 'white', boxShadow: '-8px 0 40px rgba(15,31,24,0.18)', animation: 'drawerIn 0.22s cubic-bezier(0.32,0.72,0,1)' }}
+          >
+            <div className="flex items-center justify-between px-5 py-4 shrink-0" style={{ borderBottom: '1px solid #E5E0D4' }}>
+              <h3 className="font-display font-semibold text-[16px]" style={{ color: '#0F1F18' }}>
+                {isEditing ? 'Edit ticket type' : 'New ticket type'}
+              </h3>
+              <button onClick={closePanel} aria-label="Close" className="h-8 w-8 rounded-lg flex items-center justify-center transition hover:bg-[#F5F5F4]" style={{ color: '#6B7A72' }}>
+                <X size={18} strokeWidth={2} />
+              </button>
+            </div>
 
-          <div className="p-5 space-y-4">
+            <div className="flex-1 overflow-y-auto p-5 space-y-4">
             {/* Name */}
             <FField label="Name *">
               <input
@@ -643,7 +656,7 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
               </button>
             </div>
 
-            {/* Error + actions */}
+            {/* Error */}
             {error && (
               <div
                 className="flex items-start gap-2 px-3 py-2.5 rounded-lg text-[13px]"
@@ -653,10 +666,13 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
                 {error}
               </div>
             )}
-            <div className="flex justify-end gap-3 pt-2">
+            </div>{/* end scroll area */}
+
+            {/* Sticky footer */}
+            <div className="flex justify-end gap-3 px-5 py-4 shrink-0" style={{ borderTop: '1px solid #E5E0D4', background: 'white' }}>
               <button
                 onClick={closePanel}
-                className="h-9 px-4 text-[13px] font-medium rounded-lg border transition hover:border-[#3A4A42]"
+                className="h-10 px-4 text-[13px] font-medium rounded-lg border transition hover:border-[#3A4A42]"
                 style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}
               >
                 Cancel
@@ -664,26 +680,14 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="h-9 px-5 text-white text-[13px] font-semibold rounded-lg transition hover:opacity-90 disabled:opacity-60"
+                className="h-10 px-5 text-white text-[13px] font-semibold rounded-lg transition hover:opacity-90 disabled:opacity-60"
                 style={{ background: '#1F4D3A' }}
               >
-                {saving ? 'Saving…' : isEditing ? 'Save changes' : 'Add ticket'}
+                {saving ? 'Saving…' : isEditing ? 'Save changes' : 'Add ticket type'}
               </button>
             </div>
           </div>
         </div>
-      )}
-
-      {/* ── Add button (when list exists) ────────────────────────── */}
-      {tickets.length > 0 && panel === 'closed' && (
-        <button
-          onClick={openNew}
-          className="flex items-center gap-2 h-10 px-4 rounded-xl text-[14px] font-medium border transition hover:border-[#1F4D3A] hover:text-[#1F4D3A]"
-          style={{ borderColor: '#E5E0D4', color: '#3A4A42', background: 'white' }}
-        >
-          <Plus size={14} strokeWidth={2.5} />
-          Add ticket type
-        </button>
       )}
 
       {/* ── Delete confirm ───────────────────────────────────────── */}

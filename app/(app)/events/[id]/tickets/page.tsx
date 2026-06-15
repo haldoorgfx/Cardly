@@ -2,7 +2,6 @@ export const dynamic = 'force-dynamic';
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { RegistrationTabs } from '@/components/events/RegistrationTabs';
 import { TicketTypesManager } from '@/components/events/TicketTypesManager';
 
 interface Props { params: { id: string } }
@@ -23,17 +22,16 @@ export default async function TicketsPage({ params }: Props) {
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <RegistrationTabs eventId={params.id} eventName={event.name} />
       <div className="max-w-[760px] mx-auto px-6 py-8 pb-24">
         <div className="mb-6">
           <h1
             className="font-display font-semibold text-[24px]"
             style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}
           >
-            Ticket types
+            Tickets
           </h1>
           <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>
-            Create free and paid ticket tiers. Quantity caps are enforced — overselling is prevented at the database level.
+            Set up the ticket tiers people choose when they register. Each person who registers gets their own ticket with a QR badge — overselling is prevented automatically.
           </p>
         </div>
         <TicketTypesManager
