@@ -37,10 +37,10 @@ const FOOTER_COLS = [
   {
     title: 'Resources',
     links: [
+      { label: "What's new",  href: '/whats-new' },
       { label: 'Help Center', href: '/help' },
       { label: 'API Docs',    href: '/help' },
       { label: 'Status',      href: '/status' },
-      { label: 'Changelog',   href: '/whats-new' },
     ],
   },
   {

@@ -7,7 +7,7 @@ import {
   ArrowRight, Menu, X, LayoutDashboard, LogOut,
   ChevronDown, Ticket, LayoutGrid, User, BarChart2,
   ScanLine, Network, MessageSquare, Trophy, Briefcase,
-  CreditCard, Sparkles,
+  CreditCard, Sparkles, Compass,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import type { User as SupaUser } from '@supabase/supabase-js';
@@ -118,7 +118,7 @@ function MobileOverlay({
 
           {/* Nav links */}
           <nav className="flex flex-col">
-            {[['Discover events', '/events'], ['Use cases', '/use-cases'], ['Pricing', '/pricing'], ["What's new", '/whats-new']].map(([label, href]) => (
+            {[['Discover events', '/events'], ['Use cases', '/use-cases'], ['Pricing', '/pricing']].map(([label, href]) => (
               <Link
                 key={href}
                 href={href}
@@ -242,9 +242,20 @@ export function MarketingNav() {
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-8 text-[14px] text-ink-soft">
+          <nav className="hidden md:flex items-center gap-7 text-[14px]" style={{ color: '#0F1F18' }}>
 
-            <Link href="/events" className="font-medium hover:text-primary transition-colors" style={{ color: '#1F4D3A' }}>Discover events</Link>
+            {/* Discover events — primary, distinct from the rest */}
+            <Link
+              href="/events"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full font-semibold transition-all hover:opacity-90"
+              style={{ background: '#E8EFEB', color: '#1F4D3A' }}
+            >
+              <Compass size={15} strokeWidth={2.2} />
+              Discover events
+            </Link>
+
+            {/* Divider */}
+            <span aria-hidden className="h-5 w-px" style={{ background: '#E5E0D4' }} />
 
             {/* Product dropdown */}
             <div
@@ -253,7 +264,7 @@ export function MarketingNav() {
               onMouseLeave={() => setProductOpen(false)}
             >
               <button
-                className={`inline-flex items-center gap-1.5 py-5 transition-colors ${productOpen ? 'text-primary' : 'hover:text-primary'}`}
+                className={`inline-flex items-center gap-1.5 py-5 font-semibold transition-colors ${productOpen ? 'text-primary' : 'hover:text-primary'}`}
                 aria-expanded={productOpen}
                 aria-haspopup="true"
               >
@@ -311,12 +322,8 @@ export function MarketingNav() {
               </div>
             </div>
 
-            <Link href="/use-cases" className="hover:text-primary transition-colors">Use cases</Link>
-            <Link href="/pricing" className="hover:text-primary transition-colors">Pricing</Link>
-            <Link href="/whats-new" className="inline-flex items-center gap-1.5 hover:text-primary transition-colors">
-              What&apos;s new
-              <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-            </Link>
+            <Link href="/use-cases" className="font-semibold hover:text-primary transition-colors">Use cases</Link>
+            <Link href="/pricing" className="font-semibold hover:text-primary transition-colors">Pricing</Link>
           </nav>
 
           {/* Desktop CTAs — signed out */}
