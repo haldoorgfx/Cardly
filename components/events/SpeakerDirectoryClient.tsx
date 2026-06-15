@@ -128,7 +128,7 @@ export default function SpeakerDirectoryClient({ speakers, eventSlug }: Props) {
             )}
             <div
               className="absolute inset-0"
-              style={{ background: 'linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.75) 100%)' }}
+              style={{ background: 'linear-gradient(to bottom, transparent 30%, rgba(15,31,24,0.78) 100%)' }}
             />
             <div className="absolute bottom-5 left-5">
               <span

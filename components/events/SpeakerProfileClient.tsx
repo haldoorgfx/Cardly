@@ -61,16 +61,22 @@ export default function SpeakerProfileClient({ speaker, sessions, eventSlug }: P
   return (
     <div>
       {/* Hero */}
-      <div className="relative w-full" style={{ height: 360, background: '#1a1a1a' }}>
-        {speaker.photo_url && (
+      <div className="relative w-full overflow-hidden" style={{ height: 360, background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #163828 100%)' }}>
+        {speaker.photo_url ? (
           <div
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{ backgroundImage: `url(${speaker.photo_url})` }}
           />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center opacity-10">
+            <span className="font-bold text-white leading-none" style={{ fontSize: 160 }}>
+              {getInitials(speaker.name)}
+            </span>
+          </div>
         )}
         <div
           className="absolute inset-0"
-          style={{ background: 'linear-gradient(to bottom, transparent 20%, rgba(0,0,0,0.7) 100%)' }}
+          style={{ background: 'linear-gradient(to bottom, transparent 20%, rgba(15,31,24,0.7) 100%)' }}
         />
 
         {/* Name, role + social icons — bottom left, matching w14 reference */}
