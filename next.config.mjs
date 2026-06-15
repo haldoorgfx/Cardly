@@ -76,8 +76,10 @@ const nextConfig = {
           { key: 'X-XSS-Protection', value: '1; mode=block' },
           // Don't send full URL as referrer to third-party sites
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          // Lock down browser features we don't use
-          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), payment=()' },
+          // Lock down browser features. camera=(self) lets OUR pages use the camera
+          // (QR check-in scanner / kiosk); camera=() would block it everywhere, even
+          // on our own origin. payment=(self) keeps the Payment Request API working.
+          { key: 'Permissions-Policy', value: 'camera=(self), microphone=(self), geolocation=(self), payment=(self)' },
           // Force HTTPS for 2 years (only applies once on HTTPS — safe on Vercel)
           { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
         ],
