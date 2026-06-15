@@ -275,7 +275,7 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
   return (
     <div>
       <style>{`
-        @keyframes drawerIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.97) translateY(6px); } to { opacity: 1; transform: scale(1) translateY(0); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
       `}</style>
 
@@ -395,13 +395,13 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
         </div>
       )}
 
-      {/* ── Add / Edit drawer (right slide-over) ─────────────────── */}
+      {/* ── Add / Edit modal (centered) ──────────────────────────── */}
       {panel !== 'closed' && (
-        <div className="fixed inset-0 z-50 flex justify-end">
-          <div className="absolute inset-0 bg-black/30 animate-[fadeIn_0.15s_ease-out]" onClick={closePanel} />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40 animate-[fadeIn_0.15s_ease-out]" onClick={closePanel} />
           <div
-            className="relative h-full w-full max-w-[460px] flex flex-col"
-            style={{ background: 'white', boxShadow: '-8px 0 40px rgba(15,31,24,0.18)', animation: 'drawerIn 0.22s cubic-bezier(0.32,0.72,0,1)' }}
+            className="relative w-full max-w-[520px] max-h-[90vh] flex flex-col rounded-2xl"
+            style={{ background: 'white', boxShadow: '0 8px 40px rgba(15,31,24,0.18)', border: '1px solid #E5E0D4', animation: 'modalIn 0.18s ease-out' }}
           >
             <div className="flex items-center justify-between px-5 py-4 shrink-0" style={{ borderBottom: '1px solid #E5E0D4' }}>
               <h3 className="font-display font-semibold text-[16px]" style={{ color: '#0F1F18' }}>

@@ -23,7 +23,11 @@ function validateTicketBody(
   body: Record<string, unknown>,
   ep: EventConstraints | null,
   existingTickets: ExistingTicket[],
-  skipId?: string
+  skipId?: string,
+  // Only enforce the capacity cap when the quantity is actually being set/changed.
+  // Otherwise unrelated edits (e.g. toggling visibility) on an already over-allocated
+  // ticket would be wrongly rejected.
+  checkCapacity = true,
 ): string | null {
   const name = body.name != null ? String(body.name).trim() : null;
   const price = body.price != null ? Number(body.price) : null;
@@ -52,7 +56,7 @@ function validateTicketBody(
     if (salesStart && new Date(salesStart) >= new Date(ep.ends_at)) {
       return `Sales cannot start on or after the event end (${fmtDate(ep.ends_at)})`;
     }
-    if (ep.max_capacity !== null && qty !== null) {
+    if (checkCapacity && ep.max_capacity !== null && qty !== null) {
       const others = existingTickets
         .filter(t => t.id !== skipId)
         .reduce((sum, t) => sum + (t.quantity ?? 0), 0);
@@ -130,7 +134,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
   // Merge current values with updates for full-context validation
   const merged: Record<string, unknown> = current ? { ...current, ...updates } : updates;
-  const err = validateTicketBody(merged, ep ?? null, existing ?? [], ticketId);
+  const err = validateTicketBody(merged, ep ?? null, existing ?? [], ticketId, 'quantity' in updates);
   if (err) return NextResponse.json({ error: err }, { status: 422 });
 
   const { data, error: dbError } = await admin
