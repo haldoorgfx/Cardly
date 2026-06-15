@@ -22,7 +22,7 @@ export default async function OrdersPage({ params }: Props) {
     admin.from('events').select('id, name').eq('id', id).eq('user_id', user.id).single(),
     admin
       .from('registrations')
-      .select('id, attendee_name, attendee_email, status, amount_paid, currency, ticket_type_id, created_at, ticket_types(name)')
+      .select('id, attendee_name, attendee_email, attendee_phone, status, payment_status, amount_paid, currency, ticket_type_id, created_at, ticket_types(name)')
       .eq('event_id', id)
       .order('created_at', { ascending: false }),
   ]);
@@ -30,5 +30,5 @@ export default async function OrdersPage({ params }: Props) {
   if (!event) redirect('/dashboard');
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return <OrdersClient orders={(orders ?? []) as any} />;
+  return <OrdersClient eventId={id} orders={(orders ?? []) as any} />;
 }

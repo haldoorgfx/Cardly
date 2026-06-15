@@ -6,7 +6,9 @@ interface Order {
   id: string;
   attendee_name: string | null;
   attendee_email: string | null;
+  attendee_phone: string | null;
   status: string;
+  payment_status: string | null;
   amount_paid: number | null;
   currency: string | null;
   created_at: string;
@@ -14,6 +16,7 @@ interface Order {
 }
 
 interface Props {
+  eventId: string;
   orders: Order[];
 }
 
@@ -31,10 +34,18 @@ function statusLabel(s: string) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
+/** Per-order amount: 0 → "Free", null → "—". */
 function fmtAmount(amount: number | null, currency: string | null) {
-  if (!amount || !currency) return '—';
-  try { return new Intl.NumberFormat(undefined, { style: 'currency', currency, minimumFractionDigits: 0 }).format(amount); }
+  if (amount == null) return '—';
+  if (amount === 0) return 'Free';
+  try { return new Intl.NumberFormat(undefined, { style: 'currency', currency: currency || 'USD', minimumFractionDigits: 0 }).format(amount); }
   catch { return `${currency} ${amount.toLocaleString()}`; }
+}
+
+/** Money total: always shows a value (0 → "$0"). */
+function fmtMoney(amount: number, currency: string | null) {
+  try { return new Intl.NumberFormat(undefined, { style: 'currency', currency: currency || 'USD', minimumFractionDigits: 0 }).format(amount); }
+  catch { return `${currency ?? ''} ${amount.toLocaleString()}`.trim(); }
 }
 
 function fmtDate(d: string) {
@@ -60,14 +71,16 @@ const TABS = [
 ];
 
 function exportCSV(orders: Order[]) {
-  const headers = ['Name', 'Email', 'Ticket', 'Amount', 'Currency', 'Status', 'Date'];
+  const headers = ['Name', 'Email', 'Phone', 'Ticket', 'Amount', 'Currency', 'Status', 'Payment', 'Date'];
   const rows = orders.map(o => [
     o.attendee_name ?? '',
     o.attendee_email ?? '',
+    o.attendee_phone ?? '',
     o.ticket_types?.name ?? '',
     o.amount_paid?.toString() ?? '0',
     o.currency ?? '',
     o.status,
+    o.payment_status ?? '',
     new Date(o.created_at).toLocaleDateString(),
   ]);
   const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n');
@@ -76,10 +89,15 @@ function exportCSV(orders: Order[]) {
   a.href = URL.createObjectURL(blob); a.download = 'orders.csv'; a.click();
 }
 
-export function OrdersClient({ orders }: Props) {
+export function OrdersClient({ eventId, orders: initialOrders }: Props) {
   const [tab, setTab] = useState('all');
-  const [sel, setSel] = useState<string | null>(orders[0]?.id ?? null);
+  const [sel, setSel] = useState<string | null>(initialOrders[0]?.id ?? null);
   const [search, setSearch] = useState('');
+  // Local status overrides (e.g. after a refund) so list, detail and stats all update
+  const [statusOverride, setStatusOverride] = useState<Record<string, string>>({});
+  const [refunding, setRefunding] = useState(false);
+
+  const orders = initialOrders.map(o => ({ ...o, status: statusOverride[o.id] ?? o.status }));
 
   const filtered = orders
     .filter(o => tab === 'all' || o.status === tab || (tab === 'confirmed' && o.status === 'checked_in'))
@@ -90,6 +108,33 @@ export function OrdersClient({ orders }: Props) {
   const totalRevenue = orders.filter(o => ['confirmed', 'checked_in'].includes(o.status)).reduce((s, o) => s + (o.amount_paid ?? 0), 0);
   const currencies = Array.from(new Set(orders.map(o => o.currency).filter(Boolean)));
   const primaryCurrency = currencies.length === 1 ? currencies[0] : null;
+
+  // Customer history for the selected order (Woo-inspired)
+  const customerOrders = selectedOrder
+    ? orders.filter(o => o.attendee_email && o.attendee_email === selectedOrder.attendee_email)
+    : [];
+  const customerSpent = customerOrders.reduce((s, o) => s + (o.amount_paid ?? 0), 0);
+
+  const canRefund = !!selectedOrder
+    && (selectedOrder.amount_paid ?? 0) > 0
+    && !['refunded', 'cancelled'].includes(selectedOrder.status);
+
+  async function refundOrder(id: string) {
+    if (!confirm('Mark this order as refunded? This updates the order in Karta — process the actual money refund in your payment provider.')) return;
+    setRefunding(true);
+    setStatusOverride(p => ({ ...p, [id]: 'refunded' }));
+    try {
+      await fetch(`/api/events/${eventId}/registrations`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ registrationId: id, status: 'refunded' }),
+      });
+    } catch {
+      setStatusOverride(p => { const n = { ...p }; delete n[id]; return n; }); // revert
+    } finally {
+      setRefunding(false);
+    }
+  }
 
   return (
     <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-8">
@@ -111,7 +156,7 @@ export function OrdersClient({ orders }: Props) {
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {[
-          { label: 'Gross revenue', value: primaryCurrency ? fmtAmount(totalRevenue, primaryCurrency) : `${totalRevenue.toLocaleString()}` },
+          { label: 'Gross revenue', value: fmtMoney(totalRevenue, primaryCurrency) },
           { label: 'Orders', value: orders.filter(o => ['confirmed', 'checked_in'].includes(o.status)).length },
           { label: 'Pending', value: orders.filter(o => o.status === 'pending').length },
           { label: 'Refunded', value: orders.filter(o => o.status === 'refunded').length },
@@ -178,6 +223,8 @@ export function OrdersClient({ orders }: Props) {
           {/* Detail */}
           {selectedOrder && (() => {
             const ss = STATUS_STYLE[selectedOrder.status] ?? STATUS_STYLE.pending;
+            const isFree = (selectedOrder.amount_paid ?? 0) === 0;
+            const paymentLabel = isFree ? 'Free' : (selectedOrder.payment_status ? statusLabel(selectedOrder.payment_status) : 'Paid');
             return (
               <div className="grid gap-4 content-start">
                 <div className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
@@ -192,14 +239,20 @@ export function OrdersClient({ orders }: Props) {
                   </div>
                   <div className="flex items-center gap-3 mb-4">
                     <Avatar name={selectedOrder.attendee_name ?? '?'} idx={0} />
-                    <div>
-                      <div className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>{selectedOrder.attendee_name ?? '—'}</div>
-                      <div className=" text-[11px]" style={{ color: '#6B7A72' }}>{selectedOrder.attendee_email ?? '—'}</div>
+                    <div className="min-w-0">
+                      <div className="text-[14px] font-medium truncate" style={{ color: '#0F1F18' }}>{selectedOrder.attendee_name ?? '—'}</div>
+                      {selectedOrder.attendee_email && (
+                        <a href={`mailto:${selectedOrder.attendee_email}`} className="block text-[11px] truncate hover:underline" style={{ color: '#6B7A72' }}>{selectedOrder.attendee_email}</a>
+                      )}
+                      {selectedOrder.attendee_phone && (
+                        <a href={`tel:${selectedOrder.attendee_phone}`} className="block text-[11px] hover:underline" style={{ color: '#6B7A72' }}>{selectedOrder.attendee_phone}</a>
+                      )}
                     </div>
                   </div>
                   {[
                     { label: 'Ticket', value: selectedOrder.ticket_types?.name ?? '—' },
                     { label: 'Amount', value: fmtAmount(selectedOrder.amount_paid, selectedOrder.currency) },
+                    { label: 'Payment', value: paymentLabel },
                     { label: 'Date', value: fmtDate(selectedOrder.created_at) },
                     { label: 'Order ID', value: selectedOrder.id.slice(0, 8).toUpperCase(), mono: true },
                   ].map((row, i, arr) => (
@@ -210,10 +263,36 @@ export function OrdersClient({ orders }: Props) {
                     </div>
                   ))}
                 </div>
-                <button className="w-full px-4 py-2.5 rounded-xl text-[13px] font-medium border transition-colors"
-                  style={{ borderColor: 'rgba(184,66,60,0.3)', color: '#B8423C', background: 'rgba(184,66,60,0.04)' }}>
-                  Refund order
-                </button>
+
+                {/* Customer history (Woo-inspired) */}
+                {customerOrders.length > 1 && (
+                  <div className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
+                    <div className="font-display text-[13px] font-semibold mb-3" style={{ color: '#0F1F18' }}>Customer history</div>
+                    <div className="flex items-center justify-between text-[13px]">
+                      <span style={{ color: '#6B7A72' }}>Orders at this event</span>
+                      <span style={{ color: '#0F1F18' }}>{customerOrders.length}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-[13px] mt-1.5">
+                      <span style={{ color: '#6B7A72' }}>Total spent</span>
+                      <span style={{ color: '#1F4D3A' }}>{fmtMoney(customerSpent, selectedOrder.currency)}</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Refund — only for paid, non-refunded orders */}
+                {canRefund ? (
+                  <button
+                    onClick={() => refundOrder(selectedOrder.id)}
+                    disabled={refunding}
+                    className="w-full px-4 py-2.5 rounded-xl text-[13px] font-medium border transition-colors disabled:opacity-60"
+                    style={{ borderColor: 'rgba(184,66,60,0.3)', color: '#B8423C', background: 'rgba(184,66,60,0.04)' }}>
+                    {refunding ? 'Refunding…' : 'Refund order'}
+                  </button>
+                ) : selectedOrder.status === 'refunded' ? (
+                  <div className="w-full px-4 py-2.5 rounded-xl text-[13px] font-medium text-center" style={{ background: '#F5F3EE', color: '#6B7A72' }}>
+                    Refunded
+                  </div>
+                ) : null}
               </div>
             );
           })()}
