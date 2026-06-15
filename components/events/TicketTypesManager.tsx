@@ -229,14 +229,21 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
   }
 
   async function handleToggleVisibility(t: TicketRow) {
-    const res = await fetch(`/api/events/${eventId}/tickets`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ticketId: t.id, is_visible: !t.is_visible }),
-    });
-    if (res.ok) {
+    const next = !t.is_visible;
+    // Optimistic: flip instantly, reconcile/revert after the request
+    setTickets(prev => prev.map(x => x.id === t.id ? { ...x, is_visible: next } : x));
+    try {
+      const res = await fetch(`/api/events/${eventId}/tickets`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ticketId: t.id, is_visible: next }),
+      });
+      if (!res.ok) throw new Error();
       const data = await res.json();
       setTickets(prev => prev.map(x => x.id === t.id ? data.ticket : x));
+    } catch {
+      // Revert on failure
+      setTickets(prev => prev.map(x => x.id === t.id ? { ...x, is_visible: !next } : x));
     }
   }
 
