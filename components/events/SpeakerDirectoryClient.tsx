@@ -111,13 +111,20 @@ export default function SpeakerDirectoryClient({ speakers, eventSlug }: Props) {
         <Link href={`/e/${eventSlug}/speakers/${featuredSpeaker.id}`} className="block">
           <div
             className="relative w-full rounded-2xl overflow-hidden"
-            style={{ height: 300, background: '#1F1F1F' }}
+            style={{ height: 300, background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #163828 100%)' }}
           >
             {featuredSpeaker.photo_url && (
               <div
                 className="absolute inset-0 bg-cover bg-center"
                 style={{ backgroundImage: `url(${featuredSpeaker.photo_url})` }}
               />
+            )}
+            {!featuredSpeaker.photo_url && (
+              <div className="absolute inset-0 flex items-center justify-center opacity-10">
+                <span className="text-[120px] font-bold text-white leading-none">
+                  {getInitials(featuredSpeaker.name)}
+                </span>
+              </div>
             )}
             <div
               className="absolute inset-0"
@@ -176,7 +183,7 @@ export default function SpeakerDirectoryClient({ speakers, eventSlug }: Props) {
                 className="absolute top-3 left-3 text-[11px] font-medium px-2 py-0.5 rounded-full"
                 style={{ background: 'rgba(31,77,58,0.85)', color: '#fff' }}
               >
-                {TYPE_LABELS[speaker.speaker_type]}
+                {speaker.speaker_type ? TYPE_LABELS[speaker.speaker_type] ?? speaker.speaker_type : 'Speaker'}
               </span>
               {/* Hover gold border overlay */}
               <div

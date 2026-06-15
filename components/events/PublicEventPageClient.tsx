@@ -870,7 +870,7 @@ export function PublicEventPageClient({
           SPEAKERS TAB
       ══════════════════════════════════════════════════ */}
       {activeTab === 'speakers' && (
-        <div className="pt-6 pb-24">
+        <div className="mx-auto px-6 lg:px-10 pt-8 pb-24" style={{ maxWidth: 1240 }}>
           {speakers.length === 0 ? (
             <div className="py-16 text-center">
               <Mic size={40} strokeWidth={1.4} style={{ color: '#C9C3B1', margin: '0 auto 16px' }} />
