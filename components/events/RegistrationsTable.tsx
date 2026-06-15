@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { Search, Download, CheckCircle2, Clock, XCircle, RotateCcw, ExternalLink, UserPlus, X, MoreHorizontal, Upload, AlertCircle, CheckCircle, ChevronDown, Pencil, Copy } from 'lucide-react';
 
@@ -256,15 +257,36 @@ function RowActionsMenu({
   const [open, setOpen]         = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [loading, setLoading]   = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const [menuPos, setMenuPos]   = useState<{ top: number; left: number } | null>(null);
+  const btnRef  = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
+  const MENU_W = 188;
+  function openMenu() {
+    const rect = btnRef.current?.getBoundingClientRect();
+    if (rect) setMenuPos({ top: rect.bottom + 4, left: Math.max(8, rect.right - MENU_W) });
+    setOpen(true);
+  }
+
+  // Close on outside click, scroll, or resize (the menu is portaled & fixed, so it
+  // must close when the page moves rather than float out of place).
   useEffect(() => {
-    function handler(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    if (!open) return;
+    function onDocClick(e: MouseEvent) {
+      if (btnRef.current?.contains(e.target as Node)) return;
+      if (menuRef.current?.contains(e.target as Node)) return;
+      setOpen(false);
     }
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
+    function onMove() { setOpen(false); }
+    document.addEventListener('mousedown', onDocClick);
+    window.addEventListener('scroll', onMove, true);
+    window.addEventListener('resize', onMove);
+    return () => {
+      document.removeEventListener('mousedown', onDocClick);
+      window.removeEventListener('scroll', onMove, true);
+      window.removeEventListener('resize', onMove);
+    };
+  }, [open]);
 
   async function changeStatus(status: Status) {
     setOpen(false);
@@ -308,7 +330,7 @@ function RowActionsMenu({
   const canRefund     = reg.status === 'confirmed' || reg.status === 'checked_in';
 
   return (
-    <div ref={ref} className="relative">
+    <div className="relative flex items-center justify-end gap-1.5">
       {editOpen && (
         <EditAttendeeModal
           reg={reg}
@@ -318,8 +340,22 @@ function RowActionsMenu({
           onSaved={(updates) => onEdited(reg.id, updates)}
         />
       )}
+
+      {/* One-tap check-in — the most common door action, no need to open the menu */}
+      {canCheckIn && (
+        <button
+          onClick={() => changeStatus('checked_in')}
+          disabled={loading}
+          className="px-2.5 py-1 rounded-lg text-[12px] font-medium border transition-colors hover:bg-[#E8EFEB] disabled:opacity-50 hidden sm:inline-flex items-center gap-1"
+          style={{ borderColor: '#1F4D3A', color: '#1F4D3A' }}
+        >
+          <CheckCircle2 size={12} strokeWidth={2} /> Check in
+        </button>
+      )}
+
       <button
-        onClick={() => setOpen(v => !v)}
+        ref={btnRef}
+        onClick={() => (open ? setOpen(false) : openMenu())}
         disabled={loading}
         className="w-7 h-7 rounded-lg grid place-items-center transition-colors hover:bg-[#F0EBE3]"
         style={{ color: loading ? '#C9C3B1' : '#6B7A72' }}
@@ -327,10 +363,11 @@ function RowActionsMenu({
       >
         <MoreHorizontal size={14} />
       </button>
-      {open && (
+      {open && menuPos && createPortal(
         <div
-          className="absolute right-0 top-full mt-1 w-[188px] rounded-xl bg-white z-20 py-1.5"
-          style={{ border: '1px solid #E5E0D4', boxShadow: '0 4px 16px rgba(15,31,24,0.12), 0 1px 3px rgba(15,31,24,0.06)' }}
+          ref={menuRef}
+          className="fixed w-[188px] rounded-xl bg-white py-1.5"
+          style={{ top: menuPos.top, left: menuPos.left, zIndex: 70, border: '1px solid #E5E0D4', boxShadow: '0 8px 28px rgba(15,31,24,0.18)' }}
         >
           {/* Edit */}
           <button
@@ -386,7 +423,8 @@ function RowActionsMenu({
           <button onClick={handleDelete} className="w-full text-left px-4 py-2 text-[13px] hover:bg-[#FEF2F2] transition-colors flex items-center gap-2.5" style={{ color: '#B8423C' }}>
             <XCircle size={12} strokeWidth={2} /> Delete registration
           </button>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
@@ -650,7 +688,6 @@ function AddManuallyModal({
   const [email, setEmail]       = useState('');
   const [phone, setPhone]       = useState('');
   const [ticketId, setTicketId] = useState(ticketTypes[0]?.id ?? '');
-  const [notes, setNotes]       = useState('');
   const [saving, setSaving]     = useState(false);
   const [errors, setErrors]     = useState<Record<string, string>>({});
   const [apiError, setApiError] = useState('');
@@ -671,7 +708,7 @@ function AddManuallyModal({
       const res = await fetch(`/api/events/${eventId}/registrations`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ attendee_name: name.trim(), attendee_email: email.trim(), attendee_phone: phone.trim() || undefined, ticket_type_id: ticketId || undefined, notes: notes.trim() || undefined }),
+        body: JSON.stringify({ attendee_name: name.trim(), attendee_email: email.trim(), attendee_phone: phone.trim() || undefined, ticket_type_id: ticketId || undefined }),
       });
       const data = await res.json() as { registration?: Registration; error?: string };
       if (!res.ok) { setApiError(data.error ?? 'Failed to add registration'); return; }
@@ -758,15 +795,6 @@ function AddManuallyModal({
             )}
           </div>
 
-          <div>
-            <label className="block text-[11px] uppercase tracking-widest mb-1.5" style={{ color: '#6B7A72' }}>Notes (optional)</label>
-            <input
-              value={notes} onChange={e => setNotes(e.target.value)}
-              placeholder="VIP guest, walk-in at gate…"
-              className="w-full h-10 px-3 rounded-lg text-[14px] outline-none"
-              style={{ border: '1.5px solid #E5E0D4', background: 'white', color: '#0F1F18' }}
-            />
-          </div>
         </div>
 
         {/* Footer */}
