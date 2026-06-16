@@ -329,39 +329,37 @@ function DayGrid({ daySessions, tracks, dateKey, onSlotClick }: DayGridProps) {
                         if (!cfg.solid) (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 3px rgba(15,31,24,0.04)';
                       }}
                     >
-                      <div className="px-2.5 py-1.5 h-full flex flex-col gap-0.5">
-                        {/* Title */}
-                        <div
-                          className="font-display font-semibold leading-tight line-clamp-2"
-                          style={{ fontSize: 12.5, color: cfg.titleColor, letterSpacing: '-0.01em' }}
-                        >
-                          {session.title}
+                      {session.session_type === 'break' ? (
+                        /* Break — slim centered label, not a big empty box */
+                        <div className="px-3 h-full flex items-center justify-center gap-2 text-center">
+                          <span className="font-display font-medium" style={{ fontSize: 12, color: cfg.titleColor, letterSpacing: '0.01em' }}>
+                            {session.title}
+                          </span>
+                          {timeRange && (
+                            <span className="text-[10px] font-medium shrink-0" style={{ color: cfg.metaColor }}>· {timeRange}</span>
+                          )}
                         </div>
-
-                        {/* Meta row — speakers + time range */}
-                        {showMeta && (speakers || timeRange) && (
+                      ) : (
+                        /* Content top-aligned: time → title → speakers (no awkward gap) */
+                        <div className="px-2.5 py-2 h-full flex flex-col gap-1 overflow-hidden">
+                          {timeRange && (
+                            <div className="text-[10px] font-semibold tracking-[0.02em]" style={{ color: cfg.metaColor }}>
+                              {timeRange}
+                            </div>
+                          )}
                           <div
-                            className="flex items-center justify-between gap-2 mt-auto"
+                            className="font-display font-semibold leading-snug line-clamp-2"
+                            style={{ fontSize: 13, color: cfg.titleColor, letterSpacing: '-0.01em' }}
                           >
-                            {speakers && (
-                              <span
-                                className="text-[10px] font-medium truncate"
-                                style={{ color: cfg.metaColor }}
-                              >
-                                {speakers}
-                              </span>
-                            )}
-                            {timeRange && (
-                              <span
-                                className="text-[9.5px] font-semibold shrink-0"
-                                style={{ color: cfg.metaColor }}
-                              >
-                                {timeRange}
-                              </span>
-                            )}
+                            {session.title}
                           </div>
-                        )}
-                      </div>
+                          {showMeta && speakers && (
+                            <span className="text-[10.5px] font-medium truncate" style={{ color: cfg.metaColor }}>
+                              {speakers}
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -394,15 +392,9 @@ function TimelineLegend({ usedTypes }: { usedTypes: Set<string> }) {
       {visible.map(l => {
         const cfg = getTypeCfg(l.type);
         return (
-          <div key={l.type} className="flex items-center gap-1.5">
-            <div
-              className="h-2.5 w-2.5 rounded-sm shrink-0"
-              style={{
-                background: cfg.solid ? cfg.bg : 'transparent',
-                border: cfg.solid ? 'none' : `2px solid ${cfg.borderColor}`,
-              }}
-            />
-            <span className="text-[11.5px] font-medium" style={{ color: '#6B7A72' }}>
+          <div key={l.type} className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full" style={{ background: 'rgba(15,31,24,0.03)' }}>
+            <span className="h-2 w-2 rounded-full shrink-0" style={{ background: cfg.dotColor }} />
+            <span className="text-[11.5px] font-medium" style={{ color: '#3A4A42' }}>
               {l.label}
             </span>
           </div>
