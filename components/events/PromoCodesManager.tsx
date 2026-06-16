@@ -119,8 +119,8 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
           discount_type:  editForm.discount_type,
           discount_value: parseFloat(editForm.discount_value),
           max_uses:       editForm.max_uses ? parseInt(editForm.max_uses) : null,
-          valid_from:     editForm.valid_from || null,
-          valid_until:    editForm.valid_until || null,
+          valid_from:     editForm.valid_from ? new Date(editForm.valid_from).toISOString() : null,
+          valid_until:    editForm.valid_until ? new Date(editForm.valid_until).toISOString() : null,
         }),
       });
       const data = await res.json() as { promo_code?: PromoCode; error?: string };
@@ -148,8 +148,8 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
           discount_type: form.discount_type,
           discount_value: parseFloat(form.discount_value),
           max_uses: form.max_uses ? parseInt(form.max_uses) : null,
-          valid_from: form.valid_from || null,
-          valid_until: form.valid_until || null,
+          valid_from: form.valid_from ? new Date(form.valid_from).toISOString() : null,
+          valid_until: form.valid_until ? new Date(form.valid_until).toISOString() : null,
         }),
       });
       const data = await res.json() as { promo_code?: PromoCode; error?: string };

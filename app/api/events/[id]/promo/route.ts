@@ -6,6 +6,19 @@ function fmtDate(iso: string) {
   return new Date(iso).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
+// Turn a zod error into a plain-English, field-specific message for the user.
+const FIELD_LABELS: Record<string, string> = {
+  code: 'Code', discount_value: 'Discount', max_uses: 'Max uses',
+  valid_from: 'Valid from', valid_until: 'Valid until', discount_type: 'Discount type',
+};
+function zodMessage(err: z.ZodError): string {
+  const issue = err.issues[0];
+  if (!issue) return 'Please check the form and try again.';
+  const field = issue.path[0];
+  const label = typeof field === 'string' ? FIELD_LABELS[field] : null;
+  return label ? `${label}: ${issue.message}` : issue.message;
+}
+
 // ── Shared validation schema ──────────────────────────────────────────────────
 
 const NullableDateTime = z.preprocess(
@@ -77,7 +90,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const raw = await req.json().catch(() => null);
   const parsed = PromoSchema.safeParse(raw);
   if (!parsed.success) {
-    return NextResponse.json({ error: 'Validation failed', details: parsed.error.flatten().fieldErrors }, { status: 400 });
+    return NextResponse.json({ error: zodMessage(parsed.error) }, { status: 400 });
   }
 
   const admin = createAdminClient();
@@ -132,7 +145,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
   const parsed = PromoPatchSchema.safeParse(rest);
   if (!parsed.success) {
-    return NextResponse.json({ error: 'Validation failed', details: parsed.error.flatten().fieldErrors }, { status: 400 });
+    return NextResponse.json({ error: zodMessage(parsed.error) }, { status: 400 });
   }
 
   // If updating valid window, re-verify ordering against current DB values
