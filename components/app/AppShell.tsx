@@ -50,10 +50,10 @@ const PLAN_LIMITS: Record<string, number> = {
 // ─── UUID detection ───────────────────────────────────────────────────────────
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const NON_EVENT_SEGMENTS = new Set(['new', 'create']);
+const NON_EVENT_SEGMENTS = new Set(['new', 'create', 'undefined', 'null']);
 function getEventIdFromPath(pathname: string): string | null {
   const m = pathname.match(/\/events\/([^/]+)/);
-  if (!m || NON_EVENT_SEGMENTS.has(m[1])) return null;
+  if (!m || !m[1] || NON_EVENT_SEGMENTS.has(m[1])) return null;
   return m[1];
 }
 
@@ -247,7 +247,7 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
             // eslint-disable-next-line @next/next/no-img-element
             <img src={logoUrl} alt="Logo" className="max-h-[28px] max-w-[120px] object-contain" />
           ) : (
-            <Link href="/" onClick={onNavigate} className="flex items-center transition-opacity hover:opacity-80">
+            <Link href="/dashboard" onClick={onNavigate} className="flex items-center transition-opacity hover:opacity-80">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/eventera-logo.png" alt="Eventera" style={{ height: '26px', objectFit: 'contain' }} />
             </Link>
@@ -402,7 +402,6 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
     }
 
     // Background refresh — eventId may be a UUID (legacy links) or slug (new links)
-    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     const col = UUID_RE.test(eventId) ? 'id' : 'slug';
     supabase
       .from('events')
@@ -425,7 +424,7 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
 
   // Which section holds the current page — kept open so you never lose your place.
   const activeSectionIndex = EVENT_NAV_SECTIONS.findIndex(s =>
-    s.items.some(it => ('activeOn' in it ? it.activeOn : it.segment) === activeSegment),
+    s.items.some(it => it.segment === activeSegment),
   );
 
   // Collapsible section groups — first section ("Manage") open by default.
@@ -437,7 +436,7 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
   return (
     <>
       {/* Logo */}
-      <Link href="/" onClick={onNavigate}
+      <Link href="/dashboard" onClick={onNavigate}
         className="h-14 px-4 flex items-center gap-2.5 shrink-0 transition-opacity hover:opacity-70"
         style={{ borderBottom: '1px solid #E5E0D4' }}>
         {logoUrl ? (
@@ -505,8 +504,7 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
                     const href = item.segment === ''
                       ? `/events/${eventId}`
                       : `/events/${eventId}/${item.segment}`;
-                    const matchKey = 'activeOn' in item ? item.activeOn : item.segment;
-                    const active = activeSegment === matchKey;
+                    const active = activeSegment === item.segment;
                     return (
                       <NavItem key={item.id} href={href} icon={item.icon} label={item.label}
                         active={active} onNavigate={onNavigate} />
@@ -717,9 +715,18 @@ const PAGE_LABELS: Record<string, string> = {
   'publish':        'Publish',
   'meetings':       '1:1 Meetings',
   'badges':         'Cards & Badges',
-  'gamification':   'Gamification',
-  'integrations':   'Integrations',
-  'webhooks':       'Webhooks',
+  'gamification':      'Gamification',
+  'integrations':      'Integrations',
+  'webhooks':          'Webhooks',
+  'newsfeed':          'Newsfeed',
+  'staff':             'Staff roles',
+  'embed':             'Embed widgets',
+  'live':              'Live display',
+  'photos':            'Photo wall',
+  'source-analytics':  'Sources',
+  'approvals':         'Approvals',
+  'communications':    'Communications',
+  'promoter-links':    'Promoter links',
 };
 
 function getPageBreadcrumbs(pathname: string, eventName: string | null): { label: string; href?: string }[] {
@@ -737,6 +744,7 @@ function getPageBreadcrumbs(pathname: string, eventName: string | null): { label
   if (pathname === '/white-label')                       return [{ label: 'Settings', href: '/settings' }, { label: 'White Label' }];
   if (pathname.startsWith('/settings'))                  return [{ label: 'Settings' }];
   if (pathname.startsWith('/admin'))                     return [{ label: 'Admin' }];
+  if (pathname === '/events/new')                        return [{ label: 'New Event' }];
 
   const m = pathname.match(/^\/events\/([^/]+)(?:\/(.+))?$/);
   if (m) {
@@ -983,7 +991,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 const crumbs = getPageBreadcrumbs(pathname, contextEventName);
                 return (
                   <nav className="hidden sm:flex items-center gap-1.5 min-w-0 text-[13px]" aria-label="Breadcrumb">
-                    <Link href="/" className="font-display font-bold tracking-tight shrink-0 hover:opacity-70 transition-opacity text-sm" style={{ color: '#0F1F18' }}>
+                    <Link href="/dashboard" className="font-display font-bold tracking-tight shrink-0 hover:opacity-70 transition-opacity text-sm" style={{ color: '#0F1F18' }}>
                       Eventera
                     </Link>
                     {crumbs.map((crumb, i) => (
