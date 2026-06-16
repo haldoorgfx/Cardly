@@ -43,18 +43,18 @@ function UserAvatar({ user }: { user: SupaUser }) {
 /* ── Product menu data ───────────────────────────────── */
 const PRODUCT_MENU = {
   Manage: [
-    { icon: Ticket,       name: 'Registration & Tickets', desc: 'Free and paid tickets, custom forms' },
-    { icon: LayoutGrid,   name: 'Agenda Builder',         desc: 'Multi-track schedule, drag-and-drop' },
-    { icon: User,         name: 'Speaker Directory',      desc: 'Profiles, sessions, bios' },
-    { icon: BarChart2,    name: 'Analytics',              desc: 'Real-time event metrics' },
-    { icon: ScanLine,     name: 'QR Check-in',            desc: 'Scan attendees on the door' },
+    { icon: Ticket,       name: 'Registration & Tickets', desc: 'Free and paid tickets, custom forms',        href: '/features/registration' },
+    { icon: LayoutGrid,   name: 'Agenda Builder',         desc: 'Multi-track schedule, drag-and-drop',        href: '/features/agenda' },
+    { icon: User,         name: 'Speaker Directory',      desc: 'Profiles, sessions, bios',                   href: '/features/speakers' },
+    { icon: BarChart2,    name: 'Analytics',              desc: 'Real-time event metrics',                    href: '/features/analytics' },
+    { icon: ScanLine,     name: 'QR Check-in',            desc: 'Scan attendees on the door',                 href: '/features/check-in' },
   ],
   Engage: [
-    { icon: Network,       name: 'Networking',          desc: 'Connect attendees with AI matchmaking' },
-    { icon: MessageSquare, name: 'Live Q&A & Polls',    desc: 'Session engagement tools' },
-    { icon: Trophy,        name: 'Gamification',        desc: 'Points, leaderboard, badges' },
-    { icon: Briefcase,     name: 'Sponsor Tools',       desc: 'Exhibitor booths, lead retrieval' },
-    { icon: CreditCard,    name: 'Karta Card',          desc: 'Personalized cards for every attendee', gold: true },
+    { icon: Network,       name: 'Networking',          desc: 'Connect attendees with AI matchmaking',        href: '/features/networking' },
+    { icon: MessageSquare, name: 'Live Q&A & Polls',    desc: 'Session engagement tools',                     href: '/features/qa-polls' },
+    { icon: Trophy,        name: 'Gamification',        desc: 'Points, leaderboard, badges',                  href: '/features/gamification' },
+    { icon: Briefcase,     name: 'Sponsor Tools',       desc: 'Exhibitor booths, lead retrieval',             href: '/features/sponsors' },
+    { icon: CreditCard,    name: 'Karta Card',          desc: 'Personalized cards for every attendee',        href: '/features/karta-card', gold: true },
   ],
 } as const;
 
@@ -64,7 +64,7 @@ const COMPANY_MENU = [
   { icon: Newspaper,  name: 'Blog',        desc: 'News, guides and updates',     href: '/blog' },
   { icon: Mail,       name: 'Contact',     desc: 'Talk to our team',             href: '/contact' },
   { icon: Handshake,  name: 'Partners',    desc: 'Become a Karta partner',       href: '/partners' },
-  { icon: Briefcase,  name: 'Careers',     desc: 'Join the team',                href: '/contact' },
+  { icon: Briefcase,  name: 'Careers',     desc: 'Join the team',                href: '/careers' },
 ] as const;
 
 /* ── Mobile overlay ──────────────────────────────────── */
@@ -113,7 +113,7 @@ function MobileOverlay({
               return (
                 <Link
                   key={item.name}
-                  href="/pricing"
+                  href={item.href}
                   onClick={onClose}
                   className="flex items-center gap-2.5 bg-surface border border-border rounded-xl px-3 py-2.5"
                 >
@@ -311,7 +311,7 @@ export function MarketingNav() {
                             return (
                               <Link
                                 key={item.name}
-                                href="/pricing"
+                                href={item.href}
                                 className="group flex items-start gap-3 rounded-xl p-2.5 hover:bg-primary-soft/60 transition-colors"
                               >
                                 <span className={`mt-0.5 w-8 h-8 rounded-lg grid place-items-center shrink-0 ${isGold ? 'bg-accent/20 text-accent-dark' : 'bg-primary-soft text-primary'}`}>
