@@ -21,6 +21,7 @@ interface Registration {
   checked_in_at: string | null;
   created_at: string;
   referral_code: string | null;
+  custom_fields: Record<string, unknown> | null;
   ticket_types: { name: string; price: number } | null;
 }
 
@@ -31,12 +32,19 @@ interface TicketOption {
   currency: string;
 }
 
+interface FormFieldOption {
+  id: string;
+  label: string;
+  field_type: string;
+}
+
 interface Props {
   eventId: string;
   eventSlug: string;
   initialRegistrations: Registration[];
   totalCount: number;
   ticketTypes: TicketOption[];
+  formFields?: FormFieldOption[];
 }
 
 const STATUS_PILL: Record<Status, { label: string; bg: string; color: string }> = {
@@ -70,8 +78,14 @@ function formatCurrency(amount: number, currency: string) {
   }
 }
 
-function exportCSV(rows: Registration[], eventSlug: string) {
-  const headers = ['Name', 'Email', 'Phone', 'Ticket', 'Amount', 'Status', 'Promoter Code', 'Card Downloaded', 'Registered At', 'Checked In At'];
+function exportCSV(rows: Registration[], eventSlug: string, formFields: FormFieldOption[] = []) {
+  // Custom question columns (skip section headings — they have no answers)
+  const answerFields = formFields.filter(f => f.field_type !== 'section');
+  const fmtAnswer = (v: unknown) => v === true || v === 'true' ? 'Yes' : v == null || v === 'false' || v === false ? '' : String(v);
+  const headers = [
+    'Name', 'Email', 'Phone', 'Ticket', 'Amount', 'Status', 'Promoter Code', 'Card Downloaded', 'Registered At', 'Checked In At',
+    ...answerFields.map(f => f.label),
+  ];
   const lines = rows.map(r => [
     r.attendee_name,
     r.attendee_email,
@@ -83,6 +97,7 @@ function exportCSV(rows: Registration[], eventSlug: string) {
     r.karta_card_url ? 'Yes' : 'No',
     new Date(r.created_at).toLocaleString(),
     r.checked_in_at ? new Date(r.checked_in_at).toLocaleString() : '',
+    ...answerFields.map(f => fmtAnswer((r.custom_fields ?? {})[f.id])),
   ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(','));
 
   const csv = [headers.join(','), ...lines].join('\n');
@@ -835,7 +850,7 @@ function AddManuallyModal({
 }
 
 /* ── Main table ─────────────────────────────────────────────────────────────── */
-export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, totalCount, ticketTypes }: Props) {
+export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, totalCount, ticketTypes, formFields = [] }: Props) {
   const [rows, setRows]               = useState(initialRegistrations);
   const [total, setTotal]             = useState(totalCount);
 
@@ -909,7 +924,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
   }
 
   function exportSelected() {
-    exportCSV(rows.filter(r => selected.has(r.id)), eventSlug);
+    exportCSV(rows.filter(r => selected.has(r.id)), eventSlug, formFields);
   }
   const isFirstRender                 = useRef(true);
   const PAGE = 50;
@@ -1039,7 +1054,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
             />
           </div>
           <button
-            onClick={() => exportCSV(rows, eventSlug)}
+            onClick={() => exportCSV(rows, eventSlug, formFields)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium shrink-0"
             style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
             title="Export CSV"

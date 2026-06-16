@@ -37,6 +37,12 @@ export default async function RegistrationsPage({ params }: Props) {
       .order('position'),
   ]);
 
+  const { data: formFields } = await admin
+    .from('registration_form_fields')
+    .select('id, label, field_type')
+    .eq('event_id', id)
+    .order('position');
+
   if (!event) redirect('/dashboard');
 
   return (
@@ -58,6 +64,8 @@ export default async function RegistrationsPage({ params }: Props) {
           initialRegistrations={(regResult.data ?? []) as any}
           totalCount={regResult.count ?? 0}
           ticketTypes={ticketTypes ?? []}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          formFields={(formFields ?? []) as any}
         />
       </div>
     </div>
