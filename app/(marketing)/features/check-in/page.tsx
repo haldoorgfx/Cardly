@@ -115,47 +115,60 @@ function CheckInMockup() {
   return (
     <section
       style={{
-        background: '#0F1F18',
-        padding: '80px 24px',
+        background: 'linear-gradient(180deg, #1F4D3A 0%, #163828 100%)',
+        padding: 'clamp(80px, 10vw, 120px) 24px',
       }}
     >
-      <div style={{ maxWidth: 700, margin: '0 auto', textAlign: 'center' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         {/* Header */}
-        <div
-          style={{
-            fontFamily: 'Inter, sans-serif',
-            fontSize: 11,
-            fontWeight: 700,
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase' as const,
-            color: '#E8C57E',
-            marginBottom: 12,
-          }}
-        >
-          Door Staff View
+        <div style={{ textAlign: 'center' as const, marginBottom: 56 }}>
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              marginBottom: 16,
+            }}
+          >
+            <div style={{ width: 24, height: 1, background: '#E8C57E' }} />
+            <span style={{
+              fontFamily: 'Inter, sans-serif',
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase' as const,
+              color: '#E8C57E',
+            }}>
+              Door Staff View
+            </span>
+            <div style={{ width: 24, height: 1, background: '#E8C57E' }} />
+          </div>
+          <h2
+            style={{
+              fontFamily: '"DM Sans", sans-serif',
+              fontSize: 'clamp(26px, 4vw, 40px)',
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              color: '#FAF6EE',
+              marginBottom: 12,
+              lineHeight: 1.15,
+            }}
+          >
+            Scan. Confirm. Next.
+          </h2>
+          <p
+            style={{
+              fontFamily: 'Inter, sans-serif',
+              fontSize: 17,
+              color: 'rgba(250,246,238,0.65)',
+              lineHeight: 1.6,
+              maxWidth: 480,
+              margin: '0 auto',
+            }}
+          >
+            Works on any phone — no app download, no training for door staff.
+          </p>
         </div>
-        <h2
-          style={{
-            fontFamily: '"DM Sans", sans-serif',
-            fontSize: 'clamp(24px, 4vw, 32px)',
-            fontWeight: 700,
-            letterSpacing: '-0.02em',
-            color: '#FAF6EE',
-            marginBottom: 10,
-          }}
-        >
-          Scan. Confirm. Next.
-        </h2>
-        <p
-          style={{
-            fontFamily: 'Inter, sans-serif',
-            fontSize: 16,
-            color: 'rgba(250,246,238,0.65)',
-            marginBottom: 48,
-          }}
-        >
-          Works on any phone — no app, no training.
-        </p>
 
         {/* Phones row */}
         <div
@@ -170,11 +183,11 @@ function CheckInMockup() {
           {/* LEFT PHONE — Scanner */}
           <div
             style={{
-              width: 260,
+              width: 280,
               background: '#163828',
-              borderRadius: 32,
+              borderRadius: 36,
               padding: 10,
-              boxShadow: '0 4px 12px rgba(15,31,24,0.5), 0 24px 60px rgba(15,31,24,0.6)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.30), 0 40px 100px rgba(0,0,0,0.45)',
               flexShrink: 0,
             }}
           >
@@ -274,11 +287,11 @@ function CheckInMockup() {
           {/* RIGHT PHONE — Confirmation */}
           <div
             style={{
-              width: 260,
+              width: 280,
               background: '#163828',
-              borderRadius: 32,
+              borderRadius: 36,
               padding: 10,
-              boxShadow: '0 4px 12px rgba(15,31,24,0.5), 0 24px 60px rgba(15,31,24,0.6)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.30), 0 40px 100px rgba(0,0,0,0.45)',
               flexShrink: 0,
             }}
           >

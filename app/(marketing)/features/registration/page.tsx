@@ -106,58 +106,83 @@ function RegistrationMockup() {
   return (
     <section
       style={{
-        background: '#0F1F18',
-        padding: '80px 24px',
-        textAlign: 'center',
+        background: 'linear-gradient(180deg, #1F4D3A 0%, #163828 100%)',
+        padding: 'clamp(80px, 10vw, 120px) 24px',
       }}
     >
-      <div style={{ maxWidth: 480, margin: '0 auto' }}>
-        <div
-          style={{
-            fontFamily: 'Inter, sans-serif',
-            fontSize: 11,
-            fontWeight: 700,
-            letterSpacing: '0.15em',
-            color: '#E8C57E',
-            textTransform: 'uppercase' as const,
-            marginBottom: 16,
-          }}
-        >
-          ATTENDEE VIEW
+      <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 64, flexWrap: 'wrap' as const, justifyContent: 'center' }}>
+        {/* Text column */}
+        <div style={{ flex: '1 1 340px', maxWidth: 480, textAlign: 'left' as const }}>
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              marginBottom: 20,
+            }}
+          >
+            <div style={{ width: 24, height: 1, background: '#E8C57E' }} />
+            <span style={{
+              fontFamily: 'Inter, sans-serif',
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: '0.15em',
+              color: '#E8C57E',
+              textTransform: 'uppercase' as const,
+            }}>
+              Attendee View
+            </span>
+          </div>
+          <h2
+            style={{
+              fontFamily: 'DM Sans, sans-serif',
+              fontSize: 'clamp(26px, 3.5vw, 40px)',
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              color: '#FAF6EE',
+              marginBottom: 16,
+              lineHeight: 1.15,
+            }}
+          >
+            What your attendees see
+          </h2>
+          <p
+            style={{
+              fontFamily: 'Inter, sans-serif',
+              fontSize: 17,
+              color: 'rgba(250,246,238,0.65)',
+              lineHeight: 1.65,
+              marginBottom: 32,
+            }}
+          >
+            A registration experience they&apos;ll actually complete — from any phone, in under 60 seconds, no account required.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 12 }}>
+            {[
+              { label: '< 60s', desc: 'average registration time' },
+              { label: '97%', desc: 'completion rate' },
+              { label: 'No account', desc: 'needed for attendees' },
+            ].map((s) => (
+              <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ background: 'rgba(232,197,126,0.15)', border: '1px solid rgba(232,197,126,0.3)', borderRadius: 8, padding: '4px 10px', fontFamily: 'DM Sans, sans-serif', fontSize: 14, fontWeight: 700, color: '#E8C57E', flexShrink: 0 }}>
+                  {s.label}
+                </div>
+                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: 'rgba(250,246,238,0.55)' }}>{s.desc}</span>
+              </div>
+            ))}
+          </div>
         </div>
-        <h2
-          style={{
-            fontFamily: 'DM Sans, sans-serif',
-            fontSize: 28,
-            fontWeight: 700,
-            letterSpacing: '-0.02em',
-            color: '#FAF6EE',
-            marginBottom: 12,
-          }}
-        >
-          What your attendees see
-        </h2>
-        <p
-          style={{
-            fontFamily: 'Inter, sans-serif',
-            fontSize: 16,
-            color: 'rgba(250,246,238,0.65)',
-            marginBottom: 48,
-            lineHeight: 1.6,
-          }}
-        >
-          A registration experience they&apos;ll actually complete.
-        </p>
 
+        {/* Phone column */}
+        <div style={{ flex: '0 0 auto' }}>
         {/* Phone frame */}
         <div
           style={{
             background: '#163828',
-            borderRadius: 36,
-            width: 300,
-            margin: '0 auto',
+            borderRadius: 40,
+            width: 320,
             padding: 10,
-            boxShadow: '0 32px 80px rgba(0,0,0,0.40)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.30), 0 40px 100px rgba(0,0,0,0.45)',
           }}
         >
           <div
@@ -329,6 +354,7 @@ function RegistrationMockup() {
               🔒 Secured · 2 spots remaining
             </div>
           </div>
+        </div>
         </div>
       </div>
     </section>

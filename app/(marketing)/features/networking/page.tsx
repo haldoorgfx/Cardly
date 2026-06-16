@@ -113,57 +113,50 @@ function NetworkingMockup() {
     <section
       style={{
         background: 'linear-gradient(180deg, #1F4D3A 0%, #163828 100%)',
-        padding: '80px 24px',
+        padding: 'clamp(80px, 10vw, 120px) 24px',
       }}
     >
-      <div style={{ maxWidth: 400, margin: '0 auto', textAlign: 'center' }}>
-        {/* Header */}
-        <div
-          style={{
-            fontFamily: 'Inter, sans-serif',
-            fontSize: 11,
-            fontWeight: 700,
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase' as const,
-            color: '#E8C57E',
-            marginBottom: 12,
-          }}
-        >
-          Attendee View
+      <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 64, flexWrap: 'wrap' as const, justifyContent: 'center' }}>
+        {/* Text column */}
+        <div style={{ flex: '1 1 340px', maxWidth: 480, textAlign: 'left' as const }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+            <div style={{ width: 24, height: 1, background: '#E8C57E' }} />
+            <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', color: '#E8C57E', textTransform: 'uppercase' as const }}>
+              Attendee View
+            </span>
+          </div>
+          <h2 style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, letterSpacing: '-0.02em', color: '#FAF6EE', marginBottom: 16, lineHeight: 1.15 }}>
+            Your best connections, before lunch.
+          </h2>
+          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 17, color: 'rgba(250,246,238,0.65)', lineHeight: 1.65, marginBottom: 32 }}>
+            AI reads every attendee profile and surfaces the 10 people each person is most likely to benefit from meeting.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 12 }}>
+            {[
+              { label: '68%', desc: 'of attendees use networking features' },
+              { label: '4×', desc: 'more connections vs. unstructured networking' },
+              { label: '82%', desc: 'meeting confirmation rate' },
+            ].map((s) => (
+              <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ background: 'rgba(232,197,126,0.15)', border: '1px solid rgba(232,197,126,0.3)', borderRadius: 8, padding: '4px 10px', fontFamily: 'DM Sans, sans-serif', fontSize: 14, fontWeight: 700, color: '#E8C57E', flexShrink: 0 }}>
+                  {s.label}
+                </div>
+                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: 'rgba(250,246,238,0.55)' }}>{s.desc}</span>
+              </div>
+            ))}
+          </div>
         </div>
-        <h2
-          style={{
-            fontFamily: '"DM Sans", sans-serif',
-            fontSize: 'clamp(22px, 4vw, 28px)',
-            fontWeight: 700,
-            letterSpacing: '-0.02em',
-            color: '#FAF6EE',
-            marginBottom: 10,
-          }}
-        >
-          Your best connections, before lunch.
-        </h2>
-        <p
-          style={{
-            fontFamily: 'Inter, sans-serif',
-            fontSize: 16,
-            color: 'rgba(250,246,238,0.65)',
-            marginBottom: 48,
-            lineHeight: 1.5,
-          }}
-        >
-          AI reads every profile and surfaces the people worth meeting.
-        </p>
 
+        {/* Phone column */}
+        <div style={{ flex: '0 0 auto' }}>
         {/* Phone frame */}
         <div
           style={{
-            width: 300,
-            margin: '0 auto',
+            width: 320,
             background: '#163828',
-            borderRadius: 36,
+            borderRadius: 40,
             padding: 10,
-            boxShadow: '0 4px 12px rgba(15,31,24,0.5), 0 24px 60px rgba(15,31,24,0.6)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.30), 0 40px 100px rgba(0,0,0,0.45)',
           }}
         >
           <div style={{ background: '#FAF6EE', borderRadius: 28, overflow: 'hidden' }}>
@@ -247,6 +240,7 @@ function NetworkingMockup() {
               <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#1F4D3A', fontWeight: 600 }}>See all →</span>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </section>

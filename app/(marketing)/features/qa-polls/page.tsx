@@ -111,58 +111,21 @@ function QAPollsMockup() {
   return (
     <section
       style={{
-        background: '#0F1F18',
-        padding: '80px 24px',
+        background: 'linear-gradient(180deg, #1F4D3A 0%, #163828 100%)',
+        padding: 'clamp(80px, 10vw, 120px) 24px',
       }}
     >
-      <div style={{ maxWidth: 400, margin: '0 auto', textAlign: 'center' }}>
-        {/* Header */}
-        <div
-          style={{
-            fontFamily: 'Inter, sans-serif',
-            fontSize: 11,
-            fontWeight: 700,
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase' as const,
-            color: '#E8C57E',
-            marginBottom: 12,
-          }}
-        >
-          Session View
-        </div>
-        <h2
-          style={{
-            fontFamily: '"DM Sans", sans-serif',
-            fontSize: 'clamp(22px, 4vw, 28px)',
-            fontWeight: 700,
-            letterSpacing: '-0.02em',
-            color: '#FAF6EE',
-            marginBottom: 10,
-          }}
-        >
-          Questions the audience actually wants answered.
-        </h2>
-        <p
-          style={{
-            fontFamily: 'Inter, sans-serif',
-            fontSize: 16,
-            color: 'rgba(250,246,238,0.65)',
-            marginBottom: 48,
-            lineHeight: 1.5,
-          }}
-        >
-          No mic needed. Anonymous or named. Ranked by the room.
-        </p>
-
+      <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 64, flexWrap: 'wrap' as const, justifyContent: 'center' }}>
+        {/* Phone column — LEFT on desktop */}
+        <div style={{ flex: '0 0 auto', order: 2 }}>
         {/* Phone frame */}
         <div
           style={{
-            width: 300,
-            margin: '0 auto',
+            width: 320,
             background: '#163828',
-            borderRadius: 36,
+            borderRadius: 40,
             padding: 10,
-            boxShadow: '0 4px 12px rgba(15,31,24,0.5), 0 24px 60px rgba(15,31,24,0.6)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.30), 0 40px 100px rgba(0,0,0,0.45)',
           }}
         >
           <div style={{ background: '#FFFFFF', borderRadius: 28, overflow: 'hidden' }}>
@@ -257,6 +220,37 @@ function QAPollsMockup() {
                 </svg>
               </div>
             </div>
+          </div>
+        </div>
+        </div>
+
+        {/* Text column — RIGHT on desktop */}
+        <div style={{ flex: '1 1 300px', maxWidth: 440, textAlign: 'left' as const, order: 1 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+            <div style={{ width: 24, height: 1, background: '#E8C57E' }} />
+            <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', color: '#E8C57E', textTransform: 'uppercase' as const }}>
+              Session View
+            </span>
+          </div>
+          <h2 style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, letterSpacing: '-0.02em', color: '#FAF6EE', marginBottom: 16, lineHeight: 1.15 }}>
+            Questions the audience actually wants answered.
+          </h2>
+          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 17, color: 'rgba(250,246,238,0.65)', lineHeight: 1.65, marginBottom: 32 }}>
+            No mic needed. Anonymous or named. Ranked by the room in real time.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 12 }}>
+            {[
+              { label: '3×', desc: 'more questions vs. open mic' },
+              { label: '94%', desc: 'of speakers say sessions are more engaging' },
+              { label: 'Any phone', desc: 'no app download required' },
+            ].map((s) => (
+              <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ background: 'rgba(232,197,126,0.15)', border: '1px solid rgba(232,197,126,0.3)', borderRadius: 8, padding: '4px 10px', fontFamily: 'DM Sans, sans-serif', fontSize: 14, fontWeight: 700, color: '#E8C57E', flexShrink: 0 }}>
+                  {s.label}
+                </div>
+                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: 'rgba(250,246,238,0.55)' }}>{s.desc}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
