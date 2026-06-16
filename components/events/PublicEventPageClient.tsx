@@ -70,6 +70,7 @@ interface Props {
   venueLat?: number | null;
   venueLng?: number | null;
   initialTab?: string;
+  initialSaved?: boolean;
 }
 
 const TAB_SECTIONS = [
@@ -294,13 +295,15 @@ export function PublicEventPageClient({
   sessions = [], speakers = [], sponsors = [],
   attendees = [], attendeeCount = 0, organizerAvatarUrl = null,
   venueLat = null, venueLng = null,
-  initialTab,
+  initialTab, initialSaved = false,
 }: Props) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>(() =>
     VALID_TABS.includes(initialTab as Tab) ? (initialTab as Tab) : 'overview'
   );
-  const [savedHeart, setSavedHeart] = useState(false);
+  const [savedHeart, setSavedHeart] = useState(initialSaved);
+  const [saveBusy, setSaveBusy] = useState(false);
+  const [saveToast, setSaveToast] = useState<string | null>(null);
   const [selectedTicket, setSelectedTicket] = useState<string>(tickets[0]?.id ?? '');
 
   const features = (page as unknown as { features?: Record<string, boolean> }).features ?? {};
@@ -332,6 +335,31 @@ export function PublicEventPageClient({
       navigator.share({ title: page.title, url: window.location.href });
     } else {
       navigator.clipboard.writeText(window.location.href);
+    }
+  }
+
+  async function handleToggleSave() {
+    if (saveBusy) return;
+    setSaveBusy(true);
+    const next = !savedHeart;
+    try {
+      const res = await fetch('/api/account/saved' + (next ? '' : `?event_page_id=${page.id}`), {
+        method: next ? 'POST' : 'DELETE',
+        headers: next ? { 'Content-Type': 'application/json' } : undefined,
+        body: next ? JSON.stringify({ event_page_id: page.id }) : undefined,
+      });
+      if (res.status === 401) {
+        setSaveToast('Sign in to save events');
+        setTimeout(() => setSaveToast(null), 2500);
+        return;
+      }
+      if (res.ok) {
+        setSavedHeart(next);
+        setSaveToast(next ? 'Saved!' : 'Removed from saved');
+        setTimeout(() => setSaveToast(null), 2000);
+      }
+    } finally {
+      setSaveBusy(false);
     }
   }
 
@@ -412,18 +440,24 @@ export function PublicEventPageClient({
           )}
 
           <div className="absolute top-[18px] right-[18px] z-10 flex gap-2.5">
-            <button onClick={() => setSavedHeart(v => !v)}
-              className="w-[42px] h-[42px] rounded-full flex items-center justify-center transition"
+            {saveToast && (
+              <div className="absolute top-0 right-[92px] whitespace-nowrap px-3 py-1.5 rounded-lg text-[12px] font-medium pointer-events-none"
+                style={{ background: 'rgba(15,31,24,0.85)', color: '#FAF6EE', backdropFilter: 'blur(8px)' }}>
+                {saveToast}
+              </div>
+            )}
+            <button onClick={handleToggleSave} disabled={saveBusy}
+              className="w-[42px] h-[42px] rounded-full flex items-center justify-center transition hover:scale-110 active:scale-95 disabled:opacity-60"
               style={{ background: 'rgba(250,246,238,0.92)' }}
-              aria-label="Save">
+              aria-label={savedHeart ? 'Unsave event' : 'Save event'}>
               <svg viewBox="0 0 24 24" className="w-[18px] h-[18px]" fill={savedHeart ? '#B8423C' : 'none'} stroke={savedHeart ? '#B8423C' : '#3A4A42'} strokeWidth="1.9">
                 <path d="M12 21s-8-5.3-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 10c0 5.7-8 11-8 11z"/>
               </svg>
             </button>
             <button onClick={handleShare}
-              className="w-[42px] h-[42px] rounded-full flex items-center justify-center transition"
+              className="w-[42px] h-[42px] rounded-full flex items-center justify-center transition hover:scale-110 active:scale-95"
               style={{ background: 'rgba(250,246,238,0.92)' }}
-              aria-label="Share">
+              aria-label="Share event">
               <svg viewBox="0 0 24 24" className="w-[18px] h-[18px]" fill="none" stroke="#3A4A42" strokeWidth="1.9">
                 <path d="M4 12v8a1 1 0 001 1h14a1 1 0 001-1v-8M16 6l-4-4-4 4M12 2v14"/>
               </svg>

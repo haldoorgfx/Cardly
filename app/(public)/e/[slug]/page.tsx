@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { notFound } from 'next/navigation';
-import { createAdminClient } from '@/lib/supabase/server';
+import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { formatEventDateRange, formatMinPrice } from '@/lib/events/format';
 import { PublicEventPageClient } from '@/components/events/PublicEventPageClient';
 import { geocodeAddress } from '@/lib/events/geocode';
@@ -102,6 +102,20 @@ export default async function PublicEventPage({ params, searchParams }: Props) {
   if (page.series_id) {
     const { data: series } = await admin.from('event_series').select('slug').eq('id', page.series_id).single();
     seriesSlug = series?.slug ?? null;
+  }
+
+  // Check if the current logged-in user has saved this event
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  let initialSaved = false;
+  if (user) {
+    const { data: saveRow } = await supabase
+      .from('saved_events')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('event_page_id', page.id)
+      .maybeSingle();
+    initialSaved = !!saveRow;
   }
 
   // Fetch all section data in parallel — no limits, full fields
@@ -213,6 +227,7 @@ export default async function PublicEventPage({ params, searchParams }: Props) {
         venueLat={venueLat}
         venueLng={venueLng}
         initialTab={initialTab}
+        initialSaved={initialSaved}
       />
     </>
   );
