@@ -109,7 +109,7 @@ export default function SpeakerDirectoryClient({ speakers, eventSlug }: Props) {
       {/* Featured speaker — split card (image left, content right) */}
       {showFeatured && featuredSpeaker && (
         <Link
-          href={`/e/${eventSlug}/speakers/${featuredSpeaker.id}`}
+          href={`/e/${eventSlug}/speakers/${featuredSpeaker.slug ?? featuredSpeaker.id}`}
           className="group block rounded-2xl overflow-hidden border transition-all duration-200 hover:-translate-y-0.5"
           style={{ borderColor: '#E5E0D4', background: '#fff' }}
           onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#E8C57E'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(31,77,58,0.14)'; }}
@@ -175,7 +175,7 @@ export default function SpeakerDirectoryClient({ speakers, eventSlug }: Props) {
         {gridSpeakers.map((speaker) => (
           <Link
             key={speaker.id}
-            href={`/e/${eventSlug}/speakers/${speaker.id}`}
+            href={`/e/${eventSlug}/speakers/${speaker.slug ?? speaker.id}`}
             className="block group bg-white border rounded-2xl overflow-hidden transition-all duration-200 hover:-translate-y-1"
             style={{ borderColor: '#E5E0D4' }}
             onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#E8C57E'; e.currentTarget.style.boxShadow = '0 12px 28px rgba(31,77,58,0.14)'; }}

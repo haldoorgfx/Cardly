@@ -14,8 +14,12 @@ export default async function SpeakerProfilePage({ params }: Props) {
   if (!resolved) notFound();
   const { event } = resolved;
 
+  // speakerId may be a UUID (old links) or a slug (new links)
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const speakerCol = UUID_RE.test(params.speakerId) ? 'id' : 'slug';
+
   const [{ data: speaker }, { data: sessions }] = await Promise.all([
-    admin.from('speakers').select('*').eq('id', params.speakerId).eq('event_id', event.id).single(),
+    admin.from('speakers').select('*').eq(speakerCol, params.speakerId).eq('event_id', event.id).maybeSingle(),
     admin.from('sessions')
       .select('*, tracks(id,name,color), session_speakers!inner(speaker_id)')
       .eq('event_id', event.id)

@@ -60,6 +60,7 @@ export interface Speaker {
   id: string;
   event_id: string;
   name: string;
+  slug: string | null;
   headline: string | null;
   bio: string | null;
   photo_url: string | null;
@@ -1517,9 +1518,9 @@ export interface Database {
         Relationships: [];
       };
       speakers: {
-        Row: { id: string; event_id: string; name: string; headline: string | null; bio: string | null; photo_url: string | null; company: string | null; role: string | null; email: string | null; linkedin_url: string | null; twitter_url: string | null; website_url: string | null; speaker_type: string; is_featured: boolean; position: number; created_at: string };
-        Insert: { id?: string; event_id: string; name: string; headline?: string | null; bio?: string | null; photo_url?: string | null; company?: string | null; role?: string | null; email?: string | null; linkedin_url?: string | null; twitter_url?: string | null; website_url?: string | null; speaker_type?: string; is_featured?: boolean; position?: number; created_at?: string };
-        Update: { name?: string; headline?: string | null; bio?: string | null; photo_url?: string | null; company?: string | null; role?: string | null; email?: string | null; linkedin_url?: string | null; twitter_url?: string | null; website_url?: string | null; speaker_type?: string; is_featured?: boolean; position?: number };
+        Row: { id: string; event_id: string; name: string; slug: string | null; headline: string | null; bio: string | null; photo_url: string | null; company: string | null; role: string | null; email: string | null; linkedin_url: string | null; twitter_url: string | null; website_url: string | null; speaker_type: string; is_featured: boolean; position: number; created_at: string };
+        Insert: { id?: string; event_id: string; name: string; slug?: string | null; headline?: string | null; bio?: string | null; photo_url?: string | null; company?: string | null; role?: string | null; email?: string | null; linkedin_url?: string | null; twitter_url?: string | null; website_url?: string | null; speaker_type?: string; is_featured?: boolean; position?: number; created_at?: string };
+        Update: { name?: string; slug?: string | null; headline?: string | null; bio?: string | null; photo_url?: string | null; company?: string | null; role?: string | null; email?: string | null; linkedin_url?: string | null; twitter_url?: string | null; website_url?: string | null; speaker_type?: string; is_featured?: boolean; position?: number };
         Relationships: [];
       };
       sessions: {

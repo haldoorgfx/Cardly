@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 
+function speakerSlug(name: string, id: string): string {
+  const base = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40);
+  return `${base}-${id.replace(/-/g, '').slice(0, 8)}`;
+}
+
 const SpeakerSchema = z.object({
   name: z.string().min(1),
   headline: z.string().optional(),
@@ -42,13 +47,18 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const { data: event } = await admin.from('events').select('id').eq('id', params.id).eq('user_id', user.id).single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
+  // Insert without slug first to get the generated id, then update with slug
   const { data, error } = await admin
     .from('speakers')
     .insert({ event_id: params.id, ...parsed.data })
     .select()
     .single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ speaker: data }, { status: 201 });
+
+  // Backfill slug now that we have the id
+  await admin.from('speakers').update({ slug: speakerSlug(data.name, data.id) }).eq('id', data.id);
+
+  return NextResponse.json({ speaker: { ...data, slug: speakerSlug(data.name, data.id) } }, { status: 201 });
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
