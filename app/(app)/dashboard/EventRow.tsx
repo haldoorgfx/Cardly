@@ -264,10 +264,10 @@ export default function EventRow({ event, index, regCount, revenue, currency }: 
               )}
               {isLive && (
                 <>
-                  <MenuItem onSel={() => navigator.clipboard.writeText(`${window.location.origin}/c/${event.slug}`)}>
+                  <MenuItem onSel={() => navigator.clipboard.writeText(`${window.location.origin}/e/${event.slug}`)}>
                     <LinkIcon size={13} strokeWidth={1.8} /> Copy link
                   </MenuItem>
-                  <MenuItemLink href={`/c/${event.slug}`} external>
+                  <MenuItemLink href={`/e/${event.slug}`} external>
                     <ExternalLink size={13} strokeWidth={1.8} /> View public page
                   </MenuItemLink>
                   <MenuItemLink href={`/events/${event.id}/check-in`}>

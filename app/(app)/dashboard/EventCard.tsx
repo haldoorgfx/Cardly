@@ -123,7 +123,7 @@ export default function EventCard({ event, regCount, revenue, currency, checkinP
           )}
           {isLive && (
             <DropdownMenu.Item className="flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer outline-none transition" style={{ color: '#3A4A42' }}
-              onSelect={() => navigator.clipboard.writeText(`${window.location.origin}/c/${event.slug}`)}
+              onSelect={() => navigator.clipboard.writeText(`${window.location.origin}/e/${event.slug}`)}
               onMouseEnter={e => (e.currentTarget.style.background = '#FAF6EE')} onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
               <LinkIcon size={13} strokeWidth={1.8} /> Copy link
             </DropdownMenu.Item>
@@ -230,7 +230,7 @@ export default function EventCard({ event, regCount, revenue, currency, checkinP
           </Link>
 
           {isLive && (
-            <Link href={`/c/${event.slug}`} target="_blank"
+            <Link href={`/e/${event.slug}`} target="_blank"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[12.5px] transition hover:border-[#1F4D3A]/40 hover:text-[#1F4D3A]"
               style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
               <ExternalLink size={12} strokeWidth={1.8} /> View public
