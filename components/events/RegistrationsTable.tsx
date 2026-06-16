@@ -155,7 +155,7 @@ function EditAttendeeModal({ reg, eventId, ticketTypes, onClose, onSaved }: {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl w-full max-w-[420px]" style={{ border: '1px solid #E5E0D4', boxShadow: '0 8px 40px rgba(15,31,24,0.18)' }}>
+      <div className="relative bg-white rounded-2xl overflow-hidden w-full max-w-[420px]" style={{ border: '1px solid #E5E0D4', boxShadow: '0 8px 40px rgba(15,31,24,0.18)' }}>
         <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: '1px solid #E5E0D4' }}>
           <div>
             <h3 className="font-display text-[16px] font-semibold" style={{ color: '#0F1F18' }}>Edit attendee</h3>
@@ -545,7 +545,7 @@ function ImportCSVModal({ eventId, ticketTypes, onClose, onImported }: {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl w-full max-w-[560px] max-h-[90vh] flex flex-col" style={{ border: '1px solid #E5E0D4', boxShadow: '0 8px 40px rgba(15,31,24,0.18)' }}>
+      <div className="relative bg-white rounded-2xl overflow-hidden w-full max-w-[560px] max-h-[90vh] flex flex-col" style={{ border: '1px solid #E5E0D4', boxShadow: '0 8px 40px rgba(15,31,24,0.18)' }}>
         {/* Header */}
         <div className="flex items-center justify-between px-4 sm:px-6 py-5 shrink-0" style={{ borderBottom: '1px solid #E5E0D4' }}>
           <div>
@@ -743,7 +743,7 @@ function AddManuallyModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl w-full max-w-[420px]" style={{ border: '1px solid #E5E0D4', boxShadow: '0 8px 40px rgba(15,31,24,0.18)' }}>
+      <div className="relative bg-white rounded-2xl overflow-hidden w-full max-w-[420px]" style={{ border: '1px solid #E5E0D4', boxShadow: '0 8px 40px rgba(15,31,24,0.18)' }}>
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: '1px solid #E5E0D4' }}>
           <div>

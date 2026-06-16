@@ -93,7 +93,7 @@ function EditSponsorModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl w-full max-w-[460px]" style={{ border: '1px solid #E5E0D4', boxShadow: '0 8px 40px rgba(15,31,24,0.18)' }}>
+      <div className="relative bg-white rounded-2xl overflow-hidden w-full max-w-[460px]" style={{ border: '1px solid #E5E0D4', boxShadow: '0 8px 40px rgba(15,31,24,0.18)' }}>
         <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: '1px solid #E5E0D4' }}>
           <div className="font-display text-[16px] font-semibold" style={{ color: '#0F1F18' }}>Edit sponsor</div>
           <button onClick={onClose} className="w-7 h-7 rounded-lg grid place-items-center hover:bg-[#F5F3EE]" style={{ color: '#6B7A72' }}>
@@ -173,7 +173,7 @@ function DeleteSponsorModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl w-full max-w-[400px] p-6" style={{ border: '1px solid #E5E0D4', boxShadow: '0 8px 40px rgba(15,31,24,0.18)' }}>
+      <div className="relative bg-white rounded-2xl overflow-hidden w-full max-w-[400px] p-6" style={{ border: '1px solid #E5E0D4', boxShadow: '0 8px 40px rgba(15,31,24,0.18)' }}>
         <div className="w-12 h-12 rounded-2xl grid place-items-center mx-auto mb-4" style={{ background: 'rgba(184,66,60,0.08)' }}>
           <svg width={22} height={22} fill="none" stroke="#B8423C" strokeWidth={1.6} viewBox="0 0 24 24">
             <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" /><path d="M10 11v6M14 11v6" /><path d="M9 6V4h6v2" />
