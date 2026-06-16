@@ -4,7 +4,6 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronLeft, CalendarDays, Star, ExternalLink } from 'lucide-react';
-import { AgendaTabs } from '@/components/events/AgendaTabs';
 
 interface Props { params: Promise<{ id: string; speakerId: string }> }
 
@@ -67,7 +66,6 @@ export default async function SpeakerDetailPage({ params }: Props) {
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <AgendaTabs eventId={id} eventName={event.name} />
       <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
 
         {/* Back */}

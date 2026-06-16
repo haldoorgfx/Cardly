@@ -5,7 +5,6 @@ export const metadata: Metadata = { title: 'Speakers' };
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { AgendaTabs } from '@/components/events/AgendaTabs';
 import SpeakersManager from '@/components/events/SpeakersManager';
 
 interface Props { params: Promise<{ id: string }> }
@@ -26,7 +25,6 @@ export default async function SpeakersPage({ params }: Props) {
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <AgendaTabs eventId={id} eventName={event.name} />
       <div className="px-4 sm:px-6 lg:px-8 py-8">
         {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         <SpeakersManager eventId={id} slug={event.slug} initialSpeakers={(speakers ?? []) as any} />

@@ -5,7 +5,6 @@ export const metadata: Metadata = { title: 'Agenda' };
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { AgendaTabs } from '@/components/events/AgendaTabs';
 import { AgendaView } from '@/components/events/AgendaView';
 
 interface Props { params: Promise<{ id: string }> }
@@ -29,7 +28,6 @@ export default async function AgendaPage({ params }: Props) {
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <AgendaTabs eventId={id} eventName={event.name} />
       <div className="px-4 sm:px-6 lg:px-8 py-8">
         <AgendaView
           eventId={id}
