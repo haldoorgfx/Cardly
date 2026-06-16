@@ -13,17 +13,6 @@ import {
 import { createClient } from '@/lib/supabase/client';
 import type { User as SupaUser } from '@supabase/supabase-js';
 
-/* ── Logo mark ───────────────────────────────────────── */
-function LogoMark() {
-  return (
-    <span
-      aria-hidden
-      className="inline-block w-6 h-6 rounded-md shrink-0"
-      style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)' }}
-    />
-  );
-}
-
 /* ── User avatar ─────────────────────────────────────── */
 function UserAvatar({ user }: { user: SupaUser }) {
   const initials = (user.user_metadata?.full_name as string | undefined)
