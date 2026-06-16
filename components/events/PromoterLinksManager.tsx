@@ -169,55 +169,70 @@ export function PromoterLinksManager({ eventId, eventSlug, initialCodes, appUrl 
 
       {/* Codes list */}
       {codes.length > 0 && (
-        <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
-          {codes.map((c, i) => {
+        <div className="space-y-3">
+          {codes.map((c) => {
             const link = `${baseUrl}?ref=${c.code}`;
             return (
               <div
                 key={c.id}
-                className="flex flex-col sm:flex-row sm:items-center gap-3 px-4 py-4"
-                style={{ borderTop: i > 0 ? '1px solid #F0EDE6' : undefined }}
+                className="rounded-2xl bg-white transition-all hover:-translate-y-0.5"
+                style={{ border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(31,77,58,0.35)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(15,31,24,0.08)'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = '#E5E0D4'; e.currentTarget.style.boxShadow = '0 1px 2px rgba(15,31,24,0.04)'; }}
               >
-                {/* Left: code + label + link */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className=" font-semibold text-[14px] tracking-wider px-2.5 py-0.5 rounded-md" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
-                      {c.code}
-                    </span>
-                    {c.label && <span className="text-[13px]" style={{ color: '#6B7A72' }}>{c.label}</span>}
-                  </div>
-                  <p className=" text-[11px] mt-1.5 truncate" style={{ color: '#9BA6A0' }}>{link}</p>
-                </div>
-
-                {/* Stats */}
-                <div className="flex items-center gap-4 shrink-0">
-                  <div className="text-center">
-                    <p className=" font-semibold text-[15px]" style={{ color: '#0F1F18' }}>{c.uses}</p>
-                    <p className="text-[11px]" style={{ color: '#6B7A72' }}>registrations</p>
-                  </div>
-                  {c.revenue > 0 && (
-                    <div className="text-center">
-                      <p className=" font-semibold text-[15px] flex items-center gap-1" style={{ color: '#1F4D3A' }}>
-                        <TrendingUp size={12} />{fmt(c.revenue)}
-                      </p>
-                      <p className="text-[11px]" style={{ color: '#6B7A72' }}>revenue</p>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4 px-5 py-4">
+                  {/* Left: code + channel + link */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2.5 flex-wrap">
+                      <span className="inline-flex items-center gap-1.5 font-semibold text-[13.5px] tracking-wide px-2.5 py-1 rounded-lg" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+                        <Link2 size={12} strokeWidth={2.2} />
+                        {c.code}
+                      </span>
+                      {c.label && (
+                        <span className="text-[12px] font-medium px-2 py-0.5 rounded-full" style={{ background: '#F0EDE6', color: '#6B7A72' }}>{c.label}</span>
+                      )}
                     </div>
-                  )}
-                </div>
+                    <button
+                      onClick={() => navigator.clipboard.writeText(link)}
+                      title="Click to copy link"
+                      className="group mt-2 flex items-center gap-1.5 text-[11.5px] max-w-full transition-colors"
+                      style={{ color: '#9BA6A0' }}
+                    >
+                      <span className="truncate">{link}</span>
+                      <Copy size={11} className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </button>
+                  </div>
 
-                {/* Actions */}
-                <div className="flex items-center gap-2 shrink-0">
-                  <CopyButton text={link} label="Copy link" />
-                  <CopyButton text={c.code} label="Copy code" />
-                  <button
-                    onClick={() => handleDelete(c.id)}
-                    disabled={deleting === c.id}
-                    className="p-1.5 rounded-md transition-colors"
-                    style={{ color: '#B8423C', opacity: deleting === c.id ? 0.5 : 1 }}
-                    title="Delete"
-                  >
-                    <Trash2 size={14} />
-                  </button>
+                  {/* Stats */}
+                  <div className="flex items-center gap-5 shrink-0 sm:border-l sm:pl-5" style={{ borderColor: '#F0EDE6' }}>
+                    <div className="text-center">
+                      <div className="font-title font-bold text-[20px] leading-none" style={{ color: c.uses > 0 ? '#1F4D3A' : '#C9C3B1' }}>{c.uses}</div>
+                      <div className="text-[10px] uppercase tracking-[0.1em] mt-1" style={{ color: '#6B7A72' }}>sign-ups</div>
+                    </div>
+                    {c.revenue > 0 && (
+                      <div className="text-center">
+                        <div className="font-title font-bold text-[20px] leading-none flex items-center gap-1" style={{ color: '#1F4D3A' }}>
+                          <TrendingUp size={13} strokeWidth={2.2} />{fmt(c.revenue)}
+                        </div>
+                        <div className="text-[10px] uppercase tracking-[0.1em] mt-1" style={{ color: '#6B7A72' }}>revenue</div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-1.5 shrink-0 sm:border-l sm:pl-4" style={{ borderColor: '#F0EDE6' }}>
+                    <CopyButton text={link} label="Copy link" />
+                    <CopyButton text={c.code} label="Copy code" />
+                    <button
+                      onClick={() => handleDelete(c.id)}
+                      disabled={deleting === c.id}
+                      className="w-8 h-8 grid place-items-center rounded-lg transition-colors hover:bg-red-50 disabled:opacity-50"
+                      style={{ color: '#B8423C' }}
+                      title="Delete"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
                 </div>
               </div>
             );
