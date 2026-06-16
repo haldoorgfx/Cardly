@@ -23,6 +23,92 @@ const stats = [
   { value: '2.3×', label: 'higher session attendance'  },
   { value: '89%', label: 'more networking from top leaderboard position'  },
 ];
+
+function GamificationMockup() {
+  return (
+    <section style={{ background: '#0F1F18', padding: '80px 24px' }}>
+      <div style={{ maxWidth: 860, margin: '0 auto', textAlign: 'center' }}>
+        {/* Header */}
+        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600, color: '#E8C57E', letterSpacing: '0.15em', textTransform: 'uppercase' as const, marginBottom: 16 }}>ATTENDEE VIEW</p>
+        <h2 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 28, fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.02em', marginBottom: 12 }}>Friendly competition. Real engagement.</h2>
+        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: 'rgba(250,246,238,0.65)', marginBottom: 48 }}>Points update the moment they complete an action.</p>
+
+        {/* Phone Frame */}
+        <div style={{ width: 300, margin: '0 auto', background: '#163828', borderRadius: 36, padding: 10, boxShadow: '0 32px 80px rgba(0,0,0,0.5)' }}>
+          <div style={{ background: '#FAF6EE', borderRadius: 28, overflow: 'hidden' }}>
+
+            {/* Top Bar */}
+            <div style={{ background: '#1F4D3A', padding: 16 }}>
+              <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 15, fontWeight: 700, color: '#FAF6EE' }}>🏆 Leaderboard</div>
+              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: 'rgba(250,246,238,0.65)', marginTop: 2 }}>Pan-African Tech Summit · Day 1</div>
+              <div style={{ display: 'inline-block', background: 'rgba(255,255,255,0.12)', color: '#FAF6EE', fontFamily: 'Inter, sans-serif', fontSize: 11, borderRadius: 999, padding: '4px 10px', marginTop: 10 }}>Your rank: #7 · 340 pts</div>
+            </div>
+
+            {/* Top 3 */}
+            <div style={{ background: '#FFFFFF', margin: 8, borderRadius: 14, padding: 16 }}>
+              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, color: '#6B7A72', textTransform: 'uppercase' as const, letterSpacing: '0.05em', marginBottom: 12 }}>Top this event</div>
+              {[
+                { medal: '🥇', initials: 'AO', avatarBg: 'linear-gradient(135deg,#E8C57E,#C9A45E)', initialsColor: '#163828', name: 'Dr. Amara Osei', org: 'Nairobi Tech', pts: '1,240 pts' },
+                { medal: '🥈', initials: 'KA', avatarBg: 'linear-gradient(135deg,#1F4D3A,#2A6A50)', initialsColor: '#FAF6EE', name: 'Kofi Asante', org: 'Accra Labs', pts: '980 pts' },
+                { medal: '🥉', initials: 'FH', avatarBg: 'linear-gradient(135deg,#C9A45E,#E8C57E)', initialsColor: '#163828', name: 'Fatima Hassan', org: 'Lagos Startup', pts: '820 pts' },
+              ].map((r, i) => (
+                <div key={r.initials} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0', borderBottom: i < 2 ? '1px solid #F5F0E8' : 'none' }}>
+                  <span style={{ fontSize: 22 }}>{r.medal}</span>
+                  <div style={{ width: 40, height: 40, borderRadius: '50%', background: r.avatarBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, fontWeight: 700, color: r.initialsColor }}>{r.initials}</span>
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 700, color: '#0F1F18', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.name}</div>
+                    <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72' }}>{r.org}</div>
+                  </div>
+                  <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 700, color: '#1F4D3A', textAlign: 'right' as const, flexShrink: 0 }}>{r.pts}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Badges */}
+            <div style={{ background: '#FAF6EE', padding: '12px 16px' }}>
+              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 700, color: '#0F1F18', marginBottom: 10 }}>Your badges</div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' as const }}>
+                {[
+                  { emoji: '✅', label: 'Early Bird', locked: false },
+                  { emoji: '🎤', label: '5 Sessions', locked: false },
+                  { emoji: '🤝', label: 'Networker', locked: false },
+                  { emoji: '🏢', label: 'Booth Hopper', locked: true },
+                ].map((b) => (
+                  <div key={b.label} style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 8, padding: '8px 10px', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 4, opacity: b.locked ? 0.4 : 1 }}>
+                    <span style={{ fontSize: 20 }}>{b.emoji}</span>
+                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, color: '#6B7A72' }}>{b.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Activity Feed */}
+            <div style={{ background: '#FFFFFF', margin: 8, borderRadius: 14, padding: 12 }}>
+              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, color: '#6B7A72', textTransform: 'uppercase' as const, letterSpacing: '0.05em', marginBottom: 8 }}>Recent points</div>
+              {[
+                { pts: '+100', label: 'Attended Opening Keynote', time: 'Just now' },
+                { pts: '+50', label: 'Connected with Kofi Asante', time: '2m ago' },
+                { pts: '+200', label: 'Visited 4 sponsor booths', time: '10m ago' },
+              ].map((a) => (
+                <div key={a.label} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0' }}>
+                  <div style={{ width: 36, height: 24, borderRadius: 6, background: '#2D7A4F', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, color: '#FAF6EE' }}>{a.pts}</span>
+                  </div>
+                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#0F1F18', flex: 1 }}>{a.label}</span>
+                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72', flexShrink: 0 }}>{a.time}</span>
+                </div>
+              ))}
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function GamificationPage() {
   return (
     <>
@@ -39,6 +125,7 @@ export default function GamificationPage() {
           <Link href="/pricing" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 15, background: C.surface, color: C.primary, border: `1.5px solid ${C.border}`, padding: '14px 28px', borderRadius: 10, textDecoration: 'none', display: 'inline-block'  }}>See pricing</Link>
         </div>
       </section>
+      <GamificationMockup />
       {/* Features */}
       <section style={{ background: C.surface, padding: 'clamp(60px, 8vw, 100px) clamp(20px, 5vw, 80px)'  }}>
         <div style={{ maxWidth: 1100, margin: '0 auto'  }}>

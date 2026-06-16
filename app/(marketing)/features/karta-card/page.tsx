@@ -25,6 +25,94 @@ const cardStats = [
   { value: 'Every plan', label: 'includes Karta Card — no upsell' },
 ];
 
+function KartaCardMockup() {
+  return (
+    <section style={{ background: '#0F1F18', padding: '80px 24px' }}>
+      <div style={{ maxWidth: 700, margin: '0 auto', textAlign: 'center' }}>
+        {/* Header */}
+        <h2 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 32, fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.02em', marginBottom: 12 }}>Your design. Their face. Ready to share.</h2>
+        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 16, color: 'rgba(250,246,238,0.65)', marginBottom: 56 }}>Every registrant gets a personalized card in under 30 seconds.</p>
+
+        {/* Two phone frames */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 24, flexWrap: 'wrap' as const }}>
+
+          {/* LEFT PHONE — Attendee fills in */}
+          <div style={{ width: 260, background: '#163828', borderRadius: 32, padding: 10, boxShadow: '0 32px 80px rgba(0,0,0,0.5)' }}>
+            <div style={{ background: '#FFFFFF', borderRadius: 24, overflow: 'hidden' }}>
+              {/* Top strip */}
+              <div style={{ background: '#1F4D3A', padding: 14 }}>
+                <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 700, color: '#FAF6EE', textAlign: 'center' }}>Your Karta Card</div>
+                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: 'rgba(250,246,238,0.65)', textAlign: 'center' }}>Pan-African Climate Summit</div>
+              </div>
+              {/* Photo upload zone */}
+              <div style={{ background: '#FAF6EE', border: '2px dashed #E5E0D4', borderRadius: 12, margin: 12, padding: 20, textAlign: 'center' }}>
+                <div style={{ width: 64, height: 64, background: '#E8EFEB', borderRadius: '50%', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <rect x="3" y="7" width="18" height="13" rx="2" stroke="#6B7A72" strokeWidth="1.5" fill="none"/>
+                    <circle cx="12" cy="13" r="3.5" stroke="#6B7A72" strokeWidth="1.5" fill="none"/>
+                    <path d="M9 7V6a3 3 0 0 1 6 0v1" stroke="#6B7A72" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                </div>
+                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6B7A72', marginTop: 8 }}>Tap to add your photo</div>
+              </div>
+              {/* Form fields */}
+              <div style={{ padding: '0 12px 12px', display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
+                <div style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', borderRadius: 8, height: 38, display: 'flex', alignItems: 'center', padding: '0 12px' }}>
+                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#0F1F18' }}>Amara Yusuf</span>
+                </div>
+                <div style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', borderRadius: 8, height: 38, display: 'flex', alignItems: 'center', padding: '0 12px' }}>
+                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#0F1F18' }}>Climate Policy Lead</span>
+                </div>
+              </div>
+              {/* Generate button */}
+              <div style={{ margin: '0 12px 12px', background: '#1F4D3A', borderRadius: 10, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 700, color: '#FAF6EE' }}>Generate my card →</span>
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT PHONE — The Card */}
+          <div style={{ width: 260, background: '#163828', borderRadius: 32, padding: 10, boxShadow: '0 32px 80px rgba(0,0,0,0.5)', border: '2px solid rgba(232,197,126,0.3)' }}>
+            <div style={{ background: '#1F4D3A', borderRadius: 24, overflow: 'hidden' }}>
+              {/* Card design area */}
+              <div style={{ background: 'linear-gradient(160deg,#1F4D3A 0%,#2A6A50 50%,rgba(232,197,126,0.3) 100%)', padding: '24px 20px', display: 'flex', flexDirection: 'column' as const, alignItems: 'center' }}>
+                {/* Event name */}
+                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 9, fontWeight: 600, color: '#E8C57E', textTransform: 'uppercase' as const, letterSpacing: '0.2em', marginBottom: 20, textAlign: 'center' }}>PAN-AFRICAN CLIMATE SUMMIT 2025</div>
+                {/* Photo circle */}
+                <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'linear-gradient(135deg,#E8C57E,#C9A45E)', border: '3px solid rgba(232,197,126,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 24, fontWeight: 700, color: '#163828' }}>AY</span>
+                </div>
+                {/* Name */}
+                <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 20, fontWeight: 700, color: '#FAF6EE', marginTop: 14, marginBottom: 2, letterSpacing: '-0.01em' }}>Amara Yusuf</div>
+                {/* Role */}
+                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: 'rgba(250,246,238,0.75)' }}>Climate Policy Lead</div>
+                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: 'rgba(250,246,238,0.5)', marginTop: 2 }}>COP29 · Cairo</div>
+                {/* Divider */}
+                <div style={{ width: '80%', height: 1, background: 'rgba(232,197,126,0.2)', margin: '16px 0' }} />
+                {/* Footer */}
+                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#E8C57E', letterSpacing: '0.1em', textAlign: 'center' }}>✦ I&apos;m Attending</div>
+                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, color: 'rgba(250,246,238,0.35)', marginTop: 4 }}>karta.cre8so.com</div>
+              </div>
+              {/* Share buttons row */}
+              <div style={{ background: '#163828', padding: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: 8 }}>
+                  {['W', 'IG', 'in', '↓'].map((icon) => (
+                    <div key={icon} style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <span style={{ fontFamily: 'Inter, sans-serif', fontSize: icon === '↓' ? 16 : 11, fontWeight: 700, color: '#FFFFFF' }}>{icon}</span>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, color: 'rgba(250,246,238,0.4)', textAlign: 'center', marginTop: 6 }}>Tap to share</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function KartaCardPage() {
   return (
     <>
@@ -42,28 +130,7 @@ export default function KartaCardPage() {
         </div>
       </section>
 
-      {/* Card Mockup */}
-      <section style={{ background: C.primaryDark, padding: 'clamp(60px, 8vw, 100px) clamp(20px, 5vw, 80px)' }}>
-        <div style={{ maxWidth: 860, margin: '0 auto', textAlign: 'center' }}>
-          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 500, color: C.accent, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 32 }}>Sample Karta Card</p>
-          <div style={{ display: 'inline-block', background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 100%)', borderRadius: 20, padding: '40px 48px', border: `2px solid ${C.accent}`, boxShadow: '0 24px 80px rgba(0,0,0,0.4)', maxWidth: 420, width: '100%' }}>
-            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600, color: C.accent, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 24 }}>AFRICA TECH SUMMIT 2026</div>
-            <div style={{ width: 80, height: 80, borderRadius: '50%', background: `${C.accent}33`, border: `3px solid ${C.accent}`, margin: '0 auto 20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                <circle cx="16" cy="12" r="6" fill="#E8C57E" opacity="0.7"/>
-                <path d="M4 28c0-6.627 5.373-12 12-12s12 5.373 12 12" stroke="#E8C57E" strokeWidth="2" strokeLinecap="round" opacity="0.7"/>
-              </svg>
-            </div>
-            <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 24, fontWeight: 700, color: '#FFFFFF', marginBottom: 6 }}>Amara Osei-Bonsu</div>
-            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: 'rgba(255,255,255,0.7)', marginBottom: 24 }}>Head of Product · Paystack</div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: `${C.accent}22`, border: `1px solid ${C.accent}55`, borderRadius: 999, padding: '6px 14px' }}>
-              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: C.accent }}>I&apos;m attending</span>
-              <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, fontWeight: 700, color: '#FFFFFF' }}>karta.events</span>
-            </div>
-          </div>
-          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: 'rgba(255,255,255,0.4)', marginTop: 24 }}>Your event design replaces the green background above. Every pixel is yours.</p>
-        </div>
-      </section>
+      <KartaCardMockup />
 
       {/* Features */}
       <section style={{ background: C.surface, padding: 'clamp(60px, 8vw, 100px) clamp(20px, 5vw, 80px)' }}>

@@ -103,6 +103,263 @@ const STATS = [
   { value: '0', label: 'app downloads required' },
 ];
 
+function AgendaMockup() {
+  return (
+    <section
+      style={{
+        background: '#0F1F18',
+        padding: '80px 24px',
+        textAlign: 'center',
+      }}
+    >
+      <div style={{ maxWidth: 960, margin: '0 auto' }}>
+        <div
+          style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: '0.15em',
+            color: '#E8C57E',
+            textTransform: 'uppercase' as const,
+            marginBottom: 16,
+          }}
+        >
+          ORGANISER VIEW
+        </div>
+        <h2
+          style={{
+            fontFamily: 'DM Sans, sans-serif',
+            fontSize: 28,
+            fontWeight: 700,
+            letterSpacing: '-0.02em',
+            color: '#FAF6EE',
+            marginBottom: 12,
+          }}
+        >
+          Your multi-track agenda, live.
+        </h2>
+        <p
+          style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: 16,
+            color: 'rgba(250,246,238,0.65)',
+            marginBottom: 48,
+            lineHeight: 1.6,
+          }}
+        >
+          Speakers see their sessions. Attendees plan their day. No spreadsheet.
+        </p>
+
+        {/* Browser frame */}
+        <div
+          style={{
+            maxWidth: 900,
+            margin: '0 auto',
+            background: '#1A1A1A',
+            borderRadius: 12,
+            overflow: 'hidden',
+            boxShadow: '0 32px 80px rgba(0,0,0,0.5)',
+          }}
+        >
+          {/* Browser chrome */}
+          <div
+            style={{
+              background: '#2A2A2A',
+              height: 36,
+              display: 'flex',
+              alignItems: 'center',
+              padding: '0 14px',
+              gap: 6,
+            }}
+          >
+            <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#FF5F57' }} />
+            <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#FEBC2E' }} />
+            <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#28C840' }} />
+            <div
+              style={{
+                background: '#3A3A3A',
+                borderRadius: 4,
+                width: 280,
+                height: 22,
+                margin: '0 auto',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontFamily: 'Inter, sans-serif',
+                fontSize: 11,
+                color: 'rgba(255,255,255,0.5)',
+              }}
+            >
+              karta.cre8so.com/e/pan-african-summit/agenda
+            </div>
+          </div>
+
+          {/* App content */}
+          <div style={{ background: '#FAF6EE', textAlign: 'left' }}>
+            {/* Day tabs */}
+            <div
+              style={{
+                background: '#FFFFFF',
+                borderBottom: '1px solid #E5E0D4',
+                padding: '12px 16px',
+                display: 'flex',
+                gap: 6,
+              }}
+            >
+              {[
+                { label: 'Day 1 · Mar 15', active: true },
+                { label: 'Day 2 · Mar 16', active: false },
+                { label: 'Day 3 · Mar 17', active: false },
+              ].map((tab) => (
+                <div
+                  key={tab.label}
+                  style={{
+                    fontFamily: 'Inter, sans-serif',
+                    fontSize: 13,
+                    fontWeight: tab.active ? 600 : 400,
+                    color: tab.active ? '#FFFFFF' : '#6B7A72',
+                    background: tab.active ? '#1F4D3A' : 'transparent',
+                    borderRadius: 6,
+                    padding: '6px 12px',
+                  }}
+                >
+                  {tab.label}
+                </div>
+              ))}
+            </div>
+
+            {/* Track headers */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '80px 1fr 1fr 1fr',
+                gap: 8,
+                padding: '12px 16px 6px',
+                borderBottom: '1px solid #E5E0D4',
+              }}
+            >
+              <div />
+              {[
+                { label: '🎨 Design Track', color: '#3A6B8C' },
+                { label: '⚙️ Tech Track', color: '#1F4D3A' },
+                { label: '💼 Business Track', color: '#C9A45E' },
+              ].map((track) => (
+                <div
+                  key={track.label}
+                  style={{
+                    fontFamily: 'Inter, sans-serif',
+                    fontSize: 11,
+                    fontWeight: 700,
+                    letterSpacing: '0.06em',
+                    textTransform: 'uppercase' as const,
+                    color: track.color,
+                  }}
+                >
+                  {track.label}
+                </div>
+              ))}
+            </div>
+
+            {/* Session rows */}
+            <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
+              {/* Row 1 — Keynote (full width) */}
+              <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr', gap: 8, alignItems: 'start' }}>
+                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72', paddingTop: 12 }}>9:00–9:45</div>
+                <div
+                  style={{
+                    background: '#FFFFFF',
+                    border: '1px solid #E5E0D4',
+                    borderLeft: '4px solid #1F4D3A',
+                    borderRadius: 8,
+                    padding: '10px 14px',
+                  }}
+                >
+                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600, color: '#0F1F18', marginBottom: 4 }}>
+                    Opening Keynote: The Future of African Innovation
+                  </div>
+                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72' }}>Main Stage · All tracks · Dr. Amara Osei</div>
+                </div>
+              </div>
+
+              {/* Row 2 — Three tracks */}
+              <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr 1fr 1fr', gap: 8, alignItems: 'start' }}>
+                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72', paddingTop: 12 }}>10:30–11:15</div>
+                {[
+                  { title: 'Designing for Low-Bandwidth Users', speaker: 'Aisha Mwangi', color: '#3A6B8C' },
+                  { title: 'Building for M-Pesa', speaker: 'Kofi Asante', color: '#1F4D3A' },
+                  { title: 'Investor Q&A Panel', speaker: '4 speakers', color: '#C9A45E' },
+                ].map((session) => (
+                  <div
+                    key={session.title}
+                    style={{
+                      background: '#FFFFFF',
+                      border: '1px solid #E5E0D4',
+                      borderLeft: `3px solid ${session.color}`,
+                      borderRadius: 8,
+                      padding: '10px 12px',
+                    }}
+                  >
+                    <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 600, color: '#0F1F18', marginBottom: 4, lineHeight: 1.4 }}>
+                      {session.title}
+                    </div>
+                    <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72' }}>{session.speaker}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Row 3 — Two sessions + break */}
+              <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr 1fr 1fr', gap: 8, alignItems: 'start' }}>
+                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72', paddingTop: 12 }}>11:30–12:15</div>
+                <div
+                  style={{
+                    background: '#FFFFFF',
+                    border: '1px solid #E5E0D4',
+                    borderLeft: '3px solid #3A6B8C',
+                    borderRadius: 8,
+                    padding: '10px 12px',
+                  }}
+                >
+                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 600, color: '#0F1F18', marginBottom: 4, lineHeight: 1.4 }}>
+                    Type Systems in Production
+                  </div>
+                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72' }}>Nadia Owusu</div>
+                </div>
+                <div
+                  style={{
+                    background: '#FFFFFF',
+                    border: '1px solid #E5E0D4',
+                    borderLeft: '3px solid #1F4D3A',
+                    borderRadius: 8,
+                    padding: '10px 12px',
+                  }}
+                >
+                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 600, color: '#0F1F18', marginBottom: 4, lineHeight: 1.4 }}>
+                    Serverless on the Continent
+                  </div>
+                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72' }}>Emmanuel Diallo</div>
+                </div>
+                <div
+                  style={{
+                    background: 'transparent',
+                    border: '1px dashed #C9C3B1',
+                    borderRadius: 8,
+                    padding: '10px 12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6B7A72' }}>Networking Break</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function AgendaFeaturePage() {
   return (
     <>
@@ -214,6 +471,8 @@ export default function AgendaFeaturePage() {
           </div>
         </div>
       </section>
+
+      <AgendaMockup />
 
       {/* ── Feature cards ───────────────────────────────────────────── */}
       <section style={{ background: C.surface, padding: 'clamp(64px, 10vw, 100px) 24px' }}>

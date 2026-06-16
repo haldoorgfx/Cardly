@@ -107,6 +107,163 @@ const stats = [
   { value: 'Any phone', label: 'no download required' },
 ];
 
+function QAPollsMockup() {
+  return (
+    <section
+      style={{
+        background: '#0F1F18',
+        padding: '80px 24px',
+      }}
+    >
+      <div style={{ maxWidth: 400, margin: '0 auto', textAlign: 'center' }}>
+        {/* Header */}
+        <div
+          style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase' as const,
+            color: '#E8C57E',
+            marginBottom: 12,
+          }}
+        >
+          Session View
+        </div>
+        <h2
+          style={{
+            fontFamily: '"DM Sans", sans-serif',
+            fontSize: 'clamp(22px, 4vw, 28px)',
+            fontWeight: 700,
+            letterSpacing: '-0.02em',
+            color: '#FAF6EE',
+            marginBottom: 10,
+          }}
+        >
+          Questions the audience actually wants answered.
+        </h2>
+        <p
+          style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: 16,
+            color: 'rgba(250,246,238,0.65)',
+            marginBottom: 48,
+            lineHeight: 1.5,
+          }}
+        >
+          No mic needed. Anonymous or named. Ranked by the room.
+        </p>
+
+        {/* Phone frame */}
+        <div
+          style={{
+            width: 300,
+            margin: '0 auto',
+            background: '#163828',
+            borderRadius: 36,
+            padding: 10,
+            boxShadow: '0 4px 12px rgba(15,31,24,0.5), 0 24px 60px rgba(15,31,24,0.6)',
+          }}
+        >
+          <div style={{ background: '#FFFFFF', borderRadius: 28, overflow: 'hidden' }}>
+            {/* Top bar */}
+            <div style={{ background: '#1F4D3A', padding: '14px 16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 700, color: '#FAF6EE' }}>Live Q&amp;A</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                  <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#B8423C' }} />
+                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, color: '#FAF6EE' }}>LIVE</span>
+                </div>
+              </div>
+              <div style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 15, fontWeight: 700, color: '#FAF6EE', marginBottom: 4 }}>Fintech in East Africa</div>
+              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: 'rgba(250,246,238,0.65)' }}>87 questions · 312 voting</div>
+            </div>
+
+            {/* Questions list */}
+            <div style={{ background: '#FAF6EE', padding: 10, display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
+              {/* Q1 — TOP */}
+              <div style={{ background: '#FFFFFF', borderRadius: 12, border: '1.5px solid #1F4D3A', padding: 14 }}>
+                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: '#E8C57E', marginBottom: 6 }}>
+                  Top Question
+                </div>
+                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#0F1F18', lineHeight: 1.5, marginBottom: 10, textAlign: 'left' as const }}>
+                  What&apos;s the biggest barrier to mobile payment adoption in rural areas?
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#E8EFEB', color: '#1F4D3A', borderRadius: 6, padding: '3px 8px', fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600 }}>
+                    ▲ 47
+                  </div>
+                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72' }}>Anonymous</span>
+                </div>
+              </div>
+
+              {/* Q2 */}
+              <div style={{ background: '#FFFFFF', borderRadius: 12, border: '1px solid #E5E0D4', padding: 12 }}>
+                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#0F1F18', lineHeight: 1.5, marginBottom: 8, textAlign: 'left' as const }}>
+                  How do you see CBDCs impacting cross-border remittances?
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#E8EFEB', color: '#1F4D3A', borderRadius: 6, padding: '3px 8px', fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600 }}>▲ 23</div>
+                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72' }}>Kofi A.</span>
+                </div>
+              </div>
+
+              {/* Q3 */}
+              <div style={{ background: '#FFFFFF', borderRadius: 12, border: '1px solid #E5E0D4', padding: 12 }}>
+                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#0F1F18', lineHeight: 1.5, marginBottom: 8, textAlign: 'left' as const }}>
+                  Which East African market reaches fintech maturity first?
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#E8EFEB', color: '#1F4D3A', borderRadius: 6, padding: '3px 8px', fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600 }}>▲ 12</div>
+                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72' }}>Anonymous</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Live Poll section */}
+            <div style={{ background: '#FAF6EE', borderTop: '1px solid #E5E0D4', padding: 12 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 700, color: '#0F1F18' }}>📊 Live Poll</span>
+                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6B7A72' }}>58 votes</span>
+              </div>
+              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#0F1F18', marginBottom: 10, textAlign: 'left' as const }}>
+                Biggest challenge for your startup?
+              </div>
+              {[
+                { label: 'Funding', pct: 42 },
+                { label: 'Regulation', pct: 33 },
+                { label: 'Talent', pct: 25 },
+              ].map((opt) => (
+                <div key={opt.label} style={{ marginBottom: 8 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#0F1F18' }}>{opt.label}</span>
+                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6B7A72' }}>{opt.pct}%</span>
+                  </div>
+                  <div style={{ background: '#E8EFEB', borderRadius: 4, height: 8, overflow: 'hidden' }}>
+                    <div style={{ width: `${opt.pct}%`, height: '100%', background: '#1F4D3A', borderRadius: 4 }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Input bar */}
+            <div style={{ background: '#FFFFFF', borderTop: '1px solid #E5E0D4', height: 44, display: 'flex', alignItems: 'center', padding: '0 12px', gap: 8 }}>
+              <div style={{ flex: 1, height: 28, background: '#FAF6EE', borderRadius: 8, display: 'flex', alignItems: 'center', padding: '0 10px' }}>
+                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6B7A72' }}>Ask anonymously...</span>
+              </div>
+              <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#1F4D3A', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function QAPollsPage() {
   return (
     <>
@@ -239,6 +396,8 @@ export default function QAPollsPage() {
           </div>
         </div>
       </section>
+
+      <QAPollsMockup />
 
       {/* ── Features grid ─────────────────────────────────────── */}
       <section

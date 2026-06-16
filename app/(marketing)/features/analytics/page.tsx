@@ -103,6 +103,216 @@ const STATS = [
   { value: 'CSV', label: 'export on all plans' },
 ];
 
+function AnalyticsMockup() {
+  const bars = [
+    { day: 'M', pct: 30 },
+    { day: 'T', pct: 45 },
+    { day: 'W', pct: 60 },
+    { day: 'T', pct: 80 },
+    { day: 'F', pct: 55 },
+    { day: 'S', pct: 100, today: true },
+    { day: 'S', pct: 90 },
+  ];
+
+  return (
+    <section
+      style={{
+        background: '#0F1F18',
+        padding: '80px 24px',
+        textAlign: 'center',
+      }}
+    >
+      <div style={{ maxWidth: 960, margin: '0 auto' }}>
+        <div
+          style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: '0.15em',
+            color: '#E8C57E',
+            textTransform: 'uppercase' as const,
+            marginBottom: 16,
+          }}
+        >
+          ORGANISER DASHBOARD
+        </div>
+        <h2
+          style={{
+            fontFamily: 'DM Sans, sans-serif',
+            fontSize: 28,
+            fontWeight: 700,
+            letterSpacing: '-0.02em',
+            color: '#FAF6EE',
+            marginBottom: 12,
+          }}
+        >
+          Your event, by the numbers.
+        </h2>
+        <p
+          style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: 16,
+            color: 'rgba(250,246,238,0.65)',
+            marginBottom: 48,
+            lineHeight: 1.6,
+          }}
+        >
+          Real-time from the moment your page goes live.
+        </p>
+
+        {/* Dashboard frame */}
+        <div
+          style={{
+            maxWidth: 900,
+            margin: '0 auto',
+            background: '#1A2620',
+            borderRadius: 16,
+            padding: 24,
+            boxShadow: '0 32px 80px rgba(0,0,0,0.5)',
+            textAlign: 'left',
+          }}
+        >
+          {/* Header */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+            <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 15, fontWeight: 700, color: '#FAF6EE' }}>
+              Pan-African Tech Summit
+            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#2D7A4F' }} />
+              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#2D7A4F', fontWeight: 600 }}>Live · Mar 15, 2025</span>
+            </div>
+          </div>
+
+          {/* Stats row */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: 12,
+              marginBottom: 20,
+            }}
+          >
+            {[
+              { value: '412', label: 'Registrations', delta: '+ 23 today' },
+              { value: '$8,200', label: 'Gross revenue', delta: null },
+              { value: '87%', label: 'Check-in rate', sub: '359 of 412' },
+              { value: '2,841', label: 'Page views', delta: null },
+            ].map((stat) => (
+              <div
+                key={stat.label}
+                style={{
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  borderRadius: 10,
+                  padding: 16,
+                }}
+              >
+                <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 28, fontWeight: 700, color: '#FAF6EE', lineHeight: 1, marginBottom: 4 }}>
+                  {stat.value}
+                </div>
+                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: 'rgba(250,246,238,0.5)', marginBottom: stat.delta ? 6 : 0 }}>
+                  {stat.label}
+                </div>
+                {stat.delta && (
+                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600, color: '#2D7A4F' }}>
+                    {stat.delta}
+                  </div>
+                )}
+                {stat.sub && (
+                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: 'rgba(250,246,238,0.4)' }}>
+                    {stat.sub}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Bar chart */}
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 700, color: '#FAF6EE', marginBottom: 12 }}>
+              Registrations this week
+            </div>
+            <div
+              style={{
+                background: 'rgba(0,0,0,0.2)',
+                borderRadius: 8,
+                padding: 16,
+                display: 'flex',
+                alignItems: 'flex-end',
+                gap: 8,
+                height: 110,
+              }}
+            >
+              {bars.map((bar, i) => (
+                <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 4, height: '100%', justifyContent: 'flex-end' }}>
+                  <div
+                    style={{
+                      width: '100%',
+                      height: `${bar.pct * 0.8}px`,
+                      background: bar.today ? '#1F4D3A' : 'rgba(31,77,58,0.55)',
+                      borderRadius: '3px 3px 0 0',
+                      minHeight: 4,
+                    }}
+                  />
+                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, color: 'rgba(250,246,238,0.4)' }}>{bar.day}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Bottom row */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            {/* Ticket breakdown */}
+            <div>
+              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 700, color: '#FAF6EE', marginBottom: 10 }}>
+                Ticket breakdown
+              </div>
+              {[
+                { label: 'General ($0)', pct: 60, count: '247 sold' },
+                { label: 'Professional ($49)', pct: 35, count: '142 sold' },
+                { label: 'VIP ($149)', pct: 15, count: '23 sold' },
+              ].map((row) => (
+                <div key={row.label} style={{ marginBottom: 8 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: 'rgba(250,246,238,0.6)' }}>{row.label}</span>
+                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: 'rgba(250,246,238,0.4)' }}>{row.count}</span>
+                  </div>
+                  <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 4, height: 6, overflow: 'hidden' }}>
+                    <div style={{ width: `${row.pct}%`, height: '100%', background: '#1F4D3A', borderRadius: 4 }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Top referrers */}
+            <div>
+              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 700, color: '#FAF6EE', marginBottom: 10 }}>
+                Top referrers
+              </div>
+              {[
+                { label: 'Instagram', pct: 38 },
+                { label: 'WhatsApp', pct: 27 },
+                { label: 'Direct', pct: 20 },
+                { label: 'Twitter', pct: 15 },
+              ].map((row) => (
+                <div key={row.label} style={{ marginBottom: 8 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: 'rgba(250,246,238,0.6)' }}>{row.label}</span>
+                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: 'rgba(250,246,238,0.4)' }}>{row.pct}%</span>
+                  </div>
+                  <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 4, height: 6, overflow: 'hidden' }}>
+                    <div style={{ width: `${row.pct}%`, height: '100%', background: '#2D7A4F', borderRadius: 4 }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function AnalyticsFeaturePage() {
   return (
     <>
@@ -214,6 +424,8 @@ export default function AnalyticsFeaturePage() {
           </div>
         </div>
       </section>
+
+      <AnalyticsMockup />
 
       {/* ── Feature cards ───────────────────────────────────────────── */}
       <section style={{ background: C.surface, padding: 'clamp(64px, 10vw, 100px) 24px' }}>
