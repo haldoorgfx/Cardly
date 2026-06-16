@@ -33,7 +33,7 @@ export function computePlatformFee(faceAmount: number, plan: Plan): number {
  * Given the ticket face price, the organizer's plan, and who bears the fee,
  * returns the money split:
  *  - charged:      what the attendee actually pays (gross)
- *  - platformFee:  Karta's cut
+ *  - platformFee:  Eventera's cut
  *  - organizerNet: what the organizer is owed (always = charged − platformFee)
  *
  * absorb → attendee pays face; fee comes out of the organizer's revenue.

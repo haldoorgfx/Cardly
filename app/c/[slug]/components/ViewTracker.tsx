@@ -10,7 +10,7 @@ import { useEffect } from 'react';
  */
 export function ViewTracker({ eventId }: { eventId: string }) {
   useEffect(() => {
-    const key = `karta_viewed_${eventId}`;
+    const key = `eventera_viewed_${eventId}`;
     if (sessionStorage.getItem(key)) return;
     sessionStorage.setItem(key, '1');
     fetch('/api/view', {

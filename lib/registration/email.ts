@@ -18,7 +18,7 @@ export interface RegistrationConfirmEmailParams {
   eventDate: string;
   eventVenue: string;
   qrCodeUrl: string;
-  kartaCardUrl: string | null;
+  eventeraCardUrl: string | null;
   eventSlug: string;
   ticketType: string;
 }
@@ -90,9 +90,9 @@ function buildConfirmationHtml(p: RegistrationConfirmEmailParams, appUrl: string
     </div>
     ` : ''}
 
-    ${p.kartaCardUrl ? `
+    ${p.eventeraCardUrl ? `
     <div style="text-align:center;margin-bottom:20px;">
-      <a href="${p.kartaCardUrl}" style="display:inline-block;background:#1F4D3A;color:white;font-size:15px;font-weight:600;padding:14px 32px;border-radius:8px;text-decoration:none;">
+      <a href="${p.eventeraCardUrl}" style="display:inline-block;background:#1F4D3A;color:white;font-size:15px;font-weight:600;padding:14px 32px;border-radius:8px;text-decoration:none;">
         Download your Eventera Card
       </a>
       <p style="font-size:12px;color:#6B7A72;margin:10px 0 0;">Share it on LinkedIn, Twitter, and WhatsApp</p>

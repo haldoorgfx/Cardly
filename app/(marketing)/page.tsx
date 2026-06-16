@@ -112,7 +112,7 @@ function HeroDashboardMock() {
         </div>
       </div>
 
-      {/* Floating phone — Karta Card */}
+      {/* Floating phone — Eventera Card */}
       <div style={{
         position: 'absolute', bottom: 0, right: 0,
         width: 112, background: '#0F1F18',
@@ -641,9 +641,9 @@ function ShowcaseAnalytics() {
 }
 
 /* ─────────────────────────────────────────────────────────
-   SECTION 6 — KARTA CARD BANNER
+   SECTION 6 — EVENTERA CARD BANNER
 ───────────────────────────────────────────────────────── */
-function KartaCardBanner() {
+function EventeraCardBanner() {
   return (
     <section style={{ background: '#FAF6EE', padding: 'clamp(48px,6vw,72px) clamp(20px,5vw,64px)' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
@@ -694,7 +694,7 @@ function KartaCardBanner() {
 }
 
 /* ─────────────────────────────────────────────────────────
-   SECTION 7 — KARTA DIFFERENCE
+   SECTION 7 — EVENTERA DIFFERENCE
 ───────────────────────────────────────────────────────── */
 function RegistrationFormMock() {
   return (
@@ -794,7 +794,7 @@ function GeneratedCardMock() {
   );
 }
 
-function KartaDifference() {
+function EventeraDifference() {
   return (
     <section
       style={{
@@ -1527,8 +1527,8 @@ export default function LandingPage() {
       <PlatformOverview />
       <ShowcaseRegistration />
       <ShowcaseAnalytics />
-      <KartaCardBanner />
-      <KartaDifference />
+      <EventeraCardBanner />
+      <EventeraDifference />
       <HowItWorks />
       <UseCases />
       <Pricing />

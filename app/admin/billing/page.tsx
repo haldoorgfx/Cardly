@@ -45,7 +45,7 @@ export default async function BillingAdminPage({
   const { data: users, count } = await query;
   const totalPages = Math.ceil((count ?? 0) / PAGE_SIZE);
 
-  // Ticket-fee take-rate: what Karta earned and what's owed to organizers.
+  // Ticket-fee take-rate: what Eventera earned and what's owed to organizers.
   // Best-effort — the fee columns exist after migration 040; before that this
   // select returns nothing and the section simply shows no data.
   const byCurrency: Record<string, { gross: number; fees: number; owed: number; count: number }> = {};
@@ -85,7 +85,7 @@ export default async function BillingAdminPage({
         </p>
       </div>
 
-      {/* Ticket-fee take-rate — Karta's cut + what's owed to organizers */}
+      {/* Ticket-fee take-rate — Eventera's cut + what's owed to organizers */}
       {feeCurrencies.length > 0 && (
         <div className="mb-8">
           <div className="text-[10px] tracking-[0.18em] uppercase text-[#6B7A72] mb-3">Ticket fees · take-rate revenue</div>

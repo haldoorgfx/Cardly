@@ -250,7 +250,7 @@ export default function AboutPage() {
               ))}
             </div>
 
-            {/* Karta Card highlight */}
+            {/* Eventera Card highlight */}
             <div
               style={{
                 borderTop: '1px solid rgba(232,197,126,0.30)',
@@ -349,7 +349,7 @@ export default function AboutPage() {
               </ul>
             </div>
 
-            {/* Card B — Karta */}
+            {/* Card B — Eventera */}
             <div
               style={{
                 flex: 1,

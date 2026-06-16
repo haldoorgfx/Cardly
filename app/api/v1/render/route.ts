@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
     headers: {
       'Content-Type': internalRes.headers.get('content-type') ?? 'application/octet-stream',
       'Content-Disposition': internalRes.headers.get('content-disposition') ?? '',
-      'X-Karta-Api-Version': '1',
+      'X-Eventera-Api-Version': '1',
     },
   });
 }

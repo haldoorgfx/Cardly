@@ -106,7 +106,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       source: 'manual',
       custom_fields: notes ? { notes } : {},
     })
-    .select('id, attendee_name, attendee_email, attendee_phone, status, payment_status, amount_paid, currency, karta_card_url, checked_in_at, created_at, ticket_types(name, price)')
+    .select('id, attendee_name, attendee_email, attendee_phone, status, payment_status, amount_paid, currency, eventera_card_url, checked_in_at, created_at, ticket_types(name, price)')
     .single();
 
   if (error) {
@@ -139,12 +139,12 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   const body = await req.json();
-  const { registrationId, karta_card_url, karta_card_zone_data, status, attendee_name, attendee_email, attendee_phone, ticket_type_id } = body;
+  const { registrationId, eventera_card_url, eventera_card_zone_data, status, attendee_name, attendee_email, attendee_phone, ticket_type_id } = body;
   if (!registrationId) return NextResponse.json({ error: 'registrationId required' }, { status: 400 });
 
   const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
-  if (karta_card_url !== undefined) patch.karta_card_url = karta_card_url;
-  if (karta_card_zone_data !== undefined) patch.karta_card_zone_data = karta_card_zone_data;
+  if (eventera_card_url !== undefined) patch.eventera_card_url = eventera_card_url;
+  if (eventera_card_zone_data !== undefined) patch.eventera_card_zone_data = eventera_card_zone_data;
   if (status !== undefined) {
     const VALID_STATUSES = ['pending', 'confirmed', 'checked_in', 'cancelled', 'refunded'];
     if (!VALID_STATUSES.includes(status)) return NextResponse.json({ error: 'Invalid status' }, { status: 400 });

@@ -49,7 +49,7 @@ export default function TopBar({
     >
       {/* Left — back + breadcrumb */}
       <a
-        href={`/events/${eventId}/karta-card`}
+        href={`/events/${eventId}/eventera-card`}
         className="h-8 w-8 rounded-lg hover:bg-cream grid place-items-center text-ink/70 shrink-0 transition"
         title="Back to Cards &amp; Badges"
       >
@@ -58,8 +58,8 @@ export default function TopBar({
 
       <div className="h-5 w-px bg-border shrink-0" />
 
-      {/* Karta mark */}
-      <a href={`/events/${eventId}/karta-card`} className="shrink-0">
+      {/* Eventera mark */}
+      <a href={`/events/${eventId}/eventera-card`} className="shrink-0">
         <span className="h-7 w-7 rounded-lg grid place-items-center text-white font-display font-bold text-[13px] bg-primary">K</span>
       </a>
 

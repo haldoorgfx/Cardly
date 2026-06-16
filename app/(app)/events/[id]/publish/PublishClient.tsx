@@ -217,7 +217,7 @@ export default function PublishClient({
     if (!qrDataUrl) return;
     const a = document.createElement('a');
     a.href = qrDataUrl;
-    a.download = `karta-qr-${slug}.png`;
+    a.download = `eventera-qr-${slug}.png`;
     a.click();
   }, [qrDataUrl, slug]);
 
@@ -227,7 +227,7 @@ export default function PublishClient({
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `karta-qr-${slug}.svg`;
+    a.download = `eventera-qr-${slug}.svg`;
     a.click();
     URL.revokeObjectURL(url);
   }, [qrSvgString, slug]);

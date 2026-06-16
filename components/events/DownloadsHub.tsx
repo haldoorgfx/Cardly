@@ -136,7 +136,7 @@ export function DownloadsHub({ eventId, eventName, regs, sessions, ticketTypes, 
       new Date(r.created_at).toLocaleString(),
     ]);
     const csv = [toCsvRow(headers), ...rows.map(toCsvRow)].join('\n');
-    downloadBlob(csv, `karta-roster-${slug}.csv`);
+    downloadBlob(csv, `eventera-roster-${slug}.csv`);
   }
 
   // ── Agenda ───────────────────────────────────────────────────────────────────
@@ -155,7 +155,7 @@ export function DownloadsHub({ eventId, eventName, regs, sessions, ticketTypes, 
       (s.session_speakers ?? []).map(ss => ss.speakers?.name ?? '').filter(Boolean).join('; '),
     ]);
     const csv = [toCsvRow(headers), ...rows.map(toCsvRow)].join('\n');
-    downloadBlob(csv, `karta-agenda-${slug}.csv`);
+    downloadBlob(csv, `eventera-agenda-${slug}.csv`);
   }
 
   // ── Revenue ──────────────────────────────────────────────────────────────────
@@ -172,7 +172,7 @@ export function DownloadsHub({ eventId, eventName, regs, sessions, ticketTypes, 
     });
     const totalRow = ['TOTAL', '', String(confirmedRegs.length), String(totalRevenue)];
     const csv = [toCsvRow(headers), ...rows.map(toCsvRow), toCsvRow(totalRow)].join('\n');
-    downloadBlob(csv, `karta-revenue-${slug}.csv`);
+    downloadBlob(csv, `eventera-revenue-${slug}.csv`);
   }
 
   return (
@@ -200,7 +200,7 @@ export function DownloadsHub({ eventId, eventName, regs, sessions, ticketTypes, 
               </PillBtn>
               <a
                 href={`/api/events/${eventId}/roster/pdf`}
-                download={`karta-roster-${slug}.pdf`}
+                download={`eventera-roster-${slug}.pdf`}
                 className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12.5px] font-medium transition hover:opacity-80"
                 style={{ background: 'white', color: '#3A4A42', border: '1px solid #E5E0D4' }}
               >
@@ -222,7 +222,7 @@ export function DownloadsHub({ eventId, eventName, regs, sessions, ticketTypes, 
               </PillBtn>
               <a
                 href={`/api/events/${eventId}/agenda/pdf`}
-                download={`karta-agenda-${slug}.pdf`}
+                download={`eventera-agenda-${slug}.pdf`}
                 className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12.5px] font-medium transition hover:opacity-80"
                 style={{ background: 'white', color: '#3A4A42', border: '1px solid #E5E0D4' }}
               >
@@ -244,7 +244,7 @@ export function DownloadsHub({ eventId, eventName, regs, sessions, ticketTypes, 
               </PillBtn>
               <a
                 href={`/api/events/${eventId}/revenue/pdf`}
-                download={`karta-revenue-${slug}.pdf`}
+                download={`eventera-revenue-${slug}.pdf`}
                 className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12.5px] font-medium transition hover:opacity-80"
                 style={{ background: 'white', color: '#3A4A42', border: '1px solid #E5E0D4' }}
               >
@@ -254,7 +254,7 @@ export function DownloadsHub({ eventId, eventName, regs, sessions, ticketTypes, 
           }
         />
 
-        {/* 4. Karta Cards & Badges */}
+        {/* 4. Eventera Cards & Badges */}
         <DownloadCard
           icon={<IdCard size={18} strokeWidth={1.7} />}
           title="Cards & Badges"
@@ -262,7 +262,7 @@ export function DownloadsHub({ eventId, eventName, regs, sessions, ticketTypes, 
           actions={
             <>
               <Link
-                href={`/events/${eventId}/karta-card`}
+                href={`/events/${eventId}/eventera-card`}
                 className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12.5px] font-medium text-white transition hover:opacity-90"
                 style={{ background: '#1F4D3A', border: '1px solid #1F4D3A' }}
               >

@@ -100,9 +100,9 @@ export async function fireWebhooks(
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-Karta-Signature': sig,
-            'X-Karta-Event': event,
-            'User-Agent': 'Karta-Webhook/1.0',
+            'X-Eventera-Signature': sig,
+            'X-Eventera-Event': event,
+            'User-Agent': 'Eventera-Webhook/1.0',
           },
           body,
           signal: AbortSignal.timeout(8000),

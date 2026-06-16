@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
-const STORAGE_KEY = 'karta_cookie_consent';
+const STORAGE_KEY = 'eventera_cookie_consent';
 
 export function CookieConsent() {
   const [visible, setVisible] = useState(false);

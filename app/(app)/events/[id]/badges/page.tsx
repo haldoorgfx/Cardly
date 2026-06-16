@@ -8,5 +8,5 @@ export default async function BadgesPage({ params }: Props) {
   const _ev = await resolveEventRef(_ref);
   if (!_ev) redirect('/dashboard');
   const id = _ev.id;
-  redirect(`/events/${id}/karta-card`);
+  redirect(`/events/${id}/eventera-card`);
 }

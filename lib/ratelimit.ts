@@ -22,7 +22,7 @@ function makeLimit(tokens: number, window: `${number} ${'s' | 'm' | 'h' | 'd'}`)
     redis,
     limiter: Ratelimit.slidingWindow(tokens, window),
     analytics: true,
-    prefix: 'karta:rl',
+    prefix: 'eventera:rl',
   });
 }
 

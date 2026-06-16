@@ -8,9 +8,9 @@ export async function generateMetadata(): Promise<Metadata> {
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
-import { KartaCardView } from '@/components/events/KartaCardView';
+import { EventeraCardView } from '@/components/events/EventeraCardView';
 
-export default async function KartaCardPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function EventeraCardPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: _ref } = await params;
   const _ev = await resolveEventRef(_ref);
   if (!_ev) redirect('/dashboard');
@@ -28,7 +28,7 @@ export default async function KartaCardPage({ params }: { params: Promise<{ id: 
   ] = await Promise.all([
     admin.from('events').select('id, name, slug, status').eq('id', id).eq('user_id', user.id).single(),
     admin.from('event_variants').select('id, background_url, background_width, background_height, zones').eq('event_id', id).order('position' as never),
-    admin.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', id).not('karta_card_url', 'is', null),
+    admin.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', id).not('eventera_card_url', 'is', null),
   ]);
 
   if (!event) redirect('/dashboard');
@@ -45,7 +45,7 @@ export default async function KartaCardPage({ params }: { params: Promise<{ id: 
   const primaryVariant = variants[0] ?? null;
 
   return (
-    <KartaCardView
+    <EventeraCardView
       eventId={id}
       eventName={event.name}
       eventSlug={event.slug}

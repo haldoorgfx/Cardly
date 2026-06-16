@@ -78,7 +78,7 @@ export function EventSettingsView({ event }: Props) {
   const [requireApproval, setRequireApproval] = useState(false);
   const [closeAtCapacity, setCloseAtCapacity] = useState(true);
 
-  // Platform fee — who bears Karta's per-ticket fee. Saves instantly.
+  // Platform fee — who bears Eventera's per-ticket fee. Saves instantly.
   const [passFee, setPassFee] = useState(event.fee_bearer === 'pass');
   function savePassFee(v: boolean) {
     setPassFee(v);

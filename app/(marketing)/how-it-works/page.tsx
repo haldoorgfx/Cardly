@@ -284,7 +284,7 @@ export default function HowItWorksPage() {
         </div>
       </section>
 
-      {/* ── SECTION 3 · Karta Card callout ── */}
+      {/* ── SECTION 3 · Eventera Card callout ── */}
       <section
         className="mx-auto max-w-[1200px] px-5 lg:px-10 pb-16 lg:pb-20"
       >

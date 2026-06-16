@@ -243,7 +243,7 @@ export default function BrandKitPage() {
         <div className="bg-white rounded-2xl border border-border p-6 shadow-soft flex flex-col">
           <h2 className="font-semibold text-[15px] text-[#0F1F18] mb-5">Card preview</h2>
 
-          {/* Karta card mockup */}
+          {/* Eventera card mockup */}
           <div className="flex-1 flex flex-col items-center justify-center">
             <div
               className="w-full max-w-[220px] rounded-2xl overflow-hidden shadow-lift"

@@ -25,7 +25,7 @@ const cardStats = [
   { value: 'Every plan', label: 'includes Eventera Card — no upsell' },
 ];
 
-function KartaCardMockup() {
+function EventeraCardMockup() {
   return (
     <section style={{ background: '#0F1F18', padding: 'clamp(72px,10vw,112px) clamp(20px,4vw,48px)', overflow: 'hidden' }}>
       <div style={{ maxWidth: 1080, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 56, alignItems: 'center' }}>
@@ -53,7 +53,7 @@ function KartaCardMockup() {
               </li>
             ))}
           </ul>
-          <Link href="/features/karta-card#how" style={{ display: 'inline-flex', alignItems: 'center', background: '#E8C57E', color: '#0F1F18', fontFamily: 'Inter,sans-serif', fontSize: 14, fontWeight: 700, padding: '12px 22px', borderRadius: 10, textDecoration: 'none' }}>
+          <Link href="/features/eventera-card#how" style={{ display: 'inline-flex', alignItems: 'center', background: '#E8C57E', color: '#0F1F18', fontFamily: 'Inter,sans-serif', fontSize: 14, fontWeight: 700, padding: '12px 22px', borderRadius: 10, textDecoration: 'none' }}>
             See how the card works →
           </Link>
         </div>
@@ -126,7 +126,7 @@ function KartaCardMockup() {
   );
 }
 
-export default function KartaCardPage() {
+export default function EventeraCardPage() {
   return (
     <>
       {/* Hero */}
@@ -143,7 +143,7 @@ export default function KartaCardPage() {
         </div>
       </section>
 
-      <KartaCardMockup />
+      <EventeraCardMockup />
 
       {/* Features */}
       <section style={{ background: C.surface, padding: 'clamp(60px, 8vw, 100px) clamp(20px, 5vw, 80px)' }}>

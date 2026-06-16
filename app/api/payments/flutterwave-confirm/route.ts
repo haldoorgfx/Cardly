@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
             eventDate: new Date(eventPage.starts_at).toLocaleDateString(undefined, { weekday: 'short', month: 'long', day: 'numeric', year: 'numeric', timeZone: eventPage.timezone ?? 'UTC' }),
             eventVenue: eventPage.is_online ? 'Online' : (eventPage.venue_name ?? eventPage.venue_address ?? 'See event page'),
             qrCodeUrl: `${appUrl}/api/qr/${updated.qr_code_token}`,
-            kartaCardUrl: null,
+            eventeraCardUrl: null,
             eventSlug: event?.slug ?? updated.event_id,
             ticketType: ticket?.name ?? 'General Admission',
           }).catch(() => { /* non-blocking */ });

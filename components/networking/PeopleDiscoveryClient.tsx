@@ -7,7 +7,7 @@ interface Person {
   id: string;
   attendee_name: string;
   custom_fields: Record<string, string> | null;
-  karta_card_url: string | null;
+  eventera_card_url: string | null;
   connection_status: string | null;
 }
 

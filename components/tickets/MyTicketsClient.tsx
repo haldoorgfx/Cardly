@@ -9,7 +9,7 @@ type Registration = {
   id: string;
   attendee_name: string;
   status: string;
-  karta_card_url: string | null;
+  eventera_card_url: string | null;
   qr_code_token: string;
   created_at: string;
   ticket_types: { name: string; price: number } | null;
@@ -232,7 +232,7 @@ function TicketCard({ reg, onShowQR }: { reg: Registration; onShowQR: () => void
                   Transfer
                 </button>
               )}
-              {reg.karta_card_url && (
+              {reg.eventera_card_url && (
                 <>
                   <div
                     className="w-14 h-9 rounded overflow-hidden relative shrink-0"

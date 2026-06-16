@@ -22,7 +22,7 @@ type Delivery = {
 };
 
 const INITIAL_ENDPOINTS: Endpoint[] = [
-  { url: 'https://api.acme.com/karta/webhook', events: 'registration.created, checkin.*', lastDelivery: '200 · 2m ago', status: 'Active' },
+  { url: 'https://api.acme.com/eventera/webhook', events: 'registration.created, checkin.*', lastDelivery: '200 · 2m ago', status: 'Active' },
   { url: 'https://hooks.zapier.com/hooks/abc123', events: 'card.shared', lastDelivery: '200 · 1h ago', status: 'Active' },
   { url: 'https://crm.partner.io/ingest', events: 'registration.*', lastDelivery: '500 · 3h ago', status: 'Failing' },
 ];

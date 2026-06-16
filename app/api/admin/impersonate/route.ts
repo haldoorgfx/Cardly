@@ -11,7 +11,7 @@ function canImpersonate(role: string): boolean {
 }
 
 // GET /api/admin/impersonate — return the impersonated user's profile + event count
-// (called by AppShell when it detects the karta_impersonating cookie)
+// (called by AppShell when it detects the eventera_impersonating cookie)
 export async function GET(req: NextRequest) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Forbidden.' }, { status: 403 });
   }
 
-  const targetId = req.cookies.get('karta_impersonating')?.value;
+  const targetId = req.cookies.get('eventera_impersonating')?.value;
   if (!targetId) return NextResponse.json({ impersonating: null });
 
   const db = createAdminClient();
@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
   });
 
   const res = NextResponse.json({ ok: true });
-  res.cookies.set('karta_impersonating', userId, {
+  res.cookies.set('eventera_impersonating', userId, {
     httpOnly: false, // readable by AppShell client-side
     path: '/',
     maxAge: 60 * 60 * 4, // 4 hours
@@ -96,11 +96,11 @@ export async function DELETE(req: NextRequest) {
 
   const sessionUser = await getSessionUser();
   if (sessionUser) {
-    const targetId = req.cookies.get('karta_impersonating')?.value;
+    const targetId = req.cookies.get('eventera_impersonating')?.value;
     await logAudit(sessionUser, 'impersonate.stop', 'profile', targetId ?? undefined);
   }
 
   const res = NextResponse.json({ ok: true });
-  res.cookies.set('karta_impersonating', '', { path: '/', maxAge: 0 });
+  res.cookies.set('eventera_impersonating', '', { path: '/', maxAge: 0 });
   return res;
 }

@@ -40,7 +40,7 @@ const SHARE_CHANNELS = [
   { name: 'X',         pct: 10, color: '#8BA89A' },
 ];
 
-export function KartaCardView({ eventId, eventName, eventSlug, eventStatus, totalCards, sharedCards, primaryVariant, allVariants }: Props) {
+export function EventeraCardView({ eventId, eventName, eventSlug, eventStatus, totalCards, sharedCards, primaryVariant, allVariants }: Props) {
   const [paperSize, setPaperSize] = useState<PaperSize>('A6');
   const reach = sharedCards > 0 ? (sharedCards * 189).toLocaleString() : '—';
   const hasDesign = !!primaryVariant?.backgroundUrl;

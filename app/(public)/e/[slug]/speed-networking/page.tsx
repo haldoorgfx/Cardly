@@ -27,7 +27,7 @@ export default async function SpeedNetworkingPage({ params }: Props) {
 
   // Get attendees who are networking
   const { data: attendees } = await db.from('registrations')
-    .select('id, attendee_name, karta_card_url')
+    .select('id, attendee_name, eventera_card_url')
     .eq('event_id', ep.events.id)
     .in('status', ['confirmed', 'checked_in'])
     .limit(20);

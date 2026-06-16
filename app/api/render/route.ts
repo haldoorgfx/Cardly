@@ -29,7 +29,7 @@ import { maybeSendDownloadMilestone, sendCapReachedEmail } from '@/lib/email';
 import { FONT_DATA } from '@/lib/fonts/embedded-font-data';
 
 const WATERMARK_HEIGHT = 40;
-const TMP_FONTS = '/tmp/karta-fonts';
+const TMP_FONTS = '/tmp/eventera-fonts';
 const MAX_PHOTO_BYTES = 10 * 1024 * 1024; // 10 MB
 const MAX_FIELD_CHARS = 500;
 
@@ -461,7 +461,7 @@ export async function POST(req: NextRequest) {
     supabase.from('events').update({ download_count: newDownloadCount }).eq('id', eventId),
     incrementCardsThisMonth(event.user_id),
     ...(registrationId && outputUrl
-      ? [supabase.from('registrations').update({ karta_card_url: outputUrl }).eq('id', registrationId)]
+      ? [supabase.from('registrations').update({ eventera_card_url: outputUrl }).eq('id', registrationId)]
       : []),
   ]);
 

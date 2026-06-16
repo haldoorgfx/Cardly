@@ -10,7 +10,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
   const { data: people, error } = await admin
     .from('registrations')
-    .select('id, attendee_name, attendee_email, ticket_type_id, custom_fields, karta_card_url, ticket_types(name)')
+    .select('id, attendee_name, attendee_email, ticket_type_id, custom_fields, eventera_card_url, ticket_types(name)')
     .eq('event_id', params.id)
     .in('status', ['confirmed', 'checked_in'])
     .order('created_at', { ascending: true })

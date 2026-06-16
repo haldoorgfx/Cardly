@@ -103,7 +103,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: reg } = await (admin as any)
     .from('registrations')
-    .select('id, attendee_name, attendee_email, attendee_phone, status, checked_in_at, karta_card_url, amount_paid, currency, ticket_types(name)')
+    .select('id, attendee_name, attendee_email, attendee_phone, status, checked_in_at, eventera_card_url, amount_paid, currency, ticket_types(name)')
     .eq('qr_code_token', qr_code_token)
     .eq('event_id', params.id)
     .single();
@@ -166,6 +166,6 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     amount_paid: reg.amount_paid,
     currency: reg.currency,
     checked_in_at: checkedInAt,
-    karta_card_url: reg.karta_card_url,
+    eventera_card_url: reg.eventera_card_url,
   });
 }

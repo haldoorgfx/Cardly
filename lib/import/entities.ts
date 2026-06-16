@@ -69,7 +69,7 @@ const tickets: ImportEntity = {
   key: 'tickets',
   label: 'ticket types',
   singular: 'ticket type',
-  templateName: 'karta-tickets-template',
+  templateName: 'eventera-tickets-template',
   fields: [
     { key: 'name',          label: 'Name',          type: 'text',     required: true, example: 'General Admission', aliases: ['ticket', 'ticket name', 'title'] },
     { key: 'price',         label: 'Price',         type: 'number',   example: '50',  aliases: ['cost', 'amount'], help: 'Leave blank or 0 for free' },
@@ -112,7 +112,7 @@ const sessions: ImportEntity = {
   key: 'sessions',
   label: 'sessions',
   singular: 'session',
-  templateName: 'karta-agenda-template',
+  templateName: 'eventera-agenda-template',
   fields: [
     { key: 'title',        label: 'Title',        type: 'text',     required: true, example: 'Opening Keynote', aliases: ['session', 'name', 'session name'] },
     { key: 'starts_at',    label: 'Start',        type: 'datetime', required: true, example: '2026-07-13 09:00', aliases: ['start', 'start time', 'from'] },
@@ -158,7 +158,7 @@ const speakers: ImportEntity = {
   key: 'speakers',
   label: 'speakers',
   singular: 'speaker',
-  templateName: 'karta-speakers-template',
+  templateName: 'eventera-speakers-template',
   fields: [
     { key: 'name',         label: 'Name',         type: 'text', required: true, example: 'Amina Yusuf', aliases: ['full name', 'speaker', 'speaker name'] },
     { key: 'headline',     label: 'Headline',     type: 'text', example: 'CEO at Acme', aliases: ['tagline'] },
@@ -197,7 +197,7 @@ const promoCodes: ImportEntity = {
   key: 'promo',
   label: 'promo codes',
   singular: 'promo code',
-  templateName: 'karta-promo-codes-template',
+  templateName: 'eventera-promo-codes-template',
   fields: [
     { key: 'code',           label: 'Code',          type: 'text',    required: true, example: 'EARLYBIRD', aliases: ['coupon', 'promo'] },
     { key: 'discount_type',  label: 'Discount type', type: 'enum',    enumValues: ['percent', 'fixed'], required: true, example: 'percent', aliases: ['type'] },

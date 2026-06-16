@@ -52,7 +52,7 @@
     letter-spacing: -0.045em;
   }
 
-  /* Forest → cream-gold gradient (reads from theme vars, falls back to Karta defaults) */
+  /* Forest → cream-gold gradient (reads from theme vars, falls back to Eventera defaults) */
   .grad-text {
     background: linear-gradient(135deg, var(--theme-primary, #1F4D3A) 0%, var(--theme-accent, #E8C57E) 100%);
     -webkit-background-clip: text;

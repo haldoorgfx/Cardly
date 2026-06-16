@@ -138,7 +138,7 @@ export function staticText(c: TextCfg): string {
     ${esc(c.hashtag)}
   </text>
 
-  <!-- ── KARTA WATERMARK ── -->
+  <!-- ── EVENTERA WATERMARK ── -->
   <text x="${W - 60}" y="${H - 48}"
     text-anchor="end"
     font-family="'Courier New', Courier, monospace"

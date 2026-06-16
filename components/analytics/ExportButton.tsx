@@ -38,7 +38,7 @@ export function ExportButton({ events, period }: Props) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `karta-analytics-${periodLabel.toLowerCase().replace(/\s+/g, '-')}.csv`;
+    a.download = `eventera-analytics-${periodLabel.toLowerCase().replace(/\s+/g, '-')}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

@@ -25,7 +25,7 @@ export default async function MyTicketsPage() {
   const { data: regs, error: regsError } = await (admin as any)
     .from('registrations')
     .select(`
-      id, attendee_name, attendee_email, status, karta_card_url, qr_code_token, created_at,
+      id, attendee_name, attendee_email, status, eventera_card_url, qr_code_token, created_at,
       ticket_types(name, price),
       events(id, name, slug, event_pages(id, title, cover_image_url, starts_at, ends_at, venue_name, city, is_online))
     `)
@@ -48,7 +48,7 @@ export default async function MyTicketsPage() {
     if (!ep?.starts_at) return false;
     return new Date(ep.starts_at) < now;
   });
-  const cardCount = allRegs.filter(r => r.karta_card_url).length;
+  const cardCount = allRegs.filter(r => r.eventera_card_url).length;
 
   // ── Speaking + Your booths — match the logged-in email to speaker / sponsor records ──
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -164,7 +164,7 @@ type Registration = {
   attendee_name: string;
   attendee_email: string;
   status: string;
-  karta_card_url: string | null;
+  eventera_card_url: string | null;
   qr_code_token: string;
   created_at: string;
   ticket_types: { name: string; price: number } | null;

@@ -365,7 +365,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       eventDate: eventDateStr,
       eventVenue: eventPage.is_online ? 'Online' : (eventPage.venue_name ?? eventPage.venue_address ?? 'See event page'),
       qrCodeUrl: `${appUrl}/api/qr/${registration.qr_code_token}`,
-      kartaCardUrl: null,
+      eventeraCardUrl: null,
       eventSlug,
       ticketType: ticket.name,
     }).catch(() => {});

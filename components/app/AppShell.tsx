@@ -103,7 +103,7 @@ const EVENT_NAV_SECTIONS = [
     title: 'On-site',
     items: [
       { id: 'meetings',    label: '1:1 Meetings',   icon: <Handshake size={15} strokeWidth={1.8} />, segment: 'meetings'    },
-      { id: 'karta-card',  label: 'Cards & Badges', icon: <IdCard size={15} strokeWidth={1.8} />,    segment: 'karta-card'  },
+      { id: 'eventera-card',  label: 'Cards & Badges', icon: <IdCard size={15} strokeWidth={1.8} />,    segment: 'eventera-card'  },
     ],
   },
   {
@@ -374,12 +374,12 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
 
 function readEventCache(eventId: string): EventInfo {
   if (typeof window === 'undefined') return null;
-  try { return JSON.parse(sessionStorage.getItem(`karta_ev_${eventId}`) || 'null'); }
+  try { return JSON.parse(sessionStorage.getItem(`eventera_ev_${eventId}`) || 'null'); }
   catch { return null; }
 }
 
 function writeEventCache(eventId: string, data: EventInfo) {
-  try { sessionStorage.setItem(`karta_ev_${eventId}`, JSON.stringify(data)); }
+  try { sessionStorage.setItem(`eventera_ev_${eventId}`, JSON.stringify(data)); }
   catch {}
 }
 
@@ -697,7 +697,7 @@ const PAGE_LABELS: Record<string, string> = {
   'reports':        'Reports',
   'downloads':      'Downloads',
   'edit':           'Card Editor',
-  'karta-card':     'Cards & Badges',
+  'eventera-card':     'Cards & Badges',
   'check-in':       'Check-in',
   'tickets':        'Tickets',
   'speakers':       'Speakers',
@@ -815,11 +815,11 @@ function NotifItem({ notif, onRead }: { notif: Notification; onRead: (id: string
 
 function readProfileCache(): Profile | null {
   if (typeof window === 'undefined') return null;
-  try { return JSON.parse(sessionStorage.getItem('karta_profile') || 'null'); }
+  try { return JSON.parse(sessionStorage.getItem('eventera_profile') || 'null'); }
   catch { return null; }
 }
 function writeProfileCache(p: Profile) {
-  try { sessionStorage.setItem('karta_profile', JSON.stringify(p)); } catch {}
+  try { sessionStorage.setItem('eventera_profile', JSON.stringify(p)); } catch {}
 }
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -886,7 +886,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
-    const cookieVal = document.cookie.split('; ').find(r => r.startsWith('karta_impersonating='))?.split('=')[1];
+    const cookieVal = document.cookie.split('; ').find(r => r.startsWith('eventera_impersonating='))?.split('=')[1];
     if (!cookieVal) { setImpersonating(null); return; }
     fetch('/api/admin/impersonate')
       .then(r => r.json())

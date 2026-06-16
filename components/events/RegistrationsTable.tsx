@@ -17,7 +17,7 @@ interface Registration {
   payment_status: PaymentStatus;
   amount_paid: number;
   currency: string;
-  karta_card_url: string | null;
+  eventera_card_url: string | null;
   checked_in_at: string | null;
   created_at: string;
   referral_code: string | null;
@@ -94,7 +94,7 @@ function exportCSV(rows: Registration[], eventSlug: string, formFields: FormFiel
     formatCurrency(r.amount_paid, r.currency),
     r.status,
     r.referral_code ?? '',
-    r.karta_card_url ? 'Yes' : 'No',
+    r.eventera_card_url ? 'Yes' : 'No',
     new Date(r.created_at).toLocaleString(),
     r.checked_in_at ? new Date(r.checked_in_at).toLocaleString() : '',
     ...answerFields.map(f => fmtAnswer((r.custom_fields ?? {})[f.id])),
@@ -975,7 +975,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
 
   const checkedInCount = rows.filter(r => r.status === 'checked_in').length;
   const pendingCount   = rows.filter(r => r.status === 'pending').length;
-  const cardDownloaded = rows.filter(r => r.karta_card_url).length;
+  const cardDownloaded = rows.filter(r => r.eventera_card_url).length;
   // Group revenue by currency
   const revenueByCurrency = rows.reduce<Record<string, number>>((acc, r) => {
     if ((r.amount_paid ?? 0) <= 0) return acc;
@@ -1187,8 +1187,8 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
                       <StatusPill status={reg.status} />
                     </td>
                     <td className="px-5 py-3.5">
-                      {reg.karta_card_url ? (
-                        <a href={reg.karta_card_url} target="_blank" rel="noopener noreferrer">
+                      {reg.eventera_card_url ? (
+                        <a href={reg.eventera_card_url} target="_blank" rel="noopener noreferrer">
                           <span className="inline-flex items-center gap-1 text-[12px]" style={{ color: '#1F4D3A' }}>
                             <ExternalLink size={12} /> View
                           </span>

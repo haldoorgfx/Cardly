@@ -47,7 +47,7 @@ export default async function RegisterConfirmPage({ params, searchParams }: Prop
 
   // Load variant for post-payment card personalisation
   let variant: { id: string; zones: Zone[]; background_url: string | null; background_width: number | null; background_height: number | null } | null = null;
-  if (!registration.karta_card_url) {
+  if (!registration.eventera_card_url) {
     const variantId = eventPage?.variant_id;
     const { data: rawVariant } = variantId
       ? await admin.from('event_variants').select('id, zones, background_url, background_width, background_height').eq('id', variantId).maybeSingle()

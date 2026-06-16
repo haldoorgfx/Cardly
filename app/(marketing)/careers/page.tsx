@@ -13,7 +13,7 @@ const C = {
   cream: '#FAF6EE', surface: '#FFFFFF', border: '#E5E0D4',
 } as const;
 
-const whyKarta = [
+const whyEventera = [
   { title: 'Small team, big surface area', desc: 'We are a small team working across product, design, and infrastructure. You will own real things from day one — not tickets in a queue.' },
   { title: 'Events are everywhere', desc: 'Every industry runs events. Our market is global and largely untouched by modern tooling. The opportunity is huge and the timing is right.' },
   { title: 'Remote-first, async by default', desc: 'We work across time zones with clear context and written communication. Deep work is protected. Meetings are rare and purposeful.' },
@@ -66,12 +66,12 @@ export default function CareersPage() {
         <Link href="/contact" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 15, background: C.primary, color: C.surface, padding: '14px 28px', borderRadius: 10, textDecoration: 'none', display: 'inline-block' }}>See open roles</Link>
       </section>
 
-      {/* Why Karta */}
+      {/* Why Eventera */}
       <section style={{ background: C.surface, padding: 'clamp(60px, 8vw, 100px) clamp(20px, 5vw, 80px)' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <h2 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 700, color: C.ink, letterSpacing: '-0.02em', textAlign: 'center', marginBottom: 56 }}>Why Eventera</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
-            {whyKarta.map((w) => (
+            {whyEventera.map((w) => (
               <div key={w.title} style={{ background: C.cream, border: `1px solid ${C.border}`, borderRadius: 16, padding: '32px 28px' }}>
                 <h3 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 20, fontWeight: 700, color: C.ink, marginBottom: 12 }}>{w.title}</h3>
                 <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: C.inkSoft, lineHeight: 1.65 }}>{w.desc}</p>

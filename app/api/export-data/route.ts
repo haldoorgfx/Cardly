@@ -35,7 +35,7 @@ export async function GET() {
     status: 200,
     headers: {
       'Content-Type': 'application/json',
-      'Content-Disposition': 'attachment; filename="karta-data-export.json"',
+      'Content-Disposition': 'attachment; filename="eventera-data-export.json"',
     },
   });
 }

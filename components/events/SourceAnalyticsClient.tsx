@@ -91,7 +91,7 @@ export function SourceAnalyticsClient({ eventName, publicSlug, sources, total }:
         </button>
       </div>
 
-      {/* Hero card (Karta Card metric) */}
+      {/* Hero card (Eventera Card metric) */}
       {cardRegs && cardRegs.count > 0 && (
         <div className="rounded-2xl p-6 mb-6 relative overflow-hidden"
           style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)' }}>

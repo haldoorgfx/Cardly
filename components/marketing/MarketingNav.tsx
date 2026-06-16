@@ -43,7 +43,7 @@ const PRODUCT_MENU = {
     { icon: MessageSquare, name: 'Live Q&A & Polls',    desc: 'Session engagement tools',                     href: '/features/qa-polls' },
     { icon: Trophy,        name: 'Gamification',        desc: 'Points, leaderboard, badges',                  href: '/features/gamification' },
     { icon: Briefcase,     name: 'Sponsor Tools',       desc: 'Exhibitor booths, lead retrieval',             href: '/features/sponsors' },
-    { icon: CreditCard,    name: 'Eventera Card',          desc: 'Personalized cards for every attendee',        href: '/features/karta-card', gold: true },
+    { icon: CreditCard,    name: 'Eventera Card',          desc: 'Personalized cards for every attendee',        href: '/features/eventera-card', gold: true },
   ],
 } as const;
 

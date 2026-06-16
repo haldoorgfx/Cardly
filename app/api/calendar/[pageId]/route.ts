@@ -77,7 +77,7 @@ export async function GET(
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//Karta//Event Calendar//EN',
+    'PRODID:-//Eventera//Event Calendar//EN',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     'BEGIN:VEVENT',

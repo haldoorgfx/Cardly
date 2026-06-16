@@ -30,7 +30,7 @@ interface Props {
   isFlutterwaveReturn: boolean;
 }
 
-// Karta card confetti — only fires when enabled (i.e., phase === 'done')
+// Eventera card confetti — only fires when enabled (i.e., phase === 'done')
 function useConfetti(enabled: boolean) {
   useEffect(() => {
     if (!enabled) return;
@@ -75,7 +75,7 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
   // - Paid return: start at 'verifying' (check PI status) → 'card' → 'done'
   // - Free (card already generated or in sessionStorage): 'done'
   // - Free (no card): 'card' → 'done'
-  const hasCard = !!registration.karta_card_url;
+  const hasCard = !!registration.eventera_card_url;
   const initialPhase: Phase = isPaidReturn ? 'verifying' : (hasCard ? 'done' : (variant ? 'card' : 'done'));
 
   const [phase, setPhase] = useState<Phase>(initialPhase);
@@ -97,7 +97,7 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
 
   // Card step state (for post-payment personalisation)
   const [zoneValues, setZoneValues] = useState<Record<string, string>>(() => {
-    const saved = registration.karta_card_zone_data as Record<string, string> | null;
+    const saved = registration.eventera_card_zone_data as Record<string, string> | null;
     return saved ?? {};
   });
   const [photoFiles, setPhotoFiles] = useState<Record<string, File>>({});
@@ -151,17 +151,17 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
         setCardDataUrl(dataUrl);
         try { sessionStorage.setItem(`card_${registration.qr_code_token}`, dataUrl); } catch { /* ignore */ }
 
-        // Only update karta_card_url via PATCH if we have a cardId.
+        // Only update eventera_card_url via PATCH if we have a cardId.
         // When cardId is null (generated_cards insert failed), the render API
-        // already updated registrations.karta_card_url with the storage URL directly.
+        // already updated registrations.eventera_card_url with the storage URL directly.
         if (cardId) {
           fetch(`/api/events/${registration.event_id}/registrations`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               registrationId: registration.id,
-              karta_card_zone_data: enriched,
-              karta_card_url: `/c/${eventSlug}/card/${cardId}`,
+              eventera_card_zone_data: enriched,
+              eventera_card_url: `/c/${eventSlug}/card/${cardId}`,
             }),
           }).catch(() => {});
         }
@@ -222,7 +222,7 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
     if (!cardDataUrl) return;
     const a = document.createElement('a');
     a.href = cardDataUrl;
-    a.download = `karta-card-${registration.attendee_name.replace(/\s+/g, '-').toLowerCase()}.png`;
+    a.download = `eventera-card-${registration.attendee_name.replace(/\s+/g, '-').toLowerCase()}.png`;
     a.click();
   }
 

@@ -31,7 +31,7 @@ export default async function EventAnalyticsPage({ params }: Props) {
   // Fetch all registrations for this event (for analytics we want full data, capped at 1000)
   const { data: regs } = await admin
     .from('registrations')
-    .select('created_at, status, amount_paid, currency, karta_card_url, ticket_type_id, ticket_types(name, currency)')
+    .select('created_at, status, amount_paid, currency, eventera_card_url, ticket_type_id, ticket_types(name, currency)')
     .eq('event_id', id)
     .in('status', ['confirmed', 'checked_in', 'pending'])
     .order('created_at', { ascending: true })
@@ -66,7 +66,7 @@ export default async function EventAnalyticsPage({ params }: Props) {
   const totalRevenue = allRegs.reduce((s, r) => s + Number(r.amount_paid ?? 0), 0);
   const revenueCurrency = allRegs.find(r => r.amount_paid > 0)?.currency ?? 'USD';
   const checkInCount    = allRegs.filter(r => r.status === 'checked_in').length;
-  const cardDownloaded  = allRegs.filter(r => r.karta_card_url).length;
+  const cardDownloaded  = allRegs.filter(r => r.eventera_card_url).length;
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>

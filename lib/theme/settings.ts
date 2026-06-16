@@ -3,7 +3,7 @@
  *
  * Reads site_settings row (id = 1) from Supabase.
  * Uses the anon client so public pages can access it without auth.
- * Falls back to Karta's locked defaults if the DB is unreachable.
+ * Falls back to Eventera's locked defaults if the DB is unreachable.
  */
 
 import { createClient } from '@/lib/supabase/server';
@@ -44,7 +44,7 @@ export interface SiteSettings {
   updated_by:     string | null;
 }
 
-/** Karta's locked default values — used as fallback and as CSS var fallbacks */
+/** Eventera's locked default values — used as fallback and as CSS var fallbacks */
 export const DEFAULT_SETTINGS: SiteSettings = {
   id:             1,
   brand_name:     'Eventera',

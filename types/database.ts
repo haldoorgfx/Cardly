@@ -170,8 +170,8 @@ export interface Registration {
   qr_code_token: string;
   checked_in_at: string | null;
   checked_in_by: string | null;
-  karta_card_url: string | null;
-  karta_card_zone_data: Record<string, unknown> | null;
+  eventera_card_url: string | null;
+  eventera_card_zone_data: Record<string, unknown> | null;
   source: string | null;
   referral_code: string | null;
   utm_source: string | null;
@@ -1086,8 +1086,8 @@ export interface Database {
           qr_code_token: string;
           checked_in_at: string | null;
           checked_in_by: string | null;
-          karta_card_url: string | null;
-          karta_card_zone_data: Json | null;
+          eventera_card_url: string | null;
+          eventera_card_zone_data: Json | null;
           source: string | null;
           referral_code: string | null;
           utm_source: string | null;
@@ -1116,8 +1116,8 @@ export interface Database {
           qr_code_token?: string;
           checked_in_at?: string | null;
           checked_in_by?: string | null;
-          karta_card_url?: string | null;
-          karta_card_zone_data?: Json | null;
+          eventera_card_url?: string | null;
+          eventera_card_zone_data?: Json | null;
           source?: string | null;
           referral_code?: string | null;
           utm_source?: string | null;
@@ -1140,8 +1140,8 @@ export interface Database {
           currency?: string;
           checked_in_at?: string | null;
           checked_in_by?: string | null;
-          karta_card_url?: string | null;
-          karta_card_zone_data?: Json | null;
+          eventera_card_url?: string | null;
+          eventera_card_zone_data?: Json | null;
           referral_code?: string | null;
           utm_source?: string | null;
           user_id?: string | null;

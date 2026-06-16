@@ -34,7 +34,7 @@ export default function AttendeeLoginPage() {
             Discover what&apos;s on, register in seconds, and carry your tickets — and your Eventera Card — in WhatsApp.
           </p>
 
-          {/* Karta Card mockup */}
+          {/* Eventera Card mockup */}
           <div
             className="mt-9 w-[250px] h-[158px] rounded-xl relative overflow-hidden"
             style={{

@@ -279,15 +279,15 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
         if (renderRes.ok) {
           const cardId = renderRes.headers.get('x-card-id');
           // Only send PATCH if cardId is available; otherwise the render API already
-          // updated karta_card_url directly via registrationId.
+          // updated eventera_card_url directly via registrationId.
           if (cardId) {
             fetch(`/api/events/${eventId}/registrations`, {
               method: 'PATCH',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 registrationId: registration_id,
-                karta_card_zone_data: enrichedZoneValues,
-                karta_card_url: `/c/${eventSlug}/card/${cardId}`,
+                eventera_card_zone_data: enrichedZoneValues,
+                eventera_card_url: `/c/${eventSlug}/card/${cardId}`,
               }),
             }).catch(() => {});
           }

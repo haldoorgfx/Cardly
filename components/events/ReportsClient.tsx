@@ -78,7 +78,7 @@ export function ReportsClient({ eventName, totalRevenue, regCount, checkedIn, re
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `karta-registrations-${slug}.csv`;
+    a.download = `eventera-registrations-${slug}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

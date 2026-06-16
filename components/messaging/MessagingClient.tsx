@@ -222,7 +222,7 @@ export default function MessagingClient({
               </a>
             </div>
 
-            {/* Karta Card banner */}
+            {/* Eventera Card banner */}
             <div
               className="mx-6 mt-4 flex items-center gap-3 px-4 py-3 rounded-xl shrink-0"
               style={{ background: '#E8EFEB' }}

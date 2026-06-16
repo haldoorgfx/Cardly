@@ -1,7 +1,7 @@
 'use client';
 
 // ---------------------------------------------------------------------------
-// KARTA CANVAS EDITOR — STATE & BEHAVIOR INVENTORY
+// EVENTERA CANVAS EDITOR — STATE & BEHAVIOR INVENTORY
 // Documented before UI refactor (Step 1). DO NOT remove any of this logic.
 // ---------------------------------------------------------------------------
 //
@@ -302,7 +302,7 @@ export default function CanvasEditor({ eventId, eventName, eventSlug, variants: 
 
     /* -- load Google Fonts --------------------------------- */
   useEffect(() => {
-    const id = 'karta-gfonts';
+    const id = 'eventera-gfonts';
     if (document.getElementById(id)) return;
     const link = document.createElement('link');
     link.id = id; link.rel = 'stylesheet'; link.href = GOOGLE_FONTS_URL;
