@@ -5,6 +5,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { formatEventDateRange, formatMinPrice } from '@/lib/events/format';
 import { PublicEventPageClient } from '@/components/events/PublicEventPageClient';
 import { geocodeAddress } from '@/lib/events/geocode';
+import { ensurePublicEventPage } from '@/lib/events/resolvePublicSlug';
 import type { Metadata } from 'next';
 
 interface Props {
@@ -25,9 +26,9 @@ async function resolveEventPage(slug: string) {
 
   const { data: event } = await admin
     .from('events')
-    .select('id')
+    .select('id, name, status')
     .eq('slug', slug)
-    .single();
+    .maybeSingle();
   if (!event) return null;
 
   const { data: byEventSlug } = await admin
@@ -35,8 +36,22 @@ async function resolveEventPage(slug: string) {
     .select('*')
     .eq('event_id', event.id)
     .eq('is_public', true)
-    .single();
-  return byEventSlug ?? null;
+    .maybeSingle();
+  if (byEventSlug) return byEventSlug;
+
+  // Self-heal: published event with no public page → create one, then load it
+  if (event.status === 'published') {
+    await ensurePublicEventPage(event.id, event.name);
+    const { data: healed } = await admin
+      .from('event_pages')
+      .select('*')
+      .eq('event_id', event.id)
+      .eq('is_public', true)
+      .maybeSingle();
+    return healed ?? null;
+  }
+
+  return null;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

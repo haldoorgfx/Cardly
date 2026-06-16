@@ -30,9 +30,9 @@ export async function resolvePublicSlug(slug: string): Promise<ResolvedPublicEve
   // 2. Fallback: find event by slug, then its event_pages row
   const { data: eventRow } = await admin
     .from('events')
-    .select('id, slug, name')
+    .select('id, slug, name, status')
     .eq('slug', slug)
-    .single();
+    .maybeSingle();
 
   if (!eventRow) return null;
 
@@ -41,13 +41,55 @@ export async function resolvePublicSlug(slug: string): Promise<ResolvedPublicEve
     .select('event_id, title')
     .eq('event_id', eventRow.id)
     .eq('is_public', true)
-    .single();
+    .maybeSingle();
 
-  if (!page) return null;
+  if (page) {
+    return { eventId: page.event_id, eventPageTitle: page.title, event: eventRow };
+  }
 
-  return {
-    eventId: page.event_id,
-    eventPageTitle: page.title,
-    event: eventRow,
-  };
+  // 2b. Self-heal: the event is published but has no public page row (e.g. created
+  // outside the normal flow). Ensure a public page exists so the link doesn't 404.
+  if (eventRow.status === 'published') {
+    const healed = await ensurePublicEventPage(eventRow.id, eventRow.name);
+    if (healed) return { eventId: eventRow.id, eventPageTitle: healed.title, event: eventRow };
+  }
+
+  return null;
+}
+
+/**
+ * Ensure a published event has a public event_pages row. If a (draft) row exists,
+ * flip it public; otherwise create a minimal one. Returns the row, or null on failure.
+ * Idempotent — safe to call concurrently (event_id is unique).
+ */
+export async function ensurePublicEventPage(eventId: string, eventName: string): Promise<{ title: string } | null> {
+  const admin = createAdminClient();
+
+  const { data: existing } = await admin
+    .from('event_pages')
+    .select('id, title, is_public')
+    .eq('event_id', eventId)
+    .maybeSingle();
+
+  if (existing) {
+    if (existing.is_public) return { title: existing.title };
+    const { data: updated } = await admin
+      .from('event_pages')
+      .update({ is_public: true })
+      .eq('id', existing.id)
+      .select('title')
+      .maybeSingle();
+    return updated ?? { title: existing.title };
+  }
+
+  // No row at all — create a minimal public page (placeholder dates; organizer edits later)
+  const start = new Date(Date.now() + 30 * 86_400_000);
+  const end = new Date(start.getTime() + 2 * 3_600_000);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: created } = await (admin as any)
+    .from('event_pages')
+    .insert({ event_id: eventId, title: eventName, starts_at: start.toISOString(), ends_at: end.toISOString(), is_public: true })
+    .select('title')
+    .maybeSingle();
+  return created ?? null;
 }
