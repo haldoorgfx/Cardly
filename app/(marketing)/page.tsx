@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import {
-  Sparkles, Check, Ticket, LayoutTemplate, ScanLine, LayoutGrid,
-  User, Network, MessageSquare, Briefcase, BarChart2,
-  Sun, Users, ArrowRight, Quote,
+  Sparkles, Check, Ticket, BarChart2,
+  LayoutGrid, Network, Briefcase, Sun, Users,
+  ArrowRight, Quote,
 } from 'lucide-react';
 import { FAQAccordion, type FAQItem } from '@/components/marketing/FAQAccordion';
 
@@ -13,129 +13,137 @@ export const metadata = {
 };
 
 /* ─────────────────────────────────────────────────────────
-   MOCK UI COMPONENTS (pure CSS/TSX — no images)
+   HERO — DASHBOARD + PHONE COMPOSITE
 ───────────────────────────────────────────────────────── */
-
-function DashboardMock() {
+function HeroDashboardMock() {
   return (
-    <div
-      className="rounded-2xl overflow-hidden"
-      style={{
-        background: '#163828',
-        border: '1px solid rgba(232,197,126,0.15)',
-        padding: '20px',
-        width: '100%',
-      }}
-    >
-      <div style={{ color: 'rgba(250,246,238,0.5)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', marginBottom: 14 }}>
-        Event Analytics
+    <div style={{ position: 'relative', paddingBottom: 36, paddingRight: 28 }}>
+      {/* Live badge */}
+      <div style={{
+        position: 'absolute', top: -12, left: 14, zIndex: 20,
+        display: 'flex', alignItems: 'center', gap: 5,
+        background: '#2D7A4F', borderRadius: 100, padding: '4px 10px',
+        boxShadow: '0 4px 16px rgba(45,122,79,0.4)',
+      }}>
+        <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#FAF6EE', opacity: 0.9 }} />
+        <span style={{ fontSize: 9, fontWeight: 700, color: '#FAF6EE', fontFamily: 'Inter, sans-serif', letterSpacing: '0.06em' }}>Live · 847 registrations</span>
       </div>
-      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 56 }}>
-        {[30, 50, 40, 70, 55, 80, 65].map((h, i) => (
-          <div
-            key={i}
-            style={{
-              flex: 1,
-              height: `${h}%`,
-              borderRadius: 4,
-              background: i === 5 ? '#E8C57E' : 'rgba(250,246,238,0.15)',
-            }}
-          />
-        ))}
-      </div>
-      <div style={{ marginTop: 12, display: 'flex', gap: 12 }}>
-        {['847 reg.', '412 check-ins', '1,200 cards'].map((s) => (
-          <div key={s} style={{ fontSize: 9, color: 'rgba(250,246,238,0.45)', fontFamily: 'var(--font-sans)', letterSpacing: '0.1em' }}>{s}</div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
-function EventPageMock() {
-  return (
-    <div
-      className="rounded-2xl overflow-hidden"
-      style={{
-        background: '#FFFFFF',
-        border: '1px solid #E5E0D4',
-        padding: '18px',
-        width: '100%',
-      }}
-    >
-      <div style={{ height: 48, borderRadius: 8, background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)', marginBottom: 12 }} />
-      <div style={{ fontSize: 13, fontWeight: 700, color: '#0F1F18', fontFamily: 'var(--font-display)', letterSpacing: '-0.02em', marginBottom: 6 }}>
-        Pan-African Climate Summit
-      </div>
-      <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
-        <span style={{ fontSize: 9, background: '#E8EFEB', color: '#1F4D3A', borderRadius: 100, padding: '3px 8px', fontFamily: 'var(--font-sans)' }}>Mar 15 · Nairobi</span>
-        <span style={{ fontSize: 9, background: '#FAF6EE', color: '#6B7A72', borderRadius: 100, padding: '3px 8px', fontFamily: 'var(--font-sans)', border: '1px solid #E5E0D4' }}>2,400 attending</span>
-      </div>
-      <div
-        style={{
-          background: '#1F4D3A',
-          color: '#FAF6EE',
-          fontSize: 11,
-          fontWeight: 600,
-          borderRadius: 100,
-          padding: '7px 14px',
-          textAlign: 'center',
-          letterSpacing: '-0.01em',
-        }}
-      >
-        Register →
-      </div>
-    </div>
-  );
-}
+      {/* Browser frame */}
+      <div style={{
+        background: '#0F1F18',
+        border: '1px solid rgba(232,197,126,0.12)',
+        borderRadius: 14, overflow: 'hidden',
+        boxShadow: '0 32px 72px rgba(15,31,24,0.38)',
+      }}>
+        {/* Chrome bar */}
+        <div style={{ padding: '9px 14px', borderBottom: '1px solid rgba(250,246,238,0.07)', display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(250,246,238,0.025)' }}>
+          {[0.18, 0.12, 0.08].map((o, i) => (
+            <div key={i} style={{ width: 7, height: 7, borderRadius: '50%', background: `rgba(250,246,238,${o})` }} />
+          ))}
+          <div style={{ flex: 1, height: 16, background: 'rgba(250,246,238,0.05)', borderRadius: 4, marginLeft: 10 }} />
+          <div style={{ width: 22, height: 16, background: 'rgba(250,246,238,0.05)', borderRadius: 4 }} />
+        </div>
 
-function CardConfirmMock() {
-  return (
-    <div
-      className="rounded-2xl overflow-hidden"
-      style={{
-        background: '#FAF6EE',
-        border: '1px solid #E5E0D4',
-        padding: '18px',
-        width: '100%',
-        boxShadow: '0 8px 32px rgba(31,77,58,0.16)',
-      }}
-    >
-      <div style={{ fontSize: 11, fontWeight: 700, color: '#1F4D3A', fontFamily: 'var(--font-display)', marginBottom: 12 }}>
-        Your Karta Card is ready
-      </div>
-      {/* Mini card preview */}
-      <div
-        style={{
-          background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 60%, #2A6A50 100%)',
-          borderRadius: 10,
-          padding: '14px',
-          marginBottom: 12,
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(232,197,126,0.35)', border: '1.5px solid rgba(232,197,126,0.6)' }} />
-          <div>
-            <div style={{ fontSize: 10, fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.01em' }}>Amara Yusuf</div>
-            <div style={{ fontSize: 8, color: 'rgba(250,246,238,0.6)', marginTop: 1 }}>Climate Policy Lead</div>
+        {/* App layout */}
+        <div style={{ display: 'flex' }}>
+          {/* Sidebar */}
+          <div style={{ width: 48, borderRight: '1px solid rgba(250,246,238,0.05)', padding: '12px 7px', display: 'flex', flexDirection: 'column', gap: 5, background: 'rgba(250,246,238,0.015)', flexShrink: 0 }}>
+            <div style={{ width: '100%', height: 24, borderRadius: 5, background: 'rgba(232,197,126,0.15)', border: '1px solid rgba(232,197,126,0.2)' }} />
+            {[...Array(4)].map((_, i) => (
+              <div key={i} style={{ width: '100%', height: 24, borderRadius: 5, background: 'rgba(250,246,238,0.04)' }} />
+            ))}
+          </div>
+
+          {/* Main content */}
+          <div style={{ flex: 1, padding: '14px 14px 10px', minWidth: 0 }}>
+            <div style={{ fontSize: 9.5, fontWeight: 700, color: 'rgba(250,246,238,0.65)', fontFamily: 'DM Sans, sans-serif', letterSpacing: '-0.01em', marginBottom: 10 }}>
+              Pan-African Climate Summit
+            </div>
+
+            {/* Stat cards */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 6, marginBottom: 12 }}>
+              {[
+                { label: 'Registrations', val: '847', color: '#E8C57E' },
+                { label: 'Cards shared', val: '1,204', color: '#4CAF7D' },
+                { label: 'Check-ins', val: '412', color: 'rgba(250,246,238,0.8)' },
+              ].map((s) => (
+                <div key={s.label} style={{ background: 'rgba(250,246,238,0.04)', border: '1px solid rgba(250,246,238,0.07)', borderRadius: 7, padding: '7px 8px' }}>
+                  <div style={{ fontSize: 6, color: 'rgba(250,246,238,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 3, fontFamily: 'Inter, sans-serif' }}>{s.label}</div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: s.color, fontFamily: 'DM Sans, sans-serif', letterSpacing: '-0.02em', lineHeight: 1 }}>{s.val}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Chart */}
+            <div style={{ background: 'rgba(250,246,238,0.02)', border: '1px solid rgba(250,246,238,0.06)', borderRadius: 7, padding: '9px 10px 7px' }}>
+              <div style={{ fontSize: 6.5, color: 'rgba(250,246,238,0.28)', fontFamily: 'Inter, sans-serif', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 7 }}>Registrations — last 7 days</div>
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 44 }}>
+                {[32, 52, 38, 65, 48, 84, 60].map((h, i) => (
+                  <div key={i} style={{ flex: 1, height: `${h}%`, borderRadius: 3, background: i === 5 ? '#E8C57E' : 'rgba(250,246,238,0.13)' }} />
+                ))}
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 5 }}>
+                {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
+                  <div key={i} style={{ fontSize: 6, color: 'rgba(250,246,238,0.2)', fontFamily: 'Inter, sans-serif' }}>{d}</div>
+                ))}
+              </div>
+            </div>
+
+            {/* Event rows */}
+            <div style={{ marginTop: 10 }}>
+              {[
+                { name: 'Pan-African Climate Summit', badge: 'Live', badgeBg: 'rgba(45,122,79,0.2)', badgeColor: '#4CAF7D', reg: '847' },
+                { name: 'Tech Lagos 2025', badge: 'Draft', badgeBg: 'rgba(250,246,238,0.06)', badgeColor: 'rgba(250,246,238,0.35)', reg: '—' },
+              ].map((e, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 0', borderBottom: i === 0 ? '1px solid rgba(250,246,238,0.05)' : 'none' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+                    <div style={{ width: 20, height: 13, borderRadius: 3, background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)', flexShrink: 0 }} />
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(250,246,238,0.75)', fontFamily: 'DM Sans, sans-serif', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 130 }}>{e.name}</div>
+                      <span style={{ fontSize: 6, background: e.badgeBg, color: e.badgeColor, borderRadius: 100, padding: '1px 5px', fontFamily: 'Inter, sans-serif' }}>{e.badge}</span>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 8, color: 'rgba(250,246,238,0.35)', fontFamily: 'Inter, sans-serif', flexShrink: 0 }}>{e.reg} reg.</div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-        <div style={{ position: 'absolute', bottom: 8, right: 10, fontSize: 7, color: 'rgba(232,197,126,0.8)', fontFamily: 'var(--font-sans)', letterSpacing: '0.12em' }}>KARTA</div>
       </div>
-      <div
-        style={{
-          background: '#1F4D3A',
-          color: '#FAF6EE',
-          fontSize: 10,
-          fontWeight: 600,
-          borderRadius: 100,
-          padding: '6px 12px',
-          textAlign: 'center',
-        }}
-      >
-        Download card
+
+      {/* Floating phone — Karta Card */}
+      <div style={{
+        position: 'absolute', bottom: 0, right: 0,
+        width: 112, background: '#0F1F18',
+        border: '1.5px solid rgba(232,197,126,0.3)',
+        borderRadius: 22, overflow: 'hidden',
+        boxShadow: '0 16px 48px rgba(15,31,24,0.55)', zIndex: 10,
+      }}>
+        <div style={{ height: 7, display: 'flex', justifyContent: 'center', paddingTop: 3 }}>
+          <div style={{ width: 24, height: 3, background: 'rgba(250,246,238,0.12)', borderRadius: 100 }} />
+        </div>
+        <div style={{ background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 60%, #2A6A50 100%)', padding: '10px 10px 14px', position: 'relative' }}>
+          <div style={{ position: 'absolute', top: 7, right: 8, fontSize: 5, color: 'rgba(232,197,126,0.6)', letterSpacing: '0.15em', fontFamily: 'Inter, sans-serif' }}>KARTA</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 8 }}>
+            <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'rgba(232,197,126,0.28)', border: '1.5px solid rgba(232,197,126,0.5)', flexShrink: 0 }} />
+            <div>
+              <div style={{ fontSize: 7.5, fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.01em' }}>Amara Yusuf</div>
+              <div style={{ fontSize: 6, color: 'rgba(250,246,238,0.5)', marginTop: 1 }}>Policy Lead</div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 3 }}>
+            {['IG', 'WA', 'X'].map((s) => (
+              <div key={s} style={{ flex: 1, background: 'rgba(250,246,238,0.1)', borderRadius: 100, padding: '3px 0', textAlign: 'center', fontSize: 6, color: 'rgba(250,246,238,0.5)', fontFamily: 'Inter, sans-serif' }}>{s}</div>
+            ))}
+          </div>
+          <div style={{ marginTop: 7, height: 18, background: 'rgba(250,246,238,0.1)', borderRadius: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ fontSize: 6, color: 'rgba(250,246,238,0.55)', fontFamily: 'Inter, sans-serif' }}>Download card</span>
+          </div>
+        </div>
+        <div style={{ padding: '4px 10px 6px' }}>
+          <div style={{ fontSize: 6, color: 'rgba(250,246,238,0.25)', fontFamily: 'Inter, sans-serif', textAlign: 'center' }}>Ready to share ✓</div>
+        </div>
       </div>
     </div>
   );
@@ -173,11 +181,10 @@ function Hero() {
         className="relative mx-auto px-5 lg:px-10 pt-14 pb-20 lg:pt-20 lg:pb-28"
         style={{ maxWidth: 1200 }}
       >
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-10 items-center">
 
           {/* LEFT — copy */}
           <div>
-            {/* Eyebrow pill */}
             <div
               className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 mb-6"
               style={{
@@ -241,7 +248,6 @@ function Hero() {
               </Link>
             </div>
 
-            {/* Trust chips */}
             <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2" style={{ fontSize: 13, color: '#6B7A72' }}>
               {['Free for 1 event', 'No credit card', 'Setup in 10 minutes'].map((t) => (
                 <span key={t} className="inline-flex items-center gap-1.5">
@@ -252,51 +258,11 @@ function Hero() {
             </div>
           </div>
 
-          {/* RIGHT — 3-screen composite (desktop only) */}
-          <div className="relative hidden lg:flex items-center justify-center" style={{ minHeight: 360 }}>
-            {/* Back-left panel: DashboardMock */}
-            <div
-              className="absolute"
-              style={{
-                transform: 'rotate(-5deg)',
-                width: '64%',
-                top: '10%',
-                left: '0%',
-                zIndex: 1,
-                opacity: 0.88,
-              }}
-            >
-              <DashboardMock />
-            </div>
-
-            {/* Back-right panel: EventPageMock */}
-            <div
-              className="absolute"
-              style={{
-                transform: 'rotate(3.5deg)',
-                width: '52%',
-                top: '5%',
-                right: '0%',
-                zIndex: 2,
-                opacity: 0.9,
-              }}
-            >
-              <EventPageMock />
-            </div>
-
-            {/* Front-center: CardConfirmMock */}
-            <div
-              className="relative"
-              style={{
-                width: '56%',
-                zIndex: 10,
-                marginTop: 60,
-                filter: 'drop-shadow(0 24px 48px rgba(31,77,58,0.22))',
-              }}
-            >
-              <CardConfirmMock />
-            </div>
+          {/* RIGHT — dashboard + phone composite */}
+          <div className="relative hidden lg:block" style={{ paddingTop: 20 }}>
+            <HeroDashboardMock />
           </div>
+
         </div>
       </div>
     </section>
@@ -320,7 +286,6 @@ function TrustStrip() {
         style={{ maxWidth: 1200 }}
       >
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-          {/* Left: trusted by */}
           <div className="flex flex-wrap items-center gap-3">
             <span style={{ fontSize: 12, color: '#6B7A72', fontFamily: 'var(--font-sans)', letterSpacing: '0.04em' }}>
               Trusted by organizations across Africa:
@@ -362,7 +327,6 @@ function TrustStrip() {
             ))}
           </div>
 
-          {/* Right: stats */}
           <div
             style={{
               fontSize: 12,
@@ -381,185 +345,294 @@ function TrustStrip() {
 }
 
 /* ─────────────────────────────────────────────────────────
-   SECTION 3 — PLATFORM FEATURES
+   SECTION 3 — PLATFORM OVERVIEW (feature pills)
 ───────────────────────────────────────────────────────── */
-const PLATFORM_FEATURES = [
-  {
-    icon: <Ticket size={22} strokeWidth={1.7} />,
-    title: 'Registration & Tickets',
-    body: 'Free and paid tickets, custom forms, Stripe + Flutterwave.',
-  },
-  {
-    icon: <LayoutTemplate size={22} strokeWidth={1.7} />,
-    title: 'Event Pages',
-    body: 'Beautiful public pages with photos, agenda preview, and ticket CTAs.',
-  },
-  {
-    icon: <ScanLine size={22} strokeWidth={1.7} />,
-    title: 'QR Check-in',
-    body: 'Scan attendees at the door with any phone. Offline-ready.',
-  },
-  {
-    icon: <LayoutGrid size={22} strokeWidth={1.7} />,
-    title: 'Agenda Builder',
-    body: 'Multi-track drag-and-drop schedule on a clean time grid.',
-  },
-  {
-    icon: <User size={22} strokeWidth={1.7} />,
-    title: 'Speaker Directory',
-    body: 'Full profiles, session assignments, and speaker portals.',
-  },
-  {
-    icon: <Network size={22} strokeWidth={1.7} />,
-    title: 'Attendee Networking',
-    body: 'Profiles, 1:1 messaging, and curated AI connection suggestions.',
-  },
-  {
-    icon: <MessageSquare size={22} strokeWidth={1.7} />,
-    title: 'Live Q&A & Polls',
-    body: 'Real-time session engagement that actually gets used.',
-  },
-  {
-    icon: <Briefcase size={22} strokeWidth={1.7} />,
-    title: 'Sponsor Tools',
-    body: 'Exhibitor booths, lead retrieval, and sponsor showcases.',
-  },
-  {
-    icon: <BarChart2 size={22} strokeWidth={1.7} />,
-    title: 'Analytics',
-    body: 'Registration funnel, session engagement, revenue, and card virality.',
-  },
+const ALL_FEATURES = [
+  'Registration & Tickets', 'Event Pages', 'QR Check-in', 'Agenda Builder',
+  'Speaker Directory', 'Attendee Networking', 'Live Q&A & Polls',
+  'Sponsor Tools', 'Analytics', 'Karta Card',
 ];
 
-function MiniCardPreview({ name, role, accent }: { name: string; role: string; accent: string }) {
+function PlatformOverview() {
   return (
-    <div
-      style={{
-        background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 100%)',
-        border: `1px solid ${accent}`,
-        borderRadius: 8,
-        padding: '10px 12px',
-        minWidth: 110,
-      }}
-    >
-      <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'rgba(232,197,126,0.3)', marginBottom: 6 }} />
-      <div style={{ fontSize: 9, fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.01em' }}>{name}</div>
-      <div style={{ fontSize: 8, color: 'rgba(250,246,238,0.55)', marginTop: 2 }}>{role}</div>
-    </div>
-  );
-}
-
-function PlatformFeatures() {
-  return (
-    <section id="platform" style={{ background: '#FAF6EE', paddingTop: 80, paddingBottom: 96 }}>
-      <div className="mx-auto px-5 lg:px-10" style={{ maxWidth: 1200 }}>
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div
-            style={{
-              fontSize: 11,
-              fontFamily: 'var(--font-sans)',
-              letterSpacing: '0.22em',
-              textTransform: 'uppercase',
-              color: '#1F4D3A',
-              marginBottom: 14,
-            }}
-          >
+    <section id="platform" style={{ background: '#FAF6EE', padding: 'clamp(60px,8vw,96px) clamp(20px,5vw,64px)' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: 44 }}>
+          <div style={{ fontSize: 11, fontFamily: 'var(--font-sans)', letterSpacing: '0.22em', textTransform: 'uppercase', color: '#1F4D3A', marginBottom: 14 }}>
             Everything for your event
           </div>
           <h2
             className="font-title font-bold"
-            style={{ fontSize: 'clamp(30px, 4vw, 48px)', color: '#0F1F18', letterSpacing: '-0.03em', lineHeight: 1.05 }}
+            style={{ fontSize: 'clamp(28px,4vw,48px)', color: '#0F1F18', letterSpacing: '-0.03em', lineHeight: 1.05 }}
           >
-            One platform. Every phase of your event.
+            One platform. Every phase.
           </h2>
-          <p style={{ marginTop: 14, fontSize: 17, color: '#3A4A42', maxWidth: 480, margin: '14px auto 0' }}>
+          <p style={{ marginTop: 14, fontSize: 17, color: '#3A4A42', maxWidth: 480, margin: '14px auto 0', lineHeight: 1.65 }}>
             From the first ticket sale to the last card shared.
           </p>
         </div>
 
-        {/* 3×3 grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-          {PLATFORM_FEATURES.map((f) => (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center' }}>
+          {ALL_FEATURES.map((f) => (
             <div
-              key={f.title}
+              key={f}
               style={{
+                display: 'flex', alignItems: 'center', gap: 8,
+                padding: '9px 18px',
                 background: '#FFFFFF',
                 border: '1px solid #E5E0D4',
-                borderRadius: 12,
-                padding: '28px',
+                borderRadius: 100,
+                fontSize: 14, color: '#0F1F18',
+                fontFamily: 'var(--font-sans)', fontWeight: 500,
               }}
             >
-              <div
-                style={{
-                  width: 44, height: 44,
-                  borderRadius: 10,
-                  background: '#E8EFEB',
-                  color: '#1F4D3A',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: 16,
-                }}
-              >
-                {f.icon}
-              </div>
-              <div
-                className="font-display font-semibold"
-                style={{ fontSize: 17, color: '#0F1F18', letterSpacing: '-0.02em', marginBottom: 6 }}
-              >
-                {f.title}
-              </div>
-              <p style={{ fontSize: 14, color: '#3A4A42', lineHeight: 1.6 }}>{f.body}</p>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#1F4D3A', flexShrink: 0 }} />
+              {f}
             </div>
           ))}
         </div>
+      </div>
+    </section>
+  );
+}
 
-        {/* Karta Card feature tile */}
-        <div
-          className="flex items-center justify-between gap-8 px-6 py-8 sm:px-10 sm:py-9"
-          style={{
-            background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 55%, #2A6A50 100%)',
-            border: '1px solid rgba(232,197,126,0.35)',
-            borderRadius: 16,
-          }}
-        >
-          <div style={{ flex: 1 }}>
-            {/* "Unique to Karta" pill */}
-            <span
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                background: 'rgba(232,197,126,0.18)',
-                border: '1px solid rgba(232,197,126,0.4)',
-                color: '#E8C57E',
-                borderRadius: 100,
-                padding: '4px 12px',
-                fontSize: 11,
-                fontFamily: 'var(--font-sans)',
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-                marginBottom: 16,
-              }}
-            >
-              <Sparkles size={11} strokeWidth={2} />
-              Unique to Karta
-            </span>
-            <div
-              className="font-title font-bold"
-              style={{ fontSize: 30, color: '#E8C57E', letterSpacing: '-0.03em', marginBottom: 12 }}
-            >
-              Karta Card
+/* ─────────────────────────────────────────────────────────
+   SECTION 4 — SHOWCASE: REGISTRATION & TICKETS
+───────────────────────────────────────────────────────── */
+function ShowcaseRegistration() {
+  return (
+    <section style={{ background: '#0F1F18', padding: 'clamp(72px,10vw,112px) clamp(20px,5vw,64px)' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px,1fr))', gap: 'clamp(40px,6vw,80px)', alignItems: 'center' }}>
+
+        {/* LEFT — copy */}
+        <div>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(232,197,126,0.1)', border: '1px solid rgba(232,197,126,0.22)', borderRadius: 100, padding: '5px 12px', marginBottom: 22 }}>
+            <Ticket size={12} strokeWidth={2} style={{ color: '#E8C57E' }} />
+            <span style={{ fontSize: 11, fontWeight: 600, color: '#E8C57E', fontFamily: 'var(--font-sans)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Registration & Tickets</span>
+          </div>
+          <h2
+            className="font-title font-bold"
+            style={{ fontSize: 'clamp(26px,3.5vw,44px)', color: '#FAF6EE', letterSpacing: '-0.025em', lineHeight: 1.1, marginBottom: 18 }}
+          >
+            Registration that feels like the event itself.
+          </h2>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: 16, color: 'rgba(250,246,238,0.7)', lineHeight: 1.65, marginBottom: 26, maxWidth: 440 }}>
+            Free, paid, or mixed. Custom forms that capture exactly what you need. Every registrant walks away with a personal card before they even arrive.
+          </p>
+          <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {[
+              'Multiple ticket types — Free, General, VIP, Early Bird',
+              'Custom registration fields with conditional logic',
+              'Stripe, Flutterwave, M-Pesa & Paystack payments',
+              'Karta Card auto-generated at the moment of registration',
+            ].map((item) => (
+              <li key={item} style={{ display: 'flex', alignItems: 'flex-start', gap: 9, fontSize: 14, color: 'rgba(250,246,238,0.75)', fontFamily: 'var(--font-sans)' }}>
+                <Check size={14} strokeWidth={2.5} style={{ color: '#4CAF7D', marginTop: 2, flexShrink: 0 }} />
+                {item}
+              </li>
+            ))}
+          </ul>
+          <Link
+            href="/features/registration"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 600, color: '#E8C57E', fontFamily: 'var(--font-sans)', textDecoration: 'none' }}
+          >
+            Explore registration <ArrowRight size={14} strokeWidth={2} />
+          </Link>
+        </div>
+
+        {/* RIGHT — phone mockup */}
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <div style={{
+            width: 260, background: '#0A1610',
+            border: '2px solid rgba(232,197,126,0.15)',
+            borderRadius: 36, overflow: 'hidden',
+            boxShadow: '0 32px 80px rgba(15,31,24,0.6)', flexShrink: 0,
+          }}>
+            {/* Status bar */}
+            <div style={{ padding: '12px 20px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: 8, color: 'rgba(250,246,238,0.4)', fontFamily: 'var(--font-sans)' }}>9:41</span>
+              <div style={{ width: 22, height: 3, background: 'rgba(250,246,238,0.15)', borderRadius: 100 }} />
+              <div style={{ display: 'flex', gap: 2 }}>
+                {[9, 6, 3].map((h) => <div key={h} style={{ width: 3, height: h, background: 'rgba(250,246,238,0.3)', borderRadius: 1 }} />)}
+              </div>
             </div>
-            <p style={{ fontSize: 15, color: 'rgba(250,246,238,0.8)', lineHeight: 1.6, maxWidth: 520 }}>
-              Every attendee gets a personalized, branded card at registration — the feature no other event platform has.
+
+            {/* Event header */}
+            <div style={{ margin: '10px 12px', borderRadius: 12, background: 'linear-gradient(135deg, #163828, #2A6A50)', padding: '14px' }}>
+              <div style={{ fontSize: 8, color: 'rgba(250,246,238,0.5)', letterSpacing: '0.12em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', marginBottom: 3 }}>
+                Pan-African Climate Summit
+              </div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#FAF6EE', fontFamily: 'var(--font-display)', letterSpacing: '-0.02em', marginBottom: 8 }}>
+                Register for this event
+              </div>
+              <div style={{ display: 'flex', gap: 4 }}>
+                <span style={{ fontSize: 7, background: 'rgba(250,246,238,0.12)', color: 'rgba(250,246,238,0.7)', borderRadius: 100, padding: '2px 7px', fontFamily: 'var(--font-sans)' }}>Mar 15 · Nairobi</span>
+                <span style={{ fontSize: 7, background: 'rgba(232,197,126,0.18)', color: '#E8C57E', borderRadius: 100, padding: '2px 7px', fontFamily: 'var(--font-sans)' }}>General · $25</span>
+              </div>
+            </div>
+
+            {/* Form */}
+            <div style={{ padding: '0 12px 16px' }}>
+              {[
+                { label: 'Full name', val: 'Amara Yusuf' },
+                { label: 'Email', val: 'amara@example.com' },
+                { label: 'Job title', val: 'Policy Lead' },
+              ].map((f) => (
+                <div key={f.label} style={{ marginBottom: 7 }}>
+                  <div style={{ fontSize: 7.5, color: 'rgba(250,246,238,0.35)', fontFamily: 'var(--font-sans)', letterSpacing: '0.06em', marginBottom: 3 }}>{f.label}</div>
+                  <div style={{ height: 28, background: 'rgba(250,246,238,0.05)', border: '1px solid rgba(250,246,238,0.09)', borderRadius: 7, display: 'flex', alignItems: 'center', padding: '0 9px' }}>
+                    <span style={{ fontSize: 9, color: 'rgba(250,246,238,0.65)', fontFamily: 'var(--font-sans)' }}>{f.val}</span>
+                  </div>
+                </div>
+              ))}
+
+              <div style={{ height: 34, background: '#1F4D3A', borderRadius: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 8 }}>
+                <span style={{ fontSize: 9, fontWeight: 600, color: '#FAF6EE', fontFamily: 'var(--font-sans)' }}>Register & get your Karta Card →</span>
+              </div>
+
+              {/* Card preview hint */}
+              <div style={{ marginTop: 10, padding: '8px 10px', background: 'rgba(232,197,126,0.07)', border: '1px solid rgba(232,197,126,0.18)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 7 }}>
+                <div style={{ width: 26, height: 26, borderRadius: 6, background: 'linear-gradient(135deg, #163828, #1F4D3A)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <span style={{ fontSize: 8, fontWeight: 700, color: '#E8C57E', letterSpacing: '0.06em', fontFamily: 'var(--font-sans)' }}>K</span>
+                </div>
+                <div>
+                  <div style={{ fontSize: 7.5, fontWeight: 600, color: '#E8C57E', fontFamily: 'var(--font-sans)', lineHeight: 1.3 }}>Your Karta Card is generated</div>
+                  <div style={{ fontSize: 6.5, color: 'rgba(250,246,238,0.4)', fontFamily: 'var(--font-sans)' }}>Ready to share in 2 seconds</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────
+   SECTION 5 — SHOWCASE: ANALYTICS
+───────────────────────────────────────────────────────── */
+function ShowcaseAnalytics() {
+  return (
+    <section style={{ background: '#FAF6EE', padding: 'clamp(72px,10vw,112px) clamp(20px,5vw,64px) 0', overflow: 'hidden' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+
+        {/* Top: text left + stat pills right */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px,1fr))', gap: 40, alignItems: 'flex-end', marginBottom: 48 }}>
+          <div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#E8EFEB', border: '1px solid rgba(31,77,58,0.15)', borderRadius: 100, padding: '5px 12px', marginBottom: 22 }}>
+              <BarChart2 size={12} strokeWidth={2} style={{ color: '#1F4D3A' }} />
+              <span style={{ fontSize: 11, fontWeight: 600, color: '#1F4D3A', fontFamily: 'var(--font-sans)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Analytics</span>
+            </div>
+            <h2
+              className="font-title font-bold"
+              style={{ fontSize: 'clamp(26px,3.5vw,44px)', color: '#0F1F18', letterSpacing: '-0.025em', lineHeight: 1.1, marginBottom: 16 }}
+            >
+              Know exactly how your event is performing — live.
+            </h2>
+            <p style={{ fontFamily: 'var(--font-sans)', fontSize: 16, color: '#3A4A42', lineHeight: 1.65, maxWidth: 440 }}>
+              Registration funnel, revenue, session attendance, card virality — in one dashboard. No spreadsheet pivot tables required.
             </p>
           </div>
-          {/* Mini card previews (hidden on mobile) */}
-          <div className="hidden lg:flex gap-3 shrink-0">
-            <MiniCardPreview name="Amara Yusuf" role="Policy Lead" accent="rgba(232,197,126,0.5)" />
-            <MiniCardPreview name="Kofi Mensah" role="Speaker" accent="rgba(232,197,126,0.3)" />
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {[
+              { label: 'Avg. card-share rate per event', val: '71%', color: '#1F4D3A' },
+              { label: 'Avg. check-in rate on Karta events', val: '87%', color: '#2D7A4F' },
+              { label: 'Cards shared per attendee (avg)', val: '1.42×', color: '#C9A45E' },
+            ].map((s) => (
+              <div key={s.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, padding: '10px 16px', background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 10 }}>
+                <span style={{ fontSize: 12, color: '#3A4A42', fontFamily: 'var(--font-sans)' }}>{s.label}</span>
+                <span style={{ fontSize: 20, fontWeight: 700, color: s.color, fontFamily: 'var(--font-display)', letterSpacing: '-0.025em', flexShrink: 0 }}>{s.val}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Wide browser frame — bleeds off the bottom */}
+        <div style={{ borderRadius: '12px 12px 0 0', overflow: 'hidden', border: '1px solid #E5E0D4', borderBottom: 'none', boxShadow: '0 -8px 40px rgba(15,31,24,0.07)' }}>
+          {/* Chrome bar */}
+          <div style={{ background: '#F0EDE5', padding: '9px 14px', borderBottom: '1px solid #E5E0D4', display: 'flex', alignItems: 'center', gap: 6 }}>
+            {['#FF5F57', '#FEBC2E', '#28C840'].map((c, i) => (
+              <div key={i} style={{ width: 9, height: 9, borderRadius: '50%', background: c }} />
+            ))}
+            <div style={{ flex: 1, height: 16, background: '#E5E0D4', borderRadius: 4, marginLeft: 10 }} />
+            <div style={{ width: 20, height: 16, background: '#E5E0D4', borderRadius: 3 }} />
+          </div>
+
+          {/* Dashboard */}
+          <div style={{ background: '#FAF6EE', display: 'flex' }}>
+            {/* Sidebar */}
+            <div style={{ width: 160, borderRight: '1px solid #E5E0D4', padding: '18px 12px', flexShrink: 0, background: '#FFFFFF' }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#1F4D3A', fontFamily: 'var(--font-display)', marginBottom: 14 }}>Analytics</div>
+              {['Overview', 'Registrations', 'Sessions', 'Networking', 'Revenue', 'Cards'].map((item, i) => (
+                <div key={item} style={{ padding: '7px 10px', borderRadius: 6, background: i === 0 ? '#E8EFEB' : 'transparent', color: i === 0 ? '#1F4D3A' : '#6B7A72', fontSize: 11, fontFamily: 'var(--font-sans)', marginBottom: 2, fontWeight: i === 0 ? 600 : 400 }}>
+                  {item}
+                </div>
+              ))}
+            </div>
+
+            {/* Main */}
+            <div style={{ flex: 1, padding: '18px 20px 0', minWidth: 0 }}>
+              {/* Stat cards */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10, marginBottom: 16 }}>
+                {[
+                  { label: 'Total Registrations', val: '847', change: '+12%' },
+                  { label: 'Revenue', val: '$8,940', change: '+24%' },
+                  { label: 'Cards Shared', val: '1,204', change: '+31%' },
+                  { label: 'Check-in Rate', val: '87%', change: '+5 pts' },
+                ].map((s) => (
+                  <div key={s.label} style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 8, padding: '10px 12px' }}>
+                    <div style={{ fontSize: 8, color: '#6B7A72', fontFamily: 'var(--font-sans)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 5 }}>{s.label}</div>
+                    <div style={{ fontSize: 19, fontWeight: 700, color: '#0F1F18', fontFamily: 'var(--font-display)', letterSpacing: '-0.025em', lineHeight: 1 }}>{s.val}</div>
+                    <div style={{ fontSize: 9, color: '#2D7A4F', marginTop: 3, fontFamily: 'var(--font-sans)' }}>↑ {s.change}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Chart */}
+              <div style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 8, padding: '14px 16px', marginBottom: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#0F1F18', fontFamily: 'var(--font-display)' }}>Registrations over time</div>
+                  <div style={{ display: 'flex', gap: 5 }}>
+                    {['7D', '30D', '90D'].map((t, i) => (
+                      <div key={t} style={{ fontSize: 9, padding: '3px 8px', borderRadius: 4, background: i === 1 ? '#E8EFEB' : 'transparent', color: i === 1 ? '#1F4D3A' : '#6B7A72', fontFamily: 'var(--font-sans)', fontWeight: i === 1 ? 600 : 400, border: '1px solid ' + (i === 1 ? 'transparent' : '#E5E0D4') }}>{t}</div>
+                    ))}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'flex-end', gap: 5, height: 64 }}>
+                  {[22, 36, 28, 52, 40, 66, 55, 76, 62, 90, 72, 82].map((h, i) => (
+                    <div key={i} style={{ flex: 1, height: `${h}%`, borderRadius: 4, background: i === 9 ? '#1F4D3A' : (i >= 7 ? '#C8DDD2' : '#E8EFEB') }} />
+                  ))}
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
+                  {['Wk 1', 'Wk 2', 'Wk 3', 'Wk 4', 'Wk 5', 'Wk 6'].map((w) => (
+                    <div key={w} style={{ fontSize: 8, color: '#6B7A72', fontFamily: 'var(--font-sans)' }}>{w}</div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Session table */}
+              <div style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: '8px 8px 0 0', overflow: 'hidden' }}>
+                <div style={{ padding: '10px 14px', borderBottom: '1px solid #E5E0D4', display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 8 }}>
+                  {['Session', 'Registrations', 'Attendance', 'Engagement'].map((h) => (
+                    <div key={h} style={{ fontSize: 8, color: '#6B7A72', fontFamily: 'var(--font-sans)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{h}</div>
+                  ))}
+                </div>
+                {[
+                  { session: 'Opening Keynote', reg: '847', att: '724', eng: '91%' },
+                  { session: 'Panel: Climate Policy', reg: '612', att: '538', eng: '88%' },
+                  { session: 'Workshop: Green Infra', reg: '380', att: '342', eng: '90%' },
+                ].map((row, i) => (
+                  <div key={i} style={{ padding: '9px 14px', borderBottom: i < 2 ? '1px solid #F0EDE5' : 'none', display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 8, alignItems: 'center' }}>
+                    <div style={{ fontSize: 10, fontWeight: 500, color: '#0F1F18', fontFamily: 'var(--font-display)' }}>{row.session}</div>
+                    <div style={{ fontSize: 10, color: '#3A4A42', fontFamily: 'var(--font-sans)' }}>{row.reg}</div>
+                    <div style={{ fontSize: 10, color: '#3A4A42', fontFamily: 'var(--font-sans)' }}>{row.att}</div>
+                    <div style={{ fontSize: 10, fontWeight: 600, color: '#2D7A4F', fontFamily: 'var(--font-sans)' }}>{row.eng}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -568,7 +641,60 @@ function PlatformFeatures() {
 }
 
 /* ─────────────────────────────────────────────────────────
-   SECTION 4 — KARTA DIFFERENCE
+   SECTION 6 — KARTA CARD BANNER
+───────────────────────────────────────────────────────── */
+function KartaCardBanner() {
+  return (
+    <section style={{ background: '#FAF6EE', padding: 'clamp(48px,6vw,72px) clamp(20px,5vw,64px)' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+        <div style={{
+          background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 55%, #2A6A50 100%)',
+          border: '1px solid rgba(232,197,126,0.3)',
+          borderRadius: 20,
+          padding: 'clamp(32px,4vw,52px)',
+          display: 'flex', gap: 'clamp(24px,4vw,48px)', alignItems: 'center', flexWrap: 'wrap',
+        }}>
+          <div style={{ flex: 1, minWidth: 260 }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(232,197,126,0.15)', border: '1px solid rgba(232,197,126,0.35)', color: '#E8C57E', borderRadius: 100, padding: '4px 12px', fontSize: 11, fontFamily: 'var(--font-sans)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 16 }}>
+              <Sparkles size={11} strokeWidth={2} />
+              Only on Karta
+            </span>
+            <h2
+              className="font-title font-bold"
+              style={{ fontSize: 'clamp(22px,3vw,36px)', color: '#E8C57E', letterSpacing: '-0.025em', lineHeight: 1.15, marginBottom: 14 }}
+            >
+              The Karta Card — a first in event tech.
+            </h2>
+            <p style={{ fontFamily: 'var(--font-sans)', fontSize: 15, color: 'rgba(250,246,238,0.78)', lineHeight: 1.65, maxWidth: 480 }}>
+              Every attendee gets a personalized, branded card the moment they register. No Canva. No designer. No manual work. It ships with your event — automatically.
+            </p>
+          </div>
+          <div className="hidden lg:flex" style={{ gap: 12, flexShrink: 0 }}>
+            {[
+              { name: 'Amara Yusuf', role: 'Policy Lead', accent: 'rgba(232,197,126,0.55)' },
+              { name: 'Kofi Mensah', role: 'Speaker', accent: 'rgba(232,197,126,0.3)' },
+              { name: 'Zara Ahmed', role: 'Investor', accent: 'rgba(232,197,126,0.18)' },
+            ].map((p) => (
+              <div key={p.name} style={{ background: 'rgba(250,246,238,0.05)', border: `1px solid ${p.accent}`, borderRadius: 12, padding: '14px 12px', minWidth: 100 }}>
+                <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'rgba(232,197,126,0.25)', border: `1px solid ${p.accent}`, marginBottom: 8 }} />
+                <div style={{ fontSize: 10, fontWeight: 700, color: '#FAF6EE', fontFamily: 'var(--font-display)', letterSpacing: '-0.01em', marginBottom: 3 }}>{p.name}</div>
+                <div style={{ fontSize: 8, color: 'rgba(250,246,238,0.5)', fontFamily: 'var(--font-sans)' }}>{p.role}</div>
+                <div style={{ marginTop: 10, display: 'flex', gap: 3 }}>
+                  {['IG', 'WA', 'X'].map((s) => (
+                    <div key={s} style={{ flex: 1, background: 'rgba(250,246,238,0.08)', borderRadius: 100, padding: '2px 0', textAlign: 'center', fontSize: 6, color: 'rgba(250,246,238,0.4)', fontFamily: 'var(--font-sans)' }}>{s}</div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────
+   SECTION 7 — KARTA DIFFERENCE
 ───────────────────────────────────────────────────────── */
 function RegistrationFormMock() {
   return (
@@ -609,7 +735,6 @@ function GeneratedCardMock() {
         position: 'relative',
       }}
     >
-      {/* "Generated in 2s" pill */}
       <div
         style={{
           position: 'absolute',
@@ -683,7 +808,6 @@ function KartaDifference() {
       <div className="mx-auto px-5 lg:px-10" style={{ maxWidth: 1200 }}>
         <div className="grid lg:grid-cols-2 gap-14 lg:gap-20 items-center">
 
-          {/* LEFT — copy */}
           <div>
             <span
               style={{
@@ -734,7 +858,6 @@ function KartaDifference() {
             </Link>
           </div>
 
-          {/* RIGHT — card over form */}
           <div className="relative flex items-center justify-center" style={{ minHeight: 300 }}>
             <div style={{ width: '80%', position: 'absolute', top: 0, left: '5%' }}>
               <RegistrationFormMock />
@@ -750,7 +873,7 @@ function KartaDifference() {
 }
 
 /* ─────────────────────────────────────────────────────────
-   SECTION 5 — HOW IT WORKS
+   SECTION 8 — HOW IT WORKS
 ───────────────────────────────────────────────────────── */
 function StepMock({ type }: { type: 'event' | 'tickets' | 'agenda' | 'register' | 'analytics' }) {
   if (type === 'event') {
@@ -789,7 +912,7 @@ function StepMock({ type }: { type: 'event' | 'tickets' | 'agenda' | 'register' 
   if (type === 'register') {
     return (
       <div style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 8, padding: '12px', marginTop: 12 }}>
-        {['Name', 'Email', 'Role'].map((f, i) => (
+        {[1, 2, 3].map((_, i) => (
           <div key={i} style={{ height: 18, background: '#FAF6EE', border: '1px solid #E5E0D4', borderRadius: 4, marginBottom: 5 }} />
         ))}
         <div style={{ height: 20, background: '#1F4D3A', borderRadius: 100, marginTop: 6 }} />
@@ -799,7 +922,6 @@ function StepMock({ type }: { type: 'event' | 'tickets' | 'agenda' | 'register' 
       </div>
     );
   }
-  // analytics
   return (
     <div style={{ background: '#163828', borderRadius: 8, padding: '12px', marginTop: 12 }}>
       <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 36 }}>
@@ -844,9 +966,7 @@ function HowItWorks() {
           </h2>
         </div>
 
-        {/* Steps grid */}
         <div className="relative">
-          {/* Connecting line (desktop) */}
           <div
             className="hidden lg:block absolute"
             style={{
@@ -862,7 +982,6 @@ function HowItWorks() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-5">
             {HOW_STEPS.map((step) => (
               <div key={step.n} className="relative" style={{ zIndex: 1 }}>
-                {/* Number dot */}
                 <div
                   style={{
                     width: 48, height: 48,
@@ -910,7 +1029,7 @@ function HowItWorks() {
 }
 
 /* ─────────────────────────────────────────────────────────
-   SECTION 6 — USE CASES
+   SECTION 9 — USE CASES
 ───────────────────────────────────────────────────────── */
 const USE_CASES = [
   {
@@ -945,7 +1064,6 @@ const USE_CASES = [
   },
 ];
 
-// Topo SVG lines
 function TopoLines() {
   return (
     <svg
@@ -989,7 +1107,6 @@ function UseCases() {
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {/* Cards 1-5 */}
           {USE_CASES.map((c) => (
             <article
               key={c.title}
@@ -1000,7 +1117,6 @@ function UseCases() {
                 overflow: 'hidden',
               }}
             >
-              {/* Gradient cover with topo lines */}
               <div
                 style={{
                   height: 150,
@@ -1041,7 +1157,6 @@ function UseCases() {
             </article>
           ))}
 
-          {/* Card 6 — African Summits (special dark) */}
           <article
             style={{
               background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 100%)',
@@ -1090,7 +1205,7 @@ function UseCases() {
 }
 
 /* ─────────────────────────────────────────────────────────
-   SECTION 7 — PRICING
+   SECTION 10 — PRICING
 ───────────────────────────────────────────────────────── */
 const FREE_FEATURES = [
   '1 active event',
@@ -1124,23 +1239,10 @@ const STUDIO_FEATURES = [
 ];
 
 function PricingCard({
-  name,
-  price,
-  period,
-  features,
-  cta,
-  href,
-  popular,
-  everythingInPro,
+  name, price, period, features, cta, href, popular, everythingInPro,
 }: {
-  name: string;
-  price: string;
-  period: string;
-  features: string[];
-  cta: string;
-  href: string;
-  popular?: boolean;
-  everythingInPro?: boolean;
+  name: string; price: string; period: string; features: string[];
+  cta: string; href: string; popular?: boolean; everythingInPro?: boolean;
 }) {
   return (
     <div
@@ -1159,20 +1261,10 @@ function PricingCard({
       {popular && (
         <div
           style={{
-            position: 'absolute',
-            top: -12,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            background: '#E8C57E',
-            color: '#163828',
-            fontSize: 10,
-            fontFamily: 'var(--font-sans)',
-            fontWeight: 700,
-            letterSpacing: '0.12em',
-            textTransform: 'uppercase',
-            borderRadius: 100,
-            padding: '4px 14px',
-            whiteSpace: 'nowrap',
+            position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)',
+            background: '#E8C57E', color: '#163828', fontSize: 10, fontFamily: 'var(--font-sans)',
+            fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase',
+            borderRadius: 100, padding: '4px 14px', whiteSpace: 'nowrap',
           }}
         >
           POPULAR
@@ -1187,17 +1279,11 @@ function PricingCard({
         </div>
       )}
 
-      <div
-        className="font-display font-semibold"
-        style={{ fontSize: 15, color: popular ? '#E8C57E' : '#1F4D3A', marginBottom: 10 }}
-      >
+      <div className="font-display font-semibold" style={{ fontSize: 15, color: popular ? '#E8C57E' : '#1F4D3A', marginBottom: 10 }}>
         {name}
       </div>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 20 }}>
-        <span
-          className="font-display font-bold"
-          style={{ fontSize: 42, color: popular ? '#FAF6EE' : '#0F1F18', letterSpacing: '-0.03em', lineHeight: 1 }}
-        >
+        <span className="font-display font-bold" style={{ fontSize: 42, color: popular ? '#FAF6EE' : '#0F1F18', letterSpacing: '-0.03em', lineHeight: 1 }}>
           {price}
         </span>
         {period && (
@@ -1223,14 +1309,8 @@ function PricingCard({
       <Link
         href={href}
         style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 6,
-          borderRadius: 100,
-          fontWeight: 600,
-          fontSize: 14,
-          padding: '11px 20px',
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+          borderRadius: 100, fontWeight: 600, fontSize: 14, padding: '11px 20px',
           background: popular ? '#E8C57E' : 'transparent',
           color: popular ? '#163828' : '#1F4D3A',
           border: popular ? 'none' : '1.5px solid rgba(31,77,58,0.35)',
@@ -1248,53 +1328,18 @@ function Pricing() {
     <section id="pricing" style={{ background: '#FAF6EE', paddingTop: 80, paddingBottom: 96 }}>
       <div className="mx-auto px-5 lg:px-10" style={{ maxWidth: 1200 }}>
         <div className="text-center mb-12">
-          <div
-            style={{
-              fontSize: 11,
-              fontFamily: 'var(--font-sans)',
-              letterSpacing: '0.22em',
-              textTransform: 'uppercase',
-              color: '#1F4D3A',
-              marginBottom: 14,
-            }}
-          >
+          <div style={{ fontSize: 11, fontFamily: 'var(--font-sans)', letterSpacing: '0.22em', textTransform: 'uppercase', color: '#1F4D3A', marginBottom: 14 }}>
             Pricing
           </div>
-          <h2
-            className="font-title font-bold"
-            style={{ fontSize: 'clamp(28px, 4vw, 48px)', color: '#0F1F18', letterSpacing: '-0.03em' }}
-          >
+          <h2 className="font-title font-bold" style={{ fontSize: 'clamp(28px, 4vw, 48px)', color: '#0F1F18', letterSpacing: '-0.03em' }}>
             Start free. Pay as you grow.
           </h2>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-5 items-start">
-          <PricingCard
-            name="Free"
-            price="$0"
-            period="/mo"
-            features={FREE_FEATURES}
-            cta="Start free"
-            href="/signup"
-          />
-          <PricingCard
-            name="Pro"
-            price="$19"
-            period="/mo"
-            features={PRO_FEATURES}
-            cta="Start Pro"
-            href="/signup?plan=pro"
-            popular
-          />
-          <PricingCard
-            name="Studio"
-            price="$49"
-            period="/mo"
-            features={STUDIO_FEATURES}
-            cta="Start Studio"
-            href="/signup?plan=studio"
-            everythingInPro
-          />
+          <PricingCard name="Free" price="$0" period="/mo" features={FREE_FEATURES} cta="Start free" href="/signup" />
+          <PricingCard name="Pro" price="$19" period="/mo" features={PRO_FEATURES} cta="Start Pro" href="/signup?plan=pro" popular />
+          <PricingCard name="Studio" price="$49" period="/mo" features={STUDIO_FEATURES} cta="Start Studio" href="/signup?plan=studio" everythingInPro />
         </div>
 
         <div className="text-center mt-10" style={{ fontSize: 14, color: '#6B7A72' }}>
@@ -1309,7 +1354,7 @@ function Pricing() {
 }
 
 /* ─────────────────────────────────────────────────────────
-   SECTION 8 — TESTIMONIAL
+   SECTION 11 — TESTIMONIAL
 ───────────────────────────────────────────────────────── */
 function Testimonial() {
   return (
@@ -1323,47 +1368,23 @@ function Testimonial() {
       }}
     >
       <div className="mx-auto px-5 lg:px-10" style={{ maxWidth: 860 }}>
-        <div
-          style={{
-            fontSize: 11,
-            fontFamily: 'var(--font-sans)',
-            letterSpacing: '0.22em',
-            textTransform: 'uppercase',
-            color: '#1F4D3A',
-            textAlign: 'center',
-            marginBottom: 28,
-          }}
-        >
+        <div style={{ fontSize: 11, fontFamily: 'var(--font-sans)', letterSpacing: '0.22em', textTransform: 'uppercase', color: '#1F4D3A', textAlign: 'center', marginBottom: 28 }}>
           From organizers who&apos;ve run real events on Karta
         </div>
         <Quote size={38} strokeWidth={1.5} style={{ color: '#E8C57E', margin: '0 auto 20px', display: 'block' }} />
         <blockquote
           className="font-display"
-          style={{
-            fontSize: 'clamp(20px, 2.8vw, 30px)',
-            color: '#0F1F18',
-            lineHeight: 1.4,
-            letterSpacing: '-0.02em',
-            textAlign: 'center',
-            marginBottom: 28,
-          }}
+          style={{ fontSize: 'clamp(20px, 2.8vw, 30px)', color: '#0F1F18', lineHeight: 1.4, letterSpacing: '-0.02em', textAlign: 'center', marginBottom: 28 }}
         >
           &ldquo;We ran registration, check-in and the agenda on Karta — but the cards are what people remember. 600 attendees, 740 cards shared. The reach was 10x what our email kit ever did.&rdquo;
         </blockquote>
         <div className="flex items-center justify-center gap-3">
           <div
             style={{
-              width: 40, height: 40,
-              borderRadius: '50%',
-              background: '#E8EFEB',
-              border: '2px solid #1F4D3A',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 13,
-              fontWeight: 700,
-              color: '#1F4D3A',
-              fontFamily: 'var(--font-display)',
+              width: 40, height: 40, borderRadius: '50%',
+              background: '#E8EFEB', border: '2px solid #1F4D3A',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 13, fontWeight: 700, color: '#1F4D3A', fontFamily: 'var(--font-display)',
             }}
           >
             AY
@@ -1379,7 +1400,7 @@ function Testimonial() {
 }
 
 /* ─────────────────────────────────────────────────────────
-   SECTION 9 — FAQ
+   SECTION 12 — FAQ
 ───────────────────────────────────────────────────────── */
 const LANDING_FAQS: FAQItem[] = [
   {
@@ -1421,22 +1442,10 @@ function FAQSection() {
     <section id="faq" style={{ paddingTop: 80, paddingBottom: 96, background: '#FAF6EE' }}>
       <div className="mx-auto px-5 lg:px-10" style={{ maxWidth: 920 }}>
         <div className="text-center mb-12">
-          <div
-            style={{
-              fontSize: 11,
-              fontFamily: 'var(--font-sans)',
-              letterSpacing: '0.22em',
-              textTransform: 'uppercase',
-              color: '#1F4D3A',
-              marginBottom: 14,
-            }}
-          >
+          <div style={{ fontSize: 11, fontFamily: 'var(--font-sans)', letterSpacing: '0.22em', textTransform: 'uppercase', color: '#1F4D3A', marginBottom: 14 }}>
             FAQ
           </div>
-          <h2
-            className="font-title font-bold"
-            style={{ fontSize: 'clamp(28px, 4vw, 44px)', color: '#0F1F18', letterSpacing: '-0.03em' }}
-          >
+          <h2 className="font-title font-bold" style={{ fontSize: 'clamp(28px, 4vw, 44px)', color: '#0F1F18', letterSpacing: '-0.03em' }}>
             Questions we get every week.
           </h2>
         </div>
@@ -1447,7 +1456,7 @@ function FAQSection() {
 }
 
 /* ─────────────────────────────────────────────────────────
-   SECTION 10 — FINAL CTA
+   SECTION 13 — FINAL CTA
 ───────────────────────────────────────────────────────── */
 function FinalCTA() {
   return (
@@ -1460,32 +1469,20 @@ function FinalCTA() {
         overflow: 'hidden',
       }}
     >
-      {/* Gold radial glow bottom-right */}
       <div
         aria-hidden
         style={{
-          position: 'absolute',
-          bottom: '-20%',
-          right: '-10%',
-          width: 480,
-          height: 480,
-          borderRadius: '50%',
+          position: 'absolute', bottom: '-20%', right: '-10%',
+          width: 480, height: 480, borderRadius: '50%',
           background: 'radial-gradient(circle, rgba(232,197,126,0.22) 0%, transparent 65%)',
-          filter: 'blur(60px)',
-          pointerEvents: 'none',
+          filter: 'blur(60px)', pointerEvents: 'none',
         }}
       />
 
       <div className="relative mx-auto px-5 lg:px-10 text-center" style={{ maxWidth: 760 }}>
         <h2
           className="font-title font-bold"
-          style={{
-            fontSize: 'clamp(30px, 5vw, 54px)',
-            color: '#FAF6EE',
-            letterSpacing: '-0.035em',
-            lineHeight: 1.05,
-            marginBottom: 18,
-          }}
+          style={{ fontSize: 'clamp(30px, 5vw, 54px)', color: '#FAF6EE', letterSpacing: '-0.035em', lineHeight: 1.05, marginBottom: 18 }}
         >
           Your next event deserves better than a spreadsheet and a Canva template.
         </h2>
@@ -1496,16 +1493,9 @@ function FinalCTA() {
           <Link
             href="/signup"
             style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              background: '#E8C57E',
-              color: '#163828',
-              borderRadius: 100,
-              padding: '14px 28px',
-              fontSize: 15,
-              fontWeight: 700,
-              textDecoration: 'none',
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              background: '#E8C57E', color: '#163828',
+              borderRadius: 100, padding: '14px 28px', fontSize: 15, fontWeight: 700, textDecoration: 'none',
             }}
           >
             Start free <ArrowRight size={16} strokeWidth={2.5} />
@@ -1513,16 +1503,9 @@ function FinalCTA() {
           <Link
             href="/contact"
             style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              border: '1.5px solid rgba(250,246,238,0.3)',
-              color: '#FAF6EE',
-              borderRadius: 100,
-              padding: '14px 28px',
-              fontSize: 15,
-              fontWeight: 600,
-              textDecoration: 'none',
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              border: '1.5px solid rgba(250,246,238,0.3)', color: '#FAF6EE',
+              borderRadius: 100, padding: '14px 28px', fontSize: 15, fontWeight: 600, textDecoration: 'none',
             }}
           >
             Talk to us
@@ -1541,7 +1524,10 @@ export default function LandingPage() {
     <>
       <Hero />
       <TrustStrip />
-      <PlatformFeatures />
+      <PlatformOverview />
+      <ShowcaseRegistration />
+      <ShowcaseAnalytics />
+      <KartaCardBanner />
       <KartaDifference />
       <HowItWorks />
       <UseCases />
