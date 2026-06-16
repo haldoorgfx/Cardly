@@ -49,7 +49,6 @@ const PLAN_LIMITS: Record<string, number> = {
 
 // ─── UUID detection ───────────────────────────────────────────────────────────
 
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const NON_EVENT_SEGMENTS = new Set(['new', 'create', 'undefined', 'null']);
 function getEventIdFromPath(pathname: string): string | null {
   const m = pathname.match(/\/events\/([^/]+)/);
@@ -383,6 +382,8 @@ function writeEventCache(eventId: string, data: EventInfo) {
   try { sessionStorage.setItem(`karta_ev_${eventId}`, JSON.stringify(data)); }
   catch {}
 }
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function EventNavContent({ pathname, eventId, onNavigate }: {
   pathname: string; eventId: string; onNavigate?: () => void;
