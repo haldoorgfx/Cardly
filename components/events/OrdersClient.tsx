@@ -98,6 +98,7 @@ export function OrdersClient({ eventId, orders: initialOrders }: Props) {
   const [statusOverride, setStatusOverride] = useState<Record<string, string>>({});
   const [refunding, setRefunding] = useState(false);
   const [confirmRefund, setConfirmRefund] = useState<string | null>(null);
+  const [refundError, setRefundError] = useState('');
 
   const orders = initialOrders.map(o => ({ ...o, status: statusOverride[o.id] ?? o.status }));
 
@@ -124,15 +125,21 @@ export function OrdersClient({ eventId, orders: initialOrders }: Props) {
   async function refundOrder(id: string) {
     setConfirmRefund(null);
     setRefunding(true);
+    setRefundError('');
     setStatusOverride(p => ({ ...p, [id]: 'refunded' }));
     try {
-      await fetch(`/api/events/${eventId}/registrations`, {
+      const res = await fetch(`/api/events/${eventId}/registrations`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ registrationId: id, status: 'refunded' }),
       });
-    } catch {
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error ?? 'Refund failed');
+      }
+    } catch (e) {
       setStatusOverride(p => { const n = { ...p }; delete n[id]; return n; }); // revert
+      setRefundError(e instanceof Error ? e.message : 'Refund failed. Please try again.');
     } finally {
       setRefunding(false);
     }
@@ -278,6 +285,12 @@ export function OrdersClient({ eventId, orders: initialOrders }: Props) {
                       <span style={{ color: '#6B7A72' }}>Total spent</span>
                       <span style={{ color: '#1F4D3A' }}>{fmtMoney(customerSpent, selectedOrder.currency)}</span>
                     </div>
+                  </div>
+                )}
+
+                {refundError && (
+                  <div className="px-4 py-2.5 rounded-xl text-[12.5px] font-medium" style={{ background: '#FEF2F2', color: '#B8423C', border: '1px solid #FECACA' }}>
+                    {refundError}
                   </div>
                 )}
 
