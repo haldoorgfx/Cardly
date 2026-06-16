@@ -726,7 +726,6 @@ const PAGE_LABELS: Record<string, string> = {
   'source-analytics':  'Sources',
   'approvals':         'Approvals',
   'communications':    'Communications',
-  'promoter-links':    'Promoter links',
 };
 
 function getPageBreadcrumbs(pathname: string, eventName: string | null): { label: string; href?: string }[] {
