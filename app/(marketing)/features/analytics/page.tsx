@@ -104,204 +104,121 @@ const STATS = [
 ];
 
 function AnalyticsMockup() {
-  const bars = [
-    { day: 'M', pct: 30 },
-    { day: 'T', pct: 45 },
-    { day: 'W', pct: 60 },
-    { day: 'T', pct: 80 },
-    { day: 'F', pct: 55 },
-    { day: 'S', pct: 100, today: true },
-    { day: 'S', pct: 90 },
-  ];
+  const barHeights = [24, 36, 30, 56, 44, 80, 70];
+  const barDays = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
   return (
-    <section
-      style={{
-        background: '#0F1F18',
-        padding: '80px 24px',
-        textAlign: 'center',
-      }}
-    >
-      <div style={{ maxWidth: 960, margin: '0 auto' }}>
-        <div
-          style={{
-            fontFamily: 'Inter, sans-serif',
-            fontSize: 11,
-            fontWeight: 700,
-            letterSpacing: '0.15em',
-            color: '#E8C57E',
-            textTransform: 'uppercase' as const,
-            marginBottom: 16,
-          }}
-        >
-          ORGANISER DASHBOARD
+    <section style={{ background: '#0F1F18', padding: 'clamp(72px,10vw,112px) clamp(20px,4vw,48px) 0', overflow: 'hidden' }}>
+      <div style={{ maxWidth: 1080, margin: '0 auto' }}>
+        {/* TOP ROW */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))', gap: 40, alignItems: 'end', marginBottom: 48 }}>
+          <div>
+            <div style={{ display: 'inline-block', background: 'rgba(232,197,126,0.12)', border: '1px solid rgba(232,197,126,0.25)', color: '#E8C57E', fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase' as const, borderRadius: 999, padding: '5px 14px', fontFamily: 'Inter,sans-serif', marginBottom: 20 }}>
+              Organiser Dashboard
+            </div>
+            <h2 style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 'clamp(1.7rem,3vw,2.4rem)', fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 14 }}>
+              Every metric that matters, live.
+            </h2>
+            <p style={{ fontFamily: 'Inter,sans-serif', fontSize: 16, color: 'rgba(250,246,238,0.60)', lineHeight: 1.65, maxWidth: 400 }}>
+              From the moment your page goes live — registrations, revenue, check-in rates, page views. All in one place.
+            </p>
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 12 }}>
+            {[
+              { n: '412', label: 'registrations' },
+              { n: '$8,200', label: 'gross revenue' },
+              { n: '87%', label: 'check-in rate' },
+            ].map((s) => (
+              <div key={s.label} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '14px 18px', flex: '1 1 120px' }}>
+                <div style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 28, fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.03em', lineHeight: 1 }}>{s.n}</div>
+                <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, color: 'rgba(250,246,238,0.45)', marginTop: 4 }}>{s.label}</div>
+              </div>
+            ))}
+          </div>
         </div>
-        <h2
-          style={{
-            fontFamily: 'DM Sans, sans-serif',
-            fontSize: 28,
-            fontWeight: 700,
-            letterSpacing: '-0.02em',
-            color: '#FAF6EE',
-            marginBottom: 12,
-          }}
-        >
-          Your event, by the numbers.
-        </h2>
-        <p
-          style={{
-            fontFamily: 'Inter, sans-serif',
-            fontSize: 16,
-            color: 'rgba(250,246,238,0.65)',
-            marginBottom: 48,
-            lineHeight: 1.6,
-          }}
-        >
-          Real-time from the moment your page goes live.
-        </p>
 
-        {/* Dashboard frame */}
-        <div
-          style={{
-            maxWidth: 900,
-            margin: '0 auto',
-            background: '#1A2620',
-            borderRadius: 16,
-            padding: 24,
-            boxShadow: '0 32px 80px rgba(0,0,0,0.5)',
-            textAlign: 'left',
-          }}
-        >
-          {/* Header */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-            <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 15, fontWeight: 700, color: '#FAF6EE' }}>
-              Pan-African Tech Summit
-            </span>
+        {/* WIDE DASHBOARD FRAME */}
+        <div style={{ background: '#1A2620', borderRadius: '14px 14px 0 0', padding: 20, boxShadow: '0 -4px 60px rgba(0,0,0,0.4)' }}>
+          {/* Header row */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 14, fontWeight: 700, color: '#FAF6EE' }}>Pan-African Tech Summit</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#2D7A4F' }} />
-              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#2D7A4F', fontWeight: 600 }}>Live · Mar 15, 2025</span>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#2D7A4F', display: 'inline-block' }} />
+              <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, color: '#2D7A4F' }}>Live · Mar 15, 2025</span>
             </div>
           </div>
 
-          {/* Stats row */}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              gap: 12,
-              marginBottom: 20,
-            }}
-          >
+          {/* Stat cards */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(120px,1fr))', gap: 12, marginTop: 16, marginBottom: 20 }}>
             {[
-              { value: '412', label: 'Registrations', delta: '+ 23 today' },
-              { value: '$8,200', label: 'Gross revenue', delta: null },
-              { value: '87%', label: 'Check-in rate', sub: '359 of 412' },
-              { value: '2,841', label: 'Page views', delta: null },
-            ].map((stat) => (
-              <div
-                key={stat.label}
-                style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  borderRadius: 10,
-                  padding: 16,
-                }}
-              >
-                <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 28, fontWeight: 700, color: '#FAF6EE', lineHeight: 1, marginBottom: 4 }}>
-                  {stat.value}
-                </div>
-                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: 'rgba(250,246,238,0.5)', marginBottom: stat.delta ? 6 : 0 }}>
-                  {stat.label}
-                </div>
-                {stat.delta && (
-                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600, color: '#2D7A4F' }}>
-                    {stat.delta}
-                  </div>
-                )}
-                {stat.sub && (
-                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: 'rgba(250,246,238,0.4)' }}>
-                    {stat.sub}
-                  </div>
-                )}
+              { val: '412', label: 'Registrations', sub: '+23 today', subColor: '#2D7A4F' },
+              { val: '$8,200', label: 'Revenue', sub: '+$340 today', subColor: '#2D7A4F' },
+              { val: '87%', label: 'Check-in rate', sub: '359 of 412', subColor: 'rgba(250,246,238,0.45)' },
+              { val: '2,841', label: 'Page views', sub: '+124 today', subColor: '#2D7A4F' },
+            ].map((s) => (
+              <div key={s.label} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: 14 }}>
+                <div style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 24, fontWeight: 700, color: '#FAF6EE', lineHeight: 1 }}>{s.val}</div>
+                <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 11, color: 'rgba(250,246,238,0.45)', marginTop: 4 }}>{s.label}</div>
+                <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 11, color: s.subColor, marginTop: 4 }}>{s.sub}</div>
               </div>
             ))}
           </div>
 
           {/* Bar chart */}
-          <div style={{ marginBottom: 20 }}>
-            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 700, color: '#FAF6EE', marginBottom: 12 }}>
-              Registrations this week
+          <div style={{ background: 'rgba(0,0,0,0.2)', borderRadius: 10, padding: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 13, fontWeight: 700, color: 'rgba(250,246,238,0.7)' }}>Registrations this week</span>
+              <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, color: 'rgba(250,246,238,0.4)' }}>Export CSV →</span>
             </div>
-            <div
-              style={{
-                background: 'rgba(0,0,0,0.2)',
-                borderRadius: 8,
-                padding: 16,
-                display: 'flex',
-                alignItems: 'flex-end',
-                gap: 8,
-                height: 110,
-              }}
-            >
-              {bars.map((bar, i) => (
-                <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 4, height: '100%', justifyContent: 'flex-end' }}>
-                  <div
-                    style={{
-                      width: '100%',
-                      height: `${bar.pct * 0.8}px`,
-                      background: bar.today ? '#1F4D3A' : 'rgba(31,77,58,0.55)',
-                      borderRadius: '3px 3px 0 0',
-                      minHeight: 4,
-                    }}
-                  />
-                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, color: 'rgba(250,246,238,0.4)' }}>{bar.day}</span>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 80 }}>
+              {barHeights.map((h, i) => (
+                <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 0, height: '100%', justifyContent: 'flex-end' }}>
+                  <div style={{ width: '100%', height: h, background: i === 5 ? '#E8C57E' : i === 6 ? 'rgba(31,77,58,0.5)' : 'rgba(31,77,58,0.7)', borderRadius: '4px 4px 0 0' }} />
                 </div>
+              ))}
+            </div>
+            <div style={{ display: 'flex', marginTop: 6 }}>
+              {barDays.map((d, i) => (
+                <div key={i} style={{ flex: 1, fontFamily: 'Inter,sans-serif', fontSize: 10, color: 'rgba(250,246,238,0.35)', textAlign: 'center' as const }}>{d}</div>
               ))}
             </div>
           </div>
 
           {/* Bottom row */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-            {/* Ticket breakdown */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 16, marginTop: 16 }}>
             <div>
-              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 700, color: '#FAF6EE', marginBottom: 10 }}>
-                Ticket breakdown
-              </div>
+              <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, fontWeight: 700, color: '#FAF6EE', marginBottom: 10 }}>Ticket breakdown</div>
               {[
-                { label: 'General ($0)', pct: 60, count: '247 sold' },
-                { label: 'Professional ($49)', pct: 35, count: '142 sold' },
-                { label: 'VIP ($149)', pct: 15, count: '23 sold' },
-              ].map((row) => (
-                <div key={row.label} style={{ marginBottom: 8 }}>
+                { label: 'General', price: '$0', pct: 62 },
+                { label: 'Professional', price: '$49', pct: 35 },
+                { label: 'VIP', price: '$149', pct: 8 },
+              ].map((r) => (
+                <div key={r.label} style={{ marginBottom: 10 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: 'rgba(250,246,238,0.6)' }}>{row.label}</span>
-                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: 'rgba(250,246,238,0.4)' }}>{row.count}</span>
+                    <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, color: 'rgba(250,246,238,0.7)' }}>{r.label} {r.price}</span>
+                    <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 11, color: '#6B7A72' }}>{r.pct}%</span>
                   </div>
-                  <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 4, height: 6, overflow: 'hidden' }}>
-                    <div style={{ width: `${row.pct}%`, height: '100%', background: '#1F4D3A', borderRadius: 4 }} />
+                  <div style={{ background: 'rgba(255,255,255,0.08)', height: 6, borderRadius: 3 }}>
+                    <div style={{ width: `${r.pct}%`, height: '100%', background: '#1F4D3A', borderRadius: 3 }} />
                   </div>
                 </div>
               ))}
             </div>
-
-            {/* Top referrers */}
             <div>
-              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 700, color: '#FAF6EE', marginBottom: 10 }}>
-                Top referrers
-              </div>
+              <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, fontWeight: 700, color: '#FAF6EE', marginBottom: 10 }}>Top referrer channels</div>
               {[
                 { label: 'Instagram', pct: 38 },
                 { label: 'WhatsApp', pct: 27 },
                 { label: 'Direct', pct: 20 },
-                { label: 'Twitter', pct: 15 },
-              ].map((row) => (
-                <div key={row.label} style={{ marginBottom: 8 }}>
+                { label: 'Other', pct: 15 },
+              ].map((r) => (
+                <div key={r.label} style={{ marginBottom: 10 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: 'rgba(250,246,238,0.6)' }}>{row.label}</span>
-                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: 'rgba(250,246,238,0.4)' }}>{row.pct}%</span>
+                    <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, color: '#FAF6EE' }}>{r.label}</span>
+                    <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 11, color: '#6B7A72' }}>{r.pct}%</span>
                   </div>
-                  <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 4, height: 6, overflow: 'hidden' }}>
-                    <div style={{ width: `${row.pct}%`, height: '100%', background: '#2D7A4F', borderRadius: 4 }} />
+                  <div style={{ background: 'rgba(255,255,255,0.08)', height: 6, borderRadius: 3 }}>
+                    <div style={{ width: `${r.pct}%`, height: '100%', background: '#1F4D3A', borderRadius: 3 }} />
                   </div>
                 </div>
               ))}

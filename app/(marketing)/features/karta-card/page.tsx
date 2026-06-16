@@ -27,82 +27,95 @@ const cardStats = [
 
 function KartaCardMockup() {
   return (
-    <section style={{ background: '#0F1F18', padding: '80px 24px' }}>
-      <div style={{ maxWidth: 700, margin: '0 auto', textAlign: 'center' }}>
-        {/* Header */}
-        <h2 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 32, fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.02em', marginBottom: 12 }}>Your design. Their face. Ready to share.</h2>
-        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 16, color: 'rgba(250,246,238,0.65)', marginBottom: 56 }}>Every registrant gets a personalized card in under 30 seconds.</p>
+    <section style={{ background: '#0F1F18', padding: 'clamp(72px,10vw,112px) clamp(20px,4vw,48px)', overflow: 'hidden' }}>
+      <div style={{ maxWidth: 1080, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 56, alignItems: 'center' }}>
 
-        {/* Two phone frames */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 24, flexWrap: 'wrap' as const }}>
+        {/* LEFT — Text */}
+        <div>
+          <div style={{ display: 'inline-block', background: 'rgba(232,197,126,0.12)', border: '1px solid rgba(232,197,126,0.25)', color: '#E8C57E', fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase' as const, borderRadius: 999, padding: '5px 14px', fontFamily: 'Inter,sans-serif', marginBottom: 20 }}>
+            The Karta Difference
+          </div>
+          <h2 style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 'clamp(1.7rem,3vw,2.4rem)', fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 16 }}>
+            Your design. Their face. Ready to share.
+          </h2>
+          <p style={{ fontFamily: 'Inter,sans-serif', fontSize: 16, color: 'rgba(250,246,238,0.60)', lineHeight: 1.65, marginBottom: 24, maxWidth: 420 }}>
+            Every person who registers gets a personalized card with their photo, name, and your event brand. They share it. Your event reaches people who haven&apos;t heard of you yet.
+          </p>
+          <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px', display: 'flex', flexDirection: 'column' as const, gap: 10 }}>
+            {[
+              'Auto-generated at registration — no design work needed',
+              'One tap to WhatsApp, Instagram, LinkedIn, X',
+              'Included on every plan, free or paid',
+            ].map((b) => (
+              <li key={b} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontFamily: 'Inter,sans-serif', fontSize: 14, color: 'rgba(250,246,238,0.70)', lineHeight: 1.5 }}>
+                <span style={{ color: '#E8C57E', marginTop: 2, flexShrink: 0 }}>✦</span>
+                {b}
+              </li>
+            ))}
+          </ul>
+          <Link href="/features/karta-card#how" style={{ display: 'inline-flex', alignItems: 'center', background: '#E8C57E', color: '#0F1F18', fontFamily: 'Inter,sans-serif', fontSize: 14, fontWeight: 700, padding: '12px 22px', borderRadius: 10, textDecoration: 'none' }}>
+            See how the card works →
+          </Link>
+        </div>
 
-          {/* LEFT PHONE — Attendee fills in */}
-          <div style={{ width: 260, background: '#163828', borderRadius: 32, padding: 10, boxShadow: '0 32px 80px rgba(0,0,0,0.5)' }}>
-            <div style={{ background: '#FFFFFF', borderRadius: 24, overflow: 'hidden' }}>
-              {/* Top strip */}
-              <div style={{ background: '#1F4D3A', padding: 14 }}>
-                <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 700, color: '#FAF6EE', textAlign: 'center' }}>Your Karta Card</div>
-                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: 'rgba(250,246,238,0.65)', textAlign: 'center' }}>Pan-African Climate Summit</div>
+        {/* RIGHT — Two phones */}
+        <div style={{ display: 'flex', flexDirection: 'row' as const, gap: 20, justifyContent: 'center', flexWrap: 'wrap' as const, alignItems: 'center' }}>
+
+          {/* PHONE LEFT — Fill in */}
+          <div style={{ width: 230, background: '#163828', borderRadius: 32, padding: 8, boxShadow: '0 32px 80px rgba(0,0,0,0.5)', position: 'relative', top: 20 }}>
+            <div style={{ background: '#FFFFFF', borderRadius: 26, overflow: 'hidden' }}>
+              <div style={{ background: '#1F4D3A', padding: 14, textAlign: 'center' as const }}>
+                <div style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 12, fontWeight: 700, color: '#FAF6EE' }}>Your Karta Card</div>
+                <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 10, color: 'rgba(250,246,238,0.6)', marginTop: 2 }}>Pan-African Climate Summit</div>
               </div>
-              {/* Photo upload zone */}
-              <div style={{ background: '#FAF6EE', border: '2px dashed #E5E0D4', borderRadius: 12, margin: 12, padding: 20, textAlign: 'center' }}>
-                <div style={{ width: 64, height: 64, background: '#E8EFEB', borderRadius: '50%', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <div style={{ background: '#FAF6EE', margin: 12, border: '2px dashed #E5E0D4', borderRadius: 12, padding: 16, textAlign: 'center' as const }}>
+                <div style={{ width: 52, height: 52, background: '#E8EFEB', borderRadius: '50%', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                     <rect x="3" y="7" width="18" height="13" rx="2" stroke="#6B7A72" strokeWidth="1.5" fill="none"/>
                     <circle cx="12" cy="13" r="3.5" stroke="#6B7A72" strokeWidth="1.5" fill="none"/>
                     <path d="M9 7V6a3 3 0 0 1 6 0v1" stroke="#6B7A72" strokeWidth="1.5" strokeLinecap="round"/>
                   </svg>
                 </div>
-                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6B7A72', marginTop: 8 }}>Tap to add your photo</div>
+                <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 11, color: '#6B7A72', marginTop: 8 }}>Tap to add your photo</div>
               </div>
-              {/* Form fields */}
-              <div style={{ padding: '0 12px 12px', display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
-                <div style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', borderRadius: 8, height: 38, display: 'flex', alignItems: 'center', padding: '0 12px' }}>
-                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#0F1F18' }}>Amara Yusuf</span>
+              <div style={{ padding: '0 12px 12px', display: 'flex', flexDirection: 'column' as const, gap: 6 }}>
+                <div style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', borderRadius: 8, height: 36, display: 'flex', alignItems: 'center', padding: '0 10px' }}>
+                  <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, color: '#0F1F18' }}>Amara Yusuf</span>
                 </div>
-                <div style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', borderRadius: 8, height: 38, display: 'flex', alignItems: 'center', padding: '0 12px' }}>
-                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#0F1F18' }}>Climate Policy Lead</span>
+                <div style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', borderRadius: 8, height: 36, display: 'flex', alignItems: 'center', padding: '0 10px' }}>
+                  <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, color: '#0F1F18' }}>Climate Policy Lead</span>
                 </div>
               </div>
-              {/* Generate button */}
-              <div style={{ margin: '0 12px 12px', background: '#1F4D3A', borderRadius: 10, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 700, color: '#FAF6EE' }}>Generate my card →</span>
+              <div style={{ margin: '0 12px 12px', background: '#1F4D3A', borderRadius: 10, height: 42, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 13, fontWeight: 700, color: '#FAF6EE' }}>Generate my card →</span>
               </div>
             </div>
           </div>
 
-          {/* RIGHT PHONE — The Card */}
-          <div style={{ width: 260, background: '#163828', borderRadius: 32, padding: 10, boxShadow: '0 32px 80px rgba(0,0,0,0.5)', border: '2px solid rgba(232,197,126,0.3)' }}>
-            <div style={{ background: '#1F4D3A', borderRadius: 24, overflow: 'hidden' }}>
-              {/* Card design area */}
-              <div style={{ background: 'linear-gradient(160deg,#1F4D3A 0%,#2A6A50 50%,rgba(232,197,126,0.3) 100%)', padding: '24px 20px', display: 'flex', flexDirection: 'column' as const, alignItems: 'center' }}>
-                {/* Event name */}
-                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 9, fontWeight: 600, color: '#E8C57E', textTransform: 'uppercase' as const, letterSpacing: '0.2em', marginBottom: 20, textAlign: 'center' }}>PAN-AFRICAN CLIMATE SUMMIT 2025</div>
-                {/* Photo circle */}
-                <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'linear-gradient(135deg,#E8C57E,#C9A45E)', border: '3px solid rgba(232,197,126,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 24, fontWeight: 700, color: '#163828' }}>AY</span>
+          {/* PHONE RIGHT — The card */}
+          <div style={{ width: 230, background: '#163828', borderRadius: 32, padding: 8, boxShadow: '0 32px 80px rgba(0,0,0,0.5)', border: '2px solid rgba(232,197,126,0.4)' }}>
+            <div style={{ background: 'linear-gradient(160deg,#1F4D3A 0%,#2A6A50 50%,rgba(232,197,126,0.15) 100%)', borderRadius: 26, overflow: 'hidden' }}>
+              <div style={{ padding: '24px 20px', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', textAlign: 'center' as const }}>
+                <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 8, fontWeight: 700, color: '#E8C57E', textTransform: 'uppercase' as const, letterSpacing: '0.2em', marginBottom: 20 }}>PAN-AFRICAN CLIMATE SUMMIT 2025</div>
+                <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'linear-gradient(135deg,#E8C57E,#C9A45E)', border: '2.5px solid rgba(232,197,126,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <span style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 22, fontWeight: 700, color: '#163828' }}>AY</span>
                 </div>
-                {/* Name */}
-                <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 20, fontWeight: 700, color: '#FAF6EE', marginTop: 14, marginBottom: 2, letterSpacing: '-0.01em' }}>Amara Yusuf</div>
-                {/* Role */}
-                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: 'rgba(250,246,238,0.75)' }}>Climate Policy Lead</div>
-                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: 'rgba(250,246,238,0.5)', marginTop: 2 }}>COP29 · Cairo</div>
-                {/* Divider */}
-                <div style={{ width: '80%', height: 1, background: 'rgba(232,197,126,0.2)', margin: '16px 0' }} />
-                {/* Footer */}
-                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#E8C57E', letterSpacing: '0.1em', textAlign: 'center' }}>✦ I&apos;m Attending</div>
-                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, color: 'rgba(250,246,238,0.35)', marginTop: 4 }}>karta.cre8so.com</div>
+                <div style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 19, fontWeight: 700, color: '#FAF6EE', marginTop: 12, marginBottom: 2, letterSpacing: '-0.01em' }}>Amara Yusuf</div>
+                <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, color: 'rgba(250,246,238,0.75)' }}>Climate Policy Lead</div>
+                <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 11, color: 'rgba(250,246,238,0.5)', marginTop: 2 }}>COP29 · Cairo</div>
+                <div style={{ width: '70%', height: 1, background: 'rgba(232,197,126,0.2)', margin: '14px 0' }} />
+                <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 11, color: '#E8C57E', letterSpacing: '0.1em' }}>✦ I&apos;m Attending</div>
+                <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 10, color: 'rgba(250,246,238,0.35)', marginTop: 4 }}>karta.cre8so.com</div>
               </div>
-              {/* Share buttons row */}
-              <div style={{ background: '#163828', padding: 12 }}>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: 8 }}>
+              <div style={{ background: 'rgba(0,0,0,0.25)', padding: 10 }}>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: 10 }}>
                   {['W', 'IG', 'in', '↓'].map((icon) => (
-                    <div key={icon} style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <span style={{ fontFamily: 'Inter, sans-serif', fontSize: icon === '↓' ? 16 : 11, fontWeight: 700, color: '#FFFFFF' }}>{icon}</span>
+                    <div key={icon} style={{ width: 38, height: 38, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, fontWeight: 700, color: '#FAF6EE' }}>{icon}</span>
                     </div>
                   ))}
                 </div>
-                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, color: 'rgba(250,246,238,0.4)', textAlign: 'center', marginTop: 6 }}>Tap to share</div>
+                <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 9, color: 'rgba(250,246,238,0.35)', textAlign: 'center' as const, marginTop: 4 }}>Tap to share</div>
               </div>
             </div>
           </div>
