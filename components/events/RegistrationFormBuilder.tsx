@@ -6,6 +6,7 @@ import {
   AlignLeft, AlignJustify, List, CheckSquare, CircleDot, Phone, Link as LinkIcon,
   GripVertical,
 } from 'lucide-react';
+import { Modal } from '@/components/ui/Modal';
 import type { Database } from '@/types/database';
 
 type FieldRow = Database['public']['Tables']['registration_form_fields']['Row'];
@@ -262,25 +263,21 @@ export function RegistrationFormBuilder({ eventId, initialFields }: Props) {
         </div>
       )}
 
-      {/* ── Add / Edit panel ──────────────────────────────────── */}
-      {panel !== 'closed' && (
-        <div
-          className="rounded-2xl mb-4"
-          style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)' }}
-        >
-          <div
-            className="flex items-center justify-between px-5 py-4"
-            style={{ borderBottom: '1px solid #E5E0D4' }}
-          >
-            <h3 className="font-display font-semibold text-[16px]" style={{ color: '#0F1F18' }}>
-              {isEditing ? 'Edit field' : 'New field'}
-            </h3>
-            <button onClick={closePanel} className="text-[13px] font-medium transition hover:text-[#1F4D3A]" style={{ color: '#6B7A72' }}>
-              Cancel
+      {/* ── Add / Edit field modal ────────────────────────────── */}
+      <Modal
+        open={panel !== 'closed'}
+        onClose={closePanel}
+        title={isEditing ? 'Edit field' : 'New field'}
+        footer={
+          <>
+            <button onClick={closePanel} className="h-10 px-4 text-[13px] font-medium rounded-xl border transition" style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}>Cancel</button>
+            <button onClick={handleSave} disabled={saving} className="h-10 px-5 text-white text-[13px] font-semibold rounded-xl transition hover:opacity-90 disabled:opacity-60" style={{ background: '#1F4D3A' }}>
+              {saving ? 'Saving…' : isEditing ? 'Save changes' : 'Add field'}
             </button>
-          </div>
-
-          <div className="p-5 space-y-5">
+          </>
+        }
+      >
+          <div className="space-y-5">
             {/* Field type selector */}
             <div>
               <label className="block text-[12px] font-medium mb-2" style={{ color: '#3A4A42' }}>Field type</label>
@@ -405,28 +402,10 @@ export function RegistrationFormBuilder({ eventId, initialFields }: Props) {
               </button>
             </div>
 
-            {/* Error + actions */}
+            {/* Error */}
             {error && <p className="text-[13px]" style={{ color: '#B8423C' }}>{error}</p>}
-            <div className="flex justify-end gap-3 pt-1">
-              <button
-                onClick={closePanel}
-                className="h-9 px-4 text-[13px] font-medium rounded-lg border transition"
-                style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="h-9 px-5 text-white text-[13px] font-semibold rounded-lg transition hover:opacity-90 disabled:opacity-60"
-                style={{ background: '#1F4D3A' }}
-              >
-                {saving ? 'Saving…' : isEditing ? 'Save changes' : 'Add field'}
-              </button>
-            </div>
           </div>
-        </div>
-      )}
+      </Modal>
 
       {/* ── Add button ────────────────────────────────────────── */}
       {panel === 'closed' && (

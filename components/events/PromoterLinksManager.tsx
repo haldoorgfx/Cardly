@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Plus, Trash2, Copy, Check, Link2, TrendingUp } from 'lucide-react';
+import { Modal } from '@/components/ui/Modal';
 
 interface PromoterCode {
   id: string;
@@ -104,8 +105,20 @@ export function PromoterLinksManager({ eventId, eventSlug, initialCodes, appUrl 
       </div>
 
       {/* Create form */}
-      {showForm && (
-        <div className="rounded-xl p-4 mb-5" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
+      <Modal
+        open={showForm}
+        onClose={() => { setShowForm(false); setError(''); setForm({ code: '', label: '' }); }}
+        title="New promoter link"
+        footer={
+          <>
+            <button onClick={() => { setShowForm(false); setError(''); setForm({ code: '', label: '' }); }} className="h-10 px-4 rounded-xl text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
+            <button onClick={handleCreate} disabled={saving} className="h-10 px-5 rounded-xl text-[13px] font-semibold text-white disabled:opacity-60" style={{ background: '#1F4D3A' }}>
+              {saving ? 'Creating…' : 'Create link'}
+            </button>
+          </>
+        }
+      >
+        <div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
             <div>
               <label className="block text-[12px] font-medium mb-1.5" style={{ color: '#3A4A42' }}>Code *</label>
@@ -137,27 +150,9 @@ export function PromoterLinksManager({ eventId, eventSlug, initialCodes, appUrl 
             </div>
           )}
 
-          {error && <p className="text-[13px] mb-3" style={{ color: '#B8423C' }}>{error}</p>}
-
-          <div className="flex gap-2">
-            <button
-              onClick={handleCreate}
-              disabled={saving}
-              className="px-4 py-2 rounded-lg text-[13px] font-medium transition-opacity"
-              style={{ background: '#1F4D3A', color: '#FAF6EE', opacity: saving ? 0.6 : 1 }}
-            >
-              {saving ? 'Creating…' : 'Create link'}
-            </button>
-            <button
-              onClick={() => { setShowForm(false); setError(''); setForm({ code: '', label: '' }); }}
-              className="px-4 py-2 rounded-lg text-[13px]"
-              style={{ background: '#F4F1EB', color: '#3A4A42' }}
-            >
-              Cancel
-            </button>
-          </div>
+          {error && <p className="text-[13px]" style={{ color: '#B8423C' }}>{error}</p>}
         </div>
-      )}
+      </Modal>
 
       {/* Empty state */}
       {codes.length === 0 && !showForm && (

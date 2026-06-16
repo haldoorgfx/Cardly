@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Bell, BarChart2, ExternalLink, Clock, Plus, CheckCircle2, X, Send } from 'lucide-react';
+import { Bell, BarChart2, ExternalLink, Clock, Plus, CheckCircle2, Send } from 'lucide-react';
+import { Modal } from '@/components/ui/Modal';
 
 interface Props {
   eventId: string;
@@ -50,37 +51,41 @@ function ComposeModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl w-full max-w-[540px]" style={{ border: '1px solid #E5E0D4', boxShadow: '0 8px 40px rgba(15,31,24,0.18)' }}>
-        <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: '1px solid #E5E0D4' }}>
-          <div>
-            <h3 className="font-display text-[16px] font-semibold" style={{ color: '#0F1F18' }}>New email</h3>
-            <p className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>
-              Send to all confirmed attendees of {eventName}
-            </p>
-          </div>
-          <button onClick={onClose} className="h-7 w-7 rounded-lg grid place-items-center hover:bg-[#F5F3EE]" style={{ color: '#6B7A72' }}>
-            <X size={14} strokeWidth={2.2} />
+    <Modal
+      open
+      onClose={onClose}
+      title="New email"
+      subtitle={`Send to all confirmed attendees of ${eventName}`}
+      maxWidth={540}
+      footer={sent ? (
+        <button onClick={onClose} className="h-10 px-5 rounded-xl text-[13px] font-semibold text-white" style={{ background: '#1F4D3A' }}>Done</button>
+      ) : (
+        <>
+          <button onClick={onClose} className="h-10 px-4 rounded-xl text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
+          <button
+            onClick={handleSend}
+            disabled={sending || registrantCount === 0}
+            className="h-10 px-5 rounded-xl text-[13px] font-semibold text-white transition disabled:opacity-60 inline-flex items-center justify-center gap-1.5"
+            style={{ background: '#1F4D3A' }}
+          >
+            {sending ? 'Sending…' : <><Send size={13} strokeWidth={2} /> Send to {registrantCount}</>}
           </button>
-        </div>
-
+        </>
+      )}
+    >
         {sent ? (
-          <div className="px-4 sm:px-6 py-10 text-center">
+          <div className="py-6 text-center">
             <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: '#E8EFEB' }}>
               <CheckCircle2 size={22} strokeWidth={2} style={{ color: '#1F4D3A' }} />
             </div>
             <h4 className="font-display text-[18px] font-semibold mb-1" style={{ color: '#0F1F18' }}>Email sent!</h4>
-            <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>
+            <p className="text-[14px]" style={{ color: '#6B7A72' }}>
               Your message was delivered to {registrantCount} attendee{registrantCount !== 1 ? 's' : ''}.
             </p>
-            <button onClick={onClose} className="px-6 py-2.5 rounded-xl text-[13px] font-medium text-white" style={{ background: '#1F4D3A' }}>
-              Done
-            </button>
           </div>
         ) : (
           <>
-            <div className="px-4 sm:px-6 py-5 space-y-4">
+            <div className="space-y-4">
               {error && (
                 <div className="px-4 py-3 rounded-xl text-[13px] font-medium" style={{ background: '#FEF2F2', color: '#B8423C', border: '1px solid #FECACA' }}>
                   {error}
@@ -121,24 +126,9 @@ function ComposeModal({
                 <p className="text-[11.5px] mt-1" style={{ color: '#9BA8A1' }}>Plain text — line breaks are preserved in the email.</p>
               </div>
             </div>
-
-            <div className="px-4 sm:px-6 pb-5 flex gap-3">
-              <button onClick={onClose} className="flex-1 h-10 rounded-xl text-[13px] font-medium border transition" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
-                Cancel
-              </button>
-              <button
-                onClick={handleSend}
-                disabled={sending || registrantCount === 0}
-                className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white transition disabled:opacity-60 inline-flex items-center justify-center gap-1.5"
-                style={{ background: '#1F4D3A' }}
-              >
-                {sending ? 'Sending…' : <><Send size={13} strokeWidth={2} /> Send to {registrantCount} attendee{registrantCount !== 1 ? 's' : ''}</>}
-              </button>
-            </div>
           </>
         )}
-      </div>
-    </div>
+    </Modal>
   );
 }
 
