@@ -231,7 +231,7 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
     if (navigator.share) {
       await navigator.share({
         title: `I'm attending ${eventTitle}!`,
-        text: `Just registered for ${eventTitle}. Get your Karta Card too!`,
+        text: `Just registered for ${eventTitle}. Get your Eventera Card too!`,
         url,
       });
     } else {
@@ -303,7 +303,7 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
             </span>
           </div>
           <h1 className="font-display font-semibold text-[26px] mb-2" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
-            Personalise your Karta Card
+            Personalise your Eventera Card
           </h1>
           <p className="text-[14px] mb-8" style={{ color: '#6B7A72' }}>
             One last step — your personalised card will be generated when you confirm.

@@ -62,7 +62,7 @@ function buildConfirmationHtml(p: RegistrationConfirmEmailParams, appUrl: string
   <div style="max-width:560px;margin:0 auto;padding:32px 20px;">
     <div style="background:#1F4D3A;border-radius:12px;padding:28px 28px 20px;text-align:center;margin-bottom:24px;">
       <div style="font-family:'DM Sans',system-ui,sans-serif;font-size:22px;font-weight:600;color:white;letter-spacing:-0.01em;">
-        Kart<span style="color:#E8C57E;">a</span>
+        Eventer<span style="color:#E8C57E;">a</span>
       </div>
       <p style="color:rgba(255,255,255,0.75);font-size:14px;margin:8px 0 0;">You&apos;re registered!</p>
     </div>
@@ -93,7 +93,7 @@ function buildConfirmationHtml(p: RegistrationConfirmEmailParams, appUrl: string
     ${p.kartaCardUrl ? `
     <div style="text-align:center;margin-bottom:20px;">
       <a href="${p.kartaCardUrl}" style="display:inline-block;background:#1F4D3A;color:white;font-size:15px;font-weight:600;padding:14px 32px;border-radius:8px;text-decoration:none;">
-        Download your Karta Card
+        Download your Eventera Card
       </a>
       <p style="font-size:12px;color:#6B7A72;margin:10px 0 0;">Share it on LinkedIn, Twitter, and WhatsApp</p>
     </div>
@@ -159,7 +159,7 @@ function buildWaitlistConfirmHtml(p: WaitlistConfirmEmailParams, appUrl: string)
   <div style="max-width:560px;margin:0 auto;padding:32px 20px;">
     <div style="background:#1F4D3A;border-radius:12px;padding:28px 28px 20px;text-align:center;margin-bottom:24px;">
       <div style="font-family:'DM Sans',system-ui,sans-serif;font-size:22px;font-weight:600;color:white;letter-spacing:-0.01em;">
-        Kart<span style="color:#E8C57E;">a</span>
+        Eventer<span style="color:#E8C57E;">a</span>
       </div>
       <p style="color:rgba(255,255,255,0.75);font-size:14px;margin:8px 0 0;">You&apos;re on the waitlist</p>
     </div>
@@ -196,7 +196,7 @@ function buildWaitlistInviteHtml(p: WaitlistInviteEmailParams, appUrl: string) {
   <div style="max-width:560px;margin:0 auto;padding:32px 20px;">
     <div style="background:#1F4D3A;border-radius:12px;padding:28px 28px 20px;text-align:center;margin-bottom:24px;">
       <div style="font-family:'DM Sans',system-ui,sans-serif;font-size:22px;font-weight:600;color:white;letter-spacing:-0.01em;">
-        Kart<span style="color:#E8C57E;">a</span>
+        Eventer<span style="color:#E8C57E;">a</span>
       </div>
       <p style="color:rgba(255,255,255,0.75);font-size:14px;margin:8px 0 0;">A spot opened up!</p>
     </div>
@@ -246,7 +246,7 @@ export async function sendPendingApprovalEmail(params: ApprovalEmailParams) {
     html: `<!DOCTYPE html><html><body style="margin:0;padding:0;font-family:Inter,system-ui,sans-serif;background:#FAF6EE;color:#0F1F18;">
   <div style="max-width:560px;margin:0 auto;padding:32px 20px;">
     <div style="background:#1F4D3A;border-radius:12px;padding:28px;text-align:center;margin-bottom:24px;">
-      <div style="font-family:'DM Sans',system-ui,sans-serif;font-size:22px;font-weight:600;color:white;">Kart<span style="color:#E8C57E;">a</span></div>
+      <div style="font-family:'DM Sans',system-ui,sans-serif;font-size:22px;font-weight:600;color:white;">Eventer<span style="color:#E8C57E;">a</span></div>
       <p style="color:rgba(255,255,255,0.75);font-size:14px;margin:8px 0 0;">Registration received</p>
     </div>
     <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:24px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">Hi ${params.name},</h1>
@@ -274,7 +274,7 @@ export async function sendApprovedEmail(params: ApprovalEmailParams & { qrCodeUr
     html: `<!DOCTYPE html><html><body style="margin:0;padding:0;font-family:Inter,system-ui,sans-serif;background:#FAF6EE;color:#0F1F18;">
   <div style="max-width:560px;margin:0 auto;padding:32px 20px;">
     <div style="background:#1F4D3A;border-radius:12px;padding:28px;text-align:center;margin-bottom:24px;">
-      <div style="font-family:'DM Sans',system-ui,sans-serif;font-size:22px;font-weight:600;color:white;">Kart<span style="color:#E8C57E;">a</span></div>
+      <div style="font-family:'DM Sans',system-ui,sans-serif;font-size:22px;font-weight:600;color:white;">Eventer<span style="color:#E8C57E;">a</span></div>
       <p style="color:rgba(255,255,255,0.75);font-size:14px;margin:8px 0 0;">You&apos;re approved!</p>
     </div>
     <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:24px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">Great news, ${params.name}!</h1>
@@ -302,7 +302,7 @@ export async function sendDeniedEmail(params: ApprovalEmailParams) {
     html: `<!DOCTYPE html><html><body style="margin:0;padding:0;font-family:Inter,system-ui,sans-serif;background:#FAF6EE;color:#0F1F18;">
   <div style="max-width:560px;margin:0 auto;padding:32px 20px;">
     <div style="background:#1F4D3A;border-radius:12px;padding:28px;text-align:center;margin-bottom:24px;">
-      <div style="font-family:'DM Sans',system-ui,sans-serif;font-size:22px;font-weight:600;color:white;">Kart<span style="color:#E8C57E;">a</span></div>
+      <div style="font-family:'DM Sans',system-ui,sans-serif;font-size:22px;font-weight:600;color:white;">Eventer<span style="color:#E8C57E;">a</span></div>
     </div>
     <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:24px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">Hi ${params.name},</h1>
     <p style="font-size:15px;color:#3A4A42;margin:0 0 16px;">Thank you for applying to <strong>${params.eventTitle}</strong>. Unfortunately, the organiser wasn&apos;t able to offer you a spot this time.</p>
@@ -326,7 +326,7 @@ export async function sendTransferEmail(params: { to: string; name: string; even
     html: `<!DOCTYPE html><html><body style="margin:0;padding:0;font-family:Inter,system-ui,sans-serif;background:#FAF6EE;color:#0F1F18;">
   <div style="max-width:560px;margin:0 auto;padding:32px 20px;">
     <div style="background:#1F4D3A;border-radius:12px;padding:28px;text-align:center;margin-bottom:24px;">
-      <div style="font-family:'DM Sans',system-ui,sans-serif;font-size:22px;font-weight:600;color:white;">Kart<span style="color:#E8C57E;">a</span></div>
+      <div style="font-family:'DM Sans',system-ui,sans-serif;font-size:22px;font-weight:600;color:white;">Eventer<span style="color:#E8C57E;">a</span></div>
       <p style="color:rgba(255,255,255,0.75);font-size:14px;margin:8px 0 0;">Ticket transferred to you</p>
     </div>
     <h1 style="font-family:'DM Sans',system-ui,sans-serif;font-size:24px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px;">Hi ${params.name},</h1>

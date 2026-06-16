@@ -1,6 +1,6 @@
 ---
 version: alpha
-name: Karta
+name: Eventera
 description: >
   An editorial, African-modern event platform that reads like a well-set magazine
   rather than a startup landing page. Built on deep forest green and warm cream,
@@ -196,7 +196,7 @@ components:
 
 ## Overview
 
-Karta is the back-of-house for event organizers — they upload a design, define
+Eventera is the back-of-house for event organizers — they upload a design, define
 the editable zones, publish a link, and attendees personalize and share a card.
 The platform's entire visual job is to **frame the organizer's own design without
 competing with it.** Everything in this system is built around that restraint.
@@ -257,7 +257,7 @@ Two families, one voice.
 Numbers that carry meaning (stats, counts, money, percentages) use Inter with
 `font-feature-settings: "tnum"` so columns align — a quiet competence signal.
 
-**There is no monospace font in Karta.** Eyebrows and labels are Inter at weight
+**There is no monospace font in Eventera.** Eyebrows and labels are Inter at weight
 600, uppercase, with `0.1em` tracking — that casing alone marks them as taxonomy.
 Do not reach for a mono font to make something look "technical"; it reads as a
 generic developer-tool tell, which is the opposite of this brand.
@@ -334,7 +334,7 @@ Quick and mechanical. Nothing bounces, overshoots, or lingers.
 ## Do's and Don'ts
 
 ### Do
-- Treat the organizer's uploaded design as the protagonist. Karta's chrome is the
+- Treat the organizer's uploaded design as the protagonist. Eventera's chrome is the
   frame around it, set in quiet forest and warm cream.
 - Keep `{colors.accent}` gold scarce — one "look here" moment per screen, maximum.
 - Carry depth with the cream→white lift and a hairline border first; add
@@ -348,7 +348,7 @@ Quick and mechanical. Nothing bounces, overshoots, or lingers.
   single sanctioned gradient lives on the marketing hero and premium badge only.
 - **Don't use glow shadows** (`0 0 40px`, colored spreads). Real objects don't glow.
 - **Don't stack shadows** (drop + inset, or two drops). One shadow, or none.
-- **Don't introduce a monospace font** to look technical — Karta has none.
+- **Don't introduce a monospace font** to look technical — Eventera has none.
 - **Don't add a second accent color.** No blues, teals, purples, or pinks — those
   retired hues (`#6c63ff`, `#f8a4d8`) are banned.
 - **Don't use pure white `#FFFFFF` as the page background** — the canvas is cream.

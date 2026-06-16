@@ -216,7 +216,7 @@ async function buildWatermarkOp(canvasW: number, canvasH: number): Promise<Op> {
 
   const textBuf = await sharp({
     text: {
-      text: '<span foreground="#ffffff" size="14pt">Made with Karta</span>',
+      text: '<span foreground="#ffffff" size="14pt">Made with Eventera</span>',
       fontfile,
       dpi: 72,
       rgba: true,

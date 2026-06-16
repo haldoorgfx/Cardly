@@ -8,7 +8,7 @@ import { IntegrationsView } from '@/components/events/IntegrationsView';
 
 export const metadata: Metadata = {
   title: 'Integrations',
-  description: 'Connect Karta to your tools.',
+  description: 'Connect Eventera to your tools.',
 };
 
 export default async function IntegrationsPage({ params }: { params: Promise<{ id: string }> }) {

@@ -64,7 +64,7 @@ export function LiveDisplayClient({ eventId, sessionLabel, initialQuestions, act
       <div className="flex items-center justify-between px-8 py-5 shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <div className="flex items-center gap-4">
           <div className="font-display font-bold text-[22px]" style={{ color: '#FAF6EE', letterSpacing: '-0.02em' }}>
-            karta
+            eventera
           </div>
           <div className="h-5 w-px" style={{ background: 'rgba(255,255,255,0.2)' }} />
           <div className="text-[13px] font-semibold tracking-[0.12em] uppercase" style={{ color: '#E8C57E', fontFamily: 'Inter, system-ui, sans-serif' }}>

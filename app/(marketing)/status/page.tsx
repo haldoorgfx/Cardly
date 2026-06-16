@@ -3,7 +3,7 @@ import Reveal from '@/components/marketing/Reveal';
 
 export const metadata = {
   title: 'System Status',
-  description: 'Live status for all Karta services.',
+  description: 'Live status for all Eventera services.',
 };
 
 const SERVICES = [

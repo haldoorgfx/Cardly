@@ -12,13 +12,13 @@ const CATEGORIES = [
   { icon: <Users size={20} strokeWidth={1.8} />, title: 'Registration & tickets', count: 14, articles: ['Creating ticket types', 'Setting up promo codes', 'Managing registrations', 'Handling refunds'] },
   { icon: <CalendarDays size={20} strokeWidth={1.8} />, title: 'Agenda & speakers', count: 9, articles: ['Building your agenda', 'Adding speakers', 'Managing sessions', 'Speaker portal access'] },
   { icon: <ScanLine size={20} strokeWidth={1.8} />, title: 'Check-in', count: 6, articles: ['Setting up check-in', 'Using the QR scanner', 'Offline check-in', 'Check-in reports'] },
-  { icon: <CreditCard size={20} strokeWidth={1.8} />, title: 'The Karta Card', count: 7, articles: ['What is the Karta Card?', 'Customising your card design', 'Sharing on social media', 'Downloading your card'] },
+  { icon: <CreditCard size={20} strokeWidth={1.8} />, title: 'The Eventera Card', count: 7, articles: ['What is the Eventera Card?', 'Customising your card design', 'Sharing on social media', 'Downloading your card'] },
   { icon: <HelpCircle size={20} strokeWidth={1.8} />, title: 'Billing & plans', count: 11, articles: ['Plan comparison', 'Upgrading your plan', 'Downloading invoices', 'Cancelling a subscription'] },
 ];
 
 const POPULAR = [
   { title: 'How do I publish my event page?', category: 'Getting started' },
-  { title: 'Can attendees edit their Karta Card after downloading?', category: 'Karta Card' },
+  { title: 'Can attendees edit their Eventera Card after downloading?', category: 'Eventera Card' },
   { title: 'How do I set up promo codes?', category: 'Registration' },
   { title: 'How do I add a speaker to a session?', category: 'Agenda' },
   { title: 'What payment methods are supported?', category: 'Billing' },
@@ -45,7 +45,7 @@ const RELEASES = [
   },
   {
     version: 'v2.6', date: 'Apr 2026', tag: null,
-    items: ['Karta Card customisation studio', 'Multi-track agenda support', 'Check-in via QR and badge scan', 'Attendee messaging inbox'],
+    items: ['Eventera Card customisation studio', 'Multi-track agenda support', 'Check-in via QR and badge scan', 'Attendee messaging inbox'],
   },
   {
     version: 'v2.5', date: 'Mar 2026', tag: null,
@@ -244,17 +244,17 @@ function LegalTab() {
   const [doc, setDoc] = useState<'privacy' | 'terms'>('privacy');
 
   const PRIVACY = [
-    { title: 'Overview', body: 'Karta is an event management platform operated by Cre8so. We collect information you provide when creating events, registering for events, or using our services. This policy explains what we collect, why, and how you can control it.' },
+    { title: 'Overview', body: 'Eventera is an event management platform operated by Cre8so. We collect information you provide when creating events, registering for events, or using our services. This policy explains what we collect, why, and how you can control it.' },
     { title: 'What we collect', body: 'We collect: account information (name, email, password hash), event data you create, registration data for events you attend, payment information processed through Stripe or Flutterwave (we do not store card numbers), and usage data to improve the platform.' },
     { title: 'How we use your data', body: 'We use your data to: provide and improve our services, send transactional emails (registration confirmations, event reminders), process payments, and comply with legal obligations. We do not sell your personal data to third parties.' },
     { title: 'Your rights', body: 'You may request access to, correction of, or deletion of your personal data at any time by emailing privacy@cre8so.com. We will respond within 30 days. You may also export your data from your account settings.' },
   ];
 
   const TERMS = [
-    { title: 'Acceptance', body: 'By using Karta you agree to these terms. If you are using Karta on behalf of an organisation, you represent that you have authority to bind that organisation.' },
-    { title: 'Permitted use', body: 'Karta is for lawful event organisation and attendance. You may not use the platform to host events that promote illegal activity, discrimination, or harassment. We reserve the right to suspend accounts that violate these terms.' },
-    { title: 'Payments & refunds', body: 'Event organisers set their own ticket prices and refund policies. Karta facilitates payment processing but is not responsible for organiser refund decisions. Platform fees are non-refundable.' },
-    { title: 'Liability', body: 'Karta is provided as-is. We are not liable for events that are cancelled, postponed, or modified by organisers. Our total liability is limited to the fees you paid to Karta in the 12 months preceding any claim.' },
+    { title: 'Acceptance', body: 'By using Eventera you agree to these terms. If you are using Eventera on behalf of an organisation, you represent that you have authority to bind that organisation.' },
+    { title: 'Permitted use', body: 'Eventera is for lawful event organisation and attendance. You may not use the platform to host events that promote illegal activity, discrimination, or harassment. We reserve the right to suspend accounts that violate these terms.' },
+    { title: 'Payments & refunds', body: 'Event organisers set their own ticket prices and refund policies. Eventera facilitates payment processing but is not responsible for organiser refund decisions. Platform fees are non-refundable.' },
+    { title: 'Liability', body: 'Eventera is provided as-is. We are not liable for events that are cancelled, postponed, or modified by organisers. Our total liability is limited to the fees you paid to Eventera in the 12 months preceding any claim.' },
   ];
 
   const sections = doc === 'privacy' ? PRIVACY : TERMS;

@@ -11,7 +11,7 @@ const FOOTER_COLS = [
       { label: 'Check-in',      href: '/pricing' },
       { label: 'Networking',    href: '/pricing' },
       { label: 'Analytics',     href: '/pricing' },
-      { label: 'Karta Card',    href: '/pricing' },
+      { label: 'Eventera Card',    href: '/pricing' },
     ],
   },
   {

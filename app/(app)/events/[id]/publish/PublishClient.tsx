@@ -771,7 +771,7 @@ export default function PublishClient({
           fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
           color: PT.muted, letterSpacing: '0.04em',
         }}>
-          <span>powered by <span style={{ color: PT.ink, fontWeight: 500 }}>karta</span></span>
+          <span>powered by <span style={{ color: PT.ink, fontWeight: 500 }}>eventera</span></span>
           <span>event id · {slug}</span>
         </div>
 

@@ -165,7 +165,7 @@ export function EventAnalyticsView({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {[
           { label: 'Check-in rate', value: checkInCount, total: totalRegistrations, pct: checkInRate, note: `${checkInCount} of ${totalRegistrations} attendees checked in` },
-          { label: 'Karta Card downloads', value: cardDownloadCount, total: totalRegistrations, pct: cardRate, note: `${cardDownloadCount} of ${totalRegistrations} attendees downloaded their card` },
+          { label: 'Eventera Card downloads', value: cardDownloadCount, total: totalRegistrations, pct: cardRate, note: `${cardDownloadCount} of ${totalRegistrations} attendees downloaded their card` },
         ].map(s => (
           <div key={s.label} className="rounded-2xl px-6 py-5" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
             <div className="font-display font-medium text-[16px] mb-3" style={{ color: '#1F4D3A' }}>{s.label}</div>

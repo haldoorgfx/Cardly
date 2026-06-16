@@ -63,7 +63,7 @@ export default async function DashboardPage() {
           </div>
           <h1 className="font-display text-[30px] font-semibold text-[#1F4D3A] tracking-[-0.02em]">Create your first event</h1>
           <p className="mt-3 text-[#6B7A72] text-[15px] leading-[1.6] max-w-[480px] mx-auto">
-            Set up your event page, add tickets, build your agenda, and get a personalized Karta Card ready for every attendee.
+            Set up your event page, add tickets, build your agenda, and get a personalized Eventera Card ready for every attendee.
           </p>
           <div className="mt-10 grid sm:grid-cols-3 gap-4 text-left">
             {steps.map(s => (

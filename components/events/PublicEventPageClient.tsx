@@ -274,7 +274,7 @@ function TicketList({
           <svg viewBox="0 0 24 24" className="w-3 h-3 shrink-0" fill="none" stroke="#1F4D3A" strokeWidth="2">
             <path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4z"/>
           </svg>
-          Secure checkout · QR ticket + Karta Card to your phone
+          Secure checkout · QR ticket + Eventera Card to your phone
         </div>
 
         {page.registration_deadline && !registrationClosed && (
@@ -577,7 +577,7 @@ export function PublicEventPageClient({
                 </div>
                 {(page.organizer_name || organizerUserId) && (
                   <div className="ml-auto flex items-center gap-3">
-                    <Avatar src={organizerAvatarUrl} name={page.organizer_name ?? 'Karta'} size={40} fontSize={13} seed={page.organizer_name ?? 'Karta'} style={{ borderRadius: 11 }} />
+                    <Avatar src={organizerAvatarUrl} name={page.organizer_name ?? 'Eventera'} size={40} fontSize={13} seed={page.organizer_name ?? 'Eventera'} style={{ borderRadius: 11 }} />
                     <div>
                       <div className="text-[12px]" style={{ color: '#6B7A72' }}>Hosted by</div>
                       {organizerUserId ? (

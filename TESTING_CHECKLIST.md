@@ -56,7 +56,7 @@ Open a new incognito window (or use your actual phone — not a simulator).
 34. - [ ] Tap "Download"
 35. - [ ] PNG downloads to the device (check the Photos app or Downloads folder)
 36. - [ ] **Open the downloaded PNG** — confirm it matches the preview (no font shift, no missing image, no watermark if on a paid plan)
-37. - [ ] Free tier: downloaded PNG has the Cardly watermark at the bottom
+37. - [ ] Free tier: downloaded PNG has the Eventera watermark at the bottom
 38. - [ ] Success screen appears after download
 
 ---

@@ -60,7 +60,7 @@ export function ExhibitorShell({ token, companyName, tier, boothNumber, logoUrl,
           <div className="flex items-center gap-2.5">
             <span className="w-7 h-7 rounded-lg shrink-0" style={{ background: 'linear-gradient(135deg,#1F4D3A,#2A6A50 60%,#E8C57E)' }} />
             <div className="leading-none">
-              <div className="font-display text-[15px] font-bold" style={{ color: '#1F4D3A' }}>Karta</div>
+              <div className="font-display text-[15px] font-bold" style={{ color: '#1F4D3A' }}>Eventera</div>
               <div className=" text-[8.5px] tracking-[0.16em] uppercase mt-0.5" style={{ color: '#6B7A72' }}>Exhibitor Portal</div>
             </div>
           </div>

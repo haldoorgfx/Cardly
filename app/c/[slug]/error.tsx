@@ -42,7 +42,7 @@ export default function AttendeeError({
         </div>
 
         <p className="mt-6 text-[12px] text-[#0F1F18]/30">
-          Made with Karta · karta.cre8so.com
+          Made with Eventera · karta.cre8so.com
         </p>
       </div>
     </div>

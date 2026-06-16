@@ -3,7 +3,7 @@ import { USER_VIEW } from '@/lib/auth/permissions';
 import { getPlatformStats, getUserGrowth, getCardGrowth, getPlanDistribution } from '@/lib/admin/queries';
 import { AnalyticsClient } from './AnalyticsClient';
 
-export const metadata = { title: 'Analytics — Karta Admin' };
+export const metadata = { title: 'Analytics — Eventera Admin' };
 export const dynamic = 'force-dynamic';
 
 export default async function AnalyticsPage() {

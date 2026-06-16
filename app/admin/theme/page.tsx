@@ -3,7 +3,7 @@ import { THEME_EDIT } from '@/lib/auth/permissions';
 import { getSiteSettings } from '@/lib/theme/settings';
 import { ThemeEditorClient } from './ThemeEditorClient';
 
-export const metadata = { title: 'Theme & Brand — Karta Admin' };
+export const metadata = { title: 'Theme & Brand — Eventera Admin' };
 export const dynamic = 'force-dynamic';
 
 export default async function ThemePage() {

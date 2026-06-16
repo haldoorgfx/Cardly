@@ -348,7 +348,7 @@ export default function SuccessShareScreen({
           </button>
 
           <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: '#6B7A72', letterSpacing: '0.04em', textAlign: 'center' }}>
-            powered by <span style={{ color: '#0F1F18', fontWeight: 500 }}>karta</span>
+            powered by <span style={{ color: '#0F1F18', fontWeight: 500 }}>eventera</span>
           </div>
         </div>
       </div>
@@ -411,7 +411,7 @@ export default function SuccessShareScreen({
           <ForwardPrompt pageUrl={pageUrl}/>
 
           <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: '#6B7A72', letterSpacing: '0.04em' }}>
-            powered by <span style={{ color: '#0F1F18', fontWeight: 500 }}>karta</span>
+            powered by <span style={{ color: '#0F1F18', fontWeight: 500 }}>eventera</span>
           </div>
         </div>
 

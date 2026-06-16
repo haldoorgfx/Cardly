@@ -492,7 +492,7 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
               Ready to host your next event?
             </h3>
             <p className="mt-3 text-[15px] leading-[1.6]" style={{ color: 'rgba(255,255,255,0.66)' }}>
-              Create a beautiful event page, sell tickets, and give every attendee a personalized Karta Card they&apos;ll share.
+              Create a beautiful event page, sell tickets, and give every attendee a personalized Eventera Card they&apos;ll share.
             </p>
           </div>
           <div className="flex flex-wrap gap-3 shrink-0">

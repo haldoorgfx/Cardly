@@ -258,7 +258,7 @@ export default function AttendeeAuth() {
       </button>
 
       <p className="text-[12px] mt-4 text-center leading-relaxed" style={{ color: '#6B7A72' }}>
-        No passwords on Karta — we email you a 6-digit code.{' '}
+        No passwords on Eventera — we email you a 6-digit code.{' '}
         By continuing you agree to the{' '}
         <a href="/terms" className="hover:underline" style={{ color: '#1F4D3A' }}>terms</a>{' '}
         and{' '}

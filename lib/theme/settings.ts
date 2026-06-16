@@ -47,7 +47,7 @@ export interface SiteSettings {
 /** Karta's locked default values — used as fallback and as CSS var fallbacks */
 export const DEFAULT_SETTINGS: SiteSettings = {
   id:             1,
-  brand_name:     'Karta',
+  brand_name:     'Eventera',
   logo_url:       null,
   logo_light_url: null,
   favicon_url:    null,

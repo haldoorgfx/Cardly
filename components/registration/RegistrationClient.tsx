@@ -489,7 +489,7 @@ export default function RegistrationClient({
             You&apos;re already registered
           </h1>
           <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>
-            You already have a ticket for {eventName}. Your Karta Card and door QR are in My tickets.
+            You already have a ticket for {eventName}. Your Eventera Card and door QR are in My tickets.
           </p>
           <div className="flex flex-col gap-2.5">
             <Link href="/my-tickets" className="inline-flex items-center justify-center h-11 rounded-xl text-white text-[14px] font-medium transition hover:bg-[#163828]" style={{ background: '#1F4D3A' }}>
@@ -667,7 +667,7 @@ export default function RegistrationClient({
                 Your details
               </h2>
               <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>
-                This is how you&apos;ll appear on the attendee list and your Karta Card.
+                This is how you&apos;ll appear on the attendee list and your Eventera Card.
               </p>
               <div className="space-y-4">
                 {/* Full name — always required */}
@@ -876,7 +876,7 @@ export default function RegistrationClient({
           {step === 3 && canvasVariant && (
             <div>
               <h2 className="font-display font-normal text-[28px] mb-1.5" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>
-                Design your Karta Card
+                Design your Eventera Card
               </h2>
               <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>
                 Personalise your card — it&apos;ll be sent to you with your ticket confirmation.
@@ -973,7 +973,7 @@ export default function RegistrationClient({
             {/* Card preview — always shown; on step 3 it's the main focus */}
             <div className={step === 3 ? 'mb-0' : 'mb-4'}>
               <div className="text-[11px] font-semibold uppercase tracking-wider mb-3" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
-                {step === 3 ? 'Live preview' : 'Your Karta Card'}
+                {step === 3 ? 'Live preview' : 'Your Eventera Card'}
               </div>
               <div className={step === 3 ? 'rounded-2xl overflow-hidden' : ''} style={step === 3 ? { border: '1px solid #E5E0D4', boxShadow: '0 4px 12px rgba(15,31,24,0.08), 0 16px 40px rgba(31,77,58,0.10)' } : undefined}>
                 {step === 3 && (

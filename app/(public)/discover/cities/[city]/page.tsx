@@ -9,7 +9,7 @@ interface Props { params: Promise<{ city: string }> }
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { city } = await params;
   const label = decodeURIComponent(city).replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-  return { title: `Events in ${label} — Karta` };
+  return { title: `Events in ${label} — Eventera` };
 }
 
 export default async function CityPage({ params }: Props) {

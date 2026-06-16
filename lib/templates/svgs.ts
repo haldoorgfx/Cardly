@@ -145,7 +145,7 @@ export function staticText(c: TextCfg): string {
     font-size="22"
     fill="${c.light ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.15)'}"
     letter-spacing="5">
-    MADE WITH KARTA
+    MADE WITH EVENTERA
   </text>`;
 }
 

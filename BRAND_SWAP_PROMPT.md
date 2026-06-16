@@ -5,7 +5,7 @@ Paste the prompt below into Claude Code as a single message. Do not run any othe
 ---
 
 ```
-We are swapping Cardly's brand system from purple/pink to forest green + cream. This is a one-time, project-wide migration.
+We are swapping Eventera's brand system from purple/pink to forest green + cream. This is a one-time, project-wide migration.
 
 STEP 0 — READ THESE FILES FIRST, IN ORDER:
 1. BRAND.md (the new brand system — this is the source of truth)

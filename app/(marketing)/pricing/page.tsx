@@ -6,15 +6,15 @@ export const metadata: Metadata = {
   description:
     'Start free with 1 event and 50 registrations. Upgrade to Pro ($19/mo) for unlimited events, or Studio ($49/mo) for the full platform including AI matchmaking, Q&A, and sponsor tools.',
   openGraph: {
-    title: 'Karta Pricing',
+    title: 'Eventera Pricing',
     description:
       'Start free with 1 event and 50 registrations. Upgrade to Pro ($19/mo) for unlimited events, or Studio ($49/mo) for the full platform including AI matchmaking, Q&A, and sponsor tools.',
     url: 'https://karta.cre8so.com/pricing',
-    images: [{ url: '/og-default.png', width: 1200, height: 630, alt: 'Karta Pricing' }],
+    images: [{ url: '/og-default.png', width: 1200, height: 630, alt: 'Eventera Pricing' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Karta Pricing',
+    title: 'Eventera Pricing',
     description:
       'Start free with 1 event and 50 registrations. Upgrade when you grow.',
   },

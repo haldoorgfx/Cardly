@@ -4,7 +4,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { ChangelogAdminClient } from './ChangelogAdminClient';
 import type { ChangelogEntry } from '@/components/admin/ChangelogForm';
 
-export const metadata = { title: 'Changelog — Karta Admin' };
+export const metadata = { title: 'Changelog — Eventera Admin' };
 export const dynamic = 'force-dynamic';
 
 export default async function ChangelogAdminPage() {

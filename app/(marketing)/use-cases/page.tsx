@@ -15,7 +15,7 @@ import type { ForwardRefExoticComponent, RefAttributes } from 'react';
 export const metadata: Metadata = {
   title: 'Use Cases',
   description:
-    'From tech conferences to NGO campaigns, political rallies to African summits — Karta handles every type of event with full registration, agenda, networking, and the Karta Card.',
+    'From tech conferences to NGO campaigns, political rallies to African summits — Eventera handles every type of event with full registration, agenda, networking, and the Eventera Card.',
 };
 
 /* ─── Topo SVG lines ─────────────────────────────────────────────── */
@@ -77,7 +77,7 @@ const USE_CASES: UseCase[] = [
     body: 'Supporter cards, awareness drives, fundraising registration.',
     features: [
       'Free + donation-based registration',
-      'Personalized supporter Karta Cards',
+      'Personalized supporter Eventera Cards',
       'Volunteer coordination',
       'Email notifications',
       '40% NGO discount on Pro/Studio',
@@ -92,7 +92,7 @@ const USE_CASES: UseCase[] = [
     body: 'Rally registration, volunteer coordination, endorsement cards.',
     features: [
       'Rally & town hall registration',
-      'Endorsement Karta Cards for supporters',
+      'Endorsement Eventera Cards for supporters',
       'Volunteer sign-up flows',
       'QR check-in at venue gates',
       'Card sharing drives organic reach',
@@ -108,7 +108,7 @@ const USE_CASES: UseCase[] = [
     features: [
       'Paid + complimentary ticket tiers',
       'Sponsor booths & lead retrieval',
-      'Branded Karta Cards per product line',
+      'Branded Eventera Cards per product line',
       'Executive speaker directory',
       'Revenue & attendance analytics',
     ],
@@ -273,12 +273,12 @@ export default function UseCasesPage() {
             className="font-title font-bold text-[#1F4D3A] leading-[1.02] max-w-[820px]"
             style={{ fontSize: 'clamp(36px, 5.5vw, 56px)' }}
           >
-            Whatever you&apos;re organizing, Karta handles it.
+            Whatever you&apos;re organizing, Eventera handles it.
           </h1>
 
           <p className="mt-5 text-[#3A4A42] text-[16px] lg:text-[18px] leading-[1.55] max-w-[600px]">
             One platform for every type of event — with full registration, agenda, check-in,
-            networking, and the Karta Card for every attendee.
+            networking, and the Eventera Card for every attendee.
           </p>
         </div>
       </section>
@@ -329,7 +329,7 @@ export default function UseCasesPage() {
                 },
                 {
                   Icon: Network,
-                  label: 'Karta Card',
+                  label: 'Eventera Card',
                   desc: 'Every attendee gets a personalized card, ready to share.',
                 },
               ].map(({ Icon, label, desc }) => (

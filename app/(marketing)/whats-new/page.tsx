@@ -5,7 +5,7 @@ import { NewsCTAClient } from './NewsCTAClient';
 export const metadata = {
   title: "What's New",
   description:
-    "A running changelog of everything shipped at Karta. New features, improvements, and fixes.",
+    "A running changelog of everything shipped at Eventera. New features, improvements, and fixes.",
 };
 
 export const dynamic = 'force-dynamic';
@@ -67,7 +67,7 @@ function ChangelogHero({ latest }: { latest?: DBEntry }) {
           Changelog
         </div>
         <h1 className="font-title font-bold text-ink text-[44px] sm:text-[60px] lg:text-[68px] leading-[0.95] max-w-[760px]">
-          What&rsquo;s new in Karta
+          What&rsquo;s new in Eventera
         </h1>
         <p className="mt-5 text-ink-soft text-[17px] lg:text-[18px] leading-[1.55] max-w-[520px]">
           Every feature, fix, and improvement — documented as it ships.

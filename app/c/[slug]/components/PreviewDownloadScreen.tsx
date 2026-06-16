@@ -242,7 +242,7 @@ export default function PreviewDownloadScreen({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={resultUrl}
-              alt="Your personalized Karta card"
+              alt="Your personalized Eventera card"
               style={{
                 display: 'block',
                 width: 300,
@@ -339,7 +339,7 @@ export default function PreviewDownloadScreen({
             textAlign: 'center', marginTop: 16,
             fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: '#6B7A72', letterSpacing: '0.04em',
           }}>
-            powered by <span style={{ color: '#0F1F18', fontWeight: 500 }}>karta</span>
+            powered by <span style={{ color: '#0F1F18', fontWeight: 500 }}>eventera</span>
           </div>
         </div>
       </div>

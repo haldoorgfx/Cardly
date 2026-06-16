@@ -4,7 +4,7 @@ export const metadata = { title: 'Contact' };
 
 const REASONS = [
   "You're setting up a Pro or Studio account",
-  "You have an event coming up and want to make sure Karta can handle it",
+  "You have an event coming up and want to make sure Eventera can handle it",
   "Something broke and you need help urgently",
   "You have feedback on the product — we read every message",
   "You're an NGO or educational org and want to discuss pricing",

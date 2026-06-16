@@ -49,7 +49,7 @@
 ## THE PROMPT — PASTE EVERYTHING BELOW THIS LINE INTO CLAUDE CODE
 
 ```
-We are doing a SCOPED redesign of ONE PART of the Cardly platform: the canvas editor at /events/[id]/edit. The 7 new editor screens have been designed in Claude Design and exported as JSX reference files located in `Cardly-handoff/Cardly/project/`. Your job is to faithfully reimplement those designs as production Next.js components, while preserving every piece of editor LOGIC (drag, resize, zoom, auto-save, undo/redo, keyboard shortcuts) that already works.
+We are doing a SCOPED redesign of ONE PART of the Eventera platform: the canvas editor at /events/[id]/edit. The 7 new editor screens have been designed in Claude Design and exported as JSX reference files located in `Cardly-handoff/Cardly/project/`. Your job is to faithfully reimplement those designs as production Next.js components, while preserving every piece of editor LOGIC (drag, resize, zoom, auto-save, undo/redo, keyboard shortcuts) that already works.
 
 This is a UI-only redesign. The editor's behavior must remain identical. We're changing how it LOOKS, not how it WORKS.
 

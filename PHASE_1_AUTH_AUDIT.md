@@ -25,7 +25,7 @@
 ## THE PROMPT — PASTE EVERYTHING BELOW INTO CLAUDE CODE
 
 ```
-We are doing a READ-ONLY AUDIT of the user/auth/permissions system in Cardly. The goal is to produce a comprehensive document mapping what currently exists, what is partially built, what is missing, and what is broken.
+We are doing a READ-ONLY AUDIT of the user/auth/permissions system in Eventera. The goal is to produce a comprehensive document mapping what currently exists, what is partially built, what is missing, and what is broken.
 
 This phase produces NO CODE. Only a single audit document. The audit informs subsequent phases.
 
@@ -257,7 +257,7 @@ For each table with RLS, verify:
 - ⚠️ Policy exists but has gaps
 - ❌ Policy missing or incorrect
 
-Specifically for Cardly tables:
+Specifically for Eventera tables:
 - profiles: SELECT/INSERT/UPDATE/DELETE policies?
 - events: who can SELECT/INSERT/UPDATE/DELETE?
 - generated_cards: who can SELECT/INSERT/UPDATE/DELETE?

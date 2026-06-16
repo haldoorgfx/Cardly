@@ -26,11 +26,11 @@ export function drawHeader(
   // Green bar
   doc.rect(0, 0, PW, H).fill(C.primary);
 
-  // "KARTA" brand mark — top-left
+  // "EVENTERA" brand mark — top-left
   doc.font('Helvetica-Bold')
      .fontSize(7)
      .fillColor(C.accent)
-     .text('KARTA', M, 16, { characterSpacing: 3 });
+     .text('EVENTERA', M, 16, { characterSpacing: 3 });
 
   // Event name
   doc.font('Helvetica-Bold')
@@ -166,7 +166,7 @@ export function drawFooter(doc: PDFDocumentType, dateStr: string): void {
   doc.font('Helvetica')
      .fontSize(7.5)
      .fillColor(C.muted)
-     .text('Generated with Karta · karta.cre8so.com', M, y + 4);
+     .text('Generated with Eventera · karta.cre8so.com', M, y + 4);
 
   doc.font('Helvetica')
      .fontSize(7.5)

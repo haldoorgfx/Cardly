@@ -108,7 +108,7 @@ export function CheckoutClient({ eventName, eventSlug, coverImage, startsAt, ven
                 <div className="mt-3 flex items-center justify-between px-4 py-3 rounded-xl"
                   style={{ background: '#E8EFEB', border: '1px solid #C9E0D4' }}>
                   <div className="flex items-center gap-2 text-[12px]" style={{ color: '#3A4A42' }}>
-                    <span>📱</span> Ticket + Karta Card to WhatsApp too
+                    <span>📱</span> Ticket + Eventera Card to WhatsApp too
                   </div>
                 </div>
               </div>

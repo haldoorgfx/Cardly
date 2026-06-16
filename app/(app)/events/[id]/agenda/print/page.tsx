@@ -145,7 +145,7 @@ export default async function AgendaPrintPage({ params }: Props) {
 
         {/* Footer */}
         <div style={{ marginTop: 48, paddingTop: 16, borderTop: '1px solid #E5E0D4', display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#9BA8A1', fontFamily: 'Inter, system-ui, sans-serif' }}>
-          <span>Generated with Karta</span>
+          <span>Generated with Eventera</span>
           <span>{today}</span>
         </div>
       </div>

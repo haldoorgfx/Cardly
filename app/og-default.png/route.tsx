@@ -15,7 +15,7 @@ export async function GET() {
         }}
       >
         <div style={{ fontSize: 72, fontWeight: 700, color: '#FAF6EE', letterSpacing: '-2px', marginBottom: 24, display: 'flex' }}>
-          Karta
+          Eventera
         </div>
         <div style={{ fontSize: 28, color: 'rgba(250,246,238,0.75)', textAlign: 'center', maxWidth: 700, lineHeight: 1.4, display: 'flex' }}>
           Your design. Their personalization. One link.

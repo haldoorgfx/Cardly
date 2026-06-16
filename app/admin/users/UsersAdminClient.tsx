@@ -465,7 +465,7 @@ export function UsersAdminClient({
       {confirmSuspend && (
         <ConfirmDialog
           title="Suspend account?"
-          body={<>This will immediately block <strong>{confirmSuspend.email}</strong> from accessing Karta.</>}
+          body={<>This will immediately block <strong>{confirmSuspend.email}</strong> from accessing Eventera.</>}
           confirmLabel="Suspend"
           confirmDanger
           extraInput={{ label: 'Reason (optional)', placeholder: 'E.g. violated terms of service' }}

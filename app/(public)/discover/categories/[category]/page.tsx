@@ -15,7 +15,7 @@ const VALID_CATEGORIES = [
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category } = await params;
   const label = category.charAt(0).toUpperCase() + category.slice(1).replace(/-/g, ' ');
-  return { title: `${label} Events — Karta`, description: `Discover ${label.toLowerCase()} events near you` };
+  return { title: `${label} Events — Eventera`, description: `Discover ${label.toLowerCase()} events near you` };
 }
 
 export default async function CategoryPage({ params }: Props) {

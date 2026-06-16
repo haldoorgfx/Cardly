@@ -4,7 +4,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { AuditLogTable, type AuditEntry } from '@/components/admin/AuditLogTable';
 import { AuditFiltersClient } from './AuditFiltersClient';
 
-export const metadata = { title: 'Audit Log — Karta Admin' };
+export const metadata = { title: 'Audit Log — Eventera Admin' };
 export const dynamic = 'force-dynamic';
 
 interface SearchParams {

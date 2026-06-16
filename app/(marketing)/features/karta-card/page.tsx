@@ -22,7 +22,7 @@ const cardSteps = [
 const cardStats = [
   { value: '740', label: 'avg cards shared per event' },
   { value: '14.8×', label: 'organic reach multiplier' },
-  { value: 'Every plan', label: 'includes Karta Card — no upsell' },
+  { value: 'Every plan', label: 'includes Eventera Card — no upsell' },
 ];
 
 function KartaCardMockup() {
@@ -33,7 +33,7 @@ function KartaCardMockup() {
         {/* LEFT — Text */}
         <div>
           <div style={{ display: 'inline-block', background: 'rgba(232,197,126,0.12)', border: '1px solid rgba(232,197,126,0.25)', color: '#E8C57E', fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase' as const, borderRadius: 999, padding: '5px 14px', fontFamily: 'Inter,sans-serif', marginBottom: 20 }}>
-            The Karta Difference
+            The Eventera Difference
           </div>
           <h2 style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 'clamp(1.7rem,3vw,2.4rem)', fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 16 }}>
             Your design. Their face. Ready to share.
@@ -65,7 +65,7 @@ function KartaCardMockup() {
           <div style={{ width: 230, background: '#163828', borderRadius: 32, padding: 8, boxShadow: '0 32px 80px rgba(0,0,0,0.5)', position: 'relative', top: 20 }}>
             <div style={{ background: '#FFFFFF', borderRadius: 26, overflow: 'hidden' }}>
               <div style={{ background: '#1F4D3A', padding: 14, textAlign: 'center' as const }}>
-                <div style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 12, fontWeight: 700, color: '#FAF6EE' }}>Your Karta Card</div>
+                <div style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 12, fontWeight: 700, color: '#FAF6EE' }}>Your Eventera Card</div>
                 <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 10, color: 'rgba(250,246,238,0.6)', marginTop: 2 }}>Pan-African Climate Summit</div>
               </div>
               <div style={{ background: '#FAF6EE', margin: 12, border: '2px dashed #E5E0D4', borderRadius: 12, padding: 16, textAlign: 'center' as const }}>
@@ -133,7 +133,7 @@ export default function KartaCardPage() {
       <section style={{ background: C.cream, backgroundImage: `radial-gradient(ellipse 80% 60% at 50% -10%, ${C.primarySoft} 0%, transparent 70%)`, padding: 'clamp(80px, 12vw, 140px) clamp(20px, 5vw, 80px) clamp(60px, 8vw, 100px)', textAlign: 'center' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: C.accent, border: `1px solid ${C.accentDark}`, borderRadius: 999, padding: '6px 16px', marginBottom: 28 }}>
           <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.accentDark, display: 'inline-block' }} />
-          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600, color: C.primaryDark, letterSpacing: '0.02em' }}>Karta Card</span>
+          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600, color: C.primaryDark, letterSpacing: '0.02em' }}>Eventera Card</span>
         </div>
         <h1 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 'clamp(36px, 6vw, 72px)', fontWeight: 700, color: C.ink, letterSpacing: '-0.02em', lineHeight: 1.1, maxWidth: 760, margin: '0 auto 24px' }}>The personalized card every attendee gets <span style={{ color: C.primary }}>— and shares.</span></h1>
         <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 'clamp(16px, 2vw, 20px)', color: C.inkSoft, maxWidth: 600, margin: '0 auto 40px', lineHeight: 1.65 }}>Your event design. Their face and name. A shareable PNG in under 30 seconds. Organic reach that compounds long after the event ends.</p>
@@ -161,7 +161,7 @@ export default function KartaCardPage() {
                 </svg>
               </div>
               <h3 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 20, fontWeight: 700, color: C.ink, marginBottom: 10 }}>Your Design. Their Face.</h3>
-              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: C.inkSoft, lineHeight: 1.65 }}>Upload any PNG or JPG — your full event artwork. Mark the zones for name, title, and photo. Karta composites the attendee&apos;s details onto your design server-side using sharp. Pixel-perfect every time.</p>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: C.inkSoft, lineHeight: 1.65 }}>Upload any PNG or JPG — your full event artwork. Mark the zones for name, title, and photo. Eventera composites the attendee&apos;s details onto your design server-side using sharp. Pixel-perfect every time.</p>
             </div>
 
             <div style={{ background: C.cream, border: `1px solid ${C.border}`, borderRadius: 16, padding: '32px 28px' }}>
@@ -185,7 +185,7 @@ export default function KartaCardPage() {
                 </svg>
               </div>
               <h3 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 20, fontWeight: 700, color: C.ink, marginBottom: 10 }}>Included on Every Plan</h3>
-              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: C.inkSoft, lineHeight: 1.65 }}>Karta Card is not an add-on. It is the core product. Every plan — including free — includes personalized card generation. The only difference on paid plans is watermark removal and higher event limits.</p>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: C.inkSoft, lineHeight: 1.65 }}>Eventera Card is not an add-on. It is the core product. Every plan — including free — includes personalized card generation. The only difference on paid plans is watermark removal and higher event limits.</p>
             </div>
 
             <div style={{ background: C.cream, border: `1px solid ${C.border}`, borderRadius: 16, padding: '32px 28px' }}>
@@ -197,7 +197,7 @@ export default function KartaCardPage() {
                 </svg>
               </div>
               <h3 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 20, fontWeight: 700, color: C.ink, marginBottom: 10 }}>Organic Reach That Compounds</h3>
-              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: C.inkSoft, lineHeight: 1.65 }}>Every card shared is a branded impression from a real attendee. Authentic peer endorsement — no paid media budget required. Events using Karta Card average 14.8× their attendee count in social impressions.</p>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: C.inkSoft, lineHeight: 1.65 }}>Every card shared is a branded impression from a real attendee. Authentic peer endorsement — no paid media budget required. Events using Eventera Card average 14.8× their attendee count in social impressions.</p>
             </div>
 
           </div>

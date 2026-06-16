@@ -666,7 +666,7 @@ export function StudioClient() {
           <div className="flex items-center gap-2 text-[13px] min-w-0">
             <span style={{ color: 'rgba(250,246,238,0.5)' }}>Events</span>
             <span style={{ color: 'rgba(250,246,238,0.25)' }}>/</span>
-            <span style={{ fontWeight: 500 }}>Karta Card Studio</span>
+            <span style={{ fontWeight: 500 }}>Eventera Card Studio</span>
           </div>
         </div>
         <div className="hidden md:flex items-center gap-3 text-[12.5px]">

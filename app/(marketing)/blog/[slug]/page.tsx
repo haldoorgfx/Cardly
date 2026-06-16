@@ -3,7 +3,7 @@ import { ArrowRight } from 'lucide-react';
 
 export const metadata = {
   title: 'Article',
-  description: 'Read the full article on the Karta blog.',
+  description: 'Read the full article on the Eventera blog.',
 };
 
 export default function BlogArticlePage() {

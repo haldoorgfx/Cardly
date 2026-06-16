@@ -490,7 +490,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                   Your details
                 </h2>
                 <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>
-                  These will appear on your ticket and Karta Card.
+                  These will appear on your ticket and Eventera Card.
                 </p>
                 <div className="space-y-4">
                   <RField label="Full name *" error={fieldErrors['name']}>
@@ -577,7 +577,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                   Personalise your card
                 </h2>
                 <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>
-                  Your Karta Card is generated after you confirm. Share it anywhere.
+                  Your Eventera Card is generated after you confirm. Share it anywhere.
                 </p>
                 {variant ? (
                   <CardZoneFill

@@ -25,14 +25,14 @@ function getCode(widget: WidgetId, slug: string): string {
   const iframeBase = `<iframe src="${url}`;
   switch (widget) {
     case 'button':
-      return `<!-- Karta Register Button -->
+      return `<!-- Eventera Register Button -->
 <a href="${url}/register"
    style="display:inline-block;background:#1F4D3A;color:#FAF6EE;font-family:Inter,sans-serif;font-size:15px;font-weight:600;padding:12px 24px;border-radius:10px;text-decoration:none;"
    target="_blank" rel="noopener">
   Register now
 </a>`;
     case 'card':
-      return `<!-- Karta Event Card -->
+      return `<!-- Eventera Event Card -->
 ${iframeBase}/widget/card"
   width="400" height="220"
   frameborder="0" scrolling="no"
@@ -40,7 +40,7 @@ ${iframeBase}/widget/card"
   title="Event card">
 </iframe>`;
     case 'schedule':
-      return `<!-- Karta Schedule Widget -->
+      return `<!-- Eventera Schedule Widget -->
 ${iframeBase}/widget/schedule"
   width="100%" height="600"
   frameborder="0" scrolling="no"

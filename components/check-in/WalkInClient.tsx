@@ -131,7 +131,7 @@ export function WalkInClient({ eventId, eventName, tickets, checkedIn, walkInsTo
             #{result.ticketNumber}
           </div>
           <p className="text-[13px] mb-8" style={{ color: 'rgba(255,255,255,0.4)' }}>
-            QR code + Karta Card sent to WhatsApp &amp; email.
+            QR code + Eventera Card sent to WhatsApp &amp; email.
           </p>
           <button onClick={reset} className="w-full py-3 rounded-2xl text-[15px] font-semibold transition hover:opacity-90"
             style={{ background: '#1F4D3A', color: '#FAF6EE' }}>

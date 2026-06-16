@@ -8,7 +8,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Discover Events',
-  description: 'Find events near you — music, tech, culture, food and more. Register and get your Karta Card.',
+  description: 'Find events near you — music, tech, culture, food and more. Register and get your Eventera Card.',
 };
 
 export default async function EventDiscoveryPage() {

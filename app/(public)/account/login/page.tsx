@@ -31,7 +31,7 @@ export default function AttendeeLoginPage() {
             Every event in your city, one account.
           </h2>
           <p className="mt-3 text-[14px] leading-relaxed max-w-[380px]" style={{ color: 'rgba(255,255,255,0.65)' }}>
-            Discover what&apos;s on, register in seconds, and carry your tickets — and your Karta Card — in WhatsApp.
+            Discover what&apos;s on, register in seconds, and carry your tickets — and your Eventera Card — in WhatsApp.
           </p>
 
           {/* Karta Card mockup */}

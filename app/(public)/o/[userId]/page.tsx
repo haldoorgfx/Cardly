@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const name = profile?.organization ?? profile?.full_name ?? 'Organizer';
   return {
     title: `${name}`,
-    description: `Discover events by ${name} on Karta.`,
+    description: `Discover events by ${name} on Eventera.`,
   };
 }
 

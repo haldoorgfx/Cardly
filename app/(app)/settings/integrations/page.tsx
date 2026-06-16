@@ -5,7 +5,7 @@ import { SettingsTabs } from '@/components/settings/SettingsTabs';
 export const metadata = { title: 'Integrations' };
 
 const INTEGRATIONS = [
-  { name: 'Zapier', desc: 'Connect Karta to 5,000+ apps without code.', status: 'soon' },
+  { name: 'Zapier', desc: 'Connect Eventera to 5,000+ apps without code.', status: 'soon' },
   { name: 'Mailchimp', desc: 'Sync attendees directly to your email lists.', status: 'soon' },
   { name: 'Slack', desc: 'Get registration alerts in your Slack channels.', status: 'soon' },
   { name: 'HubSpot', desc: 'Push registrant data into your CRM automatically.', status: 'soon' },
@@ -24,7 +24,7 @@ export default async function IntegrationsPage() {
     <div className="px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
         <h1 className="font-display font-semibold text-[24px] tracking-tight" style={{ color: '#0F1F18' }}>Integrations</h1>
-        <p className="mt-1.5 text-[14px]" style={{ color: '#6B7A72' }}>Connect Karta to your existing tools and workflows.</p>
+        <p className="mt-1.5 text-[14px]" style={{ color: '#6B7A72' }}>Connect Eventera to your existing tools and workflows.</p>
       </div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -6,7 +6,7 @@ import { SearchPageClient } from '@/components/discovery/SearchPageClient';
 interface Props { searchParams: { q?: string; city?: string; category?: string } }
 
 export async function generateMetadata({ searchParams }: Props) {
-  return { title: searchParams.q ? `"${searchParams.q}" — Search` : 'Search Events — Karta' };
+  return { title: searchParams.q ? `"${searchParams.q}" — Search` : 'Search Events — Eventera' };
 }
 
 export default async function SearchPage({ searchParams }: Props) {

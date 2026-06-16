@@ -21,7 +21,7 @@
 ## THE PROMPT — PASTE EVERYTHING BELOW INTO CLAUDE CODE
 
 ```
-We are preparing Cardly for launch. The product is built. The design is shipped. What remains: the COPY across the platform feels AI-generated, has placeholder testimonials, missing legal pages, and reads like generic SaaS marketing. Real humans will see this tomorrow. It needs to feel like a real founder wrote it, not a language model.
+We are preparing Eventera for launch. The product is built. The design is shipped. What remains: the COPY across the platform feels AI-generated, has placeholder testimonials, missing legal pages, and reads like generic SaaS marketing. Real humans will see this tomorrow. It needs to feel like a real founder wrote it, not a language model.
 
 ────────────────────────────────────────────
 ABSOLUTE NON-NEGOTIABLE BOUNDARIES
@@ -129,7 +129,7 @@ CONTENT RULES
 HEADLINE PRINCIPLES
 - Headlines must say WHAT the product does for WHO
 - "Personalized share cards for every campaign" is better than "Elevate your brand experience"
-- Test each headline: if a competitor's name could replace "Cardly" and the headline still works, it's too generic
+- Test each headline: if a competitor's name could replace "Eventera" and the headline still works, it's too generic
 
 SECTION-BY-SECTION RULES
 
@@ -176,7 +176,7 @@ STEP 2 — CREATE LEGAL & UTILITY PAGES
 Create three new pages with real-feeling content:
 
 2A — app/(marketing)/privacy/page.tsx
-Standard privacy policy structure adapted for Cardly:
+Standard privacy policy structure adapted for Eventera:
 - What data we collect (account info, event data, attendee names/photos)
 - How we use it (storage, rendering, no third-party selling)
 - Cookie usage
@@ -190,7 +190,7 @@ Standard terms of service:
 - Acceptance of terms
 - Account responsibilities
 - Acceptable use (no spam, no impersonation, etc.)
-- IP rights (user owns their designs, Cardly owns the platform)
+- IP rights (user owns their designs, Eventera owns the platform)
 - Pricing and payment terms
 - Cancellation
 - Disclaimers

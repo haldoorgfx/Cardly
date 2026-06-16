@@ -258,7 +258,7 @@ export function ImportWizard({ open, onClose, eventId, entity, onComplete }: Pro
             <div className="space-y-3">
               <p className="text-[12.5px]" style={{ color: C.muted }}>
                 <span className="font-medium" style={{ color: C.ink }}>{rows.length}</span> rows found in{' '}
-                <span className="">{fileName}</span>. Match each Karta field to a column from your file.
+                <span className="">{fileName}</span>. Match each Eventera field to a column from your file.
               </p>
               <div className="space-y-2">
                 {entity.fields.map(field => (

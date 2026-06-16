@@ -1,7 +1,7 @@
-# Karta — Implementation Brief (apply the new design onto the existing Cardly codebase)
+# Eventera — Implementation Brief (apply the new design onto the existing Eventera codebase)
 
 **Audience:** Claude Code, running **inside the `cardly/` repo**.
-**Goal:** Evolve the existing Cardly app into **Karta — a full event-management SaaS** — by implementing the new design across the routes that already exist, removing card-only framing, and adding the new surfaces. **Same tech. No new stack. No fork. No broken features.**
+**Goal:** Evolve the existing Eventera app into **Eventera — a full event-management SaaS** — by implementing the new design across the routes that already exist, removing card-only framing, and adding the new surfaces. **Same tech. No new stack. No fork. No broken features.**
 
 ---
 
@@ -14,9 +14,9 @@
 ---
 
 ## 1. The reposition (what changes conceptually)
-Cardly was framed as a *card tool*. Karta is a **full event-management platform**: registration, tickets, agenda, speakers, check-in, networking, Q&A/polls, sponsors, analytics — **and** the personalized **Karta Card** as the signature differentiator (not the whole product).
+Eventera was framed as a *card tool*. Eventera is a **full event-management platform**: registration, tickets, agenda, speakers, check-in, networking, Q&A/polls, sponsors, analytics — **and** the personalized **Eventera Card** as the signature differentiator (not the whole product).
 
-- Keep the Karta Card as a **first-class feature**, not the headline of the whole app.
+- Keep the Eventera Card as a **first-class feature**, not the headline of the whole app.
 - The codebase **already has** most platform features scaffolded (`components/{events,registration,networking,qa,polls,check-in}`, `lib/{billing,payments,matchmaking,teams,webhooks,…}`, `app/admin/*`). This is mostly **design + wiring + repositioning**, not green-field.
 
 ## 2. Tech — LOCKED (do not change, no conflicts)
@@ -32,17 +32,17 @@ Next.js 14 App Router · TypeScript · **Supabase** (Postgres + Auth + Storage +
 > Work **behind the existing route structure**. Re-skin/fill in place. `[new]` = create; `[fill]` = exists, bring to spec; `[reskin]` = exists, restyle; `[retire]` = remove/redirect.
 
 **Marketing** — source `design-reference/karta/site/` + `support/`
-- `app/(marketing)/page.tsx` — `[reskin]` new platform landing (hero = product shot + Karta Card differentiator).
+- `app/(marketing)/page.tsx` — `[reskin]` new platform landing (hero = product shot + Eventera Card differentiator).
 - `app/(marketing)/pricing/` — `[fill]` Free $0 / Pro $19 / Studio $49.
 - `app/(marketing)/{how-it-works,use-cases,about,whats-new,help,status,privacy,terms,dmca,contact,blog,partners}` — `[reskin/fill]` from `site/` + `support/`.
 
 **Public** — source `directory/` + `attendee/`
 - `app/(public)/events/` — `[fill]` public event directory (browse/search/categories).
-- `app/c/[slug]/` & `app/(public)/e/` — `[fill]` attendee registration → **Karta Card reveal** → event experience (schedule, networking, Q&A, wallet/QR) from `attendee/`.
+- `app/c/[slug]/` & `app/(public)/e/` — `[fill]` attendee registration → **Eventera Card reveal** → event experience (schedule, networking, Q&A, wallet/QR) from `attendee/`.
 
 **Organizer dashboard** — source `dashboard/`
 - `app/(app)/dashboard` — `[fill]` events home + context-aware shell.
-- `app/(app)/events/[id]/*` — `[fill]` event overview + sub-tabs: registration, tickets, agenda/sessions, speakers, check-in, networking, Q&A/polls, sponsors, analytics, **Karta Card**. Wire to existing `components/{registration,events,networking,qa,polls,check-in}`.
+- `app/(app)/events/[id]/*` — `[fill]` event overview + sub-tabs: registration, tickets, agenda/sessions, speakers, check-in, networking, Q&A/polls, sponsors, analytics, **Eventera Card**. Wire to existing `components/{registration,events,networking,qa,polls,check-in}`.
 - `app/(app)/{analytics,team,templates,brand,settings}` — `[fill]`.
 - **Onboarding** `[new]` — post-signup wizard (org → brand → first event) from `onboarding/`. Add as `app/(app)/onboarding/` or gate first-run.
 
@@ -78,7 +78,7 @@ Existing core: `profiles`, `events`, `generated_cards`. The platform needs more 
 ## 8. Build order (vertical, review-gated)
 - **Milestone A — Reposition & shell:** rewrite `CLAUDE.md`/`ROADMAP.md`; marketing landing + pricing + nav/footer; dashboard app shell + nav. **STOP.**
 - **Milestone B — Organizer core:** dashboard events home, event overview + tabs wired to existing components, onboarding wizard. **STOP.**
-- **Milestone C — Attendee + Card:** public event page, registration → **Karta Card reveal**, directory. **STOP.**
+- **Milestone C — Attendee + Card:** public event page, registration → **Eventera Card reveal**, directory. **STOP.**
 - **Milestone D — Engagement & ops:** networking, Q&A/polls, sponsors, check-in, analytics; operator console fills; integrations hub; speaker portal; email templates. **STOP.**
 - Each milestone: migrations first, then UI, then wire, then states.
 

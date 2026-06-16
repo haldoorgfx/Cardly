@@ -413,7 +413,7 @@ export default function SettingsClient({ profile, userId }: Props) {
               },
               {
                 label: 'Product updates',
-                desc: 'News and announcements about new Karta features',
+                desc: 'News and announcements about new Eventera features',
                 checked: notifyProductUpdates,
                 onChange: setNotifyProductUpdates,
               },
@@ -463,7 +463,7 @@ export default function SettingsClient({ profile, userId }: Props) {
         {/* Sign out */}
         <div className="pt-2 pb-4">
           <button onClick={() => signOut()} className="text-[13px] transition" style={{ color: '#6B7A72' }}>
-            Sign out of Karta →
+            Sign out of Eventera →
           </button>
         </div>
 

@@ -88,7 +88,7 @@ export default async function MyTicketsPage() {
           <p className="text-[15px] mt-2" style={{ color: '#6B7A72' }}>
             {upcoming.length} upcoming
             {past.length > 0 && <> · {past.length} past event{past.length !== 1 ? 's' : ''}</>}
-            {cardCount > 0 && <> · {cardCount} Karta Card{cardCount !== 1 ? 's' : ''} collected</>}
+            {cardCount > 0 && <> · {cardCount} Eventera Card{cardCount !== 1 ? 's' : ''} collected</>}
           </p>
         </div>
         <MyTicketsClient upcoming={upcoming} past={past} />

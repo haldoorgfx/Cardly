@@ -347,8 +347,8 @@ export function EventSettingsView({ event }: Props) {
             <InfoRow
               label="Pass the platform fee to attendees"
               desc={passFee
-                ? "Karta's fee is added on top at checkout — you keep 100% of your ticket price."
-                : "You absorb Karta's fee — attendees pay the exact ticket price, the fee comes out of your revenue."}
+                ? "Eventera's fee is added on top at checkout — you keep 100% of your ticket price."
+                : "You absorb Eventera's fee — attendees pay the exact ticket price, the fee comes out of your revenue."}
               last
             >
               <Toggle value={passFee} onChange={savePassFee} />

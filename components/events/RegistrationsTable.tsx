@@ -1026,7 +1026,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
           { value: `${checkedInCount} (${checkInPct})`,           label: 'Checked in' },
           { value: pendingCount,                                   label: 'Pending' },
           { value: revenueDisplay, label: 'Revenue' },
-          { value: cardDownloaded, label: 'Karta Cards downloaded', last: true },
+          { value: cardDownloaded, label: 'Eventera Cards downloaded', last: true },
         ].map((s, i, arr) => (
           <div key={s.label} className="flex items-center gap-5">
             <div>

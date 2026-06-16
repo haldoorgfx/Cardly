@@ -102,7 +102,7 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
         </div>
         <p className="font-display font-normal text-[20px] mb-2" style={{ color: '#1F4D3A' }}>White Label</p>
         <p className="text-[14px] mb-6 max-w-[340px] mx-auto" style={{ color: '#6B7A72' }}>
-          Replace Karta branding with your own — custom domain, brand name, logo, and colors.
+          Replace Eventera branding with your own — custom domain, brand name, logo, and colors.
         </p>
         <a
           href="/settings/billing"
@@ -138,7 +138,7 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
             <div className="space-y-4">
               <div>
                 <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>
-                  Brand name — replaces &ldquo;Karta&rdquo; everywhere
+                  Brand name — replaces &ldquo;Eventera&rdquo; everywhere
                 </label>
                 <input
                   type="text"
@@ -244,9 +244,9 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
 
               <div className="flex items-center justify-between pt-1">
                 <div>
-                  <div className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>Hide &ldquo;Powered by Karta&rdquo;</div>
+                  <div className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>Hide &ldquo;Powered by Eventera&rdquo;</div>
                   <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>
-                    Removes Karta branding from all attendee emails
+                    Removes Eventera branding from all attendee emails
                   </div>
                 </div>
                 <Toggle checked={settings.hide_powered_by} onChange={v => set('hide_powered_by', v)} />
@@ -310,7 +310,7 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
                 </div>
                 {!settings.hide_powered_by && (
                   <div className="text-center text-[10px] mt-2.5" style={{ color: '#C9C3B1' }}>
-                    Powered by Karta
+                    Powered by Eventera
                   </div>
                 )}
               </div>

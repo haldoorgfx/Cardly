@@ -5,7 +5,7 @@ import Reveal from '@/components/marketing/Reveal';
 export const metadata = {
   title: 'Partners',
   description:
-    'Grow your event business with Karta. Reseller, integration, and co-marketing programs for agencies and platforms.',
+    'Grow your event business with Eventera. Reseller, integration, and co-marketing programs for agencies and platforms.',
 };
 
 const PROGRAMS = [
@@ -13,7 +13,7 @@ const PROGRAMS = [
     icon: <Users size={22} strokeWidth={1.8} />,
     tag: '01 · Reseller',
     title: 'Reseller program',
-    desc: 'Sell Karta to your event clients under your own brand. You manage the relationship; we power the product. Revenue share from day one.',
+    desc: 'Sell Eventera to your event clients under your own brand. You manage the relationship; we power the product. Revenue share from day one.',
     points: [
       'White-label attendee pages (Studio tier)',
       'Dedicated account manager',
@@ -25,11 +25,11 @@ const PROGRAMS = [
     icon: <Zap size={22} strokeWidth={1.8} />,
     tag: '02 · Integration',
     title: 'Integration partner',
-    desc: 'Connect Karta to your event platform, ticketing system, or CRM. We provide API access and co-marketing support to reach shared audiences.',
+    desc: 'Connect Eventera to your event platform, ticketing system, or CRM. We provide API access and co-marketing support to reach shared audiences.',
     points: [
       'Full API access on Pro/Studio',
       'Webhook support for real-time card events',
-      'Listed in the Karta integrations directory',
+      'Listed in the Eventera integrations directory',
       'Joint launch announcement',
     ],
   },
@@ -88,7 +88,7 @@ function PartnersHero() {
             Partners
           </div>
           <h1 className="font-title font-bold text-ink text-[44px] sm:text-[60px] lg:text-[78px] leading-[0.95]">
-            Grow with Karta.{' '}
+            Grow with Eventera.{' '}
             <span className="text-primary">We grow with you.</span>
           </h1>
           <p className="mt-6 text-ink-soft text-[18px] lg:text-[20px] leading-[1.55] max-w-[620px]">
@@ -261,7 +261,7 @@ function WhyPartner() {
         <Reveal>
           <div className="max-w-[680px] mb-12">
             <div className=" text-[11px] tracking-[0.22em] uppercase mb-4" style={{ color: '#E8C57E' }}>
-              Why Karta
+              Why Eventera
             </div>
             <h2 className="font-title font-bold text-cream text-[32px] sm:text-[42px] lg:text-[50px] leading-[1.02]">
               Partner with a team that&apos;s serious about this.

@@ -55,9 +55,9 @@
 ## THE PROMPT — PASTE EVERYTHING BELOW THIS LINE INTO CLAUDE CODE
 
 ```
-We are doing a SCOPED upgrade to ONE PART of the Cardly platform: the public attendee experience at /c/[slug]. The 5 new attendee screens have been designed in Claude Design and exported as JSX reference files located in `Cardly-handoff/Cardly/project/` (specifically: arrival-card.jsx, arrival-screen.jsx, details-screen.jsx, crop-modal.jsx, preview-screen.jsx, success-screen.jsx). All other files in that folder (HTML mockups and older jsx like design-canvas.jsx, ios-frame.jsx, details-screen variations) are out of scope — DO NOT read or use them. Your job is to faithfully reimplement the 5 new attendee screens as production Next.js components.
+We are doing a SCOPED upgrade to ONE PART of the Eventera platform: the public attendee experience at /c/[slug]. The 5 new attendee screens have been designed in Claude Design and exported as JSX reference files located in `Cardly-handoff/Cardly/project/` (specifically: arrival-card.jsx, arrival-screen.jsx, details-screen.jsx, crop-modal.jsx, preview-screen.jsx, success-screen.jsx). All other files in that folder (HTML mockups and older jsx like design-canvas.jsx, ios-frame.jsx, details-screen variations) are out of scope — DO NOT read or use them. Your job is to faithfully reimplement the 5 new attendee screens as production Next.js components.
 
-This is a high-risk session because Cardly is already live in production with paying-customer potential. You must NOT break anything currently working. Read every constraint below before touching code.
+This is a high-risk session because Eventera is already live in production with paying-customer potential. You must NOT break anything currently working. Read every constraint below before touching code.
 
 ────────────────────────────────────────────
 ABSOLUTE NON-NEGOTIABLE BOUNDARIES

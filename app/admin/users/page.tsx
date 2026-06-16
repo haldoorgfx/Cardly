@@ -3,7 +3,7 @@ import { USER_VIEW } from '@/lib/auth/permissions';
 import { listUsers } from '@/lib/admin/queries';
 import { UsersAdminClient } from './UsersAdminClient';
 
-export const metadata = { title: 'Users — Karta Admin' };
+export const metadata = { title: 'Users — Eventera Admin' };
 export const dynamic = 'force-dynamic';
 
 interface SearchParams {

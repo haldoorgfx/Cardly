@@ -27,7 +27,7 @@ const DEMO_CHANNELS: Channel[] = [
 ];
 
 const DEMO_MESSAGES: Message[] = [
-  { id: 'm1', content: '🎉 Welcome to the event community! Ask questions, connect with attendees, and share your experience.', created_at: '2026-09-20T08:00:00Z', is_pinned: true, registrations: { attendee_name: 'Karta Team' } },
+  { id: 'm1', content: '🎉 Welcome to the event community! Ask questions, connect with attendees, and share your experience.', created_at: '2026-09-20T08:00:00Z', is_pinned: true, registrations: { attendee_name: 'Eventera Team' } },
   { id: 'm2', content: 'Super excited to be here from Nairobi! Anyone else joining remotely?', created_at: '2026-09-20T08:15:00Z', is_pinned: false, registrations: { attendee_name: 'Amina O.' } },
   { id: 'm3', content: 'I\'m in Lagos. Anyone want to share a cab from the airport?', created_at: '2026-09-20T08:22:00Z', is_pinned: false, registrations: { attendee_name: 'Kwame A.' } },
   { id: 'm4', content: 'The Design Systems talk at 11am is going to be 🔥 — make sure you grab a seat early!', created_at: '2026-09-20T09:01:00Z', is_pinned: false, registrations: { attendee_name: 'Fatima R.' } },

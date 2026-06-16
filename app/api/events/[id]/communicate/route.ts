@@ -93,7 +93,7 @@ function buildBroadcastHtml({
   <div style="max-width:560px;margin:0 auto;padding:32px 20px;">
     <div style="background:#1F4D3A;border-radius:12px;padding:24px 28px;margin-bottom:24px;">
       <div style="font-family:'DM Sans',system-ui,sans-serif;font-size:18px;font-weight:600;color:white;">
-        Kart<span style="color:#E8C57E;">a</span>
+        Eventer<span style="color:#E8C57E;">a</span>
       </div>
       <p style="color:rgba(255,255,255,0.75);font-size:13px;margin:6px 0 0;">Message from ${eventName}</p>
     </div>
@@ -105,7 +105,7 @@ function buildBroadcastHtml({
     <div style="text-align:center;padding:20px 0;border-top:1px solid #E5E0D4;">
       <p style="font-size:12px;color:#9BA8A1;margin:0;">
         You received this because you registered for ${eventName}.<br>
-        Powered by <a href="${appUrl}" style="color:#1F4D3A;text-decoration:none;">Karta</a>
+        Powered by <a href="${appUrl}" style="color:#1F4D3A;text-decoration:none;">Eventera</a>
       </p>
     </div>
   </div>

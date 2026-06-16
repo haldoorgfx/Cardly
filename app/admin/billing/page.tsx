@@ -4,7 +4,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { BillingAdminClient } from './BillingAdminClient';
 import type { Plan } from '@/types/database';
 
-export const metadata = { title: 'Billing — Karta Admin' };
+export const metadata = { title: 'Billing — Eventera Admin' };
 export const dynamic = 'force-dynamic';
 
 interface SearchParams {
@@ -98,7 +98,7 @@ export default async function BillingAdminPage({
                 </div>
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between text-[13px]"><span className="text-[#6B7A72]">Gross processed</span><span className="font-medium text-[#0F1F18]">{fmtCur(v.gross, cur)}</span></div>
-                  <div className="flex items-center justify-between text-[13px]"><span className="text-[#6B7A72]">Karta fees earned</span><span className="font-semibold text-[#1F4D3A]">{fmtCur(v.fees, cur)}</span></div>
+                  <div className="flex items-center justify-between text-[13px]"><span className="text-[#6B7A72]">Eventera fees earned</span><span className="font-semibold text-[#1F4D3A]">{fmtCur(v.fees, cur)}</span></div>
                   <div className="flex items-center justify-between text-[13px] pt-1.5" style={{ borderTop: '1px solid #F0EDE7' }}><span className="text-[#6B7A72]">Owed to organizers</span><span className="font-medium text-[#0F1F18]">{fmtCur(v.owed, cur)}</span></div>
                 </div>
               </div>

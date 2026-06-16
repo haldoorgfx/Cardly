@@ -257,7 +257,7 @@ export default function OnboardingWizard({ userId, userEmail, userName }: Props)
               </span>
             </div>
             <p className="mt-2.5 text-[13px] leading-relaxed" style={{ color: '#6B7A72' }}>
-              Your QR ticket and Karta Card arrive as a message the moment you register. Reminders land 24h and 2h before doors — no app to install, nothing to print.
+              Your QR ticket and Eventera Card arrive as a message the moment you register. Reminders land 24h and 2h before doors — no app to install, nothing to print.
             </p>
             <div className="flex gap-2.5 mt-4">
               <input

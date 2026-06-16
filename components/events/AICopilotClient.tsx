@@ -34,7 +34,7 @@ const INITIAL_MESSAGES: Message[] = [
   {
     id: 'init',
     role: 'assistant',
-    content: 'Hi! I\'m your Karta Copilot — I know everything about your event and can help you manage it. Ask me anything about registrations, communications, check-in, or your schedule.',
+    content: 'Hi! I\'m your Eventera Copilot — I know everything about your event and can help you manage it. Ask me anything about registrations, communications, check-in, or your schedule.',
   },
 ];
 
@@ -51,7 +51,7 @@ function getAutoResponse(question: string, eventName: string, stats: Stats): str
     return `Here's a draft reminder email for your attendees:\n\n---\n**Subject:** See you tomorrow at ${eventName} 🎉\n\nHi [Name],\n\nWe're so excited to see you at ${eventName}! Here are a few things to know:\n\n• **Doors open at [TIME]**\n• Bring your QR code (it's in your ticket email)\n• Arrive 15 minutes early to avoid queues\n\nSee you there!\n\n*The ${eventName} Team*\n\n---\n\nWant me to adjust the tone or add more details?`;
   }
   if (q.includes('social') || q.includes('post')) {
-    return `Here's a social post you can use:\n\n---\n🎉 **${eventName}** is almost here!\n\nJoin ${stats.registrations}+ attendees for an unforgettable experience. We can't wait to see you there.\n\n📍 [Venue] · 📅 [Date]\n\nGet your tickets → [link]\n\n#Karta #Events #${eventName.replace(/\s+/g, '')}\n\n---\n\nWant a version for LinkedIn, Twitter/X, or WhatsApp?`;
+    return `Here's a social post you can use:\n\n---\n🎉 **${eventName}** is almost here!\n\nJoin ${stats.registrations}+ attendees for an unforgettable experience. We can't wait to see you there.\n\n📍 [Venue] · 📅 [Date]\n\nGet your tickets → [link]\n\n#Eventera #Events #${eventName.replace(/\s+/g, '')}\n\n---\n\nWant a version for LinkedIn, Twitter/X, or WhatsApp?`;
   }
   if (q.includes('survey') || q.includes('feedback')) {
     return `Here are 3 strong post-event survey questions:\n\n1. **Overall experience** (1–5 stars): How would you rate your overall experience at ${eventName}?\n2. **Open-ended**: What was the highlight of the event for you?\n3. **NPS**: How likely are you to recommend this event to a friend or colleague? (0–10)\n\nKeep it under 5 questions for the best response rate.`;
@@ -103,7 +103,7 @@ export function AICopilotClient({ eventName, stats }: Omit<Props, 'eventId'> & {
           <h1 className="font-display font-semibold text-[16px]" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>
             AI Copilot
           </h1>
-          <p className="text-[12px]" style={{ color: '#6B7A72' }}>{eventName} · Powered by Karta AI</p>
+          <p className="text-[12px]" style={{ color: '#6B7A72' }}>{eventName} · Powered by Eventera AI</p>
         </div>
         {/* Live stats */}
         <div className="ml-auto flex items-center gap-4">

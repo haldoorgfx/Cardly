@@ -104,7 +104,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
   const epOverview = Array.isArray(event.event_pages) ? event.event_pages[0] : event.event_pages;
   const CHECKLIST: ChecklistItem[] = [
     { label: 'Event details & page', done: !!(epOverview?.starts_at), href: `/events/${slug}/event-page`, cta: 'Set up' },
-    { label: 'Karta Card design',    done: !!firstVariant,             href: `/events/${slug}/edit`,       cta: 'Upload' },
+    { label: 'Eventera Card design',    done: !!firstVariant,             href: `/events/${slug}/edit`,       cta: 'Upload' },
     { label: 'Tickets',              done: ticketTypes > 0,            href: `/events/${slug}/tickets`,    cta: 'Add' },
     { label: 'Agenda & sessions',    done: sessions > 0,               href: `/events/${slug}/agenda`,     cta: 'Build', optional: true },
     { label: 'Speakers',             done: speakers > 0,               href: `/events/${slug}/speakers`,   cta: 'Add', optional: true },
@@ -123,7 +123,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
     { id: 'sponsors',       label: 'Sponsors',       iconId: 'briefcase', desc: 'Manage sponsors and exhibitors',            href: `/events/${slug}/engagement`,     badge: null, minPlan: 'studio' },
     { id: 'virtual',        label: 'Virtual',        iconId: 'video',     desc: 'Stream sessions online',                   href: `/events/${slug}/engagement`,     badge: null, minPlan: 'studio' },
     { id: 'analytics',      label: 'Analytics',      iconId: 'chart',     desc: 'Registration funnel and engagement data',  href: `/events/${slug}/analytics`,      badge: 'View →' },
-    { id: 'karta-card',     label: 'Karta Card',     iconId: 'sparkles',  desc: 'The personalized card every attendee gets', href: `/events/${slug}/karta-card`,    badge: event.download_count > 0 ? `${event.download_count} downloaded` : null, gold: true },
+    { id: 'karta-card',     label: 'Eventera Card',     iconId: 'sparkles',  desc: 'The personalized card every attendee gets', href: `/events/${slug}/karta-card`,    badge: event.download_count > 0 ? `${event.download_count} downloaded` : null, gold: true },
     { id: 'communications', label: 'Communications', iconId: 'bell',      desc: 'Email your attendees and send updates',     href: `/events/${slug}/communications`, badge: null },
   ];
 

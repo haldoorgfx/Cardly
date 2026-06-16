@@ -110,7 +110,7 @@ export function LeadScoringClient({ eventSlug, eventName, leads: dbLeads }: Prop
       {/* Title block */}
       <div className="px-5 pt-6 pb-4">
         <h1 className="font-display font-bold text-[22px] mb-1" style={{ color: '#FAF6EE', letterSpacing: '-0.02em' }}>
-          Leads — scored by Karta AI
+          Leads — scored by Eventera AI
         </h1>
         <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.45)' }}>
           {leads.length} captured · ranked by role seniority, intent signals, dwell time & session overlap
@@ -130,7 +130,7 @@ export function LeadScoringClient({ eventSlug, eventName, leads: dbLeads }: Prop
               {hotCount} hot leads awaiting follow-up
             </p>
             <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.5)' }}>
-              Karta AI drafted follow-up emails — review &amp; send
+              Eventera AI drafted follow-up emails — review &amp; send
             </p>
           </div>
           <button className="px-3 py-1.5 rounded-xl text-[12px] font-semibold transition hover:opacity-80 shrink-0"

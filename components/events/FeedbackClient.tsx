@@ -15,7 +15,7 @@ const HIGHLIGHTS = [
   'The networking',
   'The sessions',
   'The venue',
-  'The Karta Card',
+  'The Eventera Card',
 ];
 
 function StarIcon({ filled }: { filled: boolean }) {

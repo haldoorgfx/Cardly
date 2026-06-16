@@ -192,7 +192,7 @@ export function ThemeEditorClient({ settings }: Props) {
           onChange={e => setForm(f => ({ ...f, brand_name: e.target.value }))}
           className="w-full h-10 px-3 rounded-lg border text-[14px] outline-none focus:ring-2 focus:ring-[#1F4D3A]/20 focus:border-[#1F4D3A]/40 transition"
           style={{ borderColor: '#E5E0D4' }}
-          placeholder="Karta"
+          placeholder="Eventera"
         />
         <p className="mt-2 text-[12px] text-[#6B7A72]">
           Shown in the nav when no logo is set, and in the browser tab title.

@@ -93,7 +93,7 @@ export default async function AttendeeDetailPage({ params }: Props) {
     : 'Free';
 
   const timeline = [
-    ...(reg.karta_card_url ? [{ text: 'Generated their Karta Card', when: registeredDate, color: '#C9A45E' }] : []),
+    ...(reg.karta_card_url ? [{ text: 'Generated their Eventera Card', when: registeredDate, color: '#C9A45E' }] : []),
     ...(checkedInDate ? [{ text: 'Checked in', when: checkedInDate, color: '#2D7A4F' }] : []),
     { text: `Registered · ${ticket?.name ?? 'General'}`, when: registeredDate, color: '#1F4D3A' },
     ...(reg.source ? [{ text: `Visited from ${reg.source}`, when: registeredDate, color: '#A8C2B5' }] : []),
@@ -202,15 +202,15 @@ export default async function AttendeeDetailPage({ params }: Props) {
               <InfoRow label="Payment">{reg.payment_status}</InfoRow>
               {reg.attendee_phone && <InfoRow label="Phone">{reg.attendee_phone}</InfoRow>}
               <InfoRow label="Registered">{registeredDate}</InfoRow>
-              <InfoRow label="Karta Card" last>{reg.karta_card_url ? 'Generated' : 'Not yet'}</InfoRow>
+              <InfoRow label="Eventera Card" last>{reg.karta_card_url ? 'Generated' : 'Not yet'}</InfoRow>
             </div>
 
             {/* Karta Card preview */}
             {reg.karta_card_url && (
               <div className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
-                <div className="font-display text-[14.5px] font-semibold mb-4" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>Their Karta Card</div>
+                <div className="font-display text-[14.5px] font-semibold mb-4" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>Their Eventera Card</div>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={reg.karta_card_url} alt="Karta Card" className="w-full rounded-xl" style={{ border: '1px solid #E5E0D4' }} />
+                <img src={reg.karta_card_url} alt="Eventera Card" className="w-full rounded-xl" style={{ border: '1px solid #E5E0D4' }} />
               </div>
             )}
           </div>

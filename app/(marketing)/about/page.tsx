@@ -2,15 +2,15 @@
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'About Karta — The Event Platform',
+  title: 'About Eventera — The Event Platform',
   description:
-    'Karta started as a social card tool for event attendees. Then organizers asked for tickets. Then check-in. Then agenda. We built the whole platform. The Karta Card is still the feature nobody else has.',
+    'Eventera started as a social card tool for event attendees. Then organizers asked for tickets. Then check-in. Then agenda. We built the whole platform. The Eventera Card is still the feature nobody else has.',
   openGraph: {
-    title: 'About Karta',
+    title: 'About Eventera',
     description:
-      'Karta started as a social card tool for event attendees. Then organizers asked for tickets. Then check-in. Then agenda. We built the whole platform. The Karta Card is still the feature nobody else has.',
+      'Eventera started as a social card tool for event attendees. Then organizers asked for tickets. Then check-in. Then agenda. We built the whole platform. The Eventera Card is still the feature nobody else has.',
     url: 'https://karta.cre8so.com/about',
-    siteName: 'Karta',
+    siteName: 'Eventera',
     type: 'website',
   },
 };
@@ -125,7 +125,7 @@ export default function AboutPage() {
               marginRight: 'auto',
             }}
           >
-            Karta launched with one idea: every event attendee deserves a personalized card worth
+            Eventera launched with one idea: every event attendee deserves a personalized card worth
             sharing. Three years and a few hundred thousand cards later, organizers kept asking for
             more. So we built the platform underneath.
           </p>
@@ -188,7 +188,7 @@ export default function AboutPage() {
                 fontWeight: 500,
               }}
             >
-              The Karta Card never went away. It became the differentiator — the feature no
+              The Eventera Card never went away. It became the differentiator — the feature no
               competitor has copied, the moment that turns every registration into a share.
             </p>
           </div>
@@ -211,7 +211,7 @@ export default function AboutPage() {
                 marginBottom: 20,
               }}
             >
-              What Karta does today
+              What Eventera does today
             </p>
 
             {/* 3x3 chip grid */}
@@ -273,7 +273,7 @@ export default function AboutPage() {
                     marginBottom: 2,
                   }}
                 >
-                  Karta Card
+                  Eventera Card
                 </span>
                 <span
                   style={{
@@ -339,7 +339,7 @@ export default function AboutPage() {
                   { label: 'Tickets',      yes: true },
                   { label: 'Agenda',       yes: true },
                   { label: 'Check-in',     yes: true },
-                  { label: 'Karta Card',   yes: false },
+                  { label: 'Eventera Card',   yes: false },
                 ].map(({ label, yes }) => (
                   <li key={label} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: yes ? C.inkSoft : C.muted }}>
                     {yes ? <CheckIcon color={C.muted} /> : <CrossIcon />}
@@ -369,7 +369,7 @@ export default function AboutPage() {
                   marginBottom: 16,
                 }}
               >
-                Karta
+                Eventera
               </p>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {[
@@ -377,7 +377,7 @@ export default function AboutPage() {
                   { label: 'Tickets',      gold: false },
                   { label: 'Agenda',       gold: false },
                   { label: 'Check-in',     gold: false },
-                  { label: 'Karta Card',   gold: true  },
+                  { label: 'Eventera Card',   gold: true  },
                 ].map(({ label, gold }) => (
                   <li
                     key={label}
@@ -418,7 +418,7 @@ export default function AboutPage() {
                 marginBottom: 20,
               }}
             >
-              The Karta difference
+              The Eventera difference
             </div>
 
             <h2
@@ -432,12 +432,12 @@ export default function AboutPage() {
                 marginBottom: 20,
               }}
             >
-              Eventbrite handles registration. Only Karta gives every attendee a card worth sharing.
+              Eventbrite handles registration. Only Eventera gives every attendee a card worth sharing.
             </h2>
 
             <p style={{ fontSize: 15, color: C.inkSoft, lineHeight: 1.65, marginBottom: 14 }}>
               When someone registers on Eventbrite, they get a confirmation email. When they register
-              on Karta, they get a personalized card — their photo, their name, your event brand —
+              on Eventera, they get a personalized card — their photo, their name, your event brand —
               ready to post on Instagram or send on WhatsApp.
             </p>
 
@@ -509,7 +509,7 @@ export default function AboutPage() {
             },
             {
               title: 'Built for Africa',
-              body: 'We built Karta for how events actually run in Africa — mobile-first, offline-capable, M-Pesa ready, WhatsApp-native. That said, anyone can use it anywhere.',
+              body: 'We built Eventera for how events actually run in Africa — mobile-first, offline-capable, M-Pesa ready, WhatsApp-native. That said, anyone can use it anywhere.',
             },
             {
               title: 'Organizer-grade',

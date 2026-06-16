@@ -4,7 +4,7 @@ import { CONTENT_EDIT } from '@/lib/auth/permissions';
 import { listPages } from '@/lib/cms/queries';
 import { Eye, FileText, Globe, Pencil } from 'lucide-react';
 
-export const metadata = { title: 'Content — Karta Admin' };
+export const metadata = { title: 'Content — Eventera Admin' };
 export const dynamic = 'force-dynamic';
 
 function StatusBadge({ status }: { status: 'draft' | 'published' }) {

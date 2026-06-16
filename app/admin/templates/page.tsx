@@ -3,7 +3,7 @@ import { TEMPLATE_MANAGE } from '@/lib/auth/permissions';
 import { createAdminClient } from '@/lib/supabase/server';
 import { TemplatesAdminClient } from './TemplatesAdminClient';
 
-export const metadata = { title: 'Templates — Karta Admin' };
+export const metadata = { title: 'Templates — Eventera Admin' };
 export const dynamic = 'force-dynamic';
 
 export default async function TemplatesAdminPage() {

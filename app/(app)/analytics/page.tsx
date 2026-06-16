@@ -461,7 +461,7 @@ export default async function AnalyticsPage({
                 ))}
               </div>
               <p className="text-[13px] mt-5 leading-relaxed" style={{ color: '#6B7A72' }}>
-                Attendees who receive their Karta Card share it at higher rates when the event design feels premium.
+                Attendees who receive their Eventera Card share it at higher rates when the event design feels premium.
                 The more polished your card design, the more organic reach you get.
               </p>
             </div>

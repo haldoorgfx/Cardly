@@ -239,7 +239,7 @@ function TicketCard({ reg, onShowQR }: { reg: Registration; onShowQR: () => void
                     style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)' }}
                   >
                     <div className="absolute bottom-1 left-1.5" style={{ fontFamily: '"DM Sans", sans-serif', fontWeight: 600, fontSize: 6, color: '#E8C57E' }}>
-                      KARTA №{cardNum}
+                      EVENTERA №{cardNum}
                     </div>
                   </div>
                   <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: '#6B7A72' }}>

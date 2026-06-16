@@ -1,10 +1,10 @@
-# ROADMAP.md — Cardly v1.1 Editor Upgrades
+# ROADMAP.md — Eventera v1.1 Editor Upgrades
 
 **DO NOT BUILD THIS YET.**
 
 This file is for post-MVP work. Build conditions:
 - ✅ MVP shipped to Vercel
-- ✅ At least 1 paying customer has run a real event through Cardly
+- ✅ At least 1 paying customer has run a real event through Eventera
 - ✅ Feedback from that customer reviewed
 - ✅ Phase 1 → 4 from CLAUDE.md are complete and stable
 
@@ -14,9 +14,9 @@ If any of those are not true, **close this file and go back to CLAUDE.md.**
 
 ## What This Roadmap Is
 
-12 focused upgrades to the **D2 Canvas Editor** that deepen Cardly's core value: helping designers define personalization zones on their uploaded designs.
+12 focused upgrades to the **D2 Canvas Editor** that deepen Eventera's core value: helping designers define personalization zones on their uploaded designs.
 
-**What this is NOT:** a Canva clone. We are not adding text styling, font pickers, shape libraries, AI features, or template marketplaces. The designer already designed the card in their real design tool. Cardly's editor only handles personalization zones.
+**What this is NOT:** a Canva clone. We are not adding text styling, font pickers, shape libraries, AI features, or template marketplaces. The designer already designed the card in their real design tool. Eventera's editor only handles personalization zones.
 
 ---
 
@@ -318,7 +318,7 @@ If anyone (you, Claude Code, a future user) suggests these, say no:
 - Team accounts / collaboration
 - Comments / approval workflow
 
-These belong to Canva, Figma, or Premagic. Not Cardly.
+These belong to Canva, Figma, or Premagic. Not Eventera.
 
 ---
 

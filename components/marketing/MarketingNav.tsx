@@ -43,7 +43,7 @@ const PRODUCT_MENU = {
     { icon: MessageSquare, name: 'Live Q&A & Polls',    desc: 'Session engagement tools',                     href: '/features/qa-polls' },
     { icon: Trophy,        name: 'Gamification',        desc: 'Points, leaderboard, badges',                  href: '/features/gamification' },
     { icon: Briefcase,     name: 'Sponsor Tools',       desc: 'Exhibitor booths, lead retrieval',             href: '/features/sponsors' },
-    { icon: CreditCard,    name: 'Karta Card',          desc: 'Personalized cards for every attendee',        href: '/features/karta-card', gold: true },
+    { icon: CreditCard,    name: 'Eventera Card',          desc: 'Personalized cards for every attendee',        href: '/features/karta-card', gold: true },
   ],
 } as const;
 
@@ -52,7 +52,7 @@ const COMPANY_MENU = [
   { icon: Building2,  name: 'About',       desc: 'Our story and mission',        href: '/about' },
   { icon: Newspaper,  name: 'Blog',        desc: 'News, guides and updates',     href: '/blog' },
   { icon: Mail,       name: 'Contact',     desc: 'Talk to our team',             href: '/contact' },
-  { icon: Handshake,  name: 'Partners',    desc: 'Become a Karta partner',       href: '/partners' },
+  { icon: Handshake,  name: 'Partners',    desc: 'Become an Eventera partner',       href: '/partners' },
   { icon: Briefcase,  name: 'Careers',     desc: 'Join the team',                href: '/careers' },
 ] as const;
 

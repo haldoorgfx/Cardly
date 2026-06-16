@@ -1,4 +1,4 @@
-# BRAND.md — Cardly Brand System
+# BRAND.md — Eventera Brand System
 
 **This is the single source of truth for all visual decisions.**
 **If something in the codebase or design files conflicts with this file, this file wins.**
@@ -161,4 +161,4 @@ The following from the old brand system are **retired** — do not use anywhere 
 
 ## Rule
 
-When in doubt, **less color**. Cardly is calm.
+When in doubt, **less color**. Eventera is calm.

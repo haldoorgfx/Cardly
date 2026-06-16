@@ -641,7 +641,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
                 <input
                   value={seoTitle}
                   onChange={e => setSeoTitle(e.target.value)}
-                  placeholder={`${title || 'Event title'} — Karta`}
+                  placeholder={`${title || 'Event title'} — Eventera`}
                   className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
                   style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
                   onFocus={e => (e.target.style.borderColor = '#E8C57E')}

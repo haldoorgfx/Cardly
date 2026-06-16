@@ -44,7 +44,7 @@ export async function POST(request: Request) {
 
   try {
     await resend.emails.send({
-      from:    'Karta Contact <noreply@karta.cre8so.com>',
+      from:    'Eventera Contact <noreply@karta.cre8so.com>',
       to:      ['hello@cre8so.com'],
       replyTo: email,
       subject: `[Contact] ${topic ? `${safeTopic} — ` : ''}${safeName}`,
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
     });
 
     await resend.emails.send({
-      from:    'Karta <noreply@karta.cre8so.com>',
+      from:    'Eventera <noreply@karta.cre8so.com>',
       to:      [email],
       subject: 'We got your message',
       html: `
@@ -65,7 +65,7 @@ export async function POST(request: Request) {
         <p>Thanks for reaching out — we got your message and will reply within one business day.</p>
         <p>If it's urgent, just reply to this email and add "urgent" to the subject line.</p>
         <br/>
-        <p>— The Karta team</p>
+        <p>— The Eventera team</p>
       `,
     });
 

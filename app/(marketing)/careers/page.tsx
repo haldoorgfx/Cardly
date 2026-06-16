@@ -2,7 +2,7 @@
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Careers — Karta',
+  title: 'Careers — Eventera',
   description: 'Join the team building the future of event experiences. We are hiring designers, engineers, and growth leads.',
 };
 
@@ -23,13 +23,13 @@ const roles = [
   {
     title: 'Product Designer',
     type: 'Full-time · Remote',
-    desc: 'Own the end-to-end design of Karta — from the organizer dashboard to the attendee card experience. You think in systems, ship in components, and care deeply about mobile-first interaction.',
+    desc: 'Own the end-to-end design of Eventera — from the organizer dashboard to the attendee card experience. You think in systems, ship in components, and care deeply about mobile-first interaction.',
     skills: ['Figma', 'Design systems', 'Mobile UX', 'Prototyping'],
   },
   {
     title: 'Full-Stack Engineer',
     type: 'Full-time · Remote',
-    desc: 'Build the features that make organizers choose Karta and attendees love it. You are comfortable across Next.js, Supabase, and Node APIs. You ship fast and refactor thoughtfully.',
+    desc: 'Build the features that make organizers choose Eventera and attendees love it. You are comfortable across Next.js, Supabase, and Node APIs. You ship fast and refactor thoughtfully.',
     skills: ['Next.js', 'TypeScript', 'PostgreSQL', 'Supabase'],
   },
   {
@@ -62,14 +62,14 @@ export default function CareersPage() {
           <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 500, color: C.primary, letterSpacing: '0.02em' }}>We are hiring</span>
         </div>
         <h1 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 'clamp(36px, 6vw, 72px)', fontWeight: 700, color: C.ink, letterSpacing: '-0.02em', lineHeight: 1.1, maxWidth: 720, margin: '0 auto 24px' }}>Help us build the future of events.</h1>
-        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 'clamp(16px, 2vw, 20px)', color: C.inkSoft, maxWidth: 600, margin: '0 auto 40px', lineHeight: 1.65 }}>Karta is a small, focused team building the event platform we always wished existed. If you care about craft, love shipping, and want to work on something that matters to real people — keep reading.</p>
+        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 'clamp(16px, 2vw, 20px)', color: C.inkSoft, maxWidth: 600, margin: '0 auto 40px', lineHeight: 1.65 }}>Eventera is a small, focused team building the event platform we always wished existed. If you care about craft, love shipping, and want to work on something that matters to real people — keep reading.</p>
         <Link href="/contact" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 15, background: C.primary, color: C.surface, padding: '14px 28px', borderRadius: 10, textDecoration: 'none', display: 'inline-block' }}>See open roles</Link>
       </section>
 
       {/* Why Karta */}
       <section style={{ background: C.surface, padding: 'clamp(60px, 8vw, 100px) clamp(20px, 5vw, 80px)' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <h2 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 700, color: C.ink, letterSpacing: '-0.02em', textAlign: 'center', marginBottom: 56 }}>Why Karta</h2>
+          <h2 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 700, color: C.ink, letterSpacing: '-0.02em', textAlign: 'center', marginBottom: 56 }}>Why Eventera</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
             {whyKarta.map((w) => (
               <div key={w.title} style={{ background: C.cream, border: `1px solid ${C.border}`, borderRadius: 16, padding: '32px 28px' }}>

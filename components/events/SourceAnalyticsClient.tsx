@@ -31,7 +31,7 @@ function sourceColor(name: string) {
 
 function sourceDisplay(name: string) {
   const map: Record<string, string> = {
-    card: 'Karta Card shares',
+    card: 'Eventera Card shares',
     feed: 'Marketplace feed',
     direct: 'Direct / typed',
     embed: 'Embed widget',
@@ -97,7 +97,7 @@ export function SourceAnalyticsClient({ eventName, publicSlug, sources, total }:
           style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)' }}>
           <div className="relative z-10">
             <p className="text-[12px] font-medium mb-1 opacity-75" style={{ color: '#FAF6EE', fontFamily: 'Inter, system-ui, sans-serif', letterSpacing: '0.1em' }}>
-              FROM SHARED KARTA CARDS
+              FROM SHARED EVENTERA CARDS
             </p>
             <p className="font-display font-bold text-[36px]" style={{ color: '#E8C57E', letterSpacing: '-0.02em' }}>
               {cardRegs.count} regs · {cardRegs.pct}%
@@ -140,7 +140,7 @@ export function SourceAnalyticsClient({ eventName, publicSlug, sources, total }:
 
           {/* Auto-tagged sources note */}
           <div className="mt-5 pt-4 text-[12px]" style={{ borderTop: '1px solid #F0EDE6', color: '#6B7A72' }}>
-            <span className="font-medium" style={{ color: '#3A4A42' }}>Auto-tagged:</span> <code style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>src=card</code> on every shared Karta Card · <code style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>src=embed</code> on widgets · <code style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>src=feed</code> from the marketplace.
+            <span className="font-medium" style={{ color: '#3A4A42' }}>Auto-tagged:</span> <code style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>src=card</code> on every shared Eventera Card · <code style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>src=embed</code> on widgets · <code style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>src=feed</code> from the marketplace.
           </div>
         </div>
 

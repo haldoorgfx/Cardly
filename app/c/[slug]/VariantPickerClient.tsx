@@ -60,7 +60,7 @@ export default function VariantPickerClient({ eventName, eventSlug, variants }: 
               color: 'transparent',
             }}
           >
-            Karta
+            Eventera
           </span>
         </div>
       </div>

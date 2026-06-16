@@ -203,7 +203,7 @@ export function CityPage({ city, events, savedIds, eventCount }: CityPageProps) 
               Never miss an event in {city}
             </h3>
             <p className="text-[14px] mb-5" style={{ color: 'rgba(255,255,255,0.65)' }}>
-              Get notified when new events are added to Karta.
+              Get notified when new events are added to Eventera.
             </p>
             <Link
               href="/account/login?next=/account/notifications"

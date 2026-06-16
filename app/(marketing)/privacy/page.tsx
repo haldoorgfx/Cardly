@@ -115,7 +115,7 @@ export default function PrivacyPage() {
               events, you can do that from the dashboard.
             </p>
             <p className="mt-3">
-              If you are an attendee who submitted data through a Karta event
+              If you are an attendee who submitted data through an Eventera event
               and want that data removed, email us at hello@cre8so.com with the
               event name.
             </p>

@@ -1,6 +1,6 @@
 export const metadata = {
   title: 'DMCA Takedown Policy',
-  description: 'How to submit a DMCA takedown notice or counter-notice to Karta.',
+  description: 'How to submit a DMCA takedown notice or counter-notice to Eventera.',
 };
 
 export default function DmcaPage() {
@@ -16,7 +16,7 @@ export default function DmcaPage() {
         <section>
           <h2 className="font-display font-semibold text-[22px] text-[#0F1F18] mb-3">Overview</h2>
           <p>
-            Karta respects intellectual property rights and complies with the Digital Millennium
+            Eventera respects intellectual property rights and complies with the Digital Millennium
             Copyright Act (DMCA). If you believe content on our platform infringes your copyright,
             you may submit a takedown notice to us.
           </p>
@@ -30,7 +30,7 @@ export default function DmcaPage() {
           <ol className="list-decimal list-inside space-y-2 mt-3">
             <li>A physical or electronic signature of the copyright owner or authorised agent.</li>
             <li>Identification of the copyrighted work you claim has been infringed.</li>
-            <li>Identification of the infringing material and its location on Karta (URL or description).</li>
+            <li>Identification of the infringing material and its location on Eventera (URL or description).</li>
             <li>Your contact information (name, address, phone number, email).</li>
             <li>
               A statement that you have a good-faith belief that the use is not authorised by the
@@ -71,7 +71,7 @@ export default function DmcaPage() {
             </li>
             <li>
               Your name, address, phone number, and consent to the jurisdiction of your local
-              federal court (or, if outside the US, any judicial district in which Karta may be
+              federal court (or, if outside the US, any judicial district in which Eventera may be
               found).
             </li>
           </ol>
@@ -84,7 +84,7 @@ export default function DmcaPage() {
         <section>
           <h2 className="font-display font-semibold text-[22px] text-[#0F1F18] mb-3">Repeat infringers</h2>
           <p>
-            Karta will terminate the accounts of users who are found to be repeat infringers
+            Eventera will terminate the accounts of users who are found to be repeat infringers
             of intellectual property rights.
           </p>
         </section>

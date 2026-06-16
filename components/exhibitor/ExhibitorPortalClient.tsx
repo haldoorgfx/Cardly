@@ -181,7 +181,7 @@ function Overview({ leads, sessions }: { leads: Lead[]; sessions: Session[] }) {
           </span>
           <div>
             <div className="font-display text-[15px] font-semibold text-[#163828]">Capture leads at your booth</div>
-            <div className="text-[13px] text-[#3A4A42] mt-0.5">Scan an attendee&apos;s badge or Karta Card to save them instantly.</div>
+            <div className="text-[13px] text-[#3A4A42] mt-0.5">Scan an attendee&apos;s badge or Eventera Card to save them instantly.</div>
           </div>
         </div>
         <button className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#E8C57E] text-[#163828] text-[13.5px] font-semibold hover:bg-[#C9A45E] transition-colors whitespace-nowrap shrink-0">
@@ -530,7 +530,7 @@ export function ExhibitorPortalClient({ sponsor, event, leads, sessions }: Props
           <div className="flex items-center gap-2.5">
             <span className="w-7 h-7 rounded-lg shrink-0" style={{ background: 'linear-gradient(135deg,#1F4D3A,#2A6A50 60%,#E8C57E)' }} />
             <div className="leading-none">
-              <div className="font-display text-[15px] font-bold text-[#1F4D3A]">Karta</div>
+              <div className="font-display text-[15px] font-bold text-[#1F4D3A]">Eventera</div>
               <div className=" text-[8.5px] tracking-[0.16em] uppercase text-[#6B7A72] mt-0.5">Exhibitor Portal</div>
             </div>
           </div>

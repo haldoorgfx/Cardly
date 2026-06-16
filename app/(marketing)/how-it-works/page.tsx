@@ -3,9 +3,9 @@ import Link from 'next/link';
 import { Check, ArrowRight } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'How Karta Works — The Event Platform',
+  title: 'How Eventera Works — The Event Platform',
   description:
-    'From your first ticket sale to the last card shared. See how Karta runs your entire event lifecycle in 5 simple steps.',
+    'From your first ticket sale to the last card shared. See how Eventera runs your entire event lifecycle in 5 simple steps.',
 };
 
 /* ─── Step visual mocks ──────────────────────────────────────────── */
@@ -154,7 +154,7 @@ const STEPS = [
     n: 4,
     label: 'Register',
     title: 'Attendees register',
-    desc: 'They fill a form, pay if needed, and get their Karta Card.',
+    desc: 'They fill a form, pay if needed, and get their Eventera Card.',
     Mock: RegMock,
   },
   {
@@ -186,7 +186,7 @@ export default function HowItWorksPage() {
 
         <div className="relative mx-auto max-w-[1200px] px-5 lg:px-10 pt-16 lg:pt-24 pb-12 lg:pb-18">
           <div className=" text-[11px] tracking-[0.22em] uppercase text-[#1F4D3A] mb-5">
-            How Karta works
+            How Eventera works
           </div>
 
           <h1
@@ -302,13 +302,13 @@ export default function HowItWorksPage() {
                 className="inline-block  text-[10px] tracking-[0.2em] uppercase px-3 py-1 rounded-full mb-5"
                 style={{ background: 'rgba(232,197,126,0.15)', color: '#E8C57E', border: '1px solid rgba(232,197,126,0.3)' }}
               >
-                Unique to Karta
+                Unique to Eventera
               </div>
               <h2
                 className="font-title font-bold text-[28px] sm:text-[36px] leading-tight"
                 style={{ color: '#E8C57E' }}
               >
-                The Karta Card
+                The Eventera Card
               </h2>
               <p className="mt-4 text-[#FAF6EE]/80 text-[15px] lg:text-[16px] leading-[1.6] max-w-[460px]">
                 Every attendee who registers automatically receives a personalized, branded card — ready
@@ -338,7 +338,7 @@ export default function HowItWorksPage() {
                   }}
                 >
                   <div className=" text-[8px] tracking-[0.18em] text-[#FAF6EE]/50 uppercase">
-                    Karta · 2026
+                    Eventera · 2026
                   </div>
                   <div
                     className="w-8 h-8 rounded-full grid place-items-center text-[10px] font-bold"

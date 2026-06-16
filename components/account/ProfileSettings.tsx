@@ -21,7 +21,7 @@ const CITIES = [
 type NotifPrefs = Record<string, boolean>;
 
 const NOTIF_ROWS: { key: string; label: string; sub: string }[] = [
-  { key: 'tickets',          label: 'Tickets & receipts',      sub: 'Confirmation, QR code, Karta Card' },
+  { key: 'tickets',          label: 'Tickets & receipts',      sub: 'Confirmation, QR code, Eventera Card' },
   { key: 'reminders',        label: 'Event reminders',         sub: '24 hours and 2 hours before doors' },
   { key: 'agenda_changes',   label: 'Agenda changes',          sub: 'Session moved, cancelled or rescheduled' },
   { key: 'organizer_follows',label: 'Organizers you follow',   sub: 'New event published' },
@@ -145,7 +145,7 @@ export default function ProfileSettings({ profile }: Props) {
           Profile &amp; preferences
         </h1>
         <p className="mt-2 text-[14px]" style={{ color: '#6B7A72' }}>
-          What you pick here shapes your discovery feed and how Karta reaches you.
+          What you pick here shapes your discovery feed and how Eventera reaches you.
         </p>
       </div>
 

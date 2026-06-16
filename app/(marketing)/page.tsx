@@ -7,9 +7,9 @@ import {
 import { FAQAccordion, type FAQItem } from '@/components/marketing/FAQAccordion';
 
 export const metadata = {
-  title: { absolute: 'Karta — The complete event platform' },
+  title: { absolute: 'Eventera — The complete event platform' },
   description:
-    'Registration, tickets, agenda, check-in, networking, and a personalized Karta Card for every attendee. The complete event platform built for organizers everywhere.',
+    'Registration, tickets, agenda, check-in, networking, and a personalized Eventera Card for every attendee. The complete event platform built for organizers everywhere.',
 };
 
 /* ─────────────────────────────────────────────────────────
@@ -124,7 +124,7 @@ function HeroDashboardMock() {
           <div style={{ width: 24, height: 3, background: 'rgba(250,246,238,0.12)', borderRadius: 100 }} />
         </div>
         <div style={{ background: 'linear-gradient(135deg, #163828 0%, #1F4D3A 60%, #2A6A50 100%)', padding: '10px 10px 14px', position: 'relative' }}>
-          <div style={{ position: 'absolute', top: 7, right: 8, fontSize: 5, color: 'rgba(232,197,126,0.6)', letterSpacing: '0.15em', fontFamily: 'Inter, sans-serif' }}>KARTA</div>
+          <div style={{ position: 'absolute', top: 7, right: 8, fontSize: 5, color: 'rgba(232,197,126,0.6)', letterSpacing: '0.15em', fontFamily: 'Inter, sans-serif' }}>EVENTERA</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 8 }}>
             <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'rgba(232,197,126,0.28)', border: '1.5px solid rgba(232,197,126,0.5)', flexShrink: 0 }} />
             <div>
@@ -350,7 +350,7 @@ function TrustStrip() {
 const ALL_FEATURES = [
   'Registration & Tickets', 'Event Pages', 'QR Check-in', 'Agenda Builder',
   'Speaker Directory', 'Attendee Networking', 'Live Q&A & Polls',
-  'Sponsor Tools', 'Analytics', 'Karta Card',
+  'Sponsor Tools', 'Analytics', 'Eventera Card',
 ];
 
 function PlatformOverview() {
@@ -424,7 +424,7 @@ function ShowcaseRegistration() {
               'Multiple ticket types — Free, General, VIP, Early Bird',
               'Custom registration fields with conditional logic',
               'Stripe, Flutterwave, M-Pesa & Paystack payments',
-              'Karta Card auto-generated at the moment of registration',
+              'Eventera Card auto-generated at the moment of registration',
             ].map((item) => (
               <li key={item} style={{ display: 'flex', alignItems: 'flex-start', gap: 9, fontSize: 14, color: 'rgba(250,246,238,0.75)', fontFamily: 'var(--font-sans)' }}>
                 <Check size={14} strokeWidth={2.5} style={{ color: '#4CAF7D', marginTop: 2, flexShrink: 0 }} />
@@ -487,16 +487,16 @@ function ShowcaseRegistration() {
               ))}
 
               <div style={{ height: 34, background: '#1F4D3A', borderRadius: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 8 }}>
-                <span style={{ fontSize: 9, fontWeight: 600, color: '#FAF6EE', fontFamily: 'var(--font-sans)' }}>Register & get your Karta Card →</span>
+                <span style={{ fontSize: 9, fontWeight: 600, color: '#FAF6EE', fontFamily: 'var(--font-sans)' }}>Register & get your Eventera Card →</span>
               </div>
 
               {/* Card preview hint */}
               <div style={{ marginTop: 10, padding: '8px 10px', background: 'rgba(232,197,126,0.07)', border: '1px solid rgba(232,197,126,0.18)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 7 }}>
                 <div style={{ width: 26, height: 26, borderRadius: 6, background: 'linear-gradient(135deg, #163828, #1F4D3A)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <span style={{ fontSize: 8, fontWeight: 700, color: '#E8C57E', letterSpacing: '0.06em', fontFamily: 'var(--font-sans)' }}>K</span>
+                  <span style={{ fontSize: 8, fontWeight: 700, color: '#E8C57E', letterSpacing: '0.06em', fontFamily: 'var(--font-sans)' }}>E</span>
                 </div>
                 <div>
-                  <div style={{ fontSize: 7.5, fontWeight: 600, color: '#E8C57E', fontFamily: 'var(--font-sans)', lineHeight: 1.3 }}>Your Karta Card is generated</div>
+                  <div style={{ fontSize: 7.5, fontWeight: 600, color: '#E8C57E', fontFamily: 'var(--font-sans)', lineHeight: 1.3 }}>Your Eventera Card is generated</div>
                   <div style={{ fontSize: 6.5, color: 'rgba(250,246,238,0.4)', fontFamily: 'var(--font-sans)' }}>Ready to share in 2 seconds</div>
                 </div>
               </div>
@@ -538,7 +538,7 @@ function ShowcaseAnalytics() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {[
               { label: 'Avg. card-share rate per event', val: '71%', color: '#1F4D3A' },
-              { label: 'Avg. check-in rate on Karta events', val: '87%', color: '#2D7A4F' },
+              { label: 'Avg. check-in rate on Eventera events', val: '87%', color: '#2D7A4F' },
               { label: 'Cards shared per attendee (avg)', val: '1.42×', color: '#C9A45E' },
             ].map((s) => (
               <div key={s.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, padding: '10px 16px', background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 10 }}>
@@ -657,13 +657,13 @@ function KartaCardBanner() {
           <div style={{ flex: 1, minWidth: 260 }}>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(232,197,126,0.15)', border: '1px solid rgba(232,197,126,0.35)', color: '#E8C57E', borderRadius: 100, padding: '4px 12px', fontSize: 11, fontFamily: 'var(--font-sans)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 16 }}>
               <Sparkles size={11} strokeWidth={2} />
-              Only on Karta
+              Only on Eventera
             </span>
             <h2
               className="font-title font-bold"
               style={{ fontSize: 'clamp(22px,3vw,36px)', color: '#E8C57E', letterSpacing: '-0.025em', lineHeight: 1.15, marginBottom: 14 }}
             >
-              The Karta Card — a first in event tech.
+              The Eventera Card — a first in event tech.
             </h2>
             <p style={{ fontFamily: 'var(--font-sans)', fontSize: 15, color: 'rgba(250,246,238,0.78)', lineHeight: 1.65, maxWidth: 480 }}>
               Every attendee gets a personalized, branded card the moment they register. No Canva. No designer. No manual work. It ships with your event — automatically.
@@ -826,7 +826,7 @@ function KartaDifference() {
                 marginBottom: 18,
               }}
             >
-              The Karta difference
+              The Eventera difference
             </span>
             <h2
               className="font-title font-bold"
@@ -835,7 +835,7 @@ function KartaDifference() {
               Every attendee leaves with a card worth sharing.
             </h2>
             <p style={{ fontSize: 16, color: '#3A4A42', lineHeight: 1.65, marginBottom: 20, maxWidth: 500 }}>
-              On every other platform, registration ends with a confirmation email. On Karta, it ends with a moment — a card that says &ldquo;I was there,&rdquo; personalized and ready to post.
+              On every other platform, registration ends with a confirmation email. On Eventera, it ends with a moment — a card that says &ldquo;I was there,&rdquo; personalized and ready to post.
             </p>
             <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px', display: 'flex', flexDirection: 'column', gap: 12 }}>
               {[
@@ -917,7 +917,7 @@ function StepMock({ type }: { type: 'event' | 'tickets' | 'agenda' | 'register' 
         ))}
         <div style={{ height: 20, background: '#1F4D3A', borderRadius: 100, marginTop: 6 }} />
         <div style={{ marginTop: 8, height: 28, background: 'linear-gradient(135deg, #163828, #1F4D3A)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ fontSize: 7, color: '#E8C57E', fontFamily: 'var(--font-sans)', letterSpacing: '0.1em' }}>KARTA CARD READY</div>
+          <div style={{ fontSize: 7, color: '#E8C57E', fontFamily: 'var(--font-sans)', letterSpacing: '0.1em' }}>EVENTERA CARD READY</div>
         </div>
       </div>
     );
@@ -937,7 +937,7 @@ const HOW_STEPS: { n: string; title: string; desc: string; mock: 'event' | 'tick
   { n: '1', title: 'Create your event', desc: 'Design your event page. Add cover photo, description, venue, date.', mock: 'event' },
   { n: '2', title: 'Set up tickets', desc: 'Free or paid. Early bird, VIP, general — with promo codes.', mock: 'tickets' },
   { n: '3', title: 'Build your agenda', desc: 'Multi-track schedule, speakers, session descriptions.', mock: 'agenda' },
-  { n: '4', title: 'Attendees register', desc: 'They fill a form, pay if needed, and get their Karta Card.', mock: 'register' },
+  { n: '4', title: 'Attendees register', desc: 'They fill a form, pay if needed, and get their Eventera Card.', mock: 'register' },
   { n: '5', title: 'Track everything', desc: 'Check-ins, session attendance, networking, card shares — in real time.', mock: 'analytics' },
 ];
 
@@ -956,7 +956,7 @@ function HowItWorks() {
               marginBottom: 14,
             }}
           >
-            How Karta works
+            How Eventera works
           </div>
           <h2
             className="font-title font-bold"
@@ -1102,7 +1102,7 @@ function UseCases() {
             className="font-title font-bold"
             style={{ fontSize: 'clamp(28px, 4vw, 48px)', color: '#0F1F18', letterSpacing: '-0.03em', lineHeight: 1.05 }}
           >
-            Whatever you&apos;re organizing, Karta handles it.
+            Whatever you&apos;re organizing, Eventera handles it.
           </h2>
         </div>
 
@@ -1212,8 +1212,8 @@ const FREE_FEATURES = [
   '50 registrations',
   'Basic event page',
   'QR check-in',
-  'Karta Card for every attendee',
-  'Karta watermark on cards',
+  'Eventera Card for every attendee',
+  'Eventera watermark on cards',
 ];
 const PRO_FEATURES = [
   'Unlimited events',
@@ -1222,7 +1222,7 @@ const PRO_FEATURES = [
   'Speaker directory',
   'Attendee networking',
   '1:1 messaging',
-  'Remove Karta watermark',
+  'Remove Eventera watermark',
   'Email notifications',
   'Basic analytics',
 ];
@@ -1343,7 +1343,7 @@ function Pricing() {
         </div>
 
         <div className="text-center mt-10" style={{ fontSize: 14, color: '#6B7A72' }}>
-          All plans include the Karta Card feature. It&apos;s not an add-on — it&apos;s standard.{' '}
+          All plans include the Eventera Card feature. It&apos;s not an add-on — it&apos;s standard.{' '}
           <Link href="/pricing" style={{ color: '#1F4D3A', fontWeight: 600, textDecoration: 'underline', textUnderlineOffset: 3 }}>
             Compare all features →
           </Link>
@@ -1369,14 +1369,14 @@ function Testimonial() {
     >
       <div className="mx-auto px-5 lg:px-10" style={{ maxWidth: 860 }}>
         <div style={{ fontSize: 11, fontFamily: 'var(--font-sans)', letterSpacing: '0.22em', textTransform: 'uppercase', color: '#1F4D3A', textAlign: 'center', marginBottom: 28 }}>
-          From organizers who&apos;ve run real events on Karta
+          From organizers who&apos;ve run real events on Eventera
         </div>
         <Quote size={38} strokeWidth={1.5} style={{ color: '#E8C57E', margin: '0 auto 20px', display: 'block' }} />
         <blockquote
           className="font-display"
           style={{ fontSize: 'clamp(20px, 2.8vw, 30px)', color: '#0F1F18', lineHeight: 1.4, letterSpacing: '-0.02em', textAlign: 'center', marginBottom: 28 }}
         >
-          &ldquo;We ran registration, check-in and the agenda on Karta — but the cards are what people remember. 600 attendees, 740 cards shared. The reach was 10x what our email kit ever did.&rdquo;
+          &ldquo;We ran registration, check-in and the agenda on Eventera — but the cards are what people remember. 600 attendees, 740 cards shared. The reach was 10x what our email kit ever did.&rdquo;
         </blockquote>
         <div className="flex items-center justify-center gap-3">
           <div
@@ -1404,11 +1404,11 @@ function Testimonial() {
 ───────────────────────────────────────────────────────── */
 const LANDING_FAQS: FAQItem[] = [
   {
-    q: 'Is Karta a full event platform, or just cards?',
-    a: 'A full platform. Karta runs your event end to end — registration, ticketing, event pages, QR check-in, agenda builder, speaker directory, attendee networking, live Q&A, sponsor tools, and analytics. The Karta Card is the feature that makes it unique, but it sits inside a complete event management product.',
+    q: 'Is Eventera a full event platform, or just cards?',
+    a: 'A full platform. Eventera runs your event end to end — registration, ticketing, event pages, QR check-in, agenda builder, speaker directory, attendee networking, live Q&A, sponsor tools, and analytics. The Eventera Card is the feature that makes it unique, but it sits inside a complete event management product.',
   },
   {
-    q: 'How is Karta different from Eventbrite or Whova?',
+    q: 'How is Eventera different from Eventbrite or Whova?',
     a: 'Same core toolkit — registration, check-in, agenda, networking. Plus the part they can\'t do: every attendee automatically gets a personalized, branded share card at registration. No Canva, no designer, no manual work. It ships with your event, not as a separate campaign.',
   },
   {
@@ -1420,8 +1420,8 @@ const LANDING_FAQS: FAQItem[] = [
     a: 'Card payments via Stripe, plus Flutterwave, Paystack, M-Pesa, and MTN MoMo for African markets. You can accept both free and paid registrations on the same event.',
   },
   {
-    q: 'Does every plan include the Karta Card?',
-    a: 'Yes. The Karta Card is standard on every plan — Free, Pro, and Studio. Free tier cards include a small Karta watermark. Pro and Studio remove it.',
+    q: 'Does every plan include the Eventera Card?',
+    a: 'Yes. The Eventera Card is standard on every plan — Free, Pro, and Studio. Free tier cards include a small Eventera watermark. Pro and Studio remove it.',
   },
   {
     q: 'Can I check attendees in without internet at the door?',
@@ -1433,7 +1433,7 @@ const LANDING_FAQS: FAQItem[] = [
   },
   {
     q: 'Can I move from a spreadsheet or another platform?',
-    a: 'Yes. Import your registrant list by CSV and we\'ll map your columns to Karta fields. Supports Eventbrite CSV exports, Google Sheets, and any standard format with Name, Email, and custom fields.',
+    a: 'Yes. Import your registrant list by CSV and we\'ll map your columns to Eventera fields. Supports Eventbrite CSV exports, Google Sheets, and any standard format with Name, Email, and custom fields.',
   },
 ];
 

@@ -40,7 +40,7 @@
 ## THE PROMPT — PASTE EVERYTHING BELOW THIS LINE INTO CLAUDE CODE
 
 ```
-We are doing a SCOPED redesign of the MARKETING surface of Cardly — the public pages potential customers see BEFORE signing up. The product (editor + attendee experience) is already shipped and working — we are NOT touching it.
+We are doing a SCOPED redesign of the MARKETING surface of Eventera — the public pages potential customers see BEFORE signing up. The product (editor + attendee experience) is already shipped and working — we are NOT touching it.
 
 The 6 new marketing pages have been designed in Claude Design and exported as JSX reference files located in `Cardly-handoff/Cardly/project/`. Your job: faithfully reimplement those designs as production Next.js pages while keeping all existing product surfaces untouched.
 

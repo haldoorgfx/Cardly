@@ -198,9 +198,9 @@ export function NewsfeedClient({ eventId, eventName, initialPosts }: Props) {
               {/* Preview posts */}
               <div className="px-4 py-3 space-y-4">
                 {[
-                  { author: 'Karta Studio', time: '09:12', body: 'Welcome to AfriTech Summit 2026! Wi-Fi: KEMPINSKI-EVENT · code in your welcome email. The full agenda is in your app.', pinned: true, hearts: 184, comments: 23 },
-                  { author: 'Karta Studio', time: '11:40', body: 'The fintech panel was packed — here\'s the moment the room voted on cross-border rails.', pinned: false, hearts: 97, comments: 11 },
-                  { author: 'Leila Haddad', time: '12:05', body: 'Anyone heading to the harbor walk after sessions? Meet at the gold lounge — look for my Karta Card.', pinned: false, hearts: 31, comments: 8 },
+                  { author: 'Eventera Studio', time: '09:12', body: 'Welcome to AfriTech Summit 2026! Wi-Fi: KEMPINSKI-EVENT · code in your welcome email. The full agenda is in your app.', pinned: true, hearts: 184, comments: 23 },
+                  { author: 'Eventera Studio', time: '11:40', body: 'The fintech panel was packed — here\'s the moment the room voted on cross-border rails.', pinned: false, hearts: 97, comments: 11 },
+                  { author: 'Leila Haddad', time: '12:05', body: 'Anyone heading to the harbor walk after sessions? Meet at the gold lounge — look for my Eventera Card.', pinned: false, hearts: 31, comments: 8 },
                 ].map((post, i) => (
                   <div key={i} className="flex items-start gap-2.5">
                     <div className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-[10px] font-bold"

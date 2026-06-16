@@ -41,8 +41,8 @@ export async function initFlutterwavePayment(params: FlutterwaveInitParams) {
       },
       meta: params.meta,
       customizations: {
-        title: 'Karta Event Registration',
-        description: 'Secure payment powered by Karta',
+        title: 'Eventera Event Registration',
+        description: 'Secure payment powered by Eventera',
       },
     }),
   });

@@ -5,7 +5,7 @@
  * If RESEND_API_KEY is missing the functions return silently — no crash.
  */
 
-const FROM = 'Karta <noreply@karta.cre8so.com>';
+const FROM = 'Eventera <noreply@karta.cre8so.com>';
 const BASE_URL = 'https://api.resend.com/emails';
 
 async function sendEmail(to: string, subject: string, html: string): Promise<void> {
@@ -34,7 +34,7 @@ function wrap(content: string): string {
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px">
     <!-- Header -->
     <tr><td style="background:linear-gradient(135deg,#1F4D3A,#2A6A50);border-radius:16px 16px 0 0;padding:24px 32px">
-      <span style="font-family:Georgia,serif;font-size:22px;font-weight:700;color:#FAF6EE;letter-spacing:-0.02em">Karta</span>
+      <span style="font-family:Georgia,serif;font-size:22px;font-weight:700;color:#FAF6EE;letter-spacing:-0.02em">Eventera</span>
     </td></tr>
     <!-- Body -->
     <tr><td style="background:#FFFFFF;padding:32px;border:1px solid #E5E0D4;border-top:none;border-bottom:none">
@@ -42,7 +42,7 @@ function wrap(content: string): string {
     </td></tr>
     <!-- Footer -->
     <tr><td style="background:#FAF6EE;padding:20px 32px;border:1px solid #E5E0D4;border-top:none;border-radius:0 0 16px 16px;text-align:center">
-      <p style="margin:0;font-size:11px;color:#9CA3AF">You&apos;re receiving this because you have email notifications enabled in your Karta account.<br>
+      <p style="margin:0;font-size:11px;color:#9CA3AF">You&apos;re receiving this because you have email notifications enabled in your Eventera account.<br>
       <a href="https://karta.cre8so.com/settings" style="color:#1F4D3A">Manage preferences</a></p>
     </td></tr>
   </table>
@@ -67,13 +67,13 @@ export async function sendWelcomeEmail(opts: {
 
   await sendEmail(
     opts.to,
-    `Welcome to Karta, ${firstName} 👋`,
+    `Welcome to Eventera, ${firstName} 👋`,
     wrap(`
       <h1 style="margin:0 0 8px;font-size:26px;font-weight:700;letter-spacing:-0.02em">
-        Welcome to Karta, ${firstName} 👋
+        Welcome to Eventera, ${firstName} 👋
       </h1>
       <p style="margin:0 0 16px;font-size:14px;color:#6B7A72;line-height:1.6">
-        We&apos;re glad you&apos;re here. Karta helps event organisers create
+        We&apos;re glad you&apos;re here. Eventera helps event organisers create
         beautiful, personalised social cards that attendees actually share.
       </p>
 
@@ -210,14 +210,14 @@ export async function sendTeamInviteEmail(opts: {
 }): Promise<void> {
   await sendEmail(
     opts.to,
-    `${opts.inviterName} invited you to join ${opts.teamName} on Karta`,
+    `${opts.inviterName} invited you to join ${opts.teamName} on Eventera`,
     wrap(`
       <h1 style="margin:0 0 8px;font-size:26px;font-weight:700;letter-spacing:-0.02em">
         You&apos;ve been invited
       </h1>
       <p style="margin:0 0 16px;font-size:14px;color:#6B7A72;line-height:1.6">
         <strong style="color:#0F1F18">${opts.inviterName}</strong> has invited you to join
-        <strong style="color:#0F1F18">${opts.teamName}</strong> on Karta as a
+        <strong style="color:#0F1F18">${opts.teamName}</strong> on Eventera as a
         <strong style="color:#1F4D3A">${opts.role}</strong>.
       </p>
       <p style="margin:0 0 16px;font-size:13px;color:#6B7A72">

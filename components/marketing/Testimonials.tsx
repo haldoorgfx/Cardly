@@ -3,7 +3,7 @@ import { Quote } from 'lucide-react';
 const TESTIMONIALS = [
   {
     quote:
-      "Karta turned 600 attendees into 600 brand ambassadors. The reach was far beyond what we expected — and the visual identity stayed locked the whole way.",
+      "Eventera turned 600 attendees into 600 brand ambassadors. The reach was far beyond what we expected — and the visual identity stayed locked the whole way.",
     name: "Amara Yusuf",
     role: "Comms Lead",
     org: "Pan-African Climate Summit",

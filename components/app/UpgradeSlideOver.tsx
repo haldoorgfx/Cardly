@@ -89,7 +89,7 @@ export function UpgradeSlideOver({ feature, onClose }: Props) {
               </div>
 
               <p className="text-[14.5px] leading-[1.65]" style={{ color: '#3A4A42' }}>
-                {FEATURE_COPY[feature.id] ?? 'Unlock the full Karta platform — networking, live engagement, sponsor tools and more.'}
+                {FEATURE_COPY[feature.id] ?? 'Unlock the full Eventera platform — networking, live engagement, sponsor tools and more.'}
               </p>
 
               <div className="mt-6 mb-3  text-[10px] tracking-[0.18em] uppercase" style={{ color: '#9BA8A1' }}>

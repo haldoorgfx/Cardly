@@ -138,7 +138,7 @@ export function RevenueView({ registrations }: Props) {
         <StatCard icon={<Users size={16} />} label="Attendees" value={String(totalCount)} />
       </div>
       <p className="text-[12px] mb-8" style={{ color: '#6B7A72' }}>
-        Net payable is your revenue after Karta&apos;s platform fee. Payouts are processed manually for now — we&apos;ll be in touch to settle.
+        Net payable is your revenue after Eventera&apos;s platform fee. Payouts are processed manually for now — we&apos;ll be in touch to settle.
       </p>
 
       {/* Tab bar + export */}

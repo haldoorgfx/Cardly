@@ -228,7 +228,7 @@ export default function MessagingClient({
               style={{ background: '#E8EFEB' }}
             >
               <div className="text-[13px] flex-1" style={{ color: '#1F4D3A' }}>
-                Share your Karta Card — let {partner?.attendee_name?.split(' ')[0] ?? 'them'} see your profile and save your contact.
+                Share your Eventera Card — let {partner?.attendee_name?.split(' ')[0] ?? 'them'} see your profile and save your contact.
               </div>
               <button className="text-[18px] leading-none" style={{ color: '#6B7A72' }}>×</button>
             </div>

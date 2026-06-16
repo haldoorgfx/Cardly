@@ -4,7 +4,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { EventsOversightClient } from './EventsOversightClient';
 import type { EventStatus, ModerationStatus } from '@/types/database';
 
-export const metadata = { title: 'Event Oversight — Karta Admin' };
+export const metadata = { title: 'Event Oversight — Eventera Admin' };
 export const dynamic = 'force-dynamic';
 
 interface SearchParams {

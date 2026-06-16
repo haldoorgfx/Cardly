@@ -330,7 +330,7 @@ export function OrdersClient({ eventId, orders: initialOrders }: Props) {
         }
       >
         <p className="text-[14px] leading-relaxed" style={{ color: '#3A4A42' }}>
-          This marks the order as <strong>refunded</strong> in Karta and updates your revenue totals. Process the actual money refund in your payment provider separately.
+          This marks the order as <strong>refunded</strong> in Eventera and updates your revenue totals. Process the actual money refund in your payment provider separately.
         </p>
       </Modal>
     </div>

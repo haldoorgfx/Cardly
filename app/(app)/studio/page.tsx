@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { StudioClient } from '@/components/studio/StudioClient';
 import type { Metadata } from 'next';
 
-export const metadata: Metadata = { title: 'Karta Card Studio' };
+export const metadata: Metadata = { title: 'Eventera Card Studio' };
 
 export default async function StudioPage() {
   const supabase = createClient();

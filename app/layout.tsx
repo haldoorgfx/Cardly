@@ -10,25 +10,26 @@ import { Suspense } from "react";
 export const metadata: Metadata = {
   metadataBase: new URL("https://karta.cre8so.com"),
   title: {
-    default: "Karta — The complete event platform",
-    template: "%s — Karta",
+    default: "Eventera — A new era of events.",
+    template: "%s — Eventera",
   },
   description:
-    "Registration, tickets, agenda, check-in, networking — and a personalized Karta Card for every attendee. The complete event platform built for organizers everywhere.",
+    "The complete event platform built for organizers everywhere. Registration, tickets, agenda, check-in, networking — and a personalized Eventera Card for every attendee.",
   openGraph: {
     type: "website",
-    siteName: "Karta",
-    title: "Karta — The complete event platform",
+    siteName: "Eventera",
+    title: "Eventera — A new era of events.",
     description:
-      "Registration, tickets, agenda, check-in, networking — and a personalized Karta Card for every attendee. The complete event platform built for organizers everywhere.",
+      "The complete event platform built for organizers everywhere. Registration, tickets, agenda, check-in, networking — and a personalized Eventera Card for every attendee.",
     url: "https://karta.cre8so.com",
-    images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "Karta" }],
+    images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "Eventera" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Karta — The complete event platform",
+    site: "@eventera",
+    title: "Eventera — A new era of events.",
     description:
-      "Registration, tickets, agenda, check-in, networking — and a personalized Karta Card for every attendee. The complete event platform built for organizers everywhere.",
+      "The complete event platform built for organizers everywhere. Registration, tickets, agenda, check-in, networking — and a personalized Eventera Card for every attendee.",
     images: ["/og-default.png"],
   },
 };
@@ -60,7 +61,7 @@ export default function RootLayout({
                 {
                   '@type': 'Organization',
                   '@id': 'https://karta.cre8so.com/#organization',
-                  name: 'Karta',
+                  name: 'Eventera',
                   url: 'https://karta.cre8so.com',
                   logo: 'https://karta.cre8so.com/og-default.png',
                   sameAs: [],
@@ -69,8 +70,8 @@ export default function RootLayout({
                   '@type': 'WebSite',
                   '@id': 'https://karta.cre8so.com/#website',
                   url: 'https://karta.cre8so.com',
-                  name: 'Karta',
-                  description: 'Registration, tickets, agenda, check-in, networking — and a personalized Karta Card for every attendee. The complete event platform.',
+                  name: 'Eventera',
+                  description: 'Registration, tickets, agenda, check-in, networking — and a personalized Eventera Card for every attendee. The complete event platform.',
                   publisher: { '@id': 'https://karta.cre8so.com/#organization' },
                   potentialAction: {
                     '@type': 'SearchAction',
@@ -80,7 +81,7 @@ export default function RootLayout({
                 },
                 {
                   '@type': 'SoftwareApplication',
-                  name: 'Karta',
+                  name: 'Eventera',
                   applicationCategory: 'BusinessApplication',
                   operatingSystem: 'Web',
                   url: 'https://karta.cre8so.com',

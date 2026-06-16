@@ -484,7 +484,7 @@ export function DiscoveryFeed({ events }: DiscoveryFeedProps) {
           <div className="relative grid lg:grid-cols-[1fr_1px_1fr] gap-8 lg:gap-12 p-10 lg:p-14 lg:items-center">
             <div>
               <p className="font-title font-medium text-white" style={{ fontSize: 'clamp(19px,2.4vw,23px)', lineHeight: 1.45, letterSpacing: '-0.01em' }}>
-                &ldquo;Karta helps me discover events I care about and connect with people who inspire me.&rdquo;
+                &ldquo;Eventera helps me discover events I care about and connect with people who inspire me.&rdquo;
               </p>
               <div className="flex items-center gap-3.5 mt-5">
                 <div className="w-[34px] h-[34px] rounded-full flex items-center justify-center font-bold text-[13px] text-white"

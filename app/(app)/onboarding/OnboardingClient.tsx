@@ -181,7 +181,7 @@ export default function OnboardingClient() {
 
         <div className="relative flex items-center gap-2.5 mb-12">
           <span className="w-8 h-8 rounded-lg" style={{ background: 'linear-gradient(135deg,#FAF6EE,#E8C57E)' }} />
-          <span className="font-display text-[20px] font-bold tracking-tight">Karta</span>
+          <span className="font-display text-[20px] font-bold tracking-tight">Eventera</span>
         </div>
 
         <div className="relative flex-1">
@@ -239,7 +239,7 @@ export default function OnboardingClient() {
             {step === 0 && (
               <div>
                 <h1 className="font-display text-[30px] font-semibold tracking-[-0.025em]" style={{ color: '#1F4D3A' }}>
-                  Welcome to Karta 👋
+                  Welcome to Eventera 👋
                 </h1>
                 <p className="mt-3 text-[15px] leading-[1.6]" style={{ color: '#3A4A42' }}>
                   Let&apos;s tailor your workspace. What kind of events do you run?
@@ -350,7 +350,7 @@ export default function OnboardingClient() {
                   Pick your brand look
                 </h1>
                 <p className="mt-3 text-[15px] leading-[1.6]" style={{ color: '#3A4A42' }}>
-                  This styles your event pages and the Karta Card every attendee shares.
+                  This styles your event pages and the Eventera Card every attendee shares.
                 </p>
 
                 <div className="mt-7 grid sm:grid-cols-[1fr_240px] gap-6 items-start">

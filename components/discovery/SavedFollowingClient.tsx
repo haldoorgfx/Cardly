@@ -24,7 +24,7 @@ const DEMO_SAVED: EventPage[] = [
 ];
 
 const DEMO_FOLLOWING: Follow[] = [
-  { organizer_id: 'o1', profiles: { id: 'o1', full_name: 'Karta Studio', organization: 'Karta Studio', avatar_url: null }, next_event_title: 'Lagos Design Week', follower_count: 2840 },
+  { organizer_id: 'o1', profiles: { id: 'o1', full_name: 'Eventera Studio', organization: 'Eventera Studio', avatar_url: null }, next_event_title: 'Lagos Design Week', follower_count: 2840 },
   { organizer_id: 'o2', profiles: { id: 'o2', full_name: 'Amara Events', organization: 'Amara Events', avatar_url: null }, next_event_title: 'Africa Climate Action', follower_count: 1203 },
   { organizer_id: 'o3', profiles: { id: 'o3', full_name: 'Fintech Hub', organization: null, avatar_url: null }, next_event_title: null, follower_count: 456 },
 ];

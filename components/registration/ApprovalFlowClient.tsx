@@ -31,7 +31,7 @@ const STEPS = [
   { label: 'Apply' },
   { label: 'Organizer reviews' },
   { label: 'Confirm seat' },
-  { label: 'Karta Card' },
+  { label: 'Eventera Card' },
 ];
 
 export function ApprovalFlowClient({ eventId, eventName, questions: dbQuestions }: Props) {

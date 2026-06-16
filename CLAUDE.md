@@ -1,12 +1,12 @@
-# CLAUDE.md — Cardly Project
+# CLAUDE.md — Eventera Project
 
 **Read this file fully at the start of every session before writing any code.**
 
 ---
 
-## What Cardly Is
+## What Eventera Is
 
-Cardly is a SaaS tool that lets event organizers and designers create personalized "I'm Attending" social cards for event attendees.
+Eventera is a SaaS tool that lets event organizers and designers create personalized "I'm Attending" social cards for event attendees.
 
 **Flow:**
 1. Designer uploads an event design (PNG/JPG)
@@ -258,7 +258,7 @@ create table generated_cards (
     - Composite text zones with correct font, size, color, alignment
     - Composite photo cropped to shape (circle / square / rounded)
     - Return final PNG
-    - Apply "Made with Cardly" watermark if user.plan === 'free'
+    - Apply "Made with Eventera" watermark if user.plan === 'free'
 16. E2 Preview — rendered card + download + share buttons
 17. E3 Success — confirmation, suggested caption, share prompts
 
@@ -278,7 +278,7 @@ create table generated_cards (
 2. **Mobile attendee experience is non-negotiable.** Test E1 at 375px viewport. One-thumb operable. No tiny tap targets.
 3. **Port the canvas editor, do not rewrite.** D2 already has working drag/resize/zoom logic in React. Re-skin colors only.
 4. **Server-side image rendering only.** Never use html2canvas or browser-based rendering. Use `sharp` in API route.
-5. **Watermark logic:** "Made with Cardly" bottom-center, small, semi-transparent. Only on free tier output.
+5. **Watermark logic:** "Made with Eventera" bottom-center, small, semi-transparent. Only on free tier output.
 6. **Slug format:** `lowercase-event-name-xxxx` where `xxxx` is a 4-char random suffix.
 7. **Auto-save:** 800ms debounce after last change in the editor.
 8. **TypeScript strict mode.** Type zones, database rows, API request/response.

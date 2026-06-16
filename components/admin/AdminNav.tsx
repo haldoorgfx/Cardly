@@ -34,7 +34,7 @@ export function AdminNav() {
             style={{ background: 'linear-gradient(135deg, #FAF6EE 0%, #E8C57E 100%)' }}
           />
           <span className="font-display text-[17px] font-bold tracking-tight text-white">
-            Karta
+            Eventera
           </span>
         </Link>
         <span
