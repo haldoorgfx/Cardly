@@ -42,19 +42,47 @@ const TABS = [
   { id: 'capacity', label: 'Session capacity' },
 ];
 
-export function WaitlistClient({ eventName, waitlist, totalRegs, capacity }: Props) {
+export function WaitlistClient({ eventId, eventName, waitlist, totalRegs, capacity }: Props) {
   const [tab, setTab] = useState('queue');
   const [releasing, setReleasing] = useState(false);
   const [released, setReleased] = useState(0);
   const [selected, setSelected] = useState<string[]>([]);
+  const [list, setList] = useState<WaitlistEntry[]>(waitlist);
+  const [error, setError] = useState('');
 
   const filled = capacity > 0 ? Math.round((totalRegs / capacity) * 100) : 0;
   const spotsLeft = Math.max(capacity - totalRegs, 0);
 
+  // Invite waitlisted people for real (waiting → invited + email). With a selection
+  // we release those; with none, we release the next person in the queue.
   async function releaseSpots() {
+    const ids = selected.length > 0 ? selected : (list[0] ? [list[0].id] : []);
+    if (ids.length === 0) return;
     setReleasing(true);
-    await new Promise(r => setTimeout(r, 1000));
-    setReleased(prev => prev + selected.length || 1);
+    setError('');
+    let invited = 0;
+    let lastError = '';
+    for (const id of ids) {
+      try {
+        // Release = promote the waitlisted registration to confirmed (capacity-checked server-side)
+        const res = await fetch(`/api/events/${eventId}/registrations`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ registrationId: id, status: 'confirmed' }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok) {
+          invited += 1;
+          setList(prev => prev.filter(w => w.id !== id));
+        } else {
+          lastError = data.error ?? 'Could not release that spot.';
+        }
+      } catch {
+        lastError = 'Connection problem — please try again.';
+      }
+    }
+    if (invited > 0) setReleased(prev => prev + invited);
+    if (lastError) setError(lastError);
     setSelected([]);
     setReleasing(false);
   }
@@ -81,10 +109,16 @@ export function WaitlistClient({ eventName, waitlist, totalRegs, capacity }: Pro
         </button>
       </div>
 
+      {error && (
+        <div className="mb-5 px-4 py-3 rounded-xl text-[13px] font-medium" style={{ background: '#FEF2F2', color: '#B8423C', border: '1px solid #FECACA' }}>
+          {error}
+        </div>
+      )}
+
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {[
-          { label: 'On waitlist', value: waitlist.length },
+          { label: 'On waitlist', value: list.length },
           { label: 'Capacity', value: capacity > 0 ? capacity : '—' },
           { label: 'Offers sent', value: released },
           { label: 'Converted', value: '—' },
@@ -128,7 +162,7 @@ export function WaitlistClient({ eventName, waitlist, totalRegs, capacity }: Pro
 
       {/* Queue tab */}
       {tab === 'queue' && (
-        waitlist.length === 0 ? (
+        list.length === 0 ? (
           <div className="bg-white rounded-2xl py-16 text-center" style={{ border: '1px solid #E5E0D4' }}>
             <div className="w-12 h-12 rounded-2xl grid place-items-center mx-auto mb-3" style={{ background: '#E8EFEB' }}>
               <svg width={20} height={20} fill="none" stroke="#1F4D3A" strokeWidth={1.5} viewBox="0 0 24 24">
@@ -142,14 +176,14 @@ export function WaitlistClient({ eventName, waitlist, totalRegs, capacity }: Pro
           <div className="bg-white rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
             <div className="px-5 py-3 border-b flex items-center justify-between" style={{ borderColor: 'rgba(229,224,212,0.7)' }}>
               <div className=" text-[9.5px] tracking-[0.14em] uppercase" style={{ color: '#6B7A72' }}>
-                {waitlist.length} waiting · oldest first
+                {list.length} waiting · oldest first
               </div>
               {selected.length > 0 && (
                 <span className=" text-[10.5px]" style={{ color: '#1F4D3A' }}>{selected.length} selected</span>
               )}
             </div>
             <div className="divide-y" style={{ borderColor: 'rgba(229,224,212,0.5)' }}>
-              {waitlist.map((entry, i) => (
+              {list.map((entry, i) => (
                 <div key={entry.id}
                   className="flex items-center gap-3 px-4 py-3.5 transition-colors"
                   style={{ background: selected.includes(entry.id) ? 'rgba(232,239,235,0.6)' : 'transparent' }}>
