@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Modal } from '@/components/ui/Modal';
 
 interface Sponsor {
   id: string;
@@ -295,10 +296,22 @@ export function SponsorsClient({ eventId, eventName, sponsors: initial }: Props)
         </div>
 
         {/* Add form */}
-        {showAdd && (
-          <div className="bg-white rounded-2xl p-5 mb-5 border" style={{ borderColor: '#E5E0D4' }}>
-            <div className="font-display text-[14px] font-semibold mb-4" style={{ color: '#0F1F18' }}>New sponsor</div>
-            <div className="grid sm:grid-cols-2 gap-3 mb-4">
+        <Modal
+          open={showAdd}
+          onClose={() => setShowAdd(false)}
+          title="New sponsor"
+          footer={
+            <>
+              <button onClick={() => setShowAdd(false)} className="h-10 px-4 rounded-xl text-[13.5px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
+              <button onClick={handleAdd} disabled={isPending || !form.company_name}
+                className="h-10 px-5 rounded-xl text-[13.5px] font-semibold text-cream disabled:opacity-60"
+                style={{ background: '#1F4D3A' }}>
+                {isPending ? 'Adding…' : 'Add sponsor'}
+              </button>
+            </>
+          }
+        >
+            <div className="grid sm:grid-cols-2 gap-3">
               <div>
                 <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Company name *</div>
                 <input type="text" value={form.company_name} onChange={e => setForm(f => ({ ...f, company_name: e.target.value }))}
@@ -329,19 +342,7 @@ export function SponsorsClient({ eventId, eventName, sponsors: initial }: Props)
                   style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
               </div>
             </div>
-            <div className="flex gap-2">
-              <button onClick={handleAdd} disabled={isPending || !form.company_name}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13.5px] font-medium text-cream"
-                style={{ background: '#1F4D3A', opacity: !form.company_name ? 0.6 : 1 }}>
-                {isPending ? 'Adding…' : 'Add sponsor'}
-              </button>
-              <button onClick={() => setShowAdd(false)} className="px-4 py-2.5 rounded-xl text-[13.5px] border"
-                style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
-                Cancel
-              </button>
-            </div>
-          </div>
-        )}
+        </Modal>
 
         {/* Sponsors list */}
         {sponsors.length === 0 ? (

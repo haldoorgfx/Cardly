@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Trash2, Copy, Check, Pencil, X, Upload } from 'lucide-react';
+import { Plus, Trash2, Copy, Check, Pencil, Upload } from 'lucide-react';
 import { ImportWizard } from '@/components/shared/ImportWizard';
 import { IMPORT_ENTITIES } from '@/lib/import/entities';
+import { Modal } from '@/components/ui/Modal';
 
 export interface PromoCode {
   id: string;
@@ -177,74 +178,65 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
   return (
     <div>
       {/* ── Edit modal ── */}
-      {editingCode && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setEditingCode(null)} />
-          <div className="relative bg-white rounded-2xl w-full max-w-[460px]" style={{ border: '1px solid #E5E0D4', boxShadow: '0 8px 40px rgba(15,31,24,0.18)' }}>
-            <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: '1px solid #E5E0D4' }}>
-              <div>
-                <div className="font-display text-[16px] font-semibold" style={{ color: '#0F1F18' }}>Edit promo code</div>
-                <div className=" text-[13px] mt-0.5" style={{ color: '#1F4D3A' }}>{editingCode.code}</div>
-              </div>
-              <button onClick={() => setEditingCode(null)} className="w-7 h-7 rounded-lg grid place-items-center hover:bg-[#F5F3EE]" style={{ color: '#6B7A72' }}>
-                <X size={14} strokeWidth={2} />
-              </button>
-            </div>
-            <div className="px-4 sm:px-6 py-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {error && <p className="col-span-2 text-[13px] px-3 py-2 rounded-lg" style={{ background: '#FEF2F2', color: '#B8423C' }}>{error}</p>}
-              <div>
-                <label className="block  text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Discount type</label>
-                <select className={INPUT} style={INPUT_STYLE} value={editForm.discount_type}
-                  onChange={e => setEditForm(f => ({ ...f, discount_type: e.target.value as 'percent' | 'fixed' }))}>
-                  <option value="percent">Percentage (%)</option>
-                  <option value="fixed">Fixed amount</option>
-                </select>
-              </div>
-              <div>
-                <label className="block  text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>
-                  {editForm.discount_type === 'percent' ? 'Discount (%)' : 'Discount amount'} *
-                </label>
-                <input type="number" min="0" className={INPUT} style={INPUT_STYLE}
-                  value={editForm.discount_value}
-                  onChange={e => setEditForm(f => ({ ...f, discount_value: e.target.value }))} />
-              </div>
-              <div>
-                <label className="block  text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Max uses (blank = unlimited)</label>
-                <input type="number" min="1" className={INPUT} style={INPUT_STYLE}
-                  value={editForm.max_uses} placeholder="Unlimited"
-                  onChange={e => setEditForm(f => ({ ...f, max_uses: e.target.value }))} />
-              </div>
-              <div>
-                <label className="block  text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Valid from</label>
-                <input type="datetime-local" className={INPUT} style={INPUT_STYLE}
-                  value={editForm.valid_from}
-                  max={eventEndMax}
-                  onChange={e => setEditForm(f => ({ ...f, valid_from: e.target.value }))} />
-              </div>
-              <div>
-                <label className="block  text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>
-                  Valid until{eventDates?.ends_at && <span className="ml-1 normal-case font-sans text-[10px]" style={{ color: '#9BA8A1' }}>max {new Date(eventDates.ends_at).toLocaleDateString()}</span>}
-                </label>
-                <input type="datetime-local" className={INPUT} style={INPUT_STYLE}
-                  value={editForm.valid_until}
-                  max={eventEndMax}
-                  onChange={e => setEditForm(f => ({ ...f, valid_until: e.target.value }))} />
-                {editForm.valid_until && eventEndMax && editForm.valid_until > eventEndMax && (
-                  <p className="text-[11px] mt-1" style={{ color: '#C97A2D' }}>Exceeds event end date</p>
-                )}
-              </div>
-            </div>
-            <div className="px-4 sm:px-6 pb-6 flex gap-3">
-              <button onClick={() => setEditingCode(null)} className="flex-1 h-10 rounded-xl text-[13px] border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
-              <button onClick={handleEdit} disabled={saving}
-                className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white disabled:opacity-60"
-                style={{ background: '#1F4D3A' }}>
-                {saving ? 'Saving…' : 'Save changes'}
-              </button>
-            </div>
+      <Modal
+        open={!!editingCode}
+        onClose={() => setEditingCode(null)}
+        title="Edit promo code"
+        subtitle={editingCode?.code}
+        footer={
+          <>
+            <button onClick={() => setEditingCode(null)} className="h-10 px-4 rounded-xl text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
+            <button onClick={handleEdit} disabled={saving} className="h-10 px-5 rounded-xl text-[13px] font-semibold text-white disabled:opacity-60" style={{ background: '#1F4D3A' }}>
+              {saving ? 'Saving…' : 'Save changes'}
+            </button>
+          </>
+        }
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {error && <p className="sm:col-span-2 text-[13px] px-3 py-2 rounded-lg" style={{ background: '#FEF2F2', color: '#B8423C' }}>{error}</p>}
+          <div>
+            <label className="block text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Discount type</label>
+            <select className={INPUT} style={INPUT_STYLE} value={editForm.discount_type}
+              onChange={e => setEditForm(f => ({ ...f, discount_type: e.target.value as 'percent' | 'fixed' }))}>
+              <option value="percent">Percentage (%)</option>
+              <option value="fixed">Fixed amount</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>
+              {editForm.discount_type === 'percent' ? 'Discount (%)' : 'Discount amount'} *
+            </label>
+            <input type="number" min="0" className={INPUT} style={INPUT_STYLE}
+              value={editForm.discount_value}
+              onChange={e => setEditForm(f => ({ ...f, discount_value: e.target.value }))} />
+          </div>
+          <div>
+            <label className="block text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Max uses (blank = unlimited)</label>
+            <input type="number" min="1" className={INPUT} style={INPUT_STYLE}
+              value={editForm.max_uses} placeholder="Unlimited"
+              onChange={e => setEditForm(f => ({ ...f, max_uses: e.target.value }))} />
+          </div>
+          <div>
+            <label className="block text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Valid from</label>
+            <input type="datetime-local" className={INPUT} style={INPUT_STYLE}
+              value={editForm.valid_from}
+              max={eventEndMax}
+              onChange={e => setEditForm(f => ({ ...f, valid_from: e.target.value }))} />
+          </div>
+          <div>
+            <label className="block text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>
+              Valid until{eventDates?.ends_at && <span className="ml-1 normal-case font-sans text-[10px]" style={{ color: '#9BA8A1' }}>max {new Date(eventDates.ends_at).toLocaleDateString()}</span>}
+            </label>
+            <input type="datetime-local" className={INPUT} style={INPUT_STYLE}
+              value={editForm.valid_until}
+              max={eventEndMax}
+              onChange={e => setEditForm(f => ({ ...f, valid_until: e.target.value }))} />
+            {editForm.valid_until && eventEndMax && editForm.valid_until > eventEndMax && (
+              <p className="text-[11px] mt-1" style={{ color: '#C97A2D' }}>Exceeds event end date</p>
+            )}
           </div>
         </div>
-      )}
+      </Modal>
 
       <ImportWizard
         open={showImport}
@@ -277,10 +269,20 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
       )}
 
       {/* Create form */}
-      {showForm && (
-        <div className="rounded-2xl p-5 mb-6" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-          <h3 className="font-display font-medium text-[16px] mb-4" style={{ color: '#0F1F18' }}>New promo code</h3>
-
+      <Modal
+        open={showForm}
+        onClose={resetForm}
+        title="New promo code"
+        footer={
+          <>
+            <button onClick={resetForm} className="h-10 px-4 rounded-xl text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
+            <button onClick={handleCreate} disabled={saving} className="h-10 px-5 rounded-xl text-[13px] font-semibold text-white disabled:opacity-60" style={{ background: '#1F4D3A' }}>
+              {saving ? 'Creating…' : 'Create code'}
+            </button>
+          </>
+        }
+      >
+        <div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-[12px] mb-1.5" style={{ color: '#6B7A72' }}>Code *</label>
@@ -363,26 +365,8 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
           </div>
 
           {error && <p className="text-[13px] mt-3" style={{ color: '#B8423C' }}>{error}</p>}
-
-          <div className="flex gap-3 mt-4">
-            <button
-              onClick={handleCreate}
-              disabled={saving}
-              className="px-5 py-2.5 rounded-xl text-[13px] font-medium"
-              style={{ background: '#1F4D3A', color: 'white', opacity: saving ? 0.6 : 1 }}
-            >
-              {saving ? 'Creating…' : 'Create code'}
-            </button>
-            <button
-              onClick={resetForm}
-              className="px-5 py-2.5 rounded-xl text-[13px] font-medium"
-              style={{ background: 'white', border: '1px solid #E5E0D4', color: '#6B7A72' }}
-            >
-              Cancel
-            </button>
-          </div>
         </div>
-      )}
+      </Modal>
 
       {/* Codes list */}
       {codes.length === 0 ? (

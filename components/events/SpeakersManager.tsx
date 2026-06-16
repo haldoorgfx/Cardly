@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Pencil, Trash2, Plus, X, Sparkles, ExternalLink, Upload, ChevronDown, Link2, AtSign, Globe } from 'lucide-react';
+import { Pencil, Trash2, Plus, Sparkles, ExternalLink, Upload, ChevronDown, Link2, AtSign, Globe } from 'lucide-react';
 import type { Speaker, SpeakerType } from '@/types/database';
 import { ImportWizard } from '@/components/shared/ImportWizard';
 import { IMPORT_ENTITIES } from '@/lib/import/entities';
+import { Modal } from '@/components/ui/Modal';
 
 interface Props {
   eventId: string;
@@ -234,17 +235,21 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
         onComplete={reloadSpeakers}
       />
 
-      {showForm && (
-        <div className="bg-white border rounded-2xl p-5 space-y-4" style={{ borderColor: '#E5E0D4' }}>
-          <div className="flex items-center justify-between">
-            <span className="font-display text-[14px] font-semibold" style={{ color: '#0F1F18' }}>
-              {editingSpeaker ? 'Edit speaker' : 'New speaker'}
-            </span>
-            <button onClick={closeForm} className="p-1 rounded hover:bg-[#F5F3EE]">
-              <X size={16} color="#6B7A72" />
+      <Modal
+        open={showForm}
+        onClose={closeForm}
+        title={editingSpeaker ? 'Edit speaker' : 'New speaker'}
+        maxWidth={640}
+        footer={
+          <>
+            <button onClick={closeForm} className="h-10 px-4 rounded-xl text-[13.5px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
+            <button onClick={handleSave} disabled={saving} className="h-10 px-5 rounded-xl text-[13.5px] font-semibold text-white disabled:opacity-60" style={{ background: '#1F4D3A' }}>
+              {saving ? 'Saving…' : 'Save'}
             </button>
-          </div>
-
+          </>
+        }
+      >
+        <div className="space-y-4">
           {error && (
             <p className="text-sm px-3 py-2 rounded-lg bg-red-50" style={{ color: '#B8423C' }}>
               {error}
@@ -408,25 +413,8 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
             </div>
           )}
 
-          <div className="flex gap-2 pt-1">
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="px-4 py-2 rounded-xl text-[13.5px] font-medium text-white disabled:opacity-60"
-              style={{ background: '#1F4D3A' }}
-            >
-              {saving ? 'Saving…' : 'Save'}
-            </button>
-            <button
-              onClick={closeForm}
-              className="px-4 py-2 rounded-xl text-[13.5px] font-medium border"
-              style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}
-            >
-              Cancel
-            </button>
-          </div>
         </div>
-      )}
+      </Modal>
 
       {speakers.length === 0 && !showForm ? (
         <div className="bg-white border rounded-2xl py-16 flex flex-col items-center gap-4 text-center" style={{ borderColor: '#E5E0D4' }}>
