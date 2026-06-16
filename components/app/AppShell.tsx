@@ -981,9 +981,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 const crumbs = getPageBreadcrumbs(pathname, contextEventName);
                 return (
                   <nav className="hidden sm:flex items-center gap-1.5 min-w-0 text-[13px]" aria-label="Breadcrumb">
-                    <Link href="/" className="shrink-0 hover:opacity-70 transition-opacity">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src="/eventera-logo.png" alt="Eventera" style={{ height: '20px', objectFit: 'contain' }} />
+                    <Link href="/" className="font-display font-bold tracking-tight shrink-0 hover:opacity-70 transition-opacity text-sm" style={{ color: '#0F1F18' }}>
+                      Eventera
                     </Link>
                     {crumbs.map((crumb, i) => (
                       <span key={i} className="flex items-center gap-1.5 min-w-0">
