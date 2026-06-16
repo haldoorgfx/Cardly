@@ -36,7 +36,7 @@ export function Modal({ open, onClose, title, subtitle, children, footer, maxWid
       <div
         role="dialog"
         aria-modal="true"
-        className="relative w-full max-h-[90vh] flex flex-col rounded-2xl"
+        className="relative w-full max-h-[90vh] flex flex-col rounded-2xl overflow-hidden"
         style={{ maxWidth, background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 8px 40px rgba(15,31,24,0.18)', animation: 'kmodal .18s ease-out' }}
       >
         <div className="flex items-start justify-between px-6 py-4 shrink-0" style={{ borderBottom: '1px solid #E5E0D4' }}>
