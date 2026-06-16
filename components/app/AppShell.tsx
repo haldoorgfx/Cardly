@@ -50,9 +50,11 @@ const PLAN_LIMITS: Record<string, number> = {
 // ─── UUID detection ───────────────────────────────────────────────────────────
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const NON_EVENT_SEGMENTS = new Set(['new', 'create']);
 function getEventIdFromPath(pathname: string): string | null {
   const m = pathname.match(/\/events\/([^/]+)/);
-  return m && UUID_RE.test(m[1]) ? m[1] : null;
+  if (!m || NON_EVENT_SEGMENTS.has(m[1])) return null;
+  return m[1];
 }
 
 // ─── Event nav ────────────────────────────────────────────────────────────────
