@@ -46,16 +46,33 @@ export default async function AttendeeDetailPage({ params }: Props) {
   if (!user) redirect('/login');
 
   const admin = createAdminClient();
-  const [{ data: event }, { data: reg }] = await Promise.all([
+  const [{ data: event }, { data: reg }, { data: formFields }] = await Promise.all([
     admin.from('events').select('id, name, slug').eq('id', id).eq('user_id', user.id).single(),
     admin.from('registrations')
       .select('*, ticket_types(name, price, currency)')
       .eq('id', regId)
       .eq('event_id', id)
       .single(),
+    admin.from('registration_form_fields').select('id, label, field_type, position').eq('event_id', id).order('position'),
   ]);
 
   if (!event || !reg) redirect(`/events/${id}/registrations`);
+
+  // Build the attendee's form responses: map stored answers (keyed by field id) to labels.
+  const answers = (reg.custom_fields ?? {}) as Record<string, unknown>;
+  const fmtAnswer = (v: unknown): string => {
+    if (v === true || v === 'true') return 'Yes';
+    if (v === false || v === 'false' || v == null || v === '') return '';
+    return String(v);
+  };
+  const responses = (formFields ?? [])
+    .map(f => ({ label: f.label, value: fmtAnswer(answers[f.id]) }))
+    .filter(r => r.value !== '');
+  // Any extra answers not tied to a known field (e.g. legacy keys), excluding internal ones
+  const knownIds = new Set((formFields ?? []).map(f => f.id));
+  const extraResponses = Object.entries(answers)
+    .filter(([k, v]) => !knownIds.has(k) && !k.startsWith('__') && fmtAnswer(v) !== '')
+    .map(([k, v]) => ({ label: k, value: fmtAnswer(v) }));
 
   const gradIdx = reg.attendee_name.charCodeAt(0) % AVATAR_GRADS.length;
   const avatarGrad = AVATAR_GRADS[gradIdx];
@@ -154,6 +171,21 @@ export default async function AttendeeDetailPage({ params }: Props) {
                 </div>
               </div>
             </div>
+
+            {/* Form responses */}
+            {(responses.length > 0 || extraResponses.length > 0) && (
+              <div className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
+                <div className="font-display text-[14.5px] font-semibold mb-4" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>Form responses</div>
+                <div className="grid gap-3">
+                  {[...responses, ...extraResponses].map((r, i) => (
+                    <div key={i} className="grid gap-0.5">
+                      <span className="text-[10px] tracking-[0.12em] uppercase" style={{ color: '#6B7A72' }}>{r.label}</span>
+                      <span className="text-[14px] whitespace-pre-line" style={{ color: '#0F1F18' }}>{r.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Right */}

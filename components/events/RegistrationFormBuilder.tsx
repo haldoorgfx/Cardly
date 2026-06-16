@@ -4,13 +4,13 @@ import { useState, useCallback } from 'react';
 import {
   Plus, Pencil, Trash2, ChevronUp, ChevronDown,
   AlignLeft, AlignJustify, List, CheckSquare, CircleDot, Phone, Link as LinkIcon,
-  GripVertical,
+  GripVertical, Calendar, Hash, Heading,
 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import type { Database } from '@/types/database';
 
 type FieldRow = Database['public']['Tables']['registration_form_fields']['Row'];
-type FieldType = 'text' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'phone' | 'url';
+type FieldType = 'text' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'phone' | 'url' | 'date' | 'number' | 'section';
 
 const FIELD_TYPES: { value: FieldType; label: string; icon: React.ReactNode; hint: string }[] = [
   { value: 'text',     label: 'Short text',  icon: <AlignLeft size={15} strokeWidth={1.8} />,     hint: 'Single-line answer' },
@@ -20,6 +20,9 @@ const FIELD_TYPES: { value: FieldType; label: string; icon: React.ReactNode; hin
   { value: 'checkbox', label: 'Checkbox',    icon: <CheckSquare size={15} strokeWidth={1.8} />,    hint: 'One or more choices' },
   { value: 'phone',    label: 'Phone',       icon: <Phone size={15} strokeWidth={1.8} />,          hint: 'Phone number with validation' },
   { value: 'url',      label: 'URL',         icon: <LinkIcon size={15} strokeWidth={1.8} />,       hint: 'Website or social link' },
+  { value: 'date',     label: 'Date',        icon: <Calendar size={15} strokeWidth={1.8} />,       hint: 'Date picker' },
+  { value: 'number',   label: 'Number',      icon: <Hash size={15} strokeWidth={1.8} />,           hint: 'Numeric answer' },
+  { value: 'section',   label: 'Section',     icon: <Heading size={15} strokeWidth={1.8} />,        hint: 'Heading / divider (no input)' },
 ];
 
 const HAS_OPTIONS: FieldType[] = ['select', 'radio', 'checkbox'];

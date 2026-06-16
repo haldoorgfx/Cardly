@@ -290,6 +290,7 @@ export default function RegistrationClient({
     if (!email.trim()) errs.email = 'Email is required';
     else if (!EMAIL_RE.test(email)) errs.email = 'Enter a valid email address';
     for (const f of formFields) {
+      if (f.field_type === 'section') continue;
       if (f.is_required && !customFieldValues[f.id]?.trim()) {
         errs[`cf_${f.id}`] = `${f.label} is required`;
       }
@@ -765,10 +766,33 @@ export default function RegistrationClient({
                       {err && <p className="text-[12px] font-medium" style={{ color: '#B8423C' }}>{err}</p>}
                     </div>
                   );
+                  // Section heading — no input
+                  if (f.field_type === 'section') return (
+                    <div key={f.id} className="pt-2">
+                      <div className="font-title font-semibold text-[15px]" style={{ color: '#0F1F18' }}>{f.label}</div>
+                      <div className="mt-1.5" style={{ borderBottom: '1px solid #E5E0D4' }} />
+                    </div>
+                  );
+                  // Radio — single choice always visible
+                  if (f.field_type === 'radio' && f.options?.length) return (
+                    <div key={f.id}>{labelEl}
+                      <div className="grid gap-2 mt-0.5">
+                        {f.options.map(o => (
+                          <label key={o} className="flex items-center gap-2.5 cursor-pointer text-[14px]" style={{ color: '#0F1F18' }}>
+                            <input type="radio" name={`cf_${f.id}`} checked={val === o} onChange={() => set(o)} className="w-4 h-4 accent-[#1F4D3A]" />
+                            {o}
+                          </label>
+                        ))}
+                      </div>
+                      {err && <p className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>{err}</p>}
+                    </div>
+                  );
                   return (
                     <div key={f.id}>{labelEl}
-                      <input type={f.field_type === 'number' ? 'number' : 'text'} value={val} onChange={e => set(e.target.value)}
-                        placeholder={f.label} className={INPUT}
+                      <input
+                        type={f.field_type === 'number' ? 'number' : f.field_type === 'date' ? 'date' : f.field_type === 'url' ? 'url' : f.field_type === 'phone' ? 'tel' : 'text'}
+                        value={val} onChange={e => set(e.target.value)}
+                        placeholder={f.field_type === 'date' ? undefined : f.label} className={INPUT}
                         style={{ borderColor: err ? '#B8423C' : '#E5E0D4', background: 'white', color: '#0F1F18' }} />
                       {err && <p className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>{err}</p>}
                     </div>
