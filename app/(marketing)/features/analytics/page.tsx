@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Event Analytics — Karta',
+  title: 'Event Analytics — Eventera',
   description:
     'Registration trends, ticket revenue, page views, check-in rates, and geographic breakdown. The metrics that help you sell more tickets and plan better events.',
 };

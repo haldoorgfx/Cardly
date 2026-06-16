@@ -63,13 +63,9 @@ export function MarketingFooter() {
 
           {/* Brand column */}
           <div className="col-span-2 sm:col-span-3 lg:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <span
-                aria-hidden
-                className="inline-block w-6 h-6 rounded-md shrink-0"
-                style={{ background: 'linear-gradient(135deg, #FAF6EE 0%, #E8C57E 100%)' }}
-              />
-              <span className="font-display text-[24px] font-bold tracking-tight text-cream">Karta</span>
+            <div className="mb-4">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/eventera-logo-dark.png" alt="Eventera" style={{ height: '32px', objectFit: 'contain' }} />
             </div>
             <p style={{ color: 'rgba(250,246,238,0.65)' }} className="text-[14px] leading-[1.55] max-w-[280px]">
               The event platform that makes every attendee proud to be there.
@@ -133,7 +129,7 @@ export function MarketingFooter() {
           style={{ borderTop: '1px solid rgba(250,246,238,0.1)' }}
         >
           <div style={{ color: 'rgba(250,246,238,0.55)' }} className="text-[13px]">
-            © 2026 Karta. Built for organizers everywhere, with Africa at the heart.
+            © 2026 Eventera. Built for organizers everywhere, with Africa at the heart.
           </div>
           {/* Made in Djibouti badge */}
           <div

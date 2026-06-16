@@ -2,7 +2,7 @@
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Sponsor Tools — Karta',
+  title: 'Sponsor Tools — Eventera',
   description: 'Give sponsors real ROI: profiles, QR lead retrieval, sponsored sessions, and post-event analytics.',
 };
 

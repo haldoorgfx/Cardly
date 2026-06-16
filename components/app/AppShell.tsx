@@ -245,12 +245,9 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
             // eslint-disable-next-line @next/next/no-img-element
             <img src={logoUrl} alt="Logo" className="max-h-[28px] max-w-[120px] object-contain" />
           ) : (
-            <Link href="/" onClick={onNavigate} className="flex items-center gap-2 transition-opacity hover:opacity-80">
-              <span className="inline-block w-6 h-6 rounded-md shrink-0"
-                style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #E8C57E 100%)' }} />
-              <span className="font-display text-[19px] font-bold tracking-tight" style={{ color: '#0F1F18' }}>
-                Karta
-              </span>
+            <Link href="/" onClick={onNavigate} className="flex items-center transition-opacity hover:opacity-80">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/eventera-logo.png" alt="Eventera" style={{ height: '26px', objectFit: 'contain' }} />
             </Link>
           )}
           {mounted && planLabel && (
@@ -446,9 +443,8 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
           <img src={logoUrl} alt="Logo" className="max-h-[32px] max-w-[140px] object-contain" />
         ) : (
           <>
-            <span className="inline-block w-6 h-6 rounded-md shrink-0"
-              style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #E8C57E 100%)' }} />
-            <span className="font-display text-[19px] font-bold tracking-tight" style={{ color: '#0F1F18' }}>Karta</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/eventera-logo.png" alt="Eventera" style={{ height: '26px', objectFit: 'contain' }} />
           </>
         )}
       </Link>
@@ -985,9 +981,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 const crumbs = getPageBreadcrumbs(pathname, contextEventName);
                 return (
                   <nav className="hidden sm:flex items-center gap-1.5 min-w-0 text-[13px]" aria-label="Breadcrumb">
-                    <Link href="/" className="font-display font-bold tracking-tight shrink-0 hover:opacity-70 transition-opacity"
-                      style={{ color: '#0F1F18' }}>
-                      Karta
+                    <Link href="/" className="shrink-0 hover:opacity-70 transition-opacity">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src="/eventera-logo.png" alt="Eventera" style={{ height: '20px', objectFit: 'contain' }} />
                     </Link>
                     {crumbs.map((crumb, i) => (
                       <span key={i} className="flex items-center gap-1.5 min-w-0">

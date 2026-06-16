@@ -2,7 +2,7 @@
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Karta Card — Karta',
+  title: 'Eventera Card — Eventera',
   description: 'The personalized social card every attendee gets and shares. Your design, their face, instant organic reach.',
 };
 

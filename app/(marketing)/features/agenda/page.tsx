@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Agenda Builder — Karta',
+  title: 'Agenda Builder — Eventera',
   description:
     'Build a multi-track, multi-day agenda with drag-and-drop. Speakers see their own schedule. Attendees bookmark sessions. Everyone arrives prepared.',
 };

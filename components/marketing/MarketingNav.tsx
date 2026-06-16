@@ -95,7 +95,8 @@ function MobileOverlay({
             {logoUrl
               // eslint-disable-next-line @next/next/no-img-element
               ? <img src={logoUrl} alt="Logo" className="max-h-[28px] max-w-[120px] object-contain" />
-              : <><LogoMark /><span className="font-display text-[22px] font-bold tracking-tight text-primary">Karta</span></>
+              // eslint-disable-next-line @next/next/no-img-element
+              : <img src="/eventera-logo.png" alt="Eventera" style={{ height: '26px', objectFit: 'contain' }} />
             }
           </Link>
           <button onClick={onClose} className="w-10 h-10 grid place-items-center rounded-lg text-ink hover:bg-primary-soft transition" aria-label="Close menu">
@@ -268,8 +269,10 @@ export function MarketingNav() {
           <Link href="/" className="flex items-center gap-2 group">
             {logoUrl
               // eslint-disable-next-line @next/next/no-img-element
+              // eslint-disable-next-line @next/next/no-img-element
               ? <img src={logoUrl} alt="Logo" className="max-h-[32px] max-w-[140px] object-contain" />
-              : <><LogoMark /><span className="font-display text-[22px] font-bold tracking-tight text-primary">Karta</span></>
+              // eslint-disable-next-line @next/next/no-img-element
+              : <img src="/eventera-logo.png" alt="Eventera" style={{ height: '30px', objectFit: 'contain' }} />
             }
           </Link>
 

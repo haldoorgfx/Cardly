@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Attendee Networking — Karta',
+  title: 'Attendee Networking — Eventera',
   description:
     'Attendee profiles, AI-powered match suggestions, and 1:1 meeting scheduling — so the right people find each other before they\'re stuck in different sessions.',
 };
@@ -68,7 +68,7 @@ const features = [
     icon: <IconSparkle />,
     title: 'AI Match Suggestions',
     description:
-      'Karta reads attendee profiles and surfaces the 10 people each attendee is most likely to benefit from meeting. Powered by their interests and role.',
+      'Eventera reads attendee profiles and surfaces the 10 people each attendee is most likely to benefit from meeting. Powered by their interests and role.',
   },
   {
     icon: <IconCalendar />,
@@ -92,8 +92,8 @@ const steps = [
   },
   {
     n: '02',
-    title: 'Karta surfaces the right matches',
-    body: 'Before the event, every attendee receives a list of the 10 people Karta thinks they should meet, based on profile data.',
+    title: 'Eventera surfaces the right matches',
+    body: 'Before the event, every attendee receives a list of the 10 people Eventera thinks they should meet, based on profile data.',
   },
   {
     n: '03',
@@ -164,7 +164,7 @@ function NetworkingMockup() {
             <div style={{ background: '#FAF6EE', display: 'flex', height: 320, overflow: 'hidden' }}>
               {/* Sidebar */}
               <div style={{ width: 130, background: '#FFFFFF', borderRight: '1px solid #E5E0D4', padding: '10px 8px', flexShrink: 0 }}>
-                <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 700, color: '#1F4D3A', marginBottom: 14, padding: '0 4px' }}>Karta</div>
+                <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 700, color: '#1F4D3A', marginBottom: 14, padding: '0 4px' }}>Eventera</div>
                 <div style={{ background: '#E8EFEB', borderRadius: 6, padding: '5px 8px', marginBottom: 3, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <div style={{ width: 12, height: 12, borderRadius: 2, background: '#1F4D3A', flexShrink: 0 }} />
                   <div style={{ width: 55, height: 7, background: '#1F4D3A', opacity: 0.4, borderRadius: 3 }} />
@@ -643,7 +643,7 @@ export default function NetworkingPage() {
               margin: '0 auto 40px',
             }}
           >
-            Networking is included in every Karta plan. No extra seat fees. No add-on required.
+            Networking is included in every Eventera plan. No extra seat fees. No add-on required.
           </p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link

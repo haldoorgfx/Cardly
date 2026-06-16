@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Event Gamification — Karta',
+  title: 'Event Gamification — Eventera',
   description: 'Points, leaderboards, badges, and challenges that keep attendees moving, engaging, and coming back.',
 };
 
