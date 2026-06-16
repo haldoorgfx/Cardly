@@ -110,137 +110,134 @@ const stats = [
 
 function NetworkingMockup() {
   return (
-    <section
-      style={{
-        background: 'linear-gradient(180deg, #1F4D3A 0%, #163828 100%)',
-        padding: 'clamp(80px, 10vw, 120px) 24px',
-      }}
-    >
-      <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 64, flexWrap: 'wrap' as const, justifyContent: 'center' }}>
+    <section style={{ background: '#FAF6EE', padding: 'clamp(80px, 10vw, 120px) 24px clamp(120px, 14vw, 160px)', position: 'relative' as const }}>
+      <div aria-hidden style={{ position: 'absolute' as const, inset: 0, background: 'radial-gradient(ellipse 55% 55% at 20% 50%, rgba(232,197,126,0.08) 0%, transparent 65%)', pointerEvents: 'none' }} />
+      <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 56, flexWrap: 'wrap' as const, justifyContent: 'center', position: 'relative' as const }}>
+
         {/* Text column */}
-        <div style={{ flex: '1 1 340px', maxWidth: 480, textAlign: 'left' as const }}>
+        <div style={{ flex: '1 1 300px', maxWidth: 420, textAlign: 'left' as const }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
             <div style={{ width: 24, height: 1, background: '#E8C57E' }} />
-            <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', color: '#E8C57E', textTransform: 'uppercase' as const }}>
-              Attendee View
-            </span>
+            <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', color: '#1F4D3A', textTransform: 'uppercase' as const }}>Attendee Matching</span>
           </div>
-          <h2 style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, letterSpacing: '-0.02em', color: '#FAF6EE', marginBottom: 16, lineHeight: 1.15 }}>
+          <h2 style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, letterSpacing: '-0.02em', color: '#0F1F18', marginBottom: 16, lineHeight: 1.15 }}>
             Your best connections, before lunch.
           </h2>
-          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 17, color: 'rgba(250,246,238,0.65)', lineHeight: 1.65, marginBottom: 32 }}>
+          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 17, color: '#3A4A42', lineHeight: 1.65, marginBottom: 32 }}>
             AI reads every attendee profile and surfaces the 10 people each person is most likely to benefit from meeting.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 12 }}>
             {[
-              { label: '68%', desc: 'of attendees use networking features' },
-              { label: '4×', desc: 'more connections vs. unstructured networking' },
+              { label: '68%', desc: 'of attendees use networking' },
+              { label: '4×', desc: 'more connections vs. unstructured' },
               { label: '82%', desc: 'meeting confirmation rate' },
             ].map((s) => (
               <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{ background: 'rgba(232,197,126,0.15)', border: '1px solid rgba(232,197,126,0.3)', borderRadius: 8, padding: '4px 10px', fontFamily: 'DM Sans, sans-serif', fontSize: 14, fontWeight: 700, color: '#E8C57E', flexShrink: 0 }}>
-                  {s.label}
-                </div>
-                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: 'rgba(250,246,238,0.55)' }}>{s.desc}</span>
+                <div style={{ background: 'rgba(31,77,58,0.08)', border: '1px solid rgba(31,77,58,0.2)', borderRadius: 8, padding: '4px 10px', fontFamily: 'DM Sans, sans-serif', fontSize: 14, fontWeight: 700, color: '#1F4D3A', flexShrink: 0 }}>{s.label}</div>
+                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#6B7A72' }}>{s.desc}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Phone column */}
-        <div style={{ flex: '0 0 auto' }}>
-        {/* Phone frame */}
-        <div
-          style={{
-            width: 320,
-            background: '#163828',
-            borderRadius: 40,
-            padding: 10,
-            boxShadow: '0 8px 32px rgba(0,0,0,0.30), 0 40px 100px rgba(0,0,0,0.45)',
-          }}
-        >
-          <div style={{ background: '#FAF6EE', borderRadius: 28, overflow: 'hidden' }}>
-            {/* Header bar */}
-            <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E5E0D4', padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 16, fontWeight: 700, color: '#0F1F18' }}>Who to meet</span>
-              <span style={{ background: '#E8EFEB', color: '#1F4D3A', borderRadius: 999, padding: '3px 8px', fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600 }}>
-                3 new matches
-              </span>
-            </div>
+        {/* Device column */}
+        <div style={{ flex: '0 0 auto', position: 'relative' as const }}>
+          {/* Floating badge */}
+          <div style={{ position: 'absolute' as const, top: -16, left: 20, background: '#1F4D3A', borderRadius: 999, padding: '6px 14px', display: 'flex', alignItems: 'center', gap: 7, zIndex: 10, boxShadow: '0 4px 16px rgba(15,31,24,0.25)' }}>
+            <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#4ade80' }} />
+            <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 600, color: '#FAF6EE' }}>412 connections made</span>
+          </div>
 
-            {/* Match cards */}
-            <div style={{ padding: '8px 0' }}>
-              {/* Card 1 — Top match */}
-              <div style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 14, margin: '8px 12px', padding: 14, display: 'flex', gap: 12, position: 'relative' as const }}>
-                <div style={{ position: 'absolute' as const, top: 10, right: 10, background: 'rgba(232,197,126,0.2)', color: '#E8C57E', borderRadius: 4, padding: '2px 6px', fontFamily: 'Inter, sans-serif', fontSize: 9, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' as const }}>
-                  Top Match
-                </div>
-                <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: '"DM Sans", sans-serif', fontSize: 16, fontWeight: 700, color: '#FAF6EE', flexShrink: 0 }}>
-                  KA
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 14, fontWeight: 700, color: '#0F1F18', marginBottom: 2 }}>Kofi Asante</div>
-                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6B7A72', marginBottom: 6 }}>CTO · Flutterwave · Lagos</div>
-                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' as const, marginBottom: 8 }}>
-                    {['Fintech', 'APIs', 'Python'].map((tag) => (
-                      <span key={tag} style={{ background: '#E8EFEB', color: '#1F4D3A', borderRadius: 4, padding: '2px 6px', fontFamily: 'Inter, sans-serif', fontSize: 10, fontWeight: 500 }}>{tag}</span>
-                    ))}
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#2D7A4F', fontWeight: 600 }}>94% match</span>
-                    <span style={{ background: '#1F4D3A', color: '#FAF6EE', borderRadius: 6, padding: '4px 10px', fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600 }}>Connect →</span>
-                  </div>
-                </div>
+          {/* Laptop */}
+          <div style={{ background: '#2c2c2e', borderRadius: '12px 12px 0 0', padding: '10px 12px 0', width: 500, boxShadow: '0 24px 64px rgba(15,31,24,0.18)' }}>
+            <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#444', margin: '0 auto 7px' }} />
+            <div style={{ background: '#e8e6e1', borderRadius: '6px 6px 0 0', padding: '7px 10px 6px' }}>
+              <div style={{ display: 'flex', gap: 5, marginBottom: 5 }}>
+                <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#FF5F57' }} />
+                <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#FEBC2E' }} />
+                <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#28C840' }} />
               </div>
-
-              {/* Card 2 */}
-              <div style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 14, margin: '8px 12px', padding: 14, display: 'flex', gap: 12 }}>
-                <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'linear-gradient(135deg, #C9A45E, #E8C57E)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: '"DM Sans", sans-serif', fontSize: 16, fontWeight: 700, color: '#0F1F18', flexShrink: 0 }}>
-                  FH
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 14, fontWeight: 700, color: '#0F1F18', marginBottom: 2 }}>Fatima Hassan</div>
-                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6B7A72', marginBottom: 6 }}>Investment Director · Partech Africa</div>
-                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' as const, marginBottom: 8 }}>
-                    {['Venture Capital', 'SaaS'].map((tag) => (
-                      <span key={tag} style={{ background: '#E8EFEB', color: '#1F4D3A', borderRadius: 4, padding: '2px 6px', fontFamily: 'Inter, sans-serif', fontSize: 10, fontWeight: 500 }}>{tag}</span>
-                    ))}
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#2D7A4F', fontWeight: 600 }}>87% match</span>
-                    <span style={{ background: '#1F4D3A', color: '#FAF6EE', borderRadius: 6, padding: '4px 10px', fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600 }}>Connect →</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Card 3 */}
-              <div style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 14, margin: '8px 12px', padding: 14, display: 'flex', gap: 12 }}>
-                <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#E8EFEB', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: '"DM Sans", sans-serif', fontSize: 16, fontWeight: 700, color: '#1F4D3A', flexShrink: 0 }}>
-                  BB
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 14, fontWeight: 700, color: '#0F1F18', marginBottom: 2 }}>Blessing Balogun</div>
-                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6B7A72', marginBottom: 6 }}>Product Lead · Andela</div>
-                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' as const, marginBottom: 8 }}>
-                    {['Product', 'Design'].map((tag) => (
-                      <span key={tag} style={{ background: '#E8EFEB', color: '#1F4D3A', borderRadius: 4, padding: '2px 6px', fontFamily: 'Inter, sans-serif', fontSize: 10, fontWeight: 500 }}>{tag}</span>
-                    ))}
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#2D7A4F', fontWeight: 600 }}>81% match</span>
-                    <span style={{ background: '#1F4D3A', color: '#FAF6EE', borderRadius: 6, padding: '4px 10px', fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600 }}>Connect →</span>
-                  </div>
-                </div>
+              <div style={{ background: '#FFFFFF', borderRadius: 5, padding: '3px 10px', fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72', border: '1px solid #E5E0D4' }}>
+                app.karta.co/events/summit/networking
               </div>
             </div>
-
-            {/* Footer bar */}
-            <div style={{ background: '#FFFFFF', borderTop: '1px solid #E5E0D4', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6B7A72' }}>3 of 12 matches shown</span>
-              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#1F4D3A', fontWeight: 600 }}>See all →</span>
+            <div style={{ background: '#FAF6EE', display: 'flex', height: 320, overflow: 'hidden' }}>
+              {/* Sidebar */}
+              <div style={{ width: 130, background: '#FFFFFF', borderRight: '1px solid #E5E0D4', padding: '10px 8px', flexShrink: 0 }}>
+                <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 700, color: '#1F4D3A', marginBottom: 14, padding: '0 4px' }}>Karta</div>
+                <div style={{ background: '#E8EFEB', borderRadius: 6, padding: '5px 8px', marginBottom: 3, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ width: 12, height: 12, borderRadius: 2, background: '#1F4D3A', flexShrink: 0 }} />
+                  <div style={{ width: 55, height: 7, background: '#1F4D3A', opacity: 0.4, borderRadius: 3 }} />
+                </div>
+                {[60, 45, 70, 40, 55].map((w, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 8px', marginBottom: 3 }}>
+                    <div style={{ width: 12, height: 12, borderRadius: 2, background: '#E5E0D4', flexShrink: 0 }} />
+                    <div style={{ width: w, height: 7, background: '#E5E0D4', borderRadius: 3 }} />
+                  </div>
+                ))}
+              </div>
+              {/* Main content */}
+              <div style={{ flex: 1, padding: 12, overflow: 'hidden' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 700, color: '#1F4D3A' }}>Who to meet</div>
+                  <div style={{ background: '#E8EFEB', borderRadius: 999, padding: '2px 8px', fontFamily: 'Inter, sans-serif', fontSize: 10, color: '#1F4D3A', fontWeight: 600 }}>12 matches</div>
+                </div>
+                {[
+                  { initials: 'KA', pct: 94, w1: 55, w2: 72, bg: '#E8EFEB' },
+                  { initials: 'FH', pct: 87, w1: 62, w2: 65, bg: 'rgba(232,197,126,0.2)' },
+                  { initials: 'BB', pct: 81, w1: 70, w2: 55, bg: '#E8EFEB' },
+                ].map((m) => (
+                  <div key={m.initials} style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 8, padding: '8px 10px', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ width: 28, height: 28, borderRadius: '50%', background: m.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'DM Sans, sans-serif', fontSize: 10, fontWeight: 700, color: '#1F4D3A', flexShrink: 0 }}>{m.initials}</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ width: m.w1, height: 6, background: 'rgba(15,31,24,0.3)', borderRadius: 3, marginBottom: 3 }} />
+                      <div style={{ width: m.w2, height: 5, background: '#E5E0D4', borderRadius: 3 }} />
+                    </div>
+                    <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, fontWeight: 600, color: '#2D7A4F', flexShrink: 0 }}>{m.pct}%</div>
+                  </div>
+                ))}
+                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, color: '#6B7A72', marginTop: 8, marginBottom: 5 }}>Networking feed</div>
+                {[{ w: 100 }, { w: 85 }].map((r, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+                    <div style={{ width: 16, height: 16, borderRadius: '50%', background: '#E8EFEB', flexShrink: 0 }} />
+                    <div style={{ width: r.w, height: 5, background: '#E5E0D4', borderRadius: 3 }} />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+          <div style={{ background: '#222225', height: 14, borderRadius: '0 0 3px 3px' }} />
+          <div style={{ background: '#1a1a1d', height: 5, width: '112%', margin: '0 -6%', borderRadius: '0 0 8px 8px' }} />
+
+          {/* Phone overlay */}
+          <div style={{ position: 'absolute' as const, bottom: -20, right: -35, width: 150, background: '#0F1F18', borderRadius: 24, padding: 6, boxShadow: '0 8px 40px rgba(0,0,0,0.45)', zIndex: 10 }}>
+            <div style={{ background: '#FAF6EE', borderRadius: 20, overflow: 'hidden' }}>
+              <div style={{ background: '#1F4D3A', padding: '10px 10px 8px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 10, fontWeight: 700, color: '#FAF6EE' }}>Top match</div>
+                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 9, color: '#E8C57E', fontWeight: 700 }}>94%</div>
+              </div>
+              <div style={{ padding: '8px 8px 6px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                  <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#E8EFEB', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'DM Sans, sans-serif', fontSize: 10, fontWeight: 700, color: '#1F4D3A', flexShrink: 0 }}>KA</div>
+                  <div>
+                    <div style={{ width: 60, height: 6, background: '#E5E0D4', borderRadius: 3, marginBottom: 3 }} />
+                    <div style={{ width: 80, height: 5, background: '#E8EFEB', borderRadius: 3 }} />
+                  </div>
+                </div>
+                <div style={{ background: '#1F4D3A', borderRadius: 5, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ width: 45, height: 5, background: 'rgba(250,246,238,0.5)', borderRadius: 3 }} />
+                </div>
+                <div style={{ marginTop: 6 }}>
+                  {[{ initials: 'FH', w: 55 }, { initials: 'BB', w: 48 }].map((m) => (
+                    <div key={m.initials} style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 5 }}>
+                      <div style={{ width: 18, height: 18, borderRadius: '50%', background: '#E8EFEB', flexShrink: 0 }} />
+                      <div style={{ width: m.w, height: 5, background: '#E5E0D4', borderRadius: 3 }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>

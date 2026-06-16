@@ -109,121 +109,20 @@ const stats = [
 
 function QAPollsMockup() {
   return (
-    <section
-      style={{
-        background: 'linear-gradient(180deg, #1F4D3A 0%, #163828 100%)',
-        padding: 'clamp(80px, 10vw, 120px) 24px',
-      }}
-    >
-      <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 64, flexWrap: 'wrap' as const, justifyContent: 'center' }}>
-        {/* Phone column — LEFT on desktop */}
-        <div style={{ flex: '0 0 auto', order: 2 }}>
-        {/* Phone frame */}
-        <div
-          style={{
-            width: 320,
-            background: '#163828',
-            borderRadius: 40,
-            padding: 10,
-            boxShadow: '0 8px 32px rgba(0,0,0,0.30), 0 40px 100px rgba(0,0,0,0.45)',
-          }}
-        >
-          {/* Fixed-height screen — clips like a real phone viewport */}
-          <div style={{ background: '#FFFFFF', borderRadius: 28, overflow: 'hidden', height: 560, display: 'flex', flexDirection: 'column' as const }}>
-            {/* Top bar */}
-            <div style={{ background: '#1F4D3A', padding: '12px 14px', flexShrink: 0 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 700, color: '#FAF6EE' }}>Live Q&amp;A</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                  <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#B8423C' }} />
-                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, color: '#FAF6EE' }}>LIVE</span>
-                </div>
-              </div>
-              <div style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 14, fontWeight: 700, color: '#FAF6EE', marginBottom: 3 }}>Fintech in East Africa</div>
-              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: 'rgba(250,246,238,0.65)' }}>87 questions · 312 voting</div>
-            </div>
+    <section style={{ background: '#FAF6EE', padding: 'clamp(80px, 10vw, 120px) 24px clamp(120px, 14vw, 160px)', position: 'relative' as const }}>
+      <div aria-hidden style={{ position: 'absolute' as const, inset: 0, background: 'radial-gradient(ellipse 65% 55% at 85% 40%, rgba(232,197,126,0.07) 0%, transparent 65%)', pointerEvents: 'none' }} />
+      <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 56, flexWrap: 'wrap' as const, justifyContent: 'center', position: 'relative' as const }}>
 
-            {/* Questions list */}
-            <div style={{ background: '#FAF6EE', padding: 8, display: 'flex', flexDirection: 'column' as const, gap: 6, flexShrink: 0 }}>
-              {/* Q1 — TOP */}
-              <div style={{ background: '#FFFFFF', borderRadius: 10, border: '1.5px solid #1F4D3A', padding: 11 }}>
-                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: '#E8C57E', marginBottom: 5 }}>
-                  Top Question
-                </div>
-                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#0F1F18', lineHeight: 1.45, marginBottom: 8, textAlign: 'left' as const }}>
-                  What&apos;s the biggest barrier to mobile payment adoption in rural areas?
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#E8EFEB', color: '#1F4D3A', borderRadius: 6, padding: '2px 7px', fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600 }}>▲ 47</div>
-                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72' }}>Anonymous</span>
-                </div>
-              </div>
-
-              {/* Q2 */}
-              <div style={{ background: '#FFFFFF', borderRadius: 10, border: '1px solid #E5E0D4', padding: 10 }}>
-                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#0F1F18', lineHeight: 1.45, marginBottom: 7, textAlign: 'left' as const }}>
-                  How do you see CBDCs impacting cross-border remittances?
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#E8EFEB', color: '#1F4D3A', borderRadius: 6, padding: '2px 7px', fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600 }}>▲ 23</div>
-                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72' }}>Kofi A.</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Live Poll section */}
-            <div style={{ background: '#FAF6EE', borderTop: '1px solid #E5E0D4', padding: '10px 8px', flexShrink: 0 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 700, color: '#0F1F18' }}>📊 Live Poll</span>
-                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72' }}>58 votes</span>
-              </div>
-              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#0F1F18', marginBottom: 8, textAlign: 'left' as const }}>
-                Biggest challenge for your startup?
-              </div>
-              {[
-                { label: 'Funding', pct: 42 },
-                { label: 'Regulation', pct: 33 },
-                { label: 'Talent', pct: 25 },
-              ].map((opt) => (
-                <div key={opt.label} style={{ marginBottom: 6 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#0F1F18' }}>{opt.label}</span>
-                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6B7A72' }}>{opt.pct}%</span>
-                  </div>
-                  <div style={{ background: '#E8EFEB', borderRadius: 4, height: 6, overflow: 'hidden' }}>
-                    <div style={{ width: `${opt.pct}%`, height: '100%', background: '#1F4D3A', borderRadius: 4 }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Input bar — pinned to bottom */}
-            <div style={{ marginTop: 'auto', background: '#FFFFFF', borderTop: '1px solid #E5E0D4', height: 44, display: 'flex', alignItems: 'center', padding: '0 10px', gap: 8, flexShrink: 0 }}>
-              <div style={{ flex: 1, height: 28, background: '#FAF6EE', borderRadius: 8, display: 'flex', alignItems: 'center', padding: '0 10px' }}>
-                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6B7A72' }}>Ask anonymously...</span>
-              </div>
-              <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#1F4D3A', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                  <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-        </div>
-
-        {/* Text column — RIGHT on desktop */}
-        <div style={{ flex: '1 1 300px', maxWidth: 440, textAlign: 'left' as const, order: 1 }}>
+        {/* Text column */}
+        <div style={{ flex: '1 1 300px', maxWidth: 420, textAlign: 'left' as const }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
             <div style={{ width: 24, height: 1, background: '#E8C57E' }} />
-            <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', color: '#E8C57E', textTransform: 'uppercase' as const }}>
-              Session View
-            </span>
+            <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', color: '#1F4D3A', textTransform: 'uppercase' as const }}>Session View</span>
           </div>
-          <h2 style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, letterSpacing: '-0.02em', color: '#FAF6EE', marginBottom: 16, lineHeight: 1.15 }}>
+          <h2 style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, letterSpacing: '-0.02em', color: '#0F1F18', marginBottom: 16, lineHeight: 1.15 }}>
             Questions the audience actually wants answered.
           </h2>
-          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 17, color: 'rgba(250,246,238,0.65)', lineHeight: 1.65, marginBottom: 32 }}>
+          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 17, color: '#3A4A42', lineHeight: 1.65, marginBottom: 32 }}>
             No mic needed. Anonymous or named. Ranked by the room in real time.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 12 }}>
@@ -233,12 +132,125 @@ function QAPollsMockup() {
               { label: 'Any phone', desc: 'no app download required' },
             ].map((s) => (
               <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{ background: 'rgba(232,197,126,0.15)', border: '1px solid rgba(232,197,126,0.3)', borderRadius: 8, padding: '4px 10px', fontFamily: 'DM Sans, sans-serif', fontSize: 14, fontWeight: 700, color: '#E8C57E', flexShrink: 0 }}>
-                  {s.label}
-                </div>
-                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: 'rgba(250,246,238,0.55)' }}>{s.desc}</span>
+                <div style={{ background: 'rgba(31,77,58,0.08)', border: '1px solid rgba(31,77,58,0.2)', borderRadius: 8, padding: '4px 10px', fontFamily: 'DM Sans, sans-serif', fontSize: 14, fontWeight: 700, color: '#1F4D3A', flexShrink: 0 }}>{s.label}</div>
+                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#6B7A72' }}>{s.desc}</span>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Device column */}
+        <div style={{ flex: '0 0 auto', position: 'relative' as const }}>
+          {/* Floating badge */}
+          <div style={{ position: 'absolute' as const, top: -16, left: 20, background: '#1F4D3A', borderRadius: 999, padding: '6px 14px', display: 'flex', alignItems: 'center', gap: 7, zIndex: 10, boxShadow: '0 4px 16px rgba(15,31,24,0.25)' }}>
+            <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#B8423C' }} />
+            <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 600, color: '#FAF6EE' }}>87 questions · Session live</span>
+          </div>
+
+          {/* Laptop */}
+          <div style={{ background: '#2c2c2e', borderRadius: '12px 12px 0 0', padding: '10px 12px 0', width: 500, boxShadow: '0 24px 64px rgba(15,31,24,0.18)' }}>
+            <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#444', margin: '0 auto 7px' }} />
+            <div style={{ background: '#e8e6e1', borderRadius: '6px 6px 0 0', padding: '7px 10px 6px' }}>
+              <div style={{ display: 'flex', gap: 5, marginBottom: 5 }}>
+                <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#FF5F57' }} />
+                <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#FEBC2E' }} />
+                <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#28C840' }} />
+              </div>
+              <div style={{ background: '#FFFFFF', borderRadius: 5, padding: '3px 10px', fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72', border: '1px solid #E5E0D4' }}>
+                app.karta.co/events/summit/qa
+              </div>
+            </div>
+            <div style={{ background: '#FAF6EE', display: 'flex', height: 320, overflow: 'hidden' }}>
+              {/* Sidebar */}
+              <div style={{ width: 130, background: '#FFFFFF', borderRight: '1px solid #E5E0D4', padding: '10px 8px', flexShrink: 0 }}>
+                <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 700, color: '#1F4D3A', marginBottom: 14, padding: '0 4px' }}>Karta</div>
+                <div style={{ background: '#E8EFEB', borderRadius: 6, padding: '5px 8px', marginBottom: 3, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ width: 12, height: 12, borderRadius: 2, background: '#1F4D3A', flexShrink: 0 }} />
+                  <div style={{ width: 55, height: 7, background: '#1F4D3A', opacity: 0.4, borderRadius: 3 }} />
+                </div>
+                {[60, 45, 70, 40, 55].map((w, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 8px', marginBottom: 3 }}>
+                    <div style={{ width: 12, height: 12, borderRadius: 2, background: '#E5E0D4', flexShrink: 0 }} />
+                    <div style={{ width: w, height: 7, background: '#E5E0D4', borderRadius: 3 }} />
+                  </div>
+                ))}
+              </div>
+              {/* Main content */}
+              <div style={{ flex: 1, padding: 12, overflow: 'hidden' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                  <div>
+                    <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 700, color: '#0F1F18' }}>Fintech in East Africa</div>
+                    <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 9, color: '#6B7A72' }}>87 questions · 312 voting</div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#B8423C' }} />
+                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 9, color: '#B8423C', fontWeight: 700 }}>LIVE</span>
+                  </div>
+                </div>
+                {/* Top question */}
+                <div style={{ background: '#FFFFFF', border: '1.5px solid #1F4D3A', borderRadius: 7, padding: '8px 10px', marginBottom: 5 }}>
+                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 9, fontWeight: 700, color: '#E8C57E', marginBottom: 4, letterSpacing: '0.06em' }}>TOP</div>
+                  <div style={{ width: '90%', height: 6, background: '#E5E0D4', borderRadius: 3, marginBottom: 3 }} />
+                  <div style={{ width: '75%', height: 6, background: '#E5E0D4', borderRadius: 3, marginBottom: 6 }} />
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ background: '#E8EFEB', borderRadius: 4, padding: '2px 7px', fontFamily: 'Inter, sans-serif', fontSize: 10, fontWeight: 600, color: '#1F4D3A' }}>▲ 47</div>
+                    <div style={{ width: 35, height: 5, background: '#E8EFEB', borderRadius: 3 }} />
+                  </div>
+                </div>
+                {[{ v: 23, w1: 88, w2: 60 }, { v: 18, w1: 70, w2: 80 }].map((q, i) => (
+                  <div key={i} style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 7, padding: '7px 10px', marginBottom: 5 }}>
+                    <div style={{ width: `${q.w1}%`, height: 5, background: '#E5E0D4', borderRadius: 3, marginBottom: 3 }} />
+                    <div style={{ width: `${q.w2}%`, height: 5, background: '#E8EFEB', borderRadius: 3, marginBottom: 5 }} />
+                    <div style={{ background: '#E8EFEB', display: 'inline-block', borderRadius: 4, padding: '2px 7px', fontFamily: 'Inter, sans-serif', fontSize: 10, fontWeight: 600, color: '#1F4D3A' }}>▲ {q.v}</div>
+                  </div>
+                ))}
+                {/* Poll */}
+                <div style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 7, padding: '7px 10px' }}>
+                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, fontWeight: 700, color: '#0F1F18', marginBottom: 5 }}>📊 Live Poll · 58 votes</div>
+                  {[42, 33, 25].map((pct, i) => (
+                    <div key={i} style={{ marginBottom: 4 }}>
+                      <div style={{ background: '#E8EFEB', borderRadius: 3, height: 4, overflow: 'hidden' }}>
+                        <div style={{ width: `${pct}%`, height: '100%', background: '#1F4D3A', borderRadius: 3 }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style={{ background: '#222225', height: 14, borderRadius: '0 0 3px 3px' }} />
+          <div style={{ background: '#1a1a1d', height: 5, width: '112%', margin: '0 -6%', borderRadius: '0 0 8px 8px' }} />
+
+          {/* Phone overlay */}
+          <div style={{ position: 'absolute' as const, bottom: -20, right: -35, width: 150, background: '#0F1F18', borderRadius: 24, padding: 6, boxShadow: '0 8px 40px rgba(0,0,0,0.45)', zIndex: 10 }}>
+            <div style={{ background: '#FAF6EE', borderRadius: 20, overflow: 'hidden' }}>
+              <div style={{ background: '#1F4D3A', padding: '10px 10px 8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 10, fontWeight: 700, color: '#FAF6EE' }}>Live Q&amp;A</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#B8423C' }} />
+                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 8, color: '#FAF6EE', fontWeight: 700 }}>LIVE</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ padding: '6px 8px' }}>
+                <div style={{ background: '#FFFFFF', border: '1.5px solid #1F4D3A', borderRadius: 6, padding: '6px 8px', marginBottom: 4 }}>
+                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 8, color: '#E8C57E', fontWeight: 700, marginBottom: 3 }}>TOP</div>
+                  <div style={{ width: '90%', height: 4, background: '#E5E0D4', borderRadius: 2, marginBottom: 2 }} />
+                  <div style={{ width: '70%', height: 4, background: '#E5E0D4', borderRadius: 2, marginBottom: 4 }} />
+                  <div style={{ background: '#E8EFEB', display: 'inline-block', borderRadius: 3, padding: '1px 5px', fontFamily: 'Inter, sans-serif', fontSize: 9, color: '#1F4D3A', fontWeight: 600 }}>▲ 47</div>
+                </div>
+                {[23, 18].map((v, i) => (
+                  <div key={i} style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 5, padding: '5px 8px', marginBottom: 4 }}>
+                    <div style={{ width: i === 0 ? '85%' : '75%', height: 4, background: '#E5E0D4', borderRadius: 2, marginBottom: 4 }} />
+                    <div style={{ background: '#E8EFEB', display: 'inline-block', borderRadius: 3, padding: '1px 5px', fontFamily: 'Inter, sans-serif', fontSize: 9, color: '#1F4D3A', fontWeight: 600 }}>▲ {v}</div>
+                  </div>
+                ))}
+                <div style={{ height: 22, background: '#FAF6EE', border: '1px solid #E5E0D4', borderRadius: 5, display: 'flex', alignItems: 'center', padding: '0 6px' }}>
+                  <div style={{ width: 70, height: 4, background: '#E5E0D4', borderRadius: 2 }} />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
