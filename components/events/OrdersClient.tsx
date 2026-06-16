@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Modal } from '@/components/ui/Modal';
 
 interface Order {
   id: string;
@@ -96,6 +97,7 @@ export function OrdersClient({ eventId, orders: initialOrders }: Props) {
   // Local status overrides (e.g. after a refund) so list, detail and stats all update
   const [statusOverride, setStatusOverride] = useState<Record<string, string>>({});
   const [refunding, setRefunding] = useState(false);
+  const [confirmRefund, setConfirmRefund] = useState<string | null>(null);
 
   const orders = initialOrders.map(o => ({ ...o, status: statusOverride[o.id] ?? o.status }));
 
@@ -120,7 +122,7 @@ export function OrdersClient({ eventId, orders: initialOrders }: Props) {
     && !['refunded', 'cancelled'].includes(selectedOrder.status);
 
   async function refundOrder(id: string) {
-    if (!confirm('Mark this order as refunded? This updates the order in Karta — process the actual money refund in your payment provider.')) return;
+    setConfirmRefund(null);
     setRefunding(true);
     setStatusOverride(p => ({ ...p, [id]: 'refunded' }));
     try {
@@ -282,7 +284,7 @@ export function OrdersClient({ eventId, orders: initialOrders }: Props) {
                 {/* Refund — only for paid, non-refunded orders */}
                 {canRefund ? (
                   <button
-                    onClick={() => refundOrder(selectedOrder.id)}
+                    onClick={() => setConfirmRefund(selectedOrder.id)}
                     disabled={refunding}
                     className="w-full px-4 py-2.5 rounded-xl text-[13px] font-medium border transition-colors disabled:opacity-60"
                     style={{ borderColor: 'rgba(184,66,60,0.3)', color: '#B8423C', background: 'rgba(184,66,60,0.04)' }}>
@@ -298,6 +300,26 @@ export function OrdersClient({ eventId, orders: initialOrders }: Props) {
           })()}
         </div>
       )}
+
+      {/* Refund confirm — unified modal (replaces native confirm) */}
+      <Modal
+        open={!!confirmRefund}
+        onClose={() => setConfirmRefund(null)}
+        title="Refund this order?"
+        maxWidth={420}
+        footer={
+          <>
+            <button onClick={() => setConfirmRefund(null)} className="h-10 px-4 rounded-xl text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
+            <button onClick={() => confirmRefund && refundOrder(confirmRefund)} disabled={refunding} className="h-10 px-5 rounded-xl text-[13px] font-semibold text-white disabled:opacity-60" style={{ background: '#B8423C' }}>
+              {refunding ? 'Refunding…' : 'Refund order'}
+            </button>
+          </>
+        }
+      >
+        <p className="text-[14px] leading-relaxed" style={{ color: '#3A4A42' }}>
+          This marks the order as <strong>refunded</strong> in Karta and updates your revenue totals. Process the actual money refund in your payment provider separately.
+        </p>
+      </Modal>
     </div>
   );
 }
