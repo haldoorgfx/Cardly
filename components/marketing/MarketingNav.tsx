@@ -269,7 +269,6 @@ export function MarketingNav() {
           <Link href="/" className="flex items-center gap-2 group">
             {logoUrl
               // eslint-disable-next-line @next/next/no-img-element
-              // eslint-disable-next-line @next/next/no-img-element
               ? <img src={logoUrl} alt="Logo" className="max-h-[32px] max-w-[140px] object-contain" />
               // eslint-disable-next-line @next/next/no-img-element
               : <img src="/eventera-logo.png" alt="Eventera" style={{ height: '30px', objectFit: 'contain' }} />
