@@ -5,11 +5,15 @@ export const metadata: Metadata = { title: 'Analytics' };
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { EventAnalyticsView } from '@/components/events/EventAnalyticsView';
 
 interface Props { params: { id: string } }
 
 export default async function EventAnalyticsPage({ params }: Props) {
+  const _ev = await resolveEventRef(params.id);
+  if (!_ev) redirect('/dashboard');
+  const id = _ev.id;
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
@@ -18,7 +22,7 @@ export default async function EventAnalyticsPage({ params }: Props) {
   const { data: event } = await admin
     .from('events')
     .select('id, name, slug')
-    .eq('id', params.id)
+    .eq('id', id)
     .eq('user_id', user.id)
     .single();
 
@@ -28,7 +32,7 @@ export default async function EventAnalyticsPage({ params }: Props) {
   const { data: regs } = await admin
     .from('registrations')
     .select('created_at, status, amount_paid, currency, karta_card_url, ticket_type_id, ticket_types(name, currency)')
-    .eq('event_id', params.id)
+    .eq('event_id', id)
     .in('status', ['confirmed', 'checked_in', 'pending'])
     .order('created_at', { ascending: true })
     .limit(1000);

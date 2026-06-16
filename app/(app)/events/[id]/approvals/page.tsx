@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { ApprovalsClient } from '@/components/events/ApprovalsClient';
 
 export async function generateMetadata() {
@@ -9,7 +10,10 @@ export async function generateMetadata() {
 }
 
 export default async function ApprovalsPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+  const { id: _ref } = await params;
+  const _ev = await resolveEventRef(_ref);
+  if (!_ev) redirect('/dashboard');
+  const id = _ev.id;
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');

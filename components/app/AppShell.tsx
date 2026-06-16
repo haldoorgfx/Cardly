@@ -402,11 +402,13 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
       if (cached.name) setContextEventName(cached.name);
     }
 
-    // Background refresh
+    // Background refresh — eventId may be a UUID (legacy links) or slug (new links)
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const col = UUID_RE.test(eventId) ? 'id' : 'slug';
     supabase
       .from('events')
       .select('id, name, status, slug')
-      .eq('id', eventId)
+      .eq(col, eventId)
       .single()
       .then(({ data }) => {
         if (data) {
@@ -565,7 +567,7 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
   }, [query]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const navigate = useCallback((result: EventResult) => {
-    router.push(`/events/${result.id}`);
+    router.push(`/events/${result.slug}`);
     onClose();
   }, [router, onClose]);
 

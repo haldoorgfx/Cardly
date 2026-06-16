@@ -10,6 +10,7 @@ import EventDetailActions from './EventDetailActions';
 import { EventOverviewCards, type OverviewCard } from '@/components/events/EventOverviewCards';
 import { EventCompletionCard, type ChecklistItem } from '@/components/events/EventCompletionCard';
 import type { Zone, Variant } from '@/types/database';
+import { resolveEventRef } from '@/lib/events/resolveEventRef';
 
 function timeAgo(dateStr: string) {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -35,16 +36,19 @@ const STATUS_STYLE = {
 };
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<import('next').Metadata> {
-  const { id } = await params;
-  const admin = createAdminClient();
-  const { data: event } = await admin.from('events').select('name').eq('id', id).single();
+  const { id: _ref } = await params;
+  const _ev = await resolveEventRef(_ref);
   return {
-    title: event?.name ?? 'Event Overview',
+    title: _ev?.name ?? 'Event Overview',
   };
 }
 
 export default async function EventDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+  const { id: _ref } = await params;
+  const _ev = await resolveEventRef(_ref);
+  if (!_ev) redirect('/dashboard');
+  const id = _ev.id;
+  const slug = _ev.slug;
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
@@ -99,28 +103,28 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
 
   const epOverview = Array.isArray(event.event_pages) ? event.event_pages[0] : event.event_pages;
   const CHECKLIST: ChecklistItem[] = [
-    { label: 'Event details & page', done: !!(epOverview?.starts_at), href: `/events/${id}/event-page`, cta: 'Set up' },
-    { label: 'Karta Card design',    done: !!firstVariant,             href: `/events/${id}/edit`,       cta: 'Upload' },
-    { label: 'Tickets',              done: ticketTypes > 0,            href: `/events/${id}/tickets`,    cta: 'Add' },
-    { label: 'Agenda & sessions',    done: sessions > 0,               href: `/events/${id}/agenda`,     cta: 'Build', optional: true },
-    { label: 'Speakers',             done: speakers > 0,               href: `/events/${id}/speakers`,   cta: 'Add', optional: true },
+    { label: 'Event details & page', done: !!(epOverview?.starts_at), href: `/events/${slug}/event-page`, cta: 'Set up' },
+    { label: 'Karta Card design',    done: !!firstVariant,             href: `/events/${slug}/edit`,       cta: 'Upload' },
+    { label: 'Tickets',              done: ticketTypes > 0,            href: `/events/${slug}/tickets`,    cta: 'Add' },
+    { label: 'Agenda & sessions',    done: sessions > 0,               href: `/events/${slug}/agenda`,     cta: 'Build', optional: true },
+    { label: 'Speakers',             done: speakers > 0,               href: `/events/${slug}/speakers`,   cta: 'Add', optional: true },
   ];
 
   const ACTION_CARDS: OverviewCard[] = [
-    { id: 'event-page',     label: 'Event Page',     iconId: 'layout',    desc: 'Edit your public event page',               href: `/events/${id}/event-page`,     badge: event.status === 'published' ? 'Published' : 'Draft', badgeGreen: event.status === 'published' },
-    { id: 'tickets',        label: 'Tickets',        iconId: 'ticket',    desc: 'Manage ticket types and pricing',            href: `/events/${id}/tickets`,        badge: ticketTypes > 0 ? `${ticketTypes} ticket type${ticketTypes !== 1 ? 's' : ''}` : null },
-    { id: 'registrations',  label: 'Registrations',  iconId: 'users',     desc: 'View and manage attendees',                 href: `/events/${id}/registrations`,  badge: registrations > 0 ? `${registrations.toLocaleString()} registered` : null },
-    { id: 'agenda',         label: 'Agenda',         iconId: 'calendar',  desc: 'Build your event schedule',                 href: `/events/${id}/agenda`,         badge: sessions > 0 ? `${sessions} session${sessions !== 1 ? 's' : ''}` : null },
-    { id: 'speakers',       label: 'Speakers',       iconId: 'user',      desc: 'Manage speakers and sessions',              href: `/events/${id}/speakers`,       badge: speakers > 0 ? `${speakers} speaker${speakers !== 1 ? 's' : ''}` : null },
-    { id: 'check-in',       label: 'Check-in',       iconId: 'scan',      desc: 'Scan attendees at the door',                href: `/events/${id}/check-in`,       badge: event.status === 'published' ? `${checkInRate}% checked in` : 'Go live →' },
-    { id: 'networking',     label: 'Networking',     iconId: 'network',   desc: 'Attendee connections and matchmaking',      href: `/events/${id}/engagement`,     badge: null, minPlan: 'pro' },
-    { id: 'q-and-a',        label: 'Q&A & Polls',    iconId: 'message',   desc: 'Live session engagement',                  href: `/events/${id}/q-and-a`,        badge: null, minPlan: 'pro' },
-    { id: 'gamification',   label: 'Gamification',   iconId: 'trophy',    desc: 'Points, leaderboard and badges',            href: `/events/${id}/gamification`,   badge: null, minPlan: 'pro' },
-    { id: 'sponsors',       label: 'Sponsors',       iconId: 'briefcase', desc: 'Manage sponsors and exhibitors',            href: `/events/${id}/engagement`,     badge: null, minPlan: 'studio' },
-    { id: 'virtual',        label: 'Virtual',        iconId: 'video',     desc: 'Stream sessions online',                   href: `/events/${id}/engagement`,     badge: null, minPlan: 'studio' },
-    { id: 'analytics',      label: 'Analytics',      iconId: 'chart',     desc: 'Registration funnel and engagement data',  href: `/events/${id}/analytics`,      badge: 'View →' },
-    { id: 'karta-card',     label: 'Karta Card',     iconId: 'sparkles',  desc: 'The personalized card every attendee gets', href: `/events/${id}/karta-card`,    badge: event.download_count > 0 ? `${event.download_count} downloaded` : null, gold: true },
-    { id: 'communications', label: 'Communications', iconId: 'bell',      desc: 'Email your attendees and send updates',     href: `/events/${id}/communications`, badge: null },
+    { id: 'event-page',     label: 'Event Page',     iconId: 'layout',    desc: 'Edit your public event page',               href: `/events/${slug}/event-page`,     badge: event.status === 'published' ? 'Published' : 'Draft', badgeGreen: event.status === 'published' },
+    { id: 'tickets',        label: 'Tickets',        iconId: 'ticket',    desc: 'Manage ticket types and pricing',            href: `/events/${slug}/tickets`,        badge: ticketTypes > 0 ? `${ticketTypes} ticket type${ticketTypes !== 1 ? 's' : ''}` : null },
+    { id: 'registrations',  label: 'Registrations',  iconId: 'users',     desc: 'View and manage attendees',                 href: `/events/${slug}/registrations`,  badge: registrations > 0 ? `${registrations.toLocaleString()} registered` : null },
+    { id: 'agenda',         label: 'Agenda',         iconId: 'calendar',  desc: 'Build your event schedule',                 href: `/events/${slug}/agenda`,         badge: sessions > 0 ? `${sessions} session${sessions !== 1 ? 's' : ''}` : null },
+    { id: 'speakers',       label: 'Speakers',       iconId: 'user',      desc: 'Manage speakers and sessions',              href: `/events/${slug}/speakers`,       badge: speakers > 0 ? `${speakers} speaker${speakers !== 1 ? 's' : ''}` : null },
+    { id: 'check-in',       label: 'Check-in',       iconId: 'scan',      desc: 'Scan attendees at the door',                href: `/events/${slug}/check-in`,       badge: event.status === 'published' ? `${checkInRate}% checked in` : 'Go live →' },
+    { id: 'networking',     label: 'Networking',     iconId: 'network',   desc: 'Attendee connections and matchmaking',      href: `/events/${slug}/engagement`,     badge: null, minPlan: 'pro' },
+    { id: 'q-and-a',        label: 'Q&A & Polls',    iconId: 'message',   desc: 'Live session engagement',                  href: `/events/${slug}/q-and-a`,        badge: null, minPlan: 'pro' },
+    { id: 'gamification',   label: 'Gamification',   iconId: 'trophy',    desc: 'Points, leaderboard and badges',            href: `/events/${slug}/gamification`,   badge: null, minPlan: 'pro' },
+    { id: 'sponsors',       label: 'Sponsors',       iconId: 'briefcase', desc: 'Manage sponsors and exhibitors',            href: `/events/${slug}/engagement`,     badge: null, minPlan: 'studio' },
+    { id: 'virtual',        label: 'Virtual',        iconId: 'video',     desc: 'Stream sessions online',                   href: `/events/${slug}/engagement`,     badge: null, minPlan: 'studio' },
+    { id: 'analytics',      label: 'Analytics',      iconId: 'chart',     desc: 'Registration funnel and engagement data',  href: `/events/${slug}/analytics`,      badge: 'View →' },
+    { id: 'karta-card',     label: 'Karta Card',     iconId: 'sparkles',  desc: 'The personalized card every attendee gets', href: `/events/${slug}/karta-card`,    badge: event.download_count > 0 ? `${event.download_count} downloaded` : null, gold: true },
+    { id: 'communications', label: 'Communications', iconId: 'bell',      desc: 'Email your attendees and send updates',     href: `/events/${slug}/communications`, badge: null },
   ];
 
   return (
@@ -170,7 +174,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
             </div>
             <div className="flex items-center gap-2 shrink-0 sm:pb-0.5">
               <EventDetailActions eventId={id} eventName={event.name} status={event.status} />
-              <Link href={`/events/${id}/publish`}
+              <Link href={`/events/${slug}/publish`}
                 className="inline-flex items-center gap-1.5 h-10 px-3.5 text-[13px] font-semibold rounded-lg transition"
                 style={{ background: '#E8C57E', color: '#0F1F18' }}>
                 {event.status === 'published' ? 'Share →' : 'Publish →'}
@@ -202,7 +206,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
         </div>
 
         {/* ── Setup completion card ── */}
-        <EventCompletionCard items={CHECKLIST} status={event.status} publishHref={`/events/${id}/publish`} />
+        <EventCompletionCard items={CHECKLIST} status={event.status} publishHref={`/events/${slug}/publish`} />
 
         {/* ── Action cards grid ── */}
         <div>
@@ -251,7 +255,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
             </div>
             {registrations > 5 && (
               <div className="px-5 py-3 border-t" style={{ borderColor: '#F0EDE7' }}>
-                <Link href={`/events/${id}/registrations`} className="text-[12.5px] font-medium inline-flex items-center gap-1" style={{ color: '#1F4D3A' }}>
+                <Link href={`/events/${slug}/registrations`} className="text-[12.5px] font-medium inline-flex items-center gap-1" style={{ color: '#1F4D3A' }}>
                   View all {registrations} registrations <ArrowRight size={12} strokeWidth={2} />
                 </Link>
               </div>

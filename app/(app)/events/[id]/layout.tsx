@@ -1,5 +1,5 @@
-import { createAdminClient } from '@/lib/supabase/server';
 import type { Metadata } from 'next';
+import { resolveEventRef } from '@/lib/events/resolveEventRef';
 
 interface Props {
   children: React.ReactNode;
@@ -8,14 +8,9 @@ interface Props {
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
-  const admin = createAdminClient();
-  const { data: event } = await admin
-    .from('events')
-    .select('name')
-    .eq('id', id)
-    .single();
+  const _ev = await resolveEventRef(id);
   return {
-    title: event?.name ?? 'Event',
+    title: _ev?.name ?? 'Event',
   };
 }
 

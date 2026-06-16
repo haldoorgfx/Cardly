@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import Link from 'next/link';
 import { ChevronLeft, Clock, MapPin } from 'lucide-react';
 
@@ -33,7 +34,10 @@ const SESSION_TYPE_LABELS: Record<string, string> = {
 };
 
 export default async function SessionDetailPage({ params }: Props) {
-  const { id, sessionId } = await params;
+  const { id: _ref, sessionId } = await params;
+  const _ev = await resolveEventRef(_ref);
+  if (!_ev) redirect('/dashboard');
+  const id = _ev.id;
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');

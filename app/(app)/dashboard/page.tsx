@@ -182,7 +182,7 @@ export default async function DashboardPage() {
             <Users size={15} strokeWidth={1.8} /> View all registrations
           </Link>
           {firstLiveEvent && (
-            <Link href={`/events/${firstLiveEvent.id}/check-in`}
+            <Link href={`/events/${firstLiveEvent.slug}/check-in`}
               className="whitespace-nowrap inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border text-[13.5px] transition hover:border-[#1F4D3A]/40 hover:text-[#1F4D3A]"
               style={{ borderColor: '#E5E0D4', color: '#6B7A72', background: 'white' }}>
               <ScanLine size={15} strokeWidth={1.8} /> Open check-in scanner

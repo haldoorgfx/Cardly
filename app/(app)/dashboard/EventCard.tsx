@@ -115,7 +115,7 @@ export default function EventCard({ event, regCount, revenue, currency, checkinP
           </DropdownMenu.Item>
           {!isLive && (
             <DropdownMenu.Item asChild>
-              <Link href={`/events/${event.id}/publish`} className="flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer outline-none font-medium transition" style={{ color: '#1F4D3A' }}
+              <Link href={`/events/${event.slug}/publish`} className="flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer outline-none font-medium transition" style={{ color: '#1F4D3A' }}
                 onMouseEnter={e => (e.currentTarget.style.background = '#E8EFEB')} onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
                 <ChevronRight size={13} strokeWidth={1.8} /> Publish
               </Link>
@@ -193,7 +193,7 @@ export default function EventCard({ event, regCount, revenue, currency, checkinP
             className="w-full text-[15px] font-semibold rounded-lg px-2 py-0.5 outline-none mb-1"
             style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }} />
         ) : (
-          <Link href={`/events/${event.id}`}
+          <Link href={`/events/${event.slug}`}
             className="font-display text-[15px] font-semibold text-[#0F1F18] tracking-tight leading-snug line-clamp-1 hover:text-[#1F4D3A] transition-colors">
             {event.name}
           </Link>
@@ -223,7 +223,7 @@ export default function EventCard({ event, regCount, revenue, currency, checkinP
 
         {/* Actions */}
         <div className="mt-4 pt-3 border-t flex items-center gap-2" style={{ borderColor: 'rgba(229,224,212,0.7)' }}>
-          <Link href={`/events/${event.id}`}
+          <Link href={`/events/${event.slug}`}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white text-[12.5px] font-medium transition hover:bg-[#163828]"
             style={{ background: '#1F4D3A' }}>
             {isDraft ? 'Continue setup' : 'Manage'} <ArrowRight size={13} strokeWidth={2} />
@@ -238,7 +238,7 @@ export default function EventCard({ event, regCount, revenue, currency, checkinP
           )}
 
           {isLive && (
-            <Link href={`/events/${event.id}/check-in`}
+            <Link href={`/events/${event.slug}/check-in`}
               className="ml-auto inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[12.5px] transition hover:bg-[#E8EFEB]"
               style={{ color: '#1F4D3A' }}
               title="Check-in scanner">

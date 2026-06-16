@@ -7,12 +7,16 @@ export async function generateMetadata(): Promise<Metadata> {
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { EventPageEditor } from '@/components/events/EventPageEditor';
 
 interface Props { params: Promise<{ id: string }> }
 
 export default async function EventPageEditorPage({ params }: Props) {
-  const { id } = await params;
+  const { id: _ref } = await params;
+  const _ev = await resolveEventRef(_ref);
+  if (!_ev) redirect('/dashboard');
+  const id = _ev.id;
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');

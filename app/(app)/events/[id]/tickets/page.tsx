@@ -2,20 +2,24 @@ export const dynamic = 'force-dynamic';
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { TicketTypesManager } from '@/components/events/TicketTypesManager';
 
 interface Props { params: { id: string } }
 
 export default async function TicketsPage({ params }: Props) {
+  const _ev = await resolveEventRef(params.id);
+  if (!_ev) redirect('/dashboard');
+  const id = _ev.id;
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
   const admin = createAdminClient();
   const [{ data: event }, { data: eventPage }, { data: tickets }] = await Promise.all([
-    admin.from('events').select('id, name, slug').eq('id', params.id).eq('user_id', user.id).single(),
-    admin.from('event_pages').select('starts_at, ends_at, max_capacity').eq('event_id', params.id).maybeSingle(),
-    admin.from('ticket_types').select('*').eq('event_id', params.id).order('position'),
+    admin.from('events').select('id, name, slug').eq('id', id).eq('user_id', user.id).single(),
+    admin.from('event_pages').select('starts_at, ends_at, max_capacity').eq('event_id', id).maybeSingle(),
+    admin.from('ticket_types').select('*').eq('event_id', id).order('position'),
   ]);
 
   if (!event) redirect('/dashboard');
@@ -35,7 +39,7 @@ export default async function TicketsPage({ params }: Props) {
           </p>
         </div>
         <TicketTypesManager
-          eventId={params.id}
+          eventId={id}
           initialTickets={tickets ?? []}
           eventDates={{
             starts_at: eventPage?.starts_at ?? null,

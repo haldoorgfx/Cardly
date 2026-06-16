@@ -178,7 +178,7 @@ export default function EventRow({ event, index, regCount, revenue, currency }: 
                 className="text-[14px] font-semibold rounded px-1.5 py-0.5 outline-none w-full"
                 style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }} />
             ) : (
-              <Link href={`/events/${event.id}`}
+              <Link href={`/events/${event.slug}`}
                 className="block font-display text-[14px] font-semibold text-[#0F1F18] hover:text-[#1F4D3A] transition-colors truncate leading-snug"
                 style={{ maxWidth: '240px' }}>
                 {event.name}
@@ -254,11 +254,11 @@ export default function EventRow({ event, index, regCount, revenue, currency }: 
               <MenuItem onSel={() => setRenaming(true)}>
                 <Pencil size={13} strokeWidth={1.8} /> Rename
               </MenuItem>
-              <MenuItemLink href={`/events/${event.id}`}>
+              <MenuItemLink href={`/events/${event.slug}`}>
                 <ChevronRight size={13} strokeWidth={1.8} /> {isDraft ? 'Continue setup' : 'Manage'}
               </MenuItemLink>
               {!isLive && (
-                <MenuItemLink href={`/events/${event.id}/publish`} color="#1F4D3A">
+                <MenuItemLink href={`/events/${event.slug}/publish`} color="#1F4D3A">
                   <ChevronRight size={13} strokeWidth={1.8} /> Publish
                 </MenuItemLink>
               )}
@@ -270,7 +270,7 @@ export default function EventRow({ event, index, regCount, revenue, currency }: 
                   <MenuItemLink href={`/e/${event.slug}`} external>
                     <ExternalLink size={13} strokeWidth={1.8} /> View public page
                   </MenuItemLink>
-                  <MenuItemLink href={`/events/${event.id}/check-in`}>
+                  <MenuItemLink href={`/events/${event.slug}/check-in`}>
                     <ScanLine size={13} strokeWidth={1.8} /> Check-in scanner
                   </MenuItemLink>
                 </>

@@ -378,7 +378,7 @@ export default async function AnalyticsPage({
 
                       {/* Event name + thumbnail */}
                       <td className="px-5 py-3.5">
-                        <Link href={`/events/${e.id}`} className="flex items-center gap-3 group">
+                        <Link href={`/events/${e.slug ?? e.id}`} className="flex items-center gap-3 group">
                           <div className="w-7 h-7 rounded-lg shrink-0" style={{ background: e.color }} />
                           <span
                             className="font-display text-[13.5px] font-semibold group-hover:text-[#1F4D3A] transition-colors block"
