@@ -1003,68 +1003,39 @@ export function PublicEventPageClient({
         </div>
       )}
 
-      {/* ── Desktop sticky CTA bar (non-overview tabs, lg+ only) ── */}
-      {activeTab !== 'overview' && (
-        <div className="fixed top-[113px] left-0 right-0 z-40 hidden lg:block"
-          style={{ background: '#FFFFFF', borderBottom: '1px solid #E5E0D4', boxShadow: '0 2px 12px rgba(15,31,24,0.06)' }}>
-          <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between gap-4">
-            <span className="text-[14px]" style={{ color: '#6B7A72' }}>
-              <span className="font-semibold" style={{ color: '#0F1F18' }}>{page.title}</span>
-              {!registrationClosed && !allSoldOut && (
-                <span className="ml-2">· from <strong style={{ color: '#1F4D3A' }}>{totalPrice}</strong></span>
-              )}
-            </span>
+      {/* ── Mobile sticky CTA (overview tab only) ────────── */}
+      {activeTab === 'overview' && (
+        <>
+          <div className="fixed bottom-0 left-0 right-0 lg:hidden flex items-center gap-3 px-5 py-3 z-50"
+            style={{ background: '#FFFFFF', borderTop: '1px solid #E5E0D4', boxShadow: '0 -4px 20px rgba(15,31,24,0.08)' }}>
+            <div className="flex-1 min-w-0">
+              <div className="font-title font-extrabold text-[20px]" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>
+                {totalPrice}
+                <small className="font-sans font-normal text-[12px] ml-1" style={{ color: '#6B7A72' }}>· per ticket</small>
+              </div>
+            </div>
             {registrationClosed ? (
-              <span className="text-[13px] font-medium px-4 h-9 flex items-center rounded-lg"
+              <div className="inline-flex items-center h-11 px-6 rounded-xl font-semibold text-[14px]"
                 style={{ background: '#F5F0E8', color: '#6B7A72', border: '1px solid #E5E0D4' }}>
-                Registration closed
-              </span>
+                Closed
+              </div>
             ) : allSoldOut ? (
               <Link href={`/e/${registrationSlug}/waitlist`}
-                className="inline-flex items-center h-9 px-5 rounded-lg font-semibold text-[13px] transition hover:opacity-90"
+                className="inline-flex items-center h-11 px-6 rounded-xl font-semibold text-[14px] transition hover:opacity-90"
                 style={{ background: '#E8C57E', color: '#0F1F18', textDecoration: 'none' }}>
                 Join waitlist
               </Link>
             ) : (
               <Link href={registerHref}
-                className="inline-flex items-center h-9 px-5 rounded-lg font-semibold text-[13px] transition hover:opacity-90"
+                className="inline-flex items-center h-11 px-6 rounded-xl font-semibold text-[14px] transition hover:opacity-90"
                 style={{ background: '#E8C57E', color: '#0F1F18', textDecoration: 'none' }}>
                 Get tickets
               </Link>
             )}
           </div>
-        </div>
+          <div className="h-20 lg:hidden" />
+        </>
       )}
-
-      {/* ── Mobile sticky CTA (all tabs) ────────────────── */}
-      <div className="fixed bottom-0 left-0 right-0 lg:hidden flex items-center gap-3 px-5 py-3 z-50"
-        style={{ background: '#FFFFFF', borderTop: '1px solid #E5E0D4', boxShadow: '0 -4px 20px rgba(15,31,24,0.08)' }}>
-        <div className="flex-1 min-w-0">
-          <div className="font-title font-extrabold text-[20px]" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>
-            {totalPrice}
-            <small className="font-sans font-normal text-[12px] ml-1" style={{ color: '#6B7A72' }}>· per ticket</small>
-          </div>
-        </div>
-        {registrationClosed ? (
-          <div className="inline-flex items-center h-11 px-6 rounded-xl font-semibold text-[14px]"
-            style={{ background: '#F5F0E8', color: '#6B7A72', border: '1px solid #E5E0D4' }}>
-            Closed
-          </div>
-        ) : allSoldOut ? (
-          <Link href={`/e/${registrationSlug}/waitlist`}
-            className="inline-flex items-center h-11 px-6 rounded-xl font-semibold text-[14px] transition hover:opacity-90"
-            style={{ background: '#E8C57E', color: '#0F1F18', textDecoration: 'none' }}>
-            Join waitlist
-          </Link>
-        ) : (
-          <Link href={registerHref}
-            className="inline-flex items-center h-11 px-6 rounded-xl font-semibold text-[14px] transition hover:opacity-90"
-            style={{ background: '#E8C57E', color: '#0F1F18', textDecoration: 'none' }}>
-            Get tickets
-          </Link>
-        )}
-      </div>
-      <div className="h-20 lg:hidden" />
     </div>
   );
 }
