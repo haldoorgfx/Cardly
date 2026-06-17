@@ -19,36 +19,44 @@ export const metadata = {
 ───────────────────────────────────────────────────────── */
 function Hero() {
   return (
-    <section className="relative overflow-hidden" style={{ background: '#FAF6EE' }}>
-      {/* Mesh gradient blobs */}
+    <section
+      className="relative overflow-hidden flex flex-col"
+      style={{ background: '#FAF6EE', minHeight: '100svh' }}
+    >
+      {/* Atmospheric focal glow — light source behind the headline */}
       <div
         aria-hidden
         className="absolute pointer-events-none"
         style={{
-          top: '-10%', right: '-5%',
-          width: 800, height: 700,
-          background: 'radial-gradient(ellipse, rgba(31,77,58,0.11) 0%, transparent 70%)',
-          filter: 'blur(120px)',
+          top: 0,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: 1100,
+          height: 640,
+          background:
+            'radial-gradient(ellipse 55% 60% at 50% 0%, rgba(31,77,58,0.13) 0%, rgba(232,197,126,0.05) 45%, transparent 70%)',
+          filter: 'blur(48px)',
         }}
       />
+      {/* Subtle accent warmth bottom-left */}
       <div
         aria-hidden
         className="absolute pointer-events-none"
         style={{
-          bottom: '5%', left: '-8%',
-          width: 600, height: 600,
-          background: 'radial-gradient(ellipse, rgba(232,197,126,0.09) 0%, transparent 70%)',
-          filter: 'blur(90px)',
+          bottom: '15%', left: '-4%',
+          width: 500, height: 500,
+          background: 'radial-gradient(ellipse, rgba(232,197,126,0.07) 0%, transparent 70%)',
+          filter: 'blur(80px)',
         }}
       />
 
       {/* TOP — centered copy */}
       <div
-        className="relative mx-auto px-5 lg:px-10 pt-10 pb-0 lg:pt-14 text-center"
+        className="relative mx-auto px-5 lg:px-10 pt-12 pb-0 lg:pt-16 text-center"
         style={{ maxWidth: 760 }}
       >
         <div
-          className="inline-flex items-center gap-2 rounded-full px-3 py-1 mb-4"
+          className="inline-flex items-center gap-2 rounded-full px-3 py-1 mb-5"
           style={{
             background: '#E8EFEB',
             border: '1px solid rgba(31,77,58,0.2)',
@@ -65,7 +73,7 @@ function Hero() {
         <h1
           className="font-title font-bold leading-[1.0]"
           style={{
-            fontSize: 'clamp(34px, 4.2vw, 56px)',
+            fontSize: 'clamp(36px, 4.5vw, 60px)',
             color: '#1F4D3A',
             letterSpacing: '-0.035em',
           }}
@@ -74,22 +82,22 @@ function Hero() {
         </h1>
 
         <p
-          className="mt-4 leading-[1.6] mx-auto"
-          style={{ fontSize: 16, color: '#3A4A42', maxWidth: 520 }}
+          className="mt-5 leading-[1.65] mx-auto"
+          style={{ fontSize: 16, color: '#3A4A42', maxWidth: 500 }}
         >
           Registration, tickets, agenda, check-in, networking — and the only
-          event platform where every registrant automatically gets a
-          personalized card to share on social.
+          event platform where every registrant gets a personalized card to
+          share on social.
         </p>
 
-        <div className="mt-6 flex flex-wrap justify-center items-center gap-3">
+        <div className="mt-7 flex flex-wrap justify-center items-center gap-3">
           <Link
             href="/signup"
             className="inline-flex items-center gap-2 rounded-full font-medium transition-colors"
             style={{
               background: '#1F4D3A',
               color: '#FAF6EE',
-              padding: '11px 24px',
+              padding: '12px 26px',
               fontSize: 14,
             }}
           >
@@ -102,7 +110,7 @@ function Hero() {
               background: 'transparent',
               border: '1.5px solid rgba(31,77,58,0.25)',
               color: '#1F4D3A',
-              padding: '11px 24px',
+              padding: '12px 26px',
               fontSize: 14,
             }}
           >
@@ -110,7 +118,10 @@ function Hero() {
           </Link>
         </div>
 
-        <div className="mt-4 flex flex-wrap justify-center items-center gap-x-4 gap-y-2" style={{ fontSize: 12, color: '#6B7A72' }}>
+        <div
+          className="mt-4 flex flex-wrap justify-center items-center gap-x-4 gap-y-2"
+          style={{ fontSize: 12, color: '#6B7A72' }}
+        >
           {['Free for 1 event', 'No credit card', 'Setup in 10 minutes'].map((t) => (
             <span key={t} className="inline-flex items-center gap-1.5">
               <Check size={12} strokeWidth={2.5} style={{ color: '#1F4D3A' }} />
@@ -120,9 +131,10 @@ function Hero() {
         </div>
       </div>
 
-      {/* BOTTOM — full-width mockup (hidden on small phones) */}
+      {/* BOTTOM — mockup bleeds to viewport edge (hidden on small phones) */}
+      {/* overflow-hidden clips bottom so screens tease below the fold */}
       <div
-        className="relative hidden sm:block mx-auto px-5 sm:px-8 lg:px-16 pb-0"
+        className="relative hidden sm:block flex-1 mx-auto w-full px-5 sm:px-8 lg:px-12 mt-8 overflow-hidden"
         style={{ maxWidth: 1280 }}
       >
         <HeroDashboardMock />
