@@ -6,4 +6,11 @@ Assets/
 .claude/
 cardly-handoff/
 node_modules/
+**/node_modules/
 .next/
+**/.next/
+*.mp4
+*.mov
+*.zip
+*.psd
+*.fig
