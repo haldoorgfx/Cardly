@@ -4,7 +4,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import {
-  ArrowRight, CalendarDays, FileDown, MapPin, Wifi,
+  ArrowRight, CalendarDays, ExternalLink, FileDown, MapPin, Wifi,
 } from 'lucide-react';
 import EventDetailActions from './EventDetailActions';
 import { EventOverviewCards, type OverviewCard } from '@/components/events/EventOverviewCards';
@@ -174,6 +174,16 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
             </div>
             <div className="flex items-center gap-2 shrink-0 sm:pb-0.5">
               <EventDetailActions eventId={id} eventName={event.name} status={event.status} />
+              {event.status === 'published' && (
+                <a href={`/e/${event.slug}`} target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 h-10 px-3.5 text-[13px] font-semibold rounded-lg border transition-colors"
+                  style={{ background: 'rgba(255,255,255,0.12)', color: '#FAF6EE', borderColor: 'rgba(250,246,238,0.25)' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.2)'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.12)'; }}>
+                  <span>View public page</span>
+                  <ExternalLink size={13} strokeWidth={2} />
+                </a>
+              )}
               <Link href={`/events/${slug}/publish`}
                 className="inline-flex items-center gap-1.5 h-10 px-3.5 text-[13px] font-semibold rounded-lg transition"
                 style={{ background: '#E8C57E', color: '#0F1F18' }}>
