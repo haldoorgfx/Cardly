@@ -44,11 +44,11 @@ function Hero() {
 
       {/* TOP — centered copy */}
       <div
-        className="relative mx-auto px-5 lg:px-10 pt-16 pb-12 lg:pt-24 lg:pb-16 text-center"
-        style={{ maxWidth: 800 }}
+        className="relative mx-auto px-5 lg:px-10 pt-10 pb-8 lg:pt-14 lg:pb-10 text-center"
+        style={{ maxWidth: 760 }}
       >
         <div
-          className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 mb-6"
+          className="inline-flex items-center gap-2 rounded-full px-3 py-1 mb-4"
           style={{
             background: '#E8EFEB',
             border: '1px solid rgba(31,77,58,0.2)',
@@ -65,7 +65,7 @@ function Hero() {
         <h1
           className="font-title font-bold leading-[1.0]"
           style={{
-            fontSize: 'clamp(40px, 5.5vw, 72px)',
+            fontSize: 'clamp(34px, 4.2vw, 56px)',
             color: '#1F4D3A',
             letterSpacing: '-0.035em',
           }}
@@ -74,26 +74,26 @@ function Hero() {
         </h1>
 
         <p
-          className="mt-6 leading-[1.6] mx-auto"
-          style={{ fontSize: 18, color: '#3A4A42', maxWidth: 560 }}
+          className="mt-4 leading-[1.6] mx-auto"
+          style={{ fontSize: 16, color: '#3A4A42', maxWidth: 520 }}
         >
           Registration, tickets, agenda, check-in, networking — and the only
           event platform where every registrant automatically gets a
           personalized card to share on social.
         </p>
 
-        <div className="mt-8 flex flex-wrap justify-center items-center gap-3">
+        <div className="mt-6 flex flex-wrap justify-center items-center gap-3">
           <Link
             href="/signup"
             className="inline-flex items-center gap-2 rounded-full font-medium transition-colors"
             style={{
               background: '#1F4D3A',
               color: '#FAF6EE',
-              padding: '13px 28px',
-              fontSize: 15,
+              padding: '11px 24px',
+              fontSize: 14,
             }}
           >
-            Start free <ArrowRight size={15} strokeWidth={2} />
+            Start free <ArrowRight size={14} strokeWidth={2} />
           </Link>
           <Link
             href="/#platform"
@@ -102,18 +102,18 @@ function Hero() {
               background: 'transparent',
               border: '1.5px solid rgba(31,77,58,0.25)',
               color: '#1F4D3A',
-              padding: '13px 28px',
-              fontSize: 15,
+              padding: '11px 24px',
+              fontSize: 14,
             }}
           >
-            See the platform <ArrowRight size={15} strokeWidth={2} />
+            See the platform <ArrowRight size={14} strokeWidth={2} />
           </Link>
         </div>
 
-        <div className="mt-6 flex flex-wrap justify-center items-center gap-x-5 gap-y-2" style={{ fontSize: 13, color: '#6B7A72' }}>
+        <div className="mt-4 flex flex-wrap justify-center items-center gap-x-4 gap-y-2" style={{ fontSize: 12, color: '#6B7A72' }}>
           {['Free for 1 event', 'No credit card', 'Setup in 10 minutes'].map((t) => (
             <span key={t} className="inline-flex items-center gap-1.5">
-              <Check size={13} strokeWidth={2.5} style={{ color: '#1F4D3A' }} />
+              <Check size={12} strokeWidth={2.5} style={{ color: '#1F4D3A' }} />
               {t}
             </span>
           ))}
