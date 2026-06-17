@@ -1003,22 +1003,36 @@ export function PublicEventPageClient({
         </div>
       )}
 
-      {/* ── Desktop floating CTA (non-overview tabs only, since overview has the sidebar) ── */}
-      {activeTab !== 'overview' && !registrationClosed && (
-        <div className="fixed bottom-8 right-8 z-50 hidden lg:flex flex-col items-end gap-2">
-          {allSoldOut ? (
-            <Link href={`/e/${registrationSlug}/waitlist`}
-              className="inline-flex items-center h-12 px-6 rounded-xl font-semibold text-[15px] transition hover:opacity-90"
-              style={{ background: '#E8C57E', color: '#0F1F18', textDecoration: 'none', boxShadow: '0 4px 20px rgba(15,31,24,0.18)' }}>
-              Join waitlist
-            </Link>
-          ) : (
-            <Link href={registerHref}
-              className="inline-flex items-center h-12 px-6 rounded-xl font-semibold text-[15px] transition hover:opacity-90"
-              style={{ background: '#E8C57E', color: '#0F1F18', textDecoration: 'none', boxShadow: '0 4px 20px rgba(15,31,24,0.18)' }}>
-              Get tickets · {totalPrice}
-            </Link>
-          )}
+      {/* ── Desktop sticky CTA bar (non-overview tabs, lg+ only) ── */}
+      {activeTab !== 'overview' && (
+        <div className="fixed top-[113px] left-0 right-0 z-40 hidden lg:block"
+          style={{ background: '#FFFFFF', borderBottom: '1px solid #E5E0D4', boxShadow: '0 2px 12px rgba(15,31,24,0.06)' }}>
+          <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between gap-4">
+            <span className="text-[14px]" style={{ color: '#6B7A72' }}>
+              <span className="font-semibold" style={{ color: '#0F1F18' }}>{eventName}</span>
+              {!registrationClosed && !allSoldOut && (
+                <span className="ml-2">· from <strong style={{ color: '#1F4D3A' }}>{totalPrice}</strong></span>
+              )}
+            </span>
+            {registrationClosed ? (
+              <span className="text-[13px] font-medium px-4 h-9 flex items-center rounded-lg"
+                style={{ background: '#F5F0E8', color: '#6B7A72', border: '1px solid #E5E0D4' }}>
+                Registration closed
+              </span>
+            ) : allSoldOut ? (
+              <Link href={`/e/${registrationSlug}/waitlist`}
+                className="inline-flex items-center h-9 px-5 rounded-lg font-semibold text-[13px] transition hover:opacity-90"
+                style={{ background: '#E8C57E', color: '#0F1F18', textDecoration: 'none' }}>
+                Join waitlist
+              </Link>
+            ) : (
+              <Link href={registerHref}
+                className="inline-flex items-center h-9 px-5 rounded-lg font-semibold text-[13px] transition hover:opacity-90"
+                style={{ background: '#E8C57E', color: '#0F1F18', textDecoration: 'none' }}>
+                Get tickets
+              </Link>
+            )}
+          </div>
         </div>
       )}
 
