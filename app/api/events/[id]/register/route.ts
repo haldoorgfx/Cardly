@@ -151,21 +151,24 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   // 5. Guard against duplicate registrations:
   //    - confirmed / checked_in / pending_approval → already registered, reject
   //    - pending + pending payment → stale abandoned attempt; delete and allow retry
+  type ExistingReg = { id: string; status: string; payment_status: string };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: existingReg } = await (admin as any)
     .from('registrations')
     .select('id, status, payment_status')
     .eq('event_id', params.id)
     .eq('attendee_email', attendee_email)
-    .maybeSingle();
+    .maybeSingle() as { data: ExistingReg | null };
 
   if (existingReg) {
-    const { status: exStatus, payment_status: exPayStatus } = existingReg as { status: string; payment_status: string; id: string };
+    const { status: exStatus, payment_status: exPayStatus, id: exId } = existingReg;
     if (['confirmed', 'checked_in', 'pending_approval'].includes(exStatus)) {
       return NextResponse.json({ error: 'You are already registered for this event.' }, { status: 409 });
     }
     if (exStatus === 'pending' && (exPayStatus === 'pending' || exPayStatus === 'failed')) {
       // Stale payment attempt — clean it up so this request can proceed
-      await (admin as any).from('registrations').delete().eq('id', (existingReg as { id: string }).id);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (admin as any).from('registrations').delete().eq('id', exId);
     }
   }
 
