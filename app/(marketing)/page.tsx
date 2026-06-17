@@ -25,110 +25,107 @@ function Hero() {
         aria-hidden
         className="absolute pointer-events-none"
         style={{
-          top: '-15%', right: '-8%',
-          width: 720, height: 640,
-          background: 'radial-gradient(ellipse, rgba(31,77,58,0.13) 0%, transparent 70%)',
-          filter: 'blur(100px)',
+          top: '-10%', right: '-5%',
+          width: 800, height: 700,
+          background: 'radial-gradient(ellipse, rgba(31,77,58,0.11) 0%, transparent 70%)',
+          filter: 'blur(120px)',
         }}
       />
       <div
         aria-hidden
         className="absolute pointer-events-none"
         style={{
-          bottom: '-20%', left: '-10%',
-          width: 560, height: 560,
-          background: 'radial-gradient(ellipse, rgba(232,197,126,0.10) 0%, transparent 70%)',
-          filter: 'blur(80px)',
+          bottom: '5%', left: '-8%',
+          width: 600, height: 600,
+          background: 'radial-gradient(ellipse, rgba(232,197,126,0.09) 0%, transparent 70%)',
+          filter: 'blur(90px)',
         }}
       />
 
+      {/* TOP — centered copy */}
       <div
-        className="relative mx-auto px-5 lg:px-10 pt-14 pb-20 lg:pt-20 lg:pb-28"
-        style={{ maxWidth: 1200 }}
+        className="relative mx-auto px-5 lg:px-10 pt-16 pb-12 lg:pt-24 lg:pb-16 text-center"
+        style={{ maxWidth: 800 }}
       >
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-10 items-center">
-
-          {/* LEFT — copy */}
-          <div>
-            <div
-              className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 mb-6"
-              style={{
-                background: '#E8EFEB',
-                border: '1px solid rgba(31,77,58,0.2)',
-                color: '#1F4D3A',
-                fontSize: 12,
-                fontFamily: 'var(--font-sans)',
-                letterSpacing: '0.04em',
-              }}
-            >
-              <Sparkles size={13} strokeWidth={2} />
-              The complete event platform
-            </div>
-
-            <h1
-              className="font-title font-bold leading-[1.0]"
-              style={{
-                fontSize: 'clamp(40px, 5vw, 62px)',
-                color: '#1F4D3A',
-                letterSpacing: '-0.035em',
-              }}
-            >
-              The event platform that makes every attendee want to share.
-            </h1>
-
-            <p
-              className="mt-6 leading-[1.6]"
-              style={{ fontSize: 17, color: '#3A4A42', maxWidth: 500 }}
-            >
-              Registration, tickets, agenda, check-in, networking — and the only
-              event platform where every registrant automatically gets a
-              personalized card to share on social.
-            </p>
-
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Link
-                href="/signup"
-                className="inline-flex items-center gap-2 rounded-full font-medium transition-colors"
-                style={{
-                  background: '#1F4D3A',
-                  color: '#FAF6EE',
-                  padding: '12px 24px',
-                  fontSize: 15,
-                }}
-              >
-                Start free <ArrowRight size={15} strokeWidth={2} />
-              </Link>
-              <Link
-                href="/#platform"
-                className="inline-flex items-center gap-2 rounded-full font-medium transition-colors"
-                style={{
-                  background: 'transparent',
-                  border: '1.5px solid rgba(31,77,58,0.25)',
-                  color: '#1F4D3A',
-                  padding: '12px 24px',
-                  fontSize: 15,
-                }}
-              >
-                See the platform <ArrowRight size={15} strokeWidth={2} />
-              </Link>
-            </div>
-
-            <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2" style={{ fontSize: 13, color: '#6B7A72' }}>
-              {['Free for 1 event', 'No credit card', 'Setup in 10 minutes'].map((t) => (
-                <span key={t} className="inline-flex items-center gap-1.5">
-                  <Check size={13} strokeWidth={2.5} style={{ color: '#1F4D3A' }} />
-                  {t}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* RIGHT — dashboard + phone composite */}
-          <div className="relative hidden lg:block" style={{ paddingTop: 20 }}>
-            <HeroDashboardMock />
-          </div>
-
+        <div
+          className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 mb-6"
+          style={{
+            background: '#E8EFEB',
+            border: '1px solid rgba(31,77,58,0.2)',
+            color: '#1F4D3A',
+            fontSize: 12,
+            fontFamily: 'var(--font-sans)',
+            letterSpacing: '0.04em',
+          }}
+        >
+          <Sparkles size={13} strokeWidth={2} />
+          The complete event platform
         </div>
+
+        <h1
+          className="font-title font-bold leading-[1.0]"
+          style={{
+            fontSize: 'clamp(40px, 5.5vw, 72px)',
+            color: '#1F4D3A',
+            letterSpacing: '-0.035em',
+          }}
+        >
+          The event platform that makes every attendee want to share.
+        </h1>
+
+        <p
+          className="mt-6 leading-[1.6] mx-auto"
+          style={{ fontSize: 18, color: '#3A4A42', maxWidth: 560 }}
+        >
+          Registration, tickets, agenda, check-in, networking — and the only
+          event platform where every registrant automatically gets a
+          personalized card to share on social.
+        </p>
+
+        <div className="mt-8 flex flex-wrap justify-center items-center gap-3">
+          <Link
+            href="/signup"
+            className="inline-flex items-center gap-2 rounded-full font-medium transition-colors"
+            style={{
+              background: '#1F4D3A',
+              color: '#FAF6EE',
+              padding: '13px 28px',
+              fontSize: 15,
+            }}
+          >
+            Start free <ArrowRight size={15} strokeWidth={2} />
+          </Link>
+          <Link
+            href="/#platform"
+            className="inline-flex items-center gap-2 rounded-full font-medium transition-colors"
+            style={{
+              background: 'transparent',
+              border: '1.5px solid rgba(31,77,58,0.25)',
+              color: '#1F4D3A',
+              padding: '13px 28px',
+              fontSize: 15,
+            }}
+          >
+            See the platform <ArrowRight size={15} strokeWidth={2} />
+          </Link>
+        </div>
+
+        <div className="mt-6 flex flex-wrap justify-center items-center gap-x-5 gap-y-2" style={{ fontSize: 13, color: '#6B7A72' }}>
+          {['Free for 1 event', 'No credit card', 'Setup in 10 minutes'].map((t) => (
+            <span key={t} className="inline-flex items-center gap-1.5">
+              <Check size={13} strokeWidth={2.5} style={{ color: '#1F4D3A' }} />
+              {t}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* BOTTOM — full-width mockup (hidden on small phones) */}
+      <div
+        className="relative hidden sm:block mx-auto px-5 sm:px-8 lg:px-16 pb-0"
+        style={{ maxWidth: 1280 }}
+      >
+        <HeroDashboardMock />
       </div>
     </section>
   );
