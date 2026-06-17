@@ -536,25 +536,6 @@ export function PublicEventPageClient({
                 </button>
               );
             })}
-            {/* Persistent "Get tickets" in tab bar — hidden on overview (where the sidebar already shows it) */}
-            {activeTab !== 'overview' && !registrationClosed && !allSoldOut && (
-              <div className="ml-auto pl-3 shrink-0 hidden lg:block">
-                <Link href={registerHref}
-                  className="inline-flex items-center h-8 px-4 rounded-lg font-semibold text-[13px] transition hover:opacity-90"
-                  style={{ background: '#E8C57E', color: '#0F1F18', textDecoration: 'none' }}>
-                  Get tickets
-                </Link>
-              </div>
-            )}
-            {activeTab !== 'overview' && !registrationClosed && allSoldOut && (
-              <div className="ml-auto pl-3 shrink-0 hidden lg:block">
-                <Link href={`/e/${registrationSlug}/waitlist`}
-                  className="inline-flex items-center h-8 px-4 rounded-lg font-semibold text-[13px] transition hover:opacity-90"
-                  style={{ background: '#E8C57E', color: '#0F1F18', textDecoration: 'none' }}>
-                  Join waitlist
-                </Link>
-              </div>
-            )}
           </div>
         </div>
       )}
@@ -1018,6 +999,25 @@ export function PublicEventPageClient({
                 </div>
               ))}
             </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Desktop floating CTA (non-overview tabs only, since overview has the sidebar) ── */}
+      {activeTab !== 'overview' && !registrationClosed && (
+        <div className="fixed bottom-8 right-8 z-50 hidden lg:flex flex-col items-end gap-2">
+          {allSoldOut ? (
+            <Link href={`/e/${registrationSlug}/waitlist`}
+              className="inline-flex items-center h-12 px-6 rounded-xl font-semibold text-[15px] transition hover:opacity-90"
+              style={{ background: '#E8C57E', color: '#0F1F18', textDecoration: 'none', boxShadow: '0 4px 20px rgba(15,31,24,0.18)' }}>
+              Join waitlist
+            </Link>
+          ) : (
+            <Link href={registerHref}
+              className="inline-flex items-center h-12 px-6 rounded-xl font-semibold text-[15px] transition hover:opacity-90"
+              style={{ background: '#E8C57E', color: '#0F1F18', textDecoration: 'none', boxShadow: '0 4px 20px rgba(15,31,24,0.18)' }}>
+              Get tickets · {totalPrice}
+            </Link>
           )}
         </div>
       )}
