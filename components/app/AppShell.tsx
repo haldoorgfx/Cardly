@@ -465,17 +465,29 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
             <span className="inline-block w-36 h-4 rounded animate-pulse" style={{ background: '#E5E0D4' }} />
           )}
         </div>
-        {badge && (
-          <span className="mt-2 inline-flex items-center gap-1.5 text-[9.5px] font-semibold tracking-[0.06em] uppercase px-2 py-0.5 rounded-full border"
-            style={event?.status === 'published'
-              ? { background: '#E8EFEB', color: '#2D7A4F', borderColor: '#C9DDD3' }
-              : event?.status === 'draft'
-              ? { background: '#FEF9EE', color: '#C97A2D', borderColor: '#F0D99A' }
-              : { background: '#F5F3EE', color: '#6B7A72', borderColor: '#E5E0D4' }}>
-            <span className="w-1.5 h-1.5 rounded-full" style={{ background: badge.dot }} />
-            {badge.label}
-          </span>
-        )}
+        <div className="mt-2 flex items-center justify-between gap-2">
+          {badge && (
+            <span className="inline-flex items-center gap-1.5 text-[9.5px] font-semibold tracking-[0.06em] uppercase px-2 py-0.5 rounded-full border"
+              style={event?.status === 'published'
+                ? { background: '#E8EFEB', color: '#2D7A4F', borderColor: '#C9DDD3' }
+                : event?.status === 'draft'
+                ? { background: '#FEF9EE', color: '#C97A2D', borderColor: '#F0D99A' }
+                : { background: '#F5F3EE', color: '#6B7A72', borderColor: '#E5E0D4' }}>
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: badge.dot }} />
+              {badge.label}
+            </span>
+          )}
+          {event?.slug && (
+            <a href={`/e/${event.slug}`} target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold transition-colors"
+              style={{ background: '#1F4D3A', color: '#FAF6EE' }}
+              onMouseEnter={e => (e.currentTarget.style.background = '#163828')}
+              onMouseLeave={e => (e.currentTarget.style.background = '#1F4D3A')}>
+              <span>Public page</span>
+              <ExternalLink size={11} strokeWidth={2} className="shrink-0" />
+            </a>
+          )}
+        </div>
       </div>
 
       {/* Event nav — collapsible section groups */}
@@ -518,17 +530,6 @@ function EventNavContent({ pathname, eventId, onNavigate }: {
         })}
       </nav>
 
-      {/* Footer */}
-      <div className="px-3 py-2 shrink-0" style={{ borderTop: '1px solid #E5E0D4' }}>
-        {event?.slug ? (
-          <a href={`/e/${event.slug}`} target="_blank" rel="noopener noreferrer"
-            className="flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-[12.5px] font-medium transition-colors border hover:border-[#1F4D3A]/40 hover:text-[#1F4D3A]"
-            style={{ color: '#6B7A72', borderColor: '#E5E0D4' }}>
-            <span>View public page</span>
-            <ExternalLink size={12} strokeWidth={2} className="shrink-0" />
-          </a>
-        ) : null}
-      </div>
     </>
   );
 }
