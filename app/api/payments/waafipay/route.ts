@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { chargeWaafiPay } from '@/lib/payments/waafipay';
+import { chargeWaafiPay, type WaafiPayResult } from '@/lib/payments/waafipay';
 import { createAdminClient } from '@/lib/supabase/server';
 
 // Called by WaafiPayStep after pending registration is created.
@@ -36,14 +36,20 @@ export async function POST(req: NextRequest) {
     ? await admin.from('ticket_types').select('name').eq('id', reg.ticket_type_id).single()
     : { data: null };
 
-  // Charge via WaafiPay
-  const result = await chargeWaafiPay({
-    phoneNumber:  phone_number,
-    amount:       reg.amount_paid,
-    currency:     reg.currency as 'USD' | 'SOS' | 'DJF',
-    referenceId:  reg.qr_code_token,
-    description:  `${ticket?.name ?? 'Ticket'} — ${eventPage?.title ?? 'Event'}`,
-  });
+  // Charge via WaafiPay — wrap in try/catch so missing credentials return JSON, not a crash
+  let result: WaafiPayResult;
+  try {
+    result = await chargeWaafiPay({
+      phoneNumber:  phone_number,
+      amount:       reg.amount_paid,
+      currency:     reg.currency as 'USD' | 'SOS' | 'DJF',
+      referenceId:  reg.qr_code_token,
+      description:  `${ticket?.name ?? 'Ticket'} — ${eventPage?.title ?? 'Event'}`,
+    });
+  } catch (err) {
+    const detail = err instanceof Error ? err.message : 'WaafiPay service unavailable';
+    return NextResponse.json({ error: 'PAYMENT_SERVICE_ERROR', detail }, { status: 503 });
+  }
 
   if (result.success) {
     // Mark registration as paid — guarded flip returns a row only the first time.

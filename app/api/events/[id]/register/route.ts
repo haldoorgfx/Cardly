@@ -148,7 +148,28 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     }
   }
 
-  // 5. Create registration (isFree reflects the amount actually charged — a
+  // 5. Guard against duplicate registrations:
+  //    - confirmed / checked_in / pending_approval → already registered, reject
+  //    - pending + pending payment → stale abandoned attempt; delete and allow retry
+  const { data: existingReg } = await (admin as any)
+    .from('registrations')
+    .select('id, status, payment_status')
+    .eq('event_id', params.id)
+    .eq('attendee_email', attendee_email)
+    .maybeSingle();
+
+  if (existingReg) {
+    const { status: exStatus, payment_status: exPayStatus } = existingReg as { status: string; payment_status: string; id: string };
+    if (['confirmed', 'checked_in', 'pending_approval'].includes(exStatus)) {
+      return NextResponse.json({ error: 'You are already registered for this event.' }, { status: 409 });
+    }
+    if (exStatus === 'pending' && (exPayStatus === 'pending' || exPayStatus === 'failed')) {
+      // Stale payment attempt — clean it up so this request can proceed
+      await (admin as any).from('registrations').delete().eq('id', (existingReg as { id: string }).id);
+    }
+  }
+
+  // Create registration (isFree reflects the amount actually charged — a
   // 100%-off promo makes the ticket free and skips payment entirely)
   const isFree = chargedPrice === 0;
   const { data: eventRow } = await admin.from('events').select('checkout_require_approval, user_id').eq('id', params.id).single();
@@ -199,6 +220,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   if (regError) {
     if (regError.code === '23505') {
+      // Race condition: another request confirmed between our check and insert
       return NextResponse.json({ error: 'You are already registered for this event.' }, { status: 409 });
     }
     return NextResponse.json({ error: regError.message }, { status: 500 });

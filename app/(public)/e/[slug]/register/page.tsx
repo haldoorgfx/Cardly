@@ -39,7 +39,7 @@ export default async function RegisterPage({ params, searchParams }: Props) {
         .select('id')
         .eq('event_id', event.id)
         .or(`attendee_email.eq.${sessionEmail.toLowerCase()},user_id.eq.${user.id}`)
-        .in('status', ['confirmed', 'checked_in', 'pending', 'pending_approval'])
+        .in('status', ['confirmed', 'checked_in', 'pending_approval'])
         .limit(1)
         .maybeSingle();
       alreadyRegistered = !!existing;

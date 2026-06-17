@@ -60,14 +60,17 @@ export function WaafiPayStep({ registrationId, qrToken, amount, currency, eventT
         return;
       }
 
+      const code = data.error ?? '';
       const msg = data.detail ?? data.error ?? 'Payment failed. Please try again.';
-      setError(
-        msg === 'PAYMENT_FAILED' || msg.includes('declined')
-          ? 'Payment was declined. Please ensure your mobile money account has sufficient balance and try again.'
-          : msg
-      );
+      if (code === 'PAYMENT_SERVICE_ERROR') {
+        setError('Mobile money payment is temporarily unavailable. Please contact the organizer or try again later.');
+      } else if (msg === 'PAYMENT_FAILED' || msg.includes('declined')) {
+        setError('Payment was declined. Please ensure your mobile money account has sufficient balance and try again.');
+      } else {
+        setError(msg);
+      }
     } catch {
-      setError('Something went wrong. Please check your connection and try again.');
+      setError('Unable to reach the payment service. Please check your connection and try again.');
     } finally {
       setProcessing(false);
     }
