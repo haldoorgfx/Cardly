@@ -27,9 +27,6 @@ function Ico({ size = 16, sw = 1.6, children }: {
 }
 
 const I = {
-  back: (p?: { size?: number }) => (
-    <Ico size={p?.size ?? 16}><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></Ico>
-  ),
   check: (p?: { size?: number; sw?: number }) => (
     <Ico size={p?.size ?? 16} sw={p?.sw ?? 1.6}><polyline points="20 6 9 17 4 12" /></Ico>
   ),
@@ -41,9 +38,6 @@ const I = {
   ),
   external: (p?: { size?: number }) => (
     <Ico size={p?.size ?? 16}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></Ico>
-  ),
-  edit: (p?: { size?: number }) => (
-    <Ico size={p?.size ?? 16}><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z" /></Ico>
   ),
   chart: (p?: { size?: number; sw?: number }) => (
     <Ico size={p?.size ?? 16} sw={p?.sw ?? 1.6}><line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" /></Ico>
@@ -89,41 +83,74 @@ const Brand = {
   ),
 };
 
-/* ── PreviewArt (fallback when no backgroundUrl) ─────────────── */
-function PreviewArt() {
+/* ── Event registration phone preview ─────────────────────────── */
+function RegistrationPreview({ eventName, dateLabel, venueLabel }: {
+  eventName: string;
+  dateLabel: string;
+  venueLabel: string;
+}) {
   return (
     <div style={{
       position: 'absolute', inset: 0,
-      background: 'linear-gradient(165deg, #1F4D3A 0%, #163828 60%, #2A6A50 100%)',
-      color: PT.cream,
+      background: PT.cream,
+      display: 'flex', flexDirection: 'column',
+      fontFamily: 'Inter, sans-serif',
+      overflow: 'hidden',
     }}>
-      <svg viewBox="0 0 100 178" preserveAspectRatio="none" width="100%" height="100%"
-        style={{ position: 'absolute', inset: 0, opacity: 0.16 }}>
-        <defs>
-          <radialGradient id="p-bart" cx="80%" cy="20%" r="80%">
-            <stop offset="0%" stopColor="#E8C57E" stopOpacity="0.7" />
-            <stop offset="100%" stopColor="#E8C57E" stopOpacity="0" />
-          </radialGradient>
-        </defs>
-        <rect width="100" height="178" fill="url(#p-bart)" />
-        <circle cx="90" cy="170" r="60" fill="none" stroke="#E8C57E" strokeWidth="0.4" />
-        <circle cx="90" cy="170" r="45" fill="none" stroke="#E8C57E" strokeWidth="0.4" />
-        <circle cx="90" cy="170" r="30" fill="none" stroke="#E8C57E" strokeWidth="0.4" />
-      </svg>
+      {/* Cover band */}
       <div style={{
-        position: 'absolute', left: '50%', top: '20%',
-        transform: 'translateX(-50%)',
-        width: '40%', aspectRatio: '1' as const,
-        borderRadius: '50%',
-        border: `1.5px solid ${PT.accent}`,
-        background: 'rgba(232,239,235,0.4)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        color: PT.cream, fontSize: 9, fontFamily: 'DM Sans, sans-serif', fontWeight: 700, opacity: 0.6,
-      }}>AA</div>
-      <div style={{ position: 'absolute', left: 0, right: 0, bottom: '20%', textAlign: 'center', padding: '0 10%' }}>
-        <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 16, color: PT.cream, lineHeight: 1.1 }}>Attendee Name</div>
-        <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 9, color: 'rgba(232,197,126,0.95)', marginTop: 4 }}>Job Title</div>
+        background: 'linear-gradient(160deg, #1F4D3A 0%, #2A6A50 70%, #163828 100%)',
+        padding: '12px 10px 14px',
+        flexShrink: 0,
+      }}>
+        <div style={{
+          fontSize: 7.5, fontWeight: 700, color: PT.accent,
+          letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4,
+        }}>EVENT</div>
+        <div style={{
+          fontSize: 9, fontWeight: 700, color: PT.cream,
+          lineHeight: 1.2, letterSpacing: '-0.01em',
+        }}>{eventName.length > 28 ? eventName.slice(0, 28) + '…' : eventName}</div>
+        {dateLabel && (
+          <div style={{ fontSize: 7, color: 'rgba(250,246,238,0.7)', marginTop: 4 }}>{dateLabel}</div>
+        )}
       </div>
+      {/* Body */}
+      <div style={{ flex: 1, padding: '10px 10px 0', display: 'flex', flexDirection: 'column', gap: 6 }}>
+        {venueLabel && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 7, color: PT.inkSoft }}>
+            <div style={{ color: PT.primary, flexShrink: 0 }}>
+              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
+              </svg>
+            </div>
+            <span>{venueLabel.length > 24 ? venueLabel.slice(0, 24) + '…' : venueLabel}</span>
+          </div>
+        )}
+        <div style={{ fontSize: 7, color: PT.muted, marginTop: 4, marginBottom: 2 }}>Registration details</div>
+        {['Full name', 'Email address'].map(label => (
+          <div key={label} style={{
+            height: 20, borderRadius: 4,
+            border: `1px solid ${PT.border}`,
+            background: PT.surface,
+            padding: '0 6px',
+            display: 'flex', alignItems: 'center',
+            fontSize: 7, color: PT.muted,
+          }}>{label}</div>
+        ))}
+        <div style={{
+          height: 20, borderRadius: 4,
+          background: PT.primary,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 7.5, fontWeight: 700, color: PT.cream,
+          marginTop: 4,
+        }}>Register →</div>
+      </div>
+      <div style={{
+        padding: '6px 10px',
+        fontSize: 6, color: PT.muted,
+        textAlign: 'center', letterSpacing: '0.04em',
+      }}>powered by eventera</div>
     </div>
   );
 }
@@ -158,22 +185,40 @@ function Panel({ label, action, children }: {
   );
 }
 
+/* ── Date helper ───────────────────────────────────────────────── */
+function formatEventDate(iso: string | null, tz: string): string {
+  if (!iso) return '';
+  try {
+    return new Date(iso).toLocaleDateString('en-GB', {
+      day: 'numeric', month: 'short', year: 'numeric',
+      timeZone: tz,
+    });
+  } catch {
+    return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+}
+
 /* ── Props ─────────────────────────────────────────────────────── */
 interface Props {
   eventId: string;
   eventName: string;
   shareUrl: string;
   slug: string;
-  zonesCount: number;
-  backgroundUrl: string;
-  bgW: number;
-  bgH: number;
+  viewCount: number;
+  registrationCount: number;
+  ticketCount: number;
+  startsAt: string | null;
+  endsAt: string | null;
+  timezone: string;
+  venueName: string | null;
+  isOnline: boolean;
 }
 
 /* ── Main component ────────────────────────────────────────────── */
 export default function PublishClient({
   eventId, eventName, shareUrl, slug,
-  zonesCount, backgroundUrl, bgW, bgH,
+  viewCount, registrationCount, ticketCount,
+  startsAt, endsAt, timezone, venueName, isOnline,
 }: Props) {
   const [copied, setCopied] = useState(false);
   const [captionCopied, setCaptionCopied] = useState(false);
@@ -192,8 +237,15 @@ export default function PublishClient({
     });
   }, [shareUrl]);
 
-  const caption = `Register for ${eventName} and download your personalised attendee card — share it on social media. 30 seconds.`;
-  const embedCode = `<iframe src="${shareUrl}"\n        width="375" height="812"\n        frameborder="0" allow="camera"></iframe>`;
+  const dateLabel = startsAt ? formatEventDate(startsAt, timezone) : '';
+  const endLabel = endsAt ? formatEventDate(endsAt, timezone) : '';
+  const dateRange = dateLabel && endLabel && dateLabel !== endLabel
+    ? `${dateLabel} – ${endLabel}`
+    : dateLabel;
+  const venueLabel = isOnline ? 'Online event' : (venueName ?? '');
+
+  const caption = `Join us at ${eventName}${dateRange ? ` · ${dateRange}` : ''}. Register now and secure your spot.`;
+  const embedCode = `<iframe src="${shareUrl}"\n        width="375" height="812"\n        frameborder="0"></iframe>`;
 
   const handleCopy = useCallback(async () => {
     await navigator.clipboard.writeText(shareUrl);
@@ -242,7 +294,6 @@ export default function PublishClient({
   return (
     <div style={{ background: PT.cream, fontFamily: 'Inter, sans-serif', color: PT.ink }}>
 
-      {/* ── Main scroll area ──────────────────────────────────────── */}
       <div className="px-4 sm:px-8" style={{
         maxWidth: 1100, width: '100%', margin: '0 auto',
         paddingTop: 8, paddingBottom: 48,
@@ -255,16 +306,9 @@ export default function PublishClient({
           display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18,
           textAlign: 'center',
         }}>
-          {/* Badge with gold rings */}
           <div style={{ position: 'relative', width: 60, height: 60, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{
-              position: 'absolute', inset: -6, borderRadius: '50%',
-              border: `2px solid ${PT.accent}`, opacity: 0.55,
-            }} />
-            <div style={{
-              position: 'absolute', inset: -12, borderRadius: '50%',
-              border: `1px solid ${PT.accent}`, opacity: 0.25,
-            }} />
+            <div style={{ position: 'absolute', inset: -6, borderRadius: '50%', border: `2px solid ${PT.accent}`, opacity: 0.55 }} />
+            <div style={{ position: 'absolute', inset: -12, borderRadius: '50%', border: `1px solid ${PT.accent}`, opacity: 0.25 }} />
             <div style={{
               width: 60, height: 60, borderRadius: '50%',
               background: PT.primary, color: PT.accent,
@@ -278,8 +322,7 @@ export default function PublishClient({
           <div>
             <div style={{
               fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11,
-              color: PT.muted, letterSpacing: '0.1em', textTransform: 'uppercase',
-              marginBottom: 8,
+              color: PT.muted, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8,
             }}>Your event is live</div>
             <h1 style={{
               fontFamily: 'DM Sans, sans-serif', fontWeight: 700,
@@ -288,22 +331,27 @@ export default function PublishClient({
             }}>{eventName} is live.</h1>
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', rowGap: 6,
-              marginTop: 10,
-              fontFamily: 'Inter, sans-serif', fontSize: 14, color: PT.inkSoft,
+              marginTop: 10, fontFamily: 'Inter, sans-serif', fontSize: 14, color: PT.inkSoft,
             }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: PT.primary, display: 'block' }} />
-                <span>{zonesCount} zone{zonesCount !== 1 ? 's' : ''} defined</span>
-              </span>
-              <span style={{ color: PT.borderStrong }}>·</span>
+              {ticketCount > 0 && (
+                <>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: PT.primary, display: 'block' }} />
+                    <span>{ticketCount} ticket type{ticketCount !== 1 ? 's' : ''}</span>
+                  </span>
+                  <span style={{ color: PT.borderStrong }}>·</span>
+                </>
+              )}
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: PT.success, display: 'block' }} />
-                <span>Ready for attendees</span>
+                <span>Open for registration</span>
               </span>
-              <span style={{ color: PT.borderStrong }}>·</span>
-              <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, color: PT.muted }}>
-                {bgW} × {bgH}
-              </span>
+              {dateRange && (
+                <>
+                  <span style={{ color: PT.borderStrong }}>·</span>
+                  <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, color: PT.muted }}>{dateRange}</span>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -314,19 +362,16 @@ export default function PublishClient({
           borderRadius: 10, padding: '14px 18px',
           display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap', rowGap: 12,
         }}>
-          <StatItem label="Views" value="0" sub="last 24h" />
+          <StatItem label="Page views" value={String(viewCount)} sub="all-time" />
           <div style={{ width: 1, height: 32, background: PT.border, flexShrink: 0 }} />
-          <StatItem label="Cards made" value="0" sub="all-time" />
+          <StatItem label="Registrations" value={String(registrationCount)} sub="confirmed" />
           <div style={{ width: 1, height: 32, background: PT.border, flexShrink: 0 }} />
-          <StatItem label="Shared" value="0" sub="to social" />
+          <StatItem label="Ticket types" value={String(ticketCount)} sub="active" />
           <div style={{ flex: 1 }} />
           <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 6,
-            padding: '4px 10px',
-            background: PT.cream, border: `1px solid ${PT.border}`,
-            borderRadius: 999,
-            fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
-            color: PT.muted, letterSpacing: '0.04em',
+            display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px',
+            background: PT.cream, border: `1px solid ${PT.border}`, borderRadius: 999,
+            fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: PT.muted, letterSpacing: '0.04em',
           }}>
             {I.refresh({ size: 11 })}
             <span>updates live</span>
@@ -340,14 +385,12 @@ export default function PublishClient({
           <Panel label="Share link" action={
             <span style={{
               display: 'inline-flex', alignItems: 'center', gap: 5,
-              fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
-              color: PT.muted, letterSpacing: '0.04em',
+              fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: PT.muted, letterSpacing: '0.04em',
             }}>
               {I.link({ size: 11 })}
-              <span>public · no signup</span>
+              <span>public · no login required</span>
             </span>
           }>
-            {/* URL + copy */}
             <div style={{
               display: 'flex', alignItems: 'stretch',
               border: `1px solid ${PT.border}`, borderRadius: 6, overflow: 'hidden',
@@ -380,49 +423,37 @@ export default function PublishClient({
               </button>
             </div>
 
-            {/* Share to platforms */}
             <div>
               <div style={{
                 fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
-                color: PT.muted, letterSpacing: '0.08em',
-                textTransform: 'uppercase', marginBottom: 8,
+                color: PT.muted, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8,
               }}>Share to</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
                 <ShareButton
-                  icon={Brand.whatsapp(18)}
-                  label="WhatsApp"
-                  sub="Group chat"
+                  icon={Brand.whatsapp(18)} label="WhatsApp" sub="Group chat"
                   href={`https://wa.me/?text=${encodeURIComponent(`${caption}\n${shareUrl}`)}`}
                 />
                 <ShareButton
-                  icon={Brand.x(18)}
-                  label="X"
-                  sub="Compose"
+                  icon={Brand.x(18)} label="X" sub="Compose"
                   href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`${caption} ${shareUrl}`)}`}
                 />
                 <ShareButton
-                  icon={Brand.linkedin(18)}
-                  label="LinkedIn"
-                  sub="Post"
+                  icon={Brand.linkedin(18)} label="LinkedIn" sub="Post"
                   href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`}
                 />
                 <ShareButton
-                  icon={Brand.email(18)}
-                  label="Email"
-                  sub="Compose"
-                  href={`mailto:?subject=${encodeURIComponent(`Your personalized card for ${eventName}`)}&body=${encodeURIComponent(`${caption}\n\n${shareUrl}`)}`}
+                  icon={Brand.email(18)} label="Email" sub="Compose"
+                  href={`mailto:?subject=${encodeURIComponent(`You're invited: ${eventName}`)}&body=${encodeURIComponent(`${caption}\n\nRegister here: ${shareUrl}`)}`}
                 />
               </div>
             </div>
 
-            {/* Suggested caption */}
             <div style={{
               background: PT.cream, border: `1px solid ${PT.border}`,
               borderRadius: 8, padding: '12px 14px',
             }}>
               <div style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8,
-                marginBottom: 6,
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 6,
               }}>
                 <div style={{
                   fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
@@ -431,8 +462,7 @@ export default function PublishClient({
                 <button
                   onClick={handleCaptionCopy}
                   style={{
-                    background: 'transparent', border: 'none', cursor: 'pointer',
-                    color: PT.primary,
+                    background: 'transparent', border: 'none', cursor: 'pointer', color: PT.primary,
                     fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 600,
                     display: 'inline-flex', alignItems: 'center', gap: 4, padding: 0,
                   }}
@@ -451,14 +481,12 @@ export default function PublishClient({
           <Panel label="QR code" action={
             <span style={{
               display: 'inline-flex', alignItems: 'center', gap: 5,
-              fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
-              color: PT.muted, letterSpacing: '0.04em',
+              fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: PT.muted, letterSpacing: '0.04em',
             }}>
               {I.qr({ size: 11 })}
               <span>1024 × 1024</span>
             </span>
           }>
-            {/* Real QR code with brand logo in center */}
             <div style={{ display: 'flex', justifyContent: 'center', padding: '6px 0 10px' }}>
               <div style={{
                 padding: 14, background: PT.surface,
@@ -476,7 +504,6 @@ export default function PublishClient({
                     <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: PT.muted }}>generating…</span>
                   </div>
                 )}
-                {/* Brand logo overlay — always visible */}
                 <div style={{
                   position: 'absolute', left: '50%', top: '50%',
                   transform: 'translate(-50%, -50%)',
@@ -492,7 +519,7 @@ export default function PublishClient({
                     fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 16,
                     color: PT.accent, letterSpacing: '-0.02em',
                     boxShadow: '0 2px 8px rgba(31,77,58,0.35)',
-                  }}>K</div>
+                  }}>E</div>
                 </div>
               </div>
             </div>
@@ -530,7 +557,7 @@ export default function PublishClient({
             <div style={{
               fontFamily: 'Inter, sans-serif', fontSize: 12, lineHeight: 1.5,
               color: PT.muted, textAlign: 'center',
-            }}>Great for posters and printed badges. Scanning opens the share link directly.</div>
+            }}>Print on posters, flyers, or badges. Scanning opens the registration page.</div>
           </Panel>
         </div>
 
@@ -539,8 +566,7 @@ export default function PublishClient({
           <button
             onClick={handleEmbedCopy}
             style={{
-              background: 'transparent', border: 'none', cursor: 'pointer',
-              color: PT.primary,
+              background: 'transparent', border: 'none', cursor: 'pointer', color: PT.primary,
               fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 600,
               display: 'inline-flex', alignItems: 'center', gap: 4, padding: 0,
             }}
@@ -549,19 +575,16 @@ export default function PublishClient({
             <span>{embedCopied ? 'Copied!' : 'Copy snippet'}</span>
           </button>
         }>
-          {/* Dark code block */}
           <div style={{ background: PT.ink, borderRadius: 8, overflow: 'hidden' }}>
             <div style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              padding: '8px 12px',
+              display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px',
               borderBottom: '1px solid rgba(250,246,238,0.08)',
             }}>
               <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#FF5F57', display: 'block' }} />
               <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#FEBC2E', display: 'block' }} />
               <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#28C840', display: 'block' }} />
               <span style={{
-                marginLeft: 8,
-                fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
+                marginLeft: 8, fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
                 color: 'rgba(250,246,238,0.55)', letterSpacing: '0.04em',
               }}>embed.html · html</span>
             </div>
@@ -574,12 +597,10 @@ export default function PublishClient({
               <span style={{ color: '#E8C57E' }}>src</span><span style={{ color: 'rgba(250,246,238,0.45)' }}>=</span><span style={{ color: '#F0E0BB' }}>&quot;{shareUrl}&quot;</span>{'\n        '}
               <span style={{ color: '#E8C57E' }}>width</span><span style={{ color: 'rgba(250,246,238,0.45)' }}>=</span><span style={{ color: '#F0E0BB' }}>&quot;{sz.w}&quot;</span>{' '}
               <span style={{ color: '#E8C57E' }}>height</span><span style={{ color: 'rgba(250,246,238,0.45)' }}>=</span><span style={{ color: '#F0E0BB' }}>&quot;{sz.h}&quot;</span>{'\n        '}
-              <span style={{ color: '#E8C57E' }}>frameborder</span><span style={{ color: 'rgba(250,246,238,0.45)' }}>=</span><span style={{ color: '#F0E0BB' }}>&quot;0&quot;</span>{' '}
-              <span style={{ color: '#E8C57E' }}>allow</span><span style={{ color: 'rgba(250,246,238,0.45)' }}>=</span><span style={{ color: '#F0E0BB' }}>&quot;camera&quot;</span>
+              <span style={{ color: '#E8C57E' }}>frameborder</span><span style={{ color: 'rgba(250,246,238,0.45)' }}>=</span><span style={{ color: '#F0E0BB' }}>&quot;0&quot;</span>
               <span style={{ color: '#9EC6B2' }}>{'></iframe>'}</span>
             </pre>
           </div>
-          {/* Size chips */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
             {([
               { id: 'mobile' as const, label: 'Mobile', size: '375 × 812' },
@@ -614,21 +635,16 @@ export default function PublishClient({
         <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
 
           {/* Attendee preview panel */}
-          <Panel label="Attendee preview" action={
+          <Panel label="What attendees see" action={
             <a
-              href={shareUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+              href={shareUrl} target="_blank" rel="noopener noreferrer"
               style={{
-                background: 'transparent', border: 'none', cursor: 'pointer',
-                color: PT.primary,
-                fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 600,
-                display: 'inline-flex', alignItems: 'center', gap: 4,
-                textDecoration: 'none',
+                color: PT.primary, fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 600,
+                display: 'inline-flex', alignItems: 'center', gap: 4, textDecoration: 'none',
               }}
             >
               {I.external({ size: 12 })}
-              <span>Open link</span>
+              <span>Open page</span>
             </a>
           }>
             <div style={{
@@ -636,8 +652,6 @@ export default function PublishClient({
               borderRadius: 10, padding: '20px 16px',
               display: 'flex', justifyContent: 'center', alignItems: 'flex-start',
             }}>
-              {/* Phone frame — screen is sized to the card's exact aspect ratio so
-                  there is never any white space below the card. */}
               <div style={{
                 width: 158,
                 background: '#0F1218',
@@ -645,24 +659,20 @@ export default function PublishClient({
                 boxShadow: '0 16px 48px rgba(15,31,24,0.28), inset 0 0 0 1px rgba(255,255,255,0.06)',
                 display: 'flex', flexDirection: 'column',
               }}>
-                {/* Status bar chrome */}
                 <div style={{
                   height: 28, display: 'flex', alignItems: 'center',
                   justifyContent: 'space-between', padding: '0 14px',
                 }}>
-                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.8)', letterSpacing: '0.01em' }}>9:41</span>
+                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>9:41</span>
                   <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                    {/* Signal bars */}
                     {[3, 4, 5, 6].map((h, i) => (
                       <div key={i} style={{ width: 2.5, height: h, borderRadius: 1, background: i < 3 ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.3)' }} />
                     ))}
-                    {/* WiFi */}
                     <svg width="12" height="9" viewBox="0 0 12 9" fill="none" style={{ marginLeft: 2 }}>
                       <path d="M6 7.5a1 1 0 1 0 0 2 1 1 0 0 0 0-2z" fill="rgba(255,255,255,0.85)" />
                       <path d="M2.5 5C3.8 3.8 5 3.2 6 3.2c1 0 2.2.6 3.5 1.8" stroke="rgba(255,255,255,0.75)" strokeWidth="1.2" strokeLinecap="round" fill="none" />
                       <path d="M.5 2.8C2.2 1.1 4 .2 6 .2s3.8.9 5.5 2.6" stroke="rgba(255,255,255,0.45)" strokeWidth="1.2" strokeLinecap="round" fill="none" />
                     </svg>
-                    {/* Battery */}
                     <div style={{ display: 'flex', alignItems: 'center', marginLeft: 2 }}>
                       <div style={{ width: 18, height: 9, borderRadius: 2.5, border: '1.5px solid rgba(255,255,255,0.6)', position: 'relative', overflow: 'hidden' }}>
                         <div style={{ position: 'absolute', left: 1.5, top: 1.5, bottom: 1.5, width: '80%', background: 'rgba(255,255,255,0.85)', borderRadius: 1 }} />
@@ -671,39 +681,18 @@ export default function PublishClient({
                   </div>
                 </div>
 
-                {/* Card screen — aspect ratio matches the card exactly, no white gaps */}
                 <div style={{
-                  width: '100%',
-                  aspectRatio: `${bgW} / ${bgH}`,
+                  width: '100%', height: 260,
                   borderRadius: 6, overflow: 'hidden',
-                  position: 'relative', background: '#000',
+                  position: 'relative', background: PT.cream,
                 }}>
-                  {backgroundUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={backgroundUrl}
-                      alt={eventName}
-                      style={{ width: '100%', height: '100%', objectFit: 'fill', display: 'block' }}
-                    />
-                  ) : (
-                    <PreviewArt />
-                  )}
+                  <RegistrationPreview
+                    eventName={eventName}
+                    dateLabel={dateRange}
+                    venueLabel={venueLabel}
+                  />
                 </div>
 
-                {/* Arrival screen CTA bar — shows what the attendee sees below the card */}
-                <div style={{
-                  background: PT.primary,
-                  padding: '10px 12px',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                  borderRadius: '0 0 0 0',
-                }}>
-                  <span style={{
-                    fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 10,
-                    color: '#FAF6EE', letterSpacing: '-0.01em',
-                  }}>Create my card  →</span>
-                </div>
-
-                {/* Home indicator */}
                 <div style={{ height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <div style={{ width: 44, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.25)' }} />
                 </div>
@@ -712,34 +701,27 @@ export default function PublishClient({
             <div style={{
               fontFamily: 'Inter, sans-serif', fontSize: 12, color: PT.muted,
               textAlign: 'center', lineHeight: 1.5,
-            }}>This is what attendees see when they open the link on their phone.</div>
+            }}>Attendees open the link, fill in their details, and register in seconds.</div>
           </Panel>
 
           {/* Next steps panel */}
           <Panel label="What happens next">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {[
-                { n: 1, t: 'Share the link', d: 'Send via WhatsApp, post to your channels, or drop into your event page.' },
-                { n: 2, t: 'Attendees personalize', d: 'They open the link, add their name and photo, and confirm in ~30 seconds.' },
-                { n: 3, t: 'They share their card', d: 'Each attendee posts to social. Your event reaches their network.' },
+                { n: 1, t: 'Share the link', d: 'Send via WhatsApp, post to your channels, print the QR on flyers — attendees open it on any device.' },
+                { n: 2, t: 'Attendees register', d: 'They fill in their name, email, and any custom fields you set up. No account needed.' },
+                { n: 3, t: 'You see it live', d: 'Every registration appears in your dashboard instantly. Check in attendees at the door with the QR scanner.' },
               ].map(s => (
                 <div key={s.n} style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                   <div style={{
                     width: 28, height: 28, borderRadius: '50%',
                     background: PT.primary, color: PT.cream,
                     fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 13,
-                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                    flexShrink: 0,
+                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
                   }}>{s.n}</div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{
-                      fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 14,
-                      color: PT.ink, lineHeight: 1.3,
-                    }}>{s.t}</div>
-                    <div style={{
-                      fontFamily: 'Inter, sans-serif', fontSize: 13, lineHeight: 1.5,
-                      color: PT.inkSoft, marginTop: 2,
-                    }}>{s.d}</div>
+                    <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 14, color: PT.ink, lineHeight: 1.3 }}>{s.t}</div>
+                    <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, lineHeight: 1.5, color: PT.inkSoft, marginTop: 2 }}>{s.d}</div>
                   </div>
                 </div>
               ))}
@@ -757,7 +739,7 @@ export default function PublishClient({
                 }}
               >
                 {I.chart({ size: 15, sw: 2 })}
-                <span>View event analytics</span>
+                <span>View event dashboard</span>
                 {I.arrowRight({ size: 14 })}
               </Link>
             </div>
@@ -768,8 +750,7 @@ export default function PublishClient({
         <div style={{
           marginTop: 8, padding: '14px 0',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
-          color: PT.muted, letterSpacing: '0.04em',
+          fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: PT.muted, letterSpacing: '0.04em',
         }}>
           <span>powered by <span style={{ color: PT.ink, fontWeight: 500 }}>eventera</span></span>
           <span>event id · {slug}</span>
@@ -783,22 +764,12 @@ export default function PublishClient({
 /* ── Share button ──────────────────────────────────────────────── */
 function ShareButton({ icon, label, sub, href }: { icon: React.ReactNode; label: string; sub: string; href: string }) {
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      style={{
-        padding: '10px 8px',
-        background: PT.surface, border: `1px solid ${PT.border}`,
-        borderRadius: 8,
-        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
-        cursor: 'pointer', textDecoration: 'none',
-      }}
-    >
-      <div style={{
-        width: 32, height: 32, borderRadius: 8, background: PT.cream,
-        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-      }}>{icon}</div>
+    <a href={href} target="_blank" rel="noopener noreferrer" style={{
+      padding: '10px 8px', background: PT.surface, border: `1px solid ${PT.border}`,
+      borderRadius: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+      cursor: 'pointer', textDecoration: 'none',
+    }}>
+      <div style={{ width: 32, height: 32, borderRadius: 8, background: PT.cream, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{icon}</div>
       <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 12, color: PT.ink }}>{label}</div>
       <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 9.5, color: PT.muted, letterSpacing: '0.04em' }}>{sub}</div>
     </a>
@@ -810,19 +781,12 @@ function StatItem({ label, value, sub }: { label: string; value: string; sub: st
   return (
     <div>
       <div style={{
-        fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
-        color: PT.muted, letterSpacing: '0.08em',
-        textTransform: 'uppercase', marginBottom: 4,
+        fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: PT.muted,
+        letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4,
       }}>{label}</div>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-        <span style={{
-          fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 22,
-          color: PT.ink, letterSpacing: '-0.02em',
-        }}>{value}</span>
-        <span style={{
-          fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
-          color: PT.muted, letterSpacing: '0.04em',
-        }}>{sub}</span>
+        <span style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 22, color: PT.ink, letterSpacing: '-0.02em' }}>{value}</span>
+        <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: PT.muted, letterSpacing: '0.04em' }}>{sub}</span>
       </div>
     </div>
   );

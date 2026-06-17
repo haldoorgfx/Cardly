@@ -18,7 +18,7 @@ export default async function PublishPage({ params }: { params: Promise<{ id: st
 
   const { data: event } = await admin
     .from('events')
-    .select('id, name, slug, status')
+    .select('id, name, slug, status, view_count')
     .eq('id', id)
     .eq('user_id', user.id)
     .single();
@@ -37,9 +37,7 @@ export default async function PublishPage({ params }: { params: Promise<{ id: st
     if (updated) slug = updated.slug;
   }
 
-  // Ensure event_pages row exists and is public — required for /e/[slug]/register to resolve.
-  // Use upsert so repeated Publish clicks are idempotent and existing organiser-configured
-  // fields (venue, dates, cover image, etc.) are preserved — we only force is_public = true.
+  // Ensure event_pages row exists and is public
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: upsertedPage } = await (admin as any)
     .from('event_pages')
@@ -47,7 +45,7 @@ export default async function PublishPage({ params }: { params: Promise<{ id: st
       { event_id: id, title: event.name, is_public: true },
       { onConflict: 'event_id', ignoreDuplicates: false }
     )
-    .select('id')
+    .select('id, starts_at, ends_at, timezone, venue_name, is_online')
     .single();
 
   // On first publish: notify followers who have opted in
@@ -71,21 +69,14 @@ export default async function PublishPage({ params }: { params: Promise<{ id: st
     }
   }
 
-  // Get total zones from all variants
-  const { data: variants } = await admin
-    .from('event_variants')
-    .select('zones, background_url, background_width, background_height')
-    .eq('event_id', id)
-    .order('position', { ascending: true });
+  // Real event stats
+  const [{ count: registrationCount }, { count: ticketCount }] = await Promise.all([
+    admin.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', id),
+    admin.from('ticket_types').select('id', { count: 'exact', head: true }).eq('event_id', id),
+  ]);
 
-  const firstVariant = variants?.[0];
-  const zonesCount = variants?.reduce((sum, v) => {
-    return sum + (Array.isArray(v.zones) ? (v.zones as unknown[]).length : 0);
-  }, 0) ?? 0;
-
-  // Trim trailing slash so NEXT_PUBLIC_APP_URL=https://karta.cre8so.com/ doesn't produce a double //
   const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000').replace(/\/+$/, '');
-  const shareUrl = `${appUrl}/c/${slug}`;
+  const shareUrl = `${appUrl}/e/${slug}`;
 
   return (
     <PublishClient
@@ -93,10 +84,14 @@ export default async function PublishPage({ params }: { params: Promise<{ id: st
       eventName={event.name}
       shareUrl={shareUrl}
       slug={slug}
-      zonesCount={zonesCount}
-      backgroundUrl={firstVariant?.background_url ?? ''}
-      bgW={firstVariant?.background_width ?? 1080}
-      bgH={firstVariant?.background_height ?? 1350}
+      viewCount={event.view_count ?? 0}
+      registrationCount={registrationCount ?? 0}
+      ticketCount={ticketCount ?? 0}
+      startsAt={upsertedPage?.starts_at ?? null}
+      endsAt={upsertedPage?.ends_at ?? null}
+      timezone={upsertedPage?.timezone ?? 'UTC'}
+      venueName={upsertedPage?.venue_name ?? null}
+      isOnline={upsertedPage?.is_online ?? false}
     />
   );
 }
