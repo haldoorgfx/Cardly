@@ -44,7 +44,7 @@ function Hero() {
 
       {/* TOP — centered copy */}
       <div
-        className="relative mx-auto px-5 lg:px-10 pt-10 pb-8 lg:pt-14 lg:pb-10 text-center"
+        className="relative mx-auto px-5 lg:px-10 pt-10 pb-0 lg:pt-14 text-center"
         style={{ maxWidth: 760 }}
       >
         <div
