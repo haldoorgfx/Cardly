@@ -1009,7 +1009,7 @@ export function PublicEventPageClient({
           style={{ background: '#FFFFFF', borderBottom: '1px solid #E5E0D4', boxShadow: '0 2px 12px rgba(15,31,24,0.06)' }}>
           <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between gap-4">
             <span className="text-[14px]" style={{ color: '#6B7A72' }}>
-              <span className="font-semibold" style={{ color: '#0F1F18' }}>{eventName}</span>
+              <span className="font-semibold" style={{ color: '#0F1F18' }}>{page.title}</span>
               {!registrationClosed && !allSoldOut && (
                 <span className="ml-2">· from <strong style={{ color: '#1F4D3A' }}>{totalPrice}</strong></span>
               )}
