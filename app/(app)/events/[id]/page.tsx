@@ -176,10 +176,8 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
               <EventDetailActions eventId={id} eventName={event.name} status={event.status} />
               {event.status === 'published' && (
                 <a href={`/e/${event.slug}`} target="_blank" rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 h-10 px-3.5 text-[13px] font-semibold rounded-lg border transition-colors"
-                  style={{ background: 'rgba(255,255,255,0.12)', color: '#FAF6EE', borderColor: 'rgba(250,246,238,0.25)' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.2)'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.12)'; }}>
+                  className="inline-flex items-center gap-1.5 h-10 px-3.5 text-[13px] font-semibold rounded-lg border transition-colors hover:bg-white/20"
+                  style={{ background: 'rgba(255,255,255,0.12)', color: '#FAF6EE', borderColor: 'rgba(250,246,238,0.25)' }}>
                   <span>View public page</span>
                   <ExternalLink size={13} strokeWidth={2} />
                 </a>
