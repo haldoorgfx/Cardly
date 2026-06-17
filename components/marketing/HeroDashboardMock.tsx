@@ -59,14 +59,14 @@ export default function HeroDashboardMock() {
         .hero-laptop, .hero-phone { transition: translate 0.4s ease-out; }
       `}</style>
 
-      {/* Wrapper — aspect ratio 1120:760 */}
-      <div ref={wrapRef} style={{ position: 'relative', width: '100%', paddingTop: '67.857%' }}>
+      {/* Wrapper — aspect ratio 1120:680 */}
+      <div ref={wrapRef} style={{ position: 'relative', width: '100%', paddingTop: '60.714%' }}>
         <div style={{ position: 'absolute', inset: 0, overflow: 'visible' }}>
 
-          {/* Fixed-size 1120×760 composition, scaled to fit */}
+          {/* Fixed-size 1120×680 composition, scaled to fit */}
           <div
             ref={compRef}
-            style={{ position: 'absolute', top: 0, left: 0, width: 1120, height: 760, transformOrigin: 'top left' }}
+            style={{ position: 'absolute', top: 0, left: 0, width: 1120, height: 680, transformOrigin: 'top left' }}
           >
 
             {/* ── Browser / laptop ── */}
@@ -74,7 +74,7 @@ export default function HeroDashboardMock() {
               ref={laptopRef}
               className="hero-laptop"
               style={{
-                position: 'absolute', left: 28, top: 84,
+                position: 'absolute', left: 28, top: 12,
                 width: 960, height: 612,
                 background: 'var(--cream-surface, #FFFFFF)',
                 border: '1px solid #E5E0D4',
