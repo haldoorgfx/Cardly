@@ -160,8 +160,8 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
       description: session.description ?? '',
       session_type: session.session_type,
       track_id: session.track_id ?? '',
-      starts_at: session.starts_at ? session.starts_at.slice(0, 16) : '',
-      ends_at: session.ends_at ? session.ends_at.slice(0, 16) : '',
+      starts_at: session.starts_at ? toLocalInput(session.starts_at) : '',
+      ends_at: session.ends_at ? toLocalInput(session.ends_at) : '',
       room: session.room ?? '',
       capacity: session.capacity?.toString() ?? '',
       speaker_ids: session.session_speakers?.map((ss) => ss.speaker_id) ?? [],
@@ -225,6 +225,8 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
     try {
       const payload = {
         ...sessionForm,
+        starts_at: new Date(sessionForm.starts_at).toISOString(),
+        ends_at: new Date(sessionForm.ends_at).toISOString(),
         capacity: sessionForm.capacity ? parseInt(sessionForm.capacity) : null,
         track_id: sessionForm.track_id || null,
       };

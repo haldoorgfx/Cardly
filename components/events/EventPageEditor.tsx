@@ -19,7 +19,9 @@ interface Props {
 
 function toLocalDatetimeValue(isoString: string | null): string {
   if (!isoString) return '';
-  return isoString.slice(0, 16);
+  const d = new Date(isoString);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 function toISOFromLocal(localValue: string): string {

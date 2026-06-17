@@ -101,8 +101,8 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
       discount_type:  c.discount_type,
       discount_value: String(c.discount_value),
       max_uses:       c.max_uses != null ? String(c.max_uses) : '',
-      valid_from:     c.valid_from ? c.valid_from.slice(0, 16) : '',
-      valid_until:    c.valid_until ? c.valid_until.slice(0, 16) : '',
+      valid_from:     c.valid_from ? toDatetimeLocal(c.valid_from) : '',
+      valid_until:    c.valid_until ? toDatetimeLocal(c.valid_until) : '',
     });
     setError('');
   }
