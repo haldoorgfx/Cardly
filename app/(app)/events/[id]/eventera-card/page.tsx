@@ -21,13 +21,21 @@ export default async function EventeraCardPage({ params }: { params: Promise<{ i
 
   const admin = createAdminClient();
 
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
   const [
     { data: event },
     { data: allVariants },
     { count: totalCards },
+    { count: todayCards },
+    { count: sharedCards },
   ] = await Promise.all([
     admin.from('events').select('id, name, slug, status').eq('id', id).eq('user_id', user.id).single(),
     admin.from('event_variants').select('id, background_url, background_width, background_height, zones').eq('event_id', id).order('position' as never),
+    admin.from('generated_cards').select('id', { count: 'exact', head: true }).eq('event_id', id),
+    admin.from('generated_cards').select('id', { count: 'exact', head: true }).eq('event_id', id).gte('created_at', todayStart.toISOString()),
+    // Registrations where the attendee completed the card step (proxy for "shared")
     admin.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', id).not('eventera_card_url', 'is', null),
   ]);
 
@@ -51,7 +59,8 @@ export default async function EventeraCardPage({ params }: { params: Promise<{ i
       eventSlug={event.slug}
       eventStatus={event.status}
       totalCards={totalCards ?? 0}
-      sharedCards={0}
+      todayCards={todayCards ?? 0}
+      sharedCards={sharedCards ?? 0}
       primaryVariant={primaryVariant ? {
         id: primaryVariant.id,
         backgroundUrl: primaryVariant.background_url,

@@ -25,6 +25,7 @@ interface Props {
   eventSlug: string;
   eventStatus: string;
   totalCards: number;
+  todayCards: number;
   sharedCards: number;
   primaryVariant: PrimaryVariant | null;
   allVariants: VariantSummary[];
@@ -40,7 +41,7 @@ const SHARE_CHANNELS = [
   { name: 'X',         pct: 10, color: '#8BA89A' },
 ];
 
-export function EventeraCardView({ eventId, eventName, eventSlug, eventStatus, totalCards, sharedCards, primaryVariant, allVariants }: Props) {
+export function EventeraCardView({ eventId, eventName, eventSlug, eventStatus, totalCards, todayCards, sharedCards, primaryVariant, allVariants }: Props) {
   const [paperSize, setPaperSize] = useState<PaperSize>('A6');
   const reach = sharedCards > 0 ? (sharedCards * 189).toLocaleString() : '—';
   const hasDesign = !!primaryVariant?.backgroundUrl;
@@ -177,13 +178,13 @@ export function EventeraCardView({ eventId, eventName, eventSlug, eventStatus, t
             <StatCard
               label="Cards Generated"
               value={totalCards.toLocaleString()}
-              sub={totalCards > 0 ? `↗ ${Math.min(totalCards, 99)} today` : undefined}
+              sub={todayCards > 0 ? `↗ ${todayCards} today` : totalCards > 0 ? 'None today' : undefined}
               icon={<IdCard size={15} strokeWidth={2} />}
             />
             <StatCard
-              label="Shared"
+              label="Downloaded"
               value={sharedCards.toLocaleString()}
-              sub={totalCards > 0 ? `↗ ${Math.round((sharedCards / totalCards) * 100)}%` : undefined}
+              sub={totalCards > 0 && sharedCards > 0 ? `${Math.round((sharedCards / totalCards) * 100)}% via registration` : sharedCards === 0 ? 'Via registration flow' : undefined}
               icon={<Share2 size={15} strokeWidth={2} />}
             />
             <StatCard
