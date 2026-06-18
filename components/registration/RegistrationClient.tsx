@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Check, Lock, Unlock, ChevronDown } from 'lucide-react';
 import Image from 'next/image';
@@ -30,6 +30,7 @@ interface CanvasVariant {
   backgroundWidth: number | null;
   backgroundHeight: number | null;
   zones: Zone[];
+  ticketTypeId?: string | null;
 }
 
 interface FormField {
@@ -51,6 +52,7 @@ interface Props {
   city: string | null;
   tickets: TicketType[];
   canvasVariant: CanvasVariant | null;
+  allVariants?: CanvasVariant[];
   formFields?: FormField[];
   initialName?: string;
   initialEmail?: string;
@@ -116,9 +118,20 @@ async function blobToDataUrl(blob: Blob): Promise<string> {
 }
 
 // -- Main component ----------------------------------------------------------
+/** Pick the best variant for the given ticket: ticket-specific first, then default (null ticketTypeId), then first available. */
+function pickVariant(variants: CanvasVariant[], ticketId: string | null): CanvasVariant | null {
+  if (!variants.length) return null;
+  if (ticketId) {
+    const specific = variants.find(v => v.ticketTypeId === ticketId);
+    if (specific) return specific;
+  }
+  return variants.find(v => !v.ticketTypeId) ?? variants[0];
+}
+
 export default function RegistrationClient({
   eventSlug, eventId, eventName, eventSubtitle,
   coverUrl, startsAt, city, tickets, canvasVariant,
+  allVariants = [],
   formFields = [],
   initialName = '', initialEmail = '',
   referralCode, utmSource, initialTicketId = null,
@@ -135,6 +148,12 @@ export default function RegistrationClient({
   const [confirmedToken, setConfirmedToken] = useState<string | null>(null);
   const [confirmedRegId, setConfirmedRegId] = useState<string | null>(null);
   const [selectedTicket, setSelectedTicket] = useState<TicketType | null>(() => preselected ?? pickDefaultTicket(tickets));
+
+  // Pick the card variant that matches the selected ticket (falls back to default / first)
+  const activeVariant = useMemo(
+    () => (allVariants.length ? pickVariant(allVariants, selectedTicket?.id ?? null) : canvasVariant),
+    [allVariants, canvasVariant, selectedTicket?.id]
+  );
 
   // Basic fields
   const [email, setEmail] = useState(initialEmail);
@@ -313,13 +332,13 @@ export default function RegistrationClient({
     setSubmitError('');
     setSubmitting(true);
     try {
-      const attendeeName = canvasVariant
-        ? deriveAttendeeName(canvasVariant.zones, zoneValues, name || 'Attendee')
+      const attendeeName = activeVariant
+        ? deriveAttendeeName(activeVariant.zones, zoneValues, name || 'Attendee')
         : name;
 
-      const zoneCustomFields = canvasVariant
+      const zoneCustomFields = activeVariant
         ? Object.fromEntries(
-            canvasVariant.zones
+            activeVariant.zones
               .filter(z => (z.type === 'text' || z.type === 'custom') && !z.hidden)
               .flatMap(z => {
                 const v = zoneValues[z.id];
@@ -402,7 +421,7 @@ export default function RegistrationClient({
       const token = data.qr_code_token;
 
       // For canvas events: go to "Your card" step so the attendee can personalise before redirect
-      if (canvasVariant) {
+      if (activeVariant) {
         setConfirmedToken(token);
         setConfirmedRegId(data.registration_id ?? null);
         setStep(3);
@@ -418,14 +437,14 @@ export default function RegistrationClient({
   };
 
   const handleCardFinish = async () => {
-    if (!confirmedToken || !canvasVariant) return;
+    if (!confirmedToken || !activeVariant) return;
     setSubmitting(true);
     try {
-      const attendeeName = deriveAttendeeName(canvasVariant.zones, zoneValues, name || 'Attendee');
+      const attendeeName = deriveAttendeeName(activeVariant.zones, zoneValues, name || 'Attendee');
       const fd = new FormData();
-      fd.append('variantId', canvasVariant.id);
+      fd.append('variantId', activeVariant.id);
       const enriched: Record<string, string> = { ...zoneValues, email: email.trim().toLowerCase() };
-      const firstNameZone = canvasVariant.zones.find(z => {
+      const firstNameZone = activeVariant.zones.find(z => {
         const lbl = (z.label ?? '').toLowerCase();
         return (z.type === 'text' || z.type === 'custom') && lbl.includes('name') && !lbl.includes('company') && !lbl.includes('org');
       });
@@ -507,7 +526,7 @@ export default function RegistrationClient({
     );
   }
 
-  const STEPS = canvasVariant
+  const STEPS = activeVariant
     ? ['Ticket', 'Details', isFree ? 'Confirm' : 'Pay', 'Your card']
     : ['Ticket', 'Details', isFree ? 'Confirm' : 'Pay'];
   const previewValues = zoneValues;
@@ -685,10 +704,10 @@ export default function RegistrationClient({
                       setName(val);
                       if (fieldErrors.name) setFieldErrors(p => ({ ...p, name: '' }));
                       // Auto-sync to card name zones so the live preview updates
-                      if (canvasVariant) {
+                      if (activeVariant) {
                         setZoneValues(p => {
                           const updated = { ...p };
-                          canvasVariant.zones.forEach(zone => {
+                          activeVariant.zones.forEach(zone => {
                             const lbl = (zone.label ?? '').toLowerCase();
                             if ((zone.type === 'text' || zone.type === 'custom') && lbl.includes('name') && !lbl.includes('company') && !lbl.includes('org') && !lbl.includes('event')) {
                               updated[zone.id] = val;
@@ -876,7 +895,7 @@ export default function RegistrationClient({
           )}
 
           {/* Step 3: Your card */}
-          {step === 3 && canvasVariant && (
+          {step === 3 && activeVariant && (
             <div>
               <h2 className="font-display font-normal text-[28px] mb-1.5" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>
                 Design your Eventera Card
@@ -885,16 +904,16 @@ export default function RegistrationClient({
                 Personalise your card — it&apos;ll be sent to you with your ticket confirmation.
               </p>
               <CardZoneFill
-                zones={canvasVariant.zones}
+                zones={activeVariant.zones}
                 values={zoneValues}
                 photoUrls={zonePhotoUrls}
                 errors={fieldErrors}
                 onChange={(id, v) => setZoneValues(p => ({ ...p, [id]: v }))}
                 onPhotoSelect={handlePhotoSelect}
                 onPhotoClear={handlePhotoClear}
-                backgroundUrl={canvasVariant.backgroundUrl}
-                backgroundWidth={canvasVariant.backgroundWidth}
-                backgroundHeight={canvasVariant.backgroundHeight}
+                backgroundUrl={activeVariant.backgroundUrl}
+                backgroundWidth={activeVariant.backgroundWidth}
+                backgroundHeight={activeVariant.backgroundHeight}
               />
             </div>
           )}
@@ -971,7 +990,7 @@ export default function RegistrationClient({
         </div>
 
         {/* Right sidebar: card preview + order summary */}
-        {canvasVariant && (
+        {activeVariant && (
           <aside className="sticky hidden lg:block" style={{ top: 88 }}>
             {/* Card preview — always shown; on step 3 it's the main focus */}
             <div className={step === 3 ? 'mb-0' : 'mb-4'}>
@@ -985,10 +1004,10 @@ export default function RegistrationClient({
                   </div>
                 )}
                 <EventCardPreview
-                  backgroundUrl={canvasVariant.backgroundUrl}
-                  backgroundWidth={canvasVariant.backgroundWidth ?? 1200}
-                  backgroundHeight={canvasVariant.backgroundHeight ?? 800}
-                  zones={canvasVariant.zones}
+                  backgroundUrl={activeVariant.backgroundUrl}
+                  backgroundWidth={activeVariant.backgroundWidth ?? 1200}
+                  backgroundHeight={activeVariant.backgroundHeight ?? 800}
+                  zones={activeVariant.zones}
                   values={previewValues}
                   photoUrls={previewPhotoUrls}
                   style={step === 3 ? { borderRadius: 0 } : { borderRadius: 16, boxShadow: '0 4px 12px rgba(15,31,24,0.08), 0 16px 40px rgba(31,77,58,0.10)' }}
@@ -1048,7 +1067,7 @@ export default function RegistrationClient({
         )}
 
         {/* No canvas variant: order summary only */}
-        {!canvasVariant && (
+        {!activeVariant && (
           <aside className="sticky hidden lg:block" style={{ top: 88 }}>
             <div className="rounded-2xl p-6" style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)' }}>
               <div className="flex items-center gap-3 pb-4 mb-1" style={{ borderBottom: '1px solid #E5E0D4' }}>

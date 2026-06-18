@@ -58,14 +58,12 @@ export default async function RegisterPage({ params, searchParams }: Props) {
       .select('cover_image_url, starts_at, city')
       .eq('event_id', event.id)
       .single(),
-    // Load the primary canvas variant so registration can preview the real card design
+    // Load all variants — client picks the one matching the selected ticket (or the default)
     admin
       .from('event_variants')
-      .select('id, zones, background_url, background_width, background_height')
+      .select('id, zones, background_url, background_width, background_height, ticket_type_id')
       .eq('event_id', event.id)
-      .order('position' as never)
-      .limit(1)
-      .maybeSingle(),
+      .order('position' as never),
     // Load custom registration form fields configured by the organizer
     (admin as any)
       .from('registration_form_fields')
@@ -85,18 +83,23 @@ export default async function RegisterPage({ params, searchParams }: Props) {
     seenLabels.add(key);
     return true;
   });
-  const rawVariant = variantRes.data;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const rawVariants: any[] = variantRes.data ?? [];
 
-  const canvasVariant = rawVariant && rawVariant.background_url
-    ? {
-        id: rawVariant.id as string,
-        backgroundUrl: rawVariant.background_url as string,
-        backgroundWidth: rawVariant.background_width as number | null,
-        backgroundHeight: rawVariant.background_height as number | null,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        zones: (rawVariant.zones ?? []) as unknown as Zone[],
-      }
-    : null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function toCanvasVariant(r: any) {
+    if (!r?.background_url) return null;
+    return {
+      id: r.id as string,
+      backgroundUrl: r.background_url as string,
+      backgroundWidth: r.background_width as number | null,
+      backgroundHeight: r.background_height as number | null,
+      zones: (r.zones ?? []) as unknown as Zone[],
+      ticketTypeId: (r.ticket_type_id as string | null) ?? null,
+    };
+  }
+
+  const allVariants = rawVariants.map(toCanvasVariant).filter(Boolean) as NonNullable<ReturnType<typeof toCanvasVariant>>[];
 
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
@@ -121,7 +124,8 @@ export default async function RegisterPage({ params, searchParams }: Props) {
           startsAt={page?.starts_at ?? null}
           city={page?.city ?? null}
           tickets={tickets as any}
-          canvasVariant={canvasVariant}
+          allVariants={allVariants}
+          canvasVariant={allVariants[0] ?? null}
           initialName={sessionName}
           initialEmail={sessionEmail}
           formFields={formFields}

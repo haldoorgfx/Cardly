@@ -63,6 +63,8 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
   const [description, setDescription] = useState(existing?.description ?? '');
   const [venueName, setVenueName] = useState(existing?.venue_name ?? '');
   const [venueAddress, setVenueAddress] = useState(existing?.venue_address ?? '');
+  const [venueLat, setVenueLat] = useState<number | null>((existing as { venue_lat?: number | null } | null)?.venue_lat ?? null);
+  const [venueLng, setVenueLng] = useState<number | null>((existing as { venue_lng?: number | null } | null)?.venue_lng ?? null);
   const [isOnline, setIsOnline] = useState(existing?.is_online ?? false);
   const [onlineUrl, setOnlineUrl] = useState(existing?.online_url ?? '');
   const [startsAt, setStartsAt] = useState(toLocalDatetimeValue(existing?.starts_at ?? null));
@@ -154,6 +156,8 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
           cover_image_url: coverUrl || null,
           venue_name: isOnline ? null : venueName.trim() || null,
           venue_address: isOnline ? null : venueAddress.trim() || null,
+          venue_lat: isOnline ? null : venueLat,
+          venue_lng: isOnline ? null : venueLng,
           is_online: isOnline,
           online_url: isOnline ? (onlineUrl.trim() || null) : null,
           starts_at: toISOFromLocal(startsAt),
@@ -517,6 +521,8 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
                     setVenueName(p.venue_name || p.venue_address);
                     if (p.venue_address) setVenueAddress(p.venue_address);
                     if (p.city) setCity(p.city);
+                    setVenueLat(p.lat ?? null);
+                    setVenueLng(p.lng ?? null);
                   }}
                   placeholder="Search a venue or address"
                 />
