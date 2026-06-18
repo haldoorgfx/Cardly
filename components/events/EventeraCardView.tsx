@@ -64,7 +64,7 @@ export function EventeraCardView({ eventId, eventName, eventSlug, eventStatus, t
         </div>
         <div className="flex items-center gap-2.5">
           <Link
-            href={`/events/${eventId}/edit`}
+            href={`/events/${eventSlug}/edit`}
             className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-medium border transition hover:border-[#1F4D3A] hover:text-[#1F4D3A]"
             style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}
           >
@@ -84,7 +84,7 @@ export function EventeraCardView({ eventId, eventName, eventSlug, eventStatus, t
             </Link>
           ) : (
             <Link
-              href={`/events/${eventId}/publish`}
+              href={`/events/${eventSlug}/publish`}
               className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-semibold transition hover:opacity-90"
               style={{ background: '#E8EFEB', color: '#1F4D3A' }}
               title={!hasDesign ? 'Upload a design first' : !isPublished ? 'Publish the event to share the attendee link' : 'Add a card design to enable the attendee page'}
@@ -109,7 +109,7 @@ export function EventeraCardView({ eventId, eventName, eventSlug, eventStatus, t
             </span>
           </div>
           <Link
-            href={`/events/${eventId}/edit`}
+            href={`/events/${eventSlug}/edit`}
             className="shrink-0 inline-flex items-center gap-1.5 h-8 px-3.5 rounded-lg text-[12.5px] font-semibold transition hover:opacity-90"
             style={{ background: '#1F4D3A', color: 'white' }}
           >
@@ -152,7 +152,7 @@ export function EventeraCardView({ eventId, eventName, eventSlug, eventStatus, t
           ) : (
             /* Empty state */
             <Link
-              href={`/events/${eventId}/edit`}
+              href={`/events/${eventSlug}/edit`}
               className="flex flex-col items-center justify-center rounded-2xl p-8 text-center transition hover:border-[#1F4D3A] group"
               style={{ border: '2px dashed #C9C3B1', background: '#FAFAF8', minHeight: 240 }}
             >
@@ -199,7 +199,7 @@ export function EventeraCardView({ eventId, eventName, eventSlug, eventStatus, t
           {/* Card variants from canvas editor */}
           <Panel title="Design variants" action={
             <Link
-              href={`/events/${eventId}/edit`}
+              href={`/events/${eventSlug}/edit`}
               className="inline-flex items-center gap-1 text-[12px] font-medium h-7 px-2.5 rounded-lg transition"
               style={{ color: '#1F4D3A', background: 'rgba(31,77,58,0.06)' }}
             >
@@ -213,7 +213,7 @@ export function EventeraCardView({ eventId, eventName, eventSlug, eventStatus, t
                   No variants yet. Create different card designs for Attendees, Speakers, VIPs, etc.
                 </p>
                 <Link
-                  href={`/events/${eventId}/edit`}
+                  href={`/events/${eventSlug}/edit`}
                   className="inline-flex items-center gap-1.5 text-[13px] font-medium transition hover:opacity-80"
                   style={{ color: '#1F4D3A' }}
                 >
@@ -225,7 +225,7 @@ export function EventeraCardView({ eventId, eventName, eventSlug, eventStatus, t
                 {allVariants.map((v, i) => (
                   <Link
                     key={v.id}
-                    href={`/events/${eventId}/edit`}
+                    href={`/events/${eventSlug}/edit`}
                     className="flex items-center gap-3 p-3.5 rounded-xl transition hover:border-[#1F4D3A]/30"
                     style={{
                       border: i === 0 ? '1px solid rgba(31,77,58,0.4)' : '1px solid #E5E0D4',
