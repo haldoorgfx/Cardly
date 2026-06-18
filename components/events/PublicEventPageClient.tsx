@@ -928,43 +928,59 @@ export function PublicEventPageClient({
               <p className="text-[15px]" style={{ color: '#6B7A72' }}>Sponsors will be announced soon</p>
             </div>
           ) : (
-            <div className="space-y-10">
-              {sponsorTiers.map(tier => (
-                <div key={tier}>
-                  <div className="font-title font-bold text-[18px] mb-5 capitalize" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>
-                    {tier === 'platinum' ? '💎 Platinum' : tier === 'gold' ? '🥇 Gold' : tier === 'silver' ? '🥈 Silver' : tier === 'standard' ? 'Standard' : tier === 'partner' ? 'Partners' : tier === 'media' ? 'Media Partners' : tier}
+            <div className="space-y-12">
+              {sponsorTiers.map(tier => {
+                const tierMeta: Record<string, { label: string; cols: string; logoH: number; showTagline: boolean; accent: string }> = {
+                  platinum: { label: 'Platinum', cols: 'grid-cols-1 sm:grid-cols-2',              logoH: 80,  showTagline: true,  accent: '#6B7A72' },
+                  gold:     { label: 'Gold',     cols: 'grid-cols-2 sm:grid-cols-3',              logoH: 60,  showTagline: true,  accent: '#6B7A72' },
+                  silver:   { label: 'Silver',   cols: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4', logoH: 48, showTagline: false, accent: '#6B7A72' },
+                  standard: { label: 'Standard', cols: 'grid-cols-3 sm:grid-cols-4 lg:grid-cols-5', logoH: 36, showTagline: false, accent: '#6B7A72' },
+                  partner:  { label: 'Partners', cols: 'grid-cols-3 sm:grid-cols-4 lg:grid-cols-5', logoH: 36, showTagline: false, accent: '#6B7A72' },
+                  media:    { label: 'Media Partners', cols: 'grid-cols-3 sm:grid-cols-4 lg:grid-cols-5', logoH: 36, showTagline: false, accent: '#6B7A72' },
+                };
+                const meta = tierMeta[tier] ?? { label: tier, cols: 'grid-cols-3 sm:grid-cols-4', logoH: 36, showTagline: false, accent: '#6B7A72' };
+                return (
+                  <div key={tier}>
+                    {/* Tier label — plain text, no emoji */}
+                    <div className="flex items-center gap-3 mb-5">
+                      <span className="text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: '#6B7A72' }}>{meta.label}</span>
+                      <div className="flex-1 h-px" style={{ background: '#E5E0D4' }} />
+                    </div>
+                    <div className={`grid gap-4 ${meta.cols}`}>
+                      {sponsorsByTier[tier].map(s => {
+                        const inner = (
+                          <div
+                            className="flex flex-col items-center justify-center gap-3 p-5 rounded-2xl h-full transition-all"
+                            style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', minHeight: tier === 'platinum' ? 140 : tier === 'gold' ? 110 : 90 }}
+                            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#C9C3B1'; (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 16px rgba(15,31,24,0.06)'; }}
+                            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#E5E0D4'; (e.currentTarget as HTMLElement).style.boxShadow = 'none'; }}
+                          >
+                            {s.logo_url ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={s.logo_url} alt={s.company_name} style={{ maxHeight: meta.logoH, maxWidth: '100%', objectFit: 'contain', display: 'block' }} />
+                            ) : (
+                              <div className="font-title font-semibold text-center" style={{ fontSize: tier === 'platinum' ? 16 : 13, color: '#0F1F18' }}>{s.company_name}</div>
+                            )}
+                            {meta.showTagline && s.tagline && (
+                              <div className="text-[12px] text-center leading-relaxed" style={{ color: '#6B7A72' }}>{s.tagline}</div>
+                            )}
+                            {s.logo_url && tier !== 'standard' && tier !== 'partner' && tier !== 'media' && (
+                              <div className="text-[11px] font-medium" style={{ color: '#6B7A72' }}>{s.company_name}</div>
+                            )}
+                          </div>
+                        );
+                        return s.website_url ? (
+                          <a key={s.id} href={s.website_url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', display: 'block' }}>
+                            {inner}
+                          </a>
+                        ) : (
+                          <div key={s.id}>{inner}</div>
+                        );
+                      })}
+                    </div>
                   </div>
-                  <div className={`grid gap-4 ${tier === 'platinum' ? 'grid-cols-1 sm:grid-cols-2' : tier === 'gold' ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-3 sm:grid-cols-4 lg:grid-cols-5'}`}>
-                    {sponsorsByTier[tier].map(s => {
-                      const logoSize = tier === 'platinum' ? 64 : tier === 'gold' ? 48 : 36;
-                      const inner = (
-                        <div className="flex flex-col items-center justify-center gap-3 p-5 rounded-2xl h-full transition hover:opacity-90"
-                          style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
-                          {s.logo_url ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={s.logo_url} alt={s.company_name} style={{ maxHeight: logoSize, maxWidth: '100%', objectFit: 'contain' }} />
-                          ) : (
-                            <div className="font-title font-bold" style={{ fontSize: tier === 'platinum' ? 18 : 14, color: '#0F1F18' }}>{s.company_name}</div>
-                          )}
-                          {s.tagline && tier === 'platinum' && (
-                            <div className="text-[13px] text-center" style={{ color: '#6B7A72' }}>{s.tagline}</div>
-                          )}
-                          {s.logo_url && (
-                            <div className="font-medium text-[12px]" style={{ color: '#3A4A42' }}>{s.company_name}</div>
-                          )}
-                        </div>
-                      );
-                      return s.website_url ? (
-                        <a key={s.id} href={s.website_url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-                          {inner}
-                        </a>
-                      ) : (
-                        <div key={s.id}>{inner}</div>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
