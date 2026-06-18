@@ -47,7 +47,7 @@ export default async function SpeakerDetailPage({ params }: Props) {
     admin.from('speakers').select('*').eq('id', speakerId).eq('event_id', id).single(),
   ]);
 
-  if (!event || !speaker) redirect(`/events/${id}/speakers`);
+  if (!event || !speaker) redirect(`/events/${_ev.slug}/speakers`);
 
   // Get sessions for this speaker
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -73,7 +73,7 @@ export default async function SpeakerDetailPage({ params }: Props) {
       <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
 
         {/* Back */}
-        <Link href={`/events/${id}/speakers`}
+        <Link href={`/events/${_ev.slug}/speakers`}
           className="inline-flex items-center gap-1.5 text-[13px] mb-5 hover:opacity-80 transition-opacity"
           style={{ color: '#6B7A72' }}>
           <ChevronLeft size={15} /> Speakers
@@ -143,7 +143,7 @@ export default async function SpeakerDetailPage({ params }: Props) {
                 <div className="grid gap-2.5">
                   {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                   {sessions.map((s: any) => (
-                    <Link key={s.id} href={`/events/${id}/agenda/${s.id}`}
+                    <Link key={s.id} href={`/events/${_ev.slug}/agenda/${s.id}`}
                       className="flex items-center gap-3 rounded-xl px-4 py-3 hover:opacity-80 transition-opacity"
                       style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', textDecoration: 'none' }}>
                       <span className="w-8 h-8 rounded-lg grid place-items-center shrink-0"

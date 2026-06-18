@@ -60,6 +60,7 @@ export default async function CheckInPage({ params }: Props) {
   return (
     <CheckInDashboard
       eventId={event.id}
+      eventSlug={event.slug}
       eventName={event.name}
       eventStatus={event.status}
       totalRegistrations={totalCount ?? 0}

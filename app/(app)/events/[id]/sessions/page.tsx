@@ -7,6 +7,5 @@ export default async function SessionsRedirectPage({ params }: Props) {
   const { id: _ref } = await params;
   const _ev = await resolveEventRef(_ref);
   if (!_ev) redirect('/dashboard');
-  const id = _ev.id;
-  redirect(`/events/${id}/agenda`);
+  redirect(`/events/${_ev.slug}/agenda`);
 }

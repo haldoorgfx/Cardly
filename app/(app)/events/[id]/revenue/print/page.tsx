@@ -153,7 +153,7 @@ export default async function RevenuePrintPage({ params }: Props) {
         </div>
       </div>
 
-      <AgendaPrintTrigger backHref={`/events/${id}/downloads`} />
+      <AgendaPrintTrigger backHref={`/events/${_ev.slug}/downloads`} />
     </>
   );
 }

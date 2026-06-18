@@ -35,6 +35,7 @@ export default async function WalkInPage({ params }: { params: Promise<{ id: str
   return (
     <WalkInClient
       eventId={id}
+      eventSlug={event.slug}
       eventName={event.name}
       tickets={tickets ?? []}
       checkedIn={checkedIn}

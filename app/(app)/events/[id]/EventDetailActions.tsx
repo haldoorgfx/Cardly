@@ -25,23 +25,40 @@ export default function EventDetailActions({ eventId, eventName, status }: Props
 
   async function doDelete() {
     setBusy(true);
-    await fetch(`/api/events/${eventId}`, { method: 'DELETE' });
-    router.push('/dashboard');
-    router.refresh();
+    try {
+      const res = await fetch(`/api/events/${eventId}`, { method: 'DELETE' });
+      if (res.ok) {
+        router.push('/dashboard');
+        router.refresh();
+      } else {
+        setBusy(false);
+        setConfirmDelete(false);
+      }
+    } catch {
+      setBusy(false);
+      setConfirmDelete(false);
+    }
   }
 
   async function doRename() {
     const trimmed = nameVal.trim();
     if (!trimmed || trimmed === eventName) { setRenaming(false); setNameVal(eventName); return; }
     setBusy(true);
-    await fetch(`/api/events/${eventId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: trimmed }),
-    });
-    setBusy(false);
-    setRenaming(false);
-    router.refresh();
+    try {
+      await fetch(`/api/events/${eventId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: trimmed }),
+      });
+      setRenaming(false);
+      router.refresh();
+    } catch {
+      // silently revert on network error
+      setNameVal(eventName);
+      setRenaming(false);
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function doDuplicate() {
@@ -59,13 +76,16 @@ export default function EventDetailActions({ eventId, eventName, status }: Props
 
   async function doStatus(newStatus: string) {
     setBusy(true);
-    await fetch(`/api/events/${eventId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: newStatus }),
-    });
-    setBusy(false);
-    router.refresh();
+    try {
+      await fetch(`/api/events/${eventId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      router.refresh();
+    } finally {
+      setBusy(false);
+    }
   }
 
   if (confirmDelete) {

@@ -17,12 +17,13 @@ interface Poll {
 
 interface Props {
   eventId: string;
+  eventSlug: string;
   initialQuestions: QAQuestion[];
   sessions: { id: string; title: string }[];
   initialPolls?: Poll[];
 }
 
-export default function QAModerationClient({ eventId, initialQuestions, initialPolls = [] }: Props) {
+export default function QAModerationClient({ eventId, eventSlug, initialQuestions, initialPolls = [] }: Props) {
   const [questions, setQuestions] = useState(initialQuestions);
   const [polls, setPolls] = useState(initialPolls);
   const [tab, setTab] = useState<FilterTab>('all');
@@ -322,7 +323,7 @@ export default function QAModerationClient({ eventId, initialQuestions, initialP
         {/* CTAs */}
         <div className="space-y-2.5">
           <a
-            href={`/events/${eventId}/polls`}
+            href={`/events/${eventSlug}/polls`}
             className="flex items-center gap-2 justify-center w-full py-3 rounded-xl text-[13px] font-medium"
             style={{ background: '#1F4D3A', color: 'white' }}
           >

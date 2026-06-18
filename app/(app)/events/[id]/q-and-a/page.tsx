@@ -47,6 +47,7 @@ export default async function QAModerationPage({ params }: Props) {
         </div>
         <QAModerationClient
           eventId={id}
+          eventSlug={event.slug}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           initialQuestions={(questions ?? []) as any}
           sessions={(sessions ?? []) as { id: string; title: string }[]}

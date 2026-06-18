@@ -52,7 +52,7 @@ export default async function SessionDetailPage({ params }: Props) {
       .single(),
   ]);
 
-  if (!event || !session) redirect(`/events/${id}/agenda`);
+  if (!event || !session) redirect(`/events/${_ev.slug}/agenda`);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const track = (session as any).tracks as { id: string; name: string; color: string } | null;
@@ -85,7 +85,7 @@ export default async function SessionDetailPage({ params }: Props) {
       <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
 
         {/* Back */}
-        <Link href={`/events/${id}/agenda`}
+        <Link href={`/events/${_ev.slug}/agenda`}
           className="inline-flex items-center gap-1.5 text-[13px] mb-5 hover:opacity-80 transition-opacity"
           style={{ color: '#6B7A72' }}>
           <ChevronLeft size={15} /> Agenda
@@ -123,7 +123,7 @@ export default async function SessionDetailPage({ params }: Props) {
               )}
             </div>
           </div>
-          <Link href={`/events/${id}/agenda`}
+          <Link href={`/events/${_ev.slug}/agenda`}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-medium border hover:opacity-80 transition-opacity shrink-0"
             style={{ border: '1px solid #E5E0D4', color: '#3A4A42', background: 'white', textDecoration: 'none' }}>
             Edit session
@@ -154,7 +154,7 @@ export default async function SessionDetailPage({ params }: Props) {
                   {speakers.map((sp: any) => {
                     const gradIdx = sp.name.charCodeAt(0) % AVATAR_GRADS.length;
                     return (
-                      <Link key={sp.id} href={`/events/${id}/speakers/${sp.id}`}
+                      <Link key={sp.id} href={`/events/${_ev.slug}/speakers/${sp.id}`}
                         className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 hover:opacity-80 transition-opacity"
                         style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', textDecoration: 'none' }}>
                         {sp.photo_url ? (

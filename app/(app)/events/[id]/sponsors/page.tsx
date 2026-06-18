@@ -50,6 +50,7 @@ export default async function SponsorsPage({ params }: Props) {
   return (
     <SponsorsClient
       eventId={id}
+      eventSlug={event.slug}
       eventName={event.name}
       sponsors={enriched}
     />

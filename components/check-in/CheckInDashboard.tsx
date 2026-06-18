@@ -28,6 +28,7 @@ interface FeedEntry {
 
 interface Props {
   eventId:            string;
+  eventSlug:          string;
   eventName:          string;
   eventStatus:        string;
   totalRegistrations: number;
@@ -296,7 +297,7 @@ function Row({ label, value, mono, muted }: { label: string; value: string; mono
 
 /* ── Main dashboard ─────────────────────────────────────────────────────────── */
 export default function CheckInDashboard({
-  eventId, eventName, eventStatus, totalRegistrations, initialCheckedIn, recentCheckins,
+  eventId, eventSlug, eventName, eventStatus, totalRegistrations, initialCheckedIn, recentCheckins,
 }: Props) {
   const [scannerOpen, setScannerOpen]         = useState(false);
   const [phoneModalOpen, setPhoneModalOpen]   = useState(false);
@@ -366,6 +367,7 @@ export default function CheckInDashboard({
     return (
       <QRScanner
         eventId={eventId}
+        eventSlug={eventSlug}
         eventName={eventName}
         totalRegistrations={totalRegistrations}
         initialCheckedIn={checkedIn}
@@ -415,13 +417,13 @@ export default function CheckInDashboard({
               <Smartphone size={14} strokeWidth={1.8} /> Scan with phone
             </button>
             <Link
-              href={`/events/${eventId}/check-in/walk-in`}
+              href={`/events/${eventSlug}/check-in/walk-in`}
               className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[13.5px] font-medium border transition hover:border-[#1F4D3A]/40 hover:text-[#1F4D3A]"
               style={{ borderColor: '#E5E0D4', color: '#6B7A72', background: 'white' }}>
               <DoorOpen size={14} strokeWidth={1.8} /> Walk-in
             </Link>
             <Link
-              href={`/events/${eventId}/check-in/kiosk`}
+              href={`/events/${eventSlug}/check-in/kiosk`}
               className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[13.5px] font-medium border transition hover:border-[#1F4D3A]/40 hover:text-[#1F4D3A]"
               style={{ borderColor: '#E5E0D4', color: '#6B7A72', background: 'white' }}>
               <Monitor size={14} strokeWidth={1.8} /> Kiosk mode

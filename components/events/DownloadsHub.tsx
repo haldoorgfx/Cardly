@@ -42,6 +42,7 @@ interface Track {
 
 interface Props {
   eventId: string;
+  eventSlug: string;
   eventName: string;
   regs: Reg[];
   sessions: SessionItem[];
@@ -121,7 +122,7 @@ function PillBtn({ onClick, children, variant = 'green' }: { onClick?: () => voi
   );
 }
 
-export function DownloadsHub({ eventId, eventName, regs, sessions, ticketTypes, tracks }: Props) {
+export function DownloadsHub({ eventId, eventSlug, eventName, regs, sessions, ticketTypes, tracks }: Props) {
   const slug = slugify(eventName);
 
   // ── Attendee Roster ──────────────────────────────────────────────────────────
@@ -262,7 +263,7 @@ export function DownloadsHub({ eventId, eventName, regs, sessions, ticketTypes, 
           actions={
             <>
               <Link
-                href={`/events/${eventId}/eventera-card`}
+                href={`/events/${eventSlug}/eventera-card`}
                 className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12.5px] font-medium text-white transition hover:opacity-90"
                 style={{ background: '#1F4D3A', border: '1px solid #1F4D3A' }}
               >

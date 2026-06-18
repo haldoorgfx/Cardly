@@ -36,13 +36,13 @@ export default async function EngagementPage({ params }: Props) {
       label: 'Q&A',
       icon: <MessageSquare size={20} strokeWidth={1.7} />,
       desc: 'Live questions from attendees — upvote, answer, and moderate in real time.',
-      href: `/events/${id}/q-and-a`,
+      href: `/events/${_ev.slug}/q-and-a`,
     },
     {
       label: 'Polls',
       icon: <BarChart2 size={20} strokeWidth={1.7} />,
       desc: 'Real-time audience polls to drive participation during sessions.',
-      href: `/events/${id}/polls`,
+      href: `/events/${_ev.slug}/polls`,
     },
     {
       label: 'Networking',
@@ -56,7 +56,7 @@ export default async function EngagementPage({ params }: Props) {
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
       <div className="sticky top-0 z-30 border-b bg-white" style={{ borderColor: '#E5E0D4' }}>
         <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-3">
-          <Link href={`/events/${id}`} className="inline-flex items-center gap-1 text-[12px] text-[#6B7A72] hover:text-[#1F4D3A] transition-colors">
+          <Link href={`/events/${_ev.slug}`} className="inline-flex items-center gap-1 text-[12px] text-[#6B7A72] hover:text-[#1F4D3A] transition-colors">
             <ArrowLeft size={12} strokeWidth={2} />
             {event.name}
           </Link>

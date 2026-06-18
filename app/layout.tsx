@@ -7,8 +7,10 @@ import { PostHogProvider } from "@/components/shared/PostHogProvider";
 import { CrispChat } from "@/components/shared/CrispChat";
 import { Suspense } from "react";
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://eventera.app";
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://karta.cre8so.com"),
+  metadataBase: new URL(APP_URL),
   title: {
     default: "Eventera — A new era of events.",
     template: "%s — Eventera",
@@ -21,7 +23,6 @@ export const metadata: Metadata = {
     title: "Eventera — A new era of events.",
     description:
       "The complete event platform built for organizers everywhere. Registration, tickets, agenda, check-in, networking — and a personalized Eventera Card for every attendee.",
-    url: "https://karta.cre8so.com",
     images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "Eventera" }],
   },
   twitter: {
@@ -49,7 +50,7 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
           rel="stylesheet"
         />
         <script
@@ -60,46 +61,41 @@ export default function RootLayout({
               '@graph': [
                 {
                   '@type': 'Organization',
-                  '@id': 'https://karta.cre8so.com/#organization',
+                  '@id': `${APP_URL}/#organization`,
                   name: 'Eventera',
-                  url: 'https://karta.cre8so.com',
-                  logo: 'https://karta.cre8so.com/og-default.png',
+                  url: APP_URL,
+                  logo: `${APP_URL}/og-default.png`,
                   sameAs: [],
                 },
                 {
                   '@type': 'WebSite',
-                  '@id': 'https://karta.cre8so.com/#website',
-                  url: 'https://karta.cre8so.com',
+                  '@id': `${APP_URL}/#website`,
+                  url: APP_URL,
                   name: 'Eventera',
                   description: 'Registration, tickets, agenda, check-in, networking — and a personalized Eventera Card for every attendee. The complete event platform.',
-                  publisher: { '@id': 'https://karta.cre8so.com/#organization' },
-                  potentialAction: {
-                    '@type': 'SearchAction',
-                    target: 'https://karta.cre8so.com/?s={search_term_string}',
-                    'query-input': 'required name=search_term_string',
-                  },
+                  publisher: { '@id': `${APP_URL}/#organization` },
                 },
                 {
                   '@type': 'SoftwareApplication',
                   name: 'Eventera',
                   applicationCategory: 'BusinessApplication',
                   operatingSystem: 'Web',
-                  url: 'https://karta.cre8so.com',
+                  url: APP_URL,
                   offers: {
                     '@type': 'Offer',
                     price: '0',
                     priceCurrency: 'USD',
-                    description: 'Free plan available. Pro from $29/month.',
+                    description: 'Free plan available. Pro from $9/month.',
                   },
-                  publisher: { '@id': 'https://karta.cre8so.com/#organization' },
+                  publisher: { '@id': `${APP_URL}/#organization` },
                 },
               ],
             }),
           }}
         />
       </head>
-      <body className="antialiased">
-        <Suspense>
+      <body className="antialiased" style={{ background: '#FAF6EE' }}>
+        <Suspense fallback={null}>
           <PostHogProvider>
             <ThemeProvider>{children}</ThemeProvider>
             <CookieConsent />

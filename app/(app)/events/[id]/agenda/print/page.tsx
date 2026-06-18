@@ -150,7 +150,7 @@ export default async function AgendaPrintPage({ params }: Props) {
         </div>
       </div>
 
-      <AgendaPrintTrigger backHref={`/events/${id}/agenda`} />
+      <AgendaPrintTrigger backHref={`/events/${_ev.slug}/agenda`} />
     </>
   );
 }

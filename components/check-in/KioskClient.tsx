@@ -6,7 +6,7 @@ import { Search, X, Check, ArrowLeft, CameraOff } from 'lucide-react';
 import Link from 'next/link';
 import { extractToken } from '@/lib/qr/token';
 
-interface Props { eventId: string; eventName: string; }
+interface Props { eventId: string; eventSlug: string; eventName: string; }
 
 type KioskState = 'scan' | 'search' | 'success' | 'error';
 
@@ -32,7 +32,7 @@ function beep(ok: boolean) {
   } catch {}
 }
 
-export function KioskClient({ eventId, eventName }: Props) {
+export function KioskClient({ eventId, eventSlug, eventName }: Props) {
   const [state, setState] = useState<KioskState>('scan');
   const [searchQuery, setSearchQuery] = useState('');
   const [results, setResults] = useState<AttendeeResult[]>([]);
@@ -163,7 +163,7 @@ export function KioskClient({ eventId, eventName }: Props) {
       style={{ background: 'linear-gradient(160deg, #0F1F18 0%, #1A3D2B 50%, #0F1F18 100%)' }}>
 
       {/* Back */}
-      <Link href={`/events/${eventId}/check-in`}
+      <Link href={`/events/${eventSlug}/check-in`}
         className="absolute top-6 left-6 flex items-center gap-2 px-3 py-2 rounded-xl text-[13px] font-medium transition hover:opacity-70 z-30"
         style={{ color: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.06)' }}>
         <ArrowLeft size={14} /> Exit kiosk

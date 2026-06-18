@@ -8,6 +8,7 @@ interface Ticket { id: string; name: string; price: number; currency: string; qu
 
 interface Props {
   eventId: string;
+  eventSlug: string;
   eventName: string;
   tickets: Ticket[];
   checkedIn: number;
@@ -32,7 +33,7 @@ function fmtPrice(price: number, currency: string) {
   catch { return `${currency} ${price}`; }
 }
 
-export function WalkInClient({ eventId, eventName, tickets, checkedIn, walkInsToday, maxCapacity, confirmedCount = 0 }: Props) {
+export function WalkInClient({ eventId, eventSlug, eventName, tickets, checkedIn, walkInsToday, maxCapacity, confirmedCount = 0 }: Props) {
   const [step, setStep] = useState<Step>('info');
   const [form, setForm] = useState<WalkInForm>({ name: '', email: '', phone: '', ticketId: tickets[0]?.id ?? '', payment: 'card' });
   const [submitting, setSubmitting] = useState(false);
@@ -87,7 +88,7 @@ export function WalkInClient({ eventId, eventName, tickets, checkedIn, walkInsTo
       {/* Header */}
       <div className="sticky top-0 z-10 flex items-center justify-between px-5 py-4" style={{ background: '#0F1F18', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <div className="flex items-center gap-3">
-          <Link href={`/events/${eventId}/check-in`} className="p-2 rounded-lg hover:opacity-70 transition" style={{ color: 'rgba(255,255,255,0.5)' }}>
+          <Link href={`/events/${eventSlug}/check-in`} className="p-2 rounded-lg hover:opacity-70 transition" style={{ color: 'rgba(255,255,255,0.5)' }}>
             <ArrowLeft size={18} />
           </Link>
           <div>

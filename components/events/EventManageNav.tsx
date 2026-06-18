@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 
 interface Props {
-  eventId: string;
+  eventSlug: string;
   eventName: string;
   active: string;
 }
@@ -17,7 +17,7 @@ const TABS = [
   { key: 'analytics',      label: 'Analytics',      href: (id: string) => `/events/${id}/analytics` },
 ] as const;
 
-export function EventManageNav({ eventId, eventName, active }: Props) {
+export function EventManageNav({ eventSlug, eventName, active }: Props) {
   return (
     <div className="sticky top-0 z-30 border-b" style={{ background: 'white', borderColor: '#E5E0D4' }}>
       <div className="px-4 sm:px-6 lg:px-8 pt-3 pb-0">
@@ -25,7 +25,7 @@ export function EventManageNav({ eventId, eventName, active }: Props) {
         <div className="flex items-center gap-1.5 text-[12px] mb-2.5" style={{ color: '#6B7A72' }}>
           <Link href="/dashboard" className="hover:text-[#1F4D3A] transition-colors">Events</Link>
           <ChevronRight size={12} strokeWidth={2} />
-          <Link href={`/events/${eventId}`} className="hover:text-[#1F4D3A] transition-colors truncate max-w-[200px]">
+          <Link href={`/events/${eventSlug}`} className="hover:text-[#1F4D3A] transition-colors truncate max-w-[200px]">
             {eventName}
           </Link>
         </div>
@@ -35,7 +35,7 @@ export function EventManageNav({ eventId, eventName, active }: Props) {
           {TABS.map(tab => (
             <Link
               key={tab.key}
-              href={tab.href(eventId)}
+              href={tab.href(eventSlug)}
               className="flex-none text-[13px] font-medium px-3 pb-2.5 border-b-2 transition-colors whitespace-nowrap"
               style={{
                 color: active === tab.key ? '#1F4D3A' : '#6B7A72',

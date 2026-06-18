@@ -1176,7 +1176,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
                       <input type="checkbox" checked={selected.has(reg.id)} onChange={() => toggleOne(reg.id)} aria-label={`Select ${reg.attendee_name}`} className="w-4 h-4 rounded accent-[#1F4D3A] cursor-pointer align-middle" />
                     </td>
                     <td className="px-5 py-3.5">
-                      <Link href={`/events/${eventId}/registrations/${reg.id}`}
+                      <Link href={`/events/${eventSlug}/registrations/${reg.id}`}
                         className="font-medium text-[14px] hover:underline block" style={{ color: '#0F1F18', textDecoration: 'none' }}>
                         {reg.attendee_name}
                       </Link>

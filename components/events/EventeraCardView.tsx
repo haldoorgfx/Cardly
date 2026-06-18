@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { IdCard, Share2, Network, Sparkles, Palette, Plus, Printer, FileImage } from 'lucide-react';
+import { IdCard, Share2, Sparkles, Palette, Plus, Printer, FileImage } from 'lucide-react';
 import Link from 'next/link';
 
 interface PrimaryVariant {
@@ -15,6 +15,7 @@ interface PrimaryVariant {
 interface VariantSummary {
   id: string;
   position: number;
+  name: string | null;
   backgroundUrl: string | null;
   zonesCount: number;
 }
@@ -34,16 +35,10 @@ interface Props {
 const PAPER_SIZES = ['A4', 'A6', 'Letter', '4×6 in'] as const;
 type PaperSize = typeof PAPER_SIZES[number];
 
-const SHARE_CHANNELS = [
-  { name: 'Instagram', pct: 39, color: '#1F4D3A' },
-  { name: 'WhatsApp',  pct: 32, color: '#2A6A50' },
-  { name: 'LinkedIn',  pct: 19, color: '#E8C57E' },
-  { name: 'X',         pct: 10, color: '#8BA89A' },
-];
+// Share channel breakdown is not tracked yet — this section shows empty state until we add tracking
 
 export function EventeraCardView({ eventId, eventName, eventSlug, eventStatus, totalCards, todayCards, sharedCards, primaryVariant, allVariants }: Props) {
   const [paperSize, setPaperSize] = useState<PaperSize>('A6');
-  const reach = sharedCards > 0 ? (sharedCards * 189).toLocaleString() : '—';
   const hasDesign = !!primaryVariant?.backgroundUrl;
   const isPublished = eventStatus === 'published';
   // Attendee page only works when the event is published and has at least one variant with a design
@@ -174,24 +169,18 @@ export function EventeraCardView({ eventId, eventName, eventSlug, eventStatus, t
         <div className="space-y-5">
 
           {/* Stats row */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <StatCard
               label="Cards Generated"
               value={totalCards.toLocaleString()}
-              sub={todayCards > 0 ? `↗ ${todayCards} today` : totalCards > 0 ? 'None today' : undefined}
+              sub={todayCards > 0 ? `↗ ${todayCards} today` : totalCards > 0 ? 'None today' : 'None yet'}
               icon={<IdCard size={15} strokeWidth={2} />}
             />
             <StatCard
-              label="Downloaded"
+              label="Personalised &amp; Downloaded"
               value={sharedCards.toLocaleString()}
-              sub={totalCards > 0 && sharedCards > 0 ? `${Math.round((sharedCards / totalCards) * 100)}% via registration` : sharedCards === 0 ? 'Via registration flow' : undefined}
+              sub={totalCards > 0 && sharedCards > 0 ? `${Math.round((sharedCards / totalCards) * 100)}% of registrants` : 'Via registration flow'}
               icon={<Share2 size={15} strokeWidth={2} />}
-            />
-            <StatCard
-              label="Reach"
-              value={reach}
-              sub="↗ est. viral reach"
-              icon={<Network size={15} strokeWidth={2} />}
               accent
             />
           </div>
@@ -241,7 +230,7 @@ export function EventeraCardView({ eventId, eventName, eventSlug, eventStatus, t
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <div className="text-[13.5px] font-medium" style={{ color: '#0F1F18' }}>Variant {v.position + 1}</div>
+                      <div className="text-[13.5px] font-medium" style={{ color: '#0F1F18' }}>{v.name ?? `Variant ${v.position + 1}`}</div>
                       <div className="text-[11px] mt-0.5" style={{ color: '#6B7A72' }}>
                         {v.zonesCount > 0 ? `${v.zonesCount} zone${v.zonesCount !== 1 ? 's' : ''}` : 'No zones yet'}
                       </div>
@@ -257,29 +246,11 @@ export function EventeraCardView({ eventId, eventName, eventSlug, eventStatus, t
             )}
           </Panel>
 
-          {/* Where cards are shared */}
-          <Panel title="Where cards are shared">
-            {sharedCards === 0 ? (
-              <p className="text-[13px] py-4 text-center" style={{ color: '#6B7A72' }}>
-                No cards shared yet. They appear here once attendees start sharing.
-              </p>
-            ) : (
-              <div className="grid sm:grid-cols-2 gap-5 items-center">
-                <DonutChart total={sharedCards} channels={SHARE_CHANNELS} />
-                <div className="space-y-3">
-                  {SHARE_CHANNELS.map(ch => (
-                    <div key={ch.name} className="flex items-center gap-3">
-                      <div className="h-2.5 w-2.5 rounded-full shrink-0" style={{ background: ch.color }} />
-                      <span className="text-[13px] flex-1" style={{ color: '#0F1F18' }}>{ch.name}</span>
-                      <span className="text-[12px]" style={{ color: '#6B7A72' }}>{ch.pct}%</span>
-                    </div>
-                  ))}
-                  <p className="text-[12px] pt-2" style={{ color: '#6B7A72' }}>
-                    <span className="font-medium" style={{ color: '#1F4D3A' }}>189 avg reach</span> per card shared
-                  </p>
-                </div>
-              </div>
-            )}
+          {/* Where cards are shared — coming soon */}
+          <Panel title="Share channel breakdown">
+            <p className="text-[13px] py-4 text-center" style={{ color: '#6B7A72' }}>
+              Channel analytics coming soon. Once attendees share their cards we&apos;ll show a breakdown here.
+            </p>
           </Panel>
         </div>
       </div>
@@ -398,40 +369,3 @@ function Panel({ title, action, children }: { title: string; action?: React.Reac
   );
 }
 
-function DonutChart({ total, channels }: { total: number; channels: typeof SHARE_CHANNELS }) {
-  const size = 140;
-  const r = 52;
-  const cx = size / 2;
-  const cy = size / 2;
-  const circ = 2 * Math.PI * r;
-  let offset = 0;
-
-  return (
-    <div className="relative" style={{ width: size, height: size }}>
-      <svg width={size} height={size}>
-        {channels.map(ch => {
-          const dash = (ch.pct / 100) * circ;
-          const gap = circ - dash;
-          const el = (
-            <circle
-              key={ch.name}
-              cx={cx} cy={cy} r={r}
-              fill="none"
-              stroke={ch.color}
-              strokeWidth={18}
-              strokeDasharray={`${dash} ${gap}`}
-              strokeDashoffset={-offset}
-              transform={`rotate(-90 ${cx} ${cy})`}
-            />
-          );
-          offset += dash;
-          return el;
-        })}
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-[20px] font-bold" style={{ color: '#0F1F18' }}>{total}</span>
-        <span className="text-[10px]" style={{ color: '#6B7A72', letterSpacing: '0.06em' }}>SHARES</span>
-      </div>
-    </div>
-  );
-}

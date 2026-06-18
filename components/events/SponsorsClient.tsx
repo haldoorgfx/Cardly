@@ -18,6 +18,7 @@ interface Sponsor {
 
 interface Props {
   eventId: string;
+  eventSlug: string;
   eventName: string;
   sponsors: Sponsor[];
 }
@@ -268,7 +269,7 @@ function DeleteSponsorModal({
 }
 
 /* ── Main component ─────────────────────────────────────────────────────── */
-export function SponsorsClient({ eventId, eventName, sponsors: initial }: Props) {
+export function SponsorsClient({ eventId, eventSlug, eventName, sponsors: initial }: Props) {
   const router = useRouter();
   const [sponsors, setSponsors] = useState(initial);
   const [showAdd, setShowAdd]   = useState(false);
@@ -357,7 +358,7 @@ export function SponsorsClient({ eventId, eventName, sponsors: initial }: Props)
             <div className="flex items-center gap-1.5 text-[12px] mb-1" style={{ color: '#6B7A72' }}>
               <Link href="/dashboard" className="hover:text-[#1F4D3A] transition-colors">Events</Link>
               <span>/</span>
-              <Link href={`/events/${eventId}`} className="hover:text-[#1F4D3A] transition-colors truncate max-w-[200px]">{eventName}</Link>
+              <Link href={`/events/${eventSlug}`} className="hover:text-[#1F4D3A] transition-colors truncate max-w-[200px]">{eventName}</Link>
               <span>/</span>
               <span>Sponsors</span>
             </div>

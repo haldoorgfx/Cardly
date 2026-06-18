@@ -24,6 +24,7 @@ type SearchResult = {
 
 interface Props {
   eventId: string;
+  eventSlug: string;
   eventName: string;
   totalRegistrations: number;
   initialCheckedIn: number;
@@ -46,7 +47,7 @@ function beep(type: 'ok' | 'warn' | 'err') {
   } catch {}
 }
 
-export function QRScanner({ eventId, eventName, totalRegistrations, initialCheckedIn, onCheckedIn, onClose }: Props) {
+export function QRScanner({ eventId, eventSlug, eventName, totalRegistrations, initialCheckedIn, onCheckedIn, onClose }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const readerRef = useRef<BrowserMultiFormatReader | null>(null);
   const controlsRef = useRef<IScannerControls | null>(null);
@@ -250,7 +251,7 @@ export function QRScanner({ eventId, eventName, totalRegistrations, initialCheck
           <Search size={14} /> Search by name / email
         </button>
 
-        <Link href={`/events/${eventId}/registrations`} className="text-[12px]" style={{ color: 'rgba(255,255,255,0.25)' }}>
+        <Link href={`/events/${eventSlug}/registrations`} className="text-[12px]" style={{ color: 'rgba(255,255,255,0.25)' }}>
           Go to registrations list
         </Link>
       </div>
@@ -354,7 +355,7 @@ export function QRScanner({ eventId, eventName, totalRegistrations, initialCheck
             <X size={16} strokeWidth={1.8} /> Exit
           </button>
         ) : (
-          <Link href={`/events/${eventId}/registrations`}>
+          <Link href={`/events/${eventSlug}/registrations`}>
             <button className="flex items-center gap-1.5 text-[13px]" style={{ color: 'rgba(255,255,255,0.55)' }}>
               <X size={16} strokeWidth={1.8} /> Exit
             </button>

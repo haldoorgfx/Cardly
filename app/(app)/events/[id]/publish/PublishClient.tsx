@@ -204,6 +204,7 @@ interface Props {
   eventName: string;
   shareUrl: string;
   slug: string;
+  isPublished: boolean;
   viewCount: number;
   registrationCount: number;
   ticketCount: number;
@@ -217,10 +218,13 @@ interface Props {
 /* ── Main component ────────────────────────────────────────────── */
 export default function PublishClient({
   eventId, eventName, shareUrl, slug,
+  isPublished,
   viewCount, registrationCount, ticketCount,
   startsAt, endsAt, timezone, venueName, isOnline,
 }: Props) {
   const [copied, setCopied] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [publishError, setPublishError] = useState('');
   const [captionCopied, setCaptionCopied] = useState(false);
   const [captionIndex, setCaptionIndex] = useState(0);
   const [embedCopied, setEmbedCopied] = useState(false);
@@ -267,22 +271,74 @@ export default function PublishClient({
   const caption = captions[captionIndex];
   const embedCode = `<iframe src="${shareUrl}"\n        width="375" height="812"\n        frameborder="0"></iframe>`;
 
+  const handlePublish = useCallback(async () => {
+    setPublishing(true);
+    setPublishError('');
+    try {
+      const res = await fetch(`/api/events/${eventId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'published' }),
+      });
+      if (!res.ok) throw new Error('Failed to publish');
+      // Reload to get the updated state
+      window.location.reload();
+    } catch {
+      setPublishError('Failed to publish. Please try again.');
+      setPublishing(false);
+    }
+  }, [eventId]);
+
   const handleCopy = useCallback(async () => {
-    await navigator.clipboard.writeText(shareUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Fallback for restricted contexts
+      const el = document.createElement('textarea');
+      el.value = shareUrl;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   }, [shareUrl]);
 
   const handleCaptionCopy = useCallback(async () => {
-    await navigator.clipboard.writeText(caption);
-    setCaptionCopied(true);
-    setTimeout(() => setCaptionCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(caption);
+      setCaptionCopied(true);
+      setTimeout(() => setCaptionCopied(false), 2000);
+    } catch {
+      const el = document.createElement('textarea');
+      el.value = caption;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      setCaptionCopied(true);
+      setTimeout(() => setCaptionCopied(false), 2000);
+    }
   }, [caption]);
 
   const handleEmbedCopy = useCallback(async () => {
-    await navigator.clipboard.writeText(embedCode.replace(/\\n/g, '\n'));
-    setEmbedCopied(true);
-    setTimeout(() => setEmbedCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(embedCode);
+      setEmbedCopied(true);
+      setTimeout(() => setEmbedCopied(false), 2000);
+    } catch {
+      const el = document.createElement('textarea');
+      el.value = embedCode;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      setEmbedCopied(true);
+      setTimeout(() => setEmbedCopied(false), 2000);
+    }
   }, [embedCode]);
 
   const handleDownloadQR = useCallback(() => {
@@ -313,6 +369,45 @@ export default function PublishClient({
 
   return (
     <div style={{ background: PT.cream, fontFamily: 'Inter, sans-serif', color: PT.ink }}>
+
+      {/* ── Draft banner ────────────────────────────────────────────── */}
+      {!isPublished && (
+        <div style={{
+          background: PT.surface, borderBottom: `1px solid ${PT.border}`,
+          padding: '14px 24px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap',
+        }}>
+          <div>
+            <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: PT.ink }}>
+              This event is not yet published.
+            </div>
+            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: PT.muted, marginTop: 2 }}>
+              Publish it to make the link live and start accepting registrations.
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {publishError && (
+              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#B8423C' }}>{publishError}</span>
+            )}
+            <button
+              onClick={handlePublish}
+              disabled={publishing}
+              style={{
+                height: 40, padding: '0 20px',
+                background: PT.primary, color: PT.cream,
+                border: 'none', borderRadius: 8,
+                fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13.5,
+                cursor: publishing ? 'not-allowed' : 'pointer',
+                opacity: publishing ? 0.7 : 1,
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                transition: 'opacity 0.15s',
+              }}
+            >
+              {publishing ? 'Publishing…' : 'Publish now'}
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="px-4 sm:px-8" style={{
         maxWidth: 1100, width: '100%', margin: '0 auto',
@@ -383,9 +478,9 @@ export default function PublishClient({
           display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap', rowGap: 12,
         }}>
           <StatItem label="Page views" value={String(viewCount)} sub="all-time" />
-          <div style={{ width: 1, height: 32, background: PT.border, flexShrink: 0 }} />
+          <div className="hidden sm:block" style={{ width: 1, height: 32, background: PT.border, flexShrink: 0 }} />
           <StatItem label="Registrations" value={String(registrationCount)} sub="confirmed" />
-          <div style={{ width: 1, height: 32, background: PT.border, flexShrink: 0 }} />
+          <div className="hidden sm:block" style={{ width: 1, height: 32, background: PT.border, flexShrink: 0 }} />
           <StatItem label="Ticket types" value={String(ticketCount)} sub="active" />
           <div style={{ flex: 1 }} />
           <div style={{
@@ -394,7 +489,7 @@ export default function PublishClient({
             fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: PT.muted, letterSpacing: '0.04em',
           }}>
             {I.refresh({ size: 11 })}
-            <span>updates live</span>
+            <span>as of page load</span>
           </div>
         </div>
 
@@ -468,7 +563,7 @@ export default function PublishClient({
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
                 <ShareButton
                   icon={Brand.whatsapp(18)} label="WhatsApp" sub="Group chat"
-                  href={`https://wa.me/?text=${encodeURIComponent(`${caption}\n${shareUrl}`)}`}
+                  href={`https://wa.me/?text=${encodeURIComponent(caption)}`}
                 />
                 <ShareButton
                   icon={Brand.x(18)} label="X" sub="Compose"
@@ -641,7 +736,7 @@ export default function PublishClient({
             </div>
             <pre style={{
               margin: 0, padding: '14px 16px',
-              fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, lineHeight: 1.65,
+              fontFamily: 'JetBrains Mono, Menlo, monospace', fontSize: 12, lineHeight: 1.65,
               color: PT.cream, whiteSpace: 'pre-wrap', wordBreak: 'break-all',
             }}>
               <span style={{ color: '#9EC6B2' }}>{'<iframe'}</span>{' '}

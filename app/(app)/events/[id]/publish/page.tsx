@@ -25,53 +25,23 @@ export default async function PublishPage({ params }: { params: Promise<{ id: st
 
   if (!event) redirect('/dashboard');
 
-  const isFirstPublish = event.status !== 'published';
+  // Only auto-publish if the URL includes ?publish=1 (explicit intent).
+  // Visiting /publish on a draft event shows the preview + a "Publish now" button — no silent publish.
+  const isAlreadyPublished = event.status === 'published';
   let slug = event.slug;
-  if (isFirstPublish) {
-    const { data: updated } = await admin
-      .from('events')
-      .update({ status: 'published' })
-      .eq('id', id)
-      .select('slug')
-      .single();
-    if (updated) slug = updated.slug;
-  }
+  // We no longer auto-publish on page load. PublishClient handles the publish action via /api/events/[id].
 
-  // Ensure event_pages row exists and is public
+  // Fetch event_pages row (read-only — no side-effects on page load)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: upsertedPage } = await (admin as any)
     .from('event_pages')
-    .upsert(
-      { event_id: id, title: event.name, is_public: true },
-      { onConflict: 'event_id', ignoreDuplicates: false }
-    )
     .select('id, starts_at, ends_at, timezone, venue_name, is_online')
-    .single();
+    .eq('event_id', id)
+    .maybeSingle();
 
-  // On first publish: notify followers who have opted in
-  if (isFirstPublish && upsertedPage?.id) {
-    const { data: followers } = await admin
-      .from('organizer_follows')
-      .select('follower_id')
-      .eq('organizer_id', user.id)
-      .eq('notify_new_events', true);
-
-    if (followers && followers.length > 0) {
-      const notifications = followers.map((f: { follower_id: string }) => ({
-        user_id: f.follower_id,
-        event_id: id,
-        type: 'new_event_from_follow' as const,
-        title: `New event: ${event.name}`,
-        body: `An organizer you follow just published a new event.`,
-      }));
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (admin as any).from('notifications').insert(notifications);
-    }
-  }
-
-  // Real event stats
+  // Real event stats — only count confirmed/checked_in registrations
   const [{ count: registrationCount }, { count: ticketCount }] = await Promise.all([
-    admin.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', id),
+    admin.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', id).in('status', ['confirmed', 'checked_in']),
     admin.from('ticket_types').select('id', { count: 'exact', head: true }).eq('event_id', id),
   ]);
 
@@ -84,6 +54,7 @@ export default async function PublishPage({ params }: { params: Promise<{ id: st
       eventName={event.name}
       shareUrl={shareUrl}
       slug={slug}
+      isPublished={isAlreadyPublished}
       viewCount={event.view_count ?? 0}
       registrationCount={registrationCount ?? 0}
       ticketCount={ticketCount ?? 0}

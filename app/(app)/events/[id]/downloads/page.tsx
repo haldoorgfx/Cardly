@@ -39,6 +39,7 @@ export default async function DownloadsPage({ params }: Props) {
   return (
     <DownloadsHub
       eventId={id}
+      eventSlug={event.slug}
       eventName={event.name}
       regs={regs ?? []}
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -60,7 +60,7 @@ export default async function AttendeeDetailPage({ params }: Props) {
     admin.from('registration_form_fields').select('id, label, field_type, position').eq('event_id', id).order('position'),
   ]);
 
-  if (!event || !reg) redirect(`/events/${id}/registrations`);
+  if (!event || !reg) redirect(`/events/${_ev.slug}/registrations`);
 
   // Build the attendee's form responses: map stored answers (keyed by field id) to labels.
   const answers = (reg.custom_fields ?? {}) as Record<string, unknown>;
@@ -104,7 +104,7 @@ export default async function AttendeeDetailPage({ params }: Props) {
       <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
 
         {/* Back */}
-        <Link href={`/events/${id}/registrations`}
+        <Link href={`/events/${_ev.slug}/registrations`}
           className="inline-flex items-center gap-1.5 text-[13px] mb-5 hover:opacity-80 transition-opacity"
           style={{ color: '#6B7A72' }}>
           <ChevronLeft size={15} /> Registrations
@@ -137,7 +137,7 @@ export default async function AttendeeDetailPage({ params }: Props) {
             <div className=" text-[12.5px] mt-2" style={{ color: '#6B7A72' }}>{reg.attendee_email}</div>
           </div>
           <div className="flex items-center gap-2 shrink-0 flex-wrap">
-            <Link href={`/events/${id}/check-in`}
+            <Link href={`/events/${_ev.slug}/check-in`}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-medium transition-all hover:opacity-90"
               style={{ background: '#1F4D3A', color: 'white' }}>
               <Scan size={14} /> Check in

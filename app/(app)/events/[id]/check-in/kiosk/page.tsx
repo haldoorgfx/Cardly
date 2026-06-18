@@ -19,8 +19,8 @@ export default async function KioskPage({ params }: { params: Promise<{ id: stri
   if (!user) redirect('/login');
 
   const admin = createAdminClient();
-  const { data: event } = await admin.from('events').select('id, name').eq('id', id).eq('user_id', user.id).single();
+  const { data: event } = await admin.from('events').select('id, name, slug').eq('id', id).eq('user_id', user.id).single();
   if (!event) redirect('/dashboard');
 
-  return <KioskClient eventId={id} eventName={event.name} />;
+  return <KioskClient eventId={id} eventSlug={event.slug} eventName={event.name} />;
 }

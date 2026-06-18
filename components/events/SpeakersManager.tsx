@@ -482,7 +482,7 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
                     <button onClick={() => copyPortalLink(speaker.id)} className="w-7 h-7 grid place-items-center rounded-lg transition hover:bg-[#F5F3EE]" style={{ color: copiedId === speaker.id ? '#2D7A4F' : '#6B7A72' }} title={copiedId === speaker.id ? 'Portal link copied!' : 'Copy speaker portal link'}>
                       <Link2 size={13} strokeWidth={1.8} />
                     </button>
-                    <Link href={`/events/${eventId}/speakers/${speaker.id}`} className="w-7 h-7 grid place-items-center rounded-lg transition hover:bg-[#F5F3EE]" style={{ color: '#6B7A72' }} title="View detail">
+                    <Link href={`/events/${slug}/speakers/${speaker.id}`} className="w-7 h-7 grid place-items-center rounded-lg transition hover:bg-[#F5F3EE]" style={{ color: '#6B7A72' }} title="View detail">
                       <ExternalLink size={13} strokeWidth={1.8} />
                     </Link>
                     <button onClick={() => openEdit(speaker)} className="w-7 h-7 grid place-items-center rounded-lg transition hover:bg-[#F5F3EE]" style={{ color: '#6B7A72' }} title="Edit">

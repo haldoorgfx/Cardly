@@ -147,7 +147,7 @@ export default async function RosterPrintPage({ params }: Props) {
         </div>
       </div>
 
-      <AgendaPrintTrigger backHref={`/events/${id}/downloads`} />
+      <AgendaPrintTrigger backHref={`/events/${_ev.slug}/downloads`} />
     </>
   );
 }
