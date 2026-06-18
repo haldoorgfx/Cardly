@@ -38,30 +38,6 @@ const INITIAL_MESSAGES: Message[] = [
   },
 ];
 
-function getAutoResponse(question: string, eventName: string, stats: Stats): string {
-  const q = question.toLowerCase();
-  if (q.includes('register') || q.includes('how many')) {
-    return `You currently have **${stats.registrations.toLocaleString()} confirmed registrations** for ${eventName}. ${stats.checkedIn > 0 ? `Of those, **${stats.checkedIn}** have already checked in.` : 'Check-in hasn\'t started yet.'}`;
-  }
-  if (q.includes('check-in') || q.includes('checkin')) {
-    const rate = stats.registrations > 0 ? Math.round((stats.checkedIn / stats.registrations) * 100) : 0;
-    return `Your current check-in rate is **${rate}%** (${stats.checkedIn.toLocaleString()} of ${stats.registrations.toLocaleString()} registrations). ${rate < 60 ? 'Consider sending a reminder — check-in rates typically peak in the last 24 hours before the event.' : 'Great turnout!'}`;
-  }
-  if (q.includes('email') || q.includes('reminder')) {
-    return `Here's a draft reminder email for your attendees:\n\n---\n**Subject:** See you tomorrow at ${eventName} 🎉\n\nHi [Name],\n\nWe're so excited to see you at ${eventName}! Here are a few things to know:\n\n• **Doors open at [TIME]**\n• Bring your QR code (it's in your ticket email)\n• Arrive 15 minutes early to avoid queues\n\nSee you there!\n\n*The ${eventName} Team*\n\n---\n\nWant me to adjust the tone or add more details?`;
-  }
-  if (q.includes('social') || q.includes('post')) {
-    return `Here's a social post you can use:\n\n---\n🎉 **${eventName}** is almost here!\n\nJoin ${stats.registrations}+ attendees for an unforgettable experience. We can't wait to see you there.\n\n📍 [Venue] · 📅 [Date]\n\nGet your tickets → [link]\n\n#Eventera #Events #${eventName.replace(/\s+/g, '')}\n\n---\n\nWant a version for LinkedIn, Twitter/X, or WhatsApp?`;
-  }
-  if (q.includes('survey') || q.includes('feedback')) {
-    return `Here are 3 strong post-event survey questions:\n\n1. **Overall experience** (1–5 stars): How would you rate your overall experience at ${eventName}?\n2. **Open-ended**: What was the highlight of the event for you?\n3. **NPS**: How likely are you to recommend this event to a friend or colleague? (0–10)\n\nKeep it under 5 questions for the best response rate.`;
-  }
-  if (q.includes('door') || q.includes('time')) {
-    return `A good rule of thumb: **open doors 30–45 minutes before your first session starts**. This gives check-in staff time to process attendees without creating a queue at peak time. If you have ${stats.registrations} registrations, I'd recommend 2–3 check-in stations minimum.`;
-  }
-  return `That's a great question about ${eventName}! I'm working with the data I have — ${stats.registrations} registrations and ${stats.checkedIn} check-ins so far. Could you rephrase or give me more context so I can give you a precise answer?`;
-}
-
 function renderContent(content: string) {
   return content
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
@@ -70,7 +46,7 @@ function renderContent(content: string) {
     .replace(/\n/g, '<br>');
 }
 
-export function AICopilotClient({ eventName, stats }: Omit<Props, 'eventId'> & { eventId?: string }) {
+export function AICopilotClient({ eventId, eventName, stats }: Props) {
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -83,12 +59,49 @@ export function AICopilotClient({ eventName, stats }: Omit<Props, 'eventId'> & {
     if (!content || loading) return;
     setInput('');
     const userMsg: Message = { id: `u-${Date.now()}`, role: 'user', content };
+
+    // Build the conversation to send (history minus the seeded greeting + new turn).
+    const history = [...messages, userMsg]
+      .filter(m => m.id !== 'init')
+      .map(m => ({ role: m.role, content: m.content }));
+
     setMessages(prev => [...prev, userMsg]);
     setLoading(true);
-    await new Promise(r => setTimeout(r, 600 + Math.random() * 400));
-    const reply = getAutoResponse(content, eventName, stats);
-    setMessages(prev => [...prev, { id: `a-${Date.now()}`, role: 'assistant', content: reply }]);
-    setLoading(false);
+
+    const assistantId = `a-${Date.now()}`;
+    try {
+      const res = await fetch(`/api/events/${eventId}/copilot`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: history }),
+      });
+
+      if (!res.ok || !res.body) {
+        const err = await res.json().catch(() => null);
+        throw new Error(err?.error || `Request failed (${res.status})`);
+      }
+
+      // First chunk: drop the loading dots and start the assistant bubble.
+      setMessages(prev => [...prev, { id: assistantId, role: 'assistant', content: '' }]);
+      setLoading(false);
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let acc = '';
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        acc += decoder.decode(value, { stream: true });
+        setMessages(prev => prev.map(m => (m.id === assistantId ? { ...m, content: acc } : m)));
+      }
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Something went wrong.';
+      setLoading(false);
+      setMessages(prev => {
+        const withoutEmpty = prev.filter(m => !(m.id === assistantId && m.content === ''));
+        return [...withoutEmpty, { id: `e-${Date.now()}`, role: 'assistant', content: `Sorry — I couldn't reach the AI service. ${msg}` }];
+      });
+    }
   }
 
   return (
