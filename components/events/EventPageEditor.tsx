@@ -36,6 +36,17 @@ const STEPS = [
   { id: 4, label: 'Settings',      short: 'Settings'    },
 ];
 
+function toSlug(raw: string): string {
+  // NFD splits é into e + combining accent; the ̀-ͯ range strips the accent
+  return raw
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '-')
+    .replace(/-{2,}/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 export function EventPageEditor({ eventId, eventSlug, eventName, existing, onComplete }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -167,7 +178,20 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
           body: JSON.stringify(body),
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error ?? 'Save failed');
+        if (!res.ok) {
+          // Surface field-level validation errors from the API
+          if (data.details && typeof data.details === 'object') {
+            const fieldMap: Record<string, string> = {
+              seo_title: 'SEO title is too long (max 100 characters)',
+              seo_description: 'SEO description is too long (max 300 characters)',
+              custom_slug: 'Slug may only contain lowercase letters, numbers, and hyphens',
+            };
+            const firstField = Object.keys(data.details)[0];
+            const firstMsg = firstField && data.details[firstField]?.[0];
+            throw new Error(fieldMap[firstField] ?? firstMsg ?? data.error ?? 'Save failed');
+          }
+          throw new Error(data.error ?? 'Save failed');
+        }
 
         if (onComplete) {
           onComplete();
@@ -629,7 +653,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
                   </span>
                   <input
                     value={customSlug}
-                    onChange={e => setCustomSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
+                    onChange={e => setCustomSlug(toSlug(e.target.value))}
                     placeholder={eventSlug}
                     className="flex-1 h-10 px-3 text-[13px] outline-none"
                     style={{ background: 'white', color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}

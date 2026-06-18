@@ -25,8 +25,8 @@ const EventPageSchema = z.object({
   is_public:                  z.boolean().optional(),
   registration_deadline:      NullableDateTime.optional(),
   max_capacity:               z.number().int().min(1, 'Capacity must be at least 1').nullable().optional(),
-  seo_title:                  z.string().max(60, 'SEO title should be 60 characters or less').trim().nullable().optional(),
-  seo_description:            z.string().max(160, 'SEO description should be 160 characters or less').trim().nullable().optional(),
+  seo_title:                  z.string().max(100, 'SEO title must be 100 characters or less').trim().nullable().optional(),
+  seo_description:            z.string().max(300, 'SEO description must be 300 characters or less').trim().nullable().optional(),
   cover_url:                  z.string().url('Invalid cover URL').nullable().optional()
                                 .or(z.literal('')).transform(v => v === '' ? null : v),
   organizer_name:             z.string().max(100).trim().nullable().optional(),
