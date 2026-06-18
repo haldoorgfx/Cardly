@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Plus, Trash2, X, ChevronDown, ChevronUp, User, MapPin, Settings, CalendarDays, AlertCircle, Upload } from 'lucide-react';
 import type { Session, Track, SessionType } from '@/types/database';
 import { ImportWizard } from '@/components/shared/ImportWizard';
@@ -24,6 +24,8 @@ interface Props {
   speakers: SpeakerOption[];
   initialTracks: Track[];
   eventDates?: EventDates;
+  onSessionsChange?: (sessions: Session[]) => void;
+  defaultEditSessionId?: string | null;
 }
 
 const SESSION_TYPES: { value: SessionType; label: string }[] = [
@@ -88,11 +90,19 @@ function groupByDate(sessions: Session[]): [string, Session[]][] {
   return Array.from(map.entries());
 }
 
-export default function SessionsManager({ eventId, initialSessions, speakers, initialTracks, eventDates }: Props) {
+export default function SessionsManager({ eventId, initialSessions, speakers, initialTracks, eventDates, onSessionsChange, defaultEditSessionId }: Props) {
   const ev = eventDates ?? { starts_at: null, ends_at: null };
 
   const [sessions, setSessions] = useState<Session[]>(initialSessions);
   const [tracks, setTracks] = useState<Track[]>(initialTracks);
+
+  function setSessionsAndNotify(updater: Session[] | ((prev: Session[]) => Session[])) {
+    setSessions(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      onSessionsChange?.(next);
+      return next;
+    });
+  }
   const [tracksOpen, setTracksOpen] = useState(false);
   const [activeDay, setActiveDay] = useState<string | null>(null);
   const [trackForm, setTrackForm] = useState({ name: '', color: TRACK_COLORS[0] });
@@ -104,11 +114,19 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
   const [showImport, setShowImport] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  // Auto-open edit form when a defaultEditSessionId is provided (e.g. from timeline click)
+  useEffect(() => {
+    if (!defaultEditSessionId) return;
+    const s = sessions.find(x => x.id === defaultEditSessionId);
+    if (s) openEdit(s);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defaultEditSessionId]);
+
   async function reloadSessions() {
     const res = await fetch(`/api/events/${eventId}/sessions`);
     if (res.ok) {
       const { sessions: fresh }: { sessions: Session[] } = await res.json();
-      setSessions(fresh);
+      setSessionsAndNotify(fresh);
     }
   }
   const [error, setError] = useState<string | null>(null);
@@ -239,7 +257,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
         const data = await res.json();
         if (!res.ok) throw new Error(data.error ?? 'Failed to update');
         const { session: updated }: { session: Session } = data;
-        setSessions((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
+        setSessionsAndNotify((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
       } else {
         const res = await fetch(`/api/events/${eventId}/sessions`, {
           method: 'POST',
@@ -249,7 +267,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
         const data = await res.json();
         if (!res.ok) throw new Error(data.error ?? 'Failed to create');
         const { session: created }: { session: Session } = data;
-        setSessions((prev) => [...prev, created]);
+        setSessionsAndNotify((prev) => [...prev, created]);
       }
       closeForm();
     } catch (e) {
@@ -264,7 +282,7 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
     setDeletingId(sessionId);
     try {
       await fetch(`/api/events/${eventId}/sessions?sessionId=${sessionId}`, { method: 'DELETE' });
-      setSessions((prev) => prev.filter((s) => s.id !== sessionId));
+      setSessionsAndNotify((prev) => prev.filter((s) => s.id !== sessionId));
     } finally {
       setDeletingId(null);
     }

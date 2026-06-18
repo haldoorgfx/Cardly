@@ -47,6 +47,7 @@ interface QuickFormState {
 
 export function AgendaView({ eventId, initialSessions, speakers, initialTracks, eventDates }: Props) {
   const [addOpen, setAddOpen] = useState(false);
+  const [editSessionId, setEditSessionId] = useState<string | null>(null);
   const [sessions, setSessions] = useState<Session[]>(initialSessions as Session[]);
 
   // Quick-add modal state
@@ -204,6 +205,7 @@ export function AgendaView({ eventId, initialSessions, speakers, initialTracks, 
             sessions={displayedSessions}
             tracks={initialTracks as Track[]}
             onSlotClick={handleSlotClick}
+            onSessionClick={s => { setEditSessionId(s.id); setAddOpen(true); }}
           />
         </div>
       )}
@@ -331,11 +333,11 @@ export function AgendaView({ eventId, initialSessions, speakers, initialTracks, 
       {/* ── Add session modal (uses SessionsManager in modal mode) ─────────── */}
       {addOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setAddOpen(false)} />
+          <div className="absolute inset-0 bg-black/40" onClick={() => { setAddOpen(false); setEditSessionId(null); }} />
           <div className="relative bg-white rounded-2xl shadow-[0_8px_40px_rgba(15,31,24,0.18)] border border-[#E5E0D4] w-full max-w-[700px] max-h-[85vh] overflow-y-auto">
             <div className="flex items-center justify-between px-6 py-4 border-b sticky top-0 bg-white z-10" style={{ borderColor: '#E5E0D4' }}>
-              <span className="font-display text-[16px] font-semibold" style={{ color: '#0F1F18' }}>Sessions</span>
-              <button onClick={() => setAddOpen(false)} className="h-8 w-8 rounded-lg grid place-items-center transition hover:bg-[#F5F3EE]" style={{ color: '#6B7A72' }}>
+              <span className="font-display text-[16px] font-semibold" style={{ color: '#0F1F18' }}>{editSessionId ? 'Edit session' : 'Sessions'}</span>
+              <button onClick={() => { setAddOpen(false); setEditSessionId(null); }} className="h-8 w-8 rounded-lg grid place-items-center transition hover:bg-[#F5F3EE]" style={{ color: '#6B7A72' }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
             </div>
@@ -346,6 +348,8 @@ export function AgendaView({ eventId, initialSessions, speakers, initialTracks, 
                 speakers={speakers}
                 initialTracks={initialTracks as Track[]}
                 eventDates={eventDates}
+                defaultEditSessionId={editSessionId}
+                onSessionsChange={updated => setSessions(updated)}
               />
             </div>
           </div>

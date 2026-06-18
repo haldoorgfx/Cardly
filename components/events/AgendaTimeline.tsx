@@ -7,6 +7,7 @@ interface Props {
   sessions: Session[];
   tracks: Track[];
   onSlotClick?: (startsAt: string, trackId: string | null) => void;
+  onSessionClick?: (session: Session) => void;
 }
 
 const ROW_HEIGHT = 68; // px per hour — generous breathing room
@@ -123,9 +124,10 @@ interface DayGridProps {
   tracks: Track[];
   dateKey: string;
   onSlotClick?: (startsAt: string, trackId: string | null) => void;
+  onSessionClick?: (session: Session) => void;
 }
 
-function DayGrid({ daySessions, tracks, dateKey, onSlotClick }: DayGridProps) {
+function DayGrid({ daySessions, tracks, dateKey, onSlotClick, onSessionClick }: DayGridProps) {
   const times = daySessions
     .flatMap(s => [
       s.starts_at ? new Date(s.starts_at).getHours() + new Date(s.starts_at).getMinutes() / 60 : null,
@@ -288,81 +290,101 @@ function DayGrid({ daySessions, tracks, dateKey, onSlotClick }: DayGridProps) {
                   </div>
                 )}
 
-                {/* Session blocks */}
-                {colSessions.map(session => {
-                  const st = getSessionStyle(session);
-                  if (!st) return null;
-                  const { cfg } = st;
-                  const speakers = session.session_speakers
-                    ?.map(ss => ss.speakers?.name)
-                    .filter(Boolean)
-                    .join(', ') ?? '';
-                  const timeRange = fmtTimeRange(session);
-                  const showMeta  = st.height > 46;
-
-                  return (
-                    <div
-                      key={session.id}
-                      className="absolute left-1.5 right-1.5 overflow-hidden cursor-pointer"
-                      style={{
-                        top:    st.top,
-                        height: st.height,
-                        borderRadius: 7,
-                        background:  cfg.bg,
-                        // Left accent + outer border
-                        borderLeft:  `${cfg.solid ? 5 : 3}px solid ${cfg.borderColor}`,
-                        ...(cfg.solid
-                          ? { boxShadow: '0 2px 8px rgba(15,31,24,0.18)' }
-                          : cfg.dashed
-                          ? { border: `1px dashed ${cfg.borderColor}`, borderLeft: `3px solid ${cfg.borderColor}` }
-                          : { border: '1px solid rgba(229,224,212,0.8)', borderLeft: `3px solid ${cfg.borderColor}`, boxShadow: '0 1px 3px rgba(15,31,24,0.04)' }
-                        ),
-                        zIndex: 1,
-                        transition: 'box-shadow 120ms ease',
-                      }}
-                      title={session.title}
-                      onClick={e => e.stopPropagation()}
-                      onMouseEnter={e => {
-                        if (!cfg.solid) (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 12px rgba(15,31,24,0.12)';
-                      }}
-                      onMouseLeave={e => {
-                        if (!cfg.solid) (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 3px rgba(15,31,24,0.04)';
-                      }}
-                    >
-                      {session.session_type === 'break' ? (
-                        /* Break — slim centered label, not a big empty box */
-                        <div className="px-3 h-full flex items-center justify-center gap-2 text-center">
-                          <span className="font-display font-medium" style={{ fontSize: 12, color: cfg.titleColor, letterSpacing: '0.01em' }}>
-                            {session.title}
-                          </span>
-                          {timeRange && (
-                            <span className="text-[10px] font-medium shrink-0" style={{ color: cfg.metaColor }}>· {timeRange}</span>
-                          )}
-                        </div>
-                      ) : (
-                        /* Content top-aligned: time → title → speakers (no awkward gap) */
-                        <div className="px-2.5 py-2 h-full flex flex-col gap-1 overflow-hidden">
-                          {timeRange && (
-                            <div className="text-[10px] font-semibold tracking-[0.02em]" style={{ color: cfg.metaColor }}>
-                              {timeRange}
-                            </div>
-                          )}
-                          <div
-                            className="font-display font-semibold leading-snug line-clamp-2"
-                            style={{ fontSize: 13, color: cfg.titleColor, letterSpacing: '-0.01em' }}
-                          >
-                            {session.title}
-                          </div>
-                          {showMeta && speakers && (
-                            <span className="text-[10.5px] font-medium truncate" style={{ color: cfg.metaColor }}>
-                              {speakers}
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </div>
+                {/* Session blocks — with overlap detection */}
+                {(() => {
+                  // Build overlap groups: sessions that overlap in time get split into sub-columns
+                  type SlotSession = { session: Session; subCol: number; totalCols: number };
+                  const slots: SlotSession[] = [];
+                  const sorted = [...colSessions].sort((a, b) =>
+                    new Date(a.starts_at ?? 0).getTime() - new Date(b.starts_at ?? 0).getTime()
                   );
-                })}
+                  // Active sessions tracking for overlap detection
+                  const active: { end: number; col: number }[] = [];
+                  for (const session of sorted) {
+                    const start = session.starts_at ? new Date(session.starts_at).getTime() : 0;
+                    const end = session.ends_at ? new Date(session.ends_at).getTime() : start + 3_600_000;
+                    // Remove sessions that ended
+                    active.splice(0, active.length, ...active.filter(a => a.end > start));
+                    // Find first free sub-column
+                    const usedCols = new Set(active.map(a => a.col));
+                    let col = 0;
+                    while (usedCols.has(col)) col++;
+                    active.push({ end, col });
+                    slots.push({ session, subCol: col, totalCols: 0 });
+                  }
+                  // Second pass: compute totalCols per slot (max concurrent)
+                  for (let i = 0; i < slots.length; i++) {
+                    const sStart = new Date(slots[i].session.starts_at ?? 0).getTime();
+                    const sEnd = slots[i].session.ends_at ? new Date(slots[i].session.ends_at).getTime() : sStart + 3_600_000;
+                    let maxCol = slots[i].subCol;
+                    for (let j = 0; j < slots.length; j++) {
+                      const jStart = new Date(slots[j].session.starts_at ?? 0).getTime();
+                      const jEnd = slots[j].session.ends_at ? new Date(slots[j].session.ends_at).getTime() : jStart + 3_600_000;
+                      if (jStart < sEnd && jEnd > sStart) maxCol = Math.max(maxCol, slots[j].subCol);
+                    }
+                    slots[i].totalCols = maxCol + 1;
+                  }
+
+                  return slots.map(({ session, subCol, totalCols }) => {
+                    const st = getSessionStyle(session);
+                    if (!st) return null;
+                    const { cfg } = st;
+                    const spkrs = session.session_speakers
+                      ?.map(ss => ss.speakers?.name)
+                      .filter(Boolean)
+                      .join(', ') ?? '';
+                    const timeRange = fmtTimeRange(session);
+                    const showMeta = st.height > 46;
+                    const pct = 100 / totalCols;
+                    const gap = totalCols > 1 ? 2 : 0;
+
+                    return (
+                      <div
+                        key={session.id}
+                        className="absolute overflow-hidden"
+                        style={{
+                          top: st.top,
+                          height: st.height,
+                          left: `calc(6px + ${subCol * pct}% + ${gap}px)`,
+                          width: `calc(${pct}% - ${subCol > 0 ? gap * 2 : gap + 6}px)`,
+                          borderRadius: 7,
+                          background: cfg.bg,
+                          borderLeft: `${cfg.solid ? 5 : 3}px solid ${cfg.borderColor}`,
+                          ...(cfg.solid
+                            ? { boxShadow: '0 2px 8px rgba(15,31,24,0.18)' }
+                            : cfg.dashed
+                            ? { border: `1px dashed ${cfg.borderColor}`, borderLeft: `3px solid ${cfg.borderColor}` }
+                            : { border: '1px solid rgba(229,224,212,0.8)', borderLeft: `3px solid ${cfg.borderColor}`, boxShadow: '0 1px 3px rgba(15,31,24,0.04)' }
+                          ),
+                          zIndex: 1,
+                          cursor: onSessionClick ? 'pointer' : 'default',
+                          transition: 'box-shadow 120ms ease',
+                        }}
+                        title={onSessionClick ? `Click to edit: ${session.title}` : session.title}
+                        onClick={e => { e.stopPropagation(); onSessionClick?.(session); }}
+                        onMouseEnter={e => {
+                          if (!cfg.solid) (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 12px rgba(15,31,24,0.12)';
+                        }}
+                        onMouseLeave={e => {
+                          if (!cfg.solid) (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 3px rgba(15,31,24,0.04)';
+                        }}
+                      >
+                        {session.session_type === 'break' ? (
+                          <div className="px-3 h-full flex items-center justify-center gap-2 text-center">
+                            <span className="font-display font-medium" style={{ fontSize: 12, color: cfg.titleColor, letterSpacing: '0.01em' }}>{session.title}</span>
+                            {timeRange && <span className="text-[10px] font-medium shrink-0" style={{ color: cfg.metaColor }}>· {timeRange}</span>}
+                          </div>
+                        ) : (
+                          <div className="px-2.5 py-2 h-full flex flex-col gap-1 overflow-hidden">
+                            {timeRange && <div className="text-[10px] font-semibold tracking-[0.02em]" style={{ color: cfg.metaColor }}>{timeRange}</div>}
+                            <div className="font-display font-semibold leading-snug line-clamp-2" style={{ fontSize: 13, color: cfg.titleColor, letterSpacing: '-0.01em' }}>{session.title}</div>
+                            {showMeta && spkrs && <span className="text-[10.5px] font-medium truncate" style={{ color: cfg.metaColor }}>{spkrs}</span>}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  });
+                })()}
               </div>
             );
           })}
@@ -406,7 +428,7 @@ function TimelineLegend({ usedTypes }: { usedTypes: Set<string> }) {
 
 // ── Main export ───────────────────────────────────────────────────────────────
 
-export function AgendaTimeline({ sessions, tracks, onSlotClick }: Props) {
+export function AgendaTimeline({ sessions, tracks, onSlotClick, onSessionClick }: Props) {
   const grouped = useMemo(() => groupByDate(sessions), [sessions]);
 
   const usedTypes = useMemo(
@@ -452,6 +474,7 @@ export function AgendaTimeline({ sessions, tracks, onSlotClick }: Props) {
               tracks={tracks}
               dateKey={dateKey}
               onSlotClick={onSlotClick}
+              onSessionClick={onSessionClick}
             />
           </div>
         );
