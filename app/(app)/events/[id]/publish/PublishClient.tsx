@@ -222,6 +222,7 @@ export default function PublishClient({
 }: Props) {
   const [copied, setCopied] = useState(false);
   const [captionCopied, setCaptionCopied] = useState(false);
+  const [captionIndex, setCaptionIndex] = useState(0);
   const [embedCopied, setEmbedCopied] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState('');
   const [qrSvgString, setQrSvgString] = useState('');
@@ -244,7 +245,26 @@ export default function PublishClient({
     : dateLabel;
   const venueLabel = isOnline ? 'Online event' : (venueName ?? '');
 
-  const caption = `Join us at ${eventName}${dateRange ? ` · ${dateRange}` : ''}. Register now and secure your spot.`;
+  // Generate dynamic hashtags from event name
+  const hashtagBase = eventName
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-zA-Z0-9\s]/g, '')
+    .split(/\s+/).filter(w => w.length > 2)
+    .map(w => `#${w.charAt(0).toUpperCase()}${w.slice(1).toLowerCase()}`)
+    .slice(0, 3)
+    .join(' ');
+  const locationTag = venueName ? `#${venueName.split(/[\s,]+/)[0].replace(/[^a-zA-Z]/g, '')}` : '';
+  const hashtags = [hashtagBase, locationTag, '#Eventera'].filter(Boolean).join(' ');
+
+  // Captions – pick the best based on available data
+  const captions = [
+    dateRange && venueLabel
+      ? `📅 ${dateRange}${venueLabel && !isOnline ? ` · ${venueLabel}` : ' · Online'}\n\nWe're hosting ${eventName} and we'd love to see you there. Reserve your spot now — limited seats available.\n\n👇 Register here:\n${shareUrl}\n\n${hashtags}`
+      : `We're hosting ${eventName} and we'd love to see you there. Reserve your spot now — limited seats available.\n\n👇 Register here:\n${shareUrl}\n\n${hashtags}`,
+    `🎉 ${eventName}${dateRange ? ` is happening on ${dateRange}` : ' is coming up'}${venueLabel && !isOnline ? ` at ${venueLabel}` : isOnline ? ' — join us online' : ''}.\n\nSecure your free spot before it fills up.\n\n🔗 ${shareUrl}\n\n${hashtags}`,
+    `Save the date! ${eventName}${dateRange ? ` · ${dateRange}` : ''}${venueLabel && !isOnline ? ` · ${venueLabel}` : ''}.\n\nClick the link to register:\n${shareUrl}\n\n${hashtags}`,
+  ];
+  const caption = captions[captionIndex];
   const embedCode = `<iframe src="${shareUrl}"\n        width="375" height="812"\n        frameborder="0"></iframe>`;
 
   const handleCopy = useCallback(async () => {
@@ -391,36 +411,53 @@ export default function PublishClient({
               <span>public · no login required</span>
             </span>
           }>
-            <div style={{
-              display: 'flex', alignItems: 'stretch',
-              border: `1px solid ${PT.border}`, borderRadius: 6, overflow: 'hidden',
-            }}>
+            <div style={{ display: 'flex', gap: 8 }}>
               <div style={{
-                flex: 1, minWidth: 0, padding: '0 12px',
-                display: 'flex', alignItems: 'center',
-                background: PT.cream, borderRight: `1px solid ${PT.border}`,
+                flex: 1, minWidth: 0,
+                display: 'flex', alignItems: 'stretch',
+                border: `1px solid ${PT.border}`, borderRadius: 6, overflow: 'hidden',
               }}>
-                <span style={{
-                  fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12.5,
-                  color: PT.ink, fontWeight: 500,
-                  whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1,
-                }}>{shareUrl}</span>
+                <div style={{
+                  flex: 1, minWidth: 0, padding: '0 12px',
+                  display: 'flex', alignItems: 'center',
+                  background: PT.cream, borderRight: `1px solid ${PT.border}`,
+                }}>
+                  <span style={{
+                    fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12.5,
+                    color: PT.ink, fontWeight: 500,
+                    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1,
+                  }}>{shareUrl}</span>
+                </div>
+                <button
+                  onClick={handleCopy}
+                  style={{
+                    padding: '0 16px', height: 44,
+                    background: copied ? PT.primarySoft : PT.surface,
+                    color: copied ? PT.primary : PT.ink,
+                    border: 'none', cursor: 'pointer',
+                    fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13,
+                    display: 'inline-flex', alignItems: 'center', gap: 6,
+                    flexShrink: 0, transition: 'background 0.15s',
+                  }}
+                >
+                  {copied ? I.check({ size: 14 }) : I.copy({ size: 14 })}
+                  <span>{copied ? 'Copied!' : 'Copy'}</span>
+                </button>
               </div>
-              <button
-                onClick={handleCopy}
+              <a
+                href={shareUrl} target="_blank" rel="noopener noreferrer"
                 style={{
-                  padding: '0 16px', height: 44,
-                  background: copied ? PT.primarySoft : PT.surface,
-                  color: copied ? PT.primary : PT.ink,
-                  border: 'none', cursor: 'pointer',
+                  height: 44, padding: '0 16px',
+                  background: PT.primary, color: PT.cream,
+                  border: 'none', borderRadius: 6,
                   fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13,
                   display: 'inline-flex', alignItems: 'center', gap: 6,
-                  flexShrink: 0, transition: 'background 0.15s',
+                  flexShrink: 0, textDecoration: 'none', transition: 'background 0.15s',
                 }}
               >
-                {copied ? I.check({ size: 14 }) : I.copy({ size: 14 })}
-                <span>{copied ? 'Copied!' : 'Copy'}</span>
-              </button>
+                {I.external({ size: 14 })}
+                <span>Visit</span>
+              </a>
             </div>
 
             <div>
@@ -453,12 +490,26 @@ export default function PublishClient({
               borderRadius: 8, padding: '12px 14px',
             }}>
               <div style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 6,
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 8,
               }}>
-                <div style={{
-                  fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
-                  color: PT.muted, letterSpacing: '0.08em', textTransform: 'uppercase',
-                }}>Suggested caption</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{
+                    fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
+                    color: PT.muted, letterSpacing: '0.08em', textTransform: 'uppercase',
+                  }}>Caption</div>
+                  <div style={{ display: 'flex', gap: 4 }}>
+                    {captions.map((_, i) => (
+                      <button key={i} onClick={() => setCaptionIndex(i)} style={{
+                        width: 22, height: 22, borderRadius: 4,
+                        background: captionIndex === i ? PT.primary : PT.surface,
+                        color: captionIndex === i ? PT.cream : PT.muted,
+                        border: `1px solid ${captionIndex === i ? PT.primary : PT.border}`,
+                        cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600,
+                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                      }}>{i + 1}</button>
+                    ))}
+                  </div>
+                </div>
                 <button
                   onClick={handleCaptionCopy}
                   style={{
@@ -471,7 +522,7 @@ export default function PublishClient({
                   <span>{captionCopied ? 'Copied!' : 'Copy'}</span>
                 </button>
               </div>
-              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, lineHeight: 1.5, color: PT.ink }}>
+              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, lineHeight: 1.6, color: PT.ink, whiteSpace: 'pre-line' }}>
                 {caption}
               </div>
             </div>
