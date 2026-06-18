@@ -27,15 +27,18 @@ export default function CardPreviewClient({ backgroundUrl, bgW, bgH, zones, even
     return () => ro.disconnect();
   }, []);
 
+  // Guard against invalid dimensions (can happen when JPEG parse fails)
+  const safeBgW = bgW > 0 ? bgW : 1;
+  const safeBgH = bgH > 0 ? bgH : 1;
   // Compute exact rendered dimensions — no black bars
-  const aspectRatio = bgW / bgH;
+  const aspectRatio = safeBgW / safeBgH;
   const displayW = availableW
     ? Math.min(availableW, maxHeight * aspectRatio)
     : null;
   const displayH = displayW ? displayW / aspectRatio : null;
 
   // Scale factor: canvas pixels → rendered pixels
-  const scale = displayW ? displayW / bgW : null;
+  const scale = displayW ? displayW / safeBgW : null;
 
   return (
     // Outer wrapper: full width, just used for measurement
@@ -46,18 +49,18 @@ export default function CardPreviewClient({ backgroundUrl, bgW, bgH, zones, even
         style={{
           width: displayW ?? '100%',
           height: displayH ?? 'auto',
-          aspectRatio: displayW ? undefined : `${bgW}/${bgH}`,
+          aspectRatio: displayW ? undefined : `${safeBgW}/${safeBgH}`,
           maxHeight,
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={backgroundUrl} alt={eventName} className="w-full h-full object-fill" />
+        <img src={backgroundUrl} alt={eventName} className="w-full h-full object-contain" />
 
         {scale !== null && zones.map(z => {
-          const left   = (z.x / bgW) * 100;
-          const top    = (z.y / bgH) * 100;
-          const width  = (z.w / bgW) * 100;
-          const height = (z.h / bgH) * 100;
+          const left   = (z.x / safeBgW) * 100;
+          const top    = (z.y / safeBgH) * 100;
+          const width  = (z.w / safeBgW) * 100;
+          const height = (z.h / safeBgH) * 100;
 
           if (z.type === 'photo') {
             const br = z.shape === 'circle' ? '50%' : z.shape === 'rounded' ? '20%' : '4px';

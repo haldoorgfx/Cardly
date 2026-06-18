@@ -887,6 +887,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
   const [importOpen, setImportOpen]   = useState(false);
   const [selected, setSelected]       = useState<Set<string>>(new Set());
   const [bulkBusy, setBulkBusy]       = useState(false);
+  const [refreshCounter, setRefreshCounter] = useState(0);
   const searchTimeout                 = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const allSelected = rows.length > 0 && rows.every(r => selected.has(r.id));
@@ -908,18 +909,30 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
     if (status === 'cancelled' && !confirm(`Cancel ${ids.length} registration${ids.length !== 1 ? 's' : ''}? This can be undone per-attendee later.`)) return;
     setBulkBusy(true);
     const now = new Date().toISOString();
+    // Save original rows for rollback
+    const originalRows = rows;
     // Optimistic update
     setRows(r => r.map(row => ids.includes(row.id)
       ? { ...row, status, checked_in_at: status === 'checked_in' ? now : row.checked_in_at }
       : row));
     try {
-      await Promise.all(ids.map(id =>
+      const results = await Promise.all(ids.map(id =>
         fetch(`/api/events/${eventId}/registrations`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ registrationId: id, status }),
-        }).catch(() => {})
+        }).then(r => r.ok).catch(() => false)
       ));
+      const failedCount = results.filter(ok => !ok).length;
+      if (failedCount > 0) {
+        // Revert optimistic update for any failures — simplest is to rollback and refresh
+        setRows(originalRows);
+        setRefreshCounter(c => c + 1);
+        alert(`${failedCount} update${failedCount !== 1 ? 's' : ''} failed. The list has been refreshed.`);
+      }
+    } catch {
+      setRows(originalRows);
+      setRefreshCounter(c => c + 1);
     } finally {
       setBulkBusy(false);
       clearSelection();
@@ -957,7 +970,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
       }
     }, 300);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, statusFilter, eventId]);
+  }, [query, statusFilter, eventId, refreshCounter]);
 
   const loadMore = useCallback(async () => {
     setLoading(true);
@@ -1018,8 +1031,8 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
           onClose={() => setImportOpen(false)}
           onImported={(count) => {
             setTotal(t => t + count);
-            // Refresh list from server
-            setQuery(q => q); // trigger search effect
+            // Refresh list from server by bumping the counter (search effect depends on it)
+            setRefreshCounter(c => c + 1);
           }}
         />
       )}
@@ -1089,7 +1102,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
 
         {/* Row 2: status filters */}
         <div className="flex gap-1.5 flex-wrap">
-          {(['all', 'confirmed', 'checked_in', 'pending', 'cancelled'] as const).map(s => (
+          {(['all', 'confirmed', 'checked_in', 'pending', 'pending_approval', 'cancelled', 'refunded'] as const).map(s => (
             <button
               key={s}
               onClick={() => setStatusFilter(s)}
@@ -1100,7 +1113,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
                 border: `1px solid ${statusFilter === s ? '#1F4D3A' : '#E5E0D4'}`,
               }}
             >
-              {s === 'all' ? 'All' : s === 'checked_in' ? 'Checked in' : s.charAt(0).toUpperCase() + s.slice(1)}
+              {s === 'all' ? 'All' : s === 'checked_in' ? 'Checked in' : s === 'pending_approval' ? 'Awaiting approval' : s.charAt(0).toUpperCase() + s.slice(1)}
             </button>
           ))}
         </div>

@@ -116,8 +116,12 @@ export default async function BillingPage({
   const plan = (profile?.plan ?? 'free') as 'free' | 'pro' | 'studio';
   const limits = PLANS[plan];
   const cardsUsed = profile?.cards_this_month ?? 0;
-  const cardPct = Math.min((cardsUsed / limits.cardsPerMonth) * 100, 100);
-  const eventPct = limits.events === null ? 50 : Math.min((eventsCount / limits.events) * 100, 100);
+  // Guard against division by zero and NaN
+  const cardPct = limits.cardsPerMonth > 0
+    ? Math.min((cardsUsed / limits.cardsPerMonth) * 100, 100)
+    : 0;
+  // For unlimited plans (events === null) hide the bar entirely by passing null
+  const eventPct = limits.events === null ? null : Math.min((eventsCount / limits.events) * 100, 100);
   const status = profile?.subscription_status ?? 'none';
   const isTrialing = status === 'trialing';
   const isActive = status === 'active' || isTrialing;
@@ -159,6 +163,12 @@ export default async function BillingPage({
               <p className="text-[14px] text-[#1F4D3A] font-medium">Payment successful — your plan has been updated.</p>
             </div>
           )}
+          {checkout === 'cancelled' && (
+            <div className="mb-6 rounded-2xl border border-[#E5E0D4] bg-[#FAF6EE] px-5 py-4 flex items-center gap-3">
+              <span className="h-2 w-2 rounded-full bg-[#6B7A72] shrink-0" />
+              <p className="text-[14px] text-[#3A4A42]">Checkout cancelled — no charge was made.</p>
+            </div>
+          )}
           <BillingActions plan={plan} hasPortal={hasPortal} isTrialing={isTrialing} />
         </div>
       </>
@@ -168,7 +178,7 @@ export default async function BillingPage({
   return (
     <>
       <SettingsTabs />
-    <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-[960px]">
+      <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-[960px]">
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-8 flex-wrap">
         <div>
@@ -391,6 +401,17 @@ export default async function BillingPage({
                         style={{ background: '#FFF7ED', color: '#C97A2D', border: '1px solid #FBD5A0' }}
                       >
                         Due
+                      </span>
+                    )}
+                    {inv.status === 'void' && (
+                      <span className="text-[12px] text-[#6B7A72]">Void</span>
+                    )}
+                    {inv.status === 'uncollectible' && (
+                      <span
+                        className="inline-flex items-center text-[11.5px] font-medium px-2.5 py-1 rounded-full"
+                        style={{ background: '#FEE2E2', color: '#991B1B', border: '1px solid #FECACA' }}
+                      >
+                        Uncollectible
                       </span>
                     )}
                   </td>

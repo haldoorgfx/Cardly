@@ -78,7 +78,8 @@ export default async function AttendeeDetailPage({ params }: Props) {
     .filter(([k, v]) => !knownIds.has(k) && !k.startsWith('__') && fmtAnswer(v) !== '')
     .map(([k, v]) => ({ label: k, value: fmtAnswer(v) }));
 
-  const gradIdx = reg.attendee_name.charCodeAt(0) % AVATAR_GRADS.length;
+  const firstChar = reg.attendee_name?.[0];
+  const gradIdx = firstChar ? firstChar.charCodeAt(0) % AVATAR_GRADS.length : 0;
   const avatarGrad = AVATAR_GRADS[gradIdx];
   const statusStyle = STATUS_STYLE[reg.status] ?? STATUS_STYLE.pending;
   const registeredDate = new Date(reg.created_at).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' });

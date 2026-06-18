@@ -9,6 +9,7 @@ export default function SignupPage() {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [googlePending, setGooglePending] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -22,11 +23,21 @@ export default function SignupPage() {
 
   async function handleGoogleSignIn() {
     setGooglePending(true);
-    const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    });
+    try {
+      const supabase = createClient();
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: `${window.location.origin}/auth/callback` },
+      });
+      if (oauthError) {
+        setError(oauthError.message);
+        setGooglePending(false);
+      }
+      // On success, browser redirects — no need to reset pending
+    } catch {
+      setError("Failed to sign in with Google. Please try again.");
+      setGooglePending(false);
+    }
   }
 
   return (
@@ -106,6 +117,7 @@ export default function SignupPage() {
               name="full_name"
               type="text"
               required
+              autoComplete="name"
               placeholder="Your name"
               className="w-full h-10 px-3.5 rounded-lg border text-[14px] text-[#0F1F18] placeholder:text-[#6B7A72]/60 transition focus:outline-none"
               style={{
@@ -132,6 +144,7 @@ export default function SignupPage() {
               name="email"
               type="email"
               required
+              autoComplete="email"
               placeholder="you@studio.com"
               className="w-full h-10 px-3.5 rounded-lg border text-[14px] text-[#0F1F18] placeholder:text-[#6B7A72]/60 transition focus:outline-none"
               style={{
@@ -154,27 +167,47 @@ export default function SignupPage() {
             <label className="block text-[13px] font-medium text-[#3A4A42] mb-1.5">
               Password
             </label>
-            <input
-              name="password"
-              type="password"
-              required
-              minLength={8}
-              placeholder="At least 8 characters"
-              className="w-full h-10 px-3.5 rounded-lg border text-[14px] text-[#0F1F18] placeholder:text-[#6B7A72]/60 transition focus:outline-none"
-              style={{
-                borderColor: "#E5E0D4",
-                background: "#FAF6EE",
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = "rgba(31,77,58,0.4)";
-                e.currentTarget.style.boxShadow =
-                  "0 0 0 3px rgba(31,77,58,0.1)";
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = "#E5E0D4";
-                e.currentTarget.style.boxShadow = "none";
-              }}
-            />
+            <div className="relative">
+              <input
+                name="password"
+                type={showPassword ? "text" : "password"}
+                required
+                minLength={8}
+                autoComplete="new-password"
+                placeholder="At least 8 characters"
+                className="w-full h-10 px-3.5 pr-10 rounded-lg border text-[14px] text-[#0F1F18] placeholder:text-[#6B7A72]/60 transition focus:outline-none"
+                style={{
+                  borderColor: "#E5E0D4",
+                  background: "#FAF6EE",
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = "rgba(31,77,58,0.4)";
+                  e.currentTarget.style.boxShadow =
+                    "0 0 0 3px rgba(31,77,58,0.1)";
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = "#E5E0D4";
+                  e.currentTarget.style.boxShadow = "none";
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(p => !p)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6B7A72] hover:text-[#0F1F18] transition"
+                tabIndex={-1}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>
+                  </svg>
+                ) : (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                  </svg>
+                )}
+              </button>
+            </div>
           </div>
 
           <button
