@@ -21,7 +21,7 @@ export default async function RegistrationsPage({ params }: Props) {
 
   const admin = createAdminClient();
 
-  const [{ data: event }, regResult, { data: ticketTypes }] = await Promise.all([
+  const [{ data: event }, regResult, { data: ticketTypes }, cardsResult] = await Promise.all([
     admin
       .from('events')
       .select('id, name, slug')
@@ -39,6 +39,10 @@ export default async function RegistrationsPage({ params }: Props) {
       .select('id, name, price, currency')
       .eq('event_id', id)
       .order('position'),
+    admin
+      .from('generated_cards')
+      .select('attendee_data')
+      .eq('event_id', id),
   ]);
 
   const { data: formFields } = await admin
@@ -48,6 +52,14 @@ export default async function RegistrationsPage({ params }: Props) {
     .order('position');
 
   if (!event) redirect('/dashboard');
+
+  // Build set of emails that have generated a card (for the CARD column)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const cardEmails = new Set<string>((cardsResult.data ?? []).map((c: any) => {
+    const d = c.attendee_data as Record<string, unknown> | null;
+    return (d?.email ?? d?.attendee_email ?? '') as string;
+  }).filter(Boolean));
+  const totalCardsGenerated = cardsResult.data?.length ?? 0;
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
@@ -70,6 +82,8 @@ export default async function RegistrationsPage({ params }: Props) {
           ticketTypes={ticketTypes ?? []}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           formFields={(formFields ?? []) as any}
+          cardEmails={Array.from(cardEmails)}
+          totalCardsGenerated={totalCardsGenerated}
         />
       </div>
     </div>

@@ -8,7 +8,7 @@ export async function PATCH(req: Request) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json();
-  const { sponsor_id, company_name, tier, booth_location, website_url } = body;
+  const { sponsor_id, company_name, tier, booth_location, website_url, logo_url } = body;
   if (!sponsor_id) return NextResponse.json({ error: 'sponsor_id required' }, { status: 400 });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -25,6 +25,7 @@ export async function PATCH(req: Request) {
   if (tier !== undefined) patch.tier = tier;
   if (booth_location !== undefined) patch.booth_location = booth_location || null;
   if (website_url !== undefined) patch.website_url = website_url || null;
+  if (logo_url !== undefined) patch.logo_url = logo_url || null;
 
   const { data, error } = await admin.from('sponsors').update(patch).eq('id', sponsor_id).select().single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

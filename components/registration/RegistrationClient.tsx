@@ -133,6 +133,7 @@ export default function RegistrationClient({
   // Land straight on Details when a ticket was already picked on the event page.
   const [step, setStep] = useState<0 | 1 | 2 | 3>(preselected ? 1 : 0);
   const [confirmedToken, setConfirmedToken] = useState<string | null>(null);
+  const [confirmedRegId, setConfirmedRegId] = useState<string | null>(null);
   const [selectedTicket, setSelectedTicket] = useState<TicketType | null>(() => preselected ?? pickDefaultTicket(tickets));
 
   // Basic fields
@@ -403,6 +404,7 @@ export default function RegistrationClient({
       // For canvas events: go to "Your card" step so the attendee can personalise before redirect
       if (canvasVariant) {
         setConfirmedToken(token);
+        setConfirmedRegId(data.registration_id ?? null);
         setStep(3);
         return;
       }
@@ -422,7 +424,7 @@ export default function RegistrationClient({
       const attendeeName = deriveAttendeeName(canvasVariant.zones, zoneValues, name || 'Attendee');
       const fd = new FormData();
       fd.append('variantId', canvasVariant.id);
-      const enriched = { ...zoneValues };
+      const enriched: Record<string, string> = { ...zoneValues, email: email.trim().toLowerCase() };
       const firstNameZone = canvasVariant.zones.find(z => {
         const lbl = (z.label ?? '').toLowerCase();
         return (z.type === 'text' || z.type === 'custom') && lbl.includes('name') && !lbl.includes('company') && !lbl.includes('org');
@@ -430,6 +432,7 @@ export default function RegistrationClient({
       if (firstNameZone && !enriched[firstNameZone.id]) enriched[firstNameZone.id] = attendeeName;
       fd.append('fields', JSON.stringify(enriched));
       fd.append('idempotencyKey', `reg-${confirmedToken}-card`);
+      if (confirmedRegId) fd.append('registrationId', confirmedRegId);
       for (const [zoneId, file] of Object.entries(zonePhotoFiles)) {
         fd.append(`photo_${zoneId}`, file);
       }

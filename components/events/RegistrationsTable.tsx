@@ -45,6 +45,8 @@ interface Props {
   totalCount: number;
   ticketTypes: TicketOption[];
   formFields?: FormFieldOption[];
+  cardEmails?: string[];
+  totalCardsGenerated?: number;
 }
 
 const STATUS_PILL: Record<Status, { label: string; bg: string; color: string }> = {
@@ -850,7 +852,8 @@ function AddManuallyModal({
 }
 
 /* ── Main table ─────────────────────────────────────────────────────────────── */
-export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, totalCount, ticketTypes, formFields = [] }: Props) {
+export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, totalCount, ticketTypes, formFields = [], cardEmails = [], totalCardsGenerated }: Props) {
+  const cardEmailSet = new Set(cardEmails);
   const [rows, setRows]               = useState(initialRegistrations);
   const [total, setTotal]             = useState(totalCount);
 
@@ -975,22 +978,24 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
 
   const checkedInCount = rows.filter(r => r.status === 'checked_in').length;
   const pendingCount   = rows.filter(r => r.status === 'pending').length;
-  const cardDownloaded = rows.filter(r => r.eventera_card_url).length;
-  // Group revenue by currency
+  // Cards downloaded: prefer server-provided count, fallback to per-row check
+  const cardDownloaded = totalCardsGenerated ?? rows.filter(r => r.eventera_card_url || cardEmailSet.has(r.attendee_email)).length;
+  // Group revenue by currency (only paid amounts)
   const revenueByCurrency = rows.reduce<Record<string, number>>((acc, r) => {
     if ((r.amount_paid ?? 0) <= 0) return acc;
     const cur = r.currency || 'USD';
     acc[cur] = (acc[cur] ?? 0) + (r.amount_paid ?? 0);
     return acc;
   }, {});
-  const revenueDisplay = Object.entries(revenueByCurrency).length === 0
-    ? '—'
-    : Object.entries(revenueByCurrency)
+  const hasPaidRevenue = Object.keys(revenueByCurrency).length > 0;
+  const revenueDisplay = hasPaidRevenue
+    ? Object.entries(revenueByCurrency)
         .map(([cur, amt]) => {
           try { return new Intl.NumberFormat(undefined, { style: 'currency', currency: cur, minimumFractionDigits: 0 }).format(amt); }
           catch { return `${cur} ${amt.toLocaleString()}`; }
         })
-        .join(' + ');
+        .join(' + ')
+    : total > 0 ? 'Free' : '—';
   const checkInPct     = total > 0 ? `${Math.round((checkedInCount / total) * 100)}%` : '0%';
 
   return (
@@ -1193,6 +1198,10 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
                             <ExternalLink size={12} /> View
                           </span>
                         </a>
+                      ) : cardEmailSet.has(reg.attendee_email) ? (
+                        <span className="inline-flex items-center gap-1 text-[12px]" style={{ color: '#2D7A4F' }}>
+                          ✓ Downloaded
+                        </span>
                       ) : (
                         <span className="text-[12px]" style={{ color: '#C9C3B1' }}>—</span>
                       )}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Modal } from '@/components/ui/Modal';
@@ -11,6 +11,7 @@ interface Sponsor {
   tier: string | null;
   booth_location: string | null;
   website_url: string | null;
+  logo_url: string | null;
   invite_token: string;
   lead_count: number;
 }
@@ -43,13 +44,74 @@ function tierLabel(tier: string | null) {
   return TIERS.find(t => t.value === tier)?.label ?? tier ?? 'Standard';
 }
 
-function Avatar({ name }: { name: string }) {
+function SponsorAvatar({ name, logoUrl }: { name: string; logoUrl: string | null }) {
+  if (logoUrl) {
+    return (
+      <img src={logoUrl} alt={name}
+        className="w-10 h-10 rounded-xl object-contain shrink-0 bg-white"
+        style={{ border: '1px solid #E5E0D4' }} />
+    );
+  }
   const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
   return (
     <span className="w-10 h-10 rounded-xl grid place-items-center text-cream font-display font-semibold text-[13px] shrink-0"
       style={{ background: 'linear-gradient(135deg,#1F4D3A,#2A6A50)' }}>
       {initials}
     </span>
+  );
+}
+
+/* ── Logo upload button ─────────────────────────────────────────────────── */
+function LogoUpload({
+  sponsorId,
+  currentUrl,
+  onUploaded,
+}: {
+  sponsorId: string;
+  currentUrl: string | null;
+  onUploaded: (url: string) => void;
+}) {
+  const [uploading, setUploading] = useState(false);
+  const [preview, setPreview] = useState<string | null>(currentUrl);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  async function handleFile(file: File) {
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('sponsorId', sponsorId);
+      const res = await fetch('/api/sponsors/upload-logo', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (res.ok && data.url) {
+        setPreview(data.url);
+        onUploaded(data.url);
+      }
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  return (
+    <div>
+      <div className="text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Logo</div>
+      <input ref={inputRef} type="file" accept="image/*" className="hidden"
+        onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
+      <button type="button" onClick={() => inputRef.current?.click()}
+        className="w-full h-[72px] rounded-xl border-2 border-dashed flex items-center justify-center gap-3 transition-colors hover:border-[#1F4D3A] hover:bg-[#E8EFEB]"
+        style={{ borderColor: '#E5E0D4', background: preview ? 'white' : '#FAF6EE' }}>
+        {uploading ? (
+          <span className="text-[12px]" style={{ color: '#6B7A72' }}>Uploading…</span>
+        ) : preview ? (
+          <>
+            <img src={preview} alt="Logo" className="h-10 w-10 object-contain rounded-lg" style={{ border: '1px solid #E5E0D4' }} />
+            <span className="text-[12px]" style={{ color: '#6B7A72' }}>Replace logo</span>
+          </>
+        ) : (
+          <span className="text-[12px]" style={{ color: '#6B7A72' }}>Upload logo (PNG, JPG, SVG)</span>
+        )}
+      </button>
+    </div>
   );
 }
 
@@ -69,6 +131,7 @@ function EditSponsorModal({
     booth_location: sponsor.booth_location ?? '',
     website_url:   sponsor.website_url ?? '',
   });
+  const [logoUrl, setLogoUrl] = useState<string | null>(sponsor.logo_url);
   const [saving, setSaving] = useState(false);
   const [error, setError]   = useState('');
 
@@ -79,11 +142,11 @@ function EditSponsorModal({
       const res = await fetch('/api/events/sponsors', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sponsor_id: sponsor.id, ...form }),
+        body: JSON.stringify({ sponsor_id: sponsor.id, ...form, logo_url: logoUrl }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error ?? 'Failed to save'); return; }
-      onSaved({ ...sponsor, ...data.sponsor });
+      onSaved({ ...sponsor, ...data.sponsor, logo_url: logoUrl });
       onClose();
     } finally {
       setSaving(false);
@@ -106,28 +169,35 @@ function EditSponsorModal({
         <div className="px-4 sm:px-6 py-5 grid sm:grid-cols-2 gap-4">
           {error && <p className="sm:col-span-2 text-[13px] px-3 py-2 rounded-lg" style={{ background: '#FEF2F2', color: '#B8423C' }}>{error}</p>}
           <div className="sm:col-span-2">
-            <label className="block  text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Company name *</label>
+            <label className="block text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Company name *</label>
             <input type="text" value={form.company_name} onChange={e => setForm(f => ({ ...f, company_name: e.target.value }))}
               className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none" style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
           </div>
           <div>
-            <label className="block  text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Tier</label>
+            <label className="block text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Tier</label>
             <select value={form.tier} onChange={e => setForm(f => ({ ...f, tier: e.target.value }))}
               className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none bg-white" style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}>
               {TIERS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
             </select>
           </div>
           <div>
-            <label className="block  text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Booth location</label>
+            <label className="block text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Booth location</label>
             <input type="text" value={form.booth_location} onChange={e => setForm(f => ({ ...f, booth_location: e.target.value }))}
               placeholder="Hall B · Booth 14"
               className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none" style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
           </div>
           <div className="sm:col-span-2">
-            <label className="block  text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Website</label>
+            <label className="block text-[10px] tracking-[0.12em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Website</label>
             <input type="url" value={form.website_url} onChange={e => setForm(f => ({ ...f, website_url: e.target.value }))}
               placeholder="https://company.com"
               className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none" style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
+          </div>
+          <div className="sm:col-span-2">
+            <LogoUpload
+              sponsorId={sponsor.id}
+              currentUrl={logoUrl}
+              onUploaded={url => setLogoUrl(url)}
+            />
           </div>
         </div>
 
@@ -204,12 +274,22 @@ export function SponsorsClient({ eventId, eventName, sponsors: initial }: Props)
   const [showAdd, setShowAdd]   = useState(false);
   const [copied, setCopied]     = useState<string | null>(null);
   const [form, setForm]         = useState({ company_name: '', tier: 'gold', booth_location: '', website_url: '' });
+  const [pendingLogoFile, setPendingLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const addLogoInputRef = useRef<HTMLInputElement>(null);
   const [isPending, startTransition] = useTransition();
   const [editingSponsor, setEditingSponsor]   = useState<Sponsor | null>(null);
   const [deletingSponsor, setDeletingSponsor] = useState<Sponsor | null>(null);
 
   const totalLeads = sponsors.reduce((s, sp) => s + sp.lead_count, 0);
   const booths     = sponsors.filter(s => s.booth_location).length;
+
+  function handleLogoFileSelect(file: File) {
+    setPendingLogoFile(file);
+    const reader = new FileReader();
+    reader.onload = e => setLogoPreview(e.target?.result as string);
+    reader.readAsDataURL(file);
+  }
 
   function copyPortalLink(token: string) {
     const url = `${window.location.origin}/exhibitor/${token}`;
@@ -228,8 +308,22 @@ export function SponsorsClient({ eventId, eventName, sponsors: initial }: Props)
       });
       const data = await res.json();
       if (data.sponsor) {
-        setSponsors(prev => [{ ...data.sponsor, lead_count: 0 }, ...prev]);
+        let logoUrl: string | null = null;
+
+        // Upload logo if one was selected
+        if (pendingLogoFile) {
+          const fd = new FormData();
+          fd.append('file', pendingLogoFile);
+          fd.append('sponsorId', data.sponsor.id);
+          const logoRes = await fetch('/api/sponsors/upload-logo', { method: 'POST', body: fd });
+          const logoData = await logoRes.json();
+          if (logoRes.ok && logoData.url) logoUrl = logoData.url;
+        }
+
+        setSponsors(prev => [{ ...data.sponsor, logo_url: logoUrl, lead_count: 0 }, ...prev]);
         setForm({ company_name: '', tier: 'gold', booth_location: '', website_url: '' });
+        setPendingLogoFile(null);
+        setLogoPreview(null);
         setShowAdd(false);
         router.refresh();
       } else {
@@ -289,8 +383,8 @@ export function SponsorsClient({ eventId, eventName, sponsors: initial }: Props)
             { label: 'Portal links sent', value: sponsors.length, accent: true },
           ].map(s => (
             <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1px solid #E5E0D4' }}>
-              <div className=" text-[10px] tracking-[0.12em] uppercase mb-2" style={{ color: '#6B7A72' }}>{s.label}</div>
-              <div className=" text-[26px] leading-none tracking-tight" style={{ color: s.accent ? '#C9A45E' : '#1F4D3A' }}>{s.value}</div>
+              <div className="text-[10px] tracking-[0.12em] uppercase mb-2" style={{ color: '#6B7A72' }}>{s.label}</div>
+              <div className="text-[26px] leading-none tracking-tight" style={{ color: s.accent ? '#C9A45E' : '#1F4D3A' }}>{s.value}</div>
             </div>
           ))}
         </div>
@@ -298,11 +392,12 @@ export function SponsorsClient({ eventId, eventName, sponsors: initial }: Props)
         {/* Add form */}
         <Modal
           open={showAdd}
-          onClose={() => setShowAdd(false)}
+          onClose={() => { setShowAdd(false); setPendingLogoFile(null); setLogoPreview(null); }}
           title="New sponsor"
           footer={
             <>
-              <button onClick={() => setShowAdd(false)} className="h-10 px-4 rounded-xl text-[13.5px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
+              <button onClick={() => { setShowAdd(false); setPendingLogoFile(null); setLogoPreview(null); }}
+                className="h-10 px-4 rounded-xl text-[13.5px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
               <button onClick={handleAdd} disabled={isPending || !form.company_name}
                 className="h-10 px-5 rounded-xl text-[13.5px] font-semibold text-cream disabled:opacity-60"
                 style={{ background: '#1F4D3A' }}>
@@ -311,37 +406,55 @@ export function SponsorsClient({ eventId, eventName, sponsors: initial }: Props)
             </>
           }
         >
-            <div className="grid sm:grid-cols-2 gap-3">
-              <div>
-                <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Company name *</div>
-                <input type="text" value={form.company_name} onChange={e => setForm(f => ({ ...f, company_name: e.target.value }))}
-                  placeholder="Paystack"
-                  className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none"
-                  style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
-              </div>
-              <div>
-                <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Tier</div>
-                <select value={form.tier} onChange={e => setForm(f => ({ ...f, tier: e.target.value }))}
-                  className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none bg-white"
-                  style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}>
-                  {TIERS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-                </select>
-              </div>
-              <div>
-                <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Booth location</div>
-                <input type="text" value={form.booth_location} onChange={e => setForm(f => ({ ...f, booth_location: e.target.value }))}
-                  placeholder="Hall B · Booth 14"
-                  className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none"
-                  style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
-              </div>
-              <div>
-                <div className=" text-[9.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Website</div>
-                <input type="url" value={form.website_url} onChange={e => setForm(f => ({ ...f, website_url: e.target.value }))}
-                  placeholder="https://paystack.com"
-                  className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none"
-                  style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
-              </div>
+          <div className="grid sm:grid-cols-2 gap-3">
+            <div>
+              <div className="text-[9.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Company name *</div>
+              <input type="text" value={form.company_name} onChange={e => setForm(f => ({ ...f, company_name: e.target.value }))}
+                placeholder="Paystack"
+                className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none"
+                style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
             </div>
+            <div>
+              <div className="text-[9.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Tier</div>
+              <select value={form.tier} onChange={e => setForm(f => ({ ...f, tier: e.target.value }))}
+                className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none bg-white"
+                style={{ borderColor: '#E5E0D4', color: '#0F1F18' }}>
+                {TIERS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+              </select>
+            </div>
+            <div>
+              <div className="text-[9.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Booth location</div>
+              <input type="text" value={form.booth_location} onChange={e => setForm(f => ({ ...f, booth_location: e.target.value }))}
+                placeholder="Hall B · Booth 14"
+                className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none"
+                style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
+            </div>
+            <div>
+              <div className="text-[9.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Website</div>
+              <input type="url" value={form.website_url} onChange={e => setForm(f => ({ ...f, website_url: e.target.value }))}
+                placeholder="https://paystack.com"
+                className="w-full border rounded-lg px-3 py-2.5 text-[13.5px] outline-none"
+                style={{ borderColor: '#E5E0D4', color: '#0F1F18' }} />
+            </div>
+            {/* Logo upload (optional — uploaded after sponsor created) */}
+            <div className="sm:col-span-2">
+              <div className="text-[9.5px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72' }}>Logo (optional)</div>
+              <input ref={addLogoInputRef} type="file" accept="image/*" className="hidden"
+                onChange={e => { const f = e.target.files?.[0]; if (f) handleLogoFileSelect(f); }} />
+              <button type="button" onClick={() => addLogoInputRef.current?.click()}
+                className="w-full h-[68px] rounded-xl border-2 border-dashed flex items-center justify-center gap-3 transition-colors hover:border-[#1F4D3A] hover:bg-[#E8EFEB]"
+                style={{ borderColor: '#E5E0D4', background: logoPreview ? 'white' : '#FAF6EE' }}>
+                {logoPreview ? (
+                  <>
+                    <img src={logoPreview} alt="Preview" className="h-10 w-10 object-contain rounded-lg" style={{ border: '1px solid #E5E0D4' }} />
+                    <span className="text-[12px]" style={{ color: '#6B7A72' }}>Change logo</span>
+                  </>
+                ) : (
+                  <span className="text-[12px]" style={{ color: '#9BA8A1' }}>Upload logo — PNG, JPG, SVG</span>
+                )}
+              </button>
+            </div>
+          </div>
         </Modal>
 
         {/* Sponsors list */}
@@ -377,7 +490,7 @@ export function SponsorsClient({ eventId, eventName, sponsors: initial }: Props)
                 const ts = tierStyle(sponsor.tier);
                 return (
                   <div key={sponsor.id} className="group flex items-center gap-4 px-5 py-4">
-                    <Avatar name={sponsor.company_name} />
+                    <SponsorAvatar name={sponsor.company_name} logoUrl={sponsor.logo_url} />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-display text-[14.5px] font-semibold tracking-tight" style={{ color: '#0F1F18' }}>
@@ -390,14 +503,14 @@ export function SponsorsClient({ eventId, eventName, sponsors: initial }: Props)
                           </span>
                         )}
                       </div>
-                      <div className=" text-[11px] mt-0.5 flex items-center gap-3 flex-wrap" style={{ color: '#6B7A72' }}>
+                      <div className="text-[11px] mt-0.5 flex items-center gap-3 flex-wrap" style={{ color: '#6B7A72' }}>
                         {sponsor.booth_location && <span>{sponsor.booth_location}</span>}
                         {sponsor.website_url && <span>{sponsor.website_url}</span>}
                       </div>
                     </div>
                     <div className="text-center shrink-0 hidden sm:block">
-                      <div className=" text-[15px]" style={{ color: '#1F4D3A' }}>{sponsor.lead_count}</div>
-                      <div className=" text-[9.5px] tracking-[0.1em] uppercase" style={{ color: '#6B7A72' }}>leads</div>
+                      <div className="text-[15px]" style={{ color: '#1F4D3A' }}>{sponsor.lead_count}</div>
+                      <div className="text-[9.5px] tracking-[0.1em] uppercase" style={{ color: '#6B7A72' }}>leads</div>
                     </div>
 
                     {/* Edit button */}
