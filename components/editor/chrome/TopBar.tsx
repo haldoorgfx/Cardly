@@ -49,7 +49,7 @@ export default function TopBar({
     >
       {/* Left — back + breadcrumb */}
       <a
-        href={`/events/${eventId}/eventera-card`}
+        href={`/events/${eventSlug}/eventera-card`}
         className="h-8 w-8 rounded-lg hover:bg-cream grid place-items-center text-ink/70 shrink-0 transition"
         title="Back to Cards &amp; Badges"
       >
@@ -59,7 +59,7 @@ export default function TopBar({
       <div className="h-5 w-px bg-border shrink-0" />
 
       {/* Eventera mark */}
-      <a href={`/events/${eventId}/eventera-card`} className="shrink-0">
+      <a href={`/events/${eventSlug}/eventera-card`} className="shrink-0">
         <span className="h-7 w-7 rounded-lg grid place-items-center text-white font-display font-bold text-[13px] bg-primary">K</span>
       </a>
 
@@ -192,7 +192,7 @@ export default function TopBar({
 
         {/* Publish */}
         <button
-          onClick={() => router.push(`/events/${eventId}/publish`)}
+          onClick={() => router.push(`/events/${eventSlug}/publish`)}
           className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-white px-3.5 py-1.5 rounded-lg hover:opacity-95 transition shadow-soft bg-primary"
         >
           <Globe size={13} strokeWidth={2.2} />Publish

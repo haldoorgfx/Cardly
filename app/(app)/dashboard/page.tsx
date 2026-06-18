@@ -122,9 +122,9 @@ export default async function DashboardPage() {
   const attentionItems: { id: string; name: string; reason: string; href: string }[] = [];
   for (const e of allEvents) {
     if (e.status === 'draft') {
-      attentionItems.push({ id: e.id, name: e.name, reason: 'not published', href: `/events/${e.id}` });
+      attentionItems.push({ id: e.id, name: e.name, reason: 'not published', href: `/events/${e.slug}` });
     } else if (e.status === 'published' && (regsByEvent[e.id]?.count ?? 0) === 0) {
-      attentionItems.push({ id: e.id, name: e.name, reason: 'no registrations yet', href: `/events/${e.id}` });
+      attentionItems.push({ id: e.id, name: e.name, reason: 'no registrations yet', href: `/events/${e.slug}` });
     }
     if (attentionItems.length >= 4) break;
   }

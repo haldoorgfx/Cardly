@@ -779,7 +779,7 @@ export default function PublishClient({
             </div>
             <div style={{ marginTop: 8, paddingTop: 14, borderTop: `1px solid ${PT.border}` }}>
               <Link
-                href={`/events/${eventId}`}
+                href={`/events/${slug}`}
                 style={{
                   display: 'flex', width: '100%', height: 44,
                   background: PT.cream, color: PT.primary,
