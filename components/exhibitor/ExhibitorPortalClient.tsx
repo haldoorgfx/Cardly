@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -87,6 +87,7 @@ function Icon({ name, size = 16 }: { name: string; size?: number }) {
     scan: <><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2" /><path d="M8.5 12.5l2.5 2.5 4.5-4.5" /></>,
     plus: <path d="M5 12h14M12 5v14" />,
     arrow: <path d="M5 12h14M13 6l6 6-6 6" />,
+    'arrow-left': <path d="M19 12H5M11 6l-6 6 6 6" />,
     check: <path d="M5 12.5l4.5 4.5L19 7" />,
     external: <path d="M14 4h6v6M20 4l-9 9M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4" />,
     upload: <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></>,
@@ -158,7 +159,7 @@ function Avatar({ name, size = 36, gradient }: { name: string; size?: number; gr
 
 // ── Tab: Overview ─────────────────────────────────────────────────────────────
 
-function Overview({ leads, sessions }: { leads: Lead[]; sessions: Session[] }) {
+function Overview({ leads, sessions, sponsor }: { leads: Lead[]; sessions: Session[]; sponsor: Sponsor }) {
   const hot = leads.filter(l => l.rating === 'hot').length;
   const warm = leads.filter(l => l.rating === 'warm').length;
   const cold = leads.filter(l => l.rating !== 'hot' && l.rating !== 'warm').length;
@@ -167,6 +168,8 @@ function Overview({ leads, sessions }: { leads: Lead[]; sessions: Session[] }) {
     const now = new Date();
     return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
   }).length;
+  const offerings = Array.isArray(sponsor.offerings) ? (sponsor.offerings as Array<{ opens?: number }>) : [];
+  const resourceOpens = offerings.reduce((sum, o) => sum + (o.opens ?? 0), 0);
 
   return (
     <div className="grid gap-6">
@@ -194,7 +197,7 @@ function Overview({ leads, sessions }: { leads: Lead[]; sessions: Session[] }) {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Stat label="Leads captured" value={leads.length} sub={today > 0 ? `↑ ${today} today` : undefined} />
         <Stat label="Booth visits" value="—" />
-        <Stat label="Resources opened" value="—" />
+        <Stat label="Resources opened" value={resourceOpens > 0 ? resourceOpens : '—'} />
         <Stat label="Meetings booked" value="—" accent />
       </div>
 
@@ -309,6 +312,9 @@ function BoothProfile({ sponsor }: { sponsor: Sponsor }) {
   });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [logoUrl, setLogoUrl] = useState(sponsor.logo_url);
+  const [logoUploading, setLogoUploading] = useState(false);
+  const logoInputRef = useRef<HTMLInputElement>(null);
 
   async function save() {
     setSaving(true);
@@ -322,6 +328,20 @@ function BoothProfile({ sponsor }: { sponsor: Sponsor }) {
       setTimeout(() => setSaved(false), 2000);
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function uploadLogo(file: File) {
+    setLogoUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('sponsorId', sponsor.id);
+      const res = await fetch('/api/sponsors/upload-logo', { method: 'POST', body: fd });
+      const json = await res.json() as { url?: string };
+      if (json.url) setLogoUrl(json.url);
+    } finally {
+      setLogoUploading(false);
     }
   }
 
@@ -389,17 +409,40 @@ function BoothProfile({ sponsor }: { sponsor: Sponsor }) {
 
       <div className="grid gap-5 content-start">
         <Panel title="Logo">
-          <div className="aspect-[3/2] rounded-xl border border-dashed border-[#1F4D3A]/40 bg-[#FAF6EE]/50 grid place-items-center">
-            {sponsor.logo_url ? (
+          <button
+            type="button"
+            onClick={() => logoInputRef.current?.click()}
+            disabled={logoUploading}
+            className="w-full aspect-[3/2] rounded-xl border border-dashed border-[#1F4D3A]/40 bg-[#FAF6EE]/50 grid place-items-center hover:bg-[#E8EFEB]/60 hover:border-[#1F4D3A]/60 transition-colors cursor-pointer disabled:opacity-60"
+          >
+            {logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={sponsor.logo_url} alt="Logo" className="max-h-full max-w-full object-contain p-2" />
+              <img src={logoUrl} alt="Logo" className="max-h-full max-w-full object-contain p-2" />
             ) : (
               <div className="text-center text-[#1F4D3A]">
                 <Icon name="upload" size={20} />
-                <div className="text-[11.5px] mt-1.5 font-medium">Upload logo</div>
+                <div className="text-[11.5px] mt-1.5 font-medium">{logoUploading ? 'Uploading…' : 'Upload logo'}</div>
               </div>
             )}
-          </div>
+          </button>
+          {logoUrl && (
+            <button
+              type="button"
+              onClick={() => logoInputRef.current?.click()}
+              disabled={logoUploading}
+              className="mt-2 w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-[#E5E0D4] text-[12.5px] text-[#3A4A42] hover:border-[#1F4D3A]/40 hover:text-[#1F4D3A] transition-colors disabled:opacity-50"
+            >
+              <Icon name="upload" size={13} />
+              {logoUploading ? 'Uploading…' : 'Replace logo'}
+            </button>
+          )}
+          <input
+            ref={logoInputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/svg+xml,image/webp"
+            className="hidden"
+            onChange={e => { const f = e.target.files?.[0]; if (f) uploadLogo(f); }}
+          />
         </Panel>
 
         <Panel title="Visibility">
@@ -424,35 +467,150 @@ function BoothProfile({ sponsor }: { sponsor: Sponsor }) {
 interface Offering { title: string; type?: string; url?: string; opens?: number }
 
 function Resources({ sponsor }: { sponsor: Sponsor }) {
-  const offerings = Array.isArray(sponsor.offerings) ? (sponsor.offerings as Offering[]) : [];
+  const [offerings, setOfferings] = useState<Offering[]>(
+    Array.isArray(sponsor.offerings) ? (sponsor.offerings as Offering[]) : []
+  );
+  const [showAdd, setShowAdd] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
+  const [newUrl, setNewUrl] = useState('');
+  const [newType, setNewType] = useState('Link');
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  async function saveOfferings(updated: Offering[]) {
+    await fetch(`/api/sponsors/${sponsor.id}/profile`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ offerings: updated }),
+    });
+    setOfferings(updated);
+  }
+
+  async function handleFileUpload(file: File) {
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('sponsorId', sponsor.id);
+      const res = await fetch('/api/sponsors/upload-resource', { method: 'POST', body: fd });
+      const json = await res.json() as { url?: string };
+      if (json.url) {
+        const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
+        const typeLabel = ext === 'pdf' ? 'PDF' : ext.match(/^(ppt|pptx)$/) ? 'Presentation' : 'File';
+        const updated = [...offerings, { title: file.name.replace(/\.[^.]+$/, ''), type: typeLabel, url: json.url, opens: 0 }];
+        await saveOfferings(updated);
+      }
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  async function addLink() {
+    if (!newTitle.trim()) return;
+    const updated = [...offerings, { title: newTitle.trim(), type: newType, url: newUrl.trim() || undefined, opens: 0 }];
+    await saveOfferings(updated);
+    setNewTitle(''); setNewUrl(''); setNewType('Link'); setShowAdd(false);
+  }
+
+  const iconForType = (type?: string) => {
+    const t = (type ?? '').toLowerCase();
+    if (t === 'pdf') return 'external';
+    if (t === 'presentation') return 'external';
+    return 'external';
+  };
 
   return (
     <Panel
       title="Booth resources"
       action={
-        <button className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-[#E5E0D4] text-[13px] text-[#3A4A42] hover:border-[#1F4D3A]/40 hover:text-[#1F4D3A] transition-colors">
-          <Icon name="plus" size={14} />
-          Add resource
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-[#E5E0D4] text-[13px] text-[#3A4A42] hover:border-[#1F4D3A]/40 hover:text-[#1F4D3A] transition-colors disabled:opacity-50"
+          >
+            <Icon name="upload" size={14} />
+            {uploading ? 'Uploading…' : 'Upload file'}
+          </button>
+          <button
+            onClick={() => setShowAdd(v => !v)}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-[#E5E0D4] text-[13px] text-[#3A4A42] hover:border-[#1F4D3A]/40 hover:text-[#1F4D3A] transition-colors"
+          >
+            <Icon name="plus" size={14} />
+            Add link
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf,.ppt,.pptx,.doc,.docx,image/*"
+            className="hidden"
+            onChange={e => { const f = e.target.files?.[0]; if (f) handleFileUpload(f); }}
+          />
+        </div>
       }
       noPad
     >
-      {offerings.length === 0 ? (
-        <div className="px-5 py-10 text-center text-[13px] text-[#6B7A72]">No resources added yet. Add PDFs, links, or case studies for attendees.</div>
+      {showAdd && (
+        <div className="px-5 py-4 border-b border-[#E5E0D4]/60 grid gap-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-[10px] tracking-[0.12em] uppercase text-[#6B7A72] mb-1 block">Title</label>
+              <input
+                value={newTitle}
+                onChange={e => setNewTitle(e.target.value)}
+                placeholder="e.g. Company brochure"
+                className="w-full bg-white border border-[#E5E0D4] rounded-lg px-3 py-2 text-[13px] focus:outline-none focus:ring-2 focus:ring-[#1F4D3A]/20"
+              />
+            </div>
+            <div>
+              <label className="text-[10px] tracking-[0.12em] uppercase text-[#6B7A72] mb-1 block">Type</label>
+              <select
+                value={newType}
+                onChange={e => setNewType(e.target.value)}
+                className="w-full bg-white border border-[#E5E0D4] rounded-lg px-3 py-2 text-[13px] focus:outline-none focus:ring-2 focus:ring-[#1F4D3A]/20"
+              >
+                {['Link', 'PDF', 'Video', 'Presentation', 'Case study', 'Other'].map(t => <option key={t}>{t}</option>)}
+              </select>
+            </div>
+          </div>
+          <div>
+            <label className="text-[10px] tracking-[0.12em] uppercase text-[#6B7A72] mb-1 block">URL</label>
+            <input
+              value={newUrl}
+              onChange={e => setNewUrl(e.target.value)}
+              placeholder="https://…"
+              className="w-full bg-white border border-[#E5E0D4] rounded-lg px-3 py-2 text-[13px] focus:outline-none focus:ring-2 focus:ring-[#1F4D3A]/20"
+            />
+          </div>
+          <div className="flex gap-2">
+            <button onClick={addLink} className="px-4 py-2 rounded-lg bg-[#1F4D3A] text-white text-[13px] font-medium hover:bg-[#163828] transition-colors">Add</button>
+            <button onClick={() => setShowAdd(false)} className="px-4 py-2 rounded-lg border border-[#E5E0D4] text-[13px] text-[#3A4A42] hover:border-[#1F4D3A]/40 transition-colors">Cancel</button>
+          </div>
+        </div>
+      )}
+      {offerings.length === 0 && !showAdd ? (
+        <div className="px-5 py-10 text-center text-[13px] text-[#6B7A72]">No resources added yet. Upload PDFs, slide decks, or add links for attendees.</div>
       ) : (
         <div className="divide-y divide-[#E5E0D4]/60">
           {offerings.map((r, i) => (
             <div key={i} className="flex items-center gap-3.5 px-5 py-3.5">
               <span className="w-9 h-9 rounded-lg bg-[#E8EFEB] text-[#1F4D3A] grid place-items-center shrink-0">
-                <Icon name="external" size={15} />
+                <Icon name={iconForType(r.type)} size={15} />
               </span>
               <div className="min-w-0 flex-1">
                 <div className="text-[13.5px] font-medium text-[#0F1F18]">{r.title}</div>
-                <div className=" text-[11px] text-[#6B7A72] mt-0.5">{r.type ?? 'Link'}</div>
+                <div className="text-[11px] text-[#6B7A72] mt-0.5">{r.type ?? 'Link'}</div>
               </div>
-              {r.opens != null && (
-                <span className=" text-[11px] text-[#6B7A72]">{r.opens} opens</span>
-              )}
+              <div className="flex items-center gap-3 shrink-0">
+                {r.opens != null && (
+                  <span className="text-[11px] text-[#6B7A72]">{r.opens} opens</span>
+                )}
+                {r.url && (
+                  <a href={r.url} target="_blank" rel="noopener noreferrer" className="w-8 h-8 grid place-items-center rounded-lg text-[#6B7A72] hover:bg-[#E8EFEB] hover:text-[#1F4D3A] transition-colors">
+                    <Icon name="external" size={14} />
+                  </a>
+                )}
+              </div>
             </div>
           ))}
         </div>
@@ -535,7 +693,14 @@ export function ExhibitorPortalClient({ sponsor, event, leads, sessions }: Props
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span className="hidden sm:inline  text-[11px] text-[#6B7A72]">{event.name}</span>
+            <a
+              href={`/c/${event.slug}`}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] text-[#3A4A42] hover:text-[#1F4D3A] hover:bg-[#E8EFEB] transition-colors"
+            >
+              <Icon name="arrow-left" size={13} />
+              <span className="hidden sm:inline">Back to event</span>
+            </a>
+            <span className="hidden sm:inline text-[11px] text-[#6B7A72]">{event.name}</span>
             <span
               className="w-8 h-8 rounded-full grid place-items-center text-white font-display font-semibold text-[11px] shrink-0"
               style={{ background: 'linear-gradient(135deg,#1F4D3A,#2A6A50)' }}
@@ -581,7 +746,7 @@ export function ExhibitorPortalClient({ sponsor, event, leads, sessions }: Props
 
       {/* Main content */}
       <main className="mx-auto max-w-[1080px] px-5 lg:px-8 py-7">
-        {tab === 'overview' && <Overview leads={leads} sessions={sessions} />}
+        {tab === 'overview' && <Overview leads={leads} sessions={sessions} sponsor={sponsor} />}
         {tab === 'leads' && <Leads leads={leads} />}
         {tab === 'booth' && <BoothProfile sponsor={sponsor} />}
         {tab === 'resources' && <Resources sponsor={sponsor} />}

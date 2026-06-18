@@ -8,6 +8,12 @@ const Schema = z.object({
   description: z.string().max(5000).nullable().optional(),
   website_url: z.string().url().nullable().optional().or(z.literal('')).transform(v => v === '' ? null : v),
   booth_location: z.string().max(100).trim().nullable().optional(),
+  offerings: z.array(z.object({
+    title: z.string().max(200),
+    type: z.string().max(50).optional(),
+    url: z.string().max(2000).optional(),
+    opens: z.number().int().min(0).optional(),
+  })).optional(),
 });
 
 export async function PATCH(
