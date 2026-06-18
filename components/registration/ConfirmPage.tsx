@@ -378,19 +378,14 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
         {/* Confetti stage */}
         <div id="confetti-stage" className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 50 }} />
 
-        {/* QR pill — always accessible at top */}
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 px-3 py-1.5 rounded-full" style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 2px 8px rgba(15,31,24,0.08)' }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={`/api/qr/${registration.qr_code_token}`} alt="QR" style={{ width: 28, height: 28, background: 'white', padding: 2, borderRadius: 4 }} />
-          <span className="text-[11px]" style={{ color: '#6B7A72' }}>Show at door · {registration.attendee_name}</span>
-        </div>
-
         <PreviewDownloadScreen
           eventName={eventTitle}
           backgroundWidth={variant.background_width ?? 1200}
           backgroundHeight={variant.background_height ?? 800}
           resultUrl={cardDataUrl}
           cardId={null}
+          qrToken={registration.qr_code_token}
+          attendeeName={registration.attendee_name}
           onDownload={handleDownload}
           onEdit={() => setPhase('card')}
         />

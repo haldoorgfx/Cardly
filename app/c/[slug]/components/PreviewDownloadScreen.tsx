@@ -15,6 +15,8 @@ interface Props {
   backgroundHeight: number;
   resultUrl: string;
   cardId?: string | null;
+  qrToken?: string | null;
+  attendeeName?: string | null;
   onDownload: () => void;
   onEdit: () => void;
 }
@@ -128,7 +130,7 @@ function useConfetti(stageRef: React.RefObject<HTMLDivElement>) {
 
 /* ── THE SCREEN ──────────────────────────────────────────────────────────── */
 export default function PreviewDownloadScreen({
-  eventName, backgroundWidth, backgroundHeight, resultUrl, cardId, onDownload, onEdit,
+  eventName, backgroundWidth, backgroundHeight, resultUrl, cardId, qrToken, attendeeName, onDownload, onEdit,
 }: Props) {
   const stageRef = useRef<HTMLDivElement>(null);
   useConfetti(stageRef);
@@ -333,6 +335,27 @@ export default function PreviewDownloadScreen({
               </button>
             )}
           </div>
+
+          {/* Ticket QR for door check-in */}
+          {qrToken && (
+            <div style={{
+              marginTop: 8, padding: '16px', borderRadius: 14, textAlign: 'center',
+              background: 'rgba(255,255,255,0.6)', border: '1px solid #E5E0D4',
+            }}>
+              <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#6B7A72', marginBottom: 10 }}>
+                Show at door
+              </p>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`/api/qr/${qrToken}`}
+                alt="Check-in QR code"
+                style={{ width: 120, height: 120, borderRadius: 8, background: 'white', padding: 6, display: 'block', margin: '0 auto 8px' }}
+              />
+              {attendeeName && (
+                <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, color: '#3A4A42', fontWeight: 500 }}>{attendeeName}</p>
+              )}
+            </div>
+          )}
 
           {/* "Powered by" */}
           <div style={{
