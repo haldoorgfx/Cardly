@@ -17,7 +17,7 @@ interface Props {
   backgroundHeight: number | null;
 }
 
-const PREVIEW_W = 280;
+const PREVIEW_W = 340;
 
 export function CardZoneFill({
   zones, values, photoUrls, errors, onChange, onPhotoSelect, onPhotoClear,
@@ -28,9 +28,9 @@ export function CardZoneFill({
   const previewH = backgroundHeight ? backgroundHeight * scale : PREVIEW_W * (7 / 5);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col lg:flex-row-reverse gap-6 lg:gap-10 items-start">
       {/* -- Form fields -- */}
-      <div className="flex-1 min-w-0 space-y-4">
+      <div className="flex-1 min-w-0 space-y-4 w-full">
         <p className="text-[13px]" style={{ color: '#6B7A72' }}>
           Personalise your card. It&apos;ll be generated when you confirm.
         </p>
@@ -104,9 +104,9 @@ export function CardZoneFill({
         })}
       </div>
 
-      {/* -- Live preview -- only on mobile; desktop uses the sidebar in RegistrationClient */}
+      {/* -- Live preview -- */}
       {backgroundUrl && (
-        <div className="lg:hidden shrink-0">
+        <div className="shrink-0 lg:sticky lg:top-24">
           <div className="text-[11px] uppercase tracking-widest mb-2 text-center" style={{ color: '#6B7A72' }}>
             Preview
           </div>

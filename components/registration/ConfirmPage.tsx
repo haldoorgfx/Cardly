@@ -295,7 +295,7 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
   if (phase === 'card' && variant) {
     return (
       <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
-        <div className="max-w-[680px] mx-auto px-5 py-10 pb-36">
+        <div className="max-w-[900px] mx-auto px-5 py-10 pb-36">
           {/* Header */}
           <div className="mb-6">
             <div className="inline-flex items-center gap-2 mb-4 px-3 py-1.5 rounded-full" style={{ background: 'rgba(45,122,79,0.08)', border: '1px solid rgba(45,122,79,0.2)' }}>
