@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Check, Lock, Unlock, ChevronDown, ChevronRight, CreditCard, Smartphone, Layers, ArrowLeft } from 'lucide-react';
+import { Check, Lock, Unlock, ChevronDown, CreditCard, Smartphone, Layers } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Zone } from '@/types/database';
@@ -207,7 +207,7 @@ export default function RegistrationClient({
 
   // Payment state (after submit for paid tickets)
   const [paymentStep, setPaymentStep] = useState(false);
-  const [showPaymentPicker, setShowPaymentPicker] = useState(false);
+  const [step2Processor, setStep2Processor] = useState<string>('');
   const [paymentProcessor, setPaymentProcessor] = useState<'stripe' | 'waafipay'>('stripe');
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [pendingRegId, setPendingRegId] = useState<string | null>(null);
@@ -341,16 +341,14 @@ export default function RegistrationClient({
     return errs;
   }
 
-  const handleSubmit = async (preferredProcessor?: string) => {
+  const handleSubmit = async (overrideProcessor?: string) => {
     setSubmitError('');
 
-    // Show payment method picker when organizer has multiple paid processors and attendee hasn't chosen yet
     const paidProcessors = availableProcessors.filter(p => p !== 'free');
     const ticketIsPaid = (selectedTicket?.price ?? 0) > 0 || !!(selectedTicket?.min_price && selectedTicket.min_price > 0);
-    if (!preferredProcessor && ticketIsPaid && paidProcessors.length > 1) {
-      setShowPaymentPicker(true);
-      return;
-    }
+    // Resolve which processor to send: override > inline selection > first available
+    const effectiveProcessor = overrideProcessor
+      ?? (ticketIsPaid && paidProcessors.length > 0 ? (step2Processor || paidProcessors[0]) : undefined);
 
     setSubmitting(true);
     try {
@@ -383,7 +381,7 @@ export default function RegistrationClient({
           referral_code: referralCode ?? null,
           utm_source: utmSource ?? null,
           promo_code: appliedPromo?.code ?? null,
-          preferred_processor: preferredProcessor ?? null,
+          preferred_processor: effectiveProcessor ?? null,
         }),
       });
 
@@ -489,94 +487,6 @@ export default function RegistrationClient({
     }
     router.push(`/e/${eventSlug}/register/confirm?reg=${confirmedToken}`);
   };
-
-  // Payment method picker (shown when organizer enables multiple processors)
-  if (showPaymentPicker) {
-    const paidProcessors = availableProcessors.filter(p => p !== 'free');
-    const availableMethods = PAYMENT_METHOD_OPTIONS.filter(m => paidProcessors.includes(m.value));
-    const displayPrice = Math.max(0, priceAfterPromo);
-
-    return (
-      <div className="min-h-screen flex items-center justify-center px-5 py-12" style={{ background: '#FAF6EE' }}>
-        <div className="w-full max-w-[420px]">
-          {/* Back */}
-          <button
-            onClick={() => setShowPaymentPicker(false)}
-            className="flex items-center gap-1.5 text-[13px] mb-8 transition hover:opacity-70"
-            style={{ color: '#6B7A72' }}
-          >
-            <ArrowLeft size={14} /> Back
-          </button>
-
-          {/* Header */}
-          <div className="mb-7">
-            <h2 className="font-display font-bold text-[26px] tracking-tight mb-1" style={{ color: '#0F1F18' }}>
-              Choose how to pay
-            </h2>
-            <p className="text-[14px]" style={{ color: '#6B7A72' }}>
-              Pick your preferred payment method for this order.
-            </p>
-          </div>
-
-          {/* Order summary pill */}
-          <div className="flex items-center justify-between px-4 py-3 rounded-xl mb-6" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-            <div>
-              <div className="text-[13px] font-medium" style={{ color: '#0F1F18' }}>{selectedTicket?.name}</div>
-              {promoDiscount > 0 && (
-                <div className="text-[11px] mt-0.5" style={{ color: '#2D7A4F' }}>
-                  Promo applied — {fmt(promoDiscount, selectedTicket?.currency ?? 'USD')} off
-                </div>
-              )}
-            </div>
-            <div className="font-display font-bold text-[18px]" style={{ color: '#1F4D3A' }}>
-              {fmt(displayPrice, selectedTicket?.currency ?? 'USD')}
-            </div>
-          </div>
-
-          {/* Method cards */}
-          <div className="space-y-3">
-            {availableMethods.map(method => {
-              const Icon = method.icon;
-              return (
-                <button
-                  key={method.value}
-                  onClick={() => { setShowPaymentPicker(false); handleSubmit(method.value); }}
-                  disabled={submitting}
-                  className="w-full flex items-center gap-4 p-4 rounded-xl text-left transition group"
-                  style={{ background: 'white', border: '1.5px solid #E5E0D4' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#1F4D3A'; (e.currentTarget as HTMLElement).style.background = 'rgba(31,77,58,0.03)'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#E5E0D4'; (e.currentTarget as HTMLElement).style.background = 'white'; }}
-                >
-                  {/* Icon circle */}
-                  <div className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center" style={{ background: '#E8EFEB' }}>
-                    <Icon size={18} style={{ color: '#1F4D3A' }} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>{method.label}</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
-                        {method.badge}
-                      </span>
-                    </div>
-                    <div className="text-[12px] mt-0.5 truncate" style={{ color: '#6B7A72' }}>{method.desc}</div>
-                  </div>
-                  <ChevronRight size={16} style={{ color: '#C9C3B1', flexShrink: 0 }} />
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Secure badge */}
-          <div className="flex items-center justify-center gap-1.5 mt-8 text-[12px]" style={{ color: '#9BA8A1' }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            </svg>
-            Payments are secure and encrypted
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   // Payment screens (after registration created for paid tickets)
   if (paymentStep && pendingRegToken) {
@@ -962,74 +872,165 @@ export default function RegistrationClient({
           )}
 
           {/* Step 2: Review / Confirm */}
-          {step === 2 && (
-            <div>
-              <h2 className="font-display font-normal text-[28px] mb-1.5" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>
-                {isFree ? 'Confirm registration' : 'Review & pay'}
-              </h2>
-              {effectivePrice === 0 ? (
-                <div className="rounded-2xl p-6" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-                  <div className="font-display font-medium text-[18px] mb-2" style={{ color: '#1F4D3A' }}>Free ticket</div>
-                  <p className="text-[14px]" style={{ color: '#6B7A72' }}>
-                    No payment required. Click confirm to complete your registration.
-                  </p>
-                </div>
-              ) : (
-                <div className="rounded-2xl p-5" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-                  <div className="flex items-center justify-between py-2 text-[14px]" style={{ color: '#3A4A42' }}>
+          {step === 2 && (() => {
+            const paidProcessors = availableProcessors.filter(p => p !== 'free');
+            const availableMethods = PAYMENT_METHOD_OPTIONS.filter(m => paidProcessors.includes(m.value));
+            const activeProcessor = step2Processor || paidProcessors[0] || 'stripe';
+            return (
+              <div>
+                <h2 className=”font-display font-normal text-[28px] mb-1.5” style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>
+                  {effectivePrice === 0 ? 'Confirm registration' : 'Review & pay'}
+                </h2>
+                <p className=”text-[14px] mb-5” style={{ color: '#6B7A72' }}>
+                  {effectivePrice === 0
+                    ? 'No payment required. Confirm to complete your registration.'
+                    : `${eventName}`}
+                </p>
+
+                {/* Order summary */}
+                <div className=”rounded-2xl p-5 mb-4” style={{ background: 'white', border: '1px solid #E5E0D4' }}>
+                  <div className=”text-[11px] font-semibold uppercase tracking-widest mb-3” style={{ color: '#9BA8A1' }}>Order summary</div>
+
+                  <div className=”flex items-center justify-between py-1.5 text-[14px]” style={{ color: '#3A4A42' }}>
                     <span>{selectedTicket?.name}</span>
-                    <span className="font-title font-semibold">{fmt(effectivePrice, ccy)}</span>
+                    <span className=”font-semibold”>{fmt(effectivePrice, ccy)}</span>
                   </div>
 
                   {/* Promo code */}
-                  {!appliedPromo ? (
-                    <div className="py-3" style={{ borderTop: '1px solid #F0EDE6', borderBottom: '1px solid #F0EDE6', margin: '6px 0' }}>
-                      <div className="flex gap-2">
-                        <input
-                          value={promoInput}
-                          onChange={e => { setPromoInput(e.target.value.toUpperCase()); setPromoError(''); }}
-                          onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); applyPromo(); } }}
-                          placeholder="Promo code"
-                          className="flex-1 rounded-xl px-3 py-2 text-[14px] outline-none border"
-                          style={{ borderColor: promoError ? '#B8423C' : '#E5E0D4', background: '#FAF6EE', color: '#0F1F18' }}
-                        />
-                        <button
-                          type="button"
-                          onClick={applyPromo}
-                          disabled={promoChecking || !promoInput.trim()}
-                          className="px-4 py-2 rounded-xl text-[13px] font-semibold border transition hover:opacity-80 disabled:opacity-50"
-                          style={{ borderColor: '#1F4D3A', color: '#1F4D3A' }}
-                        >
-                          {promoChecking ? '…' : 'Apply'}
-                        </button>
+                  {effectivePrice > 0 && (
+                    !appliedPromo ? (
+                      <div className=”pt-3 pb-1 mt-1” style={{ borderTop: '1px solid #F0EDE6' }}>
+                        <div className=”flex gap-2”>
+                          <input
+                            value={promoInput}
+                            onChange={e => { setPromoInput(e.target.value.toUpperCase()); setPromoError(''); }}
+                            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); applyPromo(); } }}
+                            placeholder=”Promo code”
+                            className=”flex-1 rounded-xl px-3 py-2 text-[14px] outline-none border”
+                            style={{ borderColor: promoError ? '#B8423C' : '#E5E0D4', background: '#FAF6EE', color: '#0F1F18' }}
+                          />
+                          <button
+                            type=”button”
+                            onClick={applyPromo}
+                            disabled={promoChecking || !promoInput.trim()}
+                            className=”px-4 py-2 rounded-xl text-[13px] font-semibold border transition hover:opacity-80 disabled:opacity-50”
+                            style={{ borderColor: '#1F4D3A', color: '#1F4D3A' }}
+                          >
+                            {promoChecking ? '…' : 'Apply'}
+                          </button>
+                        </div>
+                        {promoError && <p className=”text-[12px] mt-1.5 font-medium” style={{ color: '#B8423C' }}>{promoError}</p>}
                       </div>
-                      {promoError && <p className="text-[12px] mt-1.5 font-medium" style={{ color: '#B8423C' }}>{promoError}</p>}
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-between py-2 text-[14px]" style={{ color: '#2D7A4F' }}>
-                      <span className="inline-flex items-center gap-1.5">
-                        <Check size={14} strokeWidth={2.5} />
-                        Promo “{appliedPromo.code}”
-                        <button type="button" onClick={clearPromo} className="ml-1 text-[12px] underline" style={{ color: '#6B7A72' }}>remove</button>
-                      </span>
-                      <span className="font-title font-semibold">−{fmt(promoDiscount, ccy)}</span>
-                    </div>
+                    ) : (
+                      <div className=”flex items-center justify-between py-1.5 mt-1 text-[14px]” style={{ color: '#2D7A4F', borderTop: '1px solid #F0EDE6' }}>
+                        <span className=”inline-flex items-center gap-1.5”>
+                          <Check size={14} strokeWidth={2.5} />
+                          Promo &ldquo;{appliedPromo.code}&rdquo;
+                          <button type=”button” onClick={clearPromo} className=”ml-1 text-[12px] underline” style={{ color: '#6B7A72' }}>remove</button>
+                        </span>
+                        <span className=”font-semibold”>−{fmt(promoDiscount, ccy)}</span>
+                      </div>
+                    )
                   )}
 
                   {fee > 0 && (
-                    <div className="flex items-center justify-between py-2 text-[14px]" style={{ color: '#3A4A42' }}>
+                    <div className=”flex items-center justify-between py-1.5 text-[13px]” style={{ color: '#6B7A72', borderTop: '1px solid #F0EDE6', marginTop: '4px' }}>
                       <span>Service fee</span>
-                      <span className="font-title font-medium">{fmt(fee, ccy)}</span>
+                      <span>{fmt(fee, ccy)}</span>
                     </div>
                   )}
-                  <div className="flex items-center justify-between pt-3 mt-1 text-[15px] font-semibold" style={{ borderTop: '1px solid #E5E0D4' }}>
+
+                  <div className=”flex items-center justify-between pt-3 mt-1 text-[16px] font-bold” style={{ borderTop: '1px solid #E5E0D4' }}>
                     <span style={{ color: '#0F1F18' }}>Total</span>
-                    <span className="font-title font-bold" style={{ color: '#1F4D3A' }}>{fmt(total, ccy)}</span>
+                    <span style={{ color: '#1F4D3A' }}>{fmt(total, ccy)}</span>
                   </div>
                 </div>
-              )}
-            </div>
-          )}
+
+                {/* Payment method — only shown for paid tickets */}
+                {effectivePrice > 0 && (
+                  <div className=”mb-4”>
+                    <div className=”text-[11px] font-semibold uppercase tracking-widest mb-3” style={{ color: '#9BA8A1' }}>
+                      Payment method
+                    </div>
+
+                    {availableMethods.length > 1 ? (
+                      /* Multi-processor: radio-style selector */
+                      <div className=”space-y-2”>
+                        {availableMethods.map(method => {
+                          const Icon = method.icon;
+                          const selected = activeProcessor === method.value;
+                          return (
+                            <button
+                              key={method.value}
+                              type=”button”
+                              onClick={() => setStep2Processor(method.value)}
+                              className=”w-full flex items-center gap-3 p-4 rounded-xl text-left transition”
+                              style={{
+                                background: selected ? 'rgba(31,77,58,0.04)' : 'white',
+                                border: selected ? '2px solid #1F4D3A' : '1.5px solid #E5E0D4',
+                              }}
+                            >
+                              <div className=”shrink-0 w-9 h-9 rounded-full flex items-center justify-center” style={{ background: '#E8EFEB' }}>
+                                <Icon size={16} style={{ color: '#1F4D3A' }} />
+                              </div>
+                              <div className=”flex-1 min-w-0”>
+                                <div className=”flex items-center gap-2”>
+                                  <span className=”text-[13px] font-medium” style={{ color: '#0F1F18' }}>{method.label}</span>
+                                  <span className=”text-[10px] px-1.5 py-0.5 rounded-full font-medium” style={{ background: '#E8EFEB', color: '#1F4D3A' }}>{method.badge}</span>
+                                </div>
+                                <div className=”text-[11px] mt-0.5 truncate” style={{ color: '#6B7A72' }}>{method.desc}</div>
+                              </div>
+                              {/* Radio dot */}
+                              <div className=”shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center”
+                                style={{ borderColor: selected ? '#1F4D3A' : '#C9C3B1' }}>
+                                {selected && <div className=”w-2 h-2 rounded-full” style={{ background: '#1F4D3A' }} />}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ) : availableMethods[0]?.value === 'stripe' ? (
+                      /* Stripe: show accepted card brands */
+                      <div className=”flex items-center gap-3 px-4 py-3 rounded-xl” style={{ background: 'white', border: '1.5px solid #E5E0D4' }}>
+                        <CreditCard size={16} style={{ color: '#6B7A72' }} />
+                        <span className=”text-[13px] flex-1” style={{ color: '#3A4A42' }}>Credit / Debit card</span>
+                        <div className=”flex items-center gap-1.5”>
+                          <span className=”text-[9px] font-bold px-1.5 py-[3px] rounded” style={{ background: '#1A1F71', color: 'white', letterSpacing: '0.04em' }}>VISA</span>
+                          <span className=”text-[9px] font-bold px-1.5 py-[3px] rounded” style={{ background: '#EB001B', color: 'white' }}>MC</span>
+                          <span className=”text-[9px] font-bold px-1.5 py-[3px] rounded” style={{ background: '#016FD0', color: 'white' }}>AMEX</span>
+                        </div>
+                      </div>
+                    ) : availableMethods[0] ? (
+                      /* Other single processor */
+                      (() => {
+                        const method = availableMethods[0];
+                        const Icon = method.icon;
+                        return (
+                          <div className=”flex items-center gap-3 px-4 py-3 rounded-xl” style={{ background: 'white', border: '1.5px solid #E5E0D4' }}>
+                            <div className=”w-8 h-8 rounded-full flex items-center justify-center” style={{ background: '#E8EFEB' }}>
+                              <Icon size={15} style={{ color: '#1F4D3A' }} />
+                            </div>
+                            <div>
+                              <div className=”text-[13px] font-medium” style={{ color: '#0F1F18' }}>{method.label}</div>
+                              <div className=”text-[11px]” style={{ color: '#6B7A72' }}>{method.desc}</div>
+                            </div>
+                          </div>
+                        );
+                      })()
+                    ) : null}
+
+                    {/* Secure payment badge */}
+                    <div className=”flex items-center justify-center gap-1.5 mt-4 text-[11px]” style={{ color: '#9BA8A1' }}>
+                      <svg width=”11” height=”11” viewBox=”0 0 24 24” fill=”none” stroke=”currentColor” strokeWidth=”2.5”>
+                        <path d=”M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z”/>
+                      </svg>
+                      Payments are secure and encrypted
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           {/* Step 3: Your card */}
           {step === 3 && activeVariant && (

@@ -57,14 +57,26 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   const { attendee_name, attendee_email, ticket_type_id, attendee_phone, custom_fields, chosen_price, access_code, referral_code, utm_source, promo_code, preferred_processor } = parsed.data;
 
-  // 1. Verify event has a public event_page
+  // 1. Verify event exists and is published.
+  //    We intentionally do NOT filter event_pages by is_public here — that flag can
+  //    be left false when the self-heal in resolvePublicSlug fails silently, which
+  //    would block legitimate attendees who already loaded the registration page.
+  //    Gating on events.status === 'published' is the correct source of truth.
+  const { data: evRow } = await admin
+    .from('events')
+    .select('id, status, checkout_require_approval, user_id')
+    .eq('id', params.id)
+    .single();
+  if (!evRow || evRow.status !== 'published') {
+    return NextResponse.json({ error: 'Event not found' }, { status: 404 });
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: eventPage } = await (admin as any)
     .from('event_pages')
     .select('id, event_id, title, starts_at, ends_at, timezone, venue_name, venue_address, is_online, variant_id, organizer_name, registration_deadline, max_capacity, payment_processor, payment_processors')
     .eq('event_id', params.id)
-    .eq('is_public', true)
-    .single();
+    .maybeSingle();
 
   if (!eventPage) return NextResponse.json({ error: 'Event not found' }, { status: 404 });
 
@@ -181,8 +193,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   // Create registration (isFree reflects the amount actually charged — a
   // 100%-off promo makes the ticket free and skips payment entirely)
   const isFree = chargedPrice === 0;
-  const { data: eventRow } = await admin.from('events').select('checkout_require_approval, user_id').eq('id', params.id).single();
-  const requiresApproval = !!eventRow?.checkout_require_approval && isFree;
+  const requiresApproval = !!evRow.checkout_require_approval && isFree;
   const initialStatus = requiresApproval ? 'pending_approval' : isFree ? 'confirmed' : 'pending';
 
   // Platform fee (paid tickets only). The split depends on the organizer's plan
@@ -194,9 +205,9 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: fb } = await (admin as any).from('events').select('fee_bearer').eq('id', params.id).single();
     if (fb?.fee_bearer === 'pass') feeBearer = 'pass';
-    if (eventRow?.user_id) {
+    if (evRow.user_id) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: orgProfile } = await (admin as any).from('profiles').select('plan').eq('id', eventRow.user_id).single();
+      const { data: orgProfile } = await (admin as any).from('profiles').select('plan').eq('id', evRow.user_id).single();
       organizerPlan = (orgProfile?.plan as Plan) ?? 'free';
     }
   }
