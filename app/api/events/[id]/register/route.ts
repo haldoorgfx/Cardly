@@ -162,11 +162,14 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   if (existingReg) {
     const { status: exStatus, payment_status: exPayStatus, id: exId } = existingReg;
-    if (['confirmed', 'checked_in', 'pending_approval'].includes(exStatus)) {
+    if (['confirmed', 'checked_in'].includes(exStatus)) {
+      // Truly completed — block re-registration
       return NextResponse.json({ error: 'You are already registered for this event.' }, { status: 409 });
     }
-    if (exStatus === 'pending' && (exPayStatus === 'pending' || exPayStatus === 'failed')) {
-      // Stale payment attempt — clean it up so this request can proceed
+    // Any other status (pending payment, pending_approval, cancelled, etc.)
+    // is considered a stale or incomplete attempt — delete it and allow a fresh start
+    if (['pending', 'pending_approval', 'cancelled'].includes(exStatus) ||
+        (exPayStatus !== 'paid' && exPayStatus !== 'free')) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (admin as any).from('registrations').delete().eq('id', exId);
     }
