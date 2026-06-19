@@ -427,7 +427,6 @@ export function TicketsPageClient({
   checkoutCollectDetails, checkoutRequireApproval, checkoutShowRemaining, checkoutApplyVat,
   eventDates,
 }: Props) {
-  const router = useRouter();
   const [createOpen, setCreateOpen] = useState(false);
   const [promoOpen, setPromoOpen]   = useState(false);
 

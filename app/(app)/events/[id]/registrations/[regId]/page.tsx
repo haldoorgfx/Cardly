@@ -4,7 +4,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
-import { ChevronLeft, CheckCircle2, CheckCircle, Clock, Scan } from 'lucide-react';
+import { ChevronLeft, CheckCircle2, CheckCircle, Scan } from 'lucide-react';
 import { RegistrationDetailActions } from '@/components/events/RegistrationDetailActions';
 
 interface Props { params: Promise<{ id: string; regId: string }> }

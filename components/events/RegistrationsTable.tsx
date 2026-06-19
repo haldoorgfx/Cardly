@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
-import { Search, Download, CheckCircle2, Clock, XCircle, RotateCcw, ExternalLink, UserPlus, X, MoreHorizontal, Upload, AlertCircle, CheckCircle, ChevronDown, Pencil, Copy } from 'lucide-react';
+import { Search, Download, CheckCircle2, XCircle, RotateCcw, ExternalLink, UserPlus, X, MoreHorizontal, Upload, AlertCircle, CheckCircle, ChevronDown, Pencil, Copy } from 'lucide-react';
 
 type Status = 'pending' | 'confirmed' | 'checked_in' | 'cancelled' | 'refunded' | 'pending_approval';
 type PaymentStatus = 'free' | 'pending' | 'paid' | 'refunded' | 'failed';

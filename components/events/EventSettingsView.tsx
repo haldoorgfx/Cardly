@@ -73,7 +73,6 @@ export function EventSettingsView({ event }: Props) {
   );
   const [timezone, setTimezone] = useState(event.timezone);
   const [capacity, setCapacity] = useState(event.max_capacity?.toString() ?? '');
-  const [waitlist, setWaitlist] = useState(false);
 
   // Registration — require_approval and show_remaining_tickets are real DB columns
   const [requireApproval, setRequireApproval] = useState(event.require_approval);
@@ -92,9 +91,6 @@ export function EventSettingsView({ event }: Props) {
 
   // Privacy
   const [isPublic, setIsPublic] = useState(event.is_public);
-  const [showAttendees, setShowAttendees] = useState(true);
-  const [requireLogin, setRequireLogin] = useState(false);
-  const [allowNetworking, setAllowNetworking] = useState(true);
 
   // Danger zone
   const [deleteOpen, setDeleteOpen] = useState(false);

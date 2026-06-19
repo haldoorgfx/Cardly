@@ -84,6 +84,7 @@ export async function POST(req: NextRequest) {
       // Mark registration as refunded when Stripe processes a refund
       const charge = event.data.object as { payment_intent?: string | null };
       if (charge.payment_intent) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         await (admin as any)
           .from('registrations')
           .update({ status: 'refunded', payment_status: 'refunded', updated_at: new Date().toISOString() })
