@@ -60,7 +60,7 @@ export default async function RegisterPage({ params, searchParams }: Props) {
       .order('price', { ascending: true }),
     (admin as any)
       .from('event_pages')
-      .select('cover_image_url, starts_at, city, payment_processor, payment_processors')
+      .select('cover_image_url, starts_at, ends_at, city, payment_processor, payment_processors, registration_deadline')
       .eq('event_id', event.id)
       .single(),
     // Load all variants — client picks the one matching the selected ticket (or the default)
@@ -78,6 +78,11 @@ export default async function RegisterPage({ params, searchParams }: Props) {
   ]);
 
   const page = (pageRes as any).data;
+  const now = new Date();
+  const registrationsClosed = !!(
+    (page?.registration_deadline && new Date(page.registration_deadline) < now) ||
+    (page?.ends_at && new Date(page.ends_at) < now)
+  );
   const tickets = (ticketsRes as any).data ?? [];
   // Dedupe custom fields by label so a misconfigured form never shows the
   // same field twice to attendees (e.g. two "Job Title" fields).
@@ -144,6 +149,7 @@ export default async function RegisterPage({ params, searchParams }: Props) {
           initialTicketId={searchParams?.ticket ?? null}
           alreadyRegistered={alreadyRegistered}
           existingTicketToken={existingTicketToken}
+          registrationsClosed={registrationsClosed}
         />
       </div>
     </div>
