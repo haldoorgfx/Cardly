@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useState, useCallback } from 'react';
 import { Share2, Check, ChevronRight, Download } from 'lucide-react';
 import { CardZoneFill } from './CardZoneFill';
 import { PhotoCropModal } from './PhotoCropModal';
-import PreviewDownloadScreen from '@/app/c/[slug]/components/PreviewDownloadScreen';
+
 import type { Database, Zone } from '@/types/database';
 
 type RegRow = Database['public']['Tables']['registrations']['Row'];
@@ -308,7 +308,7 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
               Design your Eventera Card
             </h1>
             <p className="text-[15px]" style={{ color: '#6B7A72' }}>
-              Personalise your card — it'll be generated when you confirm.
+              Personalise your card — it&apos;ll be generated when you confirm.
             </p>
           </div>
 
