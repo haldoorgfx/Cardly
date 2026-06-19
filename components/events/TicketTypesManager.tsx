@@ -248,21 +248,28 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
   }
 
   async function handleMove(idx: number, dir: -1 | 1) {
+    const prev = [...tickets];
     const next = [...tickets];
     const swapIdx = idx + dir;
     if (swapIdx < 0 || swapIdx >= next.length) return;
     [next[idx], next[swapIdx]] = [next[swapIdx], next[idx]];
     setTickets(next);
-    await Promise.all([
-      fetch(`/api/events/${eventId}/tickets`, {
-        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ticketId: next[idx].id, position: idx }),
-      }),
-      fetch(`/api/events/${eventId}/tickets`, {
-        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ticketId: next[swapIdx].id, position: swapIdx }),
-      }),
-    ]);
+    try {
+      const results = await Promise.all([
+        fetch(`/api/events/${eventId}/tickets`, {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ticketId: next[idx].id, position: idx }),
+        }),
+        fetch(`/api/events/${eventId}/tickets`, {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ticketId: next[swapIdx].id, position: swapIdx }),
+        }),
+      ]);
+      if (results.some(r => !r.ok)) throw new Error('Reorder failed');
+    } catch {
+      setTickets(prev);
+      setError('Failed to save new order. Please try again.');
+    }
   }
 
   const soldOut = (t: TicketRow) => t.quantity !== null && t.quantity_sold >= t.quantity;

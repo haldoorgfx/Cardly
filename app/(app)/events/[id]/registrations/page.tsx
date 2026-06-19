@@ -21,7 +21,7 @@ export default async function RegistrationsPage({ params }: Props) {
 
   const admin = createAdminClient();
 
-  const [{ data: event }, regResult, { data: ticketTypes }, cardsResult] = await Promise.all([
+  const [{ data: event }, regResult, { data: ticketTypes }, cardsResult, checkedInResult, pendingResult, revenueResult] = await Promise.all([
     admin
       .from('events')
       .select('id, name, slug')
@@ -43,6 +43,23 @@ export default async function RegistrationsPage({ params }: Props) {
       .from('generated_cards')
       .select('attendee_data')
       .eq('event_id', id),
+    // Aggregate counts — correct for any event size
+    admin
+      .from('registrations')
+      .select('id', { count: 'exact', head: true })
+      .eq('event_id', id)
+      .eq('status', 'checked_in'),
+    admin
+      .from('registrations')
+      .select('id', { count: 'exact', head: true })
+      .eq('event_id', id)
+      .eq('status', 'pending'),
+    // Revenue: only pull amount+currency for paid registrations
+    admin
+      .from('registrations')
+      .select('amount_paid, currency')
+      .eq('event_id', id)
+      .gt('amount_paid', 0),
   ]);
 
   const { data: formFields } = await admin
@@ -60,6 +77,16 @@ export default async function RegistrationsPage({ params }: Props) {
     return (d?.email ?? d?.attendee_email ?? '') as string;
   }).filter(Boolean));
   const totalCardsGenerated = cardsResult.data?.length ?? 0;
+
+  // Server-computed aggregate stats (correct for any event size)
+  const serverCheckedInCount = checkedInResult.count ?? 0;
+  const serverPendingCount   = pendingResult.count ?? 0;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const serverRevenueByCurrency = (revenueResult.data ?? []).reduce<Record<string, number>>((acc: Record<string, number>, r: any) => {
+    const cur = (r.currency as string) || 'USD';
+    acc[cur] = (acc[cur] ?? 0) + (r.amount_paid as number);
+    return acc;
+  }, {});
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
@@ -84,6 +111,9 @@ export default async function RegistrationsPage({ params }: Props) {
           formFields={(formFields ?? []) as any}
           cardEmails={Array.from(cardEmails)}
           totalCardsGenerated={totalCardsGenerated}
+          serverCheckedInCount={serverCheckedInCount}
+          serverPendingCount={serverPendingCount}
+          serverRevenueByCurrency={serverRevenueByCurrency}
         />
       </div>
     </div>

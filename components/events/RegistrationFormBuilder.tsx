@@ -132,21 +132,28 @@ export function RegistrationFormBuilder({ eventId, initialFields }: Props) {
   }
 
   async function handleMove(idx: number, dir: -1 | 1) {
+    const prev = [...fields];
     const next = [...fields];
     const swapIdx = idx + dir;
     if (swapIdx < 0 || swapIdx >= next.length) return;
     [next[idx], next[swapIdx]] = [next[swapIdx], next[idx]];
     setFields(next);
-    await Promise.all([
-      fetch(`/api/events/${eventId}/form`, {
-        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fieldId: next[idx].id, position: idx }),
-      }),
-      fetch(`/api/events/${eventId}/form`, {
-        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fieldId: next[swapIdx].id, position: swapIdx }),
-      }),
-    ]);
+    try {
+      const results = await Promise.all([
+        fetch(`/api/events/${eventId}/form`, {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fieldId: next[idx].id, position: idx }),
+        }),
+        fetch(`/api/events/${eventId}/form`, {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fieldId: next[swapIdx].id, position: swapIdx }),
+        }),
+      ]);
+      if (results.some(r => !r.ok)) throw new Error('Reorder failed');
+    } catch {
+      setFields(prev);
+      setError('Failed to save new order. Please try again.');
+    }
   }
 
   const typeInfo = (t: string) => FIELD_TYPES.find(f => f.value === t);

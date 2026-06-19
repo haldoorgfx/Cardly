@@ -48,6 +48,9 @@ interface Props {
   formFields?: FormFieldOption[];
   cardEmails?: string[];
   totalCardsGenerated?: number;
+  serverCheckedInCount?: number;
+  serverPendingCount?: number;
+  serverRevenueByCurrency?: Record<string, number>;
 }
 
 const STATUS_PILL: Record<Status, { label: string; bg: string; color: string }> = {
@@ -854,7 +857,7 @@ function AddManuallyModal({
 }
 
 /* ── Main table ─────────────────────────────────────────────────────────────── */
-export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, totalCount, ticketTypes, formFields = [], cardEmails = [], totalCardsGenerated }: Props) {
+export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, totalCount, ticketTypes, formFields = [], cardEmails = [], totalCardsGenerated, serverCheckedInCount, serverPendingCount, serverRevenueByCurrency }: Props) {
   const cardEmailSet = new Set(cardEmails);
   const [rows, setRows]               = useState(initialRegistrations);
   const [total, setTotal]             = useState(totalCount);
@@ -991,12 +994,13 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
     }
   }, [eventId, rows.length, query, statusFilter]);
 
-  const checkedInCount = rows.filter(r => r.status === 'checked_in').length;
-  const pendingCount   = rows.filter(r => r.status === 'pending').length;
+  // Prefer server-computed aggregates (correct for any event size) over client-side row counts
+  const checkedInCount = serverCheckedInCount ?? rows.filter(r => r.status === 'checked_in').length;
+  const pendingCount   = serverPendingCount   ?? rows.filter(r => r.status === 'pending').length;
   // Cards downloaded: prefer server-provided count, fallback to per-row check
   const cardDownloaded = totalCardsGenerated ?? rows.filter(r => r.eventera_card_url || cardEmailSet.has(r.attendee_email)).length;
-  // Group revenue by currency (only paid amounts)
-  const revenueByCurrency = rows.reduce<Record<string, number>>((acc, r) => {
+  // Revenue: prefer server aggregate, fallback to per-row computation from current page
+  const revenueByCurrency = serverRevenueByCurrency ?? rows.reduce<Record<string, number>>((acc, r) => {
     if ((r.amount_paid ?? 0) <= 0) return acc;
     const cur = r.currency || 'USD';
     acc[cur] = (acc[cur] ?? 0) + (r.amount_paid ?? 0);
