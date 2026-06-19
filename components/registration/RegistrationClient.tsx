@@ -155,8 +155,8 @@ export default function RegistrationClient({
   const preselected = initialTicketId ? tickets.find(t => t.id === initialTicketId) ?? null : null;
 
   // step 0 = ticket, 1 = details, 2 = review/pay, 3 = your card (canvas events only).
-  // Land straight on Details when a ticket was already picked on the event page.
-  const [step, setStep] = useState<0 | 1 | 2 | 3>(preselected ? 1 : 0);
+  // Always start at step 0 so the attendee confirms their ticket before continuing.
+  const [step, setStep] = useState<0 | 1 | 2 | 3>(0);
   const [confirmedToken, setConfirmedToken] = useState<string | null>(null);
   const [confirmedRegId, setConfirmedRegId] = useState<string | null>(null);
   const [selectedTicket, setSelectedTicket] = useState<TicketType | null>(() => preselected ?? pickDefaultTicket(tickets));
