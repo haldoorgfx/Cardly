@@ -1050,75 +1050,8 @@ export default function RegistrationClient({
             </div>
           )}
 
-          {/* Nav buttons */}
-          <div className="mt-8">
-            {submitError && (
-              <div className="mb-4 px-4 py-3 rounded-xl text-[13px] font-medium" style={{ background: '#FEF2F2', color: '#B8423C', border: '1px solid #FECACA' }}>
-                {submitError}
-              </div>
-            )}
-            <div className="flex items-center justify-between">
-              <button
-                onClick={() => {
-                  setSubmitError('');
-                  if (step === 0) router.push(`/e/${eventSlug}`);
-                  else setStep(s => (s - 1) as 0 | 1 | 2 | 3);
-                }}
-                className="px-5 py-2.5 rounded-xl font-medium text-[14px] transition-colors"
-                style={{ background: '#E8EFEB', color: '#1F4D3A' }}
-              >
-                ← Back
-              </button>
-              {step < 2 ? (
-                <button
-                  onClick={() => {
-                    if (step === 0) {
-                      const errs = validateTicket();
-                      if (Object.keys(errs).length > 0) { setFieldErrors(errs); return; }
-                    }
-                    if (step === 1) {
-                      const errs = validateDetails();
-                      if (Object.keys(errs).length > 0) { setFieldErrors(errs); return; }
-                    }
-                    setStep(s => (s + 1) as 0 | 1 | 2 | 3);
-                  }}
-                  disabled={step === 0 && !selectedTicket}
-                  className="ml-auto px-6 py-2.5 rounded-xl font-medium text-[14px] text-white disabled:opacity-50"
-                  style={{ background: '#1F4D3A' }}
-                >
-                  Continue →
-                </button>
-              ) : step === 2 ? (
-                <button
-                  onClick={() => handleSubmit()}
-                  disabled={submitting}
-                  className="ml-auto px-6 py-2.5 rounded-xl font-medium text-[14px] text-white disabled:opacity-50 flex items-center gap-2"
-                  style={{ background: '#1F4D3A' }}
-                >
-                  {submitting && (
-                    <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
-                    </svg>
-                  )}
-                  {submitting ? 'Processing…' : isFree ? 'Confirm registration' : `Pay ${fmt(total, selectedTicket?.currency ?? 'USD')} →`}
-                </button>
-              ) : (
-                <button
-                  onClick={handleCardFinish}
-                  disabled={submitting}
-                  className="ml-auto px-6 py-2.5 rounded-xl font-medium text-[14px] text-white disabled:opacity-50 flex items-center gap-2"
-                  style={{ background: '#1F4D3A' }}
-                >
-                  {submitting && (
-                    <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
-                    </svg>
-                  )}
-                  {submitting ? 'Generating card…' : 'Get my card →'}
-                </button>
-              )}
-            </div>
-          </div>
+          {/* spacer so content doesn't hide behind sticky nav */}
+          <div className="h-4" />
         </div>
 
         {/* Right sidebar: card preview + order summary */}
@@ -1253,6 +1186,92 @@ export default function RegistrationClient({
           onCancel={() => setCropTarget(null)}
         />
       )}
+
+      {/* ── Sticky bottom nav bar — always visible regardless of list length ── */}
+      <div
+        className="fixed bottom-0 left-0 right-0 z-40"
+        style={{ background: 'white', borderTop: '1px solid #E5E0D4', boxShadow: '0 -2px 16px rgba(15,31,24,0.07)' }}
+      >
+        {submitError && (
+          <div className="px-5 pt-2">
+            <div className="max-w-[1100px] mx-auto px-4 py-2 rounded-lg text-[13px] font-medium" style={{ background: '#FEF2F2', color: '#B8423C', border: '1px solid #FECACA' }}>
+              {submitError}
+            </div>
+          </div>
+        )}
+        <div className="max-w-[1100px] mx-auto px-5 py-3 flex items-center justify-between gap-4">
+          {/* Back */}
+          <button
+            onClick={() => {
+              setSubmitError('');
+              if (step === 0) router.push(`/e/${eventSlug}`);
+              else setStep(s => (s - 1) as 0 | 1 | 2 | 3);
+            }}
+            className="px-5 h-11 rounded-xl font-medium text-[14px] transition-colors shrink-0"
+            style={{ background: '#E8EFEB', color: '#1F4D3A' }}
+          >
+            ← Back
+          </button>
+
+          {/* Ticket summary pill — only on step 0 when ticket selected */}
+          {step === 0 && selectedTicket && (
+            <div className="hidden sm:flex flex-col items-end min-w-0">
+              <span className="text-[13px] font-medium truncate" style={{ color: '#0F1F18' }}>{selectedTicket.name}</span>
+              <span className="text-[12px]" style={{ color: '#6B7A72' }}>{fmt(total, selectedTicket.currency)}</span>
+            </div>
+          )}
+
+          {/* Primary CTA */}
+          {step < 2 ? (
+            <button
+              onClick={() => {
+                if (step === 0) {
+                  const errs = validateTicket();
+                  if (Object.keys(errs).length > 0) { setFieldErrors(errs); return; }
+                }
+                if (step === 1) {
+                  const errs = validateDetails();
+                  if (Object.keys(errs).length > 0) { setFieldErrors(errs); return; }
+                }
+                setStep(s => (s + 1) as 0 | 1 | 2 | 3);
+              }}
+              disabled={step === 0 && !selectedTicket}
+              className="h-11 px-7 rounded-xl font-semibold text-[14px] text-white disabled:opacity-40 transition-opacity shrink-0"
+              style={{ background: '#1F4D3A' }}
+            >
+              Continue →
+            </button>
+          ) : step === 2 ? (
+            <button
+              onClick={() => handleSubmit()}
+              disabled={submitting}
+              className="h-11 px-7 rounded-xl font-semibold text-[14px] text-white disabled:opacity-50 flex items-center gap-2 shrink-0"
+              style={{ background: '#1F4D3A' }}
+            >
+              {submitting && (
+                <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
+                </svg>
+              )}
+              {submitting ? 'Processing…' : isFree ? 'Confirm registration' : `Pay ${fmt(total, selectedTicket?.currency ?? 'USD')} →`}
+            </button>
+          ) : (
+            <button
+              onClick={handleCardFinish}
+              disabled={submitting}
+              className="h-11 px-7 rounded-xl font-semibold text-[14px] text-white disabled:opacity-50 flex items-center gap-2 shrink-0"
+              style={{ background: '#1F4D3A' }}
+            >
+              {submitting && (
+                <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
+                </svg>
+              )}
+              {submitting ? 'Generating card…' : 'Get my card →'}
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
