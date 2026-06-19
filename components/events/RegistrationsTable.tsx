@@ -892,6 +892,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
   const [importOpen, setImportOpen]   = useState(false);
   const [selected, setSelected]       = useState<Set<string>>(new Set());
   const [bulkBusy, setBulkBusy]       = useState(false);
+  const [exportingAll, setExportingAll] = useState(false);
   const [refreshCounter, setRefreshCounter] = useState(0);
   const searchTimeout                 = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -946,6 +947,20 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
 
   function exportSelected() {
     exportCSV(rows.filter(r => selected.has(r.id)), eventSlug, formFields);
+  }
+
+  async function exportAllCSV() {
+    setExportingAll(true);
+    try {
+      const res = await fetch(`/api/events/${eventId}/registrations?limit=5000&offset=0`);
+      if (!res.ok) throw new Error('Failed to fetch registrations');
+      const data = await res.json() as { registrations: Registration[] };
+      exportCSV(data.registrations, eventSlug, formFields);
+    } catch {
+      alert('Export failed. Please try again.');
+    } finally {
+      setExportingAll(false);
+    }
   }
   const isFirstRender                 = useRef(true);
   const PAGE = 50;
@@ -1078,13 +1093,14 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
             />
           </div>
           <button
-            onClick={() => exportCSV(rows, eventSlug, formFields)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium shrink-0"
+            onClick={exportAllCSV}
+            disabled={exportingAll}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium shrink-0 disabled:opacity-60"
             style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
-            title="Export CSV"
+            title="Export all registrations as CSV"
           >
             <Download size={14} />
-            <span className="hidden sm:inline">Export CSV</span>
+            <span className="hidden sm:inline">{exportingAll ? 'Exporting…' : 'Export CSV'}</span>
           </button>
           <button
             onClick={() => setImportOpen(true)}
