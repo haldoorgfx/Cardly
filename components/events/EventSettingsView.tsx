@@ -16,6 +16,8 @@ interface EventData {
   max_capacity: number | null;
   is_public: boolean;
   is_online: boolean;
+  require_approval: boolean;
+  show_remaining_tickets: boolean;
   venue_name: string | null;
   venue_address: string | null;
   venue_lat: number | null;
@@ -73,12 +75,9 @@ export function EventSettingsView({ event }: Props) {
   const [capacity, setCapacity] = useState(event.max_capacity?.toString() ?? '');
   const [waitlist, setWaitlist] = useState(false);
 
-  // Registration
-  const [collectOrg, setCollectOrg] = useState(true);
-  const [collectDietary, setCollectDietary] = useState(false);
-  const [customQuestion, setCustomQuestion] = useState(true);
-  const [requireApproval, setRequireApproval] = useState(false);
-  const [closeAtCapacity, setCloseAtCapacity] = useState(true);
+  // Registration — require_approval and show_remaining_tickets are real DB columns
+  const [requireApproval, setRequireApproval] = useState(event.require_approval);
+  const [showRemainingTickets, setShowRemainingTickets] = useState(event.show_remaining_tickets);
 
   // Platform fee — who bears Eventera's per-ticket fee. Saves instantly.
   const [passFee, setPassFee] = useState(event.fee_bearer === 'pass');
@@ -135,8 +134,10 @@ export function EventSettingsView({ event }: Props) {
             title:         name.trim(),
             starts_at:     startsAt ? new Date(startsAt).toISOString() : null,
             ends_at:       endsAt   ? new Date(endsAt).toISOString()   : null,
-            max_capacity:  capacity ? parseInt(capacity)                : null,
-            is_public:     isPublic,
+            max_capacity:           capacity ? parseInt(capacity) : null,
+            is_public:              isPublic,
+            require_approval:       requireApproval,
+            show_remaining_tickets: showRemainingTickets,
             timezone,
             venue_name:    placeData?.venue_name    ?? (venue.trim() || null),
             venue_address: placeData?.venue_address ?? null,
@@ -316,7 +317,7 @@ export function EventSettingsView({ event }: Props) {
                 </div>
               </InfoRow>
               <InfoRow label="Waitlist" last>
-                <Toggle value={waitlist} onChange={setWaitlist} />
+                <span className="text-[11px] px-2 py-0.5 rounded-full font-medium" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>Coming soon</span>
               </InfoRow>
             </div>
           </Panel>
@@ -332,15 +333,20 @@ export function EventSettingsView({ event }: Props) {
       {tab === 'registration' && (
         <Panel title="Registration form">
           <div className="space-y-0">
+            <InfoRow label="Require approval" desc="Manually approve each registration before it's confirmed" last={false}>
+              <Toggle value={requireApproval} onChange={setRequireApproval} />
+            </InfoRow>
+            <InfoRow label="Show remaining tickets" desc="Display how many spots are left on the public page" last={false}>
+              <Toggle value={showRemainingTickets} onChange={setShowRemainingTickets} />
+            </InfoRow>
             {[
-              { label: 'Collect organization', desc: "Ask attendees for their company", val: collectOrg, set: setCollectOrg },
-              { label: 'Collect dietary needs', desc: 'For catered events', val: collectDietary, set: setCollectDietary },
-              { label: 'Custom question', desc: '"What do you hope to learn?"', val: customQuestion, set: setCustomQuestion },
-              { label: 'Require approval', desc: 'Manually approve each registration', val: requireApproval, set: setRequireApproval },
-              { label: 'Close registration at capacity', desc: 'Stop sales when full', val: closeAtCapacity, set: setCloseAtCapacity },
+              { label: 'Collect organization', desc: 'Ask attendees for their company' },
+              { label: 'Collect dietary needs', desc: 'For catered events' },
+              { label: 'Custom question', desc: '"What do you hope to learn?"' },
+              { label: 'Close at capacity', desc: 'Automatically close registration when full' },
             ].map((item, i, arr) => (
               <InfoRow key={item.label} label={item.label} desc={item.desc} last={i === arr.length - 1}>
-                <Toggle value={item.val} onChange={item.set} />
+                <span className="text-[11px] px-2 py-0.5 rounded-full font-medium" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>Coming soon</span>
               </InfoRow>
             ))}
           </div>
@@ -363,14 +369,16 @@ export function EventSettingsView({ event }: Props) {
       {tab === 'privacy' && (
         <Panel title="Visibility & privacy">
           <div className="space-y-0">
+            <InfoRow label="Public event page" desc="Listed and discoverable on Eventera" last={false}>
+              <Toggle value={isPublic} onChange={setIsPublic} />
+            </InfoRow>
             {[
-              { label: 'Public event page', desc: 'Listed and discoverable', val: isPublic, set: setIsPublic },
-              { label: 'Show attendee list', desc: "Let attendees see who's coming", val: showAttendees, set: setShowAttendees },
-              { label: 'Require login to register', desc: 'Attendees must create an account', val: requireLogin, set: setRequireLogin },
-              { label: 'Allow networking', desc: 'Attendees can message each other', val: allowNetworking, set: setAllowNetworking },
+              { label: 'Show attendee list', desc: "Let attendees see who's coming" },
+              { label: 'Require login to register', desc: 'Attendees must create an account' },
+              { label: 'Allow networking', desc: 'Attendees can message each other' },
             ].map((item, i, arr) => (
               <InfoRow key={item.label} label={item.label} desc={item.desc} last={i === arr.length - 1}>
-                <Toggle value={item.val} onChange={item.set} />
+                <span className="text-[11px] px-2 py-0.5 rounded-full font-medium" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>Coming soon</span>
               </InfoRow>
             ))}
           </div>

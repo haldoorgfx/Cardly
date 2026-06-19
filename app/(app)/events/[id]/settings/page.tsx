@@ -29,9 +29,10 @@ export default async function EventSettingsPage({ params }: { params: Promise<{ 
 
   if (!event) redirect('/dashboard');
 
-  const { data: page } = await admin
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: page } = await (admin as any)
     .from('event_pages')
-    .select('venue_name, venue_address, venue_lat, venue_lng, city, country, timezone, starts_at, ends_at, max_capacity, is_public, is_online')
+    .select('venue_name, venue_address, venue_lat, venue_lng, city, country, timezone, starts_at, ends_at, max_capacity, is_public, is_online, require_approval, show_remaining_tickets')
     .eq('event_id', id)
     .single();
 
@@ -54,6 +55,8 @@ export default async function EventSettingsPage({ params }: { params: Promise<{ 
         max_capacity: page?.max_capacity ?? null,
         is_public: page?.is_public ?? true,
         is_online: page?.is_online ?? false,
+        require_approval: page?.require_approval ?? false,
+        show_remaining_tickets: page?.show_remaining_tickets ?? false,
         venue_name: page?.venue_name ?? null,
         venue_address: page?.venue_address ?? null,
         venue_lat: page?.venue_lat ?? null,

@@ -17,6 +17,7 @@ interface Registration {
   payment_status: PaymentStatus;
   amount_paid: number;
   currency: string;
+  ticket_type_id: string | null;
   eventera_card_url: string | null;
   checked_in_at: string | null;
   created_at: string;
@@ -63,7 +64,7 @@ function StatusPill({ status }: { status: Status }) {
   return (
     <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[12px] font-medium" style={{ background: s.bg, color: s.color }}>
       {status === 'checked_in' && <CheckCircle2 size={10} />}
-      {status === 'confirmed'  && <Clock size={10} />}
+      {status === 'confirmed'  && <CheckCircle size={10} />}
       {status === 'cancelled'  && <XCircle size={10} />}
       {status === 'refunded'   && <RotateCcw size={10} />}
       {s.label}
@@ -124,7 +125,7 @@ function EditAttendeeModal({ reg, eventId, ticketTypes, onClose, onSaved }: {
   const [email, setEmail]       = useState(reg.attendee_email);
   const [phone, setPhone]       = useState(reg.attendee_phone ?? '');
   const [ticketId, setTicketId] = useState(
-    ticketTypes.find(t => t.name === reg.ticket_types?.name)?.id ?? ''
+    reg.ticket_type_id ?? ticketTypes.find(t => t.name === reg.ticket_types?.name)?.id ?? ''
   );
   const [saving, setSaving]     = useState(false);
   const [errors, setErrors]     = useState<Record<string, string>>({});

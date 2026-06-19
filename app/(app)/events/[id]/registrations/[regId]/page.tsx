@@ -4,7 +4,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
-import { ChevronLeft, CheckCircle2, Clock, Scan } from 'lucide-react';
+import { ChevronLeft, CheckCircle2, CheckCircle, Clock, Scan } from 'lucide-react';
 import { RegistrationDetailActions } from '@/components/events/RegistrationDetailActions';
 
 interface Props { params: Promise<{ id: string; regId: string }> }
@@ -131,7 +131,7 @@ export default async function AttendeeDetailPage({ params }: Props) {
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[12px] font-medium"
                 style={{ background: statusStyle.bg, color: statusStyle.color }}>
                 {reg.status === 'checked_in' && <CheckCircle2 size={10} />}
-                {reg.status === 'confirmed' && <Clock size={10} />}
+                {reg.status === 'confirmed' && <CheckCircle size={10} />}
                 {STATUS_LABEL[reg.status] ?? reg.status}
               </span>
             </div>
