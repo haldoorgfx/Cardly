@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Check, Lock, Unlock, ChevronDown } from 'lucide-react';
+import { Check, Lock, Unlock, ChevronDown, ChevronRight, CreditCard, Smartphone, Layers, ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Zone } from '@/types/database';
@@ -60,6 +60,7 @@ interface Props {
   utmSource?: string | null;
   initialTicketId?: string | null;
   alreadyRegistered?: boolean;
+  availableProcessors?: string[];
 }
 
 const INPUT = 'w-full rounded-xl px-4 py-3 text-[16px] outline-none transition border focus:border-[#E8C57E] focus:ring-[3px] focus:ring-[rgba(232,197,126,0.15)]';
@@ -128,6 +129,12 @@ function pickVariant(variants: CanvasVariant[], ticketId: string | null): Canvas
   return variants.find(v => !v.ticketTypeId) ?? variants[0];
 }
 
+const PAYMENT_METHOD_OPTIONS = [
+  { value: 'stripe',      label: 'Credit / Debit Card',    desc: 'Visa, Mastercard, Apple Pay, Google Pay',          icon: CreditCard, badge: 'Worldwide' },
+  { value: 'flutterwave', label: 'Flutterwave',            desc: 'Card, bank transfer, USSD — African currencies',   icon: Layers,     badge: 'Africa' },
+  { value: 'waafipay',    label: 'Mobile Money',           desc: 'EVC Plus, eDahab, Somtel — Somalia & Djibouti',    icon: Smartphone, badge: 'East Africa' },
+] as const;
+
 export default function RegistrationClient({
   eventSlug, eventId, eventName, eventSubtitle,
   coverUrl, startsAt, city, tickets, canvasVariant,
@@ -136,6 +143,7 @@ export default function RegistrationClient({
   initialName = '', initialEmail = '',
   referralCode, utmSource, initialTicketId = null,
   alreadyRegistered = false,
+  availableProcessors = ['stripe'],
 }: Props) {
   const router = useRouter();
 
@@ -195,6 +203,7 @@ export default function RegistrationClient({
 
   // Payment state (after submit for paid tickets)
   const [paymentStep, setPaymentStep] = useState(false);
+  const [showPaymentPicker, setShowPaymentPicker] = useState(false);
   const [paymentProcessor, setPaymentProcessor] = useState<'stripe' | 'waafipay'>('stripe');
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [pendingRegId, setPendingRegId] = useState<string | null>(null);
@@ -328,8 +337,17 @@ export default function RegistrationClient({
     return errs;
   }
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (preferredProcessor?: string) => {
     setSubmitError('');
+
+    // Show payment method picker when organizer has multiple paid processors and attendee hasn't chosen yet
+    const paidProcessors = availableProcessors.filter(p => p !== 'free');
+    const ticketIsPaid = (selectedTicket?.price ?? 0) > 0 || !!(selectedTicket?.min_price && selectedTicket.min_price > 0);
+    if (!preferredProcessor && ticketIsPaid && paidProcessors.length > 1) {
+      setShowPaymentPicker(true);
+      return;
+    }
+
     setSubmitting(true);
     try {
       const attendeeName = activeVariant
@@ -361,6 +379,7 @@ export default function RegistrationClient({
           referral_code: referralCode ?? null,
           utm_source: utmSource ?? null,
           promo_code: appliedPromo?.code ?? null,
+          preferred_processor: preferredProcessor ?? null,
         }),
       });
 
@@ -466,6 +485,94 @@ export default function RegistrationClient({
     }
     router.push(`/e/${eventSlug}/register/confirm?reg=${confirmedToken}`);
   };
+
+  // Payment method picker (shown when organizer enables multiple processors)
+  if (showPaymentPicker) {
+    const paidProcessors = availableProcessors.filter(p => p !== 'free');
+    const availableMethods = PAYMENT_METHOD_OPTIONS.filter(m => paidProcessors.includes(m.value));
+    const displayPrice = Math.max(0, priceAfterPromo);
+
+    return (
+      <div className="min-h-screen flex items-center justify-center px-5 py-12" style={{ background: '#FAF6EE' }}>
+        <div className="w-full max-w-[420px]">
+          {/* Back */}
+          <button
+            onClick={() => setShowPaymentPicker(false)}
+            className="flex items-center gap-1.5 text-[13px] mb-8 transition hover:opacity-70"
+            style={{ color: '#6B7A72' }}
+          >
+            <ArrowLeft size={14} /> Back
+          </button>
+
+          {/* Header */}
+          <div className="mb-7">
+            <h2 className="font-display font-bold text-[26px] tracking-tight mb-1" style={{ color: '#0F1F18' }}>
+              Choose how to pay
+            </h2>
+            <p className="text-[14px]" style={{ color: '#6B7A72' }}>
+              Pick your preferred payment method for this order.
+            </p>
+          </div>
+
+          {/* Order summary pill */}
+          <div className="flex items-center justify-between px-4 py-3 rounded-xl mb-6" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
+            <div>
+              <div className="text-[13px] font-medium" style={{ color: '#0F1F18' }}>{selectedTicket?.name}</div>
+              {promoDiscount > 0 && (
+                <div className="text-[11px] mt-0.5" style={{ color: '#2D7A4F' }}>
+                  Promo applied — {fmt(promoDiscount, selectedTicket?.currency ?? 'USD')} off
+                </div>
+              )}
+            </div>
+            <div className="font-display font-bold text-[18px]" style={{ color: '#1F4D3A' }}>
+              {fmt(displayPrice, selectedTicket?.currency ?? 'USD')}
+            </div>
+          </div>
+
+          {/* Method cards */}
+          <div className="space-y-3">
+            {availableMethods.map(method => {
+              const Icon = method.icon;
+              return (
+                <button
+                  key={method.value}
+                  onClick={() => { setShowPaymentPicker(false); handleSubmit(method.value); }}
+                  disabled={submitting}
+                  className="w-full flex items-center gap-4 p-4 rounded-xl text-left transition group"
+                  style={{ background: 'white', border: '1.5px solid #E5E0D4' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#1F4D3A'; (e.currentTarget as HTMLElement).style.background = 'rgba(31,77,58,0.03)'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#E5E0D4'; (e.currentTarget as HTMLElement).style.background = 'white'; }}
+                >
+                  {/* Icon circle */}
+                  <div className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center" style={{ background: '#E8EFEB' }}>
+                    <Icon size={18} style={{ color: '#1F4D3A' }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>{method.label}</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+                        {method.badge}
+                      </span>
+                    </div>
+                    <div className="text-[12px] mt-0.5 truncate" style={{ color: '#6B7A72' }}>{method.desc}</div>
+                  </div>
+                  <ChevronRight size={16} style={{ color: '#C9C3B1', flexShrink: 0 }} />
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Secure badge */}
+          <div className="flex items-center justify-center gap-1.5 mt-8 text-[12px]" style={{ color: '#9BA8A1' }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            Payments are secure and encrypted
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Payment screens (after registration created for paid tickets)
   if (paymentStep && pendingRegToken) {
@@ -958,7 +1065,7 @@ export default function RegistrationClient({
                 </button>
               ) : step === 2 ? (
                 <button
-                  onClick={handleSubmit}
+                  onClick={() => handleSubmit()}
                   disabled={submitting}
                   className="ml-auto px-6 py-2.5 rounded-xl font-medium text-[14px] text-white disabled:opacity-50 flex items-center gap-2"
                   style={{ background: '#1F4D3A' }}

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Upload, Globe, ExternalLink, ChevronRight, ChevronLeft, Check } from 'lucide-react';
+import { Upload, Globe, ExternalLink, ChevronRight, ChevronLeft, Check, CreditCard, Smartphone, Gift, Layers } from 'lucide-react';
 import { PlacesAutocomplete } from '@/components/shared/PlacesAutocomplete';
 import { TIMEZONES } from '@/lib/events/format';
 import type { Database } from '@/types/database';
@@ -74,9 +74,21 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
   const [maxCapacity, setMaxCapacity] = useState(existing?.max_capacity?.toString() ?? '');
   const [isPublic, setIsPublic] = useState(existing?.is_public ?? true);
   const [customSlug, setCustomSlug] = useState(existing?.custom_slug ?? '');
-  const [paymentProcessor, setPaymentProcessor] = useState<'stripe' | 'flutterwave' | 'waafipay' | 'free'>(
-    (existing?.payment_processor as 'stripe' | 'flutterwave' | 'waafipay' | 'free') ?? 'stripe'
-  );
+  const [paymentProcessors, setPaymentProcessors] = useState<string[]>(() => {
+    const arr = (existing as { payment_processors?: string[] | null } | null)?.payment_processors;
+    if (arr && arr.length > 0) return arr;
+    const single = existing?.payment_processor as string | null;
+    return single ? [single] : ['stripe'];
+  });
+
+  function toggleProcessor(value: string) {
+    if (value === 'free') { setPaymentProcessors(['free']); return; }
+    setPaymentProcessors(prev => {
+      const without = prev.filter(p => p !== 'free' && p !== value);
+      if (prev.includes(value)) return without.length === 0 ? ['stripe'] : without;
+      return [...without.filter(p => p !== 'free'), value];
+    });
+  }
   const [organizerName, setOrganizerName] = useState(existing?.organizer_name ?? '');
   const [city, setCity] = useState((existing as { city?: string | null } | null)?.city ?? '');
   const [category, setCategory] = useState((existing as { category?: string | null } | null)?.category ?? '');
@@ -167,7 +179,8 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
           max_capacity: maxCapacity ? parseInt(maxCapacity) : null,
           is_public: isPublic,
           custom_slug: customSlug.trim() || null,
-          payment_processor: paymentProcessor,
+          payment_processors: paymentProcessors,
+          payment_processor: (paymentProcessors[0] ?? 'stripe') as 'stripe' | 'flutterwave' | 'waafipay' | 'free',
           organizer_name: organizerName.trim() || null,
           city: city.trim() || null,
           category: category.trim() || null,
@@ -604,45 +617,58 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
             </div>
           </div>
 
-          {/* Payment processor */}
+          {/* Payment methods */}
           <div>
-            <SectionLabel>Payment processor</SectionLabel>
+            <SectionLabel>Payment methods</SectionLabel>
             <p className="text-[13px] mb-3" style={{ color: '#6B7A72' }}>
-              Choose how attendees pay for paid tickets. Free events always skip payment.
+              Enable all the ways your attendees can pay. They&apos;ll pick their preferred method at checkout.
             </p>
             <div className="space-y-2">
-              {[
-                { value: 'stripe',      label: 'Stripe',      desc: 'Credit/debit cards worldwide. Recommended for international events.' },
-                { value: 'flutterwave', label: 'Flutterwave', desc: 'Accepts local African currencies (KES, GHS, ZAR, etc.). Ticket prices in USD, charged in local currency.' },
-                { value: 'waafipay',    label: 'WaafiPay',    desc: 'EVC Plus, eDahab, Somtel and Djibouti mobile money. Best for Somalia & Djibouti.' },
-                { value: 'free',        label: 'Free only',   desc: 'No payment collection — all tickets must be free.' },
-              ].map(opt => (
-                <button
-                  key={opt.value}
-                  onClick={() => setPaymentProcessor(opt.value as 'stripe' | 'flutterwave' | 'waafipay' | 'free')}
-                  className="w-full text-left flex items-start gap-3 p-4 rounded-xl transition"
-                  style={{
-                    border: paymentProcessor === opt.value ? '2px solid #1F4D3A' : '1px solid #E5E0D4',
-                    background: paymentProcessor === opt.value ? 'rgba(31,77,58,0.04)' : 'white',
-                  }}
-                >
-                  <div
-                    className="mt-0.5 shrink-0 rounded-full flex items-center justify-center"
+              {([
+                { value: 'stripe',      label: 'Credit / Debit Card',    desc: 'Visa, Mastercard, Apple Pay, Google Pay — worldwide.',          icon: <CreditCard size={15} /> },
+                { value: 'flutterwave', label: 'Flutterwave',            desc: 'African currencies: KES, GHS, ZAR and more. Card, bank, USSD.', icon: <Layers size={15} /> },
+                { value: 'waafipay',    label: 'Mobile Money (WaafiPay)', desc: 'EVC Plus, eDahab, Somtel — Somalia &amp; Djibouti.',            icon: <Smartphone size={15} /> },
+                { value: 'free',        label: 'Free only',              desc: 'No payment collection — all tickets must be free.',             icon: <Gift size={15} /> },
+              ] as const).map(opt => {
+                const checked = paymentProcessors.includes(opt.value);
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => toggleProcessor(opt.value)}
+                    className="w-full text-left flex items-start gap-3 p-4 rounded-xl transition"
                     style={{
-                      width: 18, height: 18,
-                      border: paymentProcessor === opt.value ? '1.5px solid #1F4D3A' : '1.5px solid #C9C3B1',
-                      background: paymentProcessor === opt.value ? '#1F4D3A' : 'transparent',
+                      border: checked ? '2px solid #1F4D3A' : '1px solid #E5E0D4',
+                      background: checked ? 'rgba(31,77,58,0.04)' : 'white',
                     }}
                   >
-                    {paymentProcessor === opt.value && <div className="w-2 h-2 rounded-full bg-white" />}
-                  </div>
-                  <div>
-                    <div className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>{opt.label}</div>
-                    <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{opt.desc}</div>
-                  </div>
-                </button>
-              ))}
+                    {/* Checkbox */}
+                    <div
+                      className="shrink-0 flex items-center justify-center mt-0.5"
+                      style={{
+                        width: 18, height: 18, borderRadius: 4, flexShrink: 0,
+                        border: checked ? '1.5px solid #1F4D3A' : '1.5px solid #C9C3B1',
+                        background: checked ? '#1F4D3A' : 'transparent',
+                      }}
+                    >
+                      {checked && <Check size={11} color="white" strokeWidth={3} />}
+                    </div>
+                    {/* Icon */}
+                    <span className="shrink-0 mt-0.5" style={{ color: checked ? '#1F4D3A' : '#9BA8A1' }}>
+                      {opt.icon}
+                    </span>
+                    <div>
+                      <div className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>{opt.label}</div>
+                      <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}
+                        dangerouslySetInnerHTML={{ __html: opt.desc }} />
+                    </div>
+                  </button>
+                );
+              })}
             </div>
+            {paymentProcessors.length === 0 && (
+              <p className="text-[12px] mt-2" style={{ color: '#B8423C' }}>Select at least one payment method.</p>
+            )}
           </div>
 
           {/* URL & SEO */}

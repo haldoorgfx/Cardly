@@ -22,8 +22,10 @@ const RegisterSchema = z.object({
   // Promo / discount code
   promo_code:      z.string().max(64).optional().nullable(),
   // Attribution
-  referral_code:   z.string().max(64).optional().nullable(),
-  utm_source:      z.string().max(100).optional().nullable(),
+  referral_code:      z.string().max(64).optional().nullable(),
+  utm_source:         z.string().max(100).optional().nullable(),
+  // Attendee's chosen payment method (when organizer enables multiple)
+  preferred_processor: z.enum(['stripe', 'flutterwave', 'waafipay']).optional().nullable(),
 });
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
@@ -53,12 +55,13 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     );
   }
 
-  const { attendee_name, attendee_email, ticket_type_id, attendee_phone, custom_fields, chosen_price, access_code, referral_code, utm_source, promo_code } = parsed.data;
+  const { attendee_name, attendee_email, ticket_type_id, attendee_phone, custom_fields, chosen_price, access_code, referral_code, utm_source, promo_code, preferred_processor } = parsed.data;
 
   // 1. Verify event has a public event_page
-  const { data: eventPage } = await admin
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: eventPage } = await (admin as any)
     .from('event_pages')
-    .select('id, event_id, title, starts_at, ends_at, timezone, venue_name, venue_address, is_online, variant_id, organizer_name, registration_deadline, max_capacity')
+    .select('id, event_id, title, starts_at, ends_at, timezone, venue_name, venue_address, is_online, variant_id, organizer_name, registration_deadline, max_capacity, payment_processor, payment_processors')
     .eq('event_id', params.id)
     .eq('is_public', true)
     .single();
@@ -277,14 +280,19 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   }
 
   // 8a. For paid tickets: route to correct payment processor
-  const processor = (eventPage as { payment_processor?: string }).payment_processor ?? 'stripe';
+  const enabledProcessors: string[] = (eventPage.payment_processors as string[] | null)?.length
+    ? (eventPage.payment_processors as string[])
+    : [(eventPage.payment_processor as string | null) ?? 'stripe'];
 
-  // Determine processor by event setting AND currency compatibility
   const effectiveProcessor = (() => {
     if (isFree) return 'free';
-    if (processor === 'flutterwave' || isFlutterwaveCurrency(ticket.currency)) return 'flutterwave';
-    if (processor === 'waafipay' || isWaafiPayCurrency(ticket.currency)) return 'waafipay';
-    return 'stripe';
+    // Honor attendee's explicit choice if organizer has that method enabled
+    if (preferred_processor && enabledProcessors.includes(preferred_processor)) return preferred_processor;
+    // Auto-route by currency when no explicit choice
+    if (enabledProcessors.includes('flutterwave') && isFlutterwaveCurrency(ticket.currency)) return 'flutterwave';
+    if (enabledProcessors.includes('waafipay') && isWaafiPayCurrency(ticket.currency)) return 'waafipay';
+    if (enabledProcessors.includes('stripe')) return 'stripe';
+    return enabledProcessors[0] ?? 'stripe';
   })();
 
   if (!isFree && effectiveProcessor === 'flutterwave') {
