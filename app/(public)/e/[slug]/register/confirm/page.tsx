@@ -45,7 +45,7 @@ export default async function RegisterConfirmPage({ params, searchParams }: Prop
   const eventTitle = eventPage?.title ?? 'Event';
   const eventSlug = (eventPage?.events as { slug: string } | null)?.slug ?? params.slug;
 
-  // Load variant for post-payment card personalisation
+  // Load variant for post-payment card personalisation (only needed when no card generated yet)
   let variant: { id: string; zones: Zone[]; background_url: string | null; background_width: number | null; background_height: number | null } | null = null;
   if (!registration.eventera_card_url) {
     const variantId = eventPage?.variant_id;
@@ -64,6 +64,28 @@ export default async function RegisterConfirmPage({ params, searchParams }: Prop
     }
   }
 
+  // If a card was already generated, resolve the image URL so the done page
+  // can show the card on refresh without relying on sessionStorage.
+  let existingCardImageUrl: string | null = null;
+  if (registration.eventera_card_url) {
+    const cardUrl = registration.eventera_card_url as string;
+    if (cardUrl.startsWith('http')) {
+      // Direct storage URL (fallback path when generated_cards insert failed)
+      existingCardImageUrl = cardUrl;
+    } else {
+      // Path format: /c/{slug}/card/{uuid}
+      const match = cardUrl.match(/\/card\/([0-9a-f-]{36})$/);
+      if (match) {
+        const { data: card } = await admin
+          .from('generated_cards')
+          .select('output_url')
+          .eq('id', match[1])
+          .single();
+        existingCardImageUrl = card?.output_url ?? null;
+      }
+    }
+  }
+
   const isStripeReturn = !!searchParams.payment_intent;
   const isFlutterwaveReturn = searchParams.processor === 'flutterwave';
   const isPaidReturn = isStripeReturn || isFlutterwaveReturn;
@@ -75,6 +97,7 @@ export default async function RegisterConfirmPage({ params, searchParams }: Prop
       eventSlug={eventSlug}
       ticketName={ticket?.name ?? null}
       variant={variant}
+      existingCardImageUrl={existingCardImageUrl}
       isPaidReturn={isPaidReturn}
       paymentIntentId={searchParams.payment_intent ?? null}
       redirectStatus={searchParams.redirect_status ?? null}

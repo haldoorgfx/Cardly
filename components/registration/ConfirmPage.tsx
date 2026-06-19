@@ -23,6 +23,7 @@ interface Props {
   eventSlug: string;
   ticketName: string | null;
   variant: Variant | null;
+  existingCardImageUrl: string | null;
   isPaidReturn: boolean;
   paymentIntentId: string | null;
   redirectStatus: string | null;
@@ -70,13 +71,13 @@ function useConfetti(enabled: boolean) {
 
 type Phase = 'verifying' | 'card' | 'done';
 
-export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, variant, isPaidReturn, paymentIntentId, txRef, isFlutterwaveReturn }: Props) {
+export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, variant, existingCardImageUrl, isPaidReturn, paymentIntentId, txRef, isFlutterwaveReturn }: Props) {
   // Determine initial phase:
   // - Paid return: start at 'verifying' (check PI status) → 'card' → 'done'
   // - Free (card already generated or in sessionStorage): 'done'
   // - Free (no card): 'card' → 'done'
   const hasCard = !!registration.eventera_card_url;
-  const initialPhase: Phase = isPaidReturn ? 'verifying' : (hasCard ? 'done' : (variant ? 'card' : 'done'));
+  const initialPhase: Phase = isPaidReturn ? 'verifying' : (existingCardImageUrl ? 'done' : (hasCard ? 'done' : (variant ? 'card' : 'done')));
 
   const [phase, setPhase] = useState<Phase>(initialPhase);
 
@@ -93,7 +94,7 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
     } catch { /* ignore */ }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
-  const [cardDataUrl, setCardDataUrl] = useState<string | null>(null);
+  const [cardDataUrl, setCardDataUrl] = useState<string | null>(existingCardImageUrl);
 
   // Card step state (for post-payment personalisation)
   const [zoneValues, setZoneValues] = useState<Record<string, string>>(() => {
