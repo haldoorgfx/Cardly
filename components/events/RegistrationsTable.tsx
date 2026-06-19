@@ -749,7 +749,8 @@ function AddManuallyModal({
       });
       const data = await res.json() as { registration?: Registration; error?: string };
       if (!res.ok) { setApiError(data.error ?? 'Failed to add registration'); return; }
-      onAdded(data.registration!);
+      if (!data.registration) { setApiError('Unexpected response from server'); return; }
+      onAdded(data.registration);
       onClose();
     } catch {
       setApiError('Something went wrong. Check your connection and try again.');

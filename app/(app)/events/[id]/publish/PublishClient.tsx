@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import QRCode from 'qrcode';
 
@@ -222,6 +223,7 @@ export default function PublishClient({
   viewCount, registrationCount, ticketCount,
   startsAt, endsAt, timezone, venueName, isOnline,
 }: Props) {
+  const router = useRouter();
   const [copied, setCopied] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [publishError, setPublishError] = useState('');
@@ -231,6 +233,10 @@ export default function PublishClient({
   const [qrDataUrl, setQrDataUrl] = useState('');
   const [qrSvgString, setQrSvgString] = useState('');
   const [activeSize, setActiveSize] = useState<'mobile' | 'tablet' | 'custom'>('mobile');
+
+  const EMBED_SIZES = { mobile: { w: 375, h: 812 }, tablet: { w: 768, h: 1024 }, custom: { w: '100%', h: '100%' } };
+  const activeSz = EMBED_SIZES[activeSize];
+  const embedCode = `<iframe src="${shareUrl}"\n        width="${activeSz.w}" height="${activeSz.h}"\n        frameborder="0"></iframe>`;
 
   useEffect(() => {
     Promise.all([
@@ -269,8 +275,6 @@ export default function PublishClient({
     `Save the date! ${eventName}${dateRange ? ` · ${dateRange}` : ''}${venueLabel && !isOnline ? ` · ${venueLabel}` : ''}.\n\nClick the link to register:\n${shareUrl}\n\n${hashtags}`,
   ];
   const caption = captions[captionIndex];
-  const embedCode = `<iframe src="${shareUrl}"\n        width="375" height="812"\n        frameborder="0"></iframe>`;
-
   const handlePublish = useCallback(async () => {
     setPublishing(true);
     setPublishError('');
@@ -281,8 +285,7 @@ export default function PublishClient({
         body: JSON.stringify({ status: 'published' }),
       });
       if (!res.ok) throw new Error('Failed to publish');
-      // Reload to get the updated state
-      window.location.reload();
+      router.refresh();
     } catch {
       setPublishError('Failed to publish. Please try again.');
       setPublishing(false);
@@ -360,12 +363,7 @@ export default function PublishClient({
     URL.revokeObjectURL(url);
   }, [qrSvgString, slug]);
 
-  const embedSizes = {
-    mobile: { w: 375, h: 812 },
-    tablet: { w: 768, h: 1024 },
-    custom: { w: '100%', h: '100%' },
-  };
-  const sz = embedSizes[activeSize];
+  const sz = activeSz;
 
   return (
     <div style={{ background: PT.cream, fontFamily: 'Inter, sans-serif', color: PT.ink }}>
