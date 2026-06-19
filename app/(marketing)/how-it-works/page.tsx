@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Check, ArrowRight } from 'lucide-react';
+import { Check, ArrowRight, MapPin } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'How Eventera Works — The Event Platform',
@@ -15,7 +15,7 @@ function EventCreateMock() {
     <div className="bg-white rounded-xl border border-[#E5E0D4] p-4">
       <div className="text-[13px] font-semibold text-[#0F1F18] font-display mb-2">Event Title</div>
       <div className="h-[52px] rounded-lg bg-[#E8EFEB] mb-3" />
-      <div className="text-[11px] text-[#6B7A72]">📍 Nairobi · 14 Mar 2026</div>
+      <div className="flex items-center gap-1 text-[11px] text-[#6B7A72]"><MapPin size={10} />Nairobi · 14 Mar 2026</div>
     </div>
   );
 }

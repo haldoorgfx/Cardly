@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Check, Copy, AlertTriangle, Trash2, X } from 'lucide-react';
+import { Check, Copy, AlertTriangle, Trash2, X, MapPin } from 'lucide-react';
 import { PlacesAutocomplete, type PlaceResult } from '@/components/shared/PlacesAutocomplete';
 import { EventFeaturesManager } from '@/components/events/EventFeaturesManager';
 
@@ -271,7 +271,7 @@ export function EventSettingsView({ event }: Props) {
                 />
                 {placeData?.venue_address && (
                   <p className="mt-1 text-[12px] pl-1" style={{ color: '#6B7A72' }}>
-                    📍 {placeData.venue_address}
+                    <span className="inline-flex items-center gap-1"><MapPin size={11} />{placeData.venue_address}</span>
                   </p>
                 )}
               </Field>

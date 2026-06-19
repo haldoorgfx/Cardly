@@ -8,7 +8,7 @@ import { track } from '@/components/shared/PostHogProvider';
 import { PlacesAutocomplete, type PlaceResult } from '@/components/shared/PlacesAutocomplete';
 import {
   ArrowLeft, ArrowRight, CalendarDays, Wifi,
-  Image as ImageIcon, Plus,
+  Image as ImageIcon, Plus, MapPin,
 } from 'lucide-react';
 
 export default function NewEventPage() {
@@ -191,7 +191,7 @@ export default function NewEventPage() {
               )}
               {placeData && (
                 <p className="mt-1.5 text-[12px] pl-1" style={{ color: '#6B7A72' }}>
-                  📍 {placeData.venue_address}
+                  <span className="inline-flex items-center gap-1"><MapPin size={11} />{placeData.venue_address}</span>
                 </p>
               )}
             </div>

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ExternalLink, LayoutGrid, CalendarDays, Mic, Store, Users } from 'lucide-react';
+import { ExternalLink, LayoutGrid, CalendarDays, Mic, Store, Users, MapPin } from 'lucide-react';
 import type { Database } from '@/types/database';
 import { AddToCalendarButton } from './AddToCalendarButton';
 import SpeakerDirectoryClient from './SpeakerDirectoryClient';
@@ -884,7 +884,7 @@ export function PublicEventPageClient({
                             </span>
                           )}
                           {s.room && (
-                            <div className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>📍 {s.room}</div>
+                            <div className="flex items-center gap-1 text-[13px] mt-1" style={{ color: '#6B7A72' }}><MapPin size={12} />{s.room}</div>
                           )}
                           {s.description && (
                             <div className="text-[13px] mt-1.5 leading-relaxed" style={{ color: '#3A4A42' }}>{s.description}</div>
