@@ -60,7 +60,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     await (admin as any).from('ticket_types').insert(tickets.map((t: any) => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { id: _id, event_id: _eid, created_at: _ca, ...rest } = t;
-      return { ...rest, event_id: newEvent.id, sale_start: null, sale_end: null };
+      return { ...rest, event_id: newEvent.id, sales_start: null, sales_end: null };
     }));
   }
 

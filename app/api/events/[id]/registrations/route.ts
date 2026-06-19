@@ -114,6 +114,11 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  // Increment quantity_sold for the ticket type (walk-in registration)
+  if (ticket_type_id && reg) {
+    await admin.rpc('increment_ticket_quantity_sold', { ticket_id: ticket_type_id, qty: 1 });
+  }
+
   // Fire-and-forget notification to the organizer
   createNotification({
     userId: user.id,

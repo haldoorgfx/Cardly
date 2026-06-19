@@ -80,6 +80,19 @@ export async function POST(req: NextRequest) {
       break;
     }
 
+    case 'charge.refunded': {
+      // Mark registration as refunded when Stripe processes a refund
+      const charge = event.data.object as { payment_intent?: string | null };
+      if (charge.payment_intent) {
+        await (admin as any)
+          .from('registrations')
+          .update({ status: 'refunded', payment_status: 'refunded', updated_at: new Date().toISOString() })
+          .eq('stripe_payment_intent_id', charge.payment_intent)
+          .in('status', ['confirmed', 'checked_in', 'pending']);
+      }
+      break;
+    }
+
     default:
       break;
   }

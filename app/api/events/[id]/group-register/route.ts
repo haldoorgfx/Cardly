@@ -65,5 +65,17 @@ export async function POST(req: NextRequest, { params }: Params) {
     .select('id, attendee_name, attendee_email');
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Increment quantity_sold per ticket type
+  const qtyCounts: Record<string, number> = {};
+  for (const seat of seats) {
+    if (seat.ticketTypeId) qtyCounts[seat.ticketTypeId] = (qtyCounts[seat.ticketTypeId] ?? 0) + 1;
+  }
+  await Promise.all(
+    Object.entries(qtyCounts).map(([ticketId, qty]) =>
+      admin.rpc('increment_ticket_quantity_sold', { ticket_id: ticketId, qty })
+    )
+  );
+
   return NextResponse.json({ registrations: data });
 }

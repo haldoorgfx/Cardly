@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { X, Pencil } from 'lucide-react';
 
-type Status = 'pending' | 'confirmed' | 'checked_in' | 'cancelled' | 'refunded';
+type Status = 'pending' | 'pending_approval' | 'confirmed' | 'checked_in' | 'cancelled' | 'refunded';
 
 interface Props {
   regId: string;
@@ -125,9 +125,10 @@ export function RegistrationDetailActions({
     }
   }
 
-  const isCancelled = status === 'cancelled';
-  const isRefunded  = status === 'refunded';
-  const isCheckedIn = status === 'checked_in';
+  const isCancelled        = status === 'cancelled';
+  const isRefunded         = status === 'refunded';
+  const isCheckedIn        = status === 'checked_in';
+  const isPendingApproval  = status === 'pending_approval';
 
   return (
     <>
@@ -156,6 +157,18 @@ export function RegistrationDetailActions({
         <Pencil size={13} />
         Edit
       </button>
+
+      {/* Approve — only shown for pending_approval registrations */}
+      {isPendingApproval && (
+        <button
+          onClick={() => changeStatus('confirmed')}
+          disabled={loading}
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-semibold border transition-all disabled:opacity-50"
+          style={{ borderColor: 'rgba(31,77,58,0.35)', color: '#1F4D3A', background: '#E8EFEB' }}
+        >
+          Approve
+        </button>
+      )}
 
       {/* Status actions */}
       {!isCancelled && !isRefunded && (
