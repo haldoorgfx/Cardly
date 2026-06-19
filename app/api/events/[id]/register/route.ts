@@ -57,26 +57,34 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   const { attendee_name, attendee_email, ticket_type_id, attendee_phone, custom_fields, chosen_price, access_code, referral_code, utm_source, promo_code, preferred_processor } = parsed.data;
 
-  // 1. Verify event exists and is published.
-  //    We intentionally do NOT filter event_pages by is_public here — that flag can
-  //    be left false when the self-heal in resolvePublicSlug fails silently, which
-  //    would block legitimate attendees who already loaded the registration page.
-  //    Gating on events.status === 'published' is the correct source of truth.
-  const { data: evRow } = await admin
-    .from('events')
-    .select('id, status, checkout_require_approval, user_id')
-    .eq('id', params.id)
-    .single();
-  if (!evRow || evRow.status !== 'published') {
+  // 1. Verify event exists and is publicly accessible.
+  //    Accept if events.status = 'published' OR event_pages.is_public = true —
+  //    these two fields can drift out of sync (e.g. published via the page route
+  //    without updating events.status, or vice-versa).
+  const [evResult, epResult] = await Promise.all([
+    admin
+      .from('events')
+      .select('id, status, checkout_require_approval, user_id')
+      .eq('id', params.id)
+      .single(),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (admin as any)
+      .from('event_pages')
+      .select('id, event_id, title, starts_at, ends_at, timezone, venue_name, venue_address, is_online, variant_id, organizer_name, registration_deadline, max_capacity, payment_processor, payment_processors, is_public')
+      .eq('event_id', params.id)
+      .maybeSingle(),
+  ]);
+
+  const evRow = evResult.data;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const eventPage = epResult.data as any;
+
+  const isPublished = evRow?.status === 'published';
+  const isPagePublic = !!eventPage?.is_public;
+
+  if (!evRow || (!isPublished && !isPagePublic)) {
     return NextResponse.json({ error: 'Event not found' }, { status: 404 });
   }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: eventPage } = await (admin as any)
-    .from('event_pages')
-    .select('id, event_id, title, starts_at, ends_at, timezone, venue_name, venue_address, is_online, variant_id, organizer_name, registration_deadline, max_capacity, payment_processor, payment_processors')
-    .eq('event_id', params.id)
-    .maybeSingle();
 
   if (!eventPage) return NextResponse.json({ error: 'Event not found' }, { status: 404 });
 
