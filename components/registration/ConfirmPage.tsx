@@ -376,156 +376,159 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
     );
   }
 
-  // Shared QR + details panel (used in both card + no-card done states)
-  const QRPanel = ({ compact = false }: { compact?: boolean }) => (
-    <div className={compact ? '' : 'flex flex-col items-center text-center'}>
-      {/* Name & ticket */}
-      <h1 className={`font-display font-semibold mb-1 ${compact ? 'text-[22px] text-left' : 'text-[26px] text-center'}`}
-        style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+  // ── Shared header block ──────────────────────────────────────
+  const PageHeader = () => (
+    <div className="mb-10 lg:mb-12">
+      <div className="inline-flex items-center gap-2 mb-4 px-3.5 py-1.5 rounded-full" style={{ background: 'rgba(45,122,79,0.08)', border: '1px solid rgba(45,122,79,0.2)' }}>
+        <Check size={12} strokeWidth={2.5} style={{ color: '#2D7A4F' }} />
+        <span className="text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: '#2D7A4F' }}>Registration confirmed</span>
+      </div>
+      <h1 className="font-display font-semibold text-[30px] lg:text-[36px] mb-1.5" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
         {registration.attendee_name}
       </h1>
-      <p className={`text-[13px] mb-5 ${compact ? 'text-left' : 'text-center'}`} style={{ color: '#6B7A72' }}>
-        {ticketName ?? 'General Admission'} · {eventTitle}
+      <p className="text-[15px]" style={{ color: '#6B7A72' }}>
+        {ticketName ?? 'General Admission'} &middot; {eventTitle}
       </p>
+    </div>
+  );
 
-      {/* Registered badge */}
-      <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg mb-6 ${compact ? '' : 'mx-auto'}`}
-        style={{ background: 'rgba(45,122,79,0.08)', border: '1px solid rgba(45,122,79,0.18)' }}>
-        <Check size={13} strokeWidth={2.5} style={{ color: '#2D7A4F' }} />
-        <span className="text-[12px] font-semibold" style={{ color: '#2D7A4F' }}>You&apos;re registered</span>
-      </div>
+  // ── Shared QR ticket panel ────────────────────────────────────
+  const TicketPanel = () => (
+    <div className="rounded-2xl overflow-hidden" style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)' }}>
+      {/* Green top strip */}
+      <div className="h-1.5" style={{ background: 'linear-gradient(90deg, #1F4D3A 0%, #2D7A4F 100%)' }} />
 
-      {/* QR Code */}
-      <div className={`mb-5 ${compact ? '' : 'flex flex-col items-center'}`}>
-        <div className="rounded-2xl overflow-hidden inline-block" style={{ background: 'white', padding: 14, boxShadow: '0 2px 8px rgba(15,31,24,0.08), 0 0 0 1px rgba(15,31,24,0.06)' }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={`/api/qr/${registration.qr_code_token}`}
-            alt="Check-in QR code"
-            style={{ width: compact ? 140 : 180, height: compact ? 140 : 180, display: 'block' }}
-          />
+      <div className="p-6">
+        {/* QR code */}
+        <div className="flex flex-col items-center mb-5">
+          <div className="rounded-xl overflow-hidden mb-2.5" style={{ padding: 12, background: '#F9F9F9', border: '1px solid #EFEFEF' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`/api/qr/${registration.qr_code_token}`}
+              alt="Check-in QR code"
+              style={{ width: 160, height: 160, display: 'block' }}
+            />
+          </div>
+          <p className="text-[12px] font-medium" style={{ color: '#6B7A72' }}>Show this QR at the door</p>
         </div>
-        <p className={`text-[12px] mt-2.5 font-medium ${compact ? '' : 'text-center'}`} style={{ color: '#6B7A72' }}>
-          Show this QR at the door
-        </p>
-      </div>
 
-      {/* Save ticket button */}
-      <a
-        href={`/api/qr/${registration.qr_code_token}`}
-        download={`ticket-${registration.attendee_name.replace(/\s+/g, '-').toLowerCase()}.png`}
-        className="flex items-center justify-center gap-2 h-11 rounded-xl font-medium text-[14px] transition mb-4 w-full"
-        style={{ background: 'white', border: '1px solid #E5E0D4', color: '#1F4D3A', boxShadow: '0 1px 3px rgba(15,31,24,0.04)' }}
-        onMouseEnter={e => { e.currentTarget.style.borderColor = '#1F4D3A'; e.currentTarget.style.background = '#F5F9F6'; }}
-        onMouseLeave={e => { e.currentTarget.style.borderColor = '#E5E0D4'; e.currentTarget.style.background = 'white'; }}
-      >
-        <Download size={14} strokeWidth={2} />
-        Save ticket
-      </a>
+        {/* Divider */}
+        <div className="border-t border-dashed mb-5" style={{ borderColor: '#E5E0D4' }} />
 
-      {/* Share */}
-      <div className="flex gap-2 justify-center mb-6">
-        {shareLinks.map(s => (
-          <a
-            key={s.label}
-            href={s.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="h-10 w-10 rounded-full flex items-center justify-center transition"
-            style={{ background: 'white', border: '1px solid #E5E0D4', color: s.color }}
-            onMouseEnter={e => (e.currentTarget.style.borderColor = '#1F4D3A')}
-            onMouseLeave={e => (e.currentTarget.style.borderColor = '#E5E0D4')}
-            title={`Share on ${s.label}`}
-          >
-            {s.icon}
-          </a>
-        ))}
-        <button
-          onClick={handleShare}
-          className="h-10 w-10 rounded-full flex items-center justify-center transition"
-          style={{ background: 'white', border: '1px solid #E5E0D4', color: '#6B7A72' }}
-          onMouseEnter={e => (e.currentTarget.style.borderColor = '#1F4D3A')}
-          onMouseLeave={e => (e.currentTarget.style.borderColor = '#E5E0D4')}
+        {/* Save ticket */}
+        <a
+          href={`/api/qr/${registration.qr_code_token}`}
+          download={`ticket-${registration.attendee_name.replace(/\s+/g, '-').toLowerCase()}.png`}
+          className="flex items-center justify-center gap-2 h-10 rounded-lg font-medium text-[13px] w-full mb-4 transition"
+          style={{ background: '#F5F9F6', border: '1px solid rgba(31,77,58,0.18)', color: '#1F4D3A' }}
+          onMouseEnter={e => { e.currentTarget.style.background = '#EAF2EC'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = '#F5F9F6'; }}
         >
-          <Share2 size={16} strokeWidth={2} />
-        </button>
-      </div>
+          <Download size={13} strokeWidth={2.2} />
+          Save ticket
+        </a>
 
-      <a href={`/e/${eventSlug}`} className="text-[13px] transition" style={{ color: '#6B7A72' }}
-        onMouseEnter={e => (e.currentTarget.style.color = '#1F4D3A')}
-        onMouseLeave={e => (e.currentTarget.style.color = '#6B7A72')}>
-        Back to event →
-      </a>
+        {/* Share row */}
+        <p className="text-[11px] font-medium text-center mb-2.5" style={{ color: '#6B7A72' }}>Share</p>
+        <div className="flex gap-2 justify-center mb-5">
+          {shareLinks.map(s => (
+            <a
+              key={s.label}
+              href={s.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="h-9 w-9 rounded-full flex items-center justify-center transition"
+              style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: s.color }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = '#1F4D3A'; e.currentTarget.style.background = 'white'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = '#E5E0D4'; e.currentTarget.style.background = '#FAF6EE'; }}
+              title={`Share on ${s.label}`}
+            >
+              {s.icon}
+            </a>
+          ))}
+          <button
+            onClick={handleShare}
+            className="h-9 w-9 rounded-full flex items-center justify-center transition"
+            style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#6B7A72' }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = '#1F4D3A'; e.currentTarget.style.background = 'white'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = '#E5E0D4'; e.currentTarget.style.background = '#FAF6EE'; }}
+          >
+            <Share2 size={15} strokeWidth={2} />
+          </button>
+        </div>
+
+        {/* Back link */}
+        <div className="text-center">
+          <a
+            href={`/e/${eventSlug}`}
+            className="text-[12px] font-medium transition"
+            style={{ color: '#6B7A72' }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#1F4D3A')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#6B7A72')}
+          >
+            Back to event &rarr;
+          </a>
+        </div>
+      </div>
     </div>
   );
 
   // ── Phase: done — card generated → two-column layout ──────────
   if (cardDataUrl && variant) {
     return (
-      <div className="min-h-screen relative overflow-hidden" style={{ background: '#FAF6EE' }}>
-        {/* Ambient glow */}
-        <div className="absolute inset-0 pointer-events-none" style={{
-          background: 'radial-gradient(ellipse 70% 50% at 30% 20%, rgba(31,77,58,0.07) 0%, transparent 65%), radial-gradient(ellipse 50% 40% at 80% 80%, rgba(232,197,126,0.10) 0%, transparent 60%)',
-        }} />
+      <div className="min-h-screen" style={{ background: '#FAF6EE' }}>
         <div id="confetti-stage" className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 50 }} />
 
-        <div className="relative z-10 max-w-[1040px] mx-auto px-5 py-10">
-          {/* Top kicker */}
-          <div className="flex items-center gap-2 mb-8 justify-center">
-            <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#E8C57E' }} />
-            <span className="text-[11px] font-semibold uppercase tracking-[0.18em]" style={{ color: '#C9A45E' }}>
-              Registration confirmed
-            </span>
-          </div>
+        <div className="max-w-[1080px] mx-auto px-5 py-10 lg:py-14">
+          <PageHeader />
 
-          {/* Two-column grid */}
-          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start justify-center">
+          <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 items-start">
+            {/* LEFT — Ticket + QR */}
+            <div className="w-full lg:w-[300px] shrink-0 lg:sticky lg:top-8">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] mb-3" style={{ color: '#6B7A72' }}>
+                Your ticket
+              </p>
+              <TicketPanel />
+            </div>
 
-            {/* LEFT — Eventera Card */}
-            <div className="w-full lg:w-[480px] shrink-0">
-              <p className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: '#6B7A72' }}>
+            {/* RIGHT — Eventera Card */}
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] mb-3" style={{ color: '#6B7A72' }}>
                 Your Eventera Card
               </p>
-              {/* Card image */}
-              <div className="rounded-2xl overflow-hidden" style={{ boxShadow: '0 8px 32px rgba(15,31,24,0.12), 0 2px 8px rgba(15,31,24,0.08)' }}>
+              <div
+                className="rounded-2xl overflow-hidden w-full"
+                style={{ boxShadow: '0 4px 12px rgba(15,31,24,0.08), 0 24px 60px rgba(31,77,58,0.12)' }}
+              >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={cardDataUrl}
                   alt="Your Eventera Card"
                   className="w-full block"
-                  style={{ borderRadius: 16 }}
                 />
               </div>
-              {/* Card actions */}
               <div className="flex gap-3 mt-4">
                 <button
                   onClick={handleDownload}
                   className="flex-1 flex items-center justify-center gap-2 h-12 rounded-xl font-semibold text-[14px] text-white transition hover:opacity-90"
-                  style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 100%)', boxShadow: '0 4px 12px rgba(31,77,58,0.22)' }}
+                  style={{ background: '#1F4D3A', boxShadow: '0 4px 12px rgba(31,77,58,0.22)' }}
                 >
                   <Download size={16} strokeWidth={2.2} />
                   Download card
                 </button>
                 <button
                   onClick={() => setPhase('card')}
-                  className="flex items-center justify-center gap-1.5 h-12 px-5 rounded-xl font-medium text-[14px] transition"
+                  className="flex items-center justify-center gap-1.5 h-12 px-6 rounded-xl font-medium text-[14px] transition"
                   style={{ background: 'white', border: '1px solid #E5E0D4', color: '#3A4A42' }}
-                  onMouseEnter={e => e.currentTarget.style.borderColor = '#1F4D3A'}
-                  onMouseLeave={e => e.currentTarget.style.borderColor = '#E5E0D4'}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = '#1F4D3A'; e.currentTarget.style.color = '#1F4D3A'; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = '#E5E0D4'; e.currentTarget.style.color = '#3A4A42'; }}
                 >
                   Edit
                 </button>
               </div>
-              <p className="text-[12px] mt-2.5 text-center" style={{ color: '#6B7A72' }}>
-                Share on social media — you&apos;re attending!
+              <p className="text-[12px] mt-3" style={{ color: '#6B7A72' }}>
+                Share your card on social media &mdash; let everyone know you&apos;re attending!
               </p>
-            </div>
-
-            {/* RIGHT — QR + details */}
-            <div className="w-full lg:w-[300px] shrink-0 lg:pt-8">
-              <div className="rounded-2xl p-6" style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)' }}>
-                <QRPanel compact />
-              </div>
             </div>
           </div>
         </div>
@@ -533,27 +536,13 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
     );
   }
 
-  // ── Phase: done — no card (QR only) ──────────────────────────
+  // ── Phase: done — no card (QR ticket only) ───────────────────
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-5 py-16 relative overflow-hidden" style={{ background: '#FAF6EE' }}>
-      {/* Ambient glow */}
-      <div className="absolute inset-0 pointer-events-none" style={{
-        background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(31,77,58,0.08) 0%, transparent 70%), radial-gradient(ellipse 40% 30% at 80% 80%, rgba(232,197,126,0.12) 0%, transparent 60%)',
-      }} />
+    <div className="min-h-screen flex flex-col items-center px-5 py-10 lg:py-16" style={{ background: '#FAF6EE' }}>
       <div id="confetti-stage" className="fixed inset-0 pointer-events-none overflow-hidden" />
-
-      <div className="relative z-10 w-full max-w-[380px]">
-        {/* Kicker */}
-        <div className="flex items-center gap-2 mb-7 justify-center">
-          <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#E8C57E' }} />
-          <span className="text-[11px] font-semibold uppercase tracking-[0.18em]" style={{ color: '#C9A45E' }}>
-            Registration confirmed
-          </span>
-        </div>
-
-        <div className="rounded-2xl p-7" style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 4px 16px rgba(15,31,24,0.07), 0 1px 4px rgba(15,31,24,0.05)' }}>
-          <QRPanel />
-        </div>
+      <div className="w-full max-w-[400px]">
+        <PageHeader />
+        <TicketPanel />
       </div>
     </div>
   );
