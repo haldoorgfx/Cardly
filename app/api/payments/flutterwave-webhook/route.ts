@@ -1,12 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { timingSafeEqual } from 'crypto';
 import { verifyFlutterwaveTransaction } from '@/lib/payments/flutterwave';
 import { createAdminClient } from '@/lib/supabase/server';
 
 export async function POST(req: NextRequest) {
-  // Verify Flutterwave webhook hash
+  // Verify Flutterwave webhook hash (constant-time to prevent timing oracle)
   const hash = req.headers.get('verif-hash');
   const expectedHash = process.env.FLUTTERWAVE_WEBHOOK_HASH;
-  if (!expectedHash || hash !== expectedHash) {
+  if (!expectedHash || !hash) {
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+  }
+  try {
+    const a = Buffer.from(hash);
+    const b = Buffer.from(expectedHash);
+    if (a.length !== b.length || !timingSafeEqual(a, b)) {
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+    }
+  } catch {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
   }
 

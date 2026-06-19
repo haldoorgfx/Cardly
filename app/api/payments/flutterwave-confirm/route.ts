@@ -16,6 +16,23 @@ export async function POST(req: NextRequest) {
     const admin = createAdminClient();
 
     if (status === 'successful') {
+      // Verify amount matches what was expected — prevents under-payment attacks.
+      // Load the registration + ticket to get the expected price before confirming.
+      const { data: reg } = await admin
+        .from('registrations')
+        .select('id, ticket_type_id, amount_paid')
+        .eq('qr_code_token', tx_ref)
+        .eq('payment_status', 'pending')
+        .maybeSingle();
+
+      if (reg?.ticket_type_id) {
+        const { data: tt } = await admin.from('ticket_types').select('price').eq('id', reg.ticket_type_id).single();
+        if (tt && amount != null && amount < tt.price) {
+          console.error(`[FW confirm] Amount mismatch: got ${amount}, expected ${tt.price}`);
+          return NextResponse.json({ error: 'Payment amount does not match ticket price' }, { status: 422 });
+        }
+      }
+
       const { data: updated } = await admin
         .from('registrations')
         .update({

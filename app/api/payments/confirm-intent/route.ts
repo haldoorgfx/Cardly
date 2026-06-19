@@ -6,7 +6,9 @@ import { sendRegistrationConfirmEmail } from '@/lib/registration/email';
 // Called by the confirm page after Stripe redirect to verify payment and mark registration as paid.
 // Idempotent — safe to call multiple times (webhook may have already done the update).
 export async function POST(req: NextRequest) {
-  const { payment_intent_id, qr_code_token } = await req.json();
+  const body = await req.json().catch(() => null);
+  if (!body) return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+  const { payment_intent_id, qr_code_token } = body;
   if (!payment_intent_id || !qr_code_token) {
     return NextResponse.json({ error: 'payment_intent_id and qr_code_token required' }, { status: 400 });
   }

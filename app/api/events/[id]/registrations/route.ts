@@ -138,7 +138,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   const { data: event } = await admin.from('events').select('id').eq('id', params.id).eq('user_id', user.id).single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-  const body = await req.json();
+  const body = await req.json().catch(() => null);
+  if (!body) return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   const { registrationId, eventera_card_url, eventera_card_zone_data, status, attendee_name, attendee_email, attendee_phone, ticket_type_id } = body;
   if (!registrationId) return NextResponse.json({ error: 'registrationId required' }, { status: 400 });
 
