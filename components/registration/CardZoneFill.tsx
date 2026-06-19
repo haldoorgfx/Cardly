@@ -28,7 +28,7 @@ export function CardZoneFill({
   const previewH = backgroundHeight ? backgroundHeight * scale : PREVIEW_W * (7 / 5);
 
   return (
-    <div className="flex flex-col lg:flex-row-reverse gap-6 lg:gap-10 items-start">
+    <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 items-start">
       {/* -- Form fields -- */}
       <div className="flex-1 min-w-0 space-y-4 w-full">
         <p className="text-[13px]" style={{ color: '#6B7A72' }}>
