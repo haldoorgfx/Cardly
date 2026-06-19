@@ -295,19 +295,22 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
   if (phase === 'card' && variant) {
     return (
       <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
-        <div className="max-w-[760px] mx-auto px-5 py-10 pb-32">
-          <div className="mb-2 flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#2D7A4F' }} />
-            <span className="text-[12px] font-medium uppercase tracking-[0.12em]" style={{ color: '#2D7A4F' }}>
-              Payment confirmed
-            </span>
+        <div className="max-w-[680px] mx-auto px-5 py-10 pb-36">
+          {/* Header */}
+          <div className="mb-6">
+            <div className="inline-flex items-center gap-2 mb-4 px-3 py-1.5 rounded-full" style={{ background: 'rgba(45,122,79,0.08)', border: '1px solid rgba(45,122,79,0.2)' }}>
+              <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#2D7A4F' }} />
+              <span className="text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: '#2D7A4F' }}>
+                {isPaidReturn ? 'Payment confirmed' : 'Registration confirmed'}
+              </span>
+            </div>
+            <h1 className="font-display font-semibold text-[28px] mb-2" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+              Design your Eventera Card
+            </h1>
+            <p className="text-[15px]" style={{ color: '#6B7A72' }}>
+              Personalise your card — it'll be generated when you confirm.
+            </p>
           </div>
-          <h1 className="font-display font-semibold text-[26px] mb-2" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
-            Personalise your Eventera Card
-          </h1>
-          <p className="text-[14px] mb-8" style={{ color: '#6B7A72' }}>
-            One last step — your personalised card will be generated when you confirm.
-          </p>
 
           <CardZoneFill
             zones={variant.zones}
@@ -323,7 +326,7 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
           />
 
           {cardError && (
-            <div className="mt-4 px-4 py-3 rounded-xl text-[14px]" style={{ background: 'rgba(184,66,60,0.08)', color: '#B8423C' }}>
+            <div className="mt-5 px-4 py-3 rounded-xl text-[14px]" style={{ background: 'rgba(184,66,60,0.06)', color: '#B8423C', border: '1px solid rgba(184,66,60,0.15)' }}>
               {cardError}
             </div>
           )}
@@ -331,33 +334,35 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
 
         {/* Bottom bar */}
         <div
-          className="fixed bottom-0 left-0 right-0 flex items-center justify-between gap-4 px-5 py-4 z-30"
-          style={{ background: 'white', borderTop: '1px solid #E5E0D4', boxShadow: '0 -4px 16px rgba(15,31,24,0.06)' }}
+          className="fixed bottom-0 left-0 right-0 z-30 px-5 py-4"
+          style={{ background: 'white', borderTop: '1px solid #E5E0D4', boxShadow: '0 -4px 24px rgba(15,31,24,0.08)' }}
         >
-          <button
-            onClick={() => setPhase('done')}
-            className="text-[13px] font-medium transition"
-            style={{ color: '#6B7A72' }}
-          >
-            Skip for now
-          </button>
-          <button
-            onClick={handleGenerateCard}
-            disabled={generatingCard}
-            className="flex items-center gap-2 h-11 px-6 rounded-xl text-white font-semibold text-[14px] transition hover:opacity-90 disabled:opacity-60"
-            style={{ background: '#1F4D3A' }}
-          >
-            {generatingCard ? (
-              <>
-                <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
-                </svg>
-                Generating…
-              </>
-            ) : (
-              <>Generate my card <ChevronRight size={15} strokeWidth={2} /></>
-            )}
-          </button>
+          <div className="max-w-[680px] mx-auto flex items-center justify-between gap-4">
+            <button
+              onClick={() => setPhase('done')}
+              className="text-[13px] font-medium transition hover:opacity-70"
+              style={{ color: '#6B7A72' }}
+            >
+              Skip for now
+            </button>
+            <button
+              onClick={handleGenerateCard}
+              disabled={generatingCard}
+              className="flex items-center gap-2 h-12 px-7 rounded-xl text-white font-semibold text-[15px] transition hover:opacity-90 disabled:opacity-50"
+              style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 100%)', boxShadow: '0 4px 12px rgba(31,77,58,0.25)' }}
+            >
+              {generatingCard ? (
+                <>
+                  <svg className="animate-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
+                  </svg>
+                  Generating your card…
+                </>
+              ) : (
+                <>Get my card <ChevronRight size={16} strokeWidth={2.5} /></>
+              )}
+            </button>
+          </div>
         </div>
 
         {cropTarget && (
@@ -371,135 +376,184 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
     );
   }
 
-  // ── Phase: done — card available → use PreviewDownloadScreen ────
+  // Shared QR + details panel (used in both card + no-card done states)
+  const QRPanel = ({ compact = false }: { compact?: boolean }) => (
+    <div className={compact ? '' : 'flex flex-col items-center text-center'}>
+      {/* Name & ticket */}
+      <h1 className={`font-display font-semibold mb-1 ${compact ? 'text-[22px] text-left' : 'text-[26px] text-center'}`}
+        style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+        {registration.attendee_name}
+      </h1>
+      <p className={`text-[13px] mb-5 ${compact ? 'text-left' : 'text-center'}`} style={{ color: '#6B7A72' }}>
+        {ticketName ?? 'General Admission'} · {eventTitle}
+      </p>
+
+      {/* Registered badge */}
+      <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg mb-6 ${compact ? '' : 'mx-auto'}`}
+        style={{ background: 'rgba(45,122,79,0.08)', border: '1px solid rgba(45,122,79,0.18)' }}>
+        <Check size={13} strokeWidth={2.5} style={{ color: '#2D7A4F' }} />
+        <span className="text-[12px] font-semibold" style={{ color: '#2D7A4F' }}>You&apos;re registered</span>
+      </div>
+
+      {/* QR Code */}
+      <div className={`mb-5 ${compact ? '' : 'flex flex-col items-center'}`}>
+        <div className="rounded-2xl overflow-hidden inline-block" style={{ background: 'white', padding: 14, boxShadow: '0 2px 8px rgba(15,31,24,0.08), 0 0 0 1px rgba(15,31,24,0.06)' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`/api/qr/${registration.qr_code_token}`}
+            alt="Check-in QR code"
+            style={{ width: compact ? 140 : 180, height: compact ? 140 : 180, display: 'block' }}
+          />
+        </div>
+        <p className={`text-[12px] mt-2.5 font-medium ${compact ? '' : 'text-center'}`} style={{ color: '#6B7A72' }}>
+          Show this QR at the door
+        </p>
+      </div>
+
+      {/* Save ticket button */}
+      <a
+        href={`/api/qr/${registration.qr_code_token}`}
+        download={`ticket-${registration.attendee_name.replace(/\s+/g, '-').toLowerCase()}.png`}
+        className="flex items-center justify-center gap-2 h-11 rounded-xl font-medium text-[14px] transition mb-4 w-full"
+        style={{ background: 'white', border: '1px solid #E5E0D4', color: '#1F4D3A', boxShadow: '0 1px 3px rgba(15,31,24,0.04)' }}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = '#1F4D3A'; e.currentTarget.style.background = '#F5F9F6'; }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = '#E5E0D4'; e.currentTarget.style.background = 'white'; }}
+      >
+        <Download size={14} strokeWidth={2} />
+        Save ticket
+      </a>
+
+      {/* Share */}
+      <div className="flex gap-2 justify-center mb-6">
+        {shareLinks.map(s => (
+          <a
+            key={s.label}
+            href={s.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="h-10 w-10 rounded-full flex items-center justify-center transition"
+            style={{ background: 'white', border: '1px solid #E5E0D4', color: s.color }}
+            onMouseEnter={e => (e.currentTarget.style.borderColor = '#1F4D3A')}
+            onMouseLeave={e => (e.currentTarget.style.borderColor = '#E5E0D4')}
+            title={`Share on ${s.label}`}
+          >
+            {s.icon}
+          </a>
+        ))}
+        <button
+          onClick={handleShare}
+          className="h-10 w-10 rounded-full flex items-center justify-center transition"
+          style={{ background: 'white', border: '1px solid #E5E0D4', color: '#6B7A72' }}
+          onMouseEnter={e => (e.currentTarget.style.borderColor = '#1F4D3A')}
+          onMouseLeave={e => (e.currentTarget.style.borderColor = '#E5E0D4')}
+        >
+          <Share2 size={16} strokeWidth={2} />
+        </button>
+      </div>
+
+      <a href={`/e/${eventSlug}`} className="text-[13px] transition" style={{ color: '#6B7A72' }}
+        onMouseEnter={e => (e.currentTarget.style.color = '#1F4D3A')}
+        onMouseLeave={e => (e.currentTarget.style.color = '#6B7A72')}>
+        Back to event →
+      </a>
+    </div>
+  );
+
+  // ── Phase: done — card generated → two-column layout ──────────
   if (cardDataUrl && variant) {
     return (
-      <>
-        {/* Confetti stage */}
+      <div className="min-h-screen relative overflow-hidden" style={{ background: '#FAF6EE' }}>
+        {/* Ambient glow */}
+        <div className="absolute inset-0 pointer-events-none" style={{
+          background: 'radial-gradient(ellipse 70% 50% at 30% 20%, rgba(31,77,58,0.07) 0%, transparent 65%), radial-gradient(ellipse 50% 40% at 80% 80%, rgba(232,197,126,0.10) 0%, transparent 60%)',
+        }} />
         <div id="confetti-stage" className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 50 }} />
 
-        <PreviewDownloadScreen
-          eventName={eventTitle}
-          backgroundWidth={variant.background_width ?? 1200}
-          backgroundHeight={variant.background_height ?? 800}
-          resultUrl={cardDataUrl}
-          cardId={null}
-          qrToken={registration.qr_code_token}
-          attendeeName={registration.attendee_name}
-          onDownload={handleDownload}
-          onEdit={() => setPhase('card')}
-        />
-      </>
+        <div className="relative z-10 max-w-[1040px] mx-auto px-5 py-10">
+          {/* Top kicker */}
+          <div className="flex items-center gap-2 mb-8 justify-center">
+            <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#E8C57E' }} />
+            <span className="text-[11px] font-semibold uppercase tracking-[0.18em]" style={{ color: '#C9A45E' }}>
+              Registration confirmed
+            </span>
+          </div>
+
+          {/* Two-column grid */}
+          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start justify-center">
+
+            {/* LEFT — Eventera Card */}
+            <div className="w-full lg:w-[480px] shrink-0">
+              <p className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: '#6B7A72' }}>
+                Your Eventera Card
+              </p>
+              {/* Card image */}
+              <div className="rounded-2xl overflow-hidden" style={{ boxShadow: '0 8px 32px rgba(15,31,24,0.12), 0 2px 8px rgba(15,31,24,0.08)' }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={cardDataUrl}
+                  alt="Your Eventera Card"
+                  className="w-full block"
+                  style={{ borderRadius: 16 }}
+                />
+              </div>
+              {/* Card actions */}
+              <div className="flex gap-3 mt-4">
+                <button
+                  onClick={handleDownload}
+                  className="flex-1 flex items-center justify-center gap-2 h-12 rounded-xl font-semibold text-[14px] text-white transition hover:opacity-90"
+                  style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 100%)', boxShadow: '0 4px 12px rgba(31,77,58,0.22)' }}
+                >
+                  <Download size={16} strokeWidth={2.2} />
+                  Download card
+                </button>
+                <button
+                  onClick={() => setPhase('card')}
+                  className="flex items-center justify-center gap-1.5 h-12 px-5 rounded-xl font-medium text-[14px] transition"
+                  style={{ background: 'white', border: '1px solid #E5E0D4', color: '#3A4A42' }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = '#1F4D3A'}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = '#E5E0D4'}
+                >
+                  Edit
+                </button>
+              </div>
+              <p className="text-[12px] mt-2.5 text-center" style={{ color: '#6B7A72' }}>
+                Share on social media — you&apos;re attending!
+              </p>
+            </div>
+
+            {/* RIGHT — QR + details */}
+            <div className="w-full lg:w-[300px] shrink-0 lg:pt-8">
+              <div className="rounded-2xl p-6" style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)' }}>
+                <QRPanel compact />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     );
   }
 
   // ── Phase: done — no card (QR only) ──────────────────────────
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center px-5 py-16 relative overflow-hidden"
-      style={{ background: '#FAF6EE' }}
-    >
+    <div className="min-h-screen flex flex-col items-center justify-center px-5 py-16 relative overflow-hidden" style={{ background: '#FAF6EE' }}>
       {/* Ambient glow */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(31,77,58,0.08) 0%, transparent 70%), radial-gradient(ellipse 40% 30% at 80% 80%, rgba(232,197,126,0.12) 0%, transparent 60%)',
-        }}
-      />
-
-      {/* Confetti stage */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(31,77,58,0.08) 0%, transparent 70%), radial-gradient(ellipse 40% 30% at 80% 80%, rgba(232,197,126,0.12) 0%, transparent 60%)',
+      }} />
       <div id="confetti-stage" className="fixed inset-0 pointer-events-none overflow-hidden" />
 
-      <div className="relative z-10 flex flex-col items-center text-center max-w-[360px] w-full">
-
+      <div className="relative z-10 w-full max-w-[380px]">
         {/* Kicker */}
-        <div className="flex items-center gap-2 mb-6">
+        <div className="flex items-center gap-2 mb-7 justify-center">
           <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#E8C57E' }} />
           <span className="text-[11px] font-semibold uppercase tracking-[0.18em]" style={{ color: '#C9A45E' }}>
             Registration confirmed
           </span>
         </div>
 
-        {/* QR Code */}
-        <div className="mb-8 flex flex-col items-center gap-4">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={`/api/qr/${registration.qr_code_token}`}
-            alt="Check-in QR code"
-            className="rounded-xl"
-            style={{ width: 200, height: 200, background: 'white', padding: 12 }}
-          />
-          <p className="text-[13px]" style={{ color: '#6B7A72' }}>
-            Show this QR at the door
-          </p>
+        <div className="rounded-2xl p-7" style={{ background: 'white', border: '1px solid #E5E0D4', boxShadow: '0 4px 16px rgba(15,31,24,0.07), 0 1px 4px rgba(15,31,24,0.05)' }}>
+          <QRPanel />
         </div>
-
-        {/* Attendee name */}
-        <h1 className="font-display font-semibold text-[26px] mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
-          {registration.attendee_name}
-        </h1>
-        <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>
-          {ticketName ?? 'Registered'} · {eventTitle}
-        </p>
-
-        {/* Registered check */}
-        <div className="flex items-center gap-2 mb-6 px-4 py-2 rounded-xl" style={{ background: 'rgba(45,122,79,0.08)', border: '1px solid rgba(45,122,79,0.2)' }}>
-          <Check size={14} strokeWidth={2.5} style={{ color: '#2D7A4F' }} />
-          <span className="text-[13px] font-medium" style={{ color: '#2D7A4F' }}>You&apos;re registered</span>
-        </div>
-
-        {/* Download ticket */}
-        <a
-          href={`/api/qr/${registration.qr_code_token}`}
-          download={`ticket-${registration.attendee_name.replace(/\s+/g, '-').toLowerCase()}.png`}
-          className="flex items-center gap-2 h-11 px-5 rounded-xl font-medium text-[14px] transition mb-5"
-          style={{ background: 'white', border: '1px solid #E5E0D4', color: '#1F4D3A', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}
-          onMouseEnter={e => (e.currentTarget.style.borderColor = '#1F4D3A')}
-          onMouseLeave={e => (e.currentTarget.style.borderColor = '#E5E0D4')}
-        >
-          <Download size={15} strokeWidth={2} />
-          Save ticket
-        </a>
-
-        {/* Share platforms */}
-        <div className="flex gap-3 justify-center">
-          {shareLinks.map(s => (
-            <a
-              key={s.label}
-              href={s.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="h-11 w-11 rounded-full flex items-center justify-center transition"
-              style={{ background: 'white', border: '1px solid #E5E0D4', color: s.color }}
-              onMouseEnter={e => (e.currentTarget.style.borderColor = '#1F4D3A')}
-              onMouseLeave={e => (e.currentTarget.style.borderColor = '#E5E0D4')}
-              title={`Share on ${s.label}`}
-            >
-              {s.icon}
-            </a>
-          ))}
-          <button
-            onClick={handleShare}
-            className="h-11 w-11 rounded-full flex items-center justify-center transition"
-            style={{ background: 'white', border: '1px solid #E5E0D4', color: '#6B7A72' }}
-            onMouseEnter={e => (e.currentTarget.style.borderColor = '#1F4D3A')}
-            onMouseLeave={e => (e.currentTarget.style.borderColor = '#E5E0D4')}
-            title="Share"
-          >
-            <Share2 size={17} strokeWidth={2} />
-          </button>
-        </div>
-
-        {/* Back to event */}
-        <a
-          href={`/e/${eventSlug}`}
-          className="mt-8 text-[13px] transition"
-          style={{ color: '#6B7A72' }}
-          onMouseEnter={e => (e.currentTarget.style.color = '#1F4D3A')}
-          onMouseLeave={e => (e.currentTarget.style.color = '#6B7A72')}
-        >
-          Back to event →
-        </a>
       </div>
     </div>
   );
