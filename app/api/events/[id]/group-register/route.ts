@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createAdminClient } from '@/lib/supabase/server';
+import { createAdminClient, createClient } from '@/lib/supabase/server';
 
 interface Params { params: Promise<{ id: string }> }
 
@@ -11,6 +11,10 @@ interface Seat {
 }
 
 export async function POST(req: NextRequest, { params }: Params) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
   const { id: eventId } = await params;
   const body = await req.json();
   const { seats } = body as { seats: Seat[] };
@@ -25,6 +29,10 @@ export async function POST(req: NextRequest, { params }: Params) {
   const admin = createAdminClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const adminAny = admin as any;
+
+  // Verify the caller owns the event
+  const { data: event } = await admin.from('events').select('id').eq('id', eventId).eq('user_id', user.id).single();
+  if (!event) return NextResponse.json({ error: 'Event not found' }, { status: 404 });
 
   const { data: ep } = await admin.from('event_pages').select('ends_at, max_capacity').eq('event_id', eventId).maybeSingle();
   if (ep?.ends_at && new Date(ep.ends_at) < new Date()) {

@@ -21,7 +21,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   const offset = parseInt(searchParams.get('offset') ?? '0');
   const status = searchParams.get('status');
 
-  const q = searchParams.get('q')?.trim();
+  const q = searchParams.get('q')?.trim()?.replace(/[(),*:%]/g, '');
 
   let query = admin
     .from('registrations')

@@ -725,7 +725,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
 
       {/* -- Bottom nav bar --------------------------------------------- */}
       <div
-        className="fixed bottom-0 left-[252px] right-0 flex items-center justify-between gap-4 px-6 py-4"
+        className="fixed bottom-0 left-0 lg:left-[252px] right-0 flex items-center justify-between gap-4 px-6 py-4"
         style={{ background: 'white', borderTop: '1px solid #E5E0D4', zIndex: 40 }}
       >
         <div className="flex items-center gap-3">

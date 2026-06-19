@@ -73,7 +73,15 @@ function validateTicketBody(
 }
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
   const admin = createAdminClient();
+  // Verify ownership before returning all fields (including access_code)
+  const { data: event } = await admin.from('events').select('id').eq('id', params.id).eq('user_id', user.id).single();
+  if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
   const { data, error } = await admin
     .from('ticket_types')
     .select('*')
@@ -105,9 +113,14 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const err = validateTicketBody(body, ep ?? null, existing ?? []);
   if (err) return NextResponse.json({ error: err }, { status: 422 });
 
-  const { data, error: dbError } = await admin
+  const allowed = ['name', 'description', 'price', 'currency', 'quantity', 'is_visible',
+    'min_per_order', 'max_per_order', 'sales_start', 'sales_end', 'access_code', 'position'];
+  const safeBody = Object.fromEntries(Object.entries(body).filter(([k]) => allowed.includes(k)));
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error: dbError } = await (admin as any)
     .from('ticket_types')
-    .insert({ ...body, event_id: params.id })
+    .insert({ ...safeBody, event_id: params.id })
     .select()
     .single();
   if (dbError) return NextResponse.json({ error: dbError.message }, { status: 500 });

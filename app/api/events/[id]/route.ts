@@ -33,6 +33,12 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (key in body) patch[key] = body[key];
   }
 
+  // Validate status if provided
+  const validStatuses = ['draft', 'published', 'archived'];
+  if ('status' in patch && !validStatuses.includes(patch.status as string)) {
+    return NextResponse.json({ error: 'Invalid status — must be draft, published, or archived' }, { status: 400 });
+  }
+
   // Normalize slug if provided
   if (typeof patch.slug === 'string') {
     const normalized = patch.slug

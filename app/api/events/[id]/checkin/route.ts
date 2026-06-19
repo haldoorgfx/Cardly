@@ -49,7 +49,10 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 
   // ?q= → search by name, email, phone, or badge-ID prefix (first chars of qr_code_token)
-  const q = req.nextUrl.searchParams.get('q')?.trim() ?? '';
+  const rawQ = req.nextUrl.searchParams.get('q')?.trim() ?? '';
+  if (!rawQ || rawQ.length < 2) return NextResponse.json({ results: [] });
+  // Strip PostgREST filter metacharacters to prevent filter injection
+  const q = rawQ.replace(/[(),*:%]/g, '');
   if (!q || q.length < 2) return NextResponse.json({ results: [] });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
       .from('registrations')
       .update({ payment_status: 'paid', status: 'confirmed', updated_at: new Date().toISOString() })
       .eq('qr_code_token', qr_code_token)
+      .eq('stripe_payment_intent_id', payment_intent_id) // ensure PI belongs to this registration
       .in('payment_status', ['pending']) // only update pending rows (idempotent)
       .select('id, attendee_name, attendee_email, event_id, ticket_type_id, qr_code_token')
       .single();

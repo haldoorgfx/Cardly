@@ -79,7 +79,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     .update(update)
     .eq('event_id', params.id)
     .select('features, custom_menu')
-    .single();
+    .maybeSingle();
 
   if (error) {
     if (MISSING_COLUMN.test(error.message)) {

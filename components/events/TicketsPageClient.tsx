@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { ExternalLink, Plus, X, Check } from 'lucide-react';
 import Link from 'next/link';
 import { TicketTypesManager, type EventDates } from './TicketTypesManager';
@@ -155,6 +156,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
 
 /* ── Promo code add modal ──────────────────────────────────────────────────── */
 function AddPromoModal({ onClose, eventId }: { onClose: () => void; eventId: string }) {
+  const router = useRouter();
   const [code, setCode]         = useState('');
   const [type, setType]         = useState<'percent' | 'fixed'>('percent');
   const [value, setValue]       = useState('');
@@ -203,7 +205,7 @@ function AddPromoModal({ onClose, eventId }: { onClose: () => void; eventId: str
         throw new Error(detail ?? d.error ?? 'Failed to create promo code.');
       }
       onClose();
-      window.location.reload();
+      router.refresh();
     } catch (e) {
       setErr(e instanceof Error ? e.message : 'Something went wrong.');
       setSaving(false);
@@ -274,6 +276,7 @@ function AddPromoModal({ onClose, eventId }: { onClose: () => void; eventId: str
 
 /* ── Create ticket modal ───────────────────────────────────────────────────── */
 function CreateTicketModal({ onClose, eventId, defaultCurrency }: { onClose: () => void; eventId: string; defaultCurrency: string }) {
+  const router = useRouter();
   const [name, setName]           = useState('');
   const [price, setPrice]         = useState('0');
   const [qty, setQty]             = useState('300');
@@ -329,7 +332,7 @@ function CreateTicketModal({ onClose, eventId, defaultCurrency }: { onClose: () 
         throw new Error(detail ?? d.error ?? 'Failed to create ticket.');
       }
       onClose();
-      window.location.reload();
+      router.refresh();
     } catch (e) {
       setErr(e instanceof Error ? e.message : 'Something went wrong.');
       setSaving(false);
@@ -424,6 +427,7 @@ export function TicketsPageClient({
   checkoutCollectDetails, checkoutRequireApproval, checkoutShowRemaining, checkoutApplyVat,
   eventDates,
 }: Props) {
+  const router = useRouter();
   const [createOpen, setCreateOpen] = useState(false);
   const [promoOpen, setPromoOpen]   = useState(false);
 

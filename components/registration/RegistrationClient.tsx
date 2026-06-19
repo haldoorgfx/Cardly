@@ -60,6 +60,7 @@ interface Props {
   utmSource?: string | null;
   initialTicketId?: string | null;
   alreadyRegistered?: boolean;
+  existingTicketToken?: string | null;
   availableProcessors?: string[];
 }
 
@@ -143,6 +144,7 @@ export default function RegistrationClient({
   initialName = '', initialEmail = '',
   referralCode, utmSource, initialTicketId = null,
   alreadyRegistered = false,
+  existingTicketToken = null,
   availableProcessors = ['stripe'],
 }: Props) {
   const router = useRouter();
@@ -621,7 +623,11 @@ export default function RegistrationClient({
             You already have a ticket for {eventName}. Your Eventera Card and door QR are in My tickets.
           </p>
           <div className="flex flex-col gap-2.5">
-            <Link href="/my-tickets" className="inline-flex items-center justify-center h-11 rounded-xl text-white text-[14px] font-medium transition hover:bg-[#163828]" style={{ background: '#1F4D3A' }}>
+            <Link
+              href={existingTicketToken ? `/e/${eventSlug}/register/confirm?reg=${existingTicketToken}` : '/my-tickets'}
+              className="inline-flex items-center justify-center h-11 rounded-xl text-white text-[14px] font-medium transition hover:bg-[#163828]"
+              style={{ background: '#1F4D3A' }}
+            >
               View my ticket
             </Link>
             <Link href={`/e/${eventSlug}`} className="inline-flex items-center justify-center h-11 rounded-xl text-[14px] font-medium border transition hover:border-[#1F4D3A]/40" style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}>

@@ -20,6 +20,7 @@ export default async function RegisterPage({ params, searchParams }: Props) {
   let sessionName = '';
   let sessionEmail = '';
   let alreadyRegistered = false;
+  let existingTicketToken: string | null = null;
   try {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -39,13 +40,14 @@ export default async function RegisterPage({ params, searchParams }: Props) {
       // are handled gracefully in the form itself or the API cleanup logic.
       const { data: existing } = await (admin as any)
         .from('registrations')
-        .select('id')
+        .select('id, qr_code_token')
         .eq('event_id', event.id)
         .or(`attendee_email.eq.${sessionEmail.toLowerCase()},user_id.eq.${user.id}`)
         .in('status', ['confirmed', 'checked_in'])
         .limit(1)
         .maybeSingle();
       alreadyRegistered = !!existing;
+      if (existing?.qr_code_token) existingTicketToken = existing.qr_code_token as string;
     }
   } catch { /* non-blocking — if auth fails, form starts empty */ }
 
@@ -141,6 +143,7 @@ export default async function RegisterPage({ params, searchParams }: Props) {
           utmSource={searchParams?.utm_source ?? null}
           initialTicketId={searchParams?.ticket ?? null}
           alreadyRegistered={alreadyRegistered}
+          existingTicketToken={existingTicketToken}
         />
       </div>
     </div>

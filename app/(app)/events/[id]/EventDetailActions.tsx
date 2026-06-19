@@ -66,8 +66,8 @@ export default function EventDetailActions({ eventId, eventName, status }: Props
     try {
       const res = await fetch(`/api/events/${eventId}/duplicate`, { method: 'POST' });
       const data = await res.json();
-      if (res.ok && data.id) {
-        router.push(`/events/${data.id}`);
+      if (res.ok && (data.slug || data.id)) {
+        router.push(`/events/${data.slug ?? data.id}`);
       }
     } finally {
       setBusy(false);

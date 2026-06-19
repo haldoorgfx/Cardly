@@ -123,7 +123,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
     { id: 'sponsors',       label: 'Sponsors',       iconId: 'briefcase', desc: 'Manage sponsors and exhibitors',            href: `/events/${slug}/engagement`,     badge: null, minPlan: 'studio' },
     { id: 'virtual',        label: 'Virtual',        iconId: 'video',     desc: 'Stream sessions online',                   href: `/events/${slug}/engagement`,     badge: null, minPlan: 'studio' },
     { id: 'analytics',      label: 'Analytics',      iconId: 'chart',     desc: 'Registration funnel and engagement data',  href: `/events/${slug}/analytics`,      badge: 'View →' },
-    { id: 'eventera-card',     label: 'Eventera Card',     iconId: 'sparkles',  desc: 'The personalized card every attendee gets', href: `/events/${slug}/eventera-card`,    badge: event.download_count > 0 ? `${event.download_count} downloaded` : null, gold: true },
+    { id: 'eventera-card',     label: 'Eventera Card',     iconId: 'sparkles',  desc: 'The personalized card every attendee gets', href: `/events/${slug}/eventera-card`,    badge: (event.download_count ?? 0) > 0 ? `${event.download_count} downloaded` : null, gold: true },
     { id: 'communications', label: 'Communications', iconId: 'bell',      desc: 'Email your attendees and send updates',     href: `/events/${slug}/communications`, badge: null },
   ];
 
@@ -202,7 +202,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
               { value: registrations.toLocaleString(), label: 'registered' },
               { value: revenueDisplay, label: 'revenue' },
               { value: checkedIn > 0 ? `${checkedIn} (${checkInRate}%)` : `${checkInRate}%`, label: 'checked in' },
-              { value: event.download_count.toLocaleString(), label: 'cards shared' },
+              { value: (event.download_count ?? 0).toLocaleString(), label: 'cards shared' },
             ].map((s, i) => (
               <div key={i} className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
                 <span className=" text-[18px] sm:text-[20px] text-[#0F1F18] tracking-tight leading-none font-bold">{s.value}</span>
