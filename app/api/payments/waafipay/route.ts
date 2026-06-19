@@ -25,6 +25,24 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ status: 'already_paid', qr_code_token: reg.qr_code_token });
   }
 
+  // Guard: amount must be positive (would indicate a free ticket flowing through the paid path)
+  if (!reg.amount_paid || reg.amount_paid <= 0) {
+    return NextResponse.json({ error: 'Invalid payment amount' }, { status: 422 });
+  }
+
+  // Cross-check: amount_paid should not exceed the ticket's current price
+  // (it can be lower due to promo discounts, but never higher)
+  if (reg.ticket_type_id) {
+    const { data: ticketPrice } = await admin
+      .from('ticket_types')
+      .select('price')
+      .eq('id', reg.ticket_type_id)
+      .single();
+    if (ticketPrice && reg.amount_paid > ticketPrice.price) {
+      return NextResponse.json({ error: 'Payment amount exceeds ticket price' }, { status: 422 });
+    }
+  }
+
   // Load event page for description
   const { data: eventPage } = await admin
     .from('event_pages')
@@ -33,7 +51,7 @@ export async function POST(req: NextRequest) {
     .single();
 
   const { data: ticket } = reg.ticket_type_id
-    ? await admin.from('ticket_types').select('name').eq('id', reg.ticket_type_id).single()
+    ? await admin.from('ticket_types').select('name, price').eq('id', reg.ticket_type_id).single()
     : { data: null };
 
   // Charge via WaafiPay — wrap in try/catch so missing credentials return JSON, not a crash
