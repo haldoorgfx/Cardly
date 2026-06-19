@@ -28,7 +28,7 @@ export default async function PublishPage({ params }: { params: Promise<{ id: st
   // Only auto-publish if the URL includes ?publish=1 (explicit intent).
   // Visiting /publish on a draft event shows the preview + a "Publish now" button — no silent publish.
   const isAlreadyPublished = event.status === 'published';
-  let slug = event.slug;
+  const slug = event.slug;
   // We no longer auto-publish on page load. PublishClient handles the publish action via /api/events/[id].
 
   // Fetch event_pages row (read-only — no side-effects on page load)

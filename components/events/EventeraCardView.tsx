@@ -37,7 +37,7 @@ type PaperSize = typeof PAPER_SIZES[number];
 
 // Share channel breakdown is not tracked yet — this section shows empty state until we add tracking
 
-export function EventeraCardView({ eventId, eventName, eventSlug, eventStatus, totalCards, todayCards, sharedCards, primaryVariant, allVariants }: Props) {
+export function EventeraCardView({ eventId: _eventId, eventName, eventSlug, eventStatus, totalCards, todayCards, sharedCards, primaryVariant, allVariants }: Props) {
   const [paperSize, setPaperSize] = useState<PaperSize>('A6');
   const hasDesign = !!primaryVariant?.backgroundUrl;
   const isPublished = eventStatus === 'published';
