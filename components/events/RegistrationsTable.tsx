@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
-import { Search, Download, CheckCircle2, XCircle, RotateCcw, ExternalLink, UserPlus, X, MoreHorizontal, Upload, AlertCircle, CheckCircle, ChevronDown, Pencil, Copy } from 'lucide-react';
+import { Search, Download, CheckCircle2, XCircle, RotateCcw, ExternalLink, UserPlus, X, MoreHorizontal, Upload, AlertCircle, CheckCircle, ChevronDown, Pencil, Copy, Sparkles } from 'lucide-react';
 import { ERAButton } from '@/components/ai/ERAButton';
 
 type Status = 'pending' | 'confirmed' | 'checked_in' | 'cancelled' | 'refunded' | 'pending_approval';
@@ -876,9 +876,12 @@ function ReportModal({ report, onClose }: { report: string; onClose: () => void 
       <div className="relative bg-white rounded-2xl overflow-hidden w-full max-w-[600px] max-h-[80vh] flex flex-col" style={{ border: '1px solid #E5E0D4', boxShadow: '0 8px 40px rgba(15,31,24,0.18)' }}>
         <div className="flex items-center justify-between px-6 py-4 shrink-0" style={{ borderBottom: '1px solid #E5E0D4' }}>
           <div>
-            <h3 className="font-display text-[16px] font-semibold" style={{ color: '#0F1F18' }}>
-              <span style={{ color: '#2D7A4F' }}>{'✶'} ERA</span> — Post-Event Report
-            </h3>
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className="inline-flex items-center gap-[3px] text-[10px] font-bold tracking-[0.07em] px-1.5 py-0.5 rounded-[5px] text-white" style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 100%)', boxShadow: '0 1px 4px rgba(31,77,58,0.3)' }}>
+                <Sparkles size={8} strokeWidth={2.5} />ERA
+              </span>
+              <h3 className="font-display text-[15px] font-semibold" style={{ color: '#0F1F18' }}>Post-Event Report</h3>
+            </div>
             <p className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>AI-generated report, ready to share with stakeholders</p>
           </div>
           <button onClick={onClose} className="h-7 w-7 rounded-lg grid place-items-center" style={{ color: '#6B7A72' }}>
@@ -1177,6 +1180,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
             label="Generate report"
             plan={plan}
             requiresStudio
+            wrapperClassName=""
             onFetch={async () => {
               const checkedIn = serverCheckedInCount ?? rows.filter(r => r.status === 'checked_in').length;
               const cards = totalCardsGenerated ?? rows.filter(r => r.eventera_card_url).length;

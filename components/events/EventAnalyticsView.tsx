@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import { Sparkles } from 'lucide-react';
 
 interface DailyPoint { date: string; count: number }
 
@@ -112,9 +113,14 @@ export function EventAnalyticsView({
 
       {/* ── ERA insight ───────────────────────────────────────── */}
       {eraInsight && (
-        <div className="rounded-2xl p-5 mb-6 relative" style={{ background: '#F5F9F6', border: '1px solid rgba(31,77,58,0.15)' }}>
-          <span className="absolute top-4 right-4 text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: '#2D7A4F' }}>{'✶'} ERA</span>
-          <p className="text-[14px] pr-12" style={{ color: '#0F1F18', lineHeight: 1.7 }}>{eraInsight}</p>
+        <div className="rounded-2xl overflow-hidden mb-6" style={{ border: '1px solid rgba(31,77,58,0.18)', boxShadow: '0 2px 16px rgba(31,77,58,0.07)' }}>
+          <div className="flex items-center gap-2.5 px-5 py-3" style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 100%)' }}>
+            <Sparkles size={13} strokeWidth={2} color="white" style={{ opacity: 0.88 }} />
+            <span className="text-[11px] font-bold tracking-[0.1em] uppercase" style={{ color: 'rgba(255,255,255,0.85)' }}>ERA · Analytics Insight</span>
+          </div>
+          <div className="px-5 py-4" style={{ background: '#F5F9F6' }}>
+            <p className="text-[14px]" style={{ color: '#0F1F18', lineHeight: 1.75 }}>{eraInsight}</p>
+          </div>
         </div>
       )}
 

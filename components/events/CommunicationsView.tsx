@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Bell, BarChart2, ExternalLink, Clock, Plus, CheckCircle2, Send, Copy, Check, X } from 'lucide-react';
+import { Bell, BarChart2, ExternalLink, Clock, Plus, CheckCircle2, Send, Copy, Check, X, Sparkles } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { ERAButton } from '@/components/ai/ERAButton';
 
@@ -154,10 +154,13 @@ function CampaignDraftModal({ draft, onClose }: { draft: string; onClose: () => 
       <div className="relative bg-white rounded-2xl overflow-hidden w-full max-w-[520px]" style={{ border: '1px solid #E5E0D4', boxShadow: '0 8px 40px rgba(15,31,24,0.18)' }}>
         <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
           <div>
-            <h3 className="font-display text-[16px] font-semibold" style={{ color: '#0F1F18' }}>
-              <span style={{ color: '#2D7A4F' }}>{'✶'} ERA</span> — Campaign draft
-            </h3>
-            <p className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>Copy and paste into your messaging tool</p>
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className="inline-flex items-center gap-[3px] text-[10px] font-bold tracking-[0.07em] px-1.5 py-0.5 rounded-[5px] text-white" style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 100%)', boxShadow: '0 1px 4px rgba(31,77,58,0.3)' }}>
+                <Sparkles size={8} strokeWidth={2.5} />ERA
+              </span>
+              <h3 className="font-display text-[15px] font-semibold" style={{ color: '#0F1F18' }}>Campaign draft</h3>
+            </div>
+            <p className="text-[12px]" style={{ color: '#6B7A72' }}>Copy and paste into your messaging tool</p>
           </div>
           <button onClick={onClose} className="h-7 w-7 rounded-lg grid place-items-center" style={{ color: '#6B7A72' }}>
             <X size={14} strokeWidth={2.2} />
@@ -323,13 +326,17 @@ export function CommunicationsView({ eventId, eventName, registrantCount, plan =
       </div>
 
       {/* ERA Campaign Draft */}
-      <div className="rounded-2xl mb-4 p-5" style={{ border: '1px solid #E5E0D4', background: 'white' }}>
+      <div className="rounded-2xl mb-4 overflow-hidden" style={{ border: '1px solid rgba(31,77,58,0.18)', boxShadow: '0 1px 8px rgba(31,77,58,0.05)' }}>
+        {/* ERA section header */}
+        <div className="flex items-center gap-2.5 px-5 py-3" style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 100%)' }}>
+          <Sparkles size={13} strokeWidth={2} color="white" style={{ opacity: 0.88 }} />
+          <span className="text-[11px] font-bold tracking-[0.1em] uppercase" style={{ color: 'rgba(255,255,255,0.85)' }}>ERA · Campaign Draft</span>
+        </div>
+        <div className="p-5" style={{ background: 'white' }}>
         <div className="flex items-center justify-between mb-3">
           <div>
-            <h2 className="text-[13px] font-semibold" style={{ color: '#0F1F18' }}>
-              <span style={{ color: '#2D7A4F' }}>{'✶'} ERA</span> Campaign draft
-            </h2>
-            <p className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>Draft an email or WhatsApp message to promote this event</p>
+            <p className="text-[13px] font-medium" style={{ color: '#0F1F18' }}>Draft a message to promote this event</p>
+            <p className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>ERA will write an email or WhatsApp message ready to send</p>
           </div>
           <div className="flex items-center gap-1 rounded-lg p-0.5" style={{ background: '#F5F0E8', border: '1px solid #E5E0D4' }}>
             {(['email', 'whatsapp'] as const).map(t => (
@@ -367,6 +374,7 @@ export function CommunicationsView({ eventId, eventName, registrantCount, plan =
           }}
           onApply={(text) => setCampaignDraft(text)}
         />
+        </div>
       </div>
 
       {/* Info note */}
