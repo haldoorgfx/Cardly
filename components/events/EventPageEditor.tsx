@@ -6,6 +6,7 @@ import { Upload, Globe, ExternalLink, ChevronRight, ChevronLeft, Check, CreditCa
 import { PlacesAutocomplete } from '@/components/shared/PlacesAutocomplete';
 import { TIMEZONES } from '@/lib/events/format';
 import type { Database } from '@/types/database';
+import { ERAButton } from '@/components/ai/ERAButton';
 
 type EventPageRow = Database['public']['Tables']['event_pages']['Row'];
 
@@ -15,6 +16,7 @@ interface Props {
   eventName?: string;
   existing: EventPageRow | null;
   onComplete?: () => void;
+  plan?: 'free' | 'pro' | 'studio';
 }
 
 function toLocalDatetimeValue(isoString: string | null): string {
@@ -47,7 +49,7 @@ function toSlug(raw: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
-export function EventPageEditor({ eventId, eventSlug, eventName, existing, onComplete }: Props) {
+export function EventPageEditor({ eventId, eventSlug, eventName, existing, onComplete, plan = 'free' }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -444,6 +446,21 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
           <p className="text-[12px]" style={{ color: '#6B7A72' }}>
             {description.length} characters
           </p>
+          <ERAButton
+            label="Improve with ERA"
+            plan={plan}
+            onFetch={async () => {
+              const res = await fetch('/api/era/improve-description', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ draft: description, eventName: title }),
+              });
+              const data = await res.json() as { result?: string; error?: string };
+              if (!res.ok) throw new Error(data.error ?? 'ERA_FAILED');
+              return data.result as string;
+            }}
+            onApply={(text) => setDescription(text)}
+          />
         </div>
       )}
 

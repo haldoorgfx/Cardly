@@ -7,6 +7,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { EventAnalyticsView } from '@/components/events/EventAnalyticsView';
+import { getUserPlan } from '@/lib/billing/can';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -69,6 +70,21 @@ export default async function EventAnalyticsPage({ params }: Props) {
   const checkInCount    = allRegs.filter(r => r.status === 'checked_in').length;
   const cardDownloaded  = allRegs.filter(r => r.eventera_card_url).length;
 
+  const plan = await getUserPlan(user.id);
+  let eraInsight: string | null = null;
+  if (plan === 'pro' || plan === 'studio') {
+    try {
+      const { ERA } = await import('@/lib/ai/era');
+      eraInsight = await ERA.narrateAnalytics({
+        eventName: event.name,
+        totalRegistered: allRegs.length,
+        totalCheckedIn: checkInCount,
+        checkInRate: allRegs.length > 0 ? Math.round((checkInCount / allRegs.length) * 100) : 0,
+        cardDownloads: cardDownloaded,
+      });
+    } catch { /* non-blocking */ }
+  }
+
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
       <div className="max-w-[900px] mx-auto px-4 sm:px-6 py-8">
@@ -89,6 +105,7 @@ export default async function EventAnalyticsPage({ params }: Props) {
           revenueCurrency={revenueCurrency}
           checkInCount={checkInCount}
           cardDownloadCount={cardDownloaded}
+          eraInsight={eraInsight}
         />
       </div>
     </div>

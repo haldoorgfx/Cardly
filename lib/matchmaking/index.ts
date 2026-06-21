@@ -1,4 +1,4 @@
-import Anthropic from '@anthropic-ai/sdk';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export interface AttendeeProfile {
   registration_id: string;
@@ -23,7 +23,13 @@ interface MatchResult {
   }>;
 }
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_KEY!);
+const geminiModel = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+
+async function geminiGenerate(prompt: string): Promise<string> {
+  const result = await geminiModel.generateContent(prompt);
+  return result.response.text();
+}
 
 /**
  * Generate match suggestions for a list of attendees using Claude.
@@ -66,13 +72,7 @@ Return ONLY valid JSON in this exact shape, no markdown, no commentary:
   ]
 }`;
 
-  const message = await client.messages.create({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 4096,
-    messages: [{ role: 'user', content: prompt }],
-  });
-
-  const raw = message.content[0].type === 'text' ? message.content[0].text : '';
+  const raw = await geminiGenerate(prompt);
   let parsed: MatchResult;
 
   try {
@@ -144,13 +144,7 @@ Return ONLY valid JSON, no markdown:
   ]
 }`;
 
-  const message = await client.messages.create({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 2048,
-    messages: [{ role: 'user', content: prompt }],
-  });
-
-  const raw = message.content[0].type === 'text' ? message.content[0].text : '';
+  const raw = await geminiGenerate(prompt);
   let parsed: { matches: Array<{ id_b: string; score: number; reason: string }> };
 
   try {

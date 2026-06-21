@@ -19,6 +19,7 @@ interface Props {
   revenueCurrency: string;
   checkInCount: number;
   cardDownloadCount: number;
+  eraInsight?: string | null;
 }
 
 function formatCurrency(amount: number, currency: string) {
@@ -100,6 +101,7 @@ export function EventAnalyticsView({
   revenueCurrency,
   checkInCount,
   cardDownloadCount,
+  eraInsight,
 }: Props) {
   const checkInRate = totalRegistrations > 0 ? Math.round((checkInCount / totalRegistrations) * 100) : 0;
   const cardRate    = totalRegistrations > 0 ? Math.round((cardDownloadCount / totalRegistrations) * 100) : 0;
@@ -107,6 +109,14 @@ export function EventAnalyticsView({
 
   return (
     <div className="space-y-6">
+
+      {/* ── ERA insight ───────────────────────────────────────── */}
+      {eraInsight && (
+        <div className="rounded-2xl p-5 mb-6 relative" style={{ background: '#F5F9F6', border: '1px solid rgba(31,77,58,0.15)' }}>
+          <span className="absolute top-4 right-4 text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: '#2D7A4F' }}>{'✶'} ERA</span>
+          <p className="text-[14px] pr-12" style={{ color: '#0F1F18', lineHeight: 1.7 }}>{eraInsight}</p>
+        </div>
+      )}
 
       {/* ── Summary strip ─────────────────────────────────────── */}
       <div

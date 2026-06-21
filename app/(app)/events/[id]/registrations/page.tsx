@@ -7,6 +7,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { RegistrationsTable } from '@/components/events/RegistrationsTable';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
+import { getUserPlan } from '@/lib/billing/can';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -70,6 +71,8 @@ export default async function RegistrationsPage({ params }: Props) {
 
   if (!event) redirect('/dashboard');
 
+  const plan = await getUserPlan(user.id);
+
   // Build set of emails that have generated a card (for the CARD column)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const cardEmails = new Set<string>((cardsResult.data ?? []).map((c: any) => {
@@ -114,6 +117,8 @@ export default async function RegistrationsPage({ params }: Props) {
           serverCheckedInCount={serverCheckedInCount}
           serverPendingCount={serverPendingCount}
           serverRevenueByCurrency={serverRevenueByCurrency}
+          plan={plan}
+          eventName={event.name}
         />
       </div>
     </div>

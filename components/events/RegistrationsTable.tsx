@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect, useLayoutEffect, useRef } from 'react
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { Search, Download, CheckCircle2, XCircle, RotateCcw, ExternalLink, UserPlus, X, MoreHorizontal, Upload, AlertCircle, CheckCircle, ChevronDown, Pencil, Copy } from 'lucide-react';
+import { ERAButton } from '@/components/ai/ERAButton';
 
 type Status = 'pending' | 'confirmed' | 'checked_in' | 'cancelled' | 'refunded' | 'pending_approval';
 type PaymentStatus = 'free' | 'pending' | 'paid' | 'refunded' | 'failed';
@@ -51,6 +52,8 @@ interface Props {
   serverCheckedInCount?: number;
   serverPendingCount?: number;
   serverRevenueByCurrency?: Record<string, number>;
+  plan?: 'free' | 'pro' | 'studio';
+  eventName?: string;
 }
 
 const STATUS_PILL: Record<Status, { label: string; bg: string; color: string }> = {
@@ -856,8 +859,54 @@ function AddManuallyModal({
   );
 }
 
+/* ── Generate report modal ──────────────────────────────────────────────────── */
+function ReportModal({ report, onClose }: { report: string; onClose: () => void }) {
+  const [copied, setCopied] = useState(false);
+
+  function handleCopy() {
+    navigator.clipboard.writeText(report).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="relative bg-white rounded-2xl overflow-hidden w-full max-w-[600px] max-h-[80vh] flex flex-col" style={{ border: '1px solid #E5E0D4', boxShadow: '0 8px 40px rgba(15,31,24,0.18)' }}>
+        <div className="flex items-center justify-between px-6 py-4 shrink-0" style={{ borderBottom: '1px solid #E5E0D4' }}>
+          <div>
+            <h3 className="font-display text-[16px] font-semibold" style={{ color: '#0F1F18' }}>
+              <span style={{ color: '#2D7A4F' }}>{'✶'} ERA</span> — Post-Event Report
+            </h3>
+            <p className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>AI-generated report, ready to share with stakeholders</p>
+          </div>
+          <button onClick={onClose} className="h-7 w-7 rounded-lg grid place-items-center" style={{ color: '#6B7A72' }}>
+            <X size={14} strokeWidth={2.2} />
+          </button>
+        </div>
+        <div className="overflow-y-auto px-6 py-5 flex-1">
+          <pre className="text-[13px] whitespace-pre-wrap font-sans" style={{ color: '#0F1F18', lineHeight: 1.7 }}>{report}</pre>
+        </div>
+        <div className="flex gap-2 px-6 py-4 shrink-0" style={{ borderTop: '1px solid #E5E0D4' }}>
+          <button
+            onClick={handleCopy}
+            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-xl text-[13px] font-semibold text-white transition hover:opacity-90"
+            style={{ background: '#1F4D3A' }}
+          >
+            {copied ? <><CheckCircle size={13} strokeWidth={2} /> Copied!</> : 'Copy report'}
+          </button>
+          <button onClick={onClose} className="h-9 px-4 rounded-xl text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ── Main table ─────────────────────────────────────────────────────────────── */
-export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, totalCount, ticketTypes, formFields = [], cardEmails = [], totalCardsGenerated, serverCheckedInCount, serverPendingCount, serverRevenueByCurrency }: Props) {
+export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, totalCount, ticketTypes, formFields = [], cardEmails = [], totalCardsGenerated, serverCheckedInCount, serverPendingCount, serverRevenueByCurrency, plan = 'free', eventName }: Props) {
   const cardEmailSet = new Set(cardEmails);
   const [rows, setRows]               = useState(initialRegistrations);
   const [total, setTotal]             = useState(totalCount);
@@ -890,6 +939,7 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
   const [loading, setLoading]         = useState(false);
   const [addOpen, setAddOpen]         = useState(false);
   const [importOpen, setImportOpen]   = useState(false);
+  const [reportText, setReportText]   = useState('');
   const [selected, setSelected]       = useState<Set<string>>(new Set());
   const [bulkBusy, setBulkBusy]       = useState(false);
   const [exportingAll, setExportingAll] = useState(false);
@@ -1057,6 +1107,9 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
           }}
         />
       )}
+      {reportText && (
+        <ReportModal report={reportText} onClose={() => setReportText('')} />
+      )}
 
       {/* ── Stats strip ── */}
       <div className="bg-white border rounded-2xl px-5 py-4 mb-5 flex flex-wrap items-center gap-x-5 gap-y-2" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
@@ -1120,6 +1173,36 @@ export function RegistrationsTable({ eventId, eventSlug, initialRegistrations, t
             <span className="hidden sm:inline">Add manually</span>
             <span className="sm:hidden">Add</span>
           </button>
+          <ERAButton
+            label="Generate report"
+            plan={plan}
+            requiresStudio
+            onFetch={async () => {
+              const checkedIn = serverCheckedInCount ?? rows.filter(r => r.status === 'checked_in').length;
+              const cards = totalCardsGenerated ?? rows.filter(r => r.eventera_card_url).length;
+              const res = await fetch('/api/era/generate-report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  event: {
+                    name: eventName ?? eventSlug,
+                    date: new Date().toLocaleDateString(),
+                    venue: 'See event details',
+                    totalRegistered: total,
+                    totalCheckedIn: checkedIn,
+                    checkInRate: total > 0 ? Math.round((checkedIn / total) * 100) : 0,
+                    revenue: 0,
+                    topSessions: [],
+                    cardDownloads: cards,
+                  },
+                }),
+              });
+              const data = await res.json() as { result?: string; error?: string };
+              if (!res.ok) throw new Error(data.error ?? 'ERA_FAILED');
+              return data.result as string;
+            }}
+            onApply={(text) => setReportText(text)}
+          />
         </div>
 
         {/* Row 2: status filters */}

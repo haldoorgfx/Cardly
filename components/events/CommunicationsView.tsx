@@ -1,13 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { Bell, BarChart2, ExternalLink, Clock, Plus, CheckCircle2, Send } from 'lucide-react';
+import { Bell, BarChart2, ExternalLink, Clock, Plus, CheckCircle2, Send, Copy, Check, X } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
+import { ERAButton } from '@/components/ai/ERAButton';
 
 interface Props {
   eventId: string;
   eventName: string;
   registrantCount: number;
+  plan?: 'free' | 'pro' | 'studio';
+  eventDate?: string;
+  eventVenue?: string;
+  eventDescription?: string;
 }
 
 /* ── Compose modal ──────────────────────────────────────────────────────────── */
@@ -132,9 +137,57 @@ function ComposeModal({
   );
 }
 
+/* ── Campaign draft modal ───────────────────────────────────────────────────── */
+function CampaignDraftModal({ draft, onClose }: { draft: string; onClose: () => void }) {
+  const [copied, setCopied] = useState(false);
+
+  function handleCopy() {
+    navigator.clipboard.writeText(draft).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="relative bg-white rounded-2xl overflow-hidden w-full max-w-[520px]" style={{ border: '1px solid #E5E0D4', boxShadow: '0 8px 40px rgba(15,31,24,0.18)' }}>
+        <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
+          <div>
+            <h3 className="font-display text-[16px] font-semibold" style={{ color: '#0F1F18' }}>
+              <span style={{ color: '#2D7A4F' }}>{'✶'} ERA</span> — Campaign draft
+            </h3>
+            <p className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>Copy and paste into your messaging tool</p>
+          </div>
+          <button onClick={onClose} className="h-7 w-7 rounded-lg grid place-items-center" style={{ color: '#6B7A72' }}>
+            <X size={14} strokeWidth={2.2} />
+          </button>
+        </div>
+        <div className="px-6 py-5">
+          <pre className="text-[13px] whitespace-pre-wrap font-sans rounded-xl p-4" style={{ background: '#F5F9F6', border: '1px solid rgba(31,77,58,0.12)', color: '#0F1F18', lineHeight: 1.7 }}>{draft}</pre>
+        </div>
+        <div className="flex gap-2 px-6 pb-5">
+          <button
+            onClick={handleCopy}
+            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-xl text-[13px] font-semibold text-white transition hover:opacity-90"
+            style={{ background: '#1F4D3A' }}
+          >
+            {copied ? <><Check size={13} strokeWidth={2} /> Copied!</> : <><Copy size={13} strokeWidth={2} /> Copy</>}
+          </button>
+          <button onClick={onClose} className="h-9 px-4 rounded-xl text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ── Main view ──────────────────────────────────────────────────────────────── */
-export function CommunicationsView({ eventId, eventName, registrantCount }: Props) {
+export function CommunicationsView({ eventId, eventName, registrantCount, plan = 'free', eventDate = '', eventVenue = '', eventDescription = '' }: Props) {
   const [composeOpen, setComposeOpen] = useState(false);
+  const [campaignDraft, setCampaignDraft] = useState('');
+  const [campaignType, setCampaignType] = useState<'email' | 'whatsapp'>('email');
 
   return (
     <div className="max-w-[1000px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
@@ -145,6 +198,9 @@ export function CommunicationsView({ eventId, eventName, registrantCount }: Prop
           registrantCount={registrantCount}
           onClose={() => setComposeOpen(false)}
         />
+      )}
+      {campaignDraft && (
+        <CampaignDraftModal draft={campaignDraft} onClose={() => setCampaignDraft('')} />
       )}
 
       {/* Header */}
@@ -264,6 +320,53 @@ export function CommunicationsView({ eventId, eventName, registrantCount }: Prop
             </p>
           </div>
         )}
+      </div>
+
+      {/* ERA Campaign Draft */}
+      <div className="rounded-2xl mb-4 p-5" style={{ border: '1px solid #E5E0D4', background: 'white' }}>
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h2 className="text-[13px] font-semibold" style={{ color: '#0F1F18' }}>
+              <span style={{ color: '#2D7A4F' }}>{'✶'} ERA</span> Campaign draft
+            </h2>
+            <p className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>Draft an email or WhatsApp message to promote this event</p>
+          </div>
+          <div className="flex items-center gap-1 rounded-lg p-0.5" style={{ background: '#F5F0E8', border: '1px solid #E5E0D4' }}>
+            {(['email', 'whatsapp'] as const).map(t => (
+              <button
+                key={t}
+                onClick={() => setCampaignType(t)}
+                className="h-7 px-3 rounded-md text-[12px] font-medium transition"
+                style={{
+                  background: campaignType === t ? 'white' : 'transparent',
+                  color: campaignType === t ? '#1F4D3A' : '#6B7A72',
+                  boxShadow: campaignType === t ? '0 1px 3px rgba(15,31,24,0.08)' : 'none',
+                }}
+              >
+                {t === 'email' ? 'Email' : 'WhatsApp'}
+              </button>
+            ))}
+          </div>
+        </div>
+        <ERAButton
+          label={'Draft ' + (campaignType === 'email' ? 'email' : 'WhatsApp message') + ' with ERA'}
+          plan={plan}
+          requiresStudio
+          onFetch={async () => {
+            const res = await fetch('/api/era/write-campaign', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                event: { name: eventName, date: eventDate, venue: eventVenue, description: eventDescription },
+                type: campaignType,
+              }),
+            });
+            const data = await res.json() as { result?: string; error?: string };
+            if (!res.ok) throw new Error(data.error ?? 'ERA_FAILED');
+            return data.result as string;
+          }}
+          onApply={(text) => setCampaignDraft(text)}
+        />
       </div>
 
       {/* Info note */}

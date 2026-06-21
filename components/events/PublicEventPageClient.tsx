@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ExternalLink, LayoutGrid, CalendarDays, Mic, Store, Users, MapPin } from 'lucide-react';
+import { ExternalLink, LayoutGrid, CalendarDays, Mic, Store, Users, MapPin, Sparkles } from 'lucide-react';
 import type { Database } from '@/types/database';
 import { AddToCalendarButton } from './AddToCalendarButton';
 import SpeakerDirectoryClient from './SpeakerDirectoryClient';
@@ -283,6 +283,97 @@ function TicketList({
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+/* ─── ERA Q&A widget ────────────────────────────────────────────── */
+
+function ERAQandA({ page, dateStr }: { page: EventPageRow; dateStr: string }) {
+  const [question, setQuestion] = useState('');
+  const [answer, setAnswer] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  async function handleAsk() {
+    const q = question.trim();
+    if (!q) return;
+    setLoading(true);
+    setAnswer('');
+    setError('');
+    try {
+      const res = await fetch('/api/era/answer-question', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question: q,
+          event: {
+            name: page.title,
+            description: page.description ?? '',
+            date: dateStr,
+            venue: page.is_online ? 'Online' : (page.venue_name ?? page.venue_address ?? 'TBD'),
+            agenda: undefined,
+          },
+        }),
+      });
+      const data = await res.json() as { result?: string; error?: string };
+      if (!res.ok || !data.result) {
+        setError('ERA could not answer this right now. Please contact the organizer.');
+      } else {
+        setAnswer(data.result);
+      }
+    } catch {
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="mt-9">
+      <h2 className="font-title font-bold text-[22px] mb-2" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+        Have a question?
+      </h2>
+      <p className="text-[14px] mb-4" style={{ color: '#6B7A72' }}>
+        Ask about this event and get an instant answer.
+      </p>
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={question}
+          onChange={e => setQuestion(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && !loading && handleAsk()}
+          placeholder="e.g. Is parking available? What time does it start?"
+          className="flex-1 px-4 py-2.5 rounded-xl text-[14px] outline-none"
+          style={{ background: 'white', border: '1px solid #E5E0D4', color: '#0F1F18' }}
+        />
+        <button
+          onClick={handleAsk}
+          disabled={loading || !question.trim()}
+          className="inline-flex items-center gap-1.5 h-10 px-4 rounded-xl text-[13px] font-semibold text-white transition hover:opacity-90 disabled:opacity-50 shrink-0"
+          style={{ background: '#1F4D3A' }}
+        >
+          {loading ? (
+            <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
+            </svg>
+          ) : (
+            <Sparkles size={14} strokeWidth={2} />
+          )}
+          <span className="hidden sm:inline">Ask ERA</span>
+        </button>
+      </div>
+      {answer && (
+        <div className="mt-3 p-4 rounded-xl" style={{ background: '#F5F9F6', border: '1px solid rgba(31,77,58,0.15)' }}>
+          <div className="flex items-center gap-1.5 mb-2">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: '#2D7A4F' }}>{'✶'} ERA</span>
+          </div>
+          <p className="text-[14px]" style={{ color: '#0F1F18', lineHeight: 1.7 }}>{answer}</p>
+        </div>
+      )}
+      {error && (
+        <p className="mt-2 text-[13px]" style={{ color: '#B8423C' }}>{error}</p>
+      )}
     </div>
   );
 }
@@ -811,6 +902,9 @@ export function PublicEventPageClient({
                   )}
                 </div>
               )}
+
+              {/* ERA Q&A */}
+              <ERAQandA page={page} dateStr={dateStr} />
 
               {/* Mobile ticket panel */}
               <div className="lg:hidden mt-9">

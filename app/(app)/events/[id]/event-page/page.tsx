@@ -9,6 +9,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
 import { EventPageEditor } from '@/components/events/EventPageEditor';
+import { getUserPlan } from '@/lib/billing/can';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -30,11 +31,10 @@ export default async function EventPageEditorPage({ params }: Props) {
     .single();
   if (!event) redirect('/dashboard');
 
-  const { data: existing } = await admin
-    .from('event_pages')
-    .select('*')
-    .eq('event_id', id)
-    .single();
+  const [{ data: existing }, plan] = await Promise.all([
+    admin.from('event_pages').select('*').eq('event_id', id).single(),
+    getUserPlan(user.id),
+  ]);
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
@@ -43,6 +43,7 @@ export default async function EventPageEditorPage({ params }: Props) {
         eventSlug={event.slug}
         eventName={event.name}
         existing={existing ?? null}
+        plan={plan}
       />
     </div>
   );
