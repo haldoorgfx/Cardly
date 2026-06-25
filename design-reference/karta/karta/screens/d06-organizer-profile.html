@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D06 · Organizer Profile</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .banner { height: 240px; position: relative; overflow: hidden; }
+  .profrow { display: flex; align-items: flex-end; gap: 24px; margin-top: -44px; position: relative; z-index: 2; flex-wrap: wrap; }
+  .logo { width: 96px; height: 96px; border-radius: 18px; border: 4px solid var(--cream-canvas); position: relative; overflow: hidden; flex: none; }
+  .logo .ph-initials { position: absolute; inset: 0; font-size: 30px; }
+  .profmeta { flex: 1; padding-bottom: 4px; min-width: 240px; }
+  .profmeta h1 { font-family: var(--display); font-weight: 500; font-size: 28px; letter-spacing: -0.02em; color: var(--ink); }
+  .profmeta .bio { font-family: var(--body); font-size: 14px; color: var(--ink-muted); margin-top: 6px; max-width: 520px; }
+  .statrow { display: flex; gap: 28px; margin-top: 12px; }
+  .statrow .s { font-family: var(--body); font-size: 13px; color: var(--ink-muted); }
+  .statrow .s b { font-family: var(--mono); font-weight: 500; font-size: 14px; color: var(--ink); }
+  .actions { display: flex; gap: 10px; padding-bottom: 8px; }
+
+  .followbtn.following { background: var(--gold); color: var(--ink); border-color: var(--gold);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 4px 12px rgba(201,164,94,0.30); }
+
+  .sec-h { font-family: var(--display); font-weight: 500; font-size: 19px; color: var(--ink); margin: 48px 0 16px; display: flex; align-items: baseline; gap: 10px; }
+  .sec-h .n { font-family: var(--mono); font-weight: 400; font-size: 13px; color: var(--ink-muted); }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .ecard { border-radius: var(--r-card); overflow: hidden; background: var(--cream-surface); border: 1px solid var(--cream-border); cursor: pointer; }
+  .ecard .img { width: 100%; aspect-ratio: 16/9; position: relative; }
+  .ecard .det { padding: 13px 15px 15px; }
+  .ecard .nm { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--ink); }
+  .ecard .foot { display: flex; align-items: center; justify-content: space-between; margin-top: 9px; }
+  .pastlist { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .pastrow { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: var(--cream-surface); border: 1px solid var(--cream-border); border-radius: var(--r-card); opacity: .8; }
+  .pastrow .img { width: 56px; height: 42px; border-radius: 5px; position: relative; overflow: hidden; flex: none; }
+  .pastrow .nm { font-family: var(--display); font-weight: 500; font-size: 13px; color: var(--ink); }
+  .pastrow .meta { font-family: var(--mono); font-size: 11px; color: var(--ink-muted); margin-top: 2px; }
+
+  @media (max-width:900px){ .grid3, .pastlist { grid-template-columns: 1fr; } .banner { height: 160px; } }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links">
+    <a href="d01-marketplace-home.html">Discover</a>
+    <a href="d04-tickets-wallet.html">My tickets</a>
+    <a href="#" style="color:var(--forest);">Following</a>
+    <a href="#">Calendar</a>
+  </div>
+  <div class="right">
+    <div class="ph avatar avatar-ring" style="--h:30; width:36px; height:36px;"></div>
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</nav>
+
+<div class="banner ph mesh-dark" style="--h:150;">
+  <div class="scrim-b" style="position:absolute; inset:0;"></div>
+</div>
+
+<div class="container">
+  <div class="profrow">
+    <div class="logo ph" style="--h:150;"><span class="ph-initials">KS</span></div>
+    <div class="profmeta">
+      <h1>Karta Studio</h1>
+      <div class="bio">Tech and culture events across the Horn of Africa. Home of AfriTech Summit, Founders Breakfast and Design in the Horn.</div>
+      <div class="statrow">
+        <span class="s"><b>12,418</b> followers</span>
+        <span class="s"><b>34</b> events hosted</span>
+        <span class="s"><b>4.8</b> avg rating</span>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn btn-ghost-forest btn-md" id="followbtn" onclick="toggleFollow()">Follow</button>
+      <button class="btn btn-ghost-forest btn-md">Subscribe to calendar</button>
+    </div>
+  </div>
+
+  <div class="sec-h">Upcoming events <span class="n">3</span></div>
+  <div class="grid3" id="upcoming"></div>
+
+  <div class="sec-h">Past events <span class="n">31</span></div>
+  <div class="pastlist">
+    <div class="pastrow"><div class="img ph" style="--h:265;"></div><div><div class="nm">Founders Breakfast · February</div><div class="meta">15 Feb 2026 · 240 attended</div></div></div>
+    <div class="pastrow"><div class="img ph" style="--h:30;"></div><div><div class="nm">Design in the Horn 2025</div><div class="meta">22 Nov 2025 · 180 attended</div></div></div>
+    <div class="pastrow"><div class="img ph" style="--h:158;"></div><div><div class="nm">AfriTech Summit 2025</div><div class="meta">14 Mar 2025 · 612 attended</div></div></div>
+  </div>
+
+  <div style="height:80px;"></div>
+</div>
+
+<script>
+  const upcoming = [
+    ['AfriTech Summit 2026','12–14 Mar · Kempinski Palace','$25',158],
+    ['Founders Breakfast · March','15 Mar · Karta Studio HQ','$15',265],
+    ['Design in the Horn','28 Mar · Palais du Peuple','$20',30],
+  ];
+  document.getElementById('upcoming').innerHTML = upcoming.map(e=>`
+    <div class="ecard cardly-edge">
+      <div class="img ph" style="--h:${e[3]};"></div>
+      <div class="det">
+        <div class="nm">${e[0]}</div>
+        <div class="foot">
+          <span class="t-num-sm" style="color:var(--ink-muted)">${e[1]}</span>
+          <span class="t-num-sm" style="color:var(--forest); font-weight:500;">${e[2]}</span>
+        </div>
+      </div>
+    </div>`).join('');
+
+  let following = false;
+  function toggleFollow(){
+    following = !following;
+    const b = document.getElementById('followbtn');
+    b.classList.toggle('following', following);
+    b.classList.toggle('btn-ghost-forest', !following);
+    b.textContent = following ? '✓ Following' : 'Follow';
+    document.querySelector('.statrow .s b').textContent = following ? '12,419' : '12,418';
+  }
+</script>
+</body>
+</html>

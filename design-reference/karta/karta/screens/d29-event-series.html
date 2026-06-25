@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D29 · Event Series</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .cols { display: grid; grid-template-columns: 1fr 400px; gap: 32px; margin-top: 28px; align-items: start; }
+
+  .setup { padding: 24px 26px; }
+  .setup h2 { font-family: var(--display); font-weight: 500; font-size: 16px; color: var(--ink); margin-bottom: 16px; }
+  .srow { display: grid; grid-template-columns: 110px 1fr; gap: 16px; align-items: center; margin-bottom: 16px; }
+  .srow .lab { font-family: var(--body); font-weight: 500; font-size: 13px; color: var(--ink-soft); }
+  .srow input, .srow select { height: 44px; padding: 0 13px; border-radius: var(--r-input); border: 1px solid var(--cream-border); background: var(--cream-canvas); font-family: var(--body); font-size: 14px; color: var(--ink); outline: none; width: 100%; }
+  .srow input:focus { border-color: var(--gold); }
+  .freq { display: flex; gap: 8px; flex-wrap: wrap; }
+  .inherits { padding: 14px 18px; border-radius: var(--r-card); background: var(--cream-soft); font-family: var(--body); font-size: 12px; color: var(--ink-muted); line-height: 1.7; }
+  .inherits b { color: var(--ink-soft); font-weight: 600; }
+
+  .instances { margin-top: 24px; }
+  .insth { font-family: var(--display); font-weight: 500; font-size: 16px; color: var(--ink); margin-bottom: 12px; display: flex; align-items: baseline; gap: 8px; }
+  .insth .n { font-family: var(--mono); font-size: 12px; color: var(--ink-muted); }
+  .inst { display: flex; align-items: center; gap: 14px; padding: 14px 18px; background: var(--cream-surface); border: 1px solid var(--cream-border); border-radius: var(--r-card); margin-bottom: 10px; }
+  .inst .no { font-family: var(--mono); font-weight: 500; font-size: 12px; color: var(--gold-hover); min-width: 32px; }
+  .inst .d { font-family: var(--body); font-weight: 500; font-size: 14px; color: var(--ink); }
+  .inst .s { font-family: var(--mono); font-size: 11px; color: var(--ink-muted); margin-top: 2px; }
+  .inst .acts { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+  .inst .skip { font-family: var(--body); font-size: 12px; color: var(--ink-muted); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+
+  /* attendee-facing series page preview */
+  .preview .plabel { font-family: var(--body); font-weight: 500; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 12px; }
+  .seriescard { border: 1px solid var(--cream-border); border-radius: 14px; overflow: hidden; background: var(--cream-canvas); box-shadow: var(--e2); }
+  .seriescard .hero { height: 130px; position: relative; }
+  .seriescard .hero .cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 16px 20px; z-index: 2; }
+  .seriescard .hero h3 { font-family: var(--display); font-weight: 500; font-size: 19px; color: #fff; }
+  .seriescard .hero .m { font-family: var(--mono); font-size: 11px; color: var(--gold); margin-top: 3px; }
+  .seriescard .bd { padding: 18px 20px; }
+  .nextrow { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--cream-border); }
+  .nextrow:last-of-type { border-bottom: none; }
+  .nextrow .dt { font-family: var(--mono); font-weight: 500; font-size: 12px; color: var(--forest); min-width: 64px; }
+  .nextrow .t { font-family: var(--body); font-size: 13px; color: var(--ink); }
+  .nextrow .st { margin-left: auto; font-family: var(--body); font-size: 11px; color: var(--ink-muted); }
+  .subline { display: flex; gap: 10px; margin-top: 16px; }
+
+  @media (max-width:1080px){ .cols { grid-template-columns: 1fr; } .srow { grid-template-columns: 1fr; gap: 8px; } }
+</style>
+</head>
+<body>
+
+<div class="dashnav">
+  <div style="display:flex; align-items:center; gap:18px;">
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+    <div class="crumb"><b>Karta</b>&nbsp;&nbsp;/&nbsp;&nbsp;Founders Breakfast&nbsp;&nbsp;/&nbsp;&nbsp;Series</div>
+  </div>
+  <div style="display:flex; align-items:center; gap:18px;">
+    <div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div>
+  </div>
+</div>
+
+<div class="dash">
+  <aside class="sidebar">
+    <div class="side-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Events</div>
+    <div class="side-item active"><svg viewBox="0 0 24 24"><path d="M17 2v4M7 2v4M3 9h18M8 14h3v3H8zM3 6h18v15H3z"/></svg>Series</div>
+    <div class="side-item"><svg viewBox="0 0 24 24"><path d="M16 11l2 2 4-4M3 20c0-3 2.7-5 6-5s6 2 6 5M9 12a4 4 0 100-8 4 4 0 000 8z"/></svg>Registrations</div>
+    <div style="flex:1;"></div>
+    <span class="pill" style="background:var(--forest-soft); color:var(--forest); margin:0 12px; align-self:flex-start; font-family:var(--mono); font-weight:500;">Pro plan</span>
+  </aside>
+
+  <main class="main">
+    <h1 class="t-display-lg" style="color:var(--forest);">Founders Breakfast — recurring series</h1>
+
+    <div class="cols">
+      <div>
+        <div class="card setup">
+          <h2>Recurrence</h2>
+          <div class="srow">
+            <span class="lab">Repeats</span>
+            <div class="freq">
+              <div class="chip">Weekly</div>
+              <div class="chip">Every 2 weeks</div>
+              <div class="chip active">Monthly — 3rd Sunday</div>
+              <div class="chip">Custom</div>
+            </div>
+          </div>
+          <div class="srow"><span class="lab">Time</span><input value="08:30 – 10:30" style="font-family:var(--mono); max-width:200px;"></div>
+          <div class="srow"><span class="lab">Generate</span><select style="max-width:260px;"><option>3 months ahead, rolling</option><option>6 months ahead</option><option>Manually</option></select></div>
+          <div class="inherits"><b>Each instance inherits:</b> venue, tickets &amp; pricing, brand kit, card design, team, check-in settings. <b>Shared across the series:</b> followers, subscriber list, analytics roll-up. Edit any single date without breaking the chain.</div>
+        </div>
+
+        <div class="instances">
+          <div class="insth">Upcoming instances <span class="n">rolling · 3 generated</span></div>
+          <div class="inst">
+            <span class="no">#14</span>
+            <div><div class="d">Sunday 15 March 2026</div><div class="s">PUBLISHED · 41 REGISTERED · 60 CAP</div></div>
+            <div class="acts"><span class="pill pill-live">Live</span><button class="btn btn-ghost-forest btn-sm">Open</button></div>
+          </div>
+          <div class="inst">
+            <span class="no">#15</span>
+            <div><div class="d">Sunday 19 April 2026</div><div class="s">PUBLISHED · 8 REGISTERED</div></div>
+            <div class="acts"><span class="pill pill-live">Live</span><button class="btn btn-ghost-forest btn-sm">Open</button></div>
+          </div>
+          <div class="inst">
+            <span class="no">#16</span>
+            <div><div class="d">Sunday 17 May 2026</div><div class="s">DRAFT · AUTO-PUBLISHES 17 APR</div></div>
+            <div class="acts"><span class="skip">Skip this date</span><span class="pill pill-draft">Scheduled</span><button class="btn btn-ghost-forest btn-sm">Edit</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="preview">
+        <div class="plabel">Attendee-facing series page</div>
+        <div class="seriescard">
+          <div class="hero ph" style="--h:265;">
+            <div class="scrim-b" style="position:absolute; inset:0;"></div>
+            <div class="cap">
+              <h3>Founders Breakfast</h3>
+              <div class="m">MONTHLY · 3RD SUNDAY · KARTA STUDIO HQ</div>
+            </div>
+          </div>
+          <div class="bd">
+            <div class="nextrow"><span class="dt">15 MAR</span><span class="t">Breakfast #14 — open</span><button class="btn btn-forest btn-sm" style="margin-left:auto;">$15</button></div>
+            <div class="nextrow"><span class="dt">19 APR</span><span class="t">Breakfast #15 — open</span><button class="btn btn-ghost-forest btn-sm" style="margin-left:auto;">$15</button></div>
+            <div class="nextrow"><span class="dt">17 MAY</span><span class="t">Breakfast #16</span><span class="st">Opens 17 Apr</span></div>
+            <div class="subline">
+              <button class="btn btn-gold btn-md" style="flex:1;">Follow the series</button>
+            </div>
+            <div style="font-family:var(--body); font-size:11px; color:var(--ink-muted); text-align:center; margin-top:10px;">612 followers get each date the moment it opens</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  document.querySelectorAll('.freq .chip').forEach(c=>c.onclick=()=>{ c.parentElement.querySelector('.active')?.classList.remove('active'); c.classList.add('active'); });
+</script>
+</body>
+</html>

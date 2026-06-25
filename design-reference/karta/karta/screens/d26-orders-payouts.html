@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D26 · Orders & Payouts</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .pagehead { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .balrow { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 24px; }
+  .bal { padding: 20px 24px; }
+  .bal .lab { font-family: var(--body); font-size: 12px; color: var(--ink-muted); }
+  .bal .val { font-family: var(--mono); font-weight: 500; font-size: 26px; color: var(--ink); margin-top: 5px; letter-spacing: -0.01em; }
+  .bal .sub { font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-top: 6px; }
+  .bal.next { background: var(--forest-dark); border-color: var(--forest-dark); position: relative; overflow: hidden; }
+  .bal.next .lab { color: rgba(255,255,255,0.6); }
+  .bal.next .val { color: var(--gold); }
+  .bal.next .sub { color: rgba(255,255,255,0.55); }
+
+  .schedrow { margin-top: 16px; padding: 16px 22px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .schedrow .t { font-family: var(--body); font-size: 13px; color: var(--ink-soft); }
+  .schedrow select { height: 38px; padding: 0 12px; border-radius: var(--r-input); border: 1px solid var(--cream-border); background: var(--cream-surface); font-family: var(--body); font-size: 13px; }
+  .schedrow .dest { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--ink-muted); }
+
+  .sec-h2 { font-family: var(--display); font-weight: 500; font-size: 16px; color: var(--ink); margin: 36px 0 14px; }
+  .toolrow { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+  .toolrow .search { flex: 1; min-width: 220px; height: 42px; }
+
+  /* refund modal */
+  .mscrim { position: fixed; inset: 0; background: rgba(15,31,24,0.4); z-index: 70; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .mscrim.open { display: flex; }
+  .modal { width: 100%; max-width: 440px; background: var(--cream-canvas); border-radius: var(--r-modal); box-shadow: var(--e2); padding: 28px; }
+  .modal h3 { font-family: var(--display); font-weight: 500; font-size: 19px; color: var(--ink); }
+  .modal .d { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 8px; line-height: 1.6; }
+  .refopts { display: grid; gap: 8px; margin-top: 16px; }
+  .refopt { display: flex; align-items: center; gap: 11px; padding: 13px 15px; border-radius: var(--r-card); border: 1px solid var(--cream-border); background: var(--cream-surface); cursor: pointer; }
+  .refopt.on { border-color: var(--forest); background: var(--forest-soft); }
+  .refopt input { accent-color: var(--forest); }
+  .refopt .n { font-family: var(--body); font-weight: 500; font-size: 13px; color: var(--ink); }
+  .refopt .s { font-family: var(--body); font-size: 11px; color: var(--ink-muted); margin-top: 1px; }
+  .refopt .v { margin-left: auto; font-family: var(--mono); font-weight: 500; font-size: 13px; color: var(--ink); }
+  .modal .row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; }
+  .btn-danger { background: var(--error); color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="dashnav">
+  <div style="display:flex; align-items:center; gap:18px;">
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+    <div class="crumb"><b>Karta</b>&nbsp;&nbsp;/&nbsp;&nbsp;AfriTech Summit&nbsp;&nbsp;/&nbsp;&nbsp;Orders</div>
+  </div>
+  <div style="display:flex; align-items:center; gap:18px;">
+    <div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div>
+  </div>
+</div>
+
+<div class="dash">
+  <aside class="sidebar">
+    <div class="side-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Events</div>
+    <div class="side-item active"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Orders &amp; payouts</div>
+    <div class="side-item"><svg viewBox="0 0 24 24"><path d="M16 11l2 2 4-4M3 20c0-3 2.7-5 6-5s6 2 6 5M9 12a4 4 0 100-8 4 4 0 000 8z"/></svg>Registrations</div>
+    <div class="side-item"><svg viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l4-4 3 3 5-6"/></svg>Analytics</div>
+    <div style="flex:1;"></div>
+    <span class="pill" style="background:var(--forest-soft); color:var(--forest); margin:0 12px; align-self:flex-start; font-family:var(--mono); font-weight:500;">Pro plan</span>
+  </aside>
+
+  <main class="main">
+    <div class="pagehead">
+      <h1 class="t-display-lg" style="color:var(--forest);">Orders &amp; payouts</h1>
+      <button class="btn btn-ghost-forest btn-md">Export CSV</button>
+    </div>
+
+    <div class="balrow">
+      <div class="card bal"><div class="lab">Gross sales</div><div class="val">$5,184</div><div class="sub">214 orders · Stripe + Flutterwave</div></div>
+      <div class="card bal"><div class="lab">Fees &amp; refunds</div><div class="val">−$434</div><div class="sub">$311 platform · $123 refunded</div></div>
+      <div class="card bal next"><div class="cardly-mesh cardly-mesh-cta"></div><div class="lab">Next payout</div><div class="val">$1,820</div><div class="sub">Friday 13 Mar → BCIMR ···· 4471</div></div>
+    </div>
+
+    <div class="card schedrow">
+      <span class="t">Payout schedule</span>
+      <select><option>Weekly — every Friday</option><option>Daily</option><option>Monthly</option><option>After event ends</option></select>
+      <span class="dest">DESTINATION: BCIMR ····4471 · CHANGE</span>
+    </div>
+
+    <div class="sec-h2">Orders</div>
+    <div class="toolrow">
+      <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input placeholder="Search order, name or email…"></div>
+      <div class="chip active">All</div>
+      <div class="chip">Paid</div>
+      <div class="chip">Refunded</div>
+      <div class="chip">Disputed</div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="tbl">
+        <thead><tr><th>Order</th><th>Buyer</th><th>Items</th><th>Method</th><th style="text-align:right;">Total</th><th>Status</th><th></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<div class="mscrim" id="mscrim">
+  <div class="modal">
+    <h3>Refund order KRT-8841</h3>
+    <div class="d">Amina Osman · VIP package + speaker dinner · paid $64.20 by card. Her ticket and Karta Card will be voided on full refund.</div>
+    <div class="refopts">
+      <label class="refopt on"><input type="radio" name="ref" checked><div><div class="n">Full refund</div><div class="s">Ticket voided · seat returns to inventory (waitlist auto-promotes)</div></div><span class="v">$64.20</span></label>
+      <label class="refopt"><input type="radio" name="ref"><div><div class="n">Partial — dinner only</div><div class="s">Keeps her ticket valid</div></div><span class="v">$39.20</span></label>
+    </div>
+    <div class="row">
+      <button class="btn btn-ghost-forest btn-md" onclick="closeM()">Cancel</button>
+      <button class="btn btn-danger btn-md" onclick="closeM()">Refund $64.20</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const orders = [
+    ['KRT-8841','Amina Osman','VIP + dinner add-on','Card','$64.20','paid',30],
+    ['KRT-8838','Faisal Karim','General ×3 (group)','M-Pesa','$81.60','paid',200],
+    ['KRT-8835','Leila Haddad','VIP','Card','$63.60','paid',265],
+    ['KRT-8831','Yonas Tesfaye','General + parking','Waafi','$31.80','paid',95],
+    ['KRT-8822','Mariam Diallo','Student (approved)','—','$0.00','free',340],
+    ['KRT-8819','Hana Bekele','General','Card','$26.50','refunded',18],
+    ['KRT-8804','Omar Farah','Supporter PWYW','Card','$50.00','paid',120],
+  ];
+  document.getElementById('rows').innerHTML = orders.map(o=>`
+    <tr>
+      <td><span class="t-num-sm" style="color:var(--forest); font-weight:500;">${o[0]}</span></td>
+      <td>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div class="ph avatar" style="--h:${o[6]}; width:30px; height:30px;"></div>
+          <span style="font-family:var(--body); font-weight:500; font-size:14px; color:var(--ink);">${o[1]}</span>
+        </div>
+      </td>
+      <td><span class="t-body-sm" style="color:var(--ink-muted);">${o[2]}</span></td>
+      <td><span class="t-num-sm" style="color:var(--ink-muted);">${o[3]}</span></td>
+      <td style="text-align:right;"><span class="t-num-sm">${o[4]}</span></td>
+      <td>${o[5]==='paid'?'<span class="pill pill-live">Paid</span>':o[5]==='free'?'<span class="pill pill-draft">Free</span>':'<span class="pill pill-error">Refunded</span>'}</td>
+      <td style="text-align:right;">${o[5]==='paid'?'<button class="btn btn-ghost-forest btn-sm" onclick="openM()">Refund…</button>':''}</td>
+    </tr>`).join('');
+  function openM(){ document.getElementById('mscrim').classList.add('open'); }
+  function closeM(){ document.getElementById('mscrim').classList.remove('open'); }
+  document.getElementById('mscrim').onclick = e => { if(e.target.id==='mscrim') closeM(); };
+  document.querySelectorAll('.refopt').forEach(r=>r.onclick=()=>{ document.querySelectorAll('.refopt').forEach(x=>x.classList.remove('on')); r.classList.add('on'); });
+  document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{document.querySelector('.chip.active')?.classList.remove('active');c.classList.add('active');});
+</script>
+</body>
+</html>

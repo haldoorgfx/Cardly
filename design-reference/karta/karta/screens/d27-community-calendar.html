@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D27 · Community Calendar</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .calhero { padding: 48px 0 36px; position: relative; overflow: hidden; }
+  .calhero .container { position: relative; z-index: 1; display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  .calhero .who { display: flex; align-items: center; gap: 18px; }
+  .callogo { width: 72px; height: 72px; border-radius: 16px; position: relative; overflow: hidden; flex: none; }
+  .callogo .ph-initials { position: absolute; inset: 0; font-size: 24px; }
+  .calhero h1 { font-family: var(--display); font-weight: 400; font-size: 32px; letter-spacing: -0.025em; color: var(--forest); }
+  .calhero .sub { font-family: var(--body); font-size: 14px; color: var(--ink-muted); margin-top: 6px; }
+  .calhero .sub b { font-family: var(--mono); font-weight: 500; color: var(--ink); }
+
+  .monthlab { font-family: var(--display); font-weight: 500; font-size: 18px; color: var(--ink); margin: 40px 0 4px; }
+  .evrow { display: grid; grid-template-columns: 90px 110px 1fr auto; gap: 18px; align-items: center; padding: 18px 20px; background: var(--cream-surface); border: 1px solid var(--cream-border); border-radius: var(--r-card); margin-top: 12px; cursor: pointer; }
+  .evrow .date { text-align: center; }
+  .evrow .date .d { font-family: var(--mono); font-weight: 500; font-size: 22px; color: var(--forest); }
+  .evrow .date .m { font-family: var(--body); font-weight: 500; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); margin-top: 2px; }
+  .evrow .img { width: 110px; height: 66px; border-radius: 6px; position: relative; overflow: hidden; }
+  .evrow .nm { font-family: var(--display); font-weight: 500; font-size: 16px; color: var(--ink); }
+  .evrow .meta { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 4px; }
+  .evrow .meta .series { color: var(--gold-hover); font-weight: 500; }
+  .evrow .p { font-family: var(--mono); font-weight: 500; font-size: 14px; color: var(--forest); }
+
+  /* subscribe modal */
+  .mscrim { position: fixed; inset: 0; background: rgba(15,31,24,0.4); z-index: 70; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .mscrim.open { display: flex; }
+  .modal { width: 100%; max-width: 440px; background: var(--cream-canvas); border-radius: var(--r-modal); box-shadow: var(--e2); overflow: hidden; }
+  .modal .mh { padding: 24px 28px 20px; background: var(--forest-dark); position: relative; overflow: hidden; }
+  .modal .mh h3 { font-family: var(--display); font-weight: 500; font-size: 19px; color: #fff; position: relative; }
+  .modal .mh p { font-family: var(--body); font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 5px; position: relative; }
+  .modal .mb { padding: 22px 28px 28px; }
+  .subopt { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: var(--r-card); border: 1px solid var(--cream-border); background: var(--cream-surface); margin-bottom: 10px; cursor: pointer; }
+  .subopt.on { border-color: var(--forest); background: var(--forest-soft); }
+  .subopt svg { width: 18px; height: 18px; stroke: var(--forest); fill: none; stroke-width: 1.8; flex: none; }
+  .subopt .n { font-family: var(--body); font-weight: 500; font-size: 13px; color: var(--ink); }
+  .subopt .s { font-family: var(--body); font-size: 11px; color: var(--ink-muted); margin-top: 1px; }
+  .icsline { display: flex; gap: 8px; margin-top: 14px; }
+  .icsline input { flex: 1; height: 40px; padding: 0 12px; border-radius: var(--r-input); border: 1px solid var(--cream-border); background: var(--cream-soft); font-family: var(--mono); font-size: 11px; color: var(--ink-muted); outline: none; }
+
+  @media (max-width:760px){ .evrow { grid-template-columns: 60px 1fr auto; } .evrow .img { display: none; } }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links">
+    <a href="d01-marketplace-home.html">Discover</a>
+    <a href="d04-tickets-wallet.html">My tickets</a>
+    <a href="d17-saved-following.html">Following</a>
+  </div>
+  <div class="right">
+    <div class="ph avatar avatar-ring" style="--h:30; width:36px; height:36px;"></div>
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</nav>
+
+<div class="calhero">
+  <div class="cardly-mesh cardly-mesh-hero"></div>
+  <div class="container">
+    <div class="who">
+      <div class="callogo ph" style="--h:150;"><span class="ph-initials">KS</span></div>
+      <div>
+        <h1>Karta Studio — public calendar</h1>
+        <div class="sub"><b>1,204</b> subscribers · every event we host, the moment it's announced</div>
+      </div>
+    </div>
+    <button class="btn btn-gold btn-lg" onclick="document.getElementById('mscrim').classList.add('open')">Subscribe to calendar</button>
+  </div>
+</div>
+
+<div class="container">
+  <div class="monthlab">March 2026</div>
+  <div class="evrow">
+    <div class="date"><div class="d">12</div><div class="m">Mar · Thu</div></div>
+    <div class="img ph" style="--h:158;"></div>
+    <div><div class="nm">AfriTech Summit 2026</div><div class="meta">3 days · Kempinski Palace · Djibouti City</div></div>
+    <span class="p">$25</span>
+  </div>
+  <div class="evrow">
+    <div class="date"><div class="d">15</div><div class="m">Mar · Sun</div></div>
+    <div class="img ph" style="--h:265;"></div>
+    <div><div class="nm">Founders Breakfast — March</div><div class="meta"><span class="series">Monthly series · #14</span> · Karta Studio HQ</div></div>
+    <span class="p">$15</span>
+  </div>
+  <div class="evrow">
+    <div class="date"><div class="d">28</div><div class="m">Mar · Sat</div></div>
+    <div class="img ph" style="--h:30;"></div>
+    <div><div class="nm">Design in the Horn</div><div class="meta">Afternoon · Palais du Peuple</div></div>
+    <span class="p">$20</span>
+  </div>
+
+  <div class="monthlab">April 2026</div>
+  <div class="evrow">
+    <div class="date"><div class="d">19</div><div class="m">Apr · Sun</div></div>
+    <div class="img ph" style="--h:265;"></div>
+    <div><div class="nm">Founders Breakfast — April</div><div class="meta"><span class="series">Monthly series · #15</span> · Karta Studio HQ</div></div>
+    <span class="p">$15</span>
+  </div>
+  <div class="evrow" style="opacity:.7;">
+    <div class="date"><div class="d">TBA</div><div class="m">Apr</div></div>
+    <div class="img ph" style="--h:200;"></div>
+    <div><div class="nm">Portfolio Night — date coming</div><div class="meta">Subscribers hear first</div></div>
+    <span class="p">—</span>
+  </div>
+
+  <div style="height:80px;"></div>
+</div>
+
+<div class="mscrim" id="mscrim">
+  <div class="modal">
+    <div class="mh">
+      <div class="cardly-mesh cardly-mesh-cta"></div>
+      <h3>Subscribe to Karta Studio</h3>
+      <p>New events land in your calendar and inbox automatically.</p>
+    </div>
+    <div class="mb">
+      <div class="subopt on" onclick="this.classList.toggle('on')">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>
+        <div><div class="n">Calendar feed (ICS)</div><div class="s">Google Calendar, Apple, Outlook — live-updating</div></div>
+      </div>
+      <div class="subopt on" onclick="this.classList.toggle('on')">
+        <svg viewBox="0 0 24 24"><path d="M22 6l-10 7L2 6M2 6h20v12H2z"/></svg>
+        <div><div class="n">Email digest</div><div class="s">New events + a Thursday roundup</div></div>
+      </div>
+      <div class="subopt" onclick="this.classList.toggle('on')">
+        <svg viewBox="0 0 24 24"><path d="M21 11.5a8.5 8.5 0 01-12.4 7.5L3 21l2-5.4A8.5 8.5 0 1121 11.5z"/></svg>
+        <div><div class="n">WhatsApp</div><div class="s">Only when a new event opens — never spam</div></div>
+      </div>
+      <div class="icsline">
+        <input value="https://karta.app/o/karta-studio/calendar.ics" readonly>
+        <button class="btn btn-ghost-forest btn-sm">Copy</button>
+      </div>
+      <button class="btn btn-forest btn-lg" style="width:100%; margin-top:16px;" onclick="document.getElementById('mscrim').classList.remove('open')">Subscribe</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('mscrim').onclick = e => { if(e.target.id==='mscrim') e.target.classList.remove('open'); };
+</script>
+</body>
+</html>

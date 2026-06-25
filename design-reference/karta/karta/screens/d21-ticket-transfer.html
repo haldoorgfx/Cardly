@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D21 · Ticket Transfer</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .wrap { max-width: 680px; margin: 0 auto; padding: 44px 40px 96px; }
+  .pagehead h1 { font-family: var(--display); font-weight: 400; font-size: 32px; letter-spacing: -0.025em; color: var(--forest); }
+  .pagehead p { font-family: var(--body); font-size: 14px; color: var(--ink-muted); margin-top: 8px; line-height: 1.6; }
+
+  .stateline { display: flex; align-items: center; gap: 10px; margin: 40px 0 14px; }
+  .stateline .badge { font-family: var(--mono); font-weight: 500; font-size: 11px; padding: 4px 10px; border-radius: var(--r-pill); background: var(--forest-soft); color: var(--forest); }
+  .stateline .t { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--ink); }
+
+  .tixrow { display: flex; gap: 14px; align-items: center; padding: 16px 18px; }
+  .tixrow .img { width: 72px; height: 54px; border-radius: 6px; position: relative; overflow: hidden; flex: none; }
+  .tixrow .n { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--ink); }
+  .tixrow .m { font-family: var(--mono); font-size: 11px; color: var(--ink-muted); margin-top: 3px; }
+
+  .modal { padding: 26px 28px; }
+  .modal h3 { font-family: var(--display); font-weight: 500; font-size: 18px; color: var(--ink); }
+  .modal .d { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 8px; line-height: 1.6; }
+  .fld { margin-top: 16px; }
+  .fld label { display: block; font-family: var(--body); font-weight: 500; font-size: 12px; color: var(--ink-soft); margin-bottom: 6px; }
+  .fld input { width: 100%; height: 46px; padding: 0 14px; border-radius: var(--r-input); border: 1px solid var(--cream-border); background: var(--cream-canvas); font-family: var(--body); font-size: 14px; color: var(--ink); outline: none; }
+  .fld input:focus { border-color: var(--gold); }
+  .warn { display: flex; gap: 10px; margin-top: 16px; padding: 13px 15px; border-radius: var(--r-card); background: rgba(184,66,60,0.07); border: 1px solid rgba(184,66,60,0.2); }
+  .warn svg { width: 16px; height: 16px; stroke: var(--error); fill: none; stroke-width: 2; flex: none; margin-top: 1px; }
+  .warn .t { font-family: var(--body); font-size: 12px; color: var(--error); line-height: 1.55; }
+  .mrow { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; }
+
+  /* pending + claim states */
+  .pendrow { display: flex; align-items: center; gap: 14px; padding: 18px 20px; }
+  .pendrow .ic { width: 40px; height: 40px; border-radius: 10px; background: var(--gold-soft); display: flex; align-items: center; justify-content: center; flex: none; }
+  .pendrow .ic svg { width: 19px; height: 19px; stroke: var(--gold-hover); fill: none; stroke-width: 1.8; }
+  .pendrow .t { font-family: var(--body); font-size: 14px; color: var(--ink); }
+  .pendrow .s { font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-top: 3px; }
+  .pendrow .cancel { margin-left: auto; font-family: var(--body); font-weight: 500; font-size: 13px; color: var(--error); cursor: pointer; white-space: nowrap; }
+
+  .claim { overflow: hidden; }
+  .claim .head { padding: 22px 26px; background: var(--forest-dark); position: relative; overflow: hidden; }
+  .claim .head .t { font-family: var(--display); font-weight: 500; font-size: 18px; color: #fff; position: relative; }
+  .claim .head .s { font-family: var(--body); font-size: 13px; color: rgba(255,255,255,0.75); margin-top: 4px; position: relative; }
+  .claim .bd { padding: 22px 26px; }
+  .claim .from { display: flex; align-items: center; gap: 12px; }
+  .claim .from .t { font-family: var(--body); font-size: 13px; color: var(--ink-soft); line-height: 1.5; }
+  .claim .from .t b { font-weight: 600; color: var(--ink); }
+  .voidnote { font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-top: 14px; line-height: 1.55; }
+  .voidnote b { font-family: var(--mono); font-weight: 500; color: var(--ink); }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links">
+    <a href="d01-marketplace-home.html">Discover</a>
+    <a href="d04-tickets-wallet.html" style="color:var(--forest);">My tickets</a>
+  </div>
+  <div class="right">
+    <div class="ph avatar avatar-ring" style="--h:30; width:36px; height:36px;"></div>
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="pagehead">
+    <h1>Transfer a ticket</h1>
+    <p>Can't make it? Send your ticket to someone else — they get a fresh QR and their own Karta Card, and yours is voided. The full process, in three states:</p>
+  </div>
+
+  <div class="stateline"><span class="badge">STATE 1</span><span class="t">Start the transfer — from your wallet</span></div>
+  <div class="card tixrow">
+    <div class="img ph" style="--h:200;"></div>
+    <div>
+      <div class="n">Jazz on the Pier — General</div>
+      <div class="m">SAT 05 APR · 19:30 · TICKET №1042</div>
+    </div>
+    <button class="btn btn-ghost-forest btn-sm" style="margin-left:auto;">Transfer</button>
+  </div>
+  <div class="card modal" style="margin-top:14px;">
+    <h3>Who's taking your spot?</h3>
+    <div class="d">They'll get an email and WhatsApp invitation to claim the ticket. It stays yours until they accept.</div>
+    <div class="fld"><label>Their full name</label><input value="Hana Bekele"></div>
+    <div class="fld"><label>Their email or phone</label><input value="hana.bekele@gmail.com"></div>
+    <div class="warn">
+      <svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>
+      <span class="t">When Hana claims it, your QR code <b>№1042</b> stops working and your Karta Card for this event is retired.</span>
+    </div>
+    <div class="mrow">
+      <button class="btn btn-ghost-forest btn-md">Cancel</button>
+      <button class="btn btn-forest btn-md">Send transfer invite</button>
+    </div>
+  </div>
+
+  <div class="stateline"><span class="badge">STATE 2</span><span class="t">Waiting — invite sent, not yet claimed</span></div>
+  <div class="card pendrow">
+    <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 8v5l3 2M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+    <div>
+      <div class="t">Transfer to <b style="font-weight:600;">Hana Bekele</b> pending</div>
+      <div class="s">Sent 2h ago · expires in 70h · your ticket still works until she claims</div>
+    </div>
+    <span class="cancel">Cancel transfer</span>
+  </div>
+
+  <div class="stateline"><span class="badge">STATE 3</span><span class="t">What Hana sees — claim screen</span></div>
+  <div class="card claim">
+    <div class="head">
+      <div class="cardly-mesh cardly-mesh-cta"></div>
+      <div class="t">Amina sent you a ticket</div>
+      <div class="s">Jazz on the Pier · Sat 05 Apr · 19:30 · Port Marina</div>
+    </div>
+    <div class="bd">
+      <div class="from">
+        <div class="ph avatar avatar-ring" style="--h:30; width:40px; height:40px;"></div>
+        <span class="t"><b>Amina Osman</b> transferred her General ticket to you. Claim it to get your own QR code and Karta Card.</span>
+      </div>
+      <button class="btn btn-gold btn-lg" style="width:100%; margin-top:20px;">Claim ticket — it's yours</button>
+      <div class="voidnote">On claim: new QR issued to you as <b>№1187</b> · Amina's QR <b>№1042</b> voided · door list updated instantly. New to Karta? We'll create your account from this invite.</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

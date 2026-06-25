@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D36 · Live Display</title>
+<link rel="stylesheet" href="../karta.css">
+<style>
+  html, body { height: 100%; }
+  body { background: var(--forest-dark); overflow: hidden; }
+  .stage { height: 100vh; position: relative; display: flex; flex-direction: column; padding: 56px 72px; }
+  .mesh-bg { position: absolute; inset: -10%; pointer-events: none;
+    background: radial-gradient(45% 40% at 15% 20%, rgba(31,77,58,0.8), transparent 60%),
+                radial-gradient(35% 30% at 85% 75%, rgba(232,197,126,0.12), transparent 60%);
+    filter: blur(80px); }
+  .head { display: flex; align-items: baseline; justify-content: space-between; position: relative; z-index: 1; }
+  .head .l { display: flex; align-items: baseline; gap: 20px; }
+  .head .wm { font-family: var(--display); font-weight: 600; font-size: 22px; color: rgba(255,255,255,0.9); }
+  .head .wm b { color: var(--gold); }
+  .head .mode { font-family: var(--mono); font-size: 13px; letter-spacing: 0.12em; color: var(--gold); }
+  .head .clock { font-family: var(--mono); font-weight: 500; font-size: 22px; color: rgba(255,255,255,0.7); }
+
+  .qwall { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-content: center; position: relative; z-index: 1; margin-top: 40px; }
+  .q { padding: 30px 34px; border-radius: 14px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); }
+  .q.top { background: rgba(232,197,126,0.1); border-color: rgba(232,197,126,0.35); }
+  .q .tx { font-family: var(--display); font-weight: 400; font-size: 26px; line-height: 1.4; color: #fff; letter-spacing: -0.01em; text-wrap: pretty; }
+  .q .who { display: flex; align-items: center; gap: 12px; margin-top: 22px; }
+  .q .nm { font-family: var(--body); font-weight: 500; font-size: 14px; color: rgba(255,255,255,0.75); }
+  .q .votes { margin-left: auto; font-family: var(--mono); font-weight: 500; font-size: 18px; color: var(--gold); }
+  .q .av { width: 36px; height: 36px; border-radius: 50%; position: relative; overflow: hidden; }
+
+  .foot { display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 1; margin-top: 40px; }
+  .foot .ask { font-family: var(--body); font-size: 16px; color: rgba(255,255,255,0.6); }
+  .foot .ask b { color: var(--gold); font-family: var(--mono); }
+  .foot .session { font-family: var(--mono); font-size: 13px; color: rgba(255,255,255,0.45); letter-spacing: 0.06em; }
+
+  .switcher { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); z-index: 20; display: flex; gap: 4px; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.12); border-radius: var(--r-pill); padding: 4px; }
+  .switcher button { height: 32px; padding: 0 14px; border: none; border-radius: var(--r-pill); background: transparent; color: rgba(255,255,255,0.6); font-family: var(--display); font-weight: 500; font-size: 12px; cursor: pointer; }
+  .switcher button.on { background: var(--gold); color: var(--ink); }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="mesh-bg"></div>
+  <div class="head">
+    <div class="l">
+      <span class="wm">K<b>a</b>rta</span>
+      <span class="mode">LIVE Q&amp;A · FINTECH PANEL</span>
+    </div>
+    <span class="clock" id="clock">11:42</span>
+  </div>
+
+  <div class="qwall">
+    <div class="q top">
+      <div class="tx">If mobile money interop happened tomorrow, which business model dies first — agents, aggregators or the banks?</div>
+      <div class="who">
+        <div class="av ph" style="--h:265;"></div>
+        <span class="nm">Leila Haddad · Flutterwave</span>
+        <span class="votes">▲ 48</span>
+      </div>
+    </div>
+    <div class="q">
+      <div class="tx">What did Djibouti's port digitization teach you about who actually pays for infrastructure?</div>
+      <div class="who">
+        <div class="av ph" style="--h:120;"></div>
+        <span class="nm">Omar Farah · Red Sea Tech</span>
+        <span class="votes">▲ 31</span>
+      </div>
+    </div>
+    <div class="q">
+      <div class="tx">Are stablecoin rails a real answer for FR–DJ remittances or just a demo-day story?</div>
+      <div class="who">
+        <div class="av ph" style="--h:200;"></div>
+        <span class="nm">Samuel Okoro · Paystack</span>
+        <span class="votes">▲ 27</span>
+      </div>
+    </div>
+    <div class="q">
+      <div class="tx">How do you hire compliance people when every bank in the region is hiring the same five?</div>
+      <div class="who">
+        <div class="av ph" style="--h:340;"></div>
+        <span class="nm">Mariam Diallo · Wave</span>
+        <span class="votes">▲ 19</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span class="ask">Ask yours → <b>karta.app/q</b> · vote in the event app</span>
+    <span class="session">MAIN HALL · 11:00–12:00 · AFRITECH SUMMIT 2026</span>
+  </div>
+</div>
+
+<div class="switcher">
+  <button class="on">Q&amp;A wall</button>
+  <button>Poll results</button>
+  <button>Schedule</button>
+  <button>Social wall</button>
+  <button>Sponsor loop</button>
+</div>
+
+<script>
+  setInterval(()=>{
+    const d = new Date();
+    document.getElementById('clock').textContent = String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  }, 1000);
+</script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D09 · Communications Center</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .pagehead { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+  .composer { margin-top: 28px; padding: 26px 28px; }
+  .composer h2 { font-family: var(--display); font-weight: 500; font-size: 16px; color: var(--ink); margin-bottom: 18px; }
+  .crow { display: grid; grid-template-columns: 110px 1fr; gap: 16px; align-items: start; margin-bottom: 18px; }
+  .crow .lab { font-family: var(--body); font-weight: 500; font-size: 13px; color: var(--ink-soft); padding-top: 9px; }
+  .segs { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chans { display: flex; gap: 10px; }
+  .chan { display: flex; align-items: center; gap: 9px; height: 40px; padding: 0 16px; border-radius: var(--r-btn); border: 1px solid var(--cream-border); background: var(--cream-surface); font-family: var(--display); font-weight: 500; font-size: 13px; color: var(--ink-soft); cursor: pointer; }
+  .chan.on { border-color: var(--forest); background: var(--forest-soft); color: var(--forest); }
+  .chan svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+  .subj { width: 100%; height: 44px; padding: 0 14px; border-radius: var(--r-input); border: 1px solid var(--cream-border); background: var(--cream-canvas); font-family: var(--body); font-size: 14px; color: var(--ink); outline: none; }
+  .subj:focus, .msg:focus { border-color: var(--gold); }
+  .msg { width: 100%; min-height: 120px; padding: 12px 14px; border-radius: var(--r-input); border: 1px solid var(--cream-border); background: var(--cream-canvas); font-family: var(--body); font-size: 14px; line-height: 1.6; color: var(--ink); outline: none; resize: vertical; }
+  .reach { font-family: var(--body); font-size: 13px; color: var(--ink-muted); }
+  .reach b { font-family: var(--mono); font-weight: 500; color: var(--ink); }
+  .sched { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .sched select, .sched input { height: 40px; padding: 0 12px; border-radius: var(--r-input); border: 1px solid var(--cream-border); background: var(--cream-surface); font-family: var(--body); font-size: 13px; color: var(--ink); outline: none; }
+  .actions { display: flex; gap: 10px; justify-content: flex-end; border-top: 1px solid var(--cream-border); padding-top: 18px; margin-top: 4px; }
+
+  .sec-h2 { font-family: var(--display); font-weight: 500; font-size: 16px; color: var(--ink); margin: 40px 0 14px; }
+  .chanpill { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; padding: 3px 9px; }
+  @media (max-width:900px){ .crow { grid-template-columns: 1fr; gap: 8px; } .crow .lab { padding-top: 0; } }
+</style>
+</head>
+<body>
+
+<div class="dashnav">
+  <div style="display:flex; align-items:center; gap:18px;">
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+    <div class="crumb"><b>Karta</b>&nbsp;&nbsp;/&nbsp;&nbsp;AfriTech Summit&nbsp;&nbsp;/&nbsp;&nbsp;Communications</div>
+  </div>
+  <div style="display:flex; align-items:center; gap:18px;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="1.7"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0"/></svg>
+    <div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div>
+  </div>
+</div>
+
+<div class="dash">
+  <aside class="sidebar">
+    <div class="side-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Events</div>
+    <div class="side-item"><svg viewBox="0 0 24 24"><path d="M16 11l2 2 4-4M3 20c0-3 2.7-5 6-5s6 2 6 5M9 12a4 4 0 100-8 4 4 0 000 8z"/></svg>Registrations</div>
+    <div class="side-item active"><svg viewBox="0 0 24 24"><path d="M22 6l-10 7L2 6M2 6h20v12H2z"/></svg>Communications</div>
+    <div class="side-item"><svg viewBox="0 0 24 24"><path d="M12 20h9M4 20h2M4 4h16M4 12h10"/></svg>Newsfeed</div>
+    <div class="side-item"><svg viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l4-4 3 3 5-6"/></svg>Analytics</div>
+    <div style="flex:1;"></div>
+    <span class="pill" style="background:var(--forest-soft); color:var(--forest); margin:0 12px; align-self:flex-start; font-family:var(--mono); font-weight:500;">Pro plan</span>
+  </aside>
+
+  <main class="main">
+    <div class="pagehead">
+      <h1 class="t-display-lg" style="color:var(--forest);">Communications</h1>
+      <button class="btn btn-ghost-forest btn-md">Manage templates</button>
+    </div>
+
+    <div class="card composer">
+      <h2>New blast</h2>
+      <div class="crow">
+        <div class="lab">Audience</div>
+        <div>
+          <div class="segs">
+            <div class="chip active">All attendees</div>
+            <div class="chip">VIP ticket</div>
+            <div class="chip">General ticket</div>
+            <div class="chip">Checked in</div>
+            <div class="chip">Not checked in</div>
+            <div class="chip">Waitlist</div>
+          </div>
+          <div class="reach" style="margin-top:10px;">Reaches <b>237</b> people · <b>214</b> opted into WhatsApp</div>
+        </div>
+      </div>
+      <div class="crow">
+        <div class="lab">Channels</div>
+        <div class="chans">
+          <div class="chan on" onclick="this.classList.toggle('on')"><svg viewBox="0 0 24 24"><path d="M22 6l-10 7L2 6M2 6h20v12H2z"/></svg>Email</div>
+          <div class="chan on" onclick="this.classList.toggle('on')"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.5 8.5 0 01-12.4 7.5L3 21l2-5.4A8.5 8.5 0 1121 11.5z"/></svg>WhatsApp</div>
+        </div>
+      </div>
+      <div class="crow">
+        <div class="lab">Subject</div>
+        <input class="subj" value="Doors open at 08:00 tomorrow — your QR is ready">
+      </div>
+      <div class="crow">
+        <div class="lab">Message</div>
+        <textarea class="msg">Salaam {first_name} — AfriTech Summit starts tomorrow. Doors at 08:00, keynote at 09:00 sharp. Your QR code and Karta Card are attached. See you at Kempinski Palace.</textarea>
+      </div>
+      <div class="crow">
+        <div class="lab">Send</div>
+        <div class="sched">
+          <select><option>Schedule for later</option><option>Send now</option></select>
+          <input type="text" value="11 Mar 2026 · 18:00" style="font-family:var(--mono);">
+          <span class="reach">East Africa Time</span>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-ghost-forest btn-md">Send test to me</button>
+        <button class="btn btn-forest btn-md">Schedule blast</button>
+      </div>
+    </div>
+
+    <div class="sec-h2">Sent &amp; scheduled</div>
+    <div style="overflow-x:auto;">
+      <table class="tbl">
+        <thead><tr><th>Blast</th><th>Audience</th><th>Channels</th><th>Status</th><th style="text-align:right;">Delivered</th><th style="text-align:right;">Opened</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<script>
+  const blasts = [
+    ['Doors open at 08:00 tomorrow','All · 237','EW','sched','—','—'],
+    ['Final agenda is live','All · 237','EW','sent','236 / 237','71%'],
+    ['Speaker dinner — VIP details','VIP · 38','E','sent','38 / 38','92%'],
+    ['Your Karta Card is ready','All · 198','W','sent','196 / 198','88%'],
+    ['Early-bird closes tonight','Waitlist · 48','EW','sent','48 / 48','64%'],
+  ];
+  document.getElementById('rows').innerHTML = blasts.map(b=>`
+    <tr>
+      <td><span style="font-family:var(--body); font-weight:500; font-size:14px; color:var(--forest);">${b[0]}</span></td>
+      <td><span class="t-body-sm" style="color:var(--ink-muted);">${b[1]}</span></td>
+      <td>
+        ${b[2].includes('E')?'<span class="pill chanpill" style="background:var(--cream-soft); color:var(--ink-soft);">Email</span>':''}
+        ${b[2].includes('W')?'<span class="pill chanpill" style="background:var(--forest-soft); color:var(--forest);">WhatsApp</span>':''}
+      </td>
+      <td>${b[3]==='sched'?'<span class="pill pill-draft">Scheduled · 11 Mar 18:00</span>':'<span class="pill pill-live">Sent</span>'}</td>
+      <td style="text-align:right;"><span class="t-num-sm">${b[4]}</span></td>
+      <td style="text-align:right;"><span class="t-num-sm" style="color:var(--forest); font-weight:500;">${b[5]}</span></td>
+    </tr>`).join('');
+  document.querySelectorAll('.segs .chip').forEach(c=>c.onclick=()=>{c.parentElement.querySelector('.active')?.classList.remove('active');c.classList.add('active');});
+</script>
+</body>
+</html>

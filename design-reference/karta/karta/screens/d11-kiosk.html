@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D11 · Kiosk Check-in</title>
+<link rel="stylesheet" href="../karta.css">
+<style>
+  html, body { height: 100%; }
+  body { background: var(--forest-dark); overflow: hidden; }
+  .stage { position: relative; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .stage .mesh-bg { position: absolute; inset: -10%; pointer-events: none;
+    background:
+      radial-gradient(40% 35% at 20% 25%, rgba(31,77,58,0.85), transparent 60%),
+      radial-gradient(35% 30% at 80% 70%, rgba(232,197,126,0.14), transparent 60%);
+    filter: blur(80px); }
+
+  .evname { position: absolute; top: 44px; left: 0; right: 0; text-align: center; z-index: 2; }
+  .evname .wm { font-family: var(--display); font-weight: 600; font-size: 20px; color: rgba(255,255,255,0.9); }
+  .evname .wm b { color: var(--gold); }
+  .evname .ev { font-family: var(--mono); font-size: 13px; color: rgba(255,255,255,0.55); margin-top: 8px; letter-spacing: 0.08em; }
+
+  .scanzone { position: relative; z-index: 2; width: min(46vh, 420px); aspect-ratio: 1; display: flex; align-items: center; justify-content: center; }
+  .corner { position: absolute; width: 56px; height: 56px; border: 3px solid var(--gold); }
+  .corner.tl { top: 0; left: 0; border-right: none; border-bottom: none; border-radius: 14px 0 0 0; }
+  .corner.tr { top: 0; right: 0; border-left: none; border-bottom: none; border-radius: 0 14px 0 0; }
+  .corner.bl { bottom: 0; left: 0; border-right: none; border-top: none; border-radius: 0 0 0 14px; }
+  .corner.br { bottom: 0; right: 0; border-left: none; border-top: none; border-radius: 0 0 14px 0; }
+  .scanline { position: absolute; left: 8%; right: 8%; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); animation: scan 2.6s ease-in-out infinite; opacity: .8; }
+  @keyframes scan { 0%,100% { top: 12%; } 50% { top: 86%; } }
+  @media (prefers-reduced-motion: reduce){ .scanline { animation: none; top: 50%; } }
+
+  .prompt { position: relative; z-index: 2; text-align: center; margin-top: 48px; }
+  .prompt h1 { font-family: var(--display); font-weight: 400; font-size: 40px; letter-spacing: -0.025em; color: #fff; }
+  .prompt p { font-family: var(--body); font-size: 16px; color: rgba(255,255,255,0.6); margin-top: 12px; }
+  .fallback { position: relative; z-index: 2; margin-top: 40px; }
+  .fallback button { height: 52px; padding: 0 28px; border-radius: var(--r-pill); border: 1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.06); color: #fff; font-family: var(--display); font-weight: 500; font-size: 15px; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; }
+  .fallback button svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+  .helpline { position: absolute; bottom: 34px; left: 0; right: 0; text-align: center; font-family: var(--body); font-size: 13px; color: rgba(255,255,255,0.4); z-index: 2; }
+
+  /* success state */
+  .flash { position: fixed; inset: 0; background: var(--success); opacity: 0; pointer-events: none; z-index: 9; transition: opacity .12s; }
+  .success-view { position: fixed; inset: 0; z-index: 10; background: var(--forest-dark); display: none; align-items: center; justify-content: center; flex-direction: column; text-align: center; }
+  body.ok .success-view { display: flex; }
+  .tick { width: 110px; height: 110px; border-radius: 50%; background: var(--success); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 18px rgba(45,122,79,0.18), 0 0 80px rgba(45,122,79,0.4); }
+  .tick svg { width: 52px; height: 52px; stroke: #fff; stroke-width: 3; fill: none; }
+  .success-view h2 { font-family: var(--display); font-weight: 400; font-size: 44px; letter-spacing: -0.025em; color: #fff; margin-top: 36px; }
+  .success-view .tt { font-family: var(--mono); font-size: 15px; color: var(--gold); margin-top: 12px; letter-spacing: 0.04em; }
+  .success-view .row { display: flex; gap: 14px; margin-top: 44px; }
+  .success-view .ghost { height: 56px; padding: 0 30px; border-radius: var(--r-btn); border: 1px solid rgba(255,255,255,0.3); background: transparent; color: #fff; font-family: var(--display); font-weight: 500; font-size: 16px; cursor: pointer; }
+  .success-view .auto { font-family: var(--body); font-size: 13px; color: rgba(255,255,255,0.45); margin-top: 26px; }
+  .success-view .auto b { font-family: var(--mono); color: rgba(255,255,255,0.7); }
+
+  /* search sheet */
+  .sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 12; background: var(--cream-canvas); border-radius: 20px 20px 0 0; padding: 28px 32px 40px; transform: translateY(100%); transition: transform .3s cubic-bezier(.4,0,.2,1); max-height: 70vh; overflow-y: auto; }
+  .sheet.open { transform: translateY(0); }
+  .sheet .grab { width: 44px; height: 4px; border-radius: 2px; background: var(--cream-border); margin: 0 auto 20px; }
+  .sheet h3 { font-family: var(--display); font-weight: 500; font-size: 20px; color: var(--ink); margin-bottom: 16px; }
+  .bigsearch { height: 60px; border-radius: var(--r-pill); background: var(--cream-surface); border: 1px solid var(--cream-border); display: flex; align-items: center; gap: 14px; padding: 0 24px; }
+  .bigsearch input { flex: 1; border: none; background: none; outline: none; font-family: var(--body); font-size: 18px; color: var(--ink); }
+  .bigsearch svg { width: 22px; height: 22px; stroke: var(--ink-muted); fill: none; stroke-width: 2; }
+  .srow { display: flex; align-items: center; gap: 16px; padding: 16px 8px; border-bottom: 1px solid var(--cream-border); cursor: pointer; }
+  .srow .nm { font-family: var(--display); font-weight: 500; font-size: 17px; color: var(--ink); }
+  .srow .tk { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 2px; }
+  .srow .go { margin-left: auto; font-family: var(--display); font-weight: 500; font-size: 14px; color: var(--forest); }
+</style>
+</head>
+<body>
+
+<div class="stage" onclick="checkin()">
+  <div class="mesh-bg"></div>
+  <div class="evname">
+    <div class="wm">K<b>a</b>rta</div>
+    <div class="ev">AFRITECH SUMMIT 2026 · SELF CHECK-IN</div>
+  </div>
+
+  <div class="scanzone">
+    <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+    <div class="scanline"></div>
+  </div>
+
+  <div class="prompt">
+    <h1>Scan your QR code</h1>
+    <p>Hold your ticket QR — from WhatsApp, email or your Karta wallet — inside the frame.</p>
+  </div>
+
+  <div class="fallback">
+    <button onclick="event.stopPropagation(); document.getElementById('sheet').classList.add('open')">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      No QR? Search your name
+    </button>
+  </div>
+
+  <div class="helpline">Need help? Find a crew member in a forest-green lanyard · (demo: tap anywhere to simulate a scan)</div>
+</div>
+
+<div class="flash" id="flash"></div>
+
+<div class="success-view">
+  <div class="tick"><svg viewBox="0 0 24 24"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg></div>
+  <h2>Welcome, Amina</h2>
+  <div class="tt">VIP PACKAGE · SEAT BLOCK A · CARD №0198</div>
+  <div class="row">
+    <button class="ghost" onclick="reset(event)">Print my badge</button>
+    <button class="ghost" onclick="reset(event)">Done</button>
+  </div>
+  <div class="auto">Returning to scanner in <b id="cd">6</b>s</div>
+</div>
+
+<div class="sheet" id="sheet">
+  <div class="grab"></div>
+  <h3>Find your registration</h3>
+  <div class="bigsearch">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    <input placeholder="Type your name…" value="osm">
+  </div>
+  <div style="margin-top:10px;">
+    <div class="srow" onclick="document.getElementById('sheet').classList.remove('open'); checkin();">
+      <div><div class="nm">Amina <mark style="background:var(--gold-soft);">Osm</mark>an</div><div class="tk">VIP package · a***a@sahelpay.co</div></div>
+      <span class="go">Check in →</span>
+    </div>
+    <div class="srow">
+      <div><div class="nm">Yusuf <mark style="background:var(--gold-soft);">Osm</mark>an</div><div class="tk">General · y***f@gmail.com</div></div>
+      <span class="go">Check in →</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  let timer;
+  function checkin(){
+    if(document.body.classList.contains('ok')) return;
+    const flash = document.getElementById('flash');
+    flash.style.opacity = .85;
+    setTimeout(()=>{ flash.style.opacity = 0; document.body.classList.add('ok'); countdown(); }, 140);
+  }
+  function countdown(){
+    let n = 6; const el = document.getElementById('cd');
+    el.textContent = n;
+    timer = setInterval(()=>{ n--; el.textContent = n; if(n<=0) reset(); }, 1000);
+  }
+  function reset(e){
+    if(e) e.stopPropagation();
+    clearInterval(timer);
+    document.body.classList.remove('ok');
+  }
+</script>
+</body>
+</html>

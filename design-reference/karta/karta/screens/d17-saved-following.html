@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D17 · Saved & Following</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .pagehead { padding: 44px 0 0; }
+  .pagehead h1 { font-family: var(--display); font-weight: 400; font-size: 32px; letter-spacing: -0.025em; color: var(--forest); }
+  .tabs { display: flex; gap: 28px; margin-top: 26px; border-bottom: 1px solid var(--cream-border); }
+  .tab { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--ink-muted); padding-bottom: 13px; cursor: pointer; border-bottom: 2px solid transparent; display: flex; align-items: center; gap: 8px; }
+  .tab .n { font-family: var(--mono); font-size: 12px; }
+  .tab.on { color: var(--forest); border-bottom-color: var(--forest); }
+
+  .pane { display: none; padding-top: 28px; }
+  .pane.on { display: block; }
+
+  .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .ecard { border-radius: var(--r-card); overflow: hidden; background: var(--cream-surface); border: 1px solid var(--cream-border); cursor: pointer; }
+  .ecard .img { width: 100%; aspect-ratio: 4/3; position: relative; }
+  .ecard .det { padding: 13px 15px 15px; }
+  .ecard .nm { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--ink); }
+  .ecard .org { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 2px; }
+  .ecard .foot { display: flex; align-items: center; justify-content: space-between; margin-top: 11px; }
+  .heart { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border-radius: 50%; background: rgba(8,18,12,0.35); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2; }
+  .heart svg { width: 17px; height: 17px; stroke: var(--gold); fill: var(--gold); stroke-width: 1.8; }
+  .selling { position: absolute; left: 12px; bottom: 12px; z-index: 2; padding: 5px 10px; background: rgba(250,246,238,0.92); color: var(--error); font-size: 11px; font-weight: 600; }
+
+  .folrow { display: flex; align-items: center; gap: 16px; padding: 18px 20px; background: var(--cream-surface); border: 1px solid var(--cream-border); border-radius: var(--r-card); margin-bottom: 12px; }
+  .folrow .nm { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--ink); }
+  .folrow .meta { font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-top: 3px; }
+  .folrow .meta b { font-family: var(--mono); font-weight: 500; color: var(--ink-soft); }
+  .folrow .next { font-family: var(--body); font-size: 12px; color: var(--forest); margin-top: 3px; font-weight: 500; }
+  .folrow .acts { margin-left: auto; display: flex; gap: 8px; }
+  .bell { width: 38px; height: 38px; border-radius: var(--r-btn); border: 1px solid var(--cream-border); background: var(--cream-surface); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .bell svg { width: 17px; height: 17px; stroke: var(--ink-muted); fill: none; stroke-width: 1.8; }
+  .bell.on { border-color: var(--forest); background: var(--forest-soft); }
+  .bell.on svg { stroke: var(--forest); }
+
+  /* unfollow confirm modal */
+  .mscrim { position: fixed; inset: 0; background: rgba(15,31,24,0.4); z-index: 70; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .mscrim.open { display: flex; }
+  .modal { width: 100%; max-width: 400px; background: var(--cream-canvas); border-radius: var(--r-modal); box-shadow: var(--e2); padding: 28px; }
+  .modal h3 { font-family: var(--display); font-weight: 500; font-size: 19px; color: var(--ink); }
+  .modal p { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 10px; line-height: 1.6; }
+  .modal .row { display: flex; gap: 10px; margin-top: 24px; justify-content: flex-end; }
+  .btn-danger { background: transparent; color: var(--error); border: 1px solid var(--error); }
+
+  @media (max-width:1100px){ .grid4 { grid-template-columns: repeat(2,1fr); } }
+  @media (max-width:560px){ .grid4 { grid-template-columns: 1fr; } .folrow { flex-wrap: wrap; } }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links">
+    <a href="d01-marketplace-home.html">Discover</a>
+    <a href="d04-tickets-wallet.html">My tickets</a>
+    <a href="#" style="color:var(--forest);">Following</a>
+    <a href="#">Calendar</a>
+  </div>
+  <div class="right">
+    <div class="ph avatar avatar-ring" style="--h:30; width:36px; height:36px;"></div>
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="pagehead">
+    <h1>Saved &amp; following</h1>
+    <div class="tabs">
+      <div class="tab on" onclick="tab(0,this)">Saved events <span class="n">6</span></div>
+      <div class="tab" onclick="tab(1,this)">Organizers <span class="n">4</span></div>
+    </div>
+  </div>
+
+  <div class="pane on" id="pane0">
+    <div class="grid4" id="saved"></div>
+  </div>
+
+  <div class="pane" id="pane1">
+    <div class="folrow">
+      <div class="ph avatar" style="--h:150; width:48px; height:48px;"></div>
+      <div>
+        <div class="nm">Karta Studio</div>
+        <div class="meta"><b>12.4K</b> followers · 34 events hosted</div>
+        <div class="next">Next: AfriTech Summit · 12 Mar</div>
+      </div>
+      <div class="acts">
+        <div class="bell on" title="Notify on new events"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0"/></svg></div>
+        <button class="btn btn-ghost-forest btn-sm" onclick="askUnfollow('Karta Studio')">Following</button>
+      </div>
+    </div>
+    <div class="folrow">
+      <div class="ph avatar" style="--h:280; width:48px; height:48px;"></div>
+      <div>
+        <div class="nm">Blue Note DJ</div>
+        <div class="meta"><b>3,208</b> followers · 19 events hosted</div>
+        <div class="next">Next: Jazz on the Pier · 05 Apr</div>
+      </div>
+      <div class="acts">
+        <div class="bell on"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0"/></svg></div>
+        <button class="btn btn-ghost-forest btn-sm" onclick="askUnfollow('Blue Note DJ')">Following</button>
+      </div>
+    </div>
+    <div class="folrow">
+      <div class="ph avatar" style="--h:210; width:48px; height:48px;"></div>
+      <div>
+        <div class="nm">Sahel Ventures</div>
+        <div class="meta"><b>1,940</b> followers · 8 events hosted</div>
+        <div class="next">Next: Startup Pitch Night · 09 Apr</div>
+      </div>
+      <div class="acts">
+        <div class="bell"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0"/></svg></div>
+        <button class="btn btn-ghost-forest btn-sm" onclick="askUnfollow('Sahel Ventures')">Following</button>
+      </div>
+    </div>
+    <div class="folrow">
+      <div class="ph avatar" style="--h:38; width:48px; height:48px;"></div>
+      <div>
+        <div class="nm">City Council</div>
+        <div class="meta"><b>8,652</b> followers · 41 events hosted</div>
+        <div class="next">Next: Red Sea Food Fair · 16 Mar</div>
+      </div>
+      <div class="acts">
+        <div class="bell on"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0"/></svg></div>
+        <button class="btn btn-ghost-forest btn-sm" onclick="askUnfollow('City Council')">Following</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:80px;"></div>
+</div>
+
+<div class="mscrim" id="mscrim">
+  <div class="modal">
+    <h3>Unfollow <span id="unm">Karta Studio</span>?</h3>
+    <p>You'll stop getting notified when they publish new events. Their events still appear in search and city pages.</p>
+    <div class="row">
+      <button class="btn btn-ghost-forest btn-md" onclick="closeM()">Keep following</button>
+      <button class="btn btn-danger btn-md" onclick="closeM()">Unfollow</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const saved = [
+    ['AfriTech Summit 2026','Karta Studio','12–14 Mar','$25',158,false],
+    ['Jazz on the Pier','Blue Note DJ','05 Apr','$25',200,true],
+    ['Design in the Horn','Karta Studio','28 Mar','$20',30,false],
+    ['Red Sea Food Fair','City Council','16 Mar','Free',340,false],
+    ['Startup Pitch Night','Sahel Ventures','09 Apr','Free',120,false],
+    ['Oud Night','Palais du Peuple','22 Mar','$12',265,true],
+  ];
+  document.getElementById('saved').innerHTML = saved.map(e=>`
+    <div class="ecard cardly-edge">
+      <div class="img ph" style="--h:${e[4]};">
+        <div class="heart"><svg viewBox="0 0 24 24"><path d="M12 21s-8-5.3-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 10c0 5.7-8 11-8 11z"/></svg></div>
+        ${e[5]?'<span class="selling pill">Selling fast</span>':''}
+      </div>
+      <div class="det">
+        <div class="nm">${e[0]}</div>
+        <div class="org">${e[1]}</div>
+        <div class="foot">
+          <span class="t-num-sm" style="color:var(--ink-muted)">${e[2]}</span>
+          <span class="t-num-sm" style="color:${e[3]==='Free'?'var(--gold-hover)':'var(--forest)'}; font-weight:500;">${e[3]}</span>
+        </div>
+      </div>
+    </div>`).join('');
+
+  function tab(i, el){
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+    el.classList.add('on');
+    document.querySelectorAll('.pane').forEach((p,j)=>p.classList.toggle('on', i===j));
+  }
+  function askUnfollow(name){
+    document.getElementById('unm').textContent = name;
+    document.getElementById('mscrim').classList.add('open');
+  }
+  function closeM(){ document.getElementById('mscrim').classList.remove('open'); }
+  document.getElementById('mscrim').onclick = e => { if(e.target.id==='mscrim') closeM(); };
+  document.querySelectorAll('.bell').forEach(b=>b.onclick=()=>b.classList.toggle('on'));
+</script>
+</body>
+</html>

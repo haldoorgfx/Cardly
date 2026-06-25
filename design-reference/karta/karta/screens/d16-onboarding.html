@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D16 · Onboarding</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .wrap { max-width: 620px; margin: 0 auto; padding: 56px 40px 96px; }
+  .steps { display: flex; align-items: center; gap: 8px; }
+  .steps .seg { height: 4px; flex: 1; border-radius: 2px; background: var(--cream-border); }
+  .steps .seg.on { background: var(--forest); }
+  .steps .n { font-family: var(--mono); font-size: 12px; color: var(--ink-muted); margin-left: 10px; }
+  h1.q { font-family: var(--display); font-weight: 400; font-size: 30px; letter-spacing: -0.024em; color: var(--forest); margin-top: 36px; }
+  .s { font-family: var(--body); font-size: 14px; color: var(--ink-muted); margin-top: 8px; line-height: 1.6; }
+
+  .panel { display: none; }
+  .panel.on { display: block; }
+
+  .ints { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+  .int { height: 44px; padding: 0 20px; display: inline-flex; align-items: center; gap: 8px; border-radius: var(--r-pill); border: 1px solid var(--cream-border); background: var(--cream-surface); font-family: var(--display); font-weight: 500; font-size: 14px; color: var(--ink-soft); cursor: pointer; transition: all .15s; }
+  .int.on { background: var(--forest); border-color: var(--forest); color: #fff; }
+  .int.on::before { content: '✓'; font-size: 11px; color: var(--gold); }
+  .picked { font-family: var(--mono); font-size: 12px; color: var(--ink-muted); margin-top: 18px; }
+  .picked b { color: var(--forest); font-weight: 500; }
+
+  .citylist { margin-top: 28px; display: grid; gap: 10px; }
+  .cityrow { display: flex; align-items: center; gap: 14px; padding: 16px 18px; border-radius: var(--r-card); border: 1px solid var(--cream-border); background: var(--cream-surface); cursor: pointer; transition: all .15s; }
+  .cityrow.on { border-color: var(--forest); background: var(--forest-soft); }
+  .cityrow .nm { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--ink); }
+  .cityrow .ct { font-family: var(--mono); font-size: 12px; color: var(--ink-muted); margin-left: auto; }
+  .cityrow svg { width: 18px; height: 18px; stroke: var(--forest); fill: none; stroke-width: 1.8; flex: none; }
+
+  .warow { margin-top: 28px; padding: 22px 24px; }
+  .warow .t { display: flex; align-items: center; gap: 12px; }
+  .warow .t svg { width: 22px; height: 22px; stroke: var(--forest); fill: none; stroke-width: 1.8; }
+  .warow .t .n { font-family: var(--display); font-weight: 500; font-size: 16px; color: var(--ink); }
+  .warow .d { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 10px; line-height: 1.6; }
+  .phonefld { display: flex; gap: 10px; margin-top: 16px; }
+  .phonefld input { flex: 1; height: 48px; padding: 0 14px; border-radius: var(--r-input); border: 1px solid var(--cream-border); background: var(--cream-canvas); font-family: var(--mono); font-size: 15px; color: var(--ink); outline: none; }
+  .phonefld input:focus { border-color: var(--gold); }
+  .skipwa { font-family: var(--body); font-size: 13px; color: var(--ink-muted); text-align: center; margin-top: 16px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+
+  .navrow { display: flex; justify-content: space-between; align-items: center; margin-top: 44px; }
+  .navrow .skip { font-family: var(--body); font-weight: 500; font-size: 13px; color: var(--ink-muted); cursor: pointer; }
+
+  /* done state */
+  .donebox { text-align: center; padding-top: 24px; }
+  .dtick { width: 72px; height: 72px; border-radius: 50%; background: var(--success); margin: 32px auto 0; display: flex; align-items: center; justify-content: center; }
+  .dtick svg { width: 34px; height: 34px; stroke: #fff; stroke-width: 3; fill: none; }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div></div>
+  <div class="right"><span class="t-body-sm" style="color:var(--ink-muted);">amina.osman@sahelpay.co</span></div>
+</nav>
+
+<div class="wrap">
+  <div class="steps">
+    <div class="seg on" id="sg1"></div><div class="seg" id="sg2"></div><div class="seg" id="sg3"></div>
+    <span class="n" id="stepn">1 / 3</span>
+  </div>
+
+  <!-- STEP 1: interests -->
+  <div class="panel on" id="p1">
+    <h1 class="q">What are you into?</h1>
+    <div class="s">Pick at least 3. This builds your "For you" feed — you can change it anytime.</div>
+    <div class="ints">
+      <button class="int on">Tech</button>
+      <button class="int on">Music</button>
+      <button class="int">Business</button>
+      <button class="int on">Culture</button>
+      <button class="int">Food &amp; drink</button>
+      <button class="int">Sports</button>
+      <button class="int">Health</button>
+      <button class="int">Film</button>
+      <button class="int">Faith</button>
+      <button class="int">Family</button>
+      <button class="int">Education</button>
+      <button class="int">Fashion</button>
+    </div>
+    <div class="picked"><b>3</b> selected · nice — that's enough to start</div>
+    <div class="navrow">
+      <span class="skip"></span>
+      <button class="btn btn-forest btn-md" onclick="go(2)">Continue</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: city -->
+  <div class="panel" id="p2">
+    <h1 class="q">Where do you go out?</h1>
+    <div class="s">Events near your home city come first in your feed.</div>
+    <div class="citylist">
+      <div class="cityrow on" onclick="pickCity(this)"><svg viewBox="0 0 24 24"><path d="M12 21s-6-5.2-6-10a6 6 0 0112 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg><span class="nm">Djibouti City, Djibouti</span><span class="ct">42 events</span></div>
+      <div class="cityrow" onclick="pickCity(this)"><svg viewBox="0 0 24 24"><path d="M12 21s-6-5.2-6-10a6 6 0 0112 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg><span class="nm">Nairobi, Kenya</span><span class="ct">186 events</span></div>
+      <div class="cityrow" onclick="pickCity(this)"><svg viewBox="0 0 24 24"><path d="M12 21s-6-5.2-6-10a6 6 0 0112 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg><span class="nm">Addis Ababa, Ethiopia</span><span class="ct">94 events</span></div>
+      <div class="cityrow" onclick="pickCity(this)"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><span class="nm" style="color:var(--ink-muted); font-weight:400;">Search another city…</span></div>
+    </div>
+    <div class="navrow">
+      <span class="skip" onclick="go(1)">← Back</span>
+      <button class="btn btn-forest btn-md" onclick="go(3)">Continue</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: whatsapp -->
+  <div class="panel" id="p3">
+    <h1 class="q">Tickets, straight to WhatsApp</h1>
+    <div class="s">Optional — but this is the good part.</div>
+    <div class="card warow">
+      <div class="t">
+        <svg viewBox="0 0 24 24"><path d="M21 11.5a8.5 8.5 0 01-12.4 7.5L3 21l2-5.4A8.5 8.5 0 1121 11.5z"/></svg>
+        <span class="n">Connect WhatsApp</span>
+      </div>
+      <div class="d">Your QR ticket and Karta Card arrive as a message the moment you register. Reminders land 24h and 2h before doors — no app to install, nothing to print.</div>
+      <div class="phonefld">
+        <input value="+253 77 12 34 41">
+        <button class="btn btn-forest btn-md">Verify</button>
+      </div>
+    </div>
+    <div class="navrow">
+      <span class="skip" onclick="go(2)">← Back</span>
+      <button class="btn btn-gold btn-lg" onclick="finish()">Take me to my feed</button>
+    </div>
+    <div class="skipwa" onclick="finish()">Skip — email only for now</div>
+  </div>
+
+  <!-- DONE -->
+  <div class="panel donebox" id="p4">
+    <div class="dtick"><svg viewBox="0 0 24 24"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg></div>
+    <h1 class="q">Your feed is ready, Amina</h1>
+    <div class="s">Tech, Music and Culture in Djibouti City — 18 events match this week.</div>
+    <button class="btn btn-forest btn-lg" style="margin-top:28px;" onclick="location.href='d01-marketplace-home.html'">Start discovering</button>
+  </div>
+</div>
+
+<script>
+  function go(n){
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+    document.getElementById('p'+n).classList.add('on');
+    for(let i=1;i<=3;i++) document.getElementById('sg'+i).classList.toggle('on', i<=n);
+    document.getElementById('stepn').textContent = n+' / 3';
+  }
+  function finish(){
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+    document.getElementById('p4').classList.add('on');
+    for(let i=1;i<=3;i++) document.getElementById('sg'+i).classList.add('on');
+    document.getElementById('stepn').textContent = '✓';
+  }
+  function pickCity(el){
+    el.parentElement.querySelectorAll('.cityrow').forEach(c=>c.classList.remove('on'));
+    el.classList.add('on');
+  }
+  document.querySelectorAll('.int').forEach(b=>b.onclick=()=>{
+    b.classList.toggle('on');
+    const n = document.querySelectorAll('.int.on').length;
+    document.querySelector('.picked').innerHTML = `<b>${n}</b> selected ${n>=3?'· nice — that\u2019s enough to start':'· pick '+(3-n)+' more'}`;
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D18 · Notifications</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .wrap { max-width: 680px; margin: 0 auto; padding: 44px 40px 96px; }
+  .pagehead { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  .pagehead h1 { font-family: var(--display); font-weight: 400; font-size: 32px; letter-spacing: -0.025em; color: var(--forest); }
+  .markall { font-family: var(--body); font-weight: 500; font-size: 13px; color: var(--forest); cursor: pointer; }
+
+  .daylab { font-family: var(--body); font-weight: 500; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted); margin: 32px 0 12px; }
+  .notif { display: flex; gap: 14px; padding: 16px 18px; background: var(--cream-surface); border: 1px solid var(--cream-border); border-radius: var(--r-card); margin-bottom: 10px; position: relative; }
+  .notif.unread { border-left: 2px solid var(--forest); }
+  .notif .ic { width: 40px; height: 40px; border-radius: 10px; flex: none; display: flex; align-items: center; justify-content: center; }
+  .notif .ic svg { width: 19px; height: 19px; fill: none; stroke-width: 1.8; }
+  .ic.spot { background: var(--gold-soft); } .ic.spot svg { stroke: var(--gold-hover); }
+  .ic.org { background: var(--forest-soft); } .ic.org svg { stroke: var(--forest); }
+  .ic.rem { background: var(--cream-soft); } .ic.rem svg { stroke: var(--ink-soft); }
+  .ic.card { background: var(--forest-dark); } .ic.card svg { stroke: var(--gold); }
+  .notif .tx { flex: 1; }
+  .notif .t { font-family: var(--body); font-size: 14px; color: var(--ink); line-height: 1.5; }
+  .notif .t b { font-weight: 600; }
+  .notif .when { font-family: var(--mono); font-size: 11px; color: var(--ink-muted); margin-top: 5px; display: block; }
+  .notif .act { margin-top: 12px; display: flex; gap: 8px; }
+  .notif .cd { font-family: var(--mono); font-weight: 500; font-size: 12px; color: var(--gold-hover); }
+  .unreaddot { position: absolute; top: 18px; right: 16px; width: 8px; height: 8px; border-radius: 50%; background: var(--forest); }
+
+  .prefs { margin-top: 40px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .prefs .t { font-family: var(--body); font-size: 13px; color: var(--ink-muted); }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links">
+    <a href="d01-marketplace-home.html">Discover</a>
+    <a href="d04-tickets-wallet.html">My tickets</a>
+    <a href="d17-saved-following.html">Following</a>
+  </div>
+  <div class="right">
+    <div class="ph avatar avatar-ring" style="--h:30; width:36px; height:36px;"></div>
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="pagehead">
+    <h1>Notifications</h1>
+    <span class="markall" onclick="document.querySelectorAll('.notif').forEach(n=>{n.classList.remove('unread'); n.querySelector('.unreaddot')?.remove();})">Mark all read</span>
+  </div>
+
+  <div class="daylab">Today</div>
+
+  <div class="notif unread">
+    <div class="ic spot"><svg viewBox="0 0 24 24"><path d="M12 8v5l3 2M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+    <div class="tx">
+      <div class="t"><b>A spot opened</b> on the Jazz on the Pier waitlist. It's yours for the next <span class="cd">23:14:06</span>.</div>
+      <span class="when">11:42 · also sent to WhatsApp</span>
+      <div class="act">
+        <button class="btn btn-gold btn-sm">Claim spot · $25</button>
+        <button class="btn btn-ghost-forest btn-sm">Pass</button>
+      </div>
+    </div>
+    <span class="unreaddot"></span>
+  </div>
+
+  <div class="notif unread">
+    <div class="ic org"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></div>
+    <div class="tx">
+      <div class="t"><b>Karta Studio</b> just published a new event: <b>Design in the Horn</b> — 28 Mar, Palais du Peuple.</div>
+      <span class="when">09:15 · you follow this organizer</span>
+      <div class="act"><button class="btn btn-forest btn-sm">View event</button></div>
+    </div>
+    <span class="unreaddot"></span>
+  </div>
+
+  <div class="daylab">Yesterday</div>
+
+  <div class="notif">
+    <div class="ic rem"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0"/></svg></div>
+    <div class="tx">
+      <div class="t">Reminder: <b>AfriTech Summit 2026</b> starts tomorrow at 09:00. Doors at 08:00 — your QR is in your wallet.</div>
+      <span class="when">18:00 · email + WhatsApp</span>
+    </div>
+  </div>
+
+  <div class="notif">
+    <div class="ic rem"><svg viewBox="0 0 24 24"><path d="M12 20h9M4 20h2M4 4h16M4 12h10"/></svg></div>
+    <div class="tx">
+      <div class="t">Agenda change: <b>Cloud cost workshop</b> moved to Room C (was Room A), still 14:00.</div>
+      <span class="when">16:22</span>
+    </div>
+  </div>
+
+  <div class="daylab">Earlier</div>
+
+  <div class="notif">
+    <div class="ic card"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
+    <div class="tx">
+      <div class="t">Your <b>Karta Card №0198</b> for AfriTech Summit is ready — share it so your people find you.</div>
+      <span class="when">Mon · WhatsApp</span>
+      <div class="act"><button class="btn btn-ghost-forest btn-sm">View my card</button></div>
+    </div>
+  </div>
+
+  <div class="notif">
+    <div class="ic rem"><svg viewBox="0 0 24 24"><path d="M22 6l-10 7L2 6M2 6h20v12H2z"/></svg></div>
+    <div class="tx">
+      <div class="t">Receipt: <b>$27.20</b> paid for AfriTech Summit 2026 · VIP package — order <span style="font-family:var(--mono); font-size:12px;">KRT-8841</span>.</div>
+      <span class="when">Mon · email</span>
+    </div>
+  </div>
+
+  <div class="card-soft prefs">
+    <span class="t">Too much? Tune which updates reach you, per channel.</span>
+    <button class="btn btn-ghost-forest btn-sm" onclick="location.href='d05-profile-interests.html'">Notification settings</button>
+  </div>
+</div>
+</body>
+</html>

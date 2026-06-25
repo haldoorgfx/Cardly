@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D22 · Approval Flow</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .wrap { max-width: 680px; margin: 0 auto; padding: 44px 40px 96px; }
+  .pagehead h1 { font-family: var(--display); font-weight: 400; font-size: 32px; letter-spacing: -0.025em; color: var(--forest); }
+  .pagehead p { font-family: var(--body); font-size: 14px; color: var(--ink-muted); margin-top: 8px; line-height: 1.6; }
+
+  /* process stepper */
+  .proc { display: flex; align-items: center; gap: 0; margin-top: 28px; }
+  .pstep { display: flex; align-items: center; gap: 9px; }
+  .pstep .dot { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-weight: 500; font-size: 11px; border: 1.5px solid var(--cream-border); color: var(--ink-muted); background: var(--cream-surface); }
+  .pstep.done .dot { background: var(--forest); border-color: var(--forest); color: #fff; }
+  .pstep.now .dot { border-color: var(--forest); color: var(--forest); }
+  .pstep .l { font-family: var(--body); font-weight: 500; font-size: 12px; color: var(--ink-muted); }
+  .pstep.done .l, .pstep.now .l { color: var(--forest); }
+  .pline { flex: 1; height: 1.5px; background: var(--cream-border); margin: 0 10px; min-width: 24px; }
+  .pline.done { background: var(--forest); }
+
+  .stateline { display: flex; align-items: center; gap: 10px; margin: 40px 0 14px; }
+  .stateline .badge { font-family: var(--mono); font-weight: 500; font-size: 11px; padding: 4px 10px; border-radius: var(--r-pill); background: var(--forest-soft); color: var(--forest); }
+  .stateline .t { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--ink); }
+
+  .appform { padding: 24px 26px; }
+  .appform h3 { font-family: var(--display); font-weight: 500; font-size: 17px; color: var(--ink); }
+  .appform .d { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 6px; line-height: 1.6; }
+  .fld { margin-top: 14px; }
+  .fld label { display: block; font-family: var(--body); font-weight: 500; font-size: 12px; color: var(--ink-soft); margin-bottom: 6px; }
+  .fld input, .fld textarea { width: 100%; padding: 0 14px; border-radius: var(--r-input); border: 1px solid var(--cream-border); background: var(--cream-canvas); font-family: var(--body); font-size: 14px; color: var(--ink); outline: none; }
+  .fld input { height: 46px; }
+  .fld textarea { min-height: 88px; padding: 12px 14px; line-height: 1.6; resize: vertical; }
+  .fld input:focus, .fld textarea:focus { border-color: var(--gold); }
+
+  .statecard { display: flex; gap: 14px; padding: 20px 22px; }
+  .statecard .ic { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex: none; }
+  .statecard .ic svg { width: 20px; height: 20px; fill: none; stroke-width: 1.8; }
+  .ic.wait { background: var(--gold-soft); } .ic.wait svg { stroke: var(--gold-hover); }
+  .ic.ok { background: var(--forest-soft); } .ic.ok svg { stroke: var(--success); }
+  .ic.no { background: rgba(184,66,60,0.09); } .ic.no svg { stroke: var(--error); }
+  .statecard .t { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--ink); }
+  .statecard .s { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 5px; line-height: 1.6; }
+  .statecard .s b { font-family: var(--mono); font-weight: 500; color: var(--ink); }
+  .statecard .act { margin-top: 14px; display: flex; gap: 8px; }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links">
+    <a href="d01-marketplace-home.html">Discover</a>
+    <a href="d04-tickets-wallet.html">My tickets</a>
+  </div>
+  <div class="right">
+    <div class="ph avatar avatar-ring" style="--h:30; width:36px; height:36px;"></div>
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="pagehead">
+    <h1>Apply to attend</h1>
+    <p>Some tickets are application-gated — the organizer reviews each request before a seat is confirmed. The whole process for the attendee, end to end:</p>
+  </div>
+
+  <div class="proc">
+    <div class="pstep done"><span class="dot">✓</span><span class="l">Apply</span></div>
+    <div class="pline done"></div>
+    <div class="pstep now"><span class="dot">2</span><span class="l">Organizer reviews</span></div>
+    <div class="pline"></div>
+    <div class="pstep"><span class="dot">3</span><span class="l">Confirm seat</span></div>
+    <div class="pline"></div>
+    <div class="pstep"><span class="dot">4</span><span class="l">Karta Card</span></div>
+  </div>
+
+  <div class="stateline"><span class="badge">STATE 1</span><span class="t">The application — Student ticket, Design in the Horn</span></div>
+  <div class="card appform">
+    <h3>Student seat application</h3>
+    <div class="d">Free · 40 seats · the organizer asks two short questions.</div>
+    <div class="fld"><label>School or university</label><input value="Université de Djibouti"></div>
+    <div class="fld"><label>What do you want to get out of the afternoon?</label><textarea>I'm in my final year studying communication design and working on a trilingual news app — the type session is exactly my thesis problem.</textarea></div>
+    <div class="fld"><label>Student ID — photo or PDF</label><input value="student-id-amina.jpg" style="font-family:var(--mono); font-size:13px;"></div>
+    <button class="btn btn-forest btn-lg" style="width:100%; margin-top:20px;">Submit application</button>
+  </div>
+
+  <div class="stateline"><span class="badge">STATE 2</span><span class="t">Pending — in the organizer's queue</span></div>
+  <div class="card statecard">
+    <div class="ic wait"><svg viewBox="0 0 24 24"><path d="M12 8v5l3 2M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+    <div>
+      <div class="t">Application received</div>
+      <div class="s">You're <b>#7</b> in the review queue. Most applications are answered within <b>48h</b> — we'll ping you on email and WhatsApp either way. Your seat isn't held until approved.</div>
+    </div>
+  </div>
+
+  <div class="stateline"><span class="badge">STATE 3a</span><span class="t">Approved — confirm within the window</span></div>
+  <div class="card statecard">
+    <div class="ic ok"><svg viewBox="0 0 24 24"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg></div>
+    <div>
+      <div class="t">You're approved</div>
+      <div class="s">Karta Studio approved your application. Confirm your free seat within <b>48h</b> — after that it goes to the next applicant. Paid approval tickets show a payment step here instead.</div>
+      <div class="act">
+        <button class="btn btn-gold btn-md">Confirm my seat</button>
+        <button class="btn btn-ghost-forest btn-md">Decline</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="stateline"><span class="badge">STATE 3b</span><span class="t">Not this time</span></div>
+  <div class="card statecard">
+    <div class="ic no"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></div>
+    <div>
+      <div class="t">Application not approved</div>
+      <div class="s">Student seats filled up — 142 applications for 40 places. You've been added to the student waitlist automatically, and General tickets are still open.</div>
+      <div class="act">
+        <button class="btn btn-ghost-forest btn-md" onclick="location.href='d19-event-ticketing.html'">See open tickets</button>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

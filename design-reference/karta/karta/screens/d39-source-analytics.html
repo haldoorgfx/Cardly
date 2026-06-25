@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D39 · Source Analytics</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .pagehead { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+  .herostat { margin-top: 26px; padding: 24px 28px; background: var(--forest-dark); border-color: var(--forest-dark); position: relative; overflow: hidden; display: flex; align-items: center; gap: 32px; flex-wrap: wrap; }
+  .herostat .big { position: relative; }
+  .herostat .lab { font-family: var(--body); font-size: 12px; color: rgba(255,255,255,0.6); }
+  .herostat .val { font-family: var(--mono); font-weight: 500; font-size: 34px; color: var(--gold); margin-top: 4px; letter-spacing: -0.01em; }
+  .herostat .note { position: relative; font-family: var(--body); font-size: 13px; color: rgba(255,255,255,0.75); max-width: 380px; line-height: 1.6; }
+  .herostat .note b { color: var(--gold); }
+
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px; align-items: start; }
+  .panel { padding: 22px 26px; }
+  .panel h2 { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--ink); margin-bottom: 18px; }
+  .srow { display: grid; grid-template-columns: 130px 1fr 70px 60px; gap: 12px; align-items: center; padding: 9px 0; }
+  .srow .n { font-family: var(--body); font-weight: 500; font-size: 13px; color: var(--ink); display: flex; align-items: center; gap: 7px; }
+  .srow .n .sw { width: 9px; height: 9px; border-radius: 2px; display: inline-block; flex: none; }
+  .srow .tr { height: 7px; border-radius: 4px; background: var(--cream-soft); overflow: hidden; }
+  .srow .fl { height: 100%; border-radius: 4px; }
+  .srow .v { font-family: var(--mono); font-weight: 500; font-size: 13px; color: var(--ink); text-align: right; }
+  .srow .pc { font-family: var(--mono); font-size: 11px; color: var(--ink-muted); text-align: right; }
+
+  .utm { margin-top: 14px; }
+  .utm .lab { font-family: var(--body); font-weight: 500; font-size: 12px; color: var(--ink-soft); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+  .utmbox { background: var(--cream-soft); border: 1px dashed var(--cream-border); border-radius: var(--r-card); padding: 12px 16px; font-family: var(--mono); font-size: 12px; color: var(--ink-soft); overflow-x: auto; white-space: nowrap; }
+  .utmbox b { color: var(--forest); font-weight: 500; }
+</style>
+</head>
+<body>
+
+<div class="dashnav">
+  <div style="display:flex; align-items:center; gap:18px;">
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+    <div class="crumb"><b>Karta</b>&nbsp;&nbsp;/&nbsp;&nbsp;AfriTech Summit&nbsp;&nbsp;/&nbsp;&nbsp;Sources</div>
+  </div>
+  <div style="display:flex; align-items:center; gap:18px;">
+    <div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div>
+  </div>
+</div>
+
+<div class="dash">
+  <aside class="sidebar">
+    <div class="side-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Events</div>
+    <div class="side-item"><svg viewBox="0 0 24 24"><path d="M16 11l2 2 4-4M3 20c0-3 2.7-5 6-5s6 2 6 5M9 12a4 4 0 100-8 4 4 0 000 8z"/></svg>Registrations</div>
+    <div class="side-item active"><svg viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l4-4 3 3 5-6"/></svg>Analytics</div>
+    <div style="flex:1;"></div>
+    <span class="pill" style="background:var(--forest-soft); color:var(--forest); margin:0 12px; align-self:flex-start; font-family:var(--mono); font-weight:500;">Pro plan</span>
+  </aside>
+
+  <main class="main">
+    <div class="pagehead">
+      <h1 class="t-display-lg" style="color:var(--forest);">Registrations by source</h1>
+      <button class="btn btn-ghost-forest btn-md">Export CSV</button>
+    </div>
+
+    <div class="card herostat">
+      <div class="cardly-mesh cardly-mesh-cta"></div>
+      <div class="big">
+        <div class="lab">From shared Karta Cards</div>
+        <div class="val">71 regs · 30%</div>
+      </div>
+      <div class="note">Every shared card carries <b>?src=card</b> — when someone registers through a friend's card, it's counted here. <b>The card is your top organic channel, beating Instagram.</b></div>
+    </div>
+
+    <div class="cols">
+      <div class="card panel">
+        <h2>All sources · 237 registrations</h2>
+        <div class="srow"><span class="n"><span class="sw" style="background:var(--gold);"></span>Karta Card shares</span><div class="tr"><div class="fl" style="width:100%; background:var(--gold);"></div></div><span class="v">71</span><span class="pc">30%</span></div>
+        <div class="srow"><span class="n"><span class="sw" style="background:var(--forest);"></span>Marketplace feed</span><div class="tr"><div class="fl" style="width:80%; background:var(--forest);"></div></div><span class="v">57</span><span class="pc">24%</span></div>
+        <div class="srow"><span class="n"><span class="sw" style="background:#2A6A50;"></span>Instagram</span><div class="tr"><div class="fl" style="width:62%; background:#2A6A50;"></div></div><span class="v">44</span><span class="pc">19%</span></div>
+        <div class="srow"><span class="n"><span class="sw" style="background:#8FC3A0;"></span>WhatsApp blasts</span><div class="tr"><div class="fl" style="width:42%; background:#8FC3A0;"></div></div><span class="v">30</span><span class="pc">13%</span></div>
+        <div class="srow"><span class="n"><span class="sw" style="background:var(--ink-muted);"></span>Direct / typed</span><div class="tr"><div class="fl" style="width:28%; background:var(--ink-muted);"></div></div><span class="v">20</span><span class="pc">8%</span></div>
+        <div class="srow"><span class="n"><span class="sw" style="background:var(--cream-border);"></span>Embed widget</span><div class="tr"><div class="fl" style="width:21%; background:var(--cream-border);"></div></div><span class="v">15</span><span class="pc">6%</span></div>
+      </div>
+
+      <div>
+        <div class="card panel">
+          <h2>Build a tracked link</h2>
+          <div class="utm">
+            <div class="lab">Instagram bio link <button class="btn btn-ghost-forest btn-sm">Copy</button></div>
+            <div class="utmbox">karta.app/e/afritech-2026?<b>src=instagram</b>&amp;<b>utm_campaign=launch</b></div>
+          </div>
+          <div class="utm">
+            <div class="lab">Partner newsletter <button class="btn btn-ghost-forest btn-sm">Copy</button></div>
+            <div class="utmbox">karta.app/e/afritech-2026?<b>src=newsletter</b>&amp;<b>utm_source=sahel-weekly</b></div>
+          </div>
+          <div class="utm">
+            <div class="lab">Auto-tagged — no setup</div>
+            <div class="utmbox"><b>src=card</b> on every shared Karta Card · <b>src=embed</b> on widgets · <b>src=feed</b> from the marketplace</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>
