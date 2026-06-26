@@ -31,7 +31,7 @@ export async function generateMetadata(
     openGraph: {
       title,
       description,
-      url: `https://karta.cre8so.com/c/${slug}`,
+      url: `${process.env.NEXT_PUBLIC_APP_URL}/c/${slug}`,
       type: 'website',
       images: [{ url: '/og-default.png', width: 1200, height: 630, alt: event.name }],
     },

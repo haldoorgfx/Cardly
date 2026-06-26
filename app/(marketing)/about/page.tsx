@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'About Eventera',
     description:
       'Eventera started as a social card tool for event attendees. Then organizers asked for tickets. Then check-in. Then agenda. We built the whole platform. The Eventera Card is still the feature nobody else has.',
-    url: 'https://karta.cre8so.com/about',
+    url: `${process.env.NEXT_PUBLIC_APP_URL}/about`,
     siteName: 'Eventera',
     type: 'website',
   },
@@ -840,7 +840,7 @@ export default function AboutPage() {
               color: 'rgba(250,246,238,0.40)',
             }}
           >
-            Made in Djibouti ðŸ‡©ðŸ‡¯ · karta.cre8so.com
+            Made in Djibouti 🇩🇯 · {(process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/^https?:\/\//, '')}
           </p>
         </div>
       </section>

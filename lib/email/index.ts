@@ -43,7 +43,7 @@ function wrap(content: string): string {
     <!-- Footer -->
     <tr><td style="background:#FAF6EE;padding:20px 32px;border:1px solid #E5E0D4;border-top:none;border-radius:0 0 16px 16px;text-align:center">
       <p style="margin:0;font-size:11px;color:#9CA3AF">You&apos;re receiving this because you have email notifications enabled in your Eventera account.<br>
-      <a href="https://karta.cre8so.com/settings" style="color:#1F4D3A">Manage preferences</a></p>
+      <a href="${process.env.NEXT_PUBLIC_APP_URL}/settings" style="color:#1F4D3A">Manage preferences</a></p>
     </td></tr>
   </table>
 </td></tr>
@@ -62,7 +62,7 @@ export async function sendWelcomeEmail(opts: {
   to: string;
   name: string;
 }): Promise<void> {
-  const dashboardUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com'}/dashboard`;
+  const dashboardUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? ''}/dashboard`;
   const firstName = opts.name.split(' ')[0] || opts.name;
 
   await sendEmail(
@@ -120,7 +120,7 @@ export async function maybeSendDownloadMilestone(opts: {
   if (!MILESTONES.includes(opts.downloadCount)) return;
 
   const count = opts.downloadCount.toLocaleString();
-  const eventUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com'}/events/${opts.eventId}`;
+  const eventUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? ''}/events/${opts.eventId}`;
 
   await sendEmail(
     opts.to,
@@ -153,7 +153,7 @@ export async function sendCapReachedEmail(opts: {
   eventId: string;
 }): Promise<void> {
   if (!opts.to) return;
-  const upgradeUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com'}/settings#billing`;
+  const upgradeUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? ''}/settings#billing`;
   await sendEmail(
     opts.to,
     `Your card limit has been reached`,
@@ -230,7 +230,7 @@ export async function sendTeamInviteEmail(opts: {
 
 // ─── Networking emails ────────────────────────────────────────────────────────
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? '';
 
 /** Notify an attendee that someone wants to connect with them. */
 export async function sendConnectionRequestEmail(opts: {

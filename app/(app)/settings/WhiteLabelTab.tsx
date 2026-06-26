@@ -204,7 +204,7 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
                   className="rounded-xl px-4 py-3  text-[13px] break-all"
                   style={{ background: '#E8EFEB', color: '#1F4D3A' }}
                 >
-                  CNAME&nbsp;&nbsp;{settings.custom_domain}&nbsp;&nbsp;→&nbsp;&nbsp;karta.cre8so.com
+                  CNAME&nbsp;&nbsp;{settings.custom_domain}&nbsp;&nbsp;→&nbsp;&nbsp;{(process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/^https?:\/\//, '')}
                 </div>
                 <div className="flex items-center gap-2 mt-3 text-[13px]" style={{ color: '#C97A2D' }}>
                   <span className="w-2 h-2 rounded-full" style={{ background: '#C97A2D' }} />

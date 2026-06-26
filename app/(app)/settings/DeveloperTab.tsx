@@ -60,7 +60,7 @@ function CopyBtn({ text }: { text: string }) {
 
 // ─── API Keys section ─────────────────────────────────────────────────────────
 
-const BASE_URL = 'https://karta.cre8so.com/api/v1';
+const BASE_URL = `${process.env.NEXT_PUBLIC_APP_URL}/api/v1`;
 
 function ApiKeysSection({ plan }: { plan: string }) {
   const [keys, setKeys] = useState<ApiKey[]>([]);

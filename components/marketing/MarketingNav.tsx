@@ -192,7 +192,7 @@ function MobileOverlay({
           </div>
 
           <div className="mt-auto pt-10 flex items-center justify-between">
-            <div className=" text-[10px] tracking-[0.22em] uppercase text-muted">karta.cre8so.com</div>
+            <div className=" text-[10px] tracking-[0.22em] uppercase text-muted">{(process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/^https?:\/\//, '')}</div>
             <div className=" text-[10px] tracking-[0.22em] uppercase text-primary">Built for the world</div>
           </div>
         </div>

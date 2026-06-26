@@ -57,7 +57,7 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
-const BASE = 'https://karta.cre8so.com/e';
+const BASE = `${process.env.NEXT_PUBLIC_APP_URL ?? ''}/e`;
 
 export function SourceAnalyticsClient({ eventName, publicSlug, sources, total }: Props) {
   const cardRegs = sources.find(s => s.name === 'card');

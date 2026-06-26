@@ -166,7 +166,7 @@ export function drawFooter(doc: PDFDocumentType, dateStr: string): void {
   doc.font('Helvetica')
      .fontSize(7.5)
      .fillColor(C.muted)
-     .text('Generated with Eventera · karta.cre8so.com', M, y + 4);
+     .text(`Generated with Eventera · ${(process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/^https?:\/\//, '')}`, M, y + 4);
 
   doc.font('Helvetica')
      .fontSize(7.5)

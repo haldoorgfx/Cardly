@@ -47,7 +47,7 @@ export default async function PromoterLinksPage({ params }: Props) {
     revenue: statsMap[c.code]?.revenue ?? 0,
   }));
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>

@@ -316,7 +316,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   if (!isFree && effectiveProcessor === 'flutterwave') {
     try {
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
       const eventSlugHdr = req.headers.get('x-event-slug') ?? params.id;
       const fwResult = await initFlutterwavePayment({
         amount:        split.charged,
@@ -398,7 +398,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   }
 
   // 8b. Free ticket: send appropriate email (non-blocking)
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
   const eventSlug = req.headers.get('x-event-slug') ?? params.id;
   const eventDateStr = eventPage.starts_at
     ? new Date(eventPage.starts_at).toLocaleDateString(undefined, { weekday: 'short', month: 'long', day: 'numeric', year: 'numeric', timeZone: eventPage.timezone ?? undefined })

@@ -169,7 +169,7 @@ export default function MobileFallback({ eventId, eventName, variantSlug }: Mobi
               <div style={{
                 fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10,
                 color: '#6B7A72', letterSpacing: '0.04em', marginTop: 2,
-              }}>karta.cre8so.com/events/{eventId.slice(0, 8)}</div>
+              }}>{(process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/^https?:\/\//, '')}/events/{eventId.slice(0, 8)}</div>
             </div>
           </div>
 

@@ -105,7 +105,7 @@ function EventeraCardMockup() {
                 <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 11, color: 'rgba(250,246,238,0.5)', marginTop: 2 }}>COP29 · Cairo</div>
                 <div style={{ width: '70%', height: 1, background: 'rgba(232,197,126,0.2)', margin: '14px 0' }} />
                 <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 11, color: '#E8C57E', letterSpacing: '0.1em' }}>✦ I&apos;m Attending</div>
-                <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 10, color: 'rgba(250,246,238,0.35)', marginTop: 4 }}>karta.cre8so.com</div>
+                <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 10, color: 'rgba(250,246,238,0.35)', marginTop: 4 }}>{(process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/^https?:\/\//, '')}</div>
               </div>
               <div style={{ background: 'rgba(0,0,0,0.25)', padding: 10 }}>
                 <div style={{ display: 'flex', justifyContent: 'center', gap: 10 }}>

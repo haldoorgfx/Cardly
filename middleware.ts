@@ -42,12 +42,24 @@ export async function middleware(request: NextRequest) {
     pathname === "/events" ||           // public event discovery feed
     pathname.startsWith("/events/search") ||
     pathname.startsWith("/events/city/") ||
+    pathname.startsWith("/events/cities") ||
     pathname.startsWith("/events/category/") ||
     pathname.startsWith("/auth") ||
     pathname === "/suspended" ||
     pathname === "/" ||
     pathname.startsWith("/pricing") ||
     pathname.startsWith("/whats-new") ||
+    pathname === "/discover" ||
+    pathname.startsWith("/discover/") ||
+    pathname === "/search" ||
+    pathname.startsWith("/search/") ||
+    pathname.startsWith("/o/") ||       // organizer public profiles
+    pathname.startsWith("/s/") ||       // speaker public profiles
+    pathname.startsWith("/x/") ||       // exhibitor public profiles
+    pathname === "/my-tickets" ||
+    pathname.startsWith("/my-tickets/") ||
+    pathname === "/saved" ||
+    pathname.startsWith("/saved/") ||
     pathname.startsWith("/api/");       // API routes enforce permissions internally
 
   if (isPublicRoute) return response;

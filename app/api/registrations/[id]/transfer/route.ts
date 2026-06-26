@@ -56,7 +56,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   // Email the new holder
   const ep = reg.events?.event_pages?.[0];
   const eventSlug = reg.events?.slug ?? '';
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
 
   sendTransferEmail({
     to: to_email,

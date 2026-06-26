@@ -43,7 +43,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   }
 
   const resend = getResend();
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
 
   // Resend batch API — max 100 per call
   const BATCH = 100;

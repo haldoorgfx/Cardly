@@ -7,7 +7,7 @@ export interface QRGenerateOptions {
 }
 
 export async function generateQRDataUrl(opts: QRGenerateOptions): Promise<string> {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
   const url = `${appUrl}/e/${opts.eventSlug}/check-in?token=${opts.token}`;
 
   return QRCode.toDataURL(url, {
@@ -22,7 +22,7 @@ export async function generateQRDataUrl(opts: QRGenerateOptions): Promise<string
 }
 
 export async function generateQRBuffer(opts: QRGenerateOptions): Promise<Buffer> {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
   const url = `${appUrl}/e/${opts.eventSlug}/check-in?token=${opts.token}`;
 
   return QRCode.toBuffer(url, {

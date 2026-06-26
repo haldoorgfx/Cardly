@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
         admin.from('ticket_types').select('name').eq('id', updated.ticket_type_id ?? '').single(),
       ]);
       if (eventPage) {
-        const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
         const { data: event } = await admin.from('events').select('slug').eq('id', updated.event_id).single();
         sendRegistrationConfirmEmail({
           to: updated.attendee_email,
