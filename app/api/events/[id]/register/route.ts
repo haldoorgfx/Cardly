@@ -201,7 +201,10 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   // Create registration (isFree reflects the amount actually charged — a
   // 100%-off promo makes the ticket free and skips payment entirely)
   const isFree = chargedPrice === 0;
-  const requiresApproval = !!evRow.checkout_require_approval && isFree;
+  // requiresApproval applies to ALL tickets — not just free ones. For paid tickets
+  // this means the registration is created as pending_approval and no payment is
+  // initiated. The organizer approves; the attendee is notified separately.
+  const requiresApproval = !!evRow.checkout_require_approval;
   const initialStatus = requiresApproval ? 'pending_approval' : isFree ? 'confirmed' : 'pending';
 
   // Platform fee (paid tickets only). The split depends on the organizer's plan
@@ -314,7 +317,32 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     variantId = firstVariant?.id ?? null;
   }
 
-  // 8a. For paid tickets: route to correct payment processor
+  // 8a. Paid tickets that require approval: skip payment setup and return early.
+  //     The attendee is notified via email; no payment intent is created until approved.
+  if (requiresApproval && !isFree) {
+    const eventSlug = req.headers.get('x-event-slug') ?? params.id;
+    const eventDateStr = eventPage.starts_at
+      ? new Date(eventPage.starts_at).toLocaleDateString(undefined, { weekday: 'short', month: 'long', day: 'numeric', year: 'numeric', timeZone: eventPage.timezone ?? undefined })
+      : '';
+    sendPendingApprovalEmail({
+      to: registration.attendee_email,
+      name: registration.attendee_name,
+      eventTitle: eventPage.title,
+      eventSlug,
+      eventDate: eventDateStr,
+    }).catch(() => {});
+    return NextResponse.json({
+      registration_id: registration.id,
+      qr_code_token:   registration.qr_code_token,
+      variant_id:      variantId,
+      event_id:        params.id,
+      payment_status:  'pending_approval',
+      payment_required: false,
+      awaiting_approval: true,
+    }, { status: 201 });
+  }
+
+  // 8b. For paid tickets: route to correct payment processor
   const enabledProcessors: string[] = (eventPage.payment_processors as string[] | null)?.length
     ? (eventPage.payment_processors as string[])
     : [(eventPage.payment_processor as string | null) ?? 'stripe'];

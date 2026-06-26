@@ -34,7 +34,11 @@ export async function middleware(request: NextRequest) {
   const response = await updateSession(request);
 
 
-  // Skip role/suspension checks for fully public routes
+  // "isPublicRoute" means: skip the suspension/admin-role DB checks below.
+  // It does NOT mean "no auth required" — unauthenticated users are already
+  // redirected to /login by updateSession() above before reaching this point.
+  // Routes like /my-tickets and /saved still require auth; they're listed here
+  // only so suspended users can still reach their own tickets/saved items.
   const isPublicRoute =
     pathname.startsWith("/c/") ||       // attendee public pages
     pathname.startsWith("/e/") ||       // public event pages

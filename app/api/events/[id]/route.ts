@@ -33,21 +33,36 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (key in body) patch[key] = body[key];
   }
 
+  const admin = createAdminClient();
+
   // Validate status if provided
   const validStatuses = ['draft', 'published', 'archived'];
   if ('status' in patch && !validStatuses.includes(patch.status as string)) {
     return NextResponse.json({ error: 'Invalid status — must be draft, published, or archived' }, { status: 400 });
   }
 
-  // Normalize slug if provided
+  // Normalize and guard slug changes
   if (typeof patch.slug === 'string') {
     const normalized = patch.slug
       .toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').slice(0, 60);
     if (!normalized) return NextResponse.json({ error: 'Invalid slug' }, { status: 400 });
     patch.slug = normalized;
-  }
 
-  const admin = createAdminClient();
+    // Block slug changes on published events — every existing attendee link (/e/[slug]/...)
+    // would 404 immediately. Organizer must archive the event first.
+    const { data: current } = await admin
+      .from('events')
+      .select('status, slug')
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .single();
+    if (current?.status === 'published' && current.slug !== normalized) {
+      return NextResponse.json(
+        { error: 'The event URL cannot be changed while the event is published. Archive the event first, or keep the current URL.' },
+        { status: 409 },
+      );
+    }
+  }
   const { data, error } = await admin
     .from('events')
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
