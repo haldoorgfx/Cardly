@@ -25,12 +25,12 @@ export async function POST(req: NextRequest) {
         .eq('payment_status', 'pending')
         .maybeSingle();
 
-      if (reg?.ticket_type_id) {
-        const { data: tt } = await admin.from('ticket_types').select('price').eq('id', reg.ticket_type_id).single();
-        if (tt && amount != null && amount < tt.price) {
-          console.error(`[FW confirm] Amount mismatch: got ${amount}, expected ${tt.price}`);
-          return NextResponse.json({ error: 'Payment amount does not match ticket price' }, { status: 422 });
-        }
+      // Compare against reg.amount_paid (the discounted amount we expected to charge),
+      // not ticket.price (full price) — otherwise valid promo-discounted payments fail.
+      // Allow 1-unit tolerance for currency rounding differences.
+      if (reg && reg.amount_paid > 0 && amount != null && amount < reg.amount_paid - 1) {
+        console.error(`[FW confirm] Amount mismatch: got ${amount}, expected ${reg.amount_paid}`);
+        return NextResponse.json({ error: 'Payment amount does not match the expected amount' }, { status: 422 });
       }
 
       const { data: updated } = await admin

@@ -273,6 +273,22 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       .eq('id', registration.id);
   }
 
+  // 5b. Post-insert capacity recheck (free tickets only — paid tickets land as 'pending'
+  //     and are counted toward capacity when the payment webhook confirms them).
+  //     This closes the race window between the pre-insert count check and the insert.
+  if (isFree && initialStatus === 'confirmed' && eventPage.max_capacity) {
+    const { count: postCount } = await admin
+      .from('registrations')
+      .select('id', { count: 'exact', head: true })
+      .eq('event_id', params.id)
+      .in('status', ['confirmed', 'checked_in']);
+
+    if ((postCount ?? 0) > eventPage.max_capacity) {
+      await admin.from('registrations').delete().eq('id', registration.id);
+      return NextResponse.json({ error: 'EVENT_FULL', detail: 'This event just reached capacity' }, { status: 409 });
+    }
+  }
+
   // 6. Atomically increment ticket quantity sold (free tickets only — paid increment after payment)
   if (ticket.quantity !== null && isFree) {
     const { error: incrError } = await admin.rpc('increment_ticket_quantity_sold', {

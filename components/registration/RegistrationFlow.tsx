@@ -236,6 +236,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
           attendee_phone: phone.trim() || undefined,
           ticket_type_id: selectedTicketId,
           custom_fields: customFieldValues,
+          ...(unlockedTickets.find(t => t.id === selectedTicketId) ? { access_code: accessCodeInput.trim() } : {}),
         }),
       });
       const regData = await regRes.json();
