@@ -399,7 +399,14 @@ export default function RegistrationClient({
       };
 
       if (!res.ok) {
-        setSubmitError(data.error ?? 'Registration failed. Please try again.');
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const rawError: string = (data as any).detail ?? data.error ?? 'Registration failed. Please try again.';
+        const errorMessages: Record<string, string> = {
+          TICKET_SOLD_OUT: 'Sorry, this ticket just sold out.',
+          EVENT_FULL: 'Sorry, this event just reached capacity.',
+          DUPLICATE_REGISTRATION: 'You are already registered for this event.',
+        };
+        setSubmitError(errorMessages[rawError] ?? rawError);
         return;
       }
 

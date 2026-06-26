@@ -96,6 +96,17 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
   const admin = createAdminClient();
 
+  // Verify ownership before touching storage — avoids leaking paths for events
+  // the caller doesn't own (the DELETE below is also scoped to user_id, but this
+  // ensures we don't collect storage paths for someone else's event first).
+  const { data: owned } = await admin
+    .from('events')
+    .select('id')
+    .eq('id', id)
+    .eq('user_id', user.id)
+    .single();
+  if (!owned) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
   // Collect all storage paths before deleting the event
   const { data: variants } = await admin
     .from('event_variants')
