@@ -41,11 +41,11 @@ class MemoryRatelimit implements LimiterLike {
 
   private sweep(now: number) {
     if (now - this.lastSweep < this.windowMs) return;
-    for (const [key, times] of this.hits) {
+    this.hits.forEach((times, key) => {
       const kept = times.filter(t => now - t < this.windowMs);
       if (kept.length === 0) this.hits.delete(key);
       else this.hits.set(key, kept);
-    }
+    });
     this.lastSweep = now;
   }
 
