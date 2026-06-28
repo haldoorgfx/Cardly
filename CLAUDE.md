@@ -156,7 +156,7 @@ types/
 3. **Mobile-first, always.** Every file touched must be mobile-responsive. Test critical flows at 375px.
 4. **ERA AI fails gracefully.** Missing `GOOGLE_AI_KEY` → friendly fallback message, no crash. See `lib/ai/era.ts`.
 5. **AI Copilot:** Check for `ANTHROPIC_API_KEY` before calling; return 503 if missing.
-6. **Rate limiting:** `lib/ratelimit.ts` silently allows all requests if Upstash is unconfigured.
+6. **Rate limiting:** `lib/ratelimit.ts` uses Upstash Redis when configured, else falls back to a per-instance in-memory limiter — it never fully fails open. Missing Upstash in production logs a loud warning.
 7. **TypeScript strict mode.** Type everything — zones, database rows, API request/response shapes.
 8. **Auto-save in Card Studio:** 800ms debounce after last change. Keep undo/redo.
 9. **Watermark logic:** "Made with Eventera" bottom-center, semi-transparent. Free tier output only.
