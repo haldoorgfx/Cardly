@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { listWebhooks, createWebhook } from '@/lib/webhooks';
 import type { WebhookEvent } from '@/lib/webhooks';
+import { validateWebhookUrl } from '@/lib/webhooks/ssrf';
 
 const VALID_EVENTS: WebhookEvent[] = ['card.generated', 'event.published', 'event.viewed'];
 
@@ -33,8 +34,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `Invalid events: ${invalid.join(', ')}` }, { status: 400 });
   }
 
-  try { new URL(url.trim()); } catch {
-    return NextResponse.json({ error: 'Invalid URL.' }, { status: 400 });
+  // SSRF guard — HTTPS only, and the host must not resolve to a private/internal IP.
+  const urlCheck = await validateWebhookUrl(url.trim());
+  if (!urlCheck.ok) {
+    return NextResponse.json({ error: urlCheck.reason }, { status: 400 });
   }
 
   // Cap at 5 webhooks per user

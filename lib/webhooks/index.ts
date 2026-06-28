@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import crypto from 'crypto';
 import { createAdminClient } from '@/lib/supabase/server';
+import { validateWebhookUrl } from '@/lib/webhooks/ssrf';
 
 export type WebhookEvent =
   | 'card.generated'
@@ -94,6 +95,18 @@ export async function fireWebhooks(
 
   await Promise.allSettled(
     eligible.map(async hook => {
+      // Re-validate at fire time — guards against DNS-rebind (a URL that passed
+      // at registration could later re-point at an internal address).
+      const urlCheck = await validateWebhookUrl(hook.url);
+      if (!urlCheck.ok) {
+        const db = createAdminClient();
+        await (db as any)
+          .from('webhooks')
+          .update({ failure_count: hook.failure_count + 1 })
+          .eq('id', hook.id);
+        return;
+      }
+
       const sig = sign(hook.secret, body);
       try {
         const res = await fetch(hook.url, {
