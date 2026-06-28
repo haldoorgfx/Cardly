@@ -246,6 +246,28 @@ function decodeDataUrl(dataUrl: string): Buffer | null {
   try { return Buffer.from(b64, 'base64'); } catch { return null; }
 }
 
+/** Sniff image magic bytes — don't trust client-declared MIME. Returns the
+ *  detected type, or null if it's not an allowed image (JPEG / PNG / WebP). */
+function sniffImageType(buf: Buffer): 'image/jpeg' | 'image/png' | 'image/webp' | null {
+  if (buf.length < 12) return null;
+  // JPEG: FF D8 FF
+  if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return 'image/jpeg';
+  // PNG: 89 50 4E 47 0D 0A 1A 0A
+  if (buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47 &&
+      buf[4] === 0x0d && buf[5] === 0x0a && buf[6] === 0x1a && buf[7] === 0x0a) return 'image/png';
+  // WebP: "RIFF" .... "WEBP"
+  if (buf.toString('ascii', 0, 4) === 'RIFF' && buf.toString('ascii', 8, 12) === 'WEBP') return 'image/webp';
+  return null;
+}
+
+/** Validate a decoded photo buffer: size cap + real image type. */
+function validatePhotoBuffer(buf: Buffer | null): { ok: true } | { ok: false; error: string } {
+  if (!buf || buf.length === 0) return { ok: false, error: 'Photo data is empty or invalid.' };
+  if (buf.length > MAX_PHOTO_BYTES) return { ok: false, error: 'Photo is too large. Maximum size is 10 MB.' };
+  if (!sniffImageType(buf)) return { ok: false, error: 'Photo must be a JPEG, PNG, or WebP image.' };
+  return { ok: true };
+}
+
 export async function POST(req: NextRequest) {
   // Rate limiting handled by middleware (lib/ratelimit.ts — 'render' tier: 10 req/60s per IP)
   const supabase = createAdminClient();
@@ -284,7 +306,13 @@ export async function POST(req: NextRequest) {
     fields = body.data.fields ?? {};
     idempotencyKey = body.data.idempotencyKey ?? null;
     registrationId = body.data.registrationId ?? null;
-    if (body.data.photoDataUrl) jsonPhotoBuffer = decodeDataUrl(body.data.photoDataUrl);
+    if (body.data.photoDataUrl) {
+      jsonPhotoBuffer = decodeDataUrl(body.data.photoDataUrl);
+      // Same size + MIME enforcement the multipart path gets — the JSON path
+      // previously fed an unbounded, unchecked buffer straight to sharp.
+      const check = validatePhotoBuffer(jsonPhotoBuffer);
+      if (!check.ok) return NextResponse.json({ error: check.error }, { status: 400 });
+    }
   } else {
     formData = await req.formData();
     variantId = (formData.get('variantId') as string) ?? '';
@@ -374,14 +402,11 @@ export async function POST(req: NextRequest) {
       if (zone.type !== 'photo') continue;
       const photoFile = formData.get(`photo_${zone.id}`) as File | null;
       if (!photoFile) continue;
-      if (photoFile.size > MAX_PHOTO_BYTES) {
-        return NextResponse.json({ error: 'Photo is too large. Maximum size is 10 MB.' }, { status: 400 });
-      }
-      const allowed = ['image/jpeg', 'image/png', 'image/webp'];
-      if (!allowed.includes(photoFile.type)) {
-        return NextResponse.json({ error: 'Photo must be a JPEG, PNG, or WebP image.' }, { status: 400 });
-      }
-      photoBuffers[zone.id] = Buffer.from(await photoFile.arrayBuffer());
+      const buf = Buffer.from(await photoFile.arrayBuffer());
+      // Validate the actual bytes (size + magic bytes), not just the declared MIME.
+      const check = validatePhotoBuffer(buf);
+      if (!check.ok) return NextResponse.json({ error: check.error }, { status: 400 });
+      photoBuffers[zone.id] = buf;
     }
   }
 
