@@ -96,3 +96,36 @@ class ZoneModel {
   String get displayLabel =>
       (label != null && label!.trim().isNotEmpty) ? label! : 'Field';
 }
+
+/// An event owned by the signed-in organizer (dashboard view).
+class OrganizerEvent {
+  final String id;
+  final String name;
+  final String slug;
+  final String status; // draft | published | archived
+  final int viewCount;
+  final int downloadCount;
+  final DateTime? createdAt;
+
+  OrganizerEvent({
+    required this.id,
+    required this.name,
+    required this.slug,
+    required this.status,
+    required this.viewCount,
+    required this.downloadCount,
+    required this.createdAt,
+  });
+
+  factory OrganizerEvent.fromJson(Map<String, dynamic> j) => OrganizerEvent(
+        id: j['id'] as String,
+        name: (j['name'] as String?) ?? 'Untitled event',
+        slug: (j['slug'] as String?) ?? '',
+        status: (j['status'] as String?) ?? 'draft',
+        viewCount: (j['view_count'] as num?)?.toInt() ?? 0,
+        downloadCount: (j['download_count'] as num?)?.toInt() ?? 0,
+        createdAt: DateTime.tryParse(j['created_at'] as String? ?? ''),
+      );
+
+  bool get isPublished => status == 'published';
+}

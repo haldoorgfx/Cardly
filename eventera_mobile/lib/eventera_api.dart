@@ -60,6 +60,23 @@ class EventeraApi {
     );
   }
 
+  /// Events owned by the signed-in organizer (for the dashboard).
+  /// RLS restricts this to rows where user_id = the authenticated user.
+  Future<List<OrganizerEvent>> myEvents() async {
+    final uid = _db.auth.currentUser?.id;
+    if (uid == null) throw EventeraException('Please sign in first.');
+    final rows = await _db
+        .from('events')
+        .select(
+            'id, name, slug, status, view_count, download_count, created_at')
+        .eq('user_id', uid)
+        .order('created_at', ascending: false);
+    return (rows as List)
+        .whereType<Map<String, dynamic>>()
+        .map(OrganizerEvent.fromJson)
+        .toList();
+  }
+
   /// Generate the personalized card via the existing `/api/render` endpoint.
   /// Mirrors the web attendee flow: multipart with `variantId`, `fields`
   /// (JSON of zoneId -> text), `idempotencyKey`, and `photo_<zoneId>` files.

@@ -4,6 +4,7 @@ import '../eventera_api.dart';
 import '../links.dart';
 import '../theme.dart';
 import 'my_cards_screen.dart';
+import 'organizer/auth_gate.dart';
 import 'personalize_screen.dart';
 
 /// Entry point of the attendee flow: paste an event link or type its code,
@@ -62,6 +63,13 @@ class _AttendeeHomeScreenState extends State<AttendeeHomeScreen> {
         surfaceTintColor: Brand.cream,
         elevation: 0,
         actions: [
+          IconButton(
+            tooltip: 'Organizer',
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const OrganizerGate()),
+            ),
+            icon: const Icon(Icons.account_circle_outlined, color: Brand.ink),
+          ),
           TextButton.icon(
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const MyCardsScreen()),
