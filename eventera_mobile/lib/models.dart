@@ -129,3 +129,31 @@ class OrganizerEvent {
 
   bool get isPublished => status == 'published';
 }
+
+/// An event loaded for its owner (manage + edit). Keeps the default variant's
+/// raw zones so unknown/extra fields survive a save round-trip.
+class OwnedEvent {
+  final String id;
+  final String name;
+  final String slug;
+  final String status;
+  final String variantId;
+  final String? backgroundUrl;
+  final int bgWidth;
+  final int bgHeight;
+  final List<Map<String, dynamic>> zonesRaw;
+
+  OwnedEvent({
+    required this.id,
+    required this.name,
+    required this.slug,
+    required this.status,
+    required this.variantId,
+    required this.backgroundUrl,
+    required this.bgWidth,
+    required this.bgHeight,
+    required this.zonesRaw,
+  });
+
+  bool get isPublished => status == 'published';
+}

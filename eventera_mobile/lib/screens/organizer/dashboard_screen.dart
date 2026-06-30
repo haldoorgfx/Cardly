@@ -4,6 +4,8 @@ import '../../auth_service.dart';
 import '../../eventera_api.dart';
 import '../../models.dart';
 import '../../theme.dart';
+import 'create_event_screen.dart';
+import 'event_detail_screen.dart';
 
 /// Organizer home: lists the events you own with their status and stats.
 class DashboardScreen extends StatefulWidget {
@@ -106,10 +108,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: Brand.forest,
         foregroundColor: Colors.white,
-        onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Create event — coming next.')),
+        onPressed: () async {
+          final created = await Navigator.of(context).push<bool>(
+            MaterialPageRoute(builder: (_) => const CreateEventScreen()),
           );
+          if (created == true) _refresh();
         },
         icon: const Icon(Icons.add),
         label: const Text('New event'),
@@ -117,8 +120,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  Future<void> _openEvent(OrganizerEvent e) async {
+    final changed = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) =>
+            EventDetailScreen(eventId: e.id, initialName: e.name),
+      ),
+    );
+    if (changed == true) _refresh();
+  }
+
   Widget _eventTile(OrganizerEvent e) {
-    return Container(
+    return InkWell(
+      borderRadius: BorderRadius.circular(14),
+      onTap: () => _openEvent(e),
+      child: Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Brand.surface,
@@ -151,6 +167,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ],
           ),
         ],
+      ),
       ),
     );
   }

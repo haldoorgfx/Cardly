@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:math';
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
@@ -75,6 +77,181 @@ class EventeraApi {
         .whereType<Map<String, dynamic>>()
         .map(OrganizerEvent.fromJson)
         .toList();
+  }
+
+  /// Create a new event from a background design.
+  /// Mirrors the web `/api/events/create`: upload to `event-backgrounds`,
+  /// create the event (slug retry on collision) + a default variant.
+  /// Done directly via the authenticated Supabase client (RLS applies).
+  /// Returns the new event id.
+  Future<String> createEvent({
+    required String name,
+    required Uint8List imageBytes,
+    required String contentType, // 'image/png' | 'image/jpeg'
+  }) async {
+    final uid = _db.auth.currentUser?.id;
+    if (uid == null) throw EventeraException('Please sign in first.');
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) throw EventeraException('Give your event a name.');
+
+    final ext = contentType.contains('png') ? 'png' : 'jpg';
+    final path = '$uid/${DateTime.now().millisecondsSinceEpoch}.$ext';
+
+    // 1. Upload the background.
+    try {
+      await _db.storage.from('event-backgrounds').uploadBinary(
+            path,
+            imageBytes,
+            fileOptions: FileOptions(
+                contentType: contentType, cacheControl: '31536000'),
+          );
+    } catch (_) {
+      throw EventeraException('Could not upload the design. Please try again.');
+    }
+    final publicUrl =
+        _db.storage.from('event-backgrounds').getPublicUrl(path);
+
+    // 2. Image dimensions (fall back to a portrait default).
+    final dims = await _imageDimensions(imageBytes);
+
+    // 3. Insert the event, retrying on slug collision (Postgres 23505).
+    String? eventId;
+    for (var attempt = 0; attempt < 3; attempt++) {
+      try {
+        final row = await _db
+            .from('events')
+            .insert({
+              'user_id': uid,
+              'name': trimmed,
+              'slug': _generateSlug(trimmed),
+              'background_url': publicUrl,
+              'background_width': dims.$1,
+              'background_height': dims.$2,
+              'zones': [],
+              'status': 'draft',
+            })
+            .select('id')
+            .single();
+        eventId = row['id'] as String;
+        break;
+      } on PostgrestException catch (e) {
+        if (e.code != '23505') {
+          throw EventeraException('Could not create the event. ${e.message}');
+        }
+      }
+    }
+    if (eventId == null) {
+      throw EventeraException('Could not create the event. Please try again.');
+    }
+
+    // 4. Default variant (required by the attendee flow + editor).
+    try {
+      await _db.from('event_variants').insert({
+        'event_id': eventId,
+        'variant_name': 'Default',
+        'variant_slug': 'default',
+        'background_url': publicUrl,
+        'background_width': dims.$1,
+        'background_height': dims.$2,
+        'zones': [],
+        'position': 0,
+      });
+    } catch (_) {
+      // Best-effort cleanup so we don't leave an event with no design.
+      try {
+        await _db.from('events').delete().eq('id', eventId);
+      } catch (_) {}
+      try {
+        await _db.storage.from('event-backgrounds').remove([path]);
+      } catch (_) {}
+      throw EventeraException(
+          'Could not finish creating the event. Please try again.');
+    }
+
+    return eventId;
+  }
+
+  static String _generateSlug(String name) {
+    final base = name
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9\s-]'), '')
+        .trim()
+        .replaceAll(RegExp(r'\s+'), '-');
+    final clipped = base.length > 40 ? base.substring(0, 40) : base;
+    final r = Random();
+    final hex =
+        List.generate(8, (_) => r.nextInt(16).toRadixString(16)).join();
+    return '$clipped-$hex';
+  }
+
+  static Future<(int, int)> _imageDimensions(Uint8List bytes) async {
+    try {
+      final codec = await ui.instantiateImageCodec(bytes);
+      final frame = await codec.getNextFrame();
+      final w = frame.image.width;
+      final h = frame.image.height;
+      frame.image.dispose();
+      return (w, h);
+    } catch (_) {
+      return (1080, 1350);
+    }
+  }
+
+  /// Load one of the organizer's own events (any status) + its default variant
+  /// with the raw zones, for the detail screen and editor.
+  Future<OwnedEvent> loadOwnEvent(String eventId) async {
+    final uid = _db.auth.currentUser?.id;
+    if (uid == null) throw EventeraException('Please sign in first.');
+    final ev = await _db
+        .from('events')
+        .select('id, name, slug, status')
+        .eq('id', eventId)
+        .maybeSingle();
+    if (ev == null) throw EventeraException('Event not found.');
+    final variant = await _db
+        .from('event_variants')
+        .select('id, background_url, background_width, background_height, zones')
+        .eq('event_id', eventId)
+        .order('position', ascending: true)
+        .limit(1)
+        .maybeSingle();
+    if (variant == null) {
+      throw EventeraException('This event has no design yet.');
+    }
+    final zonesRaw = ((variant['zones'] as List?) ?? const [])
+        .whereType<Map<String, dynamic>>()
+        .map((m) => Map<String, dynamic>.from(m))
+        .toList();
+    return OwnedEvent(
+      id: ev['id'] as String,
+      name: (ev['name'] as String?) ?? 'Untitled event',
+      slug: (ev['slug'] as String?) ?? '',
+      status: (ev['status'] as String?) ?? 'draft',
+      variantId: variant['id'] as String,
+      backgroundUrl: variant['background_url'] as String?,
+      bgWidth: (variant['background_width'] as num?)?.toInt() ?? 1080,
+      bgHeight: (variant['background_height'] as num?)?.toInt() ?? 1350,
+      zonesRaw: zonesRaw,
+    );
+  }
+
+  /// Save the variant's editable zones (full replace).
+  Future<void> saveZones(
+      String variantId, List<Map<String, dynamic>> zones) async {
+    await _db
+        .from('event_variants')
+        .update({'zones': zones}).eq('id', variantId);
+  }
+
+  /// Publish or unpublish an event.
+  Future<void> setPublished(String eventId, bool published) async {
+    await _db.from('events').update(
+        {'status': published ? 'published' : 'draft'}).eq('id', eventId);
+  }
+
+  /// Delete an event (DB cascade removes its variants).
+  Future<void> deleteEvent(String eventId) async {
+    await _db.from('events').delete().eq('id', eventId);
   }
 
   /// Generate the personalized card via the existing `/api/render` endpoint.
