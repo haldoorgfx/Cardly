@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../net.dart';
-import '../../theme.dart';
+import '../../ui/components.dart';
+import '../../ui/tokens.dart';
 import '_shared.dart';
 
 /// AgendaScreen — lists published `sessions` for an event, grouped by day.
@@ -96,6 +97,7 @@ class _AgendaScreenState extends State<AgendaScreen> {
   final Set<String> _myAgenda = {}; // session ids
   bool _myOnly = false;
   final Set<String> _busy = {}; // session ids with in-flight action
+  int _dayIndex = 0;
 
   @override
   void initState() {
@@ -136,6 +138,7 @@ class _AgendaScreenState extends State<AgendaScreen> {
       setState(() {
         _sessions = list;
         _loading = false;
+        if (_dayIndex >= _days.length) _dayIndex = 0;
       });
     } catch (e) {
       if (!mounted) return;
@@ -170,8 +173,11 @@ class _AgendaScreenState extends State<AgendaScreen> {
           {'registrationId': rid},
         );
         _myAgenda.add(s.id);
-        if (mounted && res is Map && res['waitlisted'] == true) {
+        if (!mounted) return;
+        if (res is Map && res['waitlisted'] == true) {
           showEngageSnack(context, 'Session is full — you\'re on the waitlist');
+        } else {
+          showToast(context, 'Added to your agenda');
         }
       }
       if (mounted) setState(() {});
@@ -193,21 +199,15 @@ class _AgendaScreenState extends State<AgendaScreen> {
           error: true);
       return;
     }
-    final rating = await showModalBottomSheet<int>(
-      context: context,
-      backgroundColor: Brand.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (_) => _RateSheet(title: s.title),
-    );
+    final rating = await showMSheet<int>(context, _RateSheet(title: s.title));
     if (rating == null) return;
     try {
       await apiPost('/api/sessions/${s.id}/rate', {
         'registration_id': rid,
         'rating': rating,
       });
-      if (mounted) showEngageSnack(context, 'Thanks for rating "${s.title}"');
+      if (!mounted) return;
+      showToast(context, 'Thanks for rating "${s.title}"');
     } catch (e) {
       if (mounted) {
         showEngageSnack(context,
@@ -217,230 +217,261 @@ class _AgendaScreenState extends State<AgendaScreen> {
     }
   }
 
-  List<_Session> get _visible =>
-      _myOnly ? _sessions.where((s) => _myAgenda.contains(s.id)).toList() : _sessions;
+  // Distinct day labels, in order.
+  List<String> get _days {
+    final seen = <String>[];
+    for (final s in _sessions) {
+      final key = s.startsAt == null ? 'TBA' : fmtDayLabel(s.startsAt!);
+      if (!seen.contains(key)) seen.add(key);
+    }
+    return seen;
+  }
+
+  List<_Session> get _visible {
+    final days = _days;
+    final day = (days.isEmpty || _dayIndex >= days.length)
+        ? null
+        : days[_dayIndex];
+    return _sessions.where((s) {
+      final key = s.startsAt == null ? 'TBA' : fmtDayLabel(s.startsAt!);
+      final dayMatch = day == null || key == day;
+      final agendaMatch = !_myOnly || _myAgenda.contains(s.id);
+      return dayMatch && agendaMatch;
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Agenda'),
-        backgroundColor: Brand.cream,
-        surfaceTintColor: Colors.transparent,
-      ),
-      body: Column(
-        children: [
-          if (widget.registrationId != null) _filterBar(),
-          Expanded(child: _body()),
-        ],
-      ),
+    return MScaffold(
+      appBar: const MAppBar(title: 'Schedule', hairline: true),
+      body: _loading || _error != null
+          ? _body()
+          : Column(
+              children: [
+                if (_days.length > 1)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                        AppSpace.lg, AppSpace.md, AppSpace.lg, 0),
+                    child: SegControl(
+                      segments: _days,
+                      index: _dayIndex.clamp(0, _days.length - 1),
+                      onChanged: (i) => setState(() => _dayIndex = i),
+                    ),
+                  ),
+                if (widget.registrationId != null) _filterBar(),
+                Expanded(child: _body()),
+              ],
+            ),
     );
   }
 
   Widget _filterBar() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+    final dayCount = _visibleDayCount();
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+          AppSpace.lg, AppSpace.md, AppSpace.lg, AppSpace.sm),
       child: Row(
         children: [
-          _chip('All sessions', !_myOnly, () => setState(() => _myOnly = false)),
+          Text(
+            _myOnly
+                ? 'My agenda'
+                : (dayCount == 1 ? '1 session' : '$dayCount sessions'),
+            style: AppText.seclab,
+          ),
+          const Spacer(),
+          Text('My agenda',
+              style: AppText.bodySm.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: _myOnly ? AppColors.forest : AppColors.inkSoft)),
           const SizedBox(width: 8),
-          _chip('My agenda (${_myAgenda.length})', _myOnly,
-              () => setState(() => _myOnly = true)),
+          MToggle(value: _myOnly, onChanged: (v) => setState(() => _myOnly = v)),
         ],
       ),
     );
   }
 
-  Widget _chip(String label, bool active, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: active ? Brand.forest : Brand.surface,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: active ? Brand.forest : Brand.border),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: active ? Colors.white : Brand.inkSoft,
-          ),
-        ),
-      ),
-    );
+  int _visibleDayCount() {
+    final days = _days;
+    final day = (days.isEmpty || _dayIndex >= days.length)
+        ? null
+        : days[_dayIndex];
+    return _sessions.where((s) {
+      final key = s.startsAt == null ? 'TBA' : fmtDayLabel(s.startsAt!);
+      return day == null || key == day;
+    }).length;
   }
 
   Widget _body() {
-    if (_loading) {
-      return const Center(child: CircularProgressIndicator(color: Brand.forest));
-    }
+    if (_loading) return const LoadingState();
     if (_error != null) {
-      return EngageState(
-        icon: Icons.error_outline,
-        title: 'Couldn\'t load the agenda',
-        subtitle: _error,
-        action: FilledButton(onPressed: _load, child: const Text('Retry')),
-      );
+      return ErrorStateView(message: _error!, onRetry: _load);
     }
     final visible = _visible;
     if (visible.isEmpty) {
       return RefreshIndicator(
-        color: Brand.forest,
+        color: AppColors.forest,
         onRefresh: _load,
         child: ListView(
           children: [
-            SizedBox(height: MediaQuery.of(context).size.height * 0.25),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.16),
             EngageState(
-              icon: _myOnly ? Icons.event_available_outlined : Icons.event_note_outlined,
-              title: _myOnly ? 'Nothing on your agenda yet' : 'No sessions yet',
+              icon: _myOnly
+                  ? Icons.event_available_outlined
+                  : Icons.event_note_outlined,
+              title: _myOnly ? 'Nothing saved yet' : 'No sessions yet',
               subtitle: _myOnly
-                  ? 'Add sessions to build your personal schedule.'
+                  ? 'Tap + on any session to build your plan.'
                   : 'The organizer hasn\'t published the schedule.',
+              action: _myOnly
+                  ? MButton('Browse all sessions',
+                      kind: MBtnKind.sec,
+                      small: true,
+                      fullWidth: false,
+                      onTap: () => setState(() => _myOnly = false))
+                  : null,
             ),
           ],
         ),
       );
     }
     return RefreshIndicator(
-      color: Brand.forest,
+      color: AppColors.forest,
       onRefresh: _load,
-      child: _grouped(visible),
-    );
-  }
-
-  Widget _grouped(List<_Session> list) {
-    // Group by day label.
-    final groups = <String, List<_Session>>{};
-    for (final s in list) {
-      final key = s.startsAt == null ? 'TBA' : fmtDayLabel(s.startsAt!);
-      groups.putIfAbsent(key, () => []).add(s);
-    }
-    final children = <Widget>[];
-    groups.forEach((day, sessions) {
-      children.add(Padding(
-        padding: const EdgeInsets.fromLTRB(16, 18, 16, 8),
-        child: Text(
-          day,
-          style: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-            color: Brand.forest,
-          ),
-        ),
-      ));
-      for (final s in sessions) {
-        children.add(_sessionCard(s));
-      }
-    });
-    return ListView(
-      padding: const EdgeInsets.only(bottom: 32),
-      children: children,
+      child: ListView.builder(
+        padding: const EdgeInsets.fromLTRB(
+            AppSpace.lg, AppSpace.md, AppSpace.lg, AppSpace.xxxl),
+        itemCount: visible.length,
+        itemBuilder: (_, i) => _sessionCard(visible[i]),
+      ),
     );
   }
 
   Widget _sessionCard(_Session s) {
     final inAgenda = _myAgenda.contains(s.id);
     final busy = _busy.contains(s.id);
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-      padding: const EdgeInsets.all(14),
-      decoration: engageCard(),
+    final accent = s.trackColor ?? AppColors.forest;
+    final subtitle = [
+      if (s.speakers.isNotEmpty) s.speakers.join(', '),
+      if ((s.room ?? '').isNotEmpty) s.room,
+    ].whereType<String>().join(' · ');
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpace.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Text(
-                fmtTimeRange(s.startsAt, s.endsAt),
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: Brand.inkSoft,
-                ),
-              ),
-              if (s.trackName != null) ...[
-                const SizedBox(width: 8),
-                _trackPill(s),
-              ],
-              const Spacer(),
-              if (s.capacity != null)
-                Text(
-                  '${s.registrationsCount}/${s.capacity}',
-                  style: const TextStyle(fontSize: 12, color: Brand.muted),
-                ),
-            ],
+          Padding(
+            padding: const EdgeInsets.only(bottom: AppSpace.sm),
+            child: Text(fmtTimeRange(s.startsAt, s.endsAt),
+                style: AppText.numSm.copyWith(color: AppColors.inkMuted)),
           ),
-          const SizedBox(height: 6),
-          Text(
-            s.title,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: Brand.ink,
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(AppRadius.card),
+              border: Border.all(color: AppColors.border),
+              boxShadow: AppShadow.soft,
             ),
-          ),
-          if (s.room != null && s.room!.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                const Icon(Icons.place_outlined, size: 14, color: Brand.muted),
-                const SizedBox(width: 4),
-                Text(s.room!,
-                    style: const TextStyle(fontSize: 13, color: Brand.muted)),
-              ],
-            ),
-          ],
-          if (s.speakers.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            Text(
-              s.speakers.join(', '),
-              style: const TextStyle(fontSize: 13, color: Brand.inkSoft),
-            ),
-          ],
-          if (s.description != null && s.description!.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Text(
-              s.description!,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 13, color: Brand.inkSoft, height: 1.4),
-            ),
-          ],
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: busy ? null : () => _toggleAgenda(s),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: inAgenda ? Brand.success : Brand.forest,
-                    side: BorderSide(
-                        color: inAgenda ? Brand.success : Brand.forest),
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Track-colored left border
+                  Container(
+                    width: 3,
+                    decoration: BoxDecoration(
+                      color: accent,
+                      borderRadius: const BorderRadius.horizontal(
+                          left: Radius.circular(AppRadius.card)),
+                    ),
                   ),
-                  icon: busy
-                      ? const SizedBox(
-                          width: 14,
-                          height: 14,
-                          child: CircularProgressIndicator(
-                              strokeWidth: 2, color: Brand.forest))
-                      : Icon(inAgenda ? Icons.check : Icons.add, size: 18),
-                  label: Text(inAgenda ? 'On my agenda' : 'Add to my agenda'),
-                ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    if (s.trackName != null) ...[
+                                      _trackPill(s),
+                                      const SizedBox(width: 8),
+                                    ],
+                                    if (s.capacity != null)
+                                      Text(
+                                        '${s.registrationsCount}/${s.capacity}',
+                                        style: AppText.numSm.copyWith(
+                                            fontSize: 11,
+                                            color: AppColors.inkMuted),
+                                      ),
+                                  ],
+                                ),
+                                if (s.trackName != null || s.capacity != null)
+                                  const SizedBox(height: 8),
+                                Text(s.title,
+                                    style: AppText.h3.copyWith(fontSize: 15)),
+                                if (subtitle.isNotEmpty) ...[
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      if (s.speakers.isNotEmpty) ...[
+                                        _AvatarCluster(names: s.speakers),
+                                        const SizedBox(width: 8),
+                                      ],
+                                      Expanded(
+                                        child: Text(subtitle,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: AppText.bodySm.copyWith(
+                                                color: AppColors.inkMuted)),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                                if ((s.description ?? '').isNotEmpty) ...[
+                                  const SizedBox(height: 8),
+                                  Text(s.description!,
+                                      maxLines: 3,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: AppText.bodySm),
+                                ],
+                                const SizedBox(height: 10),
+                                GestureDetector(
+                                  onTap: () => _rate(s),
+                                  behavior: HitTestBehavior.opaque,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.star_outline_rounded,
+                                          size: 16, color: AppColors.gold),
+                                      const SizedBox(width: 5),
+                                      Text('Rate this session',
+                                          style: AppText.bodySm.copyWith(
+                                              fontWeight: FontWeight.w600,
+                                              color: AppColors.forest)),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          _AddButton(
+                            inAgenda: inAgenda,
+                            busy: busy,
+                            onTap: () => _toggleAgenda(s),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 10),
-              IconButton(
-                onPressed: () => _rate(s),
-                tooltip: 'Rate this session',
-                icon: const Icon(Icons.star_outline, color: Brand.gold),
-              ),
-            ],
+            ),
           ),
         ],
       ),
@@ -448,16 +479,77 @@ class _AgendaScreenState extends State<AgendaScreen> {
   }
 
   Widget _trackPill(_Session s) {
-    final c = s.trackColor ?? Brand.forest;
+    final c = s.trackColor ?? AppColors.forest;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: c.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(999),
       ),
-      child: Text(
-        s.trackName!,
-        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: c),
+      child: Text(s.trackName!,
+          style: AppText.caption.copyWith(
+              color: c, fontWeight: FontWeight.w600, fontSize: 11, letterSpacing: 0.1)),
+    );
+  }
+}
+
+class _AddButton extends StatelessWidget {
+  final bool inAgenda;
+  final bool busy;
+  final VoidCallback onTap;
+  const _AddButton(
+      {required this.inAgenda, required this.busy, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: busy ? null : onTap,
+      child: Container(
+        width: 34,
+        height: 34,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: inAgenda ? AppColors.forest : AppColors.surface,
+          borderRadius: BorderRadius.circular(9),
+          border: inAgenda ? null : Border.all(color: AppColors.border),
+        ),
+        child: busy
+            ? const SizedBox(
+                width: 15,
+                height: 15,
+                child: CircularProgressIndicator(
+                    strokeWidth: 2, color: AppColors.forest))
+            : Icon(inAgenda ? Icons.check : Icons.add,
+                size: 18,
+                color: inAgenda ? Colors.white : AppColors.forest),
+      ),
+    );
+  }
+}
+
+class _AvatarCluster extends StatelessWidget {
+  final List<String> names;
+  const _AvatarCluster({required this.names});
+
+  @override
+  Widget build(BuildContext context) {
+    final shown = names.take(3).toList();
+    return SizedBox(
+      width: 20.0 + (shown.length - 1) * 13,
+      height: 26,
+      child: Stack(
+        children: [
+          for (int i = 0; i < shown.length; i++)
+            Positioned(
+              left: i * 13.0,
+              child: Container(
+                padding: const EdgeInsets.all(1.5),
+                decoration: const BoxDecoration(
+                    color: AppColors.surface, shape: BoxShape.circle),
+                child: Avatar(name: shown[i], size: 23),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -477,48 +569,27 @@ class _RateSheetState extends State<_RateSheet> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(
-        left: 20,
-        right: 20,
-        top: 20,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-      ),
+      padding: const EdgeInsets.fromLTRB(AppSpace.lg, 4, AppSpace.lg, 4),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Rate this session',
-            style: const TextStyle(
-                fontSize: 18, fontWeight: FontWeight.w700, color: Brand.ink),
-          ),
+          Text('Rate this session', style: AppText.h3),
           const SizedBox(height: 4),
-          Text(widget.title,
-              style: const TextStyle(fontSize: 14, color: Brand.muted)),
-          const SizedBox(height: 18),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(5, (i) {
-              final v = i + 1;
-              return IconButton(
-                iconSize: 38,
-                onPressed: () => setState(() => _rating = v),
-                icon: Icon(
-                  v <= _rating ? Icons.star : Icons.star_border,
-                  color: Brand.gold,
-                ),
-              );
-            }),
-          ),
-          const SizedBox(height: 18),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed:
-                  _rating == 0 ? null : () => Navigator.of(context).pop(_rating),
-              child: const Text('Submit rating'),
+          Text(widget.title, style: AppText.bodySm),
+          const SizedBox(height: AppSpace.lg),
+          Center(
+            child: StarRating(
+              value: _rating,
+              size: 40,
+              onChanged: (v) => setState(() => _rating = v),
             ),
           ),
+          const SizedBox(height: AppSpace.lg),
+          MButton('Submit rating',
+              onTap: _rating == 0
+                  ? null
+                  : () => Navigator.of(context).pop(_rating)),
         ],
       ),
     );

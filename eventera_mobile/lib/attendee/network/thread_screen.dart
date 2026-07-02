@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../net.dart';
-import '../../theme.dart';
+import '../../ui/tokens.dart';
+import '../../ui/components.dart';
 
 /// A one-to-one message thread between two attendees (by registration_id).
 ///
@@ -41,6 +42,10 @@ class _ThreadScreenState extends State<ThreadScreen> {
   final _controller = TextEditingController();
   final _scroll = ScrollController();
 
+  String get _name => (widget.otherName == null || widget.otherName!.isEmpty)
+      ? 'Conversation'
+      : widget.otherName!;
+
   @override
   void initState() {
     super.initState();
@@ -69,6 +74,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
           .eq('participant_b', ids[1])
           .maybeSingle();
 
+      if (!mounted) return;
       if (row == null) {
         // No thread yet — nothing to load; it will be created on first send.
         setState(() {
@@ -81,14 +87,17 @@ class _ThreadScreenState extends State<ThreadScreen> {
 
       _threadId = asString(row['id']);
       await _refreshMessages(markRead: true);
+      if (!mounted) return;
       setState(() => _loading = false);
       _jumpToBottom();
     } on ApiException catch (e) {
+      if (!mounted) return;
       setState(() {
         _loading = false;
         _error = e.message;
       });
     } catch (_) {
+      if (!mounted) return;
       setState(() {
         _loading = false;
         _error = 'Could not open this conversation.';
@@ -147,14 +156,11 @@ class _ThreadScreenState extends State<ThreadScreen> {
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _sending = false);
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(e.message)));
+      showToast(context, e.message);
     } catch (_) {
       if (!mounted) return;
       setState(() => _sending = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Message failed to send')),
-      );
+      showToast(context, 'Message failed to send');
     }
   }
 
@@ -168,40 +174,38 @@ class _ThreadScreenState extends State<ThreadScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Brand.cream,
-      appBar: AppBar(
-        backgroundColor: Brand.cream,
-        foregroundColor: Brand.forest,
-        elevation: 0,
-        title: Text(widget.otherName ?? 'Conversation',
-            style: const TextStyle(color: Brand.forest)),
+    return MScaffold(
+      appBar: MAppBar(
+        hairline: true,
+        leading: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const _BackChip(),
+            const SizedBox(width: 2),
+            Avatar(name: _name, size: 32),
+          ],
+        ),
+        title: _name,
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: _loading
-                ? const _CenterSpinner()
-                : _error != null
-                    ? _ErrorState(message: _error!, onRetry: _load)
-                    : _messages.isEmpty
-                        ? const _EmptyState(
-                            icon: Icons.chat_bubble_outline,
-                            message:
-                                'No messages yet.\nSay hello to start the conversation.',
-                          )
-                        : _buildMessages(),
-          ),
-          _buildComposer(),
-        ],
-      ),
+      bottomBar: _buildComposer(),
+      body: _loading
+          ? const LoadingState()
+          : _error != null
+              ? ErrorStateView(message: _error!, onRetry: _load)
+              : _messages.isEmpty
+                  ? const EmptyState(
+                      icon: Icons.chat_bubble_outline,
+                      title: 'No messages yet',
+                      message: 'Say hello to start the conversation.',
+                    )
+                  : _buildMessages(),
     );
   }
 
   Widget _buildMessages() {
     return ListView.builder(
       controller: _scroll,
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      padding: const EdgeInsets.fromLTRB(AppSpace.base, AppSpace.base, AppSpace.base, AppSpace.sm),
       itemCount: _messages.length,
       itemBuilder: (context, i) {
         final m = _messages[i];
@@ -216,45 +220,49 @@ class _ThreadScreenState extends State<ThreadScreen> {
   }
 
   Widget _buildComposer() {
-    return SafeArea(
-      top: false,
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-        decoration: const BoxDecoration(
-          color: Brand.surface,
-          border: Border(top: BorderSide(color: Brand.border)),
-        ),
+    return Container(
+      padding: const EdgeInsets.fromLTRB(AppSpace.base, AppSpace.sm, AppSpace.base, AppSpace.sm),
+      decoration: const BoxDecoration(
+        color: AppColors.surface,
+        border: Border(top: BorderSide(color: AppColors.border)),
+        boxShadow: AppShadow.tabbar,
+      ),
+      child: SafeArea(
+        top: false,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Expanded(
-              child: TextField(
+              child: MInput(
                 controller: _controller,
+                hint: 'Message',
                 minLines: 1,
                 maxLines: 4,
-                textInputAction: TextInputAction.newline,
-                decoration: const InputDecoration(
-                  hintText: 'Type a message…',
-                  isDense: true,
-                ),
+                action: TextInputAction.send,
+                onSubmitted: (_) => _send(),
               ),
             ),
-            const SizedBox(width: 8),
-            _sending
-                ? const Padding(
-                    padding: EdgeInsets.all(10),
-                    child: SizedBox(
-                      width: 22,
-                      height: 22,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Brand.forest),
-                    ),
-                  )
-                : IconButton.filled(
-                    style: IconButton.styleFrom(backgroundColor: Brand.forest),
-                    icon: const Icon(Icons.send, size: 20),
-                    onPressed: _send,
-                  ),
+            const SizedBox(width: 10),
+            GestureDetector(
+              onTap: _sending ? null : _send,
+              child: Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: AppColors.forest,
+                  borderRadius: BorderRadius.circular(AppRadius.btn),
+                ),
+                alignment: Alignment.center,
+                child: _sending
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2.2, color: Colors.white),
+                      )
+                    : const Icon(Icons.send, size: 20, color: Colors.white),
+              ),
+            ),
           ],
         ),
       ),
@@ -263,6 +271,22 @@ class _ThreadScreenState extends State<ThreadScreen> {
 }
 
 // ─── local widgets ──────────────────────────────────────────────────────────
+
+class _BackChip extends StatelessWidget {
+  const _BackChip();
+  @override
+  Widget build(BuildContext context) {
+    return InkResponse(
+      onTap: () => Navigator.of(context).maybePop(),
+      radius: 24,
+      child: const SizedBox(
+        width: 38,
+        height: 38,
+        child: Icon(Icons.arrow_back, color: AppColors.ink, size: 22),
+      ),
+    );
+  }
+}
 
 class _Bubble extends StatelessWidget {
   final String text;
@@ -285,25 +309,26 @@ class _Bubble extends StatelessWidget {
                   maxWidth: MediaQuery.of(context).size.width * 0.72),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: mine ? Brand.forest : Brand.surface,
+                color: mine ? AppColors.forest : AppColors.surface,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(16),
                   topRight: const Radius.circular(16),
                   bottomLeft: Radius.circular(mine ? 16 : 4),
                   bottomRight: Radius.circular(mine ? 4 : 16),
                 ),
-                border: mine ? null : Border.all(color: Brand.border),
+                border: mine ? null : Border.all(color: AppColors.border),
               ),
               child: Text(text,
-                  style: TextStyle(
-                      fontSize: 15,
-                      height: 1.35,
-                      color: mine ? Colors.white : Brand.ink)),
+                  style: AppText.body.copyWith(
+                      fontSize: 14.5,
+                      height: 1.4,
+                      color: mine ? Colors.white : AppColors.ink)),
             ),
             if (time.isNotEmpty) ...[
-              const SizedBox(height: 3),
+              const SizedBox(height: 4),
               Text(time,
-                  style: const TextStyle(fontSize: 11, color: Brand.muted)),
+                  style: AppText.numSm.copyWith(
+                      fontSize: 10.5, color: AppColors.inkMuted)),
             ],
           ],
         ),
@@ -321,62 +346,5 @@ class _MsgTime {
     final ampm = h >= 12 ? 'PM' : 'AM';
     final h12 = h % 12 == 0 ? 12 : h % 12;
     return '$h12:$m $ampm';
-  }
-}
-
-class _CenterSpinner extends StatelessWidget {
-  const _CenterSpinner();
-  @override
-  Widget build(BuildContext context) =>
-      const Center(child: CircularProgressIndicator(color: Brand.forest));
-}
-
-class _ErrorState extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-  const _ErrorState({required this.message, required this.onRetry});
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.error_outline, color: Brand.danger, size: 40),
-            const SizedBox(height: 12),
-            Text(message,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 15, color: Brand.inkSoft)),
-            const SizedBox(height: 16),
-            FilledButton(onPressed: onRetry, child: const Text('Try again')),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _EmptyState extends StatelessWidget {
-  final IconData icon;
-  final String message;
-  const _EmptyState({required this.icon, required this.message});
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: Brand.muted, size: 40),
-            const SizedBox(height: 12),
-            Text(message,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 15, color: Brand.inkSoft)),
-          ],
-        ),
-      ),
-    );
   }
 }

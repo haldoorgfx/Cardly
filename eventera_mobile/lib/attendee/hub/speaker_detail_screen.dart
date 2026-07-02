@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../../net.dart';
-import '../../theme.dart';
-import 'event_page_model.dart';
+import '../../ui/components.dart';
+import '../../ui/tokens.dart';
 
 /// Detail view for a single speaker.
 ///
-/// Loads `speakers` by id (or slug) for the event, plus their published
-/// sessions. Columns verified against
+/// Loads `speakers` by id (or slug) for the event. Columns verified against
 /// app/(public)/e/[slug]/speakers/[speakerId]/page.tsx and
 /// components/events/SpeakerProfileClient.tsx.
 class SpeakerDetailScreen extends StatefulWidget {
@@ -54,6 +53,7 @@ class _SpeakerDetailScreenState extends State<SpeakerDetailScreen> {
           .eq('event_id', widget.eventId)
           .maybeSingle();
 
+      if (!mounted) return;
       if (row == null) {
         setState(() {
           _loading = false;
@@ -66,11 +66,13 @@ class _SpeakerDetailScreenState extends State<SpeakerDetailScreen> {
         _loading = false;
       });
     } on ApiException catch (e) {
+      if (!mounted) return;
       setState(() {
         _loading = false;
         _error = e.message;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _loading = false;
         _error = 'Something went wrong loading this speaker.';
@@ -80,48 +82,26 @@ class _SpeakerDetailScreenState extends State<SpeakerDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return const MScaffold(body: LoadingState());
+    }
+    if (_error != null) {
+      return MScaffold(
+        appBar: const MAppBar(),
+        body: ErrorStateView(message: _error!, onRetry: _load),
+      );
+    }
     return Scaffold(
-      backgroundColor: Brand.cream,
-      appBar: AppBar(
-        backgroundColor: Brand.cream,
-        foregroundColor: Brand.forest,
-        elevation: 0,
-        title: const Text('Speaker', style: TextStyle(color: Brand.forest)),
-      ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator(color: Brand.forest))
-          : _error != null
-              ? _errorState()
-              : _buildBody(),
-    );
-  }
-
-  Widget _errorState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.error_outline, color: Brand.danger, size: 40),
-            const SizedBox(height: 12),
-            Text(
-              _error!,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 15, color: Brand.inkSoft),
-            ),
-            const SizedBox(height: 16),
-            FilledButton(onPressed: _load, child: const Text('Try again')),
-          ],
-        ),
-      ),
+      backgroundColor: AppColors.canvas,
+      body: _buildBody(),
     );
   }
 
   Widget _buildBody() {
     final s = _speaker!;
+    final id = asString(s['id'], widget.speakerId);
     final name = asString(s['name'], 'Speaker');
-    final role = asString(s['role']).trim();
+    final role = asString(s['role'] ?? s['title']).trim();
     final company = asString(s['company']).trim();
     final headline = asString(s['headline']).trim();
     final bio = asString(s['bio']).trim();
@@ -130,176 +110,147 @@ class _SpeakerDetailScreenState extends State<SpeakerDetailScreen> {
     final twitter = asString(s['twitter_url']).trim();
     final website = asString(s['website_url']).trim();
 
-    final roleLine =
-        [role, company].where((e) => e.isNotEmpty).join(' · ');
+    final roleLine = [role, company].where((e) => e.isNotEmpty).join(' · ');
 
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 40),
-      children: [
-        Center(
-          child: _BigAvatar(
-            url: photoUrl.isEmpty ? null : photoUrl,
-            name: name,
-          ),
-        ),
-        const SizedBox(height: 18),
-        Center(
-          child: Text(
-            name,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              color: Brand.ink,
+    return CustomScrollView(
+      slivers: [
+        // Tall photo hero + scrim + floating back
+        SliverToBoxAdapter(
+          child: SizedBox(
+            height: 280,
+            width: double.infinity,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                if (photoUrl.isNotEmpty)
+                  Image.network(
+                    photoUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) =>
+                        PhotoPlaceholder(hue: hueFromString(id)),
+                    loadingBuilder: (ctx, child, prog) => prog == null
+                        ? child
+                        : PhotoPlaceholder(hue: hueFromString(id)),
+                  )
+                else
+                  PhotoPlaceholder(hue: hueFromString(id)),
+                const ScrimBottom(),
+                Positioned(
+                  top: MediaQuery.of(context).padding.top + 8,
+                  left: 12,
+                  child: _GlassBack(
+                      onTap: () => Navigator.of(context).maybePop()),
+                ),
+                Positioned(
+                  left: 20,
+                  right: 20,
+                  bottom: 16,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(name,
+                          style: AppText.h1
+                              .copyWith(color: Colors.white, fontSize: 24)),
+                      if (roleLine.isNotEmpty) ...[
+                        const SizedBox(height: 3),
+                        Text(roleLine,
+                            style: AppText.bodySm.copyWith(
+                                color: Colors.white.withValues(alpha: 0.85))),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ),
-        if (roleLine.isNotEmpty) ...[
-          const SizedBox(height: 6),
-          Center(
-            child: Text(
-              roleLine,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 15, color: Brand.forest),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 40),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (headline.isNotEmpty && headline != roleLine) ...[
+                  Text(headline, style: AppText.subhead),
+                  const SizedBox(height: 14),
+                ],
+                if (linkedin.isNotEmpty ||
+                    twitter.isNotEmpty ||
+                    website.isNotEmpty) ...[
+                  Row(
+                    children: [
+                      if (linkedin.isNotEmpty)
+                        _SocialButton(
+                            icon: Icons.business_center_outlined,
+                            onTap: () => _open(context, linkedin)),
+                      if (twitter.isNotEmpty)
+                        _SocialButton(
+                            icon: Icons.alternate_email,
+                            onTap: () => _open(context, twitter)),
+                      if (website.isNotEmpty)
+                        _SocialButton(
+                            icon: Icons.language,
+                            onTap: () => _open(context, website)),
+                    ],
+                  ),
+                  const SizedBox(height: 18),
+                ],
+                if (bio.isNotEmpty) ...[
+                  const SectionLabel('Biography'),
+                  const SizedBox(height: 10),
+                  Text(bio, style: AppText.body),
+                ],
+              ],
             ),
           ),
-        ],
-        if (headline.isNotEmpty && headline != roleLine) ...[
-          const SizedBox(height: 4),
-          Center(
-            child: Text(
-              headline,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 14, color: Brand.muted),
-            ),
-          ),
-        ],
-        if (linkedin.isNotEmpty || twitter.isNotEmpty || website.isNotEmpty) ...[
-          const SizedBox(height: 16),
-          Wrap(
-            alignment: WrapAlignment.center,
-            spacing: 10,
-            runSpacing: 10,
-            children: [
-              if (linkedin.isNotEmpty)
-                _SocialChip(label: 'LinkedIn', icon: Icons.link, url: linkedin),
-              if (twitter.isNotEmpty)
-                _SocialChip(label: 'Twitter', icon: Icons.alternate_email, url: twitter),
-              if (website.isNotEmpty)
-                _SocialChip(label: 'Website', icon: Icons.language, url: website),
-            ],
-          ),
-        ],
-        if (bio.isNotEmpty) ...[
-          const SizedBox(height: 28),
-          const Text(
-            'Biography',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.4,
-              color: Brand.forest,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            bio,
-            style: const TextStyle(
-              fontSize: 15,
-              height: 1.6,
-              color: Brand.inkSoft,
-            ),
-          ),
-        ],
+        ),
       ],
     );
   }
+
+  void _open(BuildContext context, String url) => showToast(context, url);
 }
 
-class _SocialChip extends StatelessWidget {
-  final String label;
+class _GlassBack extends StatelessWidget {
+  final VoidCallback onTap;
+  const _GlassBack({required this.onTap});
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 38,
+        height: 38,
+        decoration: BoxDecoration(
+          color: const Color(0xFF08120C).withValues(alpha: 0.42),
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(Icons.arrow_back, size: 19, color: Colors.white),
+      ),
+    );
+  }
+}
+
+class _SocialButton extends StatelessWidget {
   final IconData icon;
-  final String url;
-  const _SocialChip({
-    required this.label,
-    required this.icon,
-    required this.url,
-  });
-
+  final VoidCallback onTap;
+  const _SocialButton({required this.icon, required this.onTap});
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      decoration: BoxDecoration(
-        color: Brand.surface,
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: Brand.border),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 15, color: Brand.forest),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: Brand.ink,
-            ),
+    return Padding(
+      padding: const EdgeInsets.only(right: 10),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: AppColors.border),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _BigAvatar extends StatelessWidget {
-  final String? url;
-  final String name;
-  const _BigAvatar({required this.url, required this.name});
-
-  String get _initials {
-    final parts = name.trim().split(RegExp(r'\s+'));
-    if (parts.isEmpty || parts.first.isEmpty) return '?';
-    if (parts.length == 1) return parts.first[0].toUpperCase();
-    return (parts.first[0] + parts.last[0]).toUpperCase();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    const size = 108.0;
-    final fallback = Container(
-      width: size,
-      height: size,
-      alignment: Alignment.center,
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Brand.forest, Color(0xFF2A6A50)],
+          child: Icon(icon, size: 18, color: AppColors.forest),
         ),
-      ),
-      child: Text(
-        _initials,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 34,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-    if (url == null || url!.isEmpty) return fallback;
-    return ClipOval(
-      child: Image.network(
-        url!,
-        width: size,
-        height: size,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => fallback,
-        loadingBuilder: (ctx, child, prog) =>
-            prog == null ? child : fallback,
       ),
     );
   }

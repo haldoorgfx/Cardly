@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../net.dart';
-import '../../theme.dart';
+import '../../ui/tokens.dart';
+import '../../ui/components.dart';
 
 /// Organizers the signed-in attendee follows.
 ///
@@ -27,8 +28,11 @@ class _FollowingScreenState extends State<FollowingScreen> {
   @override
   void initState() {
     super.initState();
-    if (isSignedIn) _load();
-    else _loading = false;
+    if (isSignedIn) {
+      _load();
+    } else {
+      _loading = false;
+    }
   }
 
   Future<void> _load() async {
@@ -44,16 +48,19 @@ class _FollowingScreenState extends State<FollowingScreen> {
               'id, organizer_id, notify_new_events, created_at, profiles!organizer_follows_organizer_id_fkey(id, full_name, avatar_url, email)')
           .eq('follower_id', currentUserId as Object)
           .order('created_at', ascending: false);
+      if (!mounted) return;
       setState(() {
         _items = asMapList(rows).map(_Follow.fromRow).toList();
         _loading = false;
       });
     } on ApiException catch (e) {
+      if (!mounted) return;
       setState(() {
         _loading = false;
         _error = e.message;
       });
     } catch (_) {
+      if (!mounted) return;
       setState(() {
         _loading = false;
         _error = 'Something went wrong loading who you follow.';
@@ -67,14 +74,11 @@ class _FollowingScreenState extends State<FollowingScreen> {
     try {
       await supa.from('organizer_follows').delete().eq('id', f.id);
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Unfollowed ${f.name}')));
+      showToast(context, 'Unfollowed ${f.name}');
     } catch (_) {
       if (!mounted) return;
       setState(() => _items.insert(index.clamp(0, _items.length), f));
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not unfollow')),
-      );
+      showToast(context, 'Could not unfollow');
     }
   }
 
@@ -88,32 +92,24 @@ class _FollowingScreenState extends State<FollowingScreen> {
     } catch (_) {
       if (!mounted) return;
       setState(() => f.notify = !next);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not update notifications')),
-      );
+      showToast(context, 'Could not update notifications');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Brand.cream,
-      appBar: AppBar(
-        backgroundColor: Brand.cream,
-        foregroundColor: Brand.forest,
-        elevation: 0,
-        title: const Text('Following', style: TextStyle(color: Brand.forest)),
-      ),
+    return MScaffold(
+      appBar: const MAppBar(title: 'Following', hairline: true),
       body: !isSignedIn
           ? _SignInPrompt(
               message: 'Sign in to see the organizers you follow.',
               onSignInTap: widget.onSignInTap)
           : _loading
-              ? const _CenterSpinner()
+              ? const LoadingState()
               : _error != null
-                  ? _ErrorState(message: _error!, onRetry: _load)
+                  ? ErrorStateView(message: _error!, onRetry: _load)
                   : RefreshIndicator(
-                      color: Brand.forest,
+                      color: AppColors.forest,
                       onRefresh: _load,
                       child: _buildList(),
                     ),
@@ -123,82 +119,51 @@ class _FollowingScreenState extends State<FollowingScreen> {
   Widget _buildList() {
     if (_items.isEmpty) {
       return ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
         children: const [
-          SizedBox(height: 120),
-          _EmptyState(
+          SizedBox(height: 100),
+          EmptyState(
             icon: Icons.person_search_outlined,
+            title: 'Not following anyone',
             message: 'You\'re not following any organizers yet.',
           ),
         ],
       );
     }
     return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(AppSpace.lg, AppSpace.xs, AppSpace.lg, 40),
       itemCount: _items.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      separatorBuilder: (_, __) =>
+          const Divider(height: 1, thickness: 1, color: AppColors.border),
       itemBuilder: (context, i) => _tile(_items[i]),
     );
   }
 
   Widget _tile(_Follow f) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Brand.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Brand.border),
-      ),
-      child: Row(
+    return ListRow(
+      leading: Avatar(name: f.name, imageUrl: f.avatarUrl, size: 48),
+      title: Text(f.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+      subtitle: Text(f.notify ? 'New-event alerts on' : 'New-event alerts off'),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          _Avatar(url: f.avatarUrl, name: f.name, size: 48),
+          MToggle(value: f.notify, onChanged: (_) => _toggleNotify(f)),
           const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(f.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: Brand.ink)),
-                const SizedBox(height: 4),
-                GestureDetector(
-                  onTap: () => _toggleNotify(f),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                          f.notify
-                              ? Icons.notifications_active_outlined
-                              : Icons.notifications_off_outlined,
-                          size: 15,
-                          color: f.notify ? Brand.forest : Brand.muted),
-                      const SizedBox(width: 5),
-                      Text(
-                        f.notify ? 'New events on' : 'New events off',
-                        style: TextStyle(
-                            fontSize: 12,
-                            color: f.notify ? Brand.forest : Brand.muted),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+          GestureDetector(
+            onTap: () => _unfollow(f),
+            child: Container(
+              height: 34,
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              decoration: BoxDecoration(
+                color: AppColors.forestSoft,
+                borderRadius: BorderRadius.circular(999),
+              ),
+              alignment: Alignment.center,
+              child: Text('Following',
+                  style: AppText.bodySm.copyWith(
+                      color: AppColors.forest, fontWeight: FontWeight.w600)),
             ),
-          ),
-          const SizedBox(width: 8),
-          OutlinedButton(
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Brand.inkSoft,
-              side: const BorderSide(color: Brand.border),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(999)),
-            ),
-            onPressed: () => _unfollow(f),
-            child: const Text('Following', style: TextStyle(fontSize: 13)),
           ),
         ],
       ),
@@ -246,135 +211,12 @@ class _SignInPrompt extends StatelessWidget {
   const _SignInPrompt({required this.message, this.onSignInTap});
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.lock_outline, color: Brand.forest, size: 44),
-            const SizedBox(height: 14),
-            const Text('Sign in required',
-                style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: Brand.ink)),
-            const SizedBox(height: 8),
-            Text(message,
-                textAlign: TextAlign.center,
-                style:
-                    const TextStyle(fontSize: 14, height: 1.5, color: Brand.inkSoft)),
-            if (onSignInTap != null) ...[
-              const SizedBox(height: 20),
-              FilledButton(onPressed: onSignInTap, child: const Text('Sign in')),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _CenterSpinner extends StatelessWidget {
-  const _CenterSpinner();
-  @override
-  Widget build(BuildContext context) =>
-      const Center(child: CircularProgressIndicator(color: Brand.forest));
-}
-
-class _ErrorState extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-  const _ErrorState({required this.message, required this.onRetry});
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.error_outline, color: Brand.danger, size: 40),
-            const SizedBox(height: 12),
-            Text(message,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 15, color: Brand.inkSoft)),
-            const SizedBox(height: 16),
-            FilledButton(onPressed: onRetry, child: const Text('Try again')),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _EmptyState extends StatelessWidget {
-  final IconData icon;
-  final String message;
-  const _EmptyState({required this.icon, required this.message});
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: Brand.muted, size: 40),
-            const SizedBox(height: 12),
-            Text(message,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 15, color: Brand.inkSoft)),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _Avatar extends StatelessWidget {
-  final String? url;
-  final String name;
-  final double size;
-  const _Avatar({required this.url, required this.name, this.size = 44});
-
-  String get _initials {
-    final parts = name.trim().split(RegExp(r'\s+'));
-    if (parts.isEmpty || parts.first.isEmpty) return '?';
-    if (parts.length == 1) return parts.first[0].toUpperCase();
-    return (parts.first[0] + parts.last[0]).toUpperCase();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final fallback = Container(
-      width: size,
-      height: size,
-      alignment: Alignment.center,
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Brand.forest, Color(0xFF2A6A50)],
-        ),
-      ),
-      child: Text(_initials,
-          style: TextStyle(
-              color: Colors.white,
-              fontSize: size * 0.34,
-              fontWeight: FontWeight.w600)),
-    );
-    if (url == null || url!.isEmpty) return fallback;
-    return ClipOval(
-      child: Image.network(
-        url!,
-        width: size,
-        height: size,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => fallback,
-        loadingBuilder: (ctx, child, prog) => prog == null ? child : fallback,
-      ),
+    return EmptyState(
+      icon: Icons.lock_outline,
+      title: 'Sign in required',
+      message: message,
+      ctaLabel: onSignInTap != null ? 'Sign in' : null,
+      onCta: onSignInTap,
     );
   }
 }

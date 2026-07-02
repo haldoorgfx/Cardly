@@ -161,4 +161,14 @@ class _AttendeeHomeScreenState extends State<AttendeeHomeScreen> {
                         MaterialPageRoute(
                             builder: (_) => const OrganizerGate())),
                     child: const Text('For organizers →',
-                        style: TextStyle(color: Brand.muted
+                        style: TextStyle(color: Brand.muted, fontSize: 13.5)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

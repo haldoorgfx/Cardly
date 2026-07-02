@@ -220,6 +220,13 @@ class HubDates {
     return '$wd, ${d.day} $mo ${d.year}';
   }
 
+  /// e.g. "12 Mar" (compact, for list cards)
+  static String shortDate(DateTime? d) {
+    if (d == null) return 'TBA';
+    final mo = _months[(d.month - 1).clamp(0, 11)];
+    return '${d.day} $mo';
+  }
+
   /// e.g. "9:05 AM"
   static String time(DateTime? d) {
     if (d == null) return '';

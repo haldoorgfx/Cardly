@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../net.dart';
-import '../../theme.dart';
+import '../../ui/tokens.dart';
+import '../../ui/components.dart';
 
 /// View / edit the signed-in attendee's `profiles` row.
 ///
@@ -35,6 +36,13 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
   List<String> _interests = [];
   Map<String, dynamic> _prefs = {};
 
+  // Suggested interests offered as tap-to-add chips (in addition to any
+  // custom ones the attendee already has).
+  static const _suggestedInterests = <String>[
+    'Fintech', 'Design', 'Music', 'Startups', 'Climate', 'AI',
+    'Marketing', 'Product', 'Web3', 'Health',
+  ];
+
   // The notification pref toggles we surface (jsonb keys).
   static const _prefKeys = <String, String>{
     'reminders_email': 'Event reminders',
@@ -46,8 +54,11 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
   @override
   void initState() {
     super.initState();
-    if (isSignedIn) _load();
-    else _loading = false;
+    if (isSignedIn) {
+      _load();
+    } else {
+      _loading = false;
+    }
   }
 
   @override
@@ -73,7 +84,10 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
           .eq('id', currentUserId as Object)
           .maybeSingle();
 
-      final m = (row is Map) ? Map<String, dynamic>.from(row) : <String, dynamic>{};
+      if (!mounted) return;
+      final m = row == null
+          ? <String, dynamic>{}
+          : Map<String, dynamic>.from(row);
       _nameCtl.text = asString(m['full_name']);
       _cityCtl.text = asString(m['city']);
       _phoneCtl.text = asString(m['phone']);
@@ -90,11 +104,13 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
 
       setState(() => _loading = false);
     } on ApiException catch (e) {
+      if (!mounted) return;
       setState(() {
         _loading = false;
         _error = e.message;
       });
     } catch (_) {
+      if (!mounted) return;
       setState(() {
         _loading = false;
         _error = 'Something went wrong loading your profile.';
@@ -102,16 +118,29 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
     }
   }
 
-  void _addInterest() {
-    final v = _interestCtl.text.trim();
+  bool _hasInterest(String v) =>
+      _interests.any((e) => e.toLowerCase() == v.toLowerCase());
+
+  void _addInterest([String? value]) {
+    final v = (value ?? _interestCtl.text).trim();
     if (v.isEmpty) return;
-    if (_interests.any((e) => e.toLowerCase() == v.toLowerCase())) {
+    if (_hasInterest(v)) {
       _interestCtl.clear();
       return;
     }
     setState(() {
       _interests.add(v);
       _interestCtl.clear();
+    });
+  }
+
+  void _toggleInterest(String v) {
+    setState(() {
+      if (_hasInterest(v)) {
+        _interests.removeWhere((e) => e.toLowerCase() == v.toLowerCase());
+      } else {
+        _interests.add(v);
+      }
     });
   }
 
@@ -129,142 +158,189 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
       await supa.from('profiles').update(patch).eq('id', currentUserId as Object);
       if (!mounted) return;
       setState(() => _saving = false);
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Profile saved')));
+      showToast(context, 'Profile saved');
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _saving = false);
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(e.message)));
+      showToast(context, e.message);
     } catch (_) {
       if (!mounted) return;
       setState(() => _saving = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not save your profile')),
-      );
+      showToast(context, 'Could not save your profile');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Brand.cream,
-      appBar: AppBar(
-        backgroundColor: Brand.cream,
-        foregroundColor: Brand.forest,
-        elevation: 0,
-        title: const Text('Profile', style: TextStyle(color: Brand.forest)),
+    return MScaffold(
+      appBar: MAppBar(
+        title: 'Profile',
+        hairline: true,
+        actions: [
+          if (isSignedIn)
+            Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: GestureDetector(
+                onTap: _saving ? null : _save,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                  child: _saving
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: AppColors.forest),
+                        )
+                      : Text('Save',
+                          style:
+                              AppText.label.copyWith(color: AppColors.forest)),
+                ),
+              ),
+            ),
+        ],
       ),
+      bottomBar: isSignedIn && !_loading && _error == null
+          ? StickyCta(children: [
+              Expanded(
+                child: MButton('Save changes',
+                    loading: _saving, onTap: _save),
+              ),
+            ])
+          : null,
       body: !isSignedIn
           ? _SignInPrompt(
               message: 'Sign in to view and edit your profile.',
               onSignInTap: widget.onSignInTap)
           : _loading
-              ? const _CenterSpinner()
+              ? const LoadingState()
               : _error != null
-                  ? _ErrorState(message: _error!, onRetry: _load)
+                  ? ErrorStateView(message: _error!, onRetry: _load)
                   : _buildForm(),
     );
   }
 
   Widget _buildForm() {
+    // Interests to show as chips: suggested set + any custom ones already saved.
+    final custom = _interests
+        .where((i) => !_suggestedInterests
+            .any((s) => s.toLowerCase() == i.toLowerCase()))
+        .toList();
+    final chips = [..._suggestedInterests, ...custom];
+
     return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 40),
+      padding: const EdgeInsets.fromLTRB(AppSpace.lg, AppSpace.base, AppSpace.lg, 40),
       children: [
         Center(
           child: Column(
             children: [
-              _Avatar(url: _avatarUrl, name: _nameCtl.text, size: 84),
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Avatar(name: _nameCtl.text, imageUrl: _avatarUrl, size: 84),
+                  Positioned(
+                    bottom: -2,
+                    right: -2,
+                    child: Container(
+                      width: 28,
+                      height: 28,
+                      decoration: BoxDecoration(
+                        color: AppColors.forest,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColors.canvas, width: 2.5),
+                      ),
+                      alignment: Alignment.center,
+                      child: const Icon(Icons.edit, size: 13, color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: 10),
               if (_email.isNotEmpty)
-                Text(_email,
-                    style: const TextStyle(fontSize: 13, color: Brand.muted)),
+                Text(_email, style: AppText.caption),
             ],
           ),
         ),
         const SizedBox(height: 28),
-        const _FieldLabel('Full name'),
-        const SizedBox(height: 6),
-        TextField(
+        MInput(
+          label: 'Full name',
+          hint: 'Your name',
           controller: _nameCtl,
-          textCapitalization: TextCapitalization.words,
-          decoration: const InputDecoration(hintText: 'Your name'),
           onChanged: (_) => setState(() {}),
         ),
         const SizedBox(height: 18),
-        const _FieldLabel('City'),
-        const SizedBox(height: 6),
-        TextField(
+        MInput(
+          label: 'City',
+          hint: 'Where you\'re based',
           controller: _cityCtl,
-          textCapitalization: TextCapitalization.words,
-          decoration: const InputDecoration(hintText: 'Where you\'re based'),
         ),
         const SizedBox(height: 18),
-        const _FieldLabel('Phone'),
-        const SizedBox(height: 6),
-        TextField(
+        MInput(
+          label: 'Phone',
+          hint: '+000 000 0000',
           controller: _phoneCtl,
           keyboardType: TextInputType.phone,
-          decoration: const InputDecoration(hintText: '+000 000 0000'),
         ),
         const SizedBox(height: 24),
-        const _FieldLabel('Interests'),
-        const SizedBox(height: 6),
+        const SectionLabel('Interests'),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 9,
+          runSpacing: 9,
+          children: [
+            for (final tag in chips)
+              MChip(
+                tag,
+                selected: _hasInterest(tag),
+                onTap: () => _toggleInterest(tag),
+              ),
+          ],
+        ),
+        const SizedBox(height: 12),
         Row(
           children: [
             Expanded(
-              child: TextField(
+              child: MInput(
+                hint: 'Add your own interest',
                 controller: _interestCtl,
-                textInputAction: TextInputAction.done,
-                decoration:
-                    const InputDecoration(hintText: 'Add an interest'),
+                action: TextInputAction.done,
                 onSubmitted: (_) => _addInterest(),
               ),
             ),
-            const SizedBox(width: 8),
-            IconButton.filled(
-              style: IconButton.styleFrom(backgroundColor: Brand.forest),
-              icon: const Icon(Icons.add, size: 20),
-              onPressed: _addInterest,
+            const SizedBox(width: 10),
+            GestureDetector(
+              onTap: () => _addInterest(),
+              child: Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: AppColors.forest,
+                  borderRadius: BorderRadius.circular(AppRadius.btn),
+                ),
+                alignment: Alignment.center,
+                child: const Icon(Icons.add, size: 20, color: Colors.white),
+              ),
             ),
           ],
         ),
-        if (_interests.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: _interests
-                .map((tag) => _InterestChip(
-                      label: tag,
-                      onRemove: () => setState(() => _interests.remove(tag)),
-                    ))
-                .toList(),
-          ),
-        ],
         const SizedBox(height: 28),
-        const _FieldLabel('Email notifications'),
+        const SectionLabel('Notifications'),
         const SizedBox(height: 4),
-        ..._prefKeys.entries.map((e) => SwitchListTile.adaptive(
-              contentPadding: EdgeInsets.zero,
-              activeColor: Brand.forest,
-              title: Text(e.value,
-                  style: const TextStyle(fontSize: 14, color: Brand.ink)),
-              value: _prefs[e.key] == true,
-              onChanged: (v) => setState(() => _prefs[e.key] = v),
+        ..._prefKeys.entries.map((e) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(e.value,
+                        style: AppText.subhead.copyWith(fontSize: 14)),
+                  ),
+                  const SizedBox(width: 12),
+                  MToggle(
+                    value: _prefs[e.key] == true,
+                    onChanged: (v) => setState(() => _prefs[e.key] = v),
+                  ),
+                ],
+              ),
             )),
-        const SizedBox(height: 24),
-        FilledButton(
-          onPressed: _saving ? null : _save,
-          child: _saving
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                      strokeWidth: 2, color: Colors.white),
-                )
-              : const Text('Save changes'),
-        ),
       ],
     );
   }
@@ -272,162 +348,18 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
 
 // ─── local widgets ──────────────────────────────────────────────────────────
 
-class _FieldLabel extends StatelessWidget {
-  final String text;
-  const _FieldLabel(this.text);
-  @override
-  Widget build(BuildContext context) => Text(
-        text,
-        style: const TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w700,
-          color: Brand.inkSoft,
-        ),
-      );
-}
-
-class _InterestChip extends StatelessWidget {
-  final String label;
-  final VoidCallback onRemove;
-  const _InterestChip({required this.label, required this.onRemove});
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(left: 12, right: 6, top: 6, bottom: 6),
-      decoration: BoxDecoration(
-        color: Brand.forest.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(label,
-              style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: Brand.forest)),
-          const SizedBox(width: 4),
-          GestureDetector(
-            onTap: onRemove,
-            child: const Icon(Icons.close, size: 16, color: Brand.forest),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _SignInPrompt extends StatelessWidget {
   final String message;
   final VoidCallback? onSignInTap;
   const _SignInPrompt({required this.message, this.onSignInTap});
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.lock_outline, color: Brand.forest, size: 44),
-            const SizedBox(height: 14),
-            const Text('Sign in required',
-                style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: Brand.ink)),
-            const SizedBox(height: 8),
-            Text(message,
-                textAlign: TextAlign.center,
-                style:
-                    const TextStyle(fontSize: 14, height: 1.5, color: Brand.inkSoft)),
-            if (onSignInTap != null) ...[
-              const SizedBox(height: 20),
-              FilledButton(onPressed: onSignInTap, child: const Text('Sign in')),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _CenterSpinner extends StatelessWidget {
-  const _CenterSpinner();
-  @override
-  Widget build(BuildContext context) =>
-      const Center(child: CircularProgressIndicator(color: Brand.forest));
-}
-
-class _ErrorState extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-  const _ErrorState({required this.message, required this.onRetry});
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.error_outline, color: Brand.danger, size: 40),
-            const SizedBox(height: 12),
-            Text(message,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 15, color: Brand.inkSoft)),
-            const SizedBox(height: 16),
-            FilledButton(onPressed: onRetry, child: const Text('Try again')),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _Avatar extends StatelessWidget {
-  final String? url;
-  final String name;
-  final double size;
-  const _Avatar({required this.url, required this.name, this.size = 44});
-
-  String get _initials {
-    final parts = name.trim().split(RegExp(r'\s+'));
-    if (parts.isEmpty || parts.first.isEmpty) return '?';
-    if (parts.length == 1) return parts.first[0].toUpperCase();
-    return (parts.first[0] + parts.last[0]).toUpperCase();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final fallback = Container(
-      width: size,
-      height: size,
-      alignment: Alignment.center,
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Brand.forest, Color(0xFF2A6A50)],
-        ),
-      ),
-      child: Text(_initials,
-          style: TextStyle(
-              color: Colors.white,
-              fontSize: size * 0.34,
-              fontWeight: FontWeight.w600)),
-    );
-    if (url == null || url!.isEmpty) return fallback;
-    return ClipOval(
-      child: Image.network(
-        url!,
-        width: size,
-        height: size,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => fallback,
-        loadingBuilder: (ctx, child, prog) => prog == null ? child : fallback,
-      ),
+    return EmptyState(
+      icon: Icons.lock_outline,
+      title: 'Sign in required',
+      message: message,
+      ctaLabel: onSignInTap != null ? 'Sign in' : null,
+      onCta: onSignInTap,
     );
   }
 }

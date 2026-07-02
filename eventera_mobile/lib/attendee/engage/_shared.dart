@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../../theme.dart';
+import '../../ui/tokens.dart';
+import '../../ui/components.dart';
 
-/// Small shared bits used across the engagement screens. New file, no shared
-/// edits. Keeps each screen focused.
+/// Small shared bits used across the engagement screens. Re-skinned to the
+/// forest + cream design system (tokens.dart / components.dart). Exported
+/// symbols are unchanged so the sibling screens keep compiling:
+///   fmtDayLabel, fmtTime, fmtTimeRange, EngageState, RegisterPrompt,
+///   engageCard, showEngageSnack.
 
 /// Manual month/day/time formatting (no intl package).
 const _months = [
@@ -38,7 +42,8 @@ String fmtTimeRange(DateTime? start, DateTime? end) {
   return '${fmtTime(start)} – ${fmtTime(end)}';
 }
 
-/// A generic centered state for loading / empty / error.
+/// A generic centered state for loading / empty / error. Now built on the
+/// design-system [EmptyState] for a consistent forest-cream look.
 class EngageState extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -56,31 +61,28 @@ class EngageState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(AppSpace.xxxl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 44, color: Brand.muted),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w600,
-                color: Brand.ink,
+            Container(
+              width: 64,
+              height: 64,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: AppColors.creamSoft,
+                shape: BoxShape.circle,
               ),
+              child: Icon(icon, size: 28, color: AppColors.inkMuted),
             ),
+            const SizedBox(height: AppSpace.base),
+            Text(title, textAlign: TextAlign.center, style: AppText.h3),
             if (subtitle != null) ...[
-              const SizedBox(height: 8),
-              Text(
-                subtitle!,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 14, color: Brand.muted),
-              ),
+              const SizedBox(height: 6),
+              Text(subtitle!, textAlign: TextAlign.center, style: AppText.bodySm),
             ],
             if (action != null) ...[
-              const SizedBox(height: 20),
+              const SizedBox(height: AppSpace.lg),
               action!,
             ],
           ],
@@ -90,10 +92,12 @@ class EngageState extends StatelessWidget {
   }
 }
 
-/// A "register to join" prompt shown when registrationId is null.
+/// A "register to join" prompt shown when registrationId is null. Restyled,
+/// not removed — the gating behaviour is preserved.
 class RegisterPrompt extends StatelessWidget {
   final String message;
-  const RegisterPrompt({super.key, this.message = 'Register for this event to join in'});
+  const RegisterPrompt(
+      {super.key, this.message = 'Register for this event to join in'});
 
   @override
   Widget build(BuildContext context) {
@@ -105,19 +109,32 @@ class RegisterPrompt extends StatelessWidget {
   }
 }
 
-/// Card surface used everywhere.
+/// Card surface used everywhere. Now matches the design-system MCard look.
 BoxDecoration engageCard() => BoxDecoration(
-      color: Brand.surface,
-      borderRadius: BorderRadius.circular(14),
-      border: Border.all(color: Brand.border),
+      color: AppColors.surface,
+      borderRadius: BorderRadius.circular(AppRadius.card),
+      border: Border.all(color: AppColors.border),
+      boxShadow: AppShadow.soft,
     );
 
+/// Toast — forest-dark surface, gold check, matching the design language.
 void showEngageSnack(BuildContext context, String msg, {bool error = false}) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(msg),
-      backgroundColor: error ? Brand.danger : Brand.forest,
-      behavior: SnackBarBehavior.floating,
-    ),
-  );
+  if (error) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: AppColors.danger,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        content: Row(children: [
+          const Icon(Icons.error_outline, color: Colors.white, size: 18),
+          const SizedBox(width: 10),
+          Expanded(
+              child: Text(msg,
+                  style: AppText.bodySm.copyWith(color: Colors.white))),
+        ]),
+      ),
+    );
+    return;
+  }
+  showToast(context, msg);
 }

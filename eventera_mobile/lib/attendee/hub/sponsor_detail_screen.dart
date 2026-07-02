@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../net.dart';
-import '../../theme.dart';
+import '../../ui/components.dart';
+import '../../ui/tokens.dart';
 
 /// Detail view for a single sponsor / booth.
 ///
@@ -45,6 +46,7 @@ class _SponsorDetailScreenState extends State<SponsorDetailScreen> {
           .eq('event_id', widget.eventId)
           .maybeSingle();
 
+      if (!mounted) return;
       if (row == null) {
         setState(() {
           _loading = false;
@@ -57,11 +59,13 @@ class _SponsorDetailScreenState extends State<SponsorDetailScreen> {
         _loading = false;
       });
     } on ApiException catch (e) {
+      if (!mounted) return;
       setState(() {
         _loading = false;
         _error = e.message;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _loading = false;
         _error = 'Something went wrong loading this sponsor.';
@@ -81,42 +85,19 @@ class _SponsorDetailScreenState extends State<SponsorDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Brand.cream,
-      appBar: AppBar(
-        backgroundColor: Brand.cream,
-        foregroundColor: Brand.forest,
-        elevation: 0,
-        title: const Text('Sponsor', style: TextStyle(color: Brand.forest)),
-      ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator(color: Brand.forest))
-          : _error != null
-              ? _errorState()
-              : _buildBody(),
-    );
-  }
-
-  Widget _errorState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.error_outline, color: Brand.danger, size: 40),
-            const SizedBox(height: 12),
-            Text(
-              _error!,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 15, color: Brand.inkSoft),
-            ),
-            const SizedBox(height: 16),
-            FilledButton(onPressed: _load, child: const Text('Try again')),
-          ],
-        ),
-      ),
-    );
+    if (_loading) {
+      return const MScaffold(
+        appBar: MAppBar(title: 'Booth'),
+        body: LoadingState(),
+      );
+    }
+    if (_error != null) {
+      return MScaffold(
+        appBar: const MAppBar(title: 'Booth'),
+        body: ErrorStateView(message: _error!, onRetry: _load),
+      );
+    }
+    return _buildBody();
   }
 
   Widget _buildBody() {
@@ -124,7 +105,6 @@ class _SponsorDetailScreenState extends State<SponsorDetailScreen> {
     final name = asString(s['company_name'], 'Sponsor');
     final tagline = asString(s['tagline']).trim();
     final logoUrl = asString(s['logo_url']).trim();
-    final coverUrl = asString(s['cover_url']).trim();
     final tier = asString(s['tier']).trim();
     final description = asString(s['description']).trim();
     final contactEmail = asString(s['contact_email']).trim();
@@ -133,376 +113,163 @@ class _SponsorDetailScreenState extends State<SponsorDetailScreen> {
     final boothLocation = asString(s['booth_location']).trim();
     final boothHours = asString(s['booth_hours']).trim();
 
-    return ListView(
-      padding: EdgeInsets.zero,
-      children: [
-        _Hero(coverUrl: coverUrl, logoUrl: logoUrl, name: name, tagline: tagline, tier: tier),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 22, 20, 40),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    final canMeet = meetingUrl.isNotEmpty || contactEmail.isNotEmpty;
+
+    return MScaffold(
+      appBar: const MAppBar(title: 'Booth', hairline: true),
+      bottomBar: canMeet
+          ? StickyCta(children: [
+              Expanded(
+                child: MButton(
+                  'Book a meeting',
+                  icon: Icons.calendar_today_outlined,
+                  onTap: () => showToast(context,
+                      meetingUrl.isNotEmpty ? meetingUrl : 'Contact: $contactEmail'),
+                ),
+              ),
+            ])
+          : null,
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+        children: [
+          // logo + name + tier
+          Row(
             children: [
-              if (description.isNotEmpty) ...[
-                _label('About $name'),
-                const SizedBox(height: 10),
-                Text(
-                  description,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    height: 1.6,
-                    color: Brand.inkSoft,
-                  ),
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: AppColors.forestSoft,
+                  borderRadius: BorderRadius.circular(14),
                 ),
-                const SizedBox(height: 26),
-              ],
-              if (_offerings.isNotEmpty) ...[
-                _label("What we're offering"),
-                const SizedBox(height: 10),
-                ..._offerings.map(
-                  (o) => Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 20,
-                          height: 20,
-                          margin: const EdgeInsets.only(top: 2),
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: Brand.forest.withValues(alpha: 0.10),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.check,
-                              size: 12, color: Brand.forest),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            o,
-                            style: const TextStyle(
-                              fontSize: 15,
-                              height: 1.4,
-                              color: Brand.inkSoft,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                clipBehavior: Clip.antiAlias,
+                alignment: Alignment.center,
+                child: logoUrl.isNotEmpty
+                    ? Image.network(
+                        logoUrl,
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, __, ___) => _logoFallback(name),
+                        loadingBuilder: (ctx, child, prog) =>
+                            prog == null ? child : _logoFallback(name),
+                      )
+                    : _logoFallback(name),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(name, style: AppText.h2.copyWith(fontSize: 20)),
+                    if (tier.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text('${_titleCase(tier)} sponsor',
+                          style: AppText.caption.copyWith(fontSize: 12.5)),
+                    ],
+                  ],
                 ),
-                const SizedBox(height: 16),
-              ],
-              if (_team.isNotEmpty) ...[
-                _label('Meet the team at the booth'),
-                const SizedBox(height: 14),
-                Wrap(
-                  spacing: 18,
-                  runSpacing: 16,
-                  children: _team.map((m) {
-                    final mName = asString(m['name'], 'Team member');
-                    final mRole = asString(m['role']).trim();
-                    final mAvatar = asString(m['avatar_url']).trim();
-                    return _TeamMember(
-                        name: mName, role: mRole, avatarUrl: mAvatar);
-                  }).toList(),
-                ),
-                const SizedBox(height: 26),
-              ],
-              _BoothCard(
-                boothLocation: boothLocation,
-                boothHours: boothHours,
-                contactEmail: contactEmail,
-                meetingUrl: meetingUrl,
-                websiteUrl: websiteUrl,
               ),
             ],
           ),
-        ),
-      ],
-    );
-  }
 
-  Widget _label(String text) => Text(
-        text,
-        style: const TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w700,
-          color: Brand.forest,
-        ),
-      );
-}
+          if (description.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Text(description, style: AppText.body),
+          ] else if (tagline.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Text(tagline, style: AppText.body),
+          ],
 
-class _Hero extends StatelessWidget {
-  final String coverUrl;
-  final String logoUrl;
-  final String name;
-  final String tagline;
-  final String tier;
-  const _Hero({
-    required this.coverUrl,
-    required this.logoUrl,
-    required this.name,
-    required this.tagline,
-    required this.tier,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 240,
-      width: double.infinity,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          if (coverUrl.isNotEmpty)
-            Image.network(
-              coverUrl,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => const _GradientBg(),
-              loadingBuilder: (ctx, child, prog) =>
-                  prog == null ? child : const _GradientBg(),
-            )
-          else
-            const _GradientBg(),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.transparent,
-                  Brand.ink.withValues(alpha: 0.72),
-                ],
-                stops: const [0.4, 1.0],
+          // Booth location card
+          if (boothLocation.isNotEmpty || boothHours.isNotEmpty) ...[
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.canvas,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.border),
               ),
-            ),
-          ),
-          Positioned(
-            left: 20,
-            right: 20,
-            bottom: 20,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (tier.isNotEmpty)
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Brand.gold,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Text(
-                      tier.toUpperCase(),
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: Brand.ink,
-                        letterSpacing: 0.5,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.location_on_outlined,
+                      size: 18, color: AppColors.forest),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: RichText(
+                      text: TextSpan(
+                        style: AppText.bodySm.copyWith(fontSize: 12.5),
+                        children: [
+                          if (boothLocation.isNotEmpty)
+                            TextSpan(
+                                text: boothLocation,
+                                style: AppText.bodyStrong
+                                    .copyWith(fontSize: 12.5)),
+                          if (boothLocation.isNotEmpty && boothHours.isNotEmpty)
+                            const TextSpan(text: ' · '),
+                          if (boothHours.isNotEmpty)
+                            TextSpan(text: 'open $boothHours'),
+                        ],
                       ),
                     ),
                   ),
-                Text(
-                  name,
-                  style: const TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                ),
-                if (tagline.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    tagline,
-                    style: const TextStyle(fontSize: 15, color: Brand.gold),
-                  ),
                 ],
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _GradientBg extends StatelessWidget {
-  const _GradientBg();
-  @override
-  Widget build(BuildContext context) => const DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Brand.forest, Color(0xFF2A6A50), Brand.gold],
-          ),
-        ),
-      );
-}
-
-class _TeamMember extends StatelessWidget {
-  final String name;
-  final String role;
-  final String avatarUrl;
-  const _TeamMember({
-    required this.name,
-    required this.role,
-    required this.avatarUrl,
-  });
-
-  String get _initials {
-    final parts = name.trim().split(RegExp(r'\s+'));
-    if (parts.isEmpty || parts.first.isEmpty) return '?';
-    if (parts.length == 1) return parts.first[0].toUpperCase();
-    return (parts.first[0] + parts.last[0]).toUpperCase();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final fallback = Container(
-      width: 40,
-      height: 40,
-      alignment: Alignment.center,
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          colors: [Brand.forest, Color(0xFF2A6A50)],
-        ),
-      ),
-      child: Text(
-        _initials,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-    return SizedBox(
-      width: 150,
-      child: Row(
-        children: [
-          if (avatarUrl.isEmpty)
-            fallback
-          else
-            ClipOval(
-              child: Image.network(
-                avatarUrl,
-                width: 40,
-                height: 40,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => fallback,
-                loadingBuilder: (ctx, child, prog) =>
-                    prog == null ? child : fallback,
               ),
-            ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Brand.ink,
-                  ),
-                ),
-                if (role.isNotEmpty)
-                  Text(
-                    role,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 12, color: Brand.muted),
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _BoothCard extends StatelessWidget {
-  final String boothLocation;
-  final String boothHours;
-  final String contactEmail;
-  final String meetingUrl;
-  final String websiteUrl;
-  const _BoothCard({
-    required this.boothLocation,
-    required this.boothHours,
-    required this.contactEmail,
-    required this.meetingUrl,
-    required this.websiteUrl,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Brand.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Brand.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (boothLocation.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Text(
-                boothLocation,
-                style: const TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
-                  color: Brand.forest,
-                ),
-              ),
-            ),
-          if (boothHours.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 14),
-              child: Text(
-                'Open: $boothHours',
-                style: const TextStyle(fontSize: 13, color: Brand.muted),
-              ),
-            ),
-          FilledButton(
-            onPressed: contactEmail.isEmpty
-                ? null
-                : () => _snack(context, 'Contact: $contactEmail'),
-            child: const Text('Connect at the booth'),
-          ),
-          if (meetingUrl.isNotEmpty) ...[
-            const SizedBox(height: 10),
-            OutlinedButton(
-              onPressed: () => _snack(context, meetingUrl),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Brand.ink,
-                side: const BorderSide(color: Brand.border),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text('Book a meeting'),
             ),
           ],
-          if (websiteUrl.isNotEmpty) ...[
+
+          // Offerings
+          if (_offerings.isNotEmpty) ...[
+            const SizedBox(height: 22),
+            const SectionLabel('Offerings'),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (var i = 0; i < _offerings.length; i++)
+                  Tag(_offerings[i],
+                      kind: i == _offerings.length - 1 && _offerings.length > 1
+                          ? TagKind.gold
+                          : TagKind.forest),
+              ],
+            ),
+          ],
+
+          // Team
+          if (_team.isNotEmpty) ...[
+            const SizedBox(height: 22),
+            const SectionLabel('Team at the booth'),
             const SizedBox(height: 14),
+            Row(
+              children: _team.map((m) {
+                final mName = asString(m['name'], 'Team member');
+                final mAvatar = asString(m['avatar_url']).trim();
+                return Padding(
+                  padding: const EdgeInsets.only(right: 16),
+                  child: Column(
+                    children: [
+                      Avatar(
+                          name: mName,
+                          imageUrl: mAvatar.isEmpty ? null : mAvatar,
+                          size: 48),
+                      const SizedBox(height: 6),
+                      Text(mName.split(' ').first,
+                          style: AppText.subhead.copyWith(fontSize: 11)),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+
+          if (websiteUrl.isNotEmpty) ...[
+            const SizedBox(height: 22),
             Center(
               child: GestureDetector(
-                onTap: () => _snack(context, websiteUrl),
-                child: Text(
-                  '$websiteUrl →',
-                  style: const TextStyle(fontSize: 13, color: Brand.muted),
-                ),
+                onTap: () => showToast(context, websiteUrl),
+                child: Text('$websiteUrl →',
+                    style: AppText.bodySm.copyWith(color: AppColors.inkMuted)),
               ),
             ),
           ],
@@ -511,8 +278,11 @@ class _BoothCard extends StatelessWidget {
     );
   }
 
-  void _snack(BuildContext context, String msg) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(msg)));
-  }
+  Widget _logoFallback(String name) => Text(
+        name.isNotEmpty ? name[0].toUpperCase() : '?',
+        style: AppText.h2.copyWith(color: AppColors.forest, fontSize: 24),
+      );
+
+  String _titleCase(String s) =>
+      s.isEmpty ? s : s[0].toUpperCase() + s.substring(1).toLowerCase();
 }

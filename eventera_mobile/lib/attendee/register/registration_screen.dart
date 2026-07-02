@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
 import '../../net.dart';
-import '../../theme.dart';
+import '../../ui/components.dart';
+import '../../ui/tokens.dart';
 import '../reg_store.dart';
 import 'confirm_screen.dart';
 
-/// Attendee registration form for a single event. Loads visible ticket types
-/// and any organizer-defined custom form fields, collects name/email/phone,
-/// applies a promo code, and POSTs to /api/events/[id]/register.
+/// Attendee registration for a single event. Loads visible ticket types and any
+/// organizer-defined custom form fields, collects name/email/phone, applies a
+/// promo code, and POSTs to /api/events/[id]/register.
+/// Screens 8 (ticket selection), 9 (registration form), 10 (order summary).
 class RegistrationScreen extends StatefulWidget {
   final String eventId;
   final String slug;
@@ -47,6 +49,7 @@ class _TicketType {
 
   bool get soldOut => quantity != null && quantitySold >= quantity!;
   bool get isPwyw => minPrice != null && minPrice! > 0;
+  int? get remaining => quantity == null ? null : (quantity! - quantitySold);
 
   factory _TicketType.fromJson(Map<String, dynamic> j) => _TicketType(
         id: asString(j['id']),
@@ -214,6 +217,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           'amount': _basePrice,
         },
       );
+      if (!mounted) return;
       final map = res is Map ? Map<String, dynamic>.from(res) : {};
       if (asBool(map['valid'])) {
         setState(() {
@@ -225,8 +229,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             _promoError = asString(map['error'], 'That code isn’t valid.'));
       }
     } on ApiException catch (e) {
+      if (!mounted) return;
       setState(() => _promoError = e.message);
     } catch (_) {
+      if (!mounted) return;
       setState(() => _promoError = 'Could not check that code.');
     } finally {
       if (mounted) setState(() => _promoChecking = false);
@@ -376,37 +382,24 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     }
   }
 
+  // ── Build ──────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Brand.cream,
-      appBar: AppBar(
-        backgroundColor: Brand.cream,
-        elevation: 0,
-        foregroundColor: Brand.ink,
-        title: const Text('Register'),
-      ),
-      body: SafeArea(child: _body()),
+    final showBar = !_loading && _loadError == null && _tickets.isNotEmpty;
+    return MScaffold(
+      appBar: const MAppBar(title: 'Register', hairline: true),
+      bottomBar: showBar ? _stickyBar() : null,
+      body: _body(),
     );
   }
 
   Widget _body() {
-    if (_loading) {
-      return const Center(
-        child: CircularProgressIndicator(color: Brand.forest),
-      );
-    }
+    if (_loading) return const LoadingState();
     if (_loadError != null) {
-      return _CenterMessage(
-        icon: Icons.error_outline,
-        title: 'Couldn’t load',
-        message: _loadError!,
-        actionLabel: 'Retry',
-        onAction: _load,
-      );
+      return ErrorStateView(message: _loadError!, onRetry: _load);
     }
     if (_tickets.isEmpty) {
-      return const _CenterMessage(
+      return const EmptyState(
         icon: Icons.confirmation_number_outlined,
         title: 'No tickets available',
         message: 'This event has no tickets open for registration right now.',
@@ -414,55 +407,55 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     }
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.fromLTRB(
+          AppSpace.lg, AppSpace.base, AppSpace.lg, AppSpace.base),
       child: Form(
         key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              widget.eventName,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-                color: Brand.ink,
-              ),
-            ),
+            Text(widget.eventName, style: AppText.h2),
             const SizedBox(height: 20),
-            _sectionLabel('Choose a ticket'),
-            const SizedBox(height: 8),
+            // ── Screen 8: ticket selection ────────────────────────────
+            const SectionLabel('Choose a ticket'),
+            const SizedBox(height: 12),
             ..._tickets.map(_ticketTile),
             if (_selectedTicket?.isPwyw ?? false) ...[
-              const SizedBox(height: 8),
-              TextFormField(
+              const SizedBox(height: 4),
+              MInput(
+                label: 'Amount (${_selectedTicket!.currency})',
+                hint: 'Min ${_selectedTicket!.minPrice}',
                 controller: _pwywCtrl,
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
-                decoration: InputDecoration(
-                  labelText: 'Amount (${_selectedTicket!.currency})',
-                  hintText: 'Min ${_selectedTicket!.minPrice}',
-                ),
                 onChanged: (_) => setState(() {
                   _promoApplied = false;
                   _promoDiscount = 0;
                 }),
               ),
             ],
+            if (_basePrice > 0) ...[
+              const SizedBox(height: 12),
+              _promoField(),
+            ],
             const SizedBox(height: 24),
-            _sectionLabel('Your details'),
-            const SizedBox(height: 8),
-            TextFormField(
+            const Divider(color: AppColors.border, height: 1),
+            const SizedBox(height: 20),
+            // ── Screen 9: your details ────────────────────────────────
+            const SectionLabel('Your details'),
+            const SizedBox(height: 14),
+            _MFormField(
+              label: 'Full name',
               controller: _nameCtrl,
               textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(labelText: 'Full name'),
               validator: (v) =>
                   (v == null || v.trim().isEmpty) ? 'Name is required' : null,
             ),
-            const SizedBox(height: 12),
-            TextFormField(
+            const SizedBox(height: 16),
+            _MFormField(
+              label: 'Email',
               controller: _emailCtrl,
               keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(labelText: 'Email'),
               validator: (v) {
                 final s = (v ?? '').trim();
                 if (s.isEmpty) return 'Email is required';
@@ -472,23 +465,19 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 return null;
               },
             ),
-            const SizedBox(height: 12),
-            TextFormField(
+            const SizedBox(height: 16),
+            _MFormField(
+              label: 'Phone (optional)',
               controller: _phoneCtrl,
               keyboardType: TextInputType.phone,
-              decoration:
-                  const InputDecoration(labelText: 'Phone (optional)'),
             ),
             if (_fields.isNotEmpty) ...[
               const SizedBox(height: 24),
+              const SectionLabel('Organizer questions'),
+              const SizedBox(height: 14),
               ..._fields.map(_customField),
             ],
-            if (_basePrice > 0) ...[
-              const SizedBox(height: 24),
-              _sectionLabel('Promo code'),
-              const SizedBox(height: 8),
-              _promoRow(),
-            ],
+            // ── Screen 10: order summary ──────────────────────────────
             const SizedBox(height: 24),
             _summary(),
             if (_paymentUrl != null) ...[
@@ -497,134 +486,261 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             ],
             if (_submitError != null) ...[
               const SizedBox(height: 16),
-              _ErrorBox(_submitError!),
+              _errorBox(_submitError!),
             ],
-            const SizedBox(height: 20),
-            FilledButton(
-              onPressed: _submitting ? null : _submit,
-              child: _submitting
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation(Colors.white),
-                      ),
-                    )
-                  : Text(_basePrice > 0
-                      ? 'Continue'
-                      : 'Complete registration'),
-            ),
-            const SizedBox(height: 12),
           ],
         ),
       ),
     );
   }
 
-  Widget _sectionLabel(String text) => Text(
-        text,
-        style: const TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w700,
-          color: Brand.muted,
-          letterSpacing: 0.2,
+  Widget _stickyBar() {
+    final t = _selectedTicket;
+    final base = _basePrice;
+    final total = (base - _promoDiscount).clamp(0, double.infinity);
+    final ccy = t?.currency ?? '';
+    return StickyCta(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (t != null) ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        t.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppText.bodySm.copyWith(color: AppColors.inkMuted),
+                      ),
+                    ),
+                    Text(
+                      base <= 0 ? 'Free' : '$ccy ${total.toStringAsFixed(2)}',
+                      style: AppText.numMd.copyWith(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.forest),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+              ],
+              MButton(
+                base > 0 ? 'Continue' : 'Complete registration',
+                kind: MBtnKind.forest,
+                loading: _submitting,
+                onTap: _submitting ? null : _submit,
+              ),
+            ],
+          ),
         ),
-      );
+      ],
+    );
+  }
 
+  // ── Screen 8 · ticket radio card ───────────────────────────────────
   Widget _ticketTile(_TicketType t) {
     final selected = t.id == _selectedTicketId;
     final priceLabel = t.isPwyw
         ? 'From ${t.currency} ${t.minPrice}'
         : (t.price <= 0 ? 'Free' : '${t.currency} ${t.price}');
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: t.soldOut
-            ? null
-            : () => setState(() {
-                  _selectedTicketId = t.id;
-                  _promoApplied = false;
-                  _promoDiscount = 0;
-                }),
-        child: Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: Brand.surface,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: selected ? Brand.forest : Brand.border,
-              width: selected ? 2 : 1,
-            ),
+    final remaining = t.remaining;
+
+    Widget? sub;
+    if (t.soldOut) {
+      sub = Text('Sold out',
+          style: AppText.bodySm.copyWith(color: AppColors.inkMuted));
+    } else {
+      final desc = (t.description != null && t.description!.isNotEmpty)
+          ? t.description!
+          : null;
+      final spans = <InlineSpan>[];
+      if (desc != null) {
+        spans.add(TextSpan(text: desc));
+      }
+      if (remaining != null) {
+        if (desc != null) spans.add(const TextSpan(text: ' · '));
+        spans.add(TextSpan(
+          text: '$remaining left',
+          style: AppText.bodySm.copyWith(
+            color: remaining <= 10 ? AppColors.warning : AppColors.success,
+            fontWeight: FontWeight.w600,
           ),
-          child: Row(
-            children: [
-              Icon(
-                selected
-                    ? Icons.radio_button_checked
-                    : Icons.radio_button_off,
-                color: selected ? Brand.forest : Brand.muted,
-                size: 20,
+        ));
+      }
+      if (spans.isNotEmpty) {
+        sub = Text.rich(TextSpan(
+            style: AppText.bodySm.copyWith(color: AppColors.inkMuted),
+            children: spans));
+      }
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Opacity(
+        opacity: t.soldOut ? 0.55 : 1,
+        child: GestureDetector(
+          onTap: t.soldOut
+              ? null
+              : () => setState(() {
+                    _selectedTicketId = t.id;
+                    _promoApplied = false;
+                    _promoDiscount = 0;
+                  }),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(AppRadius.card),
+              border: Border.all(
+                color: selected ? AppColors.forest : AppColors.border,
+                width: selected ? 2 : 1,
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      t.name,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: t.soldOut ? Brand.muted : Brand.ink,
-                      ),
-                    ),
-                    if (t.description != null &&
-                        t.description!.isNotEmpty) ...[
-                      const SizedBox(height: 2),
+              boxShadow: selected ? AppShadow.ring : AppShadow.soft,
+            ),
+            child: Row(
+              children: [
+                _radio(selected),
+                const SizedBox(width: 13),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        t.description!,
-                        style:
-                            const TextStyle(fontSize: 12, color: Brand.muted),
-                      ),
-                    ],
-                    if (t.soldOut) ...[
-                      const SizedBox(height: 2),
-                      const Text(
-                        'Sold out',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Brand.danger,
-                          fontWeight: FontWeight.w600,
+                        t.name,
+                        style: AppText.h3.copyWith(
+                          fontSize: 15,
+                          decoration:
+                              t.soldOut ? TextDecoration.lineThrough : null,
                         ),
                       ),
+                      if (sub != null) ...[
+                        const SizedBox(height: 2),
+                        sub,
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                priceLabel,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: Brand.forest,
+                const SizedBox(width: 8),
+                Text(
+                  priceLabel,
+                  style: AppText.numMd.copyWith(
+                    color: t.soldOut ? AppColors.inkMuted : AppColors.forest,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
+  Widget _radio(bool on) => Container(
+        width: 20,
+        height: 20,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+              color: on ? AppColors.forest : AppColors.borderStrong,
+              width: 1.5),
+        ),
+        child: on
+            ? Center(
+                child: Container(
+                  width: 10,
+                  height: 10,
+                  decoration: const BoxDecoration(
+                      color: AppColors.forest, shape: BoxShape.circle),
+                ),
+              )
+            : null,
+      );
+
+  // ── Screen 8 · dashed promo field ──────────────────────────────────
+  Widget _promoField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _DottedBorder(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 4),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _promoCtrl,
+                    enabled: !_promoApplied,
+                    textCapitalization: TextCapitalization.characters,
+                    style: AppText.numSm.copyWith(color: AppColors.ink),
+                    decoration: InputDecoration(
+                      isDense: true,
+                      border: InputBorder.none,
+                      hintText: 'Promo code',
+                      hintStyle:
+                          AppText.numSm.copyWith(color: AppColors.inkMuted),
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: _promoApplied
+                      ? () => setState(() {
+                            _promoApplied = false;
+                            _promoDiscount = 0;
+                            _promoCtrl.clear();
+                          })
+                      : (_promoChecking ? null : _applyPromo),
+                  child: _promoChecking
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: AppColors.forest),
+                        )
+                      : Text(
+                          _promoApplied ? 'Remove' : 'Apply',
+                          style: AppText.bodySm.copyWith(
+                            color: _promoApplied
+                                ? AppColors.danger
+                                : AppColors.forest,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (_promoApplied)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text(
+              'Promo applied — you save ${_selectedTicket?.currency ?? ''} $_promoDiscount',
+              style: AppText.bodySm.copyWith(
+                  color: AppColors.success, fontWeight: FontWeight.w600),
+            ),
+          ),
+        if (_promoError != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text(_promoError!,
+                style: AppText.bodySm.copyWith(color: AppColors.danger)),
+          ),
+      ],
+    );
+  }
+
+  // ── Screen 9 · organizer custom fields ─────────────────────────────
   Widget _customField(_FormField f) {
-    // Inline validation is handled at submit time in _validateFields().
     final val = _fieldValues[f.id] ?? '';
 
     Widget wrap(Widget child) => Padding(
-          padding: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.only(bottom: 16),
           child: child,
         );
 
@@ -632,56 +748,102 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       case 'section':
         return wrap(
           Padding(
-            padding: const EdgeInsets.only(top: 8, bottom: 4),
+            padding: const EdgeInsets.only(top: 4),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  f.label,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: Brand.ink,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                const Divider(color: Brand.border, height: 1),
+                Text(f.label, style: AppText.h3.copyWith(fontSize: 15)),
+                const SizedBox(height: 8),
+                const Divider(color: AppColors.border, height: 1),
               ],
             ),
           ),
         );
       case 'textarea':
         return wrap(
-          TextFormField(
+          _MFormField(
+            label: _lbl(f),
             initialValue: val,
             maxLines: 3,
-            decoration: InputDecoration(labelText: _lbl(f)),
             onChanged: (v) => _fieldValues[f.id] = v,
           ),
         );
       case 'checkbox':
         return wrap(
-          CheckboxListTile(
-            contentPadding: EdgeInsets.zero,
-            controlAffinity: ListTileControlAffinity.leading,
-            activeColor: Brand.forest,
-            value: val == 'true',
-            title: Text(_lbl(f),
-                style: const TextStyle(fontSize: 14, color: Brand.ink)),
-            onChanged: (v) =>
-                setState(() => _fieldValues[f.id] = v == true ? 'true' : ''),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(f.label, style: AppText.label),
+              const SizedBox(height: 8),
+              GestureDetector(
+                onTap: () => setState(
+                    () => _fieldValues[f.id] = val == 'true' ? '' : 'true'),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 22,
+                      height: 22,
+                      decoration: BoxDecoration(
+                        color: val == 'true'
+                            ? AppColors.forest
+                            : AppColors.surface,
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(
+                            color: val == 'true'
+                                ? AppColors.forest
+                                : AppColors.borderStrong),
+                      ),
+                      child: val == 'true'
+                          ? const Icon(Icons.check,
+                              size: 14, color: Colors.white)
+                          : null,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(f.label,
+                          style: AppText.body
+                              .copyWith(color: AppColors.inkSoft, height: 1.3)),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         );
       case 'select':
         return wrap(
-          DropdownButtonFormField<String>(
-            initialValue: val.isEmpty ? null : val,
-            isExpanded: true,
-            decoration: InputDecoration(labelText: _lbl(f)),
-            items: f.options
-                .map((o) => DropdownMenuItem(value: o, child: Text(o)))
-                .toList(),
-            onChanged: (v) => setState(() => _fieldValues[f.id] = v ?? ''),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(_lbl(f), style: AppText.label),
+              const SizedBox(height: 7),
+              Container(
+                height: 50,
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(AppRadius.input),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: val.isEmpty ? null : val,
+                    isExpanded: true,
+                    hint: Text('Select…',
+                        style: AppText.body.copyWith(color: AppColors.inkMuted)),
+                    icon: const Icon(Icons.keyboard_arrow_down,
+                        color: AppColors.inkMuted),
+                    style: AppText.body.copyWith(color: AppColors.ink),
+                    items: f.options
+                        .map((o) =>
+                            DropdownMenuItem(value: o, child: Text(o)))
+                        .toList(),
+                    onChanged: (v) =>
+                        setState(() => _fieldValues[f.id] = v ?? ''),
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       case 'radio':
@@ -689,34 +851,21 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Text(_lbl(f),
-                    style: const TextStyle(
-                        fontSize: 12, color: Brand.muted)),
-              ),
+              Text(_lbl(f), style: AppText.label),
+              const SizedBox(height: 4),
               ...f.options.map(
-                (o) => InkWell(
+                (o) => GestureDetector(
                   onTap: () => setState(() => _fieldValues[f.id] = o),
-                  borderRadius: BorderRadius.circular(8),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 6),
                     child: Row(
                       children: [
-                        Icon(
-                          val == o
-                              ? Icons.radio_button_checked
-                              : Icons.radio_button_off,
-                          size: 20,
-                          color: val == o ? Brand.forest : Brand.muted,
-                        ),
+                        _radio(val == o),
                         const SizedBox(width: 10),
                         Expanded(
-                          child: Text(
-                            o,
-                            style: const TextStyle(
-                                fontSize: 14, color: Brand.ink),
-                          ),
+                          child: Text(o,
+                              style: AppText.body
+                                  .copyWith(color: AppColors.ink, height: 1.3)),
                         ),
                       ],
                     ),
@@ -735,10 +884,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     ? TextInputType.url
                     : TextInputType.text;
         return wrap(
-          TextFormField(
+          _MFormField(
+            label: _lbl(f),
             initialValue: val,
             keyboardType: keyboard,
-            decoration: InputDecoration(labelText: _lbl(f)),
             onChanged: (v) => _fieldValues[f.id] = v,
           ),
         );
@@ -747,148 +896,160 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   String _lbl(_FormField f) => f.required ? '${f.label} *' : f.label;
 
-  Widget _promoRow() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _promoCtrl,
-                textCapitalization: TextCapitalization.characters,
-                enabled: !_promoApplied,
-                decoration: const InputDecoration(hintText: 'Enter code'),
-              ),
-            ),
-            const SizedBox(width: 8),
-            SizedBox(
-              height: 52,
-              child: _promoApplied
-                  ? OutlinedButton(
-                      onPressed: () => setState(() {
-                        _promoApplied = false;
-                        _promoDiscount = 0;
-                        _promoCtrl.clear();
-                      }),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Brand.danger,
-                        side: const BorderSide(color: Brand.border),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text('Remove'),
-                    )
-                  : OutlinedButton(
-                      onPressed: _promoChecking ? null : _applyPromo,
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Brand.forest,
-                        side: const BorderSide(color: Brand.border),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: _promoChecking
-                          ? const SizedBox(
-                              height: 16,
-                              width: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Brand.forest,
-                              ),
-                            )
-                          : const Text('Apply'),
-                    ),
-            ),
-          ],
-        ),
-        if (_promoApplied)
-          Padding(
-            padding: const EdgeInsets.only(top: 6),
-            child: Text(
-              'Promo applied — you save ${_selectedTicket?.currency ?? ''} $_promoDiscount',
-              style: const TextStyle(
-                fontSize: 12,
-                color: Brand.success,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        if (_promoError != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 6),
-            child: Text(
-              _promoError!,
-              style: const TextStyle(fontSize: 12, color: Brand.danger),
-            ),
-          ),
-      ],
-    );
-  }
-
+  // ── Screen 10 · order summary ──────────────────────────────────────
   Widget _summary() {
     final t = _selectedTicket;
     if (t == null) return const SizedBox.shrink();
     final base = _basePrice;
+    final rows = <Widget>[
+      const SectionLabel('Order summary'),
+      const SizedBox(height: 12),
+    ];
     if (base <= 0) {
-      return _summaryBox([_SummaryRow('Total', 'Free', bold: true)]);
+      rows.add(_SummaryRow('Total', 'Free', bold: true));
+    } else {
+      final total = (base - _promoDiscount).clamp(0, double.infinity);
+      rows.add(_SummaryRow(t.name, '${t.currency} $base'));
+      if (_promoApplied && _promoDiscount > 0) {
+        rows.add(const SizedBox(height: 9));
+        rows.add(_SummaryRow(
+            'Discount', '- ${t.currency} $_promoDiscount',
+            color: AppColors.success));
+      }
+      rows.add(const SizedBox(height: 12));
+      rows.add(const Divider(color: AppColors.border, height: 1));
+      rows.add(const SizedBox(height: 12));
+      rows.add(_SummaryRow('Total', '${t.currency} $total', bold: true));
     }
-    final total = (base - _promoDiscount).clamp(0, double.infinity);
-    return _summaryBox([
-      _SummaryRow('${t.name}', '${t.currency} $base'),
-      if (_promoApplied && _promoDiscount > 0)
-        _SummaryRow('Discount', '- ${t.currency} $_promoDiscount',
-            color: Brand.success),
-      _SummaryRow('Total', '${t.currency} $total', bold: true),
-    ]);
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFBFAF6),
+        borderRadius: BorderRadius.circular(AppRadius.card),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: rows),
+    );
   }
-
-  Widget _summaryBox(List<Widget> rows) => Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Brand.forest.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(children: rows),
-      );
 
   Widget _paymentBox(String url) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Brand.gold.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Brand.gold.withValues(alpha: 0.5)),
+        color: AppColors.gold.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(AppRadius.card),
+        border: Border.all(color: AppColors.gold.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Complete your payment',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: Brand.ink,
-            ),
-          ),
+          Text('Complete your payment', style: AppText.bodyStrong),
           const SizedBox(height: 6),
-          const Text(
+          Text(
             'Open this secure link in your browser to pay. Your ticket is '
             'reserved and will confirm once payment completes.',
-            style: TextStyle(fontSize: 13, color: Brand.inkSoft),
+            style: AppText.bodySm,
           ),
           const SizedBox(height: 10),
           SelectableText(
             url,
-            style: const TextStyle(
-              fontSize: 12,
-              color: Brand.forest,
+            style: AppText.numSm.copyWith(
+              color: AppColors.forest,
               decoration: TextDecoration.underline,
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _errorBox(String message) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.danger.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.danger.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.error_outline, color: AppColors.danger, size: 18),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(message,
+                style: AppText.bodySm.copyWith(color: AppColors.danger)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A form-integrated text field styled like [MInput] (which wraps a bare
+/// TextField). Used where we need [TextFormField] validation inside the Form.
+class _MFormField extends StatelessWidget {
+  final String label;
+  final TextEditingController? controller;
+  final String? initialValue;
+  final TextInputType? keyboardType;
+  final TextCapitalization textCapitalization;
+  final int maxLines;
+  final String? Function(String?)? validator;
+  final ValueChanged<String>? onChanged;
+  const _MFormField({
+    required this.label,
+    this.controller,
+    this.initialValue,
+    this.keyboardType,
+    this.textCapitalization = TextCapitalization.none,
+    this.maxLines = 1,
+    this.validator,
+    this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: AppText.label),
+        const SizedBox(height: 7),
+        TextFormField(
+          controller: controller,
+          initialValue: controller == null ? initialValue : null,
+          keyboardType: keyboardType,
+          textCapitalization: textCapitalization,
+          maxLines: maxLines,
+          validator: validator,
+          onChanged: onChanged,
+          style: AppText.body.copyWith(color: AppColors.ink, height: 1.3),
+          decoration: InputDecoration(
+            isDense: true,
+            filled: true,
+            fillColor: AppColors.surface,
+            contentPadding: EdgeInsets.symmetric(
+                horizontal: 15, vertical: maxLines > 1 ? 13 : 15),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppRadius.input),
+              borderSide: const BorderSide(color: AppColors.border),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppRadius.input),
+              borderSide: const BorderSide(color: AppColors.forest, width: 1.5),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppRadius.input),
+              borderSide: const BorderSide(color: AppColors.danger),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppRadius.input),
+              borderSide: const BorderSide(color: AppColors.danger, width: 1.5),
+            ),
+            errorStyle:
+                AppText.caption.copyWith(color: AppColors.danger, fontSize: 12),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -902,79 +1063,66 @@ class _SummaryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = TextStyle(
-      fontSize: bold ? 15 : 14,
-      fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
-      color: color ?? (bold ? Brand.ink : Brand.inkSoft),
+    final labelStyle = bold
+        ? AppText.h3.copyWith(fontSize: 15)
+        : AppText.bodySm.copyWith(
+            color: color ?? AppColors.inkSoft, fontWeight: FontWeight.w500);
+    final valueStyle = bold
+        ? AppText.numMd.copyWith(
+            fontSize: 20, fontWeight: FontWeight.w500, color: AppColors.forest)
+        : AppText.numSm.copyWith(color: color ?? AppColors.ink);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Flexible(child: Text(label, style: labelStyle)),
+        Text(value, style: valueStyle),
+      ],
     );
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: style),
-          Text(value, style: style),
-        ],
+  }
+}
+
+/// A dashed-border container for the promo field (screen 8).
+class _DottedBorder extends StatelessWidget {
+  final Widget child;
+  const _DottedBorder({required this.child});
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      painter: _DashPainter(),
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 50),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFBFAF6),
+          borderRadius: BorderRadius.circular(AppRadius.input),
+        ),
+        alignment: Alignment.center,
+        child: child,
       ),
     );
   }
 }
 
-class _ErrorBox extends StatelessWidget {
-  final String message;
-  const _ErrorBox(this.message);
-
+class _DashPainter extends CustomPainter {
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Brand.danger.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Brand.danger.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.error_outline, color: Brand.danger, size: 18),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              message,
-              style: const TextStyle(color: Brand.danger, fontSize: 13),
-            ),
-          ),
-        ],
-      ),
-    );
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = AppColors.borderStrong
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
+    final rrect = RRect.fromRectAndRadius(
+        Offset.zero & size, const Radius.circular(AppRadius.input));
+    final path = Path()..addRRect(rrect);
+    const dash = 5.0, gap = 4.0;
+    for (final metric in path.computeMetrics()) {
+      double d = 0;
+      while (d < metric.length) {
+        canvas.drawPath(
+            metric.extractPath(d, d + dash), paint);
+        d += dash + gap;
+      }
+    }
   }
-}
-
-class _CenterMessage extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String message;
-  final String? actionLabel;
-  final VoidCallback? onAction;
-
-  const _CenterMessage({
-    required this.icon,
-    required this.title,
-    required this.message,
-    this.actionLabel,
-    this.onAction,
-  });
 
   @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 40, color: Brand.muted),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSi
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}

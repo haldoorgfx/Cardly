@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../app_config.dart';
-import '../../theme.dart';
+import '../../ui/components.dart';
+import '../../ui/tokens.dart';
 
-/// Success screen shown after a registration completes. Renders the ticket QR
-/// (the check-in URL, matching what /api/qr/[token] encodes) plus attendee and
-/// ticket details.
+/// Success screen shown after a registration completes (screen 11 — DARK).
+/// Renders the ticket QR (the check-in URL, matching what /api/qr/[token]
+/// encodes) plus attendee and ticket details.
 class ConfirmScreen extends StatelessWidget {
   final String qrToken;
   final String eventName;
@@ -33,89 +33,131 @@ class ConfirmScreen extends StatelessWidget {
     return qrToken;
   }
 
+  /// A short mono ticket id derived from the token (display only).
+  String get _ticketId {
+    final t = qrToken.replaceAll(RegExp(r'[^A-Za-z0-9]'), '').toUpperCase();
+    if (t.isEmpty) return 'TKT';
+    final a = t.length >= 4 ? t.substring(0, 4) : t;
+    final b = t.length >= 8 ? t.substring(4, 8) : '';
+    return b.isEmpty ? 'TKT-$a' : 'TKT-$a-$b';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Brand.cream,
-      appBar: AppBar(
-        backgroundColor: Brand.cream,
-        elevation: 0,
-        foregroundColor: Brand.ink,
-        automaticallyImplyLeading: false,
-        title: const Text('You’re in'),
-      ),
+      backgroundColor: AppColors.forestDark,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.fromLTRB(
+              AppSpace.lg, AppSpace.sm, AppSpace.lg, AppSpace.lg),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 8),
-              Center(
-                child: Container(
-                  width: 64,
-                  height: 64,
-                  decoration: BoxDecoration(
-                    color: Brand.success.withValues(alpha: 0.12),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.check_rounded,
-                      color: Brand.success, size: 36),
+              // Success check.
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: AppColors.success.withValues(alpha: 0.25),
+                  shape: BoxShape.circle,
+                  border:
+                      Border.all(color: AppColors.gold.withValues(alpha: 0.4)),
+                ),
+                child: const Icon(Icons.check_rounded,
+                    color: AppColors.gold, size: 30),
+              ),
+              const SizedBox(height: 16),
+              Text("You're in.",
+                  style: AppText.h1.copyWith(color: Colors.white, fontSize: 24)),
+              const SizedBox(height: 6),
+              Text(
+                attendeeName != null && attendeeName!.isNotEmpty
+                    ? '$eventName confirmed'
+                    : 'Your ticket is ready',
+                textAlign: TextAlign.center,
+                style: AppText.bodySm
+                    .copyWith(color: Colors.white.withValues(alpha: 0.72)),
+              ),
+              const SizedBox(height: 22),
+
+              // White ticket card with big QR.
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(22),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: const [
+                    BoxShadow(
+                        color: Color(0x80000000),
+                        blurRadius: 50,
+                        offset: Offset(0, 24)),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    if (qrToken.isNotEmpty)
+                      QrBlock(data: _qrData, size: 200)
+                    else
+                      const Padding(
+                        padding: EdgeInsets.all(24),
+                        child: Text(
+                          'QR code will appear here once confirmed.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: AppColors.inkMuted),
+                        ),
+                      ),
+                    const SizedBox(height: 16),
+                    if (ticketType != null && ticketType!.isNotEmpty) ...[
+                      Tag(ticketType!, kind: TagKind.forest),
+                      const SizedBox(height: 10),
+                    ],
+                    if (attendeeName != null && attendeeName!.isNotEmpty)
+                      Text(attendeeName!,
+                          style: AppText.h3.copyWith(fontSize: 18)),
+                    const SizedBox(height: 3),
+                    Text(
+                      eventName,
+                      textAlign: TextAlign.center,
+                      style: AppText.bodySm.copyWith(color: AppColors.inkMuted),
+                    ),
+                    if (qrToken.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text(_ticketId,
+                          style: AppText.numSm.copyWith(
+                              color: AppColors.inkMuted,
+                              fontSize: 11,
+                              letterSpacing: 1.2)),
+                    ],
+                  ],
                 ),
               ),
               const SizedBox(height: 16),
-              const Center(
-                child: Text(
-                  'Registration confirmed',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                    color: Brand.ink,
-                  ),
-                ),
+
+              // Add to calendar (dark ghost button).
+              _DarkGhostButton(
+                icon: Icons.calendar_today_outlined,
+                label: 'Add to calendar',
+                onTap: () => showToast(context, 'Calendar export coming soon.'),
               ),
-              const SizedBox(height: 4),
-              Center(
-                child: Text(
-                  eventName,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 15, color: Brand.muted),
-                ),
-              ),
-              const SizedBox(height: 24),
-              _TicketCard(
-                qrData: _qrData,
-                attendeeName: attendeeName,
-                ticketType: ticketType,
-                eventName: eventName,
-              ),
-              const SizedBox(height: 20),
-              const _InfoNote(
-                'Show this QR code at the door to check in. It’s also saved '
-                'to My Tickets on this account.',
-              ),
-              const SizedBox(height: 24),
-              FilledButton(
-                onPressed: () =>
-                    Navigator.of(context).popUntil((r) => r.isFirst),
-                child: const Text('Done'),
-              ),
+              const SizedBox(height: 11),
               if (cardEventSlug != null && cardEventSlug!.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                OutlinedButton.icon(
-                  onPressed: () => Navigator.of(context).pop(),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Brand.forest,
-                    side: const BorderSide(color: Brand.border),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  icon: const Icon(Icons.image_outlined, size: 18),
-                  label: const Text('Make your event card'),
+                MButton(
+                  'Make your card',
+                  kind: MBtnKind.gold,
+                  onTap: () => Navigator.of(context).pop(),
                 ),
+                const SizedBox(height: 16),
               ],
+              GestureDetector(
+                onTap: () => Navigator.of(context).popUntil((r) => r.isFirst),
+                child: Text(
+                  'View my tickets',
+                  style: AppText.bodyStrong.copyWith(
+                      color: AppColors.gold.withValues(alpha: 0.9),
+                      fontSize: 13.5),
+                ),
+              ),
             ],
           ),
         ),
@@ -124,102 +166,33 @@ class ConfirmScreen extends StatelessWidget {
   }
 }
 
-class _TicketCard extends StatelessWidget {
-  final String qrData;
-  final String? attendeeName;
-  final String? ticketType;
-  final String eventName;
-
-  const _TicketCard({
-    required this.qrData,
-    required this.attendeeName,
-    required this.ticketType,
-    required this.eventName,
-  });
-
+class _DarkGhostButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback? onTap;
+  const _DarkGhostButton(
+      {required this.icon, required this.label, this.onTap});
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Brand.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Brand.border),
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Brand.border),
-            ),
-            child: QrImageView(
-              data: qrData,
-              size: 200,
-              backgroundColor: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 16),
-          if (attendeeName != null && attendeeName!.isNotEmpty) ...[
-            Text(
-              attendeeName!,
-              style: const TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w600,
-                color: Brand.ink,
-              ),
-            ),
-            const SizedBox(height: 4),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 52,
+        width: double.infinity,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(AppRadius.btn),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 19, color: Colors.white),
+            const SizedBox(width: 9),
+            Text(label, style: AppText.btn.copyWith(color: Colors.white)),
           ],
-          if (ticketType != null && ticketType!.isNotEmpty)
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-              decoration: BoxDecoration(
-                color: Brand.forest.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: Text(
-                ticketType!,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: Brand.forest,
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _InfoNote extends StatelessWidget {
-  final String text;
-  const _InfoNote(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Brand.forest.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(Icons.info_outline, size: 18, color: Brand.forest),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(fontSize: 13, color: Brand.inkSoft),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'screens/attendee_home_screen.dart';
+import 'attendee/app_shell.dart';
 import 'theme.dart';
 
 /// Shows a branded splash for a beat, then fades into the home screen.
@@ -29,7 +29,7 @@ class _RootGateState extends State<RootGate> {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 450),
       child: _ready
-          ? const AttendeeHomeScreen()
+          ? const MainShell()
           : const _Splash(key: ValueKey('splash')),
     );
   }

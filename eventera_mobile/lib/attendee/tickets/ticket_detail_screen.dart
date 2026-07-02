@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../app_config.dart';
 import '../../net.dart';
-import '../../theme.dart';
+import '../../ui/components.dart';
+import '../../ui/tokens.dart';
 
-/// Displays a single ticket: event info, the QR (check-in URL), and a
-/// "Transfer ticket" action that posts to /api/tickets/[id]/transfer.
+/// Displays a single ticket: framed QR (check-in URL), status, Event / Attendee
+/// / When rows, and Calendar + Transfer actions (transfer posts to
+/// /api/tickets/[id]/transfer). Screen 13.
 class TicketDetailScreen extends StatefulWidget {
   final String registrationId;
   final String qrToken;
@@ -46,21 +47,23 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
     return widget.qrToken;
   }
 
+  String get _ticketId {
+    final t =
+        widget.qrToken.replaceAll(RegExp(r'[^A-Za-z0-9]'), '').toUpperCase();
+    if (t.isEmpty) return 'TKT';
+    final a = t.length >= 4 ? t.substring(0, 4) : t;
+    final b = t.length >= 8 ? t.substring(4, 8) : '';
+    return b.isEmpty ? 'TKT-$a' : 'TKT-$a-$b';
+  }
+
   Future<void> _openTransferSheet() async {
-    final ok = await showModalBottomSheet<bool>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Brand.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (_) => _TransferSheet(registrationId: widget.registrationId),
+    final ok = await showMSheet<bool>(
+      context,
+      _TransferSheet(registrationId: widget.registrationId),
     );
     if (ok == true && mounted) {
       setState(() => _transferred = true);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Transfer request sent.')),
-      );
+      showToast(context, 'Transfer request sent.');
     }
   }
 
@@ -70,168 +73,120 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
             widget.status == 'pending_approval') &&
         !_transferred;
 
-    return Scaffold(
-      backgroundColor: Brand.cream,
-      appBar: AppBar(
-        backgroundColor: Brand.cream,
-        elevation: 0,
-        foregroundColor: Brand.ink,
-        title: const Text('Ticket'),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                widget.eventName,
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  color: Brand.ink,
-                ),
+    return MScaffold(
+      appBar: const MAppBar(title: 'Ticket', hairline: true),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(
+            AppSpace.lg, AppSpace.base, AppSpace.lg, AppSpace.base),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Framed QR card.
+            Container(
+              padding: const EdgeInsets.all(22),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: AppColors.border),
+                boxShadow: AppShadow.soft,
               ),
-              if (widget.startsAt != null) ...[
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    const Icon(Icons.calendar_today_outlined,
-                        size: 15, color: Brand.muted),
-                    const SizedBox(width: 6),
-                    Text(
-                      _formatDate(widget.startsAt!),
-                      style: const TextStyle(fontSize: 14, color: Brand.muted),
-                    ),
-                  ],
-                ),
-              ],
-              if (widget.venue != null && widget.venue!.isNotEmpty) ...[
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    const Icon(Icons.place_outlined,
-                        size: 15, color: Brand.muted),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        widget.venue!,
-                        style:
-                            const TextStyle(fontSize: 14, color: Brand.muted),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-              const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Brand.surface,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Brand.border),
-                ),
-                child: Column(
-                  children: [
-                    if (widget.qrToken.isNotEmpty)
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Brand.border),
-                        ),
-                        child: QrImageView(
-                          data: _qrData,
-                          size: 200,
-                          backgroundColor: Colors.white,
-                        ),
-                      )
-                    else
-                      const Padding(
-                        padding: EdgeInsets.all(24),
-                        child: Text(
-                          'QR code not available for this ticket yet.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: Brand.muted),
-                        ),
-                      ),
+              child: Column(
+                children: [
+                  if (widget.status != null) ...[
+                    Tag(_statusLabel(widget.status!),
+                        kind: _statusKind(widget.status!), dot: true),
                     const SizedBox(height: 16),
-                    if (widget.attendeeName != null &&
-                        widget.attendeeName!.isNotEmpty)
-                      Text(
-                        widget.attendeeName!,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Brand.ink,
-                        ),
-                      ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      alignment: WrapAlignment.center,
-                      children: [
-                        if (widget.ticketType != null &&
-                            widget.ticketType!.isNotEmpty)
-                          _chip(widget.ticketType!, Brand.forest),
-                        if (widget.status != null)
-                          _chip(_statusLabel(widget.status!),
-                              _statusColor(widget.status!)),
-                      ],
-                    ),
                   ],
+                  if (widget.qrToken.isNotEmpty)
+                    QrBlock(data: _qrData, size: 200)
+                  else
+                    const Padding(
+                      padding: EdgeInsets.all(24),
+                      child: Text(
+                        'QR code not available for this ticket yet.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: AppColors.inkMuted),
+                      ),
+                    ),
+                  if (widget.qrToken.isNotEmpty) ...[
+                    const SizedBox(height: 14),
+                    Text(_ticketId,
+                        style: AppText.numSm.copyWith(
+                            color: AppColors.inkMuted,
+                            fontSize: 11,
+                            letterSpacing: 1.2)),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 18),
+
+            // Info rows.
+            _InfoRow(label: 'Event', value: widget.eventName),
+            if (widget.attendeeName != null &&
+                widget.attendeeName!.isNotEmpty)
+              _InfoRow(
+                label: 'Attendee',
+                value: widget.ticketType != null &&
+                        widget.ticketType!.isNotEmpty
+                    ? '${widget.attendeeName} · ${widget.ticketType}'
+                    : widget.attendeeName!,
+              ),
+            if (widget.startsAt != null)
+              _InfoRow(
+                  label: 'When',
+                  value: _formatDate(widget.startsAt!),
+                  mono: true),
+            if (widget.venue != null && widget.venue!.isNotEmpty)
+              _InfoRow(label: 'Where', value: widget.venue!),
+            const SizedBox(height: 12),
+
+            // Actions.
+            Row(
+              children: [
+                Expanded(
+                  child: MButton(
+                    'Calendar',
+                    kind: MBtnKind.sec,
+                    small: true,
+                    icon: Icons.calendar_today_outlined,
+                    onTap: () =>
+                        showToast(context, 'Calendar export coming soon.'),
+                  ),
+                ),
+                if (canTransfer) ...[
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: MButton(
+                      'Transfer',
+                      kind: MBtnKind.sec,
+                      small: true,
+                      icon: Icons.send_outlined,
+                      onTap: _openTransferSheet,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            if (_transferred) ...[
+              const SizedBox(height: 14),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.success.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  'A transfer request is pending for this ticket.',
+                  style: AppText.bodySm.copyWith(color: AppColors.success),
                 ),
               ),
-              const SizedBox(height: 20),
-              if (canTransfer)
-                OutlinedButton.icon(
-                  onPressed: _openTransferSheet,
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Brand.forest,
-                    side: const BorderSide(color: Brand.border),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  icon: const Icon(Icons.send_outlined, size: 18),
-                  label: const Text('Transfer ticket'),
-                ),
-              if (_transferred)
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Brand.success.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Text(
-                    'A transfer request is pending for this ticket.',
-                    style: TextStyle(color: Brand.success, fontSize: 13),
-                  ),
-                ),
             ],
-          ),
+          ],
         ),
       ),
     );
   }
-
-  Widget _chip(String text, Color color) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(999),
-        ),
-        child: Text(
-          text,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: color,
-          ),
-        ),
-      );
 
   static String _statusLabel(String s) {
     switch (s) {
@@ -248,16 +203,17 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
     }
   }
 
-  static Color _statusColor(String s) {
+  static TagKind _statusKind(String s) {
     switch (s) {
       case 'confirmed':
+        return TagKind.success;
       case 'checked_in':
-        return Brand.success;
+        return TagKind.forest;
       case 'pending':
       case 'pending_approval':
-        return Brand.gold;
+        return TagKind.warning;
       default:
-        return Brand.muted;
+        return TagKind.info;
     }
   }
 
@@ -271,6 +227,34 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
     final m = l.minute.toString().padLeft(2, '0');
     final ap = l.hour < 12 ? 'AM' : 'PM';
     return '${months[l.month - 1]} ${l.day}, ${l.year} · $h:$m $ap';
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final bool mono;
+  const _InfoRow(
+      {required this.label, required this.value, this.mono = false});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppColors.border)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SectionLabel(label),
+          const SizedBox(height: 3),
+          Text(value,
+              style: mono
+                  ? AppText.bodyStrong.copyWith(fontSize: 14)
+                  : AppText.h3.copyWith(fontSize: 15)),
+        ],
+      ),
+    );
   }
 }
 
@@ -311,10 +295,13 @@ class _TransferSheetState extends State<_TransferSheet> {
         'recipientEmail': email,
         'recipientName': name,
       });
-      if (mounted) Navigator.of(context).pop(true);
+      if (!mounted) return;
+      Navigator.of(context).pop(true);
     } on ApiException catch (e) {
+      if (!mounted) return;
       setState(() => _error = e.message);
     } catch (_) {
+      if (!mounted) return;
       setState(() => _error = 'Could not send the transfer. Please try again.');
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -323,60 +310,40 @@ class _TransferSheetState extends State<_TransferSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final bottom = MediaQuery.of(context).viewInsets.bottom;
     return Padding(
-      padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + bottom),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpace.lg),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
-            'Transfer this ticket',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: Brand.ink,
-            ),
-          ),
+          Text('Transfer this ticket', style: AppText.h3),
           const SizedBox(height: 6),
-          const Text(
+          Text(
             'We’ll email the recipient. They accept the ticket on the web.',
-            style: TextStyle(fontSize: 13, color: Brand.muted),
+            style: AppText.bodySm,
           ),
           const SizedBox(height: 16),
-          TextField(
+          MInput(
+            label: 'Recipient name',
             controller: _nameCtrl,
-            textCapitalization: TextCapitalization.words,
-            enabled: !_busy,
-            decoration: const InputDecoration(labelText: 'Recipient name'),
           ),
           const SizedBox(height: 12),
-          TextField(
+          MInput(
+            label: 'Recipient email',
             controller: _emailCtrl,
             keyboardType: TextInputType.emailAddress,
-            enabled: !_busy,
-            decoration: const InputDecoration(labelText: 'Recipient email'),
           ),
           if (_error != null) ...[
             const SizedBox(height: 12),
-            Text(
-              _error!,
-              style: const TextStyle(color: Brand.danger, fontSize: 13),
-            ),
+            Text(_error!,
+                style: AppText.bodySm.copyWith(color: AppColors.danger)),
           ],
           const SizedBox(height: 16),
-          FilledButton(
-            onPressed: _busy ? null : _submit,
-            child: _busy
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation(Colors.white),
-                    ),
-                  )
-                : const Text('Send transfer'),
+          MButton(
+            'Send transfer',
+            kind: MBtnKind.forest,
+            loading: _busy,
+            onTap: _busy ? null : _submit,
           ),
         ],
       ),

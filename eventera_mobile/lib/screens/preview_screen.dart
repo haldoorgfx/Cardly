@@ -5,10 +5,12 @@ import 'package:flutter/services.dart';
 
 import '../card_store.dart';
 import '../share_card.dart';
-import '../theme.dart';
+import '../ui/components.dart';
+import '../ui/tokens.dart';
 
-/// Success state: shows the finished card, saves it to the on-device history,
-/// offers a copyable share caption, and save/share.
+/// Success state (screen 16 — DARK): shows the finished card gently floating,
+/// saves it to on-device history, offers a copyable share caption, and
+/// save/share.
 class PreviewScreen extends StatefulWidget {
   final Uint8List imageBytes;
   final String eventName;
@@ -22,8 +24,14 @@ class PreviewScreen extends StatefulWidget {
   State<PreviewScreen> createState() => _PreviewScreenState();
 }
 
-class _PreviewScreenState extends State<PreviewScreen> {
+class _PreviewScreenState extends State<PreviewScreen>
+    with SingleTickerProviderStateMixin {
   bool _sharing = false;
+
+  late final AnimationController _floatCtrl = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 4500),
+  )..repeat(reverse: true);
 
   @override
   void initState() {
@@ -39,15 +47,19 @@ class _PreviewScreenState extends State<PreviewScreen> {
             ));
   }
 
+  @override
+  void dispose() {
+    _floatCtrl.dispose();
+    super.dispose();
+  }
+
   Future<void> _share() async {
     setState(() => _sharing = true);
     try {
       await shareCardBytes(widget.imageBytes, widget.eventName);
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not share the card.')),
-        );
+        showToast(context, 'Could not share the card.');
       }
     } finally {
       if (mounted) setState(() => _sharing = false);
@@ -56,112 +68,177 @@ class _PreviewScreenState extends State<PreviewScreen> {
 
   void _copyCaption() {
     Clipboard.setData(ClipboardData(text: suggestedCaption(widget.eventName)));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Caption copied'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+    if (!mounted) return;
+    showToast(context, 'Caption copied');
   }
 
   @override
   Widget build(BuildContext context) {
     final caption = suggestedCaption(widget.eventName);
     return Scaffold(
+      backgroundColor: AppColors.forestDark,
       appBar: AppBar(
-        backgroundColor: Brand.cream,
-        surfaceTintColor: Brand.cream,
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Your card is ready',
-            style: TextStyle(
-                color: Brand.ink, fontSize: 17, fontWeight: FontWeight.w600)),
-        iconTheme: const IconThemeData(color: Brand.ink),
+        surfaceTintColor: Colors.transparent,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
+        title: Text('Your card',
+            style: AppText.title.copyWith(color: Colors.white)),
       ),
       body: SafeArea(
+        top: false,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+          padding: const EdgeInsets.fromLTRB(
+              AppSpace.lg, AppSpace.sm, AppSpace.lg, AppSpace.lg),
           children: [
-            // The card
-            ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x1F1F4D3A),
-                      blurRadius: 40,
-                      offset: Offset(0, 16),
-                    ),
-                  ],
+            // Gently floating finished card.
+            AnimatedBuilder(
+              animation: _floatCtrl,
+              builder: (context, child) {
+                final dy = (_floatCtrl.value - 0.5) * 12;
+                return Transform.translate(offset: Offset(0, dy), child: child);
+              },
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(18),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x99000000),
+                        blurRadius: 60,
+                        offset: Offset(0, 30),
+                      ),
+                    ],
+                  ),
+                  child: Image.memory(widget.imageBytes, fit: BoxFit.contain),
                 ),
-                child: Image.memory(widget.imageBytes, fit: BoxFit.contain),
               ),
             ),
-            const SizedBox(height: 22),
+            const SizedBox(height: 18),
 
-            // Suggested caption
-            const Text('Suggested caption',
-                style: TextStyle(
-                    color: Brand.inkSoft,
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w600)),
-            const SizedBox(height: 8),
+            // Suggested caption box + Copy.
             Container(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.fromLTRB(14, 13, 14, 14),
               decoration: BoxDecoration(
-                color: Brand.surface,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Brand.border),
+                color: Colors.white.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(AppRadius.input),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
               ),
-              child: Row(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Text(caption,
-                        style: const TextStyle(
-                            color: Brand.ink, fontSize: 14, height: 1.5)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'SUGGESTED CAPTION',
+                        style: AppText.caption.copyWith(
+                          color: AppColors.gold.withValues(alpha: 0.85),
+                          fontSize: 10,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: _copyCaption,
+                        child: Text('Copy',
+                            style: AppText.bodySm.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600)),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 8),
-                  InkWell(
-                    onTap: _copyCaption,
-                    borderRadius: BorderRadius.circular(8),
-                    child: const Padding(
-                      padding: EdgeInsets.all(4),
-                      child: Icon(Icons.copy, color: Brand.forest, size: 20),
-                    ),
+                  const SizedBox(height: 7),
+                  Text(
+                    caption,
+                    style: AppText.bodySm.copyWith(
+                        color: Colors.white.withValues(alpha: 0.9),
+                        height: 1.5),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 22),
+            const SizedBox(height: 16),
 
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: _sharing ? null : _share,
-                icon: _sharing
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(
-                            strokeWidth: 2.4, color: Colors.white),
-                      )
-                    : const Icon(Icons.ios_share, size: 20),
-                label: Text(_sharing ? 'Preparing…' : 'Save / Share card'),
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: _DarkGhostButton(
+                    icon: Icons.download_outlined,
+                    label: 'Save',
+                    loading: _sharing,
+                    onTap: _sharing ? null : _share,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: MButton(
+                    'Share',
+                    kind: MBtnKind.gold,
+                    icon: Icons.ios_share,
+                    onTap: _sharing ? null : _share,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 16),
             Center(
-              child: TextButton(
-                onPressed: () =>
+              child: GestureDetector(
+                onTap: () =>
                     Navigator.of(context).popUntil((r) => r.isFirst),
-                child: const Text('Make another',
-                    style: TextStyle(color: Brand.forest)),
+                child: Text('Make another',
+                    style: AppText.bodyStrong.copyWith(
+                        color: AppColors.gold.withValues(alpha: 0.9),
+                        fontSize: 13.5)),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _DarkGhostButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool loading;
+  final VoidCallback? onTap;
+  const _DarkGhostButton(
+      {required this.icon,
+      required this.label,
+      this.loading = false,
+      this.onTap});
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 52,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(AppRadius.btn),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+        ),
+        child: loading
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                    strokeWidth: 2.4, color: Colors.white),
+              )
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icon, size: 19, color: Colors.white),
+                  const SizedBox(width: 9),
+                  Text(label, style: AppText.btn.copyWith(color: Colors.white)),
+                ],
+              ),
       ),
     );
   }

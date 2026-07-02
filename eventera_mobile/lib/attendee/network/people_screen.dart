@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../net.dart';
-import '../../theme.dart';
+import '../../ui/tokens.dart';
+import '../../ui/components.dart';
 import 'thread_screen.dart';
 
 /// Attendee directory + AI matches for an event.
@@ -44,8 +45,11 @@ class _PeopleScreenState extends State<PeopleScreen> {
   @override
   void initState() {
     super.initState();
-    if (_canNetwork) _load();
-    else _loading = false;
+    if (_canNetwork) {
+      _load();
+    } else {
+      _loading = false;
+    }
   }
 
   Future<void> _load() async {
@@ -65,17 +69,20 @@ class _PeopleScreenState extends State<PeopleScreen> {
       final people = asMapList(
           peopleData is Map ? peopleData['people'] : peopleData);
 
+      if (!mounted) return;
       setState(() {
         _people = people.map(_Person.fromRow).toList();
         _matches = results[1] as List<_Match>;
         _loading = false;
       });
     } on ApiException catch (e) {
+      if (!mounted) return;
       setState(() {
         _loading = false;
         _error = e.message;
       });
     } catch (_) {
+      if (!mounted) return;
       setState(() {
         _loading = false;
         _error = 'Something went wrong loading the directory.';
@@ -106,20 +113,15 @@ class _PeopleScreenState extends State<PeopleScreen> {
         p.connectionStatus = 'pending';
         p.connecting = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Connection request sent')),
-      );
+      showToast(context, 'Connection request sent');
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => p.connecting = false);
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(e.message)));
+      showToast(context, e.message);
     } catch (_) {
       if (!mounted) return;
       setState(() => p.connecting = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not send request')),
-      );
+      showToast(context, 'Could not send request');
     }
   }
 
@@ -138,75 +140,56 @@ class _PeopleScreenState extends State<PeopleScreen> {
   }
 
   void _showPersonSheet(_Person p) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Brand.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (_) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                children: [
-                  _Avatar(url: p.avatarUrl, name: p.name, size: 48),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(p.name,
-                            style: const TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w700,
-                                color: Brand.ink)),
-                        if (p.subtitle.isNotEmpty)
-                          Text(p.subtitle,
-                              style: const TextStyle(
-                                  fontSize: 13, color: Brand.muted)),
+    showMSheet(
+      context,
+      Padding(
+        padding: const EdgeInsets.fromLTRB(20, 4, 20, 4),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Avatar(name: p.name, imageUrl: p.avatarUrl, size: 52),
+                const SizedBox(width: 13),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(p.name, style: AppText.h3),
+                      if (p.subtitle.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(p.subtitle, style: AppText.bodySm),
                       ],
-                    ),
+                    ],
                   ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              FilledButton.icon(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  _openThread(p.id, p.name);
-                },
-                icon: const Icon(Icons.chat_bubble_outline, size: 18),
-                label: const Text('Message'),
-              ),
-              const SizedBox(height: 10),
-              if (p.connectionStatus == null)
-                OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Brand.forest,
-                    side: const BorderSide(color: Brand.border),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                  ),
-                  onPressed: p.connecting
-                      ? null
-                      : () {
-                          Navigator.of(context).pop();
-                          _connect(p);
-                        },
-                  icon: const Icon(Icons.person_add_alt, size: 18),
-                  label: const Text('Connect'),
-                )
-              else
-                Center(
-                  child: _ConnectionBadge(status: p.connectionStatus!),
                 ),
-            ],
-          ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            MButton(
+              'Message',
+              icon: Icons.chat_bubble_outline,
+              onTap: () {
+                Navigator.of(context).pop();
+                _openThread(p.id, p.name);
+              },
+            ),
+            const SizedBox(height: 10),
+            if (p.connectionStatus == null)
+              MButton(
+                'Connect',
+                kind: MBtnKind.sec,
+                icon: Icons.person_add_alt,
+                loading: p.connecting,
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _connect(p);
+                },
+              )
+            else
+              Center(child: _statusTag(p.connectionStatus!)),
+          ],
         ),
       ),
     );
@@ -214,22 +197,20 @@ class _PeopleScreenState extends State<PeopleScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Brand.cream,
-      appBar: AppBar(
-        backgroundColor: Brand.cream,
-        foregroundColor: Brand.forest,
-        elevation: 0,
-        title: const Text('People', style: TextStyle(color: Brand.forest)),
-      ),
+    return MScaffold(
+      appBar: const MAppBar(title: 'People', showBack: false, hairline: true),
       body: !_canNetwork
-          ? const _RegisterPrompt()
+          ? const _RegisterPrompt(
+              title: 'Register to network',
+              message:
+                  'Register for this event to see who else is attending and start connecting.',
+            )
           : _loading
-              ? const _CenterSpinner()
+              ? const LoadingState()
               : _error != null
-                  ? _ErrorState(message: _error!, onRetry: _load)
+                  ? ErrorStateView(message: _error!, onRetry: _load)
                   : RefreshIndicator(
-                      color: Brand.forest,
+                      color: AppColors.forest,
                       onRefresh: _load,
                       child: _buildList(),
                     ),
@@ -239,158 +220,172 @@ class _PeopleScreenState extends State<PeopleScreen> {
   Widget _buildList() {
     if (_people.isEmpty && _matches.isEmpty) {
       return ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
         children: const [
-          SizedBox(height: 120),
-          _EmptyState(
+          SizedBox(height: 100),
+          EmptyState(
             icon: Icons.groups_outlined,
-            message: 'No other attendees have joined yet.\nCheck back soon.',
+            title: 'No one here yet',
+            message: 'No other attendees have joined yet. Check back soon.',
           ),
         ],
       );
     }
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(AppSpace.lg, AppSpace.base, AppSpace.lg, 40),
       children: [
         if (_matches.isNotEmpty) ...[
-          const _SectionLabel('Suggested for you'),
+          Row(
+            children: [
+              const Icon(Icons.auto_awesome, size: 15, color: AppColors.goldHover),
+              const SizedBox(width: 7),
+              Text('SUGGESTED FOR YOU',
+                  style: AppText.seclab.copyWith(color: AppColors.goldHover)),
+            ],
+          ),
           const SizedBox(height: 12),
-          ..._matches.map(_buildMatchTile),
-          const SizedBox(height: 24),
+          ..._matches.map(_buildMatchCard),
+          const SizedBox(height: 22),
         ],
-        const _SectionLabel('All attendees'),
-        const SizedBox(height: 12),
-        ..._people.map(_buildPersonTile),
+        SectionLabel('All attendees · ${_people.length}'),
+        const SizedBox(height: 4),
+        ..._people.map(_buildPersonRow),
       ],
     );
   }
 
-  Widget _buildMatchTile(_Match m) {
+  Widget _buildMatchCard(_Match m) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Brand.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Brand.gold.withValues(alpha: 0.6)),
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(AppRadius.card),
+          border: Border.all(color: AppColors.gold, width: 1.5),
+          boxShadow: AppShadow.soft,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                _Avatar(url: null, name: m.name, size: 42),
+                Avatar(name: m.name, size: 48),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(m.name,
-                          style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              color: Brand.ink)),
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          const Icon(Icons.auto_awesome,
-                              size: 13, color: Brand.gold),
-                          const SizedBox(width: 4),
-                          Text('${m.scorePct}% match',
-                              style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: Brand.inkSoft)),
-                        ],
-                      ),
+                          style: AppText.h3.copyWith(fontSize: 15)),
+                      if (m.subtitle.isNotEmpty) ...[
+                        const SizedBox(height: 1),
+                        Text(m.subtitle, style: AppText.caption),
+                      ],
                     ],
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.chat_bubble_outline,
-                      size: 20, color: Brand.forest),
-                  onPressed: () => _openThread(m.id, m.name),
-                ),
+                const SizedBox(width: 8),
+                Tag('${m.scorePct}% match', kind: TagKind.gold),
               ],
             ),
             if (m.reason.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Text(m.reason,
-                  style: const TextStyle(
-                      fontSize: 13, height: 1.4, color: Brand.inkSoft)),
+              const SizedBox(height: 11),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 9),
+                decoration: BoxDecoration(
+                  color: AppColors.goldSoft,
+                  borderRadius: BorderRadius.circular(9),
+                ),
+                child: Text(m.reason,
+                    style: AppText.bodySm
+                        .copyWith(color: AppColors.inkSoft, height: 1.4)),
+              ),
             ],
+            const SizedBox(height: 11),
+            MButton(
+              'Connect',
+              small: true,
+              icon: Icons.add,
+              onTap: () => _openThread(m.id, m.name),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildPersonTile(_Person p) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: InkWell(
-        onTap: () => _showPersonSheet(p),
-        borderRadius: BorderRadius.circular(14),
-        child: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Brand.surface,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: Brand.border),
-          ),
-          child: Row(
-            children: [
-              _Avatar(url: p.avatarUrl, name: p.name, size: 44),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(p.name,
-                        style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: Brand.ink)),
-                    if (p.subtitle.isNotEmpty) ...[
-                      const SizedBox(height: 2),
-                      Text(p.subtitle,
-                          style: const TextStyle(
-                              fontSize: 13, color: Brand.muted)),
-                    ],
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              _trailing(p),
-            ],
-          ),
-        ),
-      ),
+  Widget _buildPersonRow(_Person p) {
+    return ListRow(
+      onTap: () => _showPersonSheet(p),
+      leading: Avatar(name: p.name, imageUrl: p.avatarUrl, size: 48),
+      title: Text(p.name),
+      subtitle: p.subtitle.isEmpty ? null : Text(p.subtitle),
+      trailing: _trailing(p),
     );
   }
 
   Widget _trailing(_Person p) {
     if (p.connectionStatus != null) {
-      return _ConnectionBadge(status: p.connectionStatus!);
+      return _statusTag(p.connectionStatus!);
     }
     if (p.connecting) {
       return const SizedBox(
-        width: 20,
-        height: 20,
-        child: CircularProgressIndicator(strokeWidth: 2, color: Brand.forest),
+        width: 18,
+        height: 18,
+        child:
+            CircularProgressIndicator(strokeWidth: 2, color: AppColors.forest),
       );
     }
-    return OutlinedButton(
-      style: OutlinedButton.styleFrom(
-        foregroundColor: Brand.forest,
-        side: const BorderSide(color: Brand.border),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
-      ),
-      onPressed: () => _connect(p),
-      child: const Text('Connect', style: TextStyle(fontSize: 13)),
+    return MButton(
+      'Connect',
+      kind: MBtnKind.sec,
+      small: true,
+      fullWidth: false,
+      onTap: () => _connect(p),
     );
+  }
+
+  Widget _statusTag(String status) {
+    switch (status) {
+      case 'accepted':
+        return Container(
+          height: 32,
+          padding: const EdgeInsets.symmetric(horizontal: 13),
+          decoration: BoxDecoration(
+            color: AppColors.forestSoft,
+            borderRadius: BorderRadius.circular(999),
+          ),
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.check, size: 15, color: AppColors.forest),
+              const SizedBox(width: 5),
+              Text('Connected',
+                  style: AppText.bodySm.copyWith(
+                      color: AppColors.forest, fontWeight: FontWeight.w600)),
+            ],
+          ),
+        );
+      case 'declined':
+        return const Tag('Declined', kind: TagKind.warning);
+      default:
+        return Container(
+          height: 32,
+          padding: const EdgeInsets.symmetric(horizontal: 15),
+          decoration: BoxDecoration(
+            color: AppColors.creamSoft,
+            borderRadius: BorderRadius.circular(999),
+          ),
+          alignment: Alignment.center,
+          child: Text('Pending',
+              style: AppText.bodySm.copyWith(
+                  color: AppColors.inkMuted, fontWeight: FontWeight.w600)),
+        );
+    }
   }
 }
 
@@ -447,12 +442,14 @@ class _Person {
 class _Match {
   final String id;
   final String name;
+  final String subtitle;
   final int scorePct;
   final String reason;
 
   _Match({
     required this.id,
     required this.name,
+    required this.subtitle,
     required this.scorePct,
     required this.reason,
   });
@@ -462,197 +459,43 @@ class _Match {
     final name = (reg is Map)
         ? asString(reg['attendee_name'], 'Attendee')
         : 'Attendee';
+    String subtitle = '';
+    if (reg is Map && reg['custom_fields'] is Map) {
+      final cf = reg['custom_fields'] as Map;
+      final title = asString(cf['title'] ?? cf['job_title'] ?? cf['role']).trim();
+      final company =
+          asString(cf['company'] ?? cf['organization'] ?? cf['organisation'])
+              .trim();
+      if (title.isNotEmpty && company.isNotEmpty) {
+        subtitle = '$title · $company';
+      } else {
+        subtitle = title.isNotEmpty ? title : company;
+      }
+    }
     // Web app scores matches on a 0–100 scale (see lib/matchmaking/index.ts).
     final pct = asDouble(r['score']).round().clamp(0, 100);
     return _Match(
       id: asString(r['matched_registration_id']),
       name: name,
+      subtitle: subtitle,
       scorePct: pct,
       reason: asString(r['reason']).trim(),
     );
   }
 }
 
-// ─── shared local widgets (avoid editing shared files) ──────────────────────
+// ─── register gate ──────────────────────────────────────────────────────────
 
 class _RegisterPrompt extends StatelessWidget {
-  const _RegisterPrompt();
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: const [
-            Icon(Icons.badge_outlined, color: Brand.forest, size: 44),
-            SizedBox(height: 14),
-            Text('Register to network',
-                style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: Brand.ink)),
-            SizedBox(height: 8),
-            Text(
-              'Register for this event to see who else is attending and start connecting.',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, height: 1.5, color: Brand.inkSoft),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ConnectionBadge extends StatelessWidget {
-  final String status;
-  const _ConnectionBadge({required this.status});
-  @override
-  Widget build(BuildContext context) {
-    late final Color bg;
-    late final Color fg;
-    late final String label;
-    switch (status) {
-      case 'accepted':
-        bg = Brand.success.withValues(alpha: 0.12);
-        fg = Brand.success;
-        label = 'Connected';
-        break;
-      case 'declined':
-        bg = Brand.muted.withValues(alpha: 0.12);
-        fg = Brand.muted;
-        label = 'Declined';
-        break;
-      default:
-        bg = Brand.gold.withValues(alpha: 0.20);
-        fg = Brand.inkSoft;
-        label = 'Pending';
-    }
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration:
-          BoxDecoration(color: bg, borderRadius: BorderRadius.circular(999)),
-      child: Text(label,
-          style: TextStyle(
-              fontSize: 12, fontWeight: FontWeight.w600, color: fg)),
-    );
-  }
-}
-
-class _SectionLabel extends StatelessWidget {
-  final String text;
-  const _SectionLabel(this.text);
-  @override
-  Widget build(BuildContext context) => Text(
-        text,
-        style: const TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.4,
-          color: Brand.forest,
-        ),
-      );
-}
-
-class _CenterSpinner extends StatelessWidget {
-  const _CenterSpinner();
-  @override
-  Widget build(BuildContext context) =>
-      const Center(child: CircularProgressIndicator(color: Brand.forest));
-}
-
-class _ErrorState extends StatelessWidget {
+  final String title;
   final String message;
-  final VoidCallback onRetry;
-  const _ErrorState({required this.message, required this.onRetry});
+  const _RegisterPrompt({required this.title, required this.message});
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.error_outline, color: Brand.danger, size: 40),
-            const SizedBox(height: 12),
-            Text(message,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 15, color: Brand.inkSoft)),
-            const SizedBox(height: 16),
-            FilledButton(onPressed: onRetry, child: const Text('Try again')),
-          ],
-        ),
-      ),
+    return EmptyState(
+      icon: Icons.badge_outlined,
+      title: title,
+      message: message,
     );
   }
 }
-
-class _EmptyState extends StatelessWidget {
-  final IconData icon;
-  final String message;
-  const _EmptyState({required this.icon, required this.message});
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: Brand.muted, size: 40),
-            const SizedBox(height: 12),
-            Text(message,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 15, color: Brand.inkSoft)),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _Avatar extends StatelessWidget {
-  final String? url;
-  final String name;
-  final double size;
-  const _Avatar({required this.url, required this.name, this.size = 44});
-
-  String get _initials {
-    final parts = name.trim().split(RegExp(r'\s+'));
-    if (parts.isEmpty || parts.first.isEmpty) return '?';
-    if (parts.length == 1) return parts.first[0].toUpperCase();
-    return (parts.first[0] + parts.last[0]).toUpperCase();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final fallback = Container(
-      width: size,
-      height: size,
-      alignment: Alignment.center,
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Brand.forest, Color(0xFF2A6A50)],
-        ),
-      ),
-      child: Text(_initials,
-          style: TextStyle(
-              color: Colors.white,
-              fontSize: size * 0.34,
-              fontWeight: FontWeight.w600)),
-    );
-    if (url == null || url!.isEmpty) return fallback;
-    return ClipOval(
-      child: Image.network(
-        url!,
-        width: size,
-        height: size,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => fallback,
-        loadingBuilder: (ctx, child, prog) => prog == null ? child : fallback,
-      ),
-    );

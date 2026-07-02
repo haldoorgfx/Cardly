@@ -5,13 +5,15 @@ import 'package:image_picker/image_picker.dart';
 
 import '../eventera_api.dart';
 import '../models.dart';
-import '../theme.dart';
+import '../ui/components.dart';
+import '../ui/tokens.dart';
 import '../widgets/card_preview.dart';
 import 'preview_screen.dart';
 
 /// The personalize form: shows the card design, lets the attendee switch
 /// between designs (if more than one), fills one field per input zone, then
-/// calls the render API and shows the result.
+/// calls the render API and shows the result. Screens 14 (pick a design) and
+/// 15 (personalize).
 class PersonalizeScreen extends StatefulWidget {
   final EventModel event;
   final VariantModel initialVariant;
@@ -87,47 +89,44 @@ class _PersonalizeScreenState extends State<PersonalizeScreen> {
       );
       if (picked == null) return;
       final bytes = await picked.readAsBytes();
+      if (!mounted) return;
       setState(() {
         _photos[zone.id] = PhotoUpload.fromPath(bytes, picked.path);
         _photoPreviews[zone.id] = bytes;
         _errors.remove(zone.id);
       });
     } catch (_) {
+      if (!mounted) return;
       setState(() => _errors[zone.id] = 'Could not load that photo.');
     }
   }
 
   void _choosePhotoSource(ZoneModel zone) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Brand.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 8),
-            ListTile(
-              leading: const Icon(Icons.camera_alt, color: Brand.forest),
-              title: const Text('Take a photo'),
-              onTap: () {
-                Navigator.pop(ctx);
-                _pickPhoto(zone, ImageSource.camera);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library, color: Brand.forest),
-              title: const Text('Choose from gallery'),
-              onTap: () {
-                Navigator.pop(ctx);
-                _pickPhoto(zone, ImageSource.gallery);
-              },
-            ),
-            const SizedBox(height: 8),
-          ],
-        ),
+    showMSheet(
+      context,
+      Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.camera_alt_outlined,
+                color: AppColors.forest),
+            title: Text('Take a photo', style: AppText.bodyStrong),
+            onTap: () {
+              Navigator.pop(context);
+              _pickPhoto(zone, ImageSource.camera);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.photo_library_outlined,
+                color: AppColors.forest),
+            title: Text('Choose from gallery', style: AppText.bodyStrong),
+            onTap: () {
+              Navigator.pop(context);
+              _pickPhoto(zone, ImageSource.gallery);
+            },
+          ),
+        ],
       ),
     );
   }
@@ -173,8 +172,10 @@ class _PersonalizeScreenState extends State<PersonalizeScreen> {
         ),
       ));
     } on EventeraException catch (e) {
+      if (!mounted) return;
       setState(() => _generateError = e.message);
     } catch (_) {
+      if (!mounted) return;
       setState(() => _generateError = 'Something went wrong. Please try again.');
     } finally {
       if (mounted) setState(() => _generating = false);
@@ -185,172 +186,157 @@ class _PersonalizeScreenState extends State<PersonalizeScreen> {
   Widget build(BuildContext context) {
     final zones = _variant.inputZones;
     final hasMultiple = widget.event.variants.length > 1;
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Brand.cream,
-        surfaceTintColor: Brand.cream,
-        elevation: 0,
-        title: Text(widget.event.name,
-            style: const TextStyle(
-                color: Brand.ink, fontSize: 17, fontWeight: FontWeight.w600)),
-        iconTheme: const IconThemeData(color: Brand.ink),
+    return MScaffold(
+      appBar: const MAppBar(title: 'Personalize', hairline: true),
+      bottomBar: StickyCta(
+        children: [
+          Expanded(
+            child: MButton(
+              'Generate card',
+              kind: MBtnKind.forest,
+              loading: _generating,
+              onTap: _generating ? null : _generate,
+            ),
+          ),
+        ],
       ),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
-          children: [
-            CardPreview(variant: _variant),
-            const SizedBox(height: 18),
-            if (hasMultiple) ...[
-              const Text('Choose a design',
-                  style: TextStyle(
-                      color: Brand.inkSoft,
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w600)),
-              const SizedBox(height: 8),
-              VariantChooser(
-                variants: widget.event.variants,
-                selectedId: _variant.id,
-                onSelected: _switchVariant,
-              ),
-              const SizedBox(height: 22),
-            ],
-            const Text('Personalize your card',
-                style: TextStyle(
-                    color: Brand.ink,
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700)),
-            const SizedBox(height: 6),
-            const Text('Fill in your details, then generate.',
-                style: TextStyle(color: Brand.muted, fontSize: 14)),
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(
+            AppSpace.lg, AppSpace.base, AppSpace.lg, AppSpace.xxl),
+        children: [
+          // Screen 14/15 · live preview of the chosen design.
+          CardPreview(variant: _variant),
+          const SizedBox(height: 18),
+          if (hasMultiple) ...[
+            const SectionLabel('Designs'),
+            const SizedBox(height: 12),
+            VariantChooser(
+              variants: widget.event.variants,
+              selectedId: _variant.id,
+              onSelected: _switchVariant,
+            ),
             const SizedBox(height: 22),
-            if (zones.isEmpty)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 12),
-                child: Text(
-                  'This design has no fields to fill — just generate it.',
-                  style: TextStyle(color: Brand.muted, fontSize: 14),
-                ),
+          ],
+          if (zones.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Text(
+                'This design has no fields to fill — just generate it.',
+                style: AppText.bodySm,
               ),
-            for (final z in zones) ...[
-              if (z.isText) _textField(z) else _photoField(z),
-              const SizedBox(height: 18),
-            ],
-            if (_generateError != null) ...[
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFBEAE9),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Icon(Icons.error_outline,
-                        color: Brand.danger, size: 18),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(_generateError!,
-                          style: const TextStyle(
-                              color: Brand.danger, fontSize: 13.5)),
-                    ),
-                  ],
-                ),
+            ),
+          for (final z in zones) ...[
+            if (z.isText) _textField(z) else _photoField(z),
+            const SizedBox(height: 16),
+          ],
+          if (_generateError != null) ...[
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: AppColors.danger.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(AppRadius.input),
+                border:
+                    Border.all(color: AppColors.danger.withValues(alpha: 0.3)),
               ),
-              const SizedBox(height: 16),
-            ],
-            FilledButton(
-              onPressed: _generating ? null : _generate,
-              child: _generating
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2.5, color: Colors.white),
-                    )
-                  : const Text('Generate my card'),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.error_outline,
+                      color: AppColors.danger, size: 18),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(_generateError!,
+                        style: AppText.bodySm
+                            .copyWith(color: AppColors.danger)),
+                  ),
+                ],
+              ),
             ),
           ],
-        ),
+        ],
       ),
     );
   }
 
   Widget _textField(ZoneModel z) {
-    final err = _errors[z.id];
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          z.displayLabel + (z.required ? ' *' : ''),
-          style: const TextStyle(
-              color: Brand.inkSoft, fontSize: 13.5, fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 6),
-        TextField(
-          controller: _textControllers[z.id],
-          decoration: InputDecoration(
-            hintText: z.placeholder ?? 'Type here',
-            errorText: err,
-          ),
-        ),
-      ],
+    return MInput(
+      label: z.displayLabel + (z.required ? ' *' : ''),
+      hint: z.placeholder ?? 'Type here',
+      controller: _textControllers[z.id],
+      errorText: _errors[z.id],
+      onChanged: (_) {
+        if (_errors.containsKey(z.id)) setState(() => _errors.remove(z.id));
+      },
     );
   }
 
+  // Screen 15 · photo upload row (circle crop, Change).
   Widget _photoField(ZoneModel z) {
     final err = _errors[z.id];
     final preview = _photoPreviews[z.id];
-    final isCircle = z.shape == 'circle';
+    final isCircle = z.shape == 'circle' || z.shape == null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          z.displayLabel + (z.required ? ' *' : ''),
-          style: const TextStyle(
-              color: Brand.inkSoft, fontSize: 13.5, fontWeight: FontWeight.w600),
-        ),
+        Text(z.displayLabel + (z.required ? ' *' : ''), style: AppText.label),
         const SizedBox(height: 8),
         GestureDetector(
           onTap: () => _choosePhotoSource(z),
           child: Container(
-            height: 120,
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Brand.surface,
-              borderRadius: BorderRadius.circular(12),
+              color: const Color(0xFFFBFAF6),
+              borderRadius: BorderRadius.circular(AppRadius.input),
               border: Border.all(
-                  color: err != null ? Brand.danger : Brand.border),
+                  color: err != null ? AppColors.danger : AppColors.border),
             ),
             child: Row(
               children: [
-                const SizedBox(width: 16),
                 Container(
-                  width: 84,
-                  height: 84,
+                  width: 52,
+                  height: 52,
                   decoration: BoxDecoration(
-                    color: Brand.cream,
+                    color: AppColors.canvas,
                     shape: isCircle ? BoxShape.circle : BoxShape.rectangle,
-                    borderRadius:
-                        isCircle ? null : BorderRadius.circular(10),
+                    borderRadius: isCircle ? null : BorderRadius.circular(10),
                     image: preview != null
                         ? DecorationImage(
                             image: MemoryImage(preview), fit: BoxFit.cover)
                         : null,
                   ),
+                  clipBehavior: Clip.antiAlias,
                   child: preview == null
-                      ? const Icon(Icons.add_a_photo,
-                          color: Brand.muted, size: 26)
+                      ? PhotoPlaceholder(
+                          hue: hueFromString(z.id),
+                          child: const Icon(Icons.add_a_photo_outlined,
+                              color: Colors.white70, size: 22),
+                        )
                       : null,
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 13),
                 Expanded(
-                  child: Text(
-                    preview == null ? 'Tap to add a photo' : 'Tap to change',
-                    style: const TextStyle(color: Brand.muted, fontSize: 14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Your photo', style: AppText.bodyStrong),
+                      const SizedBox(height: 2),
+                      Text(
+                        isCircle
+                            ? 'Circle crop · looks great centered'
+                            : 'Tap to add a photo',
+                        style: AppText.bodySm.copyWith(
+                            color: AppColors.inkMuted, fontSize: 11.5),
+                      ),
+                    ],
                   ),
                 ),
-                const Icon(Icons.chevron_right, color: Brand.muted),
-                const SizedBox(width: 12),
+                MButton(
+                  preview == null ? 'Add' : 'Change',
+                  kind: MBtnKind.sec,
+                  small: true,
+                  fullWidth: false,
+                  onTap: () => _choosePhotoSource(z),
+                ),
               ],
             ),
           ),
@@ -358,7 +344,8 @@ class _PersonalizeScreenState extends State<PersonalizeScreen> {
         if (err != null) ...[
           const SizedBox(height: 6),
           Text(err,
-              style: const TextStyle(color: Brand.danger, fontSize: 12.5)),
+              style: AppText.caption
+                  .copyWith(color: AppColors.danger, fontSize: 12)),
         ],
       ],
     );

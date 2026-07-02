@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../net.dart';
-import '../../theme.dart';
+import '../../ui/components.dart';
+import '../../ui/tokens.dart';
 import '_shared.dart';
 
 /// PollsScreen — live polls for an event. Reads `polls` + `poll_options`
@@ -146,7 +147,9 @@ class _PollsScreenState extends State<PollsScreen> {
       } else {
         option.votes += 1;
       }
-      if (mounted) setState(() {});
+      if (!mounted) return;
+      showToast(context, 'Your vote was counted');
+      setState(() {});
     } catch (e) {
       if (mounted) {
         showEngageSnack(context,
@@ -160,34 +163,23 @@ class _PollsScreenState extends State<PollsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Polls'),
-        backgroundColor: Brand.cream,
-        surfaceTintColor: Colors.transparent,
-      ),
+    return MScaffold(
+      appBar: const MAppBar(title: 'Polls', hairline: true),
       body: _body(),
     );
   }
 
   Widget _body() {
-    if (_loading) {
-      return const Center(child: CircularProgressIndicator(color: Brand.forest));
-    }
+    if (_loading) return const LoadingState();
     if (_error != null) {
-      return EngageState(
-        icon: Icons.error_outline,
-        title: 'Couldn\'t load polls',
-        subtitle: _error,
-        action: FilledButton(onPressed: _load, child: const Text('Retry')),
-      );
+      return ErrorStateView(message: _error!, onRetry: _load);
     }
     return RefreshIndicator(
-      color: Brand.forest,
+      color: AppColors.forest,
       onRefresh: _load,
       child: _polls.isEmpty
           ? ListView(children: [
-              SizedBox(height: MediaQuery.of(context).size.height * 0.25),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.22),
               const EngageState(
                 icon: Icons.bar_chart_outlined,
                 title: 'No polls yet',
@@ -195,7 +187,8 @@ class _PollsScreenState extends State<PollsScreen> {
               ),
             ])
           : ListView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+              padding: const EdgeInsets.fromLTRB(
+                  AppSpace.lg, AppSpace.base, AppSpace.lg, AppSpace.xxxl),
               itemCount: _polls.length,
               itemBuilder: (_, i) => _pollCard(_polls[i]),
             ),
@@ -207,125 +200,135 @@ class _PollsScreenState extends State<PollsScreen> {
     final showResults = votedOption != null || poll.isClosed;
     final total = poll.totalVotes;
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: AppSpace.base),
+      padding: const EdgeInsets.all(AppSpace.base),
       decoration: engageCard(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Expanded(
-                child: Text(
-                  poll.question,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: Brand.ink,
-                  ),
-                ),
-              ),
               if (poll.isClosed)
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: Brand.muted.withValues(alpha: 0.14),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: const Text('Closed',
-                      style: TextStyle(fontSize: 11, color: Brand.muted)),
-                ),
+                _StatusPill(label: 'Closed', muted: true)
+              else
+                const Tag('Live now', kind: TagKind.danger, dot: true),
+              const Spacer(),
+              Text(
+                votedOption != null
+                    ? 'You voted'
+                    : (total == 1 ? '1 vote' : '$total votes'),
+                style: AppText.numSm.copyWith(
+                    fontSize: 11, color: AppColors.inkMuted),
+              ),
             ],
           ),
-          const SizedBox(height: 12),
-          ...poll.options.map((o) => _optionRow(poll, o, showResults, total)),
-          const SizedBox(height: 4),
-          Text(
-            total == 1 ? '1 vote' : '$total votes',
-            style: const TextStyle(fontSize: 12, color: Brand.muted),
-          ),
+          const SizedBox(height: 14),
+          Text(poll.question, style: AppText.h3.copyWith(fontSize: 16)),
+          const SizedBox(height: 14),
+          if (showResults)
+            for (int i = 0; i < poll.options.length; i++) ...[
+              _resultBar(poll, poll.options[i], total, i),
+              if (i != poll.options.length - 1) const SizedBox(height: 12),
+            ]
+          else
+            for (int i = 0; i < poll.options.length; i++) ...[
+              _voteButton(poll, poll.options[i]),
+              if (i != poll.options.length - 1) const SizedBox(height: 9),
+            ],
         ],
       ),
     );
   }
 
-  Widget _optionRow(_Poll poll, _Option o, bool showResults, int total) {
+  Widget _voteButton(_Poll poll, _Option o) {
+    final busy = _busy.contains(poll.id);
+    return GestureDetector(
+      onTap: busy ? null : () => _vote(poll, o),
+      child: Container(
+        height: 52,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        alignment: Alignment.centerLeft,
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(AppRadius.btn),
+          border: Border.all(color: AppColors.border),
+          boxShadow: AppShadow.soft,
+        ),
+        child: Text(o.text,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppText.btn.copyWith(color: AppColors.ink)),
+      ),
+    );
+  }
+
+  Widget _resultBar(_Poll poll, _Option o, int total, int index) {
     final pct = total == 0 ? 0.0 : o.votes / total;
     final isMine = _myVotes[poll.id] == o.id;
-    final busy = _busy.contains(poll.id);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(10),
-        onTap: showResults || busy ? null : () => _vote(poll, o),
-        child: Stack(
+    // "mine" fills forest; others alternate to gold (matches screen 24).
+    final fill = isMine ? AppColors.forest : AppColors.gold;
+    final labelColor = isMine ? AppColors.forest : AppColors.inkSoft;
+    final pctColor = isMine ? AppColors.forest : AppColors.inkMuted;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
           children: [
-            // Bar background
-            Container(
-              height: 46,
-              decoration: BoxDecoration(
-                color: Brand.cream,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                    color: isMine ? Brand.forest : Brand.border,
-                    width: isMine ? 1.5 : 1),
-              ),
+            if (isMine) ...[
+              const Icon(Icons.check, size: 14, color: AppColors.forest),
+              const SizedBox(width: 6),
+            ],
+            Expanded(
+              child: Text(o.text,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppText.bodySm.copyWith(
+                      fontWeight: isMine ? FontWeight.w600 : FontWeight.w400,
+                      color: labelColor)),
             ),
-            // Fill
-            if (showResults)
-              FractionallySizedBox(
-                widthFactor: pct.clamp(0.0, 1.0),
-                child: Container(
-                  height: 46,
-                  decoration: BoxDecoration(
-                    color: (isMine ? Brand.forest : Brand.forest)
-                        .withValues(alpha: isMine ? 0.22 : 0.10),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-            // Label
-            Positioned.fill(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                child: Row(
-                  children: [
-                    if (isMine)
-                      const Padding(
-                        padding: EdgeInsets.only(right: 6),
-                        child: Icon(Icons.check_circle,
-                            size: 18, color: Brand.forest),
-                      ),
-                    Expanded(
-                      child: Text(
-                        o.text,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight:
-                              isMine ? FontWeight.w700 : FontWeight.w500,
-                          color: Brand.ink,
-                        ),
-                      ),
-                    ),
-                    if (showResults)
-                      Text(
-                        '${(pct * 100).round()}%',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: Brand.inkSoft,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
+            const SizedBox(width: 8),
+            Text('${(pct * 100).round()}%',
+                style: AppText.numSm.copyWith(color: pctColor)),
           ],
         ),
+        const SizedBox(height: 6),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(999),
+          child: Container(
+            height: 9,
+            color: AppColors.creamSoft,
+            child: FractionallySizedBox(
+              alignment: Alignment.centerLeft,
+              widthFactor: pct.clamp(0.0, 1.0),
+              child: Container(color: fill),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _StatusPill extends StatelessWidget {
+  final String label;
+  final bool muted;
+  const _StatusPill({required this.label, this.muted = false});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 24,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: AppColors.creamSoft,
+        borderRadius: BorderRadius.circular(999),
       ),
+      child: Text(label,
+          style: AppText.caption.copyWith(
+              fontSize: 11.5,
+              letterSpacing: 0.1,
+              fontWeight: FontWeight.w600,
+              color: AppColors.inkSoft)),
     );
   }
 }

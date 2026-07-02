@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../net.dart';
-import '../../theme.dart';
+import '../../ui/components.dart';
+import '../../ui/tokens.dart';
 import '_shared.dart';
 
 /// FeedbackScreen — post-event feedback: a 1–5 star rating, multi-select
@@ -77,14 +78,20 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Feedback'),
-        backgroundColor: Brand.cream,
-        surfaceTintColor: Colors.transparent,
-      ),
-      body: widget.registrationId == null
-          ? const RegisterPrompt(message: 'Register for this event to leave feedback')
+    final gated = widget.registrationId == null;
+    return MScaffold(
+      appBar: const MAppBar(title: 'Feedback', hairline: true),
+      bottomBar: (gated || _done)
+          ? null
+          : StickyCta(children: [
+              Expanded(
+                child: MButton('Submit feedback',
+                    loading: _submitting, onTap: _submit),
+              ),
+            ]),
+      body: gated
+          ? const RegisterPrompt(
+              message: 'Register for this event to leave feedback')
           : _done
               ? _thanks()
               : _form(),
@@ -92,111 +99,98 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   }
 
   Widget _thanks() {
-    return EngageState(
-      icon: Icons.check_circle_outline,
-      title: 'Thanks for your feedback!',
-      subtitle: 'Your response helps the organizer make the next event even better.',
-      action: OutlinedButton(
-        onPressed: () => setState(() {
-          _done = false;
-          _rating = 0;
-          _selected.clear();
-          _comment.clear();
-        }),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: Brand.forest,
-          side: const BorderSide(color: Brand.forest),
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpace.xxxl),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 76,
+              height: 76,
+              alignment: Alignment.center,
+              decoration: const BoxDecoration(
+                  color: AppColors.forestSoft, shape: BoxShape.circle),
+              child: const Icon(Icons.check_rounded,
+                  size: 36, color: AppColors.forest),
+            ),
+            const SizedBox(height: AppSpace.lg),
+            Text('Thank you!', style: AppText.h1.copyWith(fontSize: 24)),
+            const SizedBox(height: AppSpace.sm),
+            Text(
+              'Your feedback went to the organizer. See you at the next one.',
+              textAlign: TextAlign.center,
+              style: AppText.body,
+            ),
+            const SizedBox(height: AppSpace.xl),
+            MButton('Edit my feedback',
+                kind: MBtnKind.sec,
+                fullWidth: false,
+                onTap: () => setState(() {
+                      _done = false;
+                    })),
+          ],
         ),
-        child: const Text('Edit my feedback'),
       ),
     );
   }
 
   Widget _form() {
     return ListView(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.fromLTRB(
+          AppSpace.lg, AppSpace.lg, AppSpace.lg, AppSpace.xxxl),
       children: [
-        const Text(
-          'How was the event?',
-          style: TextStyle(
-              fontSize: 20, fontWeight: FontWeight.w700, color: Brand.ink),
-        ),
+        Text('How was the event?', style: AppText.h1.copyWith(fontSize: 22)),
         const SizedBox(height: 6),
-        const Text(
-          'Your feedback is shared privately with the organizer.',
-          style: TextStyle(fontSize: 14, color: Brand.muted),
-        ),
-        const SizedBox(height: 24),
+        Text('Your feedback is shared privately with the organizer.',
+            style: AppText.body),
+        const SizedBox(height: AppSpace.xxl),
 
-        // Stars
+        // Stars (centered)
         Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(5, (i) {
-              final v = i + 1;
-              return IconButton(
-                iconSize: 44,
-                onPressed: () => setState(() => _rating = v),
-                icon: Icon(
-                  v <= _rating ? Icons.star : Icons.star_border,
-                  color: Brand.gold,
-                ),
-              );
-            }),
+          child: StarRating(
+            value: _rating,
+            size: 40,
+            onChanged: (v) => setState(() => _rating = v),
           ),
         ),
+        const SizedBox(height: 10),
         Center(
-          child: Text(
-            _ratingLabel(),
-            style: const TextStyle(
-                fontSize: 14, fontWeight: FontWeight.w600, color: Brand.inkSoft),
-          ),
+          child: Text(_ratingLabel(),
+              style: AppText.bodySm.copyWith(
+                  fontWeight: FontWeight.w600, color: AppColors.inkSoft)),
         ),
-        const SizedBox(height: 28),
+        const SizedBox(height: AppSpace.xxl),
 
         // Highlights
-        const Text(
-          'What stood out?',
-          style: TextStyle(
-              fontSize: 16, fontWeight: FontWeight.w700, color: Brand.ink),
-        ),
-        const SizedBox(height: 12),
+        const SectionLabel('What stood out?'),
+        const SizedBox(height: AppSpace.md),
         Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: _highlightOptions.map(_chip).toList(),
+          spacing: 9,
+          runSpacing: 9,
+          children: _highlightOptions
+              .map((o) => MChip(
+                    o,
+                    selected: _selected.contains(o),
+                    onTap: () => setState(() {
+                      if (_selected.contains(o)) {
+                        _selected.remove(o);
+                      } else {
+                        _selected.add(o);
+                      }
+                    }),
+                  ))
+              .toList(),
         ),
-        const SizedBox(height: 28),
+        const SizedBox(height: AppSpace.xxl),
 
         // Comment
-        const Text(
-          'Anything else? (optional)',
-          style: TextStyle(
-              fontSize: 16, fontWeight: FontWeight.w700, color: Brand.ink),
-        ),
-        const SizedBox(height: 12),
-        TextField(
+        MInput(
+          label: 'Anything else? (optional)',
+          hint: 'Share a highlight or suggestion',
           controller: _comment,
-          maxLines: 5,
-          maxLength: 1000,
-          textCapitalization: TextCapitalization.sentences,
-          decoration: const InputDecoration(
-            hintText: 'Share your thoughts…',
-          ),
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          child: FilledButton(
-            onPressed: _submitting ? null : _submit,
-            child: _submitting
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                        strokeWidth: 2, color: Colors.white))
-                : const Text('Submit feedback'),
-          ),
+          minLines: 4,
+          maxLines: 6,
         ),
       ],
     );
@@ -217,44 +211,5 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       default:
         return 'Tap to rate';
     }
-  }
-
-  Widget _chip(String label) {
-    final active = _selected.contains(label);
-    return GestureDetector(
-      onTap: () => setState(() {
-        if (active) {
-          _selected.remove(label);
-        } else {
-          _selected.add(label);
-        }
-      }),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-        decoration: BoxDecoration(
-          color: active ? Brand.forest : Brand.surface,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: active ? Brand.forest : Brand.border),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (active)
-              const Padding(
-                padding: EdgeInsets.only(right: 6),
-                child: Icon(Icons.check, size: 15, color: Colors.white),
-              ),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: active ? Colors.white : Brand.inkSoft,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

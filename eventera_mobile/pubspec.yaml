@@ -52,6 +52,9 @@ dependencies:
   # QR code for the organizer's shareable event link.
   qr_flutter: ^4.1.0
 
+  # Brand fonts: DM Sans (display), Inter (body), JetBrains Mono (numbers).
+  google_fonts: ^6.2.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

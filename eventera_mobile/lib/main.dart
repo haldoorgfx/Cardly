@@ -4,7 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'deep_link_handler.dart';
 import 'root_gate.dart';
 import 'supabase_config.dart';
-import 'theme.dart';
+import 'ui/tokens.dart';
 
 final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -29,7 +29,7 @@ class EventeraApp extends StatelessWidget {
       title: 'Eventera',
       debugShowCheckedModeBanner: false,
       navigatorKey: appNavigatorKey,
-      theme: buildEventeraTheme(),
+      theme: buildAppTheme(),
       home: DeepLinkHandler(
         navigatorKey: appNavigatorKey,
         child: const RootGate(),

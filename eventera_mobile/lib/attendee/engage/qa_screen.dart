@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../net.dart';
-import '../../theme.dart';
+import '../../ui/components.dart';
+import '../../ui/tokens.dart';
 import '_shared.dart';
 
 /// QaScreen — audience Q&A. Reads `qa_questions` (public) ordered by upvotes,
@@ -38,6 +39,7 @@ class _Question {
   final bool isAnonymous;
   final String status;
   final bool isFeatured;
+  final DateTime? createdAt;
   int upvotes;
   _Question({
     required this.id,
@@ -46,6 +48,7 @@ class _Question {
     required this.isAnonymous,
     required this.status,
     required this.isFeatured,
+    required this.createdAt,
     required this.upvotes,
   });
 }
@@ -57,6 +60,7 @@ class _QaScreenState extends State<QaScreen> {
   final Set<String> _myUpvotes = {};
   final Set<String> _busy = {};
   bool _submitting = false;
+  int _filter = 0; // 0 = Top, 1 = Recent
 
   @override
   void initState() {
@@ -97,6 +101,7 @@ class _QaScreenState extends State<QaScreen> {
           isAnonymous: anon,
           status: asString(map['status'], 'pending'),
           isFeatured: asBool(map['is_featured']),
+          createdAt: asDate(map['created_at']),
           upvotes: asInt(map['upvotes_count']),
         ));
       }
@@ -188,21 +193,30 @@ class _QaScreenState extends State<QaScreen> {
     _questions.sort((a, b) => b.upvotes.compareTo(a.upvotes));
   }
 
+  List<_Question> get _visible {
+    final list = List<_Question>.from(_questions);
+    if (_filter == 1) {
+      list.sort((a, b) {
+        final ad = a.createdAt, bd = b.createdAt;
+        if (ad == null && bd == null) return 0;
+        if (ad == null) return 1;
+        if (bd == null) return -1;
+        return bd.compareTo(ad);
+      });
+    } else {
+      list.sort((a, b) => b.upvotes.compareTo(a.upvotes));
+    }
+    return list;
+  }
+
   Future<void> _openComposer() async {
     if (widget.registrationId == null) {
       showEngageSnack(context, 'Register for this event to ask a question',
           error: true);
       return;
     }
-    final result = await showModalBottomSheet<_AskResult>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Brand.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (_) => const _AskSheet(),
-    );
+    final result =
+        await showMSheet<_AskResult>(context, const _AskSheet());
     if (result == null) return;
     setState(() => _submitting = true);
     try {
@@ -212,7 +226,7 @@ class _QaScreenState extends State<QaScreen> {
         'is_anonymous': result.anonymous,
         if (widget.sessionId != null) 'session_id': widget.sessionId,
       });
-      if (mounted) showEngageSnack(context, 'Your question was submitted');
+      if (mounted) showToast(context, 'Your question was submitted');
       await _load();
     } catch (e) {
       if (mounted) {
@@ -227,47 +241,67 @@ class _QaScreenState extends State<QaScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Q&A'),
-        backgroundColor: Brand.cream,
-        surfaceTintColor: Colors.transparent,
+    return MScaffold(
+      appBar: MAppBar(
+        title: 'Live Q&A',
+        hairline: true,
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 8),
+            child: Center(child: Tag('Live', kind: TagKind.danger, dot: true)),
+          ),
+        ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _submitting ? null : _openComposer,
-        backgroundColor: Brand.forest,
-        foregroundColor: Colors.white,
-        icon: _submitting
-            ? const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(
-                    strokeWidth: 2, color: Colors.white))
-            : const Icon(Icons.add),
-        label: const Text('Ask a question'),
+      bottomBar: _loading || _error != null
+          ? null
+          : StickyCta(children: [
+              Expanded(
+                child: MButton('Ask a question',
+                    icon: Icons.add,
+                    loading: _submitting,
+                    onTap: _openComposer),
+              ),
+            ]),
+      body: _loading || _error != null
+          ? _body()
+          : Column(
+              children: [
+                _filterRow(),
+                Expanded(child: _body()),
+              ],
+            ),
+    );
+  }
+
+  Widget _filterRow() {
+    return SizedBox(
+      height: 54,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppSpace.lg, vertical: AppSpace.sm),
+        children: [
+          MChip('Top', selected: _filter == 0, onTap: () => setState(() => _filter = 0)),
+          const SizedBox(width: 8),
+          MChip('Recent',
+              selected: _filter == 1, onTap: () => setState(() => _filter = 1)),
+        ],
       ),
-      body: _body(),
     );
   }
 
   Widget _body() {
-    if (_loading) {
-      return const Center(child: CircularProgressIndicator(color: Brand.forest));
-    }
+    if (_loading) return const LoadingState();
     if (_error != null) {
-      return EngageState(
-        icon: Icons.error_outline,
-        title: 'Couldn\'t load Q&A',
-        subtitle: _error,
-        action: FilledButton(onPressed: _load, child: const Text('Retry')),
-      );
+      return ErrorStateView(message: _error!, onRetry: _load);
     }
+    final visible = _visible;
     return RefreshIndicator(
-      color: Brand.forest,
+      color: AppColors.forest,
       onRefresh: _load,
-      child: _questions.isEmpty
+      child: visible.isEmpty
           ? ListView(children: [
-              SizedBox(height: MediaQuery.of(context).size.height * 0.22),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.18),
               const EngageState(
                 icon: Icons.forum_outlined,
                 title: 'No questions yet',
@@ -275,9 +309,10 @@ class _QaScreenState extends State<QaScreen> {
               ),
             ])
           : ListView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
-              itemCount: _questions.length,
-              itemBuilder: (_, i) => _questionCard(_questions[i]),
+              padding: const EdgeInsets.fromLTRB(
+                  AppSpace.lg, AppSpace.xs, AppSpace.lg, AppSpace.xxxl),
+              itemCount: visible.length,
+              itemBuilder: (_, i) => _questionCard(visible[i]),
             ),
     );
   }
@@ -285,47 +320,39 @@ class _QaScreenState extends State<QaScreen> {
   Widget _questionCard(_Question q) {
     final upvoted = _myUpvotes.contains(q.id);
     final busy = _busy.contains(q.id);
+    final meta = [
+      q.askerName,
+      if (q.createdAt != null) fmtTime(q.createdAt!),
+    ].join(' · ');
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: AppSpace.md),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Brand.surface,
-        borderRadius: BorderRadius.circular(14),
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.card),
         border: Border.all(
-            color: q.isFeatured ? Brand.gold : Brand.border,
+            color: q.isFeatured ? AppColors.gold : AppColors.border,
             width: q.isFeatured ? 1.5 : 1),
+        boxShadow: AppShadow.soft,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Upvote button
+          // Upvote triangle + count
           GestureDetector(
             onTap: busy ? null : () => _upvote(q),
-            child: Container(
-              width: 52,
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              decoration: BoxDecoration(
-                color: upvoted ? Brand.forest : Brand.cream,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                    color: upvoted ? Brand.forest : Brand.border),
-              ),
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.keyboard_arrow_up,
-                    color: upvoted ? Colors.white : Brand.inkSoft,
-                  ),
-                  Text(
-                    '${q.upvotes}',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: upvoted ? Colors.white : Brand.inkSoft,
-                    ),
-                  ),
-                ],
-              ),
+            behavior: HitTestBehavior.opaque,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.arrow_drop_up,
+                    size: 30,
+                    color: upvoted ? AppColors.forest : AppColors.inkMuted),
+                Text('${q.upvotes}',
+                    style: AppText.numSm.copyWith(
+                        fontWeight: FontWeight.w500,
+                        color: upvoted ? AppColors.forest : AppColors.inkMuted)),
+              ],
             ),
           ),
           const SizedBox(width: 12),
@@ -333,28 +360,24 @@ class _QaScreenState extends State<QaScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  q.text,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    color: Brand.ink,
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 6),
+                Text(q.text,
+                    style: AppText.body.copyWith(color: AppColors.ink, height: 1.45)),
+                const SizedBox(height: 8),
                 Row(
                   children: [
-                    Text(
-                      q.askerName,
-                      style: const TextStyle(fontSize: 12, color: Brand.muted),
+                    Expanded(
+                      child: Text(meta,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppText.caption.copyWith(fontSize: 11.5, letterSpacing: 0)),
                     ),
                     if (q.isFeatured) ...[
                       const SizedBox(width: 8),
-                      _tag('Featured', Brand.gold),
+                      const Tag('Featured', kind: TagKind.gold),
                     ],
                     if (q.status == 'answered') ...[
                       const SizedBox(width: 8),
-                      _tag('Answered', Brand.success),
+                      const Tag('Answered', kind: TagKind.success),
                     ],
                   ],
                 ),
@@ -363,19 +386,6 @@ class _QaScreenState extends State<QaScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _tag(String label, Color c) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-      decoration: BoxDecoration(
-        color: c.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(5),
-      ),
-      child: Text(label,
-          style: TextStyle(
-              fontSize: 10, fontWeight: FontWeight.w600, color: c)),
     );
   }
 }
@@ -406,55 +416,48 @@ class _AskSheetState extends State<_AskSheet> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(
-        left: 20,
-        right: 20,
-        top: 20,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-      ),
+      padding: const EdgeInsets.fromLTRB(AppSpace.lg, 4, AppSpace.lg, 4),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Ask a question',
-            style: TextStyle(
-                fontSize: 18, fontWeight: FontWeight.w700, color: Brand.ink),
-          ),
+          Text('Ask a question', style: AppText.h3),
           const SizedBox(height: 14),
-          TextField(
+          MInput(
             controller: _controller,
-            autofocus: true,
-            maxLines: 4,
-            maxLength: 500,
-            textCapitalization: TextCapitalization.sentences,
-            decoration: const InputDecoration(
-              hintText: 'What would you like to ask?',
+            hint: 'What would you like to ask?',
+            minLines: 3,
+            maxLines: 5,
+          ),
+          const SizedBox(height: AppSpace.base),
+          Container(
+            decoration: const BoxDecoration(
+              border: Border(top: BorderSide(color: AppColors.border)),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: AppSpace.md),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Ask anonymously', style: AppText.bodyStrong),
+                      const SizedBox(height: 1),
+                      Text('Your name won\'t be shown',
+                          style: AppText.bodySm.copyWith(color: AppColors.inkMuted)),
+                    ],
+                  ),
+                ),
+                MToggle(value: _anon, onChanged: (v) => setState(() => _anon = v)),
+              ],
             ),
           ),
-          Row(
-            children: [
-              Checkbox(
-                value: _anon,
-                activeColor: Brand.forest,
-                onChanged: (v) => setState(() => _anon = v ?? false),
-              ),
-              const Text('Ask anonymously',
-                  style: TextStyle(fontSize: 14, color: Brand.inkSoft)),
-            ],
-          ),
-          const SizedBox(height: 8),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: () {
-                final t = _controller.text.trim();
-                if (t.isEmpty) return;
-                Navigator.of(context).pop(_AskResult(t, _anon));
-              },
-              child: const Text('Submit question'),
-            ),
-          ),
+          const SizedBox(height: AppSpace.md),
+          MButton('Post question', onTap: () {
+            final t = _controller.text.trim();
+            if (t.isEmpty) return;
+            Navigator.of(context).pop(_AskResult(t, _anon));
+          }),
         ],
       ),
     );

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../eventera_api.dart';
-import '../theme.dart';
+import '../ui/components.dart';
+import '../ui/tokens.dart';
 import 'personalize_screen.dart';
 
 /// Loads an event by slug (from a deep link or the home screen), shows a
@@ -39,61 +40,43 @@ class _OpenEventScreenState extends State<OpenEventScreen> {
             PersonalizeScreen(event: event, initialVariant: variant),
       ));
     } on EventeraException catch (e) {
+      if (!mounted) return;
       setState(() => _error = e.message);
     } catch (_) {
+      if (!mounted) return;
       setState(() => _error = 'Something went wrong opening this event.');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(28),
-            child: _error == null
-                ? const Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SizedBox(
-                        width: 30,
-                        height: 30,
-                        child: CircularProgressIndicator(
-                            strokeWidth: 3, color: Brand.gold),
-                      ),
-                      SizedBox(height: 18),
-                      Text('Opening event…',
-                          style: TextStyle(color: Brand.muted, fontSize: 14)),
-                    ],
-                  )
-                : Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.error_outline,
-                          color: Brand.danger, size: 34),
-                      const SizedBox(height: 14),
-                      Text(_error!,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                              color: Brand.inkSoft, fontSize: 15, height: 1.5)),
-                      const SizedBox(height: 22),
-                      FilledButton(
-                        onPressed: _load,
-                        child: const Text('Try again'),
-                      ),
-                      const SizedBox(height: 8),
-                      TextButton(
-                        onPressed: () => Navigator.of(context)
-                            .popUntil((r) => r.isFirst),
-                        child: const Text('Enter a different event',
-                            style: TextStyle(color: Brand.forest)),
-                      ),
-                    ],
+    return MScaffold(
+      body: _error == null
+          ? Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                LoadingState(),
+                SizedBox(height: 18),
+                Text('Opening event…',
+                    style: TextStyle(color: AppColors.inkMuted, fontSize: 14)),
+              ],
+            )
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ErrorStateView(message: _error!, onRetry: _load),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: MButton(
+                    'Enter a different event',
+                    kind: MBtnKind.text,
+                    fullWidth: false,
+                    onTap: () =>
+                        Navigator.of(context).popUntil((r) => r.isFirst),
                   ),
-          ),
-        ),
-      ),
+                ),
+              ],
+            ),
     );
   }
 }

@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../../net.dart';
-import '../../theme.dart';
+import '../../ui/components.dart';
+import '../../ui/tokens.dart';
 import '../auth/attendee_auth_screen.dart';
 import 'ticket_detail_screen.dart';
 
 /// Lists the signed-in attendee's tickets (registrations matched by email or
-/// user_id). Requires sign-in; prompts otherwise.
+/// user_id). Requires sign-in; prompts otherwise. Tab root — no back button.
+/// Screen 12 (wallet).
 class MyTicketsScreen extends StatefulWidget {
   const MyTicketsScreen({super.key});
 
@@ -44,6 +46,7 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
   bool _loading = true;
   String? _error;
   List<_Ticket> _tickets = [];
+  int _seg = 0; // 0 = Upcoming, 1 = Past
 
   @override
   void initState() {
@@ -149,7 +152,7 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
           ? asString(Map<String, dynamic>.from(ticket)['name'], 'Ticket')
           : null,
       eventName: ev == null ? 'Event' : asString(ev['name'], 'Event'),
-      eventSlug: ev?['slug'] == null ? null : asString(ev['slug']),
+      eventSlug: ev == null ? null : asString(ev['slug']),
       startsAt: page == null ? null : asDate(page['starts_at']),
       venue: venue,
       coverUrl: page?['cover_image_url'] == null
@@ -160,38 +163,46 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Brand.cream,
-      appBar: AppBar(
-        backgroundColor: Brand.cream,
-        elevation: 0,
-        foregroundColor: Brand.ink,
-        title: const Text('My tickets'),
+    return MScaffold(
+      appBar: MAppBar(
+        title: 'My tickets',
+        showBack: false,
+        actions: isSignedIn && !_loading && _error == null && _tickets.isNotEmpty
+            ? [
+                SizedBox(
+                  width: 150,
+                  child: SegControl(
+                    segments: const ['Upcoming', 'Past'],
+                    index: _seg,
+                    onChanged: (i) => setState(() => _seg = i),
+                  ),
+                ),
+                const SizedBox(width: 4),
+              ]
+            : const [],
       ),
-      body: SafeArea(child: _body()),
+      body: _body(),
     );
   }
 
   Widget _body() {
     if (!isSignedIn) {
-      return _SignInPrompt(onSignIn: _promptSignIn);
-    }
-    if (_loading) {
-      return const Center(
-        child: CircularProgressIndicator(color: Brand.forest),
+      return EmptyState(
+        icon: Icons.lock_outline,
+        title: 'Sign in to see your tickets',
+        message:
+            'Your registrations are tied to your email — sign in to view and '
+            'manage them.',
+        ctaLabel: 'Sign in',
+        onCta: _promptSignIn,
       );
     }
+    if (_loading) return const LoadingState();
     if (_error != null) {
-      return _CenterMessage(
-        icon: Icons.error_outline,
-        title: 'Couldn’t load',
-        message: _error!,
-        actionLabel: 'Retry',
-        onAction: _load,
-      );
+      return ErrorStateView(message: _error!, onRetry: _load);
     }
     if (_tickets.isEmpty) {
-      return const _CenterMessage(
+      return const EmptyState(
         icon: Icons.confirmation_number_outlined,
         title: 'No tickets yet',
         message: 'Tickets you register for will appear here.',
@@ -205,45 +216,36 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
     final past = _tickets
         .where((t) => t.startsAt != null && t.startsAt!.isBefore(now))
         .toList();
+    final shown = _seg == 0 ? upcoming : past;
 
     return RefreshIndicator(
-      color: Brand.forest,
+      color: AppColors.forest,
       onRefresh: _load,
-      child: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          if (upcoming.isNotEmpty) ...[
-            _sectionHeader('Upcoming'),
-            ...upcoming.map(_ticketCard),
-          ],
-          if (past.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            _sectionHeader('Past'),
-            ...past.map(_ticketCard),
-          ],
-        ],
-      ),
+      child: shown.isEmpty
+          ? ListView(
+              children: [
+                SizedBox(height: MediaQuery.of(context).size.height * 0.22),
+                EmptyState(
+                  icon: Icons.confirmation_number_outlined,
+                  title: _seg == 0 ? 'Nothing upcoming' : 'No past tickets',
+                  message: _seg == 0
+                      ? 'Tickets for future events will show up here.'
+                      : 'Events you attended will show up here.',
+                ),
+              ],
+            )
+          : ListView(
+              padding: const EdgeInsets.fromLTRB(
+                  AppSpace.lg, AppSpace.base, AppSpace.lg, AppSpace.base),
+              children: shown.map(_ticketCard).toList(),
+            ),
     );
   }
 
-  Widget _sectionHeader(String text) => Padding(
-        padding: const EdgeInsets.only(bottom: 8, top: 4),
-        child: Text(
-          text,
-          style: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: Brand.muted,
-            letterSpacing: 0.3,
-          ),
-        ),
-      );
-
   Widget _ticketCard(_Ticket t) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(14),
+      padding: const EdgeInsets.only(bottom: 14),
+      child: GestureDetector(
         onTap: () => Navigator.of(context).push(
           MaterialPageRoute(
             builder: (_) => TicketDetailScreen(
@@ -261,60 +263,87 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
         ),
         child: Container(
           decoration: BoxDecoration(
-            color: Brand.surface,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: Brand.border),
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(AppRadius.card),
+            border: Border.all(color: AppColors.border),
+            boxShadow: AppShadow.soft,
           ),
           clipBehavior: Clip.antiAlias,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (t.coverUrl != null && t.coverUrl!.isNotEmpty)
-                Image.network(
-                  t.coverUrl!,
-                  height: 120,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                ),
+              // Row: cover + info.
               Padding(
-                padding: const EdgeInsets.all(14),
-                child: Column(
+                padding: const EdgeInsets.all(13),
+                child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      t.eventName,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: Brand.ink,
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: SizedBox(
+                        width: 64,
+                        height: 64,
+                        child: (t.coverUrl != null && t.coverUrl!.isNotEmpty)
+                            ? Image.network(
+                                t.coverUrl!,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => PhotoPlaceholder(
+                                    hue: hueFromString(t.id)),
+                              )
+                            : PhotoPlaceholder(hue: hueFromString(t.id)),
                       ),
                     ),
-                    if (t.startsAt != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        _formatDate(t.startsAt!),
-                        style:
-                            const TextStyle(fontSize: 13, color: Brand.muted),
+                    const SizedBox(width: 13),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(t.eventName,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppText.h3.copyWith(fontSize: 15)),
+                          if (t.startsAt != null) ...[
+                            const SizedBox(height: 4),
+                            Text(_formatDate(t.startsAt!),
+                                style: AppText.numSm.copyWith(
+                                    color: AppColors.inkMuted, fontSize: 11.5)),
+                          ],
+                          const SizedBox(height: 8),
+                          Tag(_statusLabel(t.status),
+                              kind: _statusKind(t.status), dot: true),
+                        ],
                       ),
-                    ],
-                    if (t.venue != null && t.venue!.isNotEmpty) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        t.venue!,
-                        style:
-                            const TextStyle(fontSize: 13, color: Brand.muted),
-                      ),
-                    ],
-                    const SizedBox(height: 10),
+                    ),
+                  ],
+                ),
+              ),
+              // Tear-off footer: "Show QR".
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFBFAF6),
+                  border:
+                      Border(top: BorderSide(color: AppColors.border)),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      t.ticketTypeName != null && t.ticketTypeName!.isNotEmpty
+                          ? t.ticketTypeName!
+                          : 'Ticket',
+                      style: AppText.numSm.copyWith(
+                          color: AppColors.inkMuted, fontSize: 11),
+                    ),
                     Row(
                       children: [
-                        if (t.ticketTypeName != null)
-                          _chip(t.ticketTypeName!, Brand.forest),
-                        const SizedBox(width: 6),
-                        _chip(_statusLabel(t.status), _statusColor(t.status)),
-                        const Spacer(),
+                        Text('Show QR',
+                            style: AppText.bodySm.copyWith(
+                                color: AppColors.forest,
+                                fontWeight: FontWeight.w600)),
+                        const SizedBox(width: 5),
                         const Icon(Icons.chevron_right,
-                            color: Brand.muted, size: 20),
+                            size: 14, color: AppColors.forest),
                       ],
                     ),
                   ],
@@ -326,22 +355,6 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
       ),
     );
   }
-
-  Widget _chip(String text, Color color) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(999),
-        ),
-        child: Text(
-          text,
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            color: color,
-          ),
-        ),
-      );
 
   static String _statusLabel(String s) {
     switch (s) {
@@ -358,16 +371,17 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
     }
   }
 
-  static Color _statusColor(String s) {
+  static TagKind _statusKind(String s) {
     switch (s) {
       case 'confirmed':
+        return TagKind.success;
       case 'checked_in':
-        return Brand.success;
+        return TagKind.forest;
       case 'pending':
       case 'pending_approval':
-        return Brand.gold;
+        return TagKind.warning;
       default:
-        return Brand.muted;
+        return TagKind.info;
     }
   }
 
@@ -383,84 +397,3 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
     return '${months[l.month - 1]} ${l.day}, ${l.year} · $h:$m $ap';
   }
 }
-
-class _SignInPrompt extends StatelessWidget {
-  final VoidCallback onSignIn;
-  const _SignInPrompt({required this.onSignIn});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.lock_outline, size: 40, color: Brand.muted),
-            const SizedBox(height: 16),
-            const Text(
-              'Sign in to see your tickets',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: Brand.ink,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Your registrations are tied to your email — sign in to view '
-              'and manage them.',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: Brand.muted),
-            ),
-            const SizedBox(height: 20),
-            FilledButton(onPressed: onSignIn, child: const Text('Sign in')),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _CenterMessage extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String message;
-  final String? actionLabel;
-  final VoidCallback? onAction;
-
-  const _CenterMessage({
-    required this.icon,
-    required this.title,
-    required this.message,
-    this.actionLabel,
-    this.onAction,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 40, color: Brand.muted),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: Brand.ink,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 14, color: Brand.muted),
-            ),
-            if (actionLabel != null && onAction != null) ...[
-              const SizedBox(height: 20),
-         

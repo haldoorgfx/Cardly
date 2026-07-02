@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../../net.dart';
-import '../../theme.dart';
+import '../../ui/components.dart';
+import '../../ui/tokens.dart';
+import '../engage/feedback_screen.dart';
+import '../engage/leaderboard_screen.dart';
+import '../engage/polls_screen.dart';
+import '../engage/qa_screen.dart';
+import '../network/people_screen.dart';
+import '../reg_store.dart';
 import 'event_page_model.dart';
 import 'session_detail_screen.dart';
 import 'speaker_detail_screen.dart';
@@ -41,6 +48,13 @@ class _EventHubScreenState extends State<EventHubScreen> {
   final List<SpeakerSummary> _speakers = [];
   final List<SponsorSummary> _sponsors = [];
   final List<AttendeeAvatar> _attendees = [];
+  String? _regId;
+
+  int _section = 0; // SegNav index (Overview)
+  bool _aboutExpanded = false;
+
+  // Built dynamically from which sections have data / are enabled.
+  late List<_Section> _navSections;
 
   @override
   void initState() {
@@ -55,6 +69,7 @@ class _EventHubScreenState extends State<EventHubScreen> {
     });
     try {
       final page = await _resolvePage(widget.slug);
+      if (!mounted) return;
       if (page == null) {
         setState(() {
           _loading = false;
@@ -78,16 +93,22 @@ class _EventHubScreenState extends State<EventHubScreen> {
         ]);
       }
 
+      final reg = await RegStore.instance.get(widget.slug);
+      if (!mounted) return;
       setState(() {
         _page = page;
+        _regId = reg?.registrationId;
+        _navSections = _buildNav(page);
         _loading = false;
       });
     } on ApiException catch (e) {
+      if (!mounted) return;
       setState(() {
         _loading = false;
         _error = e.message;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _loading = false;
         _error = 'Something went wrong loading this event.';
@@ -207,241 +228,497 @@ class _EventHubScreenState extends State<EventHubScreen> {
     return const [];
   }
 
+  // ── SegNav model ─────────────────────────────────────────────────
+
+  List<_Section> _buildNav(EventPageModel page) {
+    final s = <_Section>[_Section.overview];
+    if (page.featureOn('schedule') && _sessions.isNotEmpty) {
+      s.add(_Section.schedule);
+    }
+    if (page.featureOn('speakers') && _speakers.isNotEmpty) {
+      s.add(_Section.speakers);
+    }
+    if (page.featureOn('sponsors') && _sponsors.isNotEmpty) {
+      s.add(_Section.sponsors);
+    }
+    s.add(_Section.network);
+    s.add(_Section.more);
+    return s;
+  }
+
+  // ── actions ──────────────────────────────────────────────────────
+
   void _handleRegister() {
     if (widget.onRegister != null) {
       widget.onRegister!();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Registration is not available here yet.')),
-      );
+      showToast(context, 'Registration is not available here yet.');
     }
   }
 
   void _handleSave() {
     if (!isSignedIn) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Sign in to save this event.')),
-      );
+      showToast(context, 'Sign in to save this event.');
       return;
     }
     if (widget.onSave != null) {
       widget.onSave!();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Saved.')),
-      );
+      showToast(context, 'Saved.');
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Brand.cream,
-      body: _loading
-          ? const Center(child: CircularProgressIndicator(color: Brand.forest))
-          : _error != null
-              ? _errorState()
-              : _buildContent(),
-    );
+  void _push(Widget screen) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
   }
 
-  Widget _errorState() {
-    return SafeArea(
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(28),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.error_outline, color: Brand.danger, size: 44),
-              const SizedBox(height: 12),
-              Text(
-                _error!,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 15, color: Brand.inkSoft),
-              ),
-              const SizedBox(height: 16),
-              FilledButton(onPressed: _load, child: const Text('Try again')),
-            ],
-          ),
-        ),
-      ),
-    );
+  void _onSectionTap(int index) {
+    final section = _navSections[index];
+    switch (section) {
+      case _Section.network:
+        final id = _page?.eventId;
+        if (id == null) return;
+        _push(PeopleScreen(
+            eventId: id, slug: widget.slug, registrationId: _regId));
+        return;
+      case _Section.more:
+        _openMoreSheet();
+        return;
+      default:
+        setState(() => _section = index);
+    }
   }
 
-  Widget _buildContent() {
-    final page = _page!;
-    return Stack(
-      children: [
-        CustomScrollView(
-          slivers: [
-            _HeroSliver(
-              page: page,
-              onBack: () => Navigator.of(context).maybePop(),
-              onSave: _handleSave,
+  Future<void> _openMoreSheet() async {
+    final id = _page?.eventId;
+    if (id == null) return;
+    await showMSheet<void>(
+      context,
+      Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text('More sections', style: AppText.h3),
             ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 120),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: _sections(page),
-                ),
-              ),
-            ),
+            const SizedBox(height: 4),
+            _moreRow(Icons.forum_outlined, 'Live Q&A',
+                () => QaScreen(eventId: id, registrationId: _regId)),
+            _moreRow(Icons.bar_chart_rounded, 'Polls & results',
+                () => PollsScreen(eventId: id, registrationId: _regId)),
+            _moreRow(Icons.emoji_events_outlined, 'Leaderboard',
+                () => LeaderboardScreen(eventId: id)),
+            _moreRow(Icons.rate_review_outlined, 'Feedback',
+                () => FeedbackScreen(eventId: id, registrationId: _regId)),
           ],
         ),
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: _RegisterBar(onRegister: _handleRegister),
-        ),
-      ],
+      ),
     );
   }
 
-  List<Widget> _sections(EventPageModel page) {
-    final widgets = <Widget>[];
-
-    // Title + meta block
-    if ((page.category ?? '').isNotEmpty) {
-      widgets.add(_Pill(text: page.category!));
-      widgets.add(const SizedBox(height: 12));
-    }
-    widgets.add(Text(
-      page.title,
-      style: const TextStyle(
-        fontSize: 28,
-        height: 1.15,
-        fontWeight: FontWeight.w700,
-        color: Brand.ink,
-      ),
-    ));
-    if ((page.tagline ?? '').isNotEmpty) {
-      widgets.add(const SizedBox(height: 8));
-      widgets.add(Text(
-        page.tagline!,
-        style: const TextStyle(fontSize: 16, color: Brand.inkSoft, height: 1.4),
-      ));
-    }
-    widgets.add(const SizedBox(height: 18));
-    widgets.add(_MetaRow(
-      icon: Icons.calendar_today_outlined,
-      text: HubDates.range(page.startsAt, page.endsAt),
-    ));
-    if ((page.timezone ?? '').isNotEmpty) {
-      widgets.add(const SizedBox(height: 8));
-      widgets.add(_MetaRow(icon: Icons.public, text: page.timezone!));
-    }
-    widgets.add(const SizedBox(height: 8));
-    if (page.isOnline) {
-      widgets.add(_MetaRow(
-        icon: Icons.videocam_outlined,
-        text: (page.onlineUrl ?? '').isNotEmpty
-            ? 'Online · ${page.onlineUrl}'
-            : 'Online event',
-      ));
-    } else {
-      widgets.add(_MetaRow(
-        icon: Icons.location_on_outlined,
-        text: page.locationLine,
-      ));
-    }
-
-    // Organizer
-    if ((page.organizerName ?? '').isNotEmpty) {
-      widgets.add(const SizedBox(height: 18));
-      widgets.add(_OrganizerRow(
-        name: page.organizerName!,
-        avatarUrl: page.organizerAvatarUrl,
-      ));
-    }
-
-    // About
-    if (page.featureOn('about') && (page.description ?? '').isNotEmpty) {
-      widgets.add(const _SectionGap());
-      widgets.add(const _SectionLabel('About'));
-      widgets.add(const SizedBox(height: 10));
-      widgets.add(Text(
-        page.description!,
-        style: const TextStyle(fontSize: 15, height: 1.6, color: Brand.inkSoft),
-      ));
-    }
-
-    // Attendees strip
-    if (_attendees.isNotEmpty) {
-      widgets.add(const _SectionGap());
-      widgets.add(_SectionLabel('${_attendees.length} attending'));
-      widgets.add(const SizedBox(height: 12));
-      widgets.add(_AttendeeStrip(attendees: _attendees));
-    }
-
-    // Schedule
-    if (page.featureOn('schedule') && _sessions.isNotEmpty) {
-      widgets.add(const _SectionGap());
-      widgets.add(const _SectionLabel('Schedule'));
-      widgets.add(const SizedBox(height: 12));
-      for (final s in _sessions) {
-        widgets.add(Padding(
-          padding: const EdgeInsets.only(bottom: 10),
-          child: _SessionCard(
-            session: s,
-            onTap: () => _openSession(s.id, page.eventId),
-          ),
-        ));
-      }
-    }
-
-    // Speakers
-    if (page.featureOn('speakers') && _speakers.isNotEmpty) {
-      widgets.add(const _SectionGap());
-      widgets.add(const _SectionLabel('Speakers'));
-      widgets.add(const SizedBox(height: 12));
-      widgets.add(_SpeakerGrid(
-        speakers: _speakers,
-        onTap: (id) => _openSpeaker(id, page.eventId),
-      ));
-    }
-
-    // Sponsors
-    if (page.featureOn('sponsors') && _sponsors.isNotEmpty) {
-      widgets.add(const _SectionGap());
-      widgets.add(const _SectionLabel('Sponsors'));
-      widgets.add(const SizedBox(height: 12));
-      for (final sp in _sponsors) {
-        widgets.add(Padding(
-          padding: const EdgeInsets.only(bottom: 10),
-          child: _SponsorCard(
-            sponsor: sp,
-            onTap: () => _openSponsor(sp.id, page.eventId),
-          ),
-        ));
-      }
-    }
-
-    return widgets;
+  Widget _moreRow(IconData icon, String label, Widget Function() build) {
+    return ListRow(
+      leading: Icon(icon, color: AppColors.forest, size: 22),
+      title: Text(label),
+      chevron: true,
+      onTap: () {
+        Navigator.of(context).pop();
+        _push(build());
+      },
+    );
   }
 
   void _openSession(String id, String? eventId) {
     if (eventId == null) return;
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => SessionDetailScreen(sessionId: id, eventId: eventId),
-    ));
+    _push(SessionDetailScreen(sessionId: id, eventId: eventId));
   }
 
   void _openSpeaker(String id, String? eventId) {
     if (eventId == null) return;
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => SpeakerDetailScreen(speakerId: id, eventId: eventId),
-    ));
+    _push(SpeakerDetailScreen(speakerId: id, eventId: eventId));
   }
 
   void _openSponsor(String id, String? eventId) {
     if (eventId == null) return;
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => SponsorDetailScreen(sponsorId: id, eventId: eventId),
+    _push(SponsorDetailScreen(sponsorId: id, eventId: eventId));
+  }
+
+  // ── build ────────────────────────────────────────────────────────
+
+  @override
+  Widget build(BuildContext context) {
+    if (_loading) {
+      return const MScaffold(body: LoadingState());
+    }
+    if (_error != null) {
+      return MScaffold(
+        appBar: const MAppBar(),
+        body: ErrorStateView(message: _error!, onRetry: _load),
+      );
+    }
+    return _buildContent();
+  }
+
+  Widget _buildContent() {
+    final page = _page!;
+    final section = _navSections[_section];
+    final showHero = section == _Section.overview;
+
+    return Scaffold(
+      backgroundColor: AppColors.canvas,
+      body: Stack(
+        children: [
+          CustomScrollView(
+            slivers: [
+              if (showHero)
+                _HeroSliver(
+                  page: page,
+                  onBack: () => Navigator.of(context).maybePop(),
+                  onSave: _handleSave,
+                )
+              else
+                SliverAppBar(
+                  pinned: true,
+                  backgroundColor: AppColors.canvas,
+                  surfaceTintColor: AppColors.canvas,
+                  elevation: 0,
+                  scrolledUnderElevation: 0,
+                  leading: IconButton(
+                    icon: const Icon(Icons.arrow_back, color: AppColors.ink),
+                    onPressed: () => Navigator.of(context).maybePop(),
+                  ),
+                  title: Text(page.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppText.title.copyWith(fontSize: 15)),
+                  centerTitle: false,
+                  bottom: PreferredSize(
+                    preferredSize: const Size.fromHeight(1),
+                    child: Container(height: 1, color: AppColors.border),
+                  ),
+                ),
+              // Sticky segmented section nav
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: _SegNavHeader(
+                  child: SegNav(
+                    items: _navSections.map((s) => s.label).toList(),
+                    index: _section,
+                    onChanged: _onSectionTap,
+                  ),
+                ),
+              ),
+              SliverToBoxAdapter(child: _sectionBody(page, section)),
+            ],
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: _registerBar(page),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _sectionBody(EventPageModel page, _Section section) {
+    switch (section) {
+      case _Section.schedule:
+        return _paddedList(_scheduleWidgets(page));
+      case _Section.speakers:
+        return _paddedList(_speakerWidgets(page));
+      case _Section.sponsors:
+        return _paddedList(_sponsorWidgets(page));
+      default:
+        return _paddedList(_overviewWidgets(page));
+    }
+  }
+
+  Widget _paddedList(List<Widget> children) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 110),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: children,
+      ),
+    );
+  }
+
+  // ── Overview ─────────────────────────────────────────────────────
+
+  List<Widget> _overviewWidgets(EventPageModel page) {
+    final w = <Widget>[];
+
+    // Date row (with timezone)
+    w.add(_InfoRow(
+      icon: Icons.calendar_today_outlined,
+      title: HubDates.longDate(page.startsAt),
+      subtitle: _timeLine(page),
     ));
+    w.add(const SizedBox(height: 12));
+
+    // Venue row
+    if (page.isOnline) {
+      w.add(_InfoRow(
+        icon: Icons.videocam_outlined,
+        title: 'Online event',
+        subtitle: (page.onlineUrl ?? '').isNotEmpty ? page.onlineUrl : null,
+      ));
+    } else {
+      w.add(_InfoRow(
+        icon: Icons.location_on_outlined,
+        title: (page.venueName ?? '').isNotEmpty ? page.venueName! : 'Venue TBA',
+        subtitle: _venueSub(page),
+      ));
+    }
+
+    // Organizer card
+    if ((page.organizerName ?? '').isNotEmpty) {
+      w.add(const SizedBox(height: 16));
+      w.add(_OrganizerCard(
+        name: page.organizerName!,
+        avatarUrl: page.organizerAvatarUrl,
+        onFollow: () => showToast(context, 'Following ${page.organizerName}'),
+      ));
+    }
+
+    // About (with read more)
+    if (page.featureOn('about') && (page.description ?? '').isNotEmpty) {
+      w.add(const SizedBox(height: 22));
+      w.add(const SectionLabel('About'));
+      w.add(const SizedBox(height: 8));
+      w.add(_AboutBlock(
+        text: page.description!,
+        expanded: _aboutExpanded,
+        onToggle: () => setState(() => _aboutExpanded = !_aboutExpanded),
+      ));
+    }
+
+    // Who's attending
+    if (_attendees.isNotEmpty) {
+      w.add(const SizedBox(height: 22));
+      w.add(const SectionLabel("Who's attending"));
+      w.add(const SizedBox(height: 12));
+      w.add(_AttendeeCluster(attendees: _attendees));
+    }
+
+    // Schedule preview (mini rows)
+    if (page.featureOn('schedule') && _sessions.isNotEmpty) {
+      w.add(const SizedBox(height: 22));
+      w.add(_SectionHeader(
+        label: 'Schedule',
+        action: 'Full agenda',
+        onAction: () => _jumpTo(_Section.schedule),
+      ));
+      w.add(const SizedBox(height: 10));
+      w.add(_SchedulePreview(
+        sessions: _sessions.take(3).toList(),
+        onTap: (s) => _openSession(s.id, page.eventId),
+      ));
+    }
+
+    // Speakers rail
+    if (page.featureOn('speakers') && _speakers.isNotEmpty) {
+      w.add(const SizedBox(height: 22));
+      w.add(_SectionHeader(
+        label: 'Speakers',
+        action: 'All ${_speakers.length}',
+        onAction: () => _jumpTo(_Section.speakers),
+      ));
+      w.add(const SizedBox(height: 12));
+      w.add(_SpeakerRail(
+        speakers: _speakers.take(10).toList(),
+        onTap: (id) => _openSpeaker(id, page.eventId),
+      ));
+    }
+
+    // Sponsors strip
+    if (page.featureOn('sponsors') && _sponsors.isNotEmpty) {
+      w.add(const SizedBox(height: 22));
+      w.add(_SectionHeader(
+        label: 'Sponsors',
+        action: 'View all',
+        onAction: () => _jumpTo(_Section.sponsors),
+      ));
+      w.add(const SizedBox(height: 12));
+      w.add(_SponsorStrip(sponsors: _sponsors.take(6).toList()));
+    }
+
+    // Secondary "Make your card"
+    w.add(const SizedBox(height: 22));
+    w.add(MButton(
+      'Make your card',
+      kind: MBtnKind.sec,
+      icon: Icons.badge_outlined,
+      onTap: _handleRegister,
+    ));
+
+    return w;
+  }
+
+  void _jumpTo(_Section target) {
+    final idx = _navSections.indexOf(target);
+    if (idx >= 0) setState(() => _section = idx);
+  }
+
+  String? _timeLine(EventPageModel page) {
+    final t = HubDates.range(page.startsAt, page.endsAt);
+    final tz = (page.timezone ?? '').trim();
+    // Prefer just the time portion + timezone if we can split it.
+    final start = HubDates.time(page.startsAt);
+    final end = HubDates.time(page.endsAt);
+    String base;
+    if (start.isEmpty) {
+      base = '';
+    } else if (end.isEmpty) {
+      base = start;
+    } else {
+      base = '$start – $end';
+    }
+    if (base.isEmpty) return tz.isEmpty ? null : tz;
+    return tz.isEmpty ? base : '$base · $tz';
+  }
+
+  String? _venueSub(EventPageModel page) {
+    final parts = <String>[
+      if ((page.city ?? '').isNotEmpty) page.city!,
+      if ((page.country ?? '').isNotEmpty) page.country!,
+    ];
+    final geo = parts.join(', ');
+    if (geo.isEmpty) return 'In person';
+    return '$geo · In person';
+  }
+
+  // ── Schedule (full) ──────────────────────────────────────────────
+
+  List<Widget> _scheduleWidgets(EventPageModel page) {
+    final w = <Widget>[];
+    w.add(SectionLabel('${_sessions.length} sessions'));
+    w.add(const SizedBox(height: 12));
+    for (var i = 0; i < _sessions.length; i++) {
+      final s = _sessions[i];
+      w.add(_ScheduleCard(
+        session: s,
+        accentGold: i.isEven,
+        onTap: () => _openSession(s.id, page.eventId),
+      ));
+      if (i != _sessions.length - 1) w.add(const SizedBox(height: 12));
+    }
+    return w;
+  }
+
+  // ── Speakers (full grid) ─────────────────────────────────────────
+
+  List<Widget> _speakerWidgets(EventPageModel page) {
+    return [
+      SectionLabel('${_speakers.length} speakers'),
+      const SizedBox(height: 14),
+      _SpeakerGrid(
+        speakers: _speakers,
+        onTap: (id) => _openSpeaker(id, page.eventId),
+      ),
+    ];
+  }
+
+  // ── Sponsors (full, grouped by tier) ─────────────────────────────
+
+  List<Widget> _sponsorWidgets(EventPageModel page) {
+    final groups = <String, List<SponsorSummary>>{};
+    for (final s in _sponsors) {
+      final tier = (s.tier ?? '').trim().isEmpty ? 'Sponsors' : s.tier!.trim();
+      groups.putIfAbsent(tier, () => []).add(s);
+    }
+    final w = <Widget>[];
+    var first = true;
+    groups.forEach((tier, list) {
+      if (!first) w.add(const SizedBox(height: 20));
+      first = false;
+      w.add(Tag(_titleCase(tier), kind: TagKind.gold));
+      w.add(const SizedBox(height: 12));
+      for (var i = 0; i < list.length; i++) {
+        w.add(_SponsorCard(
+          sponsor: list[i],
+          onTap: () => _openSponsor(list[i].id, page.eventId),
+        ));
+        if (i != list.length - 1) w.add(const SizedBox(height: 10));
+      }
+    });
+    return w;
+  }
+
+  String _titleCase(String s) => s.isEmpty
+      ? s
+      : s[0].toUpperCase() + s.substring(1).toLowerCase();
+
+  // ── Register bar ─────────────────────────────────────────────────
+
+  Widget _registerBar(EventPageModel page) {
+    final registered = _regId != null;
+    return StickyCta(children: [
+      MButton(
+        '',
+        kind: MBtnKind.sec,
+        icon: Icons.bookmark_border,
+        fullWidth: false,
+        onTap: _handleSave,
+      ),
+      const SizedBox(width: 10),
+      Expanded(
+        child: MButton(
+          registered ? 'Registered' : 'Get ticket',
+          icon: registered ? Icons.check : null,
+          onTap: _handleRegister,
+        ),
+      ),
+    ]);
+  }
+}
+
+// ============================ SegNav header ============================
+
+class _SegNavHeader extends SliverPersistentHeaderDelegate {
+  final Widget child;
+  _SegNavHeader({required this.child});
+
+  @override
+  double get minExtent => 46;
+  @override
+  double get maxExtent => 46;
+
+  @override
+  Widget build(
+          BuildContext context, double shrinkOffset, bool overlapsContent) =>
+      child;
+
+  @override
+  bool shouldRebuild(covariant _SegNavHeader oldDelegate) =>
+      oldDelegate.child != child;
+}
+
+// ============================ Section enum ============================
+
+enum _Section { overview, schedule, speakers, sponsors, network, more }
+
+extension _SectionLabelX on _Section {
+  String get label {
+    switch (this) {
+      case _Section.overview:
+        return 'Overview';
+      case _Section.schedule:
+        return 'Schedule';
+      case _Section.speakers:
+        return 'Speakers';
+      case _Section.sponsors:
+        return 'Sponsors';
+      case _Section.network:
+        return 'Network';
+      case _Section.more:
+        return 'More';
+    }
   }
 }
 
@@ -461,22 +738,10 @@ class _HeroSliver extends StatelessWidget {
   Widget build(BuildContext context) {
     final cover = page.coverImageUrl;
     return SliverAppBar(
-      expandedHeight: 260,
-      pinned: true,
-      backgroundColor: Brand.forest,
-      foregroundColor: Colors.white,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: onBack,
-      ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.bookmark_border),
-          tooltip: 'Save',
-          onPressed: onSave,
-        ),
-        const SizedBox(width: 4),
-      ],
+      expandedHeight: 230,
+      pinned: false,
+      backgroundColor: AppColors.forest,
+      automaticallyImplyLeading: false,
       flexibleSpace: FlexibleSpaceBar(
         background: Stack(
           fit: StackFit.expand,
@@ -485,169 +750,59 @@ class _HeroSliver extends StatelessWidget {
               Image.network(
                 cover,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => const _HeroGradient(),
-                loadingBuilder: (ctx, child, prog) =>
-                    prog == null ? child : const _HeroGradient(),
+                errorBuilder: (_, __, ___) =>
+                    PhotoPlaceholder(hue: hueFromString(page.id)),
+                loadingBuilder: (ctx, child, prog) => prog == null
+                    ? child
+                    : PhotoPlaceholder(hue: hueFromString(page.id)),
               )
             else
-              const _HeroGradient(),
-            DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.black.withValues(alpha: 0.15),
-                    Colors.black.withValues(alpha: 0.35),
-                  ],
-                ),
+              PhotoPlaceholder(hue: hueFromString(page.id)),
+            const ScrimBottom(),
+            // Floating translucent actions
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 8,
+              left: 12,
+              right: 12,
+              child: Row(
+                children: [
+                  _GlassAction(icon: Icons.arrow_back, onTap: onBack),
+                  const Spacer(),
+                  _GlassAction(icon: Icons.bookmark_border, onTap: onSave),
+                  const SizedBox(width: 8),
+                  _GlassAction(
+                      icon: Icons.ios_share,
+                      onTap: () => showToast(context, 'Share link copied')),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _HeroGradient extends StatelessWidget {
-  const _HeroGradient();
-  @override
-  Widget build(BuildContext context) => const DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Brand.forest, Color(0xFF2A6A50), Brand.gold],
-          ),
-        ),
-      );
-}
-
-// ============================ Register bar ============================
-
-class _RegisterBar extends StatelessWidget {
-  final VoidCallback onRegister;
-  const _RegisterBar({required this.onRegister});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.fromLTRB(
-          20, 12, 20, 12 + MediaQuery.of(context).padding.bottom),
-      decoration: const BoxDecoration(
-        color: Brand.surface,
-        border: Border(top: BorderSide(color: Brand.border)),
-      ),
-      child: SizedBox(
-        width: double.infinity,
-        child: FilledButton(
-          onPressed: onRegister,
-          child: const Text('Register'),
-        ),
-      ),
-    );
-  }
-}
-
-// ============================ Attendee strip ============================
-
-class _AttendeeStrip extends StatelessWidget {
-  final List<AttendeeAvatar> attendees;
-  const _AttendeeStrip({required this.attendees});
-
-  @override
-  Widget build(BuildContext context) {
-    final shown = attendees.take(24).toList();
-    return SizedBox(
-      height: 44,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: shown.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
-        itemBuilder: (_, i) => _CircleAvatar(
-          url: shown[i].avatarUrl,
-          name: shown[i].name,
-          size: 40,
-        ),
-      ),
-    );
-  }
-}
-
-// ============================ Session card ============================
-
-class _SessionCard extends StatelessWidget {
-  final SessionSummary session;
-  final VoidCallback onTap;
-  const _SessionCard({required this.session, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final when = HubDates.time(session.startsAt);
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: Brand.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Brand.border),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
+            // Title block
+            Positioned(
+              left: 20,
+              right: 20,
+              bottom: 16,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      if (when.isNotEmpty) ...[
-                        Text(
-                          when,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Brand.forest,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                      ],
-                      if ((session.track ?? '').isNotEmpty)
-                        Flexible(
-                          child: Text(
-                            session.track!,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Brand.muted,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
+                  if ((page.category ?? '').isNotEmpty) ...[
+                    Tag(page.category!, kind: TagKind.gold),
+                    const SizedBox(height: 10),
+                  ],
                   Text(
-                    session.title,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Brand.ink,
-                    ),
+                    page.title,
+                    style: AppText.h1.copyWith(color: Colors.white, fontSize: 26),
                   ),
-                  if ((session.room ?? '').isNotEmpty) ...[
-                    const SizedBox(height: 4),
+                  if ((page.tagline ?? '').isNotEmpty) ...[
+                    const SizedBox(height: 6),
                     Text(
-                      session.room!,
-                      style: const TextStyle(fontSize: 13, color: Brand.muted),
+                      page.tagline!,
+                      style: AppText.bodySm.copyWith(
+                          color: Colors.white.withValues(alpha: 0.82)),
                     ),
                   ],
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: Brand.muted),
           ],
         ),
       ),
@@ -655,305 +810,602 @@ class _SessionCard extends StatelessWidget {
   }
 }
 
-// ============================ Speaker grid ============================
-
-class _SpeakerGrid extends StatelessWidget {
-  final List<SpeakerSummary> speakers;
-  final void Function(String id) onTap;
-  const _SpeakerGrid({required this.speakers, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 12,
-      runSpacing: 16,
-      children: speakers.map((sp) {
-        return SizedBox(
-          width: 86,
-          child: InkWell(
-            onTap: () => onTap(sp.id),
-            borderRadius: BorderRadius.circular(12),
-            child: Column(
-              children: [
-                _CircleAvatar(url: sp.photoUrl, name: sp.name, size: 64),
-                const SizedBox(height: 8),
-                Text(
-                  sp.name,
-                  maxLines: 2,
-                  textAlign: TextAlign.center,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Brand.ink,
-                  ),
-                ),
-                if (sp.roleLine.isNotEmpty)
-                  Text(
-                    sp.roleLine,
-                    maxLines: 1,
-                    textAlign: TextAlign.center,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 11, color: Brand.muted),
-                  ),
-              ],
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  }
-}
-
-// ============================ Sponsor card ============================
-
-class _SponsorCard extends StatelessWidget {
-  final SponsorSummary sponsor;
+class _GlassAction extends StatelessWidget {
+  final IconData icon;
   final VoidCallback onTap;
-  const _SponsorCard({required this.sponsor, required this.onTap});
-
+  const _GlassAction({required this.icon, required this.onTap});
   @override
   Widget build(BuildContext context) {
-    final logo = sponsor.logoUrl;
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
       child: Container(
-        padding: const EdgeInsets.all(14),
+        width: 38,
+        height: 38,
         decoration: BoxDecoration(
-          color: Brand.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Brand.border),
+          color: const Color(0xFF08120C).withValues(alpha: 0.42),
+          shape: BoxShape.circle,
         ),
-        child: Row(
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: Brand.cream,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Brand.border),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: (logo != null && logo.isNotEmpty)
-                  ? Image.network(
-                      logo,
-                      fit: BoxFit.contain,
-                      errorBuilder: (_, __, ___) => const Icon(
-                          Icons.business, color: Brand.muted, size: 22),
-                      loadingBuilder: (ctx, child, prog) => prog == null
-                          ? child
-                          : const Icon(Icons.business,
-                              color: Brand.muted, size: 22),
-                    )
-                  : const Icon(Icons.business, color: Brand.muted, size: 22),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          sponsor.companyName,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: Brand.ink,
-                          ),
-                        ),
-                      ),
-                      if ((sponsor.tier ?? '').isNotEmpty) ...[
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: Brand.gold.withValues(alpha: 0.35),
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                          child: Text(
-                            sponsor.tier!.toUpperCase(),
-                            style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              color: Brand.ink,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  if ((sponsor.tagline ?? '').isNotEmpty) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      sponsor.tagline!,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 13, color: Brand.muted),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            const Icon(Icons.chevron_right, color: Brand.muted),
-          ],
-        ),
+        child: Icon(icon, size: 19, color: Colors.white),
       ),
     );
   }
 }
 
-// ============================ Organizer ============================
+// ============================ Info row ============================
 
-class _OrganizerRow extends StatelessWidget {
-  final String name;
-  final String? avatarUrl;
-  const _OrganizerRow({required this.name, required this.avatarUrl});
-
+class _InfoRow extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String? subtitle;
+  const _InfoRow({required this.icon, required this.title, this.subtitle});
   @override
   Widget build(BuildContext context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _CircleAvatar(url: avatarUrl, name: name, size: 40),
-        const SizedBox(width: 12),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Organized by',
-                style: TextStyle(fontSize: 12, color: Brand.muted)),
-            const SizedBox(height: 2),
-            Text(
-              name,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Brand.ink,
-              ),
-            ),
-          ],
+        Padding(
+          padding: const EdgeInsets.only(top: 1),
+          child: Icon(icon, size: 17, color: AppColors.forest),
+        ),
+        const SizedBox(width: 9),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: AppText.bodyStrong.copyWith(fontSize: 14)),
+              if (subtitle != null && subtitle!.isNotEmpty) ...[
+                const SizedBox(height: 1),
+                Text(subtitle!,
+                    style: AppText.caption.copyWith(fontSize: 11.5)),
+              ],
+            ],
+          ),
         ),
       ],
     );
   }
 }
 
-// ============================ Small shared widgets ============================
+// ============================ Organizer ============================
 
-class _SectionGap extends StatelessWidget {
-  const _SectionGap();
-  @override
-  Widget build(BuildContext context) => const SizedBox(height: 28);
-}
-
-class _SectionLabel extends StatelessWidget {
-  final String text;
-  const _SectionLabel(this.text);
-  @override
-  Widget build(BuildContext context) => Text(
-        text,
-        style: const TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w700,
-          color: Brand.forest,
-        ),
-      );
-}
-
-class _MetaRow extends StatelessWidget {
-  final IconData icon;
-  final String text;
-  const _MetaRow({required this.icon, required this.text});
-  @override
-  Widget build(BuildContext context) => Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 18, color: Brand.forest),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(fontSize: 14, color: Brand.inkSoft),
-            ),
-          ),
-        ],
-      );
-}
-
-class _Pill extends StatelessWidget {
-  final String text;
-  const _Pill({required this.text});
-  @override
-  Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: Brand.forest.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(999),
-        ),
-        child: Text(
-          text,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: Brand.forest,
-          ),
-        ),
-      );
-}
-
-class _CircleAvatar extends StatelessWidget {
-  final String? url;
+class _OrganizerCard extends StatelessWidget {
   final String name;
-  final double size;
-  const _CircleAvatar({
-    required this.url,
-    required this.name,
-    this.size = 40,
-  });
-
-  String get _initials {
-    final parts = name.trim().split(RegExp(r'\s+'));
-    if (parts.isEmpty || parts.first.isEmpty) return '?';
-    if (parts.length == 1) return parts.first[0].toUpperCase();
-    return (parts.first[0] + parts.last[0]).toUpperCase();
-  }
-
+  final String? avatarUrl;
+  final VoidCallback onFollow;
+  const _OrganizerCard(
+      {required this.name, required this.avatarUrl, required this.onFollow});
   @override
   Widget build(BuildContext context) {
-    final fallback = Container(
-      width: size,
-      height: size,
-      alignment: Alignment.center,
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Brand.forest, Color(0xFF2A6A50)],
-        ),
-      ),
-      child: Text(
-        _initials,
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: size * 0.34,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-    if (url == null || url!.isEmpty) return fallback;
-    return ClipOval(
-      child: Image.network(
-        url!,
-        width: size,
-        height: size,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => fallback,
-        loadingBuilder: (ctx, child, prog) => prog == null ? child : fallback,
+    return MCard(
+      padding: const EdgeInsets.all(12),
+      child: Row(
+        children: [
+          Avatar(name: name, imageUrl: avatarUrl, size: 40),
+          const SizedBox(width: 11),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name, style: AppText.h3.copyWith(fontSize: 14)),
+                const SizedBox(height: 1),
+                Text('Organizer', style: AppText.caption.copyWith(fontSize: 11.5)),
+              ],
+            ),
+          ),
+          MButton('Follow',
+              kind: MBtnKind.sec, small: true, fullWidth: false, onTap: onFollow),
+        ],
       ),
     );
   }
+}
+
+// ============================ About ============================
+
+class _AboutBlock extends StatelessWidget {
+  final String text;
+  final bool expanded;
+  final VoidCallback onToggle;
+  const _AboutBlock(
+      {required this.text, required this.expanded, required this.onToggle});
+  @override
+  Widget build(BuildContext context) {
+    final isLong = text.length > 220;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          text,
+          maxLines: expanded ? null : 4,
+          overflow: expanded ? TextOverflow.visible : TextOverflow.ellipsis,
+          style: AppText.body,
+        ),
+        if (isLong)
+          GestureDetector(
+            onTap: onToggle,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(expanded ? 'Read less' : 'Read more',
+                  style: AppText.bodyStrong.copyWith(color: AppColors.forest)),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+// ============================ Attendee cluster ============================
+
+class _AttendeeCluster extends StatelessWidget {
+  final List<AttendeeAvatar> attendees;
+  const _AttendeeCluster({required this.attendees});
+  @override
+  Widget build(BuildContext context) {
+    final shown = attendees.take(3).toList();
+    final overflow = attendees.length - shown.length;
+    const overlap = 26.0;
+    final avatars = <Widget>[];
+    for (var i = 0; i < shown.length; i++) {
+      avatars.add(Positioned(
+        left: i * overlap,
+        child: Container(
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.fromBorderSide(
+                BorderSide(color: AppColors.canvas, width: 2)),
+          ),
+          child: Avatar(
+              name: shown[i].name, imageUrl: shown[i].avatarUrl, size: 40),
+        ),
+      ));
+    }
+    avatars.add(Positioned(
+      left: shown.length * overlap,
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: AppColors.forestSoft,
+          shape: BoxShape.circle,
+          border: Border.all(color: AppColors.canvas, width: 2),
+        ),
+        alignment: Alignment.center,
+        child: Text(overflow > 0 ? '+$overflow' : '+',
+            style: AppText.bodySm.copyWith(
+                color: AppColors.forest, fontWeight: FontWeight.w600)),
+      ),
+    ));
+
+    final clusterWidth = shown.length * overlap + 40;
+    return Row(
+      children: [
+        SizedBox(
+          width: clusterWidth,
+          height: 44,
+          child: Stack(children: avatars),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: RichText(
+            text: TextSpan(
+              style: AppText.bodySm,
+              children: [
+                TextSpan(
+                    text: '${attendees.length} ',
+                    style: AppText.numSm.copyWith(
+                        color: AppColors.ink, fontWeight: FontWeight.w500)),
+                const TextSpan(text: 'people going'),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ============================ Section header w/ action ============================
+
+class _SectionHeader extends StatelessWidget {
+  final String label;
+  final String action;
+  final VoidCallback onAction;
+  const _SectionHeader(
+      {required this.label, required this.action, required this.onAction});
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Expanded(child: SectionLabel(label)),
+        GestureDetector(
+          onTap: onAction,
+          child: Text('$action →',
+              style: AppText.bodySm.copyWith(
+                  color: AppColors.forest, fontWeight: FontWeight.w600)),
+        ),
+      ],
+    );
+  }
+}
+
+// ============================ Schedule preview (mini rows) ============================
+
+class _SchedulePreview extends StatelessWidget {
+  final List<SessionSummary> sessions;
+  final void Function(SessionSummary) onTap;
+  const _SchedulePreview({required this.sessions, required this.onTap});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.card),
+        border: Border.all(color: AppColors.border),
+        boxShadow: AppShadow.soft,
+      ),
+      child: Column(
+        children: [
+          for (var i = 0; i < sessions.length; i++)
+            InkWell(
+              onTap: () => onTap(sessions[i]),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 13),
+                decoration: BoxDecoration(
+                  border: i == 0
+                      ? null
+                      : const Border(
+                          top: BorderSide(color: AppColors.border)),
+                ),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 44,
+                      child: Text(
+                        HubDates.time(sessions[i].startsAt),
+                        style: AppText.numSm.copyWith(
+                            color: AppColors.inkMuted, fontSize: 12),
+                      ),
+                    ),
+                    Container(
+                      width: 7,
+                      height: 7,
+                      margin: const EdgeInsets.only(right: 12),
+                      decoration: BoxDecoration(
+                        color: i.isEven ? AppColors.gold : AppColors.forest,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(sessions[i].title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppText.subhead.copyWith(fontSize: 13.5)),
+                          if ((sessions[i].room ?? '').isNotEmpty) ...[
+                            const SizedBox(height: 1),
+                            Text(sessions[i].room!,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppText.caption.copyWith(fontSize: 11)),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+// ============================ Schedule card (full) ============================
+
+class _ScheduleCard extends StatelessWidget {
+  final SessionSummary session;
+  final bool accentGold;
+  final VoidCallback onTap;
+  const _ScheduleCard(
+      {required this.session, required this.accentGold, required this.onTap});
+  @override
+  Widget build(BuildContext context) {
+    final when = HubDates.time(session.startsAt);
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppRadius.card),
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(AppRadius.card),
+          border: Border.all(color: AppColors.border),
+          boxShadow: AppShadow.soft,
+        ),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                width: 3,
+                decoration: BoxDecoration(
+                  color: accentGold ? AppColors.gold : AppColors.forest,
+                  borderRadius: const BorderRadius.horizontal(
+                      left: Radius.circular(AppRadius.card)),
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (when.isNotEmpty)
+                        Text(when,
+                            style: AppText.numSm.copyWith(
+                                color: AppColors.inkMuted, fontSize: 11)),
+                      if (when.isNotEmpty) const SizedBox(height: 4),
+                      Text(session.title,
+                          style: AppText.h3.copyWith(fontSize: 15)),
+                      if ((session.room ?? '').isNotEmpty ||
+                          (session.track ?? '').isNotEmpty) ...[
+                        const SizedBox(height: 6),
+                        Text(
+                          [session.track, session.room]
+                              .where((e) => (e ?? '').isNotEmpty)
+                              .join(' · '),
+                          style: AppText.caption,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================ Speaker rail (overview) ============================
+
+class _SpeakerRail extends StatelessWidget {
+  final List<SpeakerSummary> speakers;
+  final void Function(String id) onTap;
+  const _SpeakerRail({required this.speakers, required this.onTap});
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 118,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: speakers.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 14),
+        itemBuilder: (_, i) {
+          final sp = speakers[i];
+          return GestureDetector(
+            onTap: () => onTap(sp.id),
+            child: SizedBox(
+              width: 72,
+              child: Column(
+                children: [
+                  _speakerAvatar(sp, 72),
+                  const SizedBox(height: 7),
+                  Text(sp.name,
+                      maxLines: 1,
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppText.subhead.copyWith(fontSize: 12)),
+                  if ((sp.company ?? '').isNotEmpty)
+                    Text(sp.company!,
+                        maxLines: 1,
+                        textAlign: TextAlign.center,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppText.caption.copyWith(fontSize: 10)),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+// ============================ Speaker grid (full) ============================
+
+class _SpeakerGrid extends StatelessWidget {
+  final List<SpeakerSummary> speakers;
+  final void Function(String id) onTap;
+  const _SpeakerGrid({required this.speakers, required this.onTap});
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
+      itemCount: speakers.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 14,
+        childAspectRatio: 0.82,
+      ),
+      itemBuilder: (_, i) {
+        final sp = speakers[i];
+        return GestureDetector(
+          onTap: () => onTap(sp.id),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AspectRatio(
+                aspectRatio: 1,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: _speakerSquare(sp),
+                ),
+              ),
+              const SizedBox(height: 9),
+              Text(sp.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppText.h3.copyWith(fontSize: 14)),
+              if (sp.roleLine.isNotEmpty) ...[
+                const SizedBox(height: 1),
+                Text(sp.roleLine,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppText.caption.copyWith(fontSize: 11.5)),
+              ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+Widget _speakerAvatar(SpeakerSummary sp, double size) {
+  final url = sp.photoUrl;
+  if (url != null && url.isNotEmpty) {
+    return ClipOval(
+      child: SizedBox(
+        width: size,
+        height: size,
+        child: Image.network(
+          url,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) =>
+              Avatar(name: sp.name, size: size),
+        ),
+      ),
+    );
+  }
+  return Avatar(name: sp.name, size: size);
+}
+
+Widget _speakerSquare(SpeakerSummary sp) {
+  final url = sp.photoUrl;
+  if (url != null && url.isNotEmpty) {
+    return Image.network(
+      url,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => PhotoPlaceholder(hue: hueFromString(sp.id)),
+      loadingBuilder: (ctx, child, prog) =>
+          prog == null ? child : PhotoPlaceholder(hue: hueFromString(sp.id)),
+    );
+  }
+  return PhotoPlaceholder(hue: hueFromString(sp.id));
+}
+
+// ============================ Sponsor strip (overview) ============================
+
+class _SponsorStrip extends StatelessWidget {
+  final List<SponsorSummary> sponsors;
+  const _SponsorStrip({required this.sponsors});
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      children: sponsors.map((s) {
+        return Container(
+          constraints: const BoxConstraints(minWidth: 88),
+          height: 56,
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: (s.logoUrl != null && s.logoUrl!.isNotEmpty)
+              ? Image.network(
+                  s.logoUrl!,
+                  height: 28,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, __, ___) => _sponsorName(s),
+                )
+              : _sponsorName(s),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _sponsorName(SponsorSummary s) => Text(
+        s.companyName,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: AppText.h3.copyWith(color: AppColors.inkSoft, fontSize: 14),
+      );
+}
+
+// ============================ Sponsor card (full) ============================
+
+class _SponsorCard extends StatelessWidget {
+  final SponsorSummary sponsor;
+  final VoidCallback onTap;
+  const _SponsorCard({required this.sponsor, required this.onTap});
+  @override
+  Widget build(BuildContext context) {
+    final logo = sponsor.logoUrl;
+    return MCard(
+      onTap: onTap,
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: AppColors.forestSoft,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            clipBehavior: Clip.antiAlias,
+            alignment: Alignment.center,
+            child: (logo != null && logo.isNotEmpty)
+                ? Image.network(
+                    logo,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => _initial(),
+                    loadingBuilder: (ctx, child, prog) =>
+                        prog == null ? child : _initial(),
+                  )
+                : _initial(),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(sponsor.companyName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppText.h3.copyWith(fontSize: 16)),
+                if ((sponsor.tagline ?? '').isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(sponsor.tagline!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppText.caption.copyWith(fontSize: 12)),
+                ],
+              ],
+            ),
+          ),
+          const Icon(Icons.chevron_right, color: AppColors.inkMuted, size: 20),
+        ],
+      ),
+    );
+  }
+
+  Widget _initial() => Text(
+        sponsor.companyName.isNotEmpty
+            ? sponsor.companyName[0].toUpperCase()
+            : '?',
+        style: AppText.h3.copyWith(color: AppColors.forest, fontSize: 20),
+      );
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../net.dart';
-import '../../theme.dart';
+import '../../ui/components.dart';
+import '../../ui/tokens.dart';
+import '../engage/qa_screen.dart';
 import 'event_page_model.dart';
 import 'speaker_detail_screen.dart';
 
@@ -10,6 +12,9 @@ import 'speaker_detail_screen.dart';
 /// Loads `sessions` (with `session_speakers -> speakers` and `tracks`) joined
 /// on the sessionId. Verified against
 /// app/(public)/e/[slug]/sessions/[sessionId]/page.tsx.
+///
+/// Rating posts POST /api/sessions/[id]/rate { rating } (same contract the
+/// agenda screen uses).
 class SessionDetailScreen extends StatefulWidget {
   final String sessionId;
   final String eventId;
@@ -29,6 +34,7 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
   String? _error;
   Map<String, dynamic>? _session;
   final List<SpeakerSummary> _speakers = [];
+  int _myRating = 0;
 
   @override
   void initState() {
@@ -51,6 +57,7 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
           .eq('is_published', true)
           .maybeSingle();
 
+      if (!mounted) return;
       if (row == null) {
         setState(() {
           _loading = false;
@@ -72,11 +79,13 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
         _loading = false;
       });
     } on ApiException catch (e) {
+      if (!mounted) return;
       setState(() {
         _loading = false;
         _error = e.message;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _loading = false;
         _error = 'Something went wrong loading this session.';
@@ -84,22 +93,65 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
     }
   }
 
+  Future<void> _rate(int rating) async {
+    setState(() => _myRating = rating);
+    try {
+      await apiPost('/api/sessions/${widget.sessionId}/rate', {
+        'rating': rating,
+      });
+      if (!mounted) return;
+      showToast(context, 'Thanks for rating this session');
+    } catch (e) {
+      if (!mounted) return;
+      showToast(context,
+          e is ApiException ? e.message : 'Could not submit rating');
+    }
+  }
+
+  void _openQa() {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => QaScreen(
+        eventId: widget.eventId,
+        sessionId: widget.sessionId,
+      ),
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Brand.cream,
-      appBar: AppBar(
-        backgroundColor: Brand.cream,
-        foregroundColor: Brand.forest,
-        elevation: 0,
-        title: const Text('Session', style: TextStyle(color: Brand.forest)),
+    return MScaffold(
+      appBar: MAppBar(
+        title: 'Session',
+        hairline: true,
+        actions: [
+          AppBarAction(Icons.bookmark_border, onTap: () {
+            showToast(context, 'Open the schedule to add this to your agenda');
+          }),
+        ],
       ),
+      bottomBar: _loading || _error != null ? null : _stickyBar(),
       body: _loading
-          ? const _CenterSpinner()
+          ? const LoadingState()
           : _error != null
-              ? _ErrorState(message: _error!, onRetry: _load)
+              ? ErrorStateView(message: _error!, onRetry: _load)
               : _buildBody(),
     );
+  }
+
+  Widget _stickyBar() {
+    return StickyCta(children: [
+      MButton('',
+          kind: MBtnKind.sec,
+          icon: Icons.bookmark_border,
+          fullWidth: false,
+          onTap: () =>
+              showToast(context, 'Open the schedule to add this to your agenda')),
+      const SizedBox(width: 10),
+      Expanded(
+        child: MButton('Join live Q&A',
+            icon: Icons.forum_outlined, onTap: _openQa),
+      ),
+    ]);
   }
 
   Widget _buildBody() {
@@ -120,48 +172,33 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
         : asString(s['session_type']);
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 40),
+      padding: const EdgeInsets.fromLTRB(AppSpace.lg, AppSpace.md, AppSpace.lg, AppSpace.xxxl),
       children: [
-        if (trackName != null) ...[
-          _Pill(text: trackName),
-          const SizedBox(height: 12),
-        ],
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 24,
-            height: 1.2,
-            fontWeight: FontWeight.w700,
-            color: Brand.ink,
-          ),
+        Row(
+          children: [
+            if (trackName != null) ...[
+              Tag(trackName, kind: TagKind.gold, dot: true),
+              const SizedBox(width: 8),
+            ],
+            if (room.isNotEmpty) Tag(room, kind: TagKind.info),
+          ],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpace.md),
+        Text(title, style: AppText.h1.copyWith(fontSize: 23)),
+        const SizedBox(height: AppSpace.md),
         _MetaRow(icon: Icons.schedule, text: HubDates.range(start, end)),
-        if (room.isNotEmpty) ...[
-          const SizedBox(height: 8),
-          _MetaRow(icon: Icons.location_on_outlined, text: room),
-        ],
         if (desc.isNotEmpty) ...[
-          const SizedBox(height: 24),
-          const _SectionLabel('About this session'),
-          const SizedBox(height: 10),
-          Text(
-            desc,
-            style: const TextStyle(
-              fontSize: 15,
-              height: 1.6,
-              color: Brand.inkSoft,
-            ),
-          ),
+          const SizedBox(height: AppSpace.base),
+          Text(desc, style: AppText.body),
         ],
         if (_speakers.isNotEmpty) ...[
-          const SizedBox(height: 28),
-          const _SectionLabel('Speakers'),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpace.xl),
+          const SectionLabel('Speaker'),
+          const SizedBox(height: AppSpace.md),
           ..._speakers.map(
             (sp) => Padding(
               padding: const EdgeInsets.only(bottom: 10),
-              child: _SpeakerTile(
+              child: _SpeakerRow(
                 speaker: sp,
                 onTap: () {
                   Navigator.of(context).push(
@@ -177,113 +214,65 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
             ),
           ),
         ],
+        const SizedBox(height: AppSpace.lg),
+        _RateCard(value: _myRating, onChanged: _rate),
       ],
     );
   }
 }
 
-class _SpeakerTile extends StatelessWidget {
+class _RateCard extends StatelessWidget {
+  final int value;
+  final ValueChanged<int> onChanged;
+  const _RateCard({required this.value, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return MCard(
+      color: const Color(0xFFFBFAF6),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text('Rate this session', style: AppText.bodyStrong),
+          ),
+          StarRating(value: value, size: 22, onChanged: onChanged),
+        ],
+      ),
+    );
+  }
+}
+
+class _SpeakerRow extends StatelessWidget {
   final SpeakerSummary speaker;
   final VoidCallback onTap;
-  const _SpeakerTile({required this.speaker, required this.onTap});
+  const _SpeakerRow({required this.speaker, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Brand.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Brand.border),
-        ),
-        child: Row(
-          children: [
-            _Avatar(url: speaker.photoUrl, name: speaker.name, size: 44),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    speaker.name,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Brand.ink,
-                    ),
-                  ),
-                  if (speaker.roleLine.isNotEmpty) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      speaker.roleLine,
-                      style: const TextStyle(fontSize: 13, color: Brand.muted),
-                    ),
-                  ],
+      borderRadius: BorderRadius.circular(AppRadius.card),
+      child: Row(
+        children: [
+          Avatar(imageUrl: speaker.photoUrl, name: speaker.name, size: 48),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(speaker.name, style: AppText.h3.copyWith(fontSize: 15)),
+                if (speaker.roleLine.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(speaker.roleLine, style: AppText.bodySm),
                 ],
-              ),
+              ],
             ),
-            const Icon(Icons.chevron_right, color: Brand.muted, size: 20),
-          ],
-        ),
+          ),
+          const Icon(Icons.chevron_right, color: AppColors.inkMuted, size: 20),
+        ],
       ),
     );
   }
-}
-
-// ---- small shared widgets (kept local to avoid editing shared files) ----
-
-class _CenterSpinner extends StatelessWidget {
-  const _CenterSpinner();
-  @override
-  Widget build(BuildContext context) => const Center(
-        child: CircularProgressIndicator(color: Brand.forest),
-      );
-}
-
-class _ErrorState extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-  const _ErrorState({required this.message, required this.onRetry});
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.error_outline, color: Brand.danger, size: 40),
-            const SizedBox(height: 12),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 15, color: Brand.inkSoft),
-            ),
-            const SizedBox(height: 16),
-            FilledButton(onPressed: onRetry, child: const Text('Try again')),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SectionLabel extends StatelessWidget {
-  final String text;
-  const _SectionLabel(this.text);
-  @override
-  Widget build(BuildContext context) => Text(
-        text,
-        style: const TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.4,
-          color: Brand.forest,
-        ),
-      );
 }
 
 class _MetaRow extends StatelessWidget {
@@ -294,86 +283,12 @@ class _MetaRow extends StatelessWidget {
   Widget build(BuildContext context) => Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 18, color: Brand.forest),
-          const SizedBox(width: 10),
+          Icon(icon, size: 16, color: AppColors.forest),
+          const SizedBox(width: 8),
           Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(fontSize: 14, color: Brand.inkSoft),
-            ),
+            child: Text(text,
+                style: AppText.numSm.copyWith(color: AppColors.inkSoft)),
           ),
         ],
       );
-}
-
-class _Pill extends StatelessWidget {
-  final String text;
-  const _Pill({required this.text});
-  @override
-  Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: Brand.forest.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(999),
-        ),
-        child: Text(
-          text,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: Brand.forest,
-          ),
-        ),
-      );
-}
-
-class _Avatar extends StatelessWidget {
-  final String? url;
-  final String name;
-  final double size;
-  const _Avatar({required this.url, required this.name, this.size = 44});
-
-  String get _initials {
-    final parts = name.trim().split(RegExp(r'\s+'));
-    if (parts.isEmpty || parts.first.isEmpty) return '?';
-    if (parts.length == 1) return parts.first[0].toUpperCase();
-    return (parts.first[0] + parts.last[0]).toUpperCase();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final fallback = Container(
-      width: size,
-      height: size,
-      alignment: Alignment.center,
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Brand.forest, Color(0xFF2A6A50)],
-        ),
-      ),
-      child: Text(
-        _initials,
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: size * 0.34,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-    if (url == null || url!.isEmpty) return fallback;
-    return ClipOval(
-      child: Image.network(
-        url!,
-        width: size,
-        height: size,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => fallback,
-        loadingBuilder: (ctx, child, prog) =>
-            prog == null ? child : fallback,
-      ),
-    );
-  }
 }
