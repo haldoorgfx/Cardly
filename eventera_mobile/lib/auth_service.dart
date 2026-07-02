@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Thin wrapper over Supabase auth. Sessions persist automatically across
@@ -33,6 +34,17 @@ class AuthService {
       data: (fullName != null && fullName.trim().isNotEmpty)
           ? {'full_name': fullName.trim()}
           : null,
+    );
+  }
+
+  /// Continue with Google (same provider as the web app).
+  /// Web: redirects to the current page. Mobile: opens a browser and returns
+  /// via the `eventera://login-callback/` deep link. The session is completed
+  /// automatically by supabase_flutter once the redirect lands.
+  Future<void> signInWithGoogle() async {
+    await _c.auth.signInWithOAuth(
+      OAuthProvider.google,
+      redirectTo: kIsWeb ? null : 'eventera://login-callback/',
     );
   }
 

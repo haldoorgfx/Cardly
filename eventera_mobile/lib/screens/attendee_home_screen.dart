@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
-import '../eventera_api.dart';
+import '../attendee/attendee_account_screen.dart';
+import '../attendee/discovery/discover_screen.dart';
+import '../attendee/event_landing_screen.dart';
 import '../links.dart';
 import '../theme.dart';
-import 'my_cards_screen.dart';
 import 'organizer/auth_gate.dart';
-import 'personalize_screen.dart';
 
-/// Entry point of the attendee flow: paste an event link or type its code,
-/// then open it. Accepts a full URL (.../c/<slug>) or just the slug.
+/// Attendee entry point: open an event by link/code (→ full event hub),
+/// discover events, or open your account. Organizers have a subtle entry too.
 class AttendeeHomeScreen extends StatefulWidget {
   const AttendeeHomeScreen({super.key});
 
@@ -18,35 +18,19 @@ class AttendeeHomeScreen extends StatefulWidget {
 
 class _AttendeeHomeScreenState extends State<AttendeeHomeScreen> {
   final _controller = TextEditingController();
-  final _api = EventeraApi();
-  bool _loading = false;
   String? _error;
 
-  Future<void> _open() async {
+  void _open() {
     FocusScope.of(context).unfocus();
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
-    try {
-      final slug = slugFromText(_controller.text) ?? '';
-      final event = await _api.loadEvent(slug);
-      final variant = event.defaultVariant;
-      if (variant == null) {
-        throw EventeraException('This event has no card design yet.');
-      }
-      if (!mounted) return;
-      Navigator.of(context).push(MaterialPageRoute(
-        builder: (_) =>
-            PersonalizeScreen(event: event, initialVariant: variant),
-      ));
-    } on EventeraException catch (e) {
-      setState(() => _error = e.message);
-    } catch (e) {
-      setState(() => _error = 'Something went wrong. Please try again.');
-    } finally {
-      if (mounted) setState(() => _loading = false);
+    final slug = slugFromText(_controller.text) ?? '';
+    if (slug.isEmpty) {
+      setState(() => _error = 'Enter an event link or code.');
+      return;
     }
+    setState(() => _error = null);
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => EventLandingScreen(slug: slug)),
+    );
   }
 
   @override
@@ -64,24 +48,12 @@ class _AttendeeHomeScreenState extends State<AttendeeHomeScreen> {
         elevation: 0,
         actions: [
           IconButton(
-            tooltip: 'Organizer',
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const OrganizerGate()),
-            ),
+            tooltip: 'Account',
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => const AttendeeAccountScreen())),
             icon: const Icon(Icons.account_circle_outlined, color: Brand.ink),
           ),
-          TextButton.icon(
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const MyCardsScreen()),
-            ),
-            icon: const Icon(Icons.style_outlined, color: Brand.forest, size: 18),
-            label: const Text('My cards',
-                style: TextStyle(
-                    color: Brand.forest,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600)),
-          ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 6),
         ],
       ),
       body: SafeArea(
@@ -119,14 +91,14 @@ class _AttendeeHomeScreenState extends State<AttendeeHomeScreen> {
                   ],
                 ),
                 const SizedBox(height: 28),
-                const Text('Make your card',
+                const Text('Open an event',
                     style: TextStyle(
                         color: Brand.ink,
                         fontSize: 22,
                         fontWeight: FontWeight.w700)),
                 const SizedBox(height: 8),
                 const Text(
-                  'Paste the event link you received, or type the event code.',
+                  'Paste the event link you received, or type the event code. From there you can register, make your card, and join in.',
                   style:
                       TextStyle(color: Brand.muted, fontSize: 14, height: 1.5),
                 ),
@@ -160,22 +132,33 @@ class _AttendeeHomeScreenState extends State<AttendeeHomeScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton(
-                    onPressed: _loading ? null : _open,
-                    child: _loading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                                strokeWidth: 2.5, color: Colors.white),
-                          )
-                        : const Text('Open event'),
+                    onPressed: _open,
+                    child: const Text('Open event'),
                   ),
                 ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Brand.forest,
+                      side: const BorderSide(color: Brand.border),
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                    ),
+                    onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => const DiscoverScreen())),
+                    icon: const Icon(Icons.explore_outlined, size: 20),
+                    label: const Text('Discover events'),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Center(
+                  child: TextButton(
+                    onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => const OrganizerGate())),
+                    child: const Text('For organizers →',
+                        style: TextStyle(color: Brand.muted

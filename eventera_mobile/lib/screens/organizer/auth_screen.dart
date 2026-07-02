@@ -18,8 +18,26 @@ class _AuthScreenState extends State<AuthScreen> {
 
   bool _signUp = false;
   bool _busy = false;
+  bool _googleBusy = false;
   String? _error;
   String? _notice;
+
+  Future<void> _google() async {
+    setState(() {
+      _googleBusy = true;
+      _error = null;
+      _notice = null;
+    });
+    try {
+      await AuthService.instance.signInWithGoogle();
+      // On web this navigates away and back; on mobile the browser opens and
+      // the session completes via the deep-link redirect (AuthGate reacts).
+    } catch (e) {
+      setState(() => _error = AuthService.friendlyError(e));
+    } finally {
+      if (mounted) setState(() => _googleBusy = false);
+    }
+  }
 
   @override
   void dispose() {
@@ -94,6 +112,57 @@ class _AuthScreenState extends State<AuthScreen> {
                 const Text('Manage your events and card designs.',
                     style: TextStyle(color: Brand.muted, fontSize: 14)),
                 const SizedBox(height: 24),
+                // Continue with Google — same provider as the web app.
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Brand.ink,
+                      backgroundColor: Brand.surface,
+                      side: const BorderSide(color: Brand.border),
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                    ),
+                    onPressed: _googleBusy ? null : _google,
+                    icon: _googleBusy
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2.3, color: Brand.forest))
+                        : Container(
+                            width: 20,
+                            height: 20,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: Brand.cream,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Text('G',
+                                style: TextStyle(
+                                    color: Brand.forest,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w800)),
+                          ),
+                    label: const Text('Continue with Google',
+                        style: TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.w600)),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Row(
+                  children: const [
+                    Expanded(child: Divider(color: Brand.border)),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      child: Text('or',
+                          style: TextStyle(color: Brand.muted, fontSize: 13)),
+                    ),
+                    Expanded(child: Divider(color: Brand.border)),
+                  ],
+                ),
+                const SizedBox(height: 18),
                 if (_signUp) ...[
                   _label('Name'),
                   TextField(

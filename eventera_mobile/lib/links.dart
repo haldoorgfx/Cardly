@@ -32,6 +32,14 @@ String? slugFromUri(Uri uri) {
 }
 
 String? _slugFromUri(Uri uri) {
+  // OAuth callback (eventera://login-callback/...) is handled by Supabase, not
+  // treated as an event link.
+  if (uri.host == 'login-callback' ||
+      uri.path.contains('login-callback') ||
+      uri.fragment.contains('access_token')) {
+    return null;
+  }
+
   final segs = uri.pathSegments.where((s) => s.isNotEmpty).toList();
 
   // .../c/<slug>
