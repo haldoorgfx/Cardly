@@ -180,7 +180,10 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     .from('registrations')
     .select('id, status, payment_status')
     .eq('event_id', params.id)
-    .eq('attendee_email', attendee_email)
+    // Case-insensitive so 'Alice@x.com' matches a stored 'alice@x.com' and the
+    // stale-attempt cleanup below actually runs (instead of hitting the unique
+    // index and 409-ing on a re-try with different casing).
+    .ilike('attendee_email', attendee_email.trim())
     .maybeSingle() as { data: ExistingReg | null };
 
   if (existingReg) {
