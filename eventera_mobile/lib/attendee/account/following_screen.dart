@@ -319,11 +319,32 @@ class _FollowingScreenState extends State<FollowingScreen> {
                 ],
               ),
             ),
-            const SizedBox(width: 10),
-            MToggle(value: f.notify, onChanged: (_) => _toggleNotify(f)),
-            const SizedBox(width: 10),
+            const SizedBox(width: 8),
+            // Small notification bell — toggles new-event alerts (distinct from
+            // unfollow so the two actions aren't confused).
+            GestureDetector(
+              onTap: () => _toggleNotify(f),
+              behavior: HitTestBehavior.opaque,
+              child: Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: f.notify ? AppColors.forestSoft : AppColors.creamSoft,
+                  borderRadius: BorderRadius.circular(11),
+                ),
+                child: Icon(
+                  f.notify
+                      ? Icons.notifications_active
+                      : Icons.notifications_off_outlined,
+                  size: 18,
+                  color: f.notify ? AppColors.forest : AppColors.inkMuted,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            // Unfollow (removes the row immediately).
             _pill(
-              label: 'Following',
+              label: 'Unfollow',
               filled: false,
               onTap: () => _unfollow(f),
             ),

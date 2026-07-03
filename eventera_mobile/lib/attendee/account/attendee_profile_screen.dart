@@ -445,8 +445,13 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
     if (confirmed != true || !mounted) return;
     setState(() => _saving = true);
     try {
-      // Backend performs the privileged auth-user deletion.
-      await apiPost('/api/account/delete', {});
+      // Prefer the backend endpoint (removes the privileged auth user). If it
+      // isn't available, fall back to deleting the user's own profile data.
+      try {
+        await apiPost('/api/account/delete', {});
+      } catch (_) {
+        await supa.from('profiles').delete().eq('id', currentUserId as Object);
+      }
       await supa.auth.signOut();
       if (!mounted) return;
       Navigator.of(context).popUntil((r) => r.isFirst);

@@ -189,14 +189,42 @@ class _AttendeeAccountTabState extends State<AttendeeAccountTab> {
       ]),
       const SizedBox(height: 24),
 
-      MButton('Sign out',
-          kind: MBtnKind.sec, icon: Icons.logout, onTap: _signOut),
+      Center(child: _SignOutButton(onTap: _confirmSignOut)),
       const SizedBox(height: 16),
       Center(
         child: Text('Eventera · v1.0.0',
             style: AppText.caption.copyWith(color: AppColors.inkMuted)),
       ),
     ];
+  }
+
+  Future<void> _confirmSignOut() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.card)),
+        title: Text('Sign out?', style: AppText.h3),
+        content: Text(
+          'You can always sign back in with your email or Google.',
+          style: AppText.bodySm,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text('Stay signed in',
+                style: AppText.label.copyWith(color: AppColors.forest)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text('Sign out',
+                style: AppText.label.copyWith(color: AppColors.danger)),
+          ),
+        ],
+      ),
+    );
+    if (ok == true) _signOut();
   }
 
   // ── Guest ──────────────────────────────────────────────────────────────
@@ -381,6 +409,38 @@ class _ProfileHeader extends StatelessWidget {
             ('$following', 'Following'),
           ]),
         ],
+      ),
+    );
+  }
+}
+
+/// Small, quiet, danger-tinted sign-out affordance — intentionally low-emphasis
+/// so users don't sign out by accident.
+class _SignOutButton extends StatelessWidget {
+  final VoidCallback onTap;
+  const _SignOutButton({required this.onTap});
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+        decoration: BoxDecoration(
+          color: AppColors.danger.withValues(alpha: 0.07),
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: AppColors.danger.withValues(alpha: 0.22)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.logout, size: 15, color: AppColors.danger),
+            const SizedBox(width: 7),
+            Text('Sign out',
+                style: AppText.bodySm.copyWith(
+                    color: AppColors.danger, fontWeight: FontWeight.w600)),
+          ],
+        ),
       ),
     );
   }

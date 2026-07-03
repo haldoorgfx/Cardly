@@ -159,6 +159,10 @@ class _EventsMapScreenState extends State<EventsMapScreen> {
                         maxZoom: 18,
                         interactionOptions: const InteractionOptions(
                             flags: InteractiveFlag.all),
+                        // Fit AND kick the first tile fetch once the map is laid
+                        // out — doing it before ready leaves tiles blank until a
+                        // manual zoom.
+                        onMapReady: _fitToEvents,
                         onTap: (_, __) => setState(() => _selected = null),
                       ),
                       children: [
