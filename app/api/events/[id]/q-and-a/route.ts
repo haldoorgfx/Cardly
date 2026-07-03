@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient, createClient } from '@/lib/supabase/server';
+import { assertOwnsRegistration } from '@/lib/attendee-identity';
 import { z } from 'zod';
 import { sendQAAnsweredEmail } from '@/lib/email';
 
@@ -36,6 +37,14 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const body = await req.json().catch(() => null);
   const parsed = AskSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+
+  // Identity: when a registration is supplied, it must be the caller's own.
+  if (parsed.data.registration_id) {
+    const identity = await assertOwnsRegistration(params.id, parsed.data.registration_id);
+    if (!identity.ok) {
+      return NextResponse.json({ error: identity.error }, { status: identity.status });
+    }
+  }
 
   const admin = createAdminClient();
 
@@ -112,9 +121,15 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 }
 
 // PUT — toggle upvote
-export async function PUT(req: NextRequest) {
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   const { question_id, registration_id } = await req.json();
   if (!question_id || !registration_id) return NextResponse.json({ error: 'question_id and registration_id required' }, { status: 400 });
+
+  // Identity: the upvoter must be the caller's own registration (guests allowed).
+  const identity = await assertOwnsRegistration(params.id, registration_id);
+  if (!identity.ok) {
+    return NextResponse.json({ error: identity.error }, { status: identity.status });
+  }
 
   const admin = createAdminClient();
   const { data, error } = await admin.rpc('toggle_qa_upvote', { p_question_id: question_id, p_registration_id: registration_id });

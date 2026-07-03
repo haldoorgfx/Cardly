@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../net.dart';
 import '../../ui/tokens.dart';
 import '../../ui/components.dart';
+import '../engage/_shared.dart';
 import 'thread_screen.dart';
 
 /// Inbox of the attendee's message threads for an event.
@@ -31,17 +32,29 @@ class _MessagesScreenState extends State<MessagesScreen> {
   bool _loading = true;
   String? _error;
   List<_Thread> _threads = [];
+  String? _rid;
 
-  bool get _canNetwork =>
-      widget.registrationId != null && widget.registrationId!.isNotEmpty;
+  bool get _canNetwork => _rid != null && _rid!.isNotEmpty;
 
   @override
   void initState() {
     super.initState();
+    _rid = widget.registrationId;
     if (_canNetwork) {
       _load();
     } else {
-      _loading = false;
+      _resolveRegThenLoad();
+    }
+  }
+
+  Future<void> _resolveRegThenLoad() async {
+    final rid = await effectiveRegId(widget.registrationId, widget.eventId);
+    if (!mounted) return;
+    setState(() => _rid = rid);
+    if (_canNetwork) {
+      _load();
+    } else {
+      setState(() => _loading = false);
     }
   }
 
@@ -53,7 +66,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
     });
     try {
       final data = await apiGet('/api/threads', query: {
-        'registration_id': widget.registrationId,
+        'registration_id': _rid,
         'event_id': widget.eventId,
       });
       final list = asMapList(data is Map ? data['threads'] : data);
@@ -82,7 +95,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
       MaterialPageRoute(
         builder: (_) => ThreadScreen(
           eventId: widget.eventId,
-          registrationId: widget.registrationId!,
+          registrationId: _rid!,
           otherRegId: t.otherId,
           otherName: t.otherName,
         ),

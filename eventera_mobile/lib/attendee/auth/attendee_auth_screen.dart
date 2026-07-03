@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../net.dart';
@@ -33,6 +34,9 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
   String? _error;
   String _sentTo = '';
   bool _done = false;
+
+  String? _avatarUrl;
+  bool _uploadingAvatar = false;
 
   int _resendIn = 0;
   Timer? _resendTimer;
@@ -216,6 +220,10 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
         if (!skip && name.isNotEmpty) payload['full_name'] = name;
         final city = _cityCtrl.text.trim();
         if (!skip && city.isNotEmpty) payload['city'] = city;
+        // A photo can be added even when the rest is skipped.
+        if (_avatarUrl != null && _avatarUrl!.isNotEmpty) {
+          payload['avatar_url'] = _avatarUrl;
+        }
         if (payload.isNotEmpty) {
           await supa.from('profiles').update(payload).eq('id', uid);
         }
@@ -227,6 +235,45 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
       if (mounted) setState(() => _busy = false);
     }
     _finish();
+  }
+
+  /// Pick a photo from the gallery, upload it to Supabase storage, and remember
+  /// the public URL so it's saved with the profile. Skips gracefully if the
+  /// user isn't signed in yet (shouldn't happen at this step, but safe).
+  Future<void> _changeAvatar() async {
+    if (_uploadingAvatar) return;
+    final uid = currentUserId;
+    if (uid == null) return;
+    try {
+      final picked = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 800,
+        maxHeight: 800,
+        imageQuality: 85,
+      );
+      if (picked == null) return;
+      final bytes = await picked.readAsBytes();
+      if (!mounted) return;
+      setState(() => _uploadingAvatar = true);
+
+      final path = 'avatars/$uid.jpg';
+      await supa.storage.from('uploads').uploadBinary(
+            path,
+            bytes,
+            fileOptions:
+                const FileOptions(upsert: true, contentType: 'image/jpeg'),
+          );
+      final url = supa.storage.from('uploads').getPublicUrl(path);
+      if (!mounted) return;
+      setState(() {
+        _avatarUrl = '$url?t=${DateTime.now().millisecondsSinceEpoch}';
+        _uploadingAvatar = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _uploadingAvatar = false);
+      showToast(context, 'Could not upload your photo');
+    }
   }
 
   Future<void> _google() async {
@@ -507,12 +554,28 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
           style: AppText.body,
         ),
         const SizedBox(height: 26),
-        const Center(child: _PhotoUploadRing()),
+        Center(
+          child: GestureDetector(
+            onTap: _uploadingAvatar ? null : _changeAvatar,
+            behavior: HitTestBehavior.opaque,
+            child: _PhotoUploadRing(
+              imageUrl: _avatarUrl,
+              uploading: _uploadingAvatar,
+            ),
+          ),
+        ),
         const SizedBox(height: 10),
         Center(
-          child: Text('Add a photo',
-              style: AppText.bodySm.copyWith(
-                  color: AppColors.forest, fontWeight: FontWeight.w600)),
+          child: GestureDetector(
+            onTap: _uploadingAvatar ? null : _changeAvatar,
+            behavior: HitTestBehavior.opaque,
+            child: Text(
+                (_avatarUrl != null && _avatarUrl!.isNotEmpty)
+                    ? 'Change photo'
+                    : 'Add a photo',
+                style: AppText.bodySm.copyWith(
+                    color: AppColors.forest, fontWeight: FontWeight.w600)),
+          ),
         ),
         const SizedBox(height: 22),
         MInput(
@@ -891,22 +954,58 @@ class _TextAction extends StatelessWidget {
 // ─────────────────────────────────────────── Photo-upload ring (dashed)
 
 class _PhotoUploadRing extends StatelessWidget {
-  const _PhotoUploadRing();
+  final String? imageUrl;
+  final bool uploading;
+  const _PhotoUploadRing({this.imageUrl, this.uploading = false});
   @override
   Widget build(BuildContext context) {
+    final hasImage = imageUrl != null && imageUrl!.isNotEmpty;
     return SizedBox(
       width: 96,
       height: 96,
       child: Stack(
         children: [
-          CustomPaint(
-            size: const Size(96, 96),
-            painter: _DashedCirclePainter(),
-            child: const Center(
-              child: Icon(Icons.person_outline,
-                  color: AppColors.inkMuted, size: 30),
+          if (hasImage)
+            ClipOval(
+              child: SizedBox(
+                width: 96,
+                height: 96,
+                child: Image.network(
+                  imageUrl!,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const Center(
+                    child: Icon(Icons.person_outline,
+                        color: AppColors.inkMuted, size: 30),
+                  ),
+                ),
+              ),
+            )
+          else
+            CustomPaint(
+              size: const Size(96, 96),
+              painter: _DashedCirclePainter(),
+              child: const Center(
+                child: Icon(Icons.person_outline,
+                    color: AppColors.inkMuted, size: 30),
+              ),
             ),
-          ),
+          if (uploading)
+            const Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: Color(0x66000000),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2.5, color: Colors.white),
+                  ),
+                ),
+              ),
+            ),
           Positioned(
             right: 0,
             bottom: 0,
@@ -919,7 +1018,8 @@ class _PhotoUploadRing extends StatelessWidget {
                 border: Border.all(color: AppColors.canvas, width: 3),
               ),
               alignment: Alignment.center,
-              child: const Icon(Icons.add, color: Colors.white, size: 16),
+              child: Icon(hasImage ? Icons.edit : Icons.add,
+                  color: Colors.white, size: 16),
             ),
           ),
         ],

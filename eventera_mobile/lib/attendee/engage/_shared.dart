@@ -2,6 +2,30 @@ import 'package:flutter/material.dart';
 
 import '../../ui/tokens.dart';
 import '../../ui/components.dart';
+import '../event_context.dart';
+import '../reg_store.dart';
+
+/// Resolves the registration id an engagement/networking screen should use.
+///
+/// The id passed down from the hub lives in memory (via [EventContext]) and is
+/// null after an app restart. This falls back to the durable local [RegStore]
+/// (keyed by event slug) so a guest who already registered isn't wrongly told
+/// to "Register to participate". Returns null only when there is genuinely no
+/// registration on this device.
+Future<String?> effectiveRegId(String? passed, String eventId) async {
+  if (passed != null && passed.isNotEmpty) return passed;
+  final ctx = EventContext.current;
+  if (ctx != null && ctx.eventId == eventId) {
+    final inMem = ctx.registrationId;
+    if (inMem != null && inMem.isNotEmpty) return inMem;
+    if (ctx.slug.isNotEmpty) {
+      final reg = await RegStore.instance.get(ctx.slug);
+      final id = reg?.registrationId;
+      if (id != null && id.isNotEmpty) return id;
+    }
+  }
+  return null;
+}
 
 /// Small shared bits used across the engagement screens. Re-skinned to the
 /// forest + cream design system (tokens.dart / components.dart). Exported

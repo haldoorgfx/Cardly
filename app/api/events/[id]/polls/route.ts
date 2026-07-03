@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient, createClient } from '@/lib/supabase/server';
+import { assertOwnsRegistration } from '@/lib/attendee-identity';
 import { z } from 'zod';
 
 const CreateSchema = z.object({
@@ -101,6 +102,13 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   if (!parsed.success) return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
 
   const { poll_id, option_id, registration_id } = parsed.data;
+
+  // Identity: the voter must be the caller's own registration (guests allowed).
+  const identity = await assertOwnsRegistration(params.id, registration_id);
+  if (!identity.ok) {
+    return NextResponse.json({ error: identity.error }, { status: identity.status });
+  }
+
   const admin = createAdminClient();
 
   const { error } = await admin.rpc('cast_poll_vote', { p_poll_id: poll_id, p_option_id: option_id, p_registration_id: registration_id });

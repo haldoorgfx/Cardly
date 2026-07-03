@@ -137,7 +137,25 @@ class _ThreadScreenState extends State<ThreadScreen> {
   Future<void> _send() async {
     final text = _controller.text.trim();
     if (text.isEmpty || _sending) return;
-    setState(() => _sending = true);
+
+    // Optimistic: show the message straight away with a temporary id, and
+    // remember it so we can roll it back if the send fails.
+    final tempId = 'pending-${DateTime.now().microsecondsSinceEpoch}';
+    final optimistic = <String, dynamic>{
+      'id': tempId,
+      'thread_id': _threadId,
+      'sender_id': widget.registrationId,
+      'content': text,
+      'read_at': null,
+      'created_at': DateTime.now().toUtc().toIso8601String(),
+    };
+    setState(() {
+      _sending = true;
+      _messages = [..._messages, optimistic];
+    });
+    _controller.clear();
+    _jumpToBottom();
+
     try {
       final res = await apiPost('/api/threads', {
         'event_id': widget.eventId,
@@ -148,18 +166,26 @@ class _ThreadScreenState extends State<ThreadScreen> {
       if (res is Map && res['thread_id'] != null) {
         _threadId = asString(res['thread_id']);
       }
-      _controller.clear();
       await _refreshMessages();
       if (!mounted) return;
       setState(() => _sending = false);
       _jumpToBottom();
     } on ApiException catch (e) {
       if (!mounted) return;
-      setState(() => _sending = false);
+      // Roll back the optimistic bubble and restore the text to the composer.
+      setState(() {
+        _messages = _messages.where((m) => m['id'] != tempId).toList();
+        _sending = false;
+      });
+      _controller.text = text;
       showToast(context, e.message);
     } catch (_) {
       if (!mounted) return;
-      setState(() => _sending = false);
+      setState(() {
+        _messages = _messages.where((m) => m['id'] != tempId).toList();
+        _sending = false;
+      });
+      _controller.text = text;
       showToast(context, 'Message failed to send');
     }
   }

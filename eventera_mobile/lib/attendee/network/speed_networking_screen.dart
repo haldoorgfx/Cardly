@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../net.dart';
 import '../../ui/tokens.dart';
 import '../../ui/components.dart';
+import '../engage/_shared.dart';
 
 /// Speed networking — a fast one-at-a-time "meet people" deck.
 ///
@@ -29,17 +30,29 @@ class _SpeedNetworkingScreenState extends State<SpeedNetworkingScreen> {
   List<_Attendee> _deck = [];
   int _index = 0;
   bool _connecting = false;
+  String? _rid;
 
-  bool get _canNetwork =>
-      widget.registrationId != null && widget.registrationId!.isNotEmpty;
+  bool get _canNetwork => _rid != null && _rid!.isNotEmpty;
 
   @override
   void initState() {
     super.initState();
+    _rid = widget.registrationId;
     if (_canNetwork) {
       _load();
     } else {
-      _loading = false;
+      _resolveRegThenLoad();
+    }
+  }
+
+  Future<void> _resolveRegThenLoad() async {
+    final rid = await effectiveRegId(widget.registrationId, widget.eventId);
+    if (!mounted) return;
+    setState(() => _rid = rid);
+    if (_canNetwork) {
+      _load();
+    } else {
+      setState(() => _loading = false);
     }
   }
 
@@ -58,7 +71,7 @@ class _SpeedNetworkingScreenState extends State<SpeedNetworkingScreen> {
 
       final list = asMapList(rows)
           .map(_Attendee.fromRow)
-          .where((a) => a.id.isNotEmpty && a.id != widget.registrationId)
+          .where((a) => a.id.isNotEmpty && a.id != _rid)
           .toList()
         ..shuffle();
 
@@ -101,7 +114,7 @@ class _SpeedNetworkingScreenState extends State<SpeedNetworkingScreen> {
     setState(() => _connecting = true);
     try {
       await apiPost('/api/events/${widget.eventId}/connections', {
-        'requester_id': widget.registrationId,
+        'requester_id': _rid,
         'recipient_id': a.id,
       });
       if (!mounted) return;

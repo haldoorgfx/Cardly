@@ -42,6 +42,20 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   final _comment = TextEditingController();
   bool _submitting = false;
   bool _done = false;
+  String? _rid;
+
+  @override
+  void initState() {
+    super.initState();
+    _rid = widget.registrationId;
+    _resolveReg();
+  }
+
+  Future<void> _resolveReg() async {
+    final rid = await effectiveRegId(widget.registrationId, widget.eventId);
+    if (!mounted) return;
+    setState(() => _rid = rid);
+  }
 
   @override
   void dispose() {
@@ -50,7 +64,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   }
 
   Future<void> _submit() async {
-    final rid = widget.registrationId;
+    final rid = _rid;
     if (rid == null) return;
     if (_rating == 0 && _selected.isEmpty && _comment.text.trim().isEmpty) {
       showEngageSnack(context, 'Add a rating or a comment first', error: true);
@@ -78,7 +92,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final gated = widget.registrationId == null;
+    final gated = _rid == null;
     return MScaffold(
       appBar: const MAppBar(title: 'Feedback', hairline: true),
       bottomBar: (gated || _done)

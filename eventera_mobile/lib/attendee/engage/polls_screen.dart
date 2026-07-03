@@ -55,10 +55,18 @@ class _PollsScreenState extends State<PollsScreen> {
   List<_Poll> _polls = [];
   final Map<String, String> _myVotes = {}; // pollId -> optionId
   final Set<String> _busy = {}; // pollIds voting
+  String? _rid;
 
   @override
   void initState() {
     super.initState();
+    _rid = widget.registrationId;
+    _resolveRegThenLoad();
+  }
+
+  Future<void> _resolveRegThenLoad() async {
+    _rid = await effectiveRegId(widget.registrationId, widget.eventId);
+    if (!mounted) return;
     _load();
   }
 
@@ -94,7 +102,7 @@ class _PollsScreenState extends State<PollsScreen> {
       }
 
       _myVotes.clear();
-      final rid = widget.registrationId;
+      final rid = _rid;
       if (rid != null) {
         final votes = await supa
             .from('poll_votes')
@@ -119,7 +127,7 @@ class _PollsScreenState extends State<PollsScreen> {
   }
 
   Future<void> _vote(_Poll poll, _Option option) async {
-    final rid = widget.registrationId;
+    final rid = _rid;
     if (rid == null) {
       showEngageSnack(context, 'Register for this event to vote', error: true);
       return;
@@ -127,15 +135,22 @@ class _PollsScreenState extends State<PollsScreen> {
     if (poll.isClosed || _myVotes.containsKey(poll.id) || _busy.contains(poll.id)) {
       return;
     }
-    setState(() => _busy.add(poll.id));
+    // Optimistic: record the vote and bump the count immediately, remembering
+    // the prior state so we can roll back if the server rejects it.
+    final prevVote = _myVotes[poll.id];
+    final prevVotes = option.votes;
+    setState(() {
+      _busy.add(poll.id);
+      _myVotes[poll.id] = option.id;
+      option.votes = prevVotes + 1;
+    });
     try {
       final res = await apiPut('/api/events/${widget.eventId}/polls', {
         'poll_id': poll.id,
         'option_id': option.id,
         'registration_id': rid,
       });
-      _myVotes[poll.id] = option.id;
-      // Reflect updated counts if the route returned them.
+      // Reconcile with authoritative counts if the route returned them.
       if (res is Map && res['options'] is List) {
         final counts = <String, int>{};
         for (final o in (res['options'] as List).whereType<Map>()) {
@@ -144,14 +159,21 @@ class _PollsScreenState extends State<PollsScreen> {
         for (final o in poll.options) {
           if (counts.containsKey(o.id)) o.votes = counts[o.id]!;
         }
-      } else {
-        option.votes += 1;
       }
       if (!mounted) return;
       showToast(context, 'Your vote was counted');
       setState(() {});
     } catch (e) {
       if (mounted) {
+        // Roll the optimistic vote back.
+        setState(() {
+          if (prevVote == null) {
+            _myVotes.remove(poll.id);
+          } else {
+            _myVotes[poll.id] = prevVote;
+          }
+          option.votes = prevVotes;
+        });
         showEngageSnack(context,
             e is ApiException ? e.message : 'Could not record your vote',
             error: true);

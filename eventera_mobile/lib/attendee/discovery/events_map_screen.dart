@@ -101,6 +101,19 @@ class _EventsMapScreenState extends State<EventsMapScreen> {
     }
   }
 
+  void _onMapReady() {
+    _fitToEvents();
+    // Some Android devices leave the tile layer blank until the camera actually
+    // changes. Nudge it by a hair after the first frame so tiles fetch on their
+    // own without the user panning.
+    Future.delayed(const Duration(milliseconds: 250), () {
+      if (!mounted) return;
+      try {
+        _map.move(_map.camera.center, _map.camera.zoom + 0.0001);
+      } catch (_) {}
+    });
+  }
+
   void _fitToEvents() {
     if (_events.isEmpty) return;
     try {
@@ -162,7 +175,7 @@ class _EventsMapScreenState extends State<EventsMapScreen> {
                         // Fit AND kick the first tile fetch once the map is laid
                         // out — doing it before ready leaves tiles blank until a
                         // manual zoom.
-                        onMapReady: _fitToEvents,
+                        onMapReady: _onMapReady,
                         onTap: (_, __) => setState(() => _selected = null),
                       ),
                       children: [

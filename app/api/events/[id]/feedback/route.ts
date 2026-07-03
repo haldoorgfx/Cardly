@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { assertOwnsRegistration } from '@/lib/attendee-identity';
 import { z } from 'zod';
 
 const BodySchema = z.object({
@@ -15,6 +16,13 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (!parsed.success) return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
 
   const { registration_id, ...rest } = parsed.data;
+
+  // Identity: feedback must be tied to the caller's own registration (guests allowed).
+  const identity = await assertOwnsRegistration(params.id, registration_id);
+  if (!identity.ok) {
+    return NextResponse.json({ error: identity.error }, { status: identity.status });
+  }
+
   const admin = createAdminClient();
 
   const { data: epFb } = await admin.from('event_pages').select('starts_at').eq('event_id', params.id).maybeSingle();

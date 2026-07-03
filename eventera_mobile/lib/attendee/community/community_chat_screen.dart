@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../net.dart';
 import '../../ui/components.dart';
 import '../../ui/tokens.dart';
+import '../engage/_shared.dart';
 
 /// CommunityChatScreen — event community channels + chat. Mirrors the web
 /// `/e/[slug]/community` experience.
@@ -70,11 +71,20 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
 
   final _composer = TextEditingController();
   bool _sending = false;
+  String? _rid;
 
   @override
   void initState() {
     super.initState();
+    _rid = widget.registrationId;
+    _resolveReg();
     _load();
+  }
+
+  Future<void> _resolveReg() async {
+    final rid = await effectiveRegId(widget.registrationId, widget.eventId);
+    if (!mounted) return;
+    setState(() => _rid = rid);
   }
 
   @override
@@ -185,7 +195,7 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
 
   Future<void> _send() async {
     final channelId = _selectedChannelId;
-    if (channelId == null || widget.registrationId == null) return;
+    if (channelId == null || _rid == null) return;
     final text = _composer.text.trim();
     if (text.isEmpty || _sending) return;
 
@@ -193,7 +203,7 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
     try {
       await supa.from('community_messages').insert({
         'channel_id': channelId,
-        'registration_id': widget.registrationId,
+        'registration_id': _rid,
         'content': text,
       });
       if (!mounted) return;
@@ -356,7 +366,7 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
   }
 
   Widget _composerBar() {
-    if (widget.registrationId == null) {
+    if (_rid == null) {
       return Container(
         width: double.infinity,
         padding: const EdgeInsets.fromLTRB(

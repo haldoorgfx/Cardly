@@ -61,10 +61,18 @@ class _QaScreenState extends State<QaScreen> {
   final Set<String> _busy = {};
   bool _submitting = false;
   int _filter = 0; // 0 = Top, 1 = Recent
+  String? _rid;
 
   @override
   void initState() {
     super.initState();
+    _rid = widget.registrationId;
+    _resolveRegThenLoad();
+  }
+
+  Future<void> _resolveRegThenLoad() async {
+    _rid = await effectiveRegId(widget.registrationId, widget.eventId);
+    if (!mounted) return;
     _load();
   }
 
@@ -107,7 +115,7 @@ class _QaScreenState extends State<QaScreen> {
       }
 
       _myUpvotes.clear();
-      final rid = widget.registrationId;
+      final rid = _rid;
       if (rid != null) {
         final ups = await supa
             .from('qa_upvotes')
@@ -132,7 +140,7 @@ class _QaScreenState extends State<QaScreen> {
   }
 
   Future<void> _upvote(_Question q) async {
-    final rid = widget.registrationId;
+    final rid = _rid;
     if (rid == null) {
       showEngageSnack(context, 'Register for this event to upvote', error: true);
       return;
@@ -210,7 +218,7 @@ class _QaScreenState extends State<QaScreen> {
   }
 
   Future<void> _openComposer() async {
-    if (widget.registrationId == null) {
+    if (_rid == null) {
       showEngageSnack(context, 'Register for this event to ask a question',
           error: true);
       return;
@@ -221,7 +229,7 @@ class _QaScreenState extends State<QaScreen> {
     setState(() => _submitting = true);
     try {
       await apiPost('/api/events/${widget.eventId}/q-and-a', {
-        'registration_id': widget.registrationId,
+        'registration_id': _rid,
         'question': result.text,
         'is_anonymous': result.anonymous,
         if (widget.sessionId != null) 'session_id': widget.sessionId,

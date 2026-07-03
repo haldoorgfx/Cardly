@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { assertOwnsRegistration } from '@/lib/attendee-identity';
 
 interface Params { params: Promise<{ id: string; sessionId: string }> }
 
@@ -23,6 +24,12 @@ export async function POST(req: NextRequest, { params }: Params) {
   if (!reg) return NextResponse.json({ error: 'Registration not found' }, { status: 404 });
   if (!['confirmed', 'checked_in'].includes(reg.status)) {
     return NextResponse.json({ error: 'Only confirmed attendees can book sessions' }, { status: 403 });
+  }
+
+  // Identity: when authenticated, the registration must belong to the caller (guests allowed).
+  const identity = await assertOwnsRegistration(eventId, registrationId);
+  if (!identity.ok) {
+    return NextResponse.json({ error: identity.error }, { status: identity.status });
   }
 
   // Check capacity

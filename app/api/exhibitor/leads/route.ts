@@ -1,11 +1,36 @@
 import { createAdminClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { z } from 'zod';
+
+const RatingEnum = z.enum(['hot', 'warm', 'cold']);
+
+const CreateLeadSchema = z.object({
+  token:          z.string().min(1).max(200),
+  attendee_name:  z.string().max(200).trim().optional().nullable(),
+  attendee_email: z.string().max(254).email().optional().nullable().or(z.literal('')),
+  company:        z.string().max(200).trim().optional().nullable(),
+  role:           z.string().max(200).trim().optional().nullable(),
+  rating:         RatingEnum.optional(),
+  note:           z.string().max(2000).optional().nullable(),
+});
+
+const UpdateLeadSchema = z.object({
+  token:   z.string().min(1).max(200),
+  lead_id: z.string().uuid(),
+  rating:  RatingEnum.optional(),
+  note:    z.string().max(2000).optional().nullable(),
+});
 
 export async function POST(req: Request) {
-  const body = await req.json();
-  const { token, attendee_name, attendee_email, company, role, rating, note } = body;
-
-  if (!token) return NextResponse.json({ error: 'Missing token' }, { status: 400 });
+  const raw = await req.json().catch(() => null);
+  const parsed = CreateLeadSchema.safeParse(raw);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? 'Validation failed', details: parsed.error.flatten().fieldErrors },
+      { status: 400 },
+    );
+  }
+  const { token, attendee_name, attendee_email, company, role, rating, note } = parsed.data;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const admin = createAdminClient() as any;
@@ -40,10 +65,15 @@ export async function POST(req: Request) {
 }
 
 export async function PATCH(req: Request) {
-  const body = await req.json();
-  const { token, lead_id, rating, note } = body;
-
-  if (!token || !lead_id) return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
+  const raw = await req.json().catch(() => null);
+  const parsed = UpdateLeadSchema.safeParse(raw);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? 'Validation failed', details: parsed.error.flatten().fieldErrors },
+      { status: 400 },
+    );
+  }
+  const { token, lead_id, rating, note } = parsed.data;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const admin = createAdminClient() as any;

@@ -368,28 +368,46 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
   void _openCode() {
     final ctl = TextEditingController();
+    String? error;
     showMSheet(
       context,
-      Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Have an invite code?', style: AppText.h3),
-          const SizedBox(height: 6),
-          Text('Enter the code from your invitation to open the event.',
-              style: AppText.bodySm),
-          const SizedBox(height: 16),
-          MInput(controller: ctl, hint: 'Event code'),
-          const SizedBox(height: 16),
-          MButton('Open event', onTap: () {
-            final code = ctl.text.trim();
-            if (code.isEmpty) return;
-            Navigator.pop(context);
-            Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => EventLandingScreen(slug: code),
-            ));
-          }),
-        ],
+      StatefulBuilder(
+        builder: (ctx, setSheet) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Have an invite code?', style: AppText.h3),
+              const SizedBox(height: 6),
+              Text('Enter the code from your invitation to open the event.',
+                  style: AppText.bodySm),
+              const SizedBox(height: 16),
+              MInput(
+                controller: ctl,
+                hint: 'Event code',
+                errorText: error,
+                onChanged: (_) {
+                  if (error != null) setSheet(() => error = null);
+                },
+              ),
+              const SizedBox(height: 8),
+              Text('Tip: it\'s the short code at the end of your event link.',
+                  style: AppText.caption.copyWith(color: AppColors.inkMuted)),
+              const SizedBox(height: 16),
+              MButton('Open event', onTap: () {
+                final code = ctl.text.trim();
+                if (code.isEmpty) {
+                  setSheet(() => error = 'Enter your invite code to continue.');
+                  return;
+                }
+                Navigator.pop(ctx);
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => EventLandingScreen(slug: code),
+                ));
+              }),
+            ],
+          );
+        },
       ),
     );
   }

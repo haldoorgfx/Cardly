@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { assertOwnsRegistration } from '@/lib/attendee-identity';
 import { z } from 'zod';
 import { sendNewMessageEmail } from '@/lib/email';
 
@@ -129,6 +130,13 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   }
 
   const { sender_id, recipient_id, content } = parsed.data;
+
+  // Identity: the sender must be the caller's own registration (guests allowed).
+  const identity = await assertOwnsRegistration(params.id, sender_id);
+  if (!identity.ok) {
+    return NextResponse.json({ error: identity.error }, { status: identity.status });
+  }
+
   const admin = createAdminClient();
 
   // Canonical thread order: lower UUID first (prevents duplicate threads)

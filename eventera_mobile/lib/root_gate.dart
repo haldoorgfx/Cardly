@@ -26,7 +26,9 @@ class _RootGateState extends State<RootGate> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(milliseconds: 2300), () {
+    // Short branded splash only — the app is ready immediately, so keep this
+    // brief (it was 2300ms, which felt like slow loading on every open).
+    Future.delayed(const Duration(milliseconds: 1100), () {
       if (mounted) setState(() => _ready = true);
     });
     // After any sign-in (email or Google), run the onboarding wizard once if
@@ -96,7 +98,7 @@ class _Splash extends StatefulWidget {
 class _SplashState extends State<_Splash> with SingleTickerProviderStateMixin {
   late final AnimationController _c = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 2300),
+    duration: const Duration(milliseconds: 1100),
   )..forward();
 
   @override

@@ -98,10 +98,18 @@ class _AgendaScreenState extends State<AgendaScreen> {
   bool _myOnly = false;
   final Set<String> _busy = {}; // session ids with in-flight action
   int _dayIndex = 0;
+  String? _rid;
 
   @override
   void initState() {
     super.initState();
+    _rid = widget.registrationId;
+    _resolveRegThenLoad();
+  }
+
+  Future<void> _resolveRegThenLoad() async {
+    _rid = await effectiveRegId(widget.registrationId, widget.eventId);
+    if (!mounted) return;
     _load();
   }
 
@@ -124,7 +132,7 @@ class _AgendaScreenState extends State<AgendaScreen> {
           .toList();
 
       _myAgenda.clear();
-      final rid = widget.registrationId;
+      final rid = _rid;
       if (rid != null) {
         final agenda = await supa
             .from('attendee_agendas')
@@ -150,7 +158,7 @@ class _AgendaScreenState extends State<AgendaScreen> {
   }
 
   Future<void> _toggleAgenda(_Session s) async {
-    final rid = widget.registrationId;
+    final rid = _rid;
     if (rid == null) {
       showEngageSnack(context, 'Register for this event to build your agenda',
           error: true);
@@ -193,7 +201,7 @@ class _AgendaScreenState extends State<AgendaScreen> {
   }
 
   Future<void> _rate(_Session s) async {
-    final rid = widget.registrationId;
+    final rid = _rid;
     if (rid == null) {
       showEngageSnack(context, 'Register for this event to rate sessions',
           error: true);
@@ -258,7 +266,7 @@ class _AgendaScreenState extends State<AgendaScreen> {
                       onChanged: (i) => setState(() => _dayIndex = i),
                     ),
                   ),
-                if (widget.registrationId != null) _filterBar(),
+                if (_rid != null) _filterBar(),
                 Expanded(child: _body()),
               ],
             ),

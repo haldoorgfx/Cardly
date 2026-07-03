@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../net.dart';
 import '../../ui/tokens.dart';
 import '../../ui/components.dart';
+import '../engage/_shared.dart';
 import 'thread_screen.dart';
 
 /// Attendee directory + AI matches for an event.
@@ -38,17 +39,29 @@ class _PeopleScreenState extends State<PeopleScreen> {
   String? _error;
   List<_Person> _people = [];
   List<_Match> _matches = [];
+  String? _rid;
 
-  bool get _canNetwork =>
-      widget.registrationId != null && widget.registrationId!.isNotEmpty;
+  bool get _canNetwork => _rid != null && _rid!.isNotEmpty;
 
   @override
   void initState() {
     super.initState();
+    _rid = widget.registrationId;
     if (_canNetwork) {
       _load();
     } else {
-      _loading = false;
+      _resolveRegThenLoad();
+    }
+  }
+
+  Future<void> _resolveRegThenLoad() async {
+    final rid = await effectiveRegId(widget.registrationId, widget.eventId);
+    if (!mounted) return;
+    setState(() => _rid = rid);
+    if (_canNetwork) {
+      _load();
+    } else {
+      setState(() => _loading = false);
     }
   }
 
@@ -61,7 +74,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
     try {
       final results = await Future.wait([
         apiGet('/api/events/${widget.eventId}/people',
-            query: {'reg': widget.registrationId}),
+            query: {'reg': _rid}),
         _loadMatches(),
       ]);
 
@@ -93,7 +106,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
   Future<List<_Match>> _loadMatches() async {
     try {
       final data = await apiGet('/api/events/${widget.eventId}/matches',
-          query: {'registration_id': widget.registrationId});
+          query: {'registration_id': _rid});
       final list = asMapList(data is Map ? data['matches'] : data);
       return list.map(_Match.fromRow).toList();
     } catch (_) {
@@ -105,7 +118,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
     setState(() => p.connecting = true);
     try {
       await apiPost('/api/events/${widget.eventId}/connections', {
-        'requester_id': widget.registrationId,
+        'requester_id': _rid,
         'recipient_id': p.id,
       });
       if (!mounted) return;
@@ -131,7 +144,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
       MaterialPageRoute(
         builder: (_) => ThreadScreen(
           eventId: widget.eventId,
-          registrationId: widget.registrationId!,
+          registrationId: _rid!,
           otherRegId: otherId,
           otherName: otherName,
         ),

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { assertOwnsRegistration } from '@/lib/attendee-identity';
 import { z } from 'zod';
 import {
   sendConnectionRequestEmail,
@@ -23,6 +24,13 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (!parsed.success) return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
 
   const { requester_id, recipient_id } = parsed.data;
+
+  // Identity: the requester must be the caller's own registration (guests allowed).
+  const identity = await assertOwnsRegistration(params.id, requester_id);
+  if (!identity.ok) {
+    return NextResponse.json({ error: identity.error }, { status: identity.status });
+  }
+
   const admin = createAdminClient();
 
   const { data, error } = await admin
@@ -76,6 +84,13 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   if (!parsed.success) return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
 
   const { connection_id, action, registration_id } = parsed.data;
+
+  // Identity: the responder must be the caller's own registration (guests allowed).
+  const identity = await assertOwnsRegistration(params.id, registration_id);
+  if (!identity.ok) {
+    return NextResponse.json({ error: identity.error }, { status: identity.status });
+  }
+
   const admin = createAdminClient();
 
   const newStatus = action === 'accept' ? 'accepted' : 'declined';

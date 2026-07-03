@@ -1,18 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { z } from 'zod';
+
+const AuthorSchema = z.object({
+  name:        z.string().min(1).max(200).trim(),
+  email:       z.string().max(254).email().optional().or(z.literal('')),
+  affiliation: z.string().max(300).trim().optional().or(z.literal('')),
+});
+
+const CfpSchema = z.object({
+  eventSlug:     z.string().min(1).max(200),
+  title:         z.string().min(1).max(300).trim(),
+  abstract:      z.string().min(1).max(10000),
+  keywords:      z.array(z.string().max(60)).max(20).default([]),
+  category:      z.string().max(120).default(''),
+  primaryAuthor: AuthorSchema,
+  presenting:    z.boolean().default(false),
+  coAuthors:     z.array(AuthorSchema).max(20).default([]),
+});
 
 export async function POST(req: NextRequest) {
   const admin = createAdminClient();
-  const body = await req.json() as {
-    eventSlug: string;
-    title: string;
-    abstract: string;
-    keywords: string[];
-    category: string;
-    primaryAuthor: { name: string; email: string; affiliation: string };
-    presenting: boolean;
-    coAuthors: { name: string; email: string; affiliation: string }[];
-  };
+
+  const raw = await req.json().catch(() => null);
+  const parsed = CfpSchema.safeParse(raw);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? 'Validation failed', details: parsed.error.flatten().fieldErrors },
+      { status: 400 },
+    );
+  }
+  const body = parsed.data;
 
   // Resolve event by slug
   const { data: event } = await admin
