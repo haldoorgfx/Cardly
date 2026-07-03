@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import 'tokens.dart';
@@ -216,7 +217,7 @@ class _MButtonState extends State<MButton> {
       scale: _down ? 0.98 : 1.0,
       duration: const Duration(milliseconds: 90),
       child: Container(
-        height: widget.kind == MBtnKind.text ? null : (widget.small ? 44 : 52),
+        height: widget.kind == MBtnKind.text ? null : (widget.small ? 48 : 56),
         width: widget.fullWidth ? double.infinity : null,
         alignment: Alignment.center,
         padding: widget.kind == MBtnKind.text
@@ -235,7 +236,12 @@ class _MButtonState extends State<MButton> {
     );
 
     return GestureDetector(
-      onTapDown: disabled ? null : (_) => setState(() => _down = true),
+      onTapDown: disabled
+          ? null
+          : (_) {
+              HapticFeedback.lightImpact();
+              setState(() => _down = true);
+            },
       onTapUp: disabled ? null : (_) => setState(() => _down = false),
       onTapCancel: disabled ? null : () => setState(() => _down = false),
       onTap: disabled ? null : widget.onTap,

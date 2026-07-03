@@ -50,6 +50,16 @@ dependencies:
   # calendar (.ics) files, and Terms/Privacy pages.
   url_launcher: ^6.3.0
 
+  # Reliable image loading + caching for event covers (fixes missing/janky
+  # images and speeds up the discover feed).
+  cached_network_image: ^3.4.1
+
+  # Live events map (OpenStreetMap tiles — no API key needed) + coordinates
+  # and "events near me" location.
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
+  geolocator: ^13.0.1
+
   # Deep links: open an event when an attendee taps an eventera.app/c/... link.
   app_links: ^6.3.0
 
@@ -92,6 +102,9 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  assets:
+    - assets/brand/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

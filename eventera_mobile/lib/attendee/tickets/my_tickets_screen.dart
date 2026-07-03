@@ -5,10 +5,10 @@ import '../../ui/components.dart';
 import '../../ui/tokens.dart';
 import '../auth/attendee_auth_screen.dart';
 import 'ticket_detail_screen.dart';
+import 'ticket_stub.dart';
 
-/// Lists the signed-in attendee's tickets (registrations matched by email or
-/// user_id). Requires sign-in; prompts otherwise. Tab root — no back button.
-/// Screen 12 (wallet).
+/// Wallet — the signed-in attendee's tickets (registrations matched by email or
+/// user_id), as tear-off wallet stubs. Upcoming / Past segmented. Tab root.
 class MyTicketsScreen extends StatefulWidget {
   const MyTicketsScreen({super.key});
 
@@ -27,6 +27,8 @@ class _Ticket {
   final DateTime? startsAt;
   final String? venue;
   final String? coverUrl;
+  final double? amount;
+  final String? currency;
 
   _Ticket({
     required this.id,
@@ -39,6 +41,8 @@ class _Ticket {
     required this.startsAt,
     required this.venue,
     required this.coverUrl,
+    required this.amount,
+    required this.currency,
   });
 }
 
@@ -77,19 +81,17 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
       final email = (currentUserEmail ?? '').toLowerCase();
       final uid = currentUserId ?? '';
 
-      // Match the web query: by attendee_email OR user_id.
       final orParts = <String>[];
       if (email.isNotEmpty) orParts.add('attendee_email.eq.$email');
       if (uid.isNotEmpty) orParts.add('user_id.eq.$uid');
-      // A signed-in user always has at least one of these; fall back defensively.
-      final orFilter = orParts.isEmpty
-          ? 'attendee_email.eq.__none__'
-          : orParts.join(',');
+      final orFilter =
+          orParts.isEmpty ? 'attendee_email.eq.__none__' : orParts.join(',');
 
       final rows = await supa
           .from('registrations')
           .select('''
             id, attendee_name, attendee_email, status, qr_code_token, created_at,
+            amount_paid, currency,
             ticket_types(name, price),
             events(id, name, slug, event_pages(title, cover_image_url, starts_at, ends_at, venue_name, city, is_online))
           ''')
@@ -99,7 +101,6 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
           .order('created_at', ascending: false);
 
       final tickets = asMapList(rows).map(_parse).toList();
-
       if (!mounted) return;
       setState(() {
         _tickets = tickets;
@@ -120,7 +121,6 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
     final Map<String, dynamic>? ev =
         event is Map ? Map<String, dynamic>.from(event) : null;
 
-    // event_pages may come back as a list (to-many join) or a single map.
     Map<String, dynamic>? page;
     final pages = ev?['event_pages'];
     if (pages is List && pages.isNotEmpty) {
@@ -144,9 +144,8 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
     return _Ticket(
       id: asString(j['id']),
       qrToken: asString(j['qr_code_token']),
-      attendeeName: j['attendee_name'] == null
-          ? null
-          : asString(j['attendee_name']),
+      attendeeName:
+          j['attendee_name'] == null ? null : asString(j['attendee_name']),
       status: asString(j['status'], 'confirmed'),
       ticketTypeName: ticket is Map
           ? asString(Map<String, dynamic>.from(ticket)['name'], 'Ticket')
@@ -158,6 +157,8 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
       coverUrl: page?['cover_image_url'] == null
           ? null
           : asString(page!['cover_image_url']),
+      amount: j['amount_paid'] == null ? null : asDouble(j['amount_paid']),
+      currency: j['currency'] == null ? null : asString(j['currency']),
     );
   }
 
@@ -170,7 +171,7 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
         actions: isSignedIn && !_loading && _error == null && _tickets.isNotEmpty
             ? [
                 SizedBox(
-                  width: 150,
+                  width: 152,
                   child: SegControl(
                     segments: const ['Upcoming', 'Past'],
                     index: _seg,
@@ -198,16 +199,8 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
       );
     }
     if (_loading) return const LoadingState();
-    if (_error != null) {
-      return ErrorStateView(message: _error!, onRetry: _load);
-    }
-    if (_tickets.isEmpty) {
-      return const EmptyState(
-        icon: Icons.confirmation_number_outlined,
-        title: 'No tickets yet',
-        message: 'Tickets you register for will appear here.',
-      );
-    }
+    if (_error != null) return ErrorStateView(message: _error!, onRetry: _load);
+    if (_tickets.isEmpty) return _emptyWallet();
 
     final now = DateTime.now();
     final upcoming = _tickets
@@ -224,7 +217,7 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
       child: shown.isEmpty
           ? ListView(
               children: [
-                SizedBox(height: MediaQuery.of(context).size.height * 0.22),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.2),
                 EmptyState(
                   icon: Icons.confirmation_number_outlined,
                   title: _seg == 0 ? 'Nothing upcoming' : 'No past tickets',
@@ -236,153 +229,61 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
             )
           : ListView(
               padding: const EdgeInsets.fromLTRB(
-                  AppSpace.lg, AppSpace.base, AppSpace.lg, AppSpace.base),
-              children: shown.map(_ticketCard).toList(),
+                  AppSpace.lg, AppSpace.base, AppSpace.lg, AppSpace.xxl),
+              children: [
+                for (final t in shown) ...[
+                  _stub(t),
+                  const SizedBox(height: 14),
+                ],
+              ],
             ),
     );
   }
 
-  Widget _ticketCard(_Ticket t) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
-      child: GestureDetector(
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => TicketDetailScreen(
-              registrationId: t.id,
-              qrToken: t.qrToken,
-              eventName: t.eventName,
-              eventSlug: t.eventSlug,
-              ticketType: t.ticketTypeName,
-              attendeeName: t.attendeeName,
-              status: t.status,
-              venue: t.venue,
-              startsAt: t.startsAt,
-            ),
-          ),
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(AppRadius.card),
-            border: Border.all(color: AppColors.border),
-            boxShadow: AppShadow.soft,
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Row: cover + info.
-              Padding(
-                padding: const EdgeInsets.all(13),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: SizedBox(
-                        width: 64,
-                        height: 64,
-                        child: (t.coverUrl != null && t.coverUrl!.isNotEmpty)
-                            ? Image.network(
-                                t.coverUrl!,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => PhotoPlaceholder(
-                                    hue: hueFromString(t.id)),
-                              )
-                            : PhotoPlaceholder(hue: hueFromString(t.id)),
-                      ),
-                    ),
-                    const SizedBox(width: 13),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(t.eventName,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: AppText.h3.copyWith(fontSize: 15)),
-                          if (t.startsAt != null) ...[
-                            const SizedBox(height: 4),
-                            Text(_formatDate(t.startsAt!),
-                                style: AppText.numSm.copyWith(
-                                    color: AppColors.inkMuted, fontSize: 11.5)),
-                          ],
-                          const SizedBox(height: 8),
-                          Tag(_statusLabel(t.status),
-                              kind: _statusKind(t.status), dot: true),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // Tear-off footer: "Show QR".
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
-                decoration: const BoxDecoration(
-                  color: Color(0xFFFBFAF6),
-                  border:
-                      Border(top: BorderSide(color: AppColors.border)),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      t.ticketTypeName != null && t.ticketTypeName!.isNotEmpty
-                          ? t.ticketTypeName!
-                          : 'Ticket',
-                      style: AppText.numSm.copyWith(
-                          color: AppColors.inkMuted, fontSize: 11),
-                    ),
-                    Row(
-                      children: [
-                        Text('Show QR',
-                            style: AppText.bodySm.copyWith(
-                                color: AppColors.forest,
-                                fontWeight: FontWeight.w600)),
-                        const SizedBox(width: 5),
-                        const Icon(Icons.chevron_right,
-                            size: 14, color: AppColors.forest),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+  Widget _emptyWallet() {
+    return EmptyState(
+      icon: Icons.confirmation_number_outlined,
+      title: 'No tickets yet',
+      message: 'Register for an event and your ticket will appear here.',
+      ctaLabel: 'Discover events',
+      onCta: () {
+        // Handled by the bottom tab; nudge the user.
+        showToast(context, 'Head to the Discover tab to find events.');
+      },
     );
   }
 
-  static String _statusLabel(String s) {
-    switch (s) {
-      case 'confirmed':
-        return 'Confirmed';
-      case 'checked_in':
-        return 'Checked in';
-      case 'pending':
-        return 'Payment pending';
-      case 'pending_approval':
-        return 'Awaiting approval';
-      default:
-        return s;
-    }
-  }
-
-  static TagKind _statusKind(String s) {
-    switch (s) {
-      case 'confirmed':
-        return TagKind.success;
-      case 'checked_in':
-        return TagKind.forest;
-      case 'pending':
-      case 'pending_approval':
-        return TagKind.warning;
-      default:
-        return TagKind.info;
-    }
+  Widget _stub(_Ticket t) {
+    final past = _seg == 1;
+    final when = t.startsAt != null ? _formatDate(t.startsAt!) : 'Date TBA';
+    return WalletTicketStub(
+      title: t.eventName,
+      coverUrl: t.coverUrl,
+      whenLine: when,
+      status: ticketStatusFrom(t.status),
+      typeLabel: (t.ticketTypeName != null && t.ticketTypeName!.isNotEmpty)
+          ? t.ticketTypeName!
+          : 'Ticket',
+      action: past ? 'Receipt' : 'Show QR',
+      past: past,
+      bg: AppColors.canvas,
+      onTap: () => Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => TicketDetailScreen(
+          registrationId: t.id,
+          qrToken: t.qrToken,
+          eventName: t.eventName,
+          eventSlug: t.eventSlug,
+          coverUrl: t.coverUrl,
+          ticketType: t.ticketTypeName,
+          attendeeName: t.attendeeName,
+          status: t.status,
+          venue: t.venue,
+          startsAt: t.startsAt,
+          amount: t.amount,
+          currency: t.currency,
+        ),
+      )),
+    );
   }
 
   static String _formatDate(DateTime d) {

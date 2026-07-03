@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../screens/my_cards_screen.dart';
 import '../ui/tokens.dart';
 import 'account/attendee_account_tab.dart';
 import 'discovery/discover_screen.dart';
 import 'tickets/my_tickets_screen.dart';
+
+/// Lets any screen jump the bottom tabs (e.g. the Discover header avatar →
+/// Account). 0 Discover · 1 Tickets · 2 Cards · 3 Account.
+final ValueNotifier<int> mainTab = ValueNotifier<int>(0);
 
 /// App-level navigation: 4 bottom tabs (Discover · Tickets · Cards · Account).
 class MainShell extends StatefulWidget {
@@ -16,7 +21,7 @@ class MainShell extends StatefulWidget {
 }
 
 class _MainShellState extends State<MainShell> {
-  late int _index = widget.initialIndex;
+  int _index = 0;
 
   final _pages = const [
     DiscoverScreen(),
@@ -26,14 +31,37 @@ class _MainShellState extends State<MainShell> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _index = widget.initialIndex;
+    mainTab.value = _index;
+    mainTab.addListener(_onTabRequested);
+  }
+
+  void _onTabRequested() {
+    if (mounted && mainTab.value != _index) {
+      setState(() => _index = mainTab.value);
+    }
+  }
+
+  @override
+  void dispose() {
+    mainTab.removeListener(_onTabRequested);
+    super.dispose();
+  }
+
+  void _select(int i) {
+    if (i != _index) HapticFeedback.selectionClick();
+    mainTab.value = i;
+    setState(() => _index = i);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.canvas,
       body: IndexedStack(index: _index, children: _pages),
-      bottomNavigationBar: _TabBar(
-        index: _index,
-        onTap: (i) => setState(() => _index = i),
-      ),
+      bottomNavigationBar: _TabBar(index: _index, onTap: _select),
     );
   }
 }

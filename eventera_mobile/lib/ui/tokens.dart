@@ -82,14 +82,16 @@ class AppSpace {
 
 /// Type scale. DM Sans (display), Inter (body), JetBrains Mono (numbers).
 class AppText {
+  // Headings — Plus Jakarta Sans (modern geometric sans).
   static TextStyle _dm(double size, FontWeight w,
           {double ls = -0.02, double? h, Color? c}) =>
-      GoogleFonts.dmSans(
+      GoogleFonts.plusJakartaSans(
           fontSize: size,
           fontWeight: w,
           letterSpacing: size * ls,
           height: h,
           color: c ?? AppColors.ink);
+  // Body — Inter.
   static TextStyle _inter(double size, FontWeight w,
           {double ls = 0, double? h, Color? c}) =>
       GoogleFonts.inter(
@@ -98,36 +100,40 @@ class AppText {
           letterSpacing: ls,
           height: h,
           color: c ?? AppColors.ink);
-  static TextStyle _mono(double size, FontWeight w, {Color? c}) =>
-      GoogleFonts.jetBrainsMono(
-          fontSize: size, fontWeight: w, color: c ?? AppColors.ink);
+  // Numbers/labels use Inter too — no monospace anywhere.
+  static TextStyle _num(double size, FontWeight w, {Color? c}) =>
+      GoogleFonts.inter(
+          fontSize: size,
+          fontWeight: w,
+          letterSpacing: 0,
+          color: c ?? AppColors.ink);
 
-  // Display / headings (DM Sans)
-  static TextStyle get h1 => _dm(27, FontWeight.w700, h: 1.08);
-  static TextStyle get h2 => _dm(21, FontWeight.w600);
-  static TextStyle get h3 => _dm(17, FontWeight.w600, ls: -0.01);
-  static TextStyle get title => _dm(17, FontWeight.w600); // app bar
-  static TextStyle get subhead => _dm(16, FontWeight.w500, ls: 0, h: 1.4);
-  static TextStyle get displayMd => _dm(24, FontWeight.w500, ls: -0.015);
+  // Display / headings (DM Sans) — mobile-first: larger + bolder hierarchy.
+  static TextStyle get h1 => _dm(30, FontWeight.w800, h: 1.05);
+  static TextStyle get h2 => _dm(23, FontWeight.w700);
+  static TextStyle get h3 => _dm(18, FontWeight.w700, ls: -0.01);
+  static TextStyle get title => _dm(18, FontWeight.w700); // app bar
+  static TextStyle get subhead => _dm(17, FontWeight.w500, ls: 0, h: 1.4);
+  static TextStyle get displayMd => _dm(26, FontWeight.w600, ls: -0.015);
 
-  // Body (Inter)
+  // Body (Inter) — 16px base reads native on phones (was web-sized 15).
   static TextStyle get body =>
-      _inter(15, FontWeight.w400, h: 1.55, c: AppColors.inkSoft);
-  static TextStyle get bodyStrong => _inter(15, FontWeight.w600);
+      _inter(16, FontWeight.w400, h: 1.55, c: AppColors.inkSoft);
+  static TextStyle get bodyStrong => _inter(16, FontWeight.w600);
   static TextStyle get bodySm =>
-      _inter(13.5, FontWeight.w400, h: 1.5, c: AppColors.inkSoft);
+      _inter(14, FontWeight.w400, h: 1.5, c: AppColors.inkSoft);
   static TextStyle get caption =>
-      _inter(12, FontWeight.w500, ls: 0.24, c: AppColors.inkMuted);
-  static TextStyle get seclab => _inter(11, FontWeight.w600,
-      ls: 0.99, c: AppColors.inkMuted); // uppercase section label
+      _inter(12.5, FontWeight.w500, ls: 0.24, c: AppColors.inkMuted);
+  static TextStyle get seclab => _inter(11.5, FontWeight.w700,
+      ls: 0.4, c: AppColors.inkMuted); // section label (subtle tracking)
   static TextStyle get label =>
-      _inter(13, FontWeight.w600, c: AppColors.inkSoft);
+      _inter(13.5, FontWeight.w600, c: AppColors.inkSoft);
 
-  // Numbers / mono
-  static TextStyle get numLg => _mono(28, FontWeight.w500);
-  static TextStyle get numMd => _mono(16, FontWeight.w400);
-  static TextStyle get numSm => _mono(13, FontWeight.w400);
-  static TextStyle get btn => _dm(15.5, FontWeight.w600, ls: -0.01);
+  // Numbers (Inter — no monospace)
+  static TextStyle get numLg => _num(32, FontWeight.w700);
+  static TextStyle get numMd => _num(16, FontWeight.w600);
+  static TextStyle get numSm => _num(13.5, FontWeight.w500);
+  static TextStyle get btn => _dm(16.5, FontWeight.w700, ls: -0.01);
 }
 
 /// App-wide ThemeData wired to the tokens.
@@ -145,5 +151,33 @@ ThemeData buildAppTheme() {
       displayColor: AppColors.ink,
     ),
     splashFactory: InkRipple.splashFactory,
+    // Native transitions: keep Flutter's platform defaults — the modern Zoom
+    // transition on Android (+ system back-swipe) and Cupertino slide on iOS.
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: ZoomPageTransitionsBuilder(),
+        TargetPlatform.iOS: ZoomPageTransitionsBuilder(),
+      },
+    ),
   );
+}
+
+/// App-wide scroll feel: momentum + rubber-band overscroll (like a real
+/// native app) instead of Android's default clamped glow.
+class AppScrollBehavior extends MaterialScrollBehavior {
+  const AppScrollBehavior();
+
+  @override
+  ScrollPhysics getScrollPhysics(BuildContext context) =>
+      const BouncingScrollPhysics(
+        parent: AlwaysScrollableScrollPhysics(),
+      );
+
+  @override
+  Widget buildOverscrollIndicator(
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) =>
+      child; // bounce replaces the glow indicator
 }

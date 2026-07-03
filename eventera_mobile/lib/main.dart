@@ -30,6 +30,7 @@ class EventeraApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       navigatorKey: appNavigatorKey,
       theme: buildAppTheme(),
+      scrollBehavior: const AppScrollBehavior(),
       home: DeepLinkHandler(
         navigatorKey: appNavigatorKey,
         child: const RootGate(),
