@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../net.dart';
 import '../../ui/tokens.dart';
 import '../../ui/components.dart';
+import '../event_landing_screen.dart';
 
 /// The signed-in attendee's saved / bookmarked events.
 ///
@@ -46,7 +47,7 @@ class _SavedEventsScreenState extends State<SavedEventsScreen> {
       final rows = await supa
           .from('saved_events')
           .select(
-              'id, event_page_id, created_at, event_pages(id, title, cover_image_url, starts_at, ends_at, venue_name, city, is_online)')
+              'id, event_page_id, created_at, event_pages(id, title, custom_slug, cover_image_url, starts_at, ends_at, venue_name, city, is_online, events(slug))')
           .eq('user_id', currentUserId as Object)
           .order('created_at', ascending: false);
       if (!mounted) return;
@@ -127,8 +128,17 @@ class _SavedEventsScreenState extends State<SavedEventsScreen> {
     );
   }
 
+  void _open(_Saved s) {
+    final slug = s.slug;
+    if (slug.isEmpty) return;
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => EventLandingScreen(slug: slug)),
+    );
+  }
+
   Widget _tile(_Saved s) {
     return MCard(
+      onTap: s.slug.isEmpty ? null : () => _open(s),
       padding: const EdgeInsets.all(13),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -196,6 +206,7 @@ class _SavedEventsScreenState extends State<SavedEventsScreen> {
 class _Saved {
   final String id; // saved_events row id
   final String title;
+  final String slug; // custom_slug ?? events.slug (for opening the page)
   final String? coverUrl;
   final DateTime? startsAt;
   final DateTime? endsAt;
@@ -205,6 +216,7 @@ class _Saved {
   _Saved({
     required this.id,
     required this.title,
+    required this.slug,
     required this.coverUrl,
     required this.startsAt,
     required this.endsAt,
@@ -226,9 +238,16 @@ class _Saved {
     } else {
       location = venue;
     }
+    // Prefer the page's custom_slug; fall back to the linked event's slug.
+    final custom = asString(page['custom_slug']).trim();
+    final ev = page['events'];
+    final evMap =
+        (ev is Map) ? Map<String, dynamic>.from(ev) : <String, dynamic>{};
+    final eventSlug = asString(evMap['slug']).trim();
     return _Saved(
       id: asString(r['id']),
       title: asString(page['title'], 'Event'),
+      slug: custom.isNotEmpty ? custom : eventSlug,
       coverUrl: page['cover_image_url'] == null
           ? null
           : asString(page['cover_image_url']),

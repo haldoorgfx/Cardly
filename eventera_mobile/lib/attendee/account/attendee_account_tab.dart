@@ -19,12 +19,42 @@ class AttendeeAccountTab extends StatefulWidget {
 }
 
 class _AttendeeAccountTabState extends State<AttendeeAccountTab> {
+  int _unread = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUnread();
+  }
+
+  Future<void> _loadUnread() async {
+    if (!isSignedIn) {
+      if (mounted && _unread != 0) setState(() => _unread = 0);
+      return;
+    }
+    try {
+      final rows = await supa
+          .from('notifications')
+          .select('id')
+          .eq('user_id', currentUserId!)
+          .isFilter('read_at', null);
+      if (!mounted) return;
+      setState(() => _unread = (rows as List).length);
+    } catch (_) {
+      // Non-fatal: just don't show a badge.
+    }
+  }
+
   void _auth() => Navigator.of(context)
       .push(MaterialPageRoute(builder: (_) => const AttendeeAuthScreen()))
-      .then((_) => setState(() {}));
+      .then((_) {
+        setState(() {});
+        _loadUnread();
+      });
 
-  void _push(Widget w) =>
-      Navigator.of(context).push(MaterialPageRoute(builder: (_) => w));
+  void _push(Widget w) => Navigator.of(context)
+      .push(MaterialPageRoute(builder: (_) => w))
+      .then((_) => _loadUnread());
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +116,8 @@ class _AttendeeAccountTabState extends State<AttendeeAccountTab> {
                     () => _push(FollowingScreen(onSignInTap: _auth))),
                 _div(),
                 _row(Icons.notifications_none, 'Notifications',
-                    () => _push(NotificationsScreen(onSignInTap: _auth))),
+                    () => _push(NotificationsScreen(onSignInTap: _auth)),
+                    badge: _unread),
                 _div(),
                 _row(Icons.settings_outlined, 'Profile & settings',
                     () => _push(AttendeeProfileScreen(onSignInTap: _auth))),
@@ -100,7 +131,8 @@ class _AttendeeAccountTabState extends State<AttendeeAccountTab> {
 
   Widget _div() => const Divider(height: 1, color: AppColors.border, indent: 52);
 
-  Widget _row(IconData icon, String label, VoidCallback onTap) {
+  Widget _row(IconData icon, String label, VoidCallback onTap,
+      {int badge = 0}) {
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -112,6 +144,26 @@ class _AttendeeAccountTabState extends State<AttendeeAccountTab> {
             Expanded(
                 child: Text(label,
                     style: AppText.h3.copyWith(fontSize: 15.5))),
+            if (badge > 0) ...[
+              Container(
+                constraints: const BoxConstraints(minWidth: 20),
+                height: 20,
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                decoration: BoxDecoration(
+                  color: AppColors.danger,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  badge > 99 ? '99+' : '$badge',
+                  style: AppText.caption.copyWith(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700),
+                ),
+              ),
+              const SizedBox(width: 8),
+            ],
             const Icon(Icons.chevron_right, color: AppColors.inkMuted, size: 18),
           ],
         ),

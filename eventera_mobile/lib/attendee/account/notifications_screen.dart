@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import '../../net.dart';
 import '../../ui/tokens.dart';
 import '../../ui/components.dart';
+import '../../screens/open_event_screen.dart';
+import '../event_landing_screen.dart';
+import '../tickets/my_tickets_screen.dart';
 
 /// The signed-in attendee's notification inbox.
 ///
@@ -83,6 +86,41 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       if (!mounted) return;
       setState(() => n.read = false);
     }
+  }
+
+  Future<void> _onTap(_Notif n) async {
+    await _markRead(n);
+    if (!mounted) return;
+    final url = n.actionUrl.trim();
+    if (url.isEmpty) return;
+
+    Widget? dest;
+    if (url.contains('/e/')) {
+      final slug = _slugAfter(url, '/e/');
+      if (slug.isNotEmpty) dest = EventLandingScreen(slug: slug);
+    } else if (url.contains('/c/')) {
+      final slug = _slugAfter(url, '/c/');
+      if (slug.isNotEmpty) dest = OpenEventScreen(slug: slug);
+    } else if (url.contains('my-tickets')) {
+      dest = const MyTicketsScreen();
+    }
+
+    if (dest != null) {
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => dest!));
+    }
+  }
+
+  // Returns the path segment right after [marker], stripped of any query
+  // string, trailing slash, or further path.
+  String _slugAfter(String url, String marker) {
+    final idx = url.indexOf(marker);
+    if (idx < 0) return '';
+    var rest = url.substring(idx + marker.length);
+    for (final sep in ['/', '?', '#']) {
+      final s = rest.indexOf(sep);
+      if (s >= 0) rest = rest.substring(0, s);
+    }
+    return rest.trim();
   }
 
   Future<void> _markAllRead() async {
@@ -170,7 +208,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget _tile(_Notif n) {
     final style = _styleFor(n.type);
     return InkWell(
-      onTap: () => _markRead(n),
+      onTap: () => _onTap(n),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 14),
         child: Row(
@@ -288,6 +326,7 @@ class _Notif {
   final String title;
   final String body;
   final String time;
+  final String actionUrl;
   bool read;
 
   _Notif({
@@ -296,6 +335,7 @@ class _Notif {
     required this.title,
     required this.body,
     required this.time,
+    required this.actionUrl,
     required this.read,
   });
 
@@ -306,6 +346,7 @@ class _Notif {
       title: asString(r['title'], 'Notification'),
       body: asString(r['body']).trim(),
       time: _RelTime.format(asDate(r['created_at'])),
+      actionUrl: asString(r['action_url']),
       read: r['read_at'] != null,
     );
   }

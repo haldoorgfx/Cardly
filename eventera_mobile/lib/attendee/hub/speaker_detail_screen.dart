@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../net.dart';
 import '../../ui/components.dart';
@@ -109,6 +110,7 @@ class _SpeakerDetailScreenState extends State<SpeakerDetailScreen> {
     final linkedin = asString(s['linkedin_url']).trim();
     final twitter = asString(s['twitter_url']).trim();
     final website = asString(s['website_url']).trim();
+    final email = asString(s['email'] ?? s['contact_email']).trim();
 
     final roleLine = [role, company].where((e) => e.isNotEmpty).join(' · ');
 
@@ -176,7 +178,8 @@ class _SpeakerDetailScreenState extends State<SpeakerDetailScreen> {
                 ],
                 if (linkedin.isNotEmpty ||
                     twitter.isNotEmpty ||
-                    website.isNotEmpty) ...[
+                    website.isNotEmpty ||
+                    email.isNotEmpty) ...[
                   Row(
                     children: [
                       if (linkedin.isNotEmpty)
@@ -191,6 +194,10 @@ class _SpeakerDetailScreenState extends State<SpeakerDetailScreen> {
                         _SocialButton(
                             icon: Icons.language,
                             onTap: () => _open(context, website)),
+                      if (email.isNotEmpty)
+                        _SocialButton(
+                            icon: Icons.mail_outline,
+                            onTap: () => _openEmail(context, email)),
                     ],
                   ),
                   const SizedBox(height: 18),
@@ -208,7 +215,29 @@ class _SpeakerDetailScreenState extends State<SpeakerDetailScreen> {
     );
   }
 
-  void _open(BuildContext context, String url) => showToast(context, url);
+  Future<void> _open(BuildContext context, String url) async {
+    final uri = Uri.tryParse(url);
+    if (uri == null) {
+      showToast(context, 'Could not open link');
+      return;
+    }
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      if (!context.mounted) return;
+      showToast(context, 'Could not open link');
+    }
+  }
+
+  Future<void> _openEmail(BuildContext context, String email) async {
+    final uri = Uri(scheme: 'mailto', path: email);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      if (!context.mounted) return;
+      showToast(context, 'Could not open link');
+    }
+  }
 }
 
 class _GlassBack extends StatelessWidget {

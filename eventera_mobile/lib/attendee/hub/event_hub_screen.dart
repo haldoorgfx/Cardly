@@ -1,13 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../net.dart';
+import '../../screens/open_event_screen.dart';
 import '../../ui/components.dart';
 import '../../ui/tokens.dart';
+import '../auth/attendee_auth_screen.dart';
+import '../engage/agenda_screen.dart';
 import '../engage/feedback_screen.dart';
 import '../engage/leaderboard_screen.dart';
 import '../engage/polls_screen.dart';
 import '../engage/qa_screen.dart';
+import '../event_context.dart';
+import '../network/messages_screen.dart';
 import '../network/people_screen.dart';
+import '../network/speed_networking_screen.dart';
+import '../organizer/organizer_profile_screen.dart';
+import '../community/community_chat_screen.dart';
+import '../engage/cfp_screen.dart';
 import '../reg_store.dart';
 import 'event_page_model.dart';
 import 'session_detail_screen.dart';
@@ -49,6 +60,12 @@ class _EventHubScreenState extends State<EventHubScreen> {
   final List<SponsorSummary> _sponsors = [];
   final List<AttendeeAvatar> _attendees = [];
   String? _regId;
+
+  bool _saved = false;
+  bool _following = false;
+  String? _organizerId;
+  bool _savingBusy = false;
+  bool _followBusy = false;
 
   int _section = 0; // SegNav index (Overview)
   bool _aboutExpanded = false;
@@ -94,10 +111,27 @@ class _EventHubScreenState extends State<EventHubScreen> {
       }
 
       final reg = await RegStore.instance.get(widget.slug);
+      final regId = reg?.registrationId;
+
+      // Set the shared event context so detail/engagement screens can read the
+      // registration id without threading it through every constructor.
+      if (eventId != null) {
+        EventContext.current = EventContext(
+          eventId: eventId,
+          slug: widget.slug,
+          eventName: page.title,
+          registrationId: regId,
+        );
+      }
+
+      // Account state (only when signed in): whether this event is saved and
+      // whether the attendee follows the organizer.
+      await _loadAccountState(page, eventId);
+
       if (!mounted) return;
       setState(() {
         _page = page;
-        _regId = reg?.registrationId;
+        _regId = regId;
         _navSections = _buildNav(page);
         _loading = false;
       });
@@ -256,16 +290,188 @@ class _EventHubScreenState extends State<EventHubScreen> {
     }
   }
 
-  void _handleSave() {
-    if (!isSignedIn) {
-      showToast(context, 'Sign in to save this event.');
+  /// Reads the initial saved / following state for the signed-in user.
+  Future<void> _loadAccountState(EventPageModel page, String? eventId) async {
+    if (!isSignedIn) return;
+    try {
+      final saved = await supa
+          .from('saved_events')
+          .select('id')
+          .eq('user_id', currentUserId!)
+          .eq('event_page_id', page.id);
+      _saved = (saved as List).isNotEmpty;
+    } catch (_) {
+      // non-fatal — leave _saved as-is
+    }
+    if (eventId != null) {
+      try {
+        final org = await supa
+            .from('events')
+            .select('user_id')
+            .eq('id', eventId)
+            .maybeSingle();
+        _organizerId =
+            org == null ? null : (asString(org['user_id']).isEmpty ? null : asString(org['user_id']));
+        if (_organizerId != null) {
+          final follows = await supa
+              .from('organizer_follows')
+              .select('id')
+              .eq('follower_id', currentUserId!)
+              .eq('organizer_id', _organizerId!);
+          _following = (follows as List).isNotEmpty;
+        }
+      } catch (_) {
+        // non-fatal
+      }
+    }
+  }
+
+  /// Ensures the user is signed in, pushing the auth screen if not.
+  /// Returns true if signed in (either already or after auth).
+  Future<bool> _ensureSignedIn() async {
+    if (isSignedIn) return true;
+    final ok = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => const AttendeeAuthScreen()),
+    );
+    return ok == true && isSignedIn;
+  }
+
+  Future<void> _handleSave() async {
+    if (_savingBusy) return;
+    if (!await _ensureSignedIn()) return;
+    if (!mounted) return;
+    final page = _page;
+    if (page == null) return;
+
+    _savingBusy = true;
+    final wasSaved = _saved;
+    try {
+      if (wasSaved) {
+        await supa
+            .from('saved_events')
+            .delete()
+            .eq('user_id', currentUserId!)
+            .eq('event_page_id', page.id);
+      } else {
+        await supa.from('saved_events').insert({
+          'user_id': currentUserId!,
+          'event_page_id': page.id,
+        });
+      }
+      if (!mounted) return;
+      setState(() => _saved = !wasSaved);
+      showToast(context, wasSaved ? 'Removed' : 'Saved');
+    } catch (e) {
+      if (mounted) showToast(context, 'Could not update saved events.');
+    } finally {
+      _savingBusy = false;
+    }
+  }
+
+  Future<void> _handleFollow() async {
+    if (_followBusy) return;
+    if (!await _ensureSignedIn()) return;
+    if (!mounted) return;
+
+    // Resolve organizer id lazily if we didn't have it (e.g. signed in just now).
+    if (_organizerId == null) {
+      final eventId = _page?.eventId;
+      if (eventId != null) {
+        try {
+          final org = await supa
+              .from('events')
+              .select('user_id')
+              .eq('id', eventId)
+              .maybeSingle();
+          if (org != null && asString(org['user_id']).isNotEmpty) {
+            _organizerId = asString(org['user_id']);
+          }
+        } catch (_) {}
+      }
+    }
+    final organizerId = _organizerId;
+    if (organizerId == null) {
+      if (mounted) showToast(context, 'Organizer is unavailable.');
       return;
     }
-    if (widget.onSave != null) {
-      widget.onSave!();
-    } else {
-      showToast(context, 'Saved.');
+
+    _followBusy = true;
+    final wasFollowing = _following;
+    try {
+      if (wasFollowing) {
+        await supa
+            .from('organizer_follows')
+            .delete()
+            .eq('follower_id', currentUserId!)
+            .eq('organizer_id', organizerId);
+      } else {
+        await supa.from('organizer_follows').insert({
+          'follower_id': currentUserId!,
+          'organizer_id': organizerId,
+          'notify_new_events': true,
+        });
+      }
+      if (!mounted) return;
+      setState(() => _following = !wasFollowing);
+      showToast(context, wasFollowing ? 'Unfollowed' : 'Following');
+    } catch (e) {
+      if (mounted) showToast(context, 'Could not update follow.');
+    } finally {
+      _followBusy = false;
     }
+  }
+
+  Future<void> _openOrganizerProfile() async {
+    // Resolve the organizer id lazily if we don't have it yet.
+    if (_organizerId == null) {
+      final eventId = _page?.eventId;
+      if (eventId != null) {
+        try {
+          final org = await supa
+              .from('events')
+              .select('user_id')
+              .eq('id', eventId)
+              .maybeSingle();
+          if (org != null && asString(org['user_id']).isNotEmpty) {
+            _organizerId = asString(org['user_id']);
+          }
+        } catch (_) {}
+      }
+    }
+    final organizerId = _organizerId;
+    if (organizerId == null) {
+      if (mounted) showToast(context, 'Organizer profile is unavailable.');
+      return;
+    }
+    if (!mounted) return;
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => OrganizerProfileScreen(
+        organizerId: organizerId,
+        initialName: _page?.organizerName,
+      ),
+    ));
+  }
+
+  Future<void> _handleShare() async {
+    final page = _page;
+    final slug = (page?.customSlug ?? '').isNotEmpty
+        ? page!.customSlug!
+        : widget.slug;
+    final link = 'https://eventera.app/e/$slug';
+    try {
+      await Clipboard.setData(ClipboardData(text: link));
+      await Share.share(link);
+      if (mounted) showToast(context, 'Link copied');
+    } catch (e) {
+      if (mounted) showToast(context, 'Could not share link.');
+    }
+  }
+
+  void _openPersonalize() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => OpenEventScreen(slug: widget.slug)),
+    );
   }
 
   void _push(Widget screen) {
@@ -305,14 +511,27 @@ class _EventHubScreenState extends State<EventHubScreen> {
               child: Text('More sections', style: AppText.h3),
             ),
             const SizedBox(height: 4),
+            _moreRow(Icons.event_note, 'My agenda',
+                () => AgendaScreen(
+                    eventId: id, slug: widget.slug, registrationId: _regId)),
             _moreRow(Icons.forum_outlined, 'Live Q&A',
                 () => QaScreen(eventId: id, registrationId: _regId)),
             _moreRow(Icons.bar_chart_rounded, 'Polls & results',
                 () => PollsScreen(eventId: id, registrationId: _regId)),
+            _moreRow(Icons.chat_bubble_outline, 'Messages',
+                () => MessagesScreen(eventId: id, registrationId: _regId)),
             _moreRow(Icons.emoji_events_outlined, 'Leaderboard',
                 () => LeaderboardScreen(eventId: id)),
             _moreRow(Icons.rate_review_outlined, 'Feedback',
                 () => FeedbackScreen(eventId: id, registrationId: _regId)),
+            _moreRow(Icons.tag, 'Community',
+                () => CommunityChatScreen(
+                    eventId: id, registrationId: _regId)),
+            _moreRow(Icons.bolt_outlined, 'Speed networking',
+                () => SpeedNetworkingScreen(
+                    eventId: id, registrationId: _regId)),
+            _moreRow(Icons.description_outlined, 'Call for papers',
+                () => CfpScreen(eventId: id, slug: widget.slug)),
           ],
         ),
       ),
@@ -376,8 +595,10 @@ class _EventHubScreenState extends State<EventHubScreen> {
               if (showHero)
                 _HeroSliver(
                   page: page,
+                  saved: _saved,
                   onBack: () => Navigator.of(context).maybePop(),
                   onSave: _handleSave,
+                  onShare: _handleShare,
                 )
               else
                 SliverAppBar(
@@ -482,7 +703,9 @@ class _EventHubScreenState extends State<EventHubScreen> {
       w.add(_OrganizerCard(
         name: page.organizerName!,
         avatarUrl: page.organizerAvatarUrl,
-        onFollow: () => showToast(context, 'Following ${page.organizerName}'),
+        following: _following,
+        onFollow: _handleFollow,
+        onOpenProfile: _openOrganizerProfile,
       ));
     }
 
@@ -554,7 +777,7 @@ class _EventHubScreenState extends State<EventHubScreen> {
       'Make your card',
       kind: MBtnKind.sec,
       icon: Icons.badge_outlined,
-      onTap: _handleRegister,
+      onTap: _openPersonalize,
     ));
 
     return w;
@@ -726,12 +949,16 @@ extension _SectionLabelX on _Section {
 
 class _HeroSliver extends StatelessWidget {
   final EventPageModel page;
+  final bool saved;
   final VoidCallback onBack;
   final VoidCallback onSave;
+  final VoidCallback onShare;
   const _HeroSliver({
     required this.page,
+    required this.saved,
     required this.onBack,
     required this.onSave,
+    required this.onShare,
   });
 
   @override
@@ -768,11 +995,11 @@ class _HeroSliver extends StatelessWidget {
                 children: [
                   _GlassAction(icon: Icons.arrow_back, onTap: onBack),
                   const Spacer(),
-                  _GlassAction(icon: Icons.bookmark_border, onTap: onSave),
-                  const SizedBox(width: 8),
                   _GlassAction(
-                      icon: Icons.ios_share,
-                      onTap: () => showToast(context, 'Share link copied')),
+                      icon: saved ? Icons.bookmark : Icons.bookmark_border,
+                      onTap: onSave),
+                  const SizedBox(width: 8),
+                  _GlassAction(icon: Icons.ios_share, onTap: onShare),
                 ],
               ),
             ),
@@ -871,28 +1098,46 @@ class _InfoRow extends StatelessWidget {
 class _OrganizerCard extends StatelessWidget {
   final String name;
   final String? avatarUrl;
+  final bool following;
   final VoidCallback onFollow;
+  final VoidCallback? onOpenProfile;
   const _OrganizerCard(
-      {required this.name, required this.avatarUrl, required this.onFollow});
+      {required this.name,
+      required this.avatarUrl,
+      required this.following,
+      required this.onFollow,
+      this.onOpenProfile});
   @override
   Widget build(BuildContext context) {
     return MCard(
       padding: const EdgeInsets.all(12),
       child: Row(
         children: [
-          Avatar(name: name, imageUrl: avatarUrl, size: 40),
-          const SizedBox(width: 11),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(name, style: AppText.h3.copyWith(fontSize: 14)),
-                const SizedBox(height: 1),
-                Text('Organizer', style: AppText.caption.copyWith(fontSize: 11.5)),
-              ],
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: onOpenProfile,
+              child: Row(
+                children: [
+                  Avatar(name: name, imageUrl: avatarUrl, size: 40),
+                  const SizedBox(width: 11),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(name, style: AppText.h3.copyWith(fontSize: 14)),
+                        const SizedBox(height: 1),
+                        Text('View profile',
+                            style: AppText.caption.copyWith(
+                                fontSize: 11.5, color: AppColors.forest)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          MButton('Follow',
+          MButton(following ? 'Following' : 'Follow',
               kind: MBtnKind.sec, small: true, fullWidth: false, onTap: onFollow),
         ],
       ),

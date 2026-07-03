@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../app_config.dart';
+import '../../ics_export.dart';
+import '../../screens/open_event_screen.dart';
 import '../../ui/components.dart';
 import '../../ui/tokens.dart';
 
@@ -10,17 +12,30 @@ import '../../ui/tokens.dart';
 class ConfirmScreen extends StatelessWidget {
   final String qrToken;
   final String eventName;
+
+  /// The event's public slug — used to open the card flow ("Make your card").
+  final String slug;
   final String? attendeeName;
   final String? ticketType;
   final String? cardEventSlug;
+
+  /// Event timing/venue, used for the "Add to calendar" export. All optional —
+  /// the export defaults gracefully when a start date is missing.
+  final DateTime? eventStart;
+  final DateTime? eventEnd;
+  final String? venue;
 
   const ConfirmScreen({
     super.key,
     required this.qrToken,
     required this.eventName,
+    required this.slug,
     this.attendeeName,
     this.ticketType,
     this.cardEventSlug,
+    this.eventStart,
+    this.eventEnd,
+    this.venue,
   });
 
   /// The web QR encodes the check-in URL, not the bare token, so scans work in
@@ -40,6 +55,22 @@ class ConfirmScreen extends StatelessWidget {
     final a = t.length >= 4 ? t.substring(0, 4) : t;
     final b = t.length >= 8 ? t.substring(4, 8) : '';
     return b.isEmpty ? 'TKT-$a' : 'TKT-$a-$b';
+  }
+
+  Future<void> _addToCalendar(BuildContext context) async {
+    try {
+      await exportEventToCalendar(
+        title: eventName,
+        start: eventStart,
+        end: eventEnd,
+        location: (venue != null && venue!.trim().isNotEmpty) ? venue : null,
+        description: 'Your ticket for $eventName. — Eventera',
+      );
+    } catch (_) {
+      if (context.mounted) {
+        showToast(context, "Couldn't open calendar export. Please try again.");
+      }
+    }
   }
 
   @override
@@ -138,14 +169,18 @@ class ConfirmScreen extends StatelessWidget {
               _DarkGhostButton(
                 icon: Icons.calendar_today_outlined,
                 label: 'Add to calendar',
-                onTap: () => showToast(context, 'Calendar export coming soon.'),
+                onTap: () => _addToCalendar(context),
               ),
               const SizedBox(height: 11),
               if (cardEventSlug != null && cardEventSlug!.isNotEmpty) ...[
                 MButton(
                   'Make your card',
                   kind: MBtnKind.gold,
-                  onTap: () => Navigator.of(context).pop(),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => OpenEventScreen(slug: cardEventSlug!),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
               ],

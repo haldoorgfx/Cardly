@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../net.dart';
 import '../../ui/tokens.dart';
 import '../../ui/components.dart';
+import '../organizer/organizer_profile_screen.dart';
 
 /// Organizers the signed-in attendee follows.
 ///
@@ -140,8 +141,16 @@ class _FollowingScreenState extends State<FollowingScreen> {
     );
   }
 
+  void _openProfile(_Follow f) {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => OrganizerProfileScreen(
+          organizerId: f.organizerId, initialName: f.name),
+    ));
+  }
+
   Widget _tile(_Follow f) {
     return ListRow(
+      onTap: () => _openProfile(f),
       leading: Avatar(name: f.name, imageUrl: f.avatarUrl, size: 48),
       title: Text(f.name, maxLines: 1, overflow: TextOverflow.ellipsis),
       subtitle: Text(f.notify ? 'New-event alerts on' : 'New-event alerts off'),
@@ -175,12 +184,14 @@ class _FollowingScreenState extends State<FollowingScreen> {
 
 class _Follow {
   final String id; // organizer_follows row id
+  final String organizerId;
   final String name;
   final String? avatarUrl;
   bool notify;
 
   _Follow({
     required this.id,
+    required this.organizerId,
     required this.name,
     required this.avatarUrl,
     required this.notify,
@@ -194,6 +205,7 @@ class _Follow {
     if (name.isEmpty) name = 'Organizer';
     return _Follow(
       id: asString(r['id']),
+      organizerId: asString(r['organizer_id']),
       name: name,
       avatarUrl: prof['avatar_url'] == null
           ? null

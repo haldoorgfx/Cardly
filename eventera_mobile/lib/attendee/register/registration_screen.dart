@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 import '../../net.dart';
 import '../../ui/components.dart';
 import '../../ui/tokens.dart';
+import '../event_context.dart';
 import '../reg_store.dart';
 import 'confirm_screen.dart';
+import 'waafipay_payment_screen.dart';
+import 'waitlist_screen.dart';
 
 /// Attendee registration for a single event. Loads visible ticket types and any
 /// organizer-defined custom form fields, collects name/email/phone, applies a
@@ -141,6 +144,24 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       if (t.id == _selectedTicketId) return t;
     }
     return null;
+  }
+
+  bool get _allSoldOut =>
+      _tickets.isNotEmpty && _tickets.every((t) => t.soldOut);
+
+  void _openWaitlist() {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => WaitlistScreen(
+        slug: widget.slug,
+        eventName: widget.eventName,
+        prefillName: _nameCtrl.text.trim().isEmpty
+            ? null
+            : _nameCtrl.text.trim(),
+        prefillEmail: _emailCtrl.text.trim().isEmpty
+            ? null
+            : _emailCtrl.text.trim(),
+      ),
+    ));
   }
 
   double get _basePrice {
@@ -301,6 +322,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         'chosen_price': double.tryParse(_pwywCtrl.text.trim()) ?? 0,
       if (_promoApplied && _promoCtrl.text.trim().isNotEmpty)
         'promo_code': _promoCtrl.text.trim(),
+      // Prefer mobile money (WaafiPay) when the organizer has it enabled.
+      // The server falls back to its own routing if not available.
+      'preferred_processor': 'waafipay',
     };
 
     try {
@@ -312,6 +336,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       final qrToken = map['qr_code_token'] == null
           ? null
           : asString(map['qr_code_token']);
+
+      // Unlock engagement features immediately for this session. The durable
+      // source of truth stays RegStore (below) + the registrations table.
+      if (regId.isNotEmpty) {
+        EventContext.current?.registrationId = regId;
+      }
 
       // Save the registration for engagement features keyed by slug.
       if (regId.isNotEmpty) {
@@ -327,11 +357,30 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       }
 
       final paymentRequired = asBool(map['payment_required']);
+      final processor = asString(map['payment_processor']);
       final redirectUrl = map['redirect_url'] == null
           ? null
           : asString(map['redirect_url']);
 
       if (!mounted) return;
+
+      // Mobile money (WaafiPay) — collect the phone number and charge inline.
+      if (paymentRequired && processor == 'waafipay') {
+        setState(() => _submitting = false);
+        final paid = await Navigator.of(context).push<bool>(
+          MaterialPageRoute(
+            builder: (_) => WaafiPayPaymentScreen(
+              registrationId: regId,
+              amount: asDouble(map['amount']),
+              currency: asString(map['currency'], ticket.currency),
+              ticketName: asString(map['ticket_name'], ticket.name),
+              eventName: widget.eventName,
+            ),
+          ),
+        );
+        if (paid == true && mounted) _goToConfirm(qrToken, ticket.name);
+        return;
+      }
 
       if (paymentRequired && redirectUrl != null && redirectUrl.isNotEmpty) {
         // Card-based redirect flow (Flutterwave). We don't bundle url_launcher,
@@ -344,27 +393,18 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       }
 
       if (paymentRequired) {
-        // Stripe / WaafiPay in-app payment isn't implemented in this module.
+        // Card (Stripe) in-app payment isn't implemented in this module yet.
         setState(() {
           _submitting = false;
           _submitError =
-              'This ticket needs payment, which isn’t available in the app '
-              'yet. Please complete registration on the web.';
+              'This ticket needs card payment, which isn’t available in the '
+              'app yet. Please complete registration on the web.';
         });
         return;
       }
 
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => ConfirmScreen(
-            qrToken: qrToken ?? '',
-            eventName: widget.eventName,
-            attendeeName: _nameCtrl.text.trim(),
-            ticketType: ticket.name,
-            cardEventSlug: widget.slug,
-          ),
-        ),
-      );
+      _goToConfirm(qrToken, ticket.name);
+      return;
     } on ApiException catch (e) {
       if (mounted) {
         setState(() {
@@ -372,6 +412,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           _submitError = e.message;
         });
       }
+      return;
     } catch (_) {
       if (mounted) {
         setState(() {
@@ -379,7 +420,23 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           _submitError = 'Something went wrong. Please try again.';
         });
       }
+      return;
     }
+  }
+
+  void _goToConfirm(String? qrToken, String ticketName) {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => ConfirmScreen(
+          qrToken: qrToken ?? '',
+          eventName: widget.eventName,
+          slug: widget.slug,
+          attendeeName: _nameCtrl.text.trim(),
+          ticketType: ticketName,
+          cardEventSlug: widget.slug,
+        ),
+      ),
+    );
   }
 
   // ── Build ──────────────────────────────────────────────────────────
@@ -506,7 +563,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (t != null) ...[
+              if (t != null && !_allSoldOut) ...[
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -529,12 +586,20 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 ),
                 const SizedBox(height: 12),
               ],
-              MButton(
-                base > 0 ? 'Continue' : 'Complete registration',
-                kind: MBtnKind.forest,
-                loading: _submitting,
-                onTap: _submitting ? null : _submit,
-              ),
+              if (_allSoldOut)
+                MButton(
+                  'Join the waitlist',
+                  kind: MBtnKind.forest,
+                  icon: Icons.notifications_active_outlined,
+                  onTap: _openWaitlist,
+                )
+              else
+                MButton(
+                  base > 0 ? 'Continue' : 'Complete registration',
+                  kind: MBtnKind.forest,
+                  loading: _submitting,
+                  onTap: _submitting ? null : _submit,
+                ),
             ],
           ),
         ),
@@ -552,8 +617,17 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
     Widget? sub;
     if (t.soldOut) {
-      sub = Text('Sold out',
-          style: AppText.bodySm.copyWith(color: AppColors.inkMuted));
+      sub = Text.rich(TextSpan(
+        style: AppText.bodySm.copyWith(color: AppColors.inkMuted),
+        children: [
+          const TextSpan(text: 'Sold out · '),
+          TextSpan(
+            text: 'Join waitlist',
+            style: AppText.bodySm.copyWith(
+                color: AppColors.forest, fontWeight: FontWeight.w600),
+          ),
+        ],
+      ));
     } else {
       final desc = (t.description != null && t.description!.isNotEmpty)
           ? t.description!
@@ -585,7 +659,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         opacity: t.soldOut ? 0.55 : 1,
         child: GestureDetector(
           onTap: t.soldOut
-              ? null
+              ? _openWaitlist
               : () => setState(() {
                     _selectedTicketId = t.id;
                     _promoApplied = false;

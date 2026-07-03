@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app_config.dart';
+import '../../ics_export.dart';
 import '../../net.dart';
 import '../../ui/components.dart';
 import '../../ui/tokens.dart';
@@ -54,6 +55,21 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
     final a = t.length >= 4 ? t.substring(0, 4) : t;
     final b = t.length >= 8 ? t.substring(4, 8) : '';
     return b.isEmpty ? 'TKT-$a' : 'TKT-$a-$b';
+  }
+
+  Future<void> _addToCalendar() async {
+    try {
+      await exportEventToCalendar(
+        title: widget.eventName,
+        start: widget.startsAt,
+        location: widget.venue,
+        description: widget.ticketType == null
+            ? null
+            : 'Ticket: ${widget.ticketType}',
+      );
+    } catch (_) {
+      if (mounted) showToast(context, 'Could not export to calendar.');
+    }
   }
 
   Future<void> _openTransferSheet() async {
@@ -150,8 +166,7 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
                     kind: MBtnKind.sec,
                     small: true,
                     icon: Icons.calendar_today_outlined,
-                    onTap: () =>
-                        showToast(context, 'Calendar export coming soon.'),
+                    onTap: _addToCalendar,
                   ),
                 ),
                 if (canTransfer) ...[

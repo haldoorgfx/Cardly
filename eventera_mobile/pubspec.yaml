@@ -46,6 +46,10 @@ dependencies:
   path_provider: ^2.1.0
   share_plus: ^10.0.0
 
+  # Open external links (speaker/sponsor social + website, mailto, tel),
+  # calendar (.ics) files, and Terms/Privacy pages.
+  url_launcher: ^6.3.0
+
   # Deep links: open an event when an attendee taps an eventera.app/c/... link.
   app_links: ^6.3.0
 

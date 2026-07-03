@@ -4,11 +4,13 @@
 /// is deployed. This is the live web app's domain. Change it if your production
 /// domain differs.
 ///
-/// Found in the web project: `https://eventera.app` (newer) and
-/// `https://karta.cre8so.com` (older). Confirm which one currently serves
-/// `/api/render` and set it here.
+/// The live production backend is the Vercel `cardly` project, whose only
+/// production domain is `https://karta.cre8so.com` (verified in Vercel →
+/// cardly → Domains). `eventera.app` is NOT attached to that project, so the
+/// app must call karta.cre8so.com. If you later attach eventera.app to the
+/// cardly project in Vercel, switch this back.
 class AppConfig {
-  static const String renderBaseUrl = 'https://eventera.app';
+  static const String renderBaseUrl = 'https://karta.cre8so.com';
 
   static Uri get renderEndpoint => Uri.parse('$renderBaseUrl/api/render');
 }

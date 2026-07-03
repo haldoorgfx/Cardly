@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../net.dart';
 import '../../ui/components.dart';
@@ -123,8 +124,9 @@ class _SponsorDetailScreenState extends State<SponsorDetailScreen> {
                 child: MButton(
                   'Book a meeting',
                   icon: Icons.calendar_today_outlined,
-                  onTap: () => showToast(context,
-                      meetingUrl.isNotEmpty ? meetingUrl : 'Contact: $contactEmail'),
+                  onTap: () => meetingUrl.isNotEmpty
+                      ? _openUrl(context, meetingUrl)
+                      : _openEmail(context, contactEmail),
                 ),
               ),
             ])
@@ -267,7 +269,7 @@ class _SponsorDetailScreenState extends State<SponsorDetailScreen> {
             const SizedBox(height: 22),
             Center(
               child: GestureDetector(
-                onTap: () => showToast(context, websiteUrl),
+                onTap: () => _openUrl(context, websiteUrl),
                 child: Text('$websiteUrl →',
                     style: AppText.bodySm.copyWith(color: AppColors.inkMuted)),
               ),
@@ -276,6 +278,30 @@ class _SponsorDetailScreenState extends State<SponsorDetailScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _openUrl(BuildContext context, String url) async {
+    final uri = Uri.tryParse(url);
+    if (uri == null) {
+      showToast(context, 'Could not open link');
+      return;
+    }
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      if (!context.mounted) return;
+      showToast(context, 'Could not open link');
+    }
+  }
+
+  Future<void> _openEmail(BuildContext context, String email) async {
+    final uri = Uri(scheme: 'mailto', path: email);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      if (!context.mounted) return;
+      showToast(context, 'Could not open link');
+    }
   }
 
   Widget _logoFallback(String name) => Text(

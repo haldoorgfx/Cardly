@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show FileOptions;
 
 import '../../net.dart';
 import '../../ui/tokens.dart';
@@ -24,6 +26,7 @@ class AttendeeProfileScreen extends StatefulWidget {
 class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
   bool _loading = true;
   bool _saving = false;
+  bool _uploadingAvatar = false;
   String? _error;
 
   final _nameCtl = TextEditingController();
@@ -170,6 +173,52 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
     }
   }
 
+  Future<void> _changeAvatar() async {
+    if (!isSignedIn || _uploadingAvatar) return;
+    try {
+      final picked = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 800,
+        maxHeight: 800,
+        imageQuality: 85,
+      );
+      if (picked == null) return;
+      final bytes = await picked.readAsBytes();
+      if (!mounted) return;
+      setState(() => _uploadingAvatar = true);
+
+      final path = 'avatars/$currentUserId.jpg';
+      await supa.storage.from('uploads').uploadBinary(
+            path,
+            bytes,
+            fileOptions: const FileOptions(
+              upsert: true,
+              contentType: 'image/jpeg',
+            ),
+          );
+      final url = supa.storage.from('uploads').getPublicUrl(path);
+      await supa
+          .from('profiles')
+          .update({'avatar_url': url}).eq('id', currentUserId as Object);
+
+      if (!mounted) return;
+      setState(() {
+        // Cache-bust so the freshly uploaded image shows immediately.
+        _avatarUrl = '$url?t=${DateTime.now().millisecondsSinceEpoch}';
+        _uploadingAvatar = false;
+      });
+      showToast(context, 'Photo updated');
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _uploadingAvatar = false);
+      showToast(context, e.message);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _uploadingAvatar = false);
+      showToast(context, 'Could not update your photo');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MScaffold(
@@ -233,26 +282,47 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
         Center(
           child: Column(
             children: [
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Avatar(name: _nameCtl.text, imageUrl: _avatarUrl, size: 84),
-                  Positioned(
-                    bottom: -2,
-                    right: -2,
-                    child: Container(
-                      width: 28,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        color: AppColors.forest,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.canvas, width: 2.5),
+              GestureDetector(
+                onTap: _uploadingAvatar ? null : _changeAvatar,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Avatar(name: _nameCtl.text, imageUrl: _avatarUrl, size: 84),
+                    if (_uploadingAvatar)
+                      Positioned.fill(
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            color: Color(0x66000000),
+                            shape: BoxShape.circle,
+                          ),
+                          alignment: Alignment.center,
+                          child: const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2.5, color: Colors.white),
+                          ),
+                        ),
                       ),
-                      alignment: Alignment.center,
-                      child: const Icon(Icons.edit, size: 13, color: Colors.white),
+                    Positioned(
+                      bottom: -2,
+                      right: -2,
+                      child: Container(
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          color: AppColors.forest,
+                          shape: BoxShape.circle,
+                          border:
+                              Border.all(color: AppColors.canvas, width: 2.5),
+                        ),
+                        alignment: Alignment.center,
+                        child: const Icon(Icons.edit,
+                            size: 13, color: Colors.white),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               const SizedBox(height: 10),
               if (_email.isNotEmpty)

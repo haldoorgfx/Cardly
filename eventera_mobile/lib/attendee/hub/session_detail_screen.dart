@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../net.dart';
 import '../../ui/components.dart';
 import '../../ui/tokens.dart';
 import '../engage/qa_screen.dart';
+import '../event_context.dart';
 import 'event_page_model.dart';
 import 'speaker_detail_screen.dart';
 
@@ -35,11 +37,66 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
   Map<String, dynamic>? _session;
   final List<SpeakerSummary> _speakers = [];
   int _myRating = 0;
+  bool _saved = false;
+  bool _savingBusy = false;
+  String? _streamUrl;
 
   @override
   void initState() {
     super.initState();
     _load();
+    _loadSavedState();
+  }
+
+  Future<void> _loadSavedState() async {
+    final rid = EventContext.regIdFor(widget.eventId);
+    if (rid == null) return;
+    try {
+      final rows = await supa
+          .from('attendee_agendas')
+          .select('session_id')
+          .eq('registration_id', rid)
+          .eq('session_id', widget.sessionId);
+      if (!mounted) return;
+      setState(() => _saved = (rows as List).isNotEmpty);
+    } catch (_) {
+      // Non-fatal: leave as not-saved if we can't determine state.
+    }
+  }
+
+  Future<void> _toggleSaved() async {
+    final rid = EventContext.regIdFor(widget.eventId);
+    if (rid == null) {
+      showToast(context, 'Register for this event to build your agenda.');
+      return;
+    }
+    if (_savingBusy) return;
+    _savingBusy = true;
+    final wasSaved = _saved;
+    try {
+      if (wasSaved) {
+        await supa
+            .from('attendee_agendas')
+            .delete()
+            .eq('registration_id', rid)
+            .eq('session_id', widget.sessionId);
+      } else {
+        await apiPost(
+          '/api/events/${widget.eventId}/sessions/${widget.sessionId}/book',
+          {'registrationId': rid},
+        );
+      }
+      if (!mounted) return;
+      setState(() => _saved = !wasSaved);
+      showToast(context,
+          wasSaved ? 'Removed from your agenda' : 'Added to your agenda');
+    } catch (e) {
+      if (!mounted) return;
+      showToast(context,
+          e is ApiException ? e.message : 'Could not update your agenda');
+    } finally {
+      _savingBusy = false;
+    }
   }
 
   Future<void> _load() async {
@@ -74,8 +131,10 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
           _speakers.add(SpeakerSummary.fromRow(Map<String, dynamic>.from(sp)));
         }
       }
+      final stream = asString(map['stream_url']).trim();
       setState(() {
         _session = map;
+        _streamUrl = stream.isEmpty ? null : stream;
         _loading = false;
       });
     } on ApiException catch (e) {
@@ -117,6 +176,18 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
     ));
   }
 
+  Future<void> _openStream() async {
+    final url = _streamUrl;
+    if (url == null || url.isEmpty) return;
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      if (!mounted) return;
+      showToast(context, 'Could not open the stream');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MScaffold(
@@ -124,9 +195,10 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
         title: 'Session',
         hairline: true,
         actions: [
-          AppBarAction(Icons.bookmark_border, onTap: () {
-            showToast(context, 'Open the schedule to add this to your agenda');
-          }),
+          AppBarAction(
+            _saved ? Icons.bookmark : Icons.bookmark_border,
+            onTap: _toggleSaved,
+          ),
         ],
       ),
       bottomBar: _loading || _error != null ? null : _stickyBar(),
@@ -142,10 +214,9 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
     return StickyCta(children: [
       MButton('',
           kind: MBtnKind.sec,
-          icon: Icons.bookmark_border,
+          icon: _saved ? Icons.bookmark : Icons.bookmark_border,
           fullWidth: false,
-          onTap: () =>
-              showToast(context, 'Open the schedule to add this to your agenda')),
+          onTap: _toggleSaved),
       const SizedBox(width: 10),
       Expanded(
         child: MButton('Join live Q&A',
@@ -185,6 +256,15 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
         ),
         const SizedBox(height: AppSpace.md),
         Text(title, style: AppText.h1.copyWith(fontSize: 23)),
+        if (_streamUrl != null && _streamUrl!.isNotEmpty) ...[
+          const SizedBox(height: AppSpace.md),
+          MButton(
+            'Watch live',
+            kind: MBtnKind.forest,
+            icon: Icons.play_circle_outline,
+            onTap: _openStream,
+          ),
+        ],
         const SizedBox(height: AppSpace.md),
         _MetaRow(icon: Icons.schedule, text: HubDates.range(start, end)),
         if (desc.isNotEmpty) ...[
