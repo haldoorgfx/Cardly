@@ -22,7 +22,7 @@ export default async function EventSettingsPage({ params }: { params: Promise<{ 
   const admin = createAdminClient();
   const { data: event } = await admin
     .from('events')
-    .select('id, name, slug, status')
+    .select('id, name, slug, status, checkout_require_approval, checkout_show_remaining')
     .eq('id', id)
     .eq('user_id', user.id)
     .single();
@@ -32,7 +32,7 @@ export default async function EventSettingsPage({ params }: { params: Promise<{ 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: page } = await (admin as any)
     .from('event_pages')
-    .select('venue_name, venue_address, venue_lat, venue_lng, city, country, timezone, starts_at, ends_at, max_capacity, is_public, is_online, require_approval, show_remaining_tickets, payment_processors, payment_processor')
+    .select('venue_name, venue_address, venue_lat, venue_lng, city, country, timezone, starts_at, ends_at, max_capacity, is_public, is_online, payment_processors, payment_processor')
     .eq('event_id', id)
     .single();
 
@@ -55,8 +55,8 @@ export default async function EventSettingsPage({ params }: { params: Promise<{ 
         max_capacity: page?.max_capacity ?? null,
         is_public: page?.is_public ?? true,
         is_online: page?.is_online ?? false,
-        require_approval: page?.require_approval ?? false,
-        show_remaining_tickets: page?.show_remaining_tickets ?? false,
+        require_approval: (event as { checkout_require_approval?: boolean }).checkout_require_approval ?? false,
+        show_remaining_tickets: (event as { checkout_show_remaining?: boolean }).checkout_show_remaining ?? false,
         payment_processors:
           (page?.payment_processors as string[] | null)?.length
             ? (page.payment_processors as string[])

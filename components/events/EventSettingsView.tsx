@@ -161,8 +161,6 @@ export function EventSettingsView({ event }: Props) {
             ends_at:       endsAt   ? new Date(endsAt).toISOString()   : null,
             max_capacity:           capacity ? parseInt(capacity) : null,
             is_public:              isPublic,
-            require_approval:       requireApproval,
-            show_remaining_tickets: showRemainingTickets,
             payment_processors:     paymentProcessors,
             timezone,
             venue_name:    placeData?.venue_name    ?? (venue.trim() || null),
@@ -175,6 +173,21 @@ export function EventSettingsView({ event }: Props) {
         });
         if (!pageRes.ok) {
           const d = await pageRes.json();
+          throw new Error(d.error ?? 'Save failed');
+        }
+
+        // Approval / scarcity toggles live on the events table (checkout_* columns),
+        // not event_pages — save them through the dedicated checkout-settings route.
+        const csRes = await fetch(`/api/events/${event.id}/checkout-settings`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            checkout_require_approval: requireApproval,
+            checkout_show_remaining:   showRemainingTickets,
+          }),
+        });
+        if (!csRes.ok) {
+          const d = await csRes.json();
           throw new Error(d.error ?? 'Save failed');
         }
 

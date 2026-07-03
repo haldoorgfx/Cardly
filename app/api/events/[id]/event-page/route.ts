@@ -40,8 +40,6 @@ const EventPageSchema = z.object({
                                 .nullable().optional(),
   payment_processor:          z.enum(['stripe', 'flutterwave', 'waafipay', 'free']).optional(),
   payment_processors:         z.array(z.enum(['stripe', 'flutterwave', 'waafipay'])).min(1).optional(),
-  show_remaining_tickets:     z.boolean().optional(),
-  require_approval:           z.boolean().optional(),
   collect_attendee_details:   z.boolean().optional(),
   apply_vat:                  z.boolean().optional(),
   variant_id:                 z.string().uuid().nullable().optional(),
