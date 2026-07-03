@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { createNotification } from '@/lib/notifications';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -48,6 +49,16 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
 
   const admin = createAdminClient();
+
+  // Read the prior status so we can detect a genuine draft→published transition
+  // (only fire the "new event" notification on the transition, not on re-saves).
+  const { data: prior } = await admin
+    .from('events')
+    .select('status')
+    .eq('id', id)
+    .eq('user_id', user.id)
+    .maybeSingle();
+
   const { data, error } = await admin
     .from('events')
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -64,6 +75,39 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (error.code === 'PGRST116') return NextResponse.json({ error: 'Not found' }, { status: 404 });
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  // Task 2: newly published event → notify followers of this organizer who opted in.
+  if (patch.status === 'published' && prior?.status !== 'published') {
+    try {
+      const { data: ep } = await admin
+        .from('event_pages')
+        .select('title, custom_slug')
+        .eq('event_id', id)
+        .maybeSingle();
+      const slug = (ep as { custom_slug?: string | null } | null)?.custom_slug ?? data.slug ?? id;
+      const eventTitle = (ep as { title?: string | null } | null)?.title ?? data.name ?? 'a new event';
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: followers } = await (admin as any)
+        .from('organizer_follows')
+        .select('follower_id')
+        .eq('organizer_id', user.id)
+        .eq('notify_new_events', true);
+
+      for (const f of (followers ?? []) as { follower_id: string }[]) {
+        if (!f.follower_id) continue;
+        createNotification({
+          userId: f.follower_id,
+          eventId: id,
+          type: 'new_event',
+          title: 'New event from an organizer you follow',
+          body: eventTitle,
+          actionUrl: `/e/${slug}`,
+        });
+      }
+    } catch { /* notifications are non-critical */ }
+  }
+
   return NextResponse.json(data);
 }
 

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { timingSafeEqual } from 'crypto';
 import { verifyFlutterwaveTransaction } from '@/lib/payments/flutterwave';
 import { createAdminClient } from '@/lib/supabase/server';
+import { createNotification } from '@/lib/notifications';
 
 export async function POST(req: NextRequest) {
   // Verify Flutterwave webhook hash (constant-time to prevent timing oracle)
@@ -56,13 +57,25 @@ export async function POST(req: NextRequest) {
       .update({ payment_status: 'paid', status: 'confirmed', updated_at: new Date().toISOString() })
       .eq('qr_code_token', tx_ref)
       .eq('payment_status', 'pending') // idempotent guard
-      .select('ticket_type_id')
+      .select('ticket_type_id, event_id, user_id')
       .maybeSingle();
 
     if (error) console.error('[FW webhook] DB update failed:', error.message);
     // First pending→paid transition only — increment sold count once.
     if (updated?.ticket_type_id) {
       await admin.rpc('increment_ticket_quantity_sold', { ticket_id: updated.ticket_type_id, qty: 1 });
+    }
+    // In-app notification for the attendee — only on the first flip, only if they have an account.
+    if (updated?.user_id) {
+      const { data: ep } = await admin.from('event_pages').select('title').eq('event_id', updated.event_id).maybeSingle();
+      createNotification({
+        userId: updated.user_id,
+        eventId: updated.event_id,
+        type: 'ticket_confirmed',
+        title: "You're in — ticket confirmed",
+        body: `Your ticket for ${ep?.title ?? 'the event'} is ready.`,
+        actionUrl: '/account/my-tickets',
+      });
     }
   } else if (status === 'failed') {
     await admin

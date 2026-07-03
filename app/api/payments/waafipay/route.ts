@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { chargeWaafiPay, type WaafiPayResult } from '@/lib/payments/waafipay';
 import { createAdminClient } from '@/lib/supabase/server';
+import { createNotification } from '@/lib/notifications';
 
 // Called by WaafiPayStep after pending registration is created.
 // Synchronous: WaafiPay responds immediately with success/failure.
@@ -16,7 +17,7 @@ export async function POST(req: NextRequest) {
   // Load registration
   const { data: reg } = await admin
     .from('registrations')
-    .select('id, qr_code_token, amount_paid, currency, event_id, ticket_type_id, payment_status')
+    .select('id, qr_code_token, amount_paid, currency, event_id, ticket_type_id, payment_status, user_id')
     .eq('id', registration_id)
     .single();
 
@@ -88,6 +89,18 @@ export async function POST(req: NextRequest) {
     // Increment sold count only on the first pending→paid flip (prevents oversell + double-count).
     if (flipped && reg.ticket_type_id) {
       await admin.rpc('increment_ticket_quantity_sold', { ticket_id: reg.ticket_type_id!, qty: 1 });
+    }
+
+    // In-app notification for the attendee — only on the first flip, only if they have an account.
+    if (flipped && reg.user_id) {
+      createNotification({
+        userId: reg.user_id,
+        eventId: reg.event_id,
+        type: 'ticket_confirmed',
+        title: "You're in — ticket confirmed",
+        body: `Your ticket for ${eventPage?.title ?? 'the event'} is ready.`,
+        actionUrl: '/account/my-tickets',
+      });
     }
 
     return NextResponse.json({ status: 'paid', qr_code_token: reg.qr_code_token });

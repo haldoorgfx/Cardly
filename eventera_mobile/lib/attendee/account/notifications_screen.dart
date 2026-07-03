@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../net.dart';
 import '../../ui/tokens.dart';
@@ -28,6 +29,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   bool _loading = true;
   String? _error;
   List<_Notif> _items = [];
+  RealtimeChannel? _channel;
 
   bool get _hasUnread => _items.any((n) => !n.read);
 
@@ -36,9 +38,40 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     super.initState();
     if (isSignedIn) {
       _load();
+      _subscribeRealtime();
     } else {
       _loading = false;
     }
+  }
+
+  /// Live updates: reload whenever a notification row for this user is inserted
+  /// or changed. (Requires the `notifications` table to be in the
+  /// `supabase_realtime` publication — see the notifications setup guide.)
+  void _subscribeRealtime() {
+    final uid = currentUserId;
+    if (uid == null) return;
+    _channel = supa
+        .channel('notif:$uid')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'notifications',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'user_id',
+            value: uid,
+          ),
+          callback: (_) {
+            if (mounted) _load();
+          },
+        )
+        .subscribe();
+  }
+
+  @override
+  void dispose() {
+    if (_channel != null) supa.removeChannel(_channel!);
+    super.dispose();
   }
 
   Future<void> _load() async {

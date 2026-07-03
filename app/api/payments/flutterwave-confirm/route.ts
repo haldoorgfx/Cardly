@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyFlutterwaveTransaction } from '@/lib/payments/flutterwave';
 import { createAdminClient } from '@/lib/supabase/server';
 import { sendRegistrationConfirmEmail } from '@/lib/registration/email';
+import { createNotification } from '@/lib/notifications';
 
 // Called by the confirm page on Flutterwave redirect return.
 // tx_ref = qr_code_token. Verifies the transaction and marks registration paid.
@@ -44,7 +45,7 @@ export async function POST(req: NextRequest) {
         })
         .eq('qr_code_token', tx_ref)
         .eq('payment_status', 'pending') // idempotent — only flip a genuinely pending payment
-        .select('id, attendee_name, attendee_email, event_id, ticket_type_id, qr_code_token')
+        .select('id, attendee_name, attendee_email, event_id, ticket_type_id, qr_code_token, user_id')
         .maybeSingle();
 
       if (updated) {
@@ -70,6 +71,18 @@ export async function POST(req: NextRequest) {
             eventSlug: event?.slug ?? updated.event_id,
             ticketType: ticket?.name ?? 'General Admission',
           }).catch(() => { /* non-blocking */ });
+        }
+
+        // In-app notification for the attendee (only if they have an account)
+        if (updated.user_id) {
+          createNotification({
+            userId: updated.user_id,
+            eventId: updated.event_id,
+            type: 'ticket_confirmed',
+            title: "You're in — ticket confirmed",
+            body: `Your ticket for ${eventPage?.title ?? 'the event'} is ready.`,
+            actionUrl: '/account/my-tickets',
+          });
         }
       }
 

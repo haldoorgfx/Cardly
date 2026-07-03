@@ -6,6 +6,7 @@ import { initFlutterwavePayment, isFlutterwaveCurrency, type FlutterwaveCurrency
 import { isWaafiPayCurrency } from '@/lib/payments/waafipay';
 import { splitTicketAmount, type FeeBearer } from '@/lib/billing/fees';
 import type { Plan } from '@/lib/billing/plans';
+import { createNotification } from '@/lib/notifications';
 import { z } from 'zod';
 
 // ── Input validation ──────────────────────────────────────────────────────────
@@ -427,6 +428,18 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       eventSlug,
       ticketType: ticket.name,
     }).catch(() => {});
+
+    // In-app notification for the attendee (only if they have an account)
+    if (registration.user_id) {
+      createNotification({
+        userId: registration.user_id,
+        eventId: params.id,
+        type: 'ticket_confirmed',
+        title: "You're in — ticket confirmed",
+        body: `Your ticket for ${eventPage.title} is ready.`,
+        actionUrl: '/account/my-tickets',
+      });
+    }
   }
 
   return NextResponse.json({

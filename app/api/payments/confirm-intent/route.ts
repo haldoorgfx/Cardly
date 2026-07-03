@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getTicketStripe } from '@/lib/payments/stripe';
 import { createAdminClient } from '@/lib/supabase/server';
 import { sendRegistrationConfirmEmail } from '@/lib/registration/email';
+import { createNotification } from '@/lib/notifications';
 
 // Called by the confirm page after Stripe redirect to verify payment and mark registration as paid.
 // Idempotent — safe to call multiple times (webhook may have already done the update).
@@ -26,7 +27,7 @@ export async function POST(req: NextRequest) {
       .eq('qr_code_token', qr_code_token)
       .eq('stripe_payment_intent_id', payment_intent_id) // ensure PI belongs to this registration
       .in('payment_status', ['pending']) // only update pending rows (idempotent)
-      .select('id, attendee_name, attendee_email, event_id, ticket_type_id, qr_code_token')
+      .select('id, attendee_name, attendee_email, event_id, ticket_type_id, qr_code_token, user_id')
       .single();
 
     // Send confirmation email if we just transitioned (not already confirmed)
@@ -49,6 +50,18 @@ export async function POST(req: NextRequest) {
           eventSlug: event?.slug ?? updated.event_id,
           ticketType: ticket?.name ?? 'General Admission',
         }).catch(() => { /* non-blocking */ });
+      }
+
+      // In-app notification for the attendee (only if they have an account)
+      if (updated.user_id) {
+        createNotification({
+          userId: updated.user_id,
+          eventId: updated.event_id,
+          type: 'ticket_confirmed',
+          title: "You're in — ticket confirmed",
+          body: `Your ticket for ${eventPage?.title ?? 'the event'} is ready.`,
+          actionUrl: '/account/my-tickets',
+        });
       }
     }
 

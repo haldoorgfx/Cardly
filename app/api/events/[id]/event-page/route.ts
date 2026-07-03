@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { createNotification } from '@/lib/notifications';
 import { z } from 'zod';
 import type { Database } from '@/types/database';
 
@@ -113,6 +114,22 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     .single();
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
+  // Task 3: snapshot the fields that matter to attendees so we can detect a real
+  // change (time / venue / online) on an already-published event after the upsert.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: priorPage } = await (admin as any)
+    .from('event_pages')
+    .select('starts_at, venue_name, is_online, is_public, title, custom_slug')
+    .eq('event_id', params.id)
+    .maybeSingle();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: eventStatusRow } = await (admin as any)
+    .from('events')
+    .select('status')
+    .eq('id', params.id)
+    .maybeSingle();
+  const wasPublished = eventStatusRow?.status === 'published' || !!priorPage?.is_public;
+
   // Validate max_capacity is not being set below current confirmed count
   if (parsed.data.max_capacity !== undefined && parsed.data.max_capacity !== null) {
     const { count: confirmedCount } = await admin
@@ -180,5 +197,45 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Task 3: if a published event's time/venue/online changed, notify confirmed attendees.
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const updatedPage = data as any;
+    const timeChanged   = priorPage != null && String(priorPage.starts_at ?? '') !== String(updatedPage?.starts_at ?? '');
+    const venueChanged  = priorPage != null && (priorPage.venue_name ?? '') !== (updatedPage?.venue_name ?? '');
+    const onlineChanged = priorPage != null && !!priorPage.is_online !== !!updatedPage?.is_online;
+    const relevantChange = timeChanged || venueChanged || onlineChanged;
+
+    if (wasPublished && relevantChange) {
+      const eventTitle = updatedPage?.title ?? priorPage?.title ?? 'the event';
+      const slug = updatedPage?.custom_slug ?? priorPage?.custom_slug ?? params.id;
+
+      // Confirmed / checked-in attendees who have an account (cap to a sane number).
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: attendees } = await (admin as any)
+        .from('registrations')
+        .select('user_id')
+        .eq('event_id', params.id)
+        .in('status', ['confirmed', 'checked_in'])
+        .not('user_id', 'is', null)
+        .limit(500);
+
+      const seen = new Set<string>();
+      for (const a of (attendees ?? []) as { user_id: string | null }[]) {
+        if (!a.user_id || seen.has(a.user_id)) continue;
+        seen.add(a.user_id);
+        createNotification({
+          userId: a.user_id,
+          eventId: params.id,
+          type: 'event_update',
+          title: 'Event details updated',
+          body: `${eventTitle}: check the latest time & venue.`,
+          actionUrl: `/e/${slug}`,
+        });
+      }
+    }
+  } catch { /* notifications are non-critical */ }
+
   return NextResponse.json({ page: data });
 }

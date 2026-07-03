@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { constructTicketWebhookEvent } from '@/lib/payments/stripe';
 import { createAdminClient } from '@/lib/supabase/server';
 import { sendRegistrationConfirmEmail } from '@/lib/registration/email';
+import { createNotification } from '@/lib/notifications';
 
 export const runtime = 'nodejs';
 
@@ -35,7 +36,7 @@ export async function POST(req: NextRequest) {
         })
         .eq('stripe_payment_intent_id', pi.id)
         .eq('payment_status', 'pending') // idempotent guard
-        .select('attendee_name, attendee_email, qr_code_token, ticket_type_id, ticket_types(name), events!inner(slug, event_pages(title, starts_at, venue_name, is_online))')
+        .select('attendee_name, attendee_email, qr_code_token, ticket_type_id, user_id, event_id, ticket_types(name), events!inner(slug, event_pages(title, starts_at, venue_name, is_online))')
         .maybeSingle();
       if (error) console.error('[Stripe webhook] update failed:', error.message);
       if (updated) {
@@ -56,6 +57,18 @@ export async function POST(req: NextRequest) {
           eventSlug: updated.events?.slug ?? '',
           ticketType: updated.ticket_types?.name ?? 'Ticket',
         }).catch(() => {});
+
+        // In-app notification for the attendee (only if they have an account)
+        if (updated.user_id) {
+          createNotification({
+            userId: updated.user_id,
+            eventId: updated.event_id,
+            type: 'ticket_confirmed',
+            title: "You're in — ticket confirmed",
+            body: `Your ticket for ${ep?.title ?? 'the event'} is ready.`,
+            actionUrl: '/account/my-tickets',
+          });
+        }
       }
       break;
     }

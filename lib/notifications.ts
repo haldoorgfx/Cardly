@@ -1,6 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/server';
 
-type NotificationType = 'registration' | 'card_download' | 'ticket_sale' | 'milestone' | 'sponsor' | 'system';
+type NotificationType = 'registration' | 'card_download' | 'ticket_sale' | 'milestone' | 'sponsor' | 'system' | 'ticket_confirmed' | 'event_reminder' | 'new_event' | 'event_update';
 
 interface CreateNotificationParams {
   userId: string;
@@ -19,6 +19,10 @@ const TYPE_ICONS: Record<NotificationType, string> = {
   milestone:     'star',
   sponsor:       'briefcase',
   system:        'bell',
+  ticket_confirmed: 'card',
+  event_reminder:   'bell',
+  new_event:        'star',
+  event_update:     'bell',
 };
 
 export async function createNotification(params: CreateNotificationParams) {
