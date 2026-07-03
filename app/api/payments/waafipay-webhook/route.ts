@@ -31,6 +31,29 @@ export async function POST(req: NextRequest) {
   const admin = createAdminClient();
 
   if (state === 'APPROVED' || state === '2001') {
+    // Amount check — the signed payload carries the paid amount/currency.
+    // Confirming on state alone would let an underpayment or wrong-currency
+    // callback mark a paid ticket as confirmed. Compare to the registration's
+    // expected amount_paid (1-unit tolerance for rounding).
+    const paidAmount   = txInfo?.amount != null ? Number(txInfo.amount) : null;
+    const paidCurrency = txInfo?.currency != null ? String(txInfo.currency) : null;
+    const { data: expected } = await admin
+      .from('registrations')
+      .select('amount_paid, currency')
+      .eq('qr_code_token', String(invoiceId))
+      .eq('payment_status', 'pending')
+      .maybeSingle();
+    if (expected && (expected.amount_paid ?? 0) > 0) {
+      if (paidAmount == null || Number.isNaN(paidAmount) || paidAmount < (expected.amount_paid as number) - 1) {
+        console.error(`[WaafiPay webhook] amount mismatch for ${invoiceId}: got ${paidAmount}, expected ${expected.amount_paid}`);
+        return NextResponse.json({ received: true });
+      }
+      if (expected.currency && paidCurrency && paidCurrency !== expected.currency) {
+        console.error(`[WaafiPay webhook] currency mismatch for ${invoiceId}: got ${paidCurrency}, expected ${expected.currency}`);
+        return NextResponse.json({ received: true });
+      }
+    }
+
     const { data: updated } = await admin
       .from('registrations')
       .update({
@@ -54,7 +77,7 @@ export async function POST(req: NextRequest) {
         admin.from('ticket_types').select('name').eq('id', updated.ticket_type_id ?? '').single(),
       ]);
       if (eventPage) {
-        const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
         const { data: event } = await admin.from('events').select('slug').eq('id', updated.event_id).single();
         sendRegistrationConfirmEmail({
           to: updated.attendee_email,

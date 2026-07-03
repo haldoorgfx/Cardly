@@ -39,15 +39,40 @@ export async function POST(req: NextRequest) {
 
   if (status === 'successful') {
     // Verify the transaction independently (don't trust webhook body alone)
+    let verifiedAmount: number | null = null;
+    let verifiedCurrency: string | null = null;
     try {
       const verification = await verifyFlutterwaveTransaction(String(txId));
       if (verification.data?.status !== 'successful') {
         console.warn('[FW webhook] verification failed for tx', txId);
         return NextResponse.json({ received: true });
       }
+      verifiedAmount = verification.data.amount ?? null;
+      verifiedCurrency = verification.data.currency ?? null;
     } catch (err) {
       console.error('[FW webhook] verification error:', err);
       return NextResponse.json({ received: true });
+    }
+
+    // Amount check — confirm the paid amount/currency matches what we expected.
+    // A status-only confirmation would let an underpayment or wrong-currency
+    // callback mark a paid ticket as confirmed. Compare to the registration's
+    // amount_paid (the discounted amount we charged), 1-unit tolerance for rounding.
+    const { data: expected } = await admin
+      .from('registrations')
+      .select('amount_paid, currency')
+      .eq('qr_code_token', tx_ref)
+      .eq('payment_status', 'pending')
+      .maybeSingle();
+    if (expected && (expected.amount_paid ?? 0) > 0) {
+      if (verifiedAmount == null || verifiedAmount < (expected.amount_paid as number) - 1) {
+        console.error(`[FW webhook] amount mismatch for ${tx_ref}: got ${verifiedAmount}, expected ${expected.amount_paid}`);
+        return NextResponse.json({ received: true });
+      }
+      if (expected.currency && verifiedCurrency && verifiedCurrency !== expected.currency) {
+        console.error(`[FW webhook] currency mismatch for ${tx_ref}: got ${verifiedCurrency}, expected ${expected.currency}`);
+        return NextResponse.json({ received: true });
+      }
     }
 
     // tx_ref = qr_code_token

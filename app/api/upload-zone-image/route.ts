@@ -23,6 +23,22 @@ export async function POST(req: NextRequest) {
   }
 
   const admin = createAdminClient();
+
+  // eventId comes from the form — verify the caller actually owns that event
+  // before using it in the storage path. (Path is user-id-prefixed, but the
+  // eventId is still untrusted input.)
+  if (eventId) {
+    const { data: owned } = await admin
+      .from('events')
+      .select('id')
+      .eq('id', eventId)
+      .eq('user_id', user.id)
+      .maybeSingle();
+    if (!owned) {
+      return NextResponse.json({ error: 'Event not found or not owned by you' }, { status: 403 });
+    }
+  }
+
   const folder = eventId ? `${user.id}/${eventId}` : `${user.id}/assets`;
 
   // Normalize EXIF orientation so the image displays correctly in the canvas

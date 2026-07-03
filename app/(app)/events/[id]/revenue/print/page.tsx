@@ -148,7 +148,7 @@ export default async function RevenuePrintPage({ params }: Props) {
 
         {/* Footer */}
         <div style={{ marginTop: 48, paddingTop: 14, borderTop: '1px solid #E5E0D4', display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#9BA8A1' }}>
-          <span>Generated with Eventera · karta.cre8so.com</span>
+          <span>Generated with Eventera · {(process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/^https?:\/\//, '')}</span>
           <span>{today}</span>
         </div>
       </div>

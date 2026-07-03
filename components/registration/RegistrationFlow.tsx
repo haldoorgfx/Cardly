@@ -48,6 +48,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
 
   // PWYW
   const [chosenPrice, setChosenPrice] = useState<string>('');
+  const [pwywError, setPwywError] = useState('');
 
   // Step 1 — personal details
   const [name, setName] = useState('');
@@ -145,8 +146,30 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
 
   // -- Navigation -----------------------------------------------
   async function handleNext() {
+    if (step === 0 && isPWYW && selectedTicket) {
+      const price = parseFloat(chosenPrice) || 0;
+      if (price < (selectedTicket.min_price ?? 0)) {
+        setPwywError(`Minimum amount is ${selectedTicket.currency} ${selectedTicket.min_price}`);
+        return;
+      }
+      setPwywError('');
+    }
+
     if (step === 1) {
       if (!validateDetails()) return;
+
+      if (!isPaid) {
+        // Free ticket: pre-check for duplicate email before advancing to the card step.
+        // Guests don't get a server-side pre-check at page load, so we do it here.
+        try {
+          const checkRes = await fetch(`/api/events/${eventId}/check-email?email=${encodeURIComponent(email.trim().toLowerCase())}`);
+          const checkData = await checkRes.json() as { registered: boolean };
+          if (checkData.registered) {
+            setFieldErrors(prev => ({ ...prev, email: 'You are already registered for this event.' }));
+            return;
+          }
+        } catch { /* fall through — server-side check will catch it at submit */ }
+      }
 
       if (isPaid && selectedTicket) {
         // Paid: create registration + PaymentIntent now so we have a clientSecret
@@ -169,6 +192,12 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
           const data = await res.json();
           if (!res.ok) {
             setSubmitError(data.detail ?? data.error ?? 'Registration failed');
+            return;
+          }
+
+          // Paid + approval required: organizer must approve before payment
+          if (data.awaiting_approval) {
+            router.push(`/e/${eventSlug}/register/confirm?reg=${data.qr_code_token}`);
             return;
           }
 
@@ -236,6 +265,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
           attendee_phone: phone.trim() || undefined,
           ticket_type_id: selectedTicketId,
           custom_fields: customFieldValues,
+          ...(unlockedTickets.find(t => t.id === selectedTicketId) ? { access_code: accessCodeInput.trim() } : {}),
         }),
       });
       const regData = await regRes.json();
@@ -434,6 +464,7 @@ export function RegistrationFlow({ eventSlug, eventId, page, tickets, formFields
                       />
                     </div>
                     <p className="text-[12px] mt-1" style={{ color: '#6B7A72' }}>Minimum: {selectedTicket.currency} {selectedTicket.min_price}</p>
+                    {pwywError && <p className="text-[12px] mt-1 font-medium" style={{ color: '#B8423C' }}>{pwywError}</p>}
                   </div>
                 )}
 

@@ -57,7 +57,7 @@ export async function GET(
   const slug = (page as { custom_slug?: string | null; events?: { slug: string } | null }).custom_slug
     ?? (page as { events?: { slug: string } | null }).events?.slug
     ?? page.id;
-  const url = `https://karta.cre8so.com/e/${slug}`;
+  const url = `${process.env.NEXT_PUBLIC_APP_URL}/e/${slug}`;
 
   const dtstart = page.starts_at ? toIcsDate(page.starts_at, tz) : null;
   const dtend = page.ends_at

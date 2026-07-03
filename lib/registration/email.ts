@@ -25,7 +25,7 @@ export interface RegistrationConfirmEmailParams {
 
 export async function sendRegistrationConfirmEmail(params: RegistrationConfirmEmailParams) {
   const resend = getResend();
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
 
   await resend.emails.send({
     from: FROM,
@@ -121,7 +121,7 @@ export interface WaitlistConfirmEmailParams {
 
 export async function sendWaitlistConfirmEmail(params: WaitlistConfirmEmailParams) {
   const resend = getResend();
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
   await resend.emails.send({
     from: FROM,
     to: params.to,
@@ -142,7 +142,7 @@ export interface WaitlistInviteEmailParams {
 
 export async function sendWaitlistInviteEmail(params: WaitlistInviteEmailParams) {
   const resend = getResend();
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
   await resend.emails.send({
     from: FROM,
     to: params.to,
@@ -238,7 +238,7 @@ export interface ApprovalEmailParams {
 
 export async function sendPendingApprovalEmail(params: ApprovalEmailParams) {
   const resend = getResend();
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
   await resend.emails.send({
     from: FROM,
     to: params.to,
@@ -266,7 +266,7 @@ export async function sendPendingApprovalEmail(params: ApprovalEmailParams) {
 
 export async function sendApprovedEmail(params: ApprovalEmailParams & { qrCodeUrl: string }) {
   const resend = getResend();
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
   await resend.emails.send({
     from: FROM,
     to: params.to,
@@ -294,7 +294,7 @@ export async function sendApprovedEmail(params: ApprovalEmailParams & { qrCodeUr
 
 export async function sendDeniedEmail(params: ApprovalEmailParams) {
   const resend = getResend();
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
   await resend.emails.send({
     from: FROM,
     to: params.to,
@@ -318,7 +318,7 @@ export async function sendDeniedEmail(params: ApprovalEmailParams) {
 
 export async function sendTransferEmail(params: { to: string; name: string; eventTitle: string; eventSlug: string; qrCodeUrl: string }) {
   const resend = getResend();
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
   await resend.emails.send({
     from: FROM,
     to: params.to,

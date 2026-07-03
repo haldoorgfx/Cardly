@@ -10,7 +10,7 @@ interface Props {
   status: string;
 }
 
-const BASE = 'https://karta.cre8so.com';
+const BASE = process.env.NEXT_PUBLIC_APP_URL ?? '';
 
 type WidgetId = 'button' | 'card' | 'schedule';
 

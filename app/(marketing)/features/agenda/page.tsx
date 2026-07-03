@@ -142,7 +142,7 @@ function AgendaMockup() {
           <div style={{ background: '#2A2A2A', height: 36, display: 'flex', alignItems: 'center', padding: '0 14px', gap: 6 }}>
             {['#FF5F57','#FEBC2E','#28C840'].map((c) => <div key={c} style={{ width: 10, height: 10, borderRadius: '50%', background: c }} />)}
             <div style={{ background: '#3A3A3A', borderRadius: 5, height: 22, flex: 1, maxWidth: 320, marginLeft: 12, display: 'flex', alignItems: 'center', padding: '0 10px' }}>
-              <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, fontFamily: 'Inter,sans-serif' }}>karta.cre8so.com/e/pan-african-summit/agenda</span>
+              <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, fontFamily: 'Inter,sans-serif' }}>{(process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/^https?:\/\//, '')}/e/pan-african-summit/agenda</span>
             </div>
           </div>
           {/* App content */}

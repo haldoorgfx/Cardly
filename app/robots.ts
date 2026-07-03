@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/api/', '/admin/', '/dashboard/', '/events/', '/settings/', '/analytics/', '/templates/', '/brand/', '/team/'],
       },
     ],
-    sitemap: 'https://karta.cre8so.com/sitemap.xml',
+    sitemap: `${process.env.NEXT_PUBLIC_APP_URL}/sitemap.xml`,
   };
 }

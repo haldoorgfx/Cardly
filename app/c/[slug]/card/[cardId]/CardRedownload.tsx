@@ -154,7 +154,7 @@ export default function CardRedownload({ eventName, attendeeName, outputUrl, cre
           marginTop: 24, fontSize: 11, color: '#6B7A72', textAlign: 'center',
           letterSpacing: '0.04em',
         }}>
-          powered by <a href="https://karta.cre8so.com" style={{ color: '#0F1F18', textDecoration: 'none', fontWeight: 500 }}>eventera</a>
+          powered by <a href={process.env.NEXT_PUBLIC_APP_URL} style={{ color: '#0F1F18', textDecoration: 'none', fontWeight: 500 }}>eventera</a>
         </p>
       </div>
     </div>

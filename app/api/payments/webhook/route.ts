@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
   switch (event.type) {
     case 'payment_intent.succeeded': {
       const pi = event.data.object;
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: updated, error } = await (admin as any)
         .from('registrations')

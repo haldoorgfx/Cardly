@@ -285,7 +285,7 @@ function PublishStep({
   onSaveDraft: () => void;
   isPending: boolean;
 }) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
   const eventUrl = `${appUrl}/e/${eventSlug}`;
   const isAlreadyPublished = eventStatus === 'published';
 

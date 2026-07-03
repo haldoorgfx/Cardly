@@ -128,7 +128,7 @@ export default function TermsPage() {
             <p>
               The Free plan is free forever. Paid plans (Pro and Studio) are
               available by subscription. Current pricing is listed at
-              karta.cre8so.com/pricing. Prices may change; we will give you at least
+              {(process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/^https?:\/\//, '')}/pricing. Prices may change; we will give you at least
               30 days&apos; notice before changing the price of an active
               subscription.
             </p>

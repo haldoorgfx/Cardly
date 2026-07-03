@@ -184,6 +184,8 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
   useEffect(() => {
     if (!isPaidReturn) return;
 
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
+
     async function verify() {
       let status = 'failed';
 
@@ -198,7 +200,7 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
         status = data.status === 'succeeded' ? 'succeeded' : data.status;
         if (data.status === 'processing') {
           setPaymentStatus('processing');
-          setTimeout(verify, 3000);
+          retryTimer = setTimeout(verify, 3000);
           return;
         }
       } else if (isFlutterwaveReturn && txRef) {
@@ -217,6 +219,7 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
     }
 
     verify();
+    return () => { if (retryTimer) clearTimeout(retryTimer); };
   }, [isPaidReturn, paymentIntentId, isFlutterwaveReturn, txRef, registration.qr_code_token, variant]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleDownload() {

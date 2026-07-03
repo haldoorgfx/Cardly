@@ -48,7 +48,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   // Send invite email (fire-and-forget)
   const { data: inviterProfile } = await supabase.from('profiles').select('full_name, email').eq('id', user.id).single();
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://karta.cre8so.com';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
   sendTeamInviteEmail({
     to: email.trim().toLowerCase(),
     teamName: team.name,

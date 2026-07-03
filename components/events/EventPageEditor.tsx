@@ -698,7 +698,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
                     className="px-3 h-10 flex items-center text-[13px] shrink-0"
                     style={{ background: '#F5F5F4', borderRight: '1px solid #E5E0D4', color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}
                   >
-                    karta.cre8so.com/e/
+                    {(process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/^https?:\/\//, '')}/e/
                   </span>
                   <input
                     value={customSlug}

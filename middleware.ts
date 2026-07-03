@@ -34,7 +34,11 @@ export async function middleware(request: NextRequest) {
   const response = await updateSession(request);
 
 
-  // Skip role/suspension checks for fully public routes
+  // "isPublicRoute" means: skip the suspension/admin-role DB checks below.
+  // It does NOT mean "no auth required" — unauthenticated users are already
+  // redirected to /login by updateSession() above before reaching this point.
+  // Routes like /my-tickets and /saved still require auth; they're listed here
+  // only so suspended users can still reach their own tickets/saved items.
   const isPublicRoute =
     pathname.startsWith("/c/") ||       // attendee public pages
     pathname.startsWith("/e/") ||       // public event pages
@@ -42,12 +46,24 @@ export async function middleware(request: NextRequest) {
     pathname === "/events" ||           // public event discovery feed
     pathname.startsWith("/events/search") ||
     pathname.startsWith("/events/city/") ||
+    pathname.startsWith("/events/cities") ||
     pathname.startsWith("/events/category/") ||
     pathname.startsWith("/auth") ||
     pathname === "/suspended" ||
     pathname === "/" ||
     pathname.startsWith("/pricing") ||
     pathname.startsWith("/whats-new") ||
+    pathname === "/discover" ||
+    pathname.startsWith("/discover/") ||
+    pathname === "/search" ||
+    pathname.startsWith("/search/") ||
+    pathname.startsWith("/o/") ||       // organizer public profiles
+    pathname.startsWith("/s/") ||       // speaker public profiles
+    pathname.startsWith("/x/") ||       // exhibitor public profiles
+    pathname === "/my-tickets" ||
+    pathname.startsWith("/my-tickets/") ||
+    pathname === "/saved" ||
+    pathname.startsWith("/saved/") ||
     pathname.startsWith("/api/");       // API routes enforce permissions internally
 
   if (isPublicRoute) return response;
@@ -68,9 +84,13 @@ export async function middleware(request: NextRequest) {
     }
   );
 
+  // Use getSession() here — updateSession() already called getUser() (a network
+  // round-trip) to refresh the cookie. Reading the session from the refreshed
+  // cookie is safe for role/suspension checks and avoids a second auth server hit.
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
 
   // Not logged in — updateSession already redirected; nothing more to do
   if (!user) return response;

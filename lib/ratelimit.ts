@@ -1,13 +1,25 @@
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 
-// ── Graceful no-op when Upstash isn't configured ─────────────────────────────
-// The app works without Upstash — rate limiting is simply skipped.
-// To enable: set UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN in Vercel.
+// ── Rate limiting with an in-memory fallback ─────────────────────────────────
+// Preferred: Upstash Redis (distributed, shared across all serverless instances).
+// Fallback:  an in-memory sliding window, per instance, used when Upstash isn't
+// configured. This means rate limiting NEVER fully fails open — the expensive
+// public endpoints (/api/render) stay throttled even without Redis.
+// To enable distributed limiting: set UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN.
 
 const isConfigured =
   !!process.env.UPSTASH_REDIS_REST_URL &&
   !!process.env.UPSTASH_REDIS_REST_TOKEN;
+
+// Production startup assert — loudly warn if Upstash is missing in prod. We don't
+// hard-throw (that would brick the app); the in-memory fallback keeps us safe.
+if (!isConfigured && process.env.NODE_ENV === 'production' && process.env.VERCEL) {
+  console.error(
+    '[ratelimit] UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN are NOT set in production. ' +
+    'Falling back to per-instance in-memory rate limiting. Set both in Vercel for distributed limits.',
+  );
+}
 
 const redis = isConfigured
   ? new Redis({
@@ -16,14 +28,58 @@ const redis = isConfigured
     })
   : null;
 
-function makeLimit(tokens: number, window: `${number} ${'s' | 'm' | 'h' | 'd'}`) {
-  if (!redis) return null;
-  return new Ratelimit({
-    redis,
-    limiter: Ratelimit.slidingWindow(tokens, window),
-    analytics: true,
-    prefix: 'eventera:rl',
-  });
+interface LimitResult { success: boolean; reset: number }
+interface LimiterLike { limit(identifier: string): Promise<LimitResult> }
+
+// ── In-memory sliding-window limiter (fallback) ──────────────────────────────
+// Per-instance only. Bounded by a periodic sweep so the Map can't grow forever.
+class MemoryRatelimit implements LimiterLike {
+  private hits = new Map<string, number[]>();
+  private lastSweep = Date.now();
+
+  constructor(private tokens: number, private windowMs: number) {}
+
+  private sweep(now: number) {
+    if (now - this.lastSweep < this.windowMs) return;
+    this.hits.forEach((times, key) => {
+      const kept = times.filter(t => now - t < this.windowMs);
+      if (kept.length === 0) this.hits.delete(key);
+      else this.hits.set(key, kept);
+    });
+    this.lastSweep = now;
+  }
+
+  async limit(identifier: string): Promise<LimitResult> {
+    const now = Date.now();
+    this.sweep(now);
+    const times = (this.hits.get(identifier) ?? []).filter(t => now - t < this.windowMs);
+    if (times.length >= this.tokens) {
+      const reset = times[0] + this.windowMs; // when the oldest hit ages out
+      this.hits.set(identifier, times);
+      return { success: false, reset };
+    }
+    times.push(now);
+    this.hits.set(identifier, times);
+    return { success: true, reset: now + this.windowMs };
+  }
+}
+
+const WINDOW_MS: Record<'s' | 'm' | 'h' | 'd', number> = {
+  s: 1000, m: 60_000, h: 3_600_000, d: 86_400_000,
+};
+
+function makeLimit(tokens: number, window: `${number} ${'s' | 'm' | 'h' | 'd'}`): LimiterLike {
+  if (redis) {
+    return new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(tokens, window),
+      analytics: true,
+      prefix: 'eventera:rl',
+    });
+  }
+  // Fallback — never returns null, so checkRateLimit never fails open.
+  const [countStr, unit] = window.split(' ') as [string, 's' | 'm' | 'h' | 'd'];
+  return new MemoryRatelimit(tokens, Number(countStr) * WINDOW_MS[unit]);
 }
 
 // ── Tiers ────────────────────────────────────────────────────────────────────
@@ -74,10 +130,7 @@ export async function checkRateLimit(
   ip: string,
 ): Promise<{ allowed: true } | { allowed: false; retryAfter: number }> {
   const tier = getTierForPath(pathname);
-  const limiter = limiters[tier];
-
-  // No Upstash configured → always allow (dev / unconfigured prod)
-  if (!limiter) return { allowed: true };
+  const limiter = limiters[tier]; // always defined — Upstash or in-memory fallback
 
   const identifier = `${tier}:${ip}`;
   const result = await limiter.limit(identifier);

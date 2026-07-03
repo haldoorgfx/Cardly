@@ -596,7 +596,7 @@ export function PublicEventPageClient({
                 endsAt={page.ends_at ?? null}
                 timezone={page.timezone ?? null}
                 location={locationLine}
-                eventUrl={`https://karta.cre8so.com/e/${registrationSlug}`}
+                eventUrl={`${process.env.NEXT_PUBLIC_APP_URL}/e/${registrationSlug}`}
               />
             </div>
           )}
@@ -699,7 +699,7 @@ export function PublicEventPageClient({
                     endsAt={page.ends_at ?? null}
                     timezone={page.timezone ?? null}
                     location={locationLine}
-                    eventUrl={`https://karta.cre8so.com/e/${registrationSlug}`}
+                    eventUrl={`${process.env.NEXT_PUBLIC_APP_URL}/e/${registrationSlug}`}
                   />
                 </div>
               )}

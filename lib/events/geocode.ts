@@ -23,7 +23,7 @@ export async function geocodeAddress(query: string): Promise<Coords | null> {
     // Never let geocoding block page render for more than a few seconds.
     const res = await fetch(url, {
       headers: {
-        'User-Agent': 'Eventera Events (https://karta.cre8so.com)',
+        'User-Agent': `Eventera Events (${process.env.NEXT_PUBLIC_APP_URL})`,
         'Accept-Language': 'en',
       },
       signal: AbortSignal.timeout(3500),
