@@ -1,6 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'attendee/app_shell.dart';
+import 'attendee/onboarding/onboarding_screen.dart';
+import 'net.dart';
 import 'ui/tokens.dart';
 
 /// Branded splash → home. The splash plays a short entrance animation (logo
@@ -15,6 +20,8 @@ class RootGate extends StatefulWidget {
 
 class _RootGateState extends State<RootGate> {
   bool _ready = false;
+  StreamSubscription<AuthState>? _authSub;
+  bool _onboardingChecking = false;
 
   @override
   void initState() {
@@ -22,6 +29,50 @@ class _RootGateState extends State<RootGate> {
     Future.delayed(const Duration(milliseconds: 2300), () {
       if (mounted) setState(() => _ready = true);
     });
+    // After any sign-in (email or Google), run the onboarding wizard once if
+    // the user hasn't finished it. Skipping/finishing sets onboarding_completed,
+    // so it never nags again.
+    _authSub = supa.auth.onAuthStateChange.listen((data) {
+      if (data.session != null &&
+          (data.event == AuthChangeEvent.signedIn ||
+              data.event == AuthChangeEvent.initialSession)) {
+        _maybeShowOnboarding();
+      }
+    });
+  }
+
+  Future<void> _maybeShowOnboarding() async {
+    if (_onboardingChecking) return;
+    _onboardingChecking = true;
+    try {
+      final uid = currentUserId;
+      if (uid == null) return;
+      final row = await supa
+          .from('profiles')
+          .select('onboarding_completed')
+          .eq('id', uid)
+          .maybeSingle();
+      final done = row != null && row['onboarding_completed'] == true;
+      if (!done && mounted) {
+        // Let any in-flight auth screen finish popping first.
+        await Future.delayed(const Duration(milliseconds: 450));
+        if (!mounted) return;
+        await Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => const OnboardingScreen(),
+          fullscreenDialog: true,
+        ));
+      }
+    } catch (_) {
+      // Non-fatal — never block the app on this.
+    } finally {
+      _onboardingChecking = false;
+    }
+  }
+
+  @override
+  void dispose() {
+    _authSub?.cancel();
+    super.dispose();
   }
 
   @override
