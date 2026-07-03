@@ -153,7 +153,7 @@ export function EventSettingsView({ event }: Props) {
       try {
         // event_pages fields (location, dates, capacity, visibility)
         const pageRes = await fetch(`/api/events/${event.id}/event-page`, {
-          method: 'PATCH',
+          method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             title:         name.trim(),
