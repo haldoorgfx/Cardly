@@ -137,6 +137,16 @@ const PAYMENT_METHOD_OPTIONS = [
   { value: 'waafipay',    label: 'Mobile Money',           desc: 'EVC Plus, eDahab, Somtel — Somalia & Djibouti',    icon: Smartphone, badge: 'East Africa' },
 ] as const;
 
+// Currency support per processor — mirrors lib/payments/{waafipay,flutterwave}.ts.
+// Inlined here so this client component doesn't pull server-only payment code into the bundle.
+const WAAFIPAY_CCYS = ['USD', 'SOS', 'DJF'];
+const FLUTTERWAVE_CCYS = ['NGN', 'KES', 'GHS', 'ZAR', 'UGX', 'TZS'];
+function processorSupportsCurrency(processor: string, currency: string): boolean {
+  if (processor === 'waafipay') return WAAFIPAY_CCYS.includes(currency);
+  if (processor === 'flutterwave') return FLUTTERWAVE_CCYS.includes(currency);
+  return true; // stripe (and anything else) — assume supported
+}
+
 export default function RegistrationClient({
   eventSlug, eventId, eventName, eventSubtitle,
   coverUrl, startsAt, city, tickets, canvasVariant,
@@ -344,11 +354,17 @@ export default function RegistrationClient({
   const handleSubmit = async (overrideProcessor?: string) => {
     setSubmitError('');
 
-    const paidProcessors = availableProcessors.filter(p => p !== 'free');
+    // Only consider processors the organizer enabled that also support this ticket's currency.
+    const ticketCurrency = selectedTicket?.currency ?? 'USD';
+    const paidProcessors = availableProcessors
+      .filter(p => p !== 'free')
+      .filter(p => processorSupportsCurrency(p, ticketCurrency));
+    const usableProcessors = paidProcessors.length ? paidProcessors : ['stripe'];
     const ticketIsPaid = (selectedTicket?.price ?? 0) > 0 || !!(selectedTicket?.min_price && selectedTicket.min_price > 0);
-    // Resolve which processor to send: override > inline selection > first available
+    // Resolve which processor to send: override > inline selection (if valid for currency) > first available
+    const selectedIsUsable = step2Processor && usableProcessors.includes(step2Processor);
     const effectiveProcessor = overrideProcessor
-      ?? (ticketIsPaid && paidProcessors.length > 0 ? (step2Processor || paidProcessors[0]) : undefined);
+      ?? (ticketIsPaid ? (selectedIsUsable ? step2Processor : usableProcessors[0]) : undefined);
 
     setSubmitting(true);
     try {
@@ -586,10 +602,17 @@ export default function RegistrationClient({
   const previewValues = zoneValues;
   const previewPhotoUrls = zonePhotoUrls;
 
-  // Step 2 payment method variables (computed once, used in JSX below)
-  const s2PaidProcessors = availableProcessors.filter(p => p !== 'free');
-  const s2Methods = PAYMENT_METHOD_OPTIONS.filter(m => s2PaidProcessors.includes(m.value));
-  const s2Active = step2Processor || s2PaidProcessors[0] || 'stripe';
+  // Step 2 payment method variables (computed once, used in JSX below).
+  // Only offer a processor if the organizer enabled it AND it supports this ticket's currency.
+  // Stripe is always kept as a safety net so a paid ticket is never left with zero methods.
+  const s2PaidProcessors = availableProcessors
+    .filter(p => p !== 'free')
+    .filter(p => processorSupportsCurrency(p, ccy));
+  const s2AvailableForCurrency = s2PaidProcessors.length ? s2PaidProcessors : ['stripe'];
+  const s2Methods = PAYMENT_METHOD_OPTIONS.filter(m => s2AvailableForCurrency.includes(m.value));
+  const s2Active = (step2Processor && s2AvailableForCurrency.includes(step2Processor))
+    ? step2Processor
+    : s2AvailableForCurrency[0] || 'stripe';
   const s2SingleMethod = s2Methods.length === 1 ? s2Methods[0] ?? null : null;
   const S2SingleIcon = s2SingleMethod ? s2SingleMethod.icon : null;
 

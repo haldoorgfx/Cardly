@@ -18,6 +18,7 @@ interface EventData {
   is_online: boolean;
   require_approval: boolean;
   show_remaining_tickets: boolean;
+  payment_processors: string[];
   venue_name: string | null;
   venue_address: string | null;
   venue_lat: number | null;
@@ -40,6 +41,14 @@ const TABS: { id: Tab; label: string }[] = [
   { id: 'registration', label: 'Registration' },
   { id: 'privacy',      label: 'Privacy'      },
   { id: 'danger',       label: 'Danger zone'  },
+];
+
+type PaymentProcessor = 'stripe' | 'flutterwave' | 'waafipay';
+
+const PAYMENT_METHODS: { value: PaymentProcessor; label: string; desc: string }[] = [
+  { value: 'stripe',      label: 'Card (Stripe)',          desc: 'Visa, Mastercard, Apple Pay, Google Pay — worldwide' },
+  { value: 'waafipay',    label: 'Mobile money (WaafiPay)', desc: 'EVC Plus, eDahab, Somtel — Somalia & Djibouti' },
+  { value: 'flutterwave', label: 'Flutterwave',            desc: 'Card, bank transfer, USSD — African currencies' },
 ];
 
 function toLocalDate(iso: string | null) {
@@ -77,6 +86,26 @@ export function EventSettingsView({ event }: Props) {
   // Registration — require_approval and show_remaining_tickets are real DB columns
   const [requireApproval, setRequireApproval] = useState(event.require_approval);
   const [showRemainingTickets, setShowRemainingTickets] = useState(event.show_remaining_tickets);
+
+  // Payment methods buyers can use at checkout. Defaults to Card (Stripe) so existing
+  // events behave exactly as before. At least one must stay selected.
+  const validProcessors = new Set<PaymentProcessor>(['stripe', 'flutterwave', 'waafipay']);
+  const [paymentProcessors, setPaymentProcessors] = useState<PaymentProcessor[]>(() => {
+    const initial = (event.payment_processors ?? []).filter((p): p is PaymentProcessor => validProcessors.has(p as PaymentProcessor));
+    return initial.length ? initial : ['stripe'];
+  });
+  function togglePaymentProcessor(value: PaymentProcessor) {
+    setPaymentProcessors(prev => {
+      if (prev.includes(value)) {
+        // Don't allow removing the last method — always keep at least one.
+        if (prev.length === 1) return prev;
+        return prev.filter(p => p !== value);
+      }
+      // Preserve display order from PAYMENT_METHODS.
+      const next = [...prev, value];
+      return PAYMENT_METHODS.map(m => m.value).filter(v => next.includes(v));
+    });
+  }
 
   // Platform fee — who bears Eventera's per-ticket fee. Saves instantly.
   const [passFee, setPassFee] = useState(event.fee_bearer === 'pass');
@@ -134,6 +163,7 @@ export function EventSettingsView({ event }: Props) {
             is_public:              isPublic,
             require_approval:       requireApproval,
             show_remaining_tickets: showRemainingTickets,
+            payment_processors:     paymentProcessors,
             timezone,
             venue_name:    placeData?.venue_name    ?? (venue.trim() || null),
             venue_address: placeData?.venue_address ?? null,
@@ -346,6 +376,53 @@ export function EventSettingsView({ event }: Props) {
               </InfoRow>
             ))}
           </div>
+
+          {/* Payment methods — which processors buyers can use for paid tickets */}
+          <div className="mt-4 pt-4" style={{ borderTop: '1px solid #F0EDE7' }}>
+            <div className="text-[11px] font-semibold uppercase tracking-wider mb-1" style={{ color: '#6B7A72', letterSpacing: '0.06em' }}>Payment methods</div>
+            <p className="text-[12px] mb-3" style={{ color: '#6B7A72' }}>
+              Which methods buyers can use to pay for paid tickets. Free tickets skip payment entirely.
+            </p>
+            <div className="space-y-2.5">
+              {PAYMENT_METHODS.map(m => {
+                const checked = paymentProcessors.includes(m.value);
+                const isLastSelected = checked && paymentProcessors.length === 1;
+                return (
+                  <button
+                    key={m.value}
+                    type="button"
+                    onClick={() => togglePaymentProcessor(m.value)}
+                    disabled={isLastSelected}
+                    className="w-full flex items-center gap-3 p-3.5 rounded-xl text-left transition"
+                    style={{
+                      background: checked ? 'rgba(31,77,58,0.04)' : 'white',
+                      border: checked ? '1.5px solid #1F4D3A' : '1px solid #E5E0D4',
+                      cursor: isLastSelected ? 'not-allowed' : 'pointer',
+                    }}
+                  >
+                    <div
+                      className="shrink-0 rounded-md grid place-items-center transition"
+                      style={{
+                        width: 18, height: 18,
+                        background: checked ? '#1F4D3A' : 'white',
+                        border: checked ? '1.5px solid #1F4D3A' : '1.5px solid #C9C3B1',
+                      }}
+                    >
+                      {checked && <Check size={12} strokeWidth={3} style={{ color: 'white' }} />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13.5px] font-medium" style={{ color: '#0F1F18' }}>{m.label}</p>
+                      <p className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{m.desc}</p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-[11px] mt-2" style={{ color: '#9BA8A1' }}>
+              At least one method must stay enabled. Save changes to apply.
+            </p>
+          </div>
+
           <div className="mt-4 pt-4" style={{ borderTop: '1px solid #F0EDE7' }}>
             <div className="text-[11px] font-semibold uppercase tracking-wider mb-1" style={{ color: '#6B7A72', letterSpacing: '0.06em' }}>Platform fee</div>
             <InfoRow

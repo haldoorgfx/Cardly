@@ -32,7 +32,7 @@ export default async function EventSettingsPage({ params }: { params: Promise<{ 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: page } = await (admin as any)
     .from('event_pages')
-    .select('venue_name, venue_address, venue_lat, venue_lng, city, country, timezone, starts_at, ends_at, max_capacity, is_public, is_online, require_approval, show_remaining_tickets')
+    .select('venue_name, venue_address, venue_lat, venue_lng, city, country, timezone, starts_at, ends_at, max_capacity, is_public, is_online, require_approval, show_remaining_tickets, payment_processors, payment_processor')
     .eq('event_id', id)
     .single();
 
@@ -57,6 +57,10 @@ export default async function EventSettingsPage({ params }: { params: Promise<{ 
         is_online: page?.is_online ?? false,
         require_approval: page?.require_approval ?? false,
         show_remaining_tickets: page?.show_remaining_tickets ?? false,
+        payment_processors:
+          (page?.payment_processors as string[] | null)?.length
+            ? (page.payment_processors as string[])
+            : (page?.payment_processor ? [page.payment_processor as string] : ['stripe']),
         venue_name: page?.venue_name ?? null,
         venue_address: page?.venue_address ?? null,
         venue_lat: page?.venue_lat ?? null,

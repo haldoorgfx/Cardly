@@ -39,7 +39,7 @@ const EventPageSchema = z.object({
                                 .regex(/^[a-z0-9-]*$/, 'Slug may only contain lowercase letters, numbers, and hyphens')
                                 .nullable().optional(),
   payment_processor:          z.enum(['stripe', 'flutterwave', 'waafipay', 'free']).optional(),
-  payment_processors:         z.array(z.enum(['stripe', 'flutterwave', 'waafipay', 'free'])).min(1).optional(),
+  payment_processors:         z.array(z.enum(['stripe', 'flutterwave', 'waafipay'])).min(1).optional(),
   show_remaining_tickets:     z.boolean().optional(),
   require_approval:           z.boolean().optional(),
   collect_attendee_details:   z.boolean().optional(),

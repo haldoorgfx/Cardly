@@ -127,6 +127,7 @@ export interface EventPage {
   seo_title: string | null;
   seo_description: string | null;
   payment_processor: PaymentProcessor;
+  payment_processors: PaymentProcessor[] | null;
   organizer_name: string | null;
   organizer_avatar_url: string | null;
   created_at: string;
@@ -911,6 +912,7 @@ export interface Database {
           seo_title: string | null;
           seo_description: string | null;
           payment_processor: PaymentProcessor;
+          payment_processors: PaymentProcessor[] | null;
           organizer_name: string | null;
           organizer_avatar_url: string | null;
           city: string | null;
@@ -946,6 +948,7 @@ export interface Database {
           seo_title?: string | null;
           seo_description?: string | null;
           payment_processor?: PaymentProcessor;
+          payment_processors?: PaymentProcessor[] | null;
           organizer_name?: string | null;
           organizer_avatar_url?: string | null;
           city?: string | null;
@@ -979,6 +982,7 @@ export interface Database {
           seo_title?: string | null;
           seo_description?: string | null;
           payment_processor?: PaymentProcessor;
+          payment_processors?: PaymentProcessor[] | null;
           organizer_name?: string | null;
           organizer_avatar_url?: string | null;
           city?: string | null;
