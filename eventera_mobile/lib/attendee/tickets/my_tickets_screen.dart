@@ -82,7 +82,9 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
       final uid = currentUserId ?? '';
 
       final orParts = <String>[];
-      if (email.isNotEmpty) orParts.add('attendee_email.eq.$email');
+      // ilike (no wildcards) = case-insensitive exact match, so a ticket bought
+      // with a differently-cased email still matches.
+      if (email.isNotEmpty) orParts.add('attendee_email.ilike.$email');
       if (uid.isNotEmpty) orParts.add('user_id.eq.$uid');
       final orFilter =
           orParts.isEmpty ? 'attendee_email.eq.__none__' : orParts.join(',');
@@ -96,8 +98,9 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
             events(id, name, slug, event_pages(title, cover_image_url, starts_at, ends_at, venue_name, city, is_online))
           ''')
           .or(orFilter)
-          .inFilter('status',
-              ['confirmed', 'checked_in', 'pending', 'pending_approval'])
+          // Show every ticket the user owns except clearly-dead ones, instead of
+          // a narrow whitelist that hid bought tickets with other statuses.
+          .not('status', 'in', '("cancelled","refunded","failed")')
           .order('created_at', ascending: false);
 
       final tickets = asMapList(rows).map(_parse).toList();
@@ -168,19 +171,7 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
       appBar: MAppBar(
         title: 'My tickets',
         showBack: false,
-        actions: isSignedIn && !_loading && _error == null && _tickets.isNotEmpty
-            ? [
-                SizedBox(
-                  width: 152,
-                  child: SegControl(
-                    segments: const ['Upcoming', 'Past'],
-                    index: _seg,
-                    onChanged: (i) => setState(() => _seg = i),
-                  ),
-                ),
-                const SizedBox(width: 4),
-              ]
-            : const [],
+        actions: const [],
       ),
       body: _body(),
     );
@@ -211,10 +202,21 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
         .toList();
     final shown = _seg == 0 ? upcoming : past;
 
-    return RefreshIndicator(
-      color: AppColors.forest,
-      onRefresh: _load,
-      child: shown.isEmpty
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(AppSpace.lg, 10, AppSpace.lg, 10),
+          child: SegControl(
+            segments: const ['Upcoming', 'Past'],
+            index: _seg,
+            onChanged: (i) => setState(() => _seg = i),
+          ),
+        ),
+        Expanded(
+          child: RefreshIndicator(
+            color: AppColors.forest,
+            onRefresh: _load,
+            child: shown.isEmpty
           ? ListView(
               children: [
                 SizedBox(height: MediaQuery.of(context).size.height * 0.2),
@@ -237,6 +239,9 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
                 ],
               ],
             ),
+          ),
+        ),
+      ],
     );
   }
 

@@ -110,8 +110,17 @@ class _EventHubScreenState extends State<EventHubScreen> {
         ]);
       }
 
-      final reg = await RegStore.instance.get(widget.slug);
-      final regId = reg?.registrationId;
+      // Registration status must be scoped to the CURRENT user. The local
+      // RegStore is device-wide (keyed by slug), so a new user could inherit a
+      // previous user's "Registered" state. When signed in, verify against the
+      // DB for this user; only fall back to the local store for guests.
+      String? regId;
+      if (isSignedIn && eventId != null) {
+        regId = await _fetchUserRegId(eventId);
+      } else {
+        final reg = await RegStore.instance.get(widget.slug);
+        regId = reg?.registrationId;
+      }
 
       // Set the shared event context so detail/engagement screens can read the
       // registration id without threading it through every constructor.
@@ -215,6 +224,32 @@ class _EventHubScreenState extends State<EventHubScreen> {
     for (final r in _asRows(rows)) {
       _sponsors.add(SponsorSummary.fromRow(r));
     }
+  }
+
+  /// The current signed-in user's own registration id for this event (if any),
+  /// verified against the DB so "Registered" is never inherited from another
+  /// user on the same device.
+  Future<String?> _fetchUserRegId(String eventId) async {
+    try {
+      final email = (currentUserEmail ?? '').toLowerCase();
+      final uid = currentUserId ?? '';
+      final orParts = <String>[];
+      if (uid.isNotEmpty) orParts.add('user_id.eq.$uid');
+      if (email.isNotEmpty) orParts.add('attendee_email.eq.$email');
+      if (orParts.isEmpty) return null;
+      final rows = await supa
+          .from('registrations')
+          .select('id')
+          .eq('event_id', eventId)
+          .or(orParts.join(','))
+          .inFilter('status',
+              ['confirmed', 'checked_in', 'pending', 'pending_approval'])
+          .limit(1);
+      if (rows is List && rows.isNotEmpty) {
+        return asString((rows.first as Map)['id']);
+      }
+    } catch (_) {}
+    return null;
   }
 
   Future<void> _loadAttendees(String eventId) async {

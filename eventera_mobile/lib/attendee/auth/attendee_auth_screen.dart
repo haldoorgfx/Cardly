@@ -28,12 +28,37 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
   bool _busy = false;
   String? _error;
   String _sentTo = '';
+  bool _done = false;
 
   int _resendIn = 0;
   Timer? _resendTimer;
+  StreamSubscription<AuthState>? _authSub;
+
+  @override
+  void initState() {
+    super.initState();
+    // A session can appear from either the email OTP verify OR the Google OAuth
+    // deep-link returning. Close this screen the moment we're signed in so the
+    // app lands on the home/account view without needing a manual refresh.
+    _authSub = supa.auth.onAuthStateChange.listen((data) {
+      if (data.session != null &&
+          (data.event == AuthChangeEvent.signedIn ||
+              data.event == AuthChangeEvent.initialSession)) {
+        _finish();
+      }
+    });
+  }
+
+  /// Pop back to the caller exactly once with a success result.
+  void _finish() {
+    if (_done || !mounted) return;
+    _done = true;
+    Navigator.of(context).pop(true);
+  }
 
   @override
   void dispose() {
+    _authSub?.cancel();
     _resendTimer?.cancel();
     _emailCtrl.dispose();
     _codeCtrl.dispose();
@@ -106,7 +131,7 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
         type: OtpType.email,
       );
       if (!mounted) return;
-      Navigator.of(context).pop(true);
+      _finish();
     } on AuthException catch (e) {
       if (mounted) setState(() => _error = e.message);
     } catch (_) {

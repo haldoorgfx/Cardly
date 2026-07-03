@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../net.dart';
 import '../../ui/tokens.dart';
 import '../../ui/components.dart';
+import '../../ui/menu.dart';
 import '../../screens/open_event_screen.dart';
 import '../event_landing_screen.dart';
 import '../tickets/my_tickets_screen.dart';
@@ -195,35 +196,64 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         ],
       );
     }
-    return ListView.separated(
+
+    final unread = _items.where((n) => !n.read).toList();
+    final read = _items.where((n) => n.read).toList();
+
+    final children = <Widget>[];
+    if (unread.isNotEmpty) {
+      children.add(const GroupLabel('New'));
+      children.add(_group(unread));
+    }
+    if (read.isNotEmpty) {
+      if (children.isNotEmpty) children.add(const SizedBox(height: AppSpace.lg));
+      children.add(const GroupLabel('Earlier'));
+      children.add(_group(read));
+    }
+
+    return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(AppSpace.lg, AppSpace.xs, AppSpace.lg, 40),
-      itemCount: _items.length,
-      separatorBuilder: (_, __) =>
-          const Divider(height: 1, thickness: 1, color: AppColors.border),
-      itemBuilder: (context, i) => _tile(_items[i]),
+      padding:
+          const EdgeInsets.fromLTRB(AppSpace.lg, AppSpace.lg, AppSpace.lg, 40),
+      children: children,
+    );
+  }
+
+  // A rounded card containing a set of notification rows with hairline
+  // dividers between them.
+  Widget _group(List<_Notif> notifs) {
+    final rows = <Widget>[];
+    for (var i = 0; i < notifs.length; i++) {
+      if (i > 0) {
+        rows.add(const Divider(
+            height: 1, thickness: 1, color: AppColors.border));
+      }
+      rows.add(_tile(notifs[i]));
+    }
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.card),
+        border: Border.all(color: AppColors.border),
+        boxShadow: AppShadow.soft,
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(children: rows),
     );
   }
 
   Widget _tile(_Notif n) {
-    final style = _styleFor(n.type);
+    final tone = _toneFor(n);
+    final icon = _iconFor(n);
     return InkWell(
       onTap: () => _onTap(n),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 14),
+      child: Container(
+        color: n.read ? Colors.transparent : AppColors.forestSoft,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 38,
-              height: 38,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: style.tileBg,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(style.icon, size: 19, color: style.iconColor),
-            ),
+            IconTile(icon, tone: tone),
             const SizedBox(width: 13),
             Expanded(
               child: Column(
@@ -231,7 +261,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 children: [
                   Text(n.title,
                       style: AppText.h3.copyWith(
-                          fontSize: 14.5,
+                          fontSize: 15,
                           fontWeight:
                               n.read ? FontWeight.w600 : FontWeight.w700)),
                   if (n.body.isNotEmpty) ...[
@@ -244,7 +274,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     const SizedBox(height: 5),
                     Text(n.time,
                         style: AppText.numSm.copyWith(
-                            fontSize: 10.5, color: AppColors.inkMuted)),
+                            fontSize: 11, color: AppColors.inkMuted)),
                   ],
                 ],
               ),
@@ -252,7 +282,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             if (!n.read) ...[
               const SizedBox(width: 8),
               Container(
-                margin: const EdgeInsets.only(top: 4),
+                margin: const EdgeInsets.only(top: 6),
                 width: 9,
                 height: 9,
                 decoration: const BoxDecoration(
@@ -265,57 +295,43 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  _NotifStyle _styleFor(String type) {
-    switch (type) {
-      case 'connection':
-      case 'connection_request':
-      case 'connection_accepted':
-        return const _NotifStyle(
-            icon: Icons.person_add_alt,
-            tileBg: AppColors.goldSoft,
-            iconColor: AppColors.goldHover);
-      case 'message':
-        return const _NotifStyle(
-            icon: Icons.chat_bubble_outline,
-            tileBg: AppColors.forestSoft,
-            iconColor: AppColors.forest);
-      case 'ticket':
-      case 'registration':
-        return const _NotifStyle(
-            icon: Icons.confirmation_number_outlined,
-            tileBg: AppColors.forestSoft,
-            iconColor: AppColors.forest);
-      case 'reminder':
-        return const _NotifStyle(
-            icon: Icons.alarm,
-            tileBg: AppColors.creamSoft,
-            iconColor: AppColors.info);
-      case 'event':
-      case 'new_event':
-        return const _NotifStyle(
-            icon: Icons.event_available_outlined,
-            tileBg: AppColors.forestSoft,
-            iconColor: AppColors.forest);
-      case 'waitlist':
-        return const _NotifStyle(
-            icon: Icons.hourglass_bottom,
-            tileBg: AppColors.creamSoft,
-            iconColor: AppColors.warning);
-      default:
-        return const _NotifStyle(
-            icon: Icons.notifications_outlined,
-            tileBg: AppColors.creamSoft,
-            iconColor: AppColors.inkSoft);
+  // Picks the icon-tile tone from the notification's type/title.
+  ITone _toneFor(_Notif n) {
+    final t = n.type.toLowerCase();
+    final title = n.title.toLowerCase();
+    if (t == 'registration' ||
+        title.contains('registration') ||
+        title.contains('confirmed') ||
+        title.contains('confirm')) {
+      return ITone.success;
     }
+    if (t == 'ticket' ||
+        title.contains('ticket') ||
+        title.contains('import') ||
+        title.contains('duplicate')) {
+      return ITone.forest;
+    }
+    return ITone.info;
   }
-}
 
-class _NotifStyle {
-  final IconData icon;
-  final Color tileBg;
-  final Color iconColor;
-  const _NotifStyle(
-      {required this.icon, required this.tileBg, required this.iconColor});
+  // Picks the icon from the notification's type/title.
+  IconData _iconFor(_Notif n) {
+    final t = n.type.toLowerCase();
+    final title = n.title.toLowerCase();
+    if (t == 'registration' ||
+        title.contains('registration') ||
+        title.contains('confirmed') ||
+        title.contains('confirm')) {
+      return Icons.person_outline;
+    }
+    if (t == 'ticket' ||
+        title.contains('ticket') ||
+        title.contains('import') ||
+        title.contains('duplicate')) {
+      return Icons.confirmation_number_outlined;
+    }
+    return Icons.notifications_none;
+  }
 }
 
 // ─── model ──────────────────────────────────────────────────────────────────

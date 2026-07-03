@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 
 import '../../net.dart';
@@ -137,67 +139,120 @@ class _SavedEventsScreenState extends State<SavedEventsScreen> {
   }
 
   Widget _tile(_Saved s) {
+    final hasCover = s.coverUrl != null && s.coverUrl!.isNotEmpty;
     return MCard(
       onTap: s.slug.isEmpty ? null : () => _open(s),
-      padding: const EdgeInsets.all(13),
-      child: Row(
+      padding: EdgeInsets.zero,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(AppRadius.card),
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: SizedBox(
-              width: 64,
-              height: 64,
-              child: (s.coverUrl != null && s.coverUrl!.isNotEmpty)
-                  ? Image.network(
-                      s.coverUrl!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) =>
-                          PhotoPlaceholder(hue: hueFromString(s.title)),
-                    )
-                  : PhotoPlaceholder(hue: hueFromString(s.title)),
+          // ── Cover image with scrim, location tag + bookmark ──
+          SizedBox(
+            height: 120,
+            width: double.infinity,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                hasCover
+                    ? Image.network(
+                        s.coverUrl!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) =>
+                            PhotoPlaceholder(hue: hueFromString(s.title)),
+                      )
+                    : PhotoPlaceholder(hue: hueFromString(s.title)),
+                // Bottom scrim gradient.
+                const Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          Color(0xB80D1F17), // forestDark @ ~72%
+                        ],
+                        stops: [0.45, 1.0],
+                      ),
+                    ),
+                  ),
+                ),
+                // Location / category tag, top-left.
+                if (s.location.isNotEmpty)
+                  Positioned(
+                    top: 10,
+                    left: 10,
+                    child: Tag(s.location, kind: TagKind.forest),
+                  ),
+                // Filled bookmark in a translucent blurred circle, top-right.
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: _BookmarkButton(onTap: () => _unsave(s)),
+                ),
+              ],
             ),
           ),
-          const SizedBox(width: 13),
-          Expanded(
+          // ── Title + date below the cover ──
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(s.title,
-                    style: AppText.h3.copyWith(fontSize: 15),
+                    style: AppText.h3,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis),
-                const SizedBox(height: 4),
-                Text(_metaLine(s),
-                    style: AppText.numSm
-                        .copyWith(fontSize: 11.5, color: AppColors.inkMuted)),
-                if (s.location.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  Tag(s.location, kind: TagKind.forest),
-                ],
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    const Icon(Icons.calendar_today_outlined,
+                        size: 14, color: AppColors.inkMuted),
+                    const SizedBox(width: 6),
+                    Text(
+                      _Dates.compact(s.startsAt),
+                      style: AppText.numSm.copyWith(color: AppColors.inkMuted),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
-          const SizedBox(width: 8),
-          GestureDetector(
-            onTap: () => _unsave(s),
-            behavior: HitTestBehavior.opaque,
-            child: const Padding(
-              padding: EdgeInsets.all(4),
-              child: Icon(Icons.bookmark, size: 22, color: AppColors.forest),
-            ),
-          ),
         ],
+        ),
       ),
     );
   }
+}
 
-  String _metaLine(_Saved s) {
-    final date = _Dates.compact(s.startsAt);
-    if (s.isOnline) {
-      return date;
-    }
-    return date;
+class _BookmarkButton extends StatelessWidget {
+  final VoidCallback onTap;
+  const _BookmarkButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: ClipOval(
+        child: BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+          child: Container(
+            width: 36,
+            height: 36,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.22),
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white.withValues(alpha: 0.35)),
+            ),
+            child: const Icon(Icons.bookmark, size: 18, color: Colors.white),
+          ),
+        ),
+      ),
+    );
   }
 }
 

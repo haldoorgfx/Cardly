@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' show FileOptions;
 import '../../net.dart';
 import '../../ui/tokens.dart';
 import '../../ui/components.dart';
+import '../../ui/menu.dart';
 
 /// View / edit the signed-in attendee's `profiles` row.
 ///
@@ -268,6 +269,88 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
     );
   }
 
+  // Short descriptions shown under each notification toggle title.
+  static const _prefBlurbs = <String, String>{
+    'reminders_email': 'A nudge before events you\'re attending start.',
+    'agenda_changes_email': 'When a session time or venue is updated.',
+    'organizer_follows_email': 'Fresh events from organizers you follow.',
+    'recommendations_email': 'Events we think you\'ll want to attend.',
+  };
+
+  // Opens a sheet to add a custom interest. Reuses the existing _interestCtl
+  // and _addInterest logic so persistence is unchanged.
+  Future<void> _openAddInterest() async {
+    _interestCtl.clear();
+    await showMSheet<void>(
+      context,
+      StatefulBuilder(
+        builder: (ctx, setSheet) => Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Add an interest', style: AppText.h3),
+            const SizedBox(height: 4),
+            Text('Tell organizers what you\'re into.', style: AppText.bodySm),
+            const SizedBox(height: 16),
+            MInput(
+              hint: 'e.g. Photography',
+              controller: _interestCtl,
+              icon: Icons.tag,
+              action: TextInputAction.done,
+              onSubmitted: (_) {
+                _addInterest();
+                Navigator.of(ctx).maybePop();
+              },
+            ),
+            const SizedBox(height: 16),
+            MButton('Add interest', onTap: () {
+              _addInterest();
+              Navigator.of(ctx).maybePop();
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Account handlers (no existing backend for these → placeholders). ──
+  void _changeEmail() =>
+      showToast(context, 'Changing your email is coming soon');
+
+  void _changeLanguage() =>
+      showToast(context, 'More languages are coming soon');
+
+  Future<void> _deleteAccount() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.card)),
+        title: Text('Delete account?', style: AppText.h3),
+        content: Text(
+          'This permanently removes your profile and data. This can\'t be undone.',
+          style: AppText.bodySm,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text('Cancel',
+                style: AppText.label.copyWith(color: AppColors.inkSoft)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text('Delete',
+                style: AppText.label.copyWith(color: AppColors.danger)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true && mounted) {
+      showToast(context, 'Account deletion is coming soon');
+    }
+  }
+
   Widget _buildForm() {
     // Interests to show as chips: suggested set + any custom ones already saved.
     final custom = _interests
@@ -277,8 +360,10 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
     final chips = [..._suggestedInterests, ...custom];
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(AppSpace.lg, AppSpace.base, AppSpace.lg, 40),
+      padding:
+          const EdgeInsets.fromLTRB(AppSpace.lg, AppSpace.base, AppSpace.lg, 40),
       children: [
+        // ── Avatar + email header ─────────────────────────────────────────
         Center(
           child: Column(
             children: [
@@ -287,7 +372,7 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    Avatar(name: _nameCtl.text, imageUrl: _avatarUrl, size: 84),
+                    Avatar(name: _nameCtl.text, imageUrl: _avatarUrl, size: 72),
                     if (_uploadingAvatar)
                       Positioned.fill(
                         child: Container(
@@ -297,8 +382,8 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
                           ),
                           alignment: Alignment.center,
                           child: const SizedBox(
-                            width: 22,
-                            height: 22,
+                            width: 20,
+                            height: 20,
                             child: CircularProgressIndicator(
                                 strokeWidth: 2.5, color: Colors.white),
                           ),
@@ -308,8 +393,8 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
                       bottom: -2,
                       right: -2,
                       child: Container(
-                        width: 28,
-                        height: 28,
+                        width: 26,
+                        height: 26,
                         decoration: BoxDecoration(
                           color: AppColors.forest,
                           shape: BoxShape.circle,
@@ -317,106 +402,209 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
                               Border.all(color: AppColors.canvas, width: 2.5),
                         ),
                         alignment: Alignment.center,
-                        child: const Icon(Icons.edit,
-                            size: 13, color: Colors.white),
+                        child: const Icon(Icons.camera_alt,
+                            size: 12, color: Colors.white),
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 12),
               if (_email.isNotEmpty)
-                Text(_email, style: AppText.caption),
+                Text(_email,
+                    textAlign: TextAlign.center,
+                    style: AppText.bodySm
+                        .copyWith(color: AppColors.inkMuted)),
             ],
           ),
         ),
-        const SizedBox(height: 28),
-        MInput(
-          label: 'Full name',
-          hint: 'Your name',
-          controller: _nameCtl,
-          onChanged: (_) => setState(() {}),
-        ),
-        const SizedBox(height: 18),
-        MInput(
-          label: 'City',
-          hint: 'Where you\'re based',
-          controller: _cityCtl,
-        ),
-        const SizedBox(height: 18),
-        MInput(
-          label: 'Phone',
-          hint: '+000 000 0000',
-          controller: _phoneCtl,
-          keyboardType: TextInputType.phone,
+        const SizedBox(height: 26),
+
+        // ── Personal details ──────────────────────────────────────────────
+        const GroupLabel('Personal details'),
+        MCard(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              MInput(
+                label: 'Full name',
+                hint: 'Your name',
+                controller: _nameCtl,
+                icon: Icons.person_outline,
+                onChanged: (_) => setState(() {}),
+              ),
+              const SizedBox(height: 16),
+              MInput(
+                label: 'City',
+                hint: 'Where you\'re based',
+                controller: _cityCtl,
+                icon: Icons.place_outlined,
+              ),
+              const SizedBox(height: 16),
+              MInput(
+                label: 'Phone',
+                hint: '+000 000 0000',
+                controller: _phoneCtl,
+                icon: Icons.phone_outlined,
+                keyboardType: TextInputType.phone,
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: 24),
-        const SectionLabel('Interests'),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 9,
-          runSpacing: 9,
-          children: [
-            for (final tag in chips)
-              MChip(
-                tag,
-                selected: _hasInterest(tag),
-                onTap: () => _toggleInterest(tag),
-              ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: MInput(
-                hint: 'Add your own interest',
-                controller: _interestCtl,
-                action: TextInputAction.done,
-                onSubmitted: (_) => _addInterest(),
-              ),
-            ),
-            const SizedBox(width: 10),
-            GestureDetector(
-              onTap: () => _addInterest(),
-              child: Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: AppColors.forest,
-                  borderRadius: BorderRadius.circular(AppRadius.btn),
+
+        // ── Interests ─────────────────────────────────────────────────────
+        const GroupLabel('Interests'),
+        MCard(
+          padding: const EdgeInsets.all(16),
+          child: Wrap(
+            spacing: 9,
+            runSpacing: 9,
+            children: [
+              for (final tag in chips)
+                MChip(
+                  tag,
+                  selected: _hasInterest(tag),
+                  onTap: () => _toggleInterest(tag),
                 ),
-                alignment: Alignment.center,
-                child: const Icon(Icons.add, size: 20, color: Colors.white),
-              ),
-            ),
-          ],
+              _AddChip(onTap: _openAddInterest),
+            ],
+          ),
         ),
-        const SizedBox(height: 28),
-        const SectionLabel('Notifications'),
-        const SizedBox(height: 4),
-        ..._prefKeys.entries.map((e) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(e.value,
-                        style: AppText.subhead.copyWith(fontSize: 14)),
-                  ),
-                  const SizedBox(width: 12),
-                  MToggle(
-                    value: _prefs[e.key] == true,
-                    onChanged: (v) => setState(() => _prefs[e.key] = v),
-                  ),
-                ],
-              ),
-            )),
+        const SizedBox(height: 24),
+
+        // ── Notifications ─────────────────────────────────────────────────
+        const GroupLabel('Notifications'),
+        MCard(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            children: [
+              for (var i = 0; i < _prefKeys.length; i++) ...[
+                if (i > 0)
+                  const Divider(
+                      height: 1, thickness: 1, color: AppColors.border),
+                _NotifRow(
+                  title: _prefKeys.values.elementAt(i),
+                  blurb: _prefBlurbs[_prefKeys.keys.elementAt(i)] ?? '',
+                  value: _prefs[_prefKeys.keys.elementAt(i)] == true,
+                  onChanged: (v) => setState(
+                      () => _prefs[_prefKeys.keys.elementAt(i)] = v),
+                ),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+
+        // ── Account ───────────────────────────────────────────────────────
+        const GroupLabel('Account'),
+        MenuGroup(children: [
+          MenuRow(
+            icon: Icons.alternate_email,
+            tone: ITone.info,
+            title: 'Change email',
+            subtitle: _email.isNotEmpty ? _email : null,
+            onTap: _changeEmail,
+          ),
+          MenuRow(
+            icon: Icons.language,
+            tone: ITone.forest,
+            title: 'Language & region',
+            trailing: Text('English',
+                style: AppText.bodySm.copyWith(color: AppColors.inkMuted)),
+            onTap: _changeLanguage,
+          ),
+          MenuRow(
+            icon: Icons.delete_outline,
+            tone: ITone.danger,
+            title: 'Delete account',
+            chevron: false,
+            onTap: _deleteAccount,
+          ),
+        ]),
       ],
     );
   }
 }
 
 // ─── local widgets ──────────────────────────────────────────────────────────
+
+/// A dashed "＋ Add" chip that matches the MChip height/shape.
+class _AddChip extends StatelessWidget {
+  final VoidCallback onTap;
+  const _AddChip({required this.onTap});
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 34,
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        decoration: BoxDecoration(
+          color: AppColors.creamSoft,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: AppColors.borderStrong),
+        ),
+        alignment: Alignment.center,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.add, size: 15, color: AppColors.forest),
+            const SizedBox(width: 5),
+            Text('Add',
+                style: AppText.bodySm.copyWith(
+                    color: AppColors.forest,
+                    fontWeight: FontWeight.w600,
+                    height: 1.0)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A single notification preference row: title + short blurb + toggle.
+class _NotifRow extends StatelessWidget {
+  final String title;
+  final String blurb;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+  const _NotifRow({
+    required this.title,
+    required this.blurb,
+    required this.value,
+    required this.onChanged,
+  });
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(title, style: AppText.h3.copyWith(fontSize: 15)),
+                if (blurb.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(blurb,
+                      style: AppText.caption.copyWith(
+                          fontSize: 12,
+                          letterSpacing: 0,
+                          color: AppColors.inkMuted)),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          MToggle(value: value, onChanged: onChanged),
+        ],
+      ),
+    );
+  }
+}
 
 class _SignInPrompt extends StatelessWidget {
   final String message;
