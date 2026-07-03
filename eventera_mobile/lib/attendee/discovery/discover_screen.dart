@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../net.dart';
 import '../../ui/components.dart';
@@ -34,6 +35,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   int _page = 0;
 
   final List<_DiscoverEvent> _events = [];
+  final List<_PromoBannerData> _banners = [];
   final Set<String> _cities = {};
 
   final _searchCtl = TextEditingController();
@@ -51,6 +53,32 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     super.initState();
     _scrollCtl.addListener(_onScroll);
     _fetch(reset: true);
+    _loadBanners();
+  }
+
+  /// Admin-controlled promo banners (from the `promo_banners` table). Silent on
+  /// failure — the carousel falls back to the default Eventera promo.
+  Future<void> _loadBanners() async {
+    try {
+      final now = DateTime.now().toUtc().toIso8601String();
+      final rows = await supa
+          .from('promo_banners')
+          .select(
+              'title, subtitle, image_url, cta_label, cta_type, cta_target, bg_start, bg_end, text_color, sort_order')
+          .eq('active', true)
+          .or('starts_at.is.null,starts_at.lte.$now')
+          .or('ends_at.is.null,ends_at.gte.$now')
+          .order('sort_order', ascending: true)
+          .limit(6);
+      if (!mounted) return;
+      setState(() {
+        _banners
+          ..clear()
+          ..addAll(asMapList(rows).map(_PromoBannerData.fromRow));
+      });
+    } catch (_) {
+      // Table may not exist yet, or offline — keep the default promo.
+    }
   }
 
   @override
@@ -434,8 +462,10 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       children: [
         // Sliding hero banner (Eventera promo + featured events)
         _HeroCarousel(
+          banners: _banners,
           featured: events.take(4).toList(),
           onOpen: _open,
+          onBannerCta: _onBannerCta,
           onExplore: () => _scrollCtl.animateTo(360,
               duration: const Duration(milliseconds: 400),
               curve: Curves.easeOut),
@@ -580,6 +610,27 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       builder: (_) => EventLandingScreen(slug: slug),
     ));
   }
+
+  void _onBannerCta(_PromoBannerData b) {
+    switch (b.ctaType) {
+      case 'event':
+        final slug = b.ctaTarget.trim();
+        if (slug.isEmpty) return;
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => EventLandingScreen(slug: slug),
+        ));
+        break;
+      case 'url':
+        final url = b.ctaTarget.trim();
+        if (url.isNotEmpty) {
+          launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+        }
+        break;
+      default:
+        _scrollCtl.animateTo(360,
+            duration: const Duration(milliseconds: 400), curve: Curves.easeOut);
+    }
+  }
 }
 
 // ─────────────────────────────────────────── Brand wordmark (header)
@@ -650,12 +701,16 @@ class _SquareAction extends StatelessWidget {
 // ─────────────────────────────────────────── Hero carousel
 
 class _HeroCarousel extends StatefulWidget {
+  final List<_PromoBannerData> banners;
   final List<_DiscoverEvent> featured;
   final void Function(_DiscoverEvent) onOpen;
+  final void Function(_PromoBannerData) onBannerCta;
   final VoidCallback onExplore;
   const _HeroCarousel({
+    required this.banners,
     required this.featured,
     required this.onOpen,
+    required this.onBannerCta,
     required this.onExplore,
   });
   @override
@@ -677,7 +732,9 @@ class _HeroCarouselState extends State<_HeroCarousel> {
     _auto?.cancel();
     _auto = Timer.periodic(const Duration(seconds: 5), (_) {
       if (!mounted || !_pc.hasClients) return;
-      final count = widget.featured.length + 1;
+      final bannerCount = widget.banners.isEmpty ? 1 : widget.banners.length;
+      final count = bannerCount + widget.featured.length;
+      if (count <= 1) return;
       final next = (_index + 1) % count;
       _pc.animateToPage(next,
           duration: const Duration(milliseconds: 450), curve: Curves.easeInOut);
@@ -694,13 +751,18 @@ class _HeroCarouselState extends State<_HeroCarousel> {
   @override
   Widget build(BuildContext context) {
     final pages = <Widget>[
-      _PromoBanner(onExplore: widget.onExplore),
-      ...widget.featured.map((e) => _EventBanner(event: e, onTap: () => widget.onOpen(e))),
+      if (widget.banners.isEmpty)
+        _PromoBanner(onExplore: widget.onExplore)
+      else
+        ...widget.banners.map(
+            (b) => _AdminBanner(data: b, onTap: () => widget.onBannerCta(b))),
+      ...widget.featured
+          .map((e) => _EventBanner(event: e, onTap: () => widget.onOpen(e))),
     ];
     return Column(
       children: [
         SizedBox(
-          height: 178,
+          height: 192,
           child: PageView(
             controller: _pc,
             onPageChanged: (i) => setState(() => _index = i),
@@ -807,6 +869,116 @@ class _PromoBanner extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Admin-controlled banner (from the `promo_banners` table). Renders an image
+/// background (with a left scrim) or a two-stop gradient when no image is set.
+class _AdminBanner extends StatelessWidget {
+  final _PromoBannerData data;
+  final VoidCallback onTap;
+  const _AdminBanner({required this.data, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final fg = _hexColor(data.textColor, Colors.white);
+    final hasImage = data.imageUrl.isNotEmpty;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: hasImage
+              ? null
+              : LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    _hexColor(data.bgStart, const Color(0xFF163828)),
+                    _hexColor(data.bgEnd, const Color(0xFF2A6A50)),
+                  ],
+                ),
+          borderRadius: BorderRadius.circular(AppRadius.card),
+          boxShadow: AppShadow.lift,
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            if (hasImage) ...[
+              CachedNetworkImage(
+                imageUrl: data.imageUrl,
+                fit: BoxFit.cover,
+                placeholder: (_, __) => Container(color: AppColors.forest),
+                errorWidget: (_, __, ___) => Container(color: AppColors.forest),
+              ),
+              const DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [Color(0xE60D1F17), Color(0x400D1F17)],
+                  ),
+                ),
+              ),
+            ],
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(data.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppText.h2
+                          .copyWith(color: fg, fontSize: 22, height: 1.15)),
+                  if (data.subtitle.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Text(data.subtitle,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppText.bodySm
+                            .copyWith(color: fg.withValues(alpha: 0.85))),
+                  ],
+                  if (data.ctaLabel.isNotEmpty) ...[
+                    const SizedBox(height: 14),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 9),
+                      decoration: BoxDecoration(
+                        color: AppColors.gold,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(data.ctaLabel,
+                              style: AppText.bodySm.copyWith(
+                                  color: AppColors.ink,
+                                  fontWeight: FontWeight.w700)),
+                          const SizedBox(width: 6),
+                          const Icon(Icons.arrow_forward,
+                              size: 15, color: AppColors.ink),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Parse `#RGB`/`#RRGGBB`/`#AARRGGBB` hex → Color, else [fallback].
+Color _hexColor(String hex, Color fallback) {
+  var h = hex.trim().replaceAll('#', '');
+  if (h.length == 6) h = 'FF$h';
+  if (h.length != 8) return fallback;
+  final v = int.tryParse(h, radix: 16);
+  return v == null ? fallback : Color(v);
 }
 
 class _EventBanner extends StatelessWidget {
@@ -1020,6 +1192,43 @@ Widget _metaRow(IconData icon, String text) {
       ),
     ],
   );
+}
+
+/// An admin-controlled promo banner parsed from a `promo_banners` row.
+class _PromoBannerData {
+  final String title;
+  final String subtitle;
+  final String imageUrl;
+  final String ctaLabel;
+  final String ctaType; // 'none' | 'event' | 'url'
+  final String ctaTarget;
+  final String bgStart;
+  final String bgEnd;
+  final String textColor;
+
+  _PromoBannerData({
+    required this.title,
+    required this.subtitle,
+    required this.imageUrl,
+    required this.ctaLabel,
+    required this.ctaType,
+    required this.ctaTarget,
+    required this.bgStart,
+    required this.bgEnd,
+    required this.textColor,
+  });
+
+  factory _PromoBannerData.fromRow(Map<String, dynamic> r) => _PromoBannerData(
+        title: asString(r['title'], 'The new era of events'),
+        subtitle: asString(r['subtitle']).trim(),
+        imageUrl: asString(r['image_url']).trim(),
+        ctaLabel: asString(r['cta_label']).trim(),
+        ctaType: asString(r['cta_type'], 'none').trim(),
+        ctaTarget: asString(r['cta_target']).trim(),
+        bgStart: asString(r['bg_start'], '#163828').trim(),
+        bgEnd: asString(r['bg_end'], '#2A6A50').trim(),
+        textColor: asString(r['text_color'], '#FFFFFF').trim(),
+      );
 }
 
 /// A discovery list item parsed from an `event_pages` row (with events join).
