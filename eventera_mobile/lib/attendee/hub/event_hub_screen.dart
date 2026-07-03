@@ -501,7 +501,7 @@ class _EventHubScreenState extends State<EventHubScreen> {
     await showMSheet<void>(
       context,
       Padding(
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 4),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -820,7 +820,8 @@ class _EventHubScreenState extends State<EventHubScreen> {
 
   List<Widget> _scheduleWidgets(EventPageModel page) {
     final w = <Widget>[];
-    w.add(SectionLabel('${_sessions.length} sessions'));
+    w.add(SectionLabel(
+        '${_sessions.length} ${_sessions.length == 1 ? "SESSION" : "SESSIONS"}'));
     w.add(const SizedBox(height: 12));
     for (var i = 0; i < _sessions.length; i++) {
       final s = _sessions[i];
@@ -838,7 +839,8 @@ class _EventHubScreenState extends State<EventHubScreen> {
 
   List<Widget> _speakerWidgets(EventPageModel page) {
     return [
-      SectionLabel('${_speakers.length} speakers'),
+      SectionLabel(
+          '${_speakers.length} ${_speakers.length == 1 ? "SPEAKER" : "SPEAKERS"}'),
       const SizedBox(height: 14),
       _SpeakerGrid(
         speakers: _speakers,
@@ -1479,7 +1481,7 @@ class _SpeakerGrid extends StatelessWidget {
         crossAxisCount: 2,
         crossAxisSpacing: 12,
         mainAxisSpacing: 14,
-        childAspectRatio: 0.82,
+        childAspectRatio: 0.78,
       ),
       itemBuilder: (_, i) {
         final sp = speakers[i];
@@ -1487,12 +1489,15 @@ class _SpeakerGrid extends StatelessWidget {
           onTap: () => onTap(sp.id),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              AspectRatio(
-                aspectRatio: 1,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: _speakerSquare(sp),
+              Expanded(
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: _speakerSquare(sp),
+                  ),
                 ),
               ),
               const SizedBox(height: 9),

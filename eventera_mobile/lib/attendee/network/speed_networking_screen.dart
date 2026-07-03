@@ -211,6 +211,8 @@ class _SpeedNetworkingScreenState extends State<SpeedNetworkingScreen> {
                       Text(
                         a.name,
                         textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: AppText.h2,
                       ),
                     ],

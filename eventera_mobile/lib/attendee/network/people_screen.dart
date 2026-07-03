@@ -143,7 +143,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
     showMSheet(
       context,
       Padding(
-        padding: const EdgeInsets.fromLTRB(20, 4, 20, 4),
+        padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -156,7 +156,10 @@ class _PeopleScreenState extends State<PeopleScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(p.name, style: AppText.h3),
+                      Text(p.name,
+                          style: AppText.h3,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis),
                       if (p.subtitle.isNotEmpty) ...[
                         const SizedBox(height: 2),
                         Text(p.subtitle, style: AppText.bodySm),

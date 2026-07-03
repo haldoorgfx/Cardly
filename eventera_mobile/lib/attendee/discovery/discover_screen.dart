@@ -105,10 +105,13 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   Future<void> _fetch({required bool reset}) async {
     if (reset) {
       setState(() {
-        _loading = true;
         _error = null;
         _page = 0;
         _hasMore = true;
+        // Only show the full skeleton on the very first load. During search /
+        // filter changes we keep the current list (and the mounted search
+        // field) so the keyboard never closes mid-typing.
+        if (_events.isEmpty) _loading = true;
       });
     } else {
       setState(() => _loadingMore = true);
@@ -397,22 +400,20 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       appBar: MAppBar(
         showBack: false,
         leading: const Padding(
-          padding: EdgeInsets.only(left: 16),
+          padding: EdgeInsets.only(left: 18),
           child: Center(child: _BrandWordmark()),
         ),
         actions: [
-          AppBarAction(Icons.notifications_none, onTap: _openNotifications),
-          const SizedBox(width: 2),
-          Padding(
-            padding: const EdgeInsets.only(right: 10, left: 2),
-            child: GestureDetector(
-              onTap: () => mainTab.value = 3, // → Account tab
-              child: Avatar(
-                name: isSignedIn ? (currentUserEmail ?? 'You') : null,
-                size: 34,
-              ),
+          _HeaderIcon(icon: Icons.notifications_none, onTap: _openNotifications),
+          const SizedBox(width: 6),
+          GestureDetector(
+            onTap: () => mainTab.value = 3, // → Account tab
+            child: Avatar(
+              name: isSignedIn ? (currentUserEmail ?? 'You') : null,
+              size: 38,
             ),
           ),
+          const SizedBox(width: 14),
         ],
       ),
       body: _loading
@@ -472,7 +473,8 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         ),
         const SizedBox(height: 18),
 
-        // Search + filter + map
+        // Search — dominant. A single filter button sits beside it; the map
+        // lives in the section header below so the search box keeps its room.
         Row(
           children: [
             Expanded(
@@ -481,6 +483,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                 icon: Icons.search,
                 hint: 'Search events, cities, organizers',
                 onChanged: _onSearchChanged,
+                onSubmitted: (_) => _fetch(reset: true),
               ),
             ),
             const SizedBox(width: 10),
@@ -489,32 +492,23 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
               badge: _activeFilters,
               onTap: _openFilters,
             ),
-            const SizedBox(width: 8),
-            _SquareAction(icon: Icons.map_outlined, onTap: _openMap),
           ],
         ),
         const SizedBox(height: 18),
 
-        // Discover heading + city selector
+        // Discover heading + map + city selector (compact pills on the right)
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(child: Text('Discover', style: AppText.h2)),
-            GestureDetector(
+            _HeaderPill(
+                icon: Icons.map_outlined, label: 'Map', onTap: _openMap),
+            const SizedBox(width: 8),
+            _HeaderPill(
+              icon: Icons.place_outlined,
+              label: _city ?? 'Everywhere',
+              trailing: Icons.keyboard_arrow_down,
               onTap: _openCitySheet,
-              behavior: HitTestBehavior.opaque,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.place_outlined,
-                      size: 16, color: AppColors.forest),
-                  const SizedBox(width: 4),
-                  Text(_city ?? 'Everywhere',
-                      style: AppText.label.copyWith(color: AppColors.forest)),
-                  const Icon(Icons.keyboard_arrow_down,
-                      size: 18, color: AppColors.forest),
-                ],
-              ),
             ),
           ],
         ),
@@ -641,8 +635,79 @@ class _BrandWordmark extends StatelessWidget {
   Widget build(BuildContext context) {
     return Image.asset(
       'assets/brand/logo.png',
-      height: 22,
+      height: 26,
       filterQuality: FilterQuality.high,
+    );
+  }
+}
+
+/// Header icon button with a generous 44px tap target.
+class _HeaderIcon extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+  const _HeaderIcon({required this.icon, required this.onTap});
+  @override
+  Widget build(BuildContext context) {
+    return InkResponse(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        onTap();
+      },
+      radius: 26,
+      child: SizedBox(
+        width: 44,
+        height: 44,
+        child: Icon(icon, size: 24, color: AppColors.ink),
+      ),
+    );
+  }
+}
+
+/// Compact rounded pill used in the section header (Map / city selector).
+class _HeaderPill extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final IconData? trailing;
+  final VoidCallback onTap;
+  const _HeaderPill({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.trailing,
+  });
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        onTap();
+      },
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        height: 36,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16, color: AppColors.forest),
+            const SizedBox(width: 5),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 96),
+              child: Text(label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppText.label.copyWith(color: AppColors.forest)),
+            ),
+            if (trailing != null)
+              Icon(trailing, size: 16, color: AppColors.forest),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -830,12 +895,9 @@ class _PromoBanner extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.asset('assets/brand/logo_white.png',
-                      height: 20, filterQuality: FilterQuality.high),
-                  const SizedBox(height: 14),
                   Text('The new era of events',
                       style: AppText.h2.copyWith(
-                          color: Colors.white, fontSize: 22, height: 1.15)),
+                          color: Colors.white, fontSize: 24, height: 1.12)),
                   const SizedBox(height: 6),
                   Text('Discover, register, and get your card in seconds.',
                       style: AppText.bodySm.copyWith(

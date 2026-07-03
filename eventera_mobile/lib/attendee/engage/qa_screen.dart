@@ -416,7 +416,7 @@ class _AskSheetState extends State<_AskSheet> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(AppSpace.lg, 4, AppSpace.lg, 4),
+      padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,

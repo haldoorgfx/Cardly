@@ -145,12 +145,20 @@ class _EventsMapScreenState extends State<EventsMapScreen> {
               ? ErrorStateView(message: _error!, onRetry: _load)
               : Stack(
                   children: [
-                    FlutterMap(
+                    // Positioned.fill forces the map to take the full stack
+                    // size on the first layout pass — without it the map can
+                    // render at zero size and show blank tiles until a zoom.
+                    Positioned.fill(
+                      child: FlutterMap(
                       mapController: _map,
                       options: MapOptions(
                         initialCenter:
                             _events.isNotEmpty ? _events.first.point : _fallback,
-                        initialZoom: _events.isNotEmpty ? 6 : 4,
+                        initialZoom: _events.isNotEmpty ? 5 : 3,
+                        minZoom: 2,
+                        maxZoom: 18,
+                        interactionOptions: const InteractionOptions(
+                            flags: InteractiveFlag.all),
                         onTap: (_, __) => setState(() => _selected = null),
                       ),
                       children: [
@@ -158,6 +166,7 @@ class _EventsMapScreenState extends State<EventsMapScreen> {
                           urlTemplate:
                               'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                           userAgentPackageName: 'com.eventera.app',
+                          maxNativeZoom: 19,
                         ),
                         MarkerLayer(
                           markers: [
@@ -175,6 +184,7 @@ class _EventsMapScreenState extends State<EventsMapScreen> {
                           ],
                         ),
                       ],
+                    ),
                     ),
                     if (_events.isEmpty)
                       const Center(

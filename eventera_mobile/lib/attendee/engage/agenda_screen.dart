@@ -569,7 +569,7 @@ class _RateSheetState extends State<_RateSheet> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(AppSpace.lg, 4, AppSpace.lg, 4),
+      padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,

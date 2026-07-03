@@ -23,15 +23,23 @@ class MScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The app bar is placed inside the body Column (not the Scaffold appBar
+    // slot) so it can own its own status-bar inset and never clip its title.
     return Scaffold(
       backgroundColor: background,
-      appBar: appBar,
-      body: SafeArea(
-        top: appBar == null,
-        bottom: bottomBar == null,
-        child: bottomBar == null
-            ? body
-            : Column(children: [Expanded(child: body), bottomBar!]),
+      body: Column(
+        children: [
+          if (appBar != null) appBar!,
+          Expanded(
+            child: SafeArea(
+              top: appBar == null,
+              bottom: bottomBar == null,
+              child: bottomBar == null
+                  ? body
+                  : Column(children: [Expanded(child: body), bottomBar!]),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -59,17 +67,17 @@ class MAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final topInset = MediaQuery.of(context).padding.top;
     return Container(
-      height: 52,
       decoration: BoxDecoration(
         color: background,
         border: hairline
             ? const Border(bottom: BorderSide(color: AppColors.border))
             : null,
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: SafeArea(
-        bottom: false,
+      padding: EdgeInsets.only(top: topInset, left: 8, right: 8),
+      child: SizedBox(
+        height: 52,
         child: Row(
           children: [
             if (leading != null)
@@ -527,9 +535,7 @@ class Avatar extends StatelessWidget {
   const Avatar({super.key, this.name, this.imageUrl, this.size = 40});
   @override
   Widget build(BuildContext context) {
-    final initial = (name != null && name!.trim().isNotEmpty)
-        ? name!.trim()[0].toUpperCase()
-        : '?';
+    final hasName = name != null && name!.trim().isNotEmpty;
     return ClipOval(
       child: SizedBox(
         width: size,
@@ -537,18 +543,22 @@ class Avatar extends StatelessWidget {
         child: (imageUrl != null && imageUrl!.isNotEmpty)
             ? Image.network(imageUrl!,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _fallback(initial))
-            : _fallback(initial),
+                errorBuilder: (_, __, ___) => _fallback(hasName))
+            : _fallback(hasName),
       ),
     );
   }
 
-  Widget _fallback(String initial) => Container(
+  // When there's no name and no image (e.g. signed-out), show a person glyph
+  // rather than a bare "?" which reads like an error.
+  Widget _fallback(bool hasName) => Container(
         color: AppColors.forest,
         alignment: Alignment.center,
-        child: Text(initial,
-            style: AppText.h3
-                .copyWith(color: AppColors.gold, fontSize: size * 0.4)),
+        child: hasName
+            ? Text(name!.trim()[0].toUpperCase(),
+                style: AppText.h3
+                    .copyWith(color: AppColors.gold, fontSize: size * 0.4))
+            : Icon(Icons.person, color: AppColors.gold, size: size * 0.56),
       );
 }
 
@@ -959,27 +969,40 @@ Future<T?> showMSheet<T>(BuildContext context, Widget child) {
     context: context,
     backgroundColor: AppColors.surface,
     isScrollControlled: true,
+    useSafeArea: true,
     shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.sheet))),
-    builder: (_) => Padding(
-      padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 38,
-            height: 5,
-            margin: const EdgeInsets.only(top: 8, bottom: 12),
-            decoration: BoxDecoration(
-                color: AppColors.borderStrong,
-                borderRadius: BorderRadius.circular(3)),
+    builder: (ctx) {
+      final media = MediaQuery.of(ctx);
+      final keyboard = media.viewInsets.bottom; // keyboard height
+      final safeBottom = media.padding.bottom; // gesture/nav bar
+      return Padding(
+        padding: EdgeInsets.only(bottom: keyboard),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: media.size.height * 0.9),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 38,
+                height: 5,
+                margin: const EdgeInsets.only(top: 8, bottom: 8),
+                decoration: BoxDecoration(
+                    color: AppColors.borderStrong,
+                    borderRadius: BorderRadius.circular(3)),
+              ),
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.fromLTRB(AppSpace.lg, AppSpace.sm,
+                      AppSpace.lg, safeBottom + AppSpace.lg),
+                  child: child,
+                ),
+              ),
+            ],
           ),
-          Flexible(child: child),
-          const SizedBox(height: 20),
-        ],
-      ),
-    ),
+        ),
+      );
+    },
   );
 }
 

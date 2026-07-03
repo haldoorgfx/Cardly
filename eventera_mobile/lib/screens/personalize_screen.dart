@@ -191,12 +191,35 @@ class _PersonalizeScreenState extends State<PersonalizeScreen> {
       bottomBar: StickyCta(
         children: [
           Expanded(
-            child: MButton(
-              'Generate card',
-              kind: MBtnKind.forest,
-              loading: _generating,
-              onTap: _generating ? null : _generate,
-            ),
+            child: _generating
+                ? Container(
+                    height: 56,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: AppColors.forest,
+                      borderRadius: BorderRadius.circular(AppRadius.btn),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2.4, color: Colors.white),
+                        ),
+                        const SizedBox(width: 11),
+                        Text('Generating…',
+                            style: AppText.btn.copyWith(color: Colors.white)),
+                      ],
+                    ),
+                  )
+                : MButton(
+                    'Generate card',
+                    kind: MBtnKind.forest,
+                    onTap: _generate,
+                  ),
           ),
         ],
       ),

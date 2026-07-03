@@ -118,6 +118,72 @@ class _DashPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
+/// A vertical perforation with half-circle notches at the top & bottom edges —
+/// used to separate the cover "stub" from the body in the horizontal layout.
+class VerticalTearLine extends StatelessWidget {
+  final Color bg;
+  final double notch;
+  const VerticalTearLine({super.key, required this.bg, this.notch = 22});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: notch,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Positioned(
+            top: 20,
+            bottom: 20,
+            left: notch / 2 - 1,
+            child: SizedBox(
+              width: 2,
+              child: CustomPaint(
+                painter: _DashPainterV(AppColors.borderStrong),
+                child: const SizedBox.expand(),
+              ),
+            ),
+          ),
+          Positioned(top: -notch / 2, left: 0, child: _notchCircle()),
+          Positioned(bottom: -notch / 2, left: 0, child: _notchCircle()),
+        ],
+      ),
+    );
+  }
+
+  Widget _notchCircle() => Container(
+        width: notch,
+        height: notch,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: bg,
+          border: Border.all(color: AppColors.border, width: 1),
+        ),
+      );
+}
+
+class _DashPainterV extends CustomPainter {
+  final Color color;
+  _DashPainterV(this.color);
+  @override
+  void paint(Canvas canvas, Size size) {
+    final p = Paint()
+      ..color = color
+      ..strokeWidth = 2
+      ..strokeCap = StrokeCap.round;
+    const dash = 5.0, gap = 5.0;
+    double y = 0;
+    final x = size.width / 2;
+    while (y < size.height) {
+      canvas.drawLine(Offset(x, y), Offset(x, y + dash), p);
+      y += dash + gap;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
 /// The full tear-off ticket (detail hero).
 class TicketStub extends StatelessWidget {
   final String eventTitle;
@@ -147,97 +213,138 @@ class TicketStub extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.border),
-        boxShadow: AppShadow.lift,
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        children: [
-          _cover(),
-          TearLine(bg: bg),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(18, 20, 18, 18),
-            child: Column(
-              children: [
-                GestureDetector(onTap: onQrTap, child: _qrFrame()),
-                const SizedBox(height: 12),
-                Text('TICKET CODE',
-                    style: AppText.caption.copyWith(
-                        color: AppColors.inkMuted,
-                        fontSize: 10,
-                        letterSpacing: 1.4)),
-                const SizedBox(height: 5),
-                Text(ticketCode,
-                    style: AppText.numSm.copyWith(
-                        color: AppColors.inkSoft,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 2.4)),
-              ],
-            ),
+    return LayoutBuilder(
+      builder: (context, c) {
+        // Wide container (landscape / tablet) → horizontal ticket with a
+        // vertical tear. Narrow (normal portrait) → vertical ticket with a
+        // horizontal tear. Same content either way.
+        final horizontal = c.maxWidth >= 560;
+        return Container(
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: AppColors.border),
+            boxShadow: AppShadow.lift,
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(18, 0, 18, 20),
-            child: _grid(),
+          clipBehavior: Clip.antiAlias,
+          child: horizontal ? _horizontal() : _vertical(),
+        );
+      },
+    );
+  }
+
+  Widget _vertical() {
+    return Column(
+      children: [
+        _cover(height: 132),
+        TearLine(bg: bg),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(18, 20, 18, 18),
+          child: _qrBlock(),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(18, 0, 18, 20),
+          child: _grid(),
+        ),
+      ],
+    );
+  }
+
+  Widget _horizontal() {
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(width: 248, child: _cover()),
+          VerticalTearLine(bg: bg),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _qrBlock(),
+                  const SizedBox(height: 18),
+                  _grid(),
+                ],
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _cover() {
-    return SizedBox(
-      height: 132,
-      width: double.infinity,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          (coverUrl != null && coverUrl!.isNotEmpty)
-              ? Image.network(coverUrl!,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) =>
-                      PhotoPlaceholder(hue: hueFromString(eventTitle)))
-              : PhotoPlaceholder(hue: hueFromString(eventTitle)),
-          const DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0x000D1F17), Color(0xB80D1F17)],
-                stops: [0.3, 1.0],
-              ),
-            ),
-          ),
-          Positioned(top: 14, left: 14, child: _ribbon()),
-          Positioned(
-            left: 18,
-            right: 18,
-            bottom: 14,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(eventTitle,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppText.h3.copyWith(color: Colors.white, fontSize: 19)),
-                if (subtitle.isNotEmpty) ...[
-                  const SizedBox(height: 3),
-                  Text(subtitle,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppText.bodySm.copyWith(
-                          color: Colors.white.withValues(alpha: 0.85),
-                          fontSize: 12.5)),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
+  Widget _qrBlock() {
+    return Column(
+      children: [
+        GestureDetector(onTap: onQrTap, child: _qrFrame()),
+        const SizedBox(height: 12),
+        Text('TICKET CODE',
+            style: AppText.caption.copyWith(
+                color: AppColors.inkMuted, fontSize: 10, letterSpacing: 1.4)),
+        const SizedBox(height: 5),
+        Text(ticketCode,
+            style: AppText.numSm.copyWith(
+                color: AppColors.inkSoft,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 2.4)),
+      ],
     );
+  }
+
+  /// Cover header. [height] fixed for the vertical layout; null lets it stretch
+  /// to fill the row height in the horizontal layout.
+  Widget _cover({double? height}) {
+    final stack = Stack(
+      fit: StackFit.expand,
+      children: [
+        (coverUrl != null && coverUrl!.isNotEmpty)
+            ? Image.network(coverUrl!,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) =>
+                    PhotoPlaceholder(hue: hueFromString(eventTitle)))
+            : PhotoPlaceholder(hue: hueFromString(eventTitle)),
+        const DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0x000D1F17), Color(0xB80D1F17)],
+              stops: [0.3, 1.0],
+            ),
+          ),
+        ),
+        Positioned(top: 14, left: 14, child: _ribbon()),
+        Positioned(
+          left: 18,
+          right: 18,
+          bottom: 14,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(eventTitle,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppText.h3.copyWith(color: Colors.white, fontSize: 19)),
+              if (subtitle.isNotEmpty) ...[
+                const SizedBox(height: 3),
+                Text(subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppText.bodySm.copyWith(
+                        color: Colors.white.withValues(alpha: 0.85),
+                        fontSize: 12.5)),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+    return height == null
+        ? stack
+        : SizedBox(height: height, width: double.infinity, child: stack);
   }
 
   Widget _ribbon() {
@@ -434,7 +541,7 @@ class WalletTicketStub extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Opacity(
-        opacity: past ? 0.74 : 1,
+        opacity: past ? 0.78 : 1,
         child: Container(
           decoration: BoxDecoration(
             color: AppColors.surface,
@@ -447,110 +554,62 @@ class WalletTicketStub extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Container(width: 5, color: statusColor(status)),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                // Left stub: cover with a status-colored accent on the edge.
+                SizedBox(
+                  width: 94,
+                  child: Stack(
+                    fit: StackFit.expand,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.all(13),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(11),
-                              child: ColorFiltered(
-                                colorFilter: past
-                                    ? const ColorFilter.matrix(<double>[
-                                        0.4, 0.4, 0.2, 0, 0,
-                                        0.4, 0.4, 0.2, 0, 0,
-                                        0.4, 0.4, 0.2, 0, 0,
-                                        0, 0, 0, 1, 0,
-                                      ])
-                                    : const ColorFilter.mode(
-                                        Colors.transparent, BlendMode.dst),
-                                child: SizedBox(
-                                  width: 60,
-                                  height: 60,
-                                  child: (coverUrl != null &&
-                                          coverUrl!.isNotEmpty)
-                                      ? Image.network(coverUrl!,
-                                          fit: BoxFit.cover,
-                                          errorBuilder: (_, __, ___) =>
-                                              PhotoPlaceholder(
-                                                  hue: hueFromString(title)))
-                                      : PhotoPlaceholder(
-                                          hue: hueFromString(title)),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 13),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(title,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: AppText.h3.copyWith(fontSize: 15)),
-                                  const SizedBox(height: 5),
-                                  Text(whenLine,
-                                      style: AppText.numSm.copyWith(
-                                          color: AppColors.inkMuted,
-                                          fontSize: 11.5)),
-                                  const SizedBox(height: 9),
-                                  _statusTag(),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      // mini perforated footer
-                      Stack(
-                        clipBehavior: Clip.none,
-                        alignment: Alignment.center,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 13),
-                            child: CustomPaint(
-                              size: const Size(double.infinity, 2),
-                              painter: _DashPainter(AppColors.border),
-                            ),
-                          ),
-                          Positioned(left: -6, child: _miniNotch()),
-                          Positioned(right: -6, child: _miniNotch()),
-                        ],
-                      ),
-                      Padding(
-                        padding:
-                            const EdgeInsets.fromLTRB(13, 11, 13, 12),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Flexible(
-                              child: Text(typeLabel,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: AppText.numSm.copyWith(
-                                      color: AppColors.inkMuted, fontSize: 11)),
-                            ),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(action,
-                                    style: AppText.bodySm.copyWith(
-                                        color: AppColors.forest,
-                                        fontWeight: FontWeight.w600)),
-                                const SizedBox(width: 4),
-                                const Icon(Icons.chevron_right,
-                                    size: 15, color: AppColors.forest),
-                              ],
-                            ),
-                          ],
-                        ),
+                      (coverUrl != null && coverUrl!.isNotEmpty)
+                          ? Image.network(coverUrl!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) =>
+                                  PhotoPlaceholder(hue: hueFromString(title)))
+                          : PhotoPlaceholder(hue: hueFromString(title)),
+                      Positioned(
+                        left: 0,
+                        top: 0,
+                        bottom: 0,
+                        child:
+                            Container(width: 5, color: statusColor(status)),
                       ),
                     ],
+                  ),
+                ),
+                // Vertical perforation separating the stub from the body.
+                VerticalTearLine(bg: bg, notch: 18),
+                // Body.
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(2, 13, 14, 13),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppText.h3.copyWith(fontSize: 15.5)),
+                        const SizedBox(height: 5),
+                        Text(whenLine,
+                            style: AppText.numSm.copyWith(
+                                color: AppColors.inkMuted, fontSize: 11.5)),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            Flexible(child: _statusTag()),
+                            const SizedBox(width: 8),
+                            Text(action,
+                                style: AppText.bodySm.copyWith(
+                                    color: AppColors.forest,
+                                    fontWeight: FontWeight.w600)),
+                            const Icon(Icons.chevron_right,
+                                size: 16, color: AppColors.forest),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -560,16 +619,6 @@ class WalletTicketStub extends StatelessWidget {
       ),
     );
   }
-
-  Widget _miniNotch() => Container(
-        width: 12,
-        height: 12,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: bg,
-          border: Border.all(color: AppColors.border, width: 1),
-        ),
-      );
 
   Widget _statusTag() {
     final c = statusColor(status);
