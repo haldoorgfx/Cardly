@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:supabase_flutter/supabase_flutter.dart' show FileOptions;
+import 'package:supabase_flutter/supabase_flutter.dart'
+    show FileOptions, UserAttributes;
 
 import '../../net.dart';
 import '../../ui/tokens.dart';
@@ -37,6 +38,7 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
 
   String? _avatarUrl;
   String _email = '';
+  String _language = 'English';
   List<String> _interests = [];
   Map<String, dynamic> _prefs = {};
 
@@ -105,6 +107,7 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
       _prefs = (rawPrefs is Map)
           ? Map<String, dynamic>.from(rawPrefs)
           : <String, dynamic>{};
+      _language = asString(_prefs['language'], 'English');
 
       setState(() => _loading = false);
     } on ApiException catch (e) {
@@ -313,12 +316,105 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
     );
   }
 
-  // ── Account handlers (no existing backend for these → placeholders). ──
-  void _changeEmail() =>
-      showToast(context, 'Changing your email is coming soon');
+  // ── Account handlers ──────────────────────────────────────────────────
+  /// Change email via Supabase's real flow: a confirmation link is sent to the
+  /// new address and the email only changes once the user confirms it.
+  Future<void> _changeEmail() async {
+    final ctl = TextEditingController();
+    bool busy = false;
+    await showMSheet<void>(
+      context,
+      StatefulBuilder(
+        builder: (ctx, setSheet) => Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Change email', style: AppText.h3),
+            const SizedBox(height: 4),
+            Text(
+              'We\'ll email a confirmation link to the new address. Your sign-in '
+              'email changes only after you confirm it.',
+              style: AppText.bodySm,
+            ),
+            const SizedBox(height: 16),
+            MInput(
+              hint: 'new@email.com',
+              controller: ctl,
+              icon: Icons.alternate_email,
+              keyboardType: TextInputType.emailAddress,
+            ),
+            const SizedBox(height: 16),
+            MButton('Send confirmation', loading: busy, onTap: () async {
+              final email = ctl.text.trim().toLowerCase();
+              if (!email.contains('@') ||
+                  !email.contains('.') ||
+                  email.length < 5) {
+                return;
+              }
+              setSheet(() => busy = true);
+              try {
+                await supa.auth.updateUser(UserAttributes(email: email));
+                if (ctx.mounted) Navigator.of(ctx).pop();
+                if (mounted) {
+                  showToast(context, 'Check $email to confirm the change.');
+                }
+              } catch (_) {
+                setSheet(() => busy = false);
+                if (mounted) {
+                  showToast(
+                      context, 'Could not update your email. Please try again.');
+                }
+              }
+            }),
+          ],
+        ),
+      ),
+    );
+  }
 
-  void _changeLanguage() =>
-      showToast(context, 'More languages are coming soon');
+  /// Pick a language. The choice is stored on the profile (saved on "Save
+  /// changes"). Full UI translation is a separate localization task.
+  Future<void> _changeLanguage() async {
+    const langs = ['English', 'Français', 'Soomaali', 'العربية'];
+    await showMSheet<void>(
+      context,
+      Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('Language & region', style: AppText.h3),
+          const SizedBox(height: 8),
+          for (final l in langs)
+            InkWell(
+              onTap: () {
+                setState(() {
+                  _language = l;
+                  _prefs['language'] = l;
+                });
+                Navigator.of(context).maybePop();
+                showToast(context, 'Language set to $l — tap Save changes.');
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                child: Row(
+                  children: [
+                    Icon(
+                        l == _language
+                            ? Icons.radio_button_checked
+                            : Icons.radio_button_off,
+                        size: 20,
+                        color:
+                            l == _language ? AppColors.forest : AppColors.inkMuted),
+                    const SizedBox(width: 12),
+                    Expanded(child: Text(l, style: AppText.bodyStrong)),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 
   Future<void> _deleteAccount() async {
     final confirmed = await showDialog<bool>(
@@ -346,8 +442,20 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
         ],
       ),
     );
-    if (confirmed == true && mounted) {
-      showToast(context, 'Account deletion is coming soon');
+    if (confirmed != true || !mounted) return;
+    setState(() => _saving = true);
+    try {
+      // Backend performs the privileged auth-user deletion.
+      await apiPost('/api/account/delete', {});
+      await supa.auth.signOut();
+      if (!mounted) return;
+      Navigator.of(context).popUntil((r) => r.isFirst);
+      showToast(context, 'Your account has been deleted.');
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _saving = false);
+      showToast(context,
+          'We couldn\'t delete your account right now. Please contact support.');
     }
   }
 
@@ -510,7 +618,7 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
             icon: Icons.language,
             tone: ITone.forest,
             title: 'Language & region',
-            trailing: Text('English',
+            trailing: Text(_language,
                 style: AppText.bodySm.copyWith(color: AppColors.inkMuted)),
             onTap: _changeLanguage,
           ),

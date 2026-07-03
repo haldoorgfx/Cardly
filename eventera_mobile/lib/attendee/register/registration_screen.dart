@@ -182,7 +182,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           .select(
               'id, name, description, price, currency, quantity, quantity_sold, is_visible, min_price')
           .eq('event_id', widget.eventId)
-          .eq('is_visible', true)
+          // Show a ticket unless it's EXPLICITLY hidden. `.eq('is_visible', true)`
+          // wrongly hid tickets whose is_visible is null (the common case when
+          // the web app never sets the flag), causing "No tickets available".
+          .not('is_visible', 'is', false)
           .order('price', ascending: true);
 
       final fieldRows = await supa
