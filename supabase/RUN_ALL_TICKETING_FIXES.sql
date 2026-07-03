@@ -8,6 +8,32 @@
 -- ============================================================================
 
 
+-- ==== 0  DATA CLEANUP — invalid event_pages rows ============================
+-- Some events predate the validation rules migration 028 added as NOT VALID,
+-- so they hold invalid dates/capacity. Any UPDATE to those rows re-checks the
+-- constraints and fails (this broke migration 045). Bulletproof approach: DROP
+-- the three event_pages check constraints first so nothing can trip, fix the
+-- bad data, run the migrations, then re-add the constraints (NOT VALID) at the
+-- very end so future writes are still validated.
+alter table event_pages drop constraint if exists chk_event_page_date_order;
+alter table event_pages drop constraint if exists chk_event_page_deadline_before_start;
+alter table event_pages drop constraint if exists chk_event_page_capacity_positive;
+
+-- registration_deadline must be BEFORE start → clear invalid ones
+-- (null = registration open until the event starts).
+update event_pages set registration_deadline = null
+  where registration_deadline is not null and starts_at is not null
+    and registration_deadline >= starts_at;
+
+-- ends_at must be AFTER start → give zero/negative-length events a 2h end.
+update event_pages set ends_at = starts_at + interval '2 hours'
+  where ends_at is not null and starts_at is not null and ends_at <= starts_at;
+
+-- max_capacity must be >= 1 → clear invalid values (null = unlimited).
+update event_pages set max_capacity = null
+  where max_capacity is not null and max_capacity < 1;
+
+
 -- ==== 041  form field types =================================================
 alter table registration_form_fields
   drop constraint if exists registration_form_fields_field_type_check;
@@ -111,6 +137,17 @@ alter table registrations add constraint chk_registration_amount_non_negative
 alter table ticket_types drop constraint if exists chk_ticket_quantity_sold_non_negative;
 alter table ticket_types add constraint chk_ticket_quantity_sold_non_negative
   check (quantity_sold >= 0) not valid;
+
+-- ==== Re-add the event_pages validation constraints (NOT VALID) =============
+-- Restored so new writes are still validated; NOT VALID tolerates any remaining
+-- legacy rows (the cleanup above already corrected the known bad ones).
+alter table event_pages add constraint chk_event_page_date_order
+  check (ends_at is null or starts_at is null or ends_at > starts_at) not valid;
+alter table event_pages add constraint chk_event_page_deadline_before_start
+  check (registration_deadline is null or starts_at is null or registration_deadline < starts_at) not valid;
+alter table event_pages add constraint chk_event_page_capacity_positive
+  check (max_capacity is null or max_capacity >= 1) not valid;
+
 
 -- ============================================================================
 -- Done. Both apps now inherit correct ticket ownership, de-dup, and statuses.
