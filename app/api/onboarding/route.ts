@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { upsertEventRole } from '@/lib/rbac/assign';
 
 export async function POST(req: NextRequest) {
   const supabase = createClient();
@@ -66,6 +67,11 @@ export async function POST(req: NextRequest) {
         ...(body.evStart ? { starts_at: body.evStart } : {}),
         ...(body.evEnd   ? { ends_at:   body.evEnd   } : {}),
       });
+    }
+
+    // Roles write-path: the creator is the organizer of this first event.
+    if (newEvent?.id) {
+      await upsertEventRole({ userId: user.id, eventId: newEvent.id, role: 'organizer' });
     }
   }
 

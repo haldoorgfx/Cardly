@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 import { z } from 'zod';
 
 function speakerSlug(name: string, id: string): string {
@@ -57,6 +58,15 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   // Backfill slug now that we have the id
   await admin.from('speakers').update({ slug: speakerSlug(data.name, data.id) }).eq('id', data.id);
+
+  // Roles write-path: if the speaker has an email tied to an account, grant the
+  // 'speaker' role for this event. Best-effort; only writes when an account matches.
+  if (parsed.data.email) {
+    const speakerAccountId = await resolveAccountIdByEmail(parsed.data.email);
+    if (speakerAccountId) {
+      await upsertEventRole({ userId: speakerAccountId, eventId: params.id, role: 'speaker' });
+    }
+  }
 
   return NextResponse.json({ speaker: { ...data, slug: speakerSlug(data.name, data.id) } }, { status: 201 });
 }

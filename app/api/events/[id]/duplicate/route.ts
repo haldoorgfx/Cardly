@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { upsertEventRole } from '@/lib/rbac/assign';
 
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -48,6 +49,9 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
   if (createErr || !newEvent) {
     return NextResponse.json({ error: createErr?.message ?? 'Failed to duplicate' }, { status: 500 });
   }
+
+  // Roles write-path: the creator is the organizer of the duplicated event.
+  await upsertEventRole({ userId: user.id, eventId: newEvent.id, role: 'organizer' });
 
   // Duplicate ticket types
   const { data: tickets } = await admin

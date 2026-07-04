@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../../net.dart';
+import '../../rbac/admin_screen.dart';
+import '../../rbac/role_service.dart';
+import '../../rbac/speaking_screen.dart';
+import '../../rbac/sponsoring_screen.dart';
 import '../../screens/my_cards_screen.dart';
+import '../../screens/organizer/dashboard_screen.dart';
 import '../../ui/components.dart';
 import '../../ui/menu.dart';
 import '../../ui/tokens.dart';
@@ -26,10 +31,26 @@ class _AttendeeAccountTabState extends State<AttendeeAccountTab> {
   int _saved = 0;
   int _following = 0;
 
+  // Role gating (mirrors the web unified-dashboard nav). Null until the first
+  // load resolves, so we render nothing (never flash rows) while loading.
+  UserRoles? _roles;
+  static const _roleService = RoleService();
+
   @override
   void initState() {
     super.initState();
     _loadCounts();
+    _loadRoles();
+  }
+
+  Future<void> _loadRoles() async {
+    if (!isSignedIn) {
+      if (mounted) setState(() => _roles = null);
+      return;
+    }
+    final roles = await _roleService.loadRoles();
+    if (!mounted) return;
+    setState(() => _roles = roles);
   }
 
   Future<void> _loadCounts() async {
@@ -40,6 +61,7 @@ class _AttendeeAccountTabState extends State<AttendeeAccountTab> {
           _tickets = 0;
           _saved = 0;
           _following = 0;
+          _roles = null;
         });
       }
       return;
@@ -81,22 +103,28 @@ class _AttendeeAccountTabState extends State<AttendeeAccountTab> {
     });
   }
 
+  /// Reload account counts + role gating together (used on pull-to-refresh and
+  /// when returning from a pushed screen).
+  Future<void> _refresh() async {
+    await Future.wait([_loadCounts(), _loadRoles()]);
+  }
+
   void _auth() => Navigator.of(context)
           .push(MaterialPageRoute(builder: (_) => const AttendeeAuthScreen()))
           .then((_) {
         setState(() {});
-        _loadCounts();
+        _refresh();
       });
 
   void _push(Widget w) => Navigator.of(context)
       .push(MaterialPageRoute(builder: (_) => w))
-      .then((_) => _loadCounts());
+      .then((_) => _refresh());
 
   Future<void> _signOut() async {
     await supa.auth.signOut();
     if (mounted) {
       setState(() {});
-      _loadCounts();
+      _refresh();
     }
   }
 
@@ -107,7 +135,7 @@ class _AttendeeAccountTabState extends State<AttendeeAccountTab> {
       appBar: const MAppBar(title: 'Account', showBack: false),
       body: RefreshIndicator(
         color: AppColors.forest,
-        onRefresh: _loadCounts,
+        onRefresh: _refresh,
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 36),
@@ -163,6 +191,13 @@ class _AttendeeAccountTabState extends State<AttendeeAccountTab> {
           onTap: () => _push(FollowingScreen(onSignInTap: _auth)),
         ),
       ]),
+
+      // Role-gated rows (Speaking / Sponsoring / Organizing / Admin). Each
+      // appears only when the account holds that role — identical predicate to
+      // the web unified dashboard. Renders nothing while roles are still
+      // loading, so rows never flash in.
+      ..._roleSection(),
+
       const SizedBox(height: 22),
 
       const GroupLabel('Preferences'),
@@ -195,6 +230,61 @@ class _AttendeeAccountTabState extends State<AttendeeAccountTab> {
         child: Text('Eventera · v1.0.0',
             style: AppText.caption.copyWith(color: AppColors.inkMuted)),
       ),
+    ];
+  }
+
+  /// The role-gated group ("Your roles"): Speaking / Sponsoring / Organizing /
+  /// Admin. Returns an empty list while roles are still loading or when the
+  /// account holds none of these roles — so nothing renders in those cases.
+  List<Widget> _roleSection() {
+    final roles = _roles;
+    if (roles == null) return const [];
+
+    final rows = <Widget>[];
+    if (roles.hasOrganizing) {
+      rows.add(MenuRow(
+        icon: Icons.dashboard_customize_outlined,
+        tone: ITone.forest,
+        title: 'Organizing',
+        subtitle: 'Manage your events',
+        onTap: () => _push(const DashboardScreen()),
+      ));
+    }
+    if (roles.hasSpeaking) {
+      rows.add(MenuRow(
+        icon: Icons.mic_none_outlined,
+        tone: ITone.gold,
+        title: 'Speaking',
+        subtitle: 'Events you speak at',
+        onTap: () =>
+            _push(SpeakingScreen(eventIds: roles.eventsWithRole('speaker'))),
+      ));
+    }
+    if (roles.hasSponsoring) {
+      rows.add(MenuRow(
+        icon: Icons.work_outline,
+        tone: ITone.info,
+        title: 'Sponsoring',
+        subtitle: 'Your sponsored events',
+        onTap: () => _push(
+            SponsoringScreen(eventIds: roles.eventsWithRole('sponsor'))),
+      ));
+    }
+    if (roles.isAdmin) {
+      rows.add(MenuRow(
+        icon: Icons.shield_outlined,
+        tone: ITone.danger,
+        title: 'Admin',
+        subtitle: 'Platform tools',
+        onTap: () => _push(const AdminScreen()),
+      ));
+    }
+
+    if (rows.isEmpty) return const [];
+    return [
+      const SizedBox(height: 22),
+      const GroupLabel('Your roles'),
+      MenuGroup(children: rows),
     ];
   }
 

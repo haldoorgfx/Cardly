@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { createNotification } from '@/lib/notifications';
+import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const supabase = createClient();
@@ -130,6 +131,13 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     icon: 'users',
   });
 
+  // Roles write-path: manual (organizer-added) confirmed registration → 'attendee'
+  // role for the attendee's account, if one exists. Best-effort, matched by email.
+  {
+    const attendeeAccountId = await resolveAccountIdByEmail(attendee_email.trim().toLowerCase());
+    if (attendeeAccountId) await upsertEventRole({ userId: attendeeAccountId, eventId: params.id, role: 'attendee' });
+  }
+
   return NextResponse.json({ registration: reg }, { status: 201 });
 }
 
@@ -185,6 +193,16 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Roles write-path: if this update promoted the registration to a confirmed/
+  // checked-in state, upsert the 'attendee' role (best-effort). Only fires when
+  // status was actually changed to one of those values in this request.
+  if (data && (status === 'confirmed' || status === 'checked_in')) {
+    const attendeeAccountId = (data.user_id as string | null)
+      ?? (await resolveAccountIdByEmail(data.attendee_email as string | null));
+    if (attendeeAccountId) await upsertEventRole({ userId: attendeeAccountId, eventId: params.id, role: 'attendee' });
+  }
+
   return NextResponse.json({ registration: data });
 }
 

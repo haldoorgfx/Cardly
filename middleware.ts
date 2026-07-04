@@ -64,6 +64,9 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/my-tickets/") ||
     pathname === "/saved" ||
     pathname.startsWith("/saved/") ||
+    pathname === "/home" ||             // adaptive role hub — any authed account
+    pathname === "/speaking" ||         // speaker surface — any authed account
+    pathname === "/sponsoring" ||       // sponsor surface — any authed account
     pathname.startsWith("/api/");       // API routes enforce permissions internally
 
   if (isPublicRoute) return response;

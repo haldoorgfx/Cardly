@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { humanizeError } from '@/lib/errors';
+import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -53,6 +54,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       .update({ status: 'checked_in', checked_in_at: new Date().toISOString(), checked_in_by: user.id })
       .eq('id', existing.id);
     if (updErr) return NextResponse.json({ error: humanizeError(updErr) }, { status: 500 });
+    // Roles write-path: checked-in walk-in → 'attendee' role (best-effort, by email).
+    {
+      const attendeeAccountId = await resolveAccountIdByEmail(emailLc);
+      if (attendeeAccountId) await upsertEventRole({ userId: attendeeAccountId, eventId: id, role: 'attendee' });
+    }
     return NextResponse.json({
       id: existing.id,
       ticket_number: existing.qr_code_token,
@@ -78,6 +84,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   }).select('id').single();
 
   if (error) return NextResponse.json({ error: humanizeError(error) }, { status: 500 });
+
+  // Roles write-path: new checked-in walk-in → 'attendee' role (best-effort, by email).
+  {
+    const attendeeAccountId = await resolveAccountIdByEmail(emailLc);
+    if (attendeeAccountId) await upsertEventRole({ userId: attendeeAccountId, eventId: id, role: 'attendee' });
+  }
 
   return NextResponse.json({ id: reg.id, ticket_number: qr });
 }

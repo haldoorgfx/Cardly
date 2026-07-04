@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient, createClient } from '@/lib/supabase/server';
+import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 
 interface Params { params: Promise<{ id: string }> }
 
@@ -75,6 +76,15 @@ export async function POST(req: NextRequest, { params }: Params) {
     Object.entries(qtyCounts).map(([ticketId, qty]) =>
       admin.rpc('increment_ticket_quantity_sold', { ticket_id: ticketId, qty })
     )
+  );
+
+  // Roles write-path: each confirmed seat → 'attendee' role for that person's
+  // account, if one exists (matched by email). Best-effort; never blocks.
+  await Promise.all(
+    seats.map(async (s: Seat) => {
+      const attendeeAccountId = await resolveAccountIdByEmail(s.email);
+      if (attendeeAccountId) await upsertEventRole({ userId: attendeeAccountId, eventId, role: 'attendee' });
+    }),
   );
 
   return NextResponse.json({ registrations: data });

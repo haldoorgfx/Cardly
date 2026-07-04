@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { chargeWaafiPay, type WaafiPayResult } from '@/lib/payments/waafipay';
 import { createAdminClient } from '@/lib/supabase/server';
 import { createNotification } from '@/lib/notifications';
+import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 
 // Called by WaafiPayStep after pending registration is created.
 // Synchronous: WaafiPay responds immediately with success/failure.
@@ -17,7 +18,7 @@ export async function POST(req: NextRequest) {
   // Load registration
   const { data: reg } = await admin
     .from('registrations')
-    .select('id, qr_code_token, amount_paid, currency, event_id, ticket_type_id, payment_status, user_id')
+    .select('id, qr_code_token, amount_paid, currency, event_id, ticket_type_id, payment_status, user_id, attendee_email')
     .eq('id', registration_id)
     .single();
 
@@ -101,6 +102,16 @@ export async function POST(req: NextRequest) {
         body: `Your ticket for ${eventPage?.title ?? 'the event'} is ready.`,
         actionUrl: '/account/my-tickets',
       });
+    }
+
+    // Roles write-path: paid registration confirmed → 'attendee' role.
+    // Only on the first pending→paid flip (guarded by `flipped`), best-effort.
+    if (flipped) {
+      const attendeeAccountId = reg.user_id
+        ?? (await resolveAccountIdByEmail(reg.attendee_email));
+      if (attendeeAccountId && reg.event_id) {
+        await upsertEventRole({ userId: attendeeAccountId, eventId: reg.event_id, role: 'attendee' });
+      }
     }
 
     return NextResponse.json({ status: 'paid', qr_code_token: reg.qr_code_token });

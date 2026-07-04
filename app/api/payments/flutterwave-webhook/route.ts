@@ -3,6 +3,7 @@ import { timingSafeEqual } from 'crypto';
 import { verifyFlutterwaveTransaction } from '@/lib/payments/flutterwave';
 import { createAdminClient } from '@/lib/supabase/server';
 import { createNotification } from '@/lib/notifications';
+import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 
 export async function POST(req: NextRequest) {
   // Verify Flutterwave webhook hash (constant-time to prevent timing oracle)
@@ -82,7 +83,7 @@ export async function POST(req: NextRequest) {
       .update({ payment_status: 'paid', status: 'confirmed', updated_at: new Date().toISOString() })
       .eq('qr_code_token', tx_ref)
       .eq('payment_status', 'pending') // idempotent guard
-      .select('ticket_type_id, event_id, user_id')
+      .select('ticket_type_id, event_id, user_id, attendee_email')
       .maybeSingle();
 
     if (error) console.error('[FW webhook] DB update failed:', error.message);
@@ -101,6 +102,14 @@ export async function POST(req: NextRequest) {
         body: `Your ticket for ${ep?.title ?? 'the event'} is ready.`,
         actionUrl: '/account/my-tickets',
       });
+    }
+    // Roles write-path: paid registration confirmed → 'attendee' role (best-effort).
+    if (updated) {
+      const attendeeAccountId = updated.user_id
+        ?? (await resolveAccountIdByEmail(updated.attendee_email));
+      if (attendeeAccountId && updated.event_id) {
+        await upsertEventRole({ userId: attendeeAccountId, eventId: updated.event_id, role: 'attendee' });
+      }
     }
   } else if (status === 'failed') {
     await admin

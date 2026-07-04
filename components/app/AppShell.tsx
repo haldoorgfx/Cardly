@@ -24,6 +24,24 @@ type Profile = {
   role: string;
 };
 
+// Adaptive-shell role flags — fetched from /api/me/roles. Every flag defaults
+// to false until the fetch resolves so the nav is never wider than the account.
+type VisibleSections = {
+  tickets: boolean;
+  speaking: boolean;
+  sponsoring: boolean;
+  organizing: boolean;
+  admin: boolean;
+};
+
+const EMPTY_SECTIONS: VisibleSections = {
+  tickets: false,
+  speaking: false,
+  sponsoring: false,
+  organizing: false,
+  admin: false,
+};
+
 type ImpersonatedUser = {
   id: string;
   full_name: string | null;
@@ -145,6 +163,17 @@ const EVENT_STATUS_BADGE: Record<string, { cls: string; dot: string; label: stri
 
 // ─── User nav ─────────────────────────────────────────────────────────────────
 
+// Role-gated top-level entries — each shown only when its flag is true. "Home"
+// is always shown (its flag is a constant true) so the shell is never empty.
+// These render ABOVE the organizer Platform/Workspace sections.
+const ROLE_NAV_ITEMS: { href: string; label: string; icon: React.ReactNode; flag: keyof VisibleSections | 'always' }[] = [
+  { href: '/home',       label: 'Home',        icon: <Home size={15} strokeWidth={1.8} />,     flag: 'always' },
+  { href: '/my-tickets', label: 'My tickets',  icon: <Ticket size={15} strokeWidth={1.8} />,   flag: 'tickets' },
+  { href: '/speaking',   label: 'Speaking',    icon: <User size={15} strokeWidth={1.8} />,     flag: 'speaking' },
+  { href: '/sponsoring', label: 'Sponsoring',  icon: <Briefcase size={15} strokeWidth={1.8} />, flag: 'sponsoring' },
+  { href: '/dashboard',  label: 'Organizing',  icon: <LayoutGrid size={15} strokeWidth={1.8} />, flag: 'organizing' },
+];
+
 const PLATFORM_SECTIONS = [
   {
     title: 'Platform',
@@ -217,9 +246,11 @@ const INLINE_ADMIN_SECTIONS: InlineAdminSection[] = [
 // ─── User sidebar content ─────────────────────────────────────────────────────
 
 function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
-  const { profile, eventCount, planPct, planLabel, logoUrl } = usePlanCtx();
+  const { profile, sections, eventCount, planPct, planLabel, logoUrl } = usePlanCtx();
   const planLimit = profile ? (PLAN_LIMITS[profile.plan] ?? 1) : 1;
-  const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
+  // Prefer the roles-API admin flag; keep profile.role as a fallback so admin
+  // access never disappears if the roles fetch is slow or errors.
+  const isAdmin = sections.admin || profile?.role === 'admin' || profile?.role === 'super_admin';
   const isSuperAdmin = profile?.role === 'super_admin';
   const [adminOpen, setAdminOpen] = useState(true);
   const [mounted, setMounted] = useState(false);
@@ -267,7 +298,23 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
 
       {/* Nav sections */}
       <nav className="flex-1 px-3 py-4 overflow-y-auto space-y-5">
-        {PLATFORM_SECTIONS.map((section, si) => (
+        {/* Role-gated top-level entries — Home always, the rest by flag. */}
+        <div>
+          <ul className="space-y-0.5">
+            {ROLE_NAV_ITEMS.filter(item => item.flag === 'always' || sections[item.flag]).map(item => {
+              const active = item.href === '/dashboard'
+                ? pathname === '/dashboard' || pathname.startsWith('/events')
+                : pathname === item.href || pathname.startsWith(item.href + '/');
+              return (
+                <NavItem key={item.label} href={item.href} icon={item.icon} label={item.label}
+                  active={active} onNavigate={onNavigate} />
+              );
+            })}
+          </ul>
+        </div>
+
+        {/* Organizer Platform/Workspace sections — only when the account organizes. */}
+        {sections.organizing && PLATFORM_SECTIONS.map((section, si) => (
           <div key={si}>
             {section.title && (
               <div className="px-2.5 mb-1.5 text-[9.5px] font-semibold uppercase tracking-[0.08em]"
@@ -655,6 +702,7 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
 
 type PlanCtx = {
   profile: Profile | null;
+  sections: VisibleSections;
   eventCount: number;
   initials: string;
   planPct: number;
@@ -665,7 +713,7 @@ type PlanCtx = {
 };
 
 const PlanContext = createContext<PlanCtx>({
-  profile: null, eventCount: 0, initials: '?', planPct: 0, planLabel: 'Free', logoUrl: null,
+  profile: null, sections: EMPTY_SECTIONS, eventCount: 0, initials: '?', planPct: 0, planLabel: 'Free', logoUrl: null,
   contextEventName: null, setContextEventName: () => {},
 });
 function usePlanCtx() { return useContext(PlanContext); }
@@ -816,6 +864,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const supabase = createClient();
   const [profile, setProfile] = useState<Profile | null>(() => readProfileCache());
+  const [sections, setSections] = useState<VisibleSections>(EMPTY_SECTIONS);
   const [eventCount, setEventCount] = useState(0);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
@@ -847,6 +896,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         setEventCount(count ?? 0);
         setLogoUrl((s as { logo_light_url?: string | null } | null)?.logo_light_url ?? null);
       });
+
+      // Adaptive shell — resolve which role sections this account can see.
+      // Failure is silent: flags stay false, so the nav just shows Home.
+      fetch('/api/me/roles')
+        .then(r => (r.ok ? r.json() : null))
+        .then((data: VisibleSections | null) => { if (data) setSections(data); })
+        .catch(() => {});
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -909,7 +965,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const planPct = planLimit === Infinity ? 50 : Math.min((eventCount / planLimit) * 100, 100);
   const planLabel = profile?.plan === 'studio' ? 'Studio' : profile?.plan === 'pro' ? 'Pro' : 'Free';
 
-  const ctxValue: PlanCtx = { profile, eventCount, initials, planPct, planLabel, logoUrl, contextEventName, setContextEventName };
+  const ctxValue: PlanCtx = { profile, sections, eventCount, initials, planPct, planLabel, logoUrl, contextEventName, setContextEventName };
 
   const isFullScreen = /\/events\/[^/]+\/edit/.test(pathname) || pathname === '/onboarding' || /\/events\/[^/]+\/(agenda|roster|revenue)\/print/.test(pathname);
   if (isFullScreen) return <>{children}</>;

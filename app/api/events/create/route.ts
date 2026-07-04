@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { canCreateEvent } from '@/lib/billing/can';
 import { generateSlug } from '@/lib/slug';
+import { upsertEventRole } from '@/lib/rbac/assign';
 
 export async function POST(req: NextRequest) {
   // Auth check with user client
@@ -124,6 +125,9 @@ export async function POST(req: NextRequest) {
   // Best-effort: non-fatal if it fails (e.g. unique constraint on re-create).
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await (admin as any).from('event_pages').insert({ event_id: event.id, title: name, is_public: false });
+
+  // Roles write-path: the creator is the organizer of this event (belt-and-suspenders).
+  await upsertEventRole({ userId: user.id, eventId: event.id, role: 'organizer' });
 
   return NextResponse.json({ id: event.id, slug: event.slug });
 }

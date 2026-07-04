@@ -3,6 +3,7 @@ import { getTicketStripe } from '@/lib/payments/stripe';
 import { createAdminClient } from '@/lib/supabase/server';
 import { sendRegistrationConfirmEmail } from '@/lib/registration/email';
 import { createNotification } from '@/lib/notifications';
+import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 
 // Called by the confirm page after Stripe redirect to verify payment and mark registration as paid.
 // Idempotent — safe to call multiple times (webhook may have already done the update).
@@ -62,6 +63,13 @@ export async function POST(req: NextRequest) {
           body: `Your ticket for ${eventPage?.title ?? 'the event'} is ready.`,
           actionUrl: '/account/my-tickets',
         });
+      }
+
+      // Roles write-path: paid registration confirmed → 'attendee' role (best-effort).
+      const attendeeAccountId = updated.user_id
+        ?? (await resolveAccountIdByEmail(updated.attendee_email));
+      if (attendeeAccountId && updated.event_id) {
+        await upsertEventRole({ userId: attendeeAccountId, eventId: updated.event_id, role: 'attendee' });
       }
     }
 

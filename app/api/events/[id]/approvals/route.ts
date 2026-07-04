@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 
 // GET — list pending applications
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -62,9 +63,20 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     .update({ status: newStatus })
     .eq('id', registrationId)
     .eq('event_id', id)
-    .select('id, status')
+    .select('id, status, user_id, attendee_email')
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json(data);
+
+  // Roles write-path: an approved application is now a confirmed attendee.
+  // Best-effort; uses the registrant's account id when present, else email match.
+  if (action === 'approve' && data) {
+    const attendeeAccountId = data.user_id
+      ?? (await resolveAccountIdByEmail(data.attendee_email));
+    if (attendeeAccountId) {
+      await upsertEventRole({ userId: attendeeAccountId, eventId: id, role: 'attendee' });
+    }
+  }
+
+  return NextResponse.json({ id: data.id, status: data.status });
 }

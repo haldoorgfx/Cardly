@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyWaafiPayWebhook } from '@/lib/payments/waafipay';
 import { createAdminClient } from '@/lib/supabase/server';
 import { sendRegistrationConfirmEmail } from '@/lib/registration/email';
+import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 
 // WaafiPay async callback — handles post-payment confirmations and reversals.
 export async function POST(req: NextRequest) {
@@ -64,7 +65,7 @@ export async function POST(req: NextRequest) {
       })
       .eq('qr_code_token', String(invoiceId))
       .eq('payment_status', 'pending')
-      .select('id, attendee_name, attendee_email, event_id, ticket_type_id, qr_code_token')
+      .select('id, attendee_name, attendee_email, event_id, ticket_type_id, qr_code_token, user_id')
       .maybeSingle();
 
     if (updated) {
@@ -90,6 +91,13 @@ export async function POST(req: NextRequest) {
           eventSlug: event?.slug ?? updated.event_id,
           ticketType: ticket?.name ?? 'General Admission',
         }).catch(() => { /* non-blocking */ });
+      }
+
+      // Roles write-path: paid registration confirmed → 'attendee' role (best-effort).
+      const attendeeAccountId = updated.user_id
+        ?? (await resolveAccountIdByEmail(updated.attendee_email));
+      if (attendeeAccountId && updated.event_id) {
+        await upsertEventRole({ userId: attendeeAccountId, eventId: updated.event_id, role: 'attendee' });
       }
     }
   } else if (state === 'DECLINED' || state === 'FAILED') {

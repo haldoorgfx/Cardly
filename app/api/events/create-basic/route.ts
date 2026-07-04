@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { canCreateEvent } from '@/lib/billing/can';
 import { generateSlug } from '@/lib/slug';
+import { upsertEventRole } from '@/lib/rbac/assign';
 
 export async function POST(req: NextRequest) {
   const supabase = createClient();
@@ -74,6 +75,9 @@ export async function POST(req: NextRequest) {
     starts_at:     body.starts_at ?? null,
     ends_at:       body.ends_at   ?? null,
   });
+
+  // Roles write-path: the creator is the organizer of this event (belt-and-suspenders).
+  await upsertEventRole({ userId: user.id, eventId: event.id, role: 'organizer' });
 
   return NextResponse.json({ id: event.id, slug: event.slug }, { status: 201 });
 }

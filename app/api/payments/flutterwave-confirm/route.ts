@@ -3,6 +3,7 @@ import { verifyFlutterwaveTransaction } from '@/lib/payments/flutterwave';
 import { createAdminClient } from '@/lib/supabase/server';
 import { sendRegistrationConfirmEmail } from '@/lib/registration/email';
 import { createNotification } from '@/lib/notifications';
+import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 
 // Called by the confirm page on Flutterwave redirect return.
 // tx_ref = qr_code_token. Verifies the transaction and marks registration paid.
@@ -83,6 +84,13 @@ export async function POST(req: NextRequest) {
             body: `Your ticket for ${eventPage?.title ?? 'the event'} is ready.`,
             actionUrl: '/account/my-tickets',
           });
+        }
+
+        // Roles write-path: paid registration confirmed → 'attendee' role (best-effort).
+        const attendeeAccountId = updated.user_id
+          ?? (await resolveAccountIdByEmail(updated.attendee_email));
+        if (attendeeAccountId && updated.event_id) {
+          await upsertEventRole({ userId: attendeeAccountId, eventId: updated.event_id, role: 'attendee' });
         }
       }
 

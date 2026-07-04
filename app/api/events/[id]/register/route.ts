@@ -7,6 +7,7 @@ import { isWaafiPayCurrency } from '@/lib/payments/waafipay';
 import { splitTicketAmount, type FeeBearer } from '@/lib/billing/fees';
 import type { Plan } from '@/lib/billing/plans';
 import { createNotification } from '@/lib/notifications';
+import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 import { z } from 'zod';
 
 // ── Input validation ──────────────────────────────────────────────────────────
@@ -483,6 +484,14 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         body: `Your ticket for ${eventPage.title} is ready.`,
         actionUrl: '/account/my-tickets',
       });
+    }
+
+    // Roles write-path: a confirmed free registration → 'attendee' role.
+    // Best-effort (never throws); only writes when the registrant has an account.
+    const attendeeAccountId = registration.user_id
+      ?? (await resolveAccountIdByEmail(registration.attendee_email));
+    if (attendeeAccountId) {
+      await upsertEventRole({ userId: attendeeAccountId, eventId: params.id, role: 'attendee' });
     }
   }
 
