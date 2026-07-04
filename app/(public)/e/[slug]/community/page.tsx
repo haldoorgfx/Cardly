@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
+import { resolveViewerRegistrationId } from '@/lib/attendee/resolveViewerRegistration';
 import { CommunityChatClient } from '@/components/events/CommunityChatClient';
 
 interface Props { params: { slug: string }; searchParams: { reg?: string; channel?: string } }
@@ -40,7 +41,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
         channels={channels ?? []}
         initialMessages={messages ?? []}
         activeChannelId={defaultChannel ?? null}
-        registrationId={searchParams.reg}
+        registrationId={await resolveViewerRegistrationId(event.id, searchParams.reg) ?? undefined}
       />
     </div>
   );

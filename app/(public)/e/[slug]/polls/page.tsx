@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import PollsClient from '@/components/polls/PollsClient';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
+import { resolveViewerRegistrationId } from '@/lib/attendee/resolveViewerRegistration';
 
 interface Props { params: { slug: string }; searchParams: { reg?: string } }
 
@@ -22,15 +23,16 @@ export default async function PollsPage({ params, searchParams }: Props) {
     .eq('event_id', event.id)
     .order('created_at', { ascending: false });
 
+  const registrationId = await resolveViewerRegistrationId(event.id, searchParams.reg);
+
   // My votes
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const myVotes: Record<string, string> = {};
-  if (searchParams.reg) {
+  if (registrationId) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: votes } = await (admin as any)
       .from('poll_votes')
       .select('poll_id, option_id')
-      .eq('registration_id', searchParams.reg);
+      .eq('registration_id', registrationId);
     for (const v of (votes ?? [])) myVotes[v.poll_id] = v.option_id;
   }
 
@@ -45,7 +47,7 @@ export default async function PollsPage({ params, searchParams }: Props) {
         </div>
         <PollsClient
           eventId={event.id}
-          registrationId={searchParams.reg ?? null}
+          registrationId={registrationId}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           initialPolls={(polls ?? []) as any}
           myVotes={myVotes}

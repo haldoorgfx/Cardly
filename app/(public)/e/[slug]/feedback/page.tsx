@@ -4,12 +4,11 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { notFound, redirect } from 'next/navigation';
 import FeedbackClient from '@/components/events/FeedbackClient';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
+import { resolveViewerRegistrationId } from '@/lib/attendee/resolveViewerRegistration';
 
 interface Props { params: { slug: string }; searchParams: { reg?: string } }
 
 export default async function FeedbackPage({ params, searchParams }: Props) {
-  if (!searchParams.reg) redirect(`/e/${params.slug}`);
-
   const admin = createAdminClient();
 
   const resolved = await resolvePublicSlug(params.slug);
@@ -17,10 +16,13 @@ export default async function FeedbackPage({ params, searchParams }: Props) {
   const { eventPageTitle, event } = resolved;
   const eventPage = { title: eventPageTitle ?? '' };
 
+  const registrationId = await resolveViewerRegistrationId(event.id, searchParams.reg);
+  if (!registrationId) redirect(`/e/${params.slug}`);
+
   const { data: agendaSessions } = await admin
     .from('attendee_agendas')
     .select('session_id, sessions(id, title, starts_at, session_type)')
-    .eq('registration_id', searchParams.reg)
+    .eq('registration_id', registrationId)
     .order('created_at', { ascending: true });
 
   // Pre-load any feedback this registration has already submitted so we can show
@@ -28,7 +30,7 @@ export default async function FeedbackPage({ params, searchParams }: Props) {
   const { data: existingFeedback } = await admin
     .from('event_feedback')
     .select('overall_rating, highlights, comment')
-    .eq('registration_id', searchParams.reg)
+    .eq('registration_id', registrationId)
     .eq('event_id', event.id)
     .maybeSingle();
 
@@ -38,7 +40,7 @@ export default async function FeedbackPage({ params, searchParams }: Props) {
         <FeedbackClient
           eventId={event.id}
           eventTitle={eventPage.title}
-          registrationId={searchParams.reg}
+          registrationId={registrationId}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           attendedSessions={(agendaSessions ?? []).map(r => r.sessions).filter(Boolean) as any}
           existingFeedback={existingFeedback ?? null}

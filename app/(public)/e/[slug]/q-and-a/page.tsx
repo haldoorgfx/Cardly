@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import QandAClient from '@/components/qa/QandAClient';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
+import { resolveViewerRegistrationId } from '@/lib/attendee/resolveViewerRegistration';
 
 interface Props { params: { slug: string }; searchParams: { reg?: string; session?: string } }
 
@@ -42,7 +43,7 @@ export default async function QandAPage({ params, searchParams }: Props) {
         </div>
         <QandAClient
           eventId={event.id}
-          registrationId={searchParams.reg ?? null}
+          registrationId={await resolveViewerRegistrationId(event.id, searchParams.reg)}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           initialQuestions={(questions ?? []) as any}
           sessions={(sessions ?? []) as { id: string; title: string }[]}

@@ -4,23 +4,25 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { notFound, redirect } from 'next/navigation';
 import PersonalAgendaClient from '@/components/events/PersonalAgendaClient';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
+import { resolveViewerRegistrationId } from '@/lib/attendee/resolveViewerRegistration';
 
 interface Props { params: { slug: string }; searchParams: { reg?: string } }
 
 export default async function MyAgendaPage({ params, searchParams }: Props) {
-  if (!searchParams.reg) redirect(`/e/${params.slug}/schedule`);
-
   const admin = createAdminClient();
 
   const resolved = await resolvePublicSlug(params.slug);
   if (!resolved) notFound();
-  const { eventPageTitle } = resolved;
+  const { eventPageTitle, event } = resolved;
   const eventPage = { title: eventPageTitle };
+
+  const registrationId = await resolveViewerRegistrationId(event.id, searchParams.reg);
+  if (!registrationId) redirect(`/e/${params.slug}/schedule`);
 
   const { data: agendaRows } = await admin
     .from('attendee_agendas')
     .select('session_id, sessions(id, title, starts_at, ends_at, room, session_type, tracks(id,name,color), session_speakers(speaker_id, speakers(id,name,photo_url)))')
-    .eq('registration_id', searchParams.reg)
+    .eq('registration_id', registrationId)
     .order('created_at', { ascending: true });
 
   type AgendaSession = { starts_at: string; [key: string]: unknown };
@@ -43,7 +45,7 @@ export default async function MyAgendaPage({ params, searchParams }: Props) {
         <PersonalAgendaClient
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           sessions={sessions as any}
-          registrationId={searchParams.reg}
+          registrationId={registrationId}
           eventSlug={params.slug}
         />
       </div>
