@@ -57,6 +57,12 @@ const GRADIENTS = [
   'linear-gradient(150deg,#2b160c,#9a6038)',
 ];
 
+const SOLIDS = ['#1F4D3A', '#163828', '#0D1F17', '#2A6A50', '#3A4A42', '#0F1F18'];
+
+function isGradient(bg: string) {
+  return bg.includes('gradient');
+}
+
 /* ── Small Controls ────────────────────────────────────────────────── */
 function Seg({ options, value, onChange, full }: {
   options: (string | { id: string; label: string })[];
@@ -399,39 +405,62 @@ function BrandPanel() {
 }
 
 function BackgroundPanel({ bg, onBg }: { bg: string; onBg: (g: string) => void }) {
+  // Background "type" is derived from the current value, so the segmented
+  // control always reflects (and drives) the real rendered background.
+  const type = isGradient(bg) ? 'Gradient' : 'Solid';
   return (
     <div style={{ padding: 12, display: 'grid', gap: 20 }}>
       <div>
         <PLabel>Background type</PLabel>
-        <Seg options={['Gradient', 'Solid', 'Image']} value="Gradient" onChange={() => {}} full />
+        <Seg
+          options={['Gradient', 'Solid']}
+          value={type}
+          onChange={t => onBg(t === 'Gradient' ? GRADIENTS[0] : SOLIDS[0])}
+          full
+        />
       </div>
-      <div>
-        <PLabel>Gradient presets</PLabel>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8 }}>
-          {GRADIENTS.map((g, i) => (
-            <button
-              key={i}
-              onClick={() => onBg(g)}
-              style={{
-                aspectRatio: '1', borderRadius: 12, background: g,
-                border: bg === g ? '2px solid #1F4D3A' : '1px solid #E5E0D4',
-                boxShadow: bg === g ? '0 0 0 2px rgba(31,77,58,0.2)' : 'none',
-              }}
-            />
-          ))}
+      {type === 'Gradient' ? (
+        <div>
+          <PLabel>Gradient presets</PLabel>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8 }}>
+            {GRADIENTS.map((g, i) => (
+              <button
+                key={i}
+                onClick={() => onBg(g)}
+                style={{
+                  aspectRatio: '1', borderRadius: 12, background: g,
+                  border: bg === g ? '2px solid #1F4D3A' : '1px solid #E5E0D4',
+                  boxShadow: bg === g ? '0 0 0 2px rgba(31,77,58,0.2)' : 'none',
+                }}
+              />
+            ))}
+          </div>
         </div>
-      </div>
-      <div>
-        <PLabel>Texture</PLabel>
-        <div style={{ display: 'grid', gap: 8 }}>
-          {[['Hex mesh', true], ['Dot grid', true], ['Topographic', false], ['None', false]].map(([l, on], i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', borderRadius: 8, border: '1px solid #E5E0D4', background: 'rgba(250,246,238,0.4)' }}>
-              <span style={{ fontSize: 12.5, color: '#3A4A42' }}>{l as string}</span>
-              <Toggle on={on as boolean} onClick={() => {}} />
-            </div>
-          ))}
+      ) : (
+        <div>
+          <PLabel>Solid color</PLabel>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8 }}>
+            {SOLIDS.map((c, i) => (
+              <button
+                key={i}
+                onClick={() => onBg(c)}
+                style={{
+                  aspectRatio: '1', borderRadius: 12, background: c,
+                  border: bg === c ? '2px solid #1F4D3A' : '1px solid #E5E0D4',
+                  boxShadow: bg === c ? '0 0 0 2px rgba(31,77,58,0.2)' : 'none',
+                }}
+              />
+            ))}
+          </div>
+          <input
+            type="color"
+            value={isGradient(bg) ? SOLIDS[0] : bg}
+            onChange={e => onBg(e.target.value)}
+            className="w-full h-9 mt-3 rounded-lg cursor-pointer"
+            style={{ border: '1px solid #E5E0D4', background: '#FAF6EE', padding: '2px 4px' }}
+          />
         </div>
-      </div>
+      )}
     </div>
   );
 }

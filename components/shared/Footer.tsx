@@ -8,15 +8,15 @@ const FOOTER_LINKS = {
     { label: "Templates", href: "/templates" },
   ],
   Company: [
-    { label: "About", href: "#" },
-    { label: "Blog", href: "#" },
-    { label: "Careers", href: "#" },
-    { label: "Contact", href: "#" },
+    { label: "About", href: "/about" },
+    { label: "Blog", href: "/blog" },
+    { label: "Careers", href: "/careers" },
+    { label: "Contact", href: "/contact" },
   ],
   Legal: [
-    { label: "Privacy Policy", href: "#" },
-    { label: "Terms of Service", href: "#" },
-    { label: "Security", href: "#" },
+    { label: "Privacy Policy", href: "/privacy" },
+    { label: "Terms of Service", href: "/terms" },
+    { label: "DMCA", href: "/dmca" },
   ],
 };
 
@@ -68,26 +68,9 @@ export function Footer() {
         {/* Bottom row */}
         <div className="mt-7 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <span className="text-[12px] text-[#6B7A72]">© 2026 Eventera · Made with care in Lagos</span>
-          <div className="flex items-center gap-5">
-            <a href="#" className="text-[#6B7A72] hover:text-[#3A4A42] transition" aria-label="Twitter / X">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-              </svg>
-            </a>
-            <a href="#" className="text-[#6B7A72] hover:text-[#3A4A42] transition" aria-label="LinkedIn">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
-                <rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/>
-              </svg>
-            </a>
-            <a href="#" className="text-[#6B7A72] hover:text-[#3A4A42] transition" aria-label="Instagram">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
-              </svg>
-            </a>
-          </div>
+          <a href="mailto:hello@cre8so.com" className="text-[12px] text-[#3A4A42] hover:text-[#0F1F18] transition">
+            hello@cre8so.com
+          </a>
         </div>
       </div>
     </footer>

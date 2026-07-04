@@ -14,6 +14,7 @@ import '../auth/attendee_auth_screen.dart';
 import '../tickets/my_tickets_screen.dart';
 import 'attendee_profile_screen.dart';
 import 'following_screen.dart';
+import 'help_support_screen.dart';
 import 'notifications_screen.dart';
 import 'saved_events_screen.dart';
 
@@ -157,6 +158,7 @@ class _AttendeeAccountTabState extends State<AttendeeAccountTab> {
         tickets: _tickets,
         saved: _saved,
         following: _following,
+        roles: _roles,
         onEdit: () => _push(AttendeeProfileScreen(onSignInTap: _auth)),
       ),
       const SizedBox(height: 24),
@@ -219,7 +221,7 @@ class _AttendeeAccountTabState extends State<AttendeeAccountTab> {
           icon: Icons.help_outline,
           tone: ITone.muted,
           title: 'Help & support',
-          onTap: () => showToast(context, 'Support is coming soon.'),
+          onTap: () => _push(const HelpSupportScreen()),
         ),
       ]),
       const SizedBox(height: 24),
@@ -417,6 +419,7 @@ class _ProfileHeader extends StatelessWidget {
   final int tickets;
   final int saved;
   final int following;
+  final UserRoles? roles;
   final VoidCallback onEdit;
   const _ProfileHeader({
     required this.name,
@@ -424,8 +427,25 @@ class _ProfileHeader extends StatelessWidget {
     required this.tickets,
     required this.saved,
     required this.following,
+    required this.roles,
     required this.onEdit,
   });
+
+  /// The hats this account wears, most-to-least "attendee". Attendee is always
+  /// present (the app is attendee-first — the Tickets tab is that hat), then any
+  /// event-scoped or platform roles the account holds. Kept subtle so it reads
+  /// as an at-a-glance summary, never as a second nav.
+  List<String> _hats() {
+    final out = <String>['Attendee'];
+    final r = roles;
+    if (r != null) {
+      if (r.hasOrganizing) out.add('Organizer');
+      if (r.hasSpeaking) out.add('Speaker');
+      if (r.hasSponsoring) out.add('Sponsor');
+      if (r.isAdmin) out.add('Admin');
+    }
+    return out;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -447,8 +467,11 @@ class _ProfileHeader extends StatelessWidget {
               ),
             ),
             padding: const EdgeInsets.all(18),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Row(
+                  children: [
                 Container(
                   padding: const EdgeInsets.all(2.5),
                   decoration: BoxDecoration(
@@ -490,6 +513,14 @@ class _ProfileHeader extends StatelessWidget {
                         color: Colors.white, size: 18),
                   ),
                 ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                Wrap(
+                  spacing: 7,
+                  runSpacing: 7,
+                  children: [for (final h in _hats()) _HatPill(h)],
+                ),
               ],
             ),
           ),
@@ -499,6 +530,34 @@ class _ProfileHeader extends StatelessWidget {
             ('$following', 'Following'),
           ]),
         ],
+      ),
+    );
+  }
+}
+
+/// A subtle "hat" pill shown in the profile header (Attendee / Organizer /
+/// Speaker / Sponsor / Admin). Translucent white on the forest gradient so it
+/// reads as a quiet summary of what this one account is, not a second nav.
+class _HatPill extends StatelessWidget {
+  final String label;
+  const _HatPill(this.label);
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.13),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.16)),
+      ),
+      child: Text(
+        label,
+        style: AppText.caption.copyWith(
+          color: Colors.white.withValues(alpha: 0.92),
+          fontWeight: FontWeight.w600,
+          fontSize: 11.5,
+          letterSpacing: 0.1,
+        ),
       ),
     );
   }

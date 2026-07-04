@@ -1,8 +1,28 @@
 'use client';
 
-import { ArrowRight } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowRight, Check } from 'lucide-react';
 
 export function NewsCTAClient() {
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (status === 'loading' || status === 'done') return;
+    setStatus('loading');
+    try {
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, source: 'whats-new' }),
+      });
+      setStatus(res.ok ? 'done' : 'error');
+    } catch {
+      setStatus('error');
+    }
+  }
+
   return (
     <section className="bg-primary text-cream relative overflow-hidden">
       <div
@@ -24,24 +44,42 @@ export function NewsCTAClient() {
         >
           One email per major release. Never more. Unsubscribe in one click.
         </p>
-        <form
-          onSubmit={e => e.preventDefault()}
-          className="mt-7 flex flex-col sm:flex-row gap-3 max-w-[400px] mx-auto"
-        >
-          <input
-            type="email"
-            required
-            placeholder="your@email.com"
-            className="flex-1 px-4 py-3 rounded-full text-[14px] text-ink placeholder:text-muted outline-none"
-            style={{ background: '#FFFFFF', border: '1px solid transparent' }}
-          />
-          <button
-            type="submit"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-medium text-[14px] transition-colors bg-accent text-primary-dark hover:bg-accent-dark shrink-0"
+        {status === 'done' ? (
+          <div
+            className="mt-7 flex items-center justify-center gap-2 max-w-[400px] mx-auto px-4 py-3 rounded-full text-[14px] font-medium"
+            style={{ background: '#E8C57E', color: '#163828' }}
           >
-            Subscribe <ArrowRight size={14} strokeWidth={2} />
-          </button>
-        </form>
+            <Check size={15} strokeWidth={2.4} />
+            Thanks — you&apos;re subscribed
+          </div>
+        ) : (
+          <form
+            onSubmit={handleSubmit}
+            className="mt-7 flex flex-col sm:flex-row gap-3 max-w-[400px] mx-auto"
+          >
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={e => { setEmail(e.target.value); if (status === 'error') setStatus('idle'); }}
+              placeholder="your@email.com"
+              className="flex-1 px-4 py-3 rounded-full text-[14px] text-ink placeholder:text-muted outline-none"
+              style={{ background: '#FFFFFF', border: '1px solid transparent' }}
+            />
+            <button
+              type="submit"
+              disabled={status === 'loading'}
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-medium text-[14px] transition-colors bg-accent text-primary-dark hover:bg-accent-dark shrink-0 disabled:opacity-60"
+            >
+              {status === 'loading' ? 'Subscribing…' : <>Subscribe <ArrowRight size={14} strokeWidth={2} /></>}
+            </button>
+            {status === 'error' && (
+              <p className="w-full text-center text-[12px]" style={{ color: '#E8C57E' }}>
+                Something went wrong. Please try again.
+              </p>
+            )}
+          </form>
+        )}
       </div>
     </section>
   );

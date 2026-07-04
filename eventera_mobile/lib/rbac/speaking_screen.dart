@@ -1,17 +1,24 @@
 import 'package:flutter/material.dart';
 
 import '../attendee/event_landing_screen.dart';
+import '../attendee/hub/session_detail_screen.dart';
 import '../net.dart';
 import '../ui/components.dart';
 import '../ui/tokens.dart';
 
-/// "Speaking" — lists the events where the signed-in account holds an ACTIVE
+/// "Speaking" — the events where the signed-in account holds an ACTIVE
 /// `speaker` role (resolved from `user_event_roles`, passed in as [eventIds]).
 ///
-/// For each event we load its public row (name, slug, dates) and, best-effort,
-/// how many published sessions it has, then let the speaker open the full
-/// attendee event page. Reads go through the anon client; published events are
-/// public-readable, so this works under RLS without any special policy.
+/// For each speaking event we resolve the account's speaker row(s) — matched by
+/// the signed-in email against `speakers.email` (migration 039) — then load the
+/// published `sessions` those speaker rows are on (via `session_speakers`),
+/// showing title, time and room. The speaker can open a session to see full
+/// details, or open the public event page.
+///
+/// All reads go through the anon client. `speakers`, `session_speakers` and
+/// published `sessions` are public-readable under RLS, so this needs no special
+/// policy. Everything fails SAFE: a query error yields an empty section, never
+/// an error wall or a broken Account screen.
 class SpeakingScreen extends StatefulWidget {
   final List<String> eventIds;
   const SpeakingScreen({super.key, required this.eventIds});
@@ -36,18 +43,29 @@ class _SpeakingScreenState extends State<SpeakingScreen> {
     try {
       final ids = widget.eventIds.where((e) => e.isNotEmpty).toList();
       if (ids.isNotEmpty) {
-        // `events` reliably has id/name/slug (see eventera_api.dart). Display
-        // metadata (cover, date, venue) lives on `event_pages` keyed by
-        // event_id — same source Discover uses — so we embed it here.
-        final rows = await supa
+        // 1) Event display metadata — same source as Discover: `events` for
+        //    id/name/slug, embedded `event_pages` for cover/date/venue.
+        final eventRows = await supa
             .from('events')
             .select(
                 'id, name, slug, status, event_pages(cover_image_url, starts_at, venue_name, city, country, is_online)')
             .inFilter('id', ids);
-        for (final r in (rows as List).whereType<Map>()) {
-          out.add(_SpeakingEvent.fromRow(Map<String, dynamic>.from(r)));
+        final byId = <String, _SpeakingEvent>{};
+        for (final r in (eventRows as List).whereType<Map>()) {
+          final ev = _SpeakingEvent.fromRow(Map<String, dynamic>.from(r));
+          // Skip events with no public slug — their event page can't be opened,
+          // so we never render a dead-end tile for them.
+          if (ev.slug.isEmpty) continue;
+          byId[ev.id] = ev;
         }
-        // Newest first by date (nulls last).
+
+        // 2) Resolve this account's speaker rows in those events by email, then
+        //    load the sessions those speakers are on. Best-effort: if the
+        //    speaker rows or sessions can't be read we still show the events.
+        await _attachSessions(byId, ids);
+
+        out.addAll(byId.values);
+        // Newest first by event date (nulls last).
         out.sort((a, b) {
           final ad = a.startsAt, bd = b.startsAt;
           if (ad == null && bd == null) return 0;
@@ -64,6 +82,70 @@ class _SpeakingScreenState extends State<SpeakingScreen> {
       _events = out;
       _loading = false;
     });
+  }
+
+  /// Populates `sessions` on each event in [byId] with the account's sessions.
+  Future<void> _attachSessions(
+      Map<String, _SpeakingEvent> byId, List<String> ids) async {
+    final email = (currentUserEmail ?? '').trim().toLowerCase();
+    try {
+      // Speaker rows in these events. Prefer an email match (the confident link,
+      // same predicate the 055 backfill uses); if the account has no email we
+      // simply skip — better to show the event with no sessions than the wrong
+      // person's sessions.
+      var q = supa
+          .from('speakers')
+          .select('id, event_id, email')
+          .inFilter('event_id', ids);
+      if (email.isNotEmpty) {
+        q = q.eq('email', email);
+      }
+      final speakerRows = await q;
+
+      // speaker_id -> event_id
+      final speakerToEvent = <String, String>{};
+      for (final s in (speakerRows as List).whereType<Map>()) {
+        final sid = asString(s['id']);
+        final eid = asString(s['event_id']);
+        if (sid.isNotEmpty && eid.isNotEmpty) speakerToEvent[sid] = eid;
+      }
+      if (speakerToEvent.isEmpty) return;
+
+      // 3) Sessions those speakers are on (published only), with time + room.
+      final links = await supa
+          .from('session_speakers')
+          .select(
+              'speaker_id, sessions(id, title, starts_at, ends_at, room, event_id, is_published)')
+          .inFilter('speaker_id', speakerToEvent.keys.toList());
+
+      // Dedupe sessions per event (a speaker can appear on the same session once,
+      // but two speaker rows in one event could both link the same session).
+      final seen = <String, Set<String>>{}; // eventId -> sessionIds
+      for (final l in (links as List).whereType<Map>()) {
+        final s = l['sessions'];
+        if (s is! Map) continue;
+        if (asBool(s['is_published']) != true) continue;
+        final eid = asString(s['event_id']);
+        final sid = asString(s['id']);
+        final ev = byId[eid];
+        if (ev == null || sid.isEmpty) continue;
+        final eventSeen = (seen[eid] ??= <String>{});
+        if (!eventSeen.add(sid)) continue; // already added
+        ev.sessions.add(_SpeakerSession.fromRow(Map<String, dynamic>.from(s)));
+      }
+      // Order each event's sessions by start time (nulls last).
+      for (final ev in byId.values) {
+        ev.sessions.sort((a, b) {
+          final ad = a.startsAt, bd = b.startsAt;
+          if (ad == null && bd == null) return 0;
+          if (ad == null) return 1;
+          if (bd == null) return -1;
+          return ad.compareTo(bd);
+        });
+      }
+    } catch (_) {
+      // Non-fatal — events still render, just without the session list.
+    }
   }
 
   @override
@@ -92,23 +174,30 @@ class _SpeakingScreenState extends State<SpeakingScreen> {
                     physics: const AlwaysScrollableScrollPhysics(),
                     padding: const EdgeInsets.fromLTRB(20, 12, 20, 36),
                     itemCount: _events.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
-                    itemBuilder: (_, i) => _EventTile(
+                    separatorBuilder: (_, __) => const SizedBox(height: 20),
+                    itemBuilder: (_, i) => _EventBlock(
                       event: _events[i],
-                      onTap: () => _open(_events[i]),
+                      onOpenEvent: () => _openEvent(_events[i]),
+                      onOpenSession: (s) => _openSession(_events[i], s),
                     ),
                   ),
       ),
     );
   }
 
-  void _open(_SpeakingEvent e) {
-    if (e.slug.isEmpty) {
-      showToast(context, 'This event page is not available yet.');
-      return;
-    }
+  void _openEvent(_SpeakingEvent e) {
+    // Events without a slug are pre-filtered out in _load, so every tile that
+    // renders here has an openable event page.
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => EventLandingScreen(slug: e.slug)),
+    );
+  }
+
+  void _openSession(_SpeakingEvent e, _SpeakerSession s) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => SessionDetailScreen(sessionId: s.id, eventId: e.id),
+      ),
     );
   }
 }
@@ -120,7 +209,8 @@ class _SpeakingEvent {
   final DateTime? startsAt;
   final String location;
   final String coverUrl;
-  const _SpeakingEvent({
+  final List<_SpeakerSession> sessions = [];
+  _SpeakingEvent({
     required this.id,
     required this.name,
     required this.slug,
@@ -158,10 +248,40 @@ class _SpeakingEvent {
   }
 }
 
-class _EventTile extends StatelessWidget {
+class _SpeakerSession {
+  final String id;
+  final String title;
+  final DateTime? startsAt;
+  final DateTime? endsAt;
+  final String room;
+  const _SpeakerSession({
+    required this.id,
+    required this.title,
+    required this.startsAt,
+    required this.endsAt,
+    required this.room,
+  });
+
+  factory _SpeakerSession.fromRow(Map<String, dynamic> s) => _SpeakerSession(
+        id: asString(s['id']),
+        title: asString(s['title'], 'Untitled session'),
+        startsAt: asDate(s['starts_at']),
+        endsAt: asDate(s['ends_at']),
+        room: asString(s['room']).trim(),
+      );
+}
+
+/// One event: a header tile (cover, name, date, "Open event" chevron) followed
+/// by the account's sessions at that event, or a quiet "no sessions yet" line.
+class _EventBlock extends StatelessWidget {
   final _SpeakingEvent event;
-  final VoidCallback onTap;
-  const _EventTile({required this.event, required this.onTap});
+  final VoidCallback onOpenEvent;
+  final ValueChanged<_SpeakerSession> onOpenSession;
+  const _EventBlock({
+    required this.event,
+    required this.onOpenEvent,
+    required this.onOpenSession,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -169,42 +289,144 @@ class _EventTile extends StatelessWidget {
       if (event.startsAt != null) _fmtDate(event.startsAt!),
       if (event.location.isNotEmpty) event.location,
     ].join(' · ');
+    final count = event.sessions.length;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Event header — tappable to open the public event page.
+        MCard(
+          onTap: onOpenEvent,
+          padding: const EdgeInsets.all(14),
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(11),
+                child: SizedBox(
+                  width: 52,
+                  height: 52,
+                  child: event.coverUrl.isNotEmpty
+                      ? Image.network(
+                          event.coverUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) =>
+                              PhotoPlaceholder(hue: hueFromString(event.id)),
+                        )
+                      : PhotoPlaceholder(hue: hueFromString(event.id)),
+                ),
+              ),
+              const SizedBox(width: 13),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(event.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppText.h3.copyWith(fontSize: 15.5)),
+                    if (sub.isNotEmpty) ...[
+                      const SizedBox(height: 3),
+                      Text(sub,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppText.bodySm),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(width: 6),
+              const Icon(Icons.chevron_right,
+                  size: 18, color: AppColors.inkMuted),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+        Padding(
+          padding: const EdgeInsets.only(left: 2, bottom: 6),
+          child: Text(
+            count == 0
+                ? 'YOUR SESSIONS'
+                : (count == 1 ? '1 SESSION' : '$count SESSIONS'),
+            style: AppText.seclab,
+          ),
+        ),
+        if (count == 0)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: AppColors.creamSoft,
+              borderRadius: BorderRadius.circular(AppRadius.card),
+            ),
+            child: Text(
+              'No sessions are assigned to you here yet. The organizer adds '
+              'you to sessions on the schedule.',
+              style: AppText.bodySm.copyWith(color: AppColors.inkMuted),
+            ),
+          )
+        else
+          for (final s in event.sessions) ...[
+            _SessionRow(session: s, onTap: () => onOpenSession(s)),
+            const SizedBox(height: 8),
+          ],
+      ],
+    );
+  }
+
+  static String _fmtDate(DateTime d) {
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    final l = d.toLocal();
+    return '${months[l.month - 1]} ${l.day}, ${l.year}';
+  }
+}
+
+/// A single session the speaker is on — time + title + room, tappable.
+class _SessionRow extends StatelessWidget {
+  final _SpeakerSession session;
+  final VoidCallback onTap;
+  const _SessionRow({required this.session, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final time = _fmtTimeRange(session.startsAt, session.endsAt);
+    final meta = [
+      if (time.isNotEmpty) time,
+      if (session.room.isNotEmpty) session.room,
+    ].join(' · ');
     return MCard(
       onTap: onTap,
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(13),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(11),
-            child: SizedBox(
-              width: 52,
-              height: 52,
-              child: event.coverUrl.isNotEmpty
-                  ? Image.network(
-                      event.coverUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) =>
-                          PhotoPlaceholder(hue: hueFromString(event.id)),
-                    )
-                  : PhotoPlaceholder(hue: hueFromString(event.id)),
+          Container(
+            width: 3,
+            height: 34,
+            decoration: BoxDecoration(
+              color: AppColors.gold,
+              borderRadius: BorderRadius.circular(999),
             ),
           ),
-          const SizedBox(width: 13),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(event.name,
-                    maxLines: 1,
+                Text(session.title,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: AppText.h3.copyWith(fontSize: 15.5)),
-                if (sub.isNotEmpty) ...[
+                    style: AppText.h3.copyWith(fontSize: 14.5)),
+                if (meta.isNotEmpty) ...[
                   const SizedBox(height: 3),
-                  Text(sub,
+                  Text(meta,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: AppText.bodySm),
+                      style: AppText.bodySm.copyWith(color: AppColors.inkMuted)),
                 ],
               ],
             ),
@@ -216,11 +438,18 @@ class _EventTile extends StatelessWidget {
     );
   }
 
-  static String _fmtDate(DateTime d) {
-    const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ];
-    return '${months[d.month - 1]} ${d.day}, ${d.year}';
+  static String _fmtTimeRange(DateTime? start, DateTime? end) {
+    if (start == null) return '';
+    String t(DateTime dt) {
+      final d = dt.toLocal();
+      final ampm = d.hour < 12 ? 'AM' : 'PM';
+      var h = d.hour % 12;
+      if (h == 0) h = 12;
+      final m = d.minute.toString().padLeft(2, '0');
+      return '$h:$m $ampm';
+    }
+
+    if (end == null) return t(start);
+    return '${t(start)} – ${t(end)}';
   }
 }

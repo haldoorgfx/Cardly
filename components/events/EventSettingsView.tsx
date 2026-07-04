@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Check, Copy, AlertTriangle, Trash2, X, MapPin } from 'lucide-react';
+import Link from 'next/link';
+import { Check, Copy, AlertTriangle, Trash2, X, MapPin, ArrowRight } from 'lucide-react';
 import { PlacesAutocomplete, type PlaceResult } from '@/components/shared/PlacesAutocomplete';
 import { EventFeaturesManager } from '@/components/events/EventFeaturesManager';
 
@@ -355,8 +356,15 @@ export function EventSettingsView({ event }: Props) {
                   <span className="text-[12px]" style={{ color: '#6B7A72' }}>attendees</span>
                 </div>
               </InfoRow>
-              <InfoRow label="Waitlist" last>
-                <span className="text-[11px] px-2 py-0.5 rounded-full font-medium" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>Coming soon</span>
+              <InfoRow label="Waitlist" desc="When your event fills up, attendees can join a waitlist. Manage it here." last>
+                <Link
+                  href={`/events/${event.slug}/waitlist`}
+                  className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-[12.5px] font-medium border transition hover:border-[#1F4D3A]/50"
+                  style={{ borderColor: '#E5E0D4', color: '#1F4D3A' }}
+                >
+                  Manage waitlist
+                  <ArrowRight size={13} strokeWidth={2} />
+                </Link>
               </InfoRow>
             </div>
           </Panel>
@@ -375,19 +383,9 @@ export function EventSettingsView({ event }: Props) {
             <InfoRow label="Require approval" desc="Manually approve each registration before it's confirmed" last={false}>
               <Toggle value={requireApproval} onChange={setRequireApproval} />
             </InfoRow>
-            <InfoRow label="Show remaining tickets" desc="Display how many spots are left on the public page" last={false}>
+            <InfoRow label="Show remaining tickets" desc="Display how many spots are left on the public page" last>
               <Toggle value={showRemainingTickets} onChange={setShowRemainingTickets} />
             </InfoRow>
-            {[
-              { label: 'Collect organization', desc: 'Ask attendees for their company' },
-              { label: 'Collect dietary needs', desc: 'For catered events' },
-              { label: 'Custom question', desc: '"What do you hope to learn?"' },
-              { label: 'Close at capacity', desc: 'Automatically close registration when full' },
-            ].map((item, i, arr) => (
-              <InfoRow key={item.label} label={item.label} desc={item.desc} last={i === arr.length - 1}>
-                <span className="text-[11px] px-2 py-0.5 rounded-full font-medium" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>Coming soon</span>
-              </InfoRow>
-            ))}
           </div>
 
           {/* Payment methods — which processors buyers can use for paid tickets */}
@@ -455,18 +453,9 @@ export function EventSettingsView({ event }: Props) {
       {tab === 'privacy' && (
         <Panel title="Visibility & privacy">
           <div className="space-y-0">
-            <InfoRow label="Public event page" desc="Listed and discoverable on Eventera" last={false}>
+            <InfoRow label="Public event page" desc="Listed and discoverable on Eventera" last>
               <Toggle value={isPublic} onChange={setIsPublic} />
             </InfoRow>
-            {[
-              { label: 'Show attendee list', desc: "Let attendees see who's coming" },
-              { label: 'Require login to register', desc: 'Attendees must create an account' },
-              { label: 'Allow networking', desc: 'Attendees can message each other' },
-            ].map((item, i, arr) => (
-              <InfoRow key={item.label} label={item.label} desc={item.desc} last={i === arr.length - 1}>
-                <span className="text-[11px] px-2 py-0.5 rounded-full font-medium" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>Coming soon</span>
-              </InfoRow>
-            ))}
           </div>
         </Panel>
       )}

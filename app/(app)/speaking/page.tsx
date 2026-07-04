@@ -5,7 +5,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getUserRoles, eventsWithRole } from '@/lib/rbac/roles';
-import { Mic, CalendarDays, MapPin, ArrowRight, Clock } from 'lucide-react';
+import { Mic, CalendarDays, MapPin, ArrowRight, Clock, FileText, CheckCircle2 } from 'lucide-react';
 
 export const metadata: Metadata = { title: 'Speaking' };
 
@@ -24,6 +24,55 @@ type EventGroup = {
   speakerId: string | null;
   sessions: SessionRow[];
 };
+
+// A CFP the viewer can submit to (open on an event they speak at).
+type OpenCfp = {
+  eventId: string;
+  eventName: string;
+  eventSlug: string;
+  deadlineAt: string | null;
+};
+
+// One of the viewer's own abstract submissions.
+type MySubmission = {
+  id: string;
+  title: string;
+  eventName: string;
+  status: string;
+  submittedAt: string | null;
+};
+
+const SUB_STATUS_LABEL: Record<string, string> = {
+  pending: 'Pending',
+  accept: 'Accepted',
+  reject: 'Declined',
+  revision: 'Revision',
+  waitlist: 'Waitlisted',
+};
+
+const SUB_STATUS_STYLE: Record<string, { bg: string; color: string }> = {
+  pending: { bg: '#F5F5F0', color: '#6B7A72' },
+  accept: { bg: '#E8EFEB', color: '#1F4D3A' },
+  reject: { bg: 'rgba(184,66,60,0.1)', color: '#B8423C' },
+  revision: { bg: '#FEF3C7', color: '#C97A2D' },
+  waitlist: { bg: '#E8EFEB', color: '#6B7A72' },
+};
+
+function fmtDate(iso: string | null): string {
+  if (!iso) return '';
+  try {
+    return new Date(iso).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
+  } catch {
+    return '';
+  }
+}
+
+function daysUntil(iso: string | null): number | null {
+  if (!iso) return null;
+  const ms = new Date(iso).getTime() - Date.now();
+  if (Number.isNaN(ms)) return null;
+  return Math.max(0, Math.ceil(ms / 86400000));
+}
 
 function fmtTime(iso: string | null): string {
   if (!iso) return '';
@@ -136,7 +185,66 @@ export default async function SpeakingPage() {
       });
   }
 
-  const isEmpty = groups.length === 0;
+  // ── Call for papers ──────────────────────────────────────────────────────
+  // Open CFPs on events the viewer speaks at, plus the viewer's own submissions.
+  // Submissions carry no account FK — identity lives in authors_json[].email —
+  // so we match on the same profile email used to resolve the speaker above.
+  const eventById = new Map<string, { name: string; slug: string }>();
+  for (const g of groups) eventById.set(g.eventId, { name: g.eventName, slug: g.eventSlug });
+
+  let openCfps: OpenCfp[] = [];
+  const mySubmissions: MySubmission[] = [];
+
+  if (eventIds.length > 0) {
+    // Ensure we have name/slug for every relevant event. `groups` only covers
+    // events that produced a speaker group; an event may have an open CFP without
+    // one, so fill any gaps directly from `events`.
+    const missing = eventIds.filter(id => !eventById.has(id));
+    if (missing.length > 0) {
+      const { data: evs } = await db.from('events').select('id, name, slug').in('id', missing);
+      for (const e of (evs ?? [])) eventById.set(e.id, { name: e.name, slug: e.slug });
+    }
+
+    const [cfpRes, absRes] = await Promise.all([
+      db.from('call_for_papers')
+        .select('event_id, is_open, deadline_at')
+        .in('event_id', eventIds)
+        .eq('is_open', true),
+      db.from('abstracts')
+        .select('id, event_id, title, status, authors_json, submitted_at')
+        .in('event_id', eventIds)
+        .order('submitted_at', { ascending: false }),
+    ]);
+
+    for (const c of (cfpRes?.data ?? [])) {
+      const ev = eventById.get(c.event_id);
+      if (!ev) continue;
+      openCfps.push({ eventId: c.event_id, eventName: ev.name, eventSlug: ev.slug, deadlineAt: c.deadline_at ?? null });
+    }
+
+    // Keep only submissions where the viewer is an author (by email match).
+    for (const a of (absRes?.data ?? [])) {
+      const authors = Array.isArray(a.authors_json) ? a.authors_json : [];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const mine = email && authors.some((au: any) => (au?.email ?? '').toLowerCase() === email);
+      if (!mine) continue;
+      const ev = eventById.get(a.event_id);
+      mySubmissions.push({
+        id: a.id,
+        title: a.title,
+        eventName: ev?.name ?? 'Event',
+        status: a.status ?? 'pending',
+        submittedAt: a.submitted_at ?? null,
+      });
+    }
+  }
+
+  // Don't offer a fresh submission for an event the viewer has already submitted to.
+  const submittedEventNames = new Set(mySubmissions.map(s => s.eventName));
+  openCfps = openCfps.filter(c => !submittedEventNames.has(c.eventName));
+
+  const hasCfpActivity = openCfps.length > 0 || mySubmissions.length > 0;
+  const isEmpty = groups.length === 0 && !hasCfpActivity;
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
@@ -162,12 +270,13 @@ export default async function SpeakingPage() {
               No speaking engagements yet
             </h2>
             <p className="mt-2 text-[14px] max-w-[420px] mx-auto leading-[1.6]" style={{ color: '#6B7A72' }}>
-              When an organizer adds you as a speaker, your sessions will appear here.
+              When an organizer adds you as a speaker, or opens a call for papers on an
+              event you speak at, it will appear here.
             </p>
           </div>
         ) : (
           <div className="space-y-6">
-            {groups.map(group => (
+            {groups.length > 0 && groups.map(group => (
               <section key={group.eventId} className="bg-white rounded-2xl border overflow-hidden"
                 style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
                 <div className="flex items-center justify-between gap-3 px-5 sm:px-6 py-4"
@@ -230,6 +339,93 @@ export default async function SpeakingPage() {
                 )}
               </section>
             ))}
+
+            {hasCfpActivity && (
+              <section className="bg-white rounded-2xl border overflow-hidden"
+                style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
+                <div className="flex items-center gap-3 px-5 sm:px-6 py-4"
+                  style={{ borderBottom: '1px solid #E5E0D4' }}>
+                  <span className="grid place-items-center w-9 h-9 rounded-lg shrink-0"
+                    style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
+                    <FileText size={16} strokeWidth={1.8} />
+                  </span>
+                  <div className="min-w-0">
+                    <div className="font-display text-[15px] font-semibold" style={{ color: '#0F1F18' }}>
+                      Call for papers
+                    </div>
+                    <div className="text-[12px]" style={{ color: '#6B7A72' }}>
+                      Submit a talk proposal and track its status.
+                    </div>
+                  </div>
+                </div>
+
+                {/* Open CFPs the viewer can submit to */}
+                {openCfps.length > 0 && (
+                  <ul>
+                    {openCfps.map(cfp => {
+                      const dLeft = daysUntil(cfp.deadlineAt);
+                      return (
+                        <li key={cfp.eventId}
+                          className="px-5 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3 border-t first:border-t-0"
+                          style={{ borderColor: '#F0EDE6' }}>
+                          <div className="min-w-0">
+                            <div className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>{cfp.eventName}</div>
+                            <div className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>
+                              {cfp.deadlineAt
+                                ? <>Deadline {fmtDate(cfp.deadlineAt)}{dLeft !== null && dLeft > 0 ? ` · ${dLeft} day${dLeft !== 1 ? 's' : ''} left` : ''}</>
+                                : 'Submissions open'}
+                            </div>
+                          </div>
+                          <Link href={`/e/${cfp.eventSlug}/cfp`}
+                            className="shrink-0 inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-[13px] font-medium text-white transition-opacity hover:opacity-90"
+                            style={{ background: '#1F4D3A' }}>
+                            Submit abstract
+                            <ArrowRight size={13} strokeWidth={2} />
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+
+                {/* The viewer's own submissions */}
+                {mySubmissions.length > 0 && (
+                  <div>
+                    <div className="px-5 sm:px-6 pt-4 pb-2 text-[12px] font-medium uppercase tracking-wide border-t"
+                      style={{ color: '#6B7A72', borderColor: '#F0EDE6' }}>
+                      Your submissions
+                    </div>
+                    <ul>
+                      {mySubmissions.map(sub => {
+                        const label = SUB_STATUS_LABEL[sub.status] ?? sub.status;
+                        const style = SUB_STATUS_STYLE[sub.status] ?? SUB_STATUS_STYLE.pending;
+                        return (
+                          <li key={sub.id}
+                            className="px-5 sm:px-6 py-4 flex items-start gap-3 border-t"
+                            style={{ borderColor: '#F0EDE6' }}>
+                            <span className="grid place-items-center w-8 h-8 rounded-lg shrink-0 mt-0.5"
+                              style={{ background: '#FAF6EE', color: '#1F4D3A', border: '1px solid #E5E0D4' }}>
+                              <CheckCircle2 size={14} strokeWidth={1.8} />
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <div className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>{sub.title}</div>
+                              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-0.5 text-[12.5px]" style={{ color: '#6B7A72' }}>
+                                <span className="truncate">{sub.eventName}</span>
+                                {sub.submittedAt && <span>· Submitted {fmtDate(sub.submittedAt)}</span>}
+                              </div>
+                            </div>
+                            <span className="shrink-0 inline-flex items-center h-6 px-2.5 rounded-full text-[12px] font-medium"
+                              style={{ background: style.bg, color: style.color }}>
+                              {label}
+                            </span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                )}
+              </section>
+            )}
           </div>
         )}
 

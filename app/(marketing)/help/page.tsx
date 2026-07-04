@@ -90,7 +90,7 @@ function HelpCenter() {
         <div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map((cat) => (
-              <div key={cat.title} className="rounded-2xl p-6 transition-shadow hover:shadow-md cursor-pointer" style={{ background: '#fff', border: '1px solid #E5E0D4' }}>
+              <div key={cat.title} className="rounded-2xl p-6" style={{ background: '#fff', border: '1px solid #E5E0D4' }}>
                 <div className="w-10 h-10 rounded-xl grid place-items-center mb-4" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
                   {cat.icon}
                 </div>
@@ -99,10 +99,10 @@ function HelpCenter() {
                 <ul className="space-y-1.5">
                   {cat.articles.map(a => (
                     <li key={a}>
-                      <a href="#" className="flex items-center gap-2 text-[12px] hover:underline" style={{ color: '#3A4A42' }}>
+                      <span className="flex items-center gap-2 text-[12px]" style={{ color: '#3A4A42' }}>
                         <ArrowRight size={11} strokeWidth={2} style={{ color: '#1F4D3A', flexShrink: 0 }} />
                         {a}
-                      </a>
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -117,23 +117,24 @@ function HelpCenter() {
         {/* Popular */}
         {!query && (
           <div>
-            <div className=" text-[10px] uppercase tracking-widest mb-4" style={{ color: '#6B7A72' }}>Popular articles</div>
-            <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
+            <div className=" text-[10px] uppercase tracking-widest mb-4" style={{ color: '#6B7A72' }}>Popular questions</div>
+            <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4', background: '#fff' }}>
               {POPULAR.map((q, i) => (
-                <a
+                <div
                   key={i}
-                  href="#"
-                  className="flex items-center justify-between px-5 py-4 hover:bg-[#FAF6EE] transition-colors"
-                  style={{ borderBottom: i < POPULAR.length - 1 ? '1px solid #E5E0D4' : 'none', textDecoration: 'none' }}
+                  className="flex items-center px-5 py-4"
+                  style={{ borderBottom: i < POPULAR.length - 1 ? '1px solid #E5E0D4' : 'none' }}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 flex-wrap">
                     <span className="text-[10px] px-2 py-0.5 rounded-full " style={{ background: '#E8EFEB', color: '#1F4D3A' }}>{q.category}</span>
                     <span className="text-[13px]" style={{ color: '#0F1F18' }}>{q.title}</span>
                   </div>
-                  <ArrowRight size={13} strokeWidth={2} style={{ color: '#C9C3B1', flexShrink: 0 }} />
-                </a>
+                </div>
               ))}
             </div>
+            <p className="mt-3 text-[12px]" style={{ color: '#6B7A72' }}>
+              Don&apos;t see your question? <a href="mailto:hello@cre8so.com" className="underline" style={{ color: '#1F4D3A' }}>Email our team</a> and we&apos;ll help.
+            </p>
           </div>
         )}
 

@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getUserRoles, eventsWithRole } from '@/lib/rbac/roles';
 import { Briefcase, MapPin, Users, Flame, ExternalLink } from 'lucide-react';
+import { ClaimSponsorButton } from './ClaimSponsorButton';
 
 export const metadata: Metadata = { title: 'Sponsoring' };
 
@@ -20,6 +21,8 @@ type SponsorCard = {
   eventSlug: string;
   leads: number;
   hot: number;
+  warm: number;
+  cold: number;
   resources: number;
 };
 
@@ -78,11 +81,13 @@ export default async function SponsoringPage() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const eventById = new Map<string, any>(((eventsRes?.data as any[]) ?? []).map(e => [e.id, e]));
 
-    const leadsBySponsor = new Map<string, { total: number; hot: number }>();
+    const leadsBySponsor = new Map<string, { total: number; hot: number; warm: number; cold: number }>();
     for (const l of ((leadsRes?.data) ?? [])) {
-      const cur = leadsBySponsor.get(l.sponsor_id) ?? { total: 0, hot: 0 };
+      const cur = leadsBySponsor.get(l.sponsor_id) ?? { total: 0, hot: 0, warm: 0, cold: 0 };
       cur.total += 1;
       if (l.rating === 'hot') cur.hot += 1;
+      else if (l.rating === 'warm') cur.warm += 1;
+      else if (l.rating === 'cold') cur.cold += 1;
       leadsBySponsor.set(l.sponsor_id, cur);
     }
     const resourcesBySponsor = new Map<string, number>();
@@ -94,7 +99,7 @@ export default async function SponsoringPage() {
       .filter(s => eventById.has(s.event_id))
       .map(s => {
         const ev = eventById.get(s.event_id);
-        const lead = leadsBySponsor.get(s.id) ?? { total: 0, hot: 0 };
+        const lead = leadsBySponsor.get(s.id) ?? { total: 0, hot: 0, warm: 0, cold: 0 };
         return {
           sponsorId: s.id,
           companyName: s.company_name,
@@ -106,6 +111,8 @@ export default async function SponsoringPage() {
           eventSlug: ev.slug as string,
           leads: lead.total,
           hot: lead.hot,
+          warm: lead.warm,
+          cold: lead.cold,
           resources: resourcesBySponsor.get(s.id) ?? 0,
         };
       });
@@ -138,7 +145,11 @@ export default async function SponsoringPage() {
             </h2>
             <p className="mt-2 text-[14px] max-w-[420px] mx-auto leading-[1.6]" style={{ color: '#6B7A72' }}>
               When an organizer adds you as a sponsor, your booth and leads will appear here.
+              If you were invited by email, claim access to link it to your account.
             </p>
+            <div className="mt-6">
+              <ClaimSponsorButton />
+            </div>
           </div>
         ) : (
           <div className="grid gap-4">
@@ -190,6 +201,30 @@ export default async function SponsoringPage() {
                     </div>
                   ))}
                 </div>
+
+                {/* Lead quality breakdown — hot / warm / cold */}
+                {card.leads > 0 && (
+                  <div className="px-5 sm:px-6 py-4 border-t grid gap-2.5" style={{ borderColor: '#F0EDE6' }}>
+                    {[
+                      { label: 'Hot', count: card.hot, color: '#1F4D3A' },
+                      { label: 'Warm', count: card.warm, color: '#2A6A50' },
+                      { label: 'Cold', count: card.cold, color: '#A8C2B5' },
+                    ].map((bar) => {
+                      const pct = Math.round((bar.count / (card.leads || 1)) * 100);
+                      return (
+                        <div key={bar.label}>
+                          <div className="flex items-center justify-between mb-1 text-[12.5px]">
+                            <span style={{ color: '#3A4A42' }}>{bar.label}</span>
+                            <span style={{ color: '#6B7A72' }}>{bar.count} · {pct}%</span>
+                          </div>
+                          <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(232,239,235,0.6)' }}>
+                            <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: bar.color }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
 
                 {/* Open the full exhibitor portal (token-resolved server-side) */}
                 {card.inviteToken && (

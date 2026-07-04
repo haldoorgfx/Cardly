@@ -317,12 +317,13 @@ class _EventHubScreenState extends State<EventHubScreen> {
 
   // ── actions ──────────────────────────────────────────────────────
 
+  /// Whether a real register handler is wired. When false, the Register button
+  /// renders disabled rather than showing a dead-end toast.
+  bool get _canRegister => widget.onRegister != null;
+
   void _handleRegister() {
-    if (widget.onRegister != null) {
-      widget.onRegister!();
-    } else {
-      showToast(context, 'Registration is not available here yet.');
-    }
+    // Only reachable when a handler exists — the button is disabled otherwise.
+    widget.onRegister?.call();
   }
 
   /// Reads the initial saved / following state for the signed-in user.
@@ -918,6 +919,11 @@ class _EventHubScreenState extends State<EventHubScreen> {
 
   Widget _registerBar(EventPageModel page) {
     final registered = _regId != null;
+    // Enable the primary button only when there's something real to do:
+    // a wired register handler and the user isn't already registered. When
+    // already registered we show a disabled "Registered" confirmation; when no
+    // handler is wired we disable it rather than showing a dead-end toast.
+    final canTap = _canRegister && !registered;
     return StickyCta(children: [
       MButton(
         '',
@@ -931,7 +937,7 @@ class _EventHubScreenState extends State<EventHubScreen> {
         child: MButton(
           registered ? 'Registered' : 'Get ticket',
           icon: registered ? Icons.check : null,
-          onTap: _handleRegister,
+          onTap: canTap ? _handleRegister : null,
         ),
       ),
     ]);
