@@ -71,7 +71,7 @@ export default async function SpeakingPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const speakerRows: any[] = [];
   const seenSpeakerIds = new Set<string>();
-  for (const row of [...((byEmailRes?.data as any[]) ?? []), ...((byEventRes?.data as any[]) ?? [])]) {
+  for (const row of [...((byEmailRes?.data) ?? []), ...((byEventRes?.data) ?? [])]) {
     if (!seenSpeakerIds.has(row.id)) { seenSpeakerIds.add(row.id); speakerRows.push(row); }
   }
 
@@ -100,14 +100,14 @@ export default async function SpeakingPage() {
         .from('session_speakers')
         .select('session_id, speaker_id')
         .in('speaker_id', speakerIds);
-      const sessionIds = Array.from(new Set(((links as any[]) ?? []).map(l => l.session_id)));
+      const sessionIds = Array.from(new Set(((links ?? [])).map((l: { session_id: string }) => l.session_id)));
       if (sessionIds.length > 0) {
         const { data: sess } = await db
           .from('sessions')
           .select('id, event_id, title, starts_at, ends_at, room')
           .in('id', sessionIds)
           .order('starts_at', { ascending: true });
-        sessionRows = (sess as any[]) ?? [];
+        sessionRows = sess ?? [];
       }
     }
 

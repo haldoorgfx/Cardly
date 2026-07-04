@@ -59,7 +59,7 @@ export default async function SponsoringPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sponsorRows: any[] = [];
   const seen = new Set<string>();
-  for (const row of [...((byEmailRes?.data as any[]) ?? []), ...((byEventRes?.data as any[]) ?? [])]) {
+  for (const row of [...((byEmailRes?.data) ?? []), ...((byEventRes?.data) ?? [])]) {
     if (!seen.has(row.id)) { seen.add(row.id); sponsorRows.push(row); }
   }
 
@@ -79,14 +79,14 @@ export default async function SponsoringPage() {
     const eventById = new Map<string, any>(((eventsRes?.data as any[]) ?? []).map(e => [e.id, e]));
 
     const leadsBySponsor = new Map<string, { total: number; hot: number }>();
-    for (const l of ((leadsRes?.data as any[]) ?? [])) {
+    for (const l of ((leadsRes?.data) ?? [])) {
       const cur = leadsBySponsor.get(l.sponsor_id) ?? { total: 0, hot: 0 };
       cur.total += 1;
       if (l.rating === 'hot') cur.hot += 1;
       leadsBySponsor.set(l.sponsor_id, cur);
     }
     const resourcesBySponsor = new Map<string, number>();
-    for (const r of ((resourcesRes?.data as any[]) ?? [])) {
+    for (const r of ((resourcesRes?.data) ?? [])) {
       resourcesBySponsor.set(r.sponsor_id, (resourcesBySponsor.get(r.sponsor_id) ?? 0) + 1);
     }
 
