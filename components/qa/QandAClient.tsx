@@ -112,12 +112,12 @@ export default function QandAClient({ eventId, registrationId, initialQuestions,
         </div>
       ) : (
         <div className="space-y-3">
-          {filtered.map(q => (
+          {filtered.map((q, i) => (
             <div
               key={q.id}
               className="rounded-xl p-4 flex gap-4"
               style={{
-                background: 'white',
+                background: i === 0 && !sessionFilter ? '#FBF3E2' : 'white',
                 border: `1px solid ${q.is_featured ? '#E8C57E' : '#E5E0D4'}`,
                 borderLeft: q.is_featured ? '3px solid #E8C57E' : undefined,
                 opacity: q.status === 'answered' ? 0.6 : 1,
@@ -137,7 +137,7 @@ export default function QandAClient({ eventId, registrationId, initialQuestions,
               {/* Content */}
               <div className="flex-1 min-w-0">
                 {q.is_featured && (
-                  <div className="text-[11px] font-medium mb-1" style={{ color: '#E8C57E' }}>Featured by moderator</div>
+                  <div className="text-[11px] font-medium mb-1" style={{ color: '#C79A3E' }}>★ Featured by moderator</div>
                 )}
                 <p className="text-[15px]" style={{ color: '#0F1F18' }}>{q.question}</p>
                 <div className="flex items-center gap-3 mt-1.5">

@@ -23,6 +23,15 @@ export default async function FeedbackPage({ params, searchParams }: Props) {
     .eq('registration_id', searchParams.reg)
     .order('created_at', { ascending: true });
 
+  // Pre-load any feedback this registration has already submitted so we can show
+  // the "already submitted" state and pre-fill the form on edit.
+  const { data: existingFeedback } = await admin
+    .from('event_feedback')
+    .select('overall_rating, highlights, comment')
+    .eq('registration_id', searchParams.reg)
+    .eq('event_id', event.id)
+    .maybeSingle();
+
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
       <div className="max-w-[680px] mx-auto px-5 py-10">
@@ -32,6 +41,7 @@ export default async function FeedbackPage({ params, searchParams }: Props) {
           registrationId={searchParams.reg}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           attendedSessions={(agendaSessions ?? []).map(r => r.sessions).filter(Boolean) as any}
+          existingFeedback={existingFeedback ?? null}
         />
       </div>
     </div>

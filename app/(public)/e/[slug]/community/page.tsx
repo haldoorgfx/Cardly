@@ -18,14 +18,15 @@ export default async function CommunityPage({ params, searchParams }: Props) {
 
   const { data: channels } = await adminAny
     .from('community_channels')
-    .select('id, name, description, is_pinned')
+    .select('id, name, description, is_pinned, position')
     .eq('event_id', event.id)
+    .order('is_pinned', { ascending: false })
     .order('position', { ascending: true });
 
   const defaultChannel = searchParams.channel ?? channels?.[0]?.id;
   const { data: messages } = defaultChannel ? await adminAny
     .from('community_messages')
-    .select('id, content, created_at, is_pinned, registrations(attendee_name)')
+    .select('id, content, created_at, is_pinned, registration_id, registrations(attendee_name)')
     .eq('channel_id', defaultChannel)
     .order('created_at', { ascending: true })
     .limit(100) : { data: [] };

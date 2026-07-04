@@ -1,42 +1,25 @@
 export const dynamic = 'force-dynamic';
 
-import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
+import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 import { SpeedNetworkingClient } from '@/components/events/SpeedNetworkingClient';
 
-interface Props { params: Promise<{ slug: string }> }
+interface Props {
+  params: { slug: string };
+  searchParams: { reg?: string };
+}
 
-export default async function SpeedNetworkingPage({ params }: Props) {
-  const { slug } = await params;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const db = createAdminClient() as any;
-
-  let ep = null;
-  const { data: byCustom } = await db.from('event_pages')
-    .select('id, title, events!inner(id, name, slug, status)')
-    .eq('custom_slug', slug).maybeSingle();
-  ep = byCustom;
-  if (!ep) {
-    const { data: bySlug } = await db.from('event_pages')
-      .select('id, title, events!inner(id, name, slug, status)')
-      .eq('events.slug', slug).maybeSingle();
-    ep = bySlug;
-  }
-
-  if (!ep || ep.events?.status !== 'published') notFound();
-
-  // Get attendees who are networking
-  const { data: attendees } = await db.from('registrations')
-    .select('id, attendee_name, eventera_card_url')
-    .eq('event_id', ep.events.id)
-    .in('status', ['confirmed', 'checked_in'])
-    .limit(20);
+export default async function SpeedNetworkingPage({ params, searchParams }: Props) {
+  const resolved = await resolvePublicSlug(params.slug);
+  if (!resolved) notFound();
+  const { event, eventPageTitle } = resolved;
 
   return (
     <SpeedNetworkingClient
-      eventName={ep.title ?? ep.events.name}
-      eventSlug={slug}
-      attendees={attendees ?? []}
+      eventId={event.id}
+      eventName={eventPageTitle ?? event.name}
+      eventSlug={params.slug}
+      registrationId={searchParams.reg ?? null}
     />
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Check } from 'lucide-react';
 import type { Poll, PollOption } from '@/types/database';
 
 interface Props {
@@ -70,11 +71,14 @@ function PollCard({ poll, eventId, registrationId, initialVote }: { poll: Poll; 
                 <div className="relative overflow-hidden rounded-xl" style={{ background: '#FAF6EE', border: `1.5px solid ${voted === opt.id ? '#1F4D3A' : '#E5E0D4'}` }}>
                   <div
                     className="absolute inset-0 rounded-xl transition-all"
-                    style={{ width: `${pct}%`, background: isWinner ? 'rgba(31,77,58,0.12)' : 'rgba(31,77,58,0.06)', transitionDuration: '600ms' }}
+                    style={{ width: `${pct}%`, background: voted === opt.id ? '#1F4D3A' : (isWinner ? 'rgba(31,77,58,0.12)' : 'rgba(31,77,58,0.06)'), transitionDuration: '600ms' }}
                   />
                   <div className="relative flex items-center justify-between px-4 py-3.5">
-                    <span className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>{opt.text}</span>
-                    <span className=" text-[14px] font-semibold" style={{ color: isWinner ? '#1F4D3A' : '#6B7A72' }}>{pct}%</span>
+                    <span className="text-[14px] font-medium flex items-center gap-1.5" style={{ color: voted === opt.id ? '#FFFFFF' : '#0F1F18' }}>
+                      {voted === opt.id && <Check size={14} strokeWidth={2.5} />}
+                      {opt.text}
+                    </span>
+                    <span className="text-[14px] font-semibold" style={{ color: voted === opt.id ? '#FFFFFF' : (isWinner ? '#1F4D3A' : '#6B7A72') }}>{pct}%</span>
                   </div>
                 </div>
               )}
@@ -104,10 +108,13 @@ export default function PollsClient({ eventId, registrationId, initialPolls, myV
     return () => clearInterval(iv);
   }, [eventId, polls]);
 
-  const active = polls.filter(p => p.is_active && !p.is_closed);
-  const closed = polls.filter(p => p.is_closed || !p.is_active);
+  // Attendees only see polls the organizer has opened (active) or resolved
+  // (closed). Pure drafts (never activated, not closed) stay hidden.
+  const visible = polls.filter(p => p.is_active || p.is_closed);
+  const active = visible.filter(p => p.is_active && !p.is_closed);
+  const closed = visible.filter(p => p.is_closed);
 
-  if (polls.length === 0) {
+  if (visible.length === 0) {
     return (
       <div className="rounded-2xl py-16 text-center" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
         <p className="text-[14px]" style={{ color: '#6B7A72' }}>No live polls right now.</p>

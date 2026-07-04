@@ -44,18 +44,15 @@ export async function POST(req: NextRequest, { params }: Params) {
 
   const isFull = session.capacity != null && (session.registrations_count ?? 0) >= session.capacity;
 
-  // Upsert agenda entry (book or waitlist)
+  // Upsert agenda entry. `attendee_agendas` only stores (registration_id,
+  // session_id) — there is no waitlist column in the schema, so capacity is
+  // surfaced in the response only, never persisted.
   const { error } = await adminAny.from('attendee_agendas').upsert(
-    { registration_id: registrationId, session_id: sessionId, is_waitlisted: isFull },
+    { registration_id: registrationId, session_id: sessionId },
     { onConflict: 'registration_id,session_id' }
   );
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
-  // Increment count if not waitlisted
-  if (!isFull && session.capacity != null) {
-    await adminAny.rpc('increment_session_registrations', { session_id: sessionId });
-  }
 
   return NextResponse.json({ booked: !isFull, waitlisted: isFull });
 }

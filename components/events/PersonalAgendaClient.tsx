@@ -81,10 +81,13 @@ export default function PersonalAgendaClient({ sessions: initialSessions, regist
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="font-display text-xl font-semibold" style={{ color: '#0F1F18' }}>My Agenda</h1>
-        <Link href={`/e/${eventSlug}/schedule`} className="text-sm font-medium" style={{ color: '#1F4D3A' }}>
-          Browse schedule
+      <div className="flex justify-end">
+        <Link
+          href={`/e/${eventSlug}/schedule`}
+          className="inline-flex items-center h-9 px-4 rounded-full text-[13px] font-medium border transition-colors"
+          style={{ background: '#fff', color: '#1F4D3A', borderColor: '#E5E0D4' }}
+        >
+          Add more sessions
         </Link>
       </div>
 

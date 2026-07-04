@@ -18,6 +18,75 @@ const RespondSchema = z.object({
   registration_id: z.string().uuid(),
 });
 
+// GET /api/events/[id]/connections?reg=<registration_id>
+// Returns a shuffled deck of confirmed / checked-in attendees for speed
+// networking: excludes the caller and anyone they've already sent a request to
+// (or connected with). Directory opt-outs are respected.
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+  const admin = createAdminClient();
+  const { searchParams } = new URL(req.url);
+  const regId = searchParams.get('reg');
+
+  const { data: people, error } = await admin
+    .from('registrations')
+    .select('id, user_id, attendee_name, eventera_card_url')
+    .eq('event_id', params.id)
+    .in('status', ['confirmed', 'checked_in'])
+    .limit(200);
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const rows = (people ?? []) as any[];
+
+  // Respect directory opt-outs (profiles.directory_visible === false).
+  const userIds = Array.from(
+    new Set(rows.map(p => p.user_id).filter((u: string | null): u is string => !!u)),
+  );
+  const hiddenUserIds = new Set<string>();
+  if (userIds.length) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: profs } = await (admin as any)
+      .from('profiles')
+      .select('id, directory_visible')
+      .in('id', userIds);
+    for (const pr of profs ?? []) {
+      if (pr.directory_visible === false) hiddenUserIds.add(pr.id as string);
+    }
+  }
+
+  // Skip anyone the caller already has a connection row with (any direction).
+  const alreadyConnected = new Set<string>();
+  if (regId) {
+    const { data: conns } = await admin
+      .from('attendee_connections')
+      .select('requester_id, recipient_id')
+      .eq('event_id', params.id)
+      .or(`requester_id.eq.${regId},recipient_id.eq.${regId}`);
+    for (const c of conns ?? []) {
+      alreadyConnected.add(c.requester_id === regId ? c.recipient_id : c.requester_id);
+    }
+  }
+
+  const deck = rows
+    .filter(p => p.id !== regId)
+    .filter(p => !(p.user_id && hiddenUserIds.has(p.user_id)))
+    .filter(p => !alreadyConnected.has(p.id))
+    .map(p => ({
+      id: p.id,
+      attendee_name: p.attendee_name,
+      eventera_card_url: p.eventera_card_url ?? null,
+    }));
+
+  // Fisher–Yates shuffle for an unbiased deck order.
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+
+  return NextResponse.json({ people: deck });
+}
+
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   const body = await req.json().catch(() => null);
   const parsed = RequestSchema.safeParse(body);

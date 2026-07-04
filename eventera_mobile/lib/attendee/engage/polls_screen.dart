@@ -85,12 +85,17 @@ class _PollsScreenState extends State<PollsScreen> {
       final polls = <_Poll>[];
       for (final r in (rows as List).whereType<Map>()) {
         final map = Map<String, dynamic>.from(r);
+        // Attendees only see polls the organizer has opened (active) or
+        // resolved (closed). Pure drafts stay hidden.
+        final isActive = asBool(map['is_active']);
+        final isClosed = asBool(map['is_closed']);
+        if (!isActive && !isClosed) continue;
         final opts = asMapList(map['poll_options'])
           ..sort((a, b) => asInt(a['position']).compareTo(asInt(b['position'])));
         polls.add(_Poll(
           id: asString(map['id']),
           question: asString(map['question'], 'Poll'),
-          isClosed: asBool(map['is_closed']),
+          isClosed: isClosed,
           options: opts
               .map((o) => _Option(
                     id: asString(o['id']),

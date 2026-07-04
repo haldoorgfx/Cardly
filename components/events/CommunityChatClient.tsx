@@ -18,22 +18,6 @@ interface Props {
   registrationId?: string;
 }
 
-const DEMO_CHANNELS: Channel[] = [
-  { id: 'c1', name: 'announcements', description: 'Official updates from the organizer', is_pinned: true },
-  { id: 'c2', name: 'general', description: 'Open discussion', is_pinned: false },
-  { id: 'c3', name: 'jobs-and-hiring', description: 'Post opportunities', is_pinned: false },
-  { id: 'c4', name: 'networking', description: 'Find your people', is_pinned: false },
-  { id: 'c5', name: 'feedback', description: 'Share your experience', is_pinned: false },
-];
-
-const DEMO_MESSAGES: Message[] = [
-  { id: 'm1', content: '🎉 Welcome to the event community! Ask questions, connect with attendees, and share your experience.', created_at: '2026-09-20T08:00:00Z', is_pinned: true, registrations: { attendee_name: 'Eventera Team' } },
-  { id: 'm2', content: 'Super excited to be here from Nairobi! Anyone else joining remotely?', created_at: '2026-09-20T08:15:00Z', is_pinned: false, registrations: { attendee_name: 'Amina O.' } },
-  { id: 'm3', content: 'I\'m in Lagos. Anyone want to share a cab from the airport?', created_at: '2026-09-20T08:22:00Z', is_pinned: false, registrations: { attendee_name: 'Kwame A.' } },
-  { id: 'm4', content: 'The Design Systems talk at 11am is going to be 🔥 — make sure you grab a seat early!', created_at: '2026-09-20T09:01:00Z', is_pinned: false, registrations: { attendee_name: 'Fatima R.' } },
-  { id: 'm5', content: 'Just landed. See everyone in a bit!', created_at: '2026-09-20T09:30:00Z', is_pinned: false, registrations: { attendee_name: 'Chidi O.' } },
-];
-
 const REACTIONS = ['👍', '❤️', '🔥', '😂', '🎉'];
 
 function fmtTime(iso: string) {
@@ -54,11 +38,11 @@ function AvatarBubble({ name, size = 32 }: { name: string; size?: number }) {
   );
 }
 
-export function CommunityChatClient({ eventName, channels: dbChannels, initialMessages, activeChannelId: defaultChannelId, registrationId }: Props) {
-  const channels = dbChannels.length > 0 ? dbChannels : DEMO_CHANNELS;
-  const [activeChannelId, setActiveChannelId] = useState(defaultChannelId ?? channels[0]?.id);
-  const [messages, setMessages] = useState<Message[]>(initialMessages.length > 0 ? initialMessages : DEMO_MESSAGES);
+export function CommunityChatClient({ eventId, channels, initialMessages, activeChannelId: defaultChannelId, registrationId }: Props) {
+  const [activeChannelId, setActiveChannelId] = useState(defaultChannelId ?? channels[0]?.id ?? null);
+  const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState('');
+  const [sending, setSending] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [reactions, setReactions] = useState<Record<string, string[]>>({});
   const [showReactionFor, setShowReactionFor] = useState<string | null>(null);
@@ -69,17 +53,50 @@ export function CommunityChatClient({ eventName, channels: dbChannels, initialMe
   const activeChannel = channels.find((c: Channel) => c.id === activeChannelId) ?? channels[0];
   const pinned = messages.filter((m: Message) => m.is_pinned);
 
-  function sendMessage() {
-    if (!input.trim()) return;
-    const newMsg: Message = {
+  async function loadChannel(channelId: string) {
+    setActiveChannelId(channelId);
+    setSidebarOpen(false);
+    setMessages([]);
+    try {
+      const res = await fetch(`/api/events/${eventId}/community?channel_id=${channelId}`);
+      const data = await res.json() as { messages?: Message[] };
+      setMessages(data.messages ?? []);
+    } catch { /* keep empty */ }
+  }
+
+  async function sendMessage() {
+    const content = input.trim();
+    if (!content || sending || !activeChannelId || !registrationId) return;
+    setSending(true);
+    const optimistic: Message = {
       id: `local-${Date.now()}`,
-      content: input.trim(),
+      content,
       created_at: new Date().toISOString(),
       is_pinned: false,
-      registrations: { attendee_name: registrationId ? 'You' : 'Guest' },
+      registrations: { attendee_name: 'You' },
     };
-    setMessages(prev => [...prev, newMsg]);
+    setMessages(prev => [...prev, optimistic]);
     setInput('');
+    try {
+      const res = await fetch(`/api/events/${eventId}/community`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ channel_id: activeChannelId, registration_id: registrationId, content }),
+      });
+      const data = await res.json() as { message?: Message; error?: string };
+      if (data.message) {
+        setMessages(prev => prev.map(m => (m.id === optimistic.id ? data.message : m)));
+      } else {
+        // Roll back on failure and restore the text.
+        setMessages(prev => prev.filter(m => m.id !== optimistic.id));
+        setInput(content);
+      }
+    } catch {
+      setMessages(prev => prev.filter(m => m.id !== optimistic.id));
+      setInput(content);
+    } finally {
+      setSending(false);
+    }
   }
 
   function addReaction(messageId: string, emoji: string) {
@@ -88,6 +105,22 @@ export function CommunityChatClient({ eventName, channels: dbChannels, initialMe
       [messageId]: [...(prev[messageId] ?? []), emoji],
     }));
     setShowReactionFor(null);
+  }
+
+  if (channels.length === 0) {
+    return (
+      <div className="flex items-center justify-center text-center px-6" style={{ height: 'calc(100vh - 56px)' }}>
+        <div>
+          <Hash size={30} style={{ color: '#C9C3B1' }} className="mx-auto mb-3" />
+          <div className="font-display font-semibold text-[17px] mb-1" style={{ color: '#0F1F18' }}>
+            No community channels yet
+          </div>
+          <div className="text-[13px]" style={{ color: '#6B7A72' }}>
+            The organizer hasn’t opened any channels for this event.
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -114,7 +147,7 @@ export function CommunityChatClient({ eventName, channels: dbChannels, initialMe
           </div>
           {channels.map((ch: Channel) => (
             <button key={ch.id}
-              onClick={() => { setActiveChannelId(ch.id); setSidebarOpen(false); }}
+              onClick={() => loadChannel(ch.id)}
               className="w-full flex items-center gap-2 px-3 py-2 rounded-lg mx-1 text-left transition"
               style={{
                 background: ch.id === activeChannelId ? 'rgba(255,255,255,0.1)' : 'transparent',
@@ -230,11 +263,12 @@ export function CommunityChatClient({ eventName, channels: dbChannels, initialMe
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), sendMessage())}
-              placeholder={`Message #${activeChannel?.name ?? 'general'}`}
-              className="flex-1 bg-transparent text-[14px] outline-none"
+              placeholder={registrationId ? `Message #${activeChannel?.name ?? 'general'}` : 'Register to post a message'}
+              disabled={!registrationId || sending}
+              className="flex-1 bg-transparent text-[14px] outline-none disabled:opacity-60"
               style={{ color: '#0F1F18' }}
             />
-            <button onClick={sendMessage} disabled={!input.trim()}
+            <button onClick={sendMessage} disabled={!input.trim() || sending || !registrationId}
               className="w-8 h-8 rounded-xl flex items-center justify-center transition hover:opacity-80 disabled:opacity-30"
               style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
               <Send size={14} />

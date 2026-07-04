@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { assertOwnsRegistration } from '@/lib/attendee-identity';
 import { z } from 'zod';
 
 const BodySchema = z.object({
@@ -14,6 +15,20 @@ export async function POST(req: NextRequest, { params }: { params: { sessionId: 
 
   const { registration_id, action } = parsed.data;
   const admin = createAdminClient();
+
+  // Resolve the session's event so we can verify the caller owns a registration for it.
+  const { data: session } = await admin
+    .from('sessions')
+    .select('event_id')
+    .eq('id', params.sessionId)
+    .maybeSingle();
+  if (!session) return NextResponse.json({ error: 'Session not found' }, { status: 404 });
+
+  // Identity: the caller must act through their own registration (guests allowed).
+  const identity = await assertOwnsRegistration(session.event_id, registration_id);
+  if (!identity.ok) {
+    return NextResponse.json({ error: identity.error }, { status: identity.status });
+  }
 
   if (action === 'add') {
     const { error } = await admin

@@ -34,6 +34,7 @@ export default function AbstractSubmissionClient({
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Step 1
   const [title, setTitle] = useState('');
@@ -65,13 +66,21 @@ export default function AbstractSubmissionClient({
 
   const handleSubmit = async () => {
     setSubmitting(true);
+    setSubmitError(null);
     try {
-      await fetch(`/api/events/cfp`, {
+      const res = await fetch(`/api/events/cfp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ eventSlug, title, abstract, keywords, category, primaryAuthor, presenting, coAuthors }),
       });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setSubmitError(json.error ?? 'Could not submit your abstract. Please try again.');
+        return;
+      }
       setSubmitted(true);
+    } catch {
+      setSubmitError('Could not submit your abstract. Please check your connection and try again.');
     } finally {
       setSubmitting(false);
     }
@@ -321,6 +330,15 @@ export default function AbstractSubmissionClient({
               </div>
             ))}
           </div>
+
+          {submitError && (
+            <div
+              className="rounded-xl px-4 py-3 text-[13px]"
+              style={{ background: 'rgba(184,66,60,0.08)', border: '1px solid rgba(184,66,60,0.35)', color: '#B8423C' }}
+            >
+              {submitError}
+            </div>
+          )}
 
           <button
             onClick={handleSubmit}

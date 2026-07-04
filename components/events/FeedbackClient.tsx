@@ -3,11 +3,18 @@
 import { useState } from 'react';
 import type { Session } from '@/types/database';
 
+interface ExistingFeedback {
+  overall_rating: number | null;
+  highlights: string[] | null;
+  comment: string | null;
+}
+
 interface Props {
   eventId: string;
   eventTitle: string;
   registrationId: string;
   attendedSessions: Partial<Session>[];
+  existingFeedback?: ExistingFeedback | null;
 }
 
 const HIGHLIGHTS = [
@@ -48,14 +55,17 @@ function SmallStarIcon({ filled }: { filled: boolean }) {
   );
 }
 
-export default function FeedbackClient({ eventId, eventTitle, registrationId, attendedSessions }: Props) {
-  const [overallRating, setOverallRating] = useState(0);
+export default function FeedbackClient({ eventId, eventTitle, registrationId, attendedSessions, existingFeedback }: Props) {
+  const hadFeedback = Boolean(existingFeedback);
+  const [overallRating, setOverallRating] = useState(existingFeedback?.overall_rating ?? 0);
   const [hoverRating, setHoverRating] = useState(0);
-  const [comment, setComment] = useState('');
-  const [selectedHighlights, setSelectedHighlights] = useState<string[]>([]);
+  const [comment, setComment] = useState(existingFeedback?.comment ?? '');
+  const [selectedHighlights, setSelectedHighlights] = useState<string[]>(existingFeedback?.highlights ?? []);
   const [sessionRatings, setSessionRatings] = useState<Record<string, number>>({});
   const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  // If feedback already exists, land on the submitted state until the attendee
+  // chooses to edit it. Re-submitting simply upserts the same row.
+  const [submitted, setSubmitted] = useState(hadFeedback);
   const [error, setError] = useState<string | null>(null);
 
   function toggleHighlight(h: string) {
@@ -115,6 +125,13 @@ export default function FeedbackClient({ eventId, eventTitle, registrationId, at
         <p className="text-[15px]" style={{ color: '#6B7A72' }}>
           Your response has been recorded.
         </p>
+        <button
+          onClick={() => setSubmitted(false)}
+          className="mt-2 px-5 py-2.5 rounded-full text-sm font-medium border transition-colors"
+          style={{ background: '#fff', color: '#1F4D3A', borderColor: '#E5E0D4' }}
+        >
+          Edit my feedback
+        </button>
       </div>
     );
   }

@@ -1,263 +1,356 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Heart, X, Check } from 'lucide-react';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Attendee = any;
-
-interface Props {
-  eventName: string;
-  eventSlug: string;
-  attendees: Attendee[];
+interface Attendee {
+  id: string;
+  attendee_name: string;
+  eventera_card_url: string | null;
 }
 
-type Stage = 'lobby' | 'round' | 'between';
-
-const DEMO_ATTENDEES: Attendee[] = [
-  { id: '1', attendee_name: 'Samuel Okoro' },
-  { id: '2', attendee_name: 'Mariam Diallo' },
-  { id: '3', attendee_name: 'Leila Hassan' },
-  { id: '4', attendee_name: 'Kwame Asante' },
-  { id: '5', attendee_name: 'Fatima Balde' },
-];
-
-const ICEBREAKERS = [
-  'You both work on payments infrastructure — what\'s the one thing about cross-border rails you\'d fix tomorrow?',
-  'What\'s the biggest misconception people in your industry have about what you actually do?',
-  'If you could only bring one thing from your current project to a new company, what would it be?',
-  'What\'s a trend in your space that excites you and one that worries you?',
-];
-
-const ROUND_SECONDS = 5 * 60;
+interface Props {
+  eventId: string;
+  eventName: string;
+  eventSlug: string;
+  registrationId: string | null;
+}
 
 function initials(name: string) {
   return name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
 }
 
-export function SpeedNetworkingClient({ eventName, eventSlug, attendees: dbAttendees }: Props) {
-  const attendees = dbAttendees.length >= 2 ? dbAttendees : DEMO_ATTENDEES;
-  const [stage, setStage] = useState<Stage>('lobby');
-  const [roundIdx, setRoundIdx] = useState(0);
-  const [matchIdx, setMatchIdx] = useState(0);
-  const [secondsLeft, setSecondsLeft] = useState(ROUND_SECONDS);
-  const [betweenSeconds, setBetweenSeconds] = useState(30);
-  const [exchanged, setExchanged] = useState(0);
+function hue(id: string) {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 360;
+  return 120 + (h % 80); // forest-adjacent greens
+}
 
-  const totalRounds = Math.min(4, Math.floor(attendees.length / 2));
-  const currentMatch = attendees[matchIdx % attendees.length];
-  const nextMatch = attendees[(matchIdx + 1) % attendees.length];
-  const icebreaker = ICEBREAKERS[roundIdx % ICEBREAKERS.length];
+export function SpeedNetworkingClient({ eventId, eventName, eventSlug, registrationId }: Props) {
+  const [deck, setDeck] = useState<Attendee[]>([]);
+  const [index, setIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [connecting, setConnecting] = useState(false);
+  const [connectedCount, setConnectedCount] = useState(0);
+  const [fly, setFly] = useState<'left' | 'right' | null>(null);
 
-  useEffect(() => {
-    if (stage !== 'round') return;
-    const t = setInterval(() => {
-      setSecondsLeft(s => {
-        if (s <= 1) {
-          clearInterval(t);
-          setBetweenSeconds(30);
-          setStage('between');
-          return 0;
-        }
-        return s - 1;
+  const canNetwork = !!registrationId;
+
+  const load = useCallback(async () => {
+    if (!canNetwork) { setLoading(false); return; }
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/events/${eventId}/connections?reg=${registrationId}`, {
+        cache: 'no-store',
       });
-    }, 1000);
-    return () => clearInterval(t);
-  }, [stage, roundIdx]);
-
-  useEffect(() => {
-    if (stage !== 'between') return;
-    const t = setInterval(() => {
-      setBetweenSeconds(s => {
-        if (s <= 1) { clearInterval(t); return 0; }
-        return s - 1;
-      });
-    }, 1000);
-    return () => clearInterval(t);
-  }, [stage]);
-
-  const mins = Math.floor(secondsLeft / 60).toString().padStart(2, '0');
-  const secs = (secondsLeft % 60).toString().padStart(2, '0');
-  const warn = secondsLeft < 60;
-
-  function startRound() {
-    setSecondsLeft(ROUND_SECONDS);
-    setStage('round');
-  }
-
-  function nextRound() {
-    if (roundIdx + 1 >= totalRounds) {
-      setStage('lobby');
-      setRoundIdx(0);
-      setMatchIdx(0);
-      return;
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json.error ?? 'Could not load attendees');
+      setDeck(Array.isArray(json.people) ? json.people : []);
+      setIndex(0);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not load attendees');
+    } finally {
+      setLoading(false);
     }
-    setRoundIdx(r => r + 1);
-    setMatchIdx(m => m + 1);
-    setSecondsLeft(ROUND_SECONDS);
-    setStage('round');
+  }, [eventId, registrationId, canNetwork]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const current = deck[index];
+  const behind1 = deck[index + 1];
+  const behind2 = deck[index + 2];
+
+  const advance = useCallback((dir: 'left' | 'right') => {
+    setFly(dir);
+    setTimeout(() => {
+      setFly(null);
+      setIndex(i => i + 1);
+    }, 320);
+  }, []);
+
+  async function skip() {
+    if (connecting || fly) return;
+    advance('left');
   }
 
-  function confirmMove() {
-    setRoundIdx(r => r + 1);
-    setMatchIdx(m => m + 1);
-    setSecondsLeft(ROUND_SECONDS);
-    setStage('round');
+  async function connect() {
+    if (connecting || fly || !current || !registrationId) return;
+    setConnecting(true);
+    try {
+      const res = await fetch(`/api/events/${eventId}/connections`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ requester_id: registrationId, recipient_id: current.id }),
+      });
+      if (res.ok) setConnectedCount(c => c + 1);
+      // Advance regardless — a duplicate/failed request shouldn't trap the deck.
+      advance('right');
+    } finally {
+      setConnecting(false);
+    }
   }
+
+  const done = !loading && !error && canNetwork && index >= deck.length && deck.length > 0;
+  const empty = !loading && !error && canNetwork && deck.length === 0;
 
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
       {/* Header */}
-      <div className="px-5 py-4 border-b flex items-center gap-3" style={{ background: '#FFFFFF', borderColor: '#E5E0D4' }}>
-        <Link href={`/e/${eventSlug}`} className="flex items-center gap-1.5 text-[13px] transition hover:opacity-70"
-          style={{ color: '#6B7A72', textDecoration: 'none' }}>
+      <div
+        className="px-5 py-4 border-b flex items-center gap-3"
+        style={{ background: '#FFFFFF', borderColor: '#E5E0D4' }}
+      >
+        <Link
+          href={`/e/${eventSlug}`}
+          className="flex items-center gap-1.5 text-[13px] transition hover:opacity-70"
+          style={{ color: '#6B7A72', textDecoration: 'none' }}
+        >
           <ArrowLeft size={15} /> {eventName}
         </Link>
       </div>
 
-      <div className="max-w-sm mx-auto px-5 py-10">
+      <div className="max-w-sm mx-auto px-5 pt-8 pb-12 flex flex-col items-center">
+        <div className="text-center mb-6">
+          <h1
+            className="font-display font-normal text-[26px]"
+            style={{ color: '#1F4D3A', letterSpacing: '-0.024em' }}
+          >
+            Meet people
+          </h1>
+          <p className="text-[13px] mt-1.5" style={{ color: '#6B7A72' }}>
+            Skip or connect. Connected{' '}
+            <strong style={{ color: '#1F4D3A' }}>{connectedCount}</strong> so far.
+          </p>
+        </div>
 
-        {/* LOBBY */}
-        {stage === 'lobby' && (
-          <div className="rounded-2xl p-6" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
-            <h1 className="font-display font-bold text-[22px] mb-2" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
-              Speed networking
-            </h1>
-            <p className="text-[13px] mb-5" style={{ color: '#6B7A72', lineHeight: 1.5 }}>
-              {attendees.length} people checked in · {totalRounds} rounds × 5 minutes · pairs by shared interests. Stay near the gold lounge.
+        {/* Not registered */}
+        {!canNetwork && (
+          <div
+            className="rounded-2xl p-8 text-center w-full"
+            style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}
+          >
+            <p className="text-[14px]" style={{ color: '#6B7A72', lineHeight: 1.6 }}>
+              Register for this event to meet other attendees.
             </p>
+            <Link
+              href={`/e/${eventSlug}/register`}
+              className="inline-block mt-4 px-5 py-2.5 rounded-xl text-[14px] font-semibold transition hover:opacity-90"
+              style={{ background: '#1F4D3A', color: '#FAF6EE', textDecoration: 'none' }}
+            >
+              Register
+            </Link>
+          </div>
+        )}
 
-            {/* Avatar stack */}
-            <div className="flex items-center mb-5">
-              {attendees.slice(0, 5).map((a: Attendee, i: number) => (
-                <div key={a.id}
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-[12px] font-bold"
-                  style={{
-                    background: `hsl(${140 + i * 20},35%,38%)`,
-                    color: '#FAF6EE',
-                    border: '2px solid #FAF6EE',
-                    marginLeft: i > 0 ? -12 : 0,
-                    zIndex: 5 - i,
-                    position: 'relative',
-                  }}>
-                  {initials(a.attendee_name)}
-                </div>
-              ))}
-              {attendees.length > 5 && (
-                <div className="w-10 h-10 rounded-full flex items-center justify-center text-[11px] font-semibold"
-                  style={{ background: '#E8EFEB', color: '#1F4D3A', border: '2px solid #FAF6EE', marginLeft: -12, position: 'relative', zIndex: 0 }}>
-                  +{attendees.length - 5}
-                </div>
-              )}
-            </div>
+        {/* Loading */}
+        {canNetwork && loading && (
+          <div
+            className="rounded-2xl w-full"
+            style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', aspectRatio: '3 / 4.2' }}
+          >
+            <div className="h-full w-full animate-pulse rounded-2xl" style={{ background: '#F0EBE3' }} />
+          </div>
+        )}
 
-            <button onClick={startRound}
-              className="w-full py-3.5 rounded-xl text-[14px] font-semibold transition hover:opacity-90"
-              style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
-              I&rsquo;m here — pair me
+        {/* Error */}
+        {canNetwork && error && (
+          <div
+            className="rounded-2xl p-8 text-center w-full"
+            style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}
+          >
+            <p className="text-[14px] mb-4" style={{ color: '#B8423C' }}>{error}</p>
+            <button
+              onClick={load}
+              className="px-5 py-2.5 rounded-xl text-[14px] font-semibold transition hover:opacity-90"
+              style={{ background: '#1F4D3A', color: '#FAF6EE' }}
+            >
+              Try again
             </button>
           </div>
         )}
 
-        {/* LIVE ROUND */}
-        {stage === 'round' && (
-          <div className="rounded-2xl overflow-hidden relative"
-            style={{ background: '#0F1F18' }}>
-            {/* Mesh bg */}
-            <div className="absolute inset-0 pointer-events-none" style={{
-              background: 'radial-gradient(ellipse at 20% 25%, rgba(31,77,58,0.85), transparent 60%), radial-gradient(ellipse at 80% 70%, rgba(232,197,126,0.14), transparent 60%)',
-            }} />
-
-            <div className="relative p-6">
-              {/* Top row */}
-              <div className="flex items-center justify-between mb-6">
-                <span className="text-[11px] font-bold tracking-widest" style={{ color: '#E8C57E' }}>
-                  ROUND {roundIdx + 1} OF {totalRounds} · TABLE {roundIdx + 1}
-                </span>
-                <span className={` font-bold text-[38px] leading-none ${warn ? 'text-[#E8C57E]' : 'text-white'}`}>
-                  {mins}:{secs}
-                </span>
-              </div>
-
-              {/* Match */}
-              <div className="flex items-center gap-4 mb-5">
-                <div className="w-16 h-16 rounded-full flex items-center justify-center font-bold text-[22px] shrink-0"
-                  style={{ background: 'linear-gradient(135deg,#1F4D3A,#2A6A50)', color: '#E8C57E', border: '3px solid #E8C57E' }}>
-                  {initials(currentMatch.attendee_name)}
-                </div>
-                <div>
-                  <div className="font-display font-semibold text-[20px]" style={{ color: '#FAF6EE' }}>
-                    {currentMatch.attendee_name}
-                  </div>
-                  <div className="text-[13px]" style={{ color: 'rgba(255,255,255,0.6)' }}>
-                    91% match
-                  </div>
-                </div>
-              </div>
-
-              {/* Icebreaker */}
-              <div className="rounded-xl p-4 mb-5" style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}>
-                <div className="text-[10px] font-bold tracking-widest mb-2" style={{ color: '#E8C57E' }}>ICEBREAKER</div>
-                <p className="text-[14px]" style={{ color: 'rgba(255,255,255,0.88)', lineHeight: 1.5 }}>{icebreaker}</p>
-              </div>
-
-              {/* Actions */}
-              <div className="flex flex-col gap-2">
-                <button onClick={() => { setExchanged(e => e + 1); nextRound(); }}
-                  className="w-full py-3 rounded-xl text-[14px] font-semibold transition hover:opacity-90"
-                  style={{ background: '#E8C57E', color: '#0F1F18' }}>
-                  Exchange contacts
-                </button>
-                <button onClick={nextRound}
-                  className="w-full py-3 rounded-xl text-[13px] font-medium transition hover:opacity-80"
-                  style={{ background: 'transparent', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.3)' }}>
-                  Skip to next round
-                </button>
-              </div>
-            </div>
+        {/* Empty */}
+        {empty && (
+          <div
+            className="rounded-2xl p-8 text-center w-full"
+            style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}
+          >
+            <p className="text-[14px]" style={{ color: '#6B7A72', lineHeight: 1.6 }}>
+              No one new to meet yet. Check back once more attendees have joined.
+            </p>
           </div>
         )}
 
-        {/* BETWEEN ROUNDS */}
-        {stage === 'between' && (
-          <div className="rounded-2xl p-6 text-center" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
-            <h2 className="font-display font-bold text-[20px] mb-2" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
-              Round {roundIdx + 1} done — move tables
+        {/* Done */}
+        {done && (
+          <div
+            className="rounded-2xl p-8 text-center w-full"
+            style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}
+          >
+            <div
+              className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
+              style={{ background: '#E8EFEB' }}
+            >
+              <Check size={24} strokeWidth={2.5} color="#1F4D3A" />
+            </div>
+            <h2
+              className="font-display font-normal text-[22px] mb-2"
+              style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}
+            >
+              That&rsquo;s everyone
             </h2>
-            <p className="text-[13px] mb-5" style={{ color: '#6B7A72', lineHeight: 1.5 }}>
-              Next round starts in <strong className="">0:{betweenSeconds.toString().padStart(2, '0')}</strong> ·
-              you&rsquo;ve exchanged contacts with <strong>{exchanged}</strong> of {roundIdx + 1} matches so far
+            <p className="text-[13px]" style={{ color: '#6B7A72', lineHeight: 1.6 }}>
+              You sent {connectedCount} connection{connectedCount === 1 ? '' : 's'}. They&rsquo;ll get an
+              email and can accept from their own dashboard.
             </p>
-
-            {/* Next pair preview */}
-            <div className="inline-flex items-center gap-2.5 px-4 py-3 rounded-full mb-5"
-              style={{ background: '#E8EFEB', border: '1px solid #C9E0D4' }}>
-              <div className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0"
-                style={{ background: 'linear-gradient(135deg,#1F4D3A,#2A6A50)', color: '#FAF6EE' }}>
-                {initials(nextMatch.attendee_name)}
-              </div>
-              <span className="font-display font-semibold text-[14px]" style={{ color: '#1F4D3A' }}>
-                Next: {nextMatch.attendee_name}
-              </span>
-              <span className="text-[12px] ml-auto" style={{ color: '#6B7A72' }}>
-                Table {roundIdx + 2}
-              </span>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <button onClick={confirmMove}
-                className="w-full py-3 rounded-xl text-[14px] font-semibold transition hover:opacity-90"
-                style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
-                I&rsquo;m at table {roundIdx + 2}
-              </button>
-              <Link href={`/e/${eventSlug}`}
-                className="block w-full py-3 rounded-xl text-[13px] font-medium border text-center transition hover:opacity-80"
-                style={{ borderColor: '#1F4D3A', color: '#1F4D3A', textDecoration: 'none' }}>
-                Leave the rotation
-              </Link>
-            </div>
+            <button
+              onClick={load}
+              className="mt-5 px-5 py-2.5 rounded-xl text-[14px] font-semibold transition hover:opacity-90"
+              style={{ background: '#E8EFEB', color: '#1F4D3A' }}
+            >
+              Refresh deck
+            </button>
           </div>
+        )}
+
+        {/* Deck */}
+        {canNetwork && !loading && !error && current && (
+          <>
+            <div className="relative w-full" style={{ aspectRatio: '3 / 4.2', maxWidth: 340 }}>
+              {/* behind cards */}
+              {behind2 && (
+                <div
+                  className="absolute inset-0 rounded-2xl"
+                  style={{
+                    background: '#FFFFFF',
+                    border: '1px solid #E5E0D4',
+                    transform: 'scale(0.9) translateY(28px)',
+                    opacity: 0.4,
+                    zIndex: 1,
+                  }}
+                />
+              )}
+              {behind1 && (
+                <div
+                  className="absolute inset-0 rounded-2xl"
+                  style={{
+                    background: '#FFFFFF',
+                    border: '1px solid #E5E0D4',
+                    transform: 'scale(0.95) translateY(14px)',
+                    opacity: 0.7,
+                    zIndex: 2,
+                  }}
+                />
+              )}
+
+              {/* top card */}
+              <div
+                className="absolute inset-0 rounded-2xl overflow-hidden flex flex-col"
+                style={{
+                  background: '#FFFFFF',
+                  border: '1px solid #E5E0D4',
+                  boxShadow: '0 18px 44px rgba(15,31,24,0.18)',
+                  zIndex: 3,
+                  transition: fly ? 'transform 0.32s ease, opacity 0.32s ease' : 'none',
+                  transform: fly === 'left'
+                    ? 'translateX(-120%) rotate(-14deg)'
+                    : fly === 'right'
+                      ? 'translateX(120%) rotate(14deg)'
+                      : 'none',
+                  opacity: fly ? 0 : 1,
+                }}
+              >
+                {/* stamps */}
+                <div
+                  className="absolute top-6 left-5 px-4 py-1.5 rounded-lg font-display font-semibold text-[20px] tracking-wider"
+                  style={{
+                    color: '#2D7A4F',
+                    border: '3px solid #2D7A4F',
+                    transform: 'rotate(-12deg)',
+                    opacity: fly === 'right' ? 1 : 0,
+                    transition: 'opacity 0.15s',
+                    zIndex: 5,
+                  }}
+                >
+                  CONNECT
+                </div>
+                <div
+                  className="absolute top-6 right-5 px-4 py-1.5 rounded-lg font-display font-semibold text-[20px] tracking-wider"
+                  style={{
+                    color: '#6B7A72',
+                    border: '3px solid #6B7A72',
+                    transform: 'rotate(12deg)',
+                    opacity: fly === 'left' ? 1 : 0,
+                    transition: 'opacity 0.15s',
+                    zIndex: 5,
+                  }}
+                >
+                  SKIP
+                </div>
+
+                {/* photo / placeholder */}
+                <div className="flex-1 relative flex items-center justify-center" style={{ background: `hsl(${hue(current.id)}, 32%, 90%)` }}>
+                  {current.eventera_card_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={current.eventera_card_url}
+                      alt={current.attendee_name}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div
+                      className="w-24 h-24 rounded-full flex items-center justify-center font-display font-semibold text-[30px]"
+                      style={{ background: 'linear-gradient(135deg,#1F4D3A,#2A6A50)', color: '#E8C57E' }}
+                    >
+                      {initials(current.attendee_name)}
+                    </div>
+                  )}
+                </div>
+
+                {/* info */}
+                <div className="p-5">
+                  <div
+                    className="font-display font-medium text-[20px]"
+                    style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}
+                  >
+                    {current.attendee_name}
+                  </div>
+                  <div className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>
+                    Attendee at {eventName}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* controls */}
+            <div className="flex items-center gap-5 mt-8">
+              <button
+                onClick={skip}
+                disabled={connecting || !!fly}
+                aria-label="Skip"
+                className="w-16 h-16 rounded-full flex items-center justify-center transition hover:scale-105 disabled:opacity-50"
+                style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', boxShadow: '0 2px 8px rgba(15,31,24,0.06)' }}
+              >
+                <X size={26} strokeWidth={2.2} color="#6B7A72" />
+              </button>
+              <button
+                onClick={connect}
+                disabled={connecting || !!fly}
+                aria-label="Connect"
+                className="w-16 h-16 rounded-full flex items-center justify-center transition hover:scale-105 disabled:opacity-50"
+                style={{ background: '#1F4D3A', border: '1px solid #1F4D3A', boxShadow: '0 2px 8px rgba(15,31,24,0.12)' }}
+              >
+                <Heart size={24} strokeWidth={2.2} color="#E8C57E" fill="#E8C57E" />
+              </button>
+            </div>
+
+            <p className="text-[12px] mt-4" style={{ color: '#6B7A72' }}>
+              Skip stays private — they never know.
+            </p>
+          </>
         )}
       </div>
     </div>

@@ -1,16 +1,15 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { Send, Plus } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { Send } from 'lucide-react';
 
 interface Thread {
   id: string;
-  participant_a: string;
-  participant_b: string;
+  other_participant_id: string;
+  other_participant_name: string;
   last_message_at: string | null;
-  registrations?: { id: string; attendee_name: string } | null;
-  preview?: string;
-  unread?: boolean;
+  last_message?: { content: string; created_at: string; sender_id: string } | null;
+  unread_count: number;
 }
 
 interface Message {
@@ -24,9 +23,6 @@ interface Message {
 interface Props {
   eventId: string;
   registrationId: string | null;
-  initialThreads: Thread[];
-  initialActiveThreadId: string | null;
-  initialMessages: Message[];
 }
 
 function initials(name: string) {
@@ -43,18 +39,31 @@ function timeAgo(iso: string) {
   return `${Math.floor(hrs / 24)}d`;
 }
 
-export default function MessagingClient({
-  eventId, registrationId, initialThreads, initialActiveThreadId, initialMessages,
-}: Props) {
-  const [threads] = useState(initialThreads);
-  const [activeId, setActiveId] = useState(initialActiveThreadId);
-  const [messages, setMessages] = useState(initialMessages);
+export default function MessagingClient({ eventId, registrationId }: Props) {
+  const [threads, setThreads] = useState<Thread[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [newMsg, setNewMsg] = useState('');
   const [sending, setSending] = useState(false);
+  const [loadingThreads, setLoadingThreads] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  const activeThread = threads.find(t => t.id === activeId);
-  const partner = activeThread?.registrations;
+  const activeThread = threads.find(t => t.id === activeId) ?? null;
+
+  const loadThreads = useCallback(async () => {
+    if (!registrationId) { setLoadingThreads(false); return; }
+    try {
+      const res = await fetch(`/api/threads?registration_id=${registrationId}&event_id=${eventId}`);
+      const data = await res.json() as { threads?: Thread[] };
+      setThreads(data.threads ?? []);
+    } catch {
+      setThreads([]);
+    } finally {
+      setLoadingThreads(false);
+    }
+  }, [eventId, registrationId]);
+
+  useEffect(() => { loadThreads(); }, [loadThreads]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -62,24 +71,26 @@ export default function MessagingClient({
 
   const switchThread = async (threadId: string) => {
     setActiveId(threadId);
+    setMessages([]);
     if (!registrationId) return;
     try {
       const res = await fetch(`/api/events/${eventId}/messages?registration_id=${registrationId}&thread_id=${threadId}`);
-      const data = await res.json() as { messages: Message[] };
-      if (data.messages) setMessages(data.messages);
-    } catch {}
+      const data = await res.json() as { messages?: Message[] };
+      setMessages(data.messages ?? []);
+      // The GET stamps read_at server-side; clear the unread badge locally.
+      setThreads(prev => prev.map(t => (t.id === threadId ? { ...t, unread_count: 0 } : t)));
+    } catch { /* keep empty */ }
   };
 
   const send = async () => {
-    if (!newMsg.trim() || !activeId || !registrationId || sending) return;
-    const t = threads.find(th => th.id === activeId);
-    const recipientId = t?.registrations?.id;
-    if (!recipientId) return;
+    const content = newMsg.trim();
+    if (!content || !activeThread || !registrationId || sending) return;
+    const recipientId = activeThread.other_participant_id;
 
     setSending(true);
     const optimistic: Message = {
       id: `tmp-${Date.now()}`,
-      content: newMsg.trim(),
+      content,
       sender_id: registrationId,
       created_at: new Date().toISOString(),
       read_at: null,
@@ -90,13 +101,22 @@ export default function MessagingClient({
       const res = await fetch(`/api/events/${eventId}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sender_id: registrationId, recipient_id: recipientId, content: optimistic.content }),
+        body: JSON.stringify({ sender_id: registrationId, recipient_id: recipientId, content }),
       });
-      const data = await res.json() as { message: Message };
+      const data = await res.json() as { message?: Message };
       if (data.message) {
-        setMessages(prev => prev.map(m => m.id === optimistic.id ? data.message : m));
+        setMessages(prev => prev.map(m => (m.id === optimistic.id ? data.message! : m)));
+        setThreads(prev => prev.map(t => (t.id === activeThread.id
+          ? { ...t, last_message_at: new Date().toISOString(), last_message: { content, created_at: optimistic.created_at, sender_id: registrationId } }
+          : t)));
+      } else {
+        setMessages(prev => prev.filter(m => m.id !== optimistic.id));
+        setNewMsg(content);
       }
-    } catch {} finally {
+    } catch {
+      setMessages(prev => prev.filter(m => m.id !== optimistic.id));
+      setNewMsg(content);
+    } finally {
       setSending(false);
     }
   };
@@ -115,70 +135,55 @@ export default function MessagingClient({
   return (
     <div
       className="flex flex-col lg:grid"
-      style={{
-        gridTemplateColumns: '320px 1fr',
-        height: 'calc(100vh - 56px)',
-      }}
+      style={{ gridTemplateColumns: '320px 1fr', height: 'calc(100vh - 56px)' }}
     >
       {/* Left: inbox */}
       <aside className="max-h-[50vh] lg:max-h-full" style={{ borderRight: '1px solid #E5E0D4', display: 'flex', flexDirection: 'column', background: 'white' }}>
-        <div
-          className="flex items-center justify-between px-5 py-4 shrink-0"
-          style={{ borderBottom: '1px solid #E5E0D4' }}
-        >
+        <div className="flex items-center justify-between px-5 py-4 shrink-0" style={{ borderBottom: '1px solid #E5E0D4' }}>
           <span className="font-display font-medium text-[16px]" style={{ color: '#1F4D3A' }}>Messages</span>
-          <button
-            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12px] font-medium transition-colors"
-            style={{ background: '#E8EFEB', color: '#1F4D3A' }}
-          >
-            <Plus size={12} strokeWidth={2.5} /> New
-          </button>
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          {threads.length === 0 ? (
-            <div className="py-12 text-center text-[13px]" style={{ color: '#6B7A72' }}>
+          {!registrationId ? (
+            <div className="py-12 px-5 text-center text-[13px]" style={{ color: '#6B7A72' }}>
+              Register for this event to message other attendees.
+            </div>
+          ) : loadingThreads ? (
+            <div className="py-12 text-center text-[13px]" style={{ color: '#6B7A72' }}>Loading…</div>
+          ) : threads.length === 0 ? (
+            <div className="py-12 px-5 text-center text-[13px]" style={{ color: '#6B7A72' }}>
               No messages yet.<br />Connect with people at the event to start a conversation.
             </div>
           ) : (
             threads.map(t => {
-              const other = t.registrations;
               const isActive = t.id === activeId;
+              const unread = t.unread_count > 0;
               return (
                 <button
                   key={t.id}
                   onClick={() => switchThread(t.id)}
                   className="w-full flex items-center gap-3 px-5 py-4 transition-colors text-left relative"
-                  style={{
-                    background: isActive ? '#E8EFEB' : 'transparent',
-                    borderBottom: '1px solid #F0EBE3',
-                  }}
+                  style={{ background: isActive ? '#E8EFEB' : 'transparent', borderBottom: '1px solid #F0EBE3' }}
                 >
-                  {t.unread && (
-                    <div
-                      className="absolute left-2 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full"
-                      style={{ background: '#1F4D3A' }}
-                    />
+                  {unread && (
+                    <div className="absolute left-2 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full" style={{ background: '#1F4D3A' }} />
                   )}
                   <div
                     className="w-11 h-11 rounded-full flex items-center justify-center text-white text-[13px] font-display font-semibold shrink-0"
                     style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }}
                   >
-                    {other ? initials(other.attendee_name) : '?'}
+                    {initials(t.other_participant_name)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div
-                      className="text-[15px] font-medium truncate"
-                      style={{ color: '#1F4D3A', fontWeight: t.unread ? 600 : 500 }}
-                    >
-                      {other?.attendee_name ?? 'Attendee'}
+                    <div className="text-[15px] truncate" style={{ color: '#1F4D3A', fontWeight: unread ? 600 : 500 }}>
+                      {t.other_participant_name}
                     </div>
                     <div className="text-[13px] truncate mt-0.5" style={{ color: '#6B7A72' }}>
-                      {t.preview ?? ''}
+                      {t.last_message?.content ?? ''}
                     </div>
                   </div>
                   {t.last_message_at && (
-                    <div className=" text-[11px] shrink-0 self-start mt-1" style={{ color: '#6B7A72' }}>
+                    <div className="text-[11px] shrink-0 self-start mt-1" style={{ color: '#6B7A72' }}>
                       {timeAgo(t.last_message_at)}
                     </div>
                   )}
@@ -197,43 +202,18 @@ export default function MessagingClient({
           </div>
         ) : (
           <>
-            {/* Thread header */}
-            <div
-              className="h-16 flex items-center gap-3 px-6 shrink-0"
-              style={{ borderBottom: '1px solid #E5E0D4', background: 'white' }}
-            >
+            <div className="h-16 flex items-center gap-3 px-6 shrink-0" style={{ borderBottom: '1px solid #E5E0D4', background: 'white' }}>
               <div
                 className="w-10 h-10 rounded-full flex items-center justify-center text-white text-[12px] font-display font-semibold shrink-0"
                 style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }}
               >
-                {partner ? initials(partner.attendee_name) : '?'}
+                {initials(activeThread.other_participant_name)}
               </div>
-              <div>
-                <div className="font-display font-medium text-[17px]" style={{ color: '#1F4D3A' }}>
-                  {partner?.attendee_name ?? 'Attendee'}
-                </div>
+              <div className="font-display font-medium text-[17px]" style={{ color: '#1F4D3A' }}>
+                {activeThread.other_participant_name}
               </div>
-              <a
-                href={`/e/${eventId}/people`}
-                className="ml-auto text-[13px] font-semibold"
-                style={{ color: '#C9A45E' }}
-              >
-                View profile →
-              </a>
             </div>
 
-            {/* Eventera Card banner */}
-            <div
-              className="mx-6 mt-4 flex items-center gap-3 px-4 py-3 rounded-xl shrink-0"
-              style={{ background: '#E8EFEB' }}
-            >
-              <div className="text-[13px] flex-1" style={{ color: '#1F4D3A' }}>
-                Share your Eventera Card — let {partner?.attendee_name?.split(' ')[0] ?? 'them'} see your profile and save your contact.
-              </div>
-              <button className="text-[18px] leading-none" style={{ color: '#6B7A72' }}>×</button>
-            </div>
-
-            {/* Messages */}
             <div className="flex-1 overflow-y-auto px-6 py-4 flex flex-col gap-3">
               {messages.length === 0 ? (
                 <div className="flex-1 flex items-center justify-center text-[13px]" style={{ color: '#6B7A72' }}>
@@ -242,9 +222,7 @@ export default function MessagingClient({
               ) : (
                 groupByDay(messages).map(group => (
                   <div key={group.label}>
-                    <div className=" text-[11px] text-center my-3" style={{ color: '#6B7A72' }}>
-                      {group.label}
-                    </div>
+                    <div className="text-[11px] text-center my-3" style={{ color: '#6B7A72' }}>{group.label}</div>
                     {group.msgs.map(m => {
                       const isMe = m.sender_id === registrationId;
                       return (
@@ -271,11 +249,7 @@ export default function MessagingClient({
               <div ref={bottomRef} />
             </div>
 
-            {/* Composer */}
-            <div
-              className="flex items-center gap-3 px-6 py-4 shrink-0"
-              style={{ borderTop: '1px solid #E5E0D4', background: 'white' }}
-            >
+            <div className="flex items-center gap-3 px-6 py-4 shrink-0" style={{ borderTop: '1px solid #E5E0D4', background: 'white' }}>
               <input
                 type="text"
                 value={newMsg}
@@ -297,13 +271,6 @@ export default function MessagingClient({
           </>
         )}
       </section>
-
-      <style>{`
-        @media (max-width: 760px) {
-          section { grid-template-columns: 1fr !important; }
-          aside { display: none; }
-        }
-      `}</style>
     </div>
   );
 }
