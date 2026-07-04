@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { WorkshopsClient } from '@/components/events/WorkshopsClient';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
+import { resolveViewerRegistrationId } from '@/lib/attendee/resolveViewerRegistration';
 
 interface Props { params: { slug: string }; searchParams: { reg?: string } }
 
@@ -13,6 +14,10 @@ export default async function WorkshopsPage({ params, searchParams }: Props) {
   const resolved = await resolvePublicSlug(params.slug);
   if (!resolved) notFound();
   const { event } = resolved;
+
+  // Resolve the viewer's registration from their session so booking works
+  // when arriving from the hub without an explicit ?reg=.
+  const viewerReg = await resolveViewerRegistrationId(event.id, searchParams.reg);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const adminAny = admin as any;
@@ -25,11 +30,11 @@ export default async function WorkshopsPage({ params, searchParams }: Props) {
       .eq('is_published', true)
       .not('capacity', 'is', null)
       .order('starts_at', { ascending: true }),
-    searchParams.reg
+    viewerReg
       ? adminAny
           .from('attendee_agendas')
           .select('session_id')
-          .eq('registration_id', searchParams.reg)
+          .eq('registration_id', viewerReg)
           .then((r: { data: { session_id: string }[] | null }) => r.data?.map((a) => a.session_id) ?? [])
       : Promise.resolve([]),
   ]);
@@ -41,7 +46,7 @@ export default async function WorkshopsPage({ params, searchParams }: Props) {
         eventSlug={params.slug}
         sessions={sessions ?? []}
         bookedIds={bookedIds as string[]}
-        registrationId={searchParams.reg}
+        registrationId={viewerReg ?? undefined}
       />
     </div>
   );

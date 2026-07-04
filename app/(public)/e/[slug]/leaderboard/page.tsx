@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
+import { resolveViewerRegistrationId } from '@/lib/attendee/resolveViewerRegistration';
 
 interface Props { params: { slug: string }; searchParams: { reg?: string } }
 
@@ -41,7 +42,7 @@ export default async function LeaderboardPage({ params, searchParams }: Props) {
     total_points: pts,
   }));
 
-  const myReg = searchParams.reg ?? null;
+  const myReg = await resolveViewerRegistrationId(event.id, searchParams.reg);
   const isYou = (rid: string) => !!myReg && rid === myReg;
 
   // Resolve caller's rank even if they're outside the visible top 50.
