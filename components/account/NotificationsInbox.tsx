@@ -1,7 +1,8 @@
 ﻿'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { createClient } from '@/lib/supabase/client';
 
 interface Notif {
   id: string;
@@ -16,6 +17,7 @@ interface Notif {
 
 interface Props {
   initialNotifs: Notif[];
+  userId: string;
 }
 
 // ── Icon badges by type ────────────────────────────────────────────────────────
@@ -84,8 +86,36 @@ function parseCountdownFromTitle(title: string): string | null {
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 
-export default function NotificationsInbox({ initialNotifs }: Props) {
+export default function NotificationsInbox({ initialNotifs, userId }: Props) {
   const [notifs, setNotifs] = useState(initialNotifs);
+
+  // Realtime: prepend new notifications live (mirrors the mobile app).
+  useEffect(() => {
+    if (!userId) return;
+    const supabase = createClient();
+    const channel = supabase
+      .channel('notif:' + userId)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: 'user_id=eq.' + userId,
+        },
+        (payload) => {
+          const row = payload.new as Notif;
+          setNotifs((prev) =>
+            prev.some((n) => n.id === row.id) ? prev : [row, ...prev]
+          );
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId]);
 
   function markAllRead() {
     setNotifs(prev => prev.map(n => ({ ...n, read_at: n.read_at ?? new Date().toISOString() })));

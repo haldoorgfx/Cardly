@@ -15,7 +15,7 @@ export default async function AccountProfilePage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('id, full_name, email, avatar_url, interests, city, phone, whatsapp_verified, notification_prefs')
+    .select('id, full_name, email, avatar_url, interests, city, phone, whatsapp_verified, notification_prefs, language')
     .eq('id', user.id)
     .single();
 
@@ -34,6 +34,7 @@ export default async function AccountProfilePage() {
         phone: profile.phone,
         whatsapp_verified: profile.whatsapp_verified,
         notification_prefs: (profile.notification_prefs as Record<string, boolean> | null),
+        language: (profile.language as string | null),
       }} />
     </div>
   );

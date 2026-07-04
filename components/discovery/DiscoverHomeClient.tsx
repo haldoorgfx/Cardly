@@ -3,15 +3,36 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Search, MapPin, Calendar, ChevronDown, ArrowRight, Map as MapIcon, Ticket, Check, Tag } from 'lucide-react';
+import { Search, MapPin, Calendar, ChevronDown, ArrowRight, Map as MapIcon, Ticket, Check, Tag, Globe, Users } from 'lucide-react';
 import { EventCard } from './EventCard';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type EventPage = any;
 
+/** An admin-controlled promo banner row from the `promo_banners` table. */
+export interface PromoBanner {
+  title: string;
+  subtitle: string;
+  image_url: string;
+  cta_label: string;
+  cta_type: string; // 'none' | 'event' | 'url'
+  cta_target: string;
+  bg_start: string;
+  bg_end: string;
+  text_color: string;
+}
+
 interface Props {
   featured: EventPage | null;
   events: EventPage[];
+  banners?: PromoBanner[];
+}
+
+/** Parse `#RGB` / `#RRGGBB` hex → CSS color, else fallback. */
+function hexColor(hex: string | undefined, fallback: string): string {
+  const h = (hex ?? '').trim();
+  if (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(h)) return h;
+  return fallback;
 }
 
 const CATEGORIES = ['All', 'Music', 'Tech', 'Sports', 'Culture', 'Food', 'Business', 'Health', 'Arts'];
@@ -23,6 +44,14 @@ const WHEN_OPTIONS = [
   { value: 'week', label: 'This week' },
   { value: 'month', label: 'This month' },
 ];
+
+// Format filter — mirrors the mobile app (All | In person | Online).
+const FORMAT_OPTIONS = [
+  { value: 'all', label: 'Any format' },
+  { value: 'inperson', label: 'In person' },
+  { value: 'online', label: 'Online' },
+] as const;
+type FormatValue = (typeof FORMAT_OPTIONS)[number]['value'];
 
 const HOST_BG = ['#1F4D3A', '#163828', '#2A6A50', '#3E7E5E', '#C9A45E', '#245C44'];
 const NO_EVENTS: EventPage[] = [];
@@ -158,18 +187,80 @@ function Band({ bg, divider = true, children }: { bg: string; divider?: boolean;
   );
 }
 
+/* ─── Admin promo banner (hero) ─────────────────────────────────── */
+
+function AdminPromoBanner({ banner, onCta }: { banner: PromoBanner; onCta: () => void }) {
+  const hasImage = banner.image_url.length > 0;
+  const fg = hexColor(banner.text_color, '#FFFFFF');
+  const bgStart = hexColor(banner.bg_start, '#163828');
+  const bgEnd = hexColor(banner.bg_end, '#2A6A50');
+
+  return (
+    <button
+      type="button"
+      onClick={onCta}
+      className="relative block w-full text-left overflow-hidden rounded-[22px] group"
+      style={{
+        minHeight: 200,
+        background: hasImage ? '#163828' : `linear-gradient(135deg, ${bgStart} 0%, ${bgEnd} 100%)`,
+        boxShadow: '0 12px 40px rgba(15,31,24,0.14)',
+      }}
+    >
+      {hasImage && (
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={banner.image_url}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover transition group-hover:scale-[1.02]"
+          />
+          {/* Left → right scrim so text stays legible over any image */}
+          <div
+            aria-hidden
+            className="absolute inset-0"
+            style={{ background: 'linear-gradient(90deg, rgba(13,31,23,0.90) 0%, rgba(13,31,23,0.25) 70%, transparent 100%)' }}
+          />
+        </>
+      )}
+      <div className="relative px-6 sm:px-9 py-8 sm:py-10 max-w-2xl">
+        <h2
+          className="font-title font-bold"
+          style={{ fontSize: 'clamp(24px,3.4vw,34px)', lineHeight: 1.1, letterSpacing: '-0.02em', color: fg }}
+        >
+          {banner.title}
+        </h2>
+        {banner.subtitle && (
+          <p className="mt-2.5 text-[14px] sm:text-[15px]" style={{ color: fg, opacity: 0.85, lineHeight: 1.55, maxWidth: 520 }}>
+            {banner.subtitle}
+          </p>
+        )}
+        {banner.cta_label && (
+          <span
+            className="inline-flex items-center gap-2 mt-5 px-5 py-2.5 rounded-full font-semibold text-[14px] transition group-hover:opacity-90"
+            style={{ background: '#E8C57E', color: '#0F1F18' }}
+          >
+            {banner.cta_label} <ArrowRight size={15} />
+          </span>
+        )}
+      </div>
+    </button>
+  );
+}
+
 /* ─── Main ──────────────────────────────────────────────────────── */
 
-export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: Props) {
+export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents, banners }: Props) {
   const router = useRouter();
   const events = dbEvents ?? NO_EVENTS;
   const featured = dbFeatured ?? events[0] ?? null;
+  const promoBanner = banners && banners.length > 0 ? banners[0] : null;
   const resultsRef = useRef<HTMLDivElement>(null);
 
   const [query, setQuery] = useState('');
   const [activeCat, setActiveCat] = useState('All');
   const [city, setCity] = useState('');
   const [when, setWhen] = useState('any');
+  const [format, setFormat] = useState<FormatValue>('all');
   const [saved, setSaved] = useState<Set<string>>(new Set());
 
   // Distinct cities from real events (by frequency), padded with popular fallbacks
@@ -184,18 +275,20 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
     return Array.from(new Set([...real, ...fallback]));
   }, [events]);
 
-  const hasFilter = !!(query || activeCat !== 'All' || city || when !== 'any');
+  const hasFilter = !!(query || activeCat !== 'All' || city || when !== 'any' || format !== 'all');
 
   const filtered = useMemo(() => events.filter((ep: EventPage) => {
     if (activeCat !== 'All' && !(ep.category ?? '').toLowerCase().includes(activeCat.toLowerCase())) return false;
     if (city && (ep.city ?? '') !== city) return false;
+    if (format === 'online' && !ep.is_online) return false;
+    if (format === 'inperson' && ep.is_online) return false;
     if (!matchesWhen(ep.starts_at, when)) return false;
     if (query) {
       const hay = `${ep.title ?? ''} ${organizerOf(ep)} ${ep.city ?? ''} ${ep.venue_name ?? ''} ${ep.category ?? ''}`.toLowerCase();
       if (!hay.includes(query.toLowerCase())) return false;
     }
     return true;
-  }), [events, activeCat, city, when, query]);
+  }), [events, activeCat, city, when, format, query]);
 
   // Top hosts derived from real events
   const hosts = useMemo(() => {
@@ -222,11 +315,23 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
     resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  function onBannerCta(b: PromoBanner) {
+    const target = b.cta_target.trim();
+    if (b.cta_type === 'event' && target) {
+      router.push(`/e/${target}`);
+    } else if (b.cta_type === 'url' && target) {
+      window.open(target, '_blank', 'noopener,noreferrer');
+    } else {
+      scrollToResults();
+    }
+  }
+
   function goToMap() {
     const p = new URLSearchParams();
     if (query) p.set('q', query);
     if (city) p.set('city', city);
     if (activeCat !== 'All') p.set('category', activeCat.toLowerCase());
+    if (format !== 'all') p.set('format', format); // 'inperson' | 'online' — matches /events/search
     const qs = p.toString();
     router.push(`/events/search${qs ? `?${qs}` : ''}`);
   }
@@ -280,8 +385,8 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
                 className="flex-1 bg-transparent text-[16px] outline-none" style={{ color: '#0F1F18' }} />
             </div>
 
-            {/* Filter controls */}
-            <div className="grid grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_auto] gap-2.5 pt-3.5">
+            {/* Filter controls — city, date, category, format + search */}
+            <div className="grid grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1fr_auto] gap-2.5 pt-3.5">
               <Dropdown
                 icon={<MapPin size={16} style={{ color: '#6B7A72', flexShrink: 0 }} />}
                 value={city} placeholder="Anywhere" onChange={setCity}
@@ -297,6 +402,13 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
                 value={activeCat} placeholder="Any category" onChange={setActiveCat}
                 options={CATEGORIES.map(c => ({ value: c, label: c === 'All' ? 'Any category' : c }))}
               />
+              <Dropdown
+                icon={format === 'online'
+                  ? <Globe size={16} style={{ color: '#6B7A72', flexShrink: 0 }} />
+                  : <Users size={16} style={{ color: '#6B7A72', flexShrink: 0 }} />}
+                value={format} placeholder="Any format" onChange={v => setFormat(v as FormatValue)}
+                options={FORMAT_OPTIONS.map(f => ({ value: f.value, label: f.label }))}
+              />
               {/* Search button */}
               <button onClick={scrollToResults}
                 className="col-span-2 lg:col-span-1 h-[46px] px-6 rounded-xl font-semibold text-[14px] flex items-center justify-center gap-2 transition hover:opacity-90"
@@ -307,6 +419,13 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
           </div>
         </div>
       </section>
+
+      {/* ── Admin promo banner (hero) — from `promo_banners` ──── */}
+      {promoBanner && (
+        <Band bg="#FAF6EE" divider={false}>
+          <AdminPromoBanner banner={promoBanner} onCta={() => onBannerCta(promoBanner)} />
+        </Band>
+      )}
 
       {/* ── Stats ───────────────────────────────────────────── */}
       <Band bg="#FAF6EE" divider={false}>
@@ -352,8 +471,8 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
 
       {/* ── Featured + Results ──────────────────────────────── */}
       <Band bg="#FAF6EE">
-        {/* Featured (only with no active filter) */}
-        {featured && !hasFilter && (
+        {/* Featured (only with no active filter, and no admin promo banner hero) */}
+        {featured && !hasFilter && !promoBanner && (
           <Link href={`/e/${getSlug(featured)}`}
             className="relative block h-72 sm:h-80 rounded-[22px] overflow-hidden mb-10 group"
             style={{ background: 'linear-gradient(140deg, #143024, #1F4D3A 55%, #2A6A50)', textDecoration: 'none' }}>
@@ -395,11 +514,12 @@ export function DiscoverHomeClient({ featured: dbFeatured, events: dbEvents }: P
               {city && ` in ${city}`}
               {activeCat !== 'All' && ` · ${activeCat}`}
               {when !== 'any' && ` · ${WHEN_OPTIONS.find(w => w.value === when)?.label}`}
+              {format !== 'all' && ` · ${FORMAT_OPTIONS.find(f => f.value === format)?.label}`}
             </p>
           </div>
           <div className="flex items-center gap-3 shrink-0">
             {hasFilter && (
-              <button onClick={() => { setQuery(''); setActiveCat('All'); setCity(''); setWhen('any'); }}
+              <button onClick={() => { setQuery(''); setActiveCat('All'); setCity(''); setWhen('any'); setFormat('all'); }}
                 className="text-[13px] font-medium transition hover:opacity-70" style={{ color: '#6B7A72' }}>
                 Clear filters
               </button>

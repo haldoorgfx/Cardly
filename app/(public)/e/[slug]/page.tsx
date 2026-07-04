@@ -10,7 +10,7 @@ import type { Metadata } from 'next';
 
 interface Props {
   params: { slug: string };
-  searchParams: { preview?: string; event_id?: string; tab?: string };
+  searchParams: { preview?: string; event_id?: string; tab?: string; reg?: string };
 }
 
 async function resolveEventPage(slug: string) {
@@ -118,6 +118,24 @@ export default async function PublicEventPage({ params, searchParams }: Props) {
     initialSaved = !!saveRow;
   }
 
+  // Resolve the viewer's registration for this event so the Network tab can
+  // load the directory + AI matches + connections. Prefer an explicit ?reg=
+  // link (matches the messaging page), else fall back to the logged-in user's
+  // confirmed registration on this event.
+  let viewerRegistrationId: string | null = searchParams.reg ?? null;
+  if (!viewerRegistrationId && user) {
+    const { data: ownReg } = await admin
+      .from('registrations')
+      .select('id')
+      .eq('event_id', page.event_id)
+      .eq('user_id', user.id)
+      .in('status', ['confirmed', 'checked_in'])
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    viewerRegistrationId = ownReg?.id ?? null;
+  }
+
   // Fetch all section data in parallel — no limits, full fields
   const [sessionsRes, speakersRes, sponsorsRes, regRes] = await Promise.all([
     admin.from('sessions')
@@ -215,6 +233,8 @@ export default async function PublicEventPage({ params, searchParams }: Props) {
         endTimeStr={endTime}
         minPrice={minPrice}
         registrationSlug={registrationSlug}
+        eventId={page.event_id}
+        viewerRegistrationId={viewerRegistrationId}
         organizerUserId={organizerUserId}
         seriesSlug={seriesSlug}
         seriesName={page.series_name ?? null}

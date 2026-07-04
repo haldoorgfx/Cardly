@@ -2,7 +2,12 @@
 
 import { useState, useRef } from 'react';
 import Image from 'next/image';
+import { z } from 'zod';
 import { createClient } from '@/lib/supabase/client';
+
+const LANGUAGES = ['English', 'Français', 'Soomaali', 'العربية'] as const;
+
+const emailSchema = z.string().trim().toLowerCase().email();
 
 const INTERESTS = [
   'Tech', 'Music', 'Business', 'Culture', 'Food & drink',
@@ -40,6 +45,7 @@ interface Props {
     phone: string | null;
     whatsapp_verified: boolean | null;
     notification_prefs: NotifPrefs | null;
+    language: string | null;
   };
 }
 
@@ -83,6 +89,65 @@ export default function ProfileSettings({ profile }: Props) {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Change email
+  const [newEmail, setNewEmail] = useState('');
+  const [emailBusy, setEmailBusy] = useState(false);
+  const [emailNotice, setEmailNotice] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
+
+  // Language (persisted to the profiles.language column)
+  const [language, setLanguage] = useState(profile.language ?? 'English');
+
+  // Delete account
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState('');
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  async function handleChangeEmail() {
+    setEmailError(null);
+    setEmailNotice(null);
+    const parsed = emailSchema.safeParse(newEmail);
+    if (!parsed.success) {
+      setEmailError('Enter a valid email address.');
+      return;
+    }
+    setEmailBusy(true);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.updateUser({ email: parsed.data });
+      if (error) throw error;
+      setEmailNotice(`Check ${parsed.data} — your sign-in email changes only after you confirm via the link we sent.`);
+      setNewEmail('');
+    } catch (err) {
+      console.error('Change email failed', err);
+      setEmailError('Could not update your email. Please try again.');
+    } finally {
+      setEmailBusy(false);
+    }
+  }
+
+  async function handleDeleteAccount() {
+    setDeleteError(null);
+    setDeleting(true);
+    try {
+      const res = await fetch('/api/account/delete', { method: 'POST' });
+      if (!res.ok) {
+        // Fall back to deleting the caller's own profile row directly (RLS-scoped).
+        const supabase = createClient();
+        const { error } = await supabase.from('profiles').delete().eq('id', profile.id);
+        if (error) throw error;
+      }
+      const supabase = createClient();
+      await supabase.auth.signOut().catch(() => {});
+      window.location.href = '/';
+    } catch (err) {
+      console.error('Delete account failed', err);
+      setDeleteError('We couldn’t delete your account right now. Please contact support.');
+      setDeleting(false);
+    }
+  }
 
   function toggleInterest(i: string) {
     setInterests(prev => prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i]);
@@ -130,6 +195,7 @@ export default function ProfileSettings({ profile }: Props) {
         interests,
         city: city || null,
         notification_prefs: prefs,
+        language,
       }),
     });
     setSaving(false);
@@ -371,6 +437,45 @@ export default function ProfileSettings({ profile }: Props) {
         )}
       </div>
 
+      {/* Language & region */}
+      <div className="mt-10">
+        <h2 className="font-medium text-[17px]" style={{ fontFamily: '"DM Sans", sans-serif', color: '#0F1F18' }}>
+          Language &amp; region
+        </h2>
+        <p className="mt-1 text-[13px]" style={{ color: '#6B7A72' }}>
+          Your preferred language. Saved with your preferences.
+        </p>
+        <div className="mt-4 w-full sm:max-w-[380px] grid gap-2">
+          {LANGUAGES.map(l => (
+            <button
+              key={l}
+              onClick={() => { setLanguage(l); setSaved(false); }}
+              className="flex items-center gap-3 text-left px-4 py-3 rounded-xl font-medium text-[14px] transition-all"
+              dir={l === 'العربية' ? 'rtl' : 'ltr'}
+              style={{
+                border: `1px solid ${language === l ? '#1F4D3A' : '#E5E0D4'}`,
+                background: language === l ? '#E8EFEB' : '#FFFFFF',
+                color: '#0F1F18',
+                fontFamily: '"DM Sans", sans-serif',
+              }}
+            >
+              <span
+                className="inline-flex items-center justify-center shrink-0 rounded-full"
+                style={{
+                  width: 18, height: 18,
+                  border: `2px solid ${language === l ? '#1F4D3A' : '#C4CCC7'}`,
+                }}
+              >
+                {language === l && (
+                  <span className="rounded-full" style={{ width: 8, height: 8, background: '#1F4D3A' }} />
+                )}
+              </span>
+              <span className="flex-1">{l}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Save buttons */}
       <div className="flex gap-3 mt-9">
         <button
@@ -391,11 +496,146 @@ export default function ProfileSettings({ profile }: Props) {
             setInterests(profile.interests ?? []);
             setCity(profile.city ?? '');
             setPrefs(profile.notification_prefs ?? {});
+            setLanguage(profile.language ?? 'English');
           }}
         >
           Cancel
         </button>
       </div>
+
+      {/* Account */}
+      <div className="mt-12">
+        <h2 className="font-medium text-[17px]" style={{ fontFamily: '"DM Sans", sans-serif', color: '#0F1F18' }}>
+          Account
+        </h2>
+
+        {/* Change email */}
+        <div
+          className="mt-4 p-5 rounded-xl"
+          style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}
+        >
+          <div className="text-[14px] font-medium" style={{ color: '#0F1F18', fontFamily: '"DM Sans", sans-serif' }}>
+            Change email
+          </div>
+          <p className="mt-1 text-[13px]" style={{ color: '#6B7A72' }}>
+            We&rsquo;ll send a confirmation link to the new address. Your sign-in email changes only after you confirm it.
+          </p>
+          <div className="mt-4 text-[12px] mb-1.5 font-medium" style={{ color: '#6B7A72' }}>
+            Current: <span style={{ color: '#0F1F18' }}>{profile.email}</span>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2.5">
+            <input
+              type="email"
+              inputMode="email"
+              autoComplete="email"
+              value={newEmail}
+              onChange={e => { setNewEmail(e.target.value); setEmailError(null); setEmailNotice(null); }}
+              placeholder="new@email.com"
+              className="flex-1 h-10 px-3 rounded-lg text-[14px] outline-none transition"
+              style={{ border: '1px solid #E5E0D4', background: '#FAFAF8', color: '#0F1F18', fontFamily: 'Inter, sans-serif' }}
+              onFocus={e => { e.target.style.borderColor = '#1F4D3A'; e.target.style.boxShadow = '0 0 0 3px rgba(31,77,58,0.12)'; }}
+              onBlur={e => { e.target.style.borderColor = '#E5E0D4'; e.target.style.boxShadow = 'none'; }}
+            />
+            <button
+              onClick={handleChangeEmail}
+              disabled={emailBusy || !newEmail.trim()}
+              className="h-10 px-4 rounded-lg font-medium text-[14px] text-white transition hover:opacity-90 disabled:opacity-50"
+              style={{ background: '#1F4D3A', fontFamily: '"DM Sans", sans-serif' }}
+            >
+              {emailBusy ? 'Sending…' : 'Send confirmation'}
+            </button>
+          </div>
+          {emailError && (
+            <p className="mt-2.5 text-[13px]" style={{ color: '#B8423C' }}>{emailError}</p>
+          )}
+          {emailNotice && (
+            <div
+              className="mt-3 flex items-start gap-2.5 p-3 rounded-lg text-[13px]"
+              style={{ background: '#E8EFEB', border: '1px solid rgba(31,77,58,0.18)', color: '#1F4D3A' }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1F4D3A" strokeWidth="1.8" className="shrink-0 mt-0.5">
+                <path d="M4 4h16v16H4z" /><path d="m4 6 8 6 8-6" />
+              </svg>
+              <span>{emailNotice}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Delete account */}
+        <div
+          className="mt-4 p-5 rounded-xl"
+          style={{ background: '#FFFFFF', border: '1px solid rgba(184,66,60,0.35)' }}
+        >
+          <div className="text-[14px] font-medium" style={{ color: '#B8423C', fontFamily: '"DM Sans", sans-serif' }}>
+            Delete account
+          </div>
+          <p className="mt-1 text-[13px]" style={{ color: '#6B7A72' }}>
+            This permanently removes your profile and data. This can&rsquo;t be undone.
+          </p>
+          <button
+            onClick={() => { setShowDeleteDialog(true); setDeleteConfirm(''); setDeleteError(null); }}
+            className="mt-4 h-10 px-4 rounded-lg font-medium text-[14px] transition hover:bg-[#FBEDEC]"
+            style={{ border: '1px solid #B8423C', color: '#B8423C', fontFamily: '"DM Sans", sans-serif' }}
+          >
+            Delete my account
+          </button>
+        </div>
+      </div>
+
+      {/* Delete confirm dialog */}
+      {showDeleteDialog && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center px-5"
+          style={{ background: 'rgba(15,31,24,0.45)' }}
+          onClick={() => { if (!deleting) setShowDeleteDialog(false); }}
+        >
+          <div
+            className="w-full max-w-[420px] rounded-2xl p-6"
+            style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', boxShadow: '0 20px 48px rgba(15,31,24,0.24)' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <h3 className="text-[19px] font-medium" style={{ fontFamily: '"DM Sans", sans-serif', color: '#0F1F18' }}>
+              Delete account?
+            </h3>
+            <p className="mt-2 text-[13px]" style={{ color: '#6B7A72' }}>
+              This permanently removes your profile and all your data. This can&rsquo;t be undone.
+              Type <span style={{ fontFamily: '"JetBrains Mono", monospace', color: '#B8423C' }}>DELETE</span> to confirm.
+            </p>
+            <input
+              type="text"
+              value={deleteConfirm}
+              onChange={e => setDeleteConfirm(e.target.value)}
+              placeholder="DELETE"
+              autoFocus
+              className="w-full h-10 px-3 mt-4 rounded-lg text-[14px] outline-none transition"
+              style={{ border: '1px solid #E5E0D4', background: '#FAFAF8', color: '#0F1F18', fontFamily: 'Inter, sans-serif' }}
+              onFocus={e => { e.target.style.borderColor = '#B8423C'; e.target.style.boxShadow = '0 0 0 3px rgba(184,66,60,0.12)'; }}
+              onBlur={e => { e.target.style.borderColor = '#E5E0D4'; e.target.style.boxShadow = 'none'; }}
+            />
+            {deleteError && (
+              <p className="mt-2.5 text-[13px]" style={{ color: '#B8423C' }}>{deleteError}</p>
+            )}
+            <div className="flex gap-3 mt-5">
+              <button
+                onClick={handleDeleteAccount}
+                disabled={deleting || deleteConfirm.trim() !== 'DELETE'}
+                className="h-10 px-5 rounded-lg font-medium text-[14px] text-white transition hover:opacity-90 disabled:opacity-50"
+                style={{ background: '#B8423C', fontFamily: '"DM Sans", sans-serif' }}
+              >
+                {deleting ? 'Deleting…' : 'Delete permanently'}
+              </button>
+              <button
+                onClick={() => setShowDeleteDialog(false)}
+                disabled={deleting}
+                className="h-10 px-5 rounded-lg font-medium text-[14px] transition hover:bg-[#E8EFEB] disabled:opacity-50"
+                style={{ border: '1px solid #1F4D3A', color: '#1F4D3A', fontFamily: '"DM Sans", sans-serif' }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

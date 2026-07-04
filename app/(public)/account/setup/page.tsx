@@ -14,11 +14,20 @@ export default async function AccountSetupPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('onboarding_done, full_name')
+    .select('onboarding_done, full_name, city, phone, avatar_url')
     .eq('id', user.id)
     .single();
 
   if (profile?.onboarding_done) redirect('/my-tickets');
+
+  // Local shape — profiles columns added in migration 048 may not yet be in the
+  // shared generated types (owned by another agent), so we read narrowly here.
+  const p = profile as {
+    full_name?: string | null;
+    city?: string | null;
+    phone?: string | null;
+    avatar_url?: string | null;
+  } | null;
 
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
@@ -34,7 +43,10 @@ export default async function AccountSetupPage() {
         <OnboardingWizard
           userId={user.id}
           userEmail={user.email ?? ''}
-          userName={profile?.full_name ?? user.user_metadata?.full_name ?? ''}
+          userName={p?.full_name ?? user.user_metadata?.full_name ?? ''}
+          city={p?.city ?? ''}
+          phone={p?.phone ?? ''}
+          avatarUrl={p?.avatar_url ?? ''}
         />
       </div>
     </div>

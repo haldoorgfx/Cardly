@@ -24,7 +24,7 @@ export default async function AccountNotificationsPage() {
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
       <PublicNav />
       <div className="max-w-[680px] mx-auto px-5 pb-24" style={{ paddingTop: 44 }}>
-        <NotificationsInbox initialNotifs={notifs ?? []} />
+        <NotificationsInbox initialNotifs={notifs ?? []} userId={user.id} />
       </div>
     </div>
   );

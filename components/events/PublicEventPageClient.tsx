@@ -7,6 +7,7 @@ import { ExternalLink, LayoutGrid, CalendarDays, Mic, Store, Users, MapPin, Spar
 import type { Database } from '@/types/database';
 import { AddToCalendarButton } from './AddToCalendarButton';
 import SpeakerDirectoryClient from './SpeakerDirectoryClient';
+import PeopleDiscoveryClient from '@/components/networking/PeopleDiscoveryClient';
 import { bannerGradientFor, avatarColorFor, initialsOf, placeholderInitials } from '@/lib/events/placeholder';
 
 /* ─── Types ─────────────────────────────────────────────────────── */
@@ -58,6 +59,8 @@ interface Props {
   endTimeStr: string;
   minPrice: string;
   registrationSlug: string;
+  eventId: string;
+  viewerRegistrationId?: string | null;
   organizerUserId?: string | null;
   seriesSlug?: string | null;
   seriesName?: string | null;
@@ -385,7 +388,7 @@ function ERAQandA({ page, dateStr }: { page: EventPageRow; dateStr: string }) {
 
 export function PublicEventPageClient({
   page, tickets, dateStr, timeStr, endTimeStr, minPrice,
-  registrationSlug, organizerUserId, seriesSlug, seriesName,
+  registrationSlug, eventId, viewerRegistrationId = null, organizerUserId, seriesSlug, seriesName,
   sessions = [], speakers = [], sponsors = [],
   attendees = [], attendeeCount = 0, organizerAvatarUrl = null,
   venueLat = null, venueLng = null,
@@ -1088,12 +1091,7 @@ export function PublicEventPageClient({
       ══════════════════════════════════════════════════ */}
       {activeTab === 'network' && (
         <div className="mx-auto px-6 lg:px-10 pt-9 pb-24" style={{ maxWidth: 1240 }}>
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="font-title font-bold text-[22px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
-              {attendeeCount > 0 ? `${attendeeCount.toLocaleString()} attending` : 'Attendees'}
-            </h2>
-          </div>
-          {attendees.length === 0 ? (
+          {!viewerRegistrationId && attendees.length === 0 ? (
             <div className="py-16 text-center">
               <Users size={40} strokeWidth={1.4} style={{ color: '#C9C3B1', margin: '0 auto 16px' }} />
               <p className="text-[15px] mb-4" style={{ color: '#6B7A72' }}>No attendees yet — be the first!</p>
@@ -1104,14 +1102,11 @@ export function PublicEventPageClient({
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-              {attendees.map((a, i) => (
-                <div key={i} className="flex flex-col items-center gap-2 py-4">
-                  <Avatar src={a.avatarUrl} name={a.name} size={64} fontSize={18} seed={a.name + i} />
-                  <div className="text-[13px] font-medium text-center truncate w-full px-2" style={{ color: '#0F1F18' }}>{a.name}</div>
-                </div>
-              ))}
-            </div>
+            <PeopleDiscoveryClient
+              eventId={eventId}
+              eventSlug={registrationSlug}
+              registrationId={viewerRegistrationId}
+            />
           )}
         </div>
       )}

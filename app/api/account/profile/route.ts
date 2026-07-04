@@ -7,6 +7,7 @@ const schema = z.object({
   city:               z.string().nullable().optional(),
   phone:              z.string().nullable().optional(),
   notification_prefs: z.record(z.string(), z.boolean()).optional(),
+  language:           z.string().optional(),
   onboarding_done:    z.boolean().optional(),
   full_name:          z.string().optional(),
   avatar_url:         z.string().nullable().optional(),
