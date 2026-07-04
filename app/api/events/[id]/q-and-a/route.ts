@@ -19,7 +19,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
   let query = admin
     .from('qa_questions')
-    .select('*, registrations(attendee_name)')
+    .select('*, registrations!qa_questions_registration_id_fkey(attendee_name)')
     .eq('event_id', params.id)
     .order('upvotes_count', { ascending: false })
     .order('created_at', { ascending: true });

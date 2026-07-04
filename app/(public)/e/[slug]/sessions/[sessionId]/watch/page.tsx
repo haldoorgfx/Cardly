@@ -40,7 +40,7 @@ export default async function WatchPage({ params }: Props) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: questions } = await (admin as any)
     .from('qa_questions')
-    .select('id, question, upvotes_count, is_featured, is_anonymous, created_at, registrations(attendee_name)')
+    .select('id, question, upvotes_count, is_featured, is_anonymous, created_at, registrations!qa_questions_registration_id_fkey(attendee_name)')
     .eq('session_id', params.sessionId)
     .neq('status', 'hidden')
     .order('upvotes_count', { ascending: false })

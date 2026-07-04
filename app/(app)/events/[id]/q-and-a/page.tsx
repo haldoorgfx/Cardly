@@ -26,7 +26,7 @@ export default async function QAModerationPage({ params }: Props) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: questions } = await (admin as any)
     .from('qa_questions')
-    .select('*, registrations(attendee_name)')
+    .select('*, registrations!qa_questions_registration_id_fkey(attendee_name)')
     .eq('event_id', id)
     .order('upvotes_count', { ascending: false })
     .order('created_at', { ascending: true });

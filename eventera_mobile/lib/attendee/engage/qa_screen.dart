@@ -84,7 +84,7 @@ class _QaScreenState extends State<QaScreen> {
     try {
       var query = supa
           .from('qa_questions')
-          .select('*, registrations(attendee_name)')
+          .select('*, registrations!qa_questions_registration_id_fkey(attendee_name)')
           .eq('event_id', widget.eventId)
           .neq('status', 'hidden');
       if (widget.sessionId != null) {
