@@ -38,7 +38,7 @@ function AvatarBubble({ name, size = 32 }: { name: string; size?: number }) {
   );
 }
 
-export function CommunityChatClient({ eventId, channels, initialMessages, activeChannelId: defaultChannelId, registrationId }: Props) {
+export function CommunityChatClient({ eventId, eventName, channels, initialMessages, activeChannelId: defaultChannelId, registrationId }: Props) {
   const [activeChannelId, setActiveChannelId] = useState(defaultChannelId ?? channels[0]?.id ?? null);
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState('');

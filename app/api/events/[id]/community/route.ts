@@ -15,7 +15,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   const channelId = searchParams.get('channel_id');
   if (!channelId) return NextResponse.json({ error: 'channel_id required' }, { status: 400 });
 
-  const admin = createAdminClient();
+  // community_channels/community_messages aren't in the generated types yet.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const admin = createAdminClient() as any;
 
   // Confirm the channel belongs to this event.
   const { data: channel } = await admin
@@ -49,7 +51,9 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const identity = await assertOwnsRegistration(params.id, registration_id);
   if (!identity.ok) return NextResponse.json({ error: identity.error }, { status: identity.status });
 
-  const admin = createAdminClient();
+  // community_channels/community_messages aren't in the generated types yet.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const admin = createAdminClient() as any;
 
   // Channel must belong to this event (prevents cross-event posting).
   const { data: channel } = await admin
