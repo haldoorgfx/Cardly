@@ -49,6 +49,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const { error: updateError } = await admin.from('registrations').update({
     attendee_name: to_name,
     attendee_email: to_email,
+    user_id: null,
     updated_at: new Date().toISOString(),
   }).eq('id', params.id);
   if (updateError) return NextResponse.json({ error: 'Failed to update registration' }, { status: 500 });

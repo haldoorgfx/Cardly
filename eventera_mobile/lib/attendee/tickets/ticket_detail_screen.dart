@@ -74,6 +74,12 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
     return '${widget.currency ?? ''} $s'.trim();
   }
 
+  String? get _eventUrl {
+    final slug = widget.eventSlug;
+    if (slug == null || slug.isEmpty) return null;
+    return '${AppConfig.renderBaseUrl}/e/$slug';
+  }
+
   Future<void> _addToCalendar() async {
     try {
       await exportEventToCalendar(
@@ -82,6 +88,7 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
         location: widget.venue,
         description:
             widget.ticketType == null ? null : 'Ticket: ${widget.ticketType}',
+        url: _eventUrl,
       );
     } catch (_) {
       if (mounted) showToast(context, 'Could not export to calendar.');
@@ -125,7 +132,7 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
     );
     if (ok == true && mounted) {
       setState(() => _transferred = true);
-      showToast(context, 'Transfer request sent.');
+      showToast(context, 'Ticket transferred. It has left your account.');
     }
   }
 
@@ -290,7 +297,7 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
                 color: AppColors.success.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Text('A transfer request is pending for this ticket.',
+              child: Text('This ticket has been transferred to its new owner.',
                   style: AppText.bodySm.copyWith(color: AppColors.success)),
             ),
           ],
@@ -474,7 +481,7 @@ class _TransferSheetState extends State<_TransferSheet> {
         Text('Transfer this ticket', style: AppText.h3),
         const SizedBox(height: 6),
         Text(
-          'We\'ll email the recipient. Transfers are irreversible once accepted.',
+          'We\'ll email the recipient their QR. This is irreversible — the ticket leaves your account right away.',
           style: AppText.bodySm,
         ),
         const SizedBox(height: 16),

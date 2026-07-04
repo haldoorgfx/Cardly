@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'deep_link_handler.dart';
 import 'root_gate.dart';
+import 'secure_session_storage.dart';
 import 'supabase_config.dart';
 import 'ui/tokens.dart';
 
@@ -12,9 +13,15 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Connect to the existing Eventera backend (same DB/auth/storage as the web).
+  // The persisted session (including the refresh token) is stored in the OS
+  // keychain via SecureSessionStorage — never in plain SharedPreferences.
   await Supabase.initialize(
     url: SupabaseConfig.url,
     anonKey: SupabaseConfig.anonKey,
+    authOptions: FlutterAuthClientOptions(
+      localStorage: SecureSessionStorage(),
+      autoRefreshToken: true,
+    ),
   );
 
   runApp(const EventeraApp());

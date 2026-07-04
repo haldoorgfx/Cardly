@@ -37,6 +37,39 @@ class AuthService {
     );
   }
 
+  /// Send a one-time email code. Used as the verify-once step at signup and as
+  /// a fallback for legacy magic-link users who have no password yet.
+  Future<void> sendEmailCode(String email) async {
+    await _c.auth.signInWithOtp(
+      email: email.trim().toLowerCase(),
+      shouldCreateUser: true,
+    );
+  }
+
+  /// Verify the emailed code and establish a session.
+  Future<void> verifyEmailCode({
+    required String email,
+    required String token,
+  }) async {
+    await _c.auth.verifyOTP(
+      email: email.trim().toLowerCase(),
+      token: token.trim(),
+      type: OtpType.email,
+    );
+  }
+
+  /// Set/replace the current user's password (verify-once → password later).
+  /// Flags user_metadata.has_password so we can skip the set-password prompt on
+  /// future code sign-ins.
+  Future<void> setPassword(String password) async {
+    await _c.auth.updateUser(
+      UserAttributes(password: password, data: {'has_password': true}),
+    );
+  }
+
+  /// True once this account has set a password (so we don't re-prompt).
+  bool get hasPassword => currentUser?.userMetadata?['has_password'] == true;
+
   /// Continue with Google (same provider as the web app).
   /// Web: redirects to the current page. Mobile: opens a browser and returns
   /// via the `eventera://login-callback/` deep link. The session is completed

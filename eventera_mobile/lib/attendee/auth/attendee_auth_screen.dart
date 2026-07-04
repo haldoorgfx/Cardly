@@ -5,15 +5,21 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../auth_service.dart';
+import '../../biometric_service.dart';
 import '../../net.dart';
 import '../../ui/components.dart';
 import '../../ui/tokens.dart';
 
-/// Attendee sign-in via email OTP (magic code) with a "Continue with Google"
-/// fallback. Pops with `true` on a successful session.
+/// Attendee sign-in. Verify-once-then-password model:
+///   • Returning users sign in with EMAIL + PASSWORD (no fresh code each time).
+///   • New users: send ONE email code, verify, then set a password.
+///   • Legacy magic-link users (no password) are never locked out — they use
+///     "Email me a code instead", then set a password after verifying.
+///   • Optional biometric unlock is offered after the first password sign-in.
 ///
-/// Redesigned flow (single screen, multiple visual steps):
-///   welcome → code → (verifying) → profile (new users only) → in.
+/// Visual steps:
+///   welcome (email+password) → code → verifying → setPassword → profile → in.
 class AttendeeAuthScreen extends StatefulWidget {
   const AttendeeAuthScreen({super.key});
 
@@ -21,10 +27,12 @@ class AttendeeAuthScreen extends StatefulWidget {
   State<AttendeeAuthScreen> createState() => _AttendeeAuthScreenState();
 }
 
-enum _Step { welcome, code, verifying, profile }
+enum _Step { welcome, code, verifying, setPassword, profile }
 
 class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
   final _emailCtrl = TextEditingController();
+  final _passwordCtrl = TextEditingController();
+  final _newPasswordCtrl = TextEditingController();
   final _codeCtrl = TextEditingController();
   final _nameCtrl = TextEditingController();
   final _cityCtrl = TextEditingController();
@@ -34,6 +42,7 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
   String? _error;
   String _sentTo = '';
   bool _done = false;
+  bool _obscurePassword = true;
 
   String? _avatarUrl;
   bool _uploadingAvatar = false;
@@ -53,19 +62,68 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
       if (data.session != null &&
           (data.event == AuthChangeEvent.signedIn ||
               data.event == AuthChangeEvent.initialSession)) {
-        // If we're mid-profile-setup from an email verify, don't pop out from
-        // under the user — the profile step will finish explicitly.
-        if (_step == _Step.profile) return;
+        // Don't pop out from under the user while they're finishing an explicit
+        // step (set-password or profile). Those steps finish on their own.
+        if (_step == _Step.profile || _step == _Step.setPassword) return;
         _finish();
       }
     });
   }
 
-  /// Pop back to the caller exactly once with a success result.
-  void _finish() {
+  /// Pop back to the caller exactly once with a success result. Before leaving,
+  /// offer to enable biometric unlock if the device supports it.
+  Future<void> _finish() async {
     if (_done || !mounted) return;
     _done = true;
+    await _maybeOfferBiometrics();
+    if (!mounted) return;
     Navigator.of(context).pop(true);
+  }
+
+  /// If the device has biometrics and the user hasn't enabled them yet, ask
+  /// once whether they want fingerprint/Face unlock next time.
+  Future<void> _maybeOfferBiometrics() async {
+    try {
+      final available = await BiometricService.instance.isAvailable();
+      if (!available) return;
+      final already = await BiometricService.instance.isEnabled();
+      if (already) return;
+      if (!mounted) return;
+      final enable = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: AppColors.surface,
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.card)),
+          title: Text('Faster sign-in', style: AppText.h3),
+          content: Text(
+            'Unlock Eventera with your fingerprint or face next time, instead of '
+            'typing your password.',
+            style: AppText.bodySm,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text('Not now',
+                  style: AppText.label.copyWith(color: AppColors.inkMuted)),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text('Enable',
+                  style: AppText.label.copyWith(color: AppColors.forest)),
+            ),
+          ],
+        ),
+      );
+      if (enable == true) {
+        // Confirm with a live biometric check before turning it on.
+        final ok = await BiometricService.instance
+            .authenticate(reason: 'Confirm to enable biometric unlock');
+        if (ok) await BiometricService.instance.setEnabled(true);
+      }
+    } catch (_) {
+      // Never block sign-in on the biometric offer.
+    }
   }
 
   @override
@@ -73,6 +131,8 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
     _authSub?.cancel();
     _resendTimer?.cancel();
     _emailCtrl.dispose();
+    _passwordCtrl.dispose();
+    _newPasswordCtrl.dispose();
     _codeCtrl.dispose();
     _nameCtrl.dispose();
     _cityCtrl.dispose();
@@ -97,6 +157,41 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
   bool _validEmail(String v) {
     final s = v.trim();
     return s.contains('@') && s.contains('.') && s.length > 4;
+  }
+
+  /// Returning-user path: email + password sign-in. On failure (wrong password
+  /// or a legacy magic-link account that has no password), surface the code
+  /// fallback rather than a dead end.
+  Future<void> _passwordSignIn() async {
+    final email = _emailCtrl.text.trim().toLowerCase();
+    final password = _passwordCtrl.text;
+    if (!_validEmail(email)) {
+      setState(() => _error = 'That doesn\'t look like a valid email.');
+      return;
+    }
+    if (password.isEmpty) {
+      setState(() => _error = 'Enter your password, or use a code instead.');
+      return;
+    }
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      await AuthService.instance.signIn(email: email, password: password);
+      // The auth listener fires _finish() on success.
+    } on AuthException catch (_) {
+      if (mounted) {
+        setState(() => _error =
+            'That password didn\'t work. If you\'ve never set one, tap "Email me a code instead".');
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _error = 'Could not sign in. Please try again.');
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
   }
 
   Future<void> _sendCode() async {
@@ -147,8 +242,17 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
         type: OtpType.email,
       );
       if (!mounted) return;
-      // New-user detection: read the profiles row. If there's no full_name yet,
-      // route through the one-screen profile setup; otherwise finish.
+      // Verified. If this account has no password yet (new signup or legacy
+      // magic-link user), invite them to set one so next time is a normal
+      // email+password sign-in. Existing password users skip straight through.
+      if (!AuthService.instance.hasPassword) {
+        setState(() {
+          _step = _Step.setPassword;
+          _busy = false;
+        });
+        return;
+      }
+      // Otherwise, new-user detection for the profile step.
       final isNew = await _isNewUser();
       if (!mounted) return;
       if (isNew) {
@@ -177,6 +281,49 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
       if (mounted && _step == _Step.verifying) {
         setState(() => _busy = false);
       }
+    }
+  }
+
+  /// Save a password after verifying (verify-once → password henceforth), then
+  /// continue to profile setup for new users or finish for returning ones.
+  Future<void> _savePasswordAndContinue({required bool skip}) async {
+    if (!skip) {
+      final pw = _newPasswordCtrl.text;
+      if (pw.length < 8) {
+        setState(() => _error = 'Use at least 8 characters.');
+        return;
+      }
+      setState(() {
+        _busy = true;
+        _error = null;
+      });
+      try {
+        await AuthService.instance.setPassword(pw);
+      } on AuthException catch (e) {
+        if (mounted) setState(() => _error = e.message);
+        if (mounted) setState(() => _busy = false);
+        return;
+      } catch (_) {
+        if (mounted) {
+          setState(() {
+            _error = 'Could not save your password. You can set it later.';
+            _busy = false;
+          });
+        }
+        return;
+      }
+    }
+    if (!mounted) return;
+    final isNew = await _isNewUser();
+    if (!mounted) return;
+    if (isNew) {
+      setState(() {
+        _step = _Step.profile;
+        _busy = false;
+      });
+    } else {
+      setState(() => _busy = false);
+      _finish();
     }
   }
 
@@ -308,6 +455,7 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
         body: _welcomeStep(),
       );
     }
+    final hideBack = _step == _Step.profile || _step == _Step.setPassword;
     return MScaffold(
       appBar: MAppBar(
         actions: _step == _Step.profile
@@ -318,11 +466,19 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
                 ),
                 const SizedBox(width: 6),
               ]
-            : const [],
-        leading: _step == _Step.profile
-            ? const SizedBox(width: 8)
-            : null, // hide back on profile; keep default back elsewhere
-        showBack: _step != _Step.profile,
+            : _step == _Step.setPassword
+                ? [
+                    _TextAction(
+                      'Skip',
+                      onTap: _busy
+                          ? null
+                          : () => _savePasswordAndContinue(skip: true),
+                    ),
+                    const SizedBox(width: 6),
+                  ]
+                : const [],
+        leading: hideBack ? const SizedBox(width: 8) : null,
+        showBack: !hideBack,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(
@@ -330,6 +486,7 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
         child: switch (_step) {
           _Step.code => _codeStep(),
           _Step.verifying => _verifyingStep(),
+          _Step.setPassword => _setPasswordStep(),
           _Step.profile => _profileStep(),
           _Step.welcome => const SizedBox.shrink(),
         },
@@ -373,21 +530,49 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
                     controller: _emailCtrl,
                     icon: Icons.mail_outline,
                     keyboardType: TextInputType.emailAddress,
+                    action: TextInputAction.next,
+                    onChanged: (_) => setState(() {
+                      if (_error != null) _error = null;
+                    }),
+                  ),
+                  const SizedBox(height: 14),
+                  MInput(
+                    label: 'Password',
+                    hint: 'Your password',
+                    controller: _passwordCtrl,
+                    icon: Icons.lock_outline,
+                    obscure: _obscurePassword,
                     action: TextInputAction.done,
                     errorText: _error,
                     onChanged: (_) => setState(() {
                       if (_error != null) _error = null;
                     }),
-                    onSubmitted: (_) => _busy ? null : _sendCode(),
+                    onSubmitted: (_) => _busy ? null : _passwordSignIn(),
                   ),
                   const SizedBox(height: 16),
                   MButton(
-                    'Continue with email',
+                    'Sign in',
                     kind: MBtnKind.forest,
                     loading: _busy && _step == _Step.welcome,
+                    onTap: (_busy || !emailValid) ? null : _passwordSignIn,
+                  ),
+                  const SizedBox(height: 10),
+                  MButton(
+                    'Email me a code instead',
+                    kind: MBtnKind.sec,
                     onTap: (_busy || !emailValid) ? null : _sendCode,
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 12),
+                  Center(
+                    child: Text(
+                      'New here or forgot your password? Get a code — you can set '
+                      'a password after.',
+                      textAlign: TextAlign.center,
+                      style:
+                          AppText.bodySm.copyWith(color: AppColors.inkMuted),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
                   _terms(),
                 ],
               ),
@@ -532,6 +717,66 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
           Text('One moment.', style: AppText.bodySm),
         ],
       ),
+    );
+  }
+
+  // ── Step · Set a password (after verifying a code) ─────────────────
+  Widget _setPasswordStep() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SizedBox(height: 8),
+        Container(
+          width: 52,
+          height: 52,
+          decoration: BoxDecoration(
+            color: AppColors.forestSoft,
+            borderRadius: BorderRadius.circular(15),
+          ),
+          alignment: Alignment.center,
+          child: const Icon(Icons.lock_outline,
+              color: AppColors.forest, size: 26),
+        ),
+        const SizedBox(height: 22),
+        Text('Set a password', style: AppText.h1),
+        const SizedBox(height: 8),
+        Text(
+          'You\'re verified. Add a password so next time you can sign in straight '
+          'away — no code needed.',
+          style: AppText.body,
+        ),
+        const SizedBox(height: 24),
+        MInput(
+          label: 'New password',
+          hint: 'At least 8 characters',
+          controller: _newPasswordCtrl,
+          icon: Icons.lock_outline,
+          obscure: _obscurePassword,
+          action: TextInputAction.done,
+          errorText: _error,
+          onChanged: (_) => setState(() {
+            if (_error != null) _error = null;
+          }),
+          onSubmitted: (_) =>
+              _busy ? null : _savePasswordAndContinue(skip: false),
+        ),
+        const SizedBox(height: 22),
+        MButton(
+          'Save password & continue',
+          kind: MBtnKind.forest,
+          loading: _busy,
+          onTap: _busy ? null : () => _savePasswordAndContinue(skip: false),
+        ),
+        const SizedBox(height: 10),
+        Center(
+          child: MButton(
+            'Skip for now',
+            kind: MBtnKind.text,
+            fullWidth: false,
+            onTap: _busy ? null : () => _savePasswordAndContinue(skip: true),
+          ),
+        ),
+      ],
     );
   }
 
@@ -887,18 +1132,7 @@ class _GoogleButton extends StatelessWidget {
             : Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    width: 22,
-                    height: 22,
-                    decoration: const BoxDecoration(
-                        color: Color(0xFF4285F4), shape: BoxShape.circle),
-                    alignment: Alignment.center,
-                    child: const Text('G',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700)),
-                  ),
+                  const _GoogleGLogo(size: 20),
                   const SizedBox(width: 11),
                   Text('Continue with Google',
                       style: AppText.btn.copyWith(
@@ -908,6 +1142,69 @@ class _GoogleButton extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The official 4-colour Google "G" mark, drawn with a CustomPainter (no SVG
+/// dependency). Follows Google's brand palette: blue #4285F4, green #34A853,
+/// yellow #FBBC05, red #EA4335 on a transparent background.
+class _GoogleGLogo extends StatelessWidget {
+  final double size;
+  const _GoogleGLogo({this.size = 20});
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: size,
+      height: size,
+      child: CustomPaint(painter: _GoogleGPainter()),
+    );
+  }
+}
+
+class _GoogleGPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width;
+    final h = size.height;
+    final center = Offset(w / 2, h / 2);
+    final radius = w / 2;
+    final stroke = w * 0.22;
+    final inner = radius - stroke / 2;
+    final rect = Rect.fromCircle(center: center, radius: inner);
+
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = stroke
+      ..strokeCap = StrokeCap.butt;
+
+    // Four coloured arcs forming the ring of the "G".
+    // Red (top-left), Yellow (bottom-left), Green (bottom-right),
+    // Blue (right / into the crossbar).
+    paint.color = const Color(0xFFEA4335);
+    canvas.drawArc(rect, _deg(-135), _deg(-70), false, paint); // top-left
+    paint.color = const Color(0xFFFBBC05);
+    canvas.drawArc(rect, _deg(135), _deg(70), false, paint); // bottom-left
+    paint.color = const Color(0xFF34A853);
+    canvas.drawArc(rect, _deg(90), _deg(45), false, paint); // bottom-right
+    paint.color = const Color(0xFF4285F4);
+    canvas.drawArc(rect, _deg(-20), _deg(70), false, paint); // right
+
+    // The blue crossbar of the G.
+    final barPaint = Paint()
+      ..color = const Color(0xFF4285F4)
+      ..style = PaintingStyle.fill;
+    final barRect = Rect.fromLTWH(
+      center.dx,
+      center.dy - stroke / 2,
+      radius,
+      stroke,
+    );
+    canvas.drawRect(barRect, barPaint);
+  }
+
+  double _deg(double d) => d * 3.1415926535 / 180;
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 // ─────────────────────────────────────────── Labeled divider ("or …")

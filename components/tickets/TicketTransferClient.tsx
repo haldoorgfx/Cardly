@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import { useState } from 'react';
-import { ArrowRight, Check, Clock, X } from 'lucide-react';
+import { ArrowRight, Check } from 'lucide-react';
 import Link from 'next/link';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -9,7 +9,7 @@ type Registration = any;
 
 interface Props { registration: Registration; }
 
-type Stage = 'form' | 'pending' | 'sent';
+type Stage = 'form' | 'sent';
 
 export function TicketTransferClient({ registration: reg }: Props) {
   const [stage, setStage] = useState<Stage>('form');
@@ -40,13 +40,6 @@ export function TicketTransferClient({ registration: reg }: Props) {
       setError(data.error ?? 'Failed to send transfer. Please try again.');
     }
     setSending(false);
-  }
-
-  async function cancel() {
-    await fetch(`/api/tickets/${reg.id}/transfer`, { method: 'DELETE' });
-    setStage('form');
-    setRecipientEmail('');
-    setRecipientName('');
   }
 
   return (
@@ -130,35 +123,14 @@ export function TicketTransferClient({ registration: reg }: Props) {
       )}
 
       {stage === 'sent' && (
-        <div>
-          <div className="flex items-center gap-3 mb-5 p-4 rounded-2xl" style={{ background: '#FEF3C7', border: '1px solid #FDE68A' }}>
-            <Clock size={18} style={{ color: '#92400E' }} />
-            <div>
-              <div className="font-semibold text-[14px]" style={{ color: '#92400E' }}>Transfer sent</div>
-              <div className="text-[12px]" style={{ color: '#92400E' }}>Expires in 70 hours if not claimed</div>
-            </div>
-          </div>
-
-          <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>
-            We&apos;ve sent a claim link to <strong style={{ color: '#0F1F18' }}>{recipientEmail}</strong> via email. Your QR code becomes invalid when they claim it.
-          </p>
-
-          <button
-            onClick={cancel}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-[14px] font-semibold border transition hover:opacity-80"
-            style={{ borderColor: '#FECACA', color: '#B8423C', background: '#FEF2F2' }}>
-            <X size={14} /> Cancel transfer
-          </button>
-        </div>
-      )}
-
-      {stage === 'pending' && (
         <div className="text-center py-8">
           <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: '#E8EFEB' }}>
             <Check size={24} style={{ color: '#1F4D3A' }} />
           </div>
-          <h2 className="font-display font-semibold text-[20px] mb-2" style={{ color: '#0F1F18' }}>Ticket claimed!</h2>
-          <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>The ticket has been transferred successfully.</p>
+          <h2 className="font-display font-semibold text-[20px] mb-2" style={{ color: '#0F1F18' }}>Ticket transferred</h2>
+          <p className="text-[14px] mb-6" style={{ color: '#6B7A72' }}>
+            We&apos;ve emailed <strong style={{ color: '#0F1F18' }}>{recipientEmail}</strong> their check-in QR. This ticket has been removed from your account.
+          </p>
           <Link href="/my-tickets" className="inline-flex px-6 py-3 rounded-2xl text-[14px] font-semibold" style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
             Back to my tickets
           </Link>

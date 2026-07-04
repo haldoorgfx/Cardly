@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -119,10 +120,17 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
     try {
       final now = DateTime.now().toUtc().toIso8601String();
+      // Core events read — mirrors the VERIFIED web Discover query exactly
+      // (app/(public)/events/page.tsx): public event_pages inner-joined to
+      // their event, filtered only by is_public + the end-date window. The web
+      // query intentionally does NOT add a PostgREST `events.status` filter on
+      // the embedded resource, so neither do we — matching the shape proven to
+      // return 200 with rows. venue_lat/venue_lng are extra (mobile map needs
+      // them) but exist on the table.
       var q = supa
           .from('event_pages')
           .select(
-              'id, event_id, title, tagline, cover_image_url, starts_at, ends_at, timezone, is_online, venue_name, venue_lat, venue_lng, city, country, category, organizer_name, custom_slug, events!inner(slug, status)')
+              'id, event_id, title, tagline, cover_image_url, starts_at, ends_at, is_online, venue_name, venue_lat, venue_lng, city, country, category, organizer_name, custom_slug, events!inner(slug, status)')
           .eq('is_public', true)
           .or('ends_at.gte.$now,ends_at.is.null');
 
@@ -145,7 +153,14 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       if (rows is List) {
         for (final r in rows) {
           if (r is Map) {
-            batch.add(_DiscoverEvent.fromRow(Map<String, dynamic>.from(r)));
+            // Parse each row defensively — one malformed row must never take
+            // down the entire feed.
+            try {
+              batch.add(_DiscoverEvent.fromRow(Map<String, dynamic>.from(r)));
+            } catch (e, st) {
+              debugPrint('[Discover] skipped a row it could not parse: $e');
+              if (kDebugMode) debugPrintStack(stackTrace: st);
+            }
           }
         }
       }
@@ -154,27 +169,43 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       setState(() {
         if (reset) _events.clear();
         _events.addAll(batch);
-        for (final e in batch) {
-          if (e.city.isNotEmpty) _cities.add(e.city);
+        // Secondary: derive the city filter list. Guarded so a bad value here
+        // can't trip the core load.
+        try {
+          for (final e in batch) {
+            if (e.city.isNotEmpty) _cities.add(e.city);
+          }
+        } catch (e) {
+          debugPrint('[Discover] city derivation skipped: $e');
         }
         _hasMore = batch.length == _pageSize;
         _page += 1;
         _loading = false;
         _loadingMore = false;
+        _error = null;
       });
-    } on ApiException catch (e) {
+    } on ApiException catch (e, st) {
+      // Surface the true Supabase/API cause to the console instead of hiding it.
+      debugPrint('[Discover] events load failed (ApiException): ${e.message}'
+          '${e.status != null ? ' [${e.status}]' : ''}');
+      if (kDebugMode) debugPrintStack(stackTrace: st);
       if (!mounted) return;
       setState(() {
         _loading = false;
         _loadingMore = false;
-        _error = e.message;
+        // If we already have events on screen (e.g. a failed "load more"),
+        // keep them and stay silent rather than blanking to an error.
+        if (_events.isEmpty) _error = e.message;
       });
-    } catch (_) {
+    } catch (e, st) {
+      // Log the real exception so the actual cause is never swallowed.
+      debugPrint('[Discover] events load failed: $e');
+      if (kDebugMode) debugPrintStack(stackTrace: st);
       if (!mounted) return;
       setState(() {
         _loading = false;
         _loadingMore = false;
-        _error = 'Something went wrong loading events.';
+        if (_events.isEmpty) _error = 'Something went wrong loading events.';
       });
     }
   }

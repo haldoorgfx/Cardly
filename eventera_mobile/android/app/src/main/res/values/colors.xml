@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ic_launcher_background">#1F4D3A</color>
+    <!-- Eventera brand cream — native launch (splash) background so the very
+         first frame is light, not a dark flash. -->
+    <color name="eventera_cream">#FAF6EE</color>
 </resources>

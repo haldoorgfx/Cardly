@@ -71,7 +71,7 @@ export async function GET(
   const tzProp = tz !== 'UTC' ? `DTSTART;TZID=${tz}:${dtstart}` : `DTSTART:${dtstart}`;
   const tzPropEnd = tz !== 'UTC' ? `DTEND;TZID=${tz}:${dtend}` : `DTEND:${dtend}`;
 
-  const uid = `event-${page.id}@karta.cre8so.com`;
+  const uid = `event-${page.id}@eventera`;
   const now = toIcsDate(new Date().toISOString());
 
   const lines = [

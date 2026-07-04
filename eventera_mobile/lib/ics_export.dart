@@ -17,6 +17,7 @@ Future<void> exportEventToCalendar({
   DateTime? end,
   String? location,
   String? description,
+  String? url,
 }) async {
   final now = DateTime.now().toUtc();
   final dtStamp = _formatUtc(now);
@@ -32,6 +33,14 @@ Future<void> exportEventToCalendar({
 
   final uid = 'eventera-${now.millisecondsSinceEpoch}@eventera.app';
 
+  // Fold the event URL into the description so calendar apps that ignore the
+  // URL property still surface the link.
+  final descParts = <String>[
+    if (description != null && description.trim().isNotEmpty) description.trim(),
+    if (url != null && url.trim().isNotEmpty) url.trim(),
+  ];
+  final fullDescription = descParts.join('\n\n');
+
   final lines = <String>[
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
@@ -46,8 +55,9 @@ Future<void> exportEventToCalendar({
     'SUMMARY:${_escape(title)}',
     if (location != null && location.trim().isNotEmpty)
       'LOCATION:${_escape(location)}',
-    if (description != null && description.trim().isNotEmpty)
-      'DESCRIPTION:${_escape(description)}',
+    if (fullDescription.isNotEmpty)
+      'DESCRIPTION:${_escape(fullDescription)}',
+    if (url != null && url.trim().isNotEmpty) 'URL:${_escape(url.trim())}',
     'END:VEVENT',
     'END:VCALENDAR',
   ];

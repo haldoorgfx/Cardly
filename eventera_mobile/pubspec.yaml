@@ -69,6 +69,14 @@ dependencies:
   # Brand fonts: DM Sans (display), Inter (body), JetBrains Mono (numbers).
   google_fonts: ^6.2.1
 
+  # Biometric unlock (fingerprint / Face ID) gating a returning user's session.
+  # local_auth talks to the OS biometric prompt; it never sees credentials.
+  local_auth: ^2.3.0
+
+  # Secure, OS-keychain-backed storage for the "remember this device" flag and
+  # the biometric-gated session marker. NEVER store tokens in SharedPreferences.
+  flutter_secure_storage: ^9.2.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -84,12 +92,13 @@ dev_dependencies:
   flutter_launcher_icons: ^0.14.1
 
 # App icon config — run:  dart run flutter_launcher_icons
+# Uses the real Eventera brand mark (forest square + gold/white "E" monogram).
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/icon/icon.png"
+  image_path: "assets/brand/icon.png"
   adaptive_icon_background: "#1F4D3A"
-  adaptive_icon_foreground: "assets/icon/icon_foreground.png"
+  adaptive_icon_foreground: "assets/brand/icon.png"
   remove_alpha_ios: true
 
 # For information on the generic Dart part of this file, see the

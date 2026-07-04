@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'
     show FileOptions, UserAttributes;
 
+import '../../biometric_service.dart';
 import '../../net.dart';
 import '../../ui/tokens.dart';
 import '../../ui/components.dart';
@@ -35,12 +36,19 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
   final _cityCtl = TextEditingController();
   final _phoneCtl = TextEditingController();
   final _interestCtl = TextEditingController();
+  // Onboarding-collected fields, now read back + editable here.
+  final _jobCtl = TextEditingController();
+  final _companyCtl = TextEditingController();
+  final _linkedinCtl = TextEditingController();
+  final _xCtl = TextEditingController();
 
   String? _avatarUrl;
   String _email = '';
   String _language = 'English';
   List<String> _interests = [];
   Map<String, dynamic> _prefs = {};
+  bool _directoryVisible = true;
+  bool _openToConnect = true;
 
   // Suggested interests offered as tap-to-add chips (in addition to any
   // custom ones the attendee already has).
@@ -57,14 +65,43 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
     'recommendations_email': 'Recommended events',
   };
 
+  bool _biometricAvailable = false;
+  bool _biometricEnabled = false;
+
   @override
   void initState() {
     super.initState();
     if (isSignedIn) {
       _load();
+      _loadBiometricState();
     } else {
       _loading = false;
     }
+  }
+
+  Future<void> _loadBiometricState() async {
+    final available = await BiometricService.instance.isAvailable();
+    final enabled = await BiometricService.instance.isEnabled();
+    if (!mounted) return;
+    setState(() {
+      _biometricAvailable = available;
+      _biometricEnabled = enabled;
+    });
+  }
+
+  Future<void> _toggleBiometric(bool enable) async {
+    if (enable) {
+      final ok = await BiometricService.instance
+          .authenticate(reason: 'Confirm to enable biometric unlock');
+      if (!ok) return;
+      await BiometricService.instance.setEnabled(true);
+    } else {
+      await BiometricService.instance.setEnabled(false);
+    }
+    if (!mounted) return;
+    setState(() => _biometricEnabled = enable);
+    showToast(context,
+        enable ? 'Biometric unlock enabled' : 'Biometric unlock disabled');
   }
 
   @override
@@ -73,6 +110,10 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
     _cityCtl.dispose();
     _phoneCtl.dispose();
     _interestCtl.dispose();
+    _jobCtl.dispose();
+    _companyCtl.dispose();
+    _linkedinCtl.dispose();
+    _xCtl.dispose();
     super.dispose();
   }
 
@@ -86,7 +127,8 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
       final row = await supa
           .from('profiles')
           .select(
-              'full_name, avatar_url, city, phone, interests, notification_prefs, email')
+              'full_name, avatar_url, city, phone, interests, notification_prefs, email, '
+              'job_title, organization, linkedin_url, x_url, directory_visible, open_to_connect')
           .eq('id', currentUserId as Object)
           .maybeSingle();
 
@@ -97,6 +139,12 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
       _nameCtl.text = asString(m['full_name']);
       _cityCtl.text = asString(m['city']);
       _phoneCtl.text = asString(m['phone']);
+      _jobCtl.text = asString(m['job_title']);
+      _companyCtl.text = asString(m['organization']);
+      _linkedinCtl.text = asString(m['linkedin_url']);
+      _xCtl.text = asString(m['x_url']);
+      _directoryVisible = m['directory_visible'] != false; // default true
+      _openToConnect = m['open_to_connect'] != false; // default true
       _avatarUrl = m['avatar_url'] == null ? null : asString(m['avatar_url']);
       _email = asString(m['email'], currentUserEmail ?? '');
       final rawInterests = m['interests'];
@@ -155,10 +203,18 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
     if (!isSignedIn || _saving) return;
     setState(() => _saving = true);
     try {
+      String? tv(TextEditingController c) =>
+          c.text.trim().isEmpty ? null : c.text.trim();
       final patch = <String, dynamic>{
-        'full_name': _nameCtl.text.trim().isEmpty ? null : _nameCtl.text.trim(),
-        'city': _cityCtl.text.trim().isEmpty ? null : _cityCtl.text.trim(),
-        'phone': _phoneCtl.text.trim().isEmpty ? null : _phoneCtl.text.trim(),
+        'full_name': tv(_nameCtl),
+        'city': tv(_cityCtl),
+        'phone': tv(_phoneCtl),
+        'job_title': tv(_jobCtl),
+        'organization': tv(_companyCtl),
+        'linkedin_url': tv(_linkedinCtl),
+        'x_url': tv(_xCtl),
+        'directory_visible': _directoryVisible,
+        'open_to_connect': _openToConnect,
         'interests': _interests,
         'notification_prefs': _prefs,
       };
@@ -566,6 +622,76 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
         ),
         const SizedBox(height: 24),
 
+        // ── Work ──────────────────────────────────────────────────────────
+        const GroupLabel('Work'),
+        MCard(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              MInput(
+                label: 'Job title',
+                hint: 'e.g. Founder & CEO',
+                controller: _jobCtl,
+                icon: Icons.work_outline,
+              ),
+              const SizedBox(height: 16),
+              MInput(
+                label: 'Company / organization',
+                hint: 'Where you work',
+                controller: _companyCtl,
+                icon: Icons.apartment_outlined,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+
+        // ── Networking ────────────────────────────────────────────────────
+        const GroupLabel('Networking'),
+        MCard(
+          padding: EdgeInsets.zero,
+          child: Column(
+            children: [
+              _ProfileToggleRow(
+                title: 'Show me in the attendee directory',
+                sub: 'Others can find and connect with you',
+                value: _directoryVisible,
+                onChanged: (v) => setState(() => _directoryVisible = v),
+              ),
+              const Divider(height: 1, thickness: 1, color: AppColors.border),
+              _ProfileToggleRow(
+                title: 'Open to meeting people',
+                sub: 'Adds an "open to connect" badge',
+                value: _openToConnect,
+                onChanged: (v) => setState(() => _openToConnect = v),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        MCard(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              MInput(
+                label: 'LinkedIn',
+                hint: 'linkedin.com/in/you',
+                controller: _linkedinCtl,
+                icon: Icons.link,
+                keyboardType: TextInputType.url,
+              ),
+              const SizedBox(height: 16),
+              MInput(
+                label: 'X / Twitter',
+                hint: '@handle',
+                controller: _xCtl,
+                icon: Icons.alternate_email,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+
         // ── Interests ─────────────────────────────────────────────────────
         const GroupLabel('Interests'),
         MCard(
@@ -608,6 +734,21 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
           ),
         ),
         const SizedBox(height: 24),
+
+        // ── Security ──────────────────────────────────────────────────────
+        if (_biometricAvailable) ...[
+          const GroupLabel('Security'),
+          MCard(
+            padding: EdgeInsets.zero,
+            child: _ProfileToggleRow(
+              title: 'Biometric unlock',
+              sub: 'Use your fingerprint or face to open Eventera',
+              value: _biometricEnabled,
+              onChanged: _toggleBiometric,
+            ),
+          ),
+          const SizedBox(height: 24),
+        ],
 
         // ── Account ───────────────────────────────────────────────────────
         const GroupLabel('Account'),
@@ -708,6 +849,47 @@ class _NotifRow extends StatelessWidget {
                           letterSpacing: 0,
                           color: AppColors.inkMuted)),
                 ],
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          MToggle(value: value, onChanged: onChanged),
+        ],
+      ),
+    );
+  }
+}
+
+/// A labelled row with a toggle, used in the Networking card.
+class _ProfileToggleRow extends StatelessWidget {
+  final String title;
+  final String sub;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+  const _ProfileToggleRow({
+    required this.title,
+    required this.sub,
+    required this.value,
+    required this.onChanged,
+  });
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(title, style: AppText.h3.copyWith(fontSize: 15)),
+                const SizedBox(height: 2),
+                Text(sub,
+                    style: AppText.caption.copyWith(
+                        fontSize: 12,
+                        letterSpacing: 0,
+                        color: AppColors.inkMuted)),
               ],
             ),
           ),

@@ -1,58 +1,92 @@
 import { NextResponse } from 'next/server';
+import { z } from 'zod';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { sendTransferEmail } from '@/lib/registration/email';
+
+export const dynamic = 'force-dynamic';
 
 type Params = { params: Promise<{ id: string }> };
 
+const schema = z.object({
+  recipientEmail: z.string().email().max(254).transform(v => v.toLowerCase().trim()),
+  recipientName: z.string().min(1).max(200).trim(),
+});
+
+/**
+ * Transfer a ticket (registration) to another person.
+ *
+ * Sensitive ownership change — only the current owner (matched by
+ * attendee_email OR user_id on the authenticated session) may transfer, and
+ * only tickets in a transferable status. On success the registration's
+ * attendee_name / attendee_email are reassigned, the previous owner's
+ * user_id link is cleared (so the sender loses access), the transfer is logged
+ * in ticket_transfers, and the new holder is emailed their QR.
+ */
 export async function POST(req: Request, { params }: Params) {
   const { id } = await params;
+
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+  const body = await req.json().catch(() => ({}));
+  const parsed = schema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'A recipient name and a valid email are required.' }, { status: 400 });
+  }
+  const { recipientEmail, recipientName } = parsed.data;
+
   const admin = createAdminClient();
 
-  // Verify ownership
+  // Fetch registration — must belong to the logged-in user (owner-only).
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: reg } = await (admin as any)
     .from('registrations')
-    .select('id, event_id, attendee_email, status, qr_code_token')
+    .select('id, attendee_name, attendee_email, qr_code_token, status, events!inner(slug, event_pages(title, starts_at))')
     .eq('id', id)
-    .or(`attendee_email.eq.${user.email?.toLowerCase()},user_id.eq.${user.id}`)
+    .or(`attendee_email.eq.${(user.email ?? '').toLowerCase()},user_id.eq.${user.id}`)
     .in('status', ['confirmed', 'pending_approval'])
     .maybeSingle();
 
-  if (!reg) return NextResponse.json({ error: 'Ticket not found or not transferable' }, { status: 404 });
+  if (!reg) return NextResponse.json({ error: 'Ticket not found or not transferable.' }, { status: 404 });
 
-  const body = await req.json() as { recipientEmail: string; recipientName: string };
-  const { recipientEmail, recipientName } = body;
-  if (!recipientEmail || !recipientName) return NextResponse.json({ error: 'recipientEmail and recipientName required' }, { status: 400 });
+  // Idempotency / no-op guard: transferring to the current holder changes nothing.
+  if ((reg.attendee_email ?? '').toLowerCase() === recipientEmail) {
+    return NextResponse.json({ error: 'This ticket already belongs to that email.' }, { status: 400 });
+  }
 
-  // Store pending transfer — using attendee_data JSONB for simplicity
-  const expiresAt = new Date(Date.now() + 70 * 3600 * 1000).toISOString();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await (admin as any).from('registrations').update({
-    attendee_data: {
-      transfer_pending: true,
-      transfer_to_email: recipientEmail.toLowerCase(),
-      transfer_to_name: recipientName,
-      transfer_expires: expiresAt,
-      transfer_token: Math.random().toString(36).slice(2, 14),
-    },
+  // Log the transfer (audit trail).
+  const { error: transferError } = await admin.from('ticket_transfers').insert({
+    registration_id: id,
+    from_name: reg.attendee_name ?? '',
+    from_email: reg.attendee_email ?? '',
+    to_name: recipientName,
+    to_email: recipientEmail,
+  });
+  if (transferError) return NextResponse.json({ error: 'Failed to record transfer.' }, { status: 500 });
+
+  // Reassign the registration and sever the previous owner's account link.
+  const { error: updateError } = await admin.from('registrations').update({
+    attendee_name: recipientName,
+    attendee_email: recipientEmail,
+    user_id: null,
+    updated_at: new Date().toISOString(),
   }).eq('id', id);
+  if (updateError) return NextResponse.json({ error: 'Failed to transfer ticket.' }, { status: 500 });
 
-  // In a real implementation, this would send an email. For now just return ok.
-  return NextResponse.json({ ok: true, expiresAt });
-}
-
-export async function DELETE(_req: Request, { params }: Params) {
-  const { id } = await params;
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-  const admin = createAdminClient();
+  // Email the new holder their QR + event link (best-effort, never blocks the transfer).
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await (admin as any).from('registrations').update({ attendee_data: null }).eq('id', id).or(`attendee_email.eq.${user.email?.toLowerCase()},user_id.eq.${user.id}`);
+  const ep = (reg.events?.event_pages as any[])?.[0];
+  const eventSlug = reg.events?.slug ?? '';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
+
+  sendTransferEmail({
+    to: recipientEmail,
+    name: recipientName,
+    eventTitle: ep?.title ?? '',
+    eventSlug,
+    qrCodeUrl: `${appUrl}/api/qr/${reg.qr_code_token}`,
+  }).catch(() => {});
 
   return NextResponse.json({ ok: true });
 }
