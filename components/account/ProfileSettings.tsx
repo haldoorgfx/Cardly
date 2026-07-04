@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/client';
 
@@ -12,6 +13,21 @@ const emailSchema = z.string().trim().toLowerCase().email();
 const INTERESTS = [
   'Tech', 'Music', 'Business', 'Culture', 'Food & drink',
   'Sports', 'Health', 'Film', 'Faith', 'Family', 'Education', 'Fashion',
+];
+
+// ── Work / networking option lists (mirrored from OnboardingWizard) ──────────
+const INDUSTRIES = [
+  'Fintech & payments', 'AI & software', 'Design & creative', 'Healthcare',
+  'Education', 'Climate & energy', 'Media & entertainment', 'Retail & e-commerce',
+  'Manufacturing & hardware', 'Agritech', 'Mobility & logistics', 'Other',
+];
+const ROLE_OPTIONS = ['Founder', 'Operator', 'Investor', 'Engineer', 'Designer', 'Student'];
+const GOAL_OPTIONS = [
+  'Meet new people',
+  'Learn & get inspired',
+  'Find investors / raise',
+  'Hire or get hired',
+  'Find customers / sell',
 ];
 
 const CITIES = [
@@ -25,15 +41,6 @@ const CITIES = [
 
 type NotifPrefs = Record<string, boolean>;
 
-const NOTIF_ROWS: { key: string; label: string; sub: string }[] = [
-  { key: 'tickets',          label: 'Tickets & receipts',      sub: 'Confirmation, QR code, Eventera Card' },
-  { key: 'reminders',        label: 'Event reminders',         sub: '24 hours and 2 hours before doors' },
-  { key: 'agenda_changes',   label: 'Agenda changes',          sub: 'Session moved, cancelled or rescheduled' },
-  { key: 'organizer_follows',label: 'Organizers you follow',   sub: 'New event published' },
-  { key: 'waitlist',         label: 'Waitlist updates',        sub: 'A spot opened for you' },
-  { key: 'recommendations',  label: 'Recommendations',         sub: 'Weekly digest for your city' },
-];
-
 interface Props {
   profile: {
     id: string;
@@ -46,7 +53,24 @@ interface Props {
     whatsapp_verified: boolean | null;
     notification_prefs: NotifPrefs | null;
     language: string | null;
+    // Work / networking (migration 048)
+    bio: string | null;
+    job_title: string | null;
+    organization: string | null;
+    industry: string | null;
+    role_types: string[] | null;
+    goals: string[] | null;
+    directory_visible: boolean | null;
+    open_to_connect: boolean | null;
+    linkedin_url: string | null;
+    x_url: string | null;
   };
+  /**
+   * When true, the component is rendered embedded inside another page (e.g. the
+   * organizer Settings shell that already provides a page header + tabs), so the
+   * top page header and outer max-width wrapper padding are suppressed.
+   */
+  embedded?: boolean;
 }
 
 function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) {
@@ -77,14 +101,25 @@ function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void 
   );
 }
 
-export default function ProfileSettings({ profile }: Props) {
+export default function ProfileSettings({ profile, embedded = false }: Props) {
   const [interests, setInterests] = useState<string[]>(profile.interests ?? []);
   const [city, setCity] = useState(profile.city ?? '');
   const [showCityPicker, setShowCityPicker] = useState(false);
-  const [prefs, setPrefs] = useState<NotifPrefs>(profile.notification_prefs ?? {});
   const [fullName, setFullName] = useState(profile.full_name ?? '');
   const [phone, setPhone] = useState(profile.phone ?? '');
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url);
+
+  // Work / networking
+  const [bio, setBio] = useState(profile.bio ?? '');
+  const [jobTitle, setJobTitle] = useState(profile.job_title ?? '');
+  const [organization, setOrganization] = useState(profile.organization ?? '');
+  const [industry, setIndustry] = useState(profile.industry ?? '');
+  const [roleTypes, setRoleTypes] = useState<string[]>(profile.role_types ?? []);
+  const [goals, setGoals] = useState<string[]>(profile.goals ?? []);
+  const [directoryVisible, setDirectoryVisible] = useState(profile.directory_visible ?? true);
+  const [openToConnect, setOpenToConnect] = useState(profile.open_to_connect ?? true);
+  const [linkedinUrl, setLinkedinUrl] = useState(profile.linkedin_url ?? '');
+  const [xUrl, setXUrl] = useState(profile.x_url ?? '');
   const [photoUploading, setPhotoUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -154,9 +189,13 @@ export default function ProfileSettings({ profile }: Props) {
     setSaved(false);
   }
 
-  function togglePref(key: string, channel: 'email' | 'whatsapp') {
-    const full = `${key}_${channel}`;
-    setPrefs(p => ({ ...p, [full]: !p[full] }));
+  function toggleRole(r: string) {
+    setRoleTypes(prev => prev.includes(r) ? prev.filter(x => x !== r) : [...prev, r]);
+    setSaved(false);
+  }
+
+  function toggleGoal(g: string) {
+    setGoals(prev => prev.includes(g) ? prev.filter(x => x !== g) : [...prev, g]);
     setSaved(false);
   }
 
@@ -192,9 +231,18 @@ export default function ProfileSettings({ profile }: Props) {
       body: JSON.stringify({
         full_name: fullName || null,
         phone: phone || null,
+        bio: bio || null,
+        job_title: jobTitle || null,
+        organization: organization || null,
+        industry: industry || null,
+        role_types: roleTypes,
         interests,
+        goals,
         city: city || null,
-        notification_prefs: prefs,
+        directory_visible: directoryVisible,
+        open_to_connect: openToConnect,
+        linkedin_url: linkedinUrl || null,
+        x_url: xUrl || null,
         language,
       }),
     });
@@ -204,16 +252,21 @@ export default function ProfileSettings({ profile }: Props) {
   }
 
   return (
-    <div className="max-w-[760px] mx-auto px-5 pb-24" style={{ paddingTop: 44 }}>
-      {/* Header */}
-      <div>
-        <h1 className="font-normal text-[32px]" style={{ fontFamily: '"DM Sans", sans-serif', letterSpacing: '-0.025em', color: '#1F4D3A' }}>
-          Profile &amp; preferences
-        </h1>
-        <p className="mt-2 text-[14px]" style={{ color: '#6B7A72' }}>
-          What you pick here shapes your discovery feed and how Eventera reaches you.
-        </p>
-      </div>
+    <div
+      className={embedded ? 'max-w-[760px] px-4 sm:px-6 lg:px-8 pb-16' : 'max-w-[760px] mx-auto px-5 pb-24'}
+      style={{ paddingTop: embedded ? 32 : 44 }}
+    >
+      {/* Header — suppressed when embedded (organizer Settings supplies its own) */}
+      {!embedded && (
+        <div>
+          <h1 className="font-normal text-[32px]" style={{ fontFamily: '"DM Sans", sans-serif', letterSpacing: '-0.025em', color: '#1F4D3A' }}>
+            Profile &amp; preferences
+          </h1>
+          <p className="mt-2 text-[14px]" style={{ color: '#6B7A72' }}>
+            What you pick here shapes your discovery feed and how Eventera reaches you.
+          </p>
+        </div>
+      )}
 
       {/* Identity card */}
       <div
@@ -278,6 +331,96 @@ export default function ProfileSettings({ profile }: Props) {
               onBlur={e => { e.target.style.borderColor = '#E5E0D4'; e.target.style.boxShadow = 'none'; }}
             />
           </div>
+        </div>
+        {/* Bio */}
+        <div className="mt-3">
+          <label className="block text-[12px] mb-1.5 font-medium" style={{ color: '#6B7A72' }}>Bio</label>
+          <textarea
+            value={bio}
+            onChange={e => { setBio(e.target.value); setSaved(false); }}
+            rows={3}
+            placeholder="A short line about you — shown on your attendee card and directory profile."
+            className="w-full px-3 py-2.5 rounded-lg text-[14px] outline-none transition resize-none"
+            style={{ border: '1px solid #E5E0D4', background: '#FAFAF8', color: '#0F1F18', fontFamily: 'Inter, sans-serif' }}
+            onFocus={e => { e.target.style.borderColor = '#1F4D3A'; e.target.style.boxShadow = '0 0 0 3px rgba(31,77,58,0.12)'; }}
+            onBlur={e => { e.target.style.borderColor = '#E5E0D4'; e.target.style.boxShadow = 'none'; }}
+          />
+        </div>
+      </div>
+
+      {/* Work */}
+      <div className="mt-10">
+        <h2 className="font-medium text-[17px]" style={{ fontFamily: '"DM Sans", sans-serif', color: '#0F1F18' }}>
+          Work
+        </h2>
+        <p className="mt-1 text-[13px]" style={{ color: '#6B7A72' }}>
+          Helps people know who they&rsquo;re meeting.
+        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <div>
+            <label className="block text-[12px] mb-1.5 font-medium" style={{ color: '#6B7A72' }}>Job title</label>
+            <input
+              type="text"
+              value={jobTitle}
+              onChange={e => { setJobTitle(e.target.value); setSaved(false); }}
+              placeholder="e.g. Founder & CEO"
+              className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
+              style={{ border: '1px solid #E5E0D4', background: '#FAFAF8', color: '#0F1F18', fontFamily: 'Inter, sans-serif' }}
+              onFocus={e => { e.target.style.borderColor = '#1F4D3A'; e.target.style.boxShadow = '0 0 0 3px rgba(31,77,58,0.12)'; }}
+              onBlur={e => { e.target.style.borderColor = '#E5E0D4'; e.target.style.boxShadow = 'none'; }}
+            />
+          </div>
+          <div>
+            <label className="block text-[12px] mb-1.5 font-medium" style={{ color: '#6B7A72' }}>Company / organization</label>
+            <input
+              type="text"
+              value={organization}
+              onChange={e => { setOrganization(e.target.value); setSaved(false); }}
+              placeholder="Where you work"
+              className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
+              style={{ border: '1px solid #E5E0D4', background: '#FAFAF8', color: '#0F1F18', fontFamily: 'Inter, sans-serif' }}
+              onFocus={e => { e.target.style.borderColor = '#1F4D3A'; e.target.style.boxShadow = '0 0 0 3px rgba(31,77,58,0.12)'; }}
+              onBlur={e => { e.target.style.borderColor = '#E5E0D4'; e.target.style.boxShadow = 'none'; }}
+            />
+          </div>
+        </div>
+        <div className="mt-3 sm:max-w-[380px]">
+          <label className="block text-[12px] mb-1.5 font-medium" style={{ color: '#6B7A72' }}>Industry</label>
+          <div className="relative">
+            <select
+              value={industry}
+              onChange={e => { setIndustry(e.target.value); setSaved(false); }}
+              className="w-full h-10 px-3 pr-8 rounded-lg text-[14px] outline-none appearance-none transition cursor-pointer"
+              style={{ border: '1px solid #E5E0D4', background: '#FAFAF8', color: industry ? '#0F1F18' : '#9BA8A1', fontFamily: 'Inter, sans-serif' }}
+              onFocus={e => { e.target.style.borderColor = '#1F4D3A'; e.target.style.boxShadow = '0 0 0 3px rgba(31,77,58,0.12)'; }}
+              onBlur={e => { e.target.style.borderColor = '#E5E0D4'; e.target.style.boxShadow = 'none'; }}
+            >
+              <option value="">Choose an industry</option>
+              {INDUSTRIES.map(i => <option key={i} value={i}>{i}</option>)}
+            </select>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B7A72" strokeWidth="2.5" className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none">
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </div>
+        </div>
+        <p className="mt-4 text-[13px] font-medium" style={{ color: '#0F1F18', fontFamily: '"DM Sans", sans-serif' }}>I&rsquo;m here as a…</p>
+        <div className="flex flex-wrap gap-2 mt-3">
+          {ROLE_OPTIONS.map(r => (
+            <button
+              key={r}
+              onClick={() => toggleRole(r)}
+              className="h-9 px-4 flex items-center gap-2 rounded-full font-medium text-[13px] transition-all"
+              style={{
+                border: `1px solid ${roleTypes.includes(r) ? '#1F4D3A' : '#E5E0D4'}`,
+                background: roleTypes.includes(r) ? '#1F4D3A' : '#FFFFFF',
+                color: roleTypes.includes(r) ? '#FFFFFF' : '#3A4A42',
+                fontFamily: '"DM Sans", sans-serif',
+              }}
+            >
+              {roleTypes.includes(r) && <span style={{ fontSize: 11, color: '#E8C57E' }}>✓</span>}
+              {r}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -360,81 +503,104 @@ export default function ProfileSettings({ profile }: Props) {
         )}
       </div>
 
-      {/* Notification matrix */}
+      {/* Goals */}
+      <div className="mt-10">
+        <h2 className="font-medium text-[17px]" style={{ fontFamily: '"DM Sans", sans-serif', color: '#0F1F18' }}>
+          What you want out of events
+        </h2>
+        <p className="mt-1 text-[13px]" style={{ color: '#6B7A72' }}>
+          We prioritize matches and sessions around this.
+        </p>
+        <div className="flex flex-wrap gap-2 mt-4">
+          {GOAL_OPTIONS.map(g => (
+            <button
+              key={g}
+              onClick={() => toggleGoal(g)}
+              className="h-9 px-4 flex items-center gap-2 rounded-full font-medium text-[13px] transition-all"
+              style={{
+                border: `1px solid ${goals.includes(g) ? '#1F4D3A' : '#E5E0D4'}`,
+                background: goals.includes(g) ? '#1F4D3A' : '#FFFFFF',
+                color: goals.includes(g) ? '#FFFFFF' : '#3A4A42',
+                fontFamily: '"DM Sans", sans-serif',
+              }}
+            >
+              {goals.includes(g) && <span style={{ fontSize: 11, color: '#E8C57E' }}>✓</span>}
+              {g}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Networking */}
+      <div className="mt-10">
+        <h2 className="font-medium text-[17px]" style={{ fontFamily: '"DM Sans", sans-serif', color: '#0F1F18' }}>
+          How you&rsquo;ll connect
+        </h2>
+        <p className="mt-1 text-[13px]" style={{ color: '#6B7A72' }}>
+          Control how visible you are to other attendees.
+        </p>
+        <div className="mt-4 rounded-xl overflow-hidden" style={{ border: '1px solid #E5E0D4', background: '#FFFFFF' }}>
+          <div className="flex items-center gap-3 px-4 py-3.5">
+            <div className="flex-1 min-w-0">
+              <p className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>Show me in the attendee directory</p>
+              <p className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>Others can find and connect with you</p>
+            </div>
+            <Toggle on={directoryVisible} onChange={v => { setDirectoryVisible(v); setSaved(false); }} />
+          </div>
+          <div style={{ height: 1, background: '#E5E0D4' }} />
+          <div className="flex items-center gap-3 px-4 py-3.5">
+            <div className="flex-1 min-w-0">
+              <p className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>Open to meeting people</p>
+              <p className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>Adds an &ldquo;open to connect&rdquo; badge</p>
+            </div>
+            <Toggle on={openToConnect} onChange={v => { setOpenToConnect(v); setSaved(false); }} />
+          </div>
+        </div>
+
+        <p className="mt-6 text-[12px] font-semibold tracking-wide" style={{ color: '#6B7A72' }}>YOUR LINKS (OPTIONAL)</p>
+        <div className="mt-3 grid gap-3 sm:max-w-[420px]">
+          <input
+            type="url"
+            value={linkedinUrl}
+            onChange={e => { setLinkedinUrl(e.target.value); setSaved(false); }}
+            placeholder="linkedin.com/in/you"
+            className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
+            style={{ border: '1px solid #E5E0D4', background: '#FAFAF8', color: '#0F1F18', fontFamily: 'Inter, sans-serif' }}
+            onFocus={e => { e.target.style.borderColor = '#1F4D3A'; e.target.style.boxShadow = '0 0 0 3px rgba(31,77,58,0.12)'; }}
+            onBlur={e => { e.target.style.borderColor = '#E5E0D4'; e.target.style.boxShadow = 'none'; }}
+          />
+          <input
+            type="text"
+            value={xUrl}
+            onChange={e => { setXUrl(e.target.value); setSaved(false); }}
+            placeholder="@handle (X / Twitter)"
+            className="w-full h-10 px-3 rounded-lg text-[14px] outline-none transition"
+            style={{ border: '1px solid #E5E0D4', background: '#FAFAF8', color: '#0F1F18', fontFamily: 'Inter, sans-serif' }}
+            onFocus={e => { e.target.style.borderColor = '#1F4D3A'; e.target.style.boxShadow = '0 0 0 3px rgba(31,77,58,0.12)'; }}
+            onBlur={e => { e.target.style.borderColor = '#E5E0D4'; e.target.style.boxShadow = 'none'; }}
+          />
+        </div>
+      </div>
+
+      {/* Notifications — managed in the unified notifications center */}
       <div className="mt-10">
         <h2 className="font-medium text-[17px]" style={{ fontFamily: '"DM Sans", sans-serif', color: '#0F1F18' }}>
           Notifications
         </h2>
         <p className="mt-1 text-[13px]" style={{ color: '#6B7A72' }}>
-          Choose how each kind of update reaches you.
+          Choose how each kind of update reaches you — email, WhatsApp and in-app.
         </p>
-
-        <div className="mt-4 rounded-xl overflow-hidden" style={{ border: '1px solid #E5E0D4' }}>
-          {/* Header — hidden on mobile (toggles shown inline with label instead) */}
-          <div
-            className="hidden sm:grid items-center px-5 py-3"
-            style={{ gridTemplateColumns: '1fr 100px 120px', background: '#F5F3EE', borderBottom: '1px solid #E5E0D4' }}
-          >
-            <span className="text-[11px] font-medium uppercase tracking-[0.06em]" style={{ color: '#6B7A72' }}>Type</span>
-            <span className="text-[11px] font-medium uppercase tracking-[0.06em] text-center" style={{ color: '#6B7A72' }}>Email</span>
-            <span className="text-[11px] font-medium uppercase tracking-[0.06em] text-center" style={{ color: '#6B7A72' }}>WhatsApp</span>
-          </div>
-
-          {NOTIF_ROWS.map((row, i) => (
-            <div
-              key={row.key}
-              className="px-5 py-4"
-              style={{ borderBottom: i < NOTIF_ROWS.length - 1 ? '1px solid #E5E0D4' : 'none' }}
-            >
-              {/* Desktop: 3-column grid */}
-              <div className="hidden sm:grid items-center" style={{ gridTemplateColumns: '1fr 100px 120px' }}>
-                <div>
-                  <div className="text-[14px]" style={{ color: '#0F1F18' }}>{row.label}</div>
-                  <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>{row.sub}</div>
-                </div>
-                <div className="flex justify-center">
-                  <Toggle on={prefs[`${row.key}_email`] !== false} onChange={() => togglePref(row.key, 'email')} />
-                </div>
-                <div className="flex justify-center">
-                  <Toggle on={!!prefs[`${row.key}_whatsapp`]} onChange={() => togglePref(row.key, 'whatsapp')} />
-                </div>
-              </div>
-              {/* Mobile: label + two toggles in a row */}
-              <div className="sm:hidden">
-                <div className="text-[14px]" style={{ color: '#0F1F18' }}>{row.label}</div>
-                <div className="text-[12px] mt-0.5 mb-3" style={{ color: '#6B7A72' }}>{row.sub}</div>
-                <div className="flex items-center gap-6">
-                  <div className="flex items-center gap-2">
-                    <Toggle on={prefs[`${row.key}_email`] !== false} onChange={() => togglePref(row.key, 'email')} />
-                    <span className="text-[12px]" style={{ color: '#6B7A72' }}>Email</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Toggle on={!!prefs[`${row.key}_whatsapp`]} onChange={() => togglePref(row.key, 'whatsapp')} />
-                    <span className="text-[12px]" style={{ color: '#6B7A72' }}>WhatsApp</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* WhatsApp connected banner */}
-        {profile.whatsapp_verified && profile.phone && (
-          <div
-            className="flex items-center gap-3.5 mt-6 p-4 rounded-xl"
-            style={{ background: '#E8EFEB', border: '1px solid rgba(31,77,58,0.18)' }}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F4D3A" strokeWidth="1.8">
-              <path d="M21 11.5a8.5 8.5 0 01-12.4 7.5L3 21l2-5.4A8.5 8.5 0 1121 11.5z" />
-            </svg>
-            <div className="flex-1 text-[13px] font-medium" style={{ color: '#1F4D3A' }}>
-              WhatsApp connected. Tickets and reminders arrive as messages.
-            </div>
-            <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, color: '#0F1F18' }}>
-              {profile.phone.replace(/(\+\d{3})\s?\d+\s?\d+\s?(\d{2})$/, '$1 ·· ·· $2')}
-            </span>
-          </div>
-        )}
+        <Link
+          href="/notifications"
+          className="mt-4 flex items-center gap-3 h-12 px-4 rounded-xl w-full sm:max-w-[380px] transition hover:bg-[#E8EFEB]"
+          style={{ border: '1px solid #E5E0D4', background: '#FFFFFF' }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F4D3A" strokeWidth="1.8">
+            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.7 21a2 2 0 0 1-3.4 0" />
+          </svg>
+          <span className="flex-1 text-[14px] font-medium" style={{ color: '#0F1F18' }}>Manage notification preferences</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7A72" strokeWidth="2"><path d="M9 6l6 6-6 6" /></svg>
+        </Link>
       </div>
 
       {/* Language & region */}
@@ -495,8 +661,18 @@ export default function ProfileSettings({ profile }: Props) {
             setAvatarUrl(profile.avatar_url);
             setInterests(profile.interests ?? []);
             setCity(profile.city ?? '');
-            setPrefs(profile.notification_prefs ?? {});
             setLanguage(profile.language ?? 'English');
+            setBio(profile.bio ?? '');
+            setJobTitle(profile.job_title ?? '');
+            setOrganization(profile.organization ?? '');
+            setIndustry(profile.industry ?? '');
+            setRoleTypes(profile.role_types ?? []);
+            setGoals(profile.goals ?? []);
+            setDirectoryVisible(profile.directory_visible ?? true);
+            setOpenToConnect(profile.open_to_connect ?? true);
+            setLinkedinUrl(profile.linkedin_url ?? '');
+            setXUrl(profile.x_url ?? '');
+            setSaved(false);
           }}
         >
           Cancel
@@ -561,7 +737,9 @@ export default function ProfileSettings({ profile }: Props) {
           )}
         </div>
 
-        {/* Delete account */}
+        {/* Delete account — standalone attendee profile only; the organizer
+            Settings shell provides its own danger zone, so suppress when embedded. */}
+        {!embedded && (
         <div
           className="mt-4 p-5 rounded-xl"
           style={{ background: '#FFFFFF', border: '1px solid rgba(184,66,60,0.35)' }}
@@ -580,10 +758,11 @@ export default function ProfileSettings({ profile }: Props) {
             Delete my account
           </button>
         </div>
+        )}
       </div>
 
       {/* Delete confirm dialog */}
-      {showDeleteDialog && (
+      {!embedded && showDeleteDialog && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center px-5"
           style={{ background: 'rgba(15,31,24,0.45)' }}

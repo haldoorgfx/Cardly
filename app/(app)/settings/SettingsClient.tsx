@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { createClient } from '@/lib/supabase/client';
+import { useState } from 'react';
 import { deleteAccount, signOut } from '@/app/(auth)/actions';
 import { Check, ChevronDown } from 'lucide-react';
 
@@ -120,47 +119,9 @@ function SelectField({
   );
 }
 
-function TextField({
-  label, value, onChange, placeholder = '', readOnly = false,
-}: {
-  label: string;
-  value: string;
-  onChange?: (v: string) => void;
-  placeholder?: string;
-  readOnly?: boolean;
-}) {
-  return (
-    <div>
-      <label className="block text-[11px] tracking-widest text-[#6B7A72] uppercase mb-1.5">
-        {label}
-      </label>
-      <input
-        type="text"
-        value={value}
-        readOnly={readOnly}
-        onChange={e => onChange?.(e.target.value)}
-        placeholder={placeholder}
-        className="w-full h-10 px-3 rounded-xl border text-[13.5px] outline-none transition"
-        style={{
-          background: readOnly ? '#F5F2EC' : 'white',
-          borderColor: '#E5E0D4',
-          color: readOnly ? '#6B7A72' : '#0F1F18',
-          cursor: readOnly ? 'default' : undefined,
-        }}
-        onFocus={e => { if (!readOnly) e.target.style.borderColor = 'rgba(31,77,58,0.4)'; }}
-        onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
-      />
-    </div>
-  );
-}
-
 // ── Main component ────────────────────────────────────────────────────────────
 
-export default function SettingsClient({ profile, userId }: Props) {
-  // Profile
-  const [name, setName]               = useState(profile?.full_name ?? '');
-  const [organization, setOrganization] = useState(profile?.organization ?? '');
-
+export default function SettingsClient({ profile }: Props) {
   // Preferences
   const [timezone, setTimezone]     = useState(profile?.timezone   ?? 'UTC');
   const [language, setLanguage]     = useState(profile?.language   ?? 'English');
@@ -172,11 +133,6 @@ export default function SettingsClient({ profile, userId }: Props) {
   const [notifyCardShares,     setNotifyCardShares]     = useState(profile?.notify_card_shares    ?? false);
   const [notifyProductUpdates, setNotifyProductUpdates] = useState(profile?.notify_product_updates ?? true);
 
-  // Avatar
-  const [avatarUrl, setAvatarUrl]           = useState(profile?.avatar_url ?? null);
-  const [avatarUploading, setAvatarUploading] = useState(false);
-  const avatarInputRef = useRef<HTMLInputElement>(null);
-
   // Save state
   const [saving, setSaving] = useState(false);
   const [saved, setSaved]   = useState(false);
@@ -186,49 +142,6 @@ export default function SettingsClient({ profile, userId }: Props) {
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deleting, setDeleting]           = useState(false);
 
-  const nameInitials = name
-    ? name.split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase()
-    : '?';
-
-  const roleLabel =
-    profile?.role === 'super_admin' ? 'Super Admin'
-    : profile?.role === 'admin' ? 'Admin'
-    : 'Owner';
-
-  async function handleRemoveAvatar() {
-    setAvatarUploading(true);
-    await fetch('/api/profile', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ avatar_url: null }),
-    });
-    setAvatarUrl(null);
-    setAvatarUploading(false);
-  }
-
-  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setAvatarUploading(true);
-    const supabase = createClient();
-    const ext = file.name.split('.').pop() ?? 'jpg';
-    const path = `${userId}/avatar.${ext}`;
-    const { error: uploadError } = await supabase.storage
-      .from('avatars')
-      .upload(path, file, { upsert: true, contentType: file.type });
-    if (!uploadError) {
-      const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path);
-      const url = urlData.publicUrl + `?t=${Date.now()}`;
-      await fetch('/api/profile', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ avatar_url: url }),
-      });
-      setAvatarUrl(url);
-    }
-    setAvatarUploading(false);
-  }
-
   async function handleSave() {
     setSaving(true);
     setError('');
@@ -236,8 +149,6 @@ export default function SettingsClient({ profile, userId }: Props) {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        full_name:              name.trim(),
-        organization:           organization.trim(),
         timezone,
         language,
         date_format:            dateFormat,
@@ -269,8 +180,8 @@ export default function SettingsClient({ profile, userId }: Props) {
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>
-          <h1 className="font-display font-semibold text-[24px] leading-tight text-[#0F1F18]">General</h1>
-          <p className="text-[14px] text-[#6B7A72] mt-1">Account and workspace preferences</p>
+          <h1 className="font-display font-semibold text-[24px] leading-tight text-[#0F1F18]">Workspace preferences</h1>
+          <p className="text-[14px] text-[#6B7A72] mt-1">Timezone, language and organizer notifications</p>
         </div>
         <div className="flex flex-col items-end gap-1 shrink-0 mt-1">
           <button
@@ -287,65 +198,6 @@ export default function SettingsClient({ profile, userId }: Props) {
       </div>
 
       <div className="space-y-5">
-
-        {/* ── Profile ── */}
-        <section className="bg-white rounded-2xl border p-6" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)' }}>
-          <h2 className="font-display font-semibold text-[15px] tracking-tight text-[#0F1F18] mb-5">Profile</h2>
-
-          {/* Avatar row */}
-          <div className="flex items-center gap-4 mb-6">
-            <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
-            <div className="relative shrink-0">
-              {avatarUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={avatarUrl} alt="Avatar" className="h-14 w-14 rounded-full object-cover border" style={{ borderColor: '#E5E0D4' }} />
-              ) : (
-                <div
-                  className="h-14 w-14 rounded-full grid place-items-center text-white font-display font-bold text-[18px]"
-                  style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 130%)' }}
-                >
-                  {nameInitials}
-                </div>
-              )}
-              {avatarUploading && (
-                <div className="absolute inset-0 rounded-full bg-black/40 grid place-items-center">
-                  <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
-                    <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" />
-                  </svg>
-                </div>
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => avatarInputRef.current?.click()}
-                disabled={avatarUploading}
-                className="inline-flex items-center gap-2 h-8 px-4 rounded-lg border text-[13px] transition disabled:opacity-50"
-                style={{ borderColor: '#E5E0D4', color: '#3A4A42', background: 'white' }}
-              >
-                {avatarUrl ? 'Change photo' : 'Upload photo'}
-              </button>
-              {avatarUrl && (
-                <button
-                  type="button"
-                  onClick={handleRemoveAvatar}
-                  disabled={avatarUploading}
-                  className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border text-[13px] transition disabled:opacity-50"
-                  style={{ borderColor: 'rgba(184,66,60,0.3)', color: '#B8423C', background: 'transparent' }}
-                >
-                  Remove
-                </button>
-              )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4">
-            <TextField label="Full Name" value={name} onChange={setName} />
-            <TextField label="Email" value={profile?.email ?? ''} readOnly />
-            <TextField label="Organization" value={organization} onChange={setOrganization} placeholder="Your company or event org" />
-            <TextField label="Role" value={roleLabel} readOnly />
-          </div>
-        </section>
 
         {/* ── Preferences ── */}
         <section className="bg-white rounded-2xl border p-6" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)' }}>
