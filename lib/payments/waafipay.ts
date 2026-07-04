@@ -32,9 +32,10 @@ export interface WaafiPayResult {
   rawState: string | null;
 }
 
+// Endpoints per WaafiPay docs: production api.waafipay.com, sandbox sandbox.waafipay.net.
 const WAAFIPAY_API_URL = process.env.NODE_ENV === 'production' && !process.env.WAAFIPAY_SANDBOX
-  ? 'https://api.waafipay.net/asm'
-  : 'https://sandbox.waafipay.com/asm';
+  ? 'https://api.waafipay.com/asm'
+  : 'https://sandbox.waafipay.net/asm';
 
 function getCredentials() {
   const merchantUid = process.env.WAAFIPAY_MERCHANT_UID;
