@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { ExhibitorShell } from '@/components/exhibitor/ExhibitorShell';
 import { BoothTab } from '@/components/exhibitor/BoothTab';
+import { isLoggedInSponsorFor } from '@/lib/rbac/exhibitor-viewer';
 
 interface Props { params: Promise<{ token: string }> }
 
@@ -14,13 +15,14 @@ export default async function ExhibitorBoothPage({ params }: Props) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: sponsor } = await (admin as any)
     .from('sponsors')
-    .select('*, events(name, slug)')
+    .select('*, events(id, name, slug)')
     .eq('invite_token', token)
     .single();
 
   if (!sponsor) notFound();
 
-  const event = sponsor.events as { name: string; slug: string };
+  const event = sponsor.events as { id: string; name: string; slug: string };
+  const showDashboardLink = await isLoggedInSponsorFor(event.id);
 
   return (
     <ExhibitorShell
@@ -32,6 +34,7 @@ export default async function ExhibitorBoothPage({ params }: Props) {
       eventName={event.name}
       eventSlug={event.slug}
       activeTab="booth"
+      showDashboardLink={showDashboardLink}
     >
       <BoothTab sponsor={sponsor} token={token} />
     </ExhibitorShell>

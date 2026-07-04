@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { ExhibitorShell } from '@/components/exhibitor/ExhibitorShell';
 import { TeamTab } from '@/components/exhibitor/TeamTab';
+import { isLoggedInSponsorFor } from '@/lib/rbac/exhibitor-viewer';
 
 interface Props { params: Promise<{ token: string }> }
 
@@ -14,7 +15,7 @@ export default async function ExhibitorTeamPage({ params }: Props) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: sponsor } = await (admin as any)
     .from('sponsors')
-    .select('id, company_name, tier, booth_location, logo_url, events(name, slug)')
+    .select('id, company_name, tier, booth_location, logo_url, events(id, name, slug)')
     .eq('invite_token', token)
     .single();
 
@@ -27,7 +28,8 @@ export default async function ExhibitorTeamPage({ params }: Props) {
     .eq('sponsor_id', sponsor.id)
     .order('created_at', { ascending: true });
 
-  const event = sponsor.events as { name: string; slug: string };
+  const event = sponsor.events as { id: string; name: string; slug: string };
+  const showDashboardLink = await isLoggedInSponsorFor(event.id);
 
   return (
     <ExhibitorShell
@@ -39,6 +41,7 @@ export default async function ExhibitorTeamPage({ params }: Props) {
       eventName={event.name}
       eventSlug={event.slug}
       activeTab="team"
+      showDashboardLink={showDashboardLink}
     >
       <TeamTab members={members ?? []} token={token} />
     </ExhibitorShell>

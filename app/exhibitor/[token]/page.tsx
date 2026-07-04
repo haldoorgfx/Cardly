@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { ExhibitorShell } from '@/components/exhibitor/ExhibitorShell';
 import { OverviewTab } from '@/components/exhibitor/OverviewTab';
+import { isLoggedInSponsorFor } from '@/lib/rbac/exhibitor-viewer';
 
 interface Props { params: Promise<{ token: string }> }
 
@@ -43,6 +44,10 @@ export default async function ExhibitorPage({ params }: Props) {
     hot, warm, cold,
   };
 
+  // Additive: only true for a logged-in sponsor of this event; anonymous token
+  // visitors resolve to false and the token flow is unchanged.
+  const showDashboardLink = await isLoggedInSponsorFor(event.id);
+
   return (
     <ExhibitorShell
       token={token}
@@ -53,6 +58,7 @@ export default async function ExhibitorPage({ params }: Props) {
       eventName={event.name}
       eventSlug={event.slug}
       activeTab="overview"
+      showDashboardLink={showDashboardLink}
     >
       <OverviewTab
         sponsorId={sponsor.id}

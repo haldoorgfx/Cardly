@@ -11,6 +11,10 @@ interface Props {
   eventName: string;
   eventSlug: string;
   activeTab: 'overview' | 'leads' | 'booth' | 'resources' | 'team';
+  /** Additive: when the visitor is a logged-in sponsor for this event, show a
+   *  small "Back to your dashboard" link. Absent/false for anonymous token
+   *  visitors — the token experience is otherwise unchanged. */
+  showDashboardLink?: boolean;
   children: React.ReactNode;
 }
 
@@ -49,7 +53,7 @@ function tierTone(tier: string | null) {
   return 'bg-[rgba(255,255,255,0.1)] text-white border-[rgba(255,255,255,0.2)]';
 }
 
-export function ExhibitorShell({ token, companyName, tier, boothNumber, logoUrl, eventName, children, activeTab }: Props) {
+export function ExhibitorShell({ token, companyName, tier, boothNumber, logoUrl, eventName, children, activeTab, showDashboardLink }: Props) {
   const initials = companyName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 
   return (
@@ -65,6 +69,17 @@ export function ExhibitorShell({ token, companyName, tier, boothNumber, logoUrl,
             </div>
           </div>
           <div className="flex items-center gap-3">
+            {showDashboardLink && (
+              <Link
+                href="/sponsoring"
+                className="inline-flex items-center gap-1 text-[12px] font-medium px-2.5 py-1.5 rounded-lg border transition-colors hover:bg-[#E8EFEB]"
+                style={{ color: '#1F4D3A', borderColor: '#E5E0D4', background: '#FFFFFF' }}
+              >
+                <span aria-hidden>&larr;</span>
+                <span className="hidden sm:inline">Back to your dashboard</span>
+                <span className="sm:hidden">Dashboard</span>
+              </Link>
+            )}
             <span className="hidden sm:inline  text-[11px]" style={{ color: '#6B7A72' }}>{eventName}</span>
             {logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
