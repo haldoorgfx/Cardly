@@ -38,11 +38,21 @@ export default async function RegisterPage({ params, searchParams }: Props) {
       // Only block on truly-completed registrations (confirmed / checked_in).
       // pending_approval = still in limbo; pending = abandoned payment — both
       // are handled gracefully in the form itself or the API cleanup logic.
+      //
+      // IMPORTANT: match ONLY this authenticated user. Build the identity filter
+      // from real values — never `attendee_email.eq.` with a blank value, which
+      // PostgREST treats as "email equals empty string" and would match unrelated
+      // registrations (guest/imported rows with a null/blank email), producing a
+      // false "already registered" on events the user never registered for.
+      const normalizedEmail = sessionEmail.trim().toLowerCase();
+      const identityFilters: string[] = [`user_id.eq.${user.id}`];
+      if (normalizedEmail) identityFilters.push(`attendee_email.eq.${normalizedEmail}`);
+
       const { data: existing } = await (admin as any)
         .from('registrations')
         .select('id, qr_code_token')
         .eq('event_id', event.id)
-        .or(`attendee_email.eq.${sessionEmail.toLowerCase()},user_id.eq.${user.id}`)
+        .or(identityFilters.join(','))
         .in('status', ['confirmed', 'checked_in'])
         .limit(1)
         .maybeSingle();
