@@ -65,7 +65,7 @@ export default async function LeaderboardPage({ params, searchParams }: Props) {
 
         {leaderboard.length === 0 ? (
           <div className="rounded-2xl py-16 text-center" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-            <p className="text-[14px]" style={{ color: '#6B7A72' }}>No points yet. Ask questions, connect with people, and attend sessions to earn points.</p>
+            <p className="text-[14px]" style={{ color: '#6B7A72' }}>No points yet. Ask questions, vote in polls, and connect with people to earn points.</p>
           </div>
         ) : (
           <>

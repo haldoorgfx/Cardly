@@ -27,7 +27,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
   const defaultChannel = searchParams.channel ?? channels?.[0]?.id;
   const { data: messages } = defaultChannel ? await adminAny
     .from('community_messages')
-    .select('id, content, created_at, is_pinned, registration_id, registrations(attendee_name)')
+    .select('id, content, created_at, is_pinned, registration_id, registrations!community_messages_registration_id_fkey(attendee_name)')
     .eq('channel_id', defaultChannel)
     .order('created_at', { ascending: true })
     .limit(100) : { data: [] };

@@ -27,7 +27,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     .from('registrations')
     .select('id, attendee_name, attendee_email, qr_code_token, status, events!inner(slug, event_pages(title, starts_at))')
     .eq('id', params.id)
-    .eq('attendee_email', user.email)
+    .or(`attendee_email.eq.${(user.email ?? '').toLowerCase()},user_id.eq.${user.id}`)
     .in('status', ['confirmed', 'pending_approval'])
     .maybeSingle();
 

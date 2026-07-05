@@ -30,7 +30,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
   const { data: messages, error } = await admin
     .from('community_messages')
-    .select('id, content, created_at, is_pinned, registration_id, registrations(attendee_name)')
+    .select('id, content, created_at, is_pinned, registration_id, registrations!community_messages_registration_id_fkey(attendee_name)')
     .eq('channel_id', channelId)
     .order('created_at', { ascending: true })
     .limit(100);
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const { data: message, error } = await admin
     .from('community_messages')
     .insert({ channel_id, registration_id, content })
-    .select('id, content, created_at, is_pinned, registration_id, registrations(attendee_name)')
+    .select('id, content, created_at, is_pinned, registration_id, registrations!community_messages_registration_id_fkey(attendee_name)')
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

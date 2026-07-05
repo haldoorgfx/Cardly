@@ -55,8 +55,16 @@ export async function getVisibleSections(userId: string): Promise<VisibleSection
   const sponsoringEventIds = eventsWithRole(roles, 'sponsor');
   const organizingEventIds = eventsWithRole(roles, 'organizer');
 
+  // Admin gate: the canonical signal is profiles.platform_role, but some
+  // accounts predate that column and only carry the legacy profiles.role. Read
+  // the legacy role directly (admin client, same pattern as this file) and OR
+  // it in so the gate can't silently drift between the two columns.
+  const legacyRole = await legacyProfileRole(userId);
   const admin =
-    roles.platformRole === 'admin' || roles.platformRole === 'super_admin';
+    roles.platformRole === 'admin' ||
+    roles.platformRole === 'super_admin' ||
+    legacyRole === 'admin' ||
+    legacyRole === 'super_admin';
 
   // "tickets" — attendee role OR a registration matched by email (fallback).
   let tickets = kinds.has('attendee');
@@ -74,6 +82,22 @@ export async function getVisibleSections(userId: string): Promise<VisibleSection
     sponsoringEventIds,
     organizingEventIds,
   };
+}
+
+/**
+ * Read the account's legacy `profiles.role` (admin client, bypasses RLS). This
+ * predates `platform_role`; we OR it into the admin gate so an account that was
+ * only ever marked admin via the legacy column still resolves as admin.
+ */
+async function legacyProfileRole(userId: string): Promise<string | null> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = createAdminClient() as any;
+  const { data } = await db
+    .from('profiles')
+    .select('role')
+    .eq('id', userId)
+    .single();
+  return (data?.role as string | undefined) ?? null;
 }
 
 /**

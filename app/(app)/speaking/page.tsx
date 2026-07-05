@@ -90,7 +90,7 @@ function fmtTime(iso: string | null): string {
 export default async function SpeakingPage() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
+  if (!user) redirect('/account/login?next=/speaking');
 
   const roles = await getUserRoles(user.id);
   const roleEventIds = eventsWithRole(roles, 'speaker');

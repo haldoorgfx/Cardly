@@ -66,11 +66,3 @@ export async function verifyFlutterwaveTransaction(txId: string) {
   const data = await res.json();
   return data as { status: string; data: { status: string; amount: number; currency: string; tx_ref: string } };
 }
-
-export function verifyFlutterwaveWebhookSignature(): boolean {
-  const hash = process.env.FLUTTERWAVE_WEBHOOK_HASH;
-  if (!hash) return false;
-  // Flutterwave sends verif-hash header — caller must pass the raw header value
-  // Comparison done in the webhook handler
-  return true;
-}

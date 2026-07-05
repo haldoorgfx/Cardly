@@ -29,7 +29,7 @@ type SponsorCard = {
 export default async function SponsoringPage() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
+  if (!user) redirect('/account/login?next=/sponsoring');
 
   const roles = await getUserRoles(user.id);
   const roleEventIds = eventsWithRole(roles, 'sponsor');

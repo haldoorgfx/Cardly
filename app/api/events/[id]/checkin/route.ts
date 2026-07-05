@@ -106,7 +106,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: reg } = await (admin as any)
     .from('registrations')
-    .select('id, attendee_name, attendee_email, attendee_phone, status, checked_in_at, eventera_card_url, amount_paid, currency, ticket_types(name)')
+    .select('id, attendee_name, attendee_email, attendee_phone, status, payment_status, checked_in_at, eventera_card_url, amount_paid, currency, ticket_types(name)')
     .eq('qr_code_token', qr_code_token)
     .eq('event_id', params.id)
     .single();
@@ -130,6 +130,17 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     return NextResponse.json({
       result: 'invalid',
       message: `Registration is ${reg.status} — entry not allowed`,
+    });
+  }
+
+  // Block check-in for paid tickets that haven't been paid. A ticket is "paid"
+  // when amount_paid > 0; free tickets (amount_paid = 0 / payment_status 'free')
+  // and successfully paid tickets ('paid') are unaffected.
+  if ((reg.payment_status === 'pending' || reg.payment_status === 'failed') && Number(reg.amount_paid) > 0) {
+    return NextResponse.json({
+      result: 'invalid',
+      code: 'payment_required',
+      message: 'Payment not completed for this ticket',
     });
   }
 

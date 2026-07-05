@@ -19,7 +19,7 @@ interface NotifRow {
 export default async function NotificationsPage() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
+  if (!user) redirect('/account/login?next=/notifications');
 
   const [notifsRes, profileRes] = await Promise.all([
     supabase
