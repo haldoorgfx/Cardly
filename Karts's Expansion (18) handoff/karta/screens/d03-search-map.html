@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D03 · Search & Map</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  body { overflow: hidden; }
+  .shell { display: grid; grid-template-columns: 480px 1fr; height: calc(100vh - 64px); }
+  .listpane { overflow-y: auto; padding: 24px 28px 48px; border-right: 1px solid var(--cream-border); background: var(--cream-canvas); }
+  .resultline { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin: 16px 0 14px; }
+  .resultline b { font-family: var(--mono); font-weight: 500; color: var(--ink); }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .rcard { display: grid; grid-template-columns: 132px 1fr; gap: 14px; padding: 12px; background: var(--cream-surface); border: 1px solid var(--cream-border); border-radius: var(--r-card); cursor: pointer; margin-bottom: 12px; transition: border-color .15s, box-shadow .15s; }
+  .rcard:hover, .rcard.hot { border-color: var(--forest); box-shadow: var(--e2); }
+  .rcard .img { border-radius: 6px; aspect-ratio: 4/3; position: relative; overflow: hidden; }
+  .rcard .nm { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--ink); }
+  .rcard .meta { font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-top: 3px; }
+  .rcard .foot { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+  .rcard .cat { font-size: 11px; padding: 3px 9px; background: var(--cream-soft); color: var(--ink-soft); }
+
+  /* stylized map */
+  .mappane { position: relative; background: #EFEBDF; overflow: hidden; }
+  .mappane .water { position: absolute; top: 0; right: 0; bottom: 55%; left: 42%; background: #DCE6E2; border-bottom-left-radius: 45% 60%; }
+  .mappane .park  { position: absolute; left: 8%; bottom: 12%; width: 22%; height: 26%; background: #E2E8DC; border-radius: 40% 60% 50% 50%; }
+  .streets { position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(15,31,24,0.07) 1.5px, transparent 1.5px),
+      linear-gradient(90deg, rgba(15,31,24,0.07) 1.5px, transparent 1.5px),
+      linear-gradient(rgba(15,31,24,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(15,31,24,0.04) 1px, transparent 1px);
+    background-size: 140px 140px, 140px 140px, 35px 35px, 35px 35px; }
+  .pin { position: absolute; transform: translate(-50%, -100%); font-family: var(--mono); font-weight: 500; font-size: 12px; padding: 6px 11px; border-radius: var(--r-pill); background: var(--cream-surface); color: var(--ink); border: 1px solid var(--cream-border); box-shadow: var(--e1); cursor: pointer; white-space: nowrap; transition: all .15s; z-index: 2; }
+  .pin::after { content: ''; position: absolute; left: 50%; bottom: -5px; transform: translateX(-50%) rotate(45deg); width: 8px; height: 8px; background: inherit; border-right: 1px solid var(--cream-border); border-bottom: 1px solid var(--cream-border); }
+  .pin.hot { background: var(--forest); color: #fff; border-color: var(--forest); z-index: 3; transform: translate(-50%, -100%) scale(1.12); }
+  .pin.hot::after { border-color: var(--forest); }
+  .maplabel { position: absolute; font-family: var(--body); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(15,31,24,0.35); }
+  .mapctl { position: absolute; right: 20px; top: 20px; display: flex; flex-direction: column; background: var(--cream-surface); border: 1px solid var(--cream-border); border-radius: var(--r-btn); box-shadow: var(--e1); z-index: 4; }
+  .mapctl button { width: 38px; height: 38px; border: none; background: none; font-size: 17px; color: var(--ink-soft); cursor: pointer; }
+  .mapctl button + button { border-top: 1px solid var(--cream-border); }
+  .searcharea { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 4; height: 36px; padding: 0 16px; border-radius: var(--r-pill); background: var(--cream-surface); border: 1px solid var(--cream-border); box-shadow: var(--e1); font-family: var(--display); font-weight: 500; font-size: 13px; color: var(--forest); display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+
+  /* mobile list/map toggle */
+  .viewtoggle { display: none; position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 60; background: var(--forest-dark); border-radius: var(--r-pill); padding: 4px; box-shadow: var(--e2); }
+  .viewtoggle button { height: 38px; padding: 0 20px; border: none; border-radius: var(--r-pill); background: transparent; color: rgba(255,255,255,0.7); font-family: var(--display); font-weight: 500; font-size: 13px; cursor: pointer; }
+  .viewtoggle button.on { background: var(--gold); color: var(--ink); }
+
+  @media (max-width: 980px){
+    .shell { grid-template-columns: 1fr; }
+    .mappane { display: none; }
+    .shell.showmap .mappane { display: block; }
+    .shell.showmap .listpane { display: none; }
+    .viewtoggle { display: flex; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="search" style="height:40px; max-width:420px; flex:1; margin:0 24px;">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    <input value="music · Djibouti City · this month">
+  </div>
+  <div class="right">
+    <div class="ph avatar avatar-ring" style="--h:30; width:36px; height:36px;"></div>
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</nav>
+
+<div class="shell" id="shell">
+  <div class="listpane">
+    <div class="filters">
+      <div class="chip active">This month</div>
+      <div class="chip">Free</div>
+      <div class="chip active">Music</div>
+      <div class="chip">In-person</div>
+      <div class="chip">Price ▾</div>
+    </div>
+    <div class="resultline"><b>7</b> events match in Djibouti City</div>
+    <div id="results"></div>
+  </div>
+
+  <div class="mappane" id="map">
+    <div class="streets"></div>
+    <div class="water"></div>
+    <div class="park"></div>
+    <div class="maplabel" style="top:30%; right:18%;">Gulf of Tadjoura</div>
+    <div class="maplabel" style="bottom:24%; left:12%;">Gabode Park</div>
+    <div class="maplabel" style="top:54%; left:42%;">Centre Ville</div>
+    <button class="searcharea">⟳ Search this area</button>
+    <div class="mapctl"><button>+</button><button>−</button></div>
+    <div id="pins"></div>
+  </div>
+</div>
+
+<div class="viewtoggle">
+  <button class="on" onclick="setView(false,this)">List</button>
+  <button onclick="setView(true,this)">Map</button>
+</div>
+
+<script>
+  const events = [
+    ['Sunset Sounds Festival','Fri 14 Mar · 18:00 · Plage de la Siesta','Free',18,'Music',38,62],
+    ['Jazz on the Pier','Sat 05 Apr · 19:30 · Port Marina','$25',200,'Music',58,30],
+    ['Oud Night — Strings of the Horn','Sat 22 Mar · 20:00 · Palais du Peuple','$12',265,'Music',50,55],
+    ['Mombasa Beach Sessions · Live relay','Fri 04 Apr · 21:00 · Café des Arts','$8',185,'Music',30,44],
+    ['Drum Circle at Dusk','Sun 16 Mar · 17:30 · Gabode Park','Free',95,'Music',18,72],
+    ['Sahel Sounds DJ Workshop','Wed 19 Mar · 15:00 · Karta Studio HQ','$20',280,'Workshop',45,40],
+    ['Choir of the Red Sea','Sun 30 Mar · 16:00 · Cathédrale','$5',340,'Music',62,48],
+  ];
+  const results = document.getElementById('results');
+  const pins = document.getElementById('pins');
+  events.forEach((e,i)=>{
+    const free = e[2]==='Free';
+    const card = document.createElement('div');
+    card.className = 'rcard'; card.dataset.i = i;
+    card.innerHTML = `
+      <div class="img ph" style="--h:${e[3]};"></div>
+      <div>
+        <div class="nm">${e[0]}</div>
+        <div class="meta">${e[1]}</div>
+        <div class="foot">
+          <span class="t-num-sm" style="color:${free?'var(--gold-hover)':'var(--forest)'}; font-weight:500;">${e[2]}</span>
+          <span class="pill cat">${e[4]}</span>
+        </div>
+      </div>`;
+    results.appendChild(card);
+    const pin = document.createElement('div');
+    pin.className = 'pin'; pin.dataset.i = i;
+    pin.style.left = e[5]+'%'; pin.style.top = e[6]+'%';
+    pin.textContent = e[2];
+    pins.appendChild(pin);
+    const link = on => {
+      card.classList.toggle('hot', on);
+      pin.classList.toggle('hot', on);
+    };
+    card.onmouseenter = ()=>link(true); card.onmouseleave = ()=>link(false);
+    pin.onmouseenter = ()=>link(true); pin.onmouseleave = ()=>link(false);
+  });
+  document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>c.classList.toggle('active'));
+  function setView(map, btn){
+    document.getElementById('shell').classList.toggle('showmap', map);
+    document.querySelectorAll('.viewtoggle button').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Karta · Dashboard Hero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --display:'DM Sans', sans-serif;
+    --body:'Inter', system-ui, sans-serif;
+
+    --cream:#FAF6EE;
+    --darkest:#0F1F18;   /* browser bg, phone bg */
+    --mid-dark:#163828;
+    --mid:#1F4D3A;
+    --light-forest:#2A6A50;
+    --gold:#E8C57E;
+    --green:#4CAF7D;
+    --badge-green:#2D7A4F;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+
+  html,body{height:100%;}
+  body{
+    font-family:var(--body);
+    background:
+      radial-gradient(60% 55% at 30% 22%, rgba(31,77,58,0.06) 0%, transparent 60%),
+      radial-gradient(50% 50% at 82% 88%, rgba(15,31,24,0.05) 0%, transparent 60%),
+      var(--cream);
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+  }
+
+  /* ---- stage / scaler ---- */
+  #stage{ position:relative; }
+  #comp{
+    position:relative;
+    width:1040px; height:760px;
+    transform-origin:center center;
+  }
+
+  /* ============== BROWSER FRAME ============== */
+  .browser{
+    position:absolute;
+    left:30px; top:78px;
+    width:880px; height:592px;
+    background:var(--darkest);
+    border-radius:14px;
+    overflow:hidden;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.03) inset,
+      0 50px 90px -50px rgba(15,31,24,0.45),
+      0 24px 50px -36px rgba(15,31,24,0.30);
+  }
+
+  /* top chrome */
+  .chrome{
+    height:46px;
+    background:rgba(255,255,255,0.025);
+    border-bottom:1px solid rgba(255,255,255,0.05);
+    display:flex; align-items:center; gap:16px;
+    padding:0 18px;
+  }
+  .dots{ display:flex; gap:8px; }
+  .dots span{ width:11px; height:11px; border-radius:50%; background:rgba(255,255,255,0.13); }
+  .urlbar{
+    flex:1; height:24px; border-radius:7px;
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.03);
+    margin-right:6px;
+  }
+  .urlbtn{ width:40px; height:24px; border-radius:7px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.03); }
+
+  /* body grid */
+  .bbody{ display:grid; grid-template-columns:50px 1fr; height:calc(100% - 46px); }
+
+  /* sidebar */
+  .side{
+    background:rgba(0,0,0,0.18);
+    border-right:1px solid rgba(255,255,255,0.05);
+    display:flex; flex-direction:column; gap:10px;
+    padding:18px 9px;
+  }
+  .navi{ height:32px; border-radius:8px; background:rgba(255,255,255,0.04); }
+  .navi.active{ background:rgba(232,197,126,0.18); }
+
+  /* main content */
+  .content{ padding:24px 28px; display:flex; flex-direction:column; }
+  .ptitle{
+    font-family:var(--display); font-weight:700; font-size:16px;
+    color:rgba(250,246,238,0.60); letter-spacing:-0.01em;
+  }
+
+  /* stat cards */
+  .stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:18px; }
+  .stat{
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.07);
+    border-radius:7px;
+    padding:16px 18px;
+  }
+  .stat .lab{
+    font-family:var(--body); font-weight:600; font-size:10px; letter-spacing:0.10em;
+    text-transform:uppercase; color:rgba(255,255,255,0.30);
+  }
+  .stat .val{ font-family:var(--display); font-weight:700; font-size:30px; letter-spacing:-0.02em; margin-top:8px; line-height:1; }
+  .val.gold{ color:var(--gold); }
+  .val.green{ color:var(--green); }
+  .val.white{ color:rgba(250,246,238,0.80); }
+
+  /* chart */
+  .chart{
+    margin-top:16px;
+    background:rgba(255,255,255,0.025);
+    border:1px solid rgba(255,255,255,0.07);
+    border-radius:7px;
+    padding:18px 22px 16px;
+  }
+  .chart .lab{
+    font-family:var(--body); font-weight:600; font-size:10px; letter-spacing:0.10em;
+    text-transform:uppercase; color:rgba(255,255,255,0.30);
+  }
+  .bars{ display:flex; align-items:flex-end; gap:14px; height:96px; margin-top:18px; }
+  .bar{ flex:1; border-radius:5px 5px 4px 4px; background:rgba(255,255,255,0.13); }
+  .bar.peak{ background:var(--gold); }
+  .days{ display:flex; gap:14px; margin-top:10px; }
+  .day{ flex:1; text-align:center; font-family:var(--body); font-weight:500; font-size:11px; letter-spacing:0.06em; color:rgba(255,255,255,0.28); }
+  .day.hot{ color:rgba(232,197,126,0.85); }
+
+  /* event rows */
+  .events{ margin-top:18px; }
+  .erow{ display:flex; align-items:center; gap:14px; padding:14px 2px; }
+  .erow + .erow{ border-top:1px solid rgba(255,255,255,0.06); }
+  .ethumb{ width:38px; height:38px; border-radius:6px; flex:none;
+    background:linear-gradient(135deg,#1F4D3A,#2A6A50); }
+  .ename{ font-family:var(--display); font-weight:600; font-size:14px; color:rgba(250,246,238,0.88); white-space:nowrap; }
+  .epill{ font-family:var(--body); font-weight:500; font-size:11px; padding:3px 10px; border-radius:999px; }
+  .epill.live{ background:rgba(45,122,79,0.22); color:var(--green); }
+  .epill.draft{ background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.35); }
+  .ereg{ margin-left:auto; font-family:var(--body); font-size:12px; color:rgba(255,255,255,0.40); }
+
+  /* ============== LIVE BADGE ============== */
+  .badge{
+    position:absolute; left:30px; top:78px;
+    transform:translateY(-50%);
+    z-index:20;
+    display:inline-flex; align-items:center; gap:9px;
+    background:var(--badge-green);
+    padding:11px 18px; border-radius:999px;
+    box-shadow:0 8px 28px -8px rgba(45,122,79,0.55), 0 0 0 1px rgba(255,255,255,0.06) inset;
+  }
+  .badge .pulse{ width:9px; height:9px; border-radius:50%; background:#fff; position:relative; }
+  .badge .pulse::after{ content:''; position:absolute; inset:-4px; border-radius:50%; border:1.5px solid rgba(255,255,255,0.5);
+    animation:pulse 2.2s ease-out infinite; }
+  @keyframes pulse{ 0%{ transform:scale(0.6); opacity:0.9; } 100%{ transform:scale(1.9); opacity:0; } }
+  .badge .txt{ font-family:var(--display); font-weight:700; font-size:14px; color:#fff; letter-spacing:-0.01em; }
+
+  /* ============== PHONE ============== */
+  .phone{
+    position:absolute; right:10px; bottom:18px;
+    width:228px; height:432px;
+    background:var(--darkest);
+    border:1.5px solid rgba(232,197,126,0.30);
+    border-radius:34px;
+    padding:12px;
+    z-index:30;
+    box-shadow:0 40px 70px -34px rgba(15,31,24,0.55), 0 0 0 1px rgba(0,0,0,0.2);
+  }
+  .notch{ position:absolute; top:14px; left:50%; transform:translateX(-50%);
+    width:64px; height:7px; border-radius:999px; background:rgba(255,255,255,0.12); }
+
+  .kcard{
+    height:100%;
+    border-radius:24px;
+    background:linear-gradient(135deg,#163828 0%,#1F4D3A 55%,#2A6A50 100%);
+    padding:26px 20px 18px;
+    display:flex; flex-direction:column;
+    position:relative;
+    overflow:hidden;
+  }
+  .kbrand{ position:absolute; top:18px; right:20px;
+    font-family:var(--display); font-weight:600; font-size:9px; letter-spacing:0.22em;
+    color:rgba(232,197,126,0.55); }
+  .kav{ width:54px; height:54px; border-radius:50%;
+    background:rgba(232,197,126,0.28); border:1.5px solid rgba(232,197,126,0.55); margin-top:14px; }
+  .kname{ font-family:var(--display); font-weight:700; font-size:19px; color:#fff; margin-top:16px; letter-spacing:-0.01em; }
+  .krole{ font-family:var(--body); font-weight:400; font-size:13px; color:rgba(250,246,238,0.62); margin-top:3px; }
+
+  .kshare{ display:flex; gap:8px; margin-top:auto; }
+  .kshare .sb{ flex:1; height:34px; border-radius:999px;
+    background:rgba(255,255,255,0.10); display:flex; align-items:center; justify-content:center;
+    font-family:var(--body); font-weight:600; font-size:12px; color:rgba(250,246,238,0.82); letter-spacing:0.02em; }
+  .kdl{ margin-top:10px; height:40px; border-radius:10px;
+    background:rgba(255,255,255,0.10); display:flex; align-items:center; justify-content:center;
+    font-family:var(--display); font-weight:500; font-size:13px; color:rgba(250,246,238,0.92); }
+  .kready{ text-align:center; font-family:var(--body); font-weight:400; font-size:11px;
+    color:rgba(250,246,238,0.40); margin-top:12px; }
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <div id="comp">
+
+    <!-- Browser -->
+    <div class="browser">
+      <div class="chrome">
+        <div class="dots"><span></span><span></span><span></span></div>
+        <div class="urlbar"></div>
+        <div class="urlbtn"></div>
+      </div>
+      <div class="bbody">
+        <aside class="side">
+          <div class="navi active"></div>
+          <div class="navi"></div>
+          <div class="navi"></div>
+          <div class="navi"></div>
+          <div class="navi"></div>
+        </aside>
+        <main class="content">
+          <div class="ptitle">Pan-African Climate Summit</div>
+
+          <div class="stats">
+            <div class="stat"><div class="lab">Registrations</div><div class="val gold">847</div></div>
+            <div class="stat"><div class="lab">Cards Shared</div><div class="val green">1,204</div></div>
+            <div class="stat"><div class="lab">Check-ins</div><div class="val white">412</div></div>
+          </div>
+
+          <div class="chart">
+            <div class="lab">Registrations — Last 7 Days</div>
+            <div class="bars">
+              <div class="bar" style="height:38%"></div>
+              <div class="bar" style="height:52%"></div>
+              <div class="bar" style="height:44%"></div>
+              <div class="bar" style="height:66%"></div>
+              <div class="bar" style="height:58%"></div>
+              <div class="bar peak" style="height:100%"></div>
+              <div class="bar" style="height:48%"></div>
+            </div>
+            <div class="days">
+              <div class="day">M</div>
+              <div class="day">T</div>
+              <div class="day">W</div>
+              <div class="day">T</div>
+              <div class="day">F</div>
+              <div class="day hot">S</div>
+              <div class="day">S</div>
+            </div>
+          </div>
+
+          <div class="events">
+            <div class="erow">
+              <div class="ethumb"></div>
+              <div class="ename">Pan-African Climate Summit</div>
+              <div class="epill live">Live</div>
+              <div class="ereg">847 reg.</div>
+            </div>
+            <div class="erow">
+              <div class="ethumb"></div>
+              <div class="ename">Tech Lagos 2025</div>
+              <div class="epill draft">Draft</div>
+              <div class="ereg">—</div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- Live badge -->
+    <div class="badge">
+      <span class="pulse"></span>
+      <span class="txt">Live · 847 registrations</span>
+    </div>
+
+    <!-- Phone -->
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="kcard">
+        <div class="kbrand">KARTA</div>
+        <div class="kav"></div>
+        <div class="kname">Amara Yusuf</div>
+        <div class="krole">Policy Lead</div>
+        <div class="kshare">
+          <div class="sb">IG</div>
+          <div class="sb">WA</div>
+          <div class="sb">X</div>
+        </div>
+        <div class="kdl">Download card</div>
+        <div class="kready">Ready to share ✓</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function fit(){
+    const comp = document.getElementById('comp');
+    const pad = 48;
+    const s = Math.min(
+      (window.innerWidth - pad) / 1040,
+      (window.innerHeight - pad) / 760,
+      1
+    );
+    comp.style.transform = 'scale(' + s + ')';
+  }
+  window.addEventListener('resize', fit);
+  fit();
+</script>
+</body>
+</html>

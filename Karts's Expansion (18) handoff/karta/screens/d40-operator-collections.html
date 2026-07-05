@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D40 · Operator — Collections</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .opnav { height: 64px; background: var(--forest-dark); display: flex; align-items: center; justify-content: space-between; padding: 0 28px; }
+  .opnav .l { display: flex; align-items: center; gap: 16px; }
+  .opnav .wm { font-family: var(--display); font-weight: 600; font-size: 18px; color: #fff; }
+  .opnav .wm b { color: var(--gold); }
+  .opnav .mode { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; color: var(--gold); padding: 4px 10px; border: 1px solid rgba(232,197,126,0.4); border-radius: var(--r-pill); }
+
+  .main2 { max-width: 1080px; margin: 0 auto; padding: 36px 40px 96px; }
+  .pagehead { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+  .colrow { display: flex; align-items: center; gap: 16px; padding: 16px 20px; background: var(--cream-surface); border: 1px solid var(--cream-border); border-radius: var(--r-card); margin-bottom: 12px; }
+  .colrow .strip { display: flex; flex: none; }
+  .colrow .strip .th { width: 44px; height: 32px; border-radius: 5px; position: relative; overflow: hidden; border: 2px solid var(--cream-surface); }
+  .colrow .strip .th + .th { margin-left: -10px; }
+  .colrow .n { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--ink); }
+  .colrow .s { font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-top: 2px; }
+  .colrow .s b { font-family: var(--mono); font-weight: 500; color: var(--ink-soft); }
+  .colrow .acts { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+
+  .sec-h2 { font-family: var(--display); font-weight: 500; font-size: 16px; color: var(--ink); margin: 40px 0 14px; display: flex; align-items: baseline; gap: 8px; }
+  .sec-h2 .n { font-family: var(--mono); font-size: 12px; color: var(--ink-muted); }
+
+  .promorow { display: flex; align-items: center; gap: 14px; padding: 15px 18px; background: var(--cream-surface); border: 1px solid var(--cream-border); border-radius: var(--r-card); margin-bottom: 10px; }
+  .promorow .img { width: 64px; height: 44px; border-radius: 5px; position: relative; overflow: hidden; flex: none; }
+  .promorow .n { font-family: var(--display); font-weight: 500; font-size: 14px; color: var(--ink); }
+  .promorow .s { font-family: var(--mono); font-size: 11px; color: var(--ink-muted); margin-top: 3px; }
+  .promorow .acts { margin-left: auto; display: flex; gap: 8px; }
+  .qbar { display: flex; align-items: center; gap: 8px; font-family: var(--body); font-size: 12px; color: var(--ink-muted); }
+  .qbar .ok { color: var(--success); } .qbar .bad { color: var(--error); }
+</style>
+</head>
+<body>
+
+<div class="opnav">
+  <div class="l">
+    <span class="wm">K<b>a</b>rta</span>
+    <span class="mode">OPERATOR CONSOLE</span>
+  </div>
+  <div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div>
+</div>
+
+<div class="main2">
+  <div class="pagehead">
+    <h1 class="t-display-lg" style="color:var(--forest);">Marketplace curation</h1>
+    <button class="btn btn-forest btn-md">New collection</button>
+  </div>
+
+  <div style="margin-top:26px;">
+    <div class="colrow">
+      <div class="strip">
+        <div class="th ph" style="--h:150;"></div><div class="th ph" style="--h:30;"></div><div class="th ph" style="--h:200;"></div>
+      </div>
+      <div>
+        <div class="n">Ramadan nights</div>
+        <div class="s"><b>8</b> events · home feed slot 2 · live until 20 Apr</div>
+      </div>
+      <div class="acts">
+        <span class="pill pill-live">Live</span>
+        <button class="btn btn-ghost-forest btn-sm">Edit</button>
+      </div>
+    </div>
+    <div class="colrow">
+      <div class="strip">
+        <div class="th ph" style="--h:158;"></div><div class="th ph" style="--h:210;"></div><div class="th ph" style="--h:95;"></div>
+      </div>
+      <div>
+        <div class="n">Tech in East Africa</div>
+        <div class="s"><b>14</b> events · category page header · evergreen</div>
+      </div>
+      <div class="acts">
+        <span class="pill pill-live">Live</span>
+        <button class="btn btn-ghost-forest btn-sm">Edit</button>
+      </div>
+    </div>
+    <div class="colrow">
+      <div class="strip">
+        <div class="th ph" style="--h:340;"></div><div class="th ph" style="--h:280;"></div><div class="th ph" style="--h:38;"></div>
+      </div>
+      <div>
+        <div class="n">Independence weekend</div>
+        <div class="s"><b>5</b> events · draft · scheduled 20 Jun</div>
+      </div>
+      <div class="acts">
+        <span class="pill pill-draft">Scheduled</span>
+        <button class="btn btn-ghost-forest btn-sm">Edit</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-h2">Promoted listings — pending review <span class="n">3</span></div>
+
+  <div class="promorow">
+    <div class="img ph" style="--h:158;"></div>
+    <div>
+      <div class="n">AfriTech Summit 2026 · Karta Studio</div>
+      <div class="s">$300 · 7 DAYS · HOME FEED + SEARCH</div>
+      <div class="qbar"><span class="ok">✓ cover image</span><span class="ok">✓ full description</span><span class="ok">✓ tickets live</span></div>
+    </div>
+    <div class="acts">
+      <button class="btn btn-forest btn-sm">Approve</button>
+      <button class="btn btn-ghost-forest btn-sm">Reject</button>
+    </div>
+  </div>
+  <div class="promorow">
+    <div class="img ph" style="--h:280;"></div>
+    <div>
+      <div class="n">Mombasa Beach Sessions · Coast Live</div>
+      <div class="s">$120 · 3 DAYS · HOME FEED</div>
+      <div class="qbar"><span class="ok">✓ cover image</span><span class="ok">✓ description</span><span class="ok">✓ tickets live</span></div>
+    </div>
+    <div class="acts">
+      <button class="btn btn-forest btn-sm">Approve</button>
+      <button class="btn btn-ghost-forest btn-sm">Reject</button>
+    </div>
+  </div>
+  <div class="promorow">
+    <div class="img ph" style="--h:60;"></div>
+    <div>
+      <div class="n">Crypto Wealth Night · NewOrg2026</div>
+      <div class="s">$500 · 14 DAYS · ALL PLACEMENTS</div>
+      <div class="qbar"><span class="bad">✕ external ticketing link</span><span class="bad">✕ thin description</span><span class="ok">✓ image</span></div>
+    </div>
+    <div class="acts">
+      <button class="btn btn-ghost-forest btn-sm">Reject — quality bar</button>
+    </div>
+  </div>
+
+  <div class="sec-h2">Feed rules</div>
+  <div class="card" style="padding:16px 20px;">
+    <div class="t-body-sm" style="color:var(--ink-muted); line-height:1.7;">Promoted slots cap at 1 per 6 cards, always labeled. Featuring requires: cover image, real description, live Karta ticketing (no external links), venue set. Collections outrank promoted slots; editorial beats paid, always.</div>
+  </div>
+</div>
+</body>
+</html>

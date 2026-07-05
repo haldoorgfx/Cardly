@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D14 · Karta AI Copilot</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .viewswitch { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 90; background: var(--forest-dark); border-radius: var(--r-pill); padding: 4px; box-shadow: var(--e2); display: flex; }
+  .viewswitch button { height: 36px; padding: 0 18px; border: none; border-radius: var(--r-pill); background: transparent; color: rgba(255,255,255,0.7); font-family: var(--display); font-weight: 500; font-size: 13px; cursor: pointer; }
+  .viewswitch button.on { background: var(--gold); color: var(--ink); }
+  body.att .orgview { display: none; }
+  body:not(.att) .attview { display: none; }
+
+  /* ============ shared copilot chat ============ */
+  .ai-msgs { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+  .m { max-width: 85%; padding: 11px 14px; border-radius: 12px; font-family: var(--body); font-size: 13px; line-height: 1.55; }
+  .m.user { align-self: flex-end; background: var(--forest); color: #fff; border-bottom-right-radius: 4px; }
+  .m.ai { align-self: flex-start; background: var(--cream-soft); color: var(--ink); border-bottom-left-radius: 4px; }
+  .m.ai b { font-weight: 600; }
+  .m.ai .mono { font-size: 12px; }
+  .prompts { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 20px 14px; }
+  .prompt-chip { height: 32px; padding: 0 14px; display: inline-flex; align-items: center; border-radius: var(--r-pill); border: 1px solid var(--cream-border); background: var(--cream-surface); font-family: var(--body); font-size: 12px; font-weight: 500; color: var(--forest); cursor: pointer; }
+  .prompt-chip:hover { background: var(--forest-soft); border-color: var(--forest); }
+  .ai-input { display: flex; align-items: center; gap: 10px; margin: 0 20px 20px; height: 46px; padding: 0 8px 0 16px; border-radius: var(--r-pill); border: 1px solid var(--cream-border); background: var(--cream-surface); }
+  .ai-input input { flex: 1; border: none; background: none; outline: none; font-family: var(--body); font-size: 13px; color: var(--ink); }
+  .ai-input .send { width: 32px; height: 32px; border-radius: 50%; border: none; background: var(--forest); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .ai-input .send svg { width: 14px; height: 14px; stroke: #fff; fill: none; stroke-width: 2; }
+  .ai-head { display: flex; align-items: center; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--cream-border); }
+  .spark { width: 34px; height: 34px; border-radius: 10px; background: var(--forest-dark); display: flex; align-items: center; justify-content: center; flex: none; }
+  .spark svg { width: 17px; height: 17px; stroke: var(--gold); fill: none; stroke-width: 1.8; }
+  .ai-head .t { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--ink); }
+  .ai-head .s { font-family: var(--body); font-size: 11px; color: var(--ink-muted); margin-top: 1px; }
+  .ai-head .x { margin-left: auto; border: none; background: none; color: var(--ink-muted); font-size: 16px; cursor: pointer; }
+
+  /* ============ organizer view ============ */
+  .dimmain { pointer-events: none; user-select: none; }
+  .copanel { position: fixed; top: 0; right: 0; bottom: 0; width: 420px; max-width: 92vw; background: var(--cream-canvas); border-left: 1px solid var(--cream-border); box-shadow: -12px 0 40px rgba(15,31,24,0.12); z-index: 70; display: flex; flex-direction: column; }
+  .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 26px; }
+  .kpi { padding: 18px 20px; }
+  .kpi .lab { font-family: var(--body); font-size: 12px; color: var(--ink-muted); }
+  .kpi .val { font-family: var(--mono); font-weight: 500; font-size: 24px; color: var(--ink); margin-top: 4px; }
+
+  /* ============ attendee view ============ */
+  .attwrap { max-width: 760px; margin: 0 auto; padding: 36px 40px 120px; }
+  .evhero { height: 220px; border-radius: var(--r-card); position: relative; overflow: hidden; }
+  .evhero .cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 24px 28px; z-index: 2; }
+  .evhero h1 { font-family: var(--display); font-weight: 500; font-size: 26px; color: #fff; }
+  .evhero .meta { font-family: var(--mono); font-size: 12px; color: rgba(255,255,255,0.85); margin-top: 6px; }
+  .sessrow { display: flex; gap: 14px; padding: 16px 18px; border-bottom: 1px solid var(--cream-border); }
+  .sessrow .tm { font-family: var(--mono); font-weight: 500; font-size: 12px; color: var(--gold-hover); min-width: 52px; }
+  .sessrow .n { font-family: var(--display); font-weight: 500; font-size: 14px; color: var(--ink); }
+  .sessrow .w { font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-top: 2px; }
+
+  .fab { position: fixed; right: 28px; bottom: 84px; z-index: 80; width: 58px; height: 58px; border-radius: 50%; border: none; background: var(--forest-dark); cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 28px rgba(13,31,23,0.4), 0 0 0 1px rgba(232,197,126,0.25); }
+  .fab svg { width: 24px; height: 24px; stroke: var(--gold); fill: none; stroke-width: 1.8; }
+  .chatsheet { position: fixed; right: 28px; bottom: 84px; z-index: 81; width: 380px; max-width: calc(100vw - 40px); height: 540px; max-height: 72vh; background: var(--cream-canvas); border: 1px solid var(--cream-border); border-radius: 16px; box-shadow: 0 24px 64px rgba(15,31,24,0.25); display: none; flex-direction: column; overflow: hidden; }
+  .attview.chatopen .chatsheet { display: flex; }
+  .attview.chatopen .fab { display: none; }
+
+  @media (max-width:900px){ .kpis { grid-template-columns: 1fr; } .attwrap { padding: 24px 20px 120px; } .chatsheet { right: 10px; } }
+</style>
+</head>
+<body>
+
+<!-- ===================== ORGANIZER VIEW ===================== -->
+<div class="orgview">
+  <div class="dimmain">
+    <div class="dashnav">
+      <div style="display:flex; align-items:center; gap:18px;">
+        <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+        <div class="crumb"><b>Karta</b>&nbsp;&nbsp;/&nbsp;&nbsp;AfriTech Summit&nbsp;&nbsp;/&nbsp;&nbsp;Overview</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:18px;">
+        <div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div>
+      </div>
+    </div>
+    <div class="dash">
+      <aside class="sidebar">
+        <div class="side-item active"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Events</div>
+        <div class="side-item"><svg viewBox="0 0 24 24"><path d="M16 11l2 2 4-4M3 20c0-3 2.7-5 6-5s6 2 6 5M9 12a4 4 0 100-8 4 4 0 000 8z"/></svg>Registrations</div>
+        <div class="side-item"><svg viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l4-4 3 3 5-6"/></svg>Analytics</div>
+      </aside>
+      <main class="main">
+        <h1 class="t-display-lg" style="color:var(--forest);">AfriTech Summit 2026</h1>
+        <div class="kpis">
+          <div class="card kpi"><div class="lab">Registrations</div><div class="val">237</div></div>
+          <div class="card kpi"><div class="lab">Revenue</div><div class="val">$4,750</div></div>
+          <div class="card kpi"><div class="lab">Avg session rating</div><div class="val">4.6</div></div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <aside class="copanel">
+    <div class="ai-head">
+      <div class="spark"><svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3zM19 16l.9 2.1L22 19l-2.1.9L19 22l-.9-2.1L16 19l2.1-.9L19 16z"/></svg></div>
+      <div>
+        <div class="t">Karta Copilot</div>
+        <div class="s">Knows this event — agenda, attendees, feedback</div>
+      </div>
+      <button class="x">✕</button>
+    </div>
+    <div class="ai-msgs">
+      <div class="m user">Summarize the session feedback from day 1</div>
+      <div class="m ai"><b>Day 1 in short:</b> 4.6 average across 14 sessions, 412 ratings in.<br><br>Strongest: <b>“Cross-border payments panel”</b> — <span class="mono">4.9</span>, praised for the live demo.<br>Weakest: <b>“Cloud cost workshop”</b> — <span class="mono">3.4</span>; 11 comments mention the room was too small and the mic kept cutting.<br><br>Want me to draft an apology + room-change note to that workshop's attendees?</div>
+      <div class="m user">Yes, and schedule it for 07:30 tomorrow</div>
+      <div class="m ai">Draft ready and queued as a blast to <b>46 attendees</b> (email + WhatsApp) for <span class="mono">07:30 EAT</span>. It explains the move to Room C — 80 seats — and the fixed audio. It's in Communications → Scheduled for your sign-off.</div>
+    </div>
+    <div class="prompts">
+      <div class="prompt-chip">Draft reminder email</div>
+      <div class="prompt-chip">Which sessions underperformed?</div>
+      <div class="prompt-chip">Who hasn't checked in?</div>
+    </div>
+    <div class="ai-input">
+      <input placeholder="Ask about this event…">
+      <button class="send"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </div>
+  </aside>
+</div>
+
+<!-- ===================== ATTENDEE VIEW ===================== -->
+<div class="attview" id="attview">
+  <nav class="topnav">
+    <div class="wm">K<b>a</b>rta</div>
+    <div class="links"><a href="#">Overview</a><a href="#" style="color:var(--forest);">Schedule</a><a href="#">People</a></div>
+    <div class="right">
+      <div class="ph avatar avatar-ring" style="--h:30; width:36px; height:36px;"></div>
+      <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+    </div>
+  </nav>
+  <div class="attwrap">
+    <div class="evhero ph" style="--h:158;">
+      <div class="scrim-b" style="position:absolute; inset:0;"></div>
+      <div class="cap"><h1>AfriTech Summit 2026</h1><div class="meta">DAY 2 · WED 13 MAR · KEMPINSKI PALACE</div></div>
+    </div>
+    <div class="card" style="margin-top:20px;">
+      <div class="sessrow"><span class="tm">09:00</span><div><div class="n">Keynote — Building for the next billion</div><div class="w">Main hall · Dr. Sara Mwangi</div></div></div>
+      <div class="sessrow"><span class="tm">10:30</span><div><div class="n">AI in African fintech</div><div class="w">Room B · panel</div></div></div>
+      <div class="sessrow"><span class="tm">12:00</span><div><div class="n">Lunch &amp; networking</div><div class="w">Terrace</div></div></div>
+      <div class="sessrow"><span class="tm">14:00</span><div><div class="n">Cloud cost workshop</div><div class="w">Room C · moved from Room A</div></div></div>
+    </div>
+  </div>
+
+  <button class="fab" onclick="document.getElementById('attview').classList.add('chatopen')">
+    <svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3z"/></svg>
+  </button>
+
+  <div class="chatsheet">
+    <div class="ai-head">
+      <div class="spark"><svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3z"/></svg></div>
+      <div>
+        <div class="t">Ask Karta</div>
+        <div class="s">Your guide to AfriTech Summit</div>
+      </div>
+      <button class="x" onclick="document.getElementById('attview').classList.remove('chatopen')">✕</button>
+    </div>
+    <div class="ai-msgs">
+      <div class="m user">Where is the cloud cost workshop?</div>
+      <div class="m ai">It moved this morning — now in <b>Room C</b>, ground floor past the gold lounge, at <span class="mono">14:00</span>. Bigger room, 80 seats. Want me to add it to your agenda?</div>
+      <div class="m user">Yes. And who should I meet before it?</div>
+      <div class="m ai">Added. Based on your profile — fintech &amp; infra — <b>Samuel Okoro</b> (Paystack, platform team) is also booked into that workshop and open to meetings. He's free <span class="mono">13:15–13:45</span>. Send a meeting request?</div>
+    </div>
+    <div class="prompts">
+      <div class="prompt-chip">When is the keynote?</div>
+      <div class="prompt-chip">Who should I meet?</div>
+      <div class="prompt-chip">Where's lunch?</div>
+    </div>
+    <div class="ai-input">
+      <input placeholder="Ask anything about the event…">
+      <button class="send"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<div class="viewswitch">
+  <button class="on" onclick="setV(false,this)">Organizer copilot</button>
+  <button onclick="setV(true,this)">Attendee copilot</button>
+</div>
+
+<script>
+  function setV(att, btn){
+    document.body.classList.toggle('att', att);
+    document.querySelectorAll('.viewswitch button').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+    if(att) document.getElementById('attview').classList.add('chatopen');
+  }
+</script>
+</body>
+</html>

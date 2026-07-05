@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D31 · Event Community</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .shell { display: grid; grid-template-columns: 280px 1fr; gap: 0; max-width: 1120px; margin: 28px auto 0; border: 1px solid var(--cream-border); border-radius: var(--r-card); overflow: hidden; background: var(--cream-surface); min-height: 640px; }
+  .threads { border-right: 1px solid var(--cream-border); background: var(--cream-canvas); padding: 18px 0; }
+  .threads .h { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--ink); padding: 0 20px 12px; display: flex; justify-content: space-between; align-items: center; }
+  .thread { display: flex; align-items: center; gap: 10px; padding: 11px 20px; cursor: pointer; border-left: 2px solid transparent; }
+  .thread:hover { background: var(--cream-soft); }
+  .thread.on { background: var(--forest-soft); border-left-color: var(--forest); }
+  .thread .hash { font-family: var(--mono); font-size: 13px; color: var(--ink-muted); }
+  .thread.on .hash { color: var(--forest); }
+  .thread .n { font-family: var(--body); font-weight: 500; font-size: 13px; color: var(--ink-soft); }
+  .thread.on .n { color: var(--forest); }
+  .thread .cnt { margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--ink-muted); }
+  .thread .new { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); margin-left: auto; }
+
+  .chat { display: flex; flex-direction: column; }
+  .chat .head { padding: 16px 24px; border-bottom: 1px solid var(--cream-border); display: flex; align-items: baseline; gap: 12px; }
+  .chat .head .t { font-family: var(--display); font-weight: 500; font-size: 16px; color: var(--ink); }
+  .chat .head .s { font-family: var(--body); font-size: 12px; color: var(--ink-muted); }
+  .msgs { flex: 1; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
+  .msg { display: flex; gap: 12px; }
+  .msg .bd { flex: 1; }
+  .msg .who { display: flex; align-items: baseline; gap: 8px; }
+  .msg .nm { font-family: var(--display); font-weight: 500; font-size: 13px; color: var(--ink); }
+  .msg .org-tag { font-size: 9px; padding: 2px 7px; background: var(--forest-soft); color: var(--forest); font-weight: 600; letter-spacing: 0.04em; }
+  .msg .tm { font-family: var(--mono); font-size: 10px; color: var(--ink-muted); }
+  .msg .tx { font-family: var(--body); font-size: 13px; line-height: 1.55; color: var(--ink-soft); margin-top: 4px; }
+  .msg .reacts { display: flex; gap: 6px; margin-top: 8px; }
+  .react { height: 24px; padding: 0 9px; display: inline-flex; align-items: center; gap: 5px; border-radius: var(--r-pill); border: 1px solid var(--cream-border); background: var(--cream-canvas); font-family: var(--mono); font-size: 10px; color: var(--ink-soft); cursor: pointer; }
+  .react.mine { border-color: var(--forest); background: var(--forest-soft); color: var(--forest); }
+  .pinmsg { background: var(--gold-soft); border: 1px solid rgba(201,164,94,0.35); border-radius: var(--r-card); padding: 12px 16px; }
+  .pinmsg .pl { font-family: var(--body); font-weight: 600; font-size: 10px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--gold-hover); }
+  .pinmsg .tx { font-family: var(--body); font-size: 13px; color: var(--ink-soft); margin-top: 5px; }
+
+  .inputbar { display: flex; align-items: center; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--cream-border); }
+  .inputbar .box { flex: 1; height: 44px; border-radius: var(--r-pill); border: 1px solid var(--cream-border); background: var(--cream-canvas); display: flex; align-items: center; padding: 0 18px; }
+  .inputbar input { flex: 1; border: none; background: none; outline: none; font-family: var(--body); font-size: 13px; color: var(--ink); }
+  .modnote { font-family: var(--body); font-size: 11px; color: var(--ink-muted); text-align: center; padding: 0 20px 14px; }
+
+  @media (max-width:860px){ .shell { grid-template-columns: 1fr; margin: 16px; } .threads { display: none; } }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links">
+    <a href="#">Overview</a>
+    <a href="#">Schedule</a>
+    <a href="#" style="color:var(--forest);">Community</a>
+    <a href="#">People</a>
+  </div>
+  <div class="right">
+    <div class="ph avatar avatar-ring" style="--h:30; width:36px; height:36px;"></div>
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</nav>
+
+<div class="shell">
+  <aside class="threads">
+    <div class="h">AfriTech Summit <button class="btn btn-ghost-forest btn-sm">＋</button></div>
+    <div class="thread"><span class="hash">#</span><span class="n">announcements</span><span class="cnt">412</span></div>
+    <div class="thread on"><span class="hash">#</span><span class="n">general</span><span class="cnt">1.2K</span></div>
+    <div class="thread"><span class="hash">#</span><span class="n">find-your-crew</span><span class="new"></span></div>
+    <div class="thread"><span class="hash">#</span><span class="n">fintech-panel</span><span class="cnt">86</span></div>
+    <div class="thread"><span class="hash">#</span><span class="n">jobs-and-hiring</span><span class="cnt">54</span></div>
+    <div class="thread"><span class="hash">#</span><span class="n">after-hours</span><span class="new"></span></div>
+  </aside>
+
+  <div class="chat">
+    <div class="head"><span class="t"># general</span><span class="s">847 attendees · organizer-moderated</span></div>
+    <div class="msgs">
+      <div class="pinmsg">
+        <div class="pl">Pinned by Karta Studio</div>
+        <div class="tx">Wi-Fi: KEMPINSKI-EVENT · Be kind, no spam, no DMs without a connect. Day 2 schedule is live in your agenda.</div>
+      </div>
+      <div class="msg">
+        <div class="ph avatar" style="--h:265; width:34px; height:34px;"></div>
+        <div class="bd">
+          <div class="who"><span class="nm">Leila Haddad</span><span class="tm">11:42</span></div>
+          <div class="tx">That cross-border rails demo was the realest thing I've seen at a conference. Slides anywhere?</div>
+          <div class="reacts"><span class="react mine">♥ 24</span><span class="react">+1 11</span></div>
+        </div>
+      </div>
+      <div class="msg">
+        <div class="ph avatar" style="--h:150; width:34px; height:34px;"></div>
+        <div class="bd">
+          <div class="who"><span class="nm">Karta Studio</span><span class="org-tag pill">ORGANIZER</span><span class="tm">11:45</span></div>
+          <div class="tx">Slides land in #fintech-panel within the hour — speaker's uploading now.</div>
+          <div class="reacts"><span class="react">♥ 18</span></div>
+        </div>
+      </div>
+      <div class="msg">
+        <div class="ph avatar" style="--h:200; width:34px; height:34px;"></div>
+        <div class="bd">
+          <div class="who"><span class="nm">Samuel Okoro</span><span class="tm">11:51</span></div>
+          <div class="tx">Lagos crew at the long table on the terrace — come find us, look for the gold Karta Cards on the table.</div>
+          <div class="reacts"><span class="react">♥ 31</span><span class="react mine">👋 12</span></div>
+        </div>
+      </div>
+      <div class="msg">
+        <div class="ph avatar" style="--h:95; width:34px; height:34px;"></div>
+        <div class="bd">
+          <div class="who"><span class="nm">Yonas Tesfaye</span><span class="tm">12:02</span></div>
+          <div class="tx">Anyone driving toward Plateau du Serpent after closing? Happy to split fuel.</div>
+        </div>
+      </div>
+    </div>
+    <div class="inputbar">
+      <div class="box"><input placeholder="Message # general…"></div>
+      <button class="btn btn-forest btn-md">Send</button>
+    </div>
+    <div class="modnote">Organizers can pin, slow-mode, or lock any thread · report a message by long-pressing it</div>
+  </div>
+</div>
+</body>
+</html>

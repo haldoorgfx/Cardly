@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D23 · Ticket Types Manager</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .pagehead { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+  .ttrow { display: flex; align-items: center; gap: 16px; padding: 18px 22px; background: var(--cream-surface); border: 1px solid var(--cream-border); border-radius: var(--r-card); margin-bottom: 12px; }
+  .ttrow .grip { color: var(--ink-muted); cursor: grab; font-size: 15px; letter-spacing: -2px; }
+  .ttrow .n { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--ink); display: flex; align-items: center; gap: 8px; }
+  .ttrow .s { font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-top: 3px; }
+  .ttrow .s b { font-family: var(--mono); font-weight: 500; color: var(--ink-soft); }
+  .ttrow .p { font-family: var(--mono); font-weight: 500; font-size: 16px; color: var(--ink); margin-left: auto; }
+  .ttrow .bar { width: 120px; }
+  .ttrow .bar .lab { font-family: var(--mono); font-size: 10px; color: var(--ink-muted); margin-bottom: 4px; text-align: right; }
+  .ttrow .bar .tr { height: 5px; border-radius: 3px; background: var(--cream-soft); overflow: hidden; }
+  .ttrow .bar .fl { height: 100%; border-radius: 3px; background: var(--forest); }
+  .kindtag { font-size: 10px; padding: 3px 8px; }
+  .k-don { background: var(--gold-soft); color: var(--gold-hover); }
+  .k-app { background: var(--forest-soft); color: var(--forest); }
+  .k-hid { background: var(--forest-dark); color: var(--gold); }
+  .moremenu { color: var(--ink-muted); cursor: pointer; padding: 0 4px; }
+
+  .sec-h2 { font-family: var(--display); font-weight: 500; font-size: 16px; color: var(--ink); margin: 38px 0 14px; }
+  .addonrow { display: flex; align-items: center; gap: 14px; padding: 14px 18px; background: var(--cream-surface); border: 1px solid var(--cream-border); border-radius: var(--r-card); margin-bottom: 10px; }
+  .addonrow .n { font-family: var(--body); font-weight: 500; font-size: 14px; color: var(--ink); }
+  .addonrow .s { font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-top: 2px; }
+  .addonrow .p { font-family: var(--mono); font-weight: 500; font-size: 14px; color: var(--ink); margin-left: auto; }
+
+  .feebox { padding: 20px 24px; }
+  .feebox .t { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--ink); }
+  .feebox .d { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 5px; line-height: 1.6; }
+  .feeopts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+  .feeopt { padding: 16px 18px; border-radius: var(--r-card); border: 1px solid var(--cream-border); background: var(--cream-surface); cursor: pointer; transition: all .15s; }
+  .feeopt.on { border-color: var(--forest); background: var(--forest-soft); }
+  .feeopt .n { font-family: var(--display); font-weight: 500; font-size: 14px; color: var(--ink); }
+  .feeopt .m { font-family: var(--mono); font-size: 12px; color: var(--ink-soft); margin-top: 6px; }
+
+  /* edit drawer */
+  .scrim { position: fixed; inset: 0; background: rgba(15,31,24,0.35); opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 60; }
+  .scrim.open { opacity: 1; pointer-events: auto; }
+  .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: 420px; max-width: 92vw; background: var(--cream-canvas); border-left: 1px solid var(--cream-border); box-shadow: var(--e2); transform: translateX(100%); transition: transform .3s cubic-bezier(.4,0,.2,1); z-index: 61; overflow-y: auto; padding: 28px; }
+  .drawer.open { transform: translateX(0); }
+  .drawer h3 { font-family: var(--display); font-weight: 500; font-size: 19px; color: var(--ink); }
+  .fld { margin-top: 16px; }
+  .fld label { display: block; font-family: var(--body); font-weight: 500; font-size: 12px; color: var(--ink-soft); margin-bottom: 6px; }
+  .fld input { width: 100%; height: 44px; padding: 0 14px; border-radius: var(--r-input); border: 1px solid var(--cream-border); background: var(--cream-surface); font-family: var(--body); font-size: 14px; color: var(--ink); outline: none; }
+  .fld input:focus { border-color: var(--gold); }
+  .kinds { display: grid; gap: 8px; margin-top: 8px; }
+  .kindopt { display: flex; align-items: center; gap: 11px; padding: 12px 14px; border-radius: var(--r-card); border: 1px solid var(--cream-border); background: var(--cream-surface); cursor: pointer; }
+  .kindopt.on { border-color: var(--forest); background: var(--forest-soft); }
+  .kindopt input { accent-color: var(--forest); }
+  .kindopt .n { font-family: var(--body); font-weight: 500; font-size: 13px; color: var(--ink); }
+  .kindopt .s { font-family: var(--body); font-size: 11px; color: var(--ink-muted); margin-top: 1px; }
+  .codefld { display: flex; gap: 8px; }
+  .codefld input { font-family: var(--mono); letter-spacing: 0.1em; text-transform: uppercase; }
+  .drawer .row { display: flex; gap: 10px; margin-top: 26px; }
+
+  @media (max-width:900px){ .ttrow { flex-wrap: wrap; } .ttrow .bar { display: none; } .feeopts { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="dashnav">
+  <div style="display:flex; align-items:center; gap:18px;">
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+    <div class="crumb"><b>Karta</b>&nbsp;&nbsp;/&nbsp;&nbsp;Design in the Horn&nbsp;&nbsp;/&nbsp;&nbsp;Tickets</div>
+  </div>
+  <div style="display:flex; align-items:center; gap:18px;">
+    <div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div>
+  </div>
+</div>
+
+<div class="dash">
+  <aside class="sidebar">
+    <div class="side-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Events</div>
+    <div class="side-item active"><svg viewBox="0 0 24 24"><path d="M3 9a2 2 0 012-2h14a2 2 0 012 2v2a2 2 0 000 4v2H3v-2a2 2 0 000-4V9zM13 7v10"/></svg>Tickets</div>
+    <div class="side-item"><svg viewBox="0 0 24 24"><path d="M16 11l2 2 4-4M3 20c0-3 2.7-5 6-5s6 2 6 5M9 12a4 4 0 100-8 4 4 0 000 8z"/></svg>Registrations</div>
+    <div class="side-item"><svg viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l4-4 3 3 5-6"/></svg>Analytics</div>
+    <div style="flex:1;"></div>
+    <span class="pill" style="background:var(--forest-soft); color:var(--forest); margin:0 12px; align-self:flex-start; font-family:var(--mono); font-weight:500;">Pro plan</span>
+  </aside>
+
+  <main class="main">
+    <div class="pagehead">
+      <h1 class="t-display-lg" style="color:var(--forest);">Ticket types</h1>
+      <button class="btn btn-forest btn-md" onclick="openDrawer()">New ticket type</button>
+    </div>
+
+    <div style="margin-top:26px;">
+      <div class="ttrow">
+        <span class="grip">⠿</span>
+        <div>
+          <div class="n">General</div>
+          <div class="s">Standard · <b>117</b> sold of <b>180</b></div>
+        </div>
+        <div class="bar"><div class="lab">65%</div><div class="tr"><div class="fl" style="width:65%;"></div></div></div>
+        <span class="p">$20</span>
+        <span class="moremenu" onclick="openDrawer()">✎</span>
+      </div>
+      <div class="ttrow">
+        <span class="grip">⠿</span>
+        <div>
+          <div class="n">Supporter <span class="pill kindtag k-don">Pay what you want</span></div>
+          <div class="s">Min <b>$10</b> · avg paid <b>$28.40</b> · <b>23</b> sold</div>
+        </div>
+        <div class="bar"><div class="lab">—</div><div class="tr"><div class="fl" style="width:18%; background:var(--gold);"></div></div></div>
+        <span class="p">$10+</span>
+        <span class="moremenu" onclick="openDrawer()">✎</span>
+      </div>
+      <div class="ttrow">
+        <span class="grip">⠿</span>
+        <div>
+          <div class="n">Student <span class="pill kindtag k-app">Approval required</span></div>
+          <div class="s"><b>142</b> applied · <b>31</b> approved of <b>40</b> seats · <a href="d24-approval-queue.html" style="color:var(--forest);">review queue</a></div>
+        </div>
+        <div class="bar"><div class="lab">78%</div><div class="tr"><div class="fl" style="width:78%;"></div></div></div>
+        <span class="p">Free</span>
+        <span class="moremenu" onclick="openDrawer()">✎</span>
+      </div>
+      <div class="ttrow">
+        <span class="grip">⠿</span>
+        <div>
+          <div class="n">Speaker circle <span class="pill kindtag k-hid">Hidden · code</span></div>
+          <div class="s">Unlocks with <b>ROOFTOP26</b> · <b>9</b> of <b>12</b> claimed</div>
+        </div>
+        <div class="bar"><div class="lab">75%</div><div class="tr"><div class="fl" style="width:75%;"></div></div></div>
+        <span class="p">$80</span>
+        <span class="moremenu" onclick="openDrawer()">✎</span>
+      </div>
+    </div>
+
+    <div class="sec-h2">Add-ons</div>
+    <div class="addonrow"><div><div class="n">Critique wall print pack</div><div class="s">38 sold</div></div><span class="p">$8</span><span class="moremenu">✎</span></div>
+    <div class="addonrow"><div><div class="n">Parking — Palais garage</div><div class="s">21 sold · 40 cap</div></div><span class="p">$5</span><span class="moremenu">✎</span></div>
+    <div class="addonrow"><div><div class="n">Event tee</div><div class="s">54 sold</div></div><span class="p">$12</span><span class="moremenu">✎</span></div>
+    <button class="btn btn-ghost-forest btn-sm">Add an add-on</button>
+
+    <div class="sec-h2">Platform fee</div>
+    <div class="card feebox">
+      <div class="t">Who pays the 6% platform fee?</div>
+      <div class="d">Applies to paid tickets only. Buyers always see the final price before paying.</div>
+      <div class="feeopts">
+        <div class="feeopt on" onclick="feeSel(this)">
+          <div class="n">Buyer pays</div>
+          <div class="m">$20 ticket → buyer pays $21.20</div>
+        </div>
+        <div class="feeopt" onclick="feeSel(this)">
+          <div class="n">You absorb it</div>
+          <div class="m">$20 ticket → you receive $18.80</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="scrim" id="scrim" onclick="closeDrawer()"></div>
+<aside class="drawer" id="drawer">
+  <h3>Edit ticket type</h3>
+  <div class="fld"><label>Name</label><input value="Speaker circle"></div>
+  <div class="fld"><label>Price</label><input value="$80" style="font-family:var(--mono);"></div>
+  <div class="fld"><label>Capacity</label><input value="12" style="font-family:var(--mono);"></div>
+  <div class="fld">
+    <label>Kind</label>
+    <div class="kinds">
+      <label class="kindopt"><input type="radio" name="kind"><div><div class="n">Standard</div><div class="s">Public, fixed price</div></div></label>
+      <label class="kindopt"><input type="radio" name="kind"><div><div class="n">Pay what you want</div><div class="s">Buyer chooses, with a minimum</div></div></label>
+      <label class="kindopt"><input type="radio" name="kind"><div><div class="n">Approval required</div><div class="s">Apply → you approve → they confirm</div></div></label>
+      <label class="kindopt on"><input type="radio" name="kind" checked><div><div class="n">Hidden — unlock code</div><div class="s">Invisible until a code is entered</div></div></label>
+    </div>
+  </div>
+  <div class="fld">
+    <label>Unlock code</label>
+    <div class="codefld">
+      <input value="ROOFTOP26">
+      <button class="btn btn-ghost-forest btn-md">Regenerate</button>
+    </div>
+  </div>
+  <div class="row">
+    <button class="btn btn-forest btn-md" style="flex:1;" onclick="closeDrawer()">Save changes</button>
+    <button class="btn btn-ghost-forest btn-md" onclick="closeDrawer()">Cancel</button>
+  </div>
+</aside>
+
+<script>
+  function openDrawer(){ document.getElementById('scrim').classList.add('open'); document.getElementById('drawer').classList.add('open'); }
+  function closeDrawer(){ document.getElementById('scrim').classList.remove('open'); document.getElementById('drawer').classList.remove('open'); }
+  function feeSel(el){ el.parentElement.querySelectorAll('.feeopt').forEach(f=>f.classList.remove('on')); el.classList.add('on'); }
+  document.querySelectorAll('.kindopt').forEach(k=>k.onclick=()=>{ k.parentElement.querySelectorAll('.kindopt').forEach(x=>x.classList.remove('on')); k.classList.add('on'); });
+</script>
+</body>
+</html>

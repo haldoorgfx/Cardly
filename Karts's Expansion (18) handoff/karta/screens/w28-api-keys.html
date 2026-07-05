@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W28 · API Key Management</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .refstrip { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 16px 0; border-bottom: 1px solid var(--cream-border); margin-top: 8px; }
+  .refstrip .lab { font-family: var(--body); font-size: 13px; color: var(--ink-muted); }
+  .code-pill { display: inline-flex; align-items: center; gap: 10px; background: var(--cream-soft); border: 1px solid var(--cream-border); border-radius: var(--r-pill); padding: 6px 14px; font-family: var(--mono); font-size: 13px; color: var(--forest); }
+  .code-pill .cp { cursor: pointer; opacity: .6; } .code-pill .cp:hover { opacity: 1; }
+  .docs { font-family: var(--body); font-size: 13px; font-weight: 600; color: var(--gold-hover); text-decoration: none; margin-left: auto; }
+
+  .createcard { margin-top: 28px; padding: 24px; }
+  .createcard h3 { font-family: var(--display); font-weight: 500; font-size: 18px; color: var(--forest); }
+  .crow { display: grid; grid-template-columns: 1fr 1fr auto; gap: 14px; align-items: end; margin-top: 16px; }
+  .field label { display: block; font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-bottom: 6px; }
+  .field input, .field .sel { width: 100%; border: 1px solid var(--cream-border); border-radius: var(--r-input); padding: 11px 14px; font-family: var(--body); font-size: 14px; color: var(--ink); background: var(--cream-surface); }
+  .field .sel { color: var(--ink-muted); display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+
+  .listhead { font-family: var(--display); font-weight: 500; font-size: 18px; color: var(--forest); margin: 40px 0 16px; }
+  .scopes { display: flex; flex-wrap: wrap; gap: 6px; }
+  .scope { height: 24px; padding: 0 10px; display: inline-flex; align-items: center; border-radius: var(--r-pill); background: var(--forest-soft); color: var(--forest); font-family: var(--mono); font-size: 11px; }
+  .keyname { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--forest); }
+  .keypill { display: inline-flex; align-items: center; gap: 8px; background: var(--cream-soft); border: 1px solid var(--cream-border); border-radius: var(--r-pill); padding: 4px 10px; font-family: var(--mono); font-size: 12px; color: var(--forest); }
+  .keypill .cp { cursor: pointer; opacity: .55; } .keypill .cp:hover { opacity: 1; }
+  .rev { color: var(--error); }
+
+  /* modal */
+  .scrim { position: fixed; inset: 0; background: rgba(15,31,24,0.4); display: none; align-items: center; justify-content: center; z-index: 60; padding: 20px; }
+  .scrim.open { display: flex; }
+  .modal { background: var(--cream-surface); border-radius: var(--r-modal); max-width: 520px; width: 100%; padding: 32px; box-shadow: var(--e2); }
+  .modal h3 { font-family: var(--display); font-weight: 500; font-size: 22px; color: var(--forest); }
+  .modal .warn { font-family: var(--body); font-size: 14px; color: var(--ink-muted); margin-top: 8px; }
+  .modal .keyfull { background: var(--forest-soft); border-radius: var(--r-card); padding: 14px 16px; font-family: var(--mono); font-size: 15px; color: var(--forest); margin: 20px 0; word-break: break-all; }
+
+  @media (max-width:760px){ .crow { grid-template-columns: 1fr; } .col-hide { display: none; } }
+</style>
+</head>
+<body>
+
+<nav class="dashnav">
+  <div style="display:flex; align-items:center; gap:18px;">
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+    <div class="crumb"><b>Karta</b>&nbsp;&nbsp;/&nbsp;&nbsp;Settings&nbsp;&nbsp;/&nbsp;&nbsp;API Keys</div>
+  </div>
+  <div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div>
+</nav>
+
+<div class="dash">
+  <aside class="sidebar">
+    <div class="side-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Events</div>
+    <div class="side-item"><svg viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l4-4 3 3 5-6"/></svg>Analytics</div>
+    <div class="side-item"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="10" r="2.3"/><path d="M3 20c0-3 2.7-5 6-5s6 2 6 5"/></svg>Team</div>
+    <div class="side-item active"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 00-.1-1l2-1.5-2-3.4-2.3 1a7 7 0 00-1.7-1l-.3-2.5H10l-.3 2.5a7 7 0 00-1.7 1l-2.3-1-2 3.4 2 1.5a7 7 0 000 2l-2 1.5 2 3.4 2.3-1a7 7 0 001.7 1l.3 2.5h3.8l.3-2.5a7 7 0 001.7-1l2.3 1 2-3.4-2-1.5c.1-.3.1-.7.1-1z"/></svg>Settings</div>
+    <div class="side-label">Organizer Tools</div>
+    <div class="side-item"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Billing</div>
+    <div style="flex:1;"></div>
+    <span class="pill" style="background:var(--forest-soft); color:var(--forest); margin:0 12px; align-self:flex-start; font-family:var(--mono); font-weight:500;">Studio plan</span>
+  </aside>
+
+  <main class="main">
+    <h1 class="t-display-lg" style="color:var(--forest);">API Keys</h1>
+    <p class="t-body" style="color:var(--ink-muted); margin-top:6px;">Use API keys to access Karta's REST API from your own applications.</p>
+
+    <div class="refstrip">
+      <span class="lab">Base URL:</span>
+      <span class="code-pill">https://karta.cre8so.com/api/v1<span class="cp">⧉</span></span>
+      <a href="#" class="docs">View API docs →</a>
+    </div>
+
+    <div class="card createcard">
+      <h3>Create API key</h3>
+      <div class="crow">
+        <div class="field"><label>Key name</label><input placeholder="e.g. My CRM integration"></div>
+        <div class="field"><label>Scope</label><div class="sel">events:read, registrations:read <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div></div>
+        <button class="btn btn-forest btn-md">Create key</button>
+      </div>
+    </div>
+
+    <div class="listhead">Active keys</div>
+    <div style="overflow-x:auto;">
+      <table class="tbl">
+        <thead><tr><th>Name</th><th>Key</th><th class="col-hide">Scopes</th><th class="col-hide">Last used</th><th class="col-hide">Created</th><th>Actions</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="keyname">CRM integration</span></td>
+            <td><span class="keypill">kta_live_ab12cd34…<span class="cp">⧉</span></span></td>
+            <td class="col-hide"><div class="scopes"><span class="scope">events:read</span><span class="scope">registrations:read</span></div></td>
+            <td class="col-hide"><span class="t-num-sm" style="color:var(--ink-muted)">2 days ago</span></td>
+            <td class="col-hide"><span class="t-num-sm" style="color:var(--ink-muted)">Jan 12, 2026</span></td>
+            <td><div style="display:flex; gap:12px;"><a style="font-family:var(--body); font-size:13px; color:var(--ink-soft); text-decoration:none; cursor:pointer;">Rotate</a><a class="rev" style="font-family:var(--body); font-size:13px; text-decoration:none; cursor:pointer;">Revoke</a></div></td>
+          </tr>
+          <tr>
+            <td><span class="keyname">Check-in kiosk</span></td>
+            <td><span class="keypill">kta_live_99ef21aa…<span class="cp">⧉</span></span></td>
+            <td class="col-hide"><div class="scopes"><span class="scope">checkin:write</span><span class="scope">registrations:read</span></div></td>
+            <td class="col-hide"><span class="t-num-sm" style="color:var(--ink-muted)">4 hours ago</span></td>
+            <td class="col-hide"><span class="t-num-sm" style="color:var(--ink-muted)">Feb 03, 2026</span></td>
+            <td><div style="display:flex; gap:12px;"><a style="font-family:var(--body); font-size:13px; color:var(--ink-soft); text-decoration:none; cursor:pointer;">Rotate</a><a class="rev" style="font-family:var(--body); font-size:13px; text-decoration:none; cursor:pointer;">Revoke</a></div></td>
+          </tr>
+          <tr>
+            <td><span class="keyname">Analytics export</span></td>
+            <td><span class="keypill">kta_live_7b3c0a12…<span class="cp">⧉</span></span></td>
+            <td class="col-hide"><div class="scopes"><span class="scope">analytics:read</span></div></td>
+            <td class="col-hide"><span class="t-num-sm" style="color:var(--ink-muted)">3 weeks ago</span></td>
+            <td class="col-hide"><span class="t-num-sm" style="color:var(--ink-muted)">Dec 28, 2025</span></td>
+            <td><div style="display:flex; gap:12px;"><a style="font-family:var(--body); font-size:13px; color:var(--ink-soft); text-decoration:none; cursor:pointer;">Rotate</a><a class="rev" style="font-family:var(--body); font-size:13px; text-decoration:none; cursor:pointer;">Revoke</a></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="margin-top:24px;"><button class="btn btn-ghost-forest btn-sm" onclick="document.getElementById('scrim').classList.add('open')">Preview "key created" modal</button></div>
+  </main>
+</div>
+
+<div class="scrim" id="scrim">
+  <div class="modal">
+    <h3>Your new API key</h3>
+    <div class="warn">Copy this key now. It won't be shown again.</div>
+    <div class="keyfull">kta_live_ab12cd34ef56gh78ij90kl12mn34op56</div>
+    <button class="btn btn-forest btn-lg" style="width:100%;">⧉ Copy key</button>
+    <button class="btn btn-ghost-forest btn-md" style="width:100%; margin-top:10px;" onclick="document.getElementById('scrim').classList.remove('open')">I've copied my key</button>
+  </div>
+</div>
+
+</body>
+</html>

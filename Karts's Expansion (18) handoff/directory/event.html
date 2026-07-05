@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tech Summit 2025 — Karta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../karta/karta.css">
+<link rel="stylesheet" href="../karta/web.css">
+<style>
+:root { --title:'Plus Jakarta Sans', sans-serif; }
+
+/* NAV */
+a.logo { text-decoration:none; font-family:var(--title); font-weight:800; font-size:24px; color:var(--ink); letter-spacing:-0.03em; }
+a.logo b { color:var(--forest); } a.logo i { color:var(--gold-hover); font-style:normal; }
+.topnav { height:72px; background:rgba(250,246,238,0.88); backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--cream-border); position:sticky; top:0; z-index:50;
+  display:flex; align-items:center; justify-content:space-between; padding:0 24px; gap:20px; }
+.nav-links { display:none; }
+.nav-right { display:flex; align-items:center; gap:12px; }
+.nav-av { width:42px; height:42px; border-radius:50%; background:var(--forest); color:#fff;
+  display:none; align-items:center; justify-content:center; font-family:var(--title); font-weight:700; font-size:15px; }
+.menu-btn { display:flex; }
+@media(min-width:1000px){
+  .topnav { padding:0 40px; }
+  .nav-links { display:flex; align-items:center; gap:34px; }
+  .nav-links a { font-family:var(--body); font-size:15px; font-weight:500; color:var(--ink-soft); text-decoration:none; }
+  .nav-links a:hover { color:var(--forest); }
+  .nav-av { display:flex; } .menu-btn { display:none; }
+}
+
+/* WRAP */
+.pw { max-width:1240px; margin:0 auto; padding:0 24px; }
+@media(min-width:640px){ .pw { padding:0 40px; } }
+
+/* BREADCRUMB */
+.crumbs { display:flex; align-items:center; gap:8px; padding:22px 0 14px; flex-wrap:wrap;
+  font-family:var(--body); font-size:13px; color:var(--ink-muted); }
+.crumbs a { color:var(--ink-muted); text-decoration:none; } .crumbs a:hover { color:var(--forest); }
+.crumbs .sep { color:var(--cream-border); }
+.crumbs .cur { color:var(--forest); font-weight:500; }
+
+/* HERO */
+.ehero { position:relative; border-radius:22px; overflow:hidden; margin-top:16px; height:380px; }
+.ehero .scrim-b { position:absolute; inset:0; z-index:1; }
+.ehero .cat { position:absolute; top:20px; left:20px; z-index:3; padding:6px 13px; border-radius:var(--r-pill);
+  background:var(--gold); color:var(--ink); font-family:var(--body); font-weight:600; font-size:11px;
+  letter-spacing:.06em; text-transform:uppercase; }
+.ehero .tools { position:absolute; top:18px; right:18px; z-index:3; display:flex; gap:10px; }
+.ehero .tool { width:42px; height:42px; border-radius:50%; background:rgba(250,246,238,0.92);
+  display:flex; align-items:center; justify-content:center; cursor:pointer; }
+.ehero .tool svg { width:18px; height:18px; stroke:var(--ink-soft); fill:none; stroke-width:1.9; }
+.ehero .tool.saved svg { fill:var(--error); stroke:var(--error); }
+.ehero .cap { position:absolute; left:0; right:0; bottom:0; z-index:2; padding:34px 36px; }
+.ehero h1 { font-family:var(--title); font-weight:800; font-size:clamp(30px,5vw,52px);
+  line-height:1.02; letter-spacing:-0.035em; color:#fff; max-width:760px; }
+.ehero .row { display:flex; align-items:center; gap:18px 26px; margin-top:18px; flex-wrap:wrap; }
+.ehero .mi { display:flex; align-items:center; gap:8px; font-family:var(--body); font-size:14px; color:rgba(255,255,255,0.9); }
+.ehero .mi svg { width:16px; height:16px; stroke:var(--gold); fill:none; stroke-width:1.9; flex:none; }
+@media(max-width:640px){ .ehero { height:300px; } .ehero .cap { padding:24px; } }
+
+/* LAYOUT */
+.layout { display:grid; grid-template-columns:1fr; gap:32px; padding:36px 0 80px; }
+@media(min-width:980px){ .layout { grid-template-columns:1fr 380px; gap:44px; align-items:start; } }
+
+/* attending bar */
+.attbar { display:flex; align-items:center; gap:16px; padding:18px 22px; background:var(--cream-surface);
+  border:1px solid var(--cream-border); border-radius:16px; flex-wrap:wrap; }
+.attbar .avs { display:flex; } .attbar .avs .a { width:38px; height:38px; border-radius:50%;
+  border:2px solid var(--cream-surface); position:relative; overflow:hidden; } .attbar .avs .a+.a { margin-left:-12px; }
+.attbar .txt { font-family:var(--body); font-size:14px; color:var(--ink-soft); }
+.attbar .txt b { font-family:var(--title); font-weight:700; color:var(--ink); }
+.attbar .host { margin-left:auto; display:flex; align-items:center; gap:11px; }
+.attbar .host .hl { width:40px; height:40px; border-radius:11px; flex:none; position:relative; overflow:hidden; }
+.attbar .host .hn { font-family:var(--body); font-size:12px; color:var(--ink-muted); }
+.attbar .host .ho { font-family:var(--title); font-weight:600; font-size:14px; color:var(--ink); }
+
+/* content blocks */
+.block { margin-top:36px; }
+.block h2 { font-family:var(--title); font-weight:700; font-size:22px; letter-spacing:-0.02em;
+  color:var(--ink); margin-bottom:16px; }
+.block p { font-family:var(--body); font-size:15px; line-height:1.7; color:var(--ink-soft); margin-bottom:14px; }
+.tags { display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; }
+.tag { height:32px; padding:0 14px; border-radius:var(--r-pill); background:var(--cream-soft);
+  border:1px solid var(--cream-border); display:inline-flex; align-items:center;
+  font-family:var(--body); font-size:13px; color:var(--ink-soft); }
+
+/* agenda */
+.agenda { border:1px solid var(--cream-border); border-radius:16px; overflow:hidden; }
+.ag-row { display:grid; grid-template-columns:84px 1fr; gap:18px; padding:18px 22px; border-bottom:1px solid var(--cream-border); }
+.ag-row:last-child { border-bottom:none; }
+.ag-row .tm { font-family:var(--mono); font-weight:500; font-size:13px; color:var(--gold-hover); }
+.ag-row .ti { font-family:var(--title); font-weight:600; font-size:15px; color:var(--ink); }
+.ag-row .sp { font-family:var(--body); font-size:13px; color:var(--ink-muted); margin-top:3px; }
+
+/* speakers */
+.spkgrid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
+@media(min-width:560px){ .spkgrid { grid-template-columns:repeat(3,1fr); } }
+.spk { text-align:center; }
+.spk .av { width:84px; height:84px; border-radius:50%; margin:0 auto 12px; position:relative; overflow:hidden; }
+.spk .n { font-family:var(--title); font-weight:600; font-size:14px; color:var(--ink); }
+.spk .r { font-family:var(--body); font-size:12px; color:var(--ink-muted); margin-top:2px; }
+
+/* location */
+.locmap { height:220px; border-radius:16px; position:relative; overflow:hidden; background:#EFEBDF;
+  border:1px solid var(--cream-border); }
+.locmap .streets { position:absolute; inset:0;
+  background-image:linear-gradient(rgba(15,31,24,0.06) 1.5px, transparent 1.5px), linear-gradient(90deg, rgba(15,31,24,0.06) 1.5px, transparent 1.5px);
+  background-size:48px 48px; }
+.locmap .pin { position:absolute; top:50%; left:50%; transform:translate(-50%,-100%); width:40px; height:40px;
+  border-radius:50% 50% 50% 0; background:var(--forest); rotate:-45deg; box-shadow:var(--e2); }
+.locmap .pin::after { content:''; position:absolute; top:11px; left:11px; width:18px; height:18px; border-radius:50%; background:var(--gold); }
+.locaddr { font-family:var(--body); font-size:14px; color:var(--ink-soft); margin-top:14px; }
+.locaddr b { font-family:var(--title); font-weight:600; color:var(--ink); display:block; margin-bottom:3px; }
+
+/* TICKET PANEL */
+.tixpanel { position:sticky; top:88px; background:var(--cream-surface); border:1px solid var(--cream-border);
+  border-radius:20px; box-shadow:var(--e2); overflow:hidden; }
+.tixpanel .ph-head { padding:20px 24px; border-bottom:1px solid var(--cream-border);
+  display:flex; align-items:baseline; justify-content:space-between; }
+.tixpanel .from { font-family:var(--body); font-size:12px; color:var(--ink-muted); }
+.tixpanel .price { font-family:var(--title); font-weight:800; font-size:30px; color:var(--forest); letter-spacing:-0.03em; white-space:nowrap; }
+.tixpanel .price small { font-family:var(--body); font-weight:400; font-size:13px; color:var(--ink-muted); }
+.tixpanel .body { padding:18px 24px 24px; }
+.tier { border:1px solid var(--cream-border); border-radius:14px; padding:15px 16px; margin-bottom:12px;
+  cursor:pointer; transition:border-color .15s, background .15s; }
+.tier.on { border-color:var(--forest); background:var(--forest-soft); }
+.tier .top { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+.tier .tn { font-family:var(--title); font-weight:600; font-size:15px; color:var(--ink); }
+.tier .td { font-family:var(--body); font-size:12px; color:var(--ink-muted); margin-top:3px; line-height:1.5; }
+.tier .tp { font-family:var(--mono); font-weight:500; font-size:15px; color:var(--ink); white-space:nowrap; }
+.tier .left { font-family:var(--body); font-size:11px; color:var(--gold-hover); font-weight:500; margin-top:8px; }
+.tier.sold { opacity:.55; cursor:not-allowed; }
+.tier.sold .tp { text-decoration:line-through; }
+.qtyrow { display:flex; align-items:center; justify-content:space-between; margin:18px 0;
+  font-family:var(--body); font-size:14px; color:var(--ink-soft); }
+.qty { display:inline-flex; align-items:center; border:1px solid var(--cream-border); border-radius:var(--r-pill); overflow:hidden; }
+.qty button { width:36px; height:36px; border:none; background:var(--cream-surface); color:var(--forest); font-size:17px; cursor:pointer; }
+.qty .v { width:38px; text-align:center; font-family:var(--mono); font-weight:500; font-size:14px; }
+.totrow { display:flex; align-items:center; justify-content:space-between; padding-top:16px;
+  border-top:1px solid var(--cream-border); margin-bottom:16px; }
+.totrow .l { font-family:var(--title); font-weight:600; font-size:15px; color:var(--ink); }
+.totrow .v { font-family:var(--title); font-weight:800; font-size:24px; color:var(--forest); letter-spacing:-0.02em; }
+.tixpanel .note { font-family:var(--body); font-size:11px; color:var(--ink-muted); text-align:center; margin-top:12px; line-height:1.5; }
+.tixpanel .note svg { width:12px; height:12px; stroke:var(--forest); fill:none; stroke-width:2; vertical-align:-1px; }
+
+/* mobile sticky bar */
+.mobtix { display:none; position:fixed; left:0; right:0; bottom:0; z-index:60; background:var(--cream-surface);
+  border-top:1px solid var(--cream-border); padding:12px 20px; box-shadow:0 -4px 20px rgba(15,31,24,0.08);
+  align-items:center; justify-content:space-between; gap:14px; }
+.mobtix .p { font-family:var(--title); font-weight:800; font-size:20px; color:var(--forest); }
+.mobtix .p small { font-family:var(--body); font-weight:400; font-size:12px; color:var(--ink-muted); }
+@media(max-width:979px){ .tixpanel { position:static; } .mobtix { display:flex; } .layout { padding-bottom:96px; } }
+
+/* FOOTER */
+footer { background:var(--forest-dark); }
+.foot-bottom { max-width:1240px; margin:0 auto; padding:26px 24px; display:flex; align-items:center;
+  justify-content:space-between; flex-wrap:wrap; gap:12px; }
+@media(min-width:640px){ .foot-bottom { padding:26px 40px; } }
+.foot-bottom .wm { font-family:var(--title); font-weight:800; font-size:18px; color:#fff; }
+.foot-bottom .wm i { color:var(--gold); font-style:normal; }
+.foot-bottom .copy { font-family:var(--mono); font-size:10px; letter-spacing:.06em; color:rgba(255,255,255,0.3); }
+.foot-bottom .legal { display:flex; gap:18px; }
+.foot-bottom .legal a { font-family:var(--body); font-size:12px; color:rgba(255,255,255,0.4); text-decoration:none; }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="directory.html" class="logo">K<b>a</b>rt<i>a</i></a>
+  <div class="nav-links">
+    <a href="directory.html">Discover</a>
+    <a href="#">Categories</a>
+    <a href="#">How it works</a>
+    <a href="../site/pricing-page.html">Pricing</a>
+  </div>
+  <div class="nav-right">
+    <div class="nav-av">A</div>
+    <a href="../onboarding/onboarding.html" class="btn btn-forest btn-md" style="white-space:nowrap;">Host an event &nbsp;+</a>
+    <button class="menu-btn" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="var(--forest)" stroke-width="2"/></svg></button>
+  </div>
+</nav>
+
+<div class="pw">
+  <div class="crumbs">
+    <a href="directory.html">Discover</a><span class="sep">/</span>
+    <a href="#">Tech</a><span class="sep">/</span>
+    <span class="cur">Tech Summit 2025</span>
+  </div>
+
+  <!-- HERO -->
+  <div class="ehero ph" style="--h:265;">
+    <div class="scrim-b"></div>
+    <span class="cat">Tech · Featured</span>
+    <div class="tools">
+      <div class="tool" id="saveBtn" onclick="this.classList.toggle('saved')"><svg viewBox="0 0 24 24"><path d="M12 21s-8-5.3-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 10c0 5.7-8 11-8 11z"/></svg></div>
+      <div class="tool"><svg viewBox="0 0 24 24"><path d="M4 12v8a1 1 0 001 1h14a1 1 0 001-1v-8M16 6l-4-4-4 4M12 2v14"/></svg></div>
+    </div>
+    <div class="cap">
+      <h1>Tech Summit 2025</h1>
+      <div class="row">
+        <span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Thu, Jun 12 · 09:00 – 18:00</span>
+        <span class="mi"><svg viewBox="0 0 24 24"><path d="M12 21s-6-5.2-6-10a6 6 0 0112 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg>Eko Convention Centre, Lagos</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- LEFT -->
+    <div class="main-col">
+      <div class="attbar">
+        <div class="avs"><span class="a ph" style="--h:30;"></span><span class="a ph" style="--h:120;"></span><span class="a ph" style="--h:200;"></span><span class="a ph" style="--h:280;"></span></div>
+        <div class="txt"><b>1,284</b> people attending</div>
+        <div class="host">
+          <div class="hl ph" style="--h:265;"></div>
+          <div><div class="hn">Hosted by</div><div class="ho">TechBase Africa</div></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h2>About this event</h2>
+        <p>Tech Summit 2025 brings together 1,200+ builders, founders, and investors for a full day of keynotes, hands-on workshops, and deep-dive panels on AI, fintech, and the infrastructure powering Africa's next decade.</p>
+        <p>Whether you're shipping your first product or scaling across borders, you'll leave with practical playbooks, a wallet full of new connections, and your own Karta Card to keep the conversations going long after the doors close.</p>
+        <div class="tags">
+          <span class="tag">Artificial Intelligence</span>
+          <span class="tag">Fintech</span>
+          <span class="tag">Startups</span>
+          <span class="tag">Networking</span>
+          <span class="tag">Cloud</span>
+        </div>
+      </div>
+
+      <div class="block">
+        <h2>Agenda</h2>
+        <div class="agenda">
+          <div class="ag-row"><span class="tm">09:00</span><div><div class="ti">Doors &amp; welcome coffee</div><div class="sp">Main concourse</div></div></div>
+          <div class="ag-row"><span class="tm">10:00</span><div><div class="ti">Keynote — Building for the next billion</div><div class="sp">Dr. Sara Mwangi · Main hall</div></div></div>
+          <div class="ag-row"><span class="tm">11:30</span><div><div class="ti">Panel — AI in African fintech</div><div class="sp">Room B</div></div></div>
+          <div class="ag-row"><span class="tm">13:00</span><div><div class="ti">Lunch &amp; networking</div><div class="sp">Terrace</div></div></div>
+          <div class="ag-row"><span class="tm">14:30</span><div><div class="ti">Workshop — Cloud cost at scale</div><div class="sp">Room C · book a seat</div></div></div>
+          <div class="ag-row"><span class="tm">16:30</span><div><div class="ti">Closing keynote + Karta Card reveal</div><div class="sp">Main hall</div></div></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h2>Speakers</h2>
+        <div class="spkgrid">
+          <div class="spk"><div class="av ph" style="--h:265;"></div><div class="n">Dr. Sara Mwangi</div><div class="r">CEO, Pesa Labs</div></div>
+          <div class="spk"><div class="av ph" style="--h:200;"></div><div class="n">Samuel Okoro</div><div class="r">Platform Lead, Paystack</div></div>
+          <div class="spk"><div class="av ph" style="--h:340;"></div><div class="n">Mariam Diallo</div><div class="r">Design Director, Wave</div></div>
+          <div class="spk"><div class="av ph" style="--h:120;"></div><div class="n">Yonas Tesfaye</div><div class="r">Founder, Chewata Labs</div></div>
+          <div class="spk"><div class="av ph" style="--h:30;"></div><div class="n">Leila Haddad</div><div class="r">Partnerships, Flutterwave</div></div>
+          <div class="spk"><div class="av ph" style="--h:95;"></div><div class="n">Omar Farah</div><div class="r">CTO, Red Sea Tech</div></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h2>Location</h2>
+        <div class="locmap"><div class="streets"></div><div class="pin"></div></div>
+        <div class="locaddr"><b>Eko Convention Centre</b>Plot 1415 Adetokunbo Ademola Street, Victoria Island, Lagos, Nigeria</div>
+      </div>
+    </div>
+
+    <!-- RIGHT TICKET PANEL -->
+    <aside class="tixpanel">
+      <div class="ph-head">
+        <div><div class="from">From</div><div class="price">$25<small> / ticket</small></div></div>
+        <span class="pill pill-live" style="background:var(--forest-soft); color:var(--forest);">● Selling fast</span>
+      </div>
+      <div class="body">
+        <div class="tier on" onclick="pick(this,25)">
+          <div class="top"><div><div class="tn">General Admission</div><div class="td">Full-day access · all talks &amp; workshops</div></div><div class="tp">$25</div></div>
+          <div class="left">63 left at this price</div>
+        </div>
+        <div class="tier" onclick="pick(this,60)">
+          <div class="top"><div><div class="tn">VIP Pass</div><div class="td">Front rows · speaker dinner · lounge</div></div><div class="tp">$60</div></div>
+          <div class="left">8 left</div>
+        </div>
+        <div class="tier sold">
+          <div class="top"><div><div class="tn">Early Bird</div><div class="td">Same as General — discounted</div></div><div class="tp">$15</div></div>
+          <div class="left" style="color:var(--ink-muted);">Sold out</div>
+        </div>
+
+        <div class="qtyrow">
+          <span>Quantity</span>
+          <div class="qty"><button onclick="chg(-1)">−</button><span class="v" id="qv">1</span><button onclick="chg(1)">+</button></div>
+        </div>
+        <div class="totrow"><span class="l">Total</span><span class="v" id="tot">$25.00</span></div>
+        <a href="../karta/screens/d20-checkout.html" class="btn btn-gold btn-lg" style="width:100%;">Get tickets</a>
+        <div class="note"><svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4z"/></svg> Secure checkout · QR ticket + Karta Card to your phone</div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- MOBILE STICKY TICKET BAR -->
+<div class="mobtix">
+  <div class="p" id="mobp">$25.00<small> · 1 ticket</small></div>
+  <a href="../karta/screens/d20-checkout.html" class="btn btn-gold btn-md" style="white-space:nowrap;">Get tickets</a>
+</div>
+
+<template id="__bundler_thumbnail" data-bg-color="#0D1F17">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#0D1F17"/>
+    <rect x="360" y="250" width="480" height="300" rx="28" fill="#1F4D3A"/>
+    <circle cx="360" cy="400" r="26" fill="#0D1F17"/>
+    <circle cx="840" cy="400" r="26" fill="#0D1F17"/>
+    <line x1="600" y1="280" x2="600" y2="520" stroke="#0D1F17" stroke-width="8" stroke-dasharray="20 18"/>
+    <circle cx="495" cy="360" r="34" fill="#E8C57E"/>
+    <rect x="450" y="430" width="90" height="14" rx="7" fill="#E8C57E" opacity="0.7"/>
+    <rect x="660" y="345" width="120" height="16" rx="8" fill="#FAF6EE" opacity="0.85"/>
+    <rect x="660" y="385" width="90" height="14" rx="7" fill="#FAF6EE" opacity="0.55"/>
+    <rect x="660" y="425" width="110" height="14" rx="7" fill="#FAF6EE" opacity="0.55"/>
+  </svg>
+</template>
+
+<footer>
+  <div class="foot-bottom">
+    <div class="wm">K<i>a</i>rta</div>
+    <span class="copy">&copy; 2026 KARTA TECHNOLOGIES LTD</span>
+    <div class="legal"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Contact</a></div>
+  </div>
+</footer>
+
+<script>
+let price = 25, qty = 1;
+function pick(el, p){
+  if(el.classList.contains('sold')) return;
+  document.querySelectorAll('.tier').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on'); price = p; update();
+}
+function chg(d){ qty = Math.max(1, qty+d); document.getElementById('qv').textContent = qty; update(); }
+function update(){
+  const t = (price*qty).toFixed(2);
+  document.getElementById('tot').textContent = '$'+t;
+  document.getElementById('mobp').innerHTML = '$'+t+'<small> · '+qty+' ticket'+(qty>1?'s':'')+'</small>';
+}
+</script>
+</body>
+</html>

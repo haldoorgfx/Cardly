@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D38 · Embed Widgets</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .cols { display: grid; grid-template-columns: 1fr 440px; gap: 32px; margin-top: 28px; align-items: start; }
+
+  .setup { padding: 24px 26px; }
+  .setup h2 { font-family: var(--display); font-weight: 500; font-size: 16px; color: var(--ink); margin-bottom: 14px; }
+  .wtypes { display: grid; gap: 10px; }
+  .wt { display: flex; align-items: center; gap: 13px; padding: 14px 16px; border-radius: var(--r-card); border: 1px solid var(--cream-border); background: var(--cream-surface); cursor: pointer; }
+  .wt.on { border-color: var(--forest); background: var(--forest-soft); }
+  .wt input { accent-color: var(--forest); }
+  .wt .n { font-family: var(--body); font-weight: 500; font-size: 13px; color: var(--ink); }
+  .wt .s { font-family: var(--body); font-size: 11px; color: var(--ink-muted); margin-top: 1px; }
+
+  .snippet { margin-top: 22px; }
+  .snippet .lab { font-family: var(--body); font-weight: 500; font-size: 12px; color: var(--ink-soft); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+  .codebox { background: var(--forest-dark); border-radius: var(--r-card); padding: 18px 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; color: rgba(255,255,255,0.85); overflow-x: auto; white-space: pre; }
+  .codebox .tag { color: var(--gold); }
+  .codebox .attr { color: #8FC3A0; }
+
+  .statline { display: flex; gap: 24px; margin-top: 18px; padding: 14px 18px; }
+  .statline .s { font-family: var(--body); font-size: 12px; color: var(--ink-muted); }
+  .statline .s b { font-family: var(--mono); font-weight: 500; font-size: 14px; color: var(--ink); display: block; margin-bottom: 2px; }
+
+  /* preview side: fake organizer site */
+  .preview .plabel { font-family: var(--body); font-weight: 500; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 12px; }
+  .sitemock { border: 1px solid var(--cream-border); border-radius: 14px; overflow: hidden; box-shadow: var(--e2); background: #1C1C22; }
+  .sitemock .bar { height: 32px; background: #2A2A33; display: flex; align-items: center; gap: 6px; padding: 0 12px; }
+  .sitemock .bar i { width: 9px; height: 9px; border-radius: 50%; display: block; }
+  .sitemock .url { flex: 1; height: 18px; background: #1C1C22; border-radius: 9px; font-family: var(--mono); font-size: 9px; color: #888; display: flex; align-items: center; padding: 0 10px; margin-left: 6px; }
+  .sitemock .sitebody { padding: 26px 28px 32px; }
+  .sitemock .sitelogo { font-family: var(--display); font-weight: 600; font-size: 15px; color: #fff; }
+  .sitemock .sitenav { display: flex; gap: 14px; margin-top: 4px; }
+  .sitemock .sitenav span { font-family: var(--body); font-size: 10px; color: #777; }
+  .sitemock h4 { font-family: var(--display); font-weight: 400; font-size: 20px; color: #eee; margin: 26px 0 6px; }
+  .sitemock .sub { font-family: var(--body); font-size: 11px; color: #888; margin-bottom: 18px; }
+
+  /* the embedded karta widget */
+  .kwidget { background: var(--cream-canvas); border-radius: 12px; padding: 18px; }
+  .kwidget .ev { display: flex; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--cream-border); }
+  .kwidget .ev:last-of-type { border-bottom: none; }
+  .kwidget .img { width: 52px; height: 38px; border-radius: 5px; position: relative; overflow: hidden; flex: none; }
+  .kwidget .nm { font-family: var(--display); font-weight: 500; font-size: 12px; color: var(--ink); }
+  .kwidget .m { font-family: var(--mono); font-size: 10px; color: var(--ink-muted); margin-top: 2px; }
+  .kwidget .powered { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
+  .kwidget .powered .p { font-family: var(--body); font-size: 9px; color: var(--ink-muted); }
+  .kwidget .powered .p b { color: var(--forest); }
+
+  @media (max-width:1080px){ .cols { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="dashnav">
+  <div style="display:flex; align-items:center; gap:18px;">
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+    <div class="crumb"><b>Karta</b>&nbsp;&nbsp;/&nbsp;&nbsp;Karta Studio&nbsp;&nbsp;/&nbsp;&nbsp;Embed</div>
+  </div>
+  <div style="display:flex; align-items:center; gap:18px;">
+    <div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div>
+  </div>
+</div>
+
+<div class="dash">
+  <aside class="sidebar">
+    <div class="side-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Events</div>
+    <div class="side-item active"><svg viewBox="0 0 24 24"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>Embed</div>
+    <div class="side-item"><svg viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l4-4 3 3 5-6"/></svg>Analytics</div>
+    <div style="flex:1;"></div>
+    <span class="pill" style="background:var(--forest-soft); color:var(--forest); margin:0 12px; align-self:flex-start; font-family:var(--mono); font-weight:500;">Pro plan</span>
+  </aside>
+
+  <main class="main">
+    <h1 class="t-display-lg" style="color:var(--forest);">Embed Karta on your site</h1>
+
+    <div class="cols">
+      <div>
+        <div class="card setup">
+          <h2>Widget type</h2>
+          <div class="wtypes">
+            <label class="wt on"><input type="radio" name="wt" checked><div><div class="n">Upcoming events list</div><div class="s">Your whole calendar, auto-updating</div></div></label>
+            <label class="wt"><input type="radio" name="wt"><div><div class="n">Single event + register button</div><div class="s">One event, opens Karta checkout</div></div></label>
+            <label class="wt"><input type="radio" name="wt"><div><div class="n">Schedule grid</div><div class="s">Full agenda for one event</div></div></label>
+          </div>
+
+          <div class="snippet">
+            <div class="lab">Copy-paste snippet <button class="btn btn-ghost-forest btn-sm">Copy</button></div>
+            <div class="codebox"><span class="tag">&lt;iframe</span>
+  <span class="attr">src</span>=&quot;https://karta.app/embed/karta-studio&quot;
+  <span class="attr">width</span>=&quot;100%&quot; <span class="attr">height</span>=&quot;420&quot;
+  <span class="attr">frameborder</span>=&quot;0&quot;<span class="tag">&gt;&lt;/iframe&gt;</span></div>
+          </div>
+        </div>
+
+        <div class="card statline">
+          <span class="s"><b>2,841</b>widget views · 30d</span>
+          <span class="s"><b>312</b>click-throughs</span>
+          <span class="s"><b>64</b>registrations via embed</span>
+          <span class="s"><b>?src=embed</b>tracked automatically</span>
+        </div>
+      </div>
+
+      <div class="preview">
+        <div class="plabel">Live preview — on the organizer's own site</div>
+        <div class="sitemock">
+          <div class="bar">
+            <i style="background:#E5837B;"></i><i style="background:#E8C57E;"></i><i style="background:#8FC3A0;"></i>
+            <span class="url">kartastudio.dj / events</span>
+          </div>
+          <div class="sitebody">
+            <div class="sitelogo">KARTA STUDIO</div>
+            <div class="sitenav"><span>Work</span><span>About</span><span>Events</span><span>Contact</span></div>
+            <h4>Upcoming events</h4>
+            <div class="sub">Powered by our live Karta calendar — always current.</div>
+            <div class="kwidget">
+              <div class="ev">
+                <div class="img ph" style="--h:158;"></div>
+                <div><div class="nm">AfriTech Summit 2026</div><div class="m">12–14 MAR · FROM $25</div></div>
+                <button class="btn btn-forest btn-sm" style="margin-left:auto;">Register</button>
+              </div>
+              <div class="ev">
+                <div class="img ph" style="--h:265;"></div>
+                <div><div class="nm">Founders Breakfast</div><div class="m">15 MAR · $15</div></div>
+                <button class="btn btn-forest btn-sm" style="margin-left:auto;">Register</button>
+              </div>
+              <div class="ev">
+                <div class="img ph" style="--h:30;"></div>
+                <div><div class="nm">Design in the Horn</div><div class="m">28 MAR · $20</div></div>
+                <button class="btn btn-forest btn-sm" style="margin-left:auto;">Register</button>
+              </div>
+              <div class="powered"><span class="p">Powered by <b>Karta</b></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  document.querySelectorAll('.wt').forEach(w=>w.onclick=()=>{ document.querySelectorAll('.wt').forEach(x=>x.classList.remove('on')); w.classList.add('on'); });
+</script>
+</body>
+</html>

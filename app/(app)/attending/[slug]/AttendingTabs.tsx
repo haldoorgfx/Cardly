@@ -4,7 +4,8 @@ import { usePathname } from 'next/navigation';
 import { SegmentedTabs } from '@/components/dash';
 
 const TABS = [
-  { seg: 'agenda', label: 'My agenda' },
+  { seg: '', label: 'Overview' },
+  { seg: 'agenda', label: 'Agenda' },
   { seg: 'messages', label: 'Messages' },
   { seg: 'networking', label: 'Networking' },
   { seg: 'community', label: 'Community' },
@@ -16,11 +17,12 @@ const TABS = [
 
 export default function AttendingTabs({ slug }: { slug: string }) {
   const pathname = usePathname();
+  const base = `/attending/${slug}`;
   return (
     <SegmentedTabs
       tabs={TABS.map((t) => {
-        const href = `/attending/${slug}/${t.seg}`;
-        return { key: t.seg, label: t.label, href, active: pathname === href };
+        const href = t.seg ? `${base}/${t.seg}` : base;
+        return { key: t.seg || 'overview', label: t.label, href, active: pathname === href };
       })}
     />
   );

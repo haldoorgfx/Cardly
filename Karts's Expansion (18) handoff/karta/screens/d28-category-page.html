@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D28 · Category Page — Tech</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .cathero { padding: 52px 0 8px; position: relative; overflow: hidden; }
+  .cathero .container { position: relative; z-index: 1; }
+  .cathero .crumbs { font-family: var(--body); font-size: 13px; color: var(--ink-muted); }
+  .cathero .crumbs a { color: inherit; text-decoration: none; }
+  .cathero h1 { font-family: var(--display); font-weight: 400; font-size: 40px; letter-spacing: -0.028em; color: var(--forest); margin-top: 10px; }
+  .cathero .count { font-family: var(--body); font-size: 15px; color: var(--ink-muted); margin-top: 8px; }
+  .cathero .count b { font-family: var(--mono); font-weight: 500; color: var(--ink); }
+  .catnav { display: flex; gap: 8px; overflow-x: auto; margin-top: 24px; padding-bottom: 4px; }
+
+  .filterrow { display: flex; align-items: center; gap: 8px; margin: 28px 0 0; flex-wrap: wrap; }
+  .filterrow select { height: 38px; padding: 0 12px; border-radius: var(--r-pill); border: 1px solid var(--cream-border); background: var(--cream-surface); font-family: var(--body); font-size: 13px; color: var(--ink-soft); }
+
+  .sec-h { font-family: var(--display); font-weight: 500; font-size: 20px; color: var(--ink); margin: 40px 0 18px; }
+  .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .ecard { border-radius: var(--r-card); overflow: hidden; background: var(--cream-surface); border: 1px solid var(--cream-border); cursor: pointer; }
+  .ecard .img { width: 100%; aspect-ratio: 4/3; position: relative; }
+  .ecard .det { padding: 13px 15px 15px; }
+  .ecard .nm { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--ink); }
+  .ecard .org { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 2px; }
+  .ecard .foot { display: flex; align-items: center; justify-content: space-between; margin-top: 11px; }
+  .citytag { position: absolute; left: 12px; top: 12px; z-index: 2; padding: 5px 10px; background: rgba(8,18,12,0.4); backdrop-filter: blur(6px); color: #fff; font-size: 11px; }
+
+  .citylinks { margin: 64px 0 80px; padding: 32px 36px; }
+  .citylinks h3 { font-family: var(--display); font-weight: 500; font-size: 18px; color: var(--ink); }
+  .citylinks .links { display: flex; flex-wrap: wrap; gap: 10px 26px; margin-top: 16px; }
+  .citylinks a { font-family: var(--body); font-size: 14px; color: var(--forest); text-decoration: none; }
+  .citylinks a b { font-family: var(--mono); font-weight: 400; font-size: 12px; color: var(--ink-muted); }
+
+  @media (max-width:1100px){ .grid4 { grid-template-columns: repeat(2,1fr); } }
+  @media (max-width:560px){ .grid4 { grid-template-columns: 1fr; } .cathero h1 { font-size: 30px; } }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links">
+    <a href="d01-marketplace-home.html" style="color:var(--forest);">Discover</a>
+    <a href="d04-tickets-wallet.html">My tickets</a>
+    <a href="d17-saved-following.html">Following</a>
+  </div>
+  <div class="right">
+    <button class="btn btn-ghost-forest btn-sm">Host an event</button>
+    <div class="ph avatar avatar-ring" style="--h:30; width:36px; height:36px;"></div>
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</nav>
+
+<div class="cathero">
+  <div class="cardly-mesh cardly-mesh-hero"></div>
+  <div class="container">
+    <div class="crumbs"><a href="d01-marketplace-home.html">Events</a> &nbsp;/&nbsp; Categories &nbsp;/&nbsp; Tech</div>
+    <h1>Tech events</h1>
+    <div class="count"><b>67</b> upcoming across East Africa — summits, meetups, hack nights and demo days</div>
+    <div class="catnav no-scrollbar">
+      <div class="chip active">Tech</div>
+      <div class="chip">Music</div>
+      <div class="chip">Business</div>
+      <div class="chip">Culture</div>
+      <div class="chip">Food &amp; drink</div>
+      <div class="chip">Sports</div>
+      <div class="chip">Health</div>
+      <div class="chip">Film</div>
+      <div class="chip">Education</div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="filterrow">
+    <select><option>All cities</option><option>Djibouti City</option><option>Nairobi</option><option>Addis Ababa</option></select>
+    <select><option>Any date</option><option>This week</option><option>This month</option></select>
+    <select><option>Any price</option><option>Free</option><option>Paid</option></select>
+    <select><option>In-person + virtual</option><option>In-person</option><option>Virtual</option></select>
+  </div>
+
+  <div class="sec-h">Happening soon</div>
+  <div class="grid4" id="g1"></div>
+
+  <div class="sec-h">Popular this month</div>
+  <div class="grid4" id="g2"></div>
+
+  <div class="card citylinks">
+    <h3>Tech events by city</h3>
+    <div class="links">
+      <a href="d02-city-page.html">Djibouti City <b>12</b></a>
+      <a href="#">Nairobi <b>24</b></a>
+      <a href="#">Addis Ababa <b>11</b></a>
+      <a href="#">Kigali <b>8</b></a>
+      <a href="#">Mombasa <b>5</b></a>
+      <a href="#">Hargeisa <b>4</b></a>
+      <a href="#">Kampala <b>3</b></a>
+    </div>
+  </div>
+</div>
+
+<script>
+  function ecard(e){
+    const free = e[3]==='Free';
+    return `<div class="ecard cardly-edge">
+      <div class="img ph" style="--h:${e[4]};"><span class="citytag pill">${e[5]}</span></div>
+      <div class="det">
+        <div class="nm">${e[0]}</div>
+        <div class="org">${e[1]}</div>
+        <div class="foot">
+          <span class="t-num-sm" style="color:var(--ink-muted)">${e[2]}</span>
+          <span class="t-num-sm" style="color:${free?'var(--gold-hover)':'var(--forest)'}; font-weight:500;">${e[3]}</span>
+        </div>
+      </div>
+    </div>`;
+  }
+  const g1 = [
+    ['AfriTech Summit 2026','Karta Studio','12–14 Mar','$25',158,'Djibouti'],
+    ['Nairobi DevFest','GDG Nairobi','22 Mar','$10',210,'Nairobi'],
+    ['Hack the Horn','Red Sea Tech','25 Mar','Free',120,'Djibouti'],
+    ['Kigali AI Forum','Norrsken House','11 Apr','Free',150,'Kigali'],
+  ];
+  const g2 = [
+    ['Founders Breakfast','Karta Studio','15 Mar','$15',265,'Djibouti'],
+    ['Addis Dev Meetup','Chewata Labs','19 Mar','Free',95,'Addis'],
+    ['Fintech Friday','Sahel Ventures','27 Mar','Free',340,'Nairobi'],
+    ['Demo Day — Cohort 6','Norrsken House','03 Apr','Free',38,'Kigali'],
+  ];
+  document.getElementById('g1').innerHTML = g1.map(ecard).join('');
+  document.getElementById('g2').innerHTML = g2.map(ecard).join('');
+  document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{document.querySelector('.chip.active')?.classList.remove('active');c.classList.add('active');});
+</script>
+</body>
+</html>

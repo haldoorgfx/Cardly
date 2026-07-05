@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D35 · Session Seat Booking</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .wrap { max-width: 880px; margin: 0 auto; padding: 36px 40px 96px; }
+  .pagehead h1 { font-family: var(--display); font-weight: 400; font-size: 30px; letter-spacing: -0.024em; color: var(--forest); }
+  .pagehead p { font-family: var(--body); font-size: 14px; color: var(--ink-muted); margin-top: 8px; }
+  .daylab { font-family: var(--display); font-weight: 500; font-size: 16px; color: var(--ink); margin: 36px 0 14px; }
+
+  .sess { display: grid; grid-template-columns: 70px 1fr auto; gap: 18px; padding: 18px 22px; background: var(--cream-surface); border: 1px solid var(--cream-border); border-radius: var(--r-card); margin-bottom: 12px; align-items: center; }
+  .sess .tm { font-family: var(--mono); font-weight: 500; font-size: 13px; color: var(--gold-hover); }
+  .sess .nm { font-family: var(--display); font-weight: 500; font-size: 16px; color: var(--ink); }
+  .sess .meta { font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-top: 4px; }
+  .seatbar { display: flex; align-items: center; gap: 10px; margin-top: 10px; max-width: 320px; }
+  .seatbar .tr { flex: 1; height: 5px; border-radius: 3px; background: var(--cream-soft); overflow: hidden; }
+  .seatbar .fl { height: 100%; border-radius: 3px; background: var(--forest); }
+  .seatbar .fl.warn { background: var(--gold-hover); }
+  .seatbar .fl.full { background: var(--error); }
+  .seatbar .n { font-family: var(--mono); font-size: 11px; color: var(--ink-muted); white-space: nowrap; }
+  .sess .act { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+  .booked-tag { display: inline-flex; align-items: center; gap: 6px; font-family: var(--body); font-weight: 500; font-size: 12px; color: var(--success); }
+  .wl-tag { font-family: var(--mono); font-size: 11px; color: var(--gold-hover); }
+
+  /* booking confirm modal */
+  .mscrim { position: fixed; inset: 0; background: rgba(15,31,24,0.4); z-index: 70; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .mscrim.open { display: flex; }
+  .modal { width: 100%; max-width: 420px; background: var(--cream-canvas); border-radius: var(--r-modal); box-shadow: var(--e2); padding: 28px; text-align: center; }
+  .modal .tick { width: 64px; height: 64px; border-radius: 50%; background: var(--success); margin: 0 auto; display: flex; align-items: center; justify-content: center; }
+  .modal .tick svg { width: 30px; height: 30px; stroke: #fff; stroke-width: 3; fill: none; }
+  .modal h3 { font-family: var(--display); font-weight: 500; font-size: 20px; color: var(--ink); margin-top: 18px; }
+  .modal p { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 8px; line-height: 1.6; }
+  .modal p b { font-family: var(--mono); font-weight: 500; color: var(--ink); }
+  .modal .row { display: flex; gap: 10px; margin-top: 22px; }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links">
+    <a href="#">Overview</a>
+    <a href="#" style="color:var(--forest);">Schedule</a>
+    <a href="#">Network</a>
+  </div>
+  <div class="right">
+    <div class="ph avatar avatar-ring" style="--h:30; width:36px; height:36px;"></div>
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="pagehead">
+    <h1>Workshops — book your seat</h1>
+    <p>Capacity-limited sessions need a booked seat. Booked sessions land in your personal agenda automatically.</p>
+  </div>
+
+  <div class="daylab">Day 2 · Wednesday 13 March</div>
+
+  <div class="sess">
+    <span class="tm">10:30</span>
+    <div>
+      <div class="nm">Hands-on: Building on the WhatsApp Business API</div>
+      <div class="meta">Room B · 90 min · bring a laptop</div>
+      <div class="seatbar"><div class="tr"><div class="fl" style="width:55%;"></div></div><span class="n">22 / 40 seats</span></div>
+    </div>
+    <div class="act"><button class="btn btn-forest btn-md" onclick="book(this)">Book a seat</button></div>
+  </div>
+
+  <div class="sess">
+    <span class="tm">14:00</span>
+    <div>
+      <div class="nm">Cloud cost workshop</div>
+      <div class="meta">Room C · 120 min · moved from Room A</div>
+      <div class="seatbar"><div class="tr"><div class="fl warn" style="width:92%;"></div></div><span class="n">74 / 80 seats</span></div>
+    </div>
+    <div class="act">
+      <span class="booked-tag">● Seat booked · in your agenda</span>
+      <button class="btn btn-ghost-forest btn-sm">Cancel seat</button>
+    </div>
+  </div>
+
+  <div class="sess">
+    <span class="tm">16:00</span>
+    <div>
+      <div class="nm">Founder office hours with Dr. Sara Mwangi</div>
+      <div class="meta">Gold lounge · 15-min slots</div>
+      <div class="seatbar"><div class="tr"><div class="fl full" style="width:100%;"></div></div><span class="n">12 / 12 · full</span></div>
+    </div>
+    <div class="act">
+      <button class="btn btn-ghost-forest btn-md" onclick="joinwl(this)">Join session waitlist</button>
+      <span class="wl-tag" style="display:none;">#4 IN LINE · WE'LL PING YOU</span>
+    </div>
+  </div>
+
+  <div class="sess">
+    <span class="tm">17:30</span>
+    <div>
+      <div class="nm">Critique wall — open studio</div>
+      <div class="meta">Terrace · drop in, no booking needed</div>
+    </div>
+    <div class="act"><span class="t-body-sm" style="color:var(--ink-muted);">Open to all</span></div>
+  </div>
+</div>
+
+<div class="mscrim" id="mscrim">
+  <div class="modal">
+    <div class="tick"><svg viewBox="0 0 24 24"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg></div>
+    <h3>Seat booked</h3>
+    <p>WhatsApp Business API workshop · <b>Wed 10:30 · Room B</b><br>Added to your agenda. Seat released if you don't scan in by <b>10:40</b>.</p>
+    <div class="row">
+      <button class="btn btn-forest btn-md" style="flex:1;" onclick="closeM()">See my agenda</button>
+      <button class="btn btn-ghost-forest btn-md" onclick="closeM()">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function book(btn){
+    document.getElementById('mscrim').classList.add('open');
+    const act = btn.parentElement;
+    act.innerHTML = '<span class="booked-tag">● Seat booked · in your agenda</span><button class="btn btn-ghost-forest btn-sm">Cancel seat</button>';
+  }
+  function joinwl(btn){
+    btn.style.display = 'none';
+    btn.parentElement.querySelector('.wl-tag').style.display = 'inline';
+  }
+  function closeM(){ document.getElementById('mscrim').classList.remove('open'); }
+  document.getElementById('mscrim').onclick = e => { if(e.target.id==='mscrim') closeM(); };
+</script>
+</body>
+</html>

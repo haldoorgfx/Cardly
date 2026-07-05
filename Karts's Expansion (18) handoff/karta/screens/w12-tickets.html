@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W12 · My Tickets</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .head { padding: 40px 0 8px; }
+  .head h1 { font-family: var(--display); font-weight: 400; font-size: 32px; color: var(--forest); letter-spacing: -0.02em; }
+  .head .sub { font-family: var(--body); font-size: 14px; color: var(--ink-muted); margin-top: 4px; }
+  .head .sub b { font-family: var(--mono); font-weight: 500; color: var(--ink); }
+
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--cream-border); margin-top: 24px; }
+  .tab { padding: 12px 18px; font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--ink-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .tab.active { color: var(--forest); border-bottom-color: var(--gold); }
+
+  .layout { display: grid; grid-template-columns: 1fr 300px; gap: 40px; margin-top: 32px; align-items: start; }
+
+  /* upcoming ticket — boarding-pass anatomy */
+  .ticket { display: grid; grid-template-columns: 200px 1fr; background: var(--cream-surface); border: 1px solid var(--cream-border); border-radius: var(--r-card); overflow: hidden; margin-bottom: 20px; }
+  .ticket .cover { position: relative; }
+  .ticket .cover .ph { position: absolute; inset: 0; }
+  .ticket .cover .when { position: absolute; left: 14px; top: 14px; z-index: 2; }
+  .ticket .body { padding: 22px 24px; position: relative; }
+  .ticket .body::before { content: ""; position: absolute; left: -7px; top: 50%; width: 14px; height: 14px; border-radius: 50%; background: var(--cream-canvas); border: 1px solid var(--cream-border); transform: translateY(-50%); }
+  .ticket .nm { font-family: var(--display); font-weight: 500; font-size: 20px; color: var(--ink); }
+  .ticket .loc { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 3px; }
+  .ticket .meta { display: flex; gap: 28px; margin-top: 18px; flex-wrap: wrap; }
+  .ticket .meta .k { font-family: var(--body); font-size: 11px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .ticket .meta .v { font-family: var(--mono); font-size: 15px; color: var(--forest); font-weight: 500; margin-top: 3px; }
+  .ticket .foot { display: flex; align-items: center; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+  .qr { width: 60px; height: 60px; border-radius: 6px; background:
+      conic-gradient(from 0deg, var(--ink) 0 25%, transparent 0 50%, var(--ink) 0 75%, transparent 0) ; background-size: 12px 12px; background-color: #fff; border: 1px solid var(--cream-border); flex: none; }
+
+  /* Karta card sidebar */
+  .sidecard { padding: 22px; position: sticky; top: 88px; }
+  .sidecard .lab { font-family: var(--body); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold-hover); text-align: center; margin-bottom: 16px; }
+  .mini-kcard { width: 100%; max-width: 230px; aspect-ratio: 5/7; border-radius: 12px; margin: 0 auto; position: relative; overflow: hidden; box-shadow: 0 0 26px rgba(232,197,126,0.22), 0 12px 30px rgba(13,31,23,0.25); }
+  .mini-kcard .in { position: absolute; inset: 0; padding: 20px 18px; display: flex; flex-direction: column; }
+  .mini-kcard .brand { font-family: var(--display); font-weight: 600; font-size: 11px; color: var(--gold); letter-spacing: 0.04em; }
+  .mini-kcard .pic { width: 78px; height: 78px; border-radius: 50%; border: 2px solid var(--gold); margin: auto auto 12px; }
+  .mini-kcard .nm { font-family: var(--display); font-weight: 500; font-size: 18px; color: #fff; text-align: center; }
+  .mini-kcard .meta { font-family: var(--mono); font-size: 10px; color: var(--gold); text-align: center; margin-top: 3px; }
+  .sidecard .dl { width: 100%; margin-top: 18px; }
+  .sidecard .share { display: flex; gap: 10px; justify-content: center; margin-top: 12px; }
+  .sidecard .pf { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--cream-border); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .sidecard .pf:hover { border-color: var(--gold); }
+  .sidecard .pf svg { width: 16px; height: 16px; }
+
+  /* past events */
+  .past { display: none; }
+  .past.show { display: block; }
+  .upcoming.hide { display: none; }
+  .pastrow { display: flex; align-items: center; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--cream-border); }
+  .pastrow .ph { width: 56px; height: 56px; border-radius: var(--r-card); flex: none; }
+  .pastrow .nm { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--ink); }
+  .pastrow .dt { font-family: var(--mono); font-size: 12px; color: var(--ink-muted); margin-top: 2px; }
+  .pastrow .lnk { margin-left: auto; font-family: var(--body); font-size: 13px; font-weight: 600; color: var(--gold-hover); text-decoration: none; }
+
+  @media (max-width:900px){
+    .layout { grid-template-columns: 1fr; }
+    .sidecard { position: static; order: -1; }
+    .ticket { grid-template-columns: 1fr; }
+    .ticket .cover { height: 130px; }
+    .ticket .body::before { display: none; }
+    .head h1 { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links"><a href="w06-discovery.html">Discover</a><a href="#" style="color:var(--forest)">My tickets</a><a href="w10-schedule.html">Schedule</a><a href="w11-networking.html">Network</a></div>
+  <div class="right">
+    <div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div>
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="head">
+    <h1>My tickets</h1>
+    <div class="sub"><b>3</b> upcoming · <b>5</b> past events · <b>4</b> Karta Cards collected</div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-t="up">Upcoming</div>
+    <div class="tab" data-t="past">Past</div>
+  </div>
+
+  <div class="layout">
+    <div>
+      <!-- UPCOMING -->
+      <div class="upcoming">
+        <div class="ticket">
+          <div class="cover">
+            <div class="ph" style="--h:158;"></div>
+            <div class="scrim-b" style="position:absolute; inset:0;"></div>
+            <span class="when pill" style="background:rgba(8,18,12,0.45); backdrop-filter:blur(6px); color:#fff;">In 3 hours</span>
+          </div>
+          <div class="body">
+            <div class="nm">AfriTech Summit 2026</div>
+            <div class="loc">Palais du Peuple, Djibouti City</div>
+            <div class="meta">
+              <div><div class="k">Date</div><div class="v">12 Mar · 09:00</div></div>
+              <div><div class="k">Ticket</div><div class="v">VIP</div></div>
+              <div><div class="k">Order</div><div class="v">#198</div></div>
+            </div>
+            <div class="foot">
+              <div class="qr"></div>
+              <button class="btn btn-forest btn-md">Show check-in QR</button>
+              <a href="w10-schedule.html" class="btn btn-ghost-forest btn-md" style="text-decoration:none;">View agenda</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="ticket">
+          <div class="cover">
+            <div class="ph" style="--h:18;"></div>
+            <div class="scrim-b" style="position:absolute; inset:0;"></div>
+            <span class="when pill" style="background:rgba(8,18,12,0.45); backdrop-filter:blur(6px); color:#fff;">14 Mar</span>
+          </div>
+          <div class="body">
+            <div class="nm">Sunset Sounds Festival</div>
+            <div class="loc">Heron Beach · Djibouti</div>
+            <div class="meta">
+              <div><div class="k">Date</div><div class="v">14 Mar · 17:00</div></div>
+              <div><div class="k">Ticket</div><div class="v">General</div></div>
+              <div><div class="k">Order</div><div class="v">#1042</div></div>
+            </div>
+            <div class="foot">
+              <div class="qr"></div>
+              <button class="btn btn-forest btn-md">Show check-in QR</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAST -->
+      <div class="past">
+        <div class="pastrow"><div class="ph" style="--h:280;"></div><div><div class="nm">Design in the Horn 2025</div><div class="dt">28 Nov 2025 · Djibouti</div></div><a href="#" class="lnk">View card →</a></div>
+        <div class="pastrow"><div class="ph" style="--h:95;"></div><div><div class="nm">Coastal Run 10K</div><div class="dt">14 Sep 2025 · Djibouti</div></div><a href="#" class="lnk">View card →</a></div>
+        <div class="pastrow"><div class="ph" style="--h:340;"></div><div><div class="nm">Red Sea Food Fair</div><div class="dt">02 Jun 2025 · Tadjoura</div></div><a href="#" class="lnk">View card →</a></div>
+        <div class="pastrow"><div class="ph" style="--h:200;"></div><div><div class="nm">Founders Breakfast</div><div class="dt">18 Mar 2025 · Djibouti</div></div><a href="#" class="lnk">View card →</a></div>
+      </div>
+    </div>
+
+    <!-- KARTA CARD -->
+    <aside>
+      <div class="card sidecard">
+        <div class="lab">Your card · AfriTech</div>
+        <div class="mini-kcard mesh-dark" style="--h:158;">
+          <div class="in">
+            <div class="brand">AfriTech Summit 2026</div>
+            <div class="pic ph" style="--h:30;"></div>
+            <div class="nm">Amina Osman</div>
+            <div class="meta">VIP · #198 · 12 Mar</div>
+          </div>
+        </div>
+        <button class="btn btn-forest btn-md dl">↓ Download card</button>
+        <div class="share">
+          <div class="pf" title="WhatsApp"><svg viewBox="0 0 24 24" fill="#25D366"><path d="M12 2a10 10 0 00-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1012 2zm0 18a8 8 0 01-4.1-1.1l-.3-.2-2.8.7.8-2.8-.2-.3A8 8 0 1112 20zm4.5-6c-.2-.1-1.4-.7-1.6-.8s-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1a6.5 6.5 0 01-3.2-2.8c-.2-.4.2-.4.6-1.2.1-.2 0-.3 0-.5l-.7-1.7c-.2-.5-.4-.4-.5-.4h-.5a1 1 0 00-.7.3A3 3 0 006 9.6c0 1.8 1.3 3.5 1.5 3.7s2.5 3.9 6.1 5.3c2.1.8 2.6.6 3.1.6s1.6-.6 1.8-1.3.3-1.2.2-1.3z"/></svg></div>
+          <div class="pf" title="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="#C13584" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="#C13584" stroke="none"/></svg></div>
+          <div class="pf" title="LinkedIn"><svg viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5V9h3v10zM6.5 7.7a1.8 1.8 0 110-3.5 1.8 1.8 0 010 3.5zM19 19h-3v-5.3c0-1.3-.5-2.1-1.6-2.1-.9 0-1.4.6-1.6 1.2-.1.2-.1.5-.1.8V19h-3V9h3v1.3a3 3 0 012.7-1.5c2 0 3.2 1.3 3.2 4V19z"/></svg></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+  <div style="height:60px;"></div>
+</div>
+
+<script>
+  const tabs=[...document.querySelectorAll('.tab')];
+  const up=document.querySelector('.upcoming'), past=document.querySelector('.past');
+  tabs.forEach(t=>t.onclick=()=>{
+    tabs.forEach(x=>x.classList.remove('active')); t.classList.add('active');
+    const isUp=t.dataset.t==='up';
+    up.classList.toggle('hide', !isUp);
+    past.classList.toggle('show', !isUp);
+  });
+  const dl=document.querySelector('.dl');
+  dl.onclick=()=>{ dl.textContent='✓ Saved'; dl.style.background='var(--success)'; setTimeout(()=>{dl.textContent='↓ Download card'; dl.style.background='';},1600); };
+</script>
+</body>
+</html>

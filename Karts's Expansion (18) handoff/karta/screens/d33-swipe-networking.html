@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D33 · Swipe Networking</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  body { overflow: hidden; }
+  .stage { height: calc(100vh - 64px); display: grid; grid-template-columns: 1fr 360px; }
+  .deckarea { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; padding: 24px; }
+  .deckhead { position: absolute; top: 28px; left: 0; right: 0; text-align: center; }
+  .deckhead .t { font-family: var(--display); font-weight: 500; font-size: 18px; color: var(--ink); }
+  .deckhead .s { font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-top: 4px; }
+  .deckhead .s b { font-family: var(--mono); font-weight: 500; color: var(--ink-soft); }
+
+  .deck { position: relative; width: min(360px, 86vw); aspect-ratio: 3/4.2; }
+  .pcard { position: absolute; inset: 0; border-radius: 16px; overflow: hidden; background: var(--cream-surface); border: 1px solid var(--cream-border); box-shadow: 0 18px 44px rgba(15,31,24,0.18); display: flex; flex-direction: column; }
+  .pcard.behind1 { transform: scale(.95) translateY(14px); z-index: -1; opacity: .7; }
+  .pcard.behind2 { transform: scale(.9) translateY(28px); z-index: -2; opacity: .4; }
+  .pcard .photo { flex: 1; position: relative; }
+  .pcard .info { padding: 18px 20px 20px; }
+  .pcard .nm { font-family: var(--display); font-weight: 500; font-size: 20px; color: var(--ink); }
+  .pcard .role { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 3px; }
+  .pcard .matchline { display: inline-flex; align-items: center; gap: 7px; margin-top: 12px; padding: 6px 12px; border-radius: var(--r-pill); background: var(--forest-soft); font-family: var(--body); font-weight: 500; font-size: 12px; color: var(--forest); }
+  .pcard .matchline b { font-family: var(--mono); }
+  .pcard .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .pcard .tg { font-size: 11px; padding: 4px 10px; background: var(--cream-soft); color: var(--ink-soft); }
+  .stamp { position: absolute; top: 26px; padding: 8px 18px; border-radius: 8px; font-family: var(--display); font-weight: 600; font-size: 22px; letter-spacing: 0.06em; border: 3px solid; transform: rotate(-12deg); opacity: 0; transition: opacity .15s; z-index: 5; }
+  .stamp.meet { left: 22px; color: var(--success); border-color: var(--success); }
+  .stamp.pass { right: 22px; color: var(--ink-muted); border-color: var(--ink-muted); transform: rotate(12deg); }
+  .deck.swipeleft .stamp.pass, .deck.swiperight .stamp.meet { opacity: 1; }
+  .deck.swipeleft .pcard.top { transform: translateX(-120%) rotate(-14deg); transition: transform .45s ease; }
+  .deck.swiperight .pcard.top { transform: translateX(120%) rotate(14deg); transition: transform .45s ease; }
+
+  .controls { display: flex; gap: 18px; margin-top: 30px; }
+  .ctl { width: 62px; height: 62px; border-radius: 50%; border: 1px solid var(--cream-border); background: var(--cream-surface); cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: var(--e1); transition: transform .15s; }
+  .ctl:hover { transform: scale(1.08); }
+  .ctl svg { width: 26px; height: 26px; fill: none; stroke-width: 2.2; }
+  .ctl.pass svg { stroke: var(--ink-muted); }
+  .ctl.meet { background: var(--forest); border-color: var(--forest); }
+  .ctl.meet svg { stroke: var(--gold); fill: var(--gold); }
+  .hintline { font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-top: 18px; }
+
+  /* matches rail */
+  .matches { border-left: 1px solid var(--cream-border); background: var(--cream-surface); padding: 26px 24px; overflow-y: auto; }
+  .matches h2 { font-family: var(--display); font-weight: 500; font-size: 16px; color: var(--ink); display: flex; align-items: baseline; gap: 8px; }
+  .matches h2 .n { font-family: var(--mono); font-size: 12px; color: var(--gold-hover); }
+  .matches .d { font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-top: 5px; line-height: 1.5; }
+  .mrow { display: flex; align-items: center; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--cream-border); }
+  .mrow .nm { font-family: var(--display); font-weight: 500; font-size: 14px; color: var(--ink); }
+  .mrow .s { font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-top: 2px; }
+  .mrow .new { font-size: 10px; padding: 3px 8px; background: var(--gold-soft); color: var(--gold-hover); font-weight: 600; }
+
+  /* match overlay */
+  .matchlay { position: fixed; inset: 0; z-index: 90; background: rgba(13,31,23,0.93); display: none; align-items: center; justify-content: center; flex-direction: column; text-align: center; }
+  .matchlay.open { display: flex; }
+  .matchlay h2 { font-family: var(--display); font-weight: 400; font-size: 40px; letter-spacing: -0.025em; color: #fff; }
+  .matchlay .s { font-family: var(--body); font-size: 15px; color: rgba(255,255,255,0.7); margin-top: 10px; }
+  .mavs { display: flex; margin: 32px 0; }
+  .mavs .av { width: 92px; height: 92px; border-radius: 50%; border: 3px solid var(--gold); position: relative; overflow: hidden; }
+  .mavs .av + .av { margin-left: -18px; }
+  .matchlay .row { display: flex; gap: 12px; }
+
+  @media (max-width:980px){ .stage { grid-template-columns: 1fr; } .matches { display: none; } }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links">
+    <a href="#">Overview</a>
+    <a href="#">Schedule</a>
+    <a href="#" style="color:var(--forest);">Network</a>
+  </div>
+  <div class="right">
+    <div class="ph avatar avatar-ring" style="--h:30; width:36px; height:36px;"></div>
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</nav>
+
+<div class="stage">
+  <div class="deckarea">
+    <div class="deckhead">
+      <div class="t">Swipe to meet</div>
+      <div class="s">Contact is shared only on a <b>mutual</b> match · <b>23</b> people in the pool</div>
+    </div>
+
+    <div class="deck" id="deck">
+      <div class="stamp meet">MEET</div>
+      <div class="stamp pass">PASS</div>
+      <div class="pcard top">
+        <div class="photo ph" style="--h:200;"></div>
+        <div class="info">
+          <div class="nm">Samuel Okoro</div>
+          <div class="role">Platform engineering · Paystack · Lagos</div>
+          <div class="matchline">AI match · <b>91%</b> — you both build payments infra</div>
+          <div class="tags"><span class="tg pill">Fintech</span><span class="tg pill">Infrastructure</span><span class="tg pill">Hiring</span></div>
+        </div>
+      </div>
+      <div class="pcard behind1">
+        <div class="photo ph" style="--h:340;"></div>
+        <div class="info"><div class="nm">Mariam Diallo</div><div class="role">Product design · Wave · Dakar</div></div>
+      </div>
+      <div class="pcard behind2">
+        <div class="photo ph" style="--h:95;"></div>
+        <div class="info"><div class="nm">Yonas Tesfaye</div><div class="role">Founder · Chewata Labs · Addis</div></div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="ctl pass" onclick="swipe(false)"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      <button class="ctl meet" onclick="swipe(true)"><svg viewBox="0 0 24 24"><path d="M12 21s-8-5.3-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 10c0 5.7-8 11-8 11z"/></svg></button>
+    </div>
+    <div class="hintline">Pass stays private — they never know</div>
+  </div>
+
+  <aside class="matches">
+    <h2>Your matches <span class="n">5</span></h2>
+    <div class="d">Mutual interest — contact shared both ways. Say hello before the coffee break.</div>
+    <div class="mrow">
+      <div class="ph avatar" style="--h:265; width:40px; height:40px;"></div>
+      <div><div class="nm">Leila Haddad</div><div class="s">Flutterwave · matched 12m ago</div></div>
+      <span class="new pill" style="margin-left:auto;">NEW</span>
+    </div>
+    <div class="mrow">
+      <div class="ph avatar" style="--h:18; width:40px; height:40px;"></div>
+      <div><div class="nm">Hana Bekele</div><div class="s">Designer · matched 1h ago</div></div>
+      <button class="btn btn-ghost-forest btn-sm" style="margin-left:auto;">Message</button>
+    </div>
+    <div class="mrow">
+      <div class="ph avatar" style="--h:120; width:40px; height:40px;"></div>
+      <div><div class="nm">Omar Farah</div><div class="s">Red Sea Tech · meeting booked</div></div>
+      <button class="btn btn-ghost-forest btn-sm" style="margin-left:auto;">13:15</button>
+    </div>
+  </aside>
+</div>
+
+<div class="matchlay" id="matchlay">
+  <h2>It's a match</h2>
+  <div class="s">You and Samuel both said meet — contact shared, chat is open.</div>
+  <div class="mavs">
+    <div class="av ph" style="--h:30;"></div>
+    <div class="av ph" style="--h:200;"></div>
+  </div>
+  <div class="row">
+    <button class="btn btn-gold btn-lg" onclick="closeMatch()">Say hello</button>
+    <button class="btn btn-ghost-forest btn-lg" style="color:#fff; border-color:rgba(255,255,255,0.4);" onclick="closeMatch()">Keep swiping</button>
+  </div>
+</div>
+
+<script>
+  function swipe(meet){
+    const deck = document.getElementById('deck');
+    deck.classList.add(meet ? 'swiperight' : 'swipeleft');
+    setTimeout(()=>{
+      deck.classList.remove('swiperight','swipeleft');
+      if(meet) document.getElementById('matchlay').classList.add('open');
+      // rotate cards for the demo
+      const top = deck.querySelector('.pcard.top');
+      const b1 = deck.querySelector('.pcard.behind1');
+      const b2 = deck.querySelector('.pcard.behind2');
+      top.classList.remove('top'); top.classList.add('behind2');
+      b1.classList.remove('behind1'); b1.classList.add('top');
+      b2.classList.remove('behind2'); b2.classList.add('behind1');
+      deck.appendChild(top);
+    }, 460);
+  }
+  function closeMatch(){ document.getElementById('matchlay').classList.remove('open'); }
+</script>
+</body>
+</html>

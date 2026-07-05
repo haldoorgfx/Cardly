@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Karta · UI Kit</title>
+<link rel="stylesheet" href="karta/karta.css">
+<style>
+  body { background-color: #ECE6D7; background-image: radial-gradient(circle, rgba(15,31,24,0.05) 1px, transparent 1px); background-size: 24px 24px; color: var(--ink); padding: 56px 40px 96px; }
+  ::selection { background: var(--forest); color: var(--cream-canvas); }
+  .page { max-width: 1280px; margin: 0 auto; }
+  header.top { display: flex; align-items: flex-end; justify-content: space-between; padding-bottom: 28px; border-bottom: 1px solid var(--cream-border); margin-bottom: 8px; flex-wrap: wrap; gap: 16px; }
+  .wm { font-family: var(--display); font-weight: 500; font-size: 24px; color: var(--forest); }
+  .wm b { color: var(--gold-hover); }
+  .lead { font-family: var(--body); font-size: 15px; color: var(--ink-muted); max-width: 540px; margin-top: 10px; }
+  .count { font-family: var(--mono); font-size: 13px; color: var(--ink-muted); }
+
+  .secrow { margin-top: 56px; }
+  .seclabel { font-family: var(--body); font-weight: 500; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 4px; }
+  .sectitle { font-family: var(--display); font-weight: 400; font-size: 24px; color: var(--forest); letter-spacing: -0.015em; }
+  .secdesc { font-family: var(--body); font-size: 14px; color: var(--ink-muted); margin-top: 6px; max-width: 620px; }
+
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; margin-top: 28px; }
+  .grid.three { grid-template-columns: repeat(3, 1fr); }
+
+  .frame { display: block; text-decoration: none; color: inherit; border-radius: 10px; overflow: hidden; background: #fff; border: 1px solid var(--cream-border); box-shadow: 0 1px 3px rgba(15,31,24,0.06); transition: box-shadow .18s, transform .18s; }
+  .frame:hover { box-shadow: 0 10px 30px rgba(15,31,24,0.12); transform: translateY(-3px); }
+  .chrome { height: 38px; background: #F4F0E8; border-bottom: 1px solid var(--cream-border); display: flex; align-items: center; gap: 8px; padding: 0 14px; }
+  .lights { display: flex; gap: 6px; }
+  .lights i { width: 11px; height: 11px; border-radius: 50%; display: block; }
+  .urlbar { flex: 1; height: 22px; background: #fff; border: 1px solid var(--cream-border); border-radius: var(--r-pill); display: flex; align-items: center; padding: 0 12px; font-family: var(--mono); font-size: 11px; color: var(--ink-muted); margin-left: 6px; }
+  .thumb { position: relative; overflow: hidden; background: var(--cream-canvas); height: 300px; }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
+  .cap { display: flex; align-items: baseline; gap: 10px; padding: 14px 16px; border-top: 1px solid var(--cream-border); }
+  .cap .no { font-family: var(--mono); font-size: 12px; color: var(--gold-hover); font-weight: 500; }
+  .cap .nm { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--ink); }
+  .cap .arr { margin-left: auto; color: var(--ink-muted); }
+
+  @media (max-width: 900px){
+    body { padding: 32px 18px 64px; }
+    .grid, .grid.three { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="top">
+    <div>
+      <div class="wm">K<b>a</b>rta</div>
+      <div class="lead">A full-stack event platform with one viral differentiator — a personalized Karta Card at registration. Thirty-two responsive web screens plus the design system, on one warm cream canvas.</div>
+    </div>
+    <div class="count">74 artifacts · v1.3</div>
+  </header>
+
+  <!-- Foundations -->
+  <section class="secrow">
+    <div class="seclabel">Foundations</div>
+    <div class="sectitle">Design system</div>
+    <div class="secdesc">Forest, gold and cream. DM Sans display · Inter body · JetBrains Mono for every number. The source of truth for all thirty-two screens.</div>
+    <div class="grid">
+      <a class="frame" href="karta/screens/00-design-system.html" target="_blank">
+        <div class="chrome"><div class="lights"><i style="background:#E5837B"></i><i style="background:#E8C57E"></i><i style="background:#8FC3A0"></i></div><div class="urlbar">karta.app / design-system</div></div>
+        <div class="thumb"><img loading="lazy" src="screenshots/th/ds.png" alt="Design System"></div>
+        <div class="cap"><span class="no">DS</span><span class="nm">Design System</span><span class="arr">↗</span></div>
+      </a>
+      <a class="frame" href="karta/screens/w09-card-reveal.html" target="_blank">
+        <div class="chrome"><div class="lights"><i style="background:#E5837B"></i><i style="background:#E8C57E"></i><i style="background:#8FC3A0"></i></div><div class="urlbar">karta.app / card</div></div>
+        <div class="thumb"><img loading="lazy" src="screenshots/th/w09.png" alt="Karta Card Reveal"></div>
+        <div class="cap"><span class="no">W09</span><span class="nm">Karta Card Reveal — the signature moment</span><span class="arr">↗</span></div>
+      </a>
+    </div>
+  </section>
+
+  <!-- Attendee: discovery & registration -->
+  <section class="secrow">
+    <div class="seclabel">Attendee · Discover & register</div>
+    <div class="sectitle">Finding and joining an event</div>
+    <div class="secdesc">Photography-first, Airbnb anatomy. The same cream canvas, fully responsive from 1440 down to 375.</div>
+    <div class="grid three" id="sec-discovery"></div>
+  </section>
+
+  <!-- Attendee: program -->
+  <section class="secrow">
+    <div class="seclabel">Attendee · Program</div>
+    <div class="sectitle">Speakers, sessions & agenda</div>
+    <div class="secdesc">The people and the schedule are the content — full-bleed speaker photography, a personal timeline, and post-event ratings.</div>
+    <div class="grid three" id="sec-program"></div>
+  </section>
+
+  <!-- Attendee: engagement -->
+  <section class="secrow">
+    <div class="seclabel">Attendee · Engagement</div>
+    <div class="sectitle">Networking, live & hybrid</div>
+    <div class="secdesc">The social and live layers — messaging, Q&A, polls, sponsors, the dark lead-retrieval tool, and the virtual player.</div>
+    <div class="grid three" id="sec-engage"></div>
+  </section>
+
+  <!-- Organizer: management -->
+  <section class="secrow">
+    <div class="seclabel">Organizer · Manage</div>
+    <div class="sectitle">Running the event</div>
+    <div class="secdesc">Data is everything, decoration is nothing. Hairline borders, tabular numbers, clean bands. One filled CTA per section.</div>
+    <div class="grid three" id="sec-manage"></div>
+  </section>
+
+  <!-- Marketplace: attendee -->
+  <section class="secrow">
+    <div class="seclabel">Marketplace · Discover &amp; buy</div>
+    <div class="sectitle">The event marketplace</div>
+    <div class="secdesc">Karta as the place attendees live — personalized discovery, city pages, map search, the ticket wallet, follows, waitlists and group checkout.</div>
+    <div class="grid three" id="sec-marketplace"></div>
+  </section>
+
+  <!-- Marketplace: organizer ops -->
+  <section class="secrow">
+    <div class="seclabel">Marketplace · Operate &amp; monetize</div>
+    <div class="sectitle">New organizer tools</div>
+    <div class="secdesc">Blasts on email + WhatsApp, the event newsfeed, kiosk and walk-in flows for the door, promoted listings, and the Karta AI copilot.</div>
+    <div class="grid three" id="sec-mktops"></div>
+  </section>
+
+  <!-- Marketplace: account & ticketing depth -->
+  <section class="secrow">
+    <div class="seclabel">Marketplace · Account &amp; ticketing depth</div>
+    <div class="sectitle">Every action, every state</div>
+    <div class="secdesc">Sign-in and onboarding, saved &amp; follows, the notification inbox — and the deep ticketing machinery: pay-what-you-want, hidden tickets, add-ons, transfers and approval gates, each shown state by state.</div>
+    <div class="grid three" id="sec-mktdepth"></div>
+  </section>
+
+  <!-- Marketplace: organizer ops & ticketing -->
+  <section class="secrow">
+    <div class="seclabel">Marketplace · Organizer ticketing ops</div>
+    <div class="sectitle">Running the money</div>
+    <div class="secdesc">The organizer side of ticketing depth — type editor with hidden codes and PWYW, the approval queue, waitlist auto-promotion, and orders with refunds and payout schedules.</div>
+    <div class="grid three" id="sec-tixops"></div>
+  </section>
+
+  <!-- Marketplace: calendars & series -->
+  <section class="secrow">
+    <div class="seclabel">Marketplace · Calendars &amp; repetition</div>
+    <div class="sectitle">Events that come back</div>
+    <div class="secdesc">Subscribable community calendars with ICS, SEO category pages, recurring series with shared followers, and one-click duplication into templates.</div>
+    <div class="grid three" id="sec-calendars"></div>
+  </section>
+
+  <!-- Marketplace: engagement -->
+  <section class="secrow">
+    <div class="seclabel">Marketplace · Engagement extras</div>
+    <div class="sectitle">The social layer</div>
+    <div class="secdesc">Threaded event community, moderated photo wall, swipe-to-meet with mutual matching, timed speed-networking rotations, and workshop seat booking.</div>
+    <div class="grid three" id="sec-engage2"></div>
+  </section>
+
+  <!-- Marketplace: platform & onsite -->
+  <section class="secrow">
+    <div class="seclabel">Marketplace · Platform &amp; distribution</div>
+    <div class="sectitle">Stage, staff &amp; growth loops</div>
+    <div class="secdesc">Chromeless projector displays, per-event scoped staff roles, embeddable widgets, source tracking that proves the Card drives registrations, operator curation, and AI lead scoring.</div>
+    <div class="grid three" id="sec-platform"></div>
+  </section>
+
+  <!-- Organizer: scale -->
+  <section class="secrow">
+    <div class="seclabel">Organizer · Scale</div>
+    <div class="sectitle">Moderation, developers & portfolio</div>
+    <div class="secdesc">The power-organizer surfaces — live moderation, integrations, API keys, white-label, paper review, and the multi-event portfolio.</div>
+    <div class="grid three" id="sec-scale"></div>
+  </section>
+</div>
+
+<script>
+  const sections={
+    'sec-discovery':[
+      ['W06','Event Discovery','w06-discovery.html','w06'],
+      ['W07','Public Event Page','w07-event-page.html','w07'],
+      ['W08','Registration Flow','w08-registration.html','w08'],
+      ['W10','Schedule','w10-schedule.html','w10'],
+      ['W12','My Tickets','w12-tickets.html','w12'],
+    ],
+    'sec-program':[
+      ['W13','Speaker Directory','w13-speakers.html','w13'],
+      ['W14','Speaker Profile','w14-speaker-profile.html','w14'],
+      ['W15','Session Detail','w15-session-detail.html','w15'],
+      ['W16','Personal Agenda','w16-personal-agenda.html','w16'],
+      ['W17','Feedback & Rating','w17-feedback.html','w17'],
+    ],
+    'sec-engage':[
+      ['W11','Networking','w11-networking.html','w11'],
+      ['W18','People Discovery','w18-networking.html','w18'],
+      ['W19','Messaging','w19-messaging.html','w19'],
+      ['W20','Live Q&A','w20-live-qa.html','w20'],
+      ['W21','Poll + Leaderboard','w21-poll-leaderboard.html','w21'],
+      ['W23','Sponsor Showcase','w23-sponsors.html','w23'],
+      ['W24','Exhibitor Booth','w24-booth.html','w24'],
+      ['W25','Lead Retrieval','w25-lead-retrieval.html','w25'],
+      ['W26','Virtual Player','w26-virtual-player.html','w26'],
+      ['W30','Abstract Submission','w30-abstract-submission.html','w30'],
+    ],
+    'sec-manage':[
+      ['W01','Organizer Dashboard','w01-dashboard.html','w01'],
+      ['W02','Public Event Page · Preview','w02-event-page.html','w02'],
+      ['W03','Registration Management','w03-registrations.html','w03'],
+      ['W04','Agenda Builder','w04-agenda-builder.html','w04'],
+      ['W05','Analytics','w05-analytics.html','w05'],
+    ],
+    'sec-marketplace':[
+      ['D01','Marketplace Home — personalized feed','d01-marketplace-home.html','d01'],
+      ['D02','City Page','d02-city-page.html','d02'],
+      ['D03','Search + Map View','d03-search-map.html','d03'],
+      ['D04','My Tickets Wallet','d04-tickets-wallet.html','d04'],
+      ['D05','Profile & Interests','d05-profile-interests.html','d05'],
+      ['D06','Organizer Profile — Follow','d06-organizer-profile.html','d06'],
+      ['D07','Waitlist States','d07-waitlist.html','d07'],
+      ['D08','Group Registration','d08-group-registration.html','d08'],
+    ],
+    'sec-mktops':[
+      ['D09','Communications Center','d09-communications.html','d09'],
+      ['D10','Event Newsfeed','d10-newsfeed.html','d10'],
+      ['D11','Kiosk Check-in','d11-kiosk.html','d11'],
+      ['D12','Walk-in Registration','d12-walkin.html','d12'],
+      ['D13','Promoted Listing','d13-promoted-listing.html','d13'],
+      ['D14','Karta AI Copilot','d14-ai-copilot.html','d14'],
+    ],
+    'sec-mktdepth':[
+      ['D15','Sign in — OTP + Google','d15-attendee-auth.html','d15'],
+      ['D16','First-run Onboarding','d16-onboarding.html','d16'],
+      ['D17','Saved & Following','d17-saved-following.html','d17'],
+      ['D18','Notifications Inbox','d18-notifications.html','d18'],
+      ['D19','Event Page — Ticketing Depth','d19-event-ticketing.html','d19'],
+      ['D20','Checkout','d20-checkout.html','d20'],
+      ['D21','Ticket Transfer — 3 states','d21-ticket-transfer.html','d21'],
+      ['D22','Approval Flow — 4 states','d22-approval-flow.html','d22'],
+    ],
+    'sec-tixops':[
+      ['D23','Ticket Types Manager','d23-ticket-manager.html','d23'],
+      ['D24','Approval Queue','d24-approval-queue.html','d24'],
+      ['D25','Waitlist Manager','d25-waitlist-manager.html','d25'],
+      ['D26','Orders & Payouts','d26-orders-payouts.html','d26'],
+    ],
+    'sec-calendars':[
+      ['D27','Community Calendar','d27-community-calendar.html','d27'],
+      ['D28','Category Page','d28-category-page.html','d28'],
+      ['D29','Event Series','d29-event-series.html','d29'],
+      ['D30','Duplicate & Templates','d30-duplicate-template.html','d30'],
+    ],
+    'sec-engage2':[
+      ['D31','Event Community','d31-community.html','d31'],
+      ['D32','Photo Wall','d32-photo-wall.html','d32'],
+      ['D33','Swipe Networking','d33-swipe-networking.html','d33'],
+      ['D34','Speed Networking','d34-speed-networking.html','d34'],
+      ['D35','Session Seat Booking','d35-seat-booking.html','d35'],
+    ],
+    'sec-platform':[
+      ['D36','Live Display — Q&A Wall','d36-live-display.html','d36'],
+      ['D37','Event Staff Roles','d37-staff-roles.html','d37'],
+      ['D38','Embed Widgets','d38-embed-widgets.html','d38'],
+      ['D39','Source Analytics — ?src=card','d39-source-analytics.html','d39'],
+      ['D40','Operator — Collections','d40-operator-collections.html','d40'],
+      ['D41','AI Lead Scoring','d41-lead-scoring.html','d41'],
+    ],
+    'sec-scale':[
+      ['W22','Q&A Moderation','w22-qa-moderation.html','w22'],
+      ['W27','Integrations','w27-integrations.html','w27'],
+      ['W28','API Keys','w28-api-keys.html','w28'],
+      ['W29','White-Label','w29-white-label.html','w29'],
+      ['W31','Abstract Review','w31-abstract-review.html','w31'],
+      ['W32','Portfolio Analytics','w32-portfolio-analytics.html','w32'],
+    ],
+  };
+  function card(s){
+    return `<a class="frame" href="karta/screens/${s[2]}" target="_blank">
+      <div class="chrome"><div class="lights"><i style="background:#E5837B"></i><i style="background:#E8C57E"></i><i style="background:#8FC3A0"></i></div><div class="urlbar">karta.app / ${s[2].replace('.html','')}</div></div>
+      <div class="thumb"><img loading="lazy" src="screenshots/th/${s[3]}.png" alt="${s[1]}"></div>
+      <div class="cap"><span class="no">${s[0]}</span><span class="nm">${s[1]}</span><span class="arr">↗</span></div>
+    </a>`;
+  }
+  Object.keys(sections).forEach(id=>{ document.getElementById(id).innerHTML=sections[id].map(card).join(''); });
+</script>
+</body>
+</html>

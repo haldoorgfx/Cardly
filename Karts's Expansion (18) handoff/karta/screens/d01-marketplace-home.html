@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D01 · Marketplace Home</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .hometop { padding: 40px 0 8px; position: relative; overflow: hidden; }
+  .hometop .container { position: relative; z-index: 1; }
+  .greet { font-family: var(--display); font-weight: 400; font-size: 32px; letter-spacing: -0.025em; color: var(--forest); }
+  .greet b { font-weight: 500; }
+  .searchrow { display: flex; gap: 12px; margin-top: 22px; align-items: center; flex-wrap: wrap; }
+  .searchrow .search { flex: 1; min-width: 260px; }
+  .cityselect { height: 48px; padding: 0 18px; border-radius: var(--r-pill); background: var(--cream-surface); border: 1px solid var(--cream-border); display: inline-flex; align-items: center; gap: 10px; font-family: var(--display); font-weight: 500; font-size: 14px; color: var(--forest); cursor: pointer; white-space: nowrap; }
+  .cityselect svg { width: 16px; height: 16px; stroke: var(--forest); fill: none; stroke-width: 1.8; }
+  .chips-rail { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-top: 18px; }
+
+  .rowhead { display: flex; align-items: baseline; justify-content: space-between; margin: 44px 0 16px; }
+  .rowhead h2 { font-family: var(--display); font-weight: 500; font-size: 20px; color: var(--ink); }
+  .rowhead .sub { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 3px; }
+  .rowhead a { font-family: var(--body); font-size: 13px; font-weight: 500; color: var(--forest); text-decoration: none; }
+  .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .ecard { border-radius: var(--r-card); overflow: hidden; background: var(--cream-surface); border: 1px solid var(--cream-border); cursor: pointer; }
+  .ecard .img { width: 100%; aspect-ratio: 4/3; position: relative; }
+  .ecard .det { padding: 13px 15px 15px; }
+  .ecard .nm { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--ink); }
+  .ecard .org { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 2px; }
+  .ecard .foot { display: flex; align-items: center; justify-content: space-between; margin-top: 11px; }
+  .imgtag { position: absolute; left: 12px; top: 12px; z-index: 2; padding: 5px 10px; background: rgba(8,18,12,0.4); backdrop-filter: blur(6px); color: #fff; font-size: 11px; }
+  .heart { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border-radius: 50%; background: rgba(8,18,12,0.35); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2; }
+  .heart svg { width: 17px; height: 17px; stroke: #fff; fill: none; stroke-width: 1.8; }
+  .heart.saved svg { fill: var(--gold); stroke: var(--gold); }
+  .trend { position: absolute; left: 12px; bottom: 12px; z-index: 2; padding: 5px 10px; background: rgba(250,246,238,0.92); color: var(--forest); font-size: 11px; }
+  .trend b { font-family: var(--mono); font-weight: 500; }
+
+  /* follow rail */
+  .orgrail { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .orgcard { display: flex; align-items: center; gap: 14px; padding: 16px 18px; background: var(--cream-surface); border: 1px solid var(--cream-border); border-radius: var(--r-card); cursor: pointer; }
+  .orgcard .nm { font-family: var(--display); font-weight: 500; font-size: 14px; color: var(--ink); }
+  .orgcard .meta { font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-top: 2px; }
+  .orgcard .meta b { font-family: var(--mono); font-weight: 500; color: var(--ink-soft); }
+  .newdot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); margin-left: auto; flex: none; }
+
+  @media (max-width:1100px){ .grid4, .orgrail { grid-template-columns: repeat(2,1fr); } }
+  @media (max-width:560px){ .grid4, .orgrail { grid-template-columns: 1fr; } .greet { font-size: 26px; } }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links">
+    <a href="#" style="color:var(--forest);">Discover</a>
+    <a href="d04-tickets-wallet.html">My tickets</a>
+    <a href="#">Following</a>
+    <a href="#">Calendar</a>
+  </div>
+  <div class="right">
+    <button class="btn btn-ghost-forest btn-sm">Host an event</button>
+    <div class="ph avatar avatar-ring" style="--h:30; width:36px; height:36px;"></div>
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</nav>
+
+<div class="hometop">
+  <div class="cardly-mesh cardly-mesh-hero"></div>
+  <div class="container">
+    <h1 class="greet">Good evening, <b>Amina</b></h1>
+    <div class="searchrow">
+      <div class="search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input placeholder="Search events, organizers, venues…">
+      </div>
+      <div class="cityselect">
+        <svg viewBox="0 0 24 24"><path d="M12 21s-6-5.2-6-10a6 6 0 0112 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg>
+        Djibouti City
+        <svg viewBox="0 0 24 24" style="width:13px;height:13px;"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+    </div>
+    <div class="chips-rail no-scrollbar">
+      <div class="chip active">All</div>
+      <div class="chip">Music</div>
+      <div class="chip">Tech</div>
+      <div class="chip">Business</div>
+      <div class="chip">Culture</div>
+      <div class="chip">Food</div>
+      <div class="chip">Sports</div>
+      <div class="chip">Health</div>
+      <div class="chip">Free this week</div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="rowhead">
+    <div>
+      <h2>For you</h2>
+      <div class="sub">Matched to your interests — Tech, Music, Culture</div>
+    </div>
+    <a href="#">See all →</a>
+  </div>
+  <div class="grid4" id="row-foryou"></div>
+
+  <div class="rowhead">
+    <div>
+      <h2>This week in Djibouti City</h2>
+      <div class="sub">18 events near you</div>
+    </div>
+    <a href="d02-city-page.html">City page →</a>
+  </div>
+  <div class="grid4" id="row-week"></div>
+
+  <div class="rowhead">
+    <div>
+      <h2>Trending now</h2>
+      <div class="sub">Fastest-selling across the Horn</div>
+    </div>
+    <a href="#">See all →</a>
+  </div>
+  <div class="grid4" id="row-trending"></div>
+
+  <div class="rowhead">
+    <div>
+      <h2>From organizers you follow</h2>
+      <div class="sub">3 new events since your last visit</div>
+    </div>
+    <a href="#">Manage follows →</a>
+  </div>
+  <div class="orgrail" id="row-orgs"></div>
+
+  <div style="height:80px;"></div>
+</div>
+
+<script>
+  function ecard(e, extra){
+    const free = e[3]==='Free';
+    return `<div class="ecard cardly-edge">
+      <div class="img ph" style="--h:${e[4]};">
+        <span class="imgtag pill">${e[5]}</span>
+        <div class="heart${e[6]?' saved':''}"><svg viewBox="0 0 24 24"><path d="M12 21s-8-5.3-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 10c0 5.7-8 11-8 11z"/></svg></div>
+        ${extra||''}
+      </div>
+      <div class="det">
+        <div class="nm">${e[0]}</div>
+        <div class="org">${e[1]}</div>
+        <div class="foot">
+          <span class="t-num-sm" style="color:var(--ink-muted)">${e[2]}</span>
+          <span class="t-num-sm" style="color:${free?'var(--gold-hover)':'var(--forest)'}; font-weight:500;">${e[3]}</span>
+        </div>
+      </div>
+    </div>`;
+  }
+  const foryou = [
+    ['AfriTech Summit 2026','Karta Studio','12–14 Mar','$25',158,'Tech',true],
+    ['Jazz on the Pier','Blue Note DJ','05 Apr','$25',200,'Music',false],
+    ['Design in the Horn','Karta Studio','28 Mar','$20',30,'Culture',false],
+    ['Startup Pitch Night','Sahel Ventures','09 Apr','Free',120,'Tech',false],
+  ];
+  const week = [
+    ['Sunset Sounds Festival','Blue Note DJ','Fri 14 Mar','Free',18,'Music',false],
+    ['Founders Breakfast','Karta Studio','Sat 15 Mar','$15',265,'Business',false],
+    ['Red Sea Food Fair','City Council','Sun 16 Mar','Free',340,'Food',false],
+    ['Coastal Run 10K','City Council','Sun 16 Mar','$30',95,'Sports',false],
+  ];
+  const trending = [
+    ['Nairobi DevFest','GDG Nairobi','22 Mar · Nairobi','$10',210,'Tech',false,'+412 this week'],
+    ['Addis Fashion Week','Habesha Collective','29 Mar · Addis','$40',330,'Culture',false,'+388 this week'],
+    ['Mombasa Beach Sessions','Coast Live','04 Apr · Mombasa','$12',185,'Music',false,'+251 this week'],
+    ['Kigali AI Forum','Norrsken House','11 Apr · Kigali','Free',150,'Tech',false,'+214 this week'],
+  ];
+  document.getElementById('row-foryou').innerHTML = foryou.map(e=>ecard(e)).join('');
+  document.getElementById('row-week').innerHTML = week.map(e=>ecard(e)).join('');
+  document.getElementById('row-trending').innerHTML = trending.map(e=>ecard(e,`<span class="trend pill">↗ <b>${e[7].split(' ')[0]}</b>&nbsp;this week</span>`)).join('');
+
+  const orgs = [
+    ['Karta Studio','12.4K followers','2 new events',150,true],
+    ['Blue Note DJ','3,208 followers','1 new event',280,true],
+    ['Sahel Ventures','1,940 followers','No new events',210,false],
+    ['City Council','8,652 followers','No new events',38,false],
+  ];
+  document.getElementById('row-orgs').innerHTML = orgs.map(o=>`
+    <div class="orgcard cardly-edge">
+      <div class="ph avatar" style="--h:${o[3]}; width:44px; height:44px;"></div>
+      <div>
+        <div class="nm">${o[0]}</div>
+        <div class="meta"><b>${o[1].split(' ')[0]}</b> followers · ${o[2]}</div>
+      </div>
+      ${o[4]?'<span class="newdot"></span>':''}
+    </div>`).join('');
+
+  document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{document.querySelector('.chip.active')?.classList.remove('active');c.classList.add('active');});
+  document.addEventListener('click', e=>{ const h=e.target.closest('.heart'); if(h){ e.stopPropagation(); h.classList.toggle('saved'); }});
+</script>
+</body>
+</html>

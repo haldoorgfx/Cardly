@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W14 · Speaker Profile</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .hero { width: 100%; height: 480px; position: relative; overflow: hidden; }
+  .hero .scrim-b { position: absolute; inset: 0; }
+  .hero .cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 40px 0; }
+  .hero .inner { max-width: 960px; margin: 0 auto; padding: 0 40px; }
+  .hero h1 { font-family: var(--display); font-weight: 400; font-size: 40px; color: #fff; letter-spacing: -0.025em; }
+  .hero .rc { font-family: var(--body); font-size: 18px; color: var(--gold); margin-top: 8px; }
+  .hero .socials { display: flex; gap: 10px; margin-top: 18px; }
+  .hero .ic { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.16); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .hero .ic svg { width: 15px; height: 15px; fill: #fff; }
+
+  .layout { display: grid; grid-template-columns: 1fr 280px; gap: 56px; max-width: 960px; margin: 48px auto 96px; padding: 0 40px; align-items: start; }
+  .sec-h { font-family: var(--display); font-weight: 400; font-size: 22px; color: var(--forest); letter-spacing: -0.015em; }
+  .block { margin-top: 40px; }
+  .block:first-child { margin-top: 0; }
+
+  .sess { border: 1px solid var(--cream-border); border-radius: var(--r-card); background: var(--cream-surface); padding: 18px 20px; margin-top: 12px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .sess .tt { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--forest); }
+  .sess .mt { font-family: var(--mono); font-size: 13px; color: var(--ink-muted); margin-top: 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .trackdot { display: inline-flex; align-items: center; gap: 6px; font-family: var(--body); font-size: 12px; color: var(--ink-soft); }
+
+  .cospk { display: flex; gap: 20px; margin-top: 18px; flex-wrap: wrap; }
+  .chip-person { display: flex; align-items: center; gap: 10px; }
+  .chip-person .ph { width: 40px; height: 40px; border-radius: 50%; }
+  .chip-person .nm { font-family: var(--body); font-weight: 500; font-size: 14px; color: var(--ink); }
+
+  .connect-card { position: sticky; top: 88px; padding: 24px; text-align: center; }
+  .connect-card .pav { width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 14px; box-shadow: 0 0 0 2px var(--gold); }
+  .connect-card .nm { font-family: var(--display); font-weight: 500; font-size: 18px; color: var(--forest); }
+  .connect-card .hl { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 3px; }
+  .connect-card .share { display: block; margin-top: 12px; font-family: var(--body); font-size: 13px; color: var(--ink-muted); text-decoration: none; }
+  .connect-card .share:hover { color: var(--forest); }
+  .interests { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--cream-border); text-align: left; }
+  .interests .lab { font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-bottom: 10px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag { height: 26px; padding: 0 12px; display: inline-flex; align-items: center; border-radius: var(--r-pill); background: var(--forest-soft); color: var(--forest); font-family: var(--body); font-size: 12px; font-weight: 500; }
+
+  @media (max-width:900px){
+    .hero { height: 340px; } .hero h1 { font-size: 30px; }
+    .layout { grid-template-columns: 1fr; gap: 0; }
+    .connect-card { position: static; margin-top: 40px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links"><a href="w06-discovery.html">Discover</a><a href="w13-speakers.html" style="color:var(--forest)">Speakers</a><a href="w10-schedule.html">Schedule</a><a href="w11-networking.html">Network</a></div>
+  <div class="right"><div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div><button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button></div>
+</nav>
+
+<div class="hero ph" style="--h:30;">
+  <div class="scrim-b"></div>
+  <div class="cap"><div class="inner">
+    <h1>Amina Osman</h1>
+    <div class="rc">Founder & CEO, Sahel Pay</div>
+    <div class="socials">
+      <div class="ic"><svg viewBox="0 0 24 24"><path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5V9h3v10zM6.5 7.7a1.8 1.8 0 110-3.5 1.8 1.8 0 010 3.5zM19 19h-3v-5.3c0-1.3-.5-2.1-1.6-2.1-.9 0-1.4.6-1.6 1.2v6.2h-3V9h3v1.3a3 3 0 012.7-1.5c2 0 3.2 1.3 3.2 4V19z"/></svg></div>
+      <div class="ic"><svg viewBox="0 0 24 24"><path d="M17.5 3h3l-7 8 8.2 10h-6.4l-5-6.2L7 21H4l7.5-8.6L3.6 3H10l4.5 5.7L17.5 3z"/></svg></div>
+      <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm6.9 6h-2.6a13 13 0 00-1.1-3.1A8 8 0 0118.9 8zM12 4c.7 1 1.3 2.4 1.6 4h-3.2C10.7 6.4 11.3 5 12 4zM4.3 14a8 8 0 010-4h3a16 16 0 000 4zm.8 2h2.6c.3 1.2.7 2.2 1.1 3.1A8 8 0 015.1 16zM7.7 8H5.1a8 8 0 014.7-3.1A13 13 0 008.7 8zm4.3 12c-.7-1-1.3-2.4-1.6-4h3.2c-.3 1.6-.9 3-1.6 4zm2-6H10a14 14 0 010-4h4a14 14 0 010 4zm.9 5.1c.4-.9.8-1.9 1.1-3.1h2.6a8 8 0 01-3.7 3.1zM16.7 14a16 16 0 000-4h3a8 8 0 010 4z"/></svg></div>
+    </div>
+  </div></div>
+</div>
+
+<div class="layout">
+  <div>
+    <div class="block">
+      <div class="sec-h">About</div>
+      <p class="t-body" style="color:var(--ink-soft); margin-top:14px; text-wrap:pretty;">Amina founded Sahel Pay in 2019 to build payments rails for the Horn of Africa, now processing over $400M annually across four countries. Before that she led growth at a pan-African fintech and spent five years in mobile money. She speaks on building for the next billion users, fundraising on the continent, and the operational realities of scaling across borders.</p>
+    </div>
+
+    <div class="block">
+      <div class="sec-h">Sessions</div>
+      <div class="sess">
+        <div>
+          <div class="tt">Opening keynote — Building for the next billion</div>
+          <div class="mt"><span>12 Mar · 09:00 · Main Stage</span><span class="trackdot"><span class="dot" style="background:var(--forest)"></span>Engineering</span></div>
+        </div>
+        <button class="btn btn-ghost-forest btn-sm">Add to agenda</button>
+      </div>
+      <div class="sess">
+        <div>
+          <div class="tt">Fireside: Fundraising in 2026</div>
+          <div class="mt"><span>12 Mar · 15:30 · Track B</span><span class="trackdot"><span class="dot" style="background:#8A6FB0"></span>Business</span></div>
+        </div>
+        <button class="btn btn-ghost-forest btn-sm">Add to agenda</button>
+      </div>
+      <div class="sess">
+        <div>
+          <div class="tt">Office hours with Amina</div>
+          <div class="mt"><span>13 Mar · 11:00 · Lounge</span><span class="trackdot"><span class="dot" style="background:var(--success)"></span>Workshop</span></div>
+        </div>
+        <button class="btn btn-ghost-forest btn-sm">Add to agenda</button>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="sec-h">Co-speakers</div>
+      <div class="cospk">
+        <div class="chip-person"><div class="ph" style="--h:200;"></div><div class="nm">Faisal Karim</div></div>
+        <div class="chip-person"><div class="ph" style="--h:265;"></div><div class="nm">Leila Haddad</div></div>
+        <div class="chip-person"><div class="ph" style="--h:95;"></div><div class="nm">Omar Farah</div></div>
+      </div>
+    </div>
+  </div>
+
+  <aside>
+    <div class="card connect-card">
+      <div class="ph pav" style="--h:30;"></div>
+      <div class="nm">Amina Osman</div>
+      <div class="hl">Founder & CEO, Sahel Pay</div>
+      <button class="btn btn-forest btn-md" style="width:100%; margin-top:16px;">Send connection request</button>
+      <a href="#" class="share">Share profile</a>
+      <div class="interests">
+        <div class="lab">Interests</div>
+        <div class="tags"><span class="tag">Fintech</span><span class="tag">Payments</span><span class="tag">Fundraising</span><span class="tag">Scaling</span></div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script>
+  document.querySelectorAll('.sess .btn').forEach(b=>b.onclick=()=>{ if(b.textContent==='Add to agenda'){ b.textContent='✓ In agenda'; b.className='btn btn-ghost-gold btn-sm'; } else { b.textContent='Add to agenda'; b.className='btn btn-ghost-forest btn-sm'; }});
+</script>
+</body>
+</html>

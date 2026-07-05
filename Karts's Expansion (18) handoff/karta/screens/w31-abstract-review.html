@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W31 · Abstract Review Panel</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  body { overflow: hidden; }
+  .topwrap { padding: 28px 40px 0; }
+  .topwrap h1 { font-family: var(--display); font-weight: 400; font-size: 28px; color: var(--forest); letter-spacing: -0.02em; }
+  .stats { font-family: var(--body); font-size: 14px; color: var(--ink-muted); margin-top: 10px; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+  .stats b { font-family: var(--mono); font-weight: 500; font-size: 16px; color: var(--forest); }
+  .stats .sep { color: var(--cream-border); }
+  .ftabs { display: flex; gap: 4px; margin-top: 18px; border-bottom: 1px solid var(--cream-border); }
+  .ftab { padding: 10px 16px; font-family: var(--body); font-weight: 500; font-size: 13px; color: var(--ink-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .ftab.active { color: var(--forest); border-bottom-color: var(--gold); }
+
+  .split { display: grid; grid-template-columns: 400px 1fr; height: calc(100vh - 64px - 170px); }
+  .list { border-right: 1px solid var(--cream-border); overflow-y: auto; }
+  .arow { padding: 16px 24px; border-bottom: 1px solid var(--cream-border); cursor: pointer; }
+  .arow:hover { background: var(--cream-soft); }
+  .arow.active { background: var(--forest-soft); }
+  .arow .tt { font-family: var(--body); font-weight: 500; font-size: 14px; color: var(--forest); line-height: 1.4; }
+  .arow .sb { font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-top: 5px; }
+  .arow .tags { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .cat { height: 22px; padding: 0 10px; display: inline-flex; align-items: center; border-radius: var(--r-pill); background: var(--cream-soft); color: var(--ink-soft); font-family: var(--body); font-size: 11px; font-weight: 500; }
+  .stat-pill { height: 22px; padding: 0 10px; display: inline-flex; align-items: center; border-radius: var(--r-pill); font-family: var(--body); font-size: 11px; font-weight: 500; }
+  .stat-pending { background: var(--cream-soft); color: var(--ink-muted); }
+  .stat-accept { background: var(--forest-soft); color: var(--forest); }
+  .stat-reject { background: rgba(184,66,60,0.1); color: var(--error); }
+  .arow .dt { font-family: var(--mono); font-size: 11px; color: var(--ink-muted); margin-left: auto; }
+
+  .detail { overflow-y: auto; padding: 32px 40px; }
+  .detail h2 { font-family: var(--display); font-weight: 400; font-size: 24px; color: var(--forest); letter-spacing: -0.015em; }
+  .detail .authors { font-family: var(--body); font-size: 15px; color: var(--ink-muted); margin-top: 10px; }
+  .detail .metaline { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+  .detail .metaline .m { font-family: var(--mono); font-size: 13px; color: var(--ink-muted); }
+  .kw { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .kw .t { height: 26px; padding: 0 12px; display: inline-flex; align-items: center; border-radius: var(--r-pill); background: var(--forest-soft); color: var(--forest); font-family: var(--body); font-size: 12px; font-weight: 500; }
+  .detail .body { font-family: var(--body); font-size: 15px; color: var(--ink-soft); line-height: 1.65; margin-top: 20px; }
+  .detail .pdf { display: inline-flex; align-items: center; gap: 8px; margin-top: 16px; font-family: var(--body); font-size: 14px; font-weight: 600; color: var(--gold-hover); text-decoration: none; }
+
+  .review { margin-top: 28px; padding: 24px; }
+  .review h3 { font-family: var(--display); font-weight: 500; font-size: 16px; color: var(--forest); margin-bottom: 14px; }
+  .statusopts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .sopt { height: 38px; padding: 0 16px; display: inline-flex; align-items: center; border-radius: var(--r-pill); border: 1px solid var(--cream-border); background: var(--cream-surface); font-family: var(--body); font-size: 13px; font-weight: 500; color: var(--ink-soft); cursor: pointer; }
+  .sopt.on { background: var(--forest); border-color: var(--forest); color: #fff; }
+  .review textarea { width: 100%; border: 1px solid var(--cream-border); border-radius: var(--r-input); padding: 12px 14px; font-family: var(--body); font-size: 14px; margin-top: 16px; min-height: 80px; resize: vertical; background: var(--cream-surface); }
+  .review textarea:focus { outline: none; border-color: var(--gold); }
+  .review .assign { margin-top: 16px; }
+  .review .assign label { display: block; font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-bottom: 6px; }
+  .review .sel { width: 100%; border: 1px solid var(--cream-border); border-radius: var(--r-input); padding: 11px 14px; font-family: var(--body); font-size: 14px; color: var(--ink-muted); display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+  .review .acts { display: flex; align-items: center; gap: 16px; margin-top: 20px; }
+
+  @media (max-width:900px){ .split { grid-template-columns: 1fr; } .detail { display: none; } }
+</style>
+</head>
+<body>
+
+<nav class="dashnav">
+  <div style="display:flex; align-items:center; gap:18px;">
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+    <div class="crumb"><b>Karta</b>&nbsp;&nbsp;/&nbsp;&nbsp;AfriTech Summit&nbsp;&nbsp;/&nbsp;&nbsp;Abstracts</div>
+  </div>
+  <div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div>
+</nav>
+
+<div class="topwrap">
+  <h1>Abstracts — AfriTech Summit</h1>
+  <div class="stats"><span><b>47</b> submitted</span><span class="sep">·</span><span><b>12</b> accepted</span><span class="sep">·</span><span><b>8</b> rejected</span><span class="sep">·</span><span><b>27</b> pending review</span></div>
+  <div class="ftabs">
+    <div class="ftab active">All</div><div class="ftab">Pending</div><div class="ftab">Accepted</div><div class="ftab">Rejected</div><div class="ftab">Revision Requested</div>
+  </div>
+</div>
+
+<div class="split">
+  <div class="list" id="list"></div>
+
+  <div class="detail">
+    <h2>Offline-first payment rails for low-connectivity regions</h2>
+    <div class="authors">Dr. Amina Osman, Sahel Pay · Prof. Kwame Mensah, University of Ghana</div>
+    <div class="metaline"><span class="cat">Engineering & Infrastructure</span><span class="m">Submitted Feb 04, 2026</span></div>
+    <div class="kw"><span class="t">payments</span><span class="t">offline-first</span><span class="t">distributed systems</span></div>
+    <div class="body">We present a payments architecture designed for intermittent connectivity, common across much of the Horn of Africa. By treating the local device as the source of truth and reconciling asynchronously, we achieve sub-second confirmation perceived latency while maintaining eventual consistency with the central ledger. We detail the conflict-resolution model, the cryptographic receipt chain that prevents double-spend during network partitions, and field results from a six-month pilot across 1,400 merchants in Djibouti and eastern Ethiopia. The pilot processed $2.3M in transactions with a 0.02% reconciliation failure rate.</div>
+    <a href="#" class="pdf">↓ Download full paper (PDF)</a>
+
+    <div class="card review">
+      <h3>Review decision</h3>
+      <div class="statusopts">
+        <div class="sopt">Pending</div><div class="sopt on">Accept</div><div class="sopt">Reject</div><div class="sopt">Request revision</div><div class="sopt">Waitlist</div>
+      </div>
+      <textarea placeholder="Review notes (optional, shared with authors if accepted/rejected)">Strong empirical results and a clear contribution. Recommend the main Engineering track.</textarea>
+      <div class="assign"><label>Assign to session</label><div class="sel">Scaling engineering across borders <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div></div>
+      <div class="acts"><button class="btn btn-forest btn-md">Save decision</button><a style="font-family:var(--body); font-size:13px; font-weight:600; color:var(--gold-hover); text-decoration:none; cursor:pointer;">Next abstract →</a></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const abs=[
+    ['Offline-first payment rails for low-connectivity regions','Amina Osman','Engineering','pending','Feb 04',1],
+    ['Designing for trust in informal lending markets','Hana Bekele','Design','accept','Feb 02',0],
+    ['Federated learning on edge devices in the field','Samuel Okoro','Engineering','pending','Feb 06',0],
+    ['Logistics optimization for last-mile delivery','Yusuf Ahmed','Business','reject','Jan 29',0],
+    ['Vernacular voice interfaces for feature phones','Mariam Diallo','Design','pending','Feb 05',0],
+    ['Capital formation in frontier markets','Nadia Saleh','Business','accept','Jan 31',0],
+  ];
+  const statusMap={pending:['Pending','stat-pending'],accept:['Accepted','stat-accept'],reject:['Rejected','stat-reject']};
+  document.getElementById('list').innerHTML=abs.map((a,i)=>`
+    <div class="arow ${a[5]?'active':''}">
+      <div class="tt">${a[0]}</div>
+      <div class="sb">${a[1]}</div>
+      <div class="tags"><span class="cat">${a[2]}</span><span class="stat-pill ${statusMap[a[3]][1]}">${statusMap[a[3]][0]}</span><span class="dt">${a[4]}</span></div>
+    </div>`).join('');
+  document.querySelectorAll('.arow').forEach(r=>r.onclick=()=>{document.querySelector('.arow.active')?.classList.remove('active');r.classList.add('active');});
+  document.querySelectorAll('.sopt').forEach(s=>s.onclick=()=>{document.querySelector('.sopt.on')?.classList.remove('on');s.classList.add('on');});
+  document.querySelectorAll('.ftab').forEach(t=>t.onclick=()=>{document.querySelector('.ftab.active')?.classList.remove('active');t.classList.add('active');});
+</script>
+</body>
+</html>

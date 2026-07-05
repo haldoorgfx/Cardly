@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W20 · Live Q&A</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  body { background: var(--cream-canvas); }
+  .ctxbar { height: 56px; background: var(--cream-soft); border-bottom: 1px solid var(--cream-border); position: sticky; top: 64px; z-index: 20; display: flex; align-items: center; gap: 14px; padding: 0 40px; }
+  .ctxbar .tt { font-family: var(--body); font-weight: 500; font-size: 14px; color: var(--forest); }
+  .ctxbar .rm { font-family: var(--body); font-size: 13px; color: var(--ink-muted); }
+  .ctxbar .live { display: inline-flex; align-items: center; gap: 7px; font-family: var(--body); font-weight: 500; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--error); }
+  .ctxbar .live .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--error); animation: pulse 1.4s infinite; }
+  @keyframes pulse { 0%,100%{ box-shadow:0 0 0 0 rgba(184,66,60,.5);} 50%{ box-shadow:0 0 0 5px rgba(184,66,60,0);} }
+  .ctxbar .count { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--ink-muted); }
+  .ctxbar .sep { color: var(--cream-border); }
+
+  .list { max-width: 720px; margin: 28px auto 140px; padding: 0 40px; }
+  .qmeta { font-family: var(--mono); font-size: 11px; color: var(--ink-muted); margin-bottom: 16px; }
+  .qcard { display: flex; gap: 16px; padding: 18px; border: 1px solid var(--cream-border); border-radius: var(--r-card); background: var(--cream-surface); margin-bottom: 12px; }
+  .qcard.top { background: var(--gold-soft); }
+  .qcard.featured { border-left: 2px solid var(--gold); }
+  .upvote { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; flex: none; width: 44px; }
+  .upvote .ar { width: 36px; height: 36px; border-radius: var(--r-btn); border: 1px solid var(--cream-border); display: flex; align-items: center; justify-content: center; background: var(--cream-surface); }
+  .upvote .ar svg { width: 16px; height: 16px; stroke: var(--ink-soft); fill: none; stroke-width: 2; }
+  .upvote .n { font-family: var(--mono); font-weight: 500; font-size: 14px; color: var(--forest); }
+  .upvote.on .ar { background: var(--forest); border-color: var(--forest); }
+  .upvote.on .ar svg { stroke: #fff; }
+  .qbody .featured-lab { font-family: var(--body); font-size: 11px; color: var(--gold-hover); margin-bottom: 5px; }
+  .qbody .qt { font-family: var(--body); font-size: 15px; color: var(--ink); line-height: 1.5; }
+  .qbody .qsub { font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-top: 8px; }
+  .qbody .qsub .ts { font-family: var(--mono); }
+
+  .askbar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--cream-surface); border-top: 1px solid var(--cream-border); padding: 14px 0; z-index: 30; }
+  .askbar .inner { max-width: 720px; margin: 0 auto; padding: 0 40px; }
+  .askbar .meta { font-family: var(--mono); font-size: 11px; color: var(--ink-muted); margin-bottom: 8px; }
+  .askbar textarea { width: 100%; border: 1px solid var(--cream-border); border-radius: var(--r-input); padding: 12px 14px; font-family: var(--body); font-size: 14px; min-height: 48px; resize: none; background: var(--cream-surface); }
+  .askbar textarea:focus { outline: none; border-color: var(--gold); }
+  .askrow { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+  .toggle { display: inline-flex; align-items: center; gap: 8px; font-family: var(--body); font-size: 13px; color: var(--ink-muted); cursor: pointer; }
+  .tg { width: 36px; height: 20px; border-radius: 999px; background: var(--cream-border); position: relative; transition: background .15s; }
+  .tg::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform .15s; }
+  .toggle.on .tg { background: var(--forest); }
+  .toggle.on .tg::after { transform: translateX(16px); }
+
+  @media (max-width:600px){ .ctxbar { padding: 0 16px; } .list, .askbar .inner { padding: 0 16px; } .ctxbar .rm { display: none; } }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links"><a href="w06-discovery.html">Discover</a><a href="w13-speakers.html">Speakers</a><a href="w10-schedule.html">Schedule</a><a href="w11-networking.html">Network</a></div>
+  <div class="right"><div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div><button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button></div>
+</nav>
+
+<div class="ctxbar">
+  <span class="tt">Design systems workshop</span>
+  <span class="sep">·</span>
+  <span class="rm">Workshop Room</span>
+  <span class="live"><span class="pulse"></span>Live</span>
+  <span class="count">234 in room</span>
+</div>
+
+<div class="list">
+  <div class="qmeta">14 questions · sorted by votes</div>
+  <div id="questions"></div>
+</div>
+
+<div class="askbar">
+  <div class="inner">
+    <div class="meta">Ask the speaker a question</div>
+    <textarea placeholder="Type your question…"></textarea>
+    <div class="askrow">
+      <div class="toggle" id="anon"><span class="tg"></span>Post anonymously</div>
+      <button class="btn btn-forest btn-md">Submit question</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const qs=[
+    [42,'How do you handle versioning when multiple teams consume the same token package?','Amina O.','4m ago',false,true],
+    [38,'What\'s your take on CSS variables vs a build-time token system like Style Dictionary?','Anonymous','7m ago',true,false],
+    [27,'Do you recommend semantic token names or literal ones for a small team just starting out?','Faisal K.','11m ago',false,false],
+    [19,'How do you get designers and engineers to actually agree on the spacing scale?','Leila H.','15m ago',false,false],
+    [12,'Any advice for migrating a legacy product to a token system incrementally?','Anonymous','18m ago',false,false],
+  ];
+  document.getElementById('questions').innerHTML=qs.map((q,i)=>`
+    <div class="qcard ${i===0?'top':''} ${q[4]?'featured':''}">
+      <div class="upvote ${i===0?'on':''}"><div class="ar"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12l7-7 7 7"/></svg></div><div class="n">${q[0]}</div></div>
+      <div class="qbody">
+        ${q[4]?'<div class="featured-lab">★ Featured by moderator</div>':''}
+        <div class="qt">${q[2]==='Anonymous'?q[1]:q[1]}</div>
+        <div class="qsub">${q[2]} · <span class="ts">${q[3]}</span></div>
+      </div>
+    </div>`).join('');
+  document.querySelectorAll('.upvote').forEach(u=>u.onclick=()=>{ const n=u.querySelector('.n'); const on=u.classList.toggle('on'); n.textContent=+n.textContent+(on?1:-1); });
+  document.getElementById('anon').onclick=function(){this.classList.toggle('on');};
+</script>
+</body>
+</html>

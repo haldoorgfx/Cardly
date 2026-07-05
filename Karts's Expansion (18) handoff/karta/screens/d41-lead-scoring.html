@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D41 · Lead Scoring</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  body { background-color: #10231A; background-image: radial-gradient(circle, rgba(232,197,126,0.05) 1px, transparent 1px); background-size: 24px 24px; }
+  .exnav { height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .exnav .wm { font-family: var(--display); font-weight: 600; font-size: 17px; color: #fff; }
+  .exnav .wm b { color: var(--gold); }
+  .exnav .mode { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--gold); }
+
+  .wrap { max-width: 980px; margin: 0 auto; padding: 32px 32px 96px; }
+  .pagehead { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .pagehead h1 { font-family: var(--display); font-weight: 400; font-size: 28px; letter-spacing: -0.02em; color: #fff; }
+  .pagehead .s { font-family: var(--body); font-size: 13px; color: rgba(255,255,255,0.55); margin-top: 6px; }
+  .pagehead .s b { font-family: var(--mono); color: var(--gold); font-weight: 500; }
+
+  .aibar { margin-top: 24px; padding: 16px 20px; border-radius: var(--r-card); background: rgba(232,197,126,0.08); border: 1px solid rgba(232,197,126,0.25); display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .aibar .spark { width: 34px; height: 34px; border-radius: 9px; background: var(--gold); display: flex; align-items: center; justify-content: center; flex: none; }
+  .aibar .spark svg { width: 17px; height: 17px; stroke: var(--ink); fill: none; stroke-width: 1.8; }
+  .aibar .t { font-family: var(--body); font-size: 13px; color: rgba(255,255,255,0.85); line-height: 1.55; flex: 1; min-width: 260px; }
+  .aibar .t b { color: var(--gold); }
+
+  .leadrow { display: flex; align-items: center; gap: 16px; padding: 16px 20px; border-radius: var(--r-card); background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); margin-top: 12px; }
+  .leadrow .nm { font-family: var(--display); font-weight: 500; font-size: 15px; color: #fff; }
+  .leadrow .rl { font-family: var(--body); font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 2px; }
+  .leadrow .why { font-family: var(--body); font-size: 12px; color: rgba(255,255,255,0.65); margin-top: 8px; line-height: 1.5; max-width: 480px; }
+  .leadrow .why b { color: var(--gold); font-weight: 500; }
+  .score { margin-left: auto; text-align: center; flex: none; }
+  .score .ring { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-weight: 500; font-size: 16px; }
+  .score.hot .ring { background: conic-gradient(var(--gold) 0 92%, rgba(255,255,255,0.1) 92% 100%); color: var(--ink); }
+  .score.hot .ring span { background: #1A332699; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--gold); background: #10231A; }
+  .score.warm .ring { background: conic-gradient(#8FC3A0 0 64%, rgba(255,255,255,0.1) 64% 100%); }
+  .score.warm .ring span { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #8FC3A0; background: #10231A; }
+  .score.cold .ring { background: conic-gradient(rgba(255,255,255,0.35) 0 31%, rgba(255,255,255,0.1) 31% 100%); }
+  .score.cold .ring span { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.6); background: #10231A; }
+  .score .l { font-family: var(--body); font-weight: 600; font-size: 9px; letter-spacing: 0.1em; margin-top: 6px; }
+  .score.hot .l { color: var(--gold); } .score.warm .l { color: #8FC3A0; } .score.cold .l { color: rgba(255,255,255,0.45); }
+  .leadacts { display: flex; flex-direction: column; gap: 8px; flex: none; }
+  .ghostw { height: 34px; padding: 0 14px; border-radius: var(--r-btn); border: 1px solid rgba(255,255,255,0.25); background: transparent; color: #fff; font-family: var(--display); font-weight: 500; font-size: 12px; cursor: pointer; }
+
+  .filters { display: flex; gap: 8px; margin-top: 24px; }
+  .fchip { height: 32px; padding: 0 15px; display: inline-flex; align-items: center; border-radius: var(--r-pill); font-family: var(--body); font-size: 12px; font-weight: 500; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.65); cursor: pointer; }
+  .fchip.on { background: var(--gold); border-color: var(--gold); color: var(--ink); }
+</style>
+</head>
+<body>
+
+<div class="exnav">
+  <div style="display:flex; align-items:center; gap:14px;">
+    <span class="wm">K<b>a</b>rta</span>
+    <span class="mode">EXHIBITOR · SAHEL PAY BOOTH</span>
+  </div>
+  <div class="ph avatar avatar-ring" style="--h:210; width:34px; height:34px;"></div>
+</div>
+
+<div class="wrap">
+  <div class="pagehead">
+    <div>
+      <h1>Leads — scored by Karta AI</h1>
+      <div class="s"><b>84</b> captured · scored on role seniority, intent signals, booth dwell time and session overlap</div>
+    </div>
+    <button class="btn btn-gold btn-md">Export to CRM</button>
+  </div>
+
+  <div class="aibar">
+    <div class="spark"><svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3z"/></svg></div>
+    <span class="t"><b>12 hot leads</b> haven't been followed up. Drafted intro emails are ready for each — review and send before the post-event window cools.</span>
+    <button class="btn btn-gold btn-sm">Review drafts</button>
+  </div>
+
+  <div class="filters">
+    <span class="fchip on">All 84</span>
+    <span class="fchip">Hot 12</span>
+    <span class="fchip">Warm 31</span>
+    <span class="fchip">Cold 41</span>
+    <span class="fchip">Not contacted</span>
+  </div>
+
+  <div class="leadrow">
+    <div class="ph avatar" style="--h:265; width:46px; height:46px;"></div>
+    <div>
+      <div class="nm">Leila Haddad</div>
+      <div class="rl">Head of Partnerships · Flutterwave</div>
+      <div class="why"><b>Why hot:</b> decision-maker title · asked about API pricing at the booth · attended both your sponsored sessions · 6-min booth dwell</div>
+    </div>
+    <div class="score hot"><div class="ring"><span>92</span></div><div class="l">HOT</div></div>
+    <div class="leadacts">
+      <button class="btn btn-gold btn-sm">Send draft email</button>
+      <button class="ghostw">Open notes</button>
+    </div>
+  </div>
+
+  <div class="leadrow">
+    <div class="ph avatar" style="--h:200; width:46px; height:46px;"></div>
+    <div>
+      <div class="nm">Samuel Okoro</div>
+      <div class="rl">Platform Engineering · Paystack</div>
+      <div class="why"><b>Why warm:</b> technical influencer, not buyer · downloaded SDK one-pager · short booth visit</div>
+    </div>
+    <div class="score warm"><div class="ring"><span>64</span></div><div class="l">WARM</div></div>
+    <div class="leadacts">
+      <button class="ghostw">Send draft email</button>
+      <button class="ghostw">Open notes</button>
+    </div>
+  </div>
+
+  <div class="leadrow">
+    <div class="ph avatar" style="--h:95; width:46px; height:46px;"></div>
+    <div>
+      <div class="nm">Yonas Tesfaye</div>
+      <div class="rl">Student founder · Chewata Labs</div>
+      <div class="why"><b>Why cold:</b> early-stage, no budget signals · scanned for the tote bag giveaway</div>
+    </div>
+    <div class="score cold"><div class="ring"><span>31</span></div><div class="l">COLD</div></div>
+    <div class="leadacts">
+      <button class="ghostw">Add to newsletter</button>
+    </div>
+  </div>
+
+  <div class="leadrow">
+    <div class="ph avatar" style="--h:340; width:46px; height:46px;"></div>
+    <div>
+      <div class="nm">Mariam Diallo</div>
+      <div class="rl">Product Design Lead · Wave</div>
+      <div class="why"><b>Why hot:</b> asked for a follow-up meeting · Wave is on your target-account list · senior title</div>
+    </div>
+    <div class="score hot"><div class="ring"><span>88</span></div><div class="l">HOT</div></div>
+    <div class="leadacts">
+      <button class="btn btn-gold btn-sm">Send draft email</button>
+      <button class="ghostw">Open notes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.fchip').forEach(c=>c.onclick=()=>{document.querySelector('.fchip.on')?.classList.remove('on');c.classList.add('on');});
+</script>
+</body>
+</html>

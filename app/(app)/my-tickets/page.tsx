@@ -8,7 +8,7 @@ import MyTicketsClient from '@/components/tickets/MyTicketsClient';
 import { PageShell, PageHeader } from '@/components/dash';
 import type { Metadata } from 'next';
 
-export const metadata: Metadata = { title: 'My tickets' };
+export const metadata: Metadata = { title: 'Tickets' };
 
 type Booth = { id: string; company_name: string; logo_url: string | null; slug: string };
 type Speaking = { id: string; name: string; eventName: string; slug: string };
@@ -79,7 +79,7 @@ export default async function MyTicketsPage() {
   return (
     <PageShell>
       <PageHeader
-        title="My tickets"
+        title="Tickets"
         subtitle={<>
           {upcoming.length} upcoming
           {past.length > 0 && <> · {past.length} past event{past.length !== 1 ? 's' : ''}</>}

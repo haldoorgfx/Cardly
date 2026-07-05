@@ -215,11 +215,11 @@ function TicketCard({ reg, onShowQR }: { reg: Registration; onShowQR: () => void
               {reg.events?.slug && ['confirmed', 'checked_in'].includes(reg.status) && (
                 <Link
                   href={`/attending/${reg.events.slug}`}
-                  className="inline-flex items-center justify-center h-7 px-3 rounded-full text-[12px] font-medium transition hover:opacity-75"
-                  style={{ background: '#FAF6EE', color: '#1F4D3A', border: '1px solid #E5E0D4' }}
+                  className="inline-flex items-center justify-center gap-1 h-7 px-3.5 rounded-full text-[12px] font-semibold text-white transition hover:opacity-90"
+                  style={{ background: '#1F4D3A' }}
                   onClick={e => e.stopPropagation()}
                 >
-                  Event tools
+                  Open event
                 </Link>
               )}
               {ep?.id && ep?.starts_at && (

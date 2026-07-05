@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W04 · Agenda Builder</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  body { overflow: hidden; }
+  .builder { display: grid; grid-template-columns: 280px 1fr; height: calc(100vh - 64px - 60px); }
+
+  /* top action bar */
+  .topbar { height: 60px; border-bottom: 1px solid var(--cream-border); display: flex; align-items: center; justify-content: space-between; padding: 0 28px; background: var(--cream-surface); }
+  .daytabs { display: flex; gap: 4px; }
+  .daytab { padding: 7px 16px; border-radius: var(--r-btn); font-family: var(--display); font-weight: 500; font-size: 14px; color: var(--ink-muted); cursor: pointer; }
+  .daytab.active { background: var(--forest-soft); color: var(--forest); }
+
+  /* session sidebar */
+  .sessidebar { border-right: 1px solid var(--cream-border); padding: 20px 14px; overflow-y: auto; display: flex; flex-direction: column; }
+  .sessrow { display: flex; align-items: flex-start; gap: 10px; padding: 12px 10px; border-radius: var(--r-card); cursor: grab; }
+  .sessrow:hover { background: var(--cream-soft); }
+  .handle { color: var(--ink-muted); font-size: 14px; line-height: 1; padding-top: 2px; letter-spacing: -1px; flex: none; }
+  .sessrow .tt { font-family: var(--body); font-weight: 500; font-size: 14px; color: var(--forest); }
+  .sessrow .sp { font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-top: 2px; }
+  .sessrow .du { font-family: var(--mono); font-size: 11px; color: var(--ink-muted); margin-top: 4px; }
+
+  /* grid */
+  .gridwrap { overflow: auto; position: relative; }
+  .trackhead { display: grid; grid-template-columns: 64px repeat(4, 1fr); position: sticky; top: 0; background: var(--cream-canvas); z-index: 5; border-bottom: 1px solid var(--cream-border); }
+  .trackhead .th { padding: 14px 12px; font-family: var(--body); font-weight: 500; font-size: 13px; color: var(--ink-soft); display: flex; align-items: center; gap: 8px; border-right: 1px solid var(--cream-border); }
+  .trackhead .th:last-child { border-right: none; }
+  .grid { display: grid; grid-template-columns: 64px repeat(4, 1fr); position: relative; }
+  .timecol { display: flex; flex-direction: column; }
+  .tcell { height: 64px; padding: 4px 8px; font-family: var(--mono); font-size: 12px; color: var(--ink-muted); border-bottom: 1px solid transparent; border-right: 1px solid var(--cream-border); text-align: right; }
+  .trackcol { position: relative; border-right: 1px solid var(--cream-border); }
+  .trackcol:last-child { border-right: none; }
+  .gcell { height: 64px; border-bottom: 1px solid var(--cream-border); }
+  .gcell:hover { background: var(--cream-soft); }
+  .sess { position: absolute; left: 4px; right: 4px; border-radius: var(--r-card); background: #F7F4F0; border: 1px solid var(--cream-border); padding: 8px 10px; overflow: hidden; cursor: pointer; }
+  .sess .tt { font-family: var(--body); font-weight: 500; font-size: 13px; color: var(--forest); line-height: 1.25; }
+  .sess .sp { font-family: var(--body); font-size: 11px; color: var(--ink-muted); margin-top: 3px; }
+  .sess.selected { box-shadow: 0 0 0 1px var(--gold); border-color: var(--gold); }
+  .resize { position: absolute; left: 0; right: 0; bottom: 0; height: 6px; cursor: ns-resize; }
+
+  /* edit panel */
+  .epanel { position: fixed; top: 64px; right: 0; bottom: 0; width: 360px; max-width: 90vw; background: var(--cream-surface); border-left: 1px solid var(--cream-border); box-shadow: var(--e2); transform: translateX(100%); transition: transform .3s cubic-bezier(.4,0,.2,1); z-index: 40; overflow-y: auto; padding: 24px; }
+  .epanel.open { transform: translateX(0); }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-bottom: 6px; }
+  .field input, .field select, .field textarea { width: 100%; border: 1px solid var(--cream-border); border-radius: var(--r-input); padding: 10px 12px; font-family: var(--body); font-size: 14px; color: var(--ink); background: var(--cream-surface); }
+  .field .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .addbtn { width: 100%; margin-top: 8px; }
+
+  @media (max-width:900px){
+    .builder { grid-template-columns: 1fr; }
+    .sessidebar { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="dashnav">
+  <div style="display:flex; align-items:center; gap:18px;">
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+    <div class="crumb"><b>Karta</b>&nbsp;&nbsp;/&nbsp;&nbsp;AfriTech Summit&nbsp;&nbsp;/&nbsp;&nbsp;Agenda</div>
+  </div>
+  <div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div>
+</div>
+
+<div class="topbar">
+  <div class="daytabs">
+    <div class="daytab active">Thu 12</div>
+    <div class="daytab">Fri 13</div>
+    <div class="daytab">Sat 14</div>
+  </div>
+  <div style="display:flex; gap:10px;">
+    <button class="btn btn-ghost-forest btn-sm">Preview as attendee</button>
+    <button class="btn btn-forest btn-sm">Publish agenda</button>
+  </div>
+</div>
+
+<div class="builder">
+  <aside class="sessidebar">
+    <div class="side-label" style="padding:0 6px;">Sessions</div>
+    <div class="sessrow"><span class="handle">⠿</span><div><div class="tt">Coffee & networking</div><div class="sp">— · Foyer</div><div class="du">30 min</div></div></div>
+    <div class="sessrow"><span class="handle">⠿</span><div><div class="tt">Fireside: Fundraising in 2026</div><div class="sp">Omar Farah</div><div class="du">45 min</div></div></div>
+    <div class="sessrow"><span class="handle">⠿</span><div><div class="tt">Lunch</div><div class="sp">— · Terrace</div><div class="du">60 min</div></div></div>
+    <div class="sessrow"><span class="handle">⠿</span><div><div class="tt">Lightning talks</div><div class="sp">Various</div><div class="du">30 min</div></div></div>
+    <button class="btn btn-ghost-forest btn-sm addbtn">+ Add session</button>
+  </aside>
+
+  <div class="gridwrap">
+    <div class="trackhead">
+      <div class="th" style="justify-content:flex-end; color:var(--ink-muted);"></div>
+      <div class="th"><span class="dot" style="background:var(--gold)"></span>Design</div>
+      <div class="th"><span class="dot" style="background:var(--forest)"></span>Engineering</div>
+      <div class="th"><span class="dot" style="background:#8A6FB0"></span>Business</div>
+      <div class="th"><span class="dot" style="background:var(--success)"></span>Workshop</div>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+</div>
+
+<aside class="epanel" id="epanel">
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+    <div class="t-heading" style="color:var(--forest)">Edit session</div>
+    <span style="cursor:pointer; color:var(--ink-muted); font-size:20px;" onclick="document.getElementById('epanel').classList.remove('open')">×</span>
+  </div>
+  <div class="field"><label>Title</label><input value="Design systems workshop"></div>
+  <div class="field"><label>Description</label><textarea rows="3">Hands-on session building a token-based design system from scratch.</textarea></div>
+  <div class="field"><label>Speaker(s)</label><select><option>Leila Haddad — Flutterwave</option><option>Amina Osman — Sahel Pay</option></select></div>
+  <div class="field"><label>Room</label><input value="Workshop Room"></div>
+  <div class="field row2"><div><label>Track</label><select><option>Design</option><option>Engineering</option><option>Business</option><option>Workshop</option></select></div><div><label>Type</label><select><option>Workshop</option><option>Talk</option><option>Panel</option></select></div></div>
+  <div class="field row2"><div><label>Start</label><input value="13:00"></div><div><label>End</label><input value="14:30"></div></div>
+  <button class="btn btn-forest btn-md" style="width:100%; margin-top:8px;">Save changes</button>
+  <div style="text-align:center; margin-top:16px;"><a href="#" style="font-family:var(--body); font-size:13px; color:var(--error); text-decoration:none;">Delete session</a></div>
+</aside>
+
+<script>
+  const times = ['9:00','9:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30'];
+  const grid = document.getElementById('grid');
+  // time column
+  let tcol = '<div class="timecol">';
+  times.forEach(t=> tcol += `<div class="tcell">${t}</div>`);
+  tcol += '</div>';
+  grid.innerHTML = tcol;
+  // four track columns
+  for (let c=0;c<4;c++){
+    let col = '<div class="trackcol">';
+    for (let r=0;r<times.length;r++) col += '<div class="gcell"></div>';
+    col += '</div>';
+    grid.insertAdjacentHTML('beforeend', col);
+  }
+  const cols = grid.querySelectorAll('.trackcol');
+  const ROW=64;
+  function place(colIdx, startRow, spanRows, title, sp, color, sel){
+    const el=document.createElement('div');
+    el.className='sess'+(sel?' selected':'');
+    el.style.top=(startRow*ROW+3)+'px';
+    el.style.height=(spanRows*ROW-6)+'px';
+    el.style.borderLeft='3px solid '+color;
+    el.innerHTML=`<div class="tt">${title}</div><div class="sp">${sp}</div><div class="resize"></div>`;
+    el.onclick=()=>{ document.querySelectorAll('.sess').forEach(s=>s.classList.remove('selected')); el.classList.add('selected'); document.getElementById('epanel').classList.add('open'); };
+    cols[colIdx].appendChild(el);
+  }
+  // Design (gold)
+  place(0,2,2,'Type & layout fundamentals','Leila Haddad · Studio','var(--gold)');
+  place(0,8,3,'Design systems workshop','Leila Haddad · Workshop','var(--gold)', true);
+  // Engineering (forest)
+  place(1,0,2,'Opening keynote','Amina Osman · Main Stage','var(--forest)');
+  place(1,3,2,'Scaling across borders','Faisal Karim · Track A','var(--forest)');
+  place(1,10,2,'Infra clinic','Samuel Okoro · Track A','var(--forest)');
+  // Business (purple)
+  place(2,5,2,'Go-to-market in the Horn','Omar Farah · Track B','#8A6FB0');
+  place(2,8,1,'Fireside: Fundraising','Omar Farah · Track B','#8A6FB0');
+  // Workshop (success)
+  place(3,2,3,'Build your first Karta Card','Karta Team · Lab','var(--success)');
+</script>
+</body>
+</html>

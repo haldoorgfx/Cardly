@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D19 · Event Page — Ticketing Depth</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .evhero { height: 320px; position: relative; overflow: hidden; border-radius: var(--r-card); margin-top: 28px; }
+  .evhero .cap { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; padding: 30px 34px; }
+  .evhero h1 { font-family: var(--display); font-weight: 500; font-size: 32px; letter-spacing: -0.02em; color: #fff; }
+  .evhero .meta { font-family: var(--mono); font-size: 13px; color: rgba(255,255,255,0.85); margin-top: 8px; }
+
+  .layout { display: grid; grid-template-columns: 1fr 400px; gap: 28px; margin-top: 28px; align-items: start; }
+  .about h3 { font-family: var(--display); font-weight: 500; font-size: 17px; color: var(--ink); margin: 0 0 10px; }
+  .about p { font-family: var(--body); font-size: 14px; line-height: 1.65; color: var(--ink-soft); margin-bottom: 14px; }
+
+  .tixcard { padding: 22px 24px; position: sticky; top: 88px; }
+  .tixcard .tt { font-family: var(--display); font-weight: 500; font-size: 16px; color: var(--ink); margin-bottom: 4px; }
+  .trow { padding: 16px 0; border-bottom: 1px solid var(--cream-border); }
+  .trow .top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .trow .n { font-family: var(--body); font-weight: 500; font-size: 14px; color: var(--ink); }
+  .trow .s { font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-top: 3px; line-height: 1.5; }
+  .trow .p { font-family: var(--mono); font-weight: 500; font-size: 15px; color: var(--ink); white-space: nowrap; }
+  .trow .p small { font-size: 11px; color: var(--ink-muted); font-weight: 400; display: block; text-align: right; }
+  .qty { display: inline-flex; align-items: center; border: 1px solid var(--cream-border); border-radius: var(--r-pill); overflow: hidden; margin-top: 10px; }
+  .qty button { width: 30px; height: 30px; border: none; background: var(--cream-surface); color: var(--forest); font-size: 14px; cursor: pointer; }
+  .qty .v { width: 32px; text-align: center; font-family: var(--mono); font-weight: 500; font-size: 13px; }
+  .tagk { display: inline-flex; font-size: 10px; padding: 3px 8px; margin-left: 8px; vertical-align: 1px; }
+  .tagk.don { background: var(--gold-soft); color: var(--gold-hover); }
+  .tagk.app { background: var(--forest-soft); color: var(--forest); }
+  .pwyw { display: flex; gap: 8px; margin-top: 10px; }
+  .pwyw .amt { display: inline-flex; align-items: center; height: 32px; padding: 0 14px; border-radius: var(--r-pill); border: 1px solid var(--cream-border); background: var(--cream-surface); font-family: var(--mono); font-weight: 500; font-size: 13px; color: var(--ink-soft); cursor: pointer; }
+  .pwyw .amt.on { background: var(--forest); border-color: var(--forest); color: #fff; }
+  .pwyw input { width: 90px; height: 32px; padding: 0 10px; border-radius: var(--r-pill); border: 1px solid var(--cream-border); font-family: var(--mono); font-size: 13px; outline: none; background: var(--cream-canvas); }
+
+  /* addons */
+  .addh { font-family: var(--body); font-weight: 500; font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--ink-muted); margin: 18px 0 4px; }
+  .addon { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--cream-border); }
+  .addon input[type=checkbox] { width: 17px; height: 17px; accent-color: var(--forest); }
+  .addon .n { font-family: var(--body); font-size: 13px; color: var(--ink); }
+  .addon .s { font-family: var(--body); font-size: 11px; color: var(--ink-muted); margin-top: 1px; }
+  .addon .p { margin-left: auto; font-family: var(--mono); font-weight: 500; font-size: 13px; color: var(--ink-soft); }
+
+  /* unlock code */
+  .unlock { margin-top: 18px; }
+  .unlock .lab { font-family: var(--body); font-size: 12px; color: var(--ink-muted); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+  .unlock .row { display: none; gap: 8px; margin-top: 10px; }
+  .unlock.open .row { display: flex; }
+  .unlock.open .lab { display: none; }
+  .unlock input { flex: 1; height: 38px; padding: 0 12px; border-radius: var(--r-input); border: 1px solid var(--cream-border); font-family: var(--mono); font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; outline: none; background: var(--cream-canvas); }
+  .hiddenrow { display: none; background: var(--forest-soft); margin: 0 -24px; padding: 16px 24px; border-bottom: 1px solid rgba(31,77,58,0.15); }
+  .hiddenrow.revealed { display: block; }
+
+  .feeline { display: flex; justify-content: space-between; padding: 14px 0 0; font-family: var(--body); font-size: 13px; color: var(--ink-soft); }
+  .feeline .v { font-family: var(--mono); font-weight: 500; color: var(--ink); }
+  .totline { display: flex; justify-content: space-between; padding: 10px 0 0; }
+  .totline .l { font-family: var(--body); font-weight: 600; font-size: 14px; color: var(--ink); }
+  .totline .v { font-family: var(--mono); font-weight: 500; font-size: 19px; color: var(--forest); }
+  .feenote { font-family: var(--body); font-size: 11px; color: var(--ink-muted); margin-top: 8px; }
+
+  @media (max-width:980px){ .layout { grid-template-columns: 1fr; } .tixcard { position: static; } }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links">
+    <a href="d01-marketplace-home.html">Discover</a>
+    <a href="d04-tickets-wallet.html">My tickets</a>
+  </div>
+  <div class="right">
+    <div class="ph avatar avatar-ring" style="--h:30; width:36px; height:36px;"></div>
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="evhero ph" style="--h:30;">
+    <div class="scrim-b" style="position:absolute; inset:0;"></div>
+    <div class="cap">
+      <h1>Design in the Horn</h1>
+      <div class="meta">Sat 28 Mar · 14:00 · Palais du Peuple, Djibouti City · by Karta Studio</div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="about">
+      <h3>About</h3>
+      <p>A full afternoon on design practice in the Horn of Africa — type for trilingual interfaces, craft on slow connections, and a live critique wall. Talks in English and French.</p>
+      <p>Every ticket type below behaves differently — this screen demonstrates the full ticketing depth: pay-what-you-want, application-gated seats, add-ons, hidden tickets behind a code, and transparent fee handling.</p>
+      <h3 style="margin-top:28px;">Schedule</h3>
+      <p>14:00 doors · 14:30 talks · 16:30 critique wall · 18:00 rooftop close.</p>
+    </div>
+
+    <div class="card tixcard">
+      <div class="tt">Tickets</div>
+
+      <div class="hiddenrow" id="hiddenrow">
+        <div class="top" style="display:flex; justify-content:space-between;">
+          <div>
+            <div class="n" style="font-family:var(--body); font-weight:500; font-size:14px; color:var(--forest);">Speaker circle — unlocked</div>
+            <div class="s" style="font-family:var(--body); font-size:12px; color:var(--ink-soft); margin-top:3px;">Front table + rooftop dinner. Code accepted.</div>
+          </div>
+          <span class="p" style="font-family:var(--mono); font-weight:500;">$80</span>
+        </div>
+        <div class="qty" style="background:var(--cream-surface);"><button>−</button><span class="v">1</span><button>+</button></div>
+      </div>
+
+      <div class="trow">
+        <div class="top">
+          <div><span class="n">General</span><div class="s">Talks + critique wall · includes Karta Card</div></div>
+          <span class="p">$20<small>+ $1.20 fee</small></span>
+        </div>
+        <div class="qty"><button>−</button><span class="v">1</span><button>+</button></div>
+      </div>
+
+      <div class="trow">
+        <div class="top">
+          <div>
+            <span class="n">Supporter<span class="tagk pill don">Pay what you want</span></span>
+            <div class="s">Same access — your amount funds student seats.</div>
+          </div>
+        </div>
+        <div class="pwyw">
+          <span class="amt" onclick="pw(this)">$10</span>
+          <span class="amt on" onclick="pw(this)">$25</span>
+          <span class="amt" onclick="pw(this)">$50</span>
+          <input placeholder="Other…">
+        </div>
+      </div>
+
+      <div class="trow">
+        <div class="top">
+          <div>
+            <span class="n">Student<span class="tagk pill app">Apply to attend</span></span>
+            <div class="s">Free · limited to 40 · organizer approves, then you confirm. <a href="d22-approval-flow.html" style="color:var(--forest);">See how it works</a></div>
+          </div>
+          <span class="p">Free</span>
+        </div>
+        <button class="btn btn-ghost-forest btn-sm" style="margin-top:10px;" onclick="location.href='d22-approval-flow.html'">Apply</button>
+      </div>
+
+      <div class="addh">Add-ons</div>
+      <div class="addon">
+        <input type="checkbox" checked>
+        <div><div class="n">Critique wall print pack</div><div class="s">Your work, printed A2 for the wall</div></div>
+        <span class="p">$8</span>
+      </div>
+      <div class="addon">
+        <input type="checkbox">
+        <div><div class="n">Parking — Palais garage</div><div class="s">One vehicle, all afternoon</div></div>
+        <span class="p">$5</span>
+      </div>
+      <div class="addon" style="border-bottom:none;">
+        <input type="checkbox">
+        <div><div class="n">Event tee</div><div class="s">Pick up at the door · S–XXL</div></div>
+        <span class="p">$12</span>
+      </div>
+
+      <div class="unlock" id="unlock">
+        <span class="lab" onclick="document.getElementById('unlock').classList.add('open')">Have an unlock code?</span>
+        <div class="row">
+          <input placeholder="CODE" value="ROOFTOP26">
+          <button class="btn btn-forest btn-sm" onclick="reveal()">Apply</button>
+        </div>
+      </div>
+
+      <div class="feeline"><span>Subtotal</span><span class="v">$53.00</span></div>
+      <div class="feeline"><span>Platform fee — paid by you</span><span class="v">$1.20</span></div>
+      <div class="totline"><span class="l">Total</span><span class="v">$54.20</span></div>
+      <div class="feenote">This organizer passes the platform fee to buyers. Some events absorb it — the price you see always says which.</div>
+
+      <button class="btn btn-gold btn-lg" style="width:100%; margin-top:16px;" onclick="location.href='d20-checkout.html'">Continue to checkout</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function pw(el){
+    el.parentElement.querySelectorAll('.amt').forEach(a=>a.classList.remove('on'));
+    el.classList.add('on');
+  }
+  function reveal(){
+    document.getElementById('hiddenrow').classList.add('revealed');
+    document.getElementById('unlock').style.display = 'none';
+  }
+</script>
+</body>
+</html>

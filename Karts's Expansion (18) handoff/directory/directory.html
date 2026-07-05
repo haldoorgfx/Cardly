@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Karta — Discover events that move you</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../karta/karta.css">
+<link rel="stylesheet" href="../karta/web.css">
+<style>
+:root { --title:'Plus Jakarta Sans', sans-serif; }
+
+/* ─── NAV ───────────────────────────────────────────── */
+a.logo { text-decoration:none; font-family:var(--display); font-weight:600; font-size:24px;
+  color:var(--ink); letter-spacing:-0.02em; }
+a.logo b { color:var(--forest); font-weight:600; }
+a.logo i { color:var(--gold-hover); font-style:normal; }
+
+.topnav { height:72px; background:rgba(250,246,238,0.88); backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--cream-border); position:sticky; top:0; z-index:50;
+  display:flex; align-items:center; justify-content:space-between; padding:0 24px; gap:20px; }
+.nav-links { display:none; }
+.nav-right { display:flex; align-items:center; gap:12px; }
+.nav-icon { width:42px; height:42px; border-radius:50%; border:1px solid var(--cream-border);
+  background:var(--cream-surface); display:none; align-items:center; justify-content:center; cursor:pointer; }
+.nav-icon svg { width:18px; height:18px; stroke:var(--ink-soft); fill:none; stroke-width:2; }
+.nav-dash { display:none; }
+.nav-av { width:42px; height:42px; border-radius:50%; background:var(--forest);
+  color:#fff; display:none; align-items:center; justify-content:center;
+  font-family:var(--display); font-weight:600; font-size:15px; }
+.menu-btn { display:flex; }
+@media(min-width:1000px){
+  .topnav { padding:0 40px; }
+  .nav-links { display:flex; align-items:center; gap:34px; }
+  .nav-links a { font-family:var(--body); font-size:15px; font-weight:500; color:var(--ink-soft);
+    text-decoration:none; position:relative; padding:4px 0; transition:color .15s; }
+  .nav-links a:hover { color:var(--forest); }
+  .nav-links a.on { color:var(--ink); }
+  .nav-links a.on::after { content:''; position:absolute; left:0; right:0; bottom:-2px; height:2px;
+    background:var(--forest); border-radius:2px; }
+  .nav-icon,.nav-dash,.nav-av { display:flex; }
+  .menu-btn { display:none; }
+}
+.nav-dash { height:42px; padding:0 18px; border-radius:var(--r-btn); border:1px solid var(--cream-border);
+  background:var(--cream-surface); font-family:var(--display); font-weight:500; font-size:14px;
+  color:var(--ink); cursor:pointer; align-items:center; }
+
+/* ─── HERO ──────────────────────────────────────────── */
+.hero { position:relative; overflow:hidden; }
+.hero .cardly-mesh-hero { position:absolute; inset:0; z-index:0; opacity:.7; }
+.hero-grid { position:relative; z-index:1; display:grid; grid-template-columns:1fr; gap:36px;
+  padding:40px 24px 56px; }
+@media(min-width:640px){ .hero-grid { padding:52px 40px 64px; } }
+@media(min-width:1000px){ .hero-grid { grid-template-columns:1fr 1fr; gap:48px; align-items:center;
+  padding:64px 40px 80px; max-width:1320px; margin:0 auto; } }
+
+.badge-pill { display:inline-flex; align-items:center; gap:8px; height:34px; padding:0 15px;
+  border-radius:var(--r-pill); background:var(--cream-surface); border:1px solid var(--cream-border);
+  font-family:var(--body); font-size:13px; font-weight:500; color:var(--ink-soft); box-shadow:var(--e1); }
+.badge-pill .spark { color:var(--gold-hover); }
+
+.hero h1 { font-family:var(--title); font-weight:700; font-size:clamp(44px,8vw,74px);
+  line-height:1.02; letter-spacing:-0.035em; color:var(--ink); margin-top:22px; }
+.hero h1 .mv { position:relative; color:var(--forest); font-weight:700; white-space:nowrap; }
+.hero h1 .mv svg { position:absolute; left:-2%; right:-2%; bottom:-0.18em; width:104%; height:0.36em; }
+.hero h1 .mv path { stroke:var(--gold); stroke-width:5; fill:none; stroke-linecap:round; }
+.hero-sub { font-family:var(--body); font-size:clamp(16px,2.2vw,19px); line-height:1.6;
+  color:var(--ink-muted); margin-top:22px; max-width:480px; }
+
+/* search card */
+.searchcard { background:var(--cream-surface); border:1px solid var(--cream-border);
+  border-radius:18px; box-shadow:var(--e2); padding:14px; margin-top:34px; max-width:560px; }
+.searchcard .topline { display:flex; align-items:center; gap:12px; height:52px; padding:0 16px;
+  border-bottom:1px solid var(--cream-border); }
+.searchcard .topline svg { width:20px; height:20px; stroke:var(--ink-muted); fill:none; stroke-width:2; flex:none; }
+.searchcard .topline input { flex:1; border:none; background:none; outline:none;
+  font-family:var(--body); font-size:15px; color:var(--ink); }
+.searchcard .topline input::placeholder { color:var(--ink-muted); }
+.search-controls { display:flex; gap:10px; padding:14px 6px 6px; flex-wrap:wrap; }
+.sc-drop { flex:1; min-width:130px; height:46px; padding:0 14px; border-radius:var(--r-btn);
+  border:1px solid var(--cream-border); background:var(--cream-canvas); display:flex; align-items:center;
+  gap:9px; font-family:var(--body); font-size:14px; color:var(--ink-soft); cursor:pointer; }
+.sc-drop svg { width:16px; height:16px; stroke:var(--ink-muted); fill:none; stroke-width:1.8; flex:none; }
+.sc-drop .chev { margin-left:auto; }
+.sc-find { height:46px; padding:0 22px; border-radius:var(--r-btn); background:var(--forest); color:#fff;
+  border:none; font-family:var(--display); font-weight:500; font-size:14px; cursor:pointer;
+  display:flex; align-items:center; gap:9px; white-space:nowrap;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.15), 0 4px 12px rgba(31,77,58,0.25); }
+.sc-find svg { width:16px; height:16px; stroke:#fff; fill:none; stroke-width:2; }
+.popular { display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:14px 10px 4px;
+  font-family:var(--body); font-size:13px; color:var(--ink-muted); }
+.popular b { font-weight:500; color:var(--ink-soft); }
+.popular a { color:var(--forest); text-decoration:none; font-weight:500; }
+.popular .dot-sep { color:var(--cream-border); }
+
+/* hero featured stacked cards */
+.hero-cards { position:relative; min-height:420px; }
+@media(max-width:999px){ .hero-cards { min-height:0; display:flex; flex-direction:column; gap:16px; } }
+.fcard { border-radius:18px; overflow:hidden; position:relative; box-shadow:var(--e2);
+  text-decoration:none; display:block; }
+.fcard .scrim-b { position:absolute; inset:0; z-index:1; }
+.fcard .datechip { position:absolute; top:16px; right:16px; z-index:3; width:54px; border-radius:12px;
+  background:var(--cream-surface); text-align:center; padding:7px 0 8px; box-shadow:var(--e1); }
+.fcard .datechip .mo { font-family:var(--body); font-weight:600; font-size:10px; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--gold-hover); }
+.fcard .datechip .dy { font-family:var(--display); font-weight:600; font-size:20px; color:var(--ink); line-height:1; margin-top:2px; }
+.fcard .feat-tag { position:absolute; top:18px; left:18px; z-index:3; padding:5px 11px;
+  background:var(--cream-surface); border-radius:var(--r-pill); font-family:var(--body);
+  font-weight:600; font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--forest); }
+.fcard .cap { position:absolute; left:0; right:0; bottom:0; z-index:2; padding:22px 24px; }
+.fcard .ti { font-family:var(--display); font-weight:600; font-size:22px; color:#fff; letter-spacing:-0.01em; }
+.fcard .ds { font-family:var(--body); font-size:13px; color:rgba(255,255,255,0.85); margin-top:5px; }
+.fcard .loc { display:flex; align-items:center; gap:6px; font-family:var(--body); font-size:12px;
+  color:rgba(255,255,255,0.78); margin-top:9px; }
+.fcard .loc svg { width:13px; height:13px; stroke:var(--gold); fill:none; stroke-width:1.8; }
+.fcard .att { display:flex; align-items:center; gap:9px; margin-top:13px; }
+.avstack { display:flex; }
+.avstack .a { width:26px; height:26px; border-radius:50%; border:2px solid rgba(255,255,255,0.9);
+  position:relative; overflow:hidden; }
+.avstack .a+.a { margin-left:-9px; }
+.fcard .att .cnt { font-family:var(--body); font-size:12px; font-weight:500; color:#fff; }
+@media(min-width:1000px){
+  .fcard.c1 { position:absolute; top:0; right:0; width:90%; height:240px; z-index:3; }
+  .fcard.c2 { position:absolute; top:175px; right:0; width:80%; height:175px; z-index:2; }
+  .fcard.c3 { position:absolute; top:300px; left:0; width:82%; height:165px; z-index:1; }
+}
+@media(max-width:999px){ .fcard { height:200px; } }
+
+/* ─── LIVE STRIP ────────────────────────────────────── */
+.pw { max-width:1320px; margin:0 auto; padding:0 24px; }
+@media(min-width:640px){ .pw { padding:0 40px; } }
+
+.livestrip { background:var(--cream-surface); border:1px solid var(--cream-border);
+  border-radius:16px; padding:18px 24px; display:flex; align-items:center; gap:14px 32px;
+  flex-wrap:wrap; box-shadow:var(--e1); }
+.livestrip .live { display:flex; align-items:center; gap:9px; font-family:var(--display);
+  font-weight:600; font-size:13px; letter-spacing:.04em; color:var(--error); }
+.livestrip .live .pd { width:9px; height:9px; border-radius:50%; background:var(--error);
+  animation:lpulse 1.6s ease-in-out infinite; }
+@keyframes lpulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.8)} }
+@media(prefers-reduced-motion:reduce){ .live .pd{animation:none} }
+.lstat { display:flex; align-items:center; gap:12px; }
+.lstat .ic { width:40px; height:40px; border-radius:11px; background:var(--forest-soft);
+  display:flex; align-items:center; justify-content:center; flex:none; }
+.lstat .ic svg { width:19px; height:19px; stroke:var(--forest); fill:none; stroke-width:1.8; }
+.lstat .v { font-family:var(--mono); font-weight:500; font-size:17px; color:var(--ink); }
+.lstat .l { font-family:var(--body); font-size:12px; color:var(--ink-muted); line-height:1.3; }
+.livestrip .explore { margin-left:auto; }
+.btn-textlink { font-family:var(--display); font-weight:500; font-size:13px; color:var(--forest);
+  text-decoration:none; display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
+
+/* ─── STATS BAND ────────────────────────────────────── */
+.statsband { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--cream-border);
+  border:1px solid var(--cream-border); border-radius:16px; overflow:hidden; margin-top:18px; }
+@media(min-width:760px){ .statsband { grid-template-columns:repeat(4,1fr); } }
+.stat { background:var(--cream-surface); padding:24px 26px; display:flex; align-items:center; gap:16px; }
+.stat .ic { width:52px; height:52px; border-radius:14px; background:var(--forest);
+  display:flex; align-items:center; justify-content:center; flex:none; }
+.stat .ic svg { width:24px; height:24px; stroke:var(--gold); fill:none; stroke-width:1.7; }
+.stat .v { font-family:var(--display); font-weight:600; font-size:22px; color:var(--ink); letter-spacing:-0.01em; }
+.stat .l { font-family:var(--display); font-weight:500; font-size:13px; color:var(--ink); margin-top:3px; }
+.stat .s { font-family:var(--body); font-size:11px; color:var(--ink-muted); margin-top:2px; }
+
+/* ─── SECTION HEADERS ───────────────────────────────── */
+.section { padding-top:64px; }
+.sh { display:flex; align-items:center; justify-content:space-between; gap:18px; margin-bottom:26px; flex-wrap:wrap; }
+.sh h2 { font-family:var(--title); font-weight:700; font-size:clamp(23px,3vw,30px);
+  line-height:1.18; letter-spacing:-0.025em; color:var(--ink); white-space:nowrap; }
+@media(max-width:560px){ .sh h2 { white-space:normal; } }
+.sh a { font-family:var(--display); font-weight:500; font-size:14px; color:var(--forest);
+  text-decoration:none; display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
+
+/* ─── CATEGORY TILES ────────────────────────────────── */
+.cattiles { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+@media(min-width:560px){ .cattiles { grid-template-columns:repeat(4,1fr); } }
+@media(min-width:1000px){ .cattiles { grid-template-columns:repeat(8,1fr); } }
+.cattile { border-radius:16px; padding:22px 16px; text-align:center; cursor:pointer;
+  border:1px solid var(--cream-border); transition:transform .18s, box-shadow .18s; text-decoration:none; display:block; }
+.cattile:hover { transform:translateY(-3px); box-shadow:var(--e2); }
+.cattile .ic { width:44px; height:44px; border-radius:12px; margin:0 auto 12px;
+  display:flex; align-items:center; justify-content:center; }
+.cattile .ic svg { width:22px; height:22px; fill:none; stroke-width:1.9; }
+.cattile .n { font-family:var(--display); font-weight:500; font-size:14px; color:var(--ink); }
+
+/* ─── TRENDING CARDS ────────────────────────────────── */
+.trendgrid { display:grid; grid-template-columns:1fr; gap:18px; }
+@media(min-width:560px){ .trendgrid { grid-template-columns:repeat(2,1fr); } }
+@media(min-width:1000px){ .trendgrid { grid-template-columns:repeat(4,1fr); } }
+.tcard { background:var(--cream-surface); border:1px solid var(--cream-border); border-radius:16px;
+  overflow:hidden; text-decoration:none; display:block; transition:transform .18s, box-shadow .18s; }
+.tcard:hover { transform:translateY(-3px); box-shadow:var(--e2); }
+.tcard .img { aspect-ratio:16/10; position:relative; }
+.tcard .catb { position:absolute; left:12px; bottom:12px; z-index:2; padding:5px 11px; border-radius:var(--r-pill);
+  font-family:var(--body); font-weight:600; font-size:11px; color:#fff; }
+.tcard .heart { position:absolute; top:12px; right:12px; z-index:2; width:34px; height:34px; border-radius:50%;
+  background:rgba(255,255,255,0.92); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+.tcard .heart svg { width:16px; height:16px; stroke:var(--ink-soft); fill:none; stroke-width:1.8; }
+.tcard .heart.saved svg { fill:var(--error); stroke:var(--error); }
+.tcard .det { padding:16px 18px 18px; }
+.tcard .ti { font-family:var(--display); font-weight:600; font-size:16px; color:var(--ink); line-height:1.3; }
+.tcard .meta { display:flex; align-items:center; gap:7px; font-family:var(--body); font-size:13px;
+  color:var(--ink-muted); margin-top:10px; }
+.tcard .meta svg { width:14px; height:14px; stroke:var(--ink-muted); fill:none; stroke-width:1.8; flex:none; }
+.tcard .foot { display:flex; align-items:center; justify-content:space-between;
+  margin-top:14px; padding-top:14px; border-top:1px solid var(--cream-border); }
+.tcard .att { display:flex; align-items:center; gap:8px; }
+.tcard .att .a { width:24px; height:24px; border-radius:50%; border:2px solid var(--cream-surface);
+  position:relative; overflow:hidden; }
+.tcard .att .a+.a { margin-left:-8px; }
+.tcard .att .cnt { font-family:var(--body); font-size:12px; color:var(--ink-muted); }
+.tcard .bm { width:32px; height:32px; border-radius:8px; border:1px solid var(--cream-border);
+  display:flex; align-items:center; justify-content:center; cursor:pointer; flex:none; }
+.tcard .bm svg { width:15px; height:15px; stroke:var(--ink-muted); fill:none; stroke-width:1.8; }
+
+/* ─── HOST CHIPS ────────────────────────────────────── */
+.hostgrid { display:grid; grid-template-columns:1fr; gap:14px; }
+@media(min-width:560px){ .hostgrid { grid-template-columns:repeat(2,1fr); } }
+@media(min-width:900px){ .hostgrid { grid-template-columns:repeat(5,1fr); } }
+.hostcard { background:var(--cream-surface); border:1px solid var(--cream-border); border-radius:14px;
+  padding:16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.hostcard .htxt { flex:1 1 auto; min-width:0; }
+.hostcard .lg { width:44px; height:44px; border-radius:12px; flex:none; display:flex; align-items:center;
+  justify-content:center; font-family:var(--display); font-weight:600; font-size:15px; color:#fff; }
+.hostcard .n { font-family:var(--display); font-weight:600; font-size:14px; color:var(--ink); line-height:1.3; }
+.hostcard .ev { font-family:var(--body); font-size:12px; color:var(--ink-muted); margin-top:4px; }
+.hostcard .fl { height:32px; padding:0 14px; border-radius:var(--r-pill);
+  border:1px solid var(--forest); background:transparent; color:var(--forest);
+  font-family:var(--display); font-weight:500; font-size:12px; cursor:pointer; flex:none; transition:all .15s; }
+.hostcard .fl.on { background:var(--forest); color:#fff; }
+.hostcard .fl { margin-left:auto; }
+@media(min-width:900px){ .hostcard .fl { margin-left:0; width:100%; margin-top:6px; } }
+
+/* ─── CTA BAND ──────────────────────────────────────── */
+.ctaband { margin-top:64px; border-radius:22px; overflow:hidden; background:var(--forest-dark);
+  position:relative; }
+.ctaband .cardly-mesh-cta { position:absolute; inset:-8%; z-index:0; }
+.cta-inner { position:relative; z-index:1; display:grid; grid-template-columns:1fr; gap:32px;
+  padding:40px 32px; }
+@media(min-width:860px){ .cta-inner { grid-template-columns:1fr 1px 1fr; gap:48px; padding:48px 52px; align-items:center; } }
+.cta-quote { font-family:var(--title); font-weight:500; font-size:clamp(19px,2.4vw,23px);
+  line-height:1.45; color:#fff; letter-spacing:-0.01em; }
+.cta-by { display:flex; align-items:center; gap:14px; margin-top:20px; }
+.cta-by .avs { display:flex; }
+.cta-by .avs .a { width:34px; height:34px; border-radius:50%; border:2px solid var(--forest-dark);
+  position:relative; overflow:hidden; }
+.cta-by .avs .a+.a { margin-left:-10px; }
+.cta-by .who .nm { font-family:var(--display); font-weight:500; font-size:13px; color:#fff; }
+.cta-by .who .rl { font-family:var(--body); font-size:12px; color:rgba(255,255,255,0.5); margin-top:1px; }
+.cta-divider { display:none; background:rgba(255,255,255,0.12); }
+@media(min-width:860px){ .cta-divider { display:block; align-self:stretch; } }
+.cta-right h3 { font-family:var(--title); font-weight:700; font-size:clamp(24px,3vw,30px);
+  letter-spacing:-0.025em; color:#fff; }
+.cta-right p { font-family:var(--body); font-size:14px; color:rgba(255,255,255,0.62);
+  margin-top:12px; line-height:1.6; max-width:380px; }
+.cta-right .acts { display:flex; gap:12px; margin-top:24px; flex-wrap:wrap; }
+
+/* ─── TRUST FOOTER ──────────────────────────────────── */
+.trust { display:grid; grid-template-columns:1fr; gap:24px; padding:52px 0 72px; }
+@media(min-width:560px){ .trust { grid-template-columns:repeat(2,1fr); } }
+@media(min-width:960px){ .trust { grid-template-columns:repeat(4,1fr); } }
+.trust-item { display:flex; align-items:flex-start; gap:14px; }
+.trust-item .ic { width:42px; height:42px; border-radius:11px; border:1px solid var(--cream-border);
+  background:var(--cream-surface); display:flex; align-items:center; justify-content:center; flex:none; }
+.trust-item .ic svg { width:19px; height:19px; stroke:var(--forest); fill:none; stroke-width:1.7; }
+.trust-item .t { font-family:var(--display); font-weight:600; font-size:14px; color:var(--ink); }
+.trust-item .s { font-family:var(--body); font-size:12px; color:var(--ink-muted); margin-top:3px; line-height:1.5; }
+
+footer { background:var(--forest-dark); border-top:1px solid rgba(255,255,255,0.06); }
+.foot-bottom { max-width:1320px; margin:0 auto; padding:26px 24px; display:flex; align-items:center;
+  justify-content:space-between; flex-wrap:wrap; gap:12px; }
+@media(min-width:640px){ .foot-bottom { padding:26px 40px; } }
+.foot-bottom .wm { font-family:var(--display); font-weight:600; font-size:18px; color:#fff; }
+.foot-bottom .wm i { color:var(--gold); font-style:normal; }
+.foot-bottom .copy { font-family:var(--mono); font-size:10px; letter-spacing:.06em; color:rgba(255,255,255,0.3); }
+.foot-bottom .legal { display:flex; gap:18px; }
+.foot-bottom .legal a { font-family:var(--body); font-size:12px; color:rgba(255,255,255,0.4); text-decoration:none; }
+.foot-bottom .legal a:hover { color:#fff; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="topnav">
+  <a href="../index.html" class="logo">K<b>a</b>rt<i>a</i></a>
+  <div class="nav-links">
+    <a href="#" class="on">Discover</a>
+    <a href="#">Categories</a>
+    <a href="#">How it works</a>
+    <a href="../site/pricing-page.html">Pricing</a>
+  </div>
+  <div class="nav-right">
+    <button class="nav-icon" aria-label="Search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></button>
+    <button class="nav-dash" onclick="location.href='../dashboard/dashboard.html'">Dashboard</button>
+    <div class="nav-av">A</div>
+    <a href="../onboarding/onboarding.html" class="btn btn-forest btn-md" style="white-space:nowrap;">Host an event &nbsp;+</a>
+    <button class="menu-btn" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="var(--forest)" stroke-width="2"/></svg></button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="cardly-mesh cardly-mesh-hero"></div>
+  <div class="hero-grid">
+    <div class="hero-left">
+      <span class="badge-pill"><span class="spark">✦</span> Events for every moment</span>
+      <h1>Discover events that <span class="mv">move<svg viewBox="0 0 200 24" preserveAspectRatio="none"><path d="M4 16 C 50 6, 150 6, 196 14"/></svg></span> you.</h1>
+      <p class="hero-sub">Find conferences, festivals, workshops and experiences worth your time.</p>
+
+      <div class="searchcard">
+        <div class="topline">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input placeholder="Search events, topics or organizers">
+        </div>
+        <div class="search-controls">
+          <div class="sc-drop"><svg viewBox="0 0 24 24"><path d="M12 21s-6-5.2-6-10a6 6 0 0112 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg>Location<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div>
+          <div class="sc-drop"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Date<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div>
+          <div class="sc-drop"><svg viewBox="0 0 24 24"><path d="M20.6 13.4L11 3.8a2 2 0 00-1.4-.6H4a1 1 0 00-1 1v5.6a2 2 0 00.6 1.4l9.6 9.6a2 2 0 002.8 0l4.6-4.6a2 2 0 000-2.8z"/><circle cx="7.5" cy="7.5" r="1"/></svg>Category<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div>
+          <button class="sc-find">Find events <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        </div>
+        <div class="popular">
+          <b>Popular:</b>
+          <a href="#">Tech</a><span class="dot-sep">·</span>
+          <a href="#">Startup</a><span class="dot-sep">·</span>
+          <a href="#">Music</a><span class="dot-sep">·</span>
+          <a href="#">Education</a><span class="dot-sep">·</span>
+          <a href="#">Sports</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-cards">
+      <a href="event.html" class="fcard c1 ph" style="--h:265;">
+        <div class="scrim-b"></div>
+        <span class="feat-tag">Featured</span>
+        <div class="datechip"><div class="mo">Jun</div><div class="dy">12</div></div>
+        <div class="cap">
+          <div class="ti">Tech Summit 2025</div>
+          <div class="ds">Connect. Learn. Build the future.</div>
+          <div class="loc"><svg viewBox="0 0 24 24"><path d="M12 21s-6-5.2-6-10a6 6 0 0112 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg>Lagos, Nigeria</div>
+          <div class="att">
+            <div class="avstack"><span class="a ph" style="--h:30;"></span><span class="a ph" style="--h:120;"></span><span class="a ph" style="--h:200;"></span></div>
+            <span class="cnt">1.2K attending</span>
+          </div>
+        </div>
+      </a>
+      <a href="event.html" class="fcard c2 ph" style="--h:18;">
+        <div class="scrim-b"></div>
+        <div class="datechip"><div class="mo">Jun</div><div class="dy">18</div></div>
+        <div class="cap">
+          <div class="ti">Afro Beats Festival</div>
+          <div class="loc"><svg viewBox="0 0 24 24"><path d="M12 21s-6-5.2-6-10a6 6 0 0112 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg>Accra, Ghana</div>
+          <div class="att">
+            <div class="avstack"><span class="a ph" style="--h:280;"></span><span class="a ph" style="--h:95;"></span></div>
+            <span class="cnt">980 attending</span>
+          </div>
+        </div>
+      </a>
+      <a href="event.html" class="fcard c3 ph" style="--h:210;">
+        <div class="scrim-b"></div>
+        <div class="datechip"><div class="mo">Jun</div><div class="dy">22</div></div>
+        <div class="cap">
+          <div class="ti">Startup Day</div>
+          <div class="loc"><svg viewBox="0 0 24 24"><path d="M12 21s-6-5.2-6-10a6 6 0 0112 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg>Nairobi, Kenya</div>
+          <div class="att">
+            <div class="avstack"><span class="a ph" style="--h:150;"></span><span class="a ph" style="--h:340;"></span></div>
+            <span class="cnt">750 attending</span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE + STATS -->
+<div class="pw">
+  <div class="livestrip">
+    <div class="live"><span class="pd"></span>LIVE NOW</div>
+    <div class="lstat"><div class="ic"><svg viewBox="0 0 24 24"><path d="M16 11l2 2 4-4M3 20c0-3 2.7-5 6-5s6 2 6 5M9 12a4 4 0 100-8 4 4 0 000 8z"/></svg></div><div><div class="v">120</div><div class="l">people registered today</div></div></div>
+    <div class="lstat"><div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></div><div><div class="v">32</div><div class="l">new events this week</div></div></div>
+    <div class="lstat"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2s5 4 5 9a5 5 0 01-10 0c0-2 1-3 1-3s0 2 2 2c2 0 2-3 2-5 0-2-2-3-2-3z"/></svg></div><div><div class="v">8</div><div class="l">events trending right now</div></div></div>
+    <a href="#" class="btn-textlink explore">Explore live events →</a>
+  </div>
+
+  <div class="statsband">
+    <div class="stat"><div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></div><div><div class="v">12,500+</div><div class="l">Events</div><div class="s">Across all categories</div></div></div>
+    <div class="stat"><div class="ic"><svg viewBox="0 0 24 24"><path d="M16 11l2 2 4-4M3 20c0-3 2.7-5 6-5s6 2 6 5M9 12a4 4 0 100-8 4 4 0 000 8z"/></svg></div><div><div class="v">58,000+</div><div class="l">Attendees</div><div class="s">Joining experiences</div></div></div>
+    <div class="stat"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg></div><div><div class="v">1,200+</div><div class="l">Hosts</div><div class="s">Creating amazing events</div></div></div>
+    <div class="stat"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18a14 14 0 010-18z"/></svg></div><div><div class="v">45+</div><div class="l">Cities</div><div class="s">Worldwide</div></div></div>
+  </div>
+</div>
+
+<!-- CATEGORIES -->
+<div class="pw section">
+  <div class="sh"><h2>Explore by category</h2><a href="#">View all categories →</a></div>
+  <div class="cattiles" id="cattiles"></div>
+</div>
+
+<!-- TRENDING -->
+<div class="pw section">
+  <div class="sh"><h2>Trending events</h2><a href="#">View all events →</a></div>
+  <div class="trendgrid" id="trendgrid"></div>
+</div>
+
+<!-- HOSTS -->
+<div class="pw section">
+  <div class="sh"><h2>Top event hosts</h2><a href="#">View all hosts →</a></div>
+  <div class="hostgrid" id="hostgrid"></div>
+</div>
+
+<!-- CTA -->
+<div class="pw">
+  <div class="ctaband">
+    <div class="cardly-mesh cardly-mesh-cta"></div>
+    <div class="cta-inner">
+      <div class="cta-left">
+        <div class="cta-quote">"Karta helps me discover events I care about and connect with people who inspire me."</div>
+        <div class="cta-by">
+          <div class="avs"><span class="a ph" style="--h:30;"></span><span class="a ph" style="--h:200;"></span><span class="a ph" style="--h:280;"></span><span class="a ph" style="--h:95;"></span></div>
+          <div class="who"><div class="nm">Chiamaka A.</div><div class="rl">Product Designer</div></div>
+        </div>
+      </div>
+      <div class="cta-divider"></div>
+      <div class="cta-right">
+        <h3>Ready to host your next event?</h3>
+        <p>Create beautiful event pages, manage registrations, and grow your audience.</p>
+        <div class="acts">
+          <a href="../onboarding/onboarding.html" class="btn btn-gold btn-lg" style="white-space:nowrap;">Host an event</a>
+          <a href="#" class="btn btn-ghost-gold btn-lg" style="white-space:nowrap;">Learn how it works</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRUST -->
+  <div class="trust">
+    <div class="trust-item"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg></div><div><div class="t">Secure &amp; trusted</div><div class="s">Your data is safe with us.</div></div></div>
+    <div class="trust-item"><div class="ic"><svg viewBox="0 0 24 24"><path d="M3 9a2 2 0 012-2h14a2 2 0 012 2v2a2 2 0 000 4v2H3v-2a2 2 0 000-4V9z"/></svg></div><div><div class="t">Easy ticketing</div><div class="s">Simple, fast and reliable.</div></div></div>
+    <div class="trust-item"><div class="ic"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0"/></svg></div><div><div class="t">24/7 Support</div><div class="s">We're here to help.</div></div></div>
+    <div class="trust-item"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18a14 14 0 010-18z"/></svg></div><div><div class="t">Global community</div><div class="s">Events that bring us together.</div></div></div>
+  </div>
+</div>
+
+<footer>
+  <div class="foot-bottom">
+    <div class="wm">K<i>a</i>rta</div>
+    <span class="copy">&copy; 2026 KARTA TECHNOLOGIES LTD</span>
+    <div class="legal"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Contact</a></div>
+  </div>
+</footer>
+
+<script>
+/* CATEGORIES */
+const CATS = [
+  { n:'Tech',      bg:'#E8EFEB', fg:'#1F4D3A', ic:'<path d="M8 9l-3 3 3 3M16 9l3 3-3 3M13 6l-2 12"/>' },
+  { n:'Music',     bg:'#FBE9EC', fg:'#C0436B', ic:'<circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/><path d="M9 18V4l12-2v14"/>' },
+  { n:'Business',  bg:'#E7EEF8', fg:'#2C5BAA', ic:'<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"/>' },
+  { n:'Sports',    bg:'#FBEEDD', fg:'#D2853A', ic:'<circle cx="12" cy="12" r="9"/><path d="M12 3a14 14 0 000 18M3 12h18M5 6c3 2 11 2 14 0M5 18c3-2 11-2 14 0"/>' },
+  { n:'Arts',      bg:'#F0E9FA', fg:'#7C4DC4', ic:'<path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.6-.7 1.6-1.7 0-.4-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1a1.6 1.6 0 011.7-1.7H16c3 0 5.5-2.5 5.5-5.5C22 6 17.5 2 12 2z"/><circle cx="7" cy="11" r="1"/><circle cx="12" cy="7" r="1"/><circle cx="17" cy="11" r="1"/>' },
+  { n:'Education', bg:'#E8EFEB', fg:'#1F4D3A', ic:'<path d="M22 10L12 5 2 10l10 5 10-5zM6 12v5c0 1 3 3 6 3s6-2 6-3v-5"/>' },
+  { n:'Health',   bg:'#FBE9EC', fg:'#C0436B', ic:'<path d="M20.8 8.6a5 5 0 00-8.8-3 5 5 0 00-8.8 3c0 5 8.8 11 8.8 11s8.8-6 8.8-11z"/>' },
+  { n:'More',     bg:'#F0EDE8', fg:'#6B7A72', ic:'<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>' },
+];
+document.getElementById('cattiles').innerHTML = CATS.map(c=>`
+  <a href="#" class="cattile" style="background:${c.bg}1f;">
+    <div class="ic" style="background:${c.bg};"><svg viewBox="0 0 24 24" stroke="${c.fg}">${c.ic}</svg></div>
+    <div class="n">${c.n}</div>
+  </a>`).join('');
+
+/* TRENDING */
+const TREND = [
+  { ti:'AI & Future of Work Summit', cat:'Tech',     cc:'#1F4D3A', when:'Jun 10 – 11, 2025', loc:'Lagos, Nigeria',   att:'1.4K attending', h:200, a:[30,120,200] },
+  { ti:'Summer Sounds Fest',         cat:'Music',    cc:'#C0436B', when:'Jun 14, 2025',       loc:'Accra, Ghana',     att:'890 attending',  h:300, a:[280,95]   },
+  { ti:'Disrupt Startup Summit',     cat:'Business', cc:'#2C5BAA', when:'Jun 20, 2025',       loc:'Nairobi, Kenya',   att:'670 attending',  h:18,  a:[150,340]  },
+  { ti:'Youth Football Cup Final',   cat:'Sports',   cc:'#D2853A', when:'Jun 22, 2025',       loc:'Abuja, Nigeria',   att:'1.1K attending', h:95,  a:[210,60]   },
+];
+document.getElementById('trendgrid').innerHTML = TREND.map(e=>`
+  <a href="event.html" class="tcard">
+    <div class="img ph" style="--h:${e.h};">
+      <span class="catb" style="background:${e.cc};">${e.cat}</span>
+      <div class="heart"><svg viewBox="0 0 24 24"><path d="M12 21s-8-5.3-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 10c0 5.7-8 11-8 11z"/></svg></div>
+    </div>
+    <div class="det">
+      <div class="ti">${e.ti}</div>
+      <div class="meta"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>${e.when}</div>
+      <div class="meta"><svg viewBox="0 0 24 24"><path d="M12 21s-6-5.2-6-10a6 6 0 0112 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg>${e.loc}</div>
+      <div class="foot">
+        <div class="att">${e.a.map(h=>`<span class="a ph" style="--h:${h};"></span>`).join('')}<span class="cnt">${e.att}</span></div>
+        <div class="bm"><svg viewBox="0 0 24 24"><path d="M6 3h12a1 1 0 011 1v17l-7-4-7 4V4a1 1 0 011-1z"/></svg></div>
+      </div>
+    </div>
+  </a>`).join('');
+
+/* HOSTS */
+const HOSTS = [
+  { n:'TechBase Africa',    ev:'52 events', bg:'#6B4D9E', in:'◆' },
+  { n:'Lagos Startup Week',  ev:'31 events', bg:'#1F4D3A', in:'LSW' },
+  { n:'Afro Beats Live',     ev:'24 events', bg:'#16161A', in:'AFRO' },
+  { n:'Design Hub',          ev:'18 events', bg:'#D14B8F', in:'DH' },
+  { n:'EduConnect',          ev:'12 events', bg:'#3D7BC4', in:'📖' },
+];
+document.getElementById('hostgrid').innerHTML = HOSTS.map(h=>`
+  <div class="hostcard">
+    <div class="lg" style="background:${h.bg}; font-size:${h.in.length>2?'10px':'15px'};">${h.in}</div>
+    <div class="htxt"><div class="n">${h.n}</div><div class="ev">${h.ev}</div></div>
+    <button class="fl" onclick="this.classList.toggle('on');this.textContent=this.classList.contains('on')?'Following':'Follow'">Follow</button>
+  </div>`).join('');
+
+/* heart toggle */
+document.addEventListener('click', e => {
+  const h = e.target.closest('.heart');
+  if(h){ e.preventDefault(); h.classList.toggle('saved'); }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="design_doc_mode" content="canvas">
+<title>Eventera · Onboarding &amp; profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="mobile.css">
+<style>
+  body{ font-family:var(--body); }
+  .canvas-h{ position:absolute; font-family:var(--display); font-weight:700; letter-spacing:-0.02em; color:var(--forest); }
+  .canvas-h .big{ font-size:30px; display:block; }
+  .canvas-h .lead{ font-family:var(--body); font-weight:400; font-size:15px; color:var(--ink-muted); margin-top:6px; max-width:600px; line-height:1.5; }
+  .canvas-h .kicker{ font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold-hover); margin-bottom:8px; }
+  /* onboarding step scaffold: progress + skip on top, sticky CTA bottom */
+  .ob-top{ flex:none; padding:6px 20px 14px; display:flex; flex-direction:column; gap:12px; }
+  .ob-skip{ display:flex; align-items:center; justify-content:space-between; }
+  .ob-skip .bk{ width:34px; height:34px; margin-left:-6px; display:flex; align-items:center; }
+  .ob-skip .bk svg{ width:22px; height:22px; stroke:var(--ink); fill:none; stroke-width:2; }
+  .ob-skip .sk{ font-family:var(--body); font-weight:600; font-size:13.5px; color:var(--ink-muted); }
+</style>
+</head>
+<body>
+
+<!-- ============ TITLE ============ -->
+<div class="canvas-h" style="left:80px; top:-220px;">
+  <div class="kicker">Eventera · Attendee</div>
+  <span class="big" style="font-size:42px;">Onboarding &amp; profile setup</span>
+  <div class="lead">A short, skippable wizard right after signup that captures the information Eventera needs to personalize the experience — and that organizers need to run a great event. Every step says why it's asked. Collected once, reused everywhere: your attending card, AI networking matches, agenda recommendations, and the organizer's headcount for catering &amp; accessibility. Basics are required; the rest is optional and editable later in Profile.</div>
+</div>
+
+<!-- ============ ROW 1 ============ -->
+<div class="canvas-h" style="left:80px; top:0px;"><span class="big">1 · Personalize</span></div>
+
+<!-- 1. Intro -->
+<div class="dev" style="left:80px; top:80px;">
+  <div class="label">1 · Intro</div><div class="sub">why we ask · ~1 min</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="body"><div class="scroll pad" style="padding-top:20px; padding-bottom:16px; display:flex; flex-direction:column; height:100%;">
+        <div class="tag tag-gold" style="align-self:flex-start; margin-bottom:18px;">Takes about a minute</div>
+        <div class="h1" style="font-size:26px;">Let's make Eventera yours</div>
+        <div class="bodytext muted" style="margin-top:10px;">A few quick questions help us tailor what you see — and help organizers host you well.</div>
+
+        <div style="margin-top:26px; display:flex; flex-direction:column; gap:16px;">
+          <div style="display:flex; gap:13px; align-items:flex-start;"><div class="itile itile-forest"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="8.5" cy="11" r="2"/><path d="M13 9h5M13 13h5"/></svg></div><div><div class="h3" style="font-size:15px;">A card that's really you</div><div class="bodytext muted" style="font-size:13px; margin-top:2px;">Your name, role and photo power your attending card.</div></div></div>
+          <div style="display:flex; gap:13px; align-items:flex-start;"><div class="itile itile-gold"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0111 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15 19a4 4 0 016-3.4"/></svg></div><div><div class="h3" style="font-size:15px;">Meet the right people</div><div class="bodytext muted" style="font-size:13px; margin-top:2px;">Interests and goals drive your networking matches.</div></div></div>
+          <div style="display:flex; gap:13px; align-items:flex-start;"><div class="itile itile-info"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg></div><div><div class="h3" style="font-size:15px;">A smoother event</div><div class="bodytext muted" style="font-size:13px; margin-top:2px;">Dietary &amp; access needs reach the organizer, privately.</div></div></div>
+        </div>
+
+        <div class="whynote" style="margin-top:auto;"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg><div class="wt">You're always in control. Everything here is optional except your name, and editable anytime in Profile.</div></div>
+      </div></div>
+      <div class="stickycta" style="flex-direction:column; gap:8px;"><button class="mbtn mbtn-forest">Get started</button><button class="mbtn mbtn-text" style="font-weight:600;">I'll do this later</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. Basics -->
+<div class="dev" style="left:540px; top:80px;">
+  <div class="label">2 · The basics</div><div class="sub">name · photo · city · required</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="ob-top">
+        <div class="ob-skip"><div class="bk"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="stepn monos">Step 1 of 6</div><div class="sk" style="opacity:0;">Skip</div></div>
+        <div class="prog"><i class="on"></i><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+      <div class="body"><div class="scroll pad" style="padding-top:12px; padding-bottom:16px;">
+        <div class="h2">The basics</div>
+        <div class="bodytext muted" style="margin-top:6px; font-size:14px;">This appears on your attending card.</div>
+        <div class="photoup" style="margin-top:24px;"><div class="ring"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="3.2"/><path d="M5 20a7 7 0 0114 0"/></svg></div><div class="badge"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div></div>
+        <div style="text-align:center; font-family:var(--body); font-weight:600; font-size:12.5px; color:var(--forest); margin:10px 0 24px;">Add a photo</div>
+        <div class="field"><label>Full name</label><div class="input focus"><input value="Amina Osman" readonly style="color:var(--ink);"></div></div>
+        <div class="field"><label>City</label><div class="input"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6-7-11a7 7 0 1114 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><input value="Djibouti City" readonly style="color:var(--ink);"></div></div>
+        <div class="field" style="margin-bottom:0;"><label>Phone <span style="color:var(--ink-muted); font-weight:400;">(for ticket updates)</span></label><div class="input"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-3 2a11 11 0 005 5l2-3 5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/></svg><input value="+253 77 12 34 56" readonly style="color:var(--ink);"></div></div>
+      </div></div>
+      <div class="stickycta"><button class="mbtn mbtn-forest">Continue</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Professional -->
+<div class="dev" style="left:1000px; top:80px;">
+  <div class="label">3 · Work</div><div class="sub">role · company · seniority · industry</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="ob-top">
+        <div class="ob-skip"><div class="bk"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="stepn monos">Step 2 of 6</div><div class="sk">Skip</div></div>
+        <div class="prog"><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i></div>
+      </div>
+      <div class="body"><div class="scroll pad" style="padding-top:12px; padding-bottom:16px;">
+        <div class="h2">What do you do?</div>
+        <div class="bodytext muted" style="margin-top:6px; font-size:14px;">Helps people know who they're meeting.</div>
+        <div class="field" style="margin-top:22px;"><label>Job title</label><div class="input focus"><input value="Founder &amp; CEO" readonly style="color:var(--ink);"></div></div>
+        <div class="field"><label>Company / organization</label><div class="input"><svg viewBox="0 0 24 24"><path d="M4 20V8l6-4 6 4v12M4 20h16M9 20v-5h2v5"/></svg><input value="Sahel Pay" readonly style="color:var(--ink);"></div></div>
+        <div class="field"><label>Industry</label><div class="input" style="justify-content:space-between;"><span style="color:var(--ink);">Fintech &amp; payments</span><svg viewBox="0 0 24 24" style="stroke:var(--ink-muted);"><path d="M6 9l6 6 6-6"/></svg></div></div>
+        <div class="field" style="margin-bottom:0;"><label>I'm here as a…</label>
+          <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:2px;"><div class="chip on">Founder</div><div class="chip">Operator</div><div class="chip">Investor</div><div class="chip">Engineer</div><div class="chip">Designer</div><div class="chip">Student</div></div>
+        </div>
+      </div></div>
+      <div class="stickycta"><button class="mbtn mbtn-forest">Continue</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Interests -->
+<div class="dev" style="left:1460px; top:80px;">
+  <div class="label">4 · Interests</div><div class="sub">topic chips · pick 3+</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="ob-top">
+        <div class="ob-skip"><div class="bk"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="stepn monos">Step 3 of 6</div><div class="sk">Skip</div></div>
+        <div class="prog"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div>
+      </div>
+      <div class="body"><div class="scroll pad" style="padding-top:12px; padding-bottom:16px;">
+        <div class="h2">What are you into?</div>
+        <div class="bodytext muted" style="margin-top:6px; font-size:14px;">Pick a few — we'll match sessions and people to them. <span style="color:var(--forest); font-weight:600;">4 selected</span></div>
+        <div style="display:flex; flex-wrap:wrap; gap:9px; margin-top:20px;">
+          <div class="chip on">Fintech</div><div class="chip on">Startups</div><div class="chip">AI &amp; ML</div><div class="chip on">Product design</div><div class="chip">Climate</div><div class="chip on">Payments</div><div class="chip">Web3</div><div class="chip">Marketing</div><div class="chip">Devtools</div><div class="chip">Healthcare</div><div class="chip">Creative &amp; media</div><div class="chip">Hardware</div><div class="chip">Education</div><div class="chip">Gaming</div><div class="chip">Mobility</div><div class="chip">Agritech</div>
+        </div>
+        <div class="whynote" style="margin-top:24px;"><svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg><div class="wt">The more you pick, the sharper your session and networking suggestions get.</div></div>
+      </div></div>
+      <div class="stickycta"><button class="mbtn mbtn-forest">Continue</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ROW 2 ============ -->
+<div class="canvas-h" style="left:80px; top:1060px;"><span class="big">2 · Goals, networking &amp; needs</span></div>
+
+<!-- 5. Goals -->
+<div class="dev" style="left:80px; top:1140px;">
+  <div class="label">5 · Goals</div><div class="sub">multi-select cards</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="ob-top">
+        <div class="ob-skip"><div class="bk"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="stepn monos">Step 4 of 6</div><div class="sk">Skip</div></div>
+        <div class="prog"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div>
+      </div>
+      <div class="body"><div class="scroll pad" style="padding-top:12px; padding-bottom:16px;">
+        <div class="h2">What do you want out of events?</div>
+        <div class="bodytext muted" style="margin-top:6px; font-size:14px;">We'll prioritize matches and sessions around this.</div>
+        <div style="margin-top:20px;">
+          <div class="optcard on"><div class="oc-ic itile-forest"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0111 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15 19a4 4 0 016-3.4"/></svg></div><div class="oc-t"><div class="t">Meet new people</div><div class="d">Grow my network</div></div><div class="oc-check"></div></div>
+          <div class="optcard on"><div class="oc-ic itile-gold"><svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg></div><div class="oc-t"><div class="t">Learn &amp; get inspired</div><div class="d">Sessions and keynotes</div></div><div class="oc-check"></div></div>
+          <div class="optcard"><div class="oc-ic itile-info"><svg viewBox="0 0 24 24"><path d="M4 20V8l6-4 6 4v12M4 20h16"/></svg></div><div class="oc-t"><div class="t">Find investors / raise</div><div class="d">Meet funds &amp; angels</div></div><div class="oc-check"></div></div>
+          <div class="optcard on"><div class="oc-ic itile-success"><svg viewBox="0 0 24 24"><path d="M20 7L9 18l-5-5"/></svg></div><div class="oc-t"><div class="t">Hire or get hired</div><div class="d">Talent &amp; opportunities</div></div><div class="oc-check"></div></div>
+          <div class="optcard"><div class="oc-ic itile-muted"><svg viewBox="0 0 24 24"><path d="M3 3h18v13H7l-4 4z"/></svg></div><div class="oc-t"><div class="t">Find customers / sell</div><div class="d">Grow my pipeline</div></div><div class="oc-check"></div></div>
+        </div>
+      </div></div>
+      <div class="stickycta"><button class="mbtn mbtn-forest">Continue</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. Networking prefs -->
+<div class="dev" style="left:540px; top:1140px;">
+  <div class="label">6 · Networking</div><div class="sub">discoverability · social links</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="ob-top">
+        <div class="ob-skip"><div class="bk"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="stepn monos">Step 5 of 6</div><div class="sk">Skip</div></div>
+        <div class="prog"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
+      </div>
+      <div class="body"><div class="scroll pad" style="padding-top:12px; padding-bottom:16px;">
+        <div class="h2">How you'll connect</div>
+        <div class="bodytext muted" style="margin-top:6px; font-size:14px;">Control how visible you are to other attendees.</div>
+        <div class="mcard" style="margin-top:20px; padding:0;">
+          <div class="lrow" style="padding:14px 16px;"><div style="flex:1;"><div class="h3" style="font-size:15px;">Show me in the attendee directory</div><div class="bodytext muted" style="font-size:12px; margin-top:2px;">Others can find and connect with you</div></div><div class="tgl on"></div></div>
+          <div class="lrow" style="padding:14px 16px; border-top:1px solid var(--cream-border);"><div style="flex:1;"><div class="h3" style="font-size:15px;">Open to meeting people</div><div class="bodytext muted" style="font-size:12px; margin-top:2px;">Adds an "open to connect" badge</div></div><div class="tgl on"></div></div>
+        </div>
+        <div class="seclab" style="margin:22px 0 12px;">Add your links <span style="text-transform:none; letter-spacing:0; font-weight:400;">(optional)</span></div>
+        <div class="field" style="margin-bottom:12px;"><div class="input"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 11v5M8 8v.01M12 16v-3a2 2 0 014 0v3"/></svg><input value="linkedin.com/in/aminaosman" readonly style="color:var(--ink);"></div></div>
+        <div class="field" style="margin-bottom:0;"><div class="input"><svg viewBox="0 0 24 24"><path d="M4 4l7 8.5M20 20l-7-8.5M4 4h3l13 16h-3zM7 4l6 7M11 13l6 7"/></svg><input placeholder="@handle (X / Twitter)" readonly></div></div>
+      </div></div>
+      <div class="stickycta"><button class="mbtn mbtn-forest">Continue</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- 7. Dietary & access -->
+<div class="dev" style="left:1000px; top:1140px;">
+  <div class="label">7 · Dietary &amp; access</div><div class="sub">private · for organizers</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="ob-top">
+        <div class="ob-skip"><div class="bk"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="stepn monos">Step 6 of 6</div><div class="sk">Skip</div></div>
+        <div class="prog"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div>
+      </div>
+      <div class="body"><div class="scroll pad" style="padding-top:12px; padding-bottom:16px;">
+        <div class="h2">Anything we should know?</div>
+        <div class="bodytext muted" style="margin-top:6px; font-size:14px;">Only shared with the organizer of events you attend.</div>
+        <div class="seclab" style="margin:22px 0 12px;">Dietary preference</div>
+        <div style="display:flex; flex-wrap:wrap; gap:8px;"><div class="chip">No preference</div><div class="chip on">Vegetarian</div><div class="chip">Vegan</div><div class="chip">Halal</div><div class="chip">Kosher</div><div class="chip">Gluten-free</div><div class="chip">Nut allergy</div></div>
+        <div class="seclab" style="margin:22px 0 12px;">Accessibility needs</div>
+        <div style="display:flex; flex-wrap:wrap; gap:8px;"><div class="chip">Step-free access</div><div class="chip">Reserved seating</div><div class="chip">Sign language</div><div class="chip">Large print</div></div>
+        <div class="field" style="margin:22px 0 0;"><label>Anything else? <span style="color:var(--ink-muted); font-weight:400;">(optional)</span></label><div class="input textarea"><input placeholder="Let the organizer know…" readonly></div></div>
+        <div class="whynote" style="margin-top:16px;"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg><div class="wt">Kept private and never shown on your card or profile.</div></div>
+      </div></div>
+      <div class="stickycta"><button class="mbtn mbtn-forest">Finish setup</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- 8. Summary / done -->
+<div class="dev" style="left:1460px; top:1140px;">
+  <div class="label">8 · All set</div><div class="sub">summary · what powers what</div>
+  <div class="phone">
+    <div class="screen dark">
+      <div class="body"><div class="scroll" style="height:100%; padding:0 22px; display:flex; flex-direction:column; align-items:center; text-align:center; padding-top:20px;">
+        <div style="width:76px; height:76px; border-radius:50%; background:rgba(45,122,79,.22); border:1px solid rgba(232,197,126,.4); display:flex; align-items:center; justify-content:center; margin-bottom:20px;"><div style="width:52px; height:52px; border-radius:50%; background:var(--gold); display:flex; align-items:center; justify-content:center;"><svg viewBox="0 0 24 24" style="width:28px;height:28px;stroke:var(--forest-dark);fill:none;stroke-width:2.6;"><path d="M5 12l4 4 10-10"/></svg></div></div>
+        <div style="font-family:var(--display); font-weight:700; font-size:25px; color:#fff; letter-spacing:-0.02em;">You're all set, Amina.</div>
+        <div style="font-family:var(--body); font-size:14px; color:rgba(250,246,238,.72); margin-top:8px;">Here's what your profile now powers:</div>
+        <div style="width:100%; margin-top:22px; display:flex; flex-direction:column; gap:10px;">
+          <div style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); border-radius:12px; padding:12px 14px; text-align:left;"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:var(--gold);fill:none;stroke-width:1.8;flex:none;"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="8.5" cy="11" r="2"/><path d="M13 9h5M13 13h5"/></svg><div style="font-family:var(--body); font-size:13px; color:rgba(250,246,238,.9);">Your attending card is ready</div></div>
+          <div style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); border-radius:12px; padding:12px 14px; text-align:left;"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:var(--gold);fill:none;stroke-width:1.8;flex:none;"><circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0111 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15 19a4 4 0 016-3.4"/></svg><div style="font-family:var(--body); font-size:13px; color:rgba(250,246,238,.9);"><b style="color:#fff;">18</b> people match your goals</div></div>
+          <div style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); border-radius:12px; padding:12px 14px; text-align:left;"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:var(--gold);fill:none;stroke-width:1.8;flex:none;"><path d="M4 7h16M4 12h16M4 17h10"/></svg><div style="font-family:var(--body); font-size:13px; color:rgba(250,246,238,.9);">Sessions picked for your interests</div></div>
+        </div>
+      </div></div>
+      <div class="stickycta" style="background:transparent; border:none; box-shadow:none; flex-direction:column; gap:10px;"><button class="mbtn mbtn-gold">Explore my first event</button><button class="mbtn mbtn-text" style="color:var(--gold);">Review my profile</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CHROME SCRIPT ============ -->
+<script>
+  const clock='9:41';
+  const statusSys=`<div class="sys">
+    <svg viewBox="0 0 18 12"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="4.5" y="4.5" width="3" height="7.5" rx="1"/><rect x="9" y="2" width="3" height="10" rx="1"/><rect x="13.5" y="0" width="3" height="12" rx="1"/></svg>
+    <svg viewBox="0 0 18 12"><path d="M9 2.5c2.4 0 4.6.9 6.2 2.4l1.3-1.4A11 11 0 009 .5 11 11 0 001.5 3.5l1.3 1.4A9 9 0 019 2.5z"/><path d="M9 6c1.3 0 2.5.5 3.4 1.3l1.3-1.4A7 7 0 009 4a7 7 0 00-4.7 1.9l1.3 1.4A5 5 0 019 6z"/><path d="M9 9.5l2-2.1A3 3 0 009 6.5a3 3 0 00-2 .9z"/></svg>
+    <svg viewBox="0 0 26 12" style="width:24px;"><rect x="0.5" y="1" width="21" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1" opacity=".4"/><rect x="2" y="2.5" width="16" height="7" rx="1"/><rect x="23" y="4" width="1.6" height="4" rx="0.8"/></svg>
+  </div>`;
+  document.querySelectorAll('.screen').forEach(s=>{
+    const bar=document.createElement('div');
+    bar.className='statusbar'+(s.classList.contains('dark')?' on-dark':'');
+    bar.innerHTML=`<div class="time">${clock}</div>${statusSys}`;
+    s.insertBefore(bar, s.firstChild);
+  });
+  document.querySelectorAll('.phone').forEach(p=>{
+    p.insertAdjacentHTML('afterbegin','<div class="notch"></div>');
+    p.insertAdjacentHTML('beforeend','<div class="homebar"></div>');
+  });
+</script>
+
+<template id="__bundler_thumbnail">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#1F4D3A"/><rect x="26" y="34" width="48" height="8" rx="4" fill="#E8C57E"/><rect x="26" y="48" width="34" height="6" rx="3" fill="#FAF6EE"/><rect x="26" y="60" width="40" height="6" rx="3" fill="#FAF6EE" opacity=".6"/><circle cx="30" cy="26" r="4" fill="#E8C57E"/></svg>
+</template>
+</body>
+</html>

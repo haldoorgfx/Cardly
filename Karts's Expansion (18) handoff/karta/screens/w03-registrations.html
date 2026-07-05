@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W03 · Registration Management</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .pagehead { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .stats { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 0; margin-top: 24px; padding: 18px 0; }
+  .stat { padding: 0 24px; border-right: 1px solid var(--cream-border); }
+  .stat:last-child { border-right: none; }
+  .stat .lab { font-family: var(--body); font-size: 12px; color: var(--ink-muted); }
+  .stat .val { font-family: var(--mono); font-weight: 500; font-size: 16px; color: var(--ink); margin-top: 3px; }
+  .stat .val.gold { color: var(--gold-hover); }
+  .toolrow { display: flex; gap: 12px; align-items: center; margin: 28px 0 8px; flex-wrap: wrap; }
+  .toolrow .search { flex: 1; min-width: 220px; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .at-cell { display: flex; align-items: center; gap: 12px; }
+  .at-cell .nm { font-family: var(--body); font-weight: 500; font-size: 14px; color: var(--forest); }
+  .at-cell .em { font-family: var(--body); font-size: 12px; color: var(--ink-muted); }
+  .checkdot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+  .ring { width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--ink-muted); display: inline-block; }
+  .sentence { margin-top: 24px; font-family: var(--body); font-size: 14px; color: var(--ink-muted); }
+  .sentence b { font-family: var(--mono); font-weight: 500; color: var(--ink); }
+
+  /* slide-out panel */
+  .scrim { position: fixed; inset: 0; background: rgba(15,31,24,0.35); opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 60; }
+  .scrim.open { opacity: 1; pointer-events: auto; }
+  .panel { position: fixed; top: 0; right: 0; bottom: 0; width: 360px; max-width: 88vw; background: var(--cream-surface);
+    border-left: 1px solid var(--cream-border); box-shadow: var(--e2); transform: translateX(100%); transition: transform .3s cubic-bezier(.4,0,.2,1); z-index: 61; overflow-y: auto; }
+  .panel.open { transform: translateX(0); }
+  .panel .ph-head { height: 140px; position: relative; }
+  .panel .pbody { padding: 0 24px 24px; }
+  .panel .pav { width: 72px; height: 72px; border-radius: 50%; border: 3px solid var(--cream-surface); margin-top: -36px; position: relative; z-index: 2; }
+  .kv { display: flex; justify-content: space-between; padding: 11px 0; border-bottom: 1px solid var(--cream-border); }
+  .kv .k { font-family: var(--body); font-size: 13px; color: var(--ink-muted); }
+  .kv .v { font-family: var(--body); font-size: 13px; color: var(--ink); font-weight: 500; }
+  .kv .v.mono { font-family: var(--mono); font-weight: 400; }
+  .cardprev { margin-top: 20px; border-radius: var(--r-card); aspect-ratio: 16/10; position: relative; overflow: hidden; }
+  @media (max-width:900px){ .col-hide { display:none; } .stat { padding: 0 14px; } }
+</style>
+</head>
+<body>
+
+<div class="dashnav">
+  <div style="display:flex; align-items:center; gap:18px;">
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+    <div class="crumb"><b>Karta</b>&nbsp;&nbsp;/&nbsp;&nbsp;AfriTech Summit&nbsp;&nbsp;/&nbsp;&nbsp;Registrations</div>
+  </div>
+  <div style="display:flex; align-items:center; gap:18px;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="1.7"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0"/></svg>
+    <div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div>
+  </div>
+</div>
+
+<div class="dash">
+  <aside class="sidebar">
+    <div class="side-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Events</div>
+    <div class="side-item active"><svg viewBox="0 0 24 24"><path d="M16 11l2 2 4-4M3 20c0-3 2.7-5 6-5s6 2 6 5M9 12a4 4 0 100-8 4 4 0 000 8z"/></svg>Registrations</div>
+    <div class="side-item"><svg viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l4-4 3 3 5-6"/></svg>Analytics</div>
+    <div class="side-item"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="10" r="2.3"/><path d="M3 20c0-3 2.7-5 6-5s6 2 6 5"/></svg>Team</div>
+    <div class="side-label">Organizer Tools</div>
+    <div class="side-item"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Billing</div>
+    <div style="flex:1;"></div>
+    <span class="pill" style="background:var(--forest-soft); color:var(--forest); margin:0 12px; align-self:flex-start; font-family:var(--mono); font-weight:500;">Pro plan</span>
+  </aside>
+
+  <main class="main">
+    <div class="pagehead">
+      <h1 class="t-display-lg" style="color:var(--forest);">Registrations — AfriTech Summit 2026</h1>
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-ghost-forest btn-md">Export CSV</button>
+        <button class="btn btn-forest btn-md">Add manually</button>
+      </div>
+    </div>
+
+    <div class="card stats">
+      <div class="stat"><div class="lab">Total</div><div class="val">237</div></div>
+      <div class="stat"><div class="lab">Checked in</div><div class="val">142 <span style="color:var(--ink-muted); font-weight:400;">(60%)</span></div></div>
+      <div class="stat"><div class="lab">Pending</div><div class="val">95</div></div>
+      <div class="stat"><div class="lab">Revenue</div><div class="val">$4,750</div></div>
+      <div class="stat"><div class="lab">Karta Cards</div><div class="val gold">198 downloaded</div></div>
+    </div>
+
+    <div class="toolrow">
+      <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input placeholder="Search attendees by name or email…"></div>
+    </div>
+    <div class="chips">
+      <div class="chip active">All</div>
+      <div class="chip">Confirmed</div>
+      <div class="chip">Checked in</div>
+      <div class="chip">Pending</div>
+      <div class="chip">VIP</div>
+      <div class="chip">Cancelled</div>
+    </div>
+
+    <div style="overflow-x:auto;">
+      <table class="tbl">
+        <thead>
+          <tr><th></th><th>Name</th><th class="col-hide">Ticket</th><th class="col-hide">Registered</th><th>Check-in</th><th>Card</th><th></th></tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+
+    <div class="sentence"><b>142</b> of <b>237</b> registered attendees have checked in (60%). Event starts in <b>3</b> hours.</div>
+  </main>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="panel" id="panel">
+  <div class="ph-head ph" style="--h:30;"></div>
+  <div class="pbody">
+    <div class="ph pav" style="--h:30;"></div>
+    <div class="t-display-md" style="margin-top:12px;" id="p-name">Amina Osman</div>
+    <div class="t-body-sm" style="color:var(--ink-muted);" id="p-email">amina.osman@sahelpay.co</div>
+    <div style="margin-top:18px;">
+      <div class="kv"><span class="k">Ticket</span><span class="v">VIP package</span></div>
+      <div class="kv"><span class="k">Registered</span><span class="v mono">04 Feb 2026</span></div>
+      <div class="kv"><span class="k">Check-in</span><span class="v" style="color:var(--success)">Checked in · 08:52</span></div>
+      <div class="kv"><span class="k">Company</span><span class="v">Sahel Pay</span></div>
+      <div class="kv"><span class="k">Dietary</span><span class="v">Vegetarian</span></div>
+    </div>
+    <div class="t-caption" style="text-transform:uppercase; color:var(--ink-muted); margin-top:24px;">Karta Card</div>
+    <div class="cardprev ph mesh-dark" style="--h:150;">
+      <div style="position:absolute; inset:0; padding:18px; display:flex; flex-direction:column; justify-content:space-between;">
+        <div style="font-family:var(--display); font-weight:600; font-size:13px; color:var(--gold);">AfriTech Summit 2026</div>
+        <div><div style="font-family:var(--display); font-weight:600; font-size:18px; color:#fff;">Amina Osman</div><div style="font-family:var(--body); font-size:11px; color:var(--gold);">VIP · #198</div></div>
+      </div>
+    </div>
+    <div style="display:flex; gap:10px; margin-top:20px;">
+      <button class="btn btn-ghost-forest btn-md" style="flex:1;">Send email</button>
+      <button class="btn btn-forest btn-md" style="flex:1;">Mark checked in</button>
+    </div>
+  </div>
+</aside>
+
+<script>
+  const people = [
+    ['Amina Osman','amina.osman@sahelpay.co','VIP','04 Feb', true, true, 30],
+    ['Faisal Karim','f.karim@andela.com','General','11 Feb', true, true, 200],
+    ['Leila Haddad','leila@flutterwave.com','VIP','12 Feb', false, true, 265],
+    ['Yonas Tesfaye','yonas.t@gmail.com','General','15 Feb', true, false, 95],
+    ['Mariam Diallo','mariam.d@outlook.com','Student','18 Feb', false, false, 340],
+    ['Samuel Okoro','s.okoro@paystack.com','General','20 Feb', true, true, 158],
+    ['Hana Bekele','hana.bekele@gmail.com','VIP','22 Feb', false, true, 18],
+    ['Omar Farah','omar@redseatech.io','General','25 Feb', true, true, 120],
+  ];
+  const rows = document.getElementById('rows');
+  people.forEach(p=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="width:44px;"><div class="ph avatar" style="--h:${p[6]}; width:32px; height:32px;"></div></td>
+      <td><div><div class="at-cell" style="display:block;"><div class="nm">${p[0]}</div><div class="em">${p[1]}</div></div></div></td>
+      <td class="col-hide"><span class="pill" style="background:${p[2]==='VIP'?'var(--forest-soft)':'var(--cream-soft)'}; color:${p[2]==='VIP'?'var(--forest)':'var(--ink-muted)'};">${p[2]}</span></td>
+      <td class="col-hide"><span class="t-num-sm" style="color:var(--ink-muted)">${p[3]} 2026</span></td>
+      <td>${p[4]?'<span class="checkdot" style="background:var(--success)"></span> <span class="t-body-sm" style="color:var(--ink-soft)">In</span>':'<span class="ring"></span> <span class="t-body-sm" style="color:var(--ink-muted)">Pending</span>'}</td>
+      <td>${p[5]?'<span class="pill pill-live">Downloaded</span>':'<span class="pill pill-draft">Not yet</span>'}</td>
+      <td style="text-align:right; color:var(--ink-muted);">⋯</td>`;
+    tr.onclick=()=>{ document.getElementById('p-name').textContent=p[0]; document.getElementById('p-email').textContent=p[1]; openPanel(); };
+    rows.appendChild(tr);
+  });
+  const scrim=document.getElementById('scrim'), panel=document.getElementById('panel');
+  function openPanel(){ scrim.classList.add('open'); panel.classList.add('open'); }
+  function closePanel(){ scrim.classList.remove('open'); panel.classList.remove('open'); }
+  scrim.onclick=closePanel;
+  document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{document.querySelector('.chip.active')?.classList.remove('active');c.classList.add('active');});
+</script>
+</body>
+</html>

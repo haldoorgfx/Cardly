@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W09 · Karta Card Reveal</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  body { min-height: 100vh; }
+  .stage { position: relative; min-height: calc(100vh - 64px); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 56px 24px; overflow: hidden; }
+  /* subtle forest-to-gold atmosphere behind the card */
+  .stage::before { content: ""; position: absolute; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 55% 45% at 50% 42%, rgba(232,197,126,0.30) 0%, transparent 60%),
+      radial-gradient(ellipse 70% 60% at 50% 60%, rgba(31,77,58,0.16) 0%, transparent 65%);
+  }
+  .stage > * { position: relative; z-index: 1; }
+
+  .kicker { font-family: var(--body); font-weight: 500; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-hover); margin-bottom: 28px; display: flex; align-items: center; gap: 9px; }
+  .kicker .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 4px rgba(232,197,126,0.25); }
+
+  /* the card — the generated PNG */
+  .card-shell { animation: breathe 3.4s ease-in-out infinite; }
+  @keyframes breathe { 0%,100% { transform: scale(1);} 50% { transform: scale(1.02);} }
+  .kcard { width: 300px; aspect-ratio: 5/7; border-radius: 14px; position: relative; overflow: hidden;
+    box-shadow: 0 0 40px rgba(232,197,126,0.30), 0 0 90px rgba(232,197,126,0.12), 0 18px 50px rgba(13,31,23,0.35); }
+  .kcard .inner { position: absolute; inset: 0; padding: 26px 24px; display: flex; flex-direction: column; }
+  .kcard .topline { display: flex; align-items: center; justify-content: space-between; }
+  .kcard .brand { font-family: var(--display); font-weight: 600; font-size: 13px; color: var(--gold); letter-spacing: 0.04em; white-space: nowrap; }
+  .kcard .yr { font-family: var(--mono); font-size: 11px; color: rgba(255,255,255,0.6); }
+  .kcard .pic { width: 116px; height: 116px; border-radius: 50%; border: 2px solid var(--gold); margin: auto auto 20px; box-shadow: 0 0 24px rgba(232,197,126,0.25); }
+  .kcard .name { font-family: var(--display); font-weight: 500; font-size: 27px; color: #fff; text-align: center; letter-spacing: -0.01em; }
+  .kcard .role { font-family: var(--body); font-size: 13px; color: rgba(255,255,255,0.75); text-align: center; margin-top: 4px; }
+  .kcard .foot { margin-top: 22px; display: flex; align-items: center; justify-content: space-between; padding-top: 16px; border-top: 1px solid rgba(232,197,126,0.25); }
+  .kcard .foot .tier { font-family: var(--mono); font-size: 12px; color: var(--gold); }
+  .kcard .foot .no { font-family: var(--mono); font-size: 12px; color: rgba(255,255,255,0.6); }
+  /* faint guilloché texture lines */
+  .kcard .lines { position: absolute; inset: 0; opacity: 0.5; background-image:
+    repeating-linear-gradient(115deg, rgba(232,197,126,0.05) 0 2px, transparent 2px 9px); }
+
+  .reveal-actions { width: 100%; max-width: 300px; margin-top: 40px; }
+  .dlbtn { width: 100%; }
+  .platforms { display: flex; gap: 12px; justify-content: center; margin-top: 18px; }
+  .pf { width: 44px; height: 44px; border-radius: 50%; background: var(--cream-surface); border: 1px solid var(--cream-border); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: border-color .15s, transform .12s; }
+  .pf:hover { border-color: var(--gold); transform: translateY(-2px); }
+  .pf svg { width: 19px; height: 19px; }
+  .editlink { display: block; text-align: center; margin-top: 22px; font-family: var(--body); font-size: 14px; color: var(--gold-hover); text-decoration: none; }
+  .editlink:hover { color: var(--gold); }
+
+  .confetti { position: absolute; width: 8px; height: 8px; top: -20px; opacity: 0; z-index: 0; }
+
+  @media (max-width: 600px){ .kcard { width: 260px; } }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links"><a href="#">Discover</a><a href="#">My tickets</a><a href="#">Schedule</a><a href="#">Network</a></div>
+  <div class="right">
+    <div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div>
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</nav>
+
+<div class="stage" id="stage">
+  <div class="kicker"><span class="dot"></span>Your card · Ready</div>
+
+  <div class="card-shell">
+    <div class="kcard mesh-dark" style="--h:158;">
+      <div class="lines"></div>
+      <div class="inner">
+        <div class="topline">
+          <div class="brand">AfriTech Summit</div>
+          <div class="yr">2026</div>
+        </div>
+        <div class="pic ph" style="--h:30;"></div>
+        <div class="name">Amina Osman</div>
+        <div class="role">Founder, Sahel Pay</div>
+        <div class="foot">
+          <span class="tier">VIP</span>
+          <span class="no">#198 · 12 Mar</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="reveal-actions">
+    <button class="btn btn-forest btn-lg dlbtn" id="dl">↓ Download card</button>
+    <div class="platforms">
+      <div class="pf" title="WhatsApp"><svg viewBox="0 0 24 24" fill="#25D366"><path d="M12 2a10 10 0 00-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1012 2zm0 18a8 8 0 01-4.1-1.1l-.3-.2-2.8.7.8-2.8-.2-.3A8 8 0 1112 20zm4.5-6c-.2-.1-1.4-.7-1.6-.8s-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1a6.5 6.5 0 01-3.2-2.8c-.2-.4.2-.4.6-1.2.1-.2 0-.3 0-.5l-.7-1.7c-.2-.5-.4-.4-.5-.4h-.5a1 1 0 00-.7.3A3 3 0 006 9.6c0 1.8 1.3 3.5 1.5 3.7s2.5 3.9 6.1 5.3c2.1.8 2.6.6 3.1.6s1.6-.6 1.8-1.3.3-1.2.2-1.3z"/></svg></div>
+      <div class="pf" title="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="#C13584" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="#C13584" stroke="none"/></svg></div>
+      <div class="pf" title="X"><svg viewBox="0 0 24 24" fill="var(--ink)"><path d="M17.5 3h3l-7 8 8.2 10h-6.4l-5-6.2L7 21H4l7.5-8.6L3.6 3H10l4.5 5.7L17.5 3zm-1.1 16h1.7L7.7 4.8H5.9L16.4 19z"/></svg></div>
+      <div class="pf" title="Facebook"><svg viewBox="0 0 24 24" fill="#1877F2"><path d="M22 12a10 10 0 10-11.6 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7A10 10 0 0022 12z"/></svg></div>
+      <div class="pf" title="LinkedIn"><svg viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5V9h3v10zM6.5 7.7a1.8 1.8 0 110-3.5 1.8 1.8 0 010 3.5zM19 19h-3v-5.3c0-1.3-.5-2.1-1.6-2.1-.9 0-1.4.6-1.6 1.2-.1.2-.1.5-.1.8V19h-3V9h3v1.3a3 3 0 012.7-1.5c2 0 3.2 1.3 3.2 4V19z"/></svg></div>
+    </div>
+    <a href="w08-registration.html" class="editlink">← Edit my info</a>
+  </div>
+</div>
+
+<script>
+  // gentle confetti burst on load — gold + forest flecks
+  const stage = document.getElementById('stage');
+  const colors = ['#E8C57E','#C9A45E','#1F4D3A','#2D7A4F','#F5E9CC'];
+  for(let i=0;i<28;i++){
+    const c=document.createElement('div'); c.className='confetti';
+    c.style.left=(15+Math.random()*70)+'%';
+    c.style.background=colors[i%colors.length];
+    c.style.borderRadius=Math.random()>0.5?'50%':'1px';
+    const dur=2.6+Math.random()*1.8, delay=Math.random()*0.6, x=(Math.random()*2-1)*120;
+    c.animate([
+      {transform:`translate(0,0) rotate(0)`, opacity:1},
+      {transform:`translate(${x}px, ${stage.offsetHeight*0.7}px) rotate(${Math.random()*540}deg)`, opacity:0}
+    ], {duration:dur*1000, delay:delay*1000, easing:'cubic-bezier(.2,.6,.4,1)', fill:'forwards'});
+    stage.appendChild(c);
+  }
+  const dl=document.getElementById('dl');
+  dl.onclick=()=>{ dl.textContent='✓ Saved to your device'; dl.style.background='var(--success)'; setTimeout(()=>{dl.textContent='↓ Download card'; dl.style.background='';},1800); };
+</script>
+</body>
+</html>

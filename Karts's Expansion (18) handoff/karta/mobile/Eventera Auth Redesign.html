@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="design_doc_mode" content="canvas">
+<title>Eventera · Auth Redesign</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="mobile.css">
+<style>
+  body{ font-family:var(--body); }
+  .canvas-h{ position:absolute; font-family:var(--display); font-weight:700; letter-spacing:-0.02em; color:var(--forest); }
+  .canvas-h .big{ font-size:30px; display:block; }
+  .canvas-h .lead{ font-family:var(--body); font-weight:400; font-size:15px; color:var(--ink-muted); margin-top:6px; max-width:560px; line-height:1.5; }
+  .canvas-h .kicker{ font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold-hover); margin-bottom:8px; }
+  /* dark status bar sits inside hero */
+  .screen.hashero > .statusbar{ position:absolute; top:0; left:0; right:0; z-index:30; }
+</style>
+</head>
+<body>
+
+<!-- ============ TITLE ============ -->
+<div class="canvas-h" style="left:80px; top:-210px;">
+  <div class="kicker">Eventera · Attendee</div>
+  <span class="big" style="font-size:42px;">Auth &amp; sign-in — redesigned</span>
+  <div class="lead">A warmer, more composed entry. The stretched logo bar is replaced by a forest hero panel with a real brand lockup, the attendee-card motif, and social proof — so the value is felt before the form. Two-step passwordless flow: Google or email → 6-digit code → (new users) a one-screen profile → in. Google is the confident primary; email is always one tap away.</div>
+</div>
+
+<!-- ============ ROW 1 — SIGN IN ============ -->
+<div class="canvas-h" style="left:80px; top:0px;"><span class="big">1 · Sign in</span></div>
+
+<!-- 1. Welcome (redesigned centerpiece) -->
+<div class="dev" style="left:80px; top:100px;">
+  <div class="label">1 · Welcome</div><div class="sub">hero panel · Google + email</div>
+  <div class="phone">
+    <div class="screen dark hashero">
+      <div class="auth-hero" style="padding-top:64px;">
+        <div class="glow"></div>
+        <div class="brandlock">
+          <div class="mark"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/><path d="M8.5 14.5l2.4 2.4 4.6-4.8"/></svg></div>
+          <div class="wm">Eventera</div>
+        </div>
+        <div class="motif">
+          <div class="card c-back"></div>
+          <div class="card c-mid"></div>
+          <div class="card c-front">
+            <div class="k">I'm attending</div>
+            <div><div class="nm">Amina Osman</div><div class="rl">Founder · Sahel Pay</div></div>
+          </div>
+        </div>
+        <div class="proof" style="margin-top:8px;">
+          <div class="av-cluster"><div class="av av-32 ph" style="--h:30;">AO</div><div class="av av-32 ph" style="--h:200;">FK</div><div class="av av-32 ph" style="--h:265;">LH</div></div>
+          <div class="txt"><b>12,000+</b> people already in the room</div>
+        </div>
+      </div>
+
+      <div class="body"><div class="scroll pad" style="padding-top:24px; padding-bottom:16px; display:flex; flex-direction:column;">
+        <div class="h1" style="font-size:25px;">Welcome to Eventera</div>
+        <div class="bodytext muted" style="margin-top:7px;">Hold tickets, make your attending card, and connect with people at the event.</div>
+
+        <button class="gbtn" style="margin-top:22px;">
+          <svg class="g" viewBox="0 0 24 24"><path fill="#4285F4" d="M21.6 12.2c0-.7-.06-1.36-.18-2H12v3.79h5.38a4.6 4.6 0 01-2 3.02v2.5h3.23c1.89-1.74 2.99-4.3 2.99-7.31z"/><path fill="#34A853" d="M12 22c2.7 0 4.96-.9 6.62-2.42l-3.23-2.5c-.9.6-2.05.95-3.39.95-2.6 0-4.8-1.76-5.59-4.12H3.07v2.59A10 10 0 0012 22z"/><path fill="#FBBC05" d="M6.41 13.91a6 6 0 010-3.82V7.5H3.07a10 10 0 000 9l3.34-2.59z"/><path fill="#EA4335" d="M12 6.58c1.47 0 2.79.5 3.83 1.5l2.87-2.87A10 10 0 003.07 7.5l3.34 2.59C7.2 8.33 9.4 6.58 12 6.58z"/></svg>
+          Continue with Google
+        </button>
+
+        <div class="divider" style="margin:20px 0;"><span>or with email</span></div>
+
+        <div class="field" style="margin-bottom:12px;">
+          <div class="input"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M4 7l8 6 8-6"/></svg><input placeholder="you@example.com" readonly></div>
+        </div>
+        <button class="mbtn mbtn-forest">Continue with email</button>
+
+        <div style="font-family:var(--body); font-size:11.5px; color:var(--ink-muted); text-align:center; margin-top:auto; padding-top:22px; line-height:1.5;">By continuing you agree to Eventera's<br><span style="color:var(--forest); font-weight:600;">Terms</span> &amp; <span style="color:var(--forest); font-weight:600;">Privacy Policy</span>.</div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. Email focused -->
+<div class="dev" style="left:540px; top:100px;">
+  <div class="label">2 · Email entry</div><div class="sub">focused · valid · continue enabled</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:8px;">
+        <div class="brandlock" style="margin-bottom:26px;"><div class="mark" style="background:linear-gradient(145deg,#2A6A50,#163828);"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/><path d="M8.5 14.5l2.4 2.4 4.6-4.8"/></svg></div></div>
+        <div class="h1">What's your email?</div>
+        <div class="bodytext muted" style="margin-top:8px;">We'll send a 6-digit code — no password to remember.</div>
+        <div class="field" style="margin-top:26px; margin-bottom:12px;">
+          <label>Email address</label>
+          <div class="input focus"><svg viewBox="0 0 24 24" style="stroke:var(--forest);"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M4 7l8 6 8-6"/></svg><input value="amina@sahelpay.co" readonly style="color:var(--ink);"><svg viewBox="0 0 24 24" style="stroke:var(--success); width:18px; height:18px;"><path d="M5 12l4 4 10-10"/></svg></div>
+        </div>
+        <button class="mbtn mbtn-forest">Send me a code</button>
+        <div class="divider" style="margin:22px 0;"><span>or</span></div>
+        <button class="gbtn"><svg class="g" viewBox="0 0 24 24"><path fill="#4285F4" d="M21.6 12.2c0-.7-.06-1.36-.18-2H12v3.79h5.38a4.6 4.6 0 01-2 3.02v2.5h3.23c1.89-1.74 2.99-4.3 2.99-7.31z"/><path fill="#34A853" d="M12 22c2.7 0 4.96-.9 6.62-2.42l-3.23-2.5c-.9.6-2.05.95-3.39.95-2.6 0-4.8-1.76-5.59-4.12H3.07v2.59A10 10 0 0012 22z"/><path fill="#FBBC05" d="M6.41 13.91a6 6 0 010-3.82V7.5H3.07a10 10 0 000 9l3.34-2.59z"/><path fill="#EA4335" d="M12 6.58c1.47 0 2.79.5 3.83 1.5l2.87-2.87A10 10 0 003.07 7.5l3.34 2.59C7.2 8.33 9.4 6.58 12 6.58z"/></svg>Continue with Google</button>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Email error -->
+<div class="dev" style="left:1000px; top:100px;">
+  <div class="label">3 · Email — error</div><div class="sub">invalid address</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:8px;">
+        <div class="brandlock" style="margin-bottom:26px;"><div class="mark" style="background:linear-gradient(145deg,#2A6A50,#163828);"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/><path d="M8.5 14.5l2.4 2.4 4.6-4.8"/></svg></div></div>
+        <div class="h1">What's your email?</div>
+        <div class="bodytext muted" style="margin-top:8px;">We'll send a 6-digit code — no password to remember.</div>
+        <div class="field" style="margin-top:26px; margin-bottom:12px;">
+          <label>Email address</label>
+          <div class="input error"><svg viewBox="0 0 24 24" style="stroke:var(--danger);"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M4 7l8 6 8-6"/></svg><input value="amina@sahel" readonly style="color:var(--ink);"></div>
+          <div class="help err">That doesn't look like a valid email.</div>
+        </div>
+        <button class="mbtn mbtn-forest" style="opacity:.5;">Send me a code</button>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. OTP -->
+<div class="dev" style="left:1460px; top:100px;">
+  <div class="label">4 · Verify code</div><div class="sub">6-digit · resend timer</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:8px;">
+        <div style="width:52px; height:52px; border-radius:15px; background:var(--forest-soft); display:flex; align-items:center; justify-content:center; margin-bottom:22px;"><svg viewBox="0 0 24 24" style="width:26px;height:26px;stroke:var(--forest);fill:none;stroke-width:1.8;"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M4 7l8 6 8-6"/></svg></div>
+        <div class="h1">Enter your code</div>
+        <div class="bodytext muted" style="margin-top:8px;">Sent to <span style="color:var(--ink); font-weight:600;">amina@sahelpay.co</span> · <span style="color:var(--forest); font-weight:600;">Change</span></div>
+        <div class="otp" style="margin-top:26px;">
+          <div class="cell filled">4</div><div class="cell filled">1</div><div class="cell filled">9</div>
+          <div class="cell on"><span class="caret"></span></div><div class="cell"></div><div class="cell"></div>
+        </div>
+        <div style="font-family:var(--body); font-size:13px; color:var(--ink-muted); text-align:center; margin-top:22px;">Didn't get it? <span style="color:var(--ink-muted);">Resend in</span> <span class="monos" style="color:var(--forest); font-weight:500;">0:24</span></div>
+        <button class="mbtn mbtn-forest" style="margin-top:24px;">Verify &amp; continue</button>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ROW 2 — VERIFY, PROFILE, DONE ============ -->
+<div class="canvas-h" style="left:80px; top:1080px;"><span class="big">2 · Verify → profile → in</span></div>
+
+<!-- 5. OTP error -->
+<div class="dev" style="left:80px; top:1160px;">
+  <div class="label">5 · Code — error</div><div class="sub">wrong code · shake</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:8px;">
+        <div style="width:52px; height:52px; border-radius:15px; background:var(--forest-soft); display:flex; align-items:center; justify-content:center; margin-bottom:22px;"><svg viewBox="0 0 24 24" style="width:26px;height:26px;stroke:var(--forest);fill:none;stroke-width:1.8;"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M4 7l8 6 8-6"/></svg></div>
+        <div class="h1">Enter your code</div>
+        <div class="bodytext muted" style="margin-top:8px;">Sent to <span style="color:var(--ink); font-weight:600;">amina@sahelpay.co</span></div>
+        <div class="otp" style="margin-top:26px;">
+          <div class="cell err">4</div><div class="cell err">1</div><div class="cell err">9</div>
+          <div class="cell err">2</div><div class="cell err">0</div><div class="cell err">7</div>
+        </div>
+        <div class="help err" style="text-align:center; margin-top:14px; font-size:13px;">That code isn't right. Try again or resend.</div>
+        <div style="font-family:var(--body); font-size:13px; text-align:center; margin-top:16px;"><span style="color:var(--forest); font-weight:600;">Resend code</span></div>
+        <button class="mbtn mbtn-forest" style="margin-top:20px; opacity:.5;">Verify &amp; continue</button>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. Verifying (loading) -->
+<div class="dev" style="left:540px; top:1160px;">
+  <div class="label">6 · Verifying</div><div class="sub">loading moment</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar"></div>
+      <div class="body" style="display:flex; align-items:center; justify-content:center;">
+        <div style="text-align:center;">
+          <div class="spin" style="width:44px; height:44px; border-radius:50%; border:3px solid var(--cream-border); border-top-color:var(--forest); margin:0 auto 20px;"></div>
+          <div class="h3">Verifying your code…</div>
+          <div class="bodytext muted" style="margin-top:6px;">One moment.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 7. New user — complete profile -->
+<div class="dev" style="left:1000px; top:1160px;">
+  <div class="label">7 · New user · profile</div><div class="sub">signup branch · name + photo</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="spacer"></div><div style="font-family:var(--body); font-weight:600; font-size:13.5px; color:var(--ink-muted); padding-right:6px;">Skip</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:8px; padding-bottom:16px;">
+        <div class="tag tag-gold" style="margin-bottom:14px;">New here</div>
+        <div class="h1">Set up your profile</div>
+        <div class="bodytext muted" style="margin-top:8px;">This is how you'll appear on your attending card and to people you connect with.</div>
+        <div class="photoup" style="margin-top:26px;">
+          <div class="ring"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="3.2"/><path d="M5 20a7 7 0 0114 0"/></svg></div>
+          <div class="badge"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div>
+        </div>
+        <div style="text-align:center; font-family:var(--body); font-weight:600; font-size:12.5px; color:var(--forest); margin:10px 0 22px;">Add a photo</div>
+        <div class="field"><label>Full name</label><div class="input focus"><input value="Amina Osman" readonly style="color:var(--ink);"></div></div>
+        <div class="field" style="margin-bottom:0;"><label>City <span style="color:var(--ink-muted); font-weight:400;">(optional)</span></label><div class="input"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6-7-11a7 7 0 1114 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><input value="Djibouti City" readonly style="color:var(--ink);"></div></div>
+      </div></div>
+      <div class="stickycta"><button class="mbtn mbtn-forest">Create my account</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- 8. Success -->
+<div class="dev" style="left:1460px; top:1160px;">
+  <div class="label">8 · You're in</div><div class="sub">welcome moment</div>
+  <div class="phone">
+    <div class="screen dark hashero">
+      <div class="body"><div class="scroll" style="height:100%; padding:0 24px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;">
+        <div style="width:88px; height:88px; border-radius:50%; background:rgba(45,122,79,.22); border:1px solid rgba(232,197,126,.4); display:flex; align-items:center; justify-content:center; margin-bottom:24px;">
+          <div style="width:60px; height:60px; border-radius:50%; background:var(--gold); display:flex; align-items:center; justify-content:center;"><svg viewBox="0 0 24 24" style="width:32px;height:32px;stroke:var(--forest-dark);fill:none;stroke-width:2.6;"><path d="M5 12l4 4 10-10"/></svg></div>
+        </div>
+        <div style="font-family:var(--display); font-weight:700; font-size:28px; color:#fff; letter-spacing:-0.02em;">You're in, Amina.</div>
+        <div style="font-family:var(--body); font-size:14.5px; color:rgba(250,246,238,.75); margin-top:10px; line-height:1.5;">Your account is ready. Let's find your first event and get you in the room.</div>
+      </div></div>
+      <div class="stickycta" style="background:transparent; border:none; box-shadow:none; flex-direction:column; gap:10px;">
+        <button class="mbtn mbtn-gold">Discover events</button>
+        <button class="mbtn" style="background:rgba(255,255,255,.1); color:#fff; border:1px solid rgba(255,255,255,.2);">I have an event code</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CHROME SCRIPT ============ -->
+<script>
+  const clock='9:41';
+  const statusSys=`<div class="sys">
+    <svg viewBox="0 0 18 12"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="4.5" y="4.5" width="3" height="7.5" rx="1"/><rect x="9" y="2" width="3" height="10" rx="1"/><rect x="13.5" y="0" width="3" height="12" rx="1"/></svg>
+    <svg viewBox="0 0 18 12"><path d="M9 2.5c2.4 0 4.6.9 6.2 2.4l1.3-1.4A11 11 0 009 .5 11 11 0 001.5 3.5l1.3 1.4A9 9 0 019 2.5z"/><path d="M9 6c1.3 0 2.5.5 3.4 1.3l1.3-1.4A7 7 0 009 4a7 7 0 00-4.7 1.9l1.3 1.4A5 5 0 019 6z"/><path d="M9 9.5l2-2.1A3 3 0 009 6.5a3 3 0 00-2 .9z"/></svg>
+    <svg viewBox="0 0 26 12" style="width:24px;"><rect x="0.5" y="1" width="21" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1" opacity=".4"/><rect x="2" y="2.5" width="16" height="7" rx="1"/><rect x="23" y="4" width="1.6" height="4" rx="0.8"/></svg>
+  </div>`;
+  document.querySelectorAll('.screen').forEach(s=>{
+    const bar=document.createElement('div');
+    bar.className='statusbar'+(s.classList.contains('dark')?' on-dark':'');
+    bar.innerHTML=`<div class="time">${clock}</div>${statusSys}`;
+    s.insertBefore(bar, s.firstChild);
+  });
+  document.querySelectorAll('.phone').forEach(p=>{
+    p.insertAdjacentHTML('afterbegin','<div class="notch"></div>');
+    p.insertAdjacentHTML('beforeend','<div class="homebar"></div>');
+  });
+</script>
+<style>@keyframes spin{to{transform:rotate(360deg)}} .spin{animation:spin .9s linear infinite;}</style>
+
+<template id="__bundler_thumbnail">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#1F4D3A"/><rect x="34" y="30" width="32" height="30" rx="6" fill="none" stroke="#E8C57E" stroke-width="3"/><path d="M34 40h32M43 25v7M57 25v7" stroke="#E8C57E" stroke-width="3"/><path d="M43 46l5 5 9-9" stroke="#E8C57E" stroke-width="3" fill="none"/><rect x="30" y="68" width="40" height="5" rx="2.5" fill="#FAF6EE"/></svg>
+</template>
+</body>
+</html>

@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="design_doc_mode" content="canvas">
+<title>Eventera · Tickets — Redesign</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="mobile.css">
+<style>
+  body{ font-family:var(--body); }
+  .screen.dark{ background:
+    radial-gradient(ellipse 70% 55% at 15% 8%, rgba(31,77,58,0.85) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 25%, rgba(232,197,126,0.18) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 55% at 60% 100%, rgba(42,106,80,0.32) 0%, transparent 55%),
+    var(--forest-dark); }
+  .canvas-h{ position:absolute; font-family:var(--display); font-weight:700; letter-spacing:-0.02em; color:var(--forest); }
+  .canvas-h .big{ font-size:30px; display:block; }
+  .canvas-h .lead{ font-family:var(--body); font-weight:400; font-size:15px; color:var(--ink-muted); margin-top:6px; max-width:560px; line-height:1.5; }
+  .canvas-h .kicker{ font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold-hover); margin-bottom:8px; }
+</style>
+</head>
+<body>
+
+<!-- ============ TITLE ============ -->
+<div class="canvas-h" style="left:80px; top:-150px;">
+  <div class="kicker">Eventera · Attendee</div>
+  <span class="big" style="font-size:42px;">Tickets — redesign</span>
+  <div class="lead">A real, tear-off ticket the attendee can flash at the door: cover header, perforated stub, framed QR, and a clear ticket code. Every wallet state and every ticket subpage — fullscreen QR, actions, transfer, add-to-calendar, and the order receipt.</div>
+</div>
+
+<!-- ============ ROW 1 — WALLET ============ -->
+<div class="canvas-h" style="left:80px; top:20px;"><span class="big">1 · Wallet</span></div>
+
+<!-- Upcoming -->
+<div class="dev" style="left:80px; top:100px;">
+  <div class="label">My tickets · Upcoming</div><div class="sub">ticket stubs · status accents</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="title">My tickets</div><div class="spacer"></div><div class="seg-ctl" style="padding:2px; width:150px;"><div class="on" style="padding:5px 0; font-size:12px;">Upcoming</div><div style="padding:5px 0; font-size:12px;">Past</div></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px; display:flex; flex-direction:column; gap:16px;">
+
+        <div class="wt">
+          <div class="wt-accent" style="background:var(--warning);"></div>
+          <div class="wt-body">
+            <div class="wt-top"><div class="wt-cover ph" style="--h:265;"></div><div style="flex:1; min-width:0;"><div class="wt-title">Women in Tech Summit</div><div class="wt-when">Jul 16, 2026 · 12:39 PM</div><div class="tag tag-warning" style="margin-top:8px;"><span class="dot" style="background:var(--warning);"></span>Payment pending</div></div></div>
+            <div class="wt-foot"><span class="wt-type">General Admission · ×1</span><span class="wt-showqr">Show QR<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span></div>
+          </div>
+        </div>
+
+        <div class="wt">
+          <div class="wt-accent" style="background:var(--success);"></div>
+          <div class="wt-body">
+            <div class="wt-top"><div class="wt-cover ph" style="--h:158;"></div><div style="flex:1; min-width:0;"><div class="wt-title">AfriTech Summit 2026</div><div class="wt-when">Jul 16, 2026 · 09:00 AM</div><div class="tag tag-success" style="margin-top:8px;"><span class="dot" style="background:var(--success);"></span>Confirmed</div></div></div>
+            <div class="wt-foot"><span class="wt-type">2 tickets · GA</span><span class="wt-showqr">Show QR<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span></div>
+          </div>
+        </div>
+
+        <div class="wt">
+          <div class="wt-accent" style="background:var(--warning);"></div>
+          <div class="wt-body">
+            <div class="wt-top"><div class="wt-cover ph" style="--h:30;"></div><div style="flex:1; min-width:0;"><div class="wt-title">Nairobi Tech Summit 2026</div><div class="wt-when">Jul 10, 2026 · 12:00 PM</div><div class="tag tag-warning" style="margin-top:8px;"><span class="dot" style="background:var(--warning);"></span>Payment pending</div></div></div>
+            <div class="wt-foot"><span class="wt-type">Early Bird · ×1</span><span class="wt-showqr">Show QR<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span></div>
+          </div>
+        </div>
+
+        <div class="wt">
+          <div class="wt-accent" style="background:var(--success);"></div>
+          <div class="wt-body">
+            <div class="wt-top"><div class="wt-cover ph" style="--h:100;"></div><div style="flex:1; min-width:0;"><div class="wt-title">Founders Breakfast</div><div class="wt-when">Jul 28, 2026 · 08:00 AM</div><div class="tag tag-success" style="margin-top:8px;"><span class="dot" style="background:var(--success);"></span>Confirmed</div></div></div>
+            <div class="wt-foot"><span class="wt-type">VIP · ×1</span><span class="wt-showqr">Show QR<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span></div>
+          </div>
+        </div>
+
+      </div></div>
+      <div class="tabbar">
+        <div class="tab"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span>Discover</span></div>
+        <div class="tab on"><svg viewBox="0 0 24 24"><path d="M4 8a2 2 0 012-2h12a2 2 0 012 2v3a2 2 0 000 4v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3a2 2 0 000-4z"/></svg><span>Tickets</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="8.5" cy="11" r="2"/><path d="M13 9h5M13 13h5"/></svg><span>Cards</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0113 0"/></svg><span>Account</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Past -->
+<div class="dev" style="left:540px; top:100px;">
+  <div class="label">My tickets · Past</div><div class="sub">used · checked-in · dimmed</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="title">My tickets</div><div class="spacer"></div><div class="seg-ctl" style="padding:2px; width:150px;"><div style="padding:5px 0; font-size:12px;">Upcoming</div><div class="on" style="padding:5px 0; font-size:12px;">Past</div></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px; display:flex; flex-direction:column; gap:16px;">
+
+        <div class="wt past">
+          <div class="wt-accent" style="background:var(--forest);"></div>
+          <div class="wt-body">
+            <div class="wt-top"><div class="wt-cover ph" style="--h:15;"></div><div style="flex:1; min-width:0;"><div class="wt-title">Cérémonie de Remise des Diplômes</div><div class="wt-when">Jul 16, 2025 · 08:30 AM</div><div class="tag tag-forest" style="margin-top:8px;"><span class="dot" style="background:var(--forest);"></span>Checked in</div></div></div>
+            <div class="wt-foot"><span class="wt-type">Étudiant(e) · Promotion 2025</span><span class="wt-showqr" style="color:var(--ink-muted);">Receipt<svg viewBox="0 0 24 24" style="stroke:var(--ink-muted);"><path d="M9 6l6 6-6 6"/></svg></span></div>
+          </div>
+        </div>
+
+        <div class="wt past">
+          <div class="wt-accent" style="background:var(--forest);"></div>
+          <div class="wt-body">
+            <div class="wt-top"><div class="wt-cover ph" style="--h:200;"></div><div style="flex:1; min-width:0;"><div class="wt-title">Dakar Design Meetup</div><div class="wt-when">Apr 04, 2025 · 06:00 PM</div><div class="tag tag-forest" style="margin-top:8px;"><span class="dot" style="background:var(--forest);"></span>Checked in</div></div></div>
+            <div class="wt-foot"><span class="wt-type">Free · ×1</span><span class="wt-showqr" style="color:var(--ink-muted);">Receipt<svg viewBox="0 0 24 24" style="stroke:var(--ink-muted);"><path d="M9 6l6 6-6 6"/></svg></span></div>
+          </div>
+        </div>
+
+        <div class="wt past">
+          <div class="wt-accent" style="background:var(--border-strong);"></div>
+          <div class="wt-body">
+            <div class="wt-top"><div class="wt-cover ph" style="--h:340;"></div><div style="flex:1; min-width:0;"><div class="wt-title">Sahel Sound Festival</div><div class="wt-when">Apr 19, 2025 · 04:00 PM</div><div class="tag" style="margin-top:8px; background:var(--cream-soft); color:var(--ink-muted); height:24px; padding:0 10px; border-radius:999px; font-size:11.5px; font-weight:600;">Expired</div></div></div>
+            <div class="wt-foot"><span class="wt-type">GA · ×2</span><span class="wt-showqr" style="color:var(--ink-muted);">Receipt<svg viewBox="0 0 24 24" style="stroke:var(--ink-muted);"><path d="M9 6l6 6-6 6"/></svg></span></div>
+          </div>
+        </div>
+
+      </div></div>
+      <div class="tabbar">
+        <div class="tab"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span>Discover</span></div>
+        <div class="tab on"><svg viewBox="0 0 24 24"><path d="M4 8a2 2 0 012-2h12a2 2 0 012 2v3a2 2 0 000 4v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3a2 2 0 000-4z"/></svg><span>Tickets</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="8.5" cy="11" r="2"/><path d="M13 9h5M13 13h5"/></svg><span>Cards</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0113 0"/></svg><span>Account</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Empty -->
+<div class="dev" style="left:1000px; top:100px;">
+  <div class="label">Wallet · Empty</div><div class="sub">no tickets yet</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="title">My tickets</div><div class="spacer"></div><div class="seg-ctl" style="padding:2px; width:150px;"><div class="on" style="padding:5px 0; font-size:12px;">Upcoming</div><div style="padding:5px 0; font-size:12px;">Past</div></div></div>
+      <div class="body" style="display:flex; align-items:center; justify-content:center;">
+        <div style="text-align:center; padding:0 44px;">
+          <div style="width:80px; height:80px; border-radius:20px; background:var(--cream-soft); display:flex; align-items:center; justify-content:center; margin:0 auto 20px; transform:rotate(-6deg); box-shadow:var(--sh-soft);"><svg viewBox="0 0 24 24" style="width:36px;height:36px;stroke:var(--ink-muted);fill:none;stroke-width:1.6;"><path d="M4 8a2 2 0 012-2h12a2 2 0 012 2v3a2 2 0 000 4v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3a2 2 0 000-4z"/><path d="M14 6v14" stroke-dasharray="2 2"/></svg></div>
+          <div class="h3">No tickets yet</div>
+          <div class="bodytext muted" style="margin-top:6px;">Once you register for an event, your ticket and QR code appear here — ready to scan at the door.</div>
+          <button class="mbtn mbtn-forest mbtn-sm" style="margin-top:22px; width:auto; padding:0 22px; display:inline-flex;">Discover events</button>
+        </div>
+      </div>
+      <div class="tabbar">
+        <div class="tab"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span>Discover</span></div>
+        <div class="tab on"><svg viewBox="0 0 24 24"><path d="M4 8a2 2 0 012-2h12a2 2 0 012 2v3a2 2 0 000 4v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3a2 2 0 000-4z"/></svg><span>Tickets</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="8.5" cy="11" r="2"/><path d="M13 9h5M13 13h5"/></svg><span>Cards</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0113 0"/></svg><span>Account</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ROW 2 — TICKET DETAIL (the real ticket) ============ -->
+<div class="canvas-h" style="left:80px; top:1160px;"><span class="big">2 · Ticket detail — the real ticket</span></div>
+
+<!-- Confirmed -->
+<div class="dev" style="left:80px; top:1240px;">
+  <div class="label">Ticket · Confirmed</div><div class="sub">tap QR to go fullscreen</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Ticket</div><div class="spacer"></div><div class="act"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 13.2l7.6 4.6M15.8 6.2l-7.6 4.6"/></svg></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px;">
+        <div class="ticket">
+          <div class="ticket-cover">
+            <div class="ph" style="--h:158; position:absolute; inset:0;"></div>
+            <div class="scrim-b"></div>
+            <div class="ticket-ribbon rb-success"><span class="dot"></span>Confirmed</div>
+            <div class="meta"><div class="ev">AfriTech Summit 2026</div><div class="sub"><svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:var(--gold);fill:none;stroke-width:1.8;"><path d="M12 21s-7-6-7-11a7 7 0 1114 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Palais du Peuple · Djibouti</div></div>
+          </div>
+          <div class="tear"></div>
+          <div class="ticket-stub">
+            <div class="qr-frame"><div class="qr"></div></div>
+            <div class="ticket-code-lab">Ticket code</div>
+            <div class="ticket-code">TKT-4F9A-2201</div>
+          </div>
+          <div class="ticket-grid">
+            <div><div class="k">Attendee</div><div class="v">Amina Osman</div></div>
+            <div><div class="k">Type</div><div class="v">General Admission</div></div>
+            <div><div class="k">When</div><div class="v">Thu 12 Mar · 09:00</div></div>
+            <div><div class="k">Gate</div><div class="v">Main entrance</div></div>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px; margin-top:16px;">
+          <button class="mbtn mbtn-sec mbtn-sm" style="flex:1;"><svg viewBox="0 0 24 24" style="stroke:var(--forest);"><rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M3 9h18"/></svg>Calendar</button>
+          <button class="mbtn mbtn-sec mbtn-sm" style="flex:1;"><svg viewBox="0 0 24 24" style="stroke:var(--forest);"><path d="M17 8l4 4-4 4M21 12H9M13 4H6a2 2 0 00-2 2v12a2 2 0 002 2h7"/></svg>Transfer</button>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Payment pending -->
+<div class="dev" style="left:540px; top:1240px;">
+  <div class="label">Ticket · Payment pending</div><div class="sub">QR dimmed · Pay now CTA</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Ticket</div><div class="spacer"></div><div class="act"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 13.2l7.6 4.6M15.8 6.2l-7.6 4.6"/></svg></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px;">
+        <div class="ticket">
+          <div class="ticket-cover">
+            <div class="ph" style="--h:265; position:absolute; inset:0;"></div>
+            <div class="scrim-b"></div>
+            <div class="ticket-ribbon rb-warning"><span class="dot"></span>Payment pending</div>
+            <div class="meta"><div class="ev">Women in Tech Summit</div><div class="sub"><svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:var(--gold);fill:none;stroke-width:1.8;"><path d="M12 21s-7-6-7-11a7 7 0 1114 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Kempinski · Djibouti</div></div>
+          </div>
+          <div class="tear"></div>
+          <div class="ticket-stub">
+            <div style="position:relative;">
+              <div class="qr-frame" style="filter:blur(3px); opacity:.5;"><div class="qr"></div></div>
+              <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;">
+                <div style="width:40px; height:40px; border-radius:50%; background:var(--gold-soft); display:flex; align-items:center; justify-content:center;"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:var(--warning);fill:none;stroke-width:2;"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></div>
+                <div style="font-family:var(--body); font-weight:600; font-size:12px; color:var(--ink-soft); text-align:center; max-width:150px;">QR unlocks after payment</div>
+              </div>
+            </div>
+            <div class="ticket-code-lab">Ticket code</div>
+            <div class="ticket-code">TKT-09F7-9EF9</div>
+          </div>
+          <div class="ticket-grid">
+            <div><div class="k">Attendee</div><div class="v">Abdullahi A. Muse</div></div>
+            <div><div class="k">Type</div><div class="v">General Admission</div></div>
+            <div><div class="k">When</div><div class="v">Jul 16 · 12:39 PM</div></div>
+            <div><div class="k">Amount due</div><div class="v" style="color:var(--warning);">$25.00</div></div>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; justify-content:center; margin-top:14px; font-size:11.5px; color:var(--ink-muted);"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--warning);fill:none;stroke-width:1.8;"><circle cx="12" cy="12" r="9"/><path d="M12 8v5l3 2"/></svg>Reserved for 24h · pay to confirm your seat</div>
+        <button class="mbtn mbtn-forest" style="margin-top:14px;">Pay $25.00 now</button>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Checked in -->
+<div class="dev" style="left:1000px; top:1240px;">
+  <div class="label">Ticket · Checked in</div><div class="sub">stamped · admitted</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Ticket</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px;">
+        <div class="ticket">
+          <div class="ticket-cover">
+            <div class="ph" style="--h:15; position:absolute; inset:0;"></div>
+            <div class="scrim-b"></div>
+            <div class="ticket-ribbon rb-check"><span class="dot"></span>Checked in</div>
+            <div class="meta"><div class="ev">Cérémonie de Remise des Diplômes</div><div class="sub"><svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:var(--gold);fill:none;stroke-width:1.8;"><path d="M12 21s-7-6-7-11a7 7 0 1114 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Université de Djibouti</div></div>
+          </div>
+          <div class="tear"></div>
+          <div class="ticket-stub">
+            <div style="position:relative;">
+              <div class="qr-frame" style="opacity:.45;"><div class="qr"></div></div>
+              <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center;">
+                <div style="border:3px solid var(--forest); color:var(--forest); font-family:var(--display); font-weight:700; font-size:20px; letter-spacing:.06em; padding:8px 18px; border-radius:10px; transform:rotate(-11deg); background:rgba(255,255,255,.7);">ADMITTED</div>
+              </div>
+            </div>
+            <div class="ticket-code-lab">Checked in at</div>
+            <div class="ticket-code" style="letter-spacing:.06em;">Jul 16, 08:12 AM</div>
+          </div>
+          <div class="ticket-grid">
+            <div><div class="k">Attendee</div><div class="v">Amina Osman</div></div>
+            <div><div class="k">Type</div><div class="v">Étudiant(e)</div></div>
+            <div><div class="k">Ticket code</div><div class="v monos" style="font-size:12.5px;">TKT-77B2-1140</div></div>
+            <div><div class="k">Scanned by</div><div class="v">Gate B · Staff</div></div>
+          </div>
+        </div>
+        <button class="mbtn mbtn-sec" style="margin-top:16px;"><svg viewBox="0 0 24 24" style="stroke:var(--forest);"><path d="M4 5h16v11H8l-4 3z"/></svg>Leave feedback</button>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ROW 3 — SUBPAGES ============ -->
+<div class="canvas-h" style="left:80px; top:2320px;"><span class="big">3 · Ticket subpages</span></div>
+
+<!-- QR fullscreen -->
+<div class="dev" style="left:80px; top:2400px;">
+  <div class="label">QR · Fullscreen</div><div class="sub">brightness boosted · scan mode</div>
+  <div class="phone">
+    <div class="screen dark">
+      <div class="appbar" style="background:transparent;"><div class="back" style="background:rgba(255,255,255,.12);"><svg viewBox="0 0 24 24" style="stroke:#fff;"><path d="M6 6l12 12M18 6L6 18"/></svg></div><div class="spacer"></div><div class="act"><svg viewBox="0 0 24 24" style="stroke:var(--gold);"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2 2M17.1 17.1l2 2M19.1 4.9l-2 2M6.9 17.1l-2 2"/></svg></div></div>
+      <div class="body" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 32px;">
+        <div style="text-align:center; margin-bottom:22px;"><div style="font-family:var(--display); font-weight:700; font-size:20px; color:#fff;">Amina Osman</div><div style="font-family:var(--body); font-size:13px; color:rgba(250,246,238,.7); margin-top:4px;">AfriTech Summit · General Admission</div></div>
+        <div style="background:#fff; border-radius:22px; padding:22px; box-shadow:0 24px 60px -20px rgba(0,0,0,.6);"><div class="qr" style="width:230px; height:230px; grid-template-columns:repeat(21,1fr);"></div></div>
+        <div class="monos" style="font-size:14px; letter-spacing:.2em; color:#fff; margin-top:22px;">TKT-4F9A-2201</div>
+        <div style="font-family:var(--body); font-size:12px; color:rgba(250,246,238,.6); margin-top:10px; display:flex; align-items:center; gap:6px;"><span style="width:6px; height:6px; border-radius:50%; background:var(--gold);"></span>Screen brightened for scanning</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Actions sheet -->
+<div class="dev" style="left:540px; top:2400px;">
+  <div class="label">Ticket · Actions</div><div class="sub">bottom sheet</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Ticket</div></div>
+      <div class="body" style="opacity:.5;"><div class="pad" style="padding-top:14px;"><div style="height:300px; border-radius:18px; background:var(--cream-surface); border:1px solid var(--cream-border); box-shadow:var(--sh-soft);"></div></div></div>
+      <div class="scrim"></div>
+      <div class="sheet">
+        <div class="grab"></div>
+        <div class="h3" style="margin-bottom:6px;">Ticket options</div>
+        <div class="lrow"><svg class="chev" style="stroke:var(--forest);" viewBox="0 0 24 24"><path d="M17 8l4 4-4 4M21 12H9M13 4H6a2 2 0 00-2 2v12a2 2 0 002 2h7"/></svg><div style="flex:1; font-family:var(--display); font-weight:500; font-size:15px;">Transfer ticket</div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+        <div class="lrow"><svg class="chev" style="stroke:var(--forest);" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg><div style="flex:1; font-family:var(--display); font-weight:500; font-size:15px;">Add to calendar</div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+        <div class="lrow"><svg class="chev" style="stroke:var(--forest);" viewBox="0 0 24 24"><path d="M6 2h9l5 5v13a1 1 0 01-1 1H6a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M8 12h8M8 16h5"/></svg><div style="flex:1; font-family:var(--display); font-weight:500; font-size:15px;">View receipt</div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+        <div class="lrow"><svg class="chev" style="stroke:var(--forest);" viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 13.2l7.6 4.6M15.8 6.2l-7.6 4.6"/></svg><div style="flex:1; font-family:var(--display); font-weight:500; font-size:15px;">Share ticket</div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+        <div class="lrow"><svg class="chev" style="stroke:var(--danger);" viewBox="0 0 24 24"><path d="M4 7h16M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2M6 7l1 13a1 1 0 001 1h8a1 1 0 001-1l1-13"/></svg><div style="flex:1; font-family:var(--display); font-weight:500; font-size:15px; color:var(--danger);">Cancel ticket</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Transfer -->
+<div class="dev" style="left:1000px; top:2400px;">
+  <div class="label">Transfer ticket</div><div class="sub">send to another attendee</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Transfer ticket</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:16px; padding-bottom:16px;">
+        <div class="wt" style="margin-bottom:20px;">
+          <div class="wt-accent" style="background:var(--success);"></div>
+          <div class="wt-body"><div class="wt-top"><div class="wt-cover ph" style="--h:158;"></div><div style="flex:1;"><div class="wt-title">AfriTech Summit 2026</div><div class="wt-when">General Admission · TKT-4F9A-2201</div></div></div></div>
+        </div>
+        <div class="bodytext muted" style="margin-bottom:18px;">The ticket leaves your wallet and lands in theirs. This can't be undone once they accept.</div>
+        <div class="field"><label>Recipient email</label><div class="input focus"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M4 7l8 6 8-6"/></svg><input value="faisal@andela.com" readonly></div></div>
+        <div class="field"><label>Add a note (optional)</label><div class="input textarea"><input placeholder="See you there!" readonly></div></div>
+        <div class="mcard" style="display:flex; gap:11px; align-items:flex-start; background:var(--gold-soft); border-color:transparent;"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--gold-hover);fill:none;stroke-width:1.9;flex:none;margin-top:1px;"><circle cx="12" cy="12" r="9"/><path d="M12 8v.01M11 12h1v4h1"/></svg><div style="font-size:12.5px; color:var(--ink-soft); line-height:1.45;">They'll need an Eventera account with this email to accept the transfer.</div></div>
+      </div></div>
+      <div class="stickycta"><button class="mbtn mbtn-forest">Send transfer</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- Add to calendar -->
+<div class="dev" style="left:1460px; top:2400px;">
+  <div class="label">Add to calendar</div><div class="sub">source picker sheet</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Ticket</div></div>
+      <div class="body" style="opacity:.5;"><div class="pad" style="padding-top:14px;"><div style="height:300px; border-radius:18px; background:var(--cream-surface); border:1px solid var(--cream-border); box-shadow:var(--sh-soft);"></div></div></div>
+      <div class="scrim"></div>
+      <div class="sheet">
+        <div class="grab"></div>
+        <div class="h3" style="margin-bottom:4px;">Add to calendar</div>
+        <div class="bodytext muted" style="font-size:13px; margin-bottom:12px;">AfriTech Summit · Thu 12 Mar, 09:00</div>
+        <div class="lrow" style="padding-top:0;"><div style="width:38px; height:38px; border-radius:10px; background:var(--cream-soft); display:flex; align-items:center; justify-content:center; flex:none;"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:var(--forest);fill:none;stroke-width:1.7;"><rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg></div><div style="flex:1; font-family:var(--display); font-weight:500; font-size:15px;">Google Calendar</div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+        <div class="lrow"><div style="width:38px; height:38px; border-radius:10px; background:var(--cream-soft); display:flex; align-items:center; justify-content:center; flex:none;"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:var(--forest);fill:none;stroke-width:1.7;"><rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M3 9h18"/></svg></div><div style="flex:1; font-family:var(--display); font-weight:500; font-size:15px;">Apple Calendar</div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+        <div class="lrow"><div style="width:38px; height:38px; border-radius:10px; background:var(--cream-soft); display:flex; align-items:center; justify-content:center; flex:none;"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:var(--forest);fill:none;stroke-width:1.7;"><path d="M12 3v12M8 11l4 4 4-4M5 21h14"/></svg></div><div style="flex:1; font-family:var(--display); font-weight:500; font-size:15px;">Download .ics file</div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Receipt -->
+<div class="dev" style="left:1920px; top:2400px;">
+  <div class="label">Order receipt</div><div class="sub">purchase summary</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Receipt</div><div class="spacer"></div><div class="act"><svg viewBox="0 0 24 24"><path d="M12 3v12M8 11l4 4 4-4M5 21h14"/></svg></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:16px; padding-bottom:16px;">
+        <div style="text-align:center; margin-bottom:20px;"><div style="width:52px; height:52px; border-radius:50%; background:var(--forest-soft); display:flex; align-items:center; justify-content:center; margin:0 auto 12px;"><svg viewBox="0 0 24 24" style="width:26px;height:26px;stroke:var(--forest);fill:none;stroke-width:2.2;"><path d="M5 12l4 4 10-10"/></svg></div><div class="h3">Payment successful</div><div class="monos" style="font-size:11.5px; color:var(--ink-muted); margin-top:6px;">Order #ORD-2026-4471</div></div>
+        <div class="mcard" style="background:#FBFAF6; margin-bottom:16px;">
+          <div class="seclab" style="margin-bottom:12px;">AfriTech Summit 2026</div>
+          <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:10px;"><span style="color:var(--ink-soft);">2 × General admission</span><span class="monos">$50.00</span></div>
+          <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:10px;"><span style="color:var(--ink-soft);">Service fee</span><span class="monos">$2.50</span></div>
+          <div style="display:flex; justify-content:space-between; font-size:13px; color:var(--success); margin-bottom:12px;"><span>Promo · EARLY10</span><span class="monos">−$5.00</span></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding-top:12px; border-top:1px solid var(--cream-border);"><span style="font-family:var(--display); font-weight:600; font-size:15px;">Total paid</span><span class="monos" style="font-size:19px; font-weight:500; color:var(--forest);">$47.50</span></div>
+        </div>
+        <div class="lrow" style="padding-top:0;"><div style="flex:1;"><div class="seclab">Paid with</div><div style="font-family:var(--display); font-weight:600; font-size:14px; margin-top:3px;">Visa ···· 4291</div></div></div>
+        <div class="lrow"><div style="flex:1;"><div class="seclab">Date</div><div style="font-family:var(--display); font-weight:600; font-size:14px; margin-top:3px;">Feb 28, 2026 · 14:20</div></div></div>
+        <div class="lrow"><div style="flex:1;"><div class="seclab">Billed to</div><div style="font-family:var(--display); font-weight:600; font-size:14px; margin-top:3px;">amina@sahelpay.co</div></div></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const clock='9:41';
+  const statusSys=`<div class="sys">
+    <svg viewBox="0 0 18 12"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="4.5" y="4.5" width="3" height="7.5" rx="1"/><rect x="9" y="2" width="3" height="10" rx="1"/><rect x="13.5" y="0" width="3" height="12" rx="1"/></svg>
+    <svg viewBox="0 0 18 12"><path d="M9 2.5c2.4 0 4.6.9 6.2 2.4l1.3-1.4A11 11 0 009 .5 11 11 0 001.5 3.5l1.3 1.4A9 9 0 019 2.5z"/><path d="M9 6c1.3 0 2.5.5 3.4 1.3l1.3-1.4A7 7 0 009 4a7 7 0 00-4.7 1.9l1.3 1.4A5 5 0 019 6z"/><path d="M9 9.5l2-2.1A3 3 0 009 6.5a3 3 0 00-2 .9z"/></svg>
+    <svg viewBox="0 0 26 12" style="width:24px;"><rect x="0.5" y="1" width="21" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1" opacity=".4"/><rect x="2" y="2.5" width="16" height="7" rx="1"/><rect x="23" y="4" width="1.6" height="4" rx="0.8"/></svg>
+  </div>`;
+  document.querySelectorAll('.screen').forEach(s=>{
+    if(!s.hasAttribute('data-nostatus')){
+      const bar=document.createElement('div');
+      bar.className='statusbar'+(s.classList.contains('dark')?' on-dark':'');
+      bar.innerHTML=`<div class="time">${clock}</div>${statusSys}`;
+      s.insertBefore(bar, s.firstChild);
+    }
+  });
+  document.querySelectorAll('.phone').forEach(p=>{
+    p.insertAdjacentHTML('afterbegin','<div class="notch"></div>');
+    p.insertAdjacentHTML('beforeend','<div class="homebar"></div>');
+  });
+  document.querySelectorAll('.qr').forEach((q,qi)=>{
+    let seed=9301+qi*7;
+    const rnd=()=>{ seed=(seed*9301+49297)%233280; return seed/233280; };
+    let html='';
+    const finder=(r,c)=>((r<7&&c<7)||(r<7&&c>13)||(r>13&&c<7));
+    for(let r=0;r<21;r++)for(let c=0;c<21;c++){
+      let on;
+      if(finder(r,c)){ on=((r===0||r===6||r===14||r===20||c===0||c===6||c===14||c===20)||(r>=2&&r<=4&&c>=2&&c<=4)||(r>=2&&r<=4&&c>=16&&c<=18)||(r>=16&&r<=18&&c>=2&&c<=4)); }
+      else on=rnd()>0.55;
+      html+=`<i style="${on?'':'background:transparent'}"></i>`;
+    }
+    q.innerHTML=html;
+  });
+</script>
+</body>
+</html>

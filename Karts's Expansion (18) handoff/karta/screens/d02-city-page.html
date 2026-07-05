@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D02 · City Page — Djibouti City</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .cityhero { height: 300px; position: relative; overflow: hidden; }
+  .cityhero .cap { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 36px; }
+  .cityhero .crumbs { font-family: var(--body); font-size: 13px; color: rgba(255,255,255,0.75); margin-bottom: 10px; }
+  .cityhero .crumbs a { color: inherit; text-decoration: none; }
+  .cityhero h1 { font-family: var(--display); font-weight: 400; font-size: 44px; letter-spacing: -0.028em; color: #fff; }
+  .cityhero .count { font-family: var(--body); font-size: 15px; color: rgba(255,255,255,0.85); margin-top: 8px; }
+  .cityhero .count b { font-family: var(--mono); font-weight: 500; color: var(--gold); }
+
+  .filterbar { position: sticky; top: 64px; z-index: 40; background: rgba(250,246,238,0.88); backdrop-filter: blur(12px); border-bottom: 1px solid var(--cream-border); }
+  .filterbar .inner { display: flex; align-items: center; gap: 8px; padding: 14px 0; overflow-x: auto; }
+  .filterbar .spacer { flex: 1; }
+  .maptoggle { height: 34px; padding: 0 16px; border-radius: var(--r-pill); border: 1px solid var(--forest); background: transparent; color: var(--forest); font-family: var(--display); font-weight: 500; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; white-space: nowrap; }
+  .maptoggle svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+
+  .daylabel { font-family: var(--display); font-weight: 500; font-size: 17px; color: var(--ink); margin: 40px 0 16px; display: flex; align-items: baseline; gap: 10px; }
+  .daylabel .d { font-family: var(--mono); font-weight: 400; font-size: 12px; color: var(--ink-muted); }
+  .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .ecard { border-radius: var(--r-card); overflow: hidden; background: var(--cream-surface); border: 1px solid var(--cream-border); cursor: pointer; }
+  .ecard .img { width: 100%; aspect-ratio: 4/3; position: relative; }
+  .ecard .det { padding: 13px 15px 15px; }
+  .ecard .nm { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--ink); }
+  .ecard .org { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 2px; }
+  .ecard .foot { display: flex; align-items: center; justify-content: space-between; margin-top: 11px; }
+  .imgtag { position: absolute; left: 12px; top: 12px; z-index: 2; padding: 5px 10px; background: rgba(8,18,12,0.4); backdrop-filter: blur(6px); color: #fff; font-size: 11px; }
+
+  .subscribe { margin: 64px 0 80px; padding: 36px 40px; border-radius: var(--r-card); position: relative; overflow: hidden; background: var(--forest-dark); display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  .subscribe h3 { font-family: var(--display); font-weight: 400; font-size: 24px; letter-spacing: -0.015em; color: #fff; position: relative; z-index: 1; }
+  .subscribe p { font-family: var(--body); font-size: 14px; color: rgba(255,255,255,0.75); margin-top: 6px; max-width: 420px; position: relative; z-index: 1; }
+
+  @media (max-width:1100px){ .grid4 { grid-template-columns: repeat(2,1fr); } }
+  @media (max-width:560px){ .grid4 { grid-template-columns: 1fr; } .cityhero h1 { font-size: 32px; } .subscribe { padding: 28px 24px; } }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links">
+    <a href="d01-marketplace-home.html" style="color:var(--forest);">Discover</a>
+    <a href="d04-tickets-wallet.html">My tickets</a>
+    <a href="#">Following</a>
+    <a href="#">Calendar</a>
+  </div>
+  <div class="right">
+    <button class="btn btn-ghost-forest btn-sm">Host an event</button>
+    <div class="ph avatar avatar-ring" style="--h:30; width:36px; height:36px;"></div>
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</nav>
+
+<div class="cityhero ph" style="--h:195;">
+  <div class="scrim-b" style="position:absolute; inset:0; z-index:1;"></div>
+  <div class="container cap">
+    <div class="crumbs"><a href="d01-marketplace-home.html">Events</a> &nbsp;/&nbsp; East Africa &nbsp;/&nbsp; Djibouti</div>
+    <h1>Events in Djibouti City</h1>
+    <div class="count"><b>42</b> upcoming events · music, tech, food and culture on the Red Sea</div>
+  </div>
+</div>
+
+<div class="filterbar">
+  <div class="container inner no-scrollbar">
+    <div class="chip active">All dates</div>
+    <div class="chip">Today</div>
+    <div class="chip">This weekend</div>
+    <div class="chip">Free</div>
+    <div class="chip">Music</div>
+    <div class="chip">Tech</div>
+    <div class="chip">Food</div>
+    <div class="chip">In-person</div>
+    <div class="chip">Virtual</div>
+    <div class="spacer"></div>
+    <button class="maptoggle" onclick="location.href='d03-search-map.html'">
+      <svg viewBox="0 0 24 24"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/></svg>
+      Map view
+    </button>
+  </div>
+</div>
+
+<div class="container">
+  <div class="daylabel">This weekend <span class="d">Fri 14 – Sun 16 Mar</span></div>
+  <div class="grid4" id="g1"></div>
+
+  <div class="daylabel">Next week <span class="d">17 – 23 Mar</span></div>
+  <div class="grid4" id="g2"></div>
+
+  <div class="subscribe">
+    <div class="cardly-mesh cardly-mesh-cta"></div>
+    <div>
+      <h3>Never miss what's on in Djibouti</h3>
+      <p>Subscribe to the city calendar — new events land in your inbox every Thursday.</p>
+    </div>
+    <button class="btn btn-gold btn-lg" style="position:relative; z-index:1;">Subscribe to city calendar</button>
+  </div>
+</div>
+
+<script>
+  function ecard(e){
+    const free = e[3]==='Free';
+    return `<div class="ecard cardly-edge">
+      <div class="img ph" style="--h:${e[4]};"><span class="imgtag pill">${e[5]}</span></div>
+      <div class="det">
+        <div class="nm">${e[0]}</div>
+        <div class="org">${e[1]}</div>
+        <div class="foot">
+          <span class="t-num-sm" style="color:var(--ink-muted)">${e[2]}</span>
+          <span class="t-num-sm" style="color:${free?'var(--gold-hover)':'var(--forest)'}; font-weight:500;">${e[3]}</span>
+        </div>
+      </div>
+    </div>`;
+  }
+  const g1 = [
+    ['Sunset Sounds Festival','Blue Note DJ','Fri · 18:00','Free',18,'Music'],
+    ['Founders Breakfast','Karta Studio','Sat · 08:30','$15',265,'Business'],
+    ['Red Sea Food Fair','City Council','Sun · 11:00','Free',340,'Food'],
+    ['Coastal Run 10K','City Council','Sun · 06:30','$30',95,'Sports'],
+  ];
+  const g2 = [
+    ['AfriTech Summit 2026','Karta Studio','Wed–Fri · 09:00','$25',158,'Tech'],
+    ['Design in the Horn','Karta Studio','Sat · 14:00','$20',30,'Culture'],
+    ['Port Tour & Tasting','Harbor Collective','Sat · 16:00','$18',210,'Food'],
+    ['Health & Wellness Expo','Wellbeing Co.','Sun · 10:00','$10',155,'Health'],
+  ];
+  document.getElementById('g1').innerHTML = g1.map(ecard).join('');
+  document.getElementById('g2').innerHTML = g2.map(ecard).join('');
+  document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{document.querySelector('.chip.active')?.classList.remove('active');c.classList.add('active');});
+</script>
+</body>
+</html>

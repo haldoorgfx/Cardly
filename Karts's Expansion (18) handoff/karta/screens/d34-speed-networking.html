@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D34 · Speed Networking</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .wrap { max-width: 880px; margin: 0 auto; padding: 36px 40px 96px; }
+  .pagehead h1 { font-family: var(--display); font-weight: 400; font-size: 30px; letter-spacing: -0.024em; color: var(--forest); }
+  .pagehead p { font-family: var(--body); font-size: 14px; color: var(--ink-muted); margin-top: 8px; line-height: 1.6; }
+
+  .stateline { display: flex; align-items: center; gap: 10px; margin: 38px 0 14px; }
+  .stateline .badge { font-family: var(--mono); font-weight: 500; font-size: 11px; padding: 4px 10px; border-radius: var(--r-pill); background: var(--forest-soft); color: var(--forest); }
+  .stateline .t { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--ink); }
+
+  /* lobby */
+  .lobby { padding: 24px 28px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+  .lobby .info { flex: 1; min-width: 240px; }
+  .lobby .t { font-family: var(--display); font-weight: 500; font-size: 18px; color: var(--ink); }
+  .lobby .s { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 6px; line-height: 1.6; }
+  .lobby .s b { font-family: var(--mono); font-weight: 500; color: var(--ink); }
+  .avstack { display: flex; }
+  .avstack .av { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--cream-surface); position: relative; overflow: hidden; }
+  .avstack .av + .av { margin-left: -12px; }
+  .avstack .more { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--cream-surface); margin-left: -12px; background: var(--forest-soft); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-weight: 500; font-size: 11px; color: var(--forest); }
+
+  /* live round */
+  .round { border-radius: var(--r-card); overflow: hidden; border: 1px solid var(--cream-border); background: var(--forest-dark); position: relative; }
+  .round .mesh-bg { position: absolute; inset: -10%; pointer-events: none;
+    background: radial-gradient(40% 35% at 20% 25%, rgba(31,77,58,0.85), transparent 60%),
+                radial-gradient(35% 30% at 80% 70%, rgba(232,197,126,0.14), transparent 60%);
+    filter: blur(70px); }
+  .round .in { position: relative; padding: 30px 34px; }
+  .roundtop { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .roundtop .rl { font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em; color: var(--gold); }
+  .timer { font-family: var(--mono); font-weight: 500; font-size: 44px; color: #fff; letter-spacing: -0.01em; }
+  .timer.warn { color: var(--gold); }
+  .pair { display: flex; align-items: center; gap: 22px; margin-top: 24px; flex-wrap: wrap; }
+  .pair .av { width: 76px; height: 76px; border-radius: 50%; border: 3px solid var(--gold); position: relative; overflow: hidden; flex: none; }
+  .pair .who .nm { font-family: var(--display); font-weight: 500; font-size: 21px; color: #fff; }
+  .pair .who .rl { font-family: var(--body); font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 3px; }
+  .icebreak { margin-top: 22px; padding: 16px 20px; border-radius: var(--r-card); background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); }
+  .icebreak .l { font-family: var(--body); font-weight: 600; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold); }
+  .icebreak .q { font-family: var(--body); font-size: 14px; color: rgba(255,255,255,0.9); margin-top: 6px; line-height: 1.5; }
+  .roundacts { display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap; }
+  .ghostw { height: 42px; padding: 0 18px; border-radius: var(--r-btn); border: 1px solid rgba(255,255,255,0.3); background: transparent; color: #fff; font-family: var(--display); font-weight: 500; font-size: 13px; cursor: pointer; }
+
+  /* between rounds */
+  .between { padding: 26px 28px; text-align: center; }
+  .between .t { font-family: var(--display); font-weight: 500; font-size: 18px; color: var(--ink); }
+  .between .s { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 8px; }
+  .between .s b { font-family: var(--mono); font-weight: 500; color: var(--ink); }
+  .nextpair { display: inline-flex; align-items: center; gap: 12px; margin-top: 18px; padding: 12px 20px; border-radius: var(--r-pill); background: var(--cream-soft); }
+  .nextpair .av { width: 34px; height: 34px; border-radius: 50%; position: relative; overflow: hidden; }
+  .nextpair .nm { font-family: var(--display); font-weight: 500; font-size: 14px; color: var(--ink); }
+  .keeprow { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links">
+    <a href="#">Overview</a>
+    <a href="#" style="color:var(--forest);">Network</a>
+  </div>
+  <div class="right">
+    <div class="ph avatar avatar-ring" style="--h:30; width:36px; height:36px;"></div>
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="pagehead">
+    <h1>Speed networking — Fintech round table</h1>
+    <p>Five-minute 1:1 rotations, paired by the matchmaking engine. Three states of the experience:</p>
+  </div>
+
+  <div class="stateline"><span class="badge">STATE 1</span><span class="t">Lobby — before the round starts</span></div>
+  <div class="card lobby">
+    <div class="info">
+      <div class="t">Round begins 13:00</div>
+      <div class="s"><b>18</b> people checked into this rotation · <b>4</b> rounds × <b>5</b> minutes · pairs by shared interests. Stay near the gold lounge.</div>
+    </div>
+    <div class="avstack">
+      <div class="av ph" style="--h:30;"></div>
+      <div class="av ph" style="--h:200;"></div>
+      <div class="av ph" style="--h:265;"></div>
+      <div class="av ph" style="--h:95;"></div>
+      <div class="av ph" style="--h:340;"></div>
+      <div class="more">+13</div>
+    </div>
+    <button class="btn btn-forest btn-md">I'm here — pair me</button>
+  </div>
+
+  <div class="stateline"><span class="badge">STATE 2</span><span class="t">Live round — talking to your match</span></div>
+  <div class="round">
+    <div class="mesh-bg"></div>
+    <div class="in">
+      <div class="roundtop">
+        <span class="rl">ROUND 2 OF 4 · TABLE 6</span>
+        <span class="timer warn" id="rt">03:47</span>
+      </div>
+      <div class="pair">
+        <div class="av ph" style="--h:200;"></div>
+        <div class="who">
+          <div class="nm">Samuel Okoro</div>
+          <div class="rl">Platform engineering · Paystack · 91% match</div>
+        </div>
+      </div>
+      <div class="icebreak">
+        <div class="l">Icebreaker</div>
+        <div class="q">You both work on payments infrastructure — what's the one thing about cross-border rails you'd fix tomorrow?</div>
+      </div>
+      <div class="roundacts">
+        <button class="btn btn-gold btn-md">Exchange contacts</button>
+        <button class="ghostw">Skip to next round</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="stateline"><span class="badge">STATE 3</span><span class="t">Between rounds — 30-second switch</span></div>
+  <div class="card between">
+    <div class="t">Round 2 done — move tables</div>
+    <div class="s">Next round starts in <b>0:24</b> · you've exchanged contacts with <b>2</b> of 2 matches so far</div>
+    <div class="nextpair">
+      <div class="av ph" style="--h:340;"></div>
+      <span class="nm">Next: Mariam Diallo</span>
+      <span class="t-num-sm" style="color:var(--ink-muted);">Table 3</span>
+    </div>
+    <div class="keeprow">
+      <button class="btn btn-forest btn-md">I'm at table 3</button>
+      <button class="btn btn-ghost-forest btn-md">Leave the rotation</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let t = 3*60+47;
+  setInterval(()=>{ t = t>0 ? t-1 : 5*60;
+    document.getElementById('rt').textContent = String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');
+  },1000);
+</script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D05 · Profile & Interests</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .wrap { max-width: 760px; margin: 0 auto; padding: 44px 40px 96px; }
+  .pagehead h1 { font-family: var(--display); font-weight: 400; font-size: 32px; letter-spacing: -0.025em; color: var(--forest); }
+  .pagehead p { font-family: var(--body); font-size: 14px; color: var(--ink-muted); margin-top: 8px; }
+
+  .idrow { display: flex; align-items: center; gap: 20px; margin-top: 32px; padding: 22px 24px; }
+  .idrow .nm { font-family: var(--display); font-weight: 500; font-size: 19px; color: var(--ink); }
+  .idrow .em { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 2px; }
+
+  .sec { margin-top: 40px; }
+  .sec h2 { font-family: var(--display); font-weight: 500; font-size: 17px; color: var(--ink); }
+  .sec .d { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 4px; }
+
+  .ints { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+  .int { height: 38px; padding: 0 18px; display: inline-flex; align-items: center; gap: 8px; border-radius: var(--r-pill); border: 1px solid var(--cream-border); background: var(--cream-surface); font-family: var(--display); font-weight: 500; font-size: 13px; color: var(--ink-soft); cursor: pointer; transition: all .15s; }
+  .int.on { background: var(--forest); border-color: var(--forest); color: #fff; }
+  .int.on::before { content: '✓'; font-size: 11px; color: var(--gold); }
+
+  .cityfield { margin-top: 18px; display: flex; align-items: center; gap: 12px; height: 48px; padding: 0 18px; border-radius: var(--r-input); background: var(--cream-surface); border: 1px solid var(--cream-border); max-width: 380px; }
+  .cityfield svg { width: 17px; height: 17px; stroke: var(--ink-muted); fill: none; stroke-width: 1.8; }
+  .cityfield span { font-family: var(--body); font-size: 14px; color: var(--ink); flex: 1; }
+  .cityfield a { font-family: var(--body); font-size: 13px; font-weight: 500; color: var(--forest); text-decoration: none; }
+
+  /* notification matrix */
+  .nmat { margin-top: 18px; overflow: hidden; }
+  .nrow { display: grid; grid-template-columns: 1fr 120px 120px; align-items: center; padding: 15px 22px; border-bottom: 1px solid var(--cream-border); }
+  .nrow:last-child { border-bottom: none; }
+  .nrow.headrow { padding: 12px 22px; background: var(--cream-soft); }
+  .nrow.headrow span { font-family: var(--body); font-weight: 500; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-muted); }
+  .nrow .lab { font-family: var(--body); font-size: 14px; color: var(--ink); }
+  .nrow .sub { font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-top: 2px; }
+  .nrow .c { justify-self: center; }
+
+  .tog { width: 40px; height: 23px; border-radius: var(--r-pill); background: var(--cream-border); position: relative; cursor: pointer; transition: background .18s; border: none; }
+  .tog::after { content: ''; position: absolute; top: 2.5px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: var(--e1); transition: transform .18s; }
+  .tog.on { background: var(--forest); }
+  .tog.on::after { transform: translateX(16px); }
+
+  .wabanner { display: flex; align-items: center; gap: 14px; margin-top: 28px; padding: 16px 20px; border-radius: var(--r-card); background: var(--forest-soft); border: 1px solid rgba(31,77,58,0.18); }
+  .wabanner .t { font-family: var(--body); font-size: 13px; color: var(--forest); }
+  .wabanner .t b { font-weight: 600; }
+  .wabanner .num { font-family: var(--mono); font-size: 13px; color: var(--ink); margin-left: auto; }
+
+  .saverow { margin-top: 36px; display: flex; gap: 12px; }
+  @media (max-width:700px){ .wrap { padding: 32px 20px 72px; } .nrow { grid-template-columns: 1fr 64px 64px; padding: 13px 14px; } }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links">
+    <a href="d01-marketplace-home.html">Discover</a>
+    <a href="d04-tickets-wallet.html">My tickets</a>
+    <a href="#">Following</a>
+    <a href="#" style="color:var(--forest);">Account</a>
+  </div>
+  <div class="right">
+    <div class="ph avatar avatar-ring" style="--h:30; width:36px; height:36px;"></div>
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="pagehead">
+    <h1>Profile &amp; preferences</h1>
+    <p>What you pick here shapes your discovery feed and how Karta reaches you.</p>
+  </div>
+
+  <div class="card idrow">
+    <div class="ph avatar avatar-ring" style="--h:30; width:64px; height:64px;"></div>
+    <div>
+      <div class="nm">Amina Osman</div>
+      <div class="em">amina.osman@sahelpay.co</div>
+    </div>
+    <button class="btn btn-ghost-forest btn-sm" style="margin-left:auto;">Edit photo</button>
+  </div>
+
+  <div class="sec">
+    <h2>Your interests</h2>
+    <div class="d">Pick at least 3 — your "For you" feed is built from these.</div>
+    <div class="ints">
+      <button class="int on">Tech</button>
+      <button class="int on">Music</button>
+      <button class="int on">Culture</button>
+      <button class="int">Business</button>
+      <button class="int">Food &amp; drink</button>
+      <button class="int">Sports</button>
+      <button class="int">Health</button>
+      <button class="int">Film</button>
+      <button class="int">Faith</button>
+      <button class="int">Family</button>
+      <button class="int">Education</button>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>Home city</h2>
+    <div class="d">Events near here come first.</div>
+    <div class="cityfield">
+      <svg viewBox="0 0 24 24"><path d="M12 21s-6-5.2-6-10a6 6 0 0112 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg>
+      <span>Djibouti City, Djibouti</span>
+      <a href="#">Change</a>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>Notifications</h2>
+    <div class="d">Choose how each kind of update reaches you.</div>
+    <div class="card nmat">
+      <div class="nrow headrow"><span>Type</span><span class="c">Email</span><span class="c">WhatsApp</span></div>
+      <div class="nrow"><div><div class="lab">Tickets &amp; receipts</div><div class="sub">Confirmation, QR code, Karta Card</div></div><button class="tog on c"></button><button class="tog on c"></button></div>
+      <div class="nrow"><div><div class="lab">Event reminders</div><div class="sub">24 hours and 2 hours before doors</div></div><button class="tog on c"></button><button class="tog on c"></button></div>
+      <div class="nrow"><div><div class="lab">Agenda changes</div><div class="sub">Session moved, cancelled or rescheduled</div></div><button class="tog on c"></button><button class="tog c"></button></div>
+      <div class="nrow"><div><div class="lab">Organizers you follow</div><div class="sub">New event published</div></div><button class="tog on c"></button><button class="tog c"></button></div>
+      <div class="nrow"><div><div class="lab">Waitlist updates</div><div class="sub">A spot opened for you</div></div><button class="tog on c"></button><button class="tog on c"></button></div>
+      <div class="nrow"><div><div class="lab">Recommendations</div><div class="sub">Weekly digest for your city</div></div><button class="tog on c"></button><button class="tog c"></button></div>
+    </div>
+    <div class="wabanner">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--forest)" stroke-width="1.8"><path d="M21 11.5a8.5 8.5 0 01-12.4 7.5L3 21l2-5.4A8.5 8.5 0 1121 11.5z"/></svg>
+      <div class="t"><b>WhatsApp connected.</b> Tickets and reminders arrive as messages.</div>
+      <span class="num">+253 77 ·· ·· 41</span>
+    </div>
+  </div>
+
+  <div class="saverow">
+    <button class="btn btn-forest btn-md">Save preferences</button>
+    <button class="btn btn-ghost-forest btn-md">Cancel</button>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.int').forEach(b=>b.onclick=()=>b.classList.toggle('on'));
+  document.querySelectorAll('.tog').forEach(t=>t.onclick=()=>t.classList.toggle('on'));
+</script>
+</body>
+</html>

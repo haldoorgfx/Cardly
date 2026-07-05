@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W11 · Networking</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .head { padding: 40px 0 8px; }
+  .head h1 { font-family: var(--display); font-weight: 400; font-size: 32px; color: var(--forest); letter-spacing: -0.02em; }
+  .head .ev { font-family: var(--body); font-size: 14px; color: var(--ink-muted); margin-top: 4px; }
+  .head .ev b { font-family: var(--mono); font-weight: 500; color: var(--ink); }
+
+  .sec-h { font-family: var(--display); font-weight: 500; font-size: 20px; color: var(--ink); margin: 44px 0 18px; display: flex; align-items: baseline; gap: 10px; }
+  .sec-h .hint { font-family: var(--body); font-size: 13px; font-weight: 400; color: var(--ink-muted); }
+
+  /* match rail */
+  .matchrail { display: flex; gap: 18px; overflow-x: auto; padding-bottom: 8px; }
+  .matchcard { flex: none; width: 240px; border-radius: var(--r-card); background: var(--cream-surface); border: 1px solid var(--cream-border); overflow: hidden; box-shadow: 0 0 0 1px rgba(232,197,126,0.4); }
+  .matchcard .ph { width: 100%; height: 150px; position: relative; }
+  .matchcard .body { padding: 14px 16px 16px; }
+  .matchcard .nm { font-family: var(--display); font-weight: 500; font-size: 16px; color: var(--ink); }
+  .matchcard .role { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 1px; }
+  .matchcard .why { font-family: var(--body); font-style: italic; font-size: 12px; color: var(--gold-hover); margin-top: 12px; }
+  .matchcard .reason { font-family: var(--body); font-size: 13px; color: var(--ink-soft); margin-top: 3px; line-height: 1.45; }
+  .matchcard .mutual { font-family: var(--body); font-size: 12px; color: var(--gold-hover); margin-top: 8px; }
+  .connect { width: 100%; margin-top: 14px; }
+
+  /* active now */
+  .activenow { display: flex; align-items: center; gap: 16px; padding: 18px 0; border-top: 1px solid var(--cream-border); border-bottom: 1px solid var(--cream-border); margin-top: 40px; flex-wrap: wrap; }
+  .activenow .lab { font-family: var(--body); font-size: 13px; color: var(--ink-muted); display: flex; align-items: center; gap: 8px; }
+  .avs { display: flex; }
+  .avs .av { width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--cream-canvas); margin-left: -10px; position: relative; }
+  .avs .av:first-child { margin-left: 0; }
+  .avs .av .online { position: absolute; right: 0; bottom: 0; width: 10px; height: 10px; border-radius: 50%; background: var(--gold); border: 2px solid var(--cream-canvas); }
+  .activenow .more { font-family: var(--mono); font-size: 12px; color: var(--ink-muted); margin-left: 4px; }
+
+  /* all attendees grid */
+  .people { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .pcard { border-radius: var(--r-card); background: var(--cream-surface); border: 1px solid var(--cream-border); padding: 18px; }
+  .pcard .top { display: flex; gap: 14px; align-items: flex-start; }
+  .pcard .pav { width: 56px; height: 56px; border-radius: 50%; flex: none; }
+  .pcard .nm { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--ink); }
+  .pcard .role { font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-top: 2px; line-height: 1.35; }
+  .pcard .mutual { font-family: var(--body); font-size: 11px; color: var(--gold-hover); margin-top: 6px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .tag { height: 24px; padding: 0 10px; display: inline-flex; align-items: center; border-radius: var(--r-pill); background: var(--forest-soft); color: var(--forest); font-family: var(--body); font-size: 11px; font-weight: 500; }
+  .pcard .connect { margin-top: 14px; }
+  .connect.done { background: var(--forest-soft) !important; color: var(--forest) !important; border-color: var(--forest-soft) !important; }
+
+  @media (max-width:1100px){ .people { grid-template-columns: repeat(3,1fr); } }
+  @media (max-width:760px){ .people { grid-template-columns: repeat(2,1fr); } .head h1 { font-size: 26px; } }
+  @media (max-width:440px){ .people { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links"><a href="w06-discovery.html">Discover</a><a href="w12-tickets.html">My tickets</a><a href="w10-schedule.html">Schedule</a><a href="#" style="color:var(--forest)">Network</a></div>
+  <div class="right">
+    <div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div>
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="head">
+    <h1>Who's here</h1>
+    <div class="ev"><b>47</b> people at AfriTech Summit 2026 · Djibouti City</div>
+  </div>
+
+  <div class="sec-h">Matches for you <span class="hint">— picked from shared interests & goals</span></div>
+  <div class="matchrail no-scrollbar" id="matchrail"></div>
+
+  <div class="activenow">
+    <div class="lab"><span class="dot" style="background:var(--gold)"></span>Active now</div>
+    <div class="avs">
+      <div class="ph av" style="--h:30;"><span class="online"></span></div>
+      <div class="ph av" style="--h:200;"><span class="online"></span></div>
+      <div class="ph av" style="--h:265;"><span class="online"></span></div>
+      <div class="ph av" style="--h:95;"><span class="online"></span></div>
+      <div class="ph av" style="--h:340;"><span class="online"></span></div>
+      <div class="ph av" style="--h:18;"><span class="online"></span></div>
+    </div>
+    <span class="more">+14 more</span>
+  </div>
+
+  <div class="sec-h">All attendees</div>
+  <div class="people" id="people"></div>
+  <div style="height:80px;"></div>
+</div>
+
+<script>
+  const matches=[
+    ['Faisal Karim','VP Eng, Andela',30,'You both work on payments infra and are hiring senior engineers this quarter.','2 mutual connections'],
+    ['Leila Haddad','Design Lead, Flutterwave',200,'Shared interest in design systems — she ran the workshop you saved.',''],
+    ['Omar Farah','Founder, Red Sea Tech',265,'Both raising a seed round in 2026 and based in Djibouti.','3 mutual connections'],
+    ['Mariam Diallo','PM, Sahel Pay',95,'You both starred the fundraising fireside and follow the same track.',''],
+  ];
+  const mr=document.getElementById('matchrail');
+  matches.forEach(m=>{
+    const el=document.createElement('div'); el.className='matchcard';
+    el.innerHTML=`
+      <div class="ph" style="--h:${m[2]};"></div>
+      <div class="body">
+        <div class="nm">${m[0]}</div>
+        <div class="role">${m[1]}</div>
+        <div class="why">Why meet?</div>
+        <div class="reason">${m[3]}</div>
+        ${m[4]?`<div class="mutual">${m[4]}</div>`:''}
+        <button class="btn btn-ghost-gold btn-sm connect">Connect</button>
+      </div>`;
+    mr.appendChild(el);
+  });
+
+  const people=[
+    ['Amina Osman','Founder, Sahel Pay',30,['Fintech','Hiring','Seed'],'2 mutual'],
+    ['Samuel Okoro','Staff Eng, Paystack',158,['Infra','Go','Mentoring'],''],
+    ['Hana Bekele','Designer, Independent',18,['Branding','Type'],'1 mutual'],
+    ['Yonas Tesfaye','Student, ASTU',120,['Learning','Frontend'],''],
+    ['Leila Haddad','Design Lead, Flutterwave',200,['Design systems','Hiring'],'4 mutual'],
+    ['Omar Farah','Founder, Red Sea Tech',265,['Logistics','Seed','GTM'],'3 mutual'],
+    ['Mariam Diallo','PM, Sahel Pay',95,['Product','Payments'],''],
+    ['Faisal Karim','VP Eng, Andela',340,['Hiring','Remote','Infra'],'2 mutual'],
+  ];
+  const pl=document.getElementById('people');
+  people.forEach(p=>{
+    const el=document.createElement('div'); el.className='pcard';
+    el.innerHTML=`
+      <div class="top">
+        <div class="ph pav" style="--h:${p[2]};"></div>
+        <div><div class="nm">${p[0]}</div><div class="role">${p[1]}</div>${p[4]?`<div class="mutual">${p[4]} connections</div>`:''}</div>
+      </div>
+      <div class="tags">${p[3].map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      <button class="btn btn-ghost-forest btn-sm connect">Connect</button>`;
+    pl.appendChild(el);
+  });
+
+  document.addEventListener('click',e=>{
+    const b=e.target.closest('.connect');
+    if(b){ if(b.classList.contains('done')){ b.classList.remove('done'); b.textContent='Connect'; } else { b.classList.add('done'); b.textContent='Requested ✓'; } }
+  });
+</script>
+</body>
+</html>

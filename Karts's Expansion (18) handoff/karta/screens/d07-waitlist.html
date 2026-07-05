@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D07 · Waitlist States</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .evhero { height: 300px; position: relative; overflow: hidden; border-radius: var(--r-card); margin-top: 28px; }
+  .evhero .cap { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; padding: 30px 34px; }
+  .evhero h1 { font-family: var(--display); font-weight: 500; font-size: 30px; letter-spacing: -0.02em; color: #fff; }
+  .evhero .meta { font-family: var(--mono); font-size: 13px; color: rgba(255,255,255,0.85); margin-top: 8px; }
+  .soldout { position: absolute; top: 20px; left: 20px; z-index: 2; padding: 6px 14px; background: rgba(8,18,12,0.55); backdrop-filter: blur(6px); color: #fff; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+
+  .layout { display: grid; grid-template-columns: 1fr 380px; gap: 28px; margin-top: 28px; align-items: start; }
+  .about p { font-family: var(--body); font-size: 14px; line-height: 1.65; color: var(--ink-soft); margin-bottom: 14px; }
+  .about h3 { font-family: var(--display); font-weight: 500; font-size: 17px; color: var(--ink); margin: 0 0 10px; }
+
+  /* state cards */
+  .wcard { padding: 24px; position: sticky; top: 88px; }
+  .wcard .tt { font-family: var(--display); font-weight: 500; font-size: 16px; color: var(--ink); }
+  .tickrow { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--cream-border); }
+  .tickrow .n { font-family: var(--body); font-size: 14px; color: var(--ink); font-weight: 500; }
+  .tickrow .s { font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-top: 2px; }
+  .tickrow .p { font-family: var(--mono); font-weight: 500; font-size: 14px; color: var(--ink-muted); text-decoration: line-through; }
+  .full { font-family: var(--body); font-weight: 500; font-size: 11px; color: var(--error); letter-spacing: 0.05em; text-transform: uppercase; }
+  .wnote { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin: 16px 0; line-height: 1.5; }
+  .wnote b { font-family: var(--mono); font-weight: 500; color: var(--ink); }
+
+  .stateline { display: flex; align-items: center; gap: 10px; margin: 36px 0 14px; }
+  .stateline .badge { font-family: var(--mono); font-weight: 500; font-size: 11px; padding: 4px 10px; border-radius: var(--r-pill); background: var(--forest-soft); color: var(--forest); }
+  .stateline .t { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--ink); }
+
+  .confirm { padding: 26px; text-align: center; }
+  .confirm .pos { font-family: var(--mono); font-weight: 500; font-size: 44px; color: var(--forest); letter-spacing: -0.02em; }
+  .confirm .pos small { font-size: 16px; color: var(--ink-muted); font-weight: 400; }
+  .confirm .lab { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 6px; }
+  .confirm .what { font-family: var(--body); font-size: 13px; color: var(--ink-soft); margin-top: 18px; line-height: 1.6; text-align: left; padding: 14px 16px; background: var(--cream-soft); border-radius: var(--r-card); }
+
+  .opened { padding: 0; overflow: hidden; }
+  .opened .head { padding: 22px 24px 18px; background: var(--forest-dark); position: relative; overflow: hidden; }
+  .opened .head .t { font-family: var(--display); font-weight: 500; font-size: 18px; color: #fff; position: relative; }
+  .opened .head .s { font-family: var(--body); font-size: 13px; color: rgba(255,255,255,0.75); margin-top: 4px; position: relative; }
+  .opened .bd { padding: 22px 24px; }
+  .cd { display: flex; gap: 10px; justify-content: center; margin: 4px 0 18px; }
+  .cd .cell { text-align: center; }
+  .cd .v { font-family: var(--mono); font-weight: 500; font-size: 26px; color: var(--ink); background: var(--cream-soft); border: 1px solid var(--cream-border); border-radius: var(--r-btn); padding: 8px 12px; min-width: 58px; }
+  .cd .l { font-family: var(--body); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted); margin-top: 6px; }
+  .opened .note { font-family: var(--body); font-size: 12px; color: var(--ink-muted); text-align: center; margin-top: 12px; }
+
+  .threecol { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; align-items: start; margin-bottom: 80px; }
+  @media (max-width:980px){ .layout { grid-template-columns: 1fr; } .wcard { position: static; } .threecol { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links">
+    <a href="d01-marketplace-home.html">Discover</a>
+    <a href="d04-tickets-wallet.html">My tickets</a>
+    <a href="#">Following</a>
+    <a href="#">Calendar</a>
+  </div>
+  <div class="right">
+    <div class="ph avatar avatar-ring" style="--h:30; width:36px; height:36px;"></div>
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="evhero ph" style="--h:200;">
+    <div class="scrim-b" style="position:absolute; inset:0;"></div>
+    <span class="soldout pill">● Sold out</span>
+    <div class="cap">
+      <h1>Jazz on the Pier</h1>
+      <div class="meta">Sat 05 Apr · 19:30 · Port Marina, Djibouti City · by Blue Note DJ</div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="about">
+      <h3>About</h3>
+      <p>An evening of live jazz over the water — five acts from across East Africa, food from the Red Sea Food Fair crew, and the city skyline behind the stage.</p>
+      <p>Doors at 19:00. All ticket holders get their Karta Card on entry — share it and your crew finds you at the long table.</p>
+
+      <div class="stateline"><span class="badge">STATE 2</span><span class="t">After joining — position confirmed</span></div>
+      <div class="card confirm" style="max-width:380px;">
+        <div class="pos">#12<small> in line</small></div>
+        <div class="lab">Jazz on the Pier · General waitlist</div>
+        <div class="what">
+          <b style="color:var(--ink); font-weight:600;">What happens next</b><br>
+          If a spot opens you'll get an email + WhatsApp with a payment link. You'll have <b style="font-family:var(--mono);">24 hours</b> to claim it before it passes to #13.
+        </div>
+        <button class="btn btn-ghost-forest btn-md" style="margin-top:18px; width:100%;">Leave waitlist</button>
+      </div>
+
+      <div class="stateline"><span class="badge">STATE 3</span><span class="t">A spot opened — payment window running</span></div>
+      <div class="threecol">
+        <div class="card opened">
+          <div class="head">
+            <div class="cardly-mesh cardly-mesh-cta"></div>
+            <div class="t">A spot opened for you</div>
+            <div class="s">Jazz on the Pier · General · $25</div>
+          </div>
+          <div class="bd">
+            <div class="cd">
+              <div class="cell"><div class="v" id="hh">23</div><div class="l">hours</div></div>
+              <div class="cell"><div class="v" id="mm">14</div><div class="l">min</div></div>
+              <div class="cell"><div class="v" id="ss">06</div><div class="l">sec</div></div>
+            </div>
+            <button class="btn btn-gold btn-lg" style="width:100%;">Claim your spot · $25</button>
+            <div class="note">Unclaimed spots pass to the next person in line.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card wcard">
+      <div class="tt">Tickets</div>
+      <div class="tickrow">
+        <div><div class="n">General</div><div class="s">Standing · includes Karta Card</div></div>
+        <div style="text-align:right;"><div class="p">$25</div><div class="full">Sold out</div></div>
+      </div>
+      <div class="tickrow">
+        <div><div class="n">VIP table</div><div class="s">Seated · welcome drink</div></div>
+        <div style="text-align:right;"><div class="p">$60</div><div class="full">Sold out</div></div>
+      </div>
+      <div class="wnote">This event is full — <b>48</b> people are on the waitlist. Spots are offered in order when tickets free up.</div>
+      <button class="btn btn-forest btn-lg" style="width:100%;" id="joinbtn" onclick="joined()">Join the waitlist</button>
+      <div class="wnote" style="margin-bottom:0; text-align:center;">Free to join · no charge until you claim a spot</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function joined(){
+    const b = document.getElementById('joinbtn');
+    b.textContent = '✓ On the waitlist — #13 in line';
+    b.classList.remove('btn-forest');
+    b.classList.add('btn-ghost-forest');
+  }
+  let t = 23*3600 + 14*60 + 6;
+  setInterval(()=>{
+    t--;
+    document.getElementById('hh').textContent = String(Math.floor(t/3600)).padStart(2,'0');
+    document.getElementById('mm').textContent = String(Math.floor(t%3600/60)).padStart(2,'0');
+    document.getElementById('ss').textContent = String(t%60).padStart(2,'0');
+  }, 1000);
+</script>
+</body>
+</html>

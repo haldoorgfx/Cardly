@@ -183,7 +183,7 @@ const USER_NAV_GROUPS: NavGroup[] = [
     { href: '/home', label: 'Home', icon: <Home size={15} strokeWidth={1.8} /> },
   ]},
   { key: 'attending', title: 'Attending', flag: 'always', collapsible: true, items: [
-    { href: '/my-tickets', label: 'My Events', icon: <CalendarDays size={15} strokeWidth={1.8} />, matchPrefix: true, flag: 'tickets' },
+    { href: '/my-tickets', label: 'Tickets', icon: <Ticket size={15} strokeWidth={1.8} />, matchPrefix: true, flag: 'tickets' },
     { href: '/my-cards',   label: 'My Cards',  icon: <IdCard size={15} strokeWidth={1.8} />, flag: 'tickets' },
     { href: '/saved',      label: 'Saved',     icon: <Heart size={15} strokeWidth={1.8} /> },
     { href: '/discover',   label: 'Discover',  icon: <Globe size={15} strokeWidth={1.8} />, matchPrefix: true },
@@ -191,9 +191,7 @@ const USER_NAV_GROUPS: NavGroup[] = [
   { key: 'organizing', title: 'Organizing', flag: 'organizing', collapsible: true, items: [
     { href: '/dashboard',  label: 'Events',    icon: <LayoutGrid size={15} strokeWidth={1.8} />, matchPrefix: true },
     { href: '/analytics',  label: 'Analytics', icon: <TrendingUp size={15} strokeWidth={1.8} /> },
-    { href: '/brand',      label: 'Brand Kit', icon: <Palette size={15} strokeWidth={1.8} /> },
     { href: '/team',       label: 'Team',      icon: <Users size={15} strokeWidth={1.8} /> },
-    { href: '/templates',  label: 'Templates', icon: <Layout size={15} strokeWidth={1.8} /> },
   ]},
   { key: 'speaking', title: '', flag: 'speaking', collapsible: false, items: [
     { href: '/speaking', label: 'Speaking', icon: <User size={15} strokeWidth={1.8} />, matchPrefix: true },

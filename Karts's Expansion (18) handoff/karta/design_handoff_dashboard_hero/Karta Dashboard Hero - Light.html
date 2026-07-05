@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Karta · Dashboard Hero — Light</title>
+<link rel="stylesheet" href="karta.css">
+<link rel="stylesheet" href="web.css">
+<style>
+  html,body{ height:100%; }
+  body{
+    background:
+      radial-gradient(62% 55% at 28% 18%, rgba(31,77,58,0.05) 0%, transparent 62%),
+      radial-gradient(52% 52% at 84% 90%, rgba(232,197,126,0.10) 0%, transparent 60%),
+      var(--cream-canvas);
+    display:flex; align-items:center; justify-content:center; overflow:hidden;
+  }
+
+  #comp{ position:relative; width:1120px; height:760px; transform-origin:center center; }
+
+  /* ===== Browser frame ===== */
+  .browser{
+    position:absolute; left:28px; top:84px;
+    width:960px; height:612px;
+    background:var(--cream-surface);
+    border:1px solid var(--cream-border);
+    border-radius:14px; overflow:hidden;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.8) inset,
+      0 60px 100px -54px rgba(15,31,24,0.34),
+      0 28px 56px -40px rgba(15,31,24,0.22);
+  }
+  .chrome{
+    height:48px; background:#F0EDE8;
+    border-bottom:1px solid var(--cream-border);
+    display:flex; align-items:center; gap:16px; padding:0 18px;
+  }
+  .tl{ display:flex; gap:9px; }
+  .tl span{ width:12px; height:12px; border-radius:50%; }
+  .tl .r{ background:#EC6A5E; } .tl .y{ background:#F4BF4F; } .tl .g{ background:#61C554; }
+  .url{
+    flex:1; height:28px; border-radius:8px; background:var(--cream-surface);
+    border:1px solid var(--cream-border); display:flex; align-items:center; gap:8px; padding:0 12px;
+    font-family:var(--body); font-size:12px; color:var(--ink-muted);
+  }
+  .url svg{ width:12px; height:12px; stroke:var(--ink-muted); fill:none; stroke-width:2; }
+  .url b{ color:var(--ink-soft); font-weight:500; }
+  .chrome .pls{ width:24px; height:24px; border-radius:6px; border:1px solid var(--cream-border);
+    display:flex; align-items:center; justify-content:center; color:var(--ink-muted); font-size:15px; }
+
+  /* app layout */
+  .app{ display:grid; grid-template-columns:204px 1fr; height:calc(100% - 48px); }
+
+  /* sidebar */
+  .side{ background:#FBFAF6; border-right:1px solid var(--cream-border); padding:18px 12px; display:flex; flex-direction:column; }
+  .wm{ padding:2px 10px 16px; }
+  .wm-logo{ height:22px; width:auto; display:block; }
+  .nav{ display:flex; flex-direction:column; gap:3px; }
+  .ni{ height:36px; display:flex; align-items:center; gap:11px; padding:0 11px; border-radius:7px;
+    font-family:var(--display); font-size:13.5px; font-weight:400; color:var(--ink-soft); border-left:2px solid transparent; }
+  .ni svg{ width:17px; height:17px; stroke:currentColor; fill:none; stroke-width:1.7; flex:none; }
+  .ni.active{ background:var(--forest-soft); color:var(--forest); font-weight:500; border-left:2px solid var(--forest); }
+  .slab{ font-family:var(--body); font-weight:500; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-muted); padding:0 11px; margin:16px 0 8px; }
+  .ppill{ margin:0 10px; align-self:flex-start; background:var(--forest-soft); color:var(--forest);
+    font-family:var(--mono); font-weight:500; font-size:11px; padding:5px 11px; border-radius:999px; }
+
+  /* main */
+  .main{ padding:22px 26px; display:flex; flex-direction:column; overflow:hidden; }
+  .apphead{ display:flex; align-items:center; justify-content:space-between; }
+  .crumb{ font-family:var(--body); font-size:13px; color:var(--ink-muted); }
+  .crumb b{ color:var(--forest); font-weight:600; font-family:var(--display); }
+  .apphead .tools{ display:flex; align-items:center; gap:14px; }
+  .apphead .tools svg{ width:18px; height:18px; stroke:var(--ink-muted); fill:none; stroke-width:1.7; }
+
+  .titlerow{ display:flex; align-items:center; gap:12px; margin-top:18px; }
+  .titlerow h1{ font-family:var(--display); font-weight:600; font-size:22px; letter-spacing:-0.02em; color:var(--forest); white-space:nowrap; }
+
+  .stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:18px; }
+  .stat{ background:var(--cream-surface); border:1px solid var(--cream-border); border-radius:8px; padding:15px 17px; box-shadow:var(--e1); }
+  .stat .lab{ font-family:var(--body); font-weight:500; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-muted); }
+  .stat .val{ font-family:var(--display); font-weight:600; font-size:28px; letter-spacing:-0.02em; line-height:1; margin-top:9px; }
+  .stat .delta{ font-family:var(--body); font-size:11px; font-weight:500; margin-top:7px; color:var(--success); }
+  .val.gold{ color:var(--gold-hover); } .val.green{ color:var(--success); } .val.ink{ color:var(--ink); }
+
+  /* skeleton lines */
+  .sk{ background:#E7E2D6; border-radius:999px; height:8px; display:inline-block; }
+  .sk-sq{ width:18px; height:18px; border-radius:5px; background:#E7E2D6; flex:none; }
+  .ni.skrow{ gap:11px; }
+
+  .chart{ margin-top:14px; background:var(--cream-surface); border:1px solid var(--cream-border); border-radius:8px; padding:16px 20px 14px; box-shadow:var(--e1); }
+  .chart .ch-h{ display:flex; align-items:center; justify-content:space-between; }
+  .chart .lab{ font-family:var(--body); font-weight:500; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-muted); }
+  .chart .pk{ font-family:var(--mono); font-size:11px; color:var(--gold-hover); }
+  .bars{ display:flex; align-items:flex-end; gap:13px; height:82px; margin-top:16px; }
+  .bar{ flex:1; border-radius:5px 5px 3px 3px; background:#E7E2D6; }
+  .bar.peak{ background:var(--gold); box-shadow:0 4px 10px -4px rgba(201,164,94,0.5); }
+  .days{ display:flex; gap:13px; margin-top:9px; }
+  .day{ flex:1; text-align:center; font-family:var(--body); font-weight:500; font-size:11px; color:var(--ink-muted); }
+  .day.hot{ color:var(--gold-hover); }
+
+  .events{ margin-top:14px; }
+  .erow{ display:flex; align-items:center; gap:13px; padding:11px 2px; }
+  .erow + .erow{ border-top:1px solid var(--cream-border); }
+  .ethumb{ width:38px; height:38px; border-radius:7px; flex:none; }
+  .ename{ font-family:var(--display); font-weight:500; font-size:14px; color:var(--forest); white-space:nowrap; }
+  .esub{ font-family:var(--body); font-size:12px; color:var(--ink-muted); margin-top:1px; white-space:nowrap; }
+  .ereg{ margin-left:auto; font-family:var(--mono); font-size:13px; color:var(--ink-soft); }
+
+  /* ===== independent float / movement of the two screens =====
+     Float uses `transform`; mouse parallax is applied separately via the
+     `translate` property in JS so the two compose without fighting. */
+  @media (prefers-reduced-motion: no-preference){
+    #laptop{ animation:floatLaptop 7s ease-in-out infinite; }
+    #phone{ animation:floatPhone 5.5s ease-in-out infinite; }
+  }
+  @keyframes floatLaptop{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-10px); } }
+  @keyframes floatPhone{ 0%,100%{ transform:translateY(0) rotate(0deg); } 50%{ transform:translateY(-16px) rotate(-1.2deg); } }
+  #laptop, #phone{ transition:translate .4s ease-out; }
+
+  /* ===== Phone ===== */
+  .phone{ position:absolute; right:8px; bottom:14px; width:236px; height:452px;
+    background:#0C1813; border:1.5px solid rgba(232,197,126,0.32); border-radius:36px; padding:11px; z-index:30;
+    box-shadow:0 48px 80px -36px rgba(15,31,24,0.5), 0 0 0 1px rgba(0,0,0,0.18); }
+  .notch{ position:absolute; top:13px; left:50%; transform:translateX(-50%); width:70px; height:7px; border-radius:999px; background:rgba(255,255,255,0.14); }
+  .kcard{ height:100%; border-radius:26px; padding:26px 20px 18px; display:flex; flex-direction:column; position:relative; overflow:hidden;
+    background:linear-gradient(150deg,#163828 0%,#1F4D3A 52%,#2A6A50 100%); }
+  .kcard .lines{ position:absolute; inset:0; opacity:0.5; pointer-events:none;
+    background-image:repeating-linear-gradient(115deg, rgba(232,197,126,0.05) 0 2px, transparent 2px 9px); }
+  .kbrand{ position:absolute; top:18px; right:20px; font-family:var(--display); font-weight:600; font-size:9px; letter-spacing:0.18em; color:rgba(232,197,126,0.62); }
+  .kav{ width:58px; height:58px; border-radius:50%; border:1.5px solid var(--gold); margin-top:12px; box-shadow:0 0 18px rgba(232,197,126,0.22); }
+  .kname{ font-family:var(--display); font-weight:600; font-size:20px; color:#fff; margin-top:15px; letter-spacing:-0.01em; }
+  .krole{ font-family:var(--body); font-size:13px; color:rgba(250,246,238,0.66); margin-top:3px; }
+  .kshare{ display:flex; gap:8px; margin-top:auto; }
+  .sb{ flex:1; height:36px; border-radius:999px; background:rgba(255,255,255,0.10); display:flex; align-items:center; justify-content:center; gap:5px;
+    font-family:var(--body); font-weight:600; font-size:11px; color:rgba(250,246,238,0.85); }
+  .sb svg{ width:13px; height:13px; }
+  .kdl{ margin-top:10px; height:42px; border-radius:11px; background:var(--gold); color:var(--ink);
+    display:flex; align-items:center; justify-content:center; gap:7px; font-family:var(--display); font-weight:600; font-size:13px;
+    box-shadow:0 6px 16px -6px rgba(201,164,94,0.55); }
+  .kdl svg{ width:14px; height:14px; stroke:var(--ink); fill:none; stroke-width:2; }
+  .kready{ text-align:center; font-family:var(--body); font-size:11px; color:rgba(250,246,238,0.45); margin-top:12px; }
+</style>
+</head>
+<body>
+
+<div id="comp">
+
+  <!-- Browser / laptop screen -->
+  <div class="browser" id="laptop">
+    <div class="chrome">
+      <div class="tl"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+      <div class="url"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg><span><b>app.eventera.co</b>/events/pan-african-climate-summit</span></div>
+      <div class="pls">+</div>
+    </div>
+
+    <div class="app">
+      <!-- sidebar -->
+      <aside class="side">
+        <div class="wm"><img class="wm-logo" src="assets/eventera-logo.png" alt="Eventera"></div>
+        <nav class="nav">
+          <div class="ni active"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Events</div>
+          <div class="ni skrow"><span class="sk-sq"></span><span class="sk" style="width:64%"></span></div>
+          <div class="ni skrow"><span class="sk-sq"></span><span class="sk" style="width:50%"></span></div>
+          <div class="ni skrow"><span class="sk-sq"></span><span class="sk" style="width:72%"></span></div>
+          <div class="sk" style="width:34%; height:7px; margin:16px 11px 8px;"></div>
+          <div class="ni skrow"><span class="sk-sq"></span><span class="sk" style="width:46%"></span></div>
+          <div class="ni skrow"><span class="sk-sq"></span><span class="sk" style="width:58%"></span></div>
+        </nav>
+        <div style="flex:1;"></div>
+        <span class="ppill">Pro plan</span>
+      </aside>
+
+      <!-- main -->
+      <main class="main">
+        <div class="apphead">
+          <div class="crumb"><b>Events</b> &nbsp;/&nbsp; Pan-African Climate Summit</div>
+          <div class="tools">
+            <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0"/></svg>
+            <div class="ph avatar avatar-ring" style="--h:32; width:30px; height:30px;"></div>
+          </div>
+        </div>
+
+        <div class="titlerow">
+          <h1>Pan-African Climate Summit</h1>
+          <span class="pill pill-live"><span class="dot" style="background:var(--success)"></span>Live</span>
+        </div>
+
+        <div class="stats">
+          <div class="stat"><div class="lab">Registrations</div><div class="val gold">847</div><div class="sk" style="width:60%; margin-top:12px;"></div></div>
+          <div class="stat"><div class="lab">Cards shared</div><div class="val green">1,204</div><div class="sk" style="width:72%; margin-top:12px;"></div></div>
+          <div class="stat"><div class="lab">Check-ins</div><div class="val ink">412</div><div class="sk" style="width:52%; margin-top:12px;"></div></div>
+        </div>
+
+        <div class="chart">
+          <div class="ch-h"><div class="lab">Registrations — last 7 days</div><div class="pk">Peak · Sat 184</div></div>
+          <div class="bars">
+            <div class="bar" style="height:38%"></div>
+            <div class="bar" style="height:52%"></div>
+            <div class="bar" style="height:44%"></div>
+            <div class="bar" style="height:66%"></div>
+            <div class="bar" style="height:58%"></div>
+            <div class="bar peak" style="height:100%"></div>
+            <div class="bar" style="height:48%"></div>
+          </div>
+          <div class="days"><div class="day">M</div><div class="day">T</div><div class="day">W</div><div class="day">T</div><div class="day">F</div><div class="day hot">S</div><div class="day">S</div></div>
+        </div>
+
+        <div class="events">
+          <div class="erow">
+            <div class="ph ethumb" style="--h:152;"></div>
+            <div style="display:flex; flex-direction:column; gap:7px;"><div class="ename">Pan-African Climate Summit</div><span class="sk" style="width:118px;"></span></div>
+            <div class="ereg">847 reg.</div>
+          </div>
+          <div class="erow">
+            <div class="sk-sq" style="width:38px; height:38px; border-radius:7px;"></div>
+            <div style="display:flex; flex-direction:column; gap:8px;"><span class="sk" style="width:148px;"></span><span class="sk" style="width:96px;"></span></div>
+            <span class="sk" style="width:42px; margin-left:auto;"></span>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Phone screen -->
+  <div class="phone" id="phone">
+    <div class="notch"></div>
+    <div class="kcard">
+      <div class="lines"></div>
+      <div class="kbrand">EVENTERA</div>
+      <div class="ph kav" style="--h:30;"></div>
+      <div class="kname">Amara Yusuf</div>
+      <div class="krole">Policy Lead · African Union</div>
+      <div class="kshare">
+        <div class="sb"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="#fff" stroke="none"/></svg>IG</div>
+        <div class="sb"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2a10 10 0 00-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1012 2zm0 18a8 8 0 01-4.1-1.1l-.3-.2-2.8.7.8-2.8-.2-.3A8 8 0 1112 20z"/></svg>WA</div>
+        <div class="sb"><svg viewBox="0 0 24 24" fill="#fff"><path d="M17.5 3h3l-7 8 8.2 10h-6.4l-5-6.2L7 21H4l7.5-8.6L3.6 3H10l4.5 5.7L17.5 3z"/></svg>X</div>
+      </div>
+      <div class="kdl"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>Download card</div>
+      <div class="kready">Ready to share ✓</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function fit(){
+    const comp = document.getElementById('comp');
+    const pad = 40;
+    const s = Math.min((window.innerWidth-pad)/1120, (window.innerHeight-pad)/760, 1);
+    comp.style.transform = 'scale(' + s + ')';
+  }
+  window.addEventListener('resize', fit); fit();
+
+  // Mouse parallax — the two screens move independently (phone reads as
+  // closer, so it shifts more). Uses the `translate` property to layer
+  // cleanly on top of the CSS float `transform`.
+  const laptop = document.getElementById('laptop');
+  const phone  = document.getElementById('phone');
+  const stage  = document.body;
+  stage.addEventListener('mousemove', (e)=>{
+    const x = (e.clientX/window.innerWidth - .5);
+    const y = (e.clientY/window.innerHeight - .5);
+    laptop.style.translate = (x*7).toFixed(1)+'px '+(y*7).toFixed(1)+'px';
+    phone.style.translate  = (x*18).toFixed(1)+'px '+(y*18).toFixed(1)+'px';
+  });
+  stage.addEventListener('mouseleave', ()=>{
+    laptop.style.translate = '0 0';
+    phone.style.translate  = '0 0';
+  });
+</script>
+</body>
+</html>

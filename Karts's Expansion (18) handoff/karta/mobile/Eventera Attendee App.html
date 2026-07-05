@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="design_doc_mode" content="canvas">
+<title>Eventera · Attendee Mobile App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="mobile.css">
+<style>
+  body{ font-family:var(--body); }
+  .screen.dark{ background:
+    radial-gradient(ellipse 70% 60% at 15% 10%, rgba(31,77,58,0.9) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 30%, rgba(232,197,126,0.22) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 60% at 60% 95%, rgba(42,106,80,0.35) 0%, transparent 55%),
+    var(--forest-dark); }
+  /* canvas section headers */
+  .canvas-h{ position:absolute; font-family:var(--display); font-weight:700; letter-spacing:-0.02em; color:var(--forest); }
+  .canvas-h .big{ font-size:30px; display:block; }
+  .canvas-h .lead{ font-family:var(--body); font-weight:400; font-size:15px; color:var(--ink-muted); margin-top:6px; max-width:520px; line-height:1.5; }
+  .canvas-h .kicker{ font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold-hover); margin-bottom:8px; }
+</style>
+</head>
+<body>
+
+<!-- ============ TITLE ============ -->
+<div class="canvas-h" style="left:80px; top:-140px;">
+  <div class="kicker">Eventera · Attendee</div>
+  <span class="big" style="font-size:44px;">Mobile app — full screen set</span>
+  <div class="lead">Native attendee experience at 375px. Forest + cream brand, DM Sans / Inter / JetBrains Mono. Bottom-tab app shell (Discover · Tickets · Cards · Account) with an in-event section nav. Each row below is a flow; loading, empty and error variants sit beside their default.</div>
+</div>
+
+<!-- ============ SECTION A — ONBOARDING & ENTRY ============ -->
+<div class="canvas-h" style="left:80px; top:20px;"><span class="big">A · Onboarding &amp; entry</span></div>
+
+<!-- 1. Splash -->
+<div class="dev" style="left:80px; top:100px;">
+  <div class="label">1 · Splash</div><div class="sub">cold open · brand fade</div>
+  <div class="phone">
+    <div class="screen dark mesh-dark" data-nostatus style="align-items:center; justify-content:center;">
+      <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px;">
+        <div style="width:76px; height:76px; border-radius:20px; background:linear-gradient(145deg,#1F4D3A,#2A6A50); display:flex; align-items:center; justify-content:center; box-shadow:0 20px 50px -18px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.15);">
+          <svg viewBox="0 0 24 24" style="width:38px; height:38px; stroke:var(--gold); fill:none; stroke-width:2;"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/><path d="M8.5 14.5l2.4 2.4 4.6-4.8"/></svg>
+        </div>
+        <div style="font-family:var(--display); font-weight:700; font-size:30px; letter-spacing:-0.02em; color:#fff;">Eventera</div>
+        <div style="font-family:var(--mono); font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:rgba(232,197,126,.85);">Be in the room</div>
+      </div>
+      <div style="position:absolute; bottom:54px; left:50%; transform:translateX(-50%); width:130px; height:4px; border-radius:2px; background:rgba(255,255,255,.12); overflow:hidden;">
+        <div style="width:60%; height:100%; background:var(--gold); border-radius:2px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. Home / Discover (tab) -->
+<div class="dev" style="left:540px; top:100px;">
+  <div class="label">2 · Home · Discover tab</div><div class="sub">app level · "have a code?" + feed</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar" style="height:58px;">
+        <img src="eventera-logo.png" alt="Eventera" style="height:22px; width:auto;">
+        <div class="spacer"></div>
+        <div class="act"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></div>
+        <div class="av av-32 ph" style="--h:35; background:linear-gradient(145deg,#2A6A50,#163828);">A</div>
+      </div>
+      <div class="body"><div class="scroll pad" style="padding-top:6px; padding-bottom:14px;">
+        <div class="mcard" style="background:linear-gradient(135deg,#163828 0%,#1F4D3A 60%,#2A6A50 100%); border:none; padding:18px; box-shadow:var(--sh-lift);">
+          <div style="font-family:var(--display); font-weight:600; font-size:16px; color:#fff;">Have an event code?</div>
+          <div style="font-family:var(--body); font-size:12.5px; color:rgba(250,246,238,.72); margin-top:3px;">Jump straight into an event you were invited to.</div>
+          <div style="display:flex; gap:9px; margin-top:13px;">
+            <div style="flex:1; height:46px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18); border-radius:11px; display:flex; align-items:center; padding:0 14px; font-family:var(--mono); font-size:15px; letter-spacing:.28em; color:#fff;">AFRI·26</div>
+            <button style="width:46px; height:46px; border-radius:11px; background:var(--gold); border:none; display:flex; align-items:center; justify-content:center;"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:var(--ink);fill:none;stroke-width:2.4;"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+          </div>
+        </div>
+
+        <div style="display:flex; align-items:baseline; justify-content:space-between; margin:22px 0 12px;">
+          <div class="h2">Discover</div>
+          <div style="font-family:var(--body); font-weight:600; font-size:13px; color:var(--forest);">Djibouti ▾</div>
+        </div>
+        <div class="chiprow" style="margin-bottom:16px;">
+          <div class="chip on">All</div><div class="chip">Tech</div><div class="chip">Music</div><div class="chip">Design</div><div class="chip">Business</div>
+        </div>
+
+        <!-- feature card -->
+        <div style="border-radius:var(--rm-card); overflow:hidden; box-shadow:var(--sh-soft); border:1px solid var(--cream-border); margin-bottom:14px;">
+          <div class="ph" style="--h:158; height:150px; position:relative;">
+            <div class="scrim-b" style="position:absolute; inset:0;"></div>
+            <div class="tag tag-gold" style="position:absolute; top:12px; left:12px;">Featured</div>
+            <div style="position:absolute; left:14px; bottom:12px; right:14px; z-index:2;">
+              <div style="font-family:var(--display); font-weight:700; font-size:19px; color:#fff; letter-spacing:-0.02em;">AfriTech Summit 2026</div>
+            </div>
+          </div>
+          <div style="background:var(--cream-surface); padding:12px 14px 14px;">
+            <div style="display:flex; align-items:center; gap:7px; font-family:var(--mono); font-size:12px; color:var(--ink-soft);"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--forest);fill:none;stroke-width:1.8;"><rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg>12–14 Mar · 09:00</div>
+            <div style="display:flex; align-items:center; gap:7px; font-family:var(--body); font-size:12.5px; color:var(--ink-muted); margin-top:6px;"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--forest);fill:none;stroke-width:1.8;"><path d="M12 21s-7-6-7-11a7 7 0 1114 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Palais du Peuple, Djibouti City</div>
+          </div>
+        </div>
+
+        <!-- compact list card -->
+        <div style="display:flex; gap:12px; background:var(--cream-surface); border:1px solid var(--cream-border); border-radius:var(--rm-card); padding:11px; box-shadow:var(--sh-soft); margin-bottom:12px;">
+          <div class="ph" style="--h:265; width:72px; height:72px; border-radius:10px; flex:none;"></div>
+          <div style="min-width:0;">
+            <div style="font-family:var(--display); font-weight:600; font-size:15px; color:var(--ink);">Nairobi Design Week</div>
+            <div style="font-family:var(--mono); font-size:11.5px; color:var(--ink-muted); margin-top:5px;">04 Apr · Nairobi</div>
+            <div class="tag tag-forest" style="margin-top:8px;">From $15</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:12px; background:var(--cream-surface); border:1px solid var(--cream-border); border-radius:var(--rm-card); padding:11px; box-shadow:var(--sh-soft);">
+          <div class="ph" style="--h:30; width:72px; height:72px; border-radius:10px; flex:none;"></div>
+          <div style="min-width:0;">
+            <div style="font-family:var(--display); font-weight:600; font-size:15px; color:var(--ink);">Sahel Sound Festival</div>
+            <div style="font-family:var(--mono); font-size:11.5px; color:var(--ink-muted); margin-top:5px;">19 Apr · Dakar</div>
+            <div class="tag tag-gold" style="margin-top:8px;">Free</div>
+          </div>
+        </div>
+      </div></div>
+      <div class="tabbar">
+        <div class="tab on"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span>Discover</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><path d="M4 8a2 2 0 012-2h12a2 2 0 012 2v3a2 2 0 000 4v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3a2 2 0 000-4z"/></svg><span>Tickets</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="8.5" cy="11" r="2"/><path d="M13 9h5M13 13h5"/></svg><span>Cards</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0113 0"/></svg><span>Account</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Sign-in -->
+<div class="dev" style="left:1000px; top:100px;">
+  <div class="label">3 · Attendee sign-in</div><div class="sub">Google or email · step 1 of 2</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div></div>
+      <div class="body"><div class="scroll pad">
+        <div style="width:56px; height:56px; border-radius:16px; background:linear-gradient(145deg,#1F4D3A,#2A6A50); display:flex; align-items:center; justify-content:center; margin:8px 0 22px; box-shadow:var(--sh-soft);">
+          <svg viewBox="0 0 24 24" style="width:28px;height:28px;stroke:var(--gold);fill:none;stroke-width:2;"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/><path d="M8.5 14.5l2.4 2.4 4.6-4.8"/></svg>
+        </div>
+        <div class="h1">Welcome to Eventera</div>
+        <div class="bodytext muted" style="margin-top:8px;">Sign in to hold tickets, make your card, and connect with people at the event.</div>
+
+        <button class="mbtn mbtn-forest" style="margin-top:28px;">
+          <svg viewBox="0 0 24 24" style="stroke:none; fill:#fff;"><path d="M21.4 12.2c0-.7-.06-1.2-.18-1.8H12v3.3h5.3c-.1.9-.7 2.2-1.9 3.1l-.02.1 2.8 2.1.2.02c1.8-1.6 2.8-4 2.8-6.8z"/><path d="M12 21.5c2.5 0 4.6-.8 6.1-2.2l-2.9-2.2c-.8.5-1.8.9-3.2.9-2.4 0-4.5-1.6-5.2-3.8l-.1.01-3 2.3-.04.1A9.5 9.5 0 0012 21.5z" opacity=".85"/><path d="M6.8 14.2a5.8 5.8 0 010-3.7V8.2l-3-2.3A9.5 9.5 0 002.5 12c0 1.5.4 3 1 4.3z" opacity=".7"/><path d="M12 6.5c1.7 0 2.8.7 3.5 1.3l2.5-2.5A9.2 9.2 0 0012 2.5 9.5 9.5 0 003.8 8.2l3 2.3C7.5 8.1 9.6 6.5 12 6.5z" opacity=".55"/></svg>
+          Continue with Google
+        </button>
+
+        <div style="display:flex; align-items:center; gap:12px; margin:20px 0;">
+          <div style="flex:1; height:1px; background:var(--cream-border);"></div>
+          <div style="font-family:var(--body); font-size:12px; color:var(--ink-muted);">or with email</div>
+          <div style="flex:1; height:1px; background:var(--cream-border);"></div>
+        </div>
+
+        <div class="field">
+          <label>Email address</label>
+          <div class="input focus"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M4 7l8 6 8-6"/></svg><input value="amina@sahelpay.co" readonly></div>
+        </div>
+        <button class="mbtn mbtn-sec">Send me a code</button>
+        <div style="font-family:var(--body); font-size:12px; color:var(--ink-muted); text-align:center; margin-top:18px; line-height:1.5;">By continuing you agree to Eventera's<br><span style="color:var(--forest); font-weight:600;">Terms</span> &amp; <span style="color:var(--forest); font-weight:600;">Privacy Policy</span>.</div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3b. OTP -->
+<div class="dev" style="left:1460px; top:100px;">
+  <div class="label">3b · One-time code</div><div class="sub">6-digit OTP · step 2 of 2</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div></div>
+      <div class="body"><div class="scroll pad">
+        <div class="h1" style="margin-top:8px;">Enter your code</div>
+        <div class="bodytext muted" style="margin-top:8px;">We sent a 6-digit code to<br><span style="color:var(--ink); font-weight:600;">amina@sahelpay.co</span></div>
+        <div style="display:flex; gap:9px; margin-top:28px;">
+          <div style="flex:1; height:60px; border-radius:12px; border:1px solid var(--cream-border); background:var(--cream-surface); display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:24px; color:var(--ink); box-shadow:var(--sh-soft);">4</div>
+          <div style="flex:1; height:60px; border-radius:12px; border:1px solid var(--cream-border); background:var(--cream-surface); display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:24px; color:var(--ink); box-shadow:var(--sh-soft);">1</div>
+          <div style="flex:1; height:60px; border-radius:12px; border:1px solid var(--cream-border); background:var(--cream-surface); display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:24px; color:var(--ink); box-shadow:var(--sh-soft);">9</div>
+          <div style="flex:1; height:60px; border-radius:12px; border:2px solid var(--forest); background:var(--cream-surface); display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:24px; color:var(--ink); box-shadow:var(--sh-ring);"><span style="width:2px; height:26px; background:var(--forest); animation:none;"></span></div>
+          <div style="flex:1; height:60px; border-radius:12px; border:1px solid var(--cream-border); background:var(--cream-surface);"></div>
+          <div style="flex:1; height:60px; border-radius:12px; border:1px solid var(--cream-border); background:var(--cream-surface);"></div>
+        </div>
+        <div style="font-family:var(--body); font-size:13px; color:var(--ink-muted); text-align:center; margin-top:22px;">Didn't get it? <span style="color:var(--forest); font-weight:600;">Resend in 0:24</span></div>
+        <button class="mbtn mbtn-forest" style="margin-top:24px;">Verify &amp; continue</button>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SECTION B — DISCOVERY ============ -->
+<div class="canvas-h" style="left:80px; top:1080px;"><span class="big">B · Discovery</span></div>
+
+<!-- 4. Discover list -->
+<div class="dev" style="left:80px; top:1160px;">
+  <div class="label">4 · Events list</div><div class="sub">search · filter chips · cards</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="title">Discover</div><div class="spacer"></div><div class="act"><svg viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></svg></div></div>
+      <div style="padding:12px 20px 10px;">
+        <div class="input"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input placeholder="Search events, cities, organizers" readonly></div>
+      </div>
+      <div class="chiprow pad" style="padding-bottom:12px;">
+        <div class="chip on">All</div><div class="chip"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M3 9h18"/></svg>Date</div><div class="chip">Djibouti</div><div class="chip">Tech</div><div class="chip">Free</div>
+      </div>
+      <div class="body"><div class="scroll pad" style="padding-bottom:16px;">
+        <div style="border-radius:var(--rm-card); overflow:hidden; box-shadow:var(--sh-soft); border:1px solid var(--cream-border); margin-bottom:14px;">
+          <div class="ph" style="--h:158; height:140px; position:relative;"><div class="scrim-b" style="position:absolute; inset:0;"></div><div style="position:absolute; left:14px; bottom:12px; z-index:2; font-family:var(--display); font-weight:700; font-size:18px; color:#fff;">AfriTech Summit 2026</div></div>
+          <div style="background:var(--cream-surface); padding:12px 14px;">
+            <div style="display:flex; align-items:center; gap:7px; font-family:var(--mono); font-size:12px; color:var(--ink-soft);"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--forest);fill:none;stroke-width:1.8;"><rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M3 9h18"/></svg>12–14 Mar</div>
+            <div style="display:flex; align-items:center; gap:7px; font-family:var(--body); font-size:12.5px; color:var(--ink-muted); margin-top:6px;"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--forest);fill:none;stroke-width:1.8;"><path d="M12 21s-7-6-7-11a7 7 0 1114 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Palais du Peuple, Djibouti</div>
+          </div>
+        </div>
+        <div style="border-radius:var(--rm-card); overflow:hidden; box-shadow:var(--sh-soft); border:1px solid var(--cream-border); margin-bottom:14px;">
+          <div style="height:100px; position:relative; background:linear-gradient(135deg,#1F4D3A,#2A6A50 60%,#E8C57E);"><div style="position:absolute; left:14px; bottom:12px; font-family:var(--display); font-weight:700; font-size:17px; color:#fff;">Founders Breakfast</div></div>
+          <div style="background:var(--cream-surface); padding:12px 14px;">
+            <div style="display:flex; align-items:center; gap:7px; font-family:var(--mono); font-size:12px; color:var(--ink-soft);"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--forest);fill:none;stroke-width:1.8;"><rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M3 9h18"/></svg>28 Mar · 08:00</div>
+            <div style="display:flex; align-items:center; gap:7px; font-family:var(--body); font-size:12.5px; color:var(--ink-muted); margin-top:6px;"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--forest);fill:none;stroke-width:1.8;"><path d="M12 21s-7-6-7-11a7 7 0 1114 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Kempinski, Djibouti</div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 4b. Loading -->
+<div class="dev" style="left:540px; top:1160px;">
+  <div class="label">4 · Loading</div><div class="sub">shimmer skeleton cards</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="title">Discover</div></div>
+      <div style="padding:12px 20px 10px;"><div class="skl" style="height:50px; border-radius:12px;"></div></div>
+      <div class="pad" style="display:flex; gap:8px; padding-bottom:14px;"><div class="skl" style="width:54px; height:34px; border-radius:999px;"></div><div class="skl" style="width:70px; height:34px; border-radius:999px;"></div><div class="skl" style="width:60px; height:34px; border-radius:999px;"></div><div class="skl" style="width:64px; height:34px; border-radius:999px;"></div></div>
+      <div class="body"><div class="scroll pad">
+        <div style="border:1px solid var(--cream-border); border-radius:var(--rm-card); overflow:hidden; margin-bottom:14px;"><div class="skl" style="height:140px; border-radius:0;"></div><div style="padding:14px;"><div class="skl" style="height:12px; width:70%; margin-bottom:9px;"></div><div class="skl" style="height:10px; width:45%;"></div></div></div>
+        <div style="border:1px solid var(--cream-border); border-radius:var(--rm-card); overflow:hidden; margin-bottom:14px;"><div class="skl" style="height:140px; border-radius:0;"></div><div style="padding:14px;"><div class="skl" style="height:12px; width:60%; margin-bottom:9px;"></div><div class="skl" style="height:10px; width:50%;"></div></div></div>
+        <div style="border:1px solid var(--cream-border); border-radius:var(--rm-card); overflow:hidden;"><div class="skl" style="height:140px; border-radius:0;"></div><div style="padding:14px;"><div class="skl" style="height:12px; width:65%; margin-bottom:9px;"></div><div class="skl" style="height:10px; width:40%;"></div></div></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 4c. Empty -->
+<div class="dev" style="left:1000px; top:1160px;">
+  <div class="label">4 · Empty</div><div class="sub">no results for filters</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="title">Discover</div></div>
+      <div style="padding:12px 20px 10px;"><div class="input"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input value="jazz brunch" readonly style="color:var(--ink);"></div></div>
+      <div class="chiprow pad" style="padding-bottom:12px;"><div class="chip soft">Djibouti ✕</div><div class="chip soft">This weekend ✕</div></div>
+      <div class="body" style="display:flex; align-items:center; justify-content:center;">
+        <div style="text-align:center; padding:0 40px;">
+          <div style="width:64px; height:64px; border-radius:50%; background:var(--cream-soft); display:flex; align-items:center; justify-content:center; margin:0 auto 18px;"><svg viewBox="0 0 24 24" style="width:28px;height:28px;stroke:var(--ink-muted);fill:none;stroke-width:1.6;"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></div>
+          <div class="h3">No events found</div>
+          <div class="bodytext muted" style="margin-top:6px;">Try widening your dates or clearing a filter.</div>
+          <button class="mbtn mbtn-sec mbtn-sm" style="margin-top:20px; width:auto; padding:0 20px; display:inline-flex;">Clear filters</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 5. Search / filters -->
+<div class="dev" style="left:1460px; top:1160px;">
+  <div class="label">5 · Search &amp; filters</div><div class="sub">active filters · results</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="input" style="height:44px;"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input value="design" readonly style="color:var(--ink);"></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;"><div class="seclab">Filters</div><div style="font-family:var(--body); font-weight:600; font-size:12.5px; color:var(--forest);">Reset</div></div>
+        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px;"><div class="chip on">Design</div><div class="chip soft">Nairobi ✕</div><div class="chip">Apr</div><div class="chip">Any price</div><div class="chip">In person</div></div>
+        <div class="seclab" style="margin-bottom:10px;">4 results</div>
+        <div style="display:flex; gap:12px; margin-bottom:14px;"><div class="ph" style="--h:265; width:64px; height:64px; border-radius:10px; flex:none;"></div><div><div class="h3" style="font-size:15px;">Nairobi Design Week</div><div class="monos" style="font-size:11.5px; color:var(--ink-muted); margin-top:4px;">04 Apr · Nairobi</div><div class="tag tag-forest" style="margin-top:7px;">From $15</div></div></div>
+        <div style="display:flex; gap:12px; margin-bottom:14px;"><div class="ph" style="--h:200; width:64px; height:64px; border-radius:10px; flex:none;"></div><div><div class="h3" style="font-size:15px;">Type &amp; Motion Meetup</div><div class="monos" style="font-size:11.5px; color:var(--ink-muted); margin-top:4px;">11 Apr · Nairobi</div><div class="tag tag-gold" style="margin-top:7px;">Free</div></div></div>
+        <div style="display:flex; gap:12px;"><div class="ph" style="--h:30; width:64px; height:64px; border-radius:10px; flex:none;"></div><div><div class="h3" style="font-size:15px;">Portfolio Review Night</div><div class="monos" style="font-size:11.5px; color:var(--ink-muted); margin-top:4px;">18 Apr · Nairobi</div><div class="tag tag-forest" style="margin-top:7px;">From $8</div></div></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SECTION C — EVENT PAGE (centerpiece) ============ -->
+<div class="canvas-h" style="left:80px; top:2140px;"><span class="big">C · Event page</span></div>
+
+<!-- 6. Event overview (top) -->
+<div class="dev" style="left:80px; top:2220px;">
+  <div class="label">6 · Event overview</div><div class="sub">hero · organizer · about · sticky register</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar" style="position:absolute; top:52px; left:0; right:0; z-index:20; background:transparent;">
+        <div class="back" style="background:rgba(8,18,12,.42); backdrop-filter:blur(6px);"><svg viewBox="0 0 24 24" style="stroke:#fff;"><path d="M15 5l-7 7 7 7"/></svg></div>
+        <div class="spacer"></div>
+        <div class="act" style="background:rgba(8,18,12,.42); backdrop-filter:blur(6px);"><svg viewBox="0 0 24 24" style="stroke:#fff;"><path d="M12 21s-7-6-7-11a7 7 0 1114 0c0 5-7 11-7 11z" opacity="0"/><path d="M6 4h12v16l-6-4-6 4z"/></svg></div>
+        <div class="act" style="background:rgba(8,18,12,.42); backdrop-filter:blur(6px);"><svg viewBox="0 0 24 24" style="stroke:#fff;"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 13.2l7.6 4.6M15.8 6.2l-7.6 4.6"/></svg></div>
+      </div>
+      <div class="body"><div class="scroll">
+        <div class="ph" style="--h:158; height:230px; position:relative;">
+          <div class="scrim-b" style="position:absolute; inset:0;"></div>
+          <div style="position:absolute; left:20px; right:20px; bottom:16px; z-index:2;">
+            <div class="tag tag-gold" style="margin-bottom:10px;">Technology</div>
+            <div style="font-family:var(--display); font-weight:700; font-size:26px; letter-spacing:-0.02em; color:#fff; line-height:1.06;">AfriTech Summit 2026</div>
+            <div style="font-family:var(--body); font-size:13.5px; color:rgba(250,246,238,.82); margin-top:6px;">Where the Horn of Africa builds what's next.</div>
+          </div>
+        </div>
+        <div class="pad" style="padding-top:18px; padding-bottom:16px;">
+          <div style="display:flex; align-items:center; gap:9px; margin-bottom:11px;"><svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:var(--forest);fill:none;stroke-width:1.8;flex:none;"><rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg><div><div style="font-family:var(--body); font-weight:600; font-size:14px; color:var(--ink);">Thu 12 – Sat 14 March 2026</div><div class="monos" style="font-size:11.5px; color:var(--ink-muted); margin-top:1px;">09:00 – 18:00 · EAT (GMT+3)</div></div></div>
+          <div style="display:flex; align-items:center; gap:9px;"><svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:var(--forest);fill:none;stroke-width:1.8;flex:none;"><path d="M12 21s-7-6-7-11a7 7 0 1114 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><div><div style="font-family:var(--body); font-weight:600; font-size:14px; color:var(--ink);">Palais du Peuple</div><div style="font-size:11.5px; color:var(--ink-muted); margin-top:1px;">Djibouti City · In person</div></div></div>
+
+          <div style="display:flex; align-items:center; gap:11px; margin-top:16px; padding:12px; background:var(--cream-surface); border:1px solid var(--cream-border); border-radius:14px; box-shadow:var(--sh-soft);">
+            <div class="av av-40">K</div>
+            <div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:14px; color:var(--ink);">Karta Studio</div><div style="font-size:11.5px; color:var(--ink-muted); margin-top:1px;">Organizer · 12 events</div></div>
+            <button class="mbtn mbtn-sec mbtn-sm" style="width:auto; padding:0 16px;">Follow</button>
+          </div>
+
+          <div style="margin-top:22px;"><div class="seclab" style="margin-bottom:8px;">About</div><div class="bodytext">Three days where the continent's builders, founders and designers gather on the Red Sea coast. Keynotes from operators who've scaled across Africa, hands-on workshops, and hallway conversations that turn into companies. <span style="color:var(--forest); font-weight:600;">Read more</span></div></div>
+
+          <div style="margin-top:22px;"><div class="seclab" style="margin-bottom:8px;">Who's attending</div>
+            <div style="display:flex; align-items:center; gap:12px;"><div class="av-cluster"><div class="av av-40 ph" style="--h:30;">AO</div><div class="av av-40 ph" style="--h:200;">FK</div><div class="av av-40 ph" style="--h:265;">LH</div><div class="av av-40" style="background:var(--forest-soft); color:var(--forest);">+</div></div><div style="font-family:var(--body); font-size:13px; color:var(--ink-soft);"><b style="font-family:var(--mono);">237</b> people going</div></div>
+          </div>
+        </div>
+      </div></div>
+      <div class="stickycta">
+        <button class="mbtn mbtn-sec" style="width:52px; flex:none;"><svg viewBox="0 0 24 24" style="stroke:var(--forest);"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="8.5" cy="11" r="2"/><path d="M13 9h5M13 13h5"/></svg></button>
+        <button class="mbtn mbtn-forest" style="flex:1;">Get ticket · from $25</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6b. Overview scrolled -->
+<div class="dev" style="left:540px; top:2220px;">
+  <div class="label">6 · Overview (scrolled)</div><div class="sub">schedule · speakers · sponsors</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title" style="font-size:15px;">AfriTech Summit</div><div class="spacer"></div><div class="act"><svg viewBox="0 0 24 24"><path d="M6 4h12v16l-6-4-6 4z"/></svg></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px;">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:10px;"><div class="seclab">Schedule</div><div style="font-family:var(--body); font-weight:600; font-size:12.5px; color:var(--forest);">Full agenda →</div></div>
+        <div class="mcard" style="padding:0; margin-bottom:22px;">
+          <div style="display:flex; gap:12px; align-items:center; padding:13px 15px;"><div class="monos" style="font-size:12px; color:var(--ink-muted); width:44px;">09:00</div><div style="width:7px; height:7px; border-radius:50%; background:var(--gold); flex:none;"></div><div style="flex:1;"><div style="font-family:var(--display); font-weight:500; font-size:13.5px; color:var(--ink);">Opening keynote</div><div style="font-size:11px; color:var(--ink-muted); margin-top:1px;">Amina Osman · Main Stage</div></div></div>
+          <div style="display:flex; gap:12px; align-items:center; padding:13px 15px; border-top:1px solid var(--cream-border);"><div class="monos" style="font-size:12px; color:var(--ink-muted); width:44px;">10:30</div><div style="width:7px; height:7px; border-radius:50%; background:var(--forest); flex:none;"></div><div style="flex:1;"><div style="font-family:var(--display); font-weight:500; font-size:13.5px; color:var(--ink);">Scaling across borders</div><div style="font-size:11px; color:var(--ink-muted); margin-top:1px;">Faisal Karim · Track A</div></div></div>
+        </div>
+        <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px;"><div class="seclab">Speakers</div><div style="font-family:var(--body); font-weight:600; font-size:12.5px; color:var(--forest);">All 24 →</div></div>
+        <div style="display:flex; gap:14px; overflow-x:auto; margin-bottom:22px;">
+          <div style="text-align:center; flex:none; width:72px;"><div class="ph" style="--h:30; width:72px; height:72px; border-radius:50%;"></div><div style="font-family:var(--display); font-weight:500; font-size:12px; margin-top:7px;">Amina O.</div><div style="font-size:10px; color:var(--ink-muted);">Sahel Pay</div></div>
+          <div style="text-align:center; flex:none; width:72px;"><div class="ph" style="--h:200; width:72px; height:72px; border-radius:50%;"></div><div style="font-family:var(--display); font-weight:500; font-size:12px; margin-top:7px;">Faisal K.</div><div style="font-size:10px; color:var(--ink-muted);">Andela</div></div>
+          <div style="text-align:center; flex:none; width:72px;"><div class="ph" style="--h:265; width:72px; height:72px; border-radius:50%;"></div><div style="font-family:var(--display); font-weight:500; font-size:12px; margin-top:7px;">Leila H.</div><div style="font-size:10px; color:var(--ink-muted);">Flutterwave</div></div>
+        </div>
+        <div class="seclab" style="margin-bottom:12px;">Sponsors</div>
+        <div style="display:flex; flex-wrap:wrap; gap:10px;">
+          <div style="flex:1; min-width:88px; height:56px; background:var(--cream-surface); border:1px solid var(--cream-border); border-radius:12px; display:flex; align-items:center; justify-content:center; font-family:var(--display); font-weight:600; color:var(--ink-soft); font-size:14px;">Flutterwave</div>
+          <div style="flex:1; min-width:88px; height:56px; background:var(--cream-surface); border:1px solid var(--cream-border); border-radius:12px; display:flex; align-items:center; justify-content:center; font-family:var(--display); font-weight:600; color:var(--ink-soft); font-size:14px;">MTN</div>
+          <div style="flex:1; min-width:88px; height:56px; background:var(--cream-surface); border:1px solid var(--cream-border); border-radius:12px; display:flex; align-items:center; justify-content:center; font-family:var(--display); font-weight:600; color:var(--ink-soft); font-size:14px;">Andela</div>
+        </div>
+        <button class="mbtn mbtn-sec" style="margin-top:22px;"><svg viewBox="0 0 24 24" style="stroke:var(--forest);"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="8.5" cy="11" r="2"/><path d="M13 9h5M13 13h5"/></svg>Make your card</button>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 7. Section nav -->
+<div class="dev" style="left:1000px; top:2220px;">
+  <div class="label">7 · In-event section nav</div><div class="sub">sticky segmented · Schedule active</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title" style="font-size:15px;">AfriTech Summit</div></div>
+      <div class="segnav"><div class="seg">Overview</div><div class="seg on">Schedule</div><div class="seg">Speakers</div><div class="seg">Sponsors</div><div class="seg">Network</div><div class="seg">More</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px;">
+        <div class="seg-ctl" style="margin-bottom:16px;"><div class="on">Day 1</div><div>Day 2</div><div>Day 3</div></div>
+        <div class="monos" style="font-size:11px; color:var(--ink-muted); margin-bottom:8px;">09:00</div>
+        <div class="mcard" style="border-left:3px solid var(--gold); margin-bottom:12px;"><div class="h3" style="font-size:15px;">Opening keynote — Building for the next billion</div><div style="display:flex; align-items:center; gap:8px; margin-top:8px;"><div class="av av-32 ph" style="--h:30;">AO</div><div style="font-size:12px; color:var(--ink-muted);">Amina Osman · Main Stage</div></div></div>
+        <div class="monos" style="font-size:11px; color:var(--ink-muted); margin:8px 0;">10:30</div>
+        <div class="mcard" style="border-left:3px solid var(--forest);"><div class="h3" style="font-size:15px;">Scaling engineering across borders</div><div style="display:flex; align-items:center; gap:8px; margin-top:8px;"><div class="av av-32 ph" style="--h:200;">FK</div><div style="font-size:12px; color:var(--ink-muted);">Faisal Karim · Track A</div></div></div>
+      </div></div>
+      <!-- More sheet -->
+      <div class="scrim"></div>
+      <div class="sheet">
+        <div class="grab"></div>
+        <div class="h3" style="margin-bottom:6px;">More sections</div>
+        <div class="lrow"><svg class="chev" style="stroke:var(--forest);" viewBox="0 0 24 24"><path d="M8 12h8M12 8v8" opacity="0"/><circle cx="12" cy="12" r="9"/><path d="M12 8v5l3 2"/></svg><div style="flex:1; font-family:var(--display); font-weight:500; font-size:15px;">Live Q&amp;A</div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+        <div class="lrow"><svg class="chev" style="stroke:var(--forest);" viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg><div style="flex:1; font-family:var(--display); font-weight:500; font-size:15px;">Polls &amp; results</div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+        <div class="lrow"><svg class="chev" style="stroke:var(--forest);" viewBox="0 0 24 24"><path d="M8 21v-1a4 4 0 014-4 4 4 0 014 4v1"/><circle cx="12" cy="8" r="3.2"/></svg><div style="flex:1; font-family:var(--display); font-weight:500; font-size:15px;">Leaderboard</div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+        <div class="lrow"><svg class="chev" style="stroke:var(--forest);" viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 3z"/></svg><div style="flex:1; font-family:var(--display); font-weight:500; font-size:15px;">Feedback</div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SECTION D — REGISTRATION & TICKETS ============ -->
+<div class="canvas-h" style="left:80px; top:3200px;"><span class="big">D · Registration &amp; tickets</span></div>
+
+<!-- 8. Ticket selection -->
+<div class="dev" style="left:80px; top:3280px;">
+  <div class="label">8 · Ticket selection</div><div class="sub">types · quantity · promo · summary</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Choose ticket</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px;">
+        <label class="mcard" style="display:flex; align-items:center; gap:13px; margin-bottom:10px; border-color:var(--forest); box-shadow:var(--sh-ring);">
+          <span class="radio on" style="width:20px;height:20px;border-radius:50%;border:1.5px solid var(--forest);box-shadow:inset 0 0 0 5px var(--forest);flex:none;"></span>
+          <div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:15px;">General admission</div><div style="font-size:12px; color:var(--ink-muted); margin-top:2px;">All keynotes &amp; tracks · <span style="color:var(--success);">142 left</span></div></div>
+          <div class="monos" style="font-size:16px; color:var(--forest); font-weight:500;">$25</div>
+        </label>
+        <label class="mcard" style="display:flex; align-items:center; gap:13px; margin-bottom:10px;">
+          <span style="width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border-strong);flex:none;"></span>
+          <div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:15px;">VIP package</div><div style="font-size:12px; color:var(--ink-muted); margin-top:2px;">Front row + speaker dinner · <span style="color:var(--warning);">8 left</span></div></div>
+          <div class="monos" style="font-size:16px; color:var(--forest); font-weight:500;">$80</div>
+        </label>
+        <label class="mcard" style="display:flex; align-items:center; gap:13px; margin-bottom:16px; opacity:.55;">
+          <span style="width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border-strong);flex:none;"></span>
+          <div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:15px; text-decoration:line-through;">Student</div><div style="font-size:12px; color:var(--ink-muted); margin-top:2px;">Valid ID required · Sold out</div></div>
+          <div class="monos" style="font-size:16px; color:var(--ink-muted);">Free</div>
+        </label>
+
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:13px 15px; border:1px solid var(--cream-border); border-radius:12px; margin-bottom:12px;">
+          <div style="font-family:var(--body); font-weight:600; font-size:14px;">Quantity</div>
+          <div style="display:flex; align-items:center; gap:16px;"><div style="width:32px;height:32px;border-radius:8px;border:1px solid var(--cream-border);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-muted);">−</div><div class="monos" style="font-size:16px;">2</div><div style="width:32px;height:32px;border-radius:8px;border:1px solid var(--forest);color:var(--forest);display:flex;align-items:center;justify-content:center;font-size:18px;">+</div></div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px; padding:13px 15px; border:1px dashed var(--border-strong); border-radius:12px; background:#FBFAF6;">
+          <input placeholder="Promo code" style="flex:1; border:none; background:transparent; outline:none; font-family:var(--mono); font-size:13px; color:var(--ink);">
+          <span style="font-family:var(--body); font-weight:600; font-size:13px; color:var(--forest);">Apply</span>
+        </div>
+      </div></div>
+      <div class="stickycta" style="flex-direction:column; align-items:stretch; gap:12px;">
+        <div style="display:flex; align-items:center; justify-content:space-between;"><div style="font-size:13px; color:var(--ink-muted);">2 × General admission</div><div class="monos" style="font-size:18px; font-weight:500; color:var(--forest);">$50.00</div></div>
+        <button class="mbtn mbtn-forest">Continue</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 9. Registration form -->
+<div class="dev" style="left:540px; top:3280px;">
+  <div class="label">9 · Registration form</div><div class="sub">dynamic fields · validation</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Your details</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:16px; padding-bottom:16px;">
+        <div class="field"><label>Full name</label><div class="input"><input value="Amina Osman" readonly></div></div>
+        <div class="field"><label>Email</label><div class="input focus"><input value="amina@sahelpay.co" readonly></div></div>
+        <div class="field"><label>Phone</label><div class="input error"><input value="+253 77" readonly style="color:var(--ink);"></div><div class="help err">Enter a valid phone number.</div></div>
+        <div style="height:1px; background:var(--cream-border); margin:6px 0 18px;"></div>
+        <div class="seclab" style="margin-bottom:14px;">Organizer questions</div>
+        <div class="field"><label>Company / organization</label><div class="input"><input value="Sahel Pay" readonly></div></div>
+        <div class="field"><label>T-shirt size</label><div class="input" style="justify-content:space-between;"><span style="color:var(--ink);">Medium</span><svg viewBox="0 0 24 24" style="stroke:var(--ink-muted);"><path d="M6 9l6 6 6-6"/></svg></div></div>
+        <div class="field"><label>Dietary needs</label><div style="display:flex; gap:10px; align-items:flex-start; padding:4px 0;"><span style="width:22px;height:22px;border-radius:6px;background:var(--forest);display:flex;align-items:center;justify-content:center;flex:none;"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2.5;"><path d="M5 12l4 4 10-10"/></svg></span><span style="font-size:14px; color:var(--ink-soft);">Vegetarian catering</span></div></div>
+      </div></div>
+      <div class="stickycta"><button class="mbtn mbtn-forest">Continue to payment</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- 10. Payment -->
+<div class="dev" style="left:1000px; top:3280px;">
+  <div class="label">10 · Payment method</div><div class="sub">card / mobile money · hand-off</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Payment</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:16px;">
+        <div class="seclab" style="margin-bottom:12px;">Pay with</div>
+        <label class="mcard" style="display:flex; align-items:center; gap:13px; margin-bottom:10px; border-color:var(--forest); box-shadow:var(--sh-ring);">
+          <span class="radio on" style="width:20px;height:20px;border-radius:50%;border:1.5px solid var(--forest);box-shadow:inset 0 0 0 5px var(--forest);flex:none;"></span>
+          <svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:var(--forest);fill:none;stroke-width:1.7;"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 9.5h19"/></svg>
+          <div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:14px;">Card</div><div class="monos" style="font-size:11px; color:var(--ink-muted); margin-top:1px;">Visa · Mastercard</div></div>
+        </label>
+        <label class="mcard" style="display:flex; align-items:center; gap:13px; margin-bottom:10px;">
+          <span style="width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border-strong);flex:none;"></span>
+          <svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:var(--forest);fill:none;stroke-width:1.7;"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10 18.5h4"/></svg>
+          <div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:14px;">Mobile money</div><div class="monos" style="font-size:11px; color:var(--ink-muted); margin-top:1px;">D-Money · WafiCash</div></div>
+        </label>
+
+        <div class="mcard" style="margin-top:18px; background:#FBFAF6;">
+          <div class="seclab" style="margin-bottom:12px;">Order summary</div>
+          <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:9px;"><span style="color:var(--ink-soft);">2 × General admission</span><span class="monos">$50.00</span></div>
+          <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:9px;"><span style="color:var(--ink-soft);">Service fee</span><span class="monos">$2.50</span></div>
+          <div style="display:flex; justify-content:space-between; font-size:13px; color:var(--success); margin-bottom:12px;"><span>Promo · EARLY10</span><span class="monos">−$5.00</span></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding-top:12px; border-top:1px solid var(--cream-border);"><span style="font-family:var(--display); font-weight:600; font-size:15px;">Total</span><span class="monos" style="font-size:20px; font-weight:500; color:var(--forest);">$47.50</span></div>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; justify-content:center; margin-top:16px; font-size:11.5px; color:var(--ink-muted);"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--success);fill:none;stroke-width:1.8;"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>Secured by Paystack · you'll confirm on their sheet</div>
+      </div></div>
+      <div class="stickycta"><button class="mbtn mbtn-forest">Pay $47.50</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- 11. Confirmation / QR -->
+<div class="dev" style="left:1460px; top:3280px;">
+  <div class="label">11 · Confirmation · your ticket</div><div class="sub">success · QR · add to calendar</div>
+  <div class="phone">
+    <div class="screen dark">
+      <div class="body"><div class="scroll" style="padding:8px 20px 20px; display:flex; flex-direction:column; align-items:center;">
+        <div style="width:60px; height:60px; border-radius:50%; background:rgba(45,122,79,.25); border:1px solid rgba(232,197,126,.4); display:flex; align-items:center; justify-content:center; margin:8px 0 16px;"><svg viewBox="0 0 24 24" style="width:30px;height:30px;stroke:var(--gold);fill:none;stroke-width:2.2;"><path d="M5 12l4 4 10-10"/></svg></div>
+        <div style="font-family:var(--display); font-weight:700; font-size:24px; color:#fff; letter-spacing:-0.02em;">You're in.</div>
+        <div style="font-family:var(--body); font-size:13.5px; color:rgba(250,246,238,.72); margin-top:6px; text-align:center;">Ticket sent to amina@sahelpay.co</div>
+
+        <div style="background:var(--cream-surface); border-radius:20px; padding:22px; margin-top:22px; width:100%; box-shadow:0 24px 50px -20px rgba(0,0,0,.5);">
+          <div style="display:flex; justify-content:center;"><div class="qr"></div></div>
+          <div style="text-align:center; margin-top:16px;"><div class="tag tag-forest" style="margin-bottom:10px;">General admission</div><div style="font-family:var(--display); font-weight:700; font-size:18px; color:var(--ink);">Amina Osman</div><div style="font-size:12.5px; color:var(--ink-muted); margin-top:3px;">AfriTech Summit 2026 · 12 Mar</div><div class="monos" style="font-size:11px; color:var(--ink-muted); margin-top:8px; letter-spacing:.1em;">TKT-4F9A-2201</div></div>
+        </div>
+        <button class="mbtn" style="margin-top:16px; background:rgba(255,255,255,.1); color:#fff; border:1px solid rgba(255,255,255,.2);"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg>Add to calendar</button>
+        <button class="mbtn mbtn-gold" style="margin-top:11px;">Make your card</button>
+        <div style="font-family:var(--body); font-weight:600; font-size:13.5px; color:rgba(232,197,126,.9); margin-top:16px;">View my tickets</div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 12. Wallet -->
+<div class="dev" style="left:1920px; top:3280px;">
+  <div class="label">12 · My tickets (wallet)</div><div class="sub">status pills · tap to open</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="title">My tickets</div><div class="spacer"></div><div class="seg-ctl" style="padding:2px; width:150px;"><div class="on" style="padding:5px 0; font-size:12px;">Upcoming</div><div style="padding:5px 0; font-size:12px;">Past</div></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px;">
+        <div class="mcard" style="padding:0; overflow:hidden; margin-bottom:14px;">
+          <div style="display:flex; gap:13px; padding:13px;"><div class="ph" style="--h:158; width:64px; height:64px; border-radius:10px; flex:none;"></div><div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:15px;">AfriTech Summit 2026</div><div class="monos" style="font-size:11.5px; color:var(--ink-muted); margin-top:4px;">12 Mar · 09:00</div><div class="tag tag-success" style="margin-top:8px;"><span class="dot" style="background:var(--success);"></span>Confirmed</div></div></div>
+          <div style="border-top:1px dashed var(--cream-border); padding:11px 13px; display:flex; align-items:center; justify-content:space-between; background:#FBFAF6;"><div class="monos" style="font-size:11px; color:var(--ink-muted);">2 tickets · GA</div><div style="font-family:var(--body); font-weight:600; font-size:12.5px; color:var(--forest); display:flex; align-items:center; gap:5px;">Show QR<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--forest);fill:none;stroke-width:2;"><path d="M9 6l6 6-6 6"/></svg></div></div>
+        </div>
+        <div class="mcard" style="padding:0; overflow:hidden; margin-bottom:14px;">
+          <div style="display:flex; gap:13px; padding:13px;"><div class="ph" style="--h:265; width:64px; height:64px; border-radius:10px; flex:none;"></div><div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:15px;">Nairobi Design Week</div><div class="monos" style="font-size:11.5px; color:var(--ink-muted); margin-top:4px;">04 Apr · 10:00</div><div class="tag tag-warning" style="margin-top:8px;"><span class="dot" style="background:var(--warning);"></span>Pending approval</div></div></div>
+        </div>
+        <div class="mcard" style="padding:0; overflow:hidden;">
+          <div style="display:flex; gap:13px; padding:13px;"><div class="ph" style="--h:30; width:64px; height:64px; border-radius:10px; flex:none;"></div><div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:15px;">Founders Breakfast</div><div class="monos" style="font-size:11.5px; color:var(--ink-muted); margin-top:4px;">28 Mar · 08:00</div><div class="tag tag-forest" style="margin-top:8px;"><span class="dot" style="background:var(--forest);"></span>Checked-in</div></div></div>
+        </div>
+      </div></div>
+      <div class="tabbar">
+        <div class="tab"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span>Discover</span></div>
+        <div class="tab on"><svg viewBox="0 0 24 24"><path d="M4 8a2 2 0 012-2h12a2 2 0 012 2v3a2 2 0 000 4v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3a2 2 0 000-4z"/></svg><span>Tickets</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="8.5" cy="11" r="2"/><path d="M13 9h5M13 13h5"/></svg><span>Cards</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0113 0"/></svg><span>Account</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 13. Ticket detail -->
+<div class="dev" style="left:2380px; top:3280px;">
+  <div class="label">13 · Ticket detail</div><div class="sub">big QR · transfer · calendar</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Ticket</div><div class="spacer"></div><div class="act"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 13.2l7.6 4.6M15.8 6.2l-7.6 4.6"/></svg></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px; display:flex; flex-direction:column; align-items:center;">
+        <div style="background:var(--cream-surface); border:1px solid var(--cream-border); border-radius:18px; padding:22px; width:100%; box-shadow:var(--sh-soft); display:flex; flex-direction:column; align-items:center;">
+          <div class="tag tag-success" style="margin-bottom:16px;"><span class="dot" style="background:var(--success);"></span>Confirmed</div>
+          <div class="qr"></div>
+          <div class="monos" style="font-size:11px; color:var(--ink-muted); margin-top:14px; letter-spacing:.1em;">TKT-4F9A-2201</div>
+        </div>
+        <div style="width:100%; margin-top:18px;">
+          <div class="lrow" style="padding-top:0;"><div style="flex:1;"><div class="seclab">Event</div><div style="font-family:var(--display); font-weight:600; font-size:15px; margin-top:3px;">AfriTech Summit 2026</div></div></div>
+          <div class="lrow"><div style="flex:1;"><div class="seclab">Attendee</div><div style="font-family:var(--display); font-weight:600; font-size:15px; margin-top:3px;">Amina Osman · General admission</div></div></div>
+          <div class="lrow"><div style="flex:1;"><div class="seclab">When</div><div style="font-family:var(--body); font-weight:600; font-size:14px; margin-top:3px;">Thu 12 Mar · 09:00 EAT</div></div></div>
+        </div>
+        <div style="display:flex; gap:10px; width:100%; margin-top:8px;">
+          <button class="mbtn mbtn-sec mbtn-sm" style="flex:1;"><svg viewBox="0 0 24 24" style="stroke:var(--forest);"><rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M3 9h18"/></svg>Calendar</button>
+          <button class="mbtn mbtn-sec mbtn-sm" style="flex:1;"><svg viewBox="0 0 24 24" style="stroke:var(--forest);"><path d="M17 8l4 4-4 4M21 12H9M13 4H6a2 2 0 00-2 2v12a2 2 0 002 2h7"/></svg>Transfer</button>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SECTION E — THE CARD ============ -->
+<div class="canvas-h" style="left:80px; top:4260px;"><span class="big">E · Make your card</span></div>
+
+<!-- 14. Pick design -->
+<div class="dev" style="left:80px; top:4340px;">
+  <div class="label">14 · Pick a design</div><div class="sub">thumbnail chooser · large preview</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Choose a design</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:16px;">
+        <div style="border-radius:16px; overflow:hidden; box-shadow:var(--sh-lift); position:relative; aspect-ratio:1/1.1; background:linear-gradient(150deg,#163828,#1F4D3A 55%,#2A6A50);">
+          <div style="position:absolute; inset:0; background:radial-gradient(60% 50% at 85% 8%, rgba(232,197,126,.4), transparent 60%);"></div>
+          <div style="position:absolute; top:22px; left:22px; font-family:var(--mono); font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--gold);">I'm attending</div>
+          <div class="ph" style="--h:30; position:absolute; top:66px; left:22px; width:88px; height:88px; border-radius:50%; box-shadow:0 0 0 3px rgba(232,197,126,.5);"></div>
+          <div style="position:absolute; left:22px; bottom:74px; right:22px;"><div style="font-family:var(--display); font-weight:700; font-size:26px; color:#fff; letter-spacing:-0.02em;">Amina Osman</div><div style="font-family:var(--body); font-size:14px; color:rgba(250,246,238,.8); margin-top:3px;">Founder · Sahel Pay</div></div>
+          <div style="position:absolute; left:22px; right:22px; bottom:22px; padding-top:14px; border-top:1px solid rgba(255,255,255,.15); display:flex; justify-content:space-between; align-items:center;"><div style="font-family:var(--display); font-weight:600; font-size:13px; color:#fff;">AfriTech Summit 2026</div><div class="monos" style="font-size:11px; color:var(--gold);">12 Mar</div></div>
+        </div>
+        <div class="seclab" style="margin:20px 0 12px;">Designs</div>
+        <div style="display:flex; gap:12px;">
+          <div style="flex:1; aspect-ratio:1/1.1; border-radius:12px; background:linear-gradient(150deg,#163828,#2A6A50); box-shadow:0 0 0 2px var(--forest), var(--sh-soft);"></div>
+          <div style="flex:1; aspect-ratio:1/1.1; border-radius:12px; background:linear-gradient(150deg,#1F4D3A,#E8C57E);"></div>
+          <div style="flex:1; aspect-ratio:1/1.1; border-radius:12px; background:var(--cream-surface); border:1px solid var(--cream-border); position:relative;"><div style="position:absolute; inset:12px 12px auto; height:4px; background:var(--gold); border-radius:2px;"></div></div>
+        </div>
+      </div></div>
+      <div class="stickycta"><button class="mbtn mbtn-forest">Personalize this design</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- 15. Personalize -->
+<div class="dev" style="left:540px; top:4340px;">
+  <div class="label">15 · Personalize</div><div class="sub">live preview · photo upload</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Personalize</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px;">
+        <!-- mini live preview -->
+        <div style="border-radius:14px; overflow:hidden; position:relative; height:150px; background:linear-gradient(150deg,#163828,#1F4D3A 55%,#2A6A50); box-shadow:var(--sh-soft); margin-bottom:18px;">
+          <div style="position:absolute; inset:0; background:radial-gradient(60% 60% at 88% 6%, rgba(232,197,126,.4), transparent 60%);"></div>
+          <div class="ph" style="--h:30; position:absolute; top:20px; left:18px; width:60px; height:60px; border-radius:50%; box-shadow:0 0 0 2px rgba(232,197,126,.5);"></div>
+          <div style="position:absolute; left:88px; top:26px; right:16px;"><div style="font-family:var(--display); font-weight:700; font-size:18px; color:#fff;">Amina Osman</div><div style="font-size:12px; color:rgba(250,246,238,.8); margin-top:2px;">Founder · Sahel Pay</div></div>
+          <div style="position:absolute; left:18px; bottom:14px; font-family:var(--mono); font-size:10px; color:var(--gold);">LIVE PREVIEW</div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:13px; padding:12px; border:1px solid var(--cream-border); border-radius:12px; margin-bottom:16px; background:#FBFAF6;">
+          <div class="ph" style="--h:30; width:52px; height:52px; border-radius:50%; flex:none;"></div>
+          <div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:14px;">Your photo</div><div style="font-size:11.5px; color:var(--ink-muted); margin-top:2px;">Circle crop · looks great centered</div></div>
+          <button class="mbtn mbtn-sec mbtn-sm" style="width:auto; padding:0 14px;">Change</button>
+        </div>
+        <div class="field"><label>Display name</label><div class="input focus"><input value="Amina Osman" readonly></div></div>
+        <div class="field"><label>Title</label><div class="input"><input value="Founder" readonly></div></div>
+        <div class="field" style="margin-bottom:0;"><label>Company</label><div class="input"><input value="Sahel Pay" readonly></div></div>
+      </div></div>
+      <div class="stickycta"><button class="mbtn mbtn-forest">Generate card</button></div>
+      <!-- photo source sheet peeking is implied; keep clean -->
+    </div>
+  </div>
+</div>
+
+<!-- 16. Card ready -->
+<div class="dev" style="left:1000px; top:4340px;">
+  <div class="label">16 · Card ready</div><div class="sub">share caption · save / share</div>
+  <div class="phone">
+    <div class="screen dark">
+      <div class="appbar" style="background:transparent;"><div class="back" style="background:rgba(255,255,255,.12);"><svg viewBox="0 0 24 24" style="stroke:#fff;"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title" style="color:#fff;">Your card</div></div>
+      <div class="body"><div class="scroll" style="padding:6px 20px 20px; display:flex; flex-direction:column; align-items:center;">
+        <div class="hero-float" style="border-radius:18px; overflow:hidden; box-shadow:0 30px 60px -20px rgba(0,0,0,.6); position:relative; width:100%; aspect-ratio:1/1.12; background:linear-gradient(150deg,#163828,#1F4D3A 55%,#2A6A50);">
+          <div style="position:absolute; inset:0; background:radial-gradient(60% 50% at 85% 8%, rgba(232,197,126,.45), transparent 60%);"></div>
+          <div style="position:absolute; top:22px; left:22px; font-family:var(--mono); font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--gold);">I'm attending</div>
+          <div class="ph" style="--h:30; position:absolute; top:60px; left:22px; width:92px; height:92px; border-radius:50%; box-shadow:0 0 0 3px rgba(232,197,126,.55);"></div>
+          <div style="position:absolute; left:22px; bottom:78px; right:22px;"><div style="font-family:var(--display); font-weight:700; font-size:27px; color:#fff; letter-spacing:-0.02em;">Amina Osman</div><div style="font-family:var(--body); font-size:14px; color:rgba(250,246,238,.82); margin-top:3px;">Founder · Sahel Pay</div></div>
+          <div style="position:absolute; left:22px; right:22px; bottom:22px; padding-top:14px; border-top:1px solid rgba(255,255,255,.15); display:flex; justify-content:space-between; align-items:center;"><div style="font-family:var(--display); font-weight:600; font-size:13px; color:#fff;">AfriTech Summit 2026</div><div class="monos" style="font-size:11px; color:var(--gold);">eventera.io</div></div>
+        </div>
+        <div style="width:100%; margin-top:18px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14); border-radius:12px; padding:13px 14px;">
+          <div style="font-family:var(--mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:rgba(232,197,126,.85); margin-bottom:7px; display:flex; justify-content:space-between;">Suggested caption <span style="text-transform:none; letter-spacing:0; color:#fff;">Copy</span></div>
+          <div style="font-family:var(--body); font-size:13px; color:rgba(250,246,238,.9); line-height:1.5;">Heading to AfriTech Summit 2026 🌍 Let's build what's next. #AfriTech26</div>
+        </div>
+        <div style="display:flex; gap:10px; width:100%; margin-top:16px;">
+          <button class="mbtn mbtn-sec" style="flex:1; background:rgba(255,255,255,.1); color:#fff; border-color:rgba(255,255,255,.2);"><svg viewBox="0 0 24 24"><path d="M12 3v12M8 11l4 4 4-4M5 21h14"/></svg>Save</button>
+          <button class="mbtn mbtn-gold" style="flex:1;"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 13.2l7.6 4.6M15.8 6.2l-7.6 4.6"/></svg>Share</button>
+        </div>
+        <div style="font-family:var(--body); font-weight:600; font-size:13.5px; color:rgba(232,197,126,.9); margin-top:16px;">Make another</div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SECTION F — AGENDA & SESSIONS ============ -->
+<div class="canvas-h" style="left:80px; top:5320px;"><span class="big">F · Agenda &amp; sessions</span></div>
+
+<!-- 17. Schedule -->
+<div class="dev" style="left:80px; top:5400px;">
+  <div class="label">17 · Schedule</div><div class="sub">day tabs · my agenda toggle</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Schedule</div></div>
+      <div class="segnav"><div class="seg on">Thu 12</div><div class="seg">Fri 13</div><div class="seg">Sat 14</div></div>
+      <div class="pad" style="display:flex; align-items:center; justify-content:space-between; padding-top:12px; padding-bottom:8px;"><div class="seclab">Day 1 · 8 sessions</div><div style="display:flex; align-items:center; gap:8px;"><span style="font-family:var(--body); font-weight:600; font-size:12.5px; color:var(--ink-soft);">My agenda</span><div class="tgl"></div></div></div>
+      <div class="body"><div class="scroll pad" style="padding-bottom:16px;">
+        <div class="monos" style="font-size:11px; color:var(--ink-muted); margin:6px 0 8px;">09:00 — 10:00</div>
+        <div class="mcard" style="border-left:3px solid var(--gold); margin-bottom:12px; display:flex; gap:12px; align-items:flex-start;">
+          <div style="flex:1;"><div class="h3" style="font-size:15px;">Opening keynote</div><div style="display:flex; align-items:center; gap:8px; margin-top:8px;"><div class="av-cluster"><div class="av av-32 ph" style="--h:30;">AO</div></div><div style="font-size:12px; color:var(--ink-muted);">Amina Osman · Main Stage</div></div></div>
+          <button style="width:34px; height:34px; border-radius:9px; background:var(--forest); border:none; display:flex; align-items:center; justify-content:center; flex:none;"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.4;"><path d="M5 12l4 4 10-10"/></svg></button>
+        </div>
+        <div class="monos" style="font-size:11px; color:var(--ink-muted); margin:6px 0 8px;">10:30 — 11:30</div>
+        <div class="mcard" style="border-left:3px solid var(--forest); margin-bottom:12px; display:flex; gap:12px; align-items:flex-start;">
+          <div style="flex:1;"><div class="h3" style="font-size:15px;">Scaling across borders</div><div style="display:flex; align-items:center; gap:8px; margin-top:8px;"><div class="av-cluster"><div class="av av-32 ph" style="--h:200;">FK</div></div><div style="font-size:12px; color:var(--ink-muted);">Faisal Karim · Track A</div></div></div>
+          <button style="width:34px; height:34px; border-radius:9px; background:var(--cream-surface); border:1px solid var(--cream-border); display:flex; align-items:center; justify-content:center; flex:none;"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:var(--forest);fill:none;stroke-width:2.4;"><path d="M12 5v14M5 12h14"/></svg></button>
+        </div>
+        <div class="monos" style="font-size:11px; color:var(--ink-muted); margin:6px 0 8px;">13:00 — 15:00</div>
+        <div class="mcard" style="border-left:3px solid var(--info); display:flex; gap:12px; align-items:flex-start;">
+          <div style="flex:1;"><div class="h3" style="font-size:15px;">Design systems workshop</div><div style="display:flex; align-items:center; gap:8px; margin-top:8px;"><div class="av-cluster"><div class="av av-32 ph" style="--h:265;">LH</div></div><div style="font-size:12px; color:var(--ink-muted);">Leila Haddad · Workshop Room</div></div></div>
+          <button style="width:34px; height:34px; border-radius:9px; background:var(--cream-surface); border:1px solid var(--cream-border); display:flex; align-items:center; justify-content:center; flex:none;"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:var(--forest);fill:none;stroke-width:2.4;"><path d="M12 5v14M5 12h14"/></svg></button>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 17b. My agenda empty -->
+<div class="dev" style="left:540px; top:5400px;">
+  <div class="label">17 · My agenda (empty)</div><div class="sub">nothing saved for this day</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Schedule</div></div>
+      <div class="segnav"><div class="seg">Thu 12</div><div class="seg on">Fri 13</div><div class="seg">Sat 14</div></div>
+      <div class="pad" style="display:flex; align-items:center; justify-content:space-between; padding-top:12px; padding-bottom:8px;"><div class="seclab">My agenda</div><div style="display:flex; align-items:center; gap:8px;"><span style="font-family:var(--body); font-weight:600; font-size:12.5px; color:var(--forest);">My agenda</span><div class="tgl on"></div></div></div>
+      <div class="body" style="display:flex; align-items:center; justify-content:center;">
+        <div style="text-align:center; padding:0 44px;">
+          <div style="width:64px; height:64px; border-radius:50%; background:var(--cream-soft); display:flex; align-items:center; justify-content:center; margin:0 auto 18px;"><svg viewBox="0 0 24 24" style="width:28px;height:28px;stroke:var(--ink-muted);fill:none;stroke-width:1.6;"><rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg></div>
+          <div class="h3">Nothing saved yet</div>
+          <div class="bodytext muted" style="margin-top:6px;">Tap + on any session to build your Friday plan.</div>
+          <button class="mbtn mbtn-sec mbtn-sm" style="margin-top:20px; width:auto; padding:0 20px; display:inline-flex;">Browse all sessions</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 18. Session detail -->
+<div class="dev" style="left:1000px; top:5400px;">
+  <div class="label">18 · Session detail</div><div class="sub">speakers · rate · live Q&amp;A link</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title" style="font-size:15px;">Session</div><div class="spacer"></div><div class="act"><svg viewBox="0 0 24 24"><path d="M6 4h12v16l-6-4-6 4z"/></svg></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px;">
+        <div style="display:flex; gap:8px; margin-bottom:12px;"><div class="tag tag-gold"><span class="dot" style="background:var(--gold-hover);"></span>Keynote</div><div class="tag tag-info">Main Stage</div></div>
+        <div class="h1" style="font-size:23px;">Building for the next billion</div>
+        <div class="monos" style="font-size:12.5px; color:var(--ink-soft); margin-top:10px; display:flex; align-items:center; gap:8px;"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:var(--forest);fill:none;stroke-width:1.8;"><circle cx="12" cy="12" r="9"/><path d="M12 8v5l3 2"/></svg>Thu 12 Mar · 09:00 – 10:00</div>
+        <div class="bodytext" style="margin-top:16px;">How the next wave of African products win by designing for constraint — low bandwidth, cash-first users, and trust built one transaction at a time.</div>
+
+        <div class="seclab" style="margin:20px 0 12px;">Speaker</div>
+        <div style="display:flex; align-items:center; gap:12px;"><div class="av av-48 ph" style="--h:30;">AO</div><div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:15px;">Amina Osman</div><div style="font-size:12.5px; color:var(--ink-muted);">Founder, Sahel Pay</div></div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+
+        <div class="mcard" style="margin-top:20px; background:#FBFAF6;">
+          <div style="display:flex; align-items:center; justify-content:space-between;"><div style="font-family:var(--display); font-weight:600; font-size:14px;">Rate this session</div><div class="stars"><svg class="on" viewBox="0 0 24 24"><path d="M12 3l2.6 5.6 6 .7-4.4 4.1 1.2 6L12 16.8 6.6 19.4l1.2-6L3.4 9.3l6-.7z"/></svg><svg class="on" viewBox="0 0 24 24"><path d="M12 3l2.6 5.6 6 .7-4.4 4.1 1.2 6L12 16.8 6.6 19.4l1.2-6L3.4 9.3l6-.7z"/></svg><svg class="on" viewBox="0 0 24 24"><path d="M12 3l2.6 5.6 6 .7-4.4 4.1 1.2 6L12 16.8 6.6 19.4l1.2-6L3.4 9.3l6-.7z"/></svg><svg class="on" viewBox="0 0 24 24"><path d="M12 3l2.6 5.6 6 .7-4.4 4.1 1.2 6L12 16.8 6.6 19.4l1.2-6L3.4 9.3l6-.7z"/></svg><svg class="off" viewBox="0 0 24 24"><path d="M12 3l2.6 5.6 6 .7-4.4 4.1 1.2 6L12 16.8 6.6 19.4l1.2-6L3.4 9.3l6-.7z"/></svg></div></div>
+        </div>
+      </div></div>
+      <div class="stickycta"><button class="mbtn mbtn-sec" style="width:52px; flex:none;"><svg viewBox="0 0 24 24" style="stroke:var(--forest);"><path d="M12 5v14M5 12h14"/></svg></button><button class="mbtn mbtn-forest" style="flex:1;"><svg viewBox="0 0 24 24"><path d="M8 10h8M8 14h5M4 5h16v11H8l-4 3z"/></svg>Join live Q&amp;A</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SECTION G — SPEAKERS & SPONSORS ============ -->
+<div class="canvas-h" style="left:80px; top:6380px;"><span class="big">G · Speakers &amp; sponsors</span></div>
+
+<!-- 19. Speakers list -->
+<div class="dev" style="left:80px; top:6460px;">
+  <div class="label">19 · Speakers</div><div class="sub">grid of speaker cards</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Speakers</div><div class="spacer"></div><div class="act"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px;">
+        <div class="seclab" style="margin-bottom:12px;">24 speakers</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div><div class="ph" style="--h:30; width:100%; aspect-ratio:1; border-radius:12px; position:relative;"></div><div style="font-family:var(--display); font-weight:600; font-size:14px; margin-top:9px;">Amina Osman</div><div style="font-size:11.5px; color:var(--ink-muted); margin-top:1px;">Founder · Sahel Pay</div></div>
+          <div><div class="ph" style="--h:200; width:100%; aspect-ratio:1; border-radius:12px;"></div><div style="font-family:var(--display); font-weight:600; font-size:14px; margin-top:9px;">Faisal Karim</div><div style="font-size:11.5px; color:var(--ink-muted); margin-top:1px;">VP Eng · Andela</div></div>
+          <div><div class="ph" style="--h:265; width:100%; aspect-ratio:1; border-radius:12px;"></div><div style="font-family:var(--display); font-weight:600; font-size:14px; margin-top:9px;">Leila Haddad</div><div style="font-size:11.5px; color:var(--ink-muted); margin-top:1px;">Design Lead · Flutterwave</div></div>
+          <div><div class="ph" style="--h:100; width:100%; aspect-ratio:1; border-radius:12px;"></div><div style="font-family:var(--display); font-weight:600; font-size:14px; margin-top:9px;">Kwame Boateng</div><div style="font-size:11.5px; color:var(--ink-muted); margin-top:1px;">CTO · Paystack</div></div>
+          <div><div class="ph" style="--h:340; width:100%; aspect-ratio:1; border-radius:12px;"></div><div style="font-family:var(--display); font-weight:600; font-size:14px; margin-top:9px;">Zainab Ali</div><div style="font-size:11.5px; color:var(--ink-muted); margin-top:1px;">GM · MTN</div></div>
+          <div><div class="ph" style="--h:15; width:100%; aspect-ratio:1; border-radius:12px;"></div><div style="font-family:var(--display); font-weight:600; font-size:14px; margin-top:9px;">Yusuf Diallo</div><div style="font-size:11.5px; color:var(--ink-muted); margin-top:1px;">Partner · TLcom</div></div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 20. Speaker detail -->
+<div class="dev" style="left:540px; top:6460px;">
+  <div class="label">20 · Speaker detail</div><div class="sub">bio · socials · their sessions</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar" style="position:absolute; top:52px; left:0; right:0; z-index:20; background:transparent;"><div class="back" style="background:rgba(8,18,12,.42); backdrop-filter:blur(6px);"><svg viewBox="0 0 24 24" style="stroke:#fff;"><path d="M15 5l-7 7 7 7"/></svg></div></div>
+      <div class="body"><div class="scroll">
+        <div class="ph" style="--h:30; height:280px; position:relative;"><div class="scrim-b" style="position:absolute; inset:0;"></div><div style="position:absolute; left:20px; bottom:16px; z-index:2;"><div style="font-family:var(--display); font-weight:700; font-size:24px; color:#fff; letter-spacing:-0.02em;">Amina Osman</div><div style="font-size:13.5px; color:rgba(250,246,238,.85); margin-top:3px;">Founder &amp; CEO · Sahel Pay</div></div></div>
+        <div class="pad" style="padding-top:16px; padding-bottom:16px;">
+          <div style="display:flex; gap:10px; margin-bottom:18px;">
+            <div style="width:40px; height:40px; border-radius:10px; border:1px solid var(--cream-border); display:flex; align-items:center; justify-content:center;"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--forest);fill:none;stroke-width:1.8;"><path d="M4 4h16v16H4z"/><path d="M8 11v5M8 8v.01M12 16v-3a2 2 0 014 0v3"/></svg></div>
+            <div style="width:40px; height:40px; border-radius:10px; border:1px solid var(--cream-border); display:flex; align-items:center; justify-content:center;"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--forest);fill:none;stroke-width:1.8;"><path d="M22 5.8a8 8 0 01-2.3.6 4 4 0 001.8-2.2 8 8 0 01-2.5 1A4 4 0 0012 8.5a11 11 0 01-8-4s-2 4.5 1.5 7a4 4 0 01-1.8-.5c0 2 1.4 3.5 3.3 3.9a4 4 0 01-1.8.1 4 4 0 003.7 2.8A8 8 0 012 20.5a11 11 0 006 1.8c7.2 0 11.2-6 11-11.5A8 8 0 0022 5.8z"/></svg></div>
+            <div style="width:40px; height:40px; border-radius:10px; border:1px solid var(--cream-border); display:flex; align-items:center; justify-content:center;"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--forest);fill:none;stroke-width:1.8;"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 3 6.5 3 9s-.5 6.5-3 9c-2.5-2.5-3-6.5-3-9s.5-6.5 3-9z"/></svg></div>
+          </div>
+          <div class="bodytext">Amina founded Sahel Pay in 2019 to bring cash-first users into the digital economy. Under her, it grew to 4M+ wallets across the Horn of Africa. Previously she led product at a pan-African bank.</div>
+          <div class="seclab" style="margin:22px 0 12px;">Sessions</div>
+          <div class="mcard" style="border-left:3px solid var(--gold); margin-bottom:10px;"><div class="monos" style="font-size:11px; color:var(--ink-muted);">Thu 12 · 09:00</div><div class="h3" style="font-size:15px; margin-top:4px;">Building for the next billion</div><div style="font-size:12px; color:var(--ink-muted); margin-top:3px;">Main Stage · Keynote</div></div>
+          <div class="mcard" style="border-left:3px solid var(--forest);"><div class="monos" style="font-size:11px; color:var(--ink-muted);">Fri 13 · 14:00</div><div class="h3" style="font-size:15px; margin-top:4px;">Fireside: fintech founders</div><div style="font-size:12px; color:var(--ink-muted); margin-top:3px;">Track A · Panel</div></div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 21. Sponsors list -->
+<div class="dev" style="left:1000px; top:6460px;">
+  <div class="label">21 · Sponsors</div><div class="sub">grouped by tier</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Sponsors</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:16px; padding-bottom:16px;">
+        <div class="tag tag-gold" style="margin-bottom:14px;">Headline</div>
+        <div class="mcard" style="display:flex; align-items:center; gap:14px; margin-bottom:20px; border-color:var(--gold);"><div style="width:56px; height:56px; border-radius:12px; background:var(--forest-soft); display:flex; align-items:center; justify-content:center; font-family:var(--display); font-weight:700; color:var(--forest); font-size:20px; flex:none;">F</div><div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:16px;">Flutterwave</div><div style="font-size:12px; color:var(--ink-muted); margin-top:2px;">Payments infrastructure for Africa</div></div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+        <div class="tag tag-forest" style="margin-bottom:14px;">Gold tier</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px;">
+          <div class="mcard" style="align-items:center; text-align:center; display:flex; flex-direction:column; gap:8px;"><div style="width:44px; height:44px; border-radius:10px; background:var(--cream-soft); display:flex; align-items:center; justify-content:center; font-family:var(--display); font-weight:700; color:var(--ink-soft);">M</div><div style="font-family:var(--display); font-weight:600; font-size:13px;">MTN</div></div>
+          <div class="mcard" style="align-items:center; text-align:center; display:flex; flex-direction:column; gap:8px;"><div style="width:44px; height:44px; border-radius:10px; background:var(--cream-soft); display:flex; align-items:center; justify-content:center; font-family:var(--display); font-weight:700; color:var(--ink-soft);">A</div><div style="font-family:var(--display); font-weight:600; font-size:13px;">Andela</div></div>
+        </div>
+        <div class="tag" style="background:var(--cream-soft); color:var(--ink-soft); margin-bottom:14px; height:24px; padding:0 10px; border-radius:999px; font-size:11.5px; font-weight:600;">Community</div>
+        <div style="display:flex; flex-wrap:wrap; gap:10px;">
+          <div style="flex:1; min-width:80px; height:48px; border:1px solid var(--cream-border); border-radius:10px; display:flex; align-items:center; justify-content:center; font-family:var(--display); font-weight:600; color:var(--ink-muted); font-size:13px;">TLcom</div>
+          <div style="flex:1; min-width:80px; height:48px; border:1px solid var(--cream-border); border-radius:10px; display:flex; align-items:center; justify-content:center; font-family:var(--display); font-weight:600; color:var(--ink-muted); font-size:13px;">Paystack</div>
+          <div style="flex:1; min-width:80px; height:48px; border:1px solid var(--cream-border); border-radius:10px; display:flex; align-items:center; justify-content:center; font-family:var(--display); font-weight:600; color:var(--ink-muted); font-size:13px;">Chipper</div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 22. Booth detail -->
+<div class="dev" style="left:1460px; top:6460px;">
+  <div class="label">22 · Sponsor / booth</div><div class="sub">offerings · team · book a meeting</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title" style="font-size:15px;">Booth</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:16px; padding-bottom:16px;">
+        <div style="display:flex; align-items:center; gap:14px;"><div style="width:64px; height:64px; border-radius:14px; background:var(--forest-soft); display:flex; align-items:center; justify-content:center; font-family:var(--display); font-weight:700; color:var(--forest); font-size:24px; flex:none;">F</div><div><div class="h2" style="font-size:20px;">Flutterwave</div><div style="font-size:12.5px; color:var(--ink-muted); margin-top:2px;">Headline sponsor</div></div></div>
+        <div class="bodytext" style="margin-top:16px;">The easiest way to build financial services and businesses across Africa. Come see live demos at Booth A1.</div>
+        <div style="display:flex; gap:10px; margin-top:14px; padding:12px 14px; background:#FBFAF6; border:1px solid var(--cream-border); border-radius:12px;"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--forest);fill:none;stroke-width:1.8;flex:none;"><path d="M12 21s-7-6-7-11a7 7 0 1114 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><div style="font-size:12.5px; color:var(--ink-soft);"><b>Booth A1</b> · Main hall · open 09:00–17:00</div></div>
+
+        <div class="seclab" style="margin:22px 0 12px;">Offerings</div>
+        <div style="display:flex; flex-wrap:wrap; gap:8px;"><div class="tag tag-forest">Live demo</div><div class="tag tag-forest">API credits</div><div class="tag tag-forest">Swag</div><div class="tag tag-gold">Raffle</div></div>
+
+        <div class="seclab" style="margin:22px 0 12px;">Team at the booth</div>
+        <div style="display:flex; gap:16px;">
+          <div style="text-align:center;"><div class="av av-48 ph" style="--h:100;">KB</div><div style="font-size:11px; margin-top:6px; font-family:var(--display); font-weight:500;">Kwame</div></div>
+          <div style="text-align:center;"><div class="av av-48 ph" style="--h:340;">ZA</div><div style="font-size:11px; margin-top:6px; font-family:var(--display); font-weight:500;">Zainab</div></div>
+        </div>
+      </div></div>
+      <div class="stickycta"><button class="mbtn mbtn-forest"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg>Book a meeting</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SECTION H — LIVE ENGAGEMENT ============ -->
+<div class="canvas-h" style="left:80px; top:7440px;"><span class="big">H · Live engagement</span></div>
+
+<!-- 23. Q&A -->
+<div class="dev" style="left:80px; top:7520px;">
+  <div class="label">23 · Live Q&amp;A</div><div class="sub">sorted by upvotes · ask sheet</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Live Q&amp;A</div><div class="spacer"></div><div class="tag tag-danger"><span class="dot" style="background:var(--danger);"></span>Live</div></div>
+      <div class="chiprow pad" style="padding-top:10px; padding-bottom:10px;"><div class="chip on">Top</div><div class="chip">Recent</div><div class="chip">Opening keynote</div></div>
+      <div class="body"><div class="scroll pad" style="padding-bottom:16px;">
+        <div class="mcard" style="margin-bottom:10px; display:flex; gap:12px;">
+          <div style="display:flex; flex-direction:column; align-items:center; gap:3px; flex:none;"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:var(--forest);fill:none;stroke-width:2;"><path d="M12 5l7 8H5z"/></svg><div class="monos" style="font-size:13px; color:var(--forest); font-weight:500;">42</div></div>
+          <div style="flex:1;"><div style="font-family:var(--body); font-size:14px; color:var(--ink); line-height:1.45;">How do you handle KYC for users without formal ID documents?</div><div style="font-size:11.5px; color:var(--ink-muted); margin-top:8px;">Faisal K. · 2m ago</div></div>
+        </div>
+        <div class="mcard" style="margin-bottom:10px; display:flex; gap:12px;">
+          <div style="display:flex; flex-direction:column; align-items:center; gap:3px; flex:none;"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:var(--ink-muted);fill:none;stroke-width:2;"><path d="M12 5l7 8H5z"/></svg><div class="monos" style="font-size:13px; color:var(--ink-muted);">28</div></div>
+          <div style="flex:1;"><div style="font-family:var(--body); font-size:14px; color:var(--ink); line-height:1.45;">What's the biggest mistake founders make expanding across borders?</div><div style="font-size:11.5px; color:var(--ink-muted); margin-top:8px;">Anonymous · 5m ago</div></div>
+        </div>
+        <div class="mcard" style="display:flex; gap:12px;">
+          <div style="display:flex; flex-direction:column; align-items:center; gap:3px; flex:none;"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:var(--ink-muted);fill:none;stroke-width:2;"><path d="M12 5l7 8H5z"/></svg><div class="monos" style="font-size:13px; color:var(--ink-muted);">15</div></div>
+          <div style="flex:1;"><div style="font-family:var(--body); font-size:14px; color:var(--ink); line-height:1.45;">Any advice on hiring your first product designer?</div><div style="font-size:11.5px; color:var(--ink-muted); margin-top:8px;">Leila H. · 8m ago</div></div>
+        </div>
+      </div></div>
+      <div class="stickycta"><button class="mbtn mbtn-forest"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Ask a question</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- 23b. Ask sheet -->
+<div class="dev" style="left:540px; top:7520px;">
+  <div class="label">23 · Ask a question (sheet)</div><div class="sub">text · anonymous · session</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Live Q&amp;A</div></div>
+      <div class="body" style="opacity:.5;"><div class="pad" style="padding-top:14px;"><div class="mcard" style="margin-bottom:10px; height:64px;"></div><div class="mcard" style="height:64px;"></div></div></div>
+      <div class="scrim"></div>
+      <div class="sheet">
+        <div class="grab"></div>
+        <div class="h3" style="margin-bottom:14px;">Ask a question</div>
+        <div class="input textarea" style="align-items:flex-start; margin-bottom:16px;"><input placeholder="What would you like to ask?" readonly style="color:var(--ink);"></div>
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-top:1px solid var(--cream-border);"><div><div style="font-family:var(--body); font-weight:600; font-size:14px;">Ask anonymously</div><div style="font-size:11.5px; color:var(--ink-muted); margin-top:1px;">Your name won't be shown</div></div><div class="tgl on"></div></div>
+        <div class="field" style="margin:6px 0 16px;"><label>Session</label><div class="input" style="justify-content:space-between;"><span style="color:var(--ink);">Opening keynote</span><svg viewBox="0 0 24 24" style="stroke:var(--ink-muted);"><path d="M6 9l6 6 6-6"/></svg></div></div>
+        <button class="mbtn mbtn-forest">Post question</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 24. Polls -->
+<div class="dev" style="left:1000px; top:7520px;">
+  <div class="label">24 · Polls</div><div class="sub">active vote + live results</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Polls</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:16px; padding-bottom:16px;">
+        <div class="mcard" style="margin-bottom:16px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;"><div class="tag tag-danger"><span class="dot" style="background:var(--danger);"></span>Live now</div><div class="monos" style="font-size:11px; color:var(--ink-muted);">312 votes</div></div>
+          <div class="h3" style="font-size:16px; margin-bottom:14px;">Which track are you most excited for?</div>
+          <button class="mbtn mbtn-sec" style="justify-content:flex-start; margin-bottom:9px; padding:0 16px;">Fintech &amp; payments</button>
+          <button class="mbtn mbtn-sec" style="justify-content:flex-start; margin-bottom:9px; padding:0 16px;">Devtools &amp; infra</button>
+          <button class="mbtn mbtn-sec" style="justify-content:flex-start; padding:0 16px;">Design &amp; product</button>
+        </div>
+
+        <div class="mcard">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;"><div class="tag" style="background:var(--cream-soft); color:var(--ink-soft); height:24px; padding:0 10px; border-radius:999px; font-size:11.5px; font-weight:600;">Closed</div><div class="monos" style="font-size:11px; color:var(--ink-muted);">You voted</div></div>
+          <div class="h3" style="font-size:16px; margin-bottom:16px;">First time at AfriTech?</div>
+          <div style="margin-bottom:14px;"><div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;"><span style="font-family:var(--body); font-weight:600; color:var(--forest); display:flex; align-items:center; gap:6px;"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--forest);fill:none;stroke-width:2.4;"><path d="M5 12l4 4 10-10"/></svg>Yes, first time</span><span class="monos" style="color:var(--forest);">64%</span></div><div style="height:9px; border-radius:999px; background:var(--cream-soft);"><div style="width:64%; height:100%; border-radius:999px; background:var(--forest);"></div></div></div>
+          <div><div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;"><span style="color:var(--ink-soft);">Been before</span><span class="monos" style="color:var(--ink-muted);">36%</span></div><div style="height:9px; border-radius:999px; background:var(--cream-soft);"><div style="width:36%; height:100%; border-radius:999px; background:var(--gold);"></div></div></div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 25. Leaderboard -->
+<div class="dev" style="left:1460px; top:7520px;">
+  <div class="label">25 · Leaderboard</div><div class="sub">top 3 · "you" highlighted</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Leaderboard</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:16px; padding-bottom:16px;">
+        <!-- podium -->
+        <div style="display:flex; align-items:flex-end; justify-content:center; gap:14px; margin-bottom:22px;">
+          <div style="text-align:center;"><div class="av av-48 ph" style="--h:200; margin:0 auto;">FK</div><div style="font-family:var(--display); font-weight:600; font-size:12px; margin-top:7px;">Faisal</div><div class="monos" style="font-size:11px; color:var(--ink-muted);">1,840</div><div style="height:38px; width:56px; background:var(--cream-soft); border-radius:8px 8px 0 0; margin-top:6px; display:flex; align-items:center; justify-content:center; font-family:var(--display); font-weight:700; color:var(--ink-muted);">2</div></div>
+          <div style="text-align:center;"><svg viewBox="0 0 24 24" style="width:22px; height:22px; fill:var(--gold); margin-bottom:2px;"><path d="M5 16l-2-9 5.5 4L12 4l3.5 7L21 7l-2 9z"/></svg><div class="av av-64 ph" style="--h:30; margin:0 auto; box-shadow:0 0 0 3px var(--gold);">AO</div><div style="font-family:var(--display); font-weight:600; font-size:13px; margin-top:7px;">Amina</div><div class="monos" style="font-size:11px; color:var(--forest);">2,310</div><div style="height:56px; width:60px; background:var(--forest-soft); border-radius:8px 8px 0 0; margin-top:6px; display:flex; align-items:center; justify-content:center; font-family:var(--display); font-weight:700; color:var(--forest);">1</div></div>
+          <div style="text-align:center;"><div class="av av-48 ph" style="--h:265; margin:0 auto;">LH</div><div style="font-family:var(--display); font-weight:600; font-size:12px; margin-top:7px;">Leila</div><div class="monos" style="font-size:11px; color:var(--ink-muted);">1,590</div><div style="height:28px; width:56px; background:var(--cream-soft); border-radius:8px 8px 0 0; margin-top:6px; display:flex; align-items:center; justify-content:center; font-family:var(--display); font-weight:700; color:var(--ink-muted);">3</div></div>
+        </div>
+        <div class="lrow"><div class="monos" style="width:22px; color:var(--ink-muted); font-size:13px;">4</div><div class="av av-40 ph" style="--h:100;">KB</div><div style="flex:1; font-family:var(--display); font-weight:600; font-size:14px;">Kwame Boateng</div><div class="monos" style="font-size:13px; color:var(--ink-soft);">1,420</div></div>
+        <div class="lrow" style="background:var(--forest-soft); margin:0 -12px; padding:12px; border-radius:12px; border:none;"><div class="monos" style="width:22px; color:var(--forest); font-size:13px; padding-left:12px;">5</div><div class="av av-40">A</div><div style="flex:1; font-family:var(--display); font-weight:700; font-size:14px; color:var(--forest);">You</div><div class="monos" style="font-size:13px; color:var(--forest); padding-right:12px;">1,280</div></div>
+        <div class="lrow"><div class="monos" style="width:22px; color:var(--ink-muted); font-size:13px;">6</div><div class="av av-40 ph" style="--h:340;">ZA</div><div style="flex:1; font-family:var(--display); font-weight:600; font-size:14px;">Zainab Ali</div><div class="monos" style="font-size:13px; color:var(--ink-soft);">1,150</div></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SECTION I — NETWORKING ============ -->
+<div class="canvas-h" style="left:80px; top:8500px;"><span class="big">I · Networking</span></div>
+
+<!-- 26. People -->
+<div class="dev" style="left:80px; top:8580px;">
+  <div class="label">26 · People</div><div class="sub">AI matches · connect status</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">People</div><div class="spacer"></div><div class="act"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px;">
+        <div style="display:flex; align-items:center; gap:7px; margin-bottom:12px;"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:var(--gold-hover);fill:none;stroke-width:1.8;"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg><div class="seclab" style="color:var(--gold-hover);">Suggested for you</div></div>
+        <div class="mcard" style="margin-bottom:10px; border-color:var(--gold);">
+          <div style="display:flex; align-items:center; gap:12px;"><div class="av av-48 ph" style="--h:200;">FK</div><div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:15px;">Faisal Karim</div><div style="font-size:12px; color:var(--ink-muted); margin-top:1px;">VP Eng · Andela</div></div><div class="tag tag-gold">92% match</div></div>
+          <div style="font-size:12px; color:var(--ink-soft); background:var(--gold-soft); border-radius:9px; padding:9px 11px; margin-top:11px; line-height:1.4;">Both building fintech infra &amp; interested in the payments track.</div>
+          <button class="mbtn mbtn-forest mbtn-sm" style="margin-top:11px;"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Connect</button>
+        </div>
+        <div class="seclab" style="margin:18px 0 12px;">All attendees · 237</div>
+        <div class="lrow" style="padding-top:0;"><div class="av av-48 ph" style="--h:265;">LH</div><div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:14px;">Leila Haddad</div><div style="font-size:12px; color:var(--ink-muted);">Design Lead · Flutterwave</div></div><button class="mbtn mbtn-sec mbtn-sm" style="width:auto; padding:0 15px;">Connect</button></div>
+        <div class="lrow"><div class="av av-48 ph" style="--h:100;">KB</div><div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:14px;">Kwame Boateng</div><div style="font-size:12px; color:var(--ink-muted);">CTO · Paystack</div></div><button class="mbtn mbtn-sm" style="width:auto; padding:0 15px; background:var(--cream-soft); color:var(--ink-muted);">Pending</button></div>
+        <div class="lrow"><div class="av av-48 ph" style="--h:340;">ZA</div><div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:14px;">Zainab Ali</div><div style="font-size:12px; color:var(--ink-muted);">GM · MTN</div></div><button class="mbtn mbtn-sm" style="width:auto; padding:0 15px; background:var(--forest-soft); color:var(--forest);"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:var(--forest);"><path d="M5 12l4 4 10-10"/></svg>Connected</button></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 27. Requests -->
+<div class="dev" style="left:540px; top:8580px;">
+  <div class="label">27 · Requests</div><div class="sub">incoming / outgoing</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Requests</div></div>
+      <div class="segnav"><div class="seg on">Incoming · 2</div><div class="seg">Sent · 1</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px;">
+        <div class="mcard" style="margin-bottom:12px;">
+          <div style="display:flex; align-items:center; gap:12px;"><div class="av av-48 ph" style="--h:15;">YD</div><div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:15px;">Yusuf Diallo</div><div style="font-size:12px; color:var(--ink-muted); margin-top:1px;">Partner · TLcom Capital</div></div></div>
+          <div style="font-size:12.5px; color:var(--ink-soft); margin-top:10px; line-height:1.4;">"Loved your keynote — would love to chat about the seed round."</div>
+          <div style="display:flex; gap:10px; margin-top:12px;"><button class="mbtn mbtn-forest mbtn-sm" style="flex:1;">Accept</button><button class="mbtn mbtn-sec mbtn-sm" style="flex:1;">Decline</button></div>
+        </div>
+        <div class="mcard">
+          <div style="display:flex; align-items:center; gap:12px;"><div class="av av-48 ph" style="--h:100;">KB</div><div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:15px;">Kwame Boateng</div><div style="font-size:12px; color:var(--ink-muted); margin-top:1px;">CTO · Paystack</div></div></div>
+          <div style="display:flex; gap:10px; margin-top:12px;"><button class="mbtn mbtn-forest mbtn-sm" style="flex:1;">Accept</button><button class="mbtn mbtn-sec mbtn-sm" style="flex:1;">Decline</button></div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 28. Inbox -->
+<div class="dev" style="left:1000px; top:8580px;">
+  <div class="label">28 · Messages</div><div class="sub">thread list · unread dots</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Messages</div><div class="spacer"></div><div class="act"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 3z"/></svg></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:6px;">
+        <div class="lrow"><div class="av av-48 ph" style="--h:200;">FK</div><div style="flex:1; min-width:0;"><div style="display:flex; justify-content:space-between; align-items:center;"><div style="font-family:var(--display); font-weight:600; font-size:14.5px;">Faisal Karim</div><div class="monos" style="font-size:10.5px; color:var(--ink-muted);">2m</div></div><div style="font-size:12.5px; color:var(--ink); margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Great — see you at the payments track!</div></div><div class="dot" style="background:var(--forest); width:9px; height:9px;"></div></div>
+        <div class="lrow"><div class="av av-48 ph" style="--h:265;">LH</div><div style="flex:1; min-width:0;"><div style="display:flex; justify-content:space-between; align-items:center;"><div style="font-family:var(--display); font-weight:600; font-size:14.5px;">Leila Haddad</div><div class="monos" style="font-size:10.5px; color:var(--ink-muted);">1h</div></div><div style="font-size:12.5px; color:var(--ink-muted); margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">You: I'll send over the deck 👍</div></div></div>
+        <div class="lrow"><div class="av av-48 ph" style="--h:340;">ZA</div><div style="flex:1; min-width:0;"><div style="display:flex; justify-content:space-between; align-items:center;"><div style="font-family:var(--display); font-weight:600; font-size:14.5px;">Zainab Ali</div><div class="monos" style="font-size:10.5px; color:var(--ink-muted);">3h</div></div><div style="font-size:12.5px; color:var(--ink-muted); margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Thanks for connecting!</div></div></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 29. Chat -->
+<div class="dev" style="left:1460px; top:8580px;">
+  <div class="label">29 · Chat thread</div><div class="sub">forest = mine · composer</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="av av-32 ph" style="--h:200;">FK</div><div class="title" style="font-size:15px;">Faisal Karim</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:16px; display:flex; flex-direction:column; gap:10px;">
+        <div class="monos" style="font-size:10.5px; color:var(--ink-muted); text-align:center;">Today · 09:12</div>
+        <div style="align-self:flex-start; max-width:78%; background:var(--cream-surface); border:1px solid var(--cream-border); border-radius:16px 16px 16px 4px; padding:10px 14px; font-size:13.5px; color:var(--ink); line-height:1.4;">Hey Amina! Loved the keynote. Are you around after the payments panel?</div>
+        <div style="align-self:flex-end; max-width:78%; background:var(--forest); color:#fff; border-radius:16px 16px 4px 16px; padding:10px 14px; font-size:13.5px; line-height:1.4;">Thanks Faisal 🙏 Yes — let's grab coffee at the Flutterwave booth?</div>
+        <div style="align-self:flex-start; max-width:78%; background:var(--cream-surface); border:1px solid var(--cream-border); border-radius:16px 16px 16px 4px; padding:10px 14px; font-size:13.5px; color:var(--ink); line-height:1.4;">Great — see you at the payments track!</div>
+      </div></div>
+      <div class="stickycta" style="padding:10px 16px 22px; gap:10px;">
+        <div class="input" style="flex:1; height:46px;"><input placeholder="Message" readonly></div>
+        <button style="width:46px; height:46px; border-radius:12px; background:var(--forest); border:none; flex:none; display:flex; align-items:center; justify-content:center;"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2;"><path d="M4 12l16-8-6 16-2-6z"/></svg></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SECTION J — FEEDBACK ============ -->
+<div class="canvas-h" style="left:80px; top:9560px;"><span class="big">J · Feedback</span></div>
+
+<!-- 30. Feedback -->
+<div class="dev" style="left:80px; top:9640px;">
+  <div class="label">30 · Feedback</div><div class="sub">rating · highlights · comment</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Feedback</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:20px; padding-bottom:16px;">
+        <div class="h1" style="font-size:22px;">How was AfriTech Summit?</div>
+        <div class="bodytext muted" style="margin-top:6px;">Your feedback helps the organizers.</div>
+        <div class="stars" style="justify-content:center; gap:12px; margin:28px 0;"><svg class="on" viewBox="0 0 24 24"><path d="M12 3l2.6 5.6 6 .7-4.4 4.1 1.2 6L12 16.8 6.6 19.4l1.2-6L3.4 9.3l6-.7z"/></svg><svg class="on" viewBox="0 0 24 24"><path d="M12 3l2.6 5.6 6 .7-4.4 4.1 1.2 6L12 16.8 6.6 19.4l1.2-6L3.4 9.3l6-.7z"/></svg><svg class="on" viewBox="0 0 24 24"><path d="M12 3l2.6 5.6 6 .7-4.4 4.1 1.2 6L12 16.8 6.6 19.4l1.2-6L3.4 9.3l6-.7z"/></svg><svg class="on" viewBox="0 0 24 24"><path d="M12 3l2.6 5.6 6 .7-4.4 4.1 1.2 6L12 16.8 6.6 19.4l1.2-6L3.4 9.3l6-.7z"/></svg><svg class="off" viewBox="0 0 24 24"><path d="M12 3l2.6 5.6 6 .7-4.4 4.1 1.2 6L12 16.8 6.6 19.4l1.2-6L3.4 9.3l6-.7z"/></svg></div>
+        <div class="seclab" style="margin-bottom:12px;">What stood out?</div>
+        <div style="display:flex; flex-wrap:wrap; gap:9px; margin-bottom:22px;"><div class="chip on">Speakers</div><div class="chip on">Networking</div><div class="chip">Venue</div><div class="chip">Content</div><div class="chip">Organization</div><div class="chip">Food</div></div>
+        <div class="field"><label>Anything else? (optional)</label><div class="input textarea"><input placeholder="Share a highlight or suggestion" readonly></div></div>
+      </div></div>
+      <div class="stickycta"><button class="mbtn mbtn-forest">Submit feedback</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- 30b. Thank you -->
+<div class="dev" style="left:540px; top:9640px;">
+  <div class="label">30 · Thank-you state</div><div class="sub">submitted</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar"><div class="spacer"></div><div class="act"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></div></div>
+      <div class="body" style="display:flex; align-items:center; justify-content:center;">
+        <div style="text-align:center; padding:0 40px;">
+          <div style="width:76px; height:76px; border-radius:50%; background:var(--forest-soft); display:flex; align-items:center; justify-content:center; margin:0 auto 20px;"><svg viewBox="0 0 24 24" style="width:36px;height:36px;stroke:var(--forest);fill:none;stroke-width:2.2;"><path d="M5 12l4 4 10-10"/></svg></div>
+          <div class="h1" style="font-size:24px;">Thank you!</div>
+          <div class="bodytext muted" style="margin-top:8px;">Your feedback went to the Karta Studio team. See you at the next one.</div>
+          <button class="mbtn mbtn-sec" style="margin-top:24px;">Back to event</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SECTION K — ACCOUNT ============ -->
+<div class="canvas-h" style="left:1000px; top:9560px;"><span class="big">K · Account</span></div>
+
+<!-- 31. Account hub -->
+<div class="dev" style="left:1000px; top:9640px;">
+  <div class="label">31 · Account hub</div><div class="sub">profile · rows · sign out</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="title">Account</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px;">
+        <div style="display:flex; align-items:center; gap:14px; margin-bottom:22px;"><div class="av av-64">A</div><div><div class="h2" style="font-size:19px;">Amina Osman</div><div style="font-size:12.5px; color:var(--ink-muted); margin-top:2px;">amina@sahelpay.co</div></div></div>
+        <div class="mcard" style="padding:0;">
+          <div class="lrow" style="padding:14px 16px;"><svg class="chev" style="stroke:var(--forest);" viewBox="0 0 24 24"><path d="M4 8a2 2 0 012-2h12a2 2 0 012 2v3a2 2 0 000 4v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3a2 2 0 000-4z"/></svg><div style="flex:1; font-family:var(--display); font-weight:500; font-size:15px;">My tickets</div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+          <div class="lrow" style="padding:14px 16px;"><svg class="chev" style="stroke:var(--forest);" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="8.5" cy="11" r="2"/><path d="M13 9h5M13 13h5"/></svg><div style="flex:1; font-family:var(--display); font-weight:500; font-size:15px;">My cards</div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+          <div class="lrow" style="padding:14px 16px;"><svg class="chev" style="stroke:var(--forest);" viewBox="0 0 24 24"><path d="M6 4h12v16l-6-4-6 4z"/></svg><div style="flex:1; font-family:var(--display); font-weight:500; font-size:15px;">Saved events</div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+          <div class="lrow" style="padding:14px 16px;"><svg class="chev" style="stroke:var(--forest);" viewBox="0 0 24 24"><path d="M12 21s-7-6-7-11a7 7 0 1114 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><div style="flex:1; font-family:var(--display); font-weight:500; font-size:15px;">Following</div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+          <div class="lrow" style="padding:14px 16px;"><svg class="chev" style="stroke:var(--forest);" viewBox="0 0 24 24"><path d="M6 9a6 6 0 0112 0c0 5 2 6 2 6H4s2-1 2-6z"/><path d="M10.5 20a2 2 0 003 0"/></svg><div style="flex:1; font-family:var(--display); font-weight:500; font-size:15px;">Notifications</div><span class="tag tag-danger" style="height:20px; padding:0 8px;">3</span><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+          <div class="lrow" style="padding:14px 16px;"><svg class="chev" style="stroke:var(--forest);" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 00-.1-1l2-1.5-2-3.4-2.3 1a7 7 0 00-1.7-1l-.3-2.5H9.4l-.3 2.5a7 7 0 00-1.7 1l-2.3-1-2 3.4 2 1.5a7 7 0 000 2l-2 1.5 2 3.4 2.3-1a7 7 0 001.7 1l.3 2.5h4.2l.3-2.5a7 7 0 001.7-1l2.3 1 2-3.4-2-1.5a7 7 0 00.1-1z"/></svg><div style="flex:1; font-family:var(--display); font-weight:500; font-size:15px;">Profile &amp; settings</div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+        </div>
+        <button class="mbtn mbtn-text" style="margin-top:20px; color:var(--danger); font-weight:600;">Sign out</button>
+      </div></div>
+      <div class="tabbar">
+        <div class="tab"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span>Discover</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><path d="M4 8a2 2 0 012-2h12a2 2 0 012 2v3a2 2 0 000 4v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3a2 2 0 000-4z"/></svg><span>Tickets</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="8.5" cy="11" r="2"/><path d="M13 9h5M13 13h5"/></svg><span>Cards</span></div>
+        <div class="tab on"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0113 0"/></svg><span>Account</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 32. Saved -->
+<div class="dev" style="left:1460px; top:9640px;">
+  <div class="label">32 · Saved events</div><div class="sub">bookmarked · un-save</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Saved events</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px;">
+        <div class="mcard" style="padding:0; overflow:hidden; margin-bottom:14px;">
+          <div style="display:flex; gap:13px; padding:13px;"><div class="ph" style="--h:158; width:64px; height:64px; border-radius:10px; flex:none;"></div><div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:15px;">AfriTech Summit 2026</div><div class="monos" style="font-size:11.5px; color:var(--ink-muted); margin-top:4px;">12 Mar · Djibouti</div><div class="tag tag-forest" style="margin-top:8px;">From $25</div></div><svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:var(--forest);stroke:var(--forest);stroke-width:1.5;flex:none;"><path d="M6 4h12v16l-6-4-6 4z"/></svg></div>
+        </div>
+        <div class="mcard" style="padding:0; overflow:hidden; margin-bottom:14px;">
+          <div style="display:flex; gap:13px; padding:13px;"><div class="ph" style="--h:265; width:64px; height:64px; border-radius:10px; flex:none;"></div><div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:15px;">Nairobi Design Week</div><div class="monos" style="font-size:11.5px; color:var(--ink-muted); margin-top:4px;">04 Apr · Nairobi</div><div class="tag tag-forest" style="margin-top:8px;">From $15</div></div><svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:var(--forest);stroke:var(--forest);stroke-width:1.5;flex:none;"><path d="M6 4h12v16l-6-4-6 4z"/></svg></div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 33. Following -->
+<div class="dev" style="left:1920px; top:9640px;">
+  <div class="label">33 · Following</div><div class="sub">organizers · notify toggle</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Following</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:6px;">
+        <div class="lrow"><div class="av av-48">K</div><div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:14.5px;">Karta Studio</div><div style="font-size:12px; color:var(--ink-muted);">12 events · 4.2k followers</div></div><div style="display:flex; align-items:center; gap:12px;"><div class="tgl on"></div><button class="mbtn mbtn-sm" style="width:auto; padding:0 13px; background:var(--forest-soft); color:var(--forest);">Following</button></div></div>
+        <div class="lrow"><div class="av av-48 ph" style="--h:200;">SP</div><div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:14.5px;">Sahel Pay Events</div><div style="font-size:12px; color:var(--ink-muted);">5 events · 1.8k followers</div></div><div style="display:flex; align-items:center; gap:12px;"><div class="tgl"></div><button class="mbtn mbtn-sm" style="width:auto; padding:0 13px; background:var(--forest-soft); color:var(--forest);">Following</button></div></div>
+        <div class="lrow"><div class="av av-48 ph" style="--h:340;">ND</div><div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:14.5px;">Nairobi Design Wk</div><div style="font-size:12px; color:var(--ink-muted);">3 events · 920 followers</div></div><div style="display:flex; align-items:center; gap:12px;"><div class="tgl on"></div><button class="mbtn mbtn-sm" style="width:auto; padding:0 13px; background:var(--forest-soft); color:var(--forest);">Following</button></div></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 34. Notifications -->
+<div class="dev" style="left:2380px; top:9640px;">
+  <div class="label">34 · Notifications</div><div class="sub">icon per type · mark all read</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Notifications</div><div class="spacer"></div><div style="font-family:var(--body); font-weight:600; font-size:12.5px; color:var(--forest);">Mark all</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:6px;">
+        <div class="lrow" style="align-items:flex-start;"><div style="width:38px; height:38px; border-radius:10px; background:var(--forest-soft); display:flex; align-items:center; justify-content:center; flex:none;"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--forest);fill:none;stroke-width:1.8;"><path d="M4 8a2 2 0 012-2h12a2 2 0 012 2v3a2 2 0 000 4v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3a2 2 0 000-4z"/></svg></div><div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:14px;">Ticket confirmed</div><div style="font-size:12.5px; color:var(--ink-muted); margin-top:2px; line-height:1.4;">Your GA ticket for AfriTech Summit is ready.</div><div class="monos" style="font-size:10.5px; color:var(--ink-muted); margin-top:5px;">2m ago</div></div><div class="dot" style="background:var(--forest); width:9px; height:9px; margin-top:4px;"></div></div>
+        <div class="lrow" style="align-items:flex-start;"><div style="width:38px; height:38px; border-radius:10px; background:var(--gold-soft); display:flex; align-items:center; justify-content:center; flex:none;"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--gold-hover);fill:none;stroke-width:1.8;"><path d="M12 5v14M5 12h14"/></svg></div><div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:14px;">Faisal wants to connect</div><div style="font-size:12.5px; color:var(--ink-muted); margin-top:2px; line-height:1.4;">Tap to accept the request.</div><div class="monos" style="font-size:10.5px; color:var(--ink-muted); margin-top:5px;">18m ago</div></div><div class="dot" style="background:var(--forest); width:9px; height:9px; margin-top:4px;"></div></div>
+        <div class="lrow" style="align-items:flex-start;"><div style="width:38px; height:38px; border-radius:10px; background:var(--cream-soft); display:flex; align-items:center; justify-content:center; flex:none;"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--info);fill:none;stroke-width:1.8;"><circle cx="12" cy="12" r="9"/><path d="M12 8v5l3 2"/></svg></div><div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:14px;">Keynote starts in 15 min</div><div style="font-size:12.5px; color:var(--ink-muted); margin-top:2px; line-height:1.4;">Main Stage · Building for the next billion.</div><div class="monos" style="font-size:10.5px; color:var(--ink-muted); margin-top:5px;">1h ago</div></div></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 35. Profile / settings -->
+<div class="dev" style="left:2840px; top:9640px;">
+  <div class="label">35 · Profile &amp; settings</div><div class="sub">interests · notification prefs</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Profile</div><div class="spacer"></div><div style="font-family:var(--body); font-weight:600; font-size:13px; color:var(--forest);">Save</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:16px; padding-bottom:16px;">
+        <div style="display:flex; flex-direction:column; align-items:center; margin-bottom:22px;"><div style="position:relative;"><div class="av av-64">A</div><div style="position:absolute; bottom:-2px; right:-2px; width:26px; height:26px; border-radius:50%; background:var(--forest); border:2px solid var(--cream-canvas); display:flex; align-items:center; justify-content:center;"><svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2;"><path d="M4 20h4l10-10-4-4L4 16z"/></svg></div></div><div style="font-family:var(--body); font-weight:600; font-size:12.5px; color:var(--forest); margin-top:10px;">Change photo</div></div>
+        <div class="field"><label>Full name</label><div class="input"><input value="Amina Osman" readonly></div></div>
+        <div class="field"><label>City</label><div class="input"><input value="Djibouti City" readonly></div></div>
+        <div class="field"><label>Phone</label><div class="input"><input value="+253 77 12 34 56" readonly></div></div>
+        <div class="seclab" style="margin:8px 0 12px;">Interests</div>
+        <div style="display:flex; flex-wrap:wrap; gap:9px; margin-bottom:22px;"><div class="chip on">Fintech</div><div class="chip on">Design</div><div class="chip">Music</div><div class="chip on">Startups</div><div class="chip">Climate</div><div class="chip">AI</div></div>
+        <div class="seclab" style="margin-bottom:6px;">Notifications</div>
+        <div class="lrow"><div style="flex:1; font-family:var(--body); font-weight:500; font-size:14px;">Event reminders</div><div class="tgl on"></div></div>
+        <div class="lrow"><div style="flex:1; font-family:var(--body); font-weight:500; font-size:14px;">New messages</div><div class="tgl on"></div></div>
+        <div class="lrow"><div style="flex:1; font-family:var(--body); font-weight:500; font-size:14px;">Organizer updates</div><div class="tgl"></div></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SECTION L — SYSTEM STATES ============ -->
+<div class="canvas-h" style="left:80px; top:10620px;"><span class="big">L · System states</span><div class="lead">Reusable, in-brand states every screen composes from.</div></div>
+
+<!-- Loading -->
+<div class="dev" style="left:80px; top:10740px;">
+  <div class="label">36 · Loading</div><div class="sub">skeleton matches layout</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="skl" style="width:120px; height:16px;"></div></div>
+      <div class="body"><div class="pad" style="padding-top:16px;">
+        <div class="skl" style="height:210px; border-radius:14px; margin-bottom:16px;"></div>
+        <div class="skl" style="height:20px; width:70%; margin-bottom:10px;"></div>
+        <div class="skl" style="height:14px; width:50%; margin-bottom:22px;"></div>
+        <div style="display:flex; gap:12px; margin-bottom:16px;"><div class="skl" style="width:44px; height:44px; border-radius:50%;"></div><div style="flex:1;"><div class="skl" style="height:13px; width:60%; margin-bottom:8px;"></div><div class="skl" style="height:11px; width:40%;"></div></div></div>
+        <div class="skl" style="height:12px; margin-bottom:9px;"></div>
+        <div class="skl" style="height:12px; margin-bottom:9px;"></div>
+        <div class="skl" style="height:12px; width:80%;"></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Empty -->
+<div class="dev" style="left:540px; top:10740px;">
+  <div class="label">36 · Empty</div><div class="sub">nothing here yet</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="title">My cards</div></div>
+      <div class="body" style="display:flex; align-items:center; justify-content:center;">
+        <div style="text-align:center; padding:0 44px;">
+          <div style="width:72px; height:72px; border-radius:18px; background:var(--cream-soft); display:flex; align-items:center; justify-content:center; margin:0 auto 18px;"><svg viewBox="0 0 24 24" style="width:32px;height:32px;stroke:var(--ink-muted);fill:none;stroke-width:1.6;"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="8.5" cy="11" r="2"/><path d="M13 9h5M13 13h5"/></svg></div>
+          <div class="h3">No cards yet</div>
+          <div class="bodytext muted" style="margin-top:6px;">Make a card for any event you're attending and share it.</div>
+          <button class="mbtn mbtn-forest mbtn-sm" style="margin-top:20px; width:auto; padding:0 22px; display:inline-flex;">Make a card</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Error -->
+<div class="dev" style="left:1000px; top:10740px;">
+  <div class="label">36 · Error</div><div class="sub">something went wrong · retry</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Event</div></div>
+      <div class="body" style="display:flex; align-items:center; justify-content:center;">
+        <div style="text-align:center; padding:0 44px;">
+          <div style="width:72px; height:72px; border-radius:50%; background:rgba(184,66,60,.1); display:flex; align-items:center; justify-content:center; margin:0 auto 18px;"><svg viewBox="0 0 24 24" style="width:32px;height:32px;stroke:var(--danger);fill:none;stroke-width:1.8;"><path d="M12 8v5M12 16.5v.01"/><circle cx="12" cy="12" r="9"/></svg></div>
+          <div class="h3">Couldn't load this event</div>
+          <div class="bodytext muted" style="margin-top:6px;">Check your connection and try again.</div>
+          <button class="mbtn mbtn-forest mbtn-sm" style="margin-top:20px; width:auto; padding:0 22px; display:inline-flex;"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 018-8 8 8 0 016.9 4M20 12a8 8 0 01-8 8 8 8 0 01-6.9-4M18 4v4h-4M6 20v-4h4"/></svg>Try again</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Offline -->
+<div class="dev" style="left:1460px; top:10740px;">
+  <div class="label">36 · Offline</div><div class="sub">no connection · tickets cached</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="title">Discover</div></div>
+      <div style="background:var(--forest-dark); color:#fff; padding:9px 20px; display:flex; align-items:center; gap:9px; font-family:var(--body); font-size:12.5px;"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:var(--gold);fill:none;stroke-width:1.8;"><path d="M3 3l18 18M9 17.5a4 4 0 016 0M5.5 13a9 9 0 014-2.4M2 8.8A14 14 0 0110 6"/></svg>You're offline — showing cached tickets</div>
+      <div class="body" style="display:flex; align-items:center; justify-content:center;">
+        <div style="text-align:center; padding:0 44px;">
+          <div style="width:72px; height:72px; border-radius:50%; background:var(--cream-soft); display:flex; align-items:center; justify-content:center; margin:0 auto 18px;"><svg viewBox="0 0 24 24" style="width:32px;height:32px;stroke:var(--ink-muted);fill:none;stroke-width:1.6;"><path d="M3 3l18 18M9 17.5a4 4 0 016 0M5.5 13a9 9 0 014-2.4M2 8.8A14 14 0 0110 6"/></svg></div>
+          <div class="h3">No connection</div>
+          <div class="bodytext muted" style="margin-top:6px;">Your saved tickets and QR codes still work offline.</div>
+          <button class="mbtn mbtn-sec mbtn-sm" style="margin-top:20px; width:auto; padding:0 22px; display:inline-flex;">View my tickets</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Not signed in -->
+<div class="dev" style="left:1920px; top:10740px;">
+  <div class="label">36 · Not signed in</div><div class="sub">gated action</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">My tickets</div></div>
+      <div class="body" style="display:flex; align-items:center; justify-content:center;">
+        <div style="text-align:center; padding:0 40px;">
+          <div style="width:72px; height:72px; border-radius:50%; background:var(--forest-soft); display:flex; align-items:center; justify-content:center; margin:0 auto 18px;"><svg viewBox="0 0 24 24" style="width:32px;height:32px;stroke:var(--forest);fill:none;stroke-width:1.7;"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></div>
+          <div class="h3">Sign in to see your tickets</div>
+          <div class="bodytext muted" style="margin-top:6px;">Hold tickets, make your card, and connect with people at the event.</div>
+          <button class="mbtn mbtn-forest" style="margin-top:22px;">Sign in</button>
+          <button class="mbtn mbtn-text" style="margin-top:12px; font-weight:600;">Maybe later</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast demo -->
+<div class="dev" style="left:2380px; top:10740px;">
+  <div class="label">Snackbar / toast</div><div class="sub">bottom · ink surface</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Session</div></div>
+      <div class="body"><div class="pad" style="padding-top:16px; opacity:.65;">
+        <div class="mcard" style="border-left:3px solid var(--gold); margin-bottom:12px;"><div class="h3" style="font-size:15px;">Opening keynote</div><div style="font-size:12px; color:var(--ink-muted); margin-top:6px;">Main Stage · 09:00</div></div>
+        <div class="mcard" style="border-left:3px solid var(--forest);"><div class="h3" style="font-size:15px;">Scaling across borders</div><div style="font-size:12px; color:var(--ink-muted); margin-top:6px;">Track A · 10:30</div></div>
+      </div></div>
+      <div class="toast"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>Added to your agenda<span style="margin-left:auto; color:var(--gold); font-weight:600;">Undo</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================== -->
+<!-- MORE-SCREENS-ANCHOR -->
+
+<script>
+  // ---- inject phone chrome (status bar, notch, home indicator) ----
+  const clock = '9:41';
+  const statusSys = `<div class="sys">
+    <svg viewBox="0 0 18 12"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="4.5" y="4.5" width="3" height="7.5" rx="1"/><rect x="9" y="2" width="3" height="10" rx="1"/><rect x="13.5" y="0" width="3" height="12" rx="1"/></svg>
+    <svg viewBox="0 0 18 12"><path d="M9 2.5c2.4 0 4.6.9 6.2 2.4l1.3-1.4A11 11 0 009 .5 11 11 0 001.5 3.5l1.3 1.4A9 9 0 019 2.5z"/><path d="M9 6c1.3 0 2.5.5 3.4 1.3l1.3-1.4A7 7 0 009 4a7 7 0 00-4.7 1.9l1.3 1.4A5 5 0 019 6z"/><path d="M9 9.5l2-2.1A3 3 0 009 6.5a3 3 0 00-2 .9z"/></svg>
+    <svg viewBox="0 0 26 12" style="width:24px;"><rect x="0.5" y="1" width="21" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1" opacity=".4"/><rect x="2" y="2.5" width="16" height="7" rx="1"/><rect x="23" y="4" width="1.6" height="4" rx="0.8"/></svg>
+  </div>`;
+  document.querySelectorAll('.screen').forEach(s=>{
+    if(!s.hasAttribute('data-nostatus')){
+      const bar=document.createElement('div');
+      bar.className='statusbar'+(s.classList.contains('dark')?' on-dark':'');
+      bar.innerHTML=`<div class="time">${clock}</div>${statusSys}`;
+      s.insertBefore(bar, s.firstChild);
+    }
+  });
+  document.querySelectorAll('.phone').forEach(p=>{
+    p.insertAdjacentHTML('afterbegin','<div class="notch"></div>');
+    p.insertAdjacentHTML('beforeend','<div class="homebar"></div>');
+  });
+  // ---- fill QR placeholders deterministically ----
+  document.querySelectorAll('.qr').forEach((q,qi)=>{
+    let seed=9301+qi*7;
+    const rnd=()=>{ seed=(seed*9301+49297)%233280; return seed/233280; };
+    let html='';
+    const finder=(r,c)=>((r<7&&c<7)||(r<7&&c>13)||(r>13&&c<7));
+    for(let r=0;r<21;r++)for(let c=0;c<21;c++){
+      let on;
+      if(finder(r,c)){ on=((r===0||r===6||r===14||r===20||c===0||c===6||c===14||c===20)|| (r>=2&&r<=4&&c>=2&&c<=4)||(r>=2&&r<=4&&c>=16&&c<=18)||(r>=16&&r<=18&&c>=2&&c<=4)); }
+      else on=rnd()>0.55;
+      html+=`<i style="${on?'':'background:transparent'}"></i>`;
+    }
+    q.innerHTML=html;
+  });
+</script>
+</body>
+</html>

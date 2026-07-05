@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W21 · Live Poll + Leaderboard</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .pollband { background: var(--cream-soft); border-bottom: 1px solid var(--cream-border); }
+  .pollband .inner { max-width: 680px; margin: 0 auto; padding: 40px; }
+  .live-lab { font-family: var(--body); font-weight: 600; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold-hover); }
+  .pollband h2 { font-family: var(--display); font-weight: 400; font-size: 22px; color: var(--forest); margin: 10px 0 22px; letter-spacing: -0.01em; }
+  .opt { position: relative; height: 56px; border: 1px solid var(--cream-border); border-radius: var(--r-card); background: var(--cream-surface); display: flex; align-items: center; padding: 0 18px; font-family: var(--body); font-weight: 500; font-size: 15px; color: var(--forest); cursor: pointer; margin-bottom: 12px; overflow: hidden; }
+  .opt .bar { position: absolute; left: 0; top: 0; bottom: 0; background: var(--forest-soft); width: 0; transition: width .6s cubic-bezier(.4,0,.2,1); z-index: 0; }
+  .opt .lbl, .opt .pct, .opt .chk { position: relative; z-index: 1; }
+  .opt .pct { margin-left: auto; font-family: var(--mono); font-weight: 500; font-size: 14px; color: var(--forest); opacity: 0; }
+  .opt .chk { margin-left: auto; display: none; }
+  .opt.sel { border-color: var(--forest); }
+  .voted .opt .pct { opacity: 1; }
+  .voted .opt.sel { background: transparent; }
+  .voted .opt.sel .bar { background: var(--forest); }
+  .voted .opt.sel .lbl { color: #fff; }
+  .responses { font-family: var(--mono); font-size: 12px; color: var(--ink-muted); margin-top: 6px; }
+
+  .lb { max-width: 760px; margin: 56px auto 96px; padding: 0 40px; }
+  .lb h2 { font-family: var(--display); font-weight: 400; font-size: 22px; color: var(--forest); }
+  .lb .sub { font-family: var(--body); font-size: 14px; color: var(--ink-muted); margin-top: 4px; }
+
+  .podium { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; align-items: end; margin: 32px 0; }
+  .pod { text-align: center; }
+  .pod .pav { border-radius: 50%; margin: 0 auto 10px; }
+  .pod.p1 .pav { width: 72px; height: 72px; box-shadow: 0 0 0 2px var(--gold); }
+  .pod.p2 .pav, .pod.p3 .pav { width: 56px; height: 56px; }
+  .pod .crown { font-size: 16px; margin-bottom: 2px; }
+  .pod .nm { font-family: var(--display); font-weight: 500; font-size: 14px; color: var(--forest); }
+  .pod .pts { font-family: var(--mono); font-weight: 500; font-size: 16px; color: var(--ink); margin-top: 3px; }
+  .pod.p1 .pts { font-size: 20px; color: var(--forest); }
+  .pod .rk { font-family: var(--mono); font-size: 12px; color: var(--ink-muted); margin-top: 2px; }
+  .pod.p1 .rk { color: var(--gold-hover); }
+  .pod .stand { background: var(--cream-soft); border: 1px solid var(--cream-border); border-radius: var(--r-card) var(--r-card) 0 0; margin-top: 12px; }
+  .pod.p1 .stand { height: 70px; } .pod.p2 .stand { height: 48px; } .pod.p3 .stand { height: 34px; }
+
+  .lrow { display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--cream-border); }
+  .lrow .rk { font-family: var(--mono); font-size: 13px; color: var(--ink-muted); width: 24px; }
+  .lrow .ph { width: 36px; height: 36px; border-radius: 50%; }
+  .lrow .nm { font-family: var(--body); font-weight: 500; font-size: 14px; color: var(--ink); }
+  .lrow .role { font-family: var(--body); font-size: 12px; color: var(--ink-muted); }
+  .lrow .pts { margin-left: auto; font-family: var(--mono); font-weight: 500; font-size: 14px; color: var(--forest); }
+
+  .yourpos { margin-top: 28px; padding: 18px 22px; background: var(--cream-soft); border: 1px solid var(--cream-border); border-radius: var(--r-card); font-family: var(--body); font-size: 14px; color: var(--ink-muted); }
+  .yourpos b { font-family: var(--mono); font-weight: 500; color: var(--ink); }
+
+  @media (max-width:600px){ .pollband .inner, .lb { padding: 28px 18px; } }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links"><a href="w06-discovery.html">Discover</a><a href="w13-speakers.html">Speakers</a><a href="w10-schedule.html">Schedule</a><a href="w11-networking.html">Network</a></div>
+  <div class="right"><div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div><button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button></div>
+</nav>
+
+<div class="pollband">
+  <div class="inner">
+    <div class="live-lab">● Live poll</div>
+    <h2>What's the biggest blocker to adopting a design system on your team?</h2>
+    <div id="poll">
+      <div class="opt" data-pct="46"><span class="lbl">Buy-in from leadership</span><span class="pct">46%</span></div>
+      <div class="opt" data-pct="31"><span class="lbl">Engineering bandwidth</span><span class="pct">31%</span></div>
+      <div class="opt" data-pct="15"><span class="lbl">Designer–developer handoff</span><span class="pct">15%</span></div>
+      <div class="opt" data-pct="8"><span class="lbl">Tooling & infrastructure</span><span class="pct">8%</span></div>
+    </div>
+    <div class="responses" id="resp">Tap an option to vote · 47 responses so far</div>
+  </div>
+</div>
+
+<div class="lb">
+  <h2>Event Leaderboard</h2>
+  <div class="sub">Earn points by attending sessions, networking, and giving feedback.</div>
+
+  <div class="podium">
+    <div class="pod p2">
+      <div class="ph pav" style="--h:200;"></div>
+      <div class="nm">Faisal K.</div><div class="pts">880</div><div class="rk">#2</div>
+      <div class="stand"></div>
+    </div>
+    <div class="pod p1">
+      <div class="crown">👑</div>
+      <div class="ph pav" style="--h:30;"></div>
+      <div class="nm">Amina O.</div><div class="pts">1,240</div><div class="rk">#1</div>
+      <div class="stand"></div>
+    </div>
+    <div class="pod p3">
+      <div class="ph pav" style="--h:265;"></div>
+      <div class="nm">Leila H.</div><div class="pts">760</div><div class="rk">#3</div>
+      <div class="stand"></div>
+    </div>
+  </div>
+
+  <div id="ranks"></div>
+
+  <div class="yourpos">You're <b>#34</b> with <b>120</b> points. Attend <b>2</b> more sessions to reach the top 20.</div>
+  <div style="height:60px;"></div>
+</div>
+
+<script>
+  document.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{
+    const poll=document.getElementById('poll'); if(poll.classList.contains('voted'))return;
+    poll.classList.add('voted'); o.classList.add('sel');
+    document.querySelectorAll('.opt').forEach(x=>{ x.querySelector('.bar')||x.insertAdjacentHTML('afterbegin','<span class="bar"></span>'); requestAnimationFrame(()=>{ x.querySelector('.bar').style.width=x.dataset.pct+'%'; }); });
+    document.getElementById('resp').textContent='48 responses so far · live';
+  });
+  const ranks=[[4,'Samuel Okoro','Staff Eng, Paystack',158,640],[5,'Nadia Saleh','Partner, Horn Ventures',50,610],[6,'Omar Farah','Founder, Red Sea Tech',265,580],[7,'Mariam Diallo','PM, Sahel Pay',340,520],[8,'Hana Bekele','Designer',18,490],[9,'Yusuf Ahmed','CTO, Cargo.io',230,450],[10,'Yonas Tesfaye','Student, ASTU',120,420]];
+  document.getElementById('ranks').innerHTML=ranks.map(r=>`
+    <div class="lrow"><span class="rk">${r[0]}</span><div class="ph" style="--h:${r[3]};"></div><div><div class="nm">${r[1]}</div><div class="role">${r[2]}</div></div><span class="pts">${r[4]}</span></div>`).join('');
+</script>
+</body>
+</html>

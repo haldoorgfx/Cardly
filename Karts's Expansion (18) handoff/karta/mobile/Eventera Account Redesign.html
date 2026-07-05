@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="design_doc_mode" content="canvas">
+<title>Eventera · Account — Redesign</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="mobile.css">
+<style>
+  body{ font-family:var(--body); }
+  .canvas-h{ position:absolute; font-family:var(--display); font-weight:700; letter-spacing:-0.02em; color:var(--forest); }
+  .canvas-h .big{ font-size:30px; display:block; }
+  .canvas-h .lead{ font-family:var(--body); font-weight:400; font-size:15px; color:var(--ink-muted); margin-top:6px; max-width:560px; line-height:1.5; }
+  .canvas-h .kicker{ font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold-hover); margin-bottom:8px; }
+</style>
+</head>
+<body>
+
+<!-- ============ TITLE ============ -->
+<div class="canvas-h" style="left:80px; top:-150px;">
+  <div class="kicker">Eventera · Attendee</div>
+  <span class="big" style="font-size:42px;">Account — redesign</span>
+  <div class="lead">A warmer, denser account area: a real profile header with at-a-glance stats, colored icon tiles, grouped menus with counts, richer Following / Saved / Notifications, and a settings screen where interests wrap as chips instead of stacked bars.</div>
+</div>
+
+<!-- ============ ROW 1 — ACCOUNT HUB ============ -->
+<div class="canvas-h" style="left:80px; top:20px;"><span class="big">1 · Account hub</span></div>
+
+<!-- Signed in -->
+<div class="dev" style="left:80px; top:100px;">
+  <div class="label">Account · Signed in</div><div class="sub">profile header · stats · grouped menu</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="title">Account</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px;">
+
+        <!-- profile header card -->
+        <div style="border-radius:18px; overflow:hidden; box-shadow:var(--sh-lift); margin-bottom:16px;">
+          <div style="background:linear-gradient(135deg,#163828 0%,#1F4D3A 55%,#2A6A50 100%); padding:20px; position:relative;">
+            <div style="position:absolute; inset:0; background:radial-gradient(60% 70% at 88% 10%, rgba(232,197,126,.28), transparent 60%);"></div>
+            <div style="display:flex; align-items:center; gap:14px; position:relative;">
+              <div class="av av-64" style="box-shadow:0 0 0 3px rgba(232,197,126,.45);">A</div>
+              <div style="flex:1; min-width:0;"><div style="font-family:var(--display); font-weight:700; font-size:19px; color:#fff; letter-spacing:-0.02em;">Abdalla Abdikarim</div><div style="font-family:var(--body); font-size:12.5px; color:rgba(250,246,238,.75); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">cabdalla005@gmail.com</div></div>
+              <div style="width:34px; height:34px; border-radius:10px; background:rgba(255,255,255,.14); display:flex; align-items:center; justify-content:center; flex:none;"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:var(--gold);fill:none;stroke-width:2;"><path d="M4 20h4l10-10-4-4L4 16z"/></svg></div>
+            </div>
+          </div>
+          <div style="display:flex; background:var(--cream-surface);">
+            <div style="flex:1; text-align:center; padding:13px 0;"><div style="font-family:var(--display); font-weight:700; font-size:19px; color:var(--forest);">4</div><div style="font-family:var(--body); font-size:11px; color:var(--ink-muted); margin-top:1px;">Tickets</div></div>
+            <div style="width:1px; background:var(--cream-border); margin:10px 0;"></div>
+            <div style="flex:1; text-align:center; padding:13px 0;"><div style="font-family:var(--display); font-weight:700; font-size:19px; color:var(--forest);">2</div><div style="font-family:var(--body); font-size:11px; color:var(--ink-muted); margin-top:1px;">Cards</div></div>
+            <div style="width:1px; background:var(--cream-border); margin:10px 0;"></div>
+            <div style="flex:1; text-align:center; padding:13px 0;"><div style="font-family:var(--display); font-weight:700; font-size:19px; color:var(--forest);">18</div><div style="font-family:var(--body); font-size:11px; color:var(--ink-muted); margin-top:1px;">Connections</div></div>
+          </div>
+        </div>
+
+        <div class="grouplab">My stuff</div>
+        <div class="menu" style="margin-bottom:18px;">
+          <div class="mrow"><div class="itile itile-forest"><svg viewBox="0 0 24 24"><path d="M4 8a2 2 0 012-2h12a2 2 0 012 2v3a2 2 0 000 4v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3a2 2 0 000-4z"/></svg></div><div class="mt"><div class="t">My tickets</div><div class="d">4 upcoming · 3 past</div></div><span class="count">4</span><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+          <div class="mrow"><div class="itile itile-gold"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="8.5" cy="11" r="2"/><path d="M13 9h5M13 13h5"/></svg></div><div class="mt"><div class="t">My cards</div><div class="d">2 event cards created</div></div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+          <div class="mrow"><div class="itile itile-forest"><svg viewBox="0 0 24 24"><path d="M6 4h12v16l-6-4-6 4z"/></svg></div><div class="mt"><div class="t">Saved events</div><div class="d">3 bookmarked</div></div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+          <div class="mrow"><div class="itile itile-danger"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6-7-11a7 7 0 1114 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div><div class="mt"><div class="t">Following</div><div class="d">1 organizer</div></div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+        </div>
+
+        <div class="grouplab">Preferences</div>
+        <div class="menu" style="margin-bottom:22px;">
+          <div class="mrow"><div class="itile itile-info"><svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0112 0c0 5 2 6 2 6H4s2-1 2-6z"/><path d="M10.5 20a2 2 0 003 0"/></svg></div><div class="mt"><div class="t">Notifications</div><div class="d">3 unread</div></div><span class="tag tag-danger" style="height:20px; padding:0 8px;">3</span><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+          <div class="mrow"><div class="itile itile-muted"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 00-.1-1l2-1.5-2-3.4-2.3 1a7 7 0 00-1.7-1l-.3-2.5H9.4l-.3 2.5a7 7 0 00-1.7 1l-2.3-1-2 3.4 2 1.5a7 7 0 000 2l-2 1.5 2 3.4 2.3-1a7 7 0 001.7 1l.3 2.5h4.2l.3-2.5a7 7 0 001.7-1l2.3 1 2-3.4-2-1.5a7 7 0 00.1-1z"/></svg></div><div class="mt"><div class="t">Profile &amp; settings</div><div class="d">Name, interests, alerts</div></div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+          <div class="mrow"><div class="itile itile-muted"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8v.01"/></svg></div><div class="mt"><div class="t">Help &amp; support</div><div class="d">FAQs, contact us</div></div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+        </div>
+
+        <button class="mbtn mbtn-sec" style="color:var(--danger);"><svg viewBox="0 0 24 24" style="stroke:var(--danger);"><path d="M16 17l5-5-5-5M21 12H9M12 3H6a1 1 0 00-1 1v16a1 1 0 001 1h6"/></svg>Sign out</button>
+        <div style="text-align:center; font-family:var(--mono); font-size:10.5px; color:var(--ink-muted); margin-top:16px;">Eventera v2.4.1</div>
+      </div></div>
+      <div class="tabbar">
+        <div class="tab"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span>Discover</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><path d="M4 8a2 2 0 012-2h12a2 2 0 012 2v3a2 2 0 000 4v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3a2 2 0 000-4z"/></svg><span>Tickets</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="8.5" cy="11" r="2"/><path d="M13 9h5M13 13h5"/></svg><span>Cards</span></div>
+        <div class="tab on"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0113 0"/></svg><span>Account</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Guest -->
+<div class="dev" style="left:540px; top:100px;">
+  <div class="label">Account · Guest</div><div class="sub">not signed in</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="title">Account</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px;">
+        <div style="border-radius:18px; overflow:hidden; box-shadow:var(--sh-lift); margin-bottom:16px; background:linear-gradient(135deg,#163828 0%,#1F4D3A 55%,#2A6A50 100%); padding:22px; position:relative;">
+          <div style="position:absolute; inset:0; background:radial-gradient(60% 70% at 88% 10%, rgba(232,197,126,.28), transparent 60%);"></div>
+          <div style="position:relative;">
+            <div style="font-family:var(--display); font-weight:700; font-size:20px; color:#fff; letter-spacing:-0.02em;">You're browsing as a guest</div>
+            <div style="font-family:var(--body); font-size:13px; color:rgba(250,246,238,.8); margin-top:6px; line-height:1.45; max-width:250px;">Sign in to hold tickets, make your card, and sync across devices.</div>
+            <button class="mbtn mbtn-gold" style="margin-top:16px;"><svg viewBox="0 0 24 24" style="stroke:var(--ink);"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>Sign in or create account</button>
+          </div>
+        </div>
+        <div class="grouplab">Explore</div>
+        <div class="menu">
+          <div class="mrow"><div class="itile itile-forest"><svg viewBox="0 0 24 24"><path d="M4 8a2 2 0 012-2h12a2 2 0 012 2v3a2 2 0 000 4v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3a2 2 0 000-4z"/></svg></div><div class="mt"><div class="t">My tickets</div><div class="d">Sign in to view</div></div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+          <div class="mrow"><div class="itile itile-gold"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="8.5" cy="11" r="2"/><path d="M13 9h5M13 13h5"/></svg></div><div class="mt"><div class="t">My cards</div><div class="d">Sign in to view</div></div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+          <div class="mrow"><div class="itile itile-muted"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8v.01"/></svg></div><div class="mt"><div class="t">Help &amp; support</div></div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+        </div>
+      </div></div>
+      <div class="tabbar">
+        <div class="tab"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span>Discover</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><path d="M4 8a2 2 0 012-2h12a2 2 0 012 2v3a2 2 0 000 4v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3a2 2 0 000-4z"/></svg><span>Tickets</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="8.5" cy="11" r="2"/><path d="M13 9h5M13 13h5"/></svg><span>Cards</span></div>
+        <div class="tab on"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0113 0"/></svg><span>Account</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Saved events -->
+<div class="dev" style="left:1000px; top:100px;">
+  <div class="label">Saved events</div><div class="sub">richer event cards</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Saved events</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px; display:flex; flex-direction:column; gap:14px;">
+        <div style="border-radius:var(--rm-card); overflow:hidden; box-shadow:var(--sh-soft); border:1px solid var(--cream-border);">
+          <div class="ph" style="--h:340; height:120px; position:relative;"><div class="scrim-b" style="position:absolute; inset:0;"></div><div style="position:absolute; top:12px; right:12px; width:34px; height:34px; border-radius:50%; background:rgba(8,18,12,.4); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center;"><svg viewBox="0 0 24 24" style="width:17px;height:17px;fill:var(--gold);stroke:var(--gold);stroke-width:1.5;"><path d="M6 4h12v16l-6-4-6 4z"/></svg></div><div class="tag tag-gold" style="position:absolute; top:12px; left:12px;">Central District</div></div>
+          <div style="background:var(--cream-surface); padding:13px 14px;"><div style="font-family:var(--display); font-weight:600; font-size:15px; color:var(--ink); line-height:1.2;">Cérémonie de Remise des Diplômes 2026</div><div style="display:flex; align-items:center; gap:7px; margin-top:8px; font-family:var(--mono); font-size:11.5px; color:var(--ink-muted);"><svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:var(--forest);fill:none;stroke-width:1.8;"><rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M3 9h18"/></svg>16 Jul 2026 · 08:30</div></div>
+        </div>
+        <div style="border-radius:var(--rm-card); overflow:hidden; box-shadow:var(--sh-soft); border:1px solid var(--cream-border);">
+          <div class="ph" style="--h:30; height:120px; position:relative;"><div class="scrim-b" style="position:absolute; inset:0;"></div><div style="position:absolute; top:12px; right:12px; width:34px; height:34px; border-radius:50%; background:rgba(8,18,12,.4); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center;"><svg viewBox="0 0 24 24" style="width:17px;height:17px;fill:var(--gold);stroke:var(--gold);stroke-width:1.5;"><path d="M6 4h12v16l-6-4-6 4z"/></svg></div><div class="tag tag-gold" style="position:absolute; top:12px; left:12px;">Nairobi</div></div>
+          <div style="background:var(--cream-surface); padding:13px 14px;"><div style="font-family:var(--display); font-weight:600; font-size:15px; color:var(--ink);">Nairobi Tech Summit 2026</div><div style="display:flex; align-items:center; gap:7px; margin-top:8px; font-family:var(--mono); font-size:11.5px; color:var(--ink-muted);"><svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:var(--forest);fill:none;stroke-width:1.8;"><rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M3 9h18"/></svg>10 Jul 2026 · 12:00</div></div>
+        </div>
+        <div style="border-radius:var(--rm-card); overflow:hidden; box-shadow:var(--sh-soft); border:1px solid var(--cream-border);">
+          <div class="ph" style="--h:15; height:120px; position:relative;"><div class="scrim-b" style="position:absolute; inset:0;"></div><div style="position:absolute; top:12px; right:12px; width:34px; height:34px; border-radius:50%; background:rgba(8,18,12,.4); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center;"><svg viewBox="0 0 24 24" style="width:17px;height:17px;fill:var(--gold);stroke:var(--gold);stroke-width:1.5;"><path d="M6 4h12v16l-6-4-6 4z"/></svg></div><div class="tag tag-info" style="position:absolute; top:12px; left:12px;">Online event</div></div>
+          <div style="background:var(--cream-surface); padding:13px 14px;"><div style="font-family:var(--display); font-weight:600; font-size:15px; color:var(--ink);">Pan-African Innovation Summit 2027</div><div style="display:flex; align-items:center; gap:7px; margin-top:8px; font-family:var(--mono); font-size:11.5px; color:var(--ink-muted);"><svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:var(--forest);fill:none;stroke-width:1.8;"><rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M3 9h18"/></svg>15 Mar 2027 · 09:00</div></div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ROW 2 — FOLLOWING & NOTIFICATIONS ============ -->
+<div class="canvas-h" style="left:80px; top:1160px;"><span class="big">2 · Following &amp; notifications</span></div>
+
+<!-- Following -->
+<div class="dev" style="left:80px; top:1240px;">
+  <div class="label">Following</div><div class="sub">followed + suggestions</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Following</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px;">
+        <div class="grouplab">Following · 1</div>
+        <div class="menu" style="margin-bottom:22px;">
+          <div class="mrow"><div class="av av-40">A</div><div class="mt"><div class="t">Abdalla Abdikarim</div><div class="d">New-event alerts on</div></div><div class="tgl on"></div></div>
+        </div>
+        <div class="grouplab">Suggested organizers</div>
+        <div class="menu">
+          <div class="mrow"><div class="av av-40 ph" style="--h:158;">K</div><div class="mt"><div class="t">Karta Studio</div><div class="d">12 events · Djibouti</div></div><button class="mbtn mbtn-sm" style="width:auto; padding:0 15px; background:var(--forest); color:#fff;"><svg viewBox="0 0 24 24" style="stroke:#fff;"><path d="M12 5v14M5 12h14"/></svg>Follow</button></div>
+          <div class="mrow"><div class="av av-40 ph" style="--h:265;">SP</div><div class="mt"><div class="t">Sahel Pay Events</div><div class="d">5 events · Fintech</div></div><button class="mbtn mbtn-sm" style="width:auto; padding:0 15px; background:var(--forest-soft); color:var(--forest);"><svg viewBox="0 0 24 24" style="stroke:var(--forest);"><path d="M12 5v14M5 12h14"/></svg>Follow</button></div>
+          <div class="mrow"><div class="av av-40 ph" style="--h:30;">ND</div><div class="mt"><div class="t">Nairobi Design Week</div><div class="d">3 events · Design</div></div><button class="mbtn mbtn-sm" style="width:auto; padding:0 15px; background:var(--forest-soft); color:var(--forest);"><svg viewBox="0 0 24 24" style="stroke:var(--forest);"><path d="M12 5v14M5 12h14"/></svg>Follow</button></div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Notifications -->
+<div class="dev" style="left:540px; top:1240px;">
+  <div class="label">Notifications</div><div class="sub">dated groups · typed tiles</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Notifications</div><div class="spacer"></div><div style="font-family:var(--body); font-weight:600; font-size:12.5px; color:var(--forest);">Mark all</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px;">
+        <div class="grouplab">New</div>
+        <div style="margin-bottom:20px; display:flex; flex-direction:column; gap:4px;">
+          <div style="display:flex; gap:12px; align-items:flex-start; background:var(--forest-soft); border-radius:12px; padding:12px;"><div class="itile itile-success" style="background:rgba(45,122,79,.15);"><svg viewBox="0 0 24 24"><path d="M8 21v-1a4 4 0 014-4 4 4 0 014 4v1"/><circle cx="12" cy="8" r="3.2"/></svg></div><div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.3;">Ahmed Araye registered for Pan-African Innovation Summit 2027</div><div style="font-family:var(--body); font-size:12px; color:var(--ink-muted); margin-top:3px;">araye206@gmail.com</div><div class="monos" style="font-size:10.5px; color:var(--ink-muted); margin-top:5px;">Jun 15, 2026</div></div><div class="dot" style="background:var(--forest); width:9px; height:9px; margin-top:4px;"></div></div>
+          <div style="display:flex; gap:12px; align-items:flex-start; background:var(--forest-soft); border-radius:12px; padding:12px;"><div class="itile itile-forest"><svg viewBox="0 0 24 24"><path d="M4 8a2 2 0 012-2h12a2 2 0 012 2v3a2 2 0 000 4v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3a2 2 0 000-4z"/></svg></div><div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.3;">8 attendees imported for Pan-African Youth Forum 2026</div><div style="font-family:var(--body); font-size:12px; color:var(--ink-muted); margin-top:3px;">2 duplicates skipped</div><div class="monos" style="font-size:10.5px; color:var(--ink-muted); margin-top:5px;">Jun 16, 2026</div></div><div class="dot" style="background:var(--forest); width:9px; height:9px; margin-top:4px;"></div></div>
+        </div>
+        <div class="grouplab">Earlier</div>
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <div style="display:flex; gap:12px; align-items:flex-start; padding:12px;"><div class="itile itile-forest"><svg viewBox="0 0 24 24"><path d="M4 8a2 2 0 012-2h12a2 2 0 012 2v3a2 2 0 000 4v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3a2 2 0 000-4z"/></svg></div><div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.3;">8 attendees imported for Nairobi Tech Summit 2027</div><div style="font-family:var(--body); font-size:12px; color:var(--ink-muted); margin-top:3px;">2 duplicates skipped</div><div class="monos" style="font-size:10.5px; color:var(--ink-muted); margin-top:5px;">Jun 15, 2026</div></div></div>
+          <div style="display:flex; gap:12px; align-items:flex-start; padding:12px;"><div class="itile itile-success" style="background:rgba(45,122,79,.15);"><svg viewBox="0 0 24 24"><path d="M8 21v-1a4 4 0 014-4 4 4 0 014 4v1"/><circle cx="12" cy="8" r="3.2"/></svg></div><div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.3;">Mohamed Abdinor registered for Pan-African Innovation Summit 2027</div><div style="font-family:var(--body); font-size:12px; color:var(--ink-muted); margin-top:3px;">moabdinor12@gmail.com</div><div class="monos" style="font-size:10.5px; color:var(--ink-muted); margin-top:5px;">Jun 15, 2026</div></div></div>
+          <div style="display:flex; gap:12px; align-items:flex-start; padding:12px;"><div class="itile itile-success" style="background:rgba(45,122,79,.15);"><svg viewBox="0 0 24 24"><path d="M8 21v-1a4 4 0 014-4 4 4 0 014 4v1"/><circle cx="12" cy="8" r="3.2"/></svg></div><div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.3;">Amina Osam registered for Pan-African Innovation Summit 2027</div><div style="font-family:var(--body); font-size:12px; color:var(--ink-muted); margin-top:3px;">amina121@gmail.com</div><div class="monos" style="font-size:10.5px; color:var(--ink-muted); margin-top:5px;">Jun 15, 2026</div></div></div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Notifications empty -->
+<div class="dev" style="left:1000px; top:1240px;">
+  <div class="label">Notifications · Empty</div><div class="sub">all caught up</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Notifications</div></div>
+      <div class="body" style="display:flex; align-items:center; justify-content:center;">
+        <div style="text-align:center; padding:0 44px;">
+          <div style="width:72px; height:72px; border-radius:50%; background:var(--forest-soft); display:flex; align-items:center; justify-content:center; margin:0 auto 18px;"><svg viewBox="0 0 24 24" style="width:32px;height:32px;stroke:var(--forest);fill:none;stroke-width:1.7;"><path d="M6 9a6 6 0 0112 0c0 5 2 6 2 6H4s2-1 2-6z"/><path d="M10.5 20a2 2 0 003 0"/></svg></div>
+          <div class="h3">You're all caught up</div>
+          <div class="bodytext muted" style="margin-top:6px;">Registrations, reminders and organizer updates will show up here.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ROW 3 — PROFILE & SETTINGS ============ -->
+<div class="canvas-h" style="left:80px; top:2300px;"><span class="big">3 · Profile &amp; settings</span></div>
+
+<!-- Profile top -->
+<div class="dev" style="left:80px; top:2380px;">
+  <div class="label">Profile &amp; settings</div><div class="sub">sectioned · wrapping interest chips</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Profile &amp; settings</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:16px; padding-bottom:16px;">
+        <div style="display:flex; flex-direction:column; align-items:center; margin-bottom:22px;"><div style="position:relative;"><div class="av av-64" style="width:76px; height:76px; font-size:28px;">A</div><div style="position:absolute; bottom:-2px; right:-2px; width:28px; height:28px; border-radius:50%; background:var(--forest); border:2px solid var(--cream-canvas); display:flex; align-items:center; justify-content:center;"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2;"><path d="M4 20h4l10-10-4-4L4 16z"/></svg></div></div><div style="font-family:var(--body); font-size:12.5px; color:var(--ink-muted); margin-top:10px;">cabdalla005@gmail.com</div></div>
+
+        <div class="grouplab">Personal details</div>
+        <div class="mcard" style="padding:16px 16px 4px; margin-bottom:20px;">
+          <div class="field"><label>Full name</label><div class="input"><input value="Abdalla Abdikarim" readonly></div></div>
+          <div class="field"><label>City</label><div class="input"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6-7-11a7 7 0 1114 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><input value="Djibouti City, Djibouti" readonly></div></div>
+          <div class="field"><label>Phone</label><div class="input"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-3 2a12 12 0 006 6l2-3 5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/></svg><input value="+253 77 04 09 07" readonly></div></div>
+        </div>
+
+        <div class="grouplab">Interests</div>
+        <div class="mcard" style="margin-bottom:20px;">
+          <div style="display:flex; flex-wrap:wrap; gap:9px;">
+            <div class="chip on">Fintech</div><div class="chip on">Design</div><div class="chip">Music</div><div class="chip">Startups</div><div class="chip on">Climate</div><div class="chip on">AI</div><div class="chip">Marketing</div><div class="chip">Product</div><div class="chip">Web3</div><div class="chip">Health</div><div class="chip on">Tech</div>
+            <div class="chip" style="border-style:dashed; color:var(--forest); border-color:var(--forest);"><svg viewBox="0 0 24 24" style="stroke:var(--forest);"><path d="M12 5v14M5 12h14"/></svg>Add</div>
+          </div>
+        </div>
+        <div style="text-align:center; font-family:var(--body); font-size:12.5px; color:var(--ink-muted);">Scroll for notification settings ↓</div>
+      </div></div>
+      <div class="stickycta"><button class="mbtn mbtn-forest">Save changes</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- Profile notifications -->
+<div class="dev" style="left:540px; top:2380px;">
+  <div class="label">Settings · Notifications</div><div class="sub">scrolled · toggles</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Profile &amp; settings</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:16px; padding-bottom:16px;">
+        <div class="grouplab">Notifications</div>
+        <div class="mcard" style="padding:4px 16px; margin-bottom:20px;">
+          <div class="lrow"><div style="flex:1;"><div style="font-family:var(--body); font-weight:600; font-size:14px;">Event reminders</div><div style="font-size:11.5px; color:var(--ink-muted); margin-top:1px;">Before events you're attending</div></div><div class="tgl on"></div></div>
+          <div class="lrow"><div style="flex:1;"><div style="font-family:var(--body); font-weight:600; font-size:14px;">Agenda changes</div><div style="font-size:11.5px; color:var(--ink-muted); margin-top:1px;">Session time or room updates</div></div><div class="tgl on"></div></div>
+          <div class="lrow"><div style="flex:1;"><div style="font-family:var(--body); font-weight:600; font-size:14px;">New events from organizers</div><div style="font-size:11.5px; color:var(--ink-muted); margin-top:1px;">From organizers you follow</div></div><div class="tgl on"></div></div>
+          <div class="lrow"><div style="flex:1;"><div style="font-family:var(--body); font-weight:600; font-size:14px;">Recommended events</div><div style="font-size:11.5px; color:var(--ink-muted); margin-top:1px;">Based on your interests</div></div><div class="tgl"></div></div>
+        </div>
+        <div class="grouplab">Account</div>
+        <div class="menu" style="margin-bottom:16px;">
+          <div class="mrow"><div class="itile itile-muted"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></div><div class="mt"><div class="t">Change email</div></div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+          <div class="mrow"><div class="itile itile-muted"><svg viewBox="0 0 24 24"><path d="M12 3v6M12 3l-3 3M12 3l3 3M5 12a7 7 0 1014 0"/></svg></div><div class="mt"><div class="t">Language &amp; region</div></div><span class="count">English</span><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+          <div class="mrow"><div class="itile itile-danger"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2M6 7l1 13a1 1 0 001 1h8a1 1 0 001-1l1-13"/></svg></div><div class="mt"><div class="t" style="color:var(--danger);">Delete account</div></div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+        </div>
+      </div></div>
+      <div class="stickycta"><button class="mbtn mbtn-forest">Save changes</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const clock='9:41';
+  const statusSys=`<div class="sys">
+    <svg viewBox="0 0 18 12"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="4.5" y="4.5" width="3" height="7.5" rx="1"/><rect x="9" y="2" width="3" height="10" rx="1"/><rect x="13.5" y="0" width="3" height="12" rx="1"/></svg>
+    <svg viewBox="0 0 18 12"><path d="M9 2.5c2.4 0 4.6.9 6.2 2.4l1.3-1.4A11 11 0 009 .5 11 11 0 001.5 3.5l1.3 1.4A9 9 0 019 2.5z"/><path d="M9 6c1.3 0 2.5.5 3.4 1.3l1.3-1.4A7 7 0 009 4a7 7 0 00-4.7 1.9l1.3 1.4A5 5 0 019 6z"/><path d="M9 9.5l2-2.1A3 3 0 009 6.5a3 3 0 00-2 .9z"/></svg>
+    <svg viewBox="0 0 26 12" style="width:24px;"><rect x="0.5" y="1" width="21" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1" opacity=".4"/><rect x="2" y="2.5" width="16" height="7" rx="1"/><rect x="23" y="4" width="1.6" height="4" rx="0.8"/></svg>
+  </div>`;
+  document.querySelectorAll('.screen').forEach(s=>{
+    if(!s.hasAttribute('data-nostatus')){
+      const bar=document.createElement('div');
+      bar.className='statusbar'+(s.classList.contains('dark')?' on-dark':'');
+      bar.innerHTML=`<div class="time">${clock}</div>${statusSys}`;
+      s.insertBefore(bar, s.firstChild);
+    }
+  });
+  document.querySelectorAll('.phone').forEach(p=>{
+    p.insertAdjacentHTML('afterbegin','<div class="notch"></div>');
+    p.insertAdjacentHTML('beforeend','<div class="homebar"></div>');
+  });
+</script>
+</body>
+</html>

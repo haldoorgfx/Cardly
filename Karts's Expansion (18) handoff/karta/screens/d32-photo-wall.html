@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D32 · Photo Wall</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .pagehead { padding: 40px 0 0; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .pagehead h1 { font-family: var(--display); font-weight: 400; font-size: 32px; letter-spacing: -0.025em; color: var(--forest); }
+  .pagehead .s { font-family: var(--body); font-size: 14px; color: var(--ink-muted); margin-top: 8px; }
+  .pagehead .s b { font-family: var(--mono); font-weight: 500; color: var(--ink); }
+
+  .modebar { display: flex; align-items: center; gap: 8px; margin-top: 24px; }
+  .modebar .spacer { flex: 1; }
+  .modtog { display: flex; align-items: center; gap: 9px; font-family: var(--body); font-size: 13px; color: var(--ink-soft); }
+  .tog { width: 40px; height: 23px; border-radius: var(--r-pill); background: var(--forest); position: relative; cursor: pointer; border: none; flex: none; }
+  .tog::after { content: ''; position: absolute; top: 2.5px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: var(--e1); transform: translateX(16px); }
+
+  .wall { columns: 4; column-gap: 16px; margin-top: 22px; }
+  .shot { break-inside: avoid; margin-bottom: 16px; border-radius: var(--r-card); overflow: hidden; position: relative; background: var(--cream-surface); border: 1px solid var(--cream-border); }
+  .shot .img { position: relative; width: 100%; }
+  .shot .meta { display: flex; align-items: center; gap: 9px; padding: 10px 12px; }
+  .shot .nm { font-family: var(--body); font-weight: 500; font-size: 12px; color: var(--ink); }
+  .shot .tm { font-family: var(--mono); font-size: 10px; color: var(--ink-muted); margin-left: auto; }
+  .shot .likes { position: absolute; top: 10px; right: 10px; z-index: 2; height: 26px; padding: 0 10px; display: inline-flex; align-items: center; gap: 5px; border-radius: var(--r-pill); background: rgba(8,18,12,0.45); backdrop-filter: blur(6px); font-family: var(--mono); font-size: 11px; color: #fff; cursor: pointer; }
+  .shot.pendingmod::after { content: 'PENDING REVIEW'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(250,246,238,0.82); font-family: var(--mono); font-weight: 500; font-size: 11px; letter-spacing: 0.1em; color: var(--ink-muted); }
+  .modrow { display: none; gap: 8px; padding: 0 12px 12px; }
+  body.modmode .modrow { display: flex; }
+  .modrow button { flex: 1; }
+
+  .upload { position: fixed; right: 28px; bottom: 28px; z-index: 50; height: 54px; padding: 0 24px; border-radius: var(--r-pill); border: none; background: var(--gold); color: var(--ink); font-family: var(--display); font-weight: 500; font-size: 15px; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 10px 28px rgba(201,164,94,0.45); }
+  .upload svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  @media (max-width:1100px){ .wall { columns: 3; } }
+  @media (max-width:760px){ .wall { columns: 2; } }
+  @media (max-width:480px){ .wall { columns: 1; } }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div class="links">
+    <a href="#">Overview</a>
+    <a href="#">Schedule</a>
+    <a href="d31-community.html">Community</a>
+    <a href="#" style="color:var(--forest);">Photos</a>
+  </div>
+  <div class="right">
+    <div class="ph avatar avatar-ring" style="--h:30; width:36px; height:36px;"></div>
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="pagehead">
+    <div>
+      <h1>Photo wall</h1>
+      <div class="s"><b>248</b> photos from <b>96</b> attendees · everything reviewed before it's public</div>
+    </div>
+  </div>
+
+  <div class="modebar">
+    <div class="chip active">All</div>
+    <div class="chip">Day 1</div>
+    <div class="chip">Day 2</div>
+    <div class="chip">Most loved</div>
+    <div class="spacer"></div>
+    <div class="modtog"><span>Organizer moderation view</span><button class="tog" onclick="document.body.classList.toggle('modmode')"></button></div>
+  </div>
+
+  <div class="wall" id="wall"></div>
+  <div style="height:90px;"></div>
+</div>
+
+<button class="upload">
+  <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>
+  Add your photos
+</button>
+
+<script>
+  document.body.classList.add('modmode');
+  const shots = [
+    [158, 220, 'Leila Haddad', '11:42', 84, false, 265],
+    [200, 150, 'Samuel Okoro', '12:05', 67, false, 200],
+    [30, 260, 'Karta Studio', '09:12', 142, false, 150],
+    [95, 180, 'Yonas Tesfaye', '12:31', 23, true, 95],
+    [340, 200, 'Mariam Diallo', '13:02', 51, false, 340],
+    [265, 150, 'Hana Bekele', '13:18', 38, false, 18],
+    [120, 240, 'Omar Farah', '14:05', 29, true, 120],
+    [80, 170, 'Faisal Karim', '14:40', 45, false, 80],
+    [210, 210, 'Nadia Robleh', '15:12', 19, false, 210],
+    [38, 160, 'City Council', '15:48', 12, false, 38],
+    [158, 190, 'Leila Haddad', '16:20', 73, false, 265],
+    [280, 230, 'Blue Note DJ', '17:05', 96, false, 280],
+  ];
+  document.getElementById('wall').innerHTML = shots.map(s=>`
+    <div class="shot${s[5]?' pendingmod':''}">
+      <div class="img ph" style="--h:${s[0]}; height:${s[1]}px;"></div>
+      <span class="likes">♥ ${s[4]}</span>
+      <div class="meta">
+        <div class="ph avatar" style="--h:${s[6]}; width:24px; height:24px;"></div>
+        <span class="nm">${s[2]}</span>
+        <span class="tm">${s[3]}</span>
+      </div>
+      <div class="modrow">
+        ${s[5]
+          ? '<button class="btn btn-forest btn-sm">Approve</button><button class="btn btn-ghost-forest btn-sm">Reject</button>'
+          : '<button class="btn btn-ghost-forest btn-sm">Hide</button><button class="btn btn-ghost-forest btn-sm">Feature</button>'}
+      </div>
+    </div>`).join('');
+  document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{document.querySelector('.chip.active')?.classList.remove('active');c.classList.add('active');});
+</script>
+</body>
+</html>

@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="design_doc_mode" content="canvas">
+<title>Eventera — Unified Dashboard</title>
+<link rel="stylesheet" href="dash-system.css">
+<style>
+  html,body{background:#EDE9DC;}
+  #stage{position:relative; padding:60px; width:max-content;}
+  .col{position:absolute; top:60px;}
+  .group-heading{
+    font-family:var(--display); font-weight:700; font-size:22px; color:var(--ink);
+    margin:0 0 4px; letter-spacing:-0.01em;
+  }
+  .group-sub{font-size:13px; color:var(--muted); margin-bottom:22px;}
+  .frame-wrap{margin-bottom:56px;}
+  .artboard-label{margin-bottom:12px;}
+  .app-frame{width:1440px;}
+</style>
+</head>
+<body>
+
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#1F4D3A"/>
+    <text x="50" y="60" font-family="DM Sans, sans-serif" font-weight="700" font-size="30" fill="#E8C57E" text-anchor="middle">Ev</text>
+  </svg>
+</template>
+
+<div id="stage">
+
+  <!-- ============ HOME ============ -->
+  <div class="col" style="left:0px;">
+    <div class="frame-wrap">
+      <div class="group-heading">Home</div>
+      <div class="group-sub">New role-aware command center — replaces the empty 3-card landing page.</div>
+      <div class="artboard-label"><span class="idx">01</span>Home — command center</div>
+      <div class="app-frame">
+        <aside class="sidebar" data-sidebar="home"></aside>
+        <div class="main">
+          <div class="topbar" data-topbar="Home"></div>
+          <div class="page-shell w-wide">
+            <div class="page-header">
+              <div class="page-header-main">
+                <div class="page-eyebrow">Command Center</div>
+                <div class="page-title">Good afternoon, Abdalla</div>
+                <div class="page-subtitle">Everything you run and attend, at a glance.</div>
+              </div>
+              <div class="page-actions">
+                <button class="btn btn-primary" data-icon="plus,15,2.2"></button>
+              </div>
+            </div>
+
+            <div class="stat-row">
+              <div class="stat-tile"><div class="stat-label">Events total</div><div class="stat-value">25</div></div>
+              <div class="stat-tile"><div class="stat-label">Registrations</div><div class="stat-value">64</div></div>
+              <div class="stat-tile"><div class="stat-label">Revenue</div><div class="stat-value">$16,836</div></div>
+              <div class="stat-tile"><div class="stat-label">Check-in rate</div><div class="stat-value">41%</div></div>
+            </div>
+
+            <div class="two-col">
+              <div style="display:flex; flex-direction:column; gap:18px;">
+                <div class="card">
+                  <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
+                    <span style="color:var(--warning)" data-icon="alert,17,2"></span>
+                    <span class="section-label" style="margin:0; color:var(--warning)">Needs attention</span>
+                  </div>
+                  <div class="attn-grid" style="margin-bottom:0;">
+                    <div class="attn-row"><div class="attn-thumb" style="background:var(--forest)"></div><div class="attn-body"><div class="attn-title">Nairobi Tech Summit 2026</div><div class="attn-sub">no registrations yet</div></div><span data-icon="arrowright,16,2" style="color:var(--warning)"></span></div>
+                    <div class="attn-row"><div class="attn-thumb" style="background:var(--ink)"></div><div class="attn-body"><div class="attn-title">AfriTech Summit 2026</div><div class="attn-sub">not published</div></div><span data-icon="arrowright,16,2" style="color:var(--warning)"></span></div>
+                    <div class="attn-row"><div class="attn-thumb" style="background:var(--forest)"></div><div class="attn-body"><div class="attn-title">Pan-African Youth Forum 2026</div><div class="attn-sub">not published</div></div><span data-icon="arrowright,16,2" style="color:var(--warning)"></span></div>
+                    <div class="attn-row"><div class="attn-thumb" style="background:var(--forest)"></div><div class="attn-body"><div class="attn-title">Women in Tech Summit</div><div class="attn-sub">no registrations yet</div></div><span data-icon="arrowright,16,2" style="color:var(--warning)"></span></div>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="section-label">Attending next</div>
+                  <div style="display:flex; flex-direction:column; gap:10px;">
+                    <div style="display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid var(--hairline);">
+                      <div style="width:34px;height:34px;border-radius:9px;background:var(--forest);flex:none;"></div>
+                      <div style="flex:1;"><div style="font-size:14px; font-weight:600;">AI Ethics Webinar</div><div style="font-size:12px; color:var(--muted)">General Admission</div></div>
+                      <span data-icon="qr,17,1.8" style="color:var(--muted)"></span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid var(--hairline);">
+                      <div style="width:34px;height:34px;border-radius:9px;background:var(--forest);flex:none;"></div>
+                      <div style="flex:1;"><div style="font-size:14px; font-weight:600;">Pan-African Youth Forum 2026</div><div style="font-size:12px; color:var(--muted)">General</div></div>
+                      <span data-icon="qr,17,1.8" style="color:var(--muted)"></span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid var(--hairline);">
+                      <div style="width:34px;height:34px;border-radius:9px;background:var(--forest);flex:none;"></div>
+                      <div style="flex:1;"><div style="font-size:14px; font-weight:600;">WaafiPay Sandbox Test</div><div style="font-size:12px; color:var(--muted)">Standard Ticket</div></div>
+                      <span data-icon="qr,17,1.8" style="color:var(--muted)"></span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:12px; padding:8px 0;">
+                      <div style="width:34px;height:34px;border-radius:9px;background:var(--forest);flex:none;"></div>
+                      <div style="flex:1;"><div style="font-size:14px; font-weight:600;">Women in Tech Summit</div><div style="font-size:12px; color:var(--muted)">General Admission</div></div>
+                      <span data-icon="qr,17,1.8" style="color:var(--muted)"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:18px;">
+                <div class="card">
+                  <div class="section-label">Quick actions</div>
+                  <div style="display:flex; flex-direction:column; gap:8px;">
+                    <button class="btn btn-primary" style="width:100%; justify-content:flex-start;" data-icon="plus,16,2"></button>
+                    <button class="btn btn-secondary" style="width:100%; justify-content:flex-start;">View all registrations</button>
+                    <button class="btn btn-secondary" style="width:100%; justify-content:flex-start;">Open check-in scanner</button>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="section-label">Recent activity</div>
+                  <div style="display:flex; flex-direction:column; gap:12px;">
+                    <div style="font-size:13px;"><b>14 new registrations</b><div style="color:var(--muted); font-size:12px; margin-top:2px;">Nairobi Tech Summit 2027 · 2h ago</div></div>
+                    <div style="font-size:13px;"><b>Card downloaded</b><div style="color:var(--muted); font-size:12px; margin-top:2px;">AI Ethics Webinar · 5h ago</div></div>
+                    <div style="font-size:13px;"><b>11 new registrations</b><div style="color:var(--muted); font-size:12px; margin-top:2px;">Pan-African Youth Forum 2026 · yesterday</div></div>
+                    <div style="font-size:13px;"><b>Payment received · $21</b><div style="color:var(--muted); font-size:12px; margin-top:2px;">AI Ethics Webinar · 2d ago</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ ATTENDING ============ -->
+  <div class="col" id="col-attending">
+    <div class="group-heading">Attending</div>
+    <div class="group-sub">"My tickets" is renamed <b>Tickets</b> (kept distinct from the organizer's "Events") and every event tool + ticket transfer is now a standalone, visible action — nothing hidden behind a pill.</div>
+
+    <div class="frame-wrap">
+      <div class="artboard-label"><span class="idx">02</span>Tickets</div>
+      <div class="app-frame">
+        <aside class="sidebar" data-sidebar="my-events"></aside>
+        <div class="main">
+          <div class="topbar" data-topbar="Tickets"></div>
+          <div class="page-shell w-wide">
+            <div class="page-header">
+              <div class="page-header-main">
+                <div class="page-eyebrow">Attending</div>
+                <div class="page-title">Tickets</div>
+                <div class="page-subtitle">Events you're attending — 16 upcoming · 7 Eventera Cards collected</div>
+              </div>
+              <div class="page-actions"><button class="btn btn-secondary">Discover more</button></div>
+            </div>
+
+            <div class="ticket-row">
+              <div class="ticket-cover"></div>
+              <div class="ticket-body">
+                <div class="ticket-top">
+                  <div class="ticket-title">AI Ethics Webinar</div>
+                  <span class="tag-outline tag">General Admission</span>
+                </div>
+                <div class="ticket-meta">
+                  <div class="m"><span data-icon="calendar,15,1.8"></span><b>Jul 14, 2026 · 2:00 PM</b></div>
+                  <div class="m"><span data-icon="globe,15,1.8"></span>Online</div>
+                  <div class="m">Holder&nbsp;<b>Abdalla Abdikarim</b></div>
+                </div>
+                <div class="ticket-card-no">Eventera Card №8F26</div>
+                <div class="ticket-actions">
+                  <button class="btn btn-primary btn-sm"><span data-icon="arrowright,15,2"></span>Open event</button>
+                  <button class="btn btn-secondary btn-sm"><span data-icon="card,15,1.8"></span>Eventera Card</button>
+                  <span class="spacer"></span>
+                  <button class="btn btn-ghost btn-sm"><span data-icon="users,15,1.8"></span>Transfer</button>
+                  <button class="btn btn-ghost btn-sm"><span data-icon="download,15,1.8"></span>Download</button>
+                </div>
+              </div>
+              <div class="ticket-qr">
+                <div class="qr-box" style="background:repeating-conic-gradient(var(--ink) 0 25%, #fff 0 50%) 0/12px 12px;"></div>
+                <div class="qr-label">Tap for door QR</div>
+              </div>
+            </div>
+
+            <div class="ticket-row">
+              <div class="ticket-cover"></div>
+              <div class="ticket-body">
+                <div class="ticket-top">
+                  <div class="ticket-title">Pan-African Youth Forum 2026</div>
+                  <span class="tag-outline tag">General</span>
+                </div>
+                <div class="ticket-meta">
+                  <div class="m"><span data-icon="calendar,15,1.8"></span><b>Nov 3, 2026</b></div>
+                  <div class="m"><span data-icon="globe,15,1.8"></span>Nairobi</div>
+                  <div class="m">Holder&nbsp;<b>Abdalla Abdikarim</b></div>
+                </div>
+                <div class="ticket-card-no">Eventera Card — not generated yet</div>
+                <div class="ticket-actions">
+                  <button class="btn btn-primary btn-sm"><span data-icon="arrowright,15,2"></span>Open event</button>
+                  <button class="btn btn-secondary btn-sm"><span data-icon="card,15,1.8"></span>Generate card</button>
+                  <span class="spacer"></span>
+                  <button class="btn btn-ghost btn-sm"><span data-icon="users,15,1.8"></span>Transfer</button>
+                  <button class="btn btn-ghost btn-sm"><span data-icon="download,15,1.8"></span>Download</button>
+                </div>
+              </div>
+              <div class="ticket-qr">
+                <div class="qr-box" style="background:repeating-conic-gradient(var(--ink) 0 25%, #fff 0 50%) 0/12px 12px;"></div>
+                <div class="qr-label">Tap for door QR</div>
+              </div>
+            </div>
+
+            <div class="ticket-row">
+              <div class="ticket-cover"></div>
+              <div class="ticket-body">
+                <div class="ticket-top">
+                  <div class="ticket-title">WaafiPay Sandbox Test</div>
+                  <span class="tag-outline tag">Standard Ticket</span>
+                </div>
+                <div class="ticket-meta">
+                  <div class="m"><span data-icon="calendar,15,1.8"></span><b>Aug 2, 2026</b></div>
+                  <div class="m"><span data-icon="globe,15,1.8"></span>Online</div>
+                  <div class="m">Holder&nbsp;<b>Abdalla Abdikarim</b></div>
+                </div>
+                <div class="ticket-card-no">Eventera Card — not generated yet</div>
+                <div class="ticket-actions">
+                  <button class="btn btn-primary btn-sm"><span data-icon="arrowright,15,2"></span>Open event</button>
+                  <button class="btn btn-secondary btn-sm"><span data-icon="card,15,1.8"></span>Generate card</button>
+                  <span class="spacer"></span>
+                  <button class="btn btn-ghost btn-sm"><span data-icon="users,15,1.8"></span>Transfer</button>
+                  <button class="btn btn-ghost btn-sm"><span data-icon="download,15,1.8"></span>Download</button>
+                </div>
+              </div>
+              <div class="ticket-qr">
+                <div class="qr-box" style="background:repeating-conic-gradient(var(--ink) 0 25%, #fff 0 50%) 0/12px 12px;"></div>
+                <div class="qr-label">Tap for door QR</div>
+              </div>
+            </div>
+
+            <div class="ticket-row">
+              <div class="ticket-cover"></div>
+              <div class="ticket-body">
+                <div class="ticket-top">
+                  <div class="ticket-title">Women in Tech Summit</div>
+                  <span class="tag-outline tag">General Admission</span>
+                </div>
+                <div class="ticket-meta">
+                  <div class="m"><span data-icon="calendar,15,1.8"></span><b>Sep 19, 2026</b></div>
+                  <div class="m"><span data-icon="globe,15,1.8"></span>Nairobi</div>
+                  <div class="m">Holder&nbsp;<b>Abdalla Abdikarim</b></div>
+                </div>
+                <div class="ticket-card-no">Eventera Card — not generated yet</div>
+                <div class="ticket-actions">
+                  <button class="btn btn-primary btn-sm"><span data-icon="arrowright,15,2"></span>Open event</button>
+                  <button class="btn btn-secondary btn-sm"><span data-icon="card,15,1.8"></span>Generate card</button>
+                  <span class="spacer"></span>
+                  <button class="btn btn-ghost btn-sm"><span data-icon="users,15,1.8"></span>Transfer</button>
+                  <button class="btn btn-ghost btn-sm"><span data-icon="download,15,1.8"></span>Download</button>
+                </div>
+              </div>
+              <div class="ticket-qr">
+                <div class="qr-box" style="background:repeating-conic-gradient(var(--ink) 0 25%, #fff 0 50%) 0/12px 12px;"></div>
+                <div class="qr-label">Tap for door QR</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame-wrap">
+      <div class="artboard-label"><span class="idx">03</span>Event hub <span style="font-weight:400; color:var(--muted); font-size:12px;">— opened from a ticket's "Open event"; all 8 event tools live here as first-class options</span></div>
+      <div class="app-frame">
+        <aside class="sidebar" data-sidebar="my-events"></aside>
+        <div class="main">
+          <div class="topbar" data-topbar="Tickets / AI Ethics Webinar"></div>
+          <div class="page-shell w-wide">
+            <div class="hub-banner" style="background:linear-gradient(135deg,var(--forest-dark),var(--forest))">
+              <div class="scrim"></div>
+              <div class="b-content">
+                <div style="font-size:11px; letter-spacing:.08em; opacity:.85; margin-bottom:6px;">ATTENDING · JUL 14, 2026 · ONLINE</div>
+                <div style="font-family:var(--display); font-weight:600; font-size:26px;">AI Ethics Webinar</div>
+              </div>
+            </div>
+            <div class="page-header" style="margin-bottom:22px;">
+              <div class="page-header-main">
+                <div class="page-title" style="font-size:20px;">Your event tools</div>
+                <div class="page-subtitle">Everything for this event in one place.</div>
+              </div>
+              <div class="page-actions">
+                <button class="btn btn-secondary"><span data-icon="qr,15,1.8"></span>Ticket &amp; QR</button>
+                <button class="btn btn-primary"><span data-icon="card,15,1.8"></span>Eventera Card</button>
+              </div>
+            </div>
+            <div class="hub-tools">
+                      <div class="tool-card"><div class="ic"><span data-icon="calendar,20,1.7"></span></div><h4>Agenda</h4><p>Sessions you saved and the full schedule</p></div>
+                      <div class="tool-card"><div class="ic"><span data-icon="users,20,1.7"></span></div><h4>Networking</h4><p>Meet attendees and request intros</p></div>
+                      <div class="tool-card"><div class="ic"><span data-icon="mail,20,1.7"></span></div><h4>Messages</h4><p>Your conversations for this event</p></div>
+                      <div class="tool-card"><div class="ic"><span data-icon="globe,20,1.7"></span></div><h4>Community</h4><p>Discussion feed and announcements</p></div>
+                      <div class="tool-card"><div class="ic"><span data-icon="question,20,1.7"></span></div><h4>Q&amp;A</h4><p>Ask speakers questions live</p></div>
+                      <div class="tool-card"><div class="ic"><span data-icon="barchart,20,1.7"></span></div><h4>Polls</h4><p>Vote in live session polls</p></div>
+                      <div class="tool-card"><div class="ic"><span data-icon="trending,20,1.7"></span></div><h4>Leaderboard</h4><p>Points, badges and standings</p></div>
+                      <div class="tool-card"><div class="ic"><span data-icon="check,20,1.7"></span></div><h4>Feedback</h4><p>Rate sessions and share your thoughts</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame-wrap">
+      <div class="artboard-label"><span class="idx">04</span>My Cards</div>
+      <div class="app-frame">
+        <aside class="sidebar" data-sidebar="my-cards"></aside>
+        <div class="main">
+          <div class="topbar" data-topbar="My Cards"></div>
+          <div class="page-shell w-default">
+            <div class="page-header">
+              <div class="page-header-main">
+                <div class="page-eyebrow">Attending</div>
+                <div class="page-title">My Cards</div>
+                <div class="page-subtitle">7 cards collected</div>
+              </div>
+            </div>
+            <div class="card-grid" style="grid-template-columns:repeat(3,1fr);">
+              <div class="mycard"><div class="mycard-cover" style="background:linear-gradient(135deg,var(--forest-dark),var(--gold))"></div><div class="mycard-body"><div><div class="mycard-name">AI Ethics Webinar</div><div class="mycard-owner">Abdalla Abdikarim</div></div><button class="btn btn-secondary btn-sm">Download</button></div></div>
+              <div class="mycard"><div class="mycard-cover" style="background:linear-gradient(135deg,#5B2A8C,#8B4FD6)"></div><div class="mycard-body"><div><div class="mycard-name">#PAYF2025</div><div class="mycard-owner">Abdullahi Abdikarim Muse</div></div><button class="btn btn-secondary btn-sm">Download</button></div></div>
+              <div class="mycard"><div class="mycard-cover" style="background:linear-gradient(135deg,var(--forest-dark),var(--gold))"></div><div class="mycard-body"><div><div class="mycard-name" style="font-size:13px;">Cérémonie de Remise…</div><div class="mycard-owner">Abdalla Abdikarim</div></div><button class="btn btn-secondary btn-sm">Download</button></div></div>
+              <div class="mycard"><div class="mycard-cover" style="background:var(--ink)"></div><div class="mycard-body"><div><div class="mycard-name">AfriTech Summit 2026</div><div class="mycard-owner">Abdalla Abdikarim</div></div><button class="btn btn-secondary btn-sm">Download</button></div></div>
+              <div class="mycard"><div class="mycard-cover" style="background:linear-gradient(135deg,var(--forest),#2A6A50)"></div><div class="mycard-body"><div><div class="mycard-name">Africa Climate Action 2027</div><div class="mycard-owner">Abdalla Abdikarim</div></div><button class="btn btn-secondary btn-sm">Download</button></div></div>
+              <div class="mycard"><div class="mycard-cover" style="background:linear-gradient(135deg,var(--forest-dark),var(--forest))"></div><div class="mycard-body"><div><div class="mycard-name">Nairobi Tech Summit 2026</div><div class="mycard-owner">Abdalla Abdikarim</div></div><button class="btn btn-secondary btn-sm">Download</button></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame-wrap">
+      <div class="artboard-label"><span class="idx">05</span>Saved</div>
+      <div class="app-frame">
+        <aside class="sidebar" data-sidebar="saved"></aside>
+        <div class="main">
+          <div class="topbar" data-topbar="Saved"></div>
+          <div class="page-shell w-default">
+            <div class="page-header">
+              <div class="page-header-main">
+                <div class="page-eyebrow">Attending</div>
+                <div class="page-title">Saved &amp; Following</div>
+              </div>
+            </div>
+            <div class="segmented"><button class="active">Saved events <span class="n">(3)</span></button><button>Following <span class="n">(3)</span></button></div>
+            <div class="card-grid">
+              <div class="saved-card"><div class="saved-cover" style="background:var(--forest)"><div class="heart" data-icon="heart,15,2"></div></div><div class="saved-body"><div class="saved-title">Cérémonie de Remise des Diplômes Baccalauréats 2026</div><div class="saved-meta" data-icon="calendar,14,1.8"></div><div class="saved-meta">Jul 16, 2026</div><div class="saved-meta">Central District <span class="saved-price">Free</span></div></div></div>
+              <div class="saved-card"><div class="saved-cover" style="background:var(--forest)"><div class="heart" data-icon="heart,15,2"></div></div><div class="saved-body"><div class="saved-title">Nairobi Tech Summit 2026</div><div class="saved-meta">Jul 10, 2026</div><div class="saved-meta">Nairobi <span class="saved-price">Free</span></div></div></div>
+              <div class="saved-card"><div class="saved-cover" style="background:var(--forest)"><div class="heart" data-icon="heart,15,2"></div></div><div class="saved-body"><div class="saved-title">Pan-African Innovation Summit 2027</div><div class="saved-meta">Mar 15, 2027</div><div class="saved-meta">Online <span class="saved-price">Free</span></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ ORGANIZING ============ -->
+  <div class="col" id="col-organizing">
+    <div class="group-heading">Organizing</div>
+    <div class="group-sub">Brand Kit and Templates are no longer separate dashboard pages — they now live only inside the Eventera Card editor, scoped to the event you're building, fully wired to card creation.</div>
+
+    <div class="frame-wrap">
+      <div class="artboard-label"><span class="idx">06</span>Events</div>
+      <div class="app-frame">
+        <aside class="sidebar" data-sidebar="events"></aside>
+        <div class="main">
+          <div class="topbar" data-topbar="Events"></div>
+          <div class="page-shell w-wide">
+            <div class="page-header">
+              <div class="page-header-main">
+                <div class="page-eyebrow">Organizing</div>
+                <div class="page-title">Events</div>
+                <div class="page-subtitle">Everything you're organizing, in one place.</div>
+              </div>
+              <div class="page-actions"><button class="btn btn-primary" data-icon="plus,15,2.2"></button></div>
+            </div>
+
+            <div class="inline-stats">
+              <div class="inline-stat"><b>25</b><span>events total</span></div>
+              <div class="inline-stat"><b>64</b><span>registrations</span></div>
+              <div class="inline-stat"><b>$16,836</b><span>revenue</span></div>
+              <div class="inline-stat"><b>41%</b><span>check-in rate</span></div>
+            </div>
+            <div style="display:flex; gap:10px; margin-bottom:26px;">
+              <button class="btn btn-primary" data-icon="plus,15,2.2"></button>
+              <button class="btn btn-secondary" data-icon="users,16,1.8"></button>
+              <button class="btn btn-secondary" data-icon="scan,16,1.8"></button>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+              <span style="color:var(--warning)" data-icon="alert,16,2"></span>
+              <span class="section-label" style="margin:0; color:var(--warning)">Needs attention</span>
+            </div>
+            <div class="attn-grid">
+              <div class="attn-row"><div class="attn-thumb" style="background:var(--forest)"></div><div class="attn-body"><div class="attn-title">Nairobi Tech Summit 2026</div><div class="attn-sub">no registrations yet</div></div><span data-icon="arrowright,16,2" style="color:var(--warning)"></span></div>
+              <div class="attn-row"><div class="attn-thumb" style="background:var(--ink)"></div><div class="attn-body"><div class="attn-title">AfriTech Summit 2026</div><div class="attn-sub">not published</div></div><span data-icon="arrowright,16,2" style="color:var(--warning)"></span></div>
+              <div class="attn-row"><div class="attn-thumb" style="background:var(--forest)"></div><div class="attn-body"><div class="attn-title">Pan-African Youth Forum 2026</div><div class="attn-sub">not published</div></div><span data-icon="arrowright,16,2" style="color:var(--warning)"></span></div>
+              <div class="attn-row"><div class="attn-thumb" style="background:var(--forest)"></div><div class="attn-body"><div class="attn-title">Women in Tech Summit</div><div class="attn-sub">no registrations yet</div></div><span data-icon="arrowright,16,2" style="color:var(--warning)"></span></div>
+            </div>
+
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+              <span class="section-label" style="margin:0;">Your events</span>
+              <select class="select-mini" style="height:36px;"><option>Most recent</option></select>
+            </div>
+            <div class="segmented"><button class="active">All <span class="n">25</span></button><button>Active <span class="n">19</span></button><button>Draft <span class="n">6</span></button><button>Archived <span class="n">0</span></button></div>
+
+            <div class="event-grid">
+              <div class="event-card">
+                <div class="event-cover" style="background:linear-gradient(135deg,#5B2A8C,#8B4FD6)"><span class="badge badge-live"><span class="dot"></span>LIVE</span><div class="dots" data-icon="dots,16,2"></div></div>
+                <div class="event-body"><div class="event-name">#PAYF2025</div><div class="event-meta">4 registered · 25% check-in</div><div class="event-actions"><button class="btn btn-primary btn-sm">Manage</button><button class="btn btn-secondary btn-sm">View public</button></div></div>
+              </div>
+              <div class="event-card">
+                <div class="event-cover" style="background:linear-gradient(135deg,var(--forest-dark),var(--forest))"><span class="badge badge-live"><span class="dot"></span>LIVE</span><div class="dots" data-icon="dots,16,2"></div></div>
+                <div class="event-body"><div class="event-name">AI Ethics Webinar</div><div class="event-meta">1 registered · $21</div><div class="event-actions"><button class="btn btn-primary btn-sm">Manage</button><button class="btn btn-secondary btn-sm">View public</button></div></div>
+              </div>
+              <div class="event-card">
+                <div class="event-cover" style="background:var(--soft)"><span class="badge badge-live"><span class="dot"></span>LIVE</span><div class="dots" data-icon="dots,16,2"></div></div>
+                <div class="event-body"><div class="event-name">WaafiPay Sandbox Test</div><div class="event-meta">2 registered · $10 · 50% check-in</div><div class="event-actions"><button class="btn btn-primary btn-sm">Manage</button><button class="btn btn-secondary btn-sm">View public</button></div></div>
+              </div>
+              <div class="event-card">
+                <div class="event-cover" style="background:linear-gradient(135deg,var(--gold),var(--gold-dark))"><span class="badge badge-live"><span class="dot"></span>LIVE</span><div class="dots" data-icon="dots,16,2"></div></div>
+                <div class="event-body"><div class="event-name">Nairobi Tech Summit 2027</div><div class="event-meta">14 registered · 29% check-in</div><div class="event-actions"><button class="btn btn-primary btn-sm">Manage</button><button class="btn btn-secondary btn-sm">View public</button></div></div>
+              </div>
+              <div class="event-card">
+                <div class="event-cover" style="background:var(--forest-dark)"><span class="badge badge-draft" style="position:absolute;top:12px;left:12px;">DRAFT</span><div class="dots" data-icon="dots,16,2"></div></div>
+                <div class="event-body"><div class="event-name">Pan-African Youth Forum 2026</div><div class="event-meta">11 registered · 36% check-in</div><div class="event-actions"><button class="btn btn-primary btn-sm">Manage</button><button class="btn btn-secondary btn-sm">View public</button></div></div>
+              </div>
+              <div class="event-card">
+                <div class="event-cover" style="background:var(--ink)"><span class="badge badge-live"><span class="dot"></span>LIVE</span><div class="dots" data-icon="dots,16,2"></div></div>
+                <div class="event-body"><div class="event-name">AfriTech Summit 2026</div><div class="event-meta">10 registered · 100% check-in</div><div class="event-actions"><button class="btn btn-primary btn-sm">Manage</button><button class="btn btn-secondary btn-sm">View public</button></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame-wrap">
+      <div class="artboard-label"><span class="idx">07</span>Analytics</div>
+      <div class="app-frame">
+        <aside class="sidebar" data-sidebar="analytics"></aside>
+        <div class="main">
+          <div class="topbar" data-topbar="Analytics"></div>
+          <div class="page-shell w-wide">
+            <div class="page-header">
+              <div class="page-header-main">
+                <div class="page-eyebrow">Organizing</div>
+                <div class="page-title">Analytics</div>
+                <div class="page-subtitle">Across all your events</div>
+              </div>
+              <div class="page-actions">
+                <select class="select-mini" style="height:40px;"><option>Last 90 days</option></select>
+                <button class="btn btn-secondary" data-icon="download,15,1.8"></button>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-tile"><div class="stat-label">Total events</div><div class="stat-value">25</div></div>
+              <div class="stat-tile"><div class="stat-label">Registrations</div><div class="stat-value">64</div><div class="stat-hint down">↘ 90% mo</div></div>
+              <div class="stat-tile"><div class="stat-label">Revenue</div><div class="stat-value">—</div><div class="stat-hint down">↘ 100% mo</div></div>
+              <div class="stat-tile accent"><div class="stat-label">Cards shared</div><div class="stat-value">85</div></div>
+            </div>
+            <div class="two-col" style="margin-bottom:20px;">
+              <div class="card chart-card">
+                <div class="chart-title">Registrations across events</div>
+                <div class="chart-sub">&nbsp;</div>
+                <div style="display:flex; align-items:flex-end; gap:22px; height:150px;">
+                  <div style="text-align:center; flex:1;"><div style="font-size:12px; color:var(--muted); margin-bottom:6px;">14</div><div style="height:120px; background:var(--forest); border-radius:8px 8px 0 0;"></div><div style="font-size:11px; color:var(--muted); margin-top:8px;">Nairobi Tec…</div></div>
+                  <div style="text-align:center; flex:1;"><div style="font-size:12px; color:var(--muted); margin-bottom:6px;">11</div><div style="height:94px; background:var(--forest); opacity:.85; border-radius:8px 8px 0 0;"></div><div style="font-size:11px; color:var(--muted); margin-top:8px;">Pan-African…</div></div>
+                  <div style="text-align:center; flex:1;"><div style="font-size:12px; color:var(--muted); margin-bottom:6px;">10</div><div style="height:86px; background:var(--forest); opacity:.75; border-radius:8px 8px 0 0;"></div><div style="font-size:11px; color:var(--muted); margin-top:8px;">Pan-African I…</div></div>
+                  <div style="text-align:center; flex:1;"><div style="font-size:12px; color:var(--muted); margin-bottom:6px;">7</div><div style="height:60px; background:var(--forest); opacity:.6; border-radius:8px 8px 0 0;"></div><div style="font-size:11px; color:var(--muted); margin-top:8px;">Nairobi Des…</div></div>
+                  <div style="text-align:center; flex:1;"><div style="font-size:12px; color:var(--muted); margin-bottom:6px;">6</div><div style="height:52px; background:var(--forest); opacity:.5; border-radius:8px 8px 0 0;"></div><div style="font-size:11px; color:var(--muted); margin-top:8px;">Cérémonie de</div></div>
+                </div>
+              </div>
+              <div class="card chart-card">
+                <div class="chart-title">Revenue trend</div>
+                <div class="chart-sub">&nbsp;</div>
+                <svg viewBox="0 0 300 150" width="100%" height="150">
+                  <polyline points="10,120 150,20 290,110" fill="none" stroke="var(--gold-dark)" stroke-width="2.5"/>
+                  <circle cx="150" cy="20" r="4" fill="var(--gold-dark)"/>
+                  <circle cx="290" cy="110" r="4" fill="var(--gold-dark)"/>
+                </svg>
+                <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--muted); margin-top:-6px;"><span>Feb</span><span>May</span><span>Jul</span></div>
+              </div>
+            </div>
+            <div class="card" style="padding:0;">
+              <div style="padding:20px 24px 0;"><div class="chart-title">Event performance</div></div>
+              <div class="table-wrap" style="border:none; border-radius:0; margin-top:14px;">
+                <table>
+                  <tr><th>Event</th><th>Status</th><th>Registrations</th><th>Revenue</th><th>Cards</th><th>Check-in</th></tr>
+                  <tr><td>Nairobi Tech Summit 2027</td><td><span class="status-pill status-active">Live</span></td><td>14</td><td>—</td><td>0</td><td>29%</td></tr>
+                  <tr><td>Pan-African Youth Forum 2026</td><td><span class="badge badge-draft">Draft</span></td><td>11</td><td>—</td><td>0</td><td>36%</td></tr>
+                  <tr><td>Pan-African Innovation Summit 2…</td><td><span class="status-pill status-active">Live</span></td><td>10</td><td>—</td><td>12</td><td>100%</td></tr>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame-wrap">
+      <div class="artboard-label"><span class="idx">08</span>Eventera Card Editor <span style="font-weight:400; color:var(--muted); font-size:12px;">— opened from Events → Manage → Eventera Card (Brand Kit + Templates live only here now)</span></div>
+      <div class="app-frame">
+        <aside class="sidebar" data-sidebar="events"></aside>
+        <div class="main">
+          <div class="topbar" data-topbar="Events / AI Ethics Webinar / Eventera Card"></div>
+          <div class="page-shell w-full" style="max-width:1360px; padding-top:24px;">
+            <div class="page-header" style="margin-bottom:16px;">
+              <div class="page-header-main">
+                <div class="page-eyebrow">Organizing · AI Ethics Webinar</div>
+                <div class="page-title">Eventera Card editor</div>
+                <div class="page-subtitle">Design the card every attendee personalizes and shares. Templates and your Brand Kit are built in — no separate pages to hunt for.</div>
+              </div>
+              <div class="page-actions">
+                <button class="btn btn-secondary btn-sm" data-icon="undo,15,1.8"></button>
+                <button class="btn btn-secondary btn-sm" data-icon="redo,15,1.8"></button>
+                <button class="btn btn-primary">Publish</button>
+              </div>
+            </div>
+
+            <div class="editor-shell">
+              <div class="editor-body">
+                <div class="editor-rail">
+                  <div class="rail-btn active" data-icon="layout,20,1.7"></div>
+                  <div class="rail-btn" data-icon="palette,20,1.7"></div>
+                  <div class="rail-btn" data-icon="layers,20,1.7"></div>
+                  <div class="rail-btn" data-icon="type,20,1.7"></div>
+                  <div class="rail-btn" data-icon="image,20,1.7"></div>
+                </div>
+                <div class="editor-panel">
+                  <div class="editor-panel-title">Templates</div>
+                  <div class="template-grid">
+                    <div class="template-thumb selected" style="background:linear-gradient(135deg,var(--forest-dark),var(--gold))"></div>
+                    <div class="template-thumb" style="background:linear-gradient(135deg,#5B2A8C,#8B4FD6)"></div>
+                    <div class="template-thumb" style="background:var(--ink)"></div>
+                    <div class="template-thumb" style="background:linear-gradient(135deg,var(--forest),#2A6A50)"></div>
+                  </div>
+                  <div class="editor-panel-title" style="margin-top:22px;">Brand Kit</div>
+                  <div style="display:flex; gap:8px; margin-bottom:10px;">
+                    <div class="color-swatch" style="width:26px;height:26px;background:var(--forest)"></div>
+                    <div class="color-swatch" style="width:26px;height:26px;background:var(--forest-dark)"></div>
+                    <div class="color-swatch" style="width:26px;height:26px;background:var(--gold)"></div>
+                    <div class="color-swatch" style="width:26px;height:26px;background:var(--cream); border-color:var(--border)"></div>
+                  </div>
+                  <div style="font-size:12px; color:var(--muted); line-height:1.5;">Pulled automatically from your workspace Brand Kit — logo, palette, applied to every card.</div>
+                </div>
+                <div class="editor-canvas-wrap">
+                  <div class="editor-card">
+                    <div style="font-size:11px; letter-spacing:.08em; opacity:.8; margin-bottom:16px;">AI ETHICS WEBINAR</div>
+                    <div style="font-size:11px; letter-spacing:.06em; opacity:.7; margin-bottom:8px;">I'M ATTENDING</div>
+                    <div style="width:44px;height:44px;border-radius:50%; background:var(--gold); color:var(--ink); display:grid; place-items:center; font-family:var(--display); font-weight:700; margin-bottom:12px;">AA</div>
+                    <div style="font-family:var(--display); font-weight:600; font-size:18px;">Abdalla Abdikarim</div>
+                    <div style="font-size:12.5px; opacity:.75; margin-top:2px;">Designer · Haldoorgfx</div>
+                    <div style="font-size:11px; opacity:.6; margin-top:16px; border-top:1px solid rgba(255,255,255,.15); padding-top:12px;">14 JUL · NAIROBI</div>
+                    <div class="zone zone-selected" style="top:96px; left:20px; width:120px; height:44px;">
+                      <div class="zone-handle" style="top:-4px; left:-4px;"></div><div class="zone-handle" style="top:-4px; right:-4px;"></div>
+                      <div class="zone-handle" style="bottom:-4px; left:-4px;"></div><div class="zone-handle" style="bottom:-4px; right:-4px;"></div>
+                    </div>
+                    <div class="zone zone-outline" style="top:150px; left:20px; width:220px; height:52px;"></div>
+                    <div class="zone zone-outline" style="top:270px; left:20px; width:180px; height:30px;"></div>
+                  </div>
+                </div>
+                <div class="editor-right">
+                  <div class="editor-panel-title">Zone — Name</div>
+                  <div style="display:flex; flex-direction:column; gap:10px;">
+                    <div><div class="field-label">Font</div><select class="field-input" style="height:36px;"><option>DM Sans</option></select></div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                      <div><div class="field-label">Size</div><input class="field-input" style="height:36px;" value="18"></div>
+                      <div><div class="field-label">Align</div><select class="field-input" style="height:36px;"><option>Center</option></select></div>
+                    </div>
+                    <div><div class="field-label">Color</div><div class="color-swatch" style="width:36px;height:36px;background:var(--gold)"></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame-wrap">
+      <div class="artboard-label"><span class="idx">09</span>Team</div>
+      <div class="app-frame">
+        <aside class="sidebar" data-sidebar="team"></aside>
+        <div class="main">
+          <div class="topbar" data-topbar="Team"></div>
+          <div class="page-shell w-wide">
+            <div class="page-header">
+              <div class="page-header-main">
+                <div class="page-eyebrow">Organizing</div>
+                <div class="page-title">Team</div>
+                <div class="page-subtitle">0 members</div>
+              </div>
+            </div>
+            <div class="filters-row">
+              <input placeholder="Search members...">
+              <select><option>All roles</option></select>
+            </div>
+            <div class="table-wrap" style="margin-bottom:18px;">
+              <table>
+                <tr><th>Member</th><th>Role</th><th>Event access</th><th>Status</th></tr>
+              </table>
+              <div style="text-align:center; padding:36px; color:var(--muted); font-size:13.5px;">No members found.</div>
+            </div>
+            <div class="info-box"><span data-icon="shield,18,1.8" style="color:var(--forest); flex:none;"></span><div><b>Roles control access.</b> Owners and Admins manage everything; Editors manage assigned events; Check-in staff can only scan attendees at the door.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ ADMIN ============ -->
+  <div class="col" id="col-admin">
+    <div class="group-heading">Admin</div>
+    <div class="group-sub">Kept in-shell (not a bolted-on separate route) — same PageShell as every other section, visually separated by the sidebar divider.</div>
+
+    <div class="frame-wrap">
+      <div class="artboard-label"><span class="idx">10</span>Platform Stats</div>
+      <div class="app-frame">
+        <aside class="sidebar" data-sidebar="platform-stats"></aside>
+        <div class="main">
+          <div class="topbar" data-topbar="Platform Stats"></div>
+          <div class="page-shell w-wide">
+            <div class="page-header">
+              <div class="page-header-main">
+                <div class="page-eyebrow">Admin</div>
+                <div class="page-title">Platform Stats</div>
+                <div class="page-subtitle">Live aggregate stats. Numbers reflect the current state of the database.</div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-tile"><div class="stat-label">Total users</div><div class="stat-value">17</div></div>
+              <div class="stat-tile"><div class="stat-label">New this month</div><div class="stat-value">7</div><div class="stat-hint">signups</div></div>
+              <div class="stat-tile"><div class="stat-label">Total events</div><div class="stat-value">32</div><div class="stat-hint">24 published</div></div>
+              <div class="stat-tile"><div class="stat-label">Total registrations</div><div class="stat-value">65</div></div>
+            </div>
+            <div class="stat-row" style="grid-template-columns:repeat(3,1fr);">
+              <div class="stat-tile"><div class="stat-label">Cards shared</div><div class="stat-value">82</div></div>
+              <div class="stat-tile"><div class="stat-label">Paid users</div><div class="stat-value">4</div><div class="stat-hint">23.5% conversion</div></div>
+              <div class="stat-tile"><div class="stat-label">Free users</div><div class="stat-value">13</div><div class="stat-hint">76.5% of total</div></div>
+            </div>
+            <div class="card chart-card">
+              <div class="chart-title">User growth</div>
+              <div class="chart-sub">New signups per day — last 30 days</div>
+              <svg viewBox="0 0 600 150" width="100%" height="150" preserveAspectRatio="none">
+                <polyline points="0,140 60,120 90,95 120,130 260,132 300,105 340,138 470,140 500,20 530,60 560,135 600,140" fill="none" stroke="var(--forest)" stroke-width="2.5"/>
+              </svg>
+              <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--muted); margin-top:-4px;"><span>6 Jun</span><span>13 Jun</span><span>20 Jun</span><span>27 Jun</span><span>4 Jul</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame-wrap">
+      <div class="artboard-label"><span class="idx">11</span>Accounts</div>
+      <div class="app-frame">
+        <aside class="sidebar" data-sidebar="accounts"></aside>
+        <div class="main">
+          <div class="topbar" data-topbar="Accounts"></div>
+          <div class="page-shell w-full" style="max-width:1360px;">
+            <div class="page-header">
+              <div class="page-header-main">
+                <div class="page-eyebrow">Admin</div>
+                <div class="page-title">Accounts</div>
+                <div class="page-subtitle">Search, filter, manage roles, suspend, and delete accounts.</div>
+              </div>
+            </div>
+            <div class="filters-row">
+              <input placeholder="Email or name...">
+              <select><option>All roles</option></select>
+              <select><option>All plans</option></select>
+              <select><option>All statuses</option></select>
+              <button class="btn btn-primary btn-sm">Apply</button>
+            </div>
+            <div style="font-size:13px; color:var(--muted); margin-bottom:12px;">17 users</div>
+            <div class="table-wrap">
+              <table>
+                <tr><th>User</th><th>Plan</th><th>Role</th><th>Status</th><th>Joined</th><th>Change role</th><th>Actions</th></tr>
+                <tr><td class="cell-user"><span>—</span><span style="display:block;color:var(--info)">haldoorgraphix@gmail.com</span></td><td>Free</td><td>user</td><td><span class="status-pill status-active">active</span></td><td>03 Jul 2026</td><td><select class="select-mini"><option>user</option></select></td><td class="row-actions"><button data-icon="alert,14,2"></button><button data-icon="dots,14,2"></button></td></tr>
+                <tr><td class="cell-user"><b>Abdullahi Sheikh Abdi Muse</b><span style="color:var(--info)">cabdullaahics1@gmail.com</span></td><td>Free</td><td>user</td><td><span class="status-pill status-active">active</span></td><td>03 Jul 2026</td><td><select class="select-mini"><option>user</option></select></td><td class="row-actions"><button data-icon="alert,14,2"></button><button data-icon="dots,14,2"></button></td></tr>
+                <tr><td class="cell-user"><b>Haldoor Solutions</b><span style="color:var(--info)">haldoorsolutions@gmail.com</span></td><td>Free</td><td>user</td><td><span class="status-pill status-active">active</span></td><td>03 Jul 2026</td><td><select class="select-mini"><option>user</option></select></td><td class="row-actions"><button data-icon="alert,14,2"></button><button data-icon="dots,14,2"></button></td></tr>
+                <tr><td class="cell-user"><b>Abdalla Abdikarim Muse</b><span style="color:var(--info)">haldoor253@gmail.com</span></td><td>Free</td><td>user</td><td><span class="status-pill status-active">active</span></td><td>03 Jul 2026</td><td><select class="select-mini"><option>user</option></select></td><td class="row-actions"><button data-icon="alert,14,2"></button><button data-icon="dots,14,2"></button></td></tr>
+                <tr><td class="cell-user"><b>Abdalla Sh Abdi</b><span style="color:var(--info)">cabdallacs1@gmail.com</span></td><td>Free</td><td>user</td><td><span class="status-pill status-active">active</span></td><td>03 Jul 2026</td><td><select class="select-mini"><option>user</option></select></td><td class="row-actions"><button data-icon="alert,14,2"></button><button data-icon="dots,14,2"></button></td></tr>
+                <tr><td class="cell-user"><span>—</span><span style="display:block;color:var(--info)">haldoorgfx@gmal.co</span></td><td>Free</td><td>user</td><td><span class="status-pill status-active">active</span></td><td>03 Jul 2026</td><td><select class="select-mini"><option>user</option></select></td><td class="row-actions"><button data-icon="alert,14,2"></button><button data-icon="dots,14,2"></button></td></tr>
+                <tr><td class="cell-user"><b>Abdullahi Abdikarim</b><span style="color:var(--info)">haldoor252@gmail.com</span></td><td>Free</td><td>user</td><td><span class="status-pill status-active">active</span></td><td>18 Jun 2026</td><td><select class="select-mini"><option>user</option></select></td><td class="row-actions"><button data-icon="alert,14,2"></button><button data-icon="dots,14,2"></button></td></tr>
+                <tr><td class="cell-user"><b>Abdalla Abdikarim</b><span style="color:var(--info)">haldoor4120@gmail.com</span></td><td>Free</td><td>user</td><td><span class="status-pill status-active">active</span></td><td>12 Jun 2026</td><td><select class="select-mini"><option>user</option></select></td><td class="row-actions"><button data-icon="alert,14,2"></button><button data-icon="dots,14,2"></button></td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame-wrap">
+      <div class="artboard-label"><span class="idx">12</span>Revenue</div>
+      <div class="app-frame">
+        <aside class="sidebar" data-sidebar="revenue"></aside>
+        <div class="main">
+          <div class="topbar" data-topbar="Revenue"></div>
+          <div class="page-shell w-full" style="max-width:1360px;">
+            <div class="page-header">
+              <div class="page-header-main">
+                <div class="page-eyebrow">Admin</div>
+                <div class="page-title">Revenue</div>
+                <div class="page-subtitle">View subscriptions, comp plans (Stripe-bypassing), view invoices, and issue refunds. All billing mutations are audited.</div>
+              </div>
+            </div>
+            <div class="filters-row">
+              <input placeholder="Email or name...">
+              <select><option>All plans</option></select>
+              <button class="btn btn-primary btn-sm">Apply</button>
+            </div>
+            <div style="font-size:13px; color:var(--muted); margin-bottom:12px;">17 users</div>
+            <div class="table-wrap">
+              <table>
+                <tr><th>User</th><th>Plan</th><th>Subscription</th><th>Period ends</th><th>Cards / mo</th><th>Actions</th></tr>
+                <tr><td class="cell-user"><span>—</span><span style="display:block;color:var(--info)">haldoorgraphix@gmail.com</span></td><td>Free</td><td>none</td><td>—</td><td>0</td><td class="row-actions"><button data-icon="gift,14,1.8"></button><button data-icon="filetext,14,1.8"></button></td></tr>
+                <tr><td class="cell-user"><b>Abdullahi Sheikh Abdi Muse</b><span style="color:var(--info)">cabdullaahics1@gmail.com</span></td><td>Free</td><td>none</td><td>—</td><td>0</td><td class="row-actions"><button data-icon="gift,14,1.8"></button><button data-icon="filetext,14,1.8"></button></td></tr>
+                <tr><td class="cell-user"><b>Haldoor Solutions</b><span style="color:var(--info)">haldoorsolutions@gmail.com</span></td><td>Free</td><td>none</td><td>—</td><td>0</td><td class="row-actions"><button data-icon="gift,14,1.8"></button><button data-icon="filetext,14,1.8"></button></td></tr>
+                <tr><td class="cell-user"><b>Abdalla Abdikarim Muse</b><span style="color:var(--info)">haldoor253@gmail.com</span></td><td>Free</td><td>none</td><td>—</td><td>0</td><td class="row-actions"><button data-icon="gift,14,1.8"></button><button data-icon="filetext,14,1.8"></button></td></tr>
+                <tr><td class="cell-user"><b>Abdalla Sh Abdi</b><span style="color:var(--info)">cabdallacs1@gmail.com</span></td><td>Free</td><td>none</td><td>—</td><td>0</td><td class="row-actions"><button data-icon="gift,14,1.8"></button><button data-icon="filetext,14,1.8"></button></td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame-wrap">
+      <div class="artboard-label"><span class="idx">13</span>Activity Log</div>
+      <div class="app-frame">
+        <aside class="sidebar" data-sidebar="activity"></aside>
+        <div class="main">
+          <div class="topbar" data-topbar="Activity Log"></div>
+          <div class="page-shell w-full" style="max-width:1360px;">
+            <div class="page-header">
+              <div class="page-header-main">
+                <div class="page-eyebrow">Admin</div>
+                <div class="page-title">Activity Log</div>
+                <div class="page-subtitle">Every admin action, in order. Read-only.</div>
+              </div>
+            </div>
+            <div class="filters-row">
+              <input placeholder="Filter by action...">
+              <input placeholder="Filter by email...">
+              <button class="btn btn-primary btn-sm">Apply</button>
+            </div>
+            <div style="font-size:13px; color:var(--muted); margin-bottom:12px;">27 entries</div>
+            <div class="table-wrap">
+              <table>
+                <tr><th>Time</th><th>Actor</th><th>Action</th><th>Entity</th><th>Changes</th></tr>
+                <tr><td>10 Jun 2026, 19:22</td><td style="color:var(--info)">cabdalla005@gmail.com</td><td>billing.plan_comped</td><td>profile #41d6f039</td><td style="color:var(--forest)">Show changes</td></tr>
+                <tr><td>10 Jun 2026, 19:22</td><td style="color:var(--info)">cabdalla005@gmail.com</td><td style="color:var(--warning)">user.role_change</td><td>profile #41d6f039</td><td style="color:var(--forest)">Show changes</td></tr>
+                <tr><td>08 Jun 2026, 17:44</td><td style="color:var(--info)">cabdalla005@gmail.com</td><td>feature_flag.toggle</td><td>feature_flags #new_canv</td><td style="color:var(--forest)">Show changes</td></tr>
+                <tr><td>07 Jun 2026, 16:50</td><td style="color:var(--info)">cabdalla005@gmail.com</td><td style="color:var(--danger)">user.suspended</td><td>profile #21d907eb</td><td style="color:var(--forest)">Show changes</td></tr>
+                <tr><td>06 Jun 2026, 23:18</td><td style="color:var(--info)">cabdalla005@gmail.com</td><td>changelog.update</td><td>changelog_entry #b64f352d</td><td style="color:var(--forest)">Show changes</td></tr>
+                <tr><td>02 Jun 2026, 21:22</td><td style="color:var(--info)">cabdalla005@gmail.com</td><td style="color:var(--danger)">user.deleted</td><td>profile #3d23be4e</td><td style="color:var(--forest)">Show changes</td></tr>
+                <tr><td>31 May 2026, 01:07</td><td style="color:var(--info)">cabdalla005@gmail.com</td><td>billing.plan_comped</td><td>profile #c94e0432</td><td style="color:var(--forest)">Show changes</td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SETTINGS ============ -->
+  <div class="col" id="col-settings">
+    <div class="group-heading">Settings</div>
+    <div class="group-sub">Consolidated account controls — profile, billing, developer, integrations, white label.</div>
+
+    <div class="frame-wrap">
+      <div class="artboard-label"><span class="idx">14</span>Settings</div>
+      <div class="app-frame">
+        <aside class="sidebar" data-sidebar="none"></aside>
+        <div class="main">
+          <div class="topbar" data-topbar="Settings"></div>
+          <div class="page-shell w-default">
+            <div class="page-header">
+              <div class="page-header-main">
+                <div class="page-title">Settings</div>
+                <div class="page-subtitle">Your account, workspace and billing.</div>
+              </div>
+            </div>
+            <div class="settings-tabs">
+              <a class="active">General</a><a>Billing</a><a>Developer</a><a>Integrations</a><a>White Label</a>
+            </div>
+            <div class="card" style="margin-bottom:20px;">
+              <div style="display:flex; align-items:center; gap:16px; margin-bottom:22px;">
+                <div class="avatar" style="width:54px; height:54px; font-size:18px;">A</div>
+                <div style="flex:1;"><div style="font-size:14px; color:var(--muted);">cabdalla005@gmail.com</div></div>
+                <button class="btn btn-secondary btn-sm">Edit photo</button>
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:18px;">
+                <div><div class="field-label">Display name</div><input class="field-input" value="Abdalla Abdikarim"></div>
+                <div><div class="field-label">Phone / WhatsApp</div><input class="field-input" value="+25377040907"></div>
+              </div>
+              <div><div class="field-label">Bio</div><textarea class="field-textarea" placeholder="A short line about you — shown on your attendee card and directory profile."></textarea></div>
+            </div>
+            <div class="section-label">Work</div>
+            <div class="card">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:18px;">
+                <div><div class="field-label">Job title</div><input class="field-input" placeholder="e.g. Founder & CEO"></div>
+                <div><div class="field-label">Company / organization</div><input class="field-input" value="Haldoorgfx"></div>
+              </div>
+              <div><div class="field-label">Industry</div><select class="field-input"><option>Choose an industry</option></select></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="dash-chrome.js"></script>
+<script>
+  // Column x-offsets (computed after measuring group widths — all groups are 1440px + label padding)
+  document.getElementById('col-attending').style.left = '1560px';
+  document.getElementById('col-organizing').style.left = '3120px';
+  document.getElementById('col-admin').style.left = '4680px';
+  document.getElementById('col-settings').style.left = '6240px';
+
+  window.addEventListener('load', async () => {
+    if (document.fonts && document.fonts.ready) { try { await document.fonts.ready; } catch(e){} }
+    requestAnimationFrame(() => {
+      const stage = document.getElementById('stage');
+      let maxBottom = 0, maxRight = 0;
+      stage.querySelectorAll('.col').forEach(col => {
+        maxBottom = Math.max(maxBottom, col.offsetTop + col.offsetHeight);
+        maxRight = Math.max(maxRight, col.offsetLeft + col.offsetWidth);
+      });
+      stage.style.height = (maxBottom + 80) + 'px';
+      stage.style.width = (maxRight + 80) + 'px';
+    });
+  });
+</script>
+</body>
+</html>

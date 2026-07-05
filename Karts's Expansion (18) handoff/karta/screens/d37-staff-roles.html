@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D37 · Event Staff Roles</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .pagehead { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+  .staffrow { display: flex; align-items: center; gap: 14px; padding: 16px 20px; background: var(--cream-surface); border: 1px solid var(--cream-border); border-radius: var(--r-card); margin-bottom: 10px; }
+  .staffrow .nm { font-family: var(--display); font-weight: 500; font-size: 14px; color: var(--ink); }
+  .staffrow .em { font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-top: 2px; }
+  .rolesel { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  .rolesel select { height: 38px; padding: 0 12px; border-radius: var(--r-input); border: 1px solid var(--cream-border); background: var(--cream-surface); font-family: var(--body); font-size: 13px; color: var(--ink); }
+  .scopetag { font-size: 11px; padding: 4px 10px; }
+  .lastseen { font-family: var(--mono); font-size: 11px; color: var(--ink-muted); }
+
+  .rolegrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 16px; }
+  .rolecard { padding: 18px 20px; }
+  .rolecard .n { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--ink); }
+  .rolecard ul { margin: 10px 0 0 0; padding: 0; list-style: none; }
+  .rolecard li { font-family: var(--body); font-size: 12px; color: var(--ink-muted); padding: 4px 0; display: flex; gap: 8px; align-items: baseline; }
+  .rolecard li::before { content: '✓'; color: var(--success); font-size: 10px; }
+  .rolecard li.no { opacity: .55; } .rolecard li.no::before { content: '✕'; color: var(--ink-muted); }
+  .sec-h2 { font-family: var(--display); font-weight: 500; font-size: 16px; color: var(--ink); margin: 38px 0 14px; }
+
+  /* invite modal */
+  .mscrim { position: fixed; inset: 0; background: rgba(15,31,24,0.4); z-index: 70; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .mscrim.open { display: flex; }
+  .modal { width: 100%; max-width: 440px; background: var(--cream-canvas); border-radius: var(--r-modal); box-shadow: var(--e2); padding: 28px; }
+  .modal h3 { font-family: var(--display); font-weight: 500; font-size: 19px; color: var(--ink); }
+  .modal .d { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 6px; }
+  .fld { margin-top: 16px; }
+  .fld label { display: block; font-family: var(--body); font-weight: 500; font-size: 12px; color: var(--ink-soft); margin-bottom: 6px; }
+  .fld input { width: 100%; height: 44px; padding: 0 13px; border-radius: var(--r-input); border: 1px solid var(--cream-border); background: var(--cream-surface); font-family: var(--body); font-size: 14px; color: var(--ink); outline: none; }
+  .fld input:focus { border-color: var(--gold); }
+  .roleopts { display: grid; gap: 8px; margin-top: 8px; }
+  .ropt { display: flex; align-items: center; gap: 11px; padding: 12px 14px; border-radius: var(--r-card); border: 1px solid var(--cream-border); background: var(--cream-surface); cursor: pointer; }
+  .ropt.on { border-color: var(--forest); background: var(--forest-soft); }
+  .ropt input { accent-color: var(--forest); }
+  .ropt .n { font-family: var(--body); font-weight: 500; font-size: 13px; color: var(--ink); }
+  .ropt .s { font-family: var(--body); font-size: 11px; color: var(--ink-muted); margin-top: 1px; }
+  .expline { display: flex; align-items: center; gap: 10px; margin-top: 16px; font-family: var(--body); font-size: 13px; color: var(--ink-soft); }
+  .expline select { height: 38px; padding: 0 10px; border-radius: var(--r-input); border: 1px solid var(--cream-border); background: var(--cream-surface); font-family: var(--body); font-size: 13px; }
+  .modal .row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; }
+  @media (max-width:860px){ .rolegrid { grid-template-columns: 1fr; } .staffrow { flex-wrap: wrap; } .rolesel { margin-left: 0; } }
+</style>
+</head>
+<body>
+
+<div class="dashnav">
+  <div style="display:flex; align-items:center; gap:18px;">
+    <button class="menu-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+    <div class="crumb"><b>Karta</b>&nbsp;&nbsp;/&nbsp;&nbsp;AfriTech Summit&nbsp;&nbsp;/&nbsp;&nbsp;Staff</div>
+  </div>
+  <div style="display:flex; align-items:center; gap:18px;">
+    <div class="ph avatar avatar-ring" style="--h:35; width:36px; height:36px;"></div>
+  </div>
+</div>
+
+<div class="dash">
+  <aside class="sidebar">
+    <div class="side-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Events</div>
+    <div class="side-item active"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="10" r="2.3"/><path d="M3 20c0-3 2.7-5 6-5s6 2 6 5"/></svg>Staff</div>
+    <div class="side-item"><svg viewBox="0 0 24 24"><path d="M16 11l2 2 4-4M3 20c0-3 2.7-5 6-5s6 2 6 5M9 12a4 4 0 100-8 4 4 0 000 8z"/></svg>Registrations</div>
+    <div style="flex:1;"></div>
+    <span class="pill" style="background:var(--forest-soft); color:var(--forest); margin:0 12px; align-self:flex-start; font-family:var(--mono); font-weight:500;">Pro plan</span>
+  </aside>
+
+  <main class="main">
+    <div class="pagehead">
+      <h1 class="t-display-lg" style="color:var(--forest);">Event staff — AfriTech Summit</h1>
+      <button class="btn btn-forest btn-md" onclick="document.getElementById('mscrim').classList.add('open')">Invite staff</button>
+    </div>
+
+    <div style="margin-top:26px;">
+      <div class="staffrow">
+        <div class="ph avatar" style="--h:35; width:40px; height:40px;"></div>
+        <div><div class="nm">You — Karta Studio</div><div class="em">Owner · full access, all events</div></div>
+        <div class="rolesel"><span class="pill scopetag" style="background:var(--forest-dark); color:var(--gold);">ORG ADMIN</span></div>
+      </div>
+      <div class="staffrow">
+        <div class="ph avatar" style="--h:120; width:40px; height:40px;"></div>
+        <div><div class="nm">Omar Farah</div><div class="em">omar@redseatech.io · invited for this event only</div></div>
+        <div class="rolesel">
+          <span class="lastseen">DOOR 2 · ACTIVE NOW</span>
+          <select><option>Check-in only</option><option>Moderator</option><option>Finance</option><option>Event manager</option></select>
+          <button class="btn btn-ghost-forest btn-sm">Remove</button>
+        </div>
+      </div>
+      <div class="staffrow">
+        <div class="ph avatar" style="--h:280; width:40px; height:40px;"></div>
+        <div><div class="nm">Nadia Robleh</div><div class="em">nadia.r@gmail.com · this event only</div></div>
+        <div class="rolesel">
+          <span class="lastseen">LAST SEEN 2H AGO</span>
+          <select><option>Moderator</option><option>Check-in only</option><option>Finance</option><option>Event manager</option></select>
+          <button class="btn btn-ghost-forest btn-sm">Remove</button>
+        </div>
+      </div>
+      <div class="staffrow" style="opacity:.65;">
+        <div class="ph avatar" style="--h:80; width:40px; height:40px;"></div>
+        <div><div class="nm">accounts@sahelpay.co</div><div class="em">Invite pending · sent 1d ago</div></div>
+        <div class="rolesel">
+          <span class="pill pill-draft">Finance · pending</span>
+          <button class="btn btn-ghost-forest btn-sm">Resend</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-h2">What each role can do — enforced server-side</div>
+    <div class="rolegrid">
+      <div class="card rolecard">
+        <div class="n">Check-in only</div>
+        <ul>
+          <li>Scan QR, search attendees, walk-in registration</li>
+          <li>See names + ticket types at the door</li>
+          <li class="no">No revenue, exports or attendee emails</li>
+        </ul>
+      </div>
+      <div class="card rolecard">
+        <div class="n">Moderator</div>
+        <ul>
+          <li>Q&amp;A, polls, community threads, photo wall review</li>
+          <li>Pin, hide, slow-mode, ban from threads</li>
+          <li class="no">No registrations, money or settings</li>
+        </ul>
+      </div>
+      <div class="card rolecard">
+        <div class="n">Finance</div>
+        <ul>
+          <li>Orders, refunds, payouts, fee settings, exports</li>
+          <li class="no">No content, check-in or attendee messaging</li>
+        </ul>
+      </div>
+      <div class="card rolecard">
+        <div class="n">Event manager</div>
+        <ul>
+          <li>Everything in this one event</li>
+          <li class="no">No org settings, billing or other events</li>
+        </ul>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="mscrim" id="mscrim">
+  <div class="modal">
+    <h3>Invite staff to this event</h3>
+    <div class="d">Scoped to AfriTech Summit 2026 only — they never see your other events.</div>
+    <div class="fld"><label>Email or phone</label><input placeholder="name@email.com or +253 …"></div>
+    <div class="fld">
+      <label>Role</label>
+      <div class="roleopts">
+        <label class="ropt on"><input type="radio" name="role" checked><div><div class="n">Check-in only</div><div class="s">Door staff — scanner + walk-ins</div></div></label>
+        <label class="ropt"><input type="radio" name="role"><div><div class="n">Moderator</div><div class="s">Q&amp;A, threads, photo wall</div></div></label>
+        <label class="ropt"><input type="radio" name="role"><div><div class="n">Finance</div><div class="s">Orders, refunds, payouts</div></div></label>
+        <label class="ropt"><input type="radio" name="role"><div><div class="n">Event manager</div><div class="s">Everything in this event</div></div></label>
+      </div>
+    </div>
+    <div class="expline">Access expires <select><option>24h after event ends</option><option>Immediately after event</option><option>Never (until removed)</option></select></div>
+    <div class="row">
+      <button class="btn btn-ghost-forest btn-md" onclick="closeM()">Cancel</button>
+      <button class="btn btn-forest btn-md" onclick="closeM()">Send invite</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function closeM(){ document.getElementById('mscrim').classList.remove('open'); }
+  document.getElementById('mscrim').onclick = e => { if(e.target.id==='mscrim') closeM(); };
+  document.querySelectorAll('.ropt').forEach(r=>r.onclick=()=>{ document.querySelectorAll('.ropt').forEach(x=>x.classList.remove('on')); r.classList.add('on'); });
+</script>
+</body>
+</html>

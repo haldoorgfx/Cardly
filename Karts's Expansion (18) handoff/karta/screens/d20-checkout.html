@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D20 · Checkout</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  .wrap { max-width: 960px; margin: 0 auto; padding: 36px 40px 96px; }
+  .crumbs { font-family: var(--body); font-size: 13px; color: var(--ink-muted); }
+  .crumbs b { color: var(--forest); font-weight: 500; }
+  h1.pg { font-family: var(--display); font-weight: 400; font-size: 30px; letter-spacing: -0.024em; color: var(--forest); margin-top: 10px; }
+  .timer { display: inline-flex; align-items: center; gap: 8px; margin-top: 12px; padding: 7px 14px; border-radius: var(--r-pill); background: var(--gold-soft); font-family: var(--body); font-size: 12px; color: var(--gold-hover); font-weight: 500; }
+  .timer b { font-family: var(--mono); }
+
+  .cols { display: grid; grid-template-columns: 1fr 340px; gap: 28px; margin-top: 28px; align-items: start; }
+  .sec { padding: 22px 24px; margin-bottom: 16px; }
+  .sec h2 { font-family: var(--display); font-weight: 500; font-size: 15px; color: var(--ink); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+  .sec h2 .stepno { font-family: var(--mono); font-weight: 500; font-size: 11px; color: var(--gold-hover); }
+  .frow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .fld label { display: block; font-family: var(--body); font-weight: 500; font-size: 12px; color: var(--ink-soft); margin-bottom: 6px; }
+  .fld input { width: 100%; height: 46px; padding: 0 14px; border-radius: var(--r-input); border: 1px solid var(--cream-border); background: var(--cream-canvas); font-family: var(--body); font-size: 14px; color: var(--ink); outline: none; }
+  .fld input:focus { border-color: var(--gold); }
+  .fld.full { grid-column: 1 / -1; }
+  .fld .mono-in { font-family: var(--mono); }
+
+  .paymethods { display: grid; gap: 10px; }
+  .pm { display: flex; align-items: center; gap: 14px; padding: 15px 16px; border-radius: var(--r-card); border: 1px solid var(--cream-border); background: var(--cream-surface); cursor: pointer; transition: all .15s; }
+  .pm.on { border-color: var(--forest); background: var(--forest-soft); }
+  .pm input[type=radio] { accent-color: var(--forest); width: 16px; height: 16px; }
+  .pm .n { font-family: var(--display); font-weight: 500; font-size: 14px; color: var(--ink); }
+  .pm .s { font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-top: 2px; }
+  .pm .badges { margin-left: auto; font-family: var(--mono); font-size: 10px; color: var(--ink-muted); letter-spacing: 0.05em; }
+  .cardfields { margin-top: 14px; }
+
+  .deliv { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: var(--r-card); background: var(--forest-soft); border: 1px solid rgba(31,77,58,0.15); }
+  .deliv svg { width: 18px; height: 18px; stroke: var(--forest); fill: none; stroke-width: 1.8; flex: none; }
+  .deliv .t { font-family: var(--body); font-size: 13px; color: var(--forest); }
+  .deliv .num { font-family: var(--mono); font-size: 12px; color: var(--ink); margin-left: auto; }
+
+  .summary { position: sticky; top: 88px; padding: 22px 24px; }
+  .summary .tt { font-family: var(--display); font-weight: 500; font-size: 16px; color: var(--ink); }
+  .evline { display: flex; gap: 12px; margin: 14px 0; padding-bottom: 16px; border-bottom: 1px solid var(--cream-border); }
+  .evline .img { width: 64px; height: 48px; border-radius: 6px; position: relative; overflow: hidden; flex: none; }
+  .evline .n { font-family: var(--display); font-weight: 500; font-size: 14px; color: var(--ink); }
+  .evline .m { font-family: var(--mono); font-size: 11px; color: var(--ink-muted); margin-top: 3px; }
+  .sline { display: flex; justify-content: space-between; padding: 8px 0; font-family: var(--body); font-size: 13px; color: var(--ink-soft); }
+  .sline .v { font-family: var(--mono); font-weight: 500; color: var(--ink); }
+  .promo { display: flex; gap: 8px; padding: 10px 0; }
+  .promo input { flex: 1; height: 38px; padding: 0 12px; border-radius: var(--r-input); border: 1px dashed var(--cream-border); font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; outline: none; background: var(--cream-canvas); }
+  .sline.total { border-top: 1px solid var(--cream-border); margin-top: 6px; padding-top: 14px; }
+  .sline.total span:first-child { font-weight: 600; color: var(--ink); font-size: 14px; }
+  .sline.total .v { font-size: 19px; color: var(--forest); }
+  .secure { font-family: var(--body); font-size: 11px; color: var(--ink-muted); text-align: center; margin-top: 12px; line-height: 1.5; }
+
+  @media (max-width:880px){ .wrap { padding: 28px 20px 72px; } .cols { grid-template-columns: 1fr; } .summary { position: static; } .frow { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wm">K<b>a</b>rta</div>
+  <div></div>
+  <div class="right"><span class="t-body-sm" style="color:var(--ink-muted);">Secure checkout</span></div>
+</nav>
+
+<div class="wrap">
+  <div class="crumbs"><b>Design in the Horn</b> &nbsp;/&nbsp; Tickets &nbsp;/&nbsp; Checkout</div>
+  <h1 class="pg">Checkout</h1>
+  <div class="timer">Tickets held for <b>09:41</b></div>
+
+  <div class="cols">
+    <div>
+      <div class="card sec">
+        <h2><span class="stepno">1</span> Your details</h2>
+        <div class="frow">
+          <div class="fld"><label>Full name</label><input value="Amina Osman"></div>
+          <div class="fld"><label>Email</label><input value="amina.osman@sahelpay.co"></div>
+        </div>
+        <div class="deliv">
+          <svg viewBox="0 0 24 24"><path d="M21 11.5a8.5 8.5 0 01-12.4 7.5L3 21l2-5.4A8.5 8.5 0 1121 11.5z"/></svg>
+          <span class="t">Ticket + Karta Card to WhatsApp too</span>
+          <span class="num">+253 77 ·· ·· 41</span>
+        </div>
+      </div>
+
+      <div class="card sec">
+        <h2><span class="stepno">2</span> Payment</h2>
+        <div class="paymethods">
+          <label class="pm on">
+            <input type="radio" name="pm" checked onchange="pmSel(this)">
+            <div><div class="n">Card</div><div class="s">Visa, Mastercard — via Stripe</div></div>
+            <span class="badges">VISA · MC</span>
+          </label>
+          <label class="pm">
+            <input type="radio" name="pm" onchange="pmSel(this)">
+            <div><div class="n">Mobile money</div><div class="s">M-Pesa, Airtel, MTN — via Flutterwave</div></div>
+            <span class="badges">M-PESA</span>
+          </label>
+          <label class="pm">
+            <input type="radio" name="pm" onchange="pmSel(this)">
+            <div><div class="n">Waafi / D-Money</div><div class="s">Djibouti mobile wallets</div></div>
+            <span class="badges">WAAFI</span>
+          </label>
+        </div>
+        <div class="cardfields" id="cardfields">
+          <div class="frow">
+            <div class="fld full"><label>Card number</label><input class="mono-in" value="4242 4242 4242 4242"></div>
+            <div class="fld"><label>Expiry</label><input class="mono-in" value="08 / 28"></div>
+            <div class="fld"><label>CVC</label><input class="mono-in" value="•••"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card summary">
+      <div class="tt">Order summary</div>
+      <div class="evline">
+        <div class="img ph" style="--h:30;"></div>
+        <div><div class="n">Design in the Horn</div><div class="m">SAT 28 MAR · 14:00 · PALAIS DU PEUPLE</div></div>
+      </div>
+      <div class="sline"><span>General × 1</span><span class="v">$20.00</span></div>
+      <div class="sline"><span>Supporter (PWYW) × 1</span><span class="v">$25.00</span></div>
+      <div class="sline"><span>Print pack add-on</span><span class="v">$8.00</span></div>
+      <div class="promo"><input placeholder="Promo code"><button class="btn btn-ghost-forest btn-sm">Apply</button></div>
+      <div class="sline"><span>Platform fee — paid by you</span><span class="v">$1.20</span></div>
+      <div class="sline total"><span>Total</span><span class="v">$54.20</span></div>
+      <button class="btn btn-gold btn-lg" style="width:100%; margin-top:14px;">Pay $54.20</button>
+      <div class="secure">PCI-DSS compliant · refunds per the organizer's policy<br>2 tickets → 2 QR codes → 2 Karta Cards</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function pmSel(input){
+    document.querySelectorAll('.pm').forEach(p=>p.classList.remove('on'));
+    input.closest('.pm').classList.add('on');
+    document.getElementById('cardfields').style.display = input.closest('.pm').querySelector('.n').textContent==='Card' ? 'block' : 'none';
+  }
+  let t = 9*60+41;
+  setInterval(()=>{ t--; if(t<0) return;
+    document.querySelector('.timer b').textContent = String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');
+  },1000);
+</script>
+</body>
+</html>

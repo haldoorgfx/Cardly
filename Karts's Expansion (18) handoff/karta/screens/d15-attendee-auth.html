@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D15 · Sign in</title>
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="../web.css">
+<style>
+  body { background-image: none; }
+  .split { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; }
+  .brand { position: relative; overflow: hidden; background: var(--forest-dark); display: flex; flex-direction: column; justify-content: space-between; padding: 48px 56px; }
+  .brand .wm { font-family: var(--display); font-weight: 600; font-size: 22px; color: #fff; position: relative; z-index: 1; }
+  .brand .wm b { color: var(--gold); }
+  .brand .pitch { position: relative; z-index: 1; }
+  .brand .pitch h2 { font-family: var(--display); font-weight: 400; font-size: 34px; letter-spacing: -0.025em; color: #fff; max-width: 400px; text-wrap: balance; }
+  .brand .pitch p { font-family: var(--body); font-size: 14px; color: rgba(255,255,255,0.65); margin-top: 12px; max-width: 380px; line-height: 1.6; }
+  .kcard { width: 250px; height: 158px; border-radius: 12px; position: relative; overflow: hidden; margin-top: 36px; box-shadow: 0 20px 50px rgba(0,0,0,0.4); transform: rotate(-3deg); }
+  .kcard .in { position: absolute; inset: 0; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; }
+  .kcard .ev { font-family: var(--display); font-weight: 600; font-size: 11px; color: var(--gold); }
+  .kcard .who { font-family: var(--display); font-weight: 600; font-size: 16px; color: #fff; }
+  .kcard .no { font-family: var(--mono); font-size: 10px; color: var(--gold); margin-top: 2px; }
+  .brand .foot { font-family: var(--mono); font-size: 11px; color: rgba(255,255,255,0.4); position: relative; z-index: 1; }
+
+  .formside { background: var(--cream-canvas); background-image: radial-gradient(circle, rgba(15,31,24,0.045) 1px, transparent 1px); background-size: 24px 24px; display: flex; align-items: center; justify-content: center; padding: 48px 40px; }
+  .formbox { width: 100%; max-width: 380px; }
+  .formbox h1 { font-family: var(--display); font-weight: 400; font-size: 28px; letter-spacing: -0.02em; color: var(--forest); }
+  .formbox .s { font-family: var(--body); font-size: 14px; color: var(--ink-muted); margin-top: 8px; }
+  .gbtn { width: 100%; height: 48px; margin-top: 28px; border-radius: var(--r-btn); border: 1px solid var(--cream-border); background: var(--cream-surface); font-family: var(--display); font-weight: 500; font-size: 14px; color: var(--ink); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .gbtn:hover { background: var(--cream-soft); }
+  .gbtn .gl { font-family: var(--display); font-weight: 600; font-size: 16px; color: var(--forest); }
+  .or { display: flex; align-items: center; gap: 14px; margin: 22px 0; font-family: var(--body); font-size: 12px; color: var(--ink-muted); }
+  .or::before, .or::after { content: ''; flex: 1; height: 1px; background: var(--cream-border); }
+  .fld label { display: block; font-family: var(--body); font-weight: 500; font-size: 12px; color: var(--ink-soft); margin-bottom: 6px; }
+  .fld input { width: 100%; height: 48px; padding: 0 14px; border-radius: var(--r-input); border: 1px solid var(--cream-border); background: var(--cream-surface); font-family: var(--body); font-size: 15px; color: var(--ink); outline: none; }
+  .fld input:focus { border-color: var(--gold); }
+  .legal { font-family: var(--body); font-size: 12px; color: var(--ink-muted); margin-top: 18px; line-height: 1.6; text-align: center; }
+  .legal a { color: var(--forest); }
+
+  /* OTP state */
+  .state2 { display: none; }
+  body.otp .state1 { display: none; }
+  body.otp .state2 { display: block; }
+  .otprow { display: flex; gap: 10px; margin-top: 26px; }
+  .otprow input { width: 52px; height: 60px; text-align: center; font-family: var(--mono); font-weight: 500; font-size: 24px; color: var(--ink); border: 1px solid var(--cream-border); border-radius: var(--r-input); background: var(--cream-surface); outline: none; }
+  .otprow input:focus { border-color: var(--gold); }
+  .otprow input.fill { border-color: var(--forest); background: var(--forest-soft); }
+  .resend { font-family: var(--body); font-size: 13px; color: var(--ink-muted); margin-top: 18px; }
+  .resend b { font-family: var(--mono); color: var(--ink); font-weight: 500; }
+  .back { font-family: var(--body); font-weight: 500; font-size: 13px; color: var(--forest); cursor: pointer; margin-top: 22px; display: inline-block; }
+
+  @media (max-width:880px){ .split { grid-template-columns: 1fr; } .brand { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="split">
+  <div class="brand">
+    <div class="cardly-mesh cardly-mesh-cta"></div>
+    <div class="wm">K<b>a</b>rta</div>
+    <div class="pitch">
+      <h2>Every event in your city, one account.</h2>
+      <p>Discover what's on, register in seconds, and carry your tickets — and your Karta Card — in WhatsApp.</p>
+      <div class="kcard ph mesh-dark" style="--h:150;">
+        <div class="in">
+          <div class="ev">AFRITECH SUMMIT 2026</div>
+          <div><div class="who">Amina Osman</div><div class="no">VIP · №0198</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="foot">2M+ REGISTRATIONS · EAST AFRICA'S EVENT MARKETPLACE</div>
+  </div>
+
+  <div class="formside">
+    <div class="formbox">
+
+      <div class="state1">
+        <h1>Welcome back</h1>
+        <div class="s">Sign in to your tickets, follows and feed. New here? Same form — we'll create your account.</div>
+        <button class="gbtn"><span class="gl">G</span> Continue with Google</button>
+        <div class="or">or use email</div>
+        <div class="fld">
+          <label>Email</label>
+          <input type="email" value="amina.osman@sahelpay.co">
+        </div>
+        <button class="btn btn-forest btn-lg" style="width:100%; margin-top:16px;" onclick="document.body.classList.add('otp')">Send sign-in code</button>
+        <div class="legal">No passwords on Karta — we email you a 6-digit code.<br>By continuing you agree to the <a href="#">terms</a> and <a href="#">privacy policy</a>.</div>
+      </div>
+
+      <div class="state2">
+        <h1>Check your email</h1>
+        <div class="s">We sent a 6-digit code to <b style="color:var(--ink); font-weight:600;">amina.osman@sahelpay.co</b></div>
+        <div class="otprow">
+          <input maxlength="1" value="4" class="fill"><input maxlength="1" value="8" class="fill"><input maxlength="1" value="2" class="fill"><input maxlength="1"><input maxlength="1"><input maxlength="1">
+        </div>
+        <button class="btn btn-gold btn-lg" style="width:100%; margin-top:24px;">Verify &amp; sign in</button>
+        <div class="resend">Didn't get it? Resend in <b>0:42</b> · check spam too</div>
+        <span class="back" onclick="document.body.classList.remove('otp')">← Use a different email</span>
+      </div>
+
+    </div>
+  </div>
+</div>
+</body>
+</html>
