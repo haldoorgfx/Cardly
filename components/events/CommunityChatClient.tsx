@@ -16,6 +16,8 @@ interface Props {
   initialMessages: Message[];
   activeChannelId: string | null;
   registrationId?: string;
+  /** Dashboard mode: contained rounded card instead of full-viewport panes. */
+  embedded?: boolean;
 }
 
 const REACTIONS = ['👍', '❤️', '🔥', '😂', '🎉'];
@@ -38,7 +40,7 @@ function AvatarBubble({ name, size = 32 }: { name: string; size?: number }) {
   );
 }
 
-export function CommunityChatClient({ eventId, eventName, channels, initialMessages, activeChannelId: defaultChannelId, registrationId }: Props) {
+export function CommunityChatClient({ eventId, eventName, channels, initialMessages, activeChannelId: defaultChannelId, registrationId, embedded = false }: Props) {
   const [activeChannelId, setActiveChannelId] = useState(defaultChannelId ?? channels[0]?.id ?? null);
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState('');
@@ -109,7 +111,7 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
 
   if (channels.length === 0) {
     return (
-      <div className="flex items-center justify-center text-center px-6" style={{ height: 'calc(100vh - 56px)' }}>
+      <div className="flex items-center justify-center text-center px-6" style={{ height: embedded ? 480 : 'calc(100vh - 56px)' }}>
         <div>
           <Hash size={30} style={{ color: '#C9C3B1' }} className="mx-auto mb-3" />
           <div className="font-display font-semibold text-[17px] mb-1" style={{ color: '#0F1F18' }}>
@@ -124,7 +126,13 @@ export function CommunityChatClient({ eventId, eventName, channels, initialMessa
   }
 
   return (
-    <div className="flex" style={{ height: 'calc(100vh - 56px)' }}>
+    <div
+      className={embedded ? 'flex rounded-2xl border overflow-hidden' : 'flex'}
+      style={{
+        height: embedded ? 620 : 'calc(100vh - 56px)',
+        ...(embedded ? { borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' } : {}),
+      }}
+    >
       {/* Sidebar overlay for mobile */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-20 lg:hidden" style={{ background: 'rgba(15,31,24,0.45)' }}

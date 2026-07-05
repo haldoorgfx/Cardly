@@ -22,6 +22,7 @@ export default async function AttendingNetworkingPage({
       eventName={eventPageTitle ?? event.name}
       eventSlug={slug}
       registrationId={registrationId}
+      embedded
     />
   );
 }

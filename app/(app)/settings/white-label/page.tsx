@@ -5,7 +5,6 @@ export const metadata: Metadata = { title: 'White Label — Settings' };
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { WhiteLabelTab } from '@/app/(app)/settings/WhiteLabelTab';
-import { SettingsTabs } from '@/components/settings/SettingsTabs';
 
 export default async function WhiteLabelPage() {
   const supabase = createClient();
@@ -23,8 +22,7 @@ export default async function WhiteLabelPage() {
 
   return (
     <>
-      <SettingsTabs />
-      <div className="px-4 sm:px-6 lg:px-8 py-8 max-w-[760px]">
+      <div className=" max-w-[760px]">
         <div className="mb-8">
           <h1 className="font-display font-semibold text-[24px] tracking-tight" style={{ color: '#0F1F18' }}>White Label</h1>
           <p className="mt-1 text-[14px]" style={{ color: '#6B7A72' }}>Remove Eventera branding and use your own domain.</p>

@@ -6,7 +6,6 @@ export const metadata: Metadata = { title: 'Settings' };
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import SettingsClient from './SettingsClient';
-import { SettingsTabs } from '@/components/settings/SettingsTabs';
 import ProfileSettings from '@/components/account/ProfileSettings';
 
 export default async function SettingsPage() {
@@ -41,7 +40,6 @@ export default async function SettingsPage() {
 
   return (
     <>
-      <SettingsTabs />
       <ProfileSettings
         embedded
         profile={{

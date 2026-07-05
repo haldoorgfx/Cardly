@@ -870,13 +870,19 @@ function writeProfileCache(p: Profile) {
   try { sessionStorage.setItem('eventera_profile', JSON.stringify(p)); } catch {}
 }
 
-export function AppShell({ children, initialSections }: { children: React.ReactNode; initialSections?: VisibleSections }) {
+export function AppShell({ children, initialSections, initialProfile, initialEventCount, initialLogoUrl }: {
+  children: React.ReactNode;
+  initialSections?: VisibleSections;
+  initialProfile?: Profile | null;
+  initialEventCount?: number;
+  initialLogoUrl?: string | null;
+}) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
-  const [profile, setProfile] = useState<Profile | null>(() => readProfileCache());
+  const [profile, setProfile] = useState<Profile | null>(() => initialProfile ?? readProfileCache());
   const [sections, setSections] = useState<VisibleSections>(initialSections ?? EMPTY_SECTIONS);
-  const [eventCount, setEventCount] = useState(0);
+  const [eventCount, setEventCount] = useState(initialEventCount ?? 0);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
@@ -884,7 +890,7 @@ export function AppShell({ children, initialSections }: { children: React.ReactN
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [notifLoading, setNotifLoading] = useState(false);
   const [impersonating, setImpersonating] = useState<ImpersonatedUser | null>(null);
-  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [logoUrl, setLogoUrl] = useState<string | null>(initialLogoUrl ?? null);
   const [contextEventName, setContextEventName] = useState<string | null>(null);
 
   const isAdminRoute = pathname.startsWith('/admin');

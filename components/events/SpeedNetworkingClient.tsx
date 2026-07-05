@@ -15,6 +15,8 @@ interface Props {
   eventName: string;
   eventSlug: string;
   registrationId: string | null;
+  /** Dashboard mode: chrome handled by the shell. */
+  embedded?: boolean;
 }
 
 function initials(name: string) {
@@ -27,7 +29,7 @@ function hue(id: string) {
   return 120 + (h % 80); // forest-adjacent greens
 }
 
-export function SpeedNetworkingClient({ eventId, eventName, eventSlug, registrationId }: Props) {
+export function SpeedNetworkingClient({ eventId, eventName, eventSlug, registrationId , embedded = false }: Props) {
   const [deck, setDeck] = useState<Attendee[]>([]);
   const [index, setIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -97,8 +99,9 @@ export function SpeedNetworkingClient({ eventId, eventName, eventSlug, registrat
   const empty = !loading && !error && canNetwork && deck.length === 0;
 
   return (
-    <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
-      {/* Header */}
+    <div style={embedded ? undefined : { background: '#FAF6EE', minHeight: '100vh' }}>
+      {/* Header — hidden in the dashboard, where tabs provide context */}
+      {!embedded && (
       <div
         className="px-5 py-4 border-b flex items-center gap-3"
         style={{ background: '#FFFFFF', borderColor: '#E5E0D4' }}
@@ -111,12 +114,13 @@ export function SpeedNetworkingClient({ eventId, eventName, eventSlug, registrat
           <ArrowLeft size={15} /> {eventName}
         </Link>
       </div>
+      )}
 
       <div className="max-w-sm mx-auto px-5 pt-8 pb-12 flex flex-col items-center">
         <div className="text-center mb-6">
           <h1
-            className="font-display font-normal text-[26px]"
-            style={{ color: '#1F4D3A', letterSpacing: '-0.024em' }}
+            className="font-display font-semibold text-[24px] leading-tight"
+            style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}
           >
             Meet people
           </h1>

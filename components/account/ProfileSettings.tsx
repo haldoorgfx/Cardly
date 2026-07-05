@@ -253,7 +253,7 @@ export default function ProfileSettings({ profile, embedded = false }: Props) {
 
   return (
     <div
-      className={embedded ? 'max-w-[760px] px-4 sm:px-6 lg:px-8 pb-16' : 'max-w-[760px] mx-auto px-5 pb-24'}
+      className={embedded ? 'max-w-[760px] pb-16' : 'max-w-[760px] mx-auto px-5 pb-24'}
       style={{ paddingTop: embedded ? 32 : 44 }}
     >
       {/* Header — suppressed when embedded (organizer Settings supplies its own) */}

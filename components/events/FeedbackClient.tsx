@@ -140,8 +140,8 @@ export default function FeedbackClient({ eventId, eventTitle, registrationId, at
     <div className="max-w-[640px] mx-auto px-5 py-10 space-y-10">
       {/* Heading */}
       <h1
-        className="font-display font-normal"
-        style={{ fontSize: 28, color: '#1F4D3A' }}
+        className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight"
+        style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}
       >
         How was {eventTitle}?
       </h1>

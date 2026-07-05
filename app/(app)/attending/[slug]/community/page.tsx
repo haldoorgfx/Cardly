@@ -40,14 +40,23 @@ export default async function AttendingCommunityPage({
     .limit(100) : { data: [] };
 
   return (
-    <CommunityChatClient
-      eventId={event.id}
-      eventName={event.name}
-      eventSlug={slug}
-      channels={channels ?? []}
-      initialMessages={messages ?? []}
-      activeChannelId={defaultChannel ?? null}
-      registrationId={registrationId}
-    />
+    <div>
+      <div className="mb-8">
+        <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+          Community
+        </h1>
+        <p className="text-[14px] sm:text-[14.5px] mt-1.5" style={{ color: '#6B7A72' }}>{event.name}</p>
+      </div>
+      <CommunityChatClient
+        eventId={event.id}
+        eventName={event.name}
+        eventSlug={slug}
+        channels={channels ?? []}
+        initialMessages={messages ?? []}
+        activeChannelId={defaultChannel ?? null}
+        registrationId={registrationId}
+        embedded
+      />
+    </div>
   );
 }

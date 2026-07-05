@@ -23,6 +23,8 @@ interface Message {
 interface Props {
   eventId: string;
   registrationId: string | null;
+  /** Dashboard mode: contained rounded card instead of full-viewport panes. */
+  embedded?: boolean;
 }
 
 function initials(name: string) {
@@ -39,7 +41,7 @@ function timeAgo(iso: string) {
   return `${Math.floor(hrs / 24)}d`;
 }
 
-export default function MessagingClient({ eventId, registrationId }: Props) {
+export default function MessagingClient({ eventId, registrationId, embedded = false }: Props) {
   const [threads, setThreads] = useState<Thread[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -134,8 +136,12 @@ export default function MessagingClient({ eventId, registrationId }: Props) {
 
   return (
     <div
-      className="flex flex-col lg:grid"
-      style={{ gridTemplateColumns: '320px 1fr', height: 'calc(100vh - 56px)' }}
+      className={embedded ? 'flex flex-col lg:grid rounded-2xl border overflow-hidden bg-white' : 'flex flex-col lg:grid'}
+      style={{
+        gridTemplateColumns: '320px 1fr',
+        height: embedded ? 620 : 'calc(100vh - 56px)',
+        ...(embedded ? { borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' } : {}),
+      }}
     >
       {/* Left: inbox */}
       <aside className="max-h-[50vh] lg:max-h-full" style={{ borderRight: '1px solid #E5E0D4', display: 'flex', flexDirection: 'column', background: 'white' }}>

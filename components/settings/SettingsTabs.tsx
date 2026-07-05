@@ -13,8 +13,8 @@ const TABS = [
 export function SettingsTabs() {
   const pathname = usePathname();
   return (
-    <div style={{ borderBottom: '1px solid #E5E0D4', background: '#FFFFFF' }}>
-      <div className="px-4 sm:px-6 lg:px-8">
+    <div style={{ borderBottom: '1px solid #E5E0D4' }}>
+      <div>
         <div className="flex items-center gap-0 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
           {TABS.map(tab => {
             const active = tab.href === '/settings'
