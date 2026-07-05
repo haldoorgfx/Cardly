@@ -166,32 +166,47 @@ const EVENT_STATUS_BADGE: Record<string, { cls: string; dot: string; label: stri
 // Role-gated top-level entries — each shown only when its flag is true. "Home"
 // is always shown (its flag is a constant true) so the shell is never empty.
 // These render ABOVE the organizer Platform/Workspace sections.
-const ROLE_NAV_ITEMS: { href: string; label: string; icon: React.ReactNode; flag: keyof VisibleSections | 'always' }[] = [
-  { href: '/home',       label: 'Home',        icon: <Home size={15} strokeWidth={1.8} />,     flag: 'always' },
-  { href: '/my-tickets', label: 'My tickets',  icon: <Ticket size={15} strokeWidth={1.8} />,   flag: 'tickets' },
-  { href: '/my-cards',   label: 'My cards',    icon: <IdCard size={15} strokeWidth={1.8} />,   flag: 'tickets' },
-  { href: '/saved',      label: 'Saved',       icon: <Heart size={15} strokeWidth={1.8} />,    flag: 'always' },
-  { href: '/speaking',   label: 'Speaking',    icon: <User size={15} strokeWidth={1.8} />,     flag: 'speaking' },
-  { href: '/sponsoring', label: 'Sponsoring',  icon: <Briefcase size={15} strokeWidth={1.8} />, flag: 'sponsoring' },
-  { href: '/dashboard',  label: 'Organizing',  icon: <LayoutGrid size={15} strokeWidth={1.8} />, flag: 'organizing' },
-];
+type NavLeaf = {
+  href: string; label: string; icon: React.ReactNode;
+  matchPrefix?: boolean; flag?: keyof VisibleSections | 'always'; superAdminOnly?: boolean;
+};
+type NavGroup = {
+  key: string; title: string; flag: keyof VisibleSections | 'always';
+  collapsible: boolean; badge?: 'admin'; items: NavLeaf[];
+};
 
-const PLATFORM_SECTIONS = [
-  {
-    title: 'Platform',
-    items: [
-      { href: '/dashboard',  label: 'Events',    icon: <LayoutGrid size={15} strokeWidth={1.8} />,    matchPrefix: true  },
-      { href: '/analytics',  label: 'Analytics', icon: <TrendingUp size={15} strokeWidth={1.8} />,    matchPrefix: false },
-    ],
-  },
-  {
-    title: 'Workspace',
-    items: [
-      { href: '/brand',      label: 'Brand Kit',  icon: <Palette size={15} strokeWidth={1.8} />,        matchPrefix: false },
-      { href: '/team',       label: 'Team',       icon: <Users size={15} strokeWidth={1.8} />,          matchPrefix: false },
-      { href: '/settings',   label: 'Settings',   icon: <Settings2 size={15} strokeWidth={1.8} />,      matchPrefix: true  },
-    ],
-  },
+// Grouped, collapsible sidebar organised by INTENT (attend / organize / admin).
+// A group renders only when its role flag is on AND it has ≥1 visible item.
+// Home / Speaking / Sponsoring are standalone (no header) entries.
+const USER_NAV_GROUPS: NavGroup[] = [
+  { key: 'home', title: '', flag: 'always', collapsible: false, items: [
+    { href: '/home', label: 'Home', icon: <Home size={15} strokeWidth={1.8} /> },
+  ]},
+  { key: 'attending', title: 'Attending', flag: 'always', collapsible: true, items: [
+    { href: '/my-tickets', label: 'My Events', icon: <CalendarDays size={15} strokeWidth={1.8} />, matchPrefix: true, flag: 'tickets' },
+    { href: '/my-cards',   label: 'My Cards',  icon: <IdCard size={15} strokeWidth={1.8} />, flag: 'tickets' },
+    { href: '/saved',      label: 'Saved',     icon: <Heart size={15} strokeWidth={1.8} /> },
+    { href: '/discover',   label: 'Discover',  icon: <Globe size={15} strokeWidth={1.8} />, matchPrefix: true },
+  ]},
+  { key: 'organizing', title: 'Organizing', flag: 'organizing', collapsible: true, items: [
+    { href: '/dashboard',  label: 'Events',    icon: <LayoutGrid size={15} strokeWidth={1.8} />, matchPrefix: true },
+    { href: '/analytics',  label: 'Analytics', icon: <TrendingUp size={15} strokeWidth={1.8} /> },
+    { href: '/brand',      label: 'Brand Kit', icon: <Palette size={15} strokeWidth={1.8} /> },
+    { href: '/team',       label: 'Team',      icon: <Users size={15} strokeWidth={1.8} /> },
+    { href: '/templates',  label: 'Templates', icon: <Layout size={15} strokeWidth={1.8} /> },
+  ]},
+  { key: 'speaking', title: '', flag: 'speaking', collapsible: false, items: [
+    { href: '/speaking', label: 'Speaking', icon: <User size={15} strokeWidth={1.8} />, matchPrefix: true },
+  ]},
+  { key: 'sponsoring', title: '', flag: 'sponsoring', collapsible: false, items: [
+    { href: '/sponsoring', label: 'Sponsoring', icon: <Briefcase size={15} strokeWidth={1.8} />, matchPrefix: true },
+  ]},
+  { key: 'admin', title: 'Admin', flag: 'admin', collapsible: true, badge: 'admin', items: [
+    { href: '/admin/analytics', label: 'Platform Stats', icon: <BarChart2 size={15} strokeWidth={1.8} />, matchPrefix: true },
+    { href: '/admin/users',     label: 'Accounts',       icon: <Users size={15} strokeWidth={1.8} />, matchPrefix: true },
+    { href: '/admin/billing',   label: 'Revenue',        icon: <CreditCard size={15} strokeWidth={1.8} />, matchPrefix: true, superAdminOnly: true },
+    { href: '/admin/audit',     label: 'Activity Log',   icon: <ScrollText size={15} strokeWidth={1.8} />, matchPrefix: true },
+  ]},
 ];
 
 
@@ -225,25 +240,7 @@ function NavItem({ href, icon, label, badge, active, onNavigate }: {
   );
 }
 
-// ─── Inline admin nav items (merged into user sidebar for admins) ─────────────
-// Each section maps to a group title + items shown inside the Admin section.
-
-type InlineAdminSection = {
-  label: string;
-  items: { href: string; label: string; icon: React.ReactNode; superAdminOnly?: boolean }[];
-};
-
-const INLINE_ADMIN_SECTIONS: InlineAdminSection[] = [
-  {
-    label: '',
-    items: [
-      { href: '/admin/analytics', label: 'Platform Stats',  icon: <BarChart2 size={14} strokeWidth={1.8} /> },
-      { href: '/admin/users',     label: 'Accounts',        icon: <Users size={14} strokeWidth={1.8} /> },
-      { href: '/admin/billing',   label: 'Revenue',         icon: <CreditCard size={14} strokeWidth={1.8} />, superAdminOnly: true },
-      { href: '/admin/audit',     label: 'Activity Log',    icon: <ScrollText size={14} strokeWidth={1.8} /> },
-    ],
-  },
-];
+// Admin items now live in USER_NAV_GROUPS (the 'admin' group).
 
 // ─── User sidebar content ─────────────────────────────────────────────────────
 
@@ -254,9 +251,23 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
   // access never disappears if the roles fetch is slow or errors.
   const isAdmin = sections.admin || profile?.role === 'admin' || profile?.role === 'super_admin';
   const isSuperAdmin = profile?.role === 'super_admin';
-  const [adminOpen, setAdminOpen] = useState(true);
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    setMounted(true);
+    try {
+      const saved = localStorage.getItem('nav_groups_open');
+      if (saved) setOpenGroups(JSON.parse(saved) as Record<string, boolean>);
+    } catch { /* ignore */ }
+  }, []);
+  const isGroupOpen = (key: string) => openGroups[key] !== false;
+  const toggleGroup = (key: string) => {
+    setOpenGroups(prev => {
+      const next = { ...prev, [key]: prev[key] === false };
+      try { localStorage.setItem('nav_groups_open', JSON.stringify(next)); } catch { /* ignore */ }
+      return next;
+    });
+  };
 
   const handleSignOut = async () => {
     const supabase = createClient();
@@ -298,84 +309,63 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
         )}
       </div>
 
-      {/* Nav sections */}
-      <nav className="flex-1 px-3 py-4 overflow-y-auto space-y-5">
-        {/* Role-gated top-level entries — Home always, the rest by flag. */}
-        <div>
-          <ul className="space-y-0.5">
-            {ROLE_NAV_ITEMS.filter(item => item.flag === 'always' || sections[item.flag]).map(item => {
-              const active = item.href === '/dashboard'
-                ? pathname === '/dashboard' || pathname.startsWith('/events')
-                : pathname === item.href || pathname.startsWith(item.href + '/');
-              return (
-                <NavItem key={item.label} href={item.href} icon={item.icon} label={item.label}
-                  active={active} onNavigate={onNavigate} />
-              );
-            })}
-          </ul>
-        </div>
+      {/* Nav — grouped, collapsible by intent */}
+      <nav className="flex-1 px-3 py-4 overflow-y-auto space-y-3">
+        {USER_NAV_GROUPS.map(group => {
+          const groupVisible = group.flag === 'always'
+            || (group.flag === 'admin' ? isAdmin : sections[group.flag]);
+          if (!groupVisible) return null;
+          const items = group.items.filter(leaf => {
+            if (leaf.superAdminOnly && !isSuperAdmin) return false;
+            if (!leaf.flag || leaf.flag === 'always') return true;
+            return sections[leaf.flag];
+          });
+          if (items.length === 0) return null;
 
-        {/* Organizer Platform/Workspace sections — only when the account organizes. */}
-        {sections.organizing && PLATFORM_SECTIONS.map((section, si) => (
-          <div key={si}>
-            {section.title && (
-              <div className="px-2.5 mb-1.5 text-[9.5px] font-semibold uppercase tracking-[0.08em]"
-                style={{ color: '#9BA8A1' }}>
-                {section.title}
-              </div>
-            )}
+          const list = (
             <ul className="space-y-0.5">
-              {section.items.map(item => {
+              {items.map(leaf => {
                 let active = false;
-                if (item.href === '/dashboard') {
+                if (leaf.href === '/dashboard') {
                   active = pathname === '/dashboard' || pathname.startsWith('/events');
-                } else if (item.matchPrefix) {
-                  active = pathname === item.href || pathname.startsWith(item.href + '/');
+                } else if (leaf.matchPrefix) {
+                  active = pathname === leaf.href || pathname.startsWith(leaf.href + '/');
                 } else {
-                  active = pathname === item.href;
+                  active = pathname === leaf.href;
                 }
                 return (
-                  <NavItem key={item.href} href={item.href} icon={item.icon} label={item.label}
-                    active={active} onNavigate={onNavigate} />
+                  <NavItem key={leaf.href + leaf.label} href={leaf.href} icon={leaf.icon}
+                    label={leaf.label} active={active} onNavigate={onNavigate} />
                 );
               })}
             </ul>
-          </div>
-        ))}
+          );
 
-        {/* Admin section — inline for admin users */}
-        {mounted && isAdmin && (
-          <div>
-            <button
-              onClick={() => setAdminOpen(o => !o)}
-              className="w-full px-2.5 mb-1.5 flex items-center justify-between text-[9.5px] font-semibold uppercase tracking-[0.08em] transition-colors hover:text-[#6B7A72]"
-              style={{ color: '#9BA8A1' }}>
-              <span className="flex items-center gap-1.5">
-                Admin
-                <ShieldCheck size={9} strokeWidth={2} />
-              </span>
-              <ChevronRight size={10} strokeWidth={2.5}
-                className="transition-transform duration-200"
-                style={{ transform: adminOpen ? 'rotate(90deg)' : 'rotate(0deg)' }} />
-            </button>
-            {adminOpen && (
-              <ul className="space-y-0.5">
-                {INLINE_ADMIN_SECTIONS[0].items
-                  .filter(i => isSuperAdmin || !i.superAdminOnly)
-                  .map(item => (
-                    <NavItem
-                      key={item.href + item.label}
-                      href={item.href}
-                      icon={item.icon}
-                      label={item.label}
-                      active={pathname.startsWith(item.href)}
-                      onNavigate={onNavigate}
-                    />
-                  ))}
-              </ul>
-            )}
-          </div>
-        )}
+          // Standalone group (Home / Speaking / Sponsoring) — no header.
+          if (!group.collapsible || !group.title) {
+            return <div key={group.key}>{list}</div>;
+          }
+
+          // Collapsible group with a header + chevron.
+          const open = mounted ? isGroupOpen(group.key) : true;
+          return (
+            <div key={group.key}>
+              <button
+                onClick={() => toggleGroup(group.key)}
+                className="w-full px-2.5 mb-1.5 flex items-center justify-between text-[9.5px] font-semibold uppercase tracking-[0.08em] transition-colors hover:text-[#6B7A72]"
+                style={{ color: '#9BA8A1' }}>
+                <span className="flex items-center gap-1.5">
+                  {group.title}
+                  {group.badge === 'admin' && <ShieldCheck size={9} strokeWidth={2} />}
+                </span>
+                <ChevronRight size={10} strokeWidth={2.5}
+                  className="transition-transform duration-200"
+                  style={{ transform: open ? 'rotate(90deg)' : 'rotate(0deg)' }} />
+              </button>
+              {open && list}
+            </div>
+          );
+        })}
       </nav>
 
       {/* Events usage bar */}
@@ -406,8 +396,18 @@ function UserNavContent({ pathname, onNavigate }: { pathname: string; onNavigate
         </Link>
       </div>
 
-      {/* Sign out */}
-      <div className="px-3 py-2 shrink-0 border-t" style={{ borderColor: '#E5E0D4' }}>
+      {/* Settings + Sign out */}
+      <div className="px-3 py-2 shrink-0 border-t space-y-0.5" style={{ borderColor: '#E5E0D4' }}>
+        <Link href="/settings" onClick={onNavigate}
+          className={`w-full flex items-center gap-3 px-2.5 py-[7px] rounded-lg text-[13.5px] transition-colors ${
+            pathname === '/settings' || pathname.startsWith('/settings/') ? 'font-medium' : 'hover:bg-[#F5F3EE]'
+          }`}
+          style={pathname === '/settings' || pathname.startsWith('/settings/')
+            ? { background: '#E8EFEB', color: '#1F4D3A' }
+            : { color: '#6B7A72' }}>
+          <Settings2 size={15} strokeWidth={1.7} className="shrink-0" />
+          <span className="leading-none">Settings</span>
+        </Link>
         <button onClick={handleSignOut}
           className="w-full flex items-center gap-3 px-2.5 py-[7px] rounded-lg text-[13.5px] transition-colors text-left hover:bg-[#F5F3EE]"
           style={{ color: '#6B7A72' }}>
