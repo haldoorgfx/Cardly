@@ -1,8 +1,11 @@
-import { createAdminClient } from '@/lib/supabase/server';
+import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { ownedSponsor } from '@/lib/rbac/ownership';
 
 const Schema = z.object({
+  /** Exhibitor-portal callers authenticate with the sponsor's invite token. */
+  token: z.string().optional(),
   company_name: z.string().min(1).max(200).trim().optional(),
   tagline: z.string().max(300).trim().nullable().optional(),
   description: z.string().max(5000).nullable().optional(),
@@ -28,9 +31,54 @@ export async function PATCH(
 
   const admin = createAdminClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (admin as any)
+  const adminAny = admin as any;
+
+  // AuthZ (this route was previously open): allow
+  //  1. a valid invite token for THIS sponsor (token portal, account-less), or
+  //  2. the logged-in owner of the sponsor record, or
+  //  3. the event's organizer.
+  const { token, ...updates } = parsed.data;
+  let allowed = false;
+
+  if (token) {
+    const { data: byToken } = await adminAny
+      .from('sponsors')
+      .select('id')
+      .eq('id', params.sponsorId)
+      .eq('invite_token', token)
+      .maybeSingle();
+    allowed = Boolean(byToken);
+  }
+
+  if (!allowed) {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      allowed = Boolean(await ownedSponsor(user.id, params.sponsorId));
+      if (!allowed) {
+        const { data: sponsorRow } = await adminAny
+          .from('sponsors')
+          .select('event_id')
+          .eq('id', params.sponsorId)
+          .maybeSingle();
+        if (sponsorRow?.event_id) {
+          const { data: event } = await adminAny
+            .from('events')
+            .select('id')
+            .eq('id', sponsorRow.event_id)
+            .eq('user_id', user.id)
+            .maybeSingle();
+          allowed = Boolean(event);
+        }
+      }
+    }
+  }
+
+  if (!allowed) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+  const { error } = await adminAny
     .from('sponsors')
-    .update({ ...parsed.data, updated_at: new Date().toISOString() })
+    .update({ ...updates, updated_at: new Date().toISOString() })
     .eq('id', params.sponsorId);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

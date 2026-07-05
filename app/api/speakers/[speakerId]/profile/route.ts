@@ -1,15 +1,45 @@
-import { createAdminClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { ownedSpeaker } from '@/lib/rbac/ownership';
 
 export async function PATCH(
   req: Request,
   { params }: { params: { speakerId: string } }
 ) {
-  const body = await req.json();
+  // AuthZ: only the speaker themself (email/role match) or the event's
+  // organizer may edit a speaker profile. This route was previously open.
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
   const admin = createAdminClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const adminAny = admin as any;
+
+  let allowed = Boolean(await ownedSpeaker(user.id, params.speakerId));
+  if (!allowed) {
+    // Event organizer fallback
+    const { data: speakerRow } = await adminAny
+      .from('speakers')
+      .select('event_id')
+      .eq('id', params.speakerId)
+      .maybeSingle();
+    if (speakerRow?.event_id) {
+      const { data: event } = await adminAny
+        .from('events')
+        .select('id')
+        .eq('id', speakerRow.event_id)
+        .eq('user_id', user.id)
+        .maybeSingle();
+      allowed = Boolean(event);
+    }
+  }
+  if (!allowed) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+  const body = await req.json();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (admin as any)
+  const { error } = await adminAny
     .from('speakers')
     .update({
       name: body.name,

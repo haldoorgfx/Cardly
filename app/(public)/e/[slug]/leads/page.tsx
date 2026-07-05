@@ -1,8 +1,9 @@
 export const dynamic = 'force-dynamic';
 
-import { createAdminClient } from '@/lib/supabase/server';
-import { notFound } from 'next/navigation';
+import { createAdminClient, createClient } from '@/lib/supabase/server';
+import { notFound, redirect } from 'next/navigation';
 import { LeadScoringClient } from '@/components/exhibitor/LeadScoringClient';
+import { hasRole } from '@/lib/rbac/roles';
 
 interface Props { params: Promise<{ slug: string }> }
 
@@ -19,11 +20,20 @@ export default async function LeadsPage({ params }: Props) {
 
   const { data: event } = await adminAny
     .from('events')
-    .select('id, name, slug')
+    .select('id, name, slug, user_id')
     .eq('slug', slug)
     .maybeSingle();
 
   if (!event) notFound();
+
+  // AuthZ (this page previously dumped every booth lead to anyone): only the
+  // event's organizer or a sponsor of the event may see leads.
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect(`/account/login?next=${encodeURIComponent(`/e/${slug}/leads`)}`);
+  const isOrganizer = event.user_id === user.id;
+  const isSponsor = await hasRole(user.id, event.id, 'sponsor');
+  if (!isOrganizer && !isSponsor) redirect(`/e/${slug}`);
 
   // Fetch booth leads if table exists
   const { data: leads } = await adminAny
