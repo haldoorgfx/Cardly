@@ -2,7 +2,6 @@ export const dynamic = 'force-dynamic';
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect, notFound } from 'next/navigation';
-import { PublicNav } from '@/components/events/PublicNav';
 import { TicketTransferClient } from '@/components/tickets/TicketTransferClient';
 
 export async function generateMetadata() {
@@ -28,10 +27,5 @@ export default async function TicketTransferPage({ params }: { params: Promise<{
 
   if (!reg) notFound();
 
-  return (
-    <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
-      <PublicNav />
-      <TicketTransferClient registration={reg} />
-    </div>
-  );
+  return <TicketTransferClient registration={reg} />;
 }

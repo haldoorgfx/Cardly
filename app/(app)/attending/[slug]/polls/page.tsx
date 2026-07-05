@@ -1,0 +1,54 @@
+export const dynamic = 'force-dynamic';
+
+import { createAdminClient } from '@/lib/supabase/server';
+import PollsClient from '@/components/polls/PollsClient';
+import { requireAttendeeContext } from '@/lib/attendee/requireAttendeeContext';
+
+export const metadata = { title: 'Polls' };
+
+export default async function AttendingPollsPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const { registrationId, event, eventPageTitle } = await requireAttendeeContext(
+    slug,
+    `/attending/${slug}/polls`,
+  );
+
+  const admin = createAdminClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: polls } = await (admin as any)
+    .from('polls')
+    .select('*, poll_options(id, text, votes_count, position)')
+    .eq('event_id', event.id)
+    .order('created_at', { ascending: false });
+
+  // My votes
+  const myVotes: Record<string, string> = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: votes } = await (admin as any)
+    .from('poll_votes')
+    .select('poll_id, option_id')
+    .eq('registration_id', registrationId);
+  for (const v of (votes ?? [])) myVotes[v.poll_id] = v.option_id;
+
+  return (
+    <div className="max-w-[760px]">
+      <div className="mb-8">
+        <h1 className="font-display font-normal text-[28px]" style={{ color: '#1F4D3A', letterSpacing: '-0.02em' }}>
+          Polls
+        </h1>
+        <p className="text-[15px] mt-1" style={{ color: '#6B7A72' }}>{eventPageTitle ?? event.name}</p>
+      </div>
+      <PollsClient
+        eventId={event.id}
+        registrationId={registrationId}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        initialPolls={(polls ?? []) as any}
+        myVotes={myVotes}
+      />
+    </div>
+  );
+}

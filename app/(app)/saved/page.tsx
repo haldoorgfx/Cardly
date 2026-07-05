@@ -35,6 +35,7 @@ export default async function SavedPage() {
       saved={(savedRes.data ?? []).map((s: { event_pages: unknown }) => s.event_pages).filter(Boolean)}
       following={followingRes.data ?? []}
       userId={user.id}
+      embedded
     />
   );
 }

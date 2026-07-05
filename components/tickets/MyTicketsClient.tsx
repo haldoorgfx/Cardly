@@ -212,6 +212,16 @@ function TicketCard({ reg, onShowQR }: { reg: Registration; onShowQR: () => void
               >
                 {ticketName}
               </span>
+              {reg.events?.slug && ['confirmed', 'checked_in'].includes(reg.status) && (
+                <Link
+                  href={`/attending/${reg.events.slug}`}
+                  className="inline-flex items-center justify-center h-7 px-3 rounded-full text-[12px] font-medium transition hover:opacity-75"
+                  style={{ background: '#FAF6EE', color: '#1F4D3A', border: '1px solid #E5E0D4' }}
+                  onClick={e => e.stopPropagation()}
+                >
+                  Event tools
+                </Link>
+              )}
               {ep?.id && ep?.starts_at && (
                 <a
                   href={`/api/calendar/${ep.id}`}

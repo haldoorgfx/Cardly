@@ -14,6 +14,9 @@ interface Props {
   saved: EventPage[];
   following: Follow[];
   userId: string;
+  /** When true (dashboard), the PublicNav header and full-page background are
+   *  suppressed — the AppShell provides the chrome. */
+  embedded?: boolean;
 }
 
 const DEMO_SAVED: EventPage[] = [
@@ -45,7 +48,7 @@ function initials(name: string) {
   return name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
 }
 
-export function SavedFollowingClient({ saved: dbSaved, following: dbFollowing }: Props) {
+export function SavedFollowingClient({ saved: dbSaved, following: dbFollowing, embedded = false }: Props) {
   const saved = dbSaved.length > 0 ? dbSaved : DEMO_SAVED;
   const following = dbFollowing.length > 0 ? dbFollowing : DEMO_FOLLOWING;
   const [tab, setTab] = useState<'saved' | 'following'>('saved');
@@ -60,8 +63,8 @@ export function SavedFollowingClient({ saved: dbSaved, following: dbFollowing }:
   }
 
   return (
-    <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
-      <PublicNav />
+    <div style={embedded ? undefined : { background: '#FAF6EE', minHeight: '100vh' }}>
+      {!embedded && <PublicNav />}
       <div className="max-w-[760px] mx-auto px-5 py-8">
         <h1 className="font-display font-bold text-[26px] mb-6" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
           Saved &amp; Following
