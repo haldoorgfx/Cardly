@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { sendWaitlistConfirmEmail, sendWaitlistInviteEmail } from '@/lib/registration/email';
+import { resolveAccountIdByEmail } from '@/lib/rbac/assign';
+import { isNotifAllowed } from '@/lib/notifications/prefs';
 
 export const dynamic = 'force-dynamic';
 
@@ -158,15 +160,25 @@ export async function PATCH(
   const ep = entry.event_pages;
   const eventSlug = ep?.custom_slug ?? ep?.events?.slug ?? params.id;
 
-  sendWaitlistInviteEmail({
-    to: entry.email,
-    name: entry.name,
-    eventTitle: ep?.title ?? '',
-    eventSlug,
-    eventDate: ep?.starts_at
-      ? new Date(ep.starts_at).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
-      : '',
-  }).catch(() => {});
+  // Respect the attendee's "Waitlist updates" preference (opt-out; default ON).
+  // If the waitlisted person has an Eventera account and explicitly turned
+  // waitlist notifications off, skip the email. Guests (no account) always get it.
+  const waitlistAccountId = await resolveAccountIdByEmail(entry.email);
+  const waitlistAllowed = waitlistAccountId
+    ? await isNotifAllowed(waitlistAccountId, 'waitlist', 'email')
+    : true;
+
+  if (waitlistAllowed) {
+    sendWaitlistInviteEmail({
+      to: entry.email,
+      name: entry.name,
+      eventTitle: ep?.title ?? '',
+      eventSlug,
+      eventDate: ep?.starts_at
+        ? new Date(ep.starts_at).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+        : '',
+    }).catch(() => {});
+  }
 
   return NextResponse.json({ ok: true });
 }

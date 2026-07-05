@@ -36,6 +36,7 @@ type OpenCfp = {
 // One of the viewer's own abstract submissions.
 type MySubmission = {
   id: string;
+  eventId: string;
   title: string;
   eventName: string;
   status: string;
@@ -231,6 +232,7 @@ export default async function SpeakingPage() {
       const ev = eventById.get(a.event_id);
       mySubmissions.push({
         id: a.id,
+        eventId: a.event_id,
         title: a.title,
         eventName: ev?.name ?? 'Event',
         status: a.status ?? 'pending',
@@ -240,8 +242,8 @@ export default async function SpeakingPage() {
   }
 
   // Don't offer a fresh submission for an event the viewer has already submitted to.
-  const submittedEventNames = new Set(mySubmissions.map(s => s.eventName));
-  openCfps = openCfps.filter(c => !submittedEventNames.has(c.eventName));
+  const submittedEventIds = new Set(mySubmissions.map(s => s.eventId));
+  openCfps = openCfps.filter(c => !submittedEventIds.has(c.eventId));
 
   const hasCfpActivity = openCfps.length > 0 || mySubmissions.length > 0;
   const isEmpty = groups.length === 0 && !hasCfpActivity;

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { createNotification } from '@/lib/notifications';
+import { isNotifAllowed } from '@/lib/notifications/prefs';
 import { z } from 'zod';
 import type { Database } from '@/types/database';
 
@@ -223,6 +224,9 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       for (const a of (attendees ?? []) as { user_id: string | null }[]) {
         if (!a.user_id || seen.has(a.user_id)) continue;
         seen.add(a.user_id);
+        // Respect the attendee's "Agenda changes" preference (time/venue/format
+        // changes fall under this category). Opt-out; default ON.
+        if (!(await isNotifAllowed(a.user_id, 'agenda_changes', 'inapp'))) continue;
         createNotification({
           userId: a.user_id,
           eventId: params.id,

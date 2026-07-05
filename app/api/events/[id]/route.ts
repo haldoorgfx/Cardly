@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { createNotification } from '@/lib/notifications';
+import { isNotifAllowed } from '@/lib/notifications/prefs';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -110,6 +111,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
       for (const f of (followers ?? []) as { follower_id: string }[]) {
         if (!f.follower_id) continue;
+        // Respect the follower's "Organizers you follow" preference (opt-out;
+        // default ON). This is on top of the per-follow notify_new_events flag.
+        if (!(await isNotifAllowed(f.follower_id, 'organizer_follows', 'inapp'))) continue;
         createNotification({
           userId: f.follower_id,
           eventId: id,
