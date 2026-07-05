@@ -66,7 +66,7 @@ export default async function SpeakerWorkspacePage({
   }
 
   return (
-    <div className="max-w-[960px] mx-auto">
+    <div className="mx-auto w-full px-4 sm:px-6 lg:px-8 py-6" style={{ maxWidth: 1000 }}>
       <SpeakerPortalClient
         embedded
         speaker={speaker}

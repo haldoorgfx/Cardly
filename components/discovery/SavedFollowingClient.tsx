@@ -66,7 +66,7 @@ export function SavedFollowingClient({ saved: dbSaved, following: dbFollowing, e
     <div style={embedded ? undefined : { background: '#FAF6EE', minHeight: '100vh' }}>
       {!embedded && <PublicNav />}
       <div className="max-w-[760px] mx-auto px-5 py-8">
-        <h1 className="font-display font-bold text-[26px] mb-6" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+        <h1 className="font-display font-semibold text-[26px] sm:text-[30px] mb-6" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
           Saved &amp; Following
         </h1>
 

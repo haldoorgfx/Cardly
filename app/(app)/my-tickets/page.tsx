@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Mic, Store, ArrowRight } from 'lucide-react';
 import MyTicketsClient from '@/components/tickets/MyTicketsClient';
+import { PageShell, PageHeader } from '@/components/dash';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = { title: 'My tickets' };
@@ -76,17 +77,15 @@ export default async function MyTicketsPage() {
   }
 
   return (
-    <div className="max-w-[900px] mx-auto px-5 py-10">
-      <div className="mb-8">
-        <h1 className="font-display font-normal text-[32px]" style={{ color: '#1F4D3A', letterSpacing: '-0.025em' }}>
-          My tickets
-        </h1>
-        <p className="text-[15px] mt-2" style={{ color: '#6B7A72' }}>
+    <PageShell>
+      <PageHeader
+        title="My tickets"
+        subtitle={<>
           {upcoming.length} upcoming
           {past.length > 0 && <> · {past.length} past event{past.length !== 1 ? 's' : ''}</>}
           {cardCount > 0 && <> · {cardCount} Eventera Card{cardCount !== 1 ? 's' : ''} collected</>}
-        </p>
-      </div>
+        </>}
+      />
       <MyTicketsClient upcoming={upcoming} past={past} />
 
       {/* Speaking — your speaker workspace lives in the dashboard */}
@@ -147,7 +146,7 @@ export default async function MyTicketsPage() {
           </div>
         </section>
       )}
-    </div>
+    </PageShell>
   );
 }
 

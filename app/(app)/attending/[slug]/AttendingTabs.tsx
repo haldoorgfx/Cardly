@@ -1,7 +1,7 @@
 'use client';
 
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { SegmentedTabs } from '@/components/dash';
 
 const TABS = [
   { seg: 'agenda', label: 'My agenda' },
@@ -16,27 +16,12 @@ const TABS = [
 
 export default function AttendingTabs({ slug }: { slug: string }) {
   const pathname = usePathname();
-
   return (
-    <div className="flex items-center gap-1 mb-6 overflow-x-auto pb-1 -mx-1 px-1">
-      {TABS.map((t) => {
+    <SegmentedTabs
+      tabs={TABS.map((t) => {
         const href = `/attending/${slug}/${t.seg}`;
-        const active = pathname === href;
-        return (
-          <Link
-            key={t.seg}
-            href={href}
-            className="inline-flex items-center h-8 px-3.5 rounded-full text-[13px] font-medium whitespace-nowrap transition-colors"
-            style={{
-              background: active ? '#1F4D3A' : 'transparent',
-              color: active ? '#FFFFFF' : '#3A4A42',
-              border: active ? '1px solid #1F4D3A' : '1px solid #E5E0D4',
-            }}
-          >
-            {t.label}
-          </Link>
-        );
+        return { key: t.seg, label: t.label, href, active: pathname === href };
       })}
-    </div>
+    />
   );
 }

@@ -8,6 +8,7 @@ import type { ReactNode } from 'react';
 import { Suspense } from 'react';
 import { PeriodSelector } from '@/components/analytics/PeriodSelector';
 import { ExportButton } from '@/components/analytics/ExportButton';
+import { PageShell, PageHeader } from '@/components/dash';
 
 export const metadata: Metadata = { title: 'Analytics' };
 
@@ -187,27 +188,17 @@ export default async function AnalyticsPage({
   })).sort((a, b) => b.regs - a.regs);
 
   return (
-    <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-
-        {/* ── Page header ────────────────────────────────────────────────────── */}
-        <div className="flex items-start justify-between mb-7 gap-4 flex-wrap">
-          <div>
-            <h1 className="font-display text-[28px] font-semibold tracking-[-0.02em]"
-              style={{ color: '#1F4D3A' }}>
-              Analytics
-            </h1>
-            <p className="text-[13.5px] mt-0.5" style={{ color: '#6B7A72' }}>
-              Across all your events
-            </p>
-          </div>
-          <div className="flex items-center gap-2 pt-1 shrink-0">
+    <PageShell width="wide">
+        <PageHeader
+          title="Analytics"
+          subtitle="Across all your events"
+          actions={<>
             <Suspense fallback={null}>
               <PeriodSelector current={period} />
             </Suspense>
             <ExportButton events={perfEvents} currency={primaryCurrency} period={period} />
-          </div>
-        </div>
+          </>}
+        />
 
         {/* ── 4 stat cards ───────────────────────────────────────────────────── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -468,7 +459,6 @@ export default async function AnalyticsPage({
           );
         })()}
 
-      </div>
-    </div>
+    </PageShell>
   );
 }

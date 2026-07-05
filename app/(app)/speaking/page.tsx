@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getUserRoles, eventsWithRole } from '@/lib/rbac/roles';
 import { Mic, CalendarDays, MapPin, ArrowRight, Clock, FileText, CheckCircle2 } from 'lucide-react';
+import { PageShell, PageHeader } from '@/components/dash';
 
 export const metadata: Metadata = { title: 'Speaking' };
 
@@ -249,17 +250,8 @@ export default async function SpeakingPage() {
   const isEmpty = groups.length === 0 && !hasCfpActivity;
 
   return (
-    <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[900px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-
-        <div className="mb-8">
-          <h1 className="font-display text-[28px] sm:text-[32px] font-semibold tracking-[-0.02em]" style={{ color: '#1F4D3A' }}>
-            Speaking
-          </h1>
-          <p className="mt-2 text-[14px] sm:text-[15px]" style={{ color: '#6B7A72' }}>
-            The events you speak at and your sessions.
-          </p>
-        </div>
+    <PageShell>
+        <PageHeader title="Speaking" subtitle="The events you speak at and your sessions." />
 
         {isEmpty ? (
           <div className="bg-white rounded-2xl border p-8 sm:p-10 text-center"
@@ -430,8 +422,6 @@ export default async function SpeakingPage() {
             )}
           </div>
         )}
-
-      </div>
-    </div>
+    </PageShell>
   );
 }

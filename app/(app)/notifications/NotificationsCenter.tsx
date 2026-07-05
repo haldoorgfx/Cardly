@@ -138,7 +138,7 @@ export default function NotificationsCenter({ initialNotifs, initialPrefs }: Pro
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h1 className="font-display text-[22px] font-semibold" style={{ color: '#0F1F18' }}>Notifications</h1>
+          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>Notifications</h1>
           {tab === 'inbox' && unreadCount > 0 && (
             <p className="text-[13px] mt-0.5" style={{ color: '#6B7A72' }}>{unreadCount} unread</p>
           )}

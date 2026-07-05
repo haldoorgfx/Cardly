@@ -136,7 +136,7 @@ export default async function DashboardPage() {
         {/* ── Page header ── */}
         <div className="flex items-start justify-between mb-6 gap-4 flex-wrap">
           <div>
-            <h1 className="font-display text-[26px] font-semibold text-[#1F4D3A] tracking-[-0.02em]">Events</h1>
+            <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight text-[#0F1F18] tracking-[-0.02em]">Events</h1>
             <p className="text-[#6B7A72] text-[14px] mt-0.5">Everything you&apos;re organizing, in one place.</p>
           </div>
           {!atLimit && (

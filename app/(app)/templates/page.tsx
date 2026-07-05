@@ -282,7 +282,7 @@ export default function TemplatesPage() {
         <div className="relative">
           <div className="flex items-end justify-between gap-4 flex-wrap">
             <div>
-              <h1 className="font-display font-bold text-[28px] text-[#0F1F18] leading-tight tracking-tight">Templates</h1>
+              <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight text-[#0F1F18]" style={{ letterSpacing: '-0.02em' }}>Templates</h1>
               <p className="text-[13px] text-[#6B7A72] mt-1">30 professionally designed event cards — what you see is what you edit.</p>
             </div>
             <div className="relative">

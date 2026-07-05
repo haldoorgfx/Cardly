@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getVisibleSections } from '@/lib/rbac/sections';
 import { Ticket, Mic, Briefcase, LayoutGrid, ShieldCheck, Compass, ArrowRight } from 'lucide-react';
+import { PageShell, PageHeader, EmptyState, PrimaryButton } from '@/components/dash';
 
 export const metadata: Metadata = { title: 'Home' };
 
@@ -74,40 +75,25 @@ export default async function HomePage() {
   const isEmpty = hats.length === 0;
 
   return (
-    <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[900px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-
-        <div className="mb-8">
-          <h1 className="font-display text-[28px] sm:text-[32px] font-semibold tracking-[-0.02em]" style={{ color: '#1F4D3A' }}>
-            Home
-          </h1>
-          <p className="mt-2 text-[14px] sm:text-[15px]" style={{ color: '#6B7A72' }}>
-            {isEmpty
-              ? 'Discover events near you and pick up your first ticket.'
-              : 'Everything you do on Eventera, in one place.'}
-          </p>
-        </div>
+    <PageShell>
+        <PageHeader
+          title="Home"
+          subtitle={isEmpty
+            ? 'Discover events near you and pick up your first ticket.'
+            : 'Everything you do on Eventera, in one place.'}
+        />
 
         {isEmpty ? (
-          <div className="bg-white rounded-2xl border p-8 sm:p-10 text-center"
-            style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
-            <div className="inline-grid place-items-center w-14 h-14 rounded-2xl mb-5"
-              style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
-              <Compass size={26} strokeWidth={1.7} />
-            </div>
-            <h2 className="font-display text-[20px] font-semibold tracking-tight" style={{ color: '#0F1F18' }}>
-              Nothing here yet
-            </h2>
-            <p className="mt-2 text-[14px] max-w-[420px] mx-auto leading-[1.6]" style={{ color: '#6B7A72' }}>
-              Once you register for an event, speak at one, or sponsor one, it&apos;ll show up here.
-            </p>
-            <Link href="/discover"
-              className="mt-6 inline-flex items-center gap-2 px-5 py-3 rounded-lg text-white text-[14px] font-medium transition hover:bg-[#163828]"
-              style={{ background: '#1F4D3A' }}>
-              Discover events
-              <ArrowRight size={16} strokeWidth={2} />
-            </Link>
-          </div>
+          <EmptyState
+            icon={<Compass size={24} strokeWidth={1.7} />}
+            title="Nothing here yet"
+            body={<>Once you register for an event, speak at one, or sponsor one, it&apos;ll show up here.</>}
+            action={
+              <PrimaryButton href="/discover">
+                Discover events <ArrowRight size={15} strokeWidth={2} />
+              </PrimaryButton>
+            }
+          />
         ) : (
           <div className="grid sm:grid-cols-2 gap-4">
             {hats.map(hat => (
@@ -133,8 +119,6 @@ export default async function HomePage() {
             ))}
           </div>
         )}
-
-      </div>
-    </div>
+    </PageShell>
   );
 }

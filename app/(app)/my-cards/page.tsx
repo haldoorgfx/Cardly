@@ -4,6 +4,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { IdCard, Download, ArrowRight } from 'lucide-react';
+import { PageShell, PageHeader, EmptyState } from '@/components/dash';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = { title: 'My Eventera Cards' };
@@ -35,28 +36,23 @@ export default async function MyCardsPage() {
   const cards = (regs ?? []) as CardRow[];
 
   return (
-    <div className="max-w-[900px] mx-auto px-5 py-10">
-      <div className="mb-8">
-        <h1 className="font-display font-normal text-[32px]" style={{ color: '#1F4D3A', letterSpacing: '-0.025em' }}>
-          My Eventera Cards
-        </h1>
-        <p className="text-[15px] mt-2" style={{ color: '#6B7A72' }}>
-          {cards.length} card{cards.length !== 1 ? 's' : ''} collected
-        </p>
-      </div>
+    <PageShell>
+      <PageHeader
+        title="My Eventera Cards"
+        subtitle={`${cards.length} card${cards.length !== 1 ? 's' : ''} collected`}
+      />
 
       {cards.length === 0 ? (
-        <div className="rounded-2xl py-16 text-center" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
-          <span className="inline-grid place-items-center w-11 h-11 rounded-xl mb-3" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
-            <IdCard size={20} strokeWidth={1.8} />
-          </span>
-          <p className="text-[14px]" style={{ color: '#6B7A72' }}>
-            No cards yet. When you register for an event and personalize your Eventera Card, it appears here.
-          </p>
-          <Link href="/my-tickets" className="inline-flex items-center gap-1.5 mt-4 text-[13px] font-medium" style={{ color: '#1F4D3A' }}>
-            Go to my tickets <ArrowRight size={13} strokeWidth={2} />
-          </Link>
-        </div>
+        <EmptyState
+          icon={<IdCard size={22} strokeWidth={1.8} />}
+          title="No cards yet"
+          body="When you register for an event and personalize your Eventera Card, it appears here."
+          action={
+            <Link href="/my-tickets" className="inline-flex items-center gap-1.5 text-[13px] font-medium" style={{ color: '#1F4D3A' }}>
+              Go to my tickets <ArrowRight size={13} strokeWidth={2} />
+            </Link>
+          }
+        />
       ) : (
         <div className="grid sm:grid-cols-2 gap-4">
           {cards.map((c) => (
@@ -87,6 +83,6 @@ export default async function MyCardsPage() {
           ))}
         </div>
       )}
-    </div>
+    </PageShell>
   );
 }

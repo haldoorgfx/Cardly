@@ -73,7 +73,7 @@ export default function BrandKitPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>
-          <h1 className="font-display font-bold text-[32px] leading-tight text-[#0F1F18]">Brand Kit</h1>
+          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight text-[#0F1F18]" style={{ letterSpacing: '-0.02em' }}>Brand Kit</h1>
           <p className="text-[14px] text-[#6B7A72] mt-1">Applied to event pages and Eventera Cards</p>
         </div>
         <button
