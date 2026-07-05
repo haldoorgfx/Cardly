@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
     // Queue invites — best-effort, don't block on errors
     await Promise.allSettled(
       body.inviteEmails.map(email =>
-        fetch(`${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/api/team/invite`, {
+        fetch(`${process.env.NEXT_PUBLIC_APP_URL ?? ''}/api/team/invite`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-internal': 'onboarding' },
           body: JSON.stringify({ email, inviter_id: user.id }),

@@ -5,7 +5,7 @@
  * If RESEND_API_KEY is missing the functions return silently — no crash.
  */
 
-const FROM = 'Eventera <noreply@karta.cre8so.com>';
+const FROM = process.env.RESEND_FROM_EMAIL ?? 'Eventera <noreply@karta.cre8so.com>';
 const BASE_URL = 'https://api.resend.com/emails';
 
 async function sendEmail(to: string, subject: string, html: string): Promise<void> {
