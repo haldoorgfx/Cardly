@@ -1,10 +1,11 @@
 export const dynamic = 'force-dynamic';
 
-import { createAdminClient } from '@/lib/supabase/server';
-import { notFound } from 'next/navigation';
+import { createAdminClient, createClient } from '@/lib/supabase/server';
+import { notFound, redirect } from 'next/navigation';
 import { ExhibitorShell } from '@/components/exhibitor/ExhibitorShell';
 import { OverviewTab } from '@/components/exhibitor/OverviewTab';
 import { isLoggedInSponsorFor } from '@/lib/rbac/exhibitor-viewer';
+import { ownedSponsor } from '@/lib/rbac/ownership';
 
 interface Props { params: Promise<{ token: string }> }
 
@@ -23,6 +24,21 @@ export default async function ExhibitorPage({ params }: Props) {
   if (!sponsor || !sponsor.events) notFound();
 
   const event = sponsor.events as { id: string; name: string; slug: string; status: string };
+
+  // A logged-in OWNER of this sponsor record has a native dashboard workspace —
+  // send them there. Anonymous tokenholders (and team members) keep the token
+  // portal exactly as before.
+  try {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const owned = await ownedSponsor(user.id, sponsor.id);
+      if (owned) redirect(`/sponsoring/${sponsor.id}`);
+    }
+  } catch (err) {
+    // redirect() throws NEXT_REDIRECT — re-throw it; anything else is best-effort.
+    if (err && typeof err === 'object' && 'digest' in err) throw err;
+  }
 
   // Stats
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

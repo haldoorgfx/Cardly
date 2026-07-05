@@ -5,7 +5,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getUserRoles, eventsWithRole } from '@/lib/rbac/roles';
-import { Briefcase, MapPin, Users, Flame, ExternalLink } from 'lucide-react';
+import { Briefcase, MapPin, Users, Flame, ArrowRight } from 'lucide-react';
 import { ClaimSponsorButton } from './ClaimSponsorButton';
 
 export const metadata: Metadata = { title: 'Sponsoring' };
@@ -226,21 +226,19 @@ export default async function SponsoringPage() {
                   </div>
                 )}
 
-                {/* Open the full exhibitor portal (token-resolved server-side) */}
-                {card.inviteToken && (
-                  <div className="px-5 sm:px-6 py-4 border-t flex items-center justify-between gap-3"
-                    style={{ borderColor: '#F0EDE6' }}>
-                    <span className="text-[12.5px]" style={{ color: '#6B7A72' }}>
-                      Manage leads, booth profile & resources
-                    </span>
-                    <Link href={`/exhibitor/${card.inviteToken}`}
-                      className="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-white text-[13px] font-medium transition hover:bg-[#163828]"
-                      style={{ background: '#1F4D3A' }}>
-                      Open portal
-                      <ExternalLink size={13} strokeWidth={2} />
-                    </Link>
-                  </div>
-                )}
+                {/* Open the sponsor workspace — native dashboard route */}
+                <div className="px-5 sm:px-6 py-4 border-t flex items-center justify-between gap-3"
+                  style={{ borderColor: '#F0EDE6' }}>
+                  <span className="text-[12.5px]" style={{ color: '#6B7A72' }}>
+                    Manage leads, booth profile & resources
+                  </span>
+                  <Link href={`/sponsoring/${card.sponsorId}`}
+                    className="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-white text-[13px] font-medium transition hover:bg-[#163828]"
+                    style={{ background: '#1F4D3A' }}>
+                    Open workspace
+                    <ArrowRight size={13} strokeWidth={2} />
+                  </Link>
+                </div>
               </section>
             ))}
           </div>

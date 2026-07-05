@@ -15,6 +15,10 @@ interface Props {
    *  small "Back to your dashboard" link. Absent/false for anonymous token
    *  visitors — the token experience is otherwise unchanged. */
   showDashboardLink?: boolean;
+  /** When set (dashboard /sponsoring/[sponsorId] routes), tab links use this
+   *  base path instead of the token URLs, and the standalone portal header is
+   *  suppressed — the AppShell provides the chrome. Token portal unchanged. */
+  hrefBase?: string;
   children: React.ReactNode;
 }
 
@@ -53,12 +57,16 @@ function tierTone(tier: string | null) {
   return 'bg-[rgba(255,255,255,0.1)] text-white border-[rgba(255,255,255,0.2)]';
 }
 
-export function ExhibitorShell({ token, companyName, tier, boothNumber, logoUrl, eventName, children, activeTab, showDashboardLink }: Props) {
+export function ExhibitorShell({ token, companyName, tier, boothNumber, logoUrl, eventName, children, activeTab, showDashboardLink, hrefBase }: Props) {
   const initials = companyName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  const embedded = Boolean(hrefBase);
+  const href = (id: string) =>
+    hrefBase ? (id === 'overview' ? hrefBase : `${hrefBase}/${id}`) : tabHref(token, id);
 
   return (
-    <div className="min-h-screen" style={{ background: '#FAF6EE' }}>
-      {/* Header */}
+    <div className={embedded ? undefined : 'min-h-screen'} style={embedded ? undefined : { background: '#FAF6EE' }}>
+      {/* Header — hidden in the dashboard, where AppShell is the chrome */}
+      {!embedded && (
       <header className="sticky top-0 z-20 backdrop-blur border-b" style={{ background: 'rgba(250,246,238,0.85)', borderColor: '#E5E0D4' }}>
         <div className="mx-auto max-w-[1080px] px-5 lg:px-8 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -90,9 +98,10 @@ export function ExhibitorShell({ token, companyName, tier, boothNumber, logoUrl,
           </div>
         </div>
       </header>
+      )}
 
       {/* Hero */}
-      <div className="relative overflow-hidden" style={{ background: 'linear-gradient(135deg,#0D1F17,#1F4D3A 60%,#235741)' }}>
+      <div className={`relative overflow-hidden${embedded ? ' rounded-2xl' : ''}`} style={{ background: 'linear-gradient(135deg,#0D1F17,#1F4D3A 60%,#235741)' }}>
         <div aria-hidden className="absolute inset-0" style={{ background: 'radial-gradient(60% 100% at 90% 0%, rgba(232,197,126,0.26), transparent 55%)' }} />
         <div className="relative mx-auto max-w-[1080px] px-5 lg:px-8 py-8">
           <div className="flex items-start justify-between gap-6">
@@ -127,14 +136,14 @@ export function ExhibitorShell({ token, companyName, tier, boothNumber, logoUrl,
       </div>
 
       {/* Tab bar */}
-      <div className="sticky top-14 z-10 backdrop-blur border-b" style={{ background: 'rgba(250,246,238,0.9)', borderColor: '#E5E0D4' }}>
+      <div className={embedded ? 'border-b' : 'sticky top-14 z-10 backdrop-blur border-b'} style={{ background: embedded ? 'transparent' : 'rgba(250,246,238,0.9)', borderColor: '#E5E0D4' }}>
         <div className="mx-auto max-w-[1080px] px-5 lg:px-8 flex gap-1 overflow-x-auto no-scrollbar">
           {TABS.map(({ id, label }) => {
             const isActive = activeTab === id;
             return (
               <Link
                 key={id}
-                href={tabHref(token, id)}
+                href={href(id)}
                 className="relative px-3.5 py-3 text-[13.5px] font-medium whitespace-nowrap transition-colors"
                 style={{ color: isActive ? '#1F4D3A' : '#6B7A72' }}
               >
