@@ -209,7 +209,7 @@ export function CommunicationsView({ eventId, eventName, registrantCount, plan =
       {/* Header */}
       <div className="flex items-start justify-between gap-3 mb-6 sm:mb-8 flex-wrap">
         <div>
-          <h1 className="font-display font-semibold text-[22px]" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
+          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
             Communications
           </h1>
           <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>

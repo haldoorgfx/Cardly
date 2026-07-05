@@ -45,7 +45,7 @@ export function OrganizerCommunityClient({ eventName, eventSlug, channels: dbCha
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="font-display font-bold text-[26px] mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.025em' }}>
+          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.025em' }}>
             Community
           </h1>
           <p className="text-[14px]" style={{ color: '#6B7A72' }}>

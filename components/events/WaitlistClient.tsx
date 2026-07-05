@@ -96,7 +96,7 @@ export function WaitlistClient({ eventId, eventName, waitlist, totalRegs, capaci
       {/* Header */}
       <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
         <div>
-          <h1 className="font-display font-semibold text-[24px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>Waitlist</h1>
+          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>Waitlist</h1>
           <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>Manage overflow · {eventName}</p>
         </div>
         <button onClick={releaseSpots} disabled={releasing}

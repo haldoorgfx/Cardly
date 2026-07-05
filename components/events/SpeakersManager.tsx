@@ -200,7 +200,7 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
       {/* Page header */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
-          <h1 className="font-display text-[24px] font-semibold tracking-[-0.015em]" style={{ color: '#0F1F18' }}>Speakers</h1>
+          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18' }}>Speakers</h1>
           <p className="text-[14px] mt-0.5" style={{ color: '#6B7A72' }}>
             {speakers.length > 0 ? `${speakers.length} speaker${speakers.length !== 1 ? 's' : ''}` : 'Add speakers to your event'}
           </p>

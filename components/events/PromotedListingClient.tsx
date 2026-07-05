@@ -74,7 +74,7 @@ export function PromotedListingClient({ eventId, eventName, campaign }: Props) {
     <div className="max-w-[840px] mx-auto px-6 py-8">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="font-display font-bold text-[26px] mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+        <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
           Promote listing
         </h1>
         <p className="text-[14px]" style={{ color: '#6B7A72' }}>{eventName}</p>

@@ -142,7 +142,7 @@ export function WorkshopsClient({ eventId, eventSlug, sessions, bookedIds: initi
     <>
       <div className="max-w-[720px] mx-auto px-5 py-8">
         <div className="mb-6">
-          <h1 className="font-display font-bold text-[26px] mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
             Workshops — book your seat
           </h1>
           <p className="text-[14px]" style={{ color: '#6B7A72' }}>

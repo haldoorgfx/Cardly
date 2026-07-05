@@ -67,7 +67,7 @@ export function ApprovalsClient({ eventId, eventName, initialRegs }: Props) {
         <p className="text-[11px] tracking-[0.16em] uppercase mb-2 font-medium" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
           Manage
         </p>
-        <h1 className="font-display font-semibold text-[26px] tracking-tight mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+        <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight mb-1" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
           Approvals
         </h1>
         <p className="text-[14px]" style={{ color: '#6B7A72' }}>

@@ -104,7 +104,7 @@ export function StaffRolesClient({ eventId, eventName, initialStaff, ownerEmail 
             <p className="text-[11px] tracking-[0.16em] uppercase mb-2 font-medium" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>
               Configure
             </p>
-            <h1 className="font-display font-semibold text-[26px] tracking-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+            <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
               Event staff
             </h1>
             <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>

@@ -14,7 +14,7 @@ async function generate(prompt: string): Promise<string | null> {
   }
 }
 
-const ERA_UNAVAILABLE = 'AI features are not available on this deployment. Please contact the organizer directly.';
+const ERA_UNAVAILABLE = 'ERA is not set up yet — add a Google AI key in your deployment settings to enable AI insights.';
 
 export const ERA = {
   async improveDescription(draft: string, eventName: string): Promise<string> {

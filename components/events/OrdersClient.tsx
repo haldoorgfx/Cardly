@@ -150,7 +150,7 @@ export function OrdersClient({ eventId, orders: initialOrders }: Props) {
       {/* Header */}
       <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
         <div>
-          <h1 className="font-display font-semibold text-[24px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>Orders</h1>
+          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>Orders</h1>
           <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>{orders.length} orders</p>
         </div>
         <button onClick={() => exportCSV(orders)} className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13.5px] font-medium border transition-colors"

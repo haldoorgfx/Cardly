@@ -244,7 +244,7 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
           <p className="text-[11px] font-medium mb-1" style={{ color: '#6B7A72', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             Step {step} of {STEPS.length}
           </p>
-          <h1 className="font-display font-semibold text-[22px]" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
+          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
             {STEPS[step - 1].label}
           </h1>
         </div>

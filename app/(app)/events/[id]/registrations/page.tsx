@@ -95,7 +95,7 @@ export default async function RegistrationsPage({ params }: Props) {
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
       <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <div className="mb-6">
-          <h1 className="font-display font-semibold text-[24px]" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
+          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
             Attendees
           </h1>
           <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>

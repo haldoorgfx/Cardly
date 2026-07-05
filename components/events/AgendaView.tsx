@@ -147,7 +147,7 @@ export function AgendaView({ eventId, initialSessions, speakers, initialTracks, 
       {/* ── Header ────────────────────────────────────────────────────────── */}
       <div className="flex items-start justify-between gap-4 mb-6">
         <div>
-          <h1 className="font-display font-semibold text-[26px] tracking-[-0.02em]" style={{ color: '#0F1F18' }}>
+          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18' }}>
             Agenda
           </h1>
           <p className="text-[13.5px] mt-0.5" style={{ color: '#6B7A72' }}>{subtitle}</p>

@@ -118,7 +118,7 @@ export default async function AttendeeDetailPage({ params }: Props) {
             {initials(reg.attendee_name)}
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="font-display text-[24px] font-semibold leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+            <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
               {reg.attendee_name}
             </h1>
             <div className="flex items-center gap-2 flex-wrap mt-2">

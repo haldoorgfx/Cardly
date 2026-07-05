@@ -302,7 +302,7 @@ function PublishStep({
         <p className="text-[11px] font-semibold uppercase tracking-widest mb-1" style={{ color: '#6B7A72' }}>
           Step 5 of 5
         </p>
-        <h1 className="font-display font-semibold text-[28px] mb-2" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+        <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight mb-2" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
           {isAlreadyPublished ? 'Your event is live' : 'Ready to go live?'}
         </h1>
         <p className="text-[14px]" style={{ color: '#6B7A72' }}>

@@ -484,7 +484,7 @@ export function TicketsPageClient({
         {/* ── Header ─────────────────────────────────────────────────────── */}
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 mb-6 sm:mb-7">
           <div>
-            <h1 className="font-display text-[24px] sm:text-[26px] font-semibold tracking-[-0.02em]" style={{ color: '#0F1F18' }}>Tickets</h1>
+            <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18' }}>Tickets</h1>
             {subtitle && <p className="text-[13.5px] mt-0.5" style={{ color: '#6B7A72' }}>{subtitle}</p>}
           </div>
           <div className="flex items-center gap-2 flex-wrap sm:shrink-0">

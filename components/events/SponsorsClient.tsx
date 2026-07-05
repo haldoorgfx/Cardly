@@ -2,7 +2,6 @@
 
 import { useState, useTransition, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { Modal } from '@/components/ui/Modal';
 
 interface Sponsor {
@@ -269,7 +268,7 @@ function DeleteSponsorModal({
 }
 
 /* ── Main component ─────────────────────────────────────────────────────── */
-export function SponsorsClient({ eventId, eventSlug, eventName, sponsors: initial }: Props) {
+export function SponsorsClient({ eventId, sponsors: initial }: Props) {
   const router = useRouter();
   const [sponsors, setSponsors] = useState(initial);
   const [showAdd, setShowAdd]   = useState(false);
@@ -355,15 +354,8 @@ export function SponsorsClient({ eventId, eventSlug, eventName, sponsors: initia
         {/* Header */}
         <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
           <div>
-            <div className="flex items-center gap-1.5 text-[12px] mb-1" style={{ color: '#6B7A72' }}>
-              <Link href="/dashboard" className="hover:text-[#1F4D3A] transition-colors">Events</Link>
-              <span>/</span>
-              <Link href={`/events/${eventSlug}`} className="hover:text-[#1F4D3A] transition-colors truncate max-w-[200px]">{eventName}</Link>
-              <span>/</span>
-              <span>Sponsors</span>
-            </div>
-            <h1 className="font-display font-semibold text-[24px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>Sponsors</h1>
-            <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>Manage packages, booths, and lead capture.</p>
+            <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>Sponsors</h1>
+            <p className="text-[14px] mt-1.5" style={{ color: '#6B7A72' }}>Manage packages, booths, and lead capture.</p>
           </div>
           <button onClick={() => setShowAdd(v => !v)}
             className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13.5px] font-medium text-cream transition-colors"

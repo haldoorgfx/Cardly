@@ -106,7 +106,7 @@ export default async function SessionDetailPage({ params }: Props) {
                 {session.is_published ? 'Published' : 'Draft'}
               </span>
             </div>
-            <h1 className="font-display text-[24px] font-semibold leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
+            <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
               {session.title}
             </h1>
             <div className="flex items-center gap-4 mt-2  text-[12.5px] flex-wrap" style={{ color: '#6B7A72' }}>

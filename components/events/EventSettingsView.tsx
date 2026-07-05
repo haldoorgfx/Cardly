@@ -226,7 +226,7 @@ export function EventSettingsView({ event }: Props) {
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>
-          <h1 className="font-display font-semibold text-[22px]" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
+          <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>
             Settings
           </h1>
           <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>{event.name}</p>
