@@ -104,7 +104,7 @@ function SelectField({
         <select
           value={value}
           onChange={e => onChange(e.target.value)}
-          className="w-full h-10 pl-3 pr-8 rounded-xl border text-[13.5px] text-[#0F1F18] outline-none appearance-none transition cursor-pointer"
+          className="w-full h-10 pl-3 pr-8 rounded-lg border text-[13.5px] text-[#0F1F18] outline-none appearance-none transition cursor-pointer"
           style={{ background: 'white', borderColor: '#E5E0D4' }}
           onFocus={e => (e.target.style.borderColor = 'rgba(31,77,58,0.4)')}
           onBlur={e => (e.target.style.borderColor = '#E5E0D4')}

@@ -183,7 +183,7 @@ function InviteModal({ teamId, onClose, onInvited }: { teamId: string; onClose: 
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="colleague@email.com"
-              className="w-full h-10 px-3 rounded-xl border border-border text-[13.5px] focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition"
+              className="w-full h-10 px-3 rounded-lg border border-border text-[13.5px] focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition"
               required
             />
           </div>
@@ -192,7 +192,7 @@ function InviteModal({ teamId, onClose, onInvited }: { teamId: string; onClose: 
             <select
               value={role}
               onChange={e => setRole(e.target.value as 'admin' | 'member')}
-              className="w-full h-10 px-3 rounded-xl border border-border text-[13.5px] outline-none transition cursor-pointer"
+              className="w-full h-10 px-3 rounded-lg border border-border text-[13.5px] outline-none transition cursor-pointer"
             >
               <option value="admin">Admin</option>
               <option value="member">Editor</option>
@@ -305,7 +305,7 @@ export function TeamClient({
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search members..."
-            className="w-full h-9 pl-9 pr-3 rounded-xl border border-border bg-white text-[13px] text-[#0F1F18] placeholder:text-[#6B7A72]/60 focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition"
+            className="w-full h-9 pl-9 pr-3 rounded-lg border border-border bg-white text-[13px] text-[#0F1F18] placeholder:text-[#6B7A72]/60 focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition"
           />
         </div>
         <button className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg border border-border bg-white text-[13px] text-[#3A4A42] hover:bg-cream transition">
