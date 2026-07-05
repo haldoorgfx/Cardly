@@ -36,7 +36,7 @@ export default function EventDetailError({
         <div className="flex items-center justify-center gap-3">
           <button
             onClick={reset}
-            className="inline-flex items-center gap-2 h-10 px-5 rounded-xl text-white font-medium text-[13.5px] transition-opacity hover:opacity-90"
+            className="inline-flex items-center gap-2 h-10 px-5 rounded-lg text-white font-medium text-[13.5px] transition-opacity hover:opacity-90"
             style={{ background: '#1F4D3A' }}
           >
             <RefreshCw size={14} />
@@ -44,7 +44,7 @@ export default function EventDetailError({
           </button>
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 h-10 px-5 rounded-xl border text-[13.5px] font-medium transition-colors hover:bg-white"
+            className="inline-flex items-center gap-2 h-10 px-5 rounded-lg border text-[13.5px] font-medium transition-colors hover:bg-white"
             style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}
           >
             <ArrowLeft size={14} />

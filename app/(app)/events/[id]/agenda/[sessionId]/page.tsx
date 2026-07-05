@@ -124,7 +124,7 @@ export default async function SessionDetailPage({ params }: Props) {
             </div>
           </div>
           <Link href={`/events/${_ev.slug}/agenda`}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-medium border hover:opacity-80 transition-opacity shrink-0"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-medium border hover:opacity-80 transition-opacity shrink-0"
             style={{ border: '1px solid #E5E0D4', color: '#3A4A42', background: 'white', textDecoration: 'none' }}>
             Edit session
           </Link>

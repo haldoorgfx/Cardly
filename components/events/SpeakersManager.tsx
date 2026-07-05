@@ -210,14 +210,14 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
             <>
               <button
                 onClick={() => setShowImport(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-[13.5px] font-medium border transition hover:bg-[#F5F3EE]"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[13.5px] font-medium border transition hover:bg-[#F5F3EE]"
                 style={{ borderColor: '#E5E0D4', color: '#1F4D3A' }}
               >
                 <Upload size={15} strokeWidth={2} /> Import
               </button>
               <button
                 onClick={openAdd}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-[13.5px] font-medium text-white transition hover:bg-[#163828]"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[13.5px] font-medium text-white transition hover:bg-[#163828]"
                 style={{ background: '#1F4D3A' }}
               >
                 <Plus size={15} strokeWidth={2} /> Add speaker
@@ -242,8 +242,8 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
         maxWidth={640}
         footer={
           <>
-            <button onClick={closeForm} className="h-10 px-4 rounded-xl text-[13.5px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
-            <button onClick={handleSave} disabled={saving} className="h-10 px-5 rounded-xl text-[13.5px] font-semibold text-white disabled:opacity-60" style={{ background: '#1F4D3A' }}>
+            <button onClick={closeForm} className="h-10 px-4 rounded-lg text-[13.5px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
+            <button onClick={handleSave} disabled={saving} className="h-10 px-5 rounded-lg text-[13.5px] font-semibold text-white disabled:opacity-60" style={{ background: '#1F4D3A' }}>
               {saving ? 'Saving…' : 'Save'}
             </button>
           </>
@@ -425,7 +425,7 @@ export default function SpeakersManager({ eventId, slug, initialSpeakers }: Prop
             <div className="font-display text-[16px] font-semibold" style={{ color: '#0F1F18' }}>No speakers yet</div>
             <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>Add your first speaker — they&apos;ll appear on the event page.</p>
           </div>
-          <button onClick={openAdd} className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13.5px] font-medium text-white" style={{ background: '#1F4D3A' }}>
+          <button onClick={openAdd} className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-[13.5px] font-medium text-white" style={{ background: '#1F4D3A' }}>
             <Plus size={15} strokeWidth={2} /> Add first speaker
           </button>
         </div>

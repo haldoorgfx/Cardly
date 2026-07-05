@@ -298,14 +298,14 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
         <div className="flex justify-end items-center gap-2 mb-3">
           <button
             onClick={() => setShowImport(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-[13px] font-medium border transition hover:bg-[#F5F3EE]"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[13px] font-medium border transition hover:bg-[#F5F3EE]"
             style={{ borderColor: '#E5E0D4', color: '#1F4D3A' }}
           >
             <Upload size={14} strokeWidth={2} /> Import
           </button>
           <button
             onClick={openNew}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[13px] font-semibold text-white transition hover:opacity-90"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[13px] font-semibold text-white transition hover:opacity-90"
             style={{ background: '#1F4D3A' }}
           >
             <Plus size={14} strokeWidth={2.5} /> Add ticket type
@@ -366,7 +366,7 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
           <div className="flex items-center gap-2">
             <button
               onClick={openNew}
-              className="inline-flex items-center gap-2 h-10 px-5 rounded-xl text-white text-[14px] font-semibold transition hover:opacity-90"
+              className="inline-flex items-center gap-2 h-10 px-5 rounded-lg text-white text-[14px] font-semibold transition hover:opacity-90"
               style={{ background: '#1F4D3A' }}
             >
               <Plus size={14} strokeWidth={2.5} />
@@ -374,7 +374,7 @@ export function TicketTypesManager({ eventId, initialTickets, eventDates }: Prop
             </button>
             <button
               onClick={() => setShowImport(true)}
-              className="inline-flex items-center gap-2 h-10 px-5 rounded-xl text-[14px] font-semibold border transition hover:bg-[#F5F3EE]"
+              className="inline-flex items-center gap-2 h-10 px-5 rounded-lg text-[14px] font-semibold border transition hover:bg-[#F5F3EE]"
               style={{ borderColor: '#E5E0D4', color: '#1F4D3A' }}
             >
               <Upload size={14} strokeWidth={2.5} />

@@ -185,8 +185,8 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
         subtitle={editingCode?.code}
         footer={
           <>
-            <button onClick={() => setEditingCode(null)} className="h-10 px-4 rounded-xl text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
-            <button onClick={handleEdit} disabled={saving} className="h-10 px-5 rounded-xl text-[13px] font-semibold text-white disabled:opacity-60" style={{ background: '#1F4D3A' }}>
+            <button onClick={() => setEditingCode(null)} className="h-10 px-4 rounded-lg text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
+            <button onClick={handleEdit} disabled={saving} className="h-10 px-5 rounded-lg text-[13px] font-semibold text-white disabled:opacity-60" style={{ background: '#1F4D3A' }}>
               {saving ? 'Saving…' : 'Save changes'}
             </button>
           </>
@@ -275,8 +275,8 @@ export function PromoCodesManager({ eventId, initialCodes, eventDates }: Props) 
         title="New promo code"
         footer={
           <>
-            <button onClick={resetForm} className="h-10 px-4 rounded-xl text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
-            <button onClick={handleCreate} disabled={saving} className="h-10 px-5 rounded-xl text-[13px] font-semibold text-white disabled:opacity-60" style={{ background: '#1F4D3A' }}>
+            <button onClick={resetForm} className="h-10 px-4 rounded-lg text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
+            <button onClick={handleCreate} disabled={saving} className="h-10 px-5 rounded-lg text-[13px] font-semibold text-white disabled:opacity-60" style={{ background: '#1F4D3A' }}>
               {saving ? 'Creating…' : 'Create code'}
             </button>
           </>

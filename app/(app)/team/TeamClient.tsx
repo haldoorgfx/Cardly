@@ -131,7 +131,7 @@ function UpsellCard() {
         <div className="flex items-center gap-4">
           <Link
             href="/settings/billing"
-            className="inline-flex items-center gap-2 h-9 px-5 text-[13px] font-semibold text-white rounded-xl hover:opacity-90 transition"
+            className="inline-flex items-center gap-2 h-9 px-5 text-[13px] font-semibold text-white rounded-lg hover:opacity-90 transition"
             style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }}
           >
             Start Studio trial →
@@ -200,7 +200,7 @@ function InviteModal({ teamId, onClose, onInvited }: { teamId: string; onClose: 
           </div>
           {error && <p className="text-[12px] text-[#B8423C]">{error}</p>}
           <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose} className="flex-1 h-10 rounded-xl border border-border text-[13.5px] font-medium text-[#3A4A42] hover:bg-cream transition">
+            <button type="button" onClick={onClose} className="flex-1 h-10 rounded-lg border border-border text-[13.5px] font-medium text-[#3A4A42] hover:bg-cream transition">
               Cancel
             </button>
             <button
@@ -253,7 +253,7 @@ export function TeamClient({
           </div>
           <a
             href="/settings/billing"
-            className="inline-flex items-center gap-1.5 h-9 px-5 rounded-xl text-[13.5px] font-semibold text-white shrink-0 mt-1 transition hover:opacity-90"
+            className="inline-flex items-center gap-1.5 h-9 px-5 rounded-lg text-[13.5px] font-semibold text-white shrink-0 mt-1 transition hover:opacity-90"
             style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }}
           >
             + Invite member
@@ -289,7 +289,7 @@ export function TeamClient({
         {isOwner && (
           <button
             onClick={() => setShowInviteModal(true)}
-            className="inline-flex items-center gap-1.5 h-9 px-5 rounded-xl text-[13.5px] font-semibold text-white bg-primary hover:opacity-95 transition shrink-0 mt-1"
+            className="inline-flex items-center gap-1.5 h-9 px-5 rounded-lg text-[13.5px] font-semibold text-white bg-primary hover:opacity-95 transition shrink-0 mt-1"
           >
             + Invite member
           </button>
@@ -308,7 +308,7 @@ export function TeamClient({
             className="w-full h-9 pl-9 pr-3 rounded-xl border border-border bg-white text-[13px] text-[#0F1F18] placeholder:text-[#6B7A72]/60 focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition"
           />
         </div>
-        <button className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-xl border border-border bg-white text-[13px] text-[#3A4A42] hover:bg-cream transition">
+        <button className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg border border-border bg-white text-[13px] text-[#3A4A42] hover:bg-cream transition">
           {roleFilter}
           <ChevronDown size={13} strokeWidth={2} />
         </button>

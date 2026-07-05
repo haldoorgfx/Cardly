@@ -246,12 +246,12 @@ function EditAttendeeModal({ reg, eventId, ticketTypes, onClose, onSaved }: {
         </div>
 
         <div className="px-4 sm:px-6 pb-5 pt-3 flex gap-3" style={{ borderTop: '1px solid #F0EBE3' }}>
-          <button onClick={onClose} className="flex-1 h-10 rounded-xl text-[13px] font-medium border transition" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
+          <button onClick={onClose} className="flex-1 h-10 rounded-lg text-[13px] font-medium border transition" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
             Cancel
           </button>
           <button
             onClick={handleSave} disabled={saving}
-            className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white transition disabled:opacity-60 inline-flex items-center justify-center gap-1.5"
+            className="flex-1 h-10 rounded-lg text-[13px] font-semibold text-white transition disabled:opacity-60 inline-flex items-center justify-center gap-1.5"
             style={{ background: '#1F4D3A' }}
           >
             {saving ? 'Saving…' : 'Save changes'}
@@ -699,14 +699,14 @@ function ImportCSVModal({ eventId, ticketTypes, onClose, onImported }: {
 
         {/* Footer */}
         <div className="px-4 sm:px-6 pb-5 pt-3 shrink-0 flex gap-3" style={{ borderTop: '1px solid #F0EBE3' }}>
-          <button onClick={onClose} className="flex-1 h-10 rounded-xl text-[13px] font-medium border transition" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
+          <button onClick={onClose} className="flex-1 h-10 rounded-lg text-[13px] font-medium border transition" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
             {result ? 'Close' : 'Cancel'}
           </button>
           {!result && (
             <button
               onClick={handleImport}
               disabled={importing || validRows.length === 0}
-              className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white transition disabled:opacity-50 inline-flex items-center justify-center gap-1.5"
+              className="flex-1 h-10 rounded-lg text-[13px] font-semibold text-white transition disabled:opacity-50 inline-flex items-center justify-center gap-1.5"
               style={{ background: '#1F4D3A' }}
             >
               {importing ? 'Importing…' : validRows.length > 0 ? <><Upload size={13} strokeWidth={2} /> Import {validRows.length} attendee{validRows.length !== 1 ? 's' : ''}</> : 'Upload a CSV first'}
@@ -843,12 +843,12 @@ function AddManuallyModal({
 
         {/* Footer */}
         <div className="px-4 sm:px-6 pb-5 flex gap-3">
-          <button onClick={onClose} className="flex-1 h-10 rounded-xl text-[13px] font-medium border transition" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
+          <button onClick={onClose} className="flex-1 h-10 rounded-lg text-[13px] font-medium border transition" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
             Cancel
           </button>
           <button
             onClick={handleSave} disabled={saving}
-            className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white transition disabled:opacity-60 inline-flex items-center justify-center gap-1.5"
+            className="flex-1 h-10 rounded-lg text-[13px] font-semibold text-white transition disabled:opacity-60 inline-flex items-center justify-center gap-1.5"
             style={{ background: '#1F4D3A' }}
           >
             {saving ? 'Adding…' : <><UserPlus size={13} strokeWidth={2} /> Add attendee</>}
@@ -894,12 +894,12 @@ function ReportModal({ report, onClose }: { report: string; onClose: () => void 
         <div className="flex gap-2 px-6 py-4 shrink-0" style={{ borderTop: '1px solid #E5E0D4' }}>
           <button
             onClick={handleCopy}
-            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-xl text-[13px] font-semibold text-white transition hover:opacity-90"
+            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-semibold text-white transition hover:opacity-90"
             style={{ background: '#1F4D3A' }}
           >
             {copied ? <><CheckCircle size={13} strokeWidth={2} /> Copied!</> : 'Copy report'}
           </button>
-          <button onClick={onClose} className="h-9 px-4 rounded-xl text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
+          <button onClick={onClose} className="h-9 px-4 rounded-lg text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
             Close
           </button>
         </div>

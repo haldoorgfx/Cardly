@@ -146,7 +146,7 @@ export default function EventDetailActions({ eventId, eventName, status }: Props
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
         <button
-          className="inline-flex items-center gap-2 text-[13px] text-[#0F1F18]/70 bg-white border border-[#E5E0D4] px-3 py-2 rounded-xl hover:bg-[#FAF6EE] transition disabled:opacity-50"
+          className="inline-flex items-center gap-2 text-[13px] text-[#0F1F18]/70 bg-white border border-[#E5E0D4] px-3 py-2 rounded-lg hover:bg-[#FAF6EE] transition disabled:opacity-50"
           disabled={busy}
           title="More actions"
         >

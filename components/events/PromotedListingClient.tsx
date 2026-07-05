@@ -160,7 +160,7 @@ export function PromotedListingClient({ eventId, eventName, campaign }: Props) {
           <div className="flex gap-2">
             {hasActiveCampaign ? (
               <>
-                <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold border transition hover:opacity-80"
+                <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-[13px] font-semibold border transition hover:opacity-80"
                   style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
                   <Pause size={13} /> Pause campaign
                 </button>

@@ -200,7 +200,7 @@ export function EventFeaturesManager({ eventId }: Props) {
       {/* Save bar */}
       <div className="flex items-center gap-3">
         <button onClick={save} disabled={saving}
-          className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold text-white disabled:opacity-60"
+          className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-[13.5px] font-semibold text-white disabled:opacity-60"
           style={{ background: C.forest }}>
           {saving ? <><Loader2 size={14} className="animate-spin" /> Saving…</> : saved ? <><Check size={14} /> Saved</> : 'Save changes'}
         </button>

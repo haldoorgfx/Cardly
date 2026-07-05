@@ -418,8 +418,8 @@ export default function SessionsManager({ eventId, initialSessions, speakers, in
           maxWidth={620}
           footer={
             <>
-              <button onClick={closeForm} className="h-10 px-4 rounded-xl text-[13.5px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
-              <button onClick={handleSaveSession} disabled={saving} className="h-10 px-5 rounded-xl text-[13.5px] font-semibold text-white disabled:opacity-60" style={{ background: '#1F4D3A' }}>
+              <button onClick={closeForm} className="h-10 px-4 rounded-lg text-[13.5px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
+              <button onClick={handleSaveSession} disabled={saving} className="h-10 px-5 rounded-lg text-[13.5px] font-semibold text-white disabled:opacity-60" style={{ background: '#1F4D3A' }}>
                 {saving ? 'Saving…' : editingSession ? 'Save changes' : 'Add session'}
               </button>
             </>

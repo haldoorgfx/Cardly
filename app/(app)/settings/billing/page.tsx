@@ -185,7 +185,7 @@ export default async function BillingPage({
         {plan !== 'studio' && (
           <a
             href="/settings/billing/upgrade"
-            className="inline-flex items-center gap-1.5 h-9 px-5 rounded-xl text-[13.5px] font-semibold text-[#0F1F18] transition hover:opacity-90 shrink-0 mt-1"
+            className="inline-flex items-center gap-1.5 h-9 px-5 rounded-lg text-[13.5px] font-semibold text-[#0F1F18] transition hover:opacity-90 shrink-0 mt-1"
             style={{ background: '#E8C57E' }}
           >
             + Upgrade to Studio

@@ -261,7 +261,7 @@ function AddPromoModal({ onClose, eventId }: { onClose: () => void; eventId: str
         </div>
 
         <div className="flex gap-3 mt-6">
-          <button onClick={onClose} className="flex-1 h-10 rounded-xl text-[13px] font-medium border transition"
+          <button onClick={onClose} className="flex-1 h-10 rounded-lg text-[13px] font-medium border transition"
             style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
           <button onClick={handleSave} disabled={saving}
             className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white transition disabled:opacity-60"
@@ -407,10 +407,10 @@ function CreateTicketModal({ onClose, eventId, defaultCurrency }: { onClose: () 
         </div>
 
         <div className="px-4 sm:px-6 pb-5 flex gap-3">
-          <button onClick={onClose} className="flex-1 h-10 rounded-xl text-[13px] font-medium border transition"
+          <button onClick={onClose} className="flex-1 h-10 rounded-lg text-[13px] font-medium border transition"
             style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
           <button onClick={handleCreate} disabled={saving}
-            className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white transition disabled:opacity-60 inline-flex items-center justify-center gap-1.5"
+            className="flex-1 h-10 rounded-lg text-[13px] font-semibold text-white transition disabled:opacity-60 inline-flex items-center justify-center gap-1.5"
             style={{ background: '#1F4D3A' }}>
             {saving ? 'Creating…' : <><Check size={13} strokeWidth={2.5} />Create ticket</>}
           </button>
@@ -489,14 +489,14 @@ export function TicketsPageClient({
           </div>
           <div className="flex items-center gap-2 flex-wrap sm:shrink-0">
             <Link href={`/api/events/${eventId}/export`}
-              className="inline-flex items-center gap-1.5 h-9 px-3 sm:px-4 rounded-xl text-[13px] font-medium border transition hover:bg-[#F5F3EE]"
+              className="inline-flex items-center gap-1.5 h-9 px-3 sm:px-4 rounded-lg text-[13px] font-medium border transition hover:bg-[#F5F3EE]"
               style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}>
               <ExternalLink size={13} strokeWidth={1.8} />
               <span className="hidden sm:inline">Sales report</span>
               <span className="sm:hidden">Export</span>
             </Link>
             <button onClick={() => setCreateOpen(true)}
-              className="inline-flex items-center gap-1.5 h-9 px-3 sm:px-4 rounded-xl text-[13px] font-semibold text-white transition hover:opacity-90"
+              className="inline-flex items-center gap-1.5 h-9 px-3 sm:px-4 rounded-lg text-[13px] font-semibold text-white transition hover:opacity-90"
               style={{ background: '#1F4D3A' }}>
               <Plus size={14} strokeWidth={2.5} />
               <span className="hidden sm:inline">Create ticket type</span>
@@ -525,7 +525,7 @@ export function TicketsPageClient({
             <div className="px-5 py-10 text-center">
               <p className="text-[13px] mb-4" style={{ color: '#6B7A72' }}>No ticket types yet.</p>
               <button onClick={() => setCreateOpen(true)}
-                className="inline-flex items-center gap-1.5 h-9 px-4 rounded-xl text-[13px] font-semibold text-white"
+                className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-semibold text-white"
                 style={{ background: '#1F4D3A' }}>
                 <Plus size={14} strokeWidth={2.5} /> Create first ticket
               </button>

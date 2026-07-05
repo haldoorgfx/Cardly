@@ -79,7 +79,7 @@ export default function BrandKitPage() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="inline-flex items-center gap-2 h-9 px-5 rounded-xl text-[13.5px] font-semibold text-white bg-primary hover:opacity-95 disabled:opacity-60 transition shrink-0 mt-1"
+          className="inline-flex items-center gap-2 h-9 px-5 rounded-lg text-[13.5px] font-semibold text-white bg-primary hover:opacity-95 disabled:opacity-60 transition shrink-0 mt-1"
         >
           <Check size={13} strokeWidth={2.5} />
           {saved ? 'Saved' : saving ? 'Saving…' : 'Save brand kit'}

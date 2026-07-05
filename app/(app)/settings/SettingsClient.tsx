@@ -187,7 +187,7 @@ export default function SettingsClient({ profile }: Props) {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="inline-flex items-center gap-2 h-9 px-5 rounded-xl text-[13.5px] font-semibold text-white transition disabled:opacity-60"
+            className="inline-flex items-center gap-2 h-9 px-5 rounded-lg text-[13.5px] font-semibold text-white transition disabled:opacity-60"
             style={{ background: saved ? '#2D7A4F' : '#1F4D3A' }}
           >
             <Check size={13} strokeWidth={2.5} />

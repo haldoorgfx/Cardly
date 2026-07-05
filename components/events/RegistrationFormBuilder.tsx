@@ -280,8 +280,8 @@ export function RegistrationFormBuilder({ eventId, initialFields }: Props) {
         title={isEditing ? 'Edit field' : 'New field'}
         footer={
           <>
-            <button onClick={closePanel} className="h-10 px-4 text-[13px] font-medium rounded-xl border transition" style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}>Cancel</button>
-            <button onClick={handleSave} disabled={saving} className="h-10 px-5 text-white text-[13px] font-semibold rounded-xl transition hover:opacity-90 disabled:opacity-60" style={{ background: '#1F4D3A' }}>
+            <button onClick={closePanel} className="h-10 px-4 text-[13px] font-medium rounded-lg border transition" style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}>Cancel</button>
+            <button onClick={handleSave} disabled={saving} className="h-10 px-5 text-white text-[13px] font-semibold rounded-lg transition hover:opacity-90 disabled:opacity-60" style={{ background: '#1F4D3A' }}>
               {saving ? 'Saving…' : isEditing ? 'Save changes' : 'Add field'}
             </button>
           </>

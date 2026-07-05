@@ -139,7 +139,7 @@ export default async function AttendeeDetailPage({ params }: Props) {
           </div>
           <div className="flex items-center gap-2 shrink-0 flex-wrap">
             <Link href={`/events/${_ev.slug}/check-in`}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-medium transition-all hover:opacity-90"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-medium transition-all hover:opacity-90"
               style={{ background: '#1F4D3A', color: 'white' }}>
               <Scan size={14} /> Check in
             </Link>

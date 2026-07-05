@@ -19,13 +19,13 @@ export default function AppError({ error, reset }: { error: Error & { digest?: s
         <div className="mt-7 flex items-center justify-center gap-3">
           <button
             onClick={reset}
-            className="inline-flex items-center gap-2 h-10 px-5 rounded-xl grad-bg text-white font-medium text-[13.5px] hover:opacity-95 transition shadow-soft"
+            className="inline-flex items-center gap-2 h-10 px-5 rounded-lg grad-bg text-white font-medium text-[13.5px] hover:opacity-95 transition shadow-soft"
           >
             Try again
           </button>
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 h-10 px-5 rounded-xl border border-[#E5E0D4] text-[13.5px] font-medium hover:bg-white transition"
+            className="inline-flex items-center gap-2 h-10 px-5 rounded-lg border border-[#E5E0D4] text-[13.5px] font-medium hover:bg-white transition"
           >
             Dashboard
           </Link>

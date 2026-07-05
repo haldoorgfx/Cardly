@@ -202,7 +202,7 @@ function EditSponsorModal({
         </div>
 
         <div className="px-4 sm:px-6 pb-6 flex gap-3">
-          <button onClick={onClose} className="flex-1 h-10 rounded-xl text-[13px] border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
+          <button onClick={onClose} className="flex-1 h-10 rounded-lg text-[13px] border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
           <button onClick={handleSave} disabled={saving}
             className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white transition disabled:opacity-60"
             style={{ background: '#1F4D3A' }}>
@@ -255,7 +255,7 @@ function DeleteSponsorModal({
         </p>
         {error && <p className="text-[13px] mb-3 text-center" style={{ color: '#B8423C' }}>{error}</p>}
         <div className="flex gap-3">
-          <button onClick={onClose} className="flex-1 h-10 rounded-xl text-[13px] border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
+          <button onClick={onClose} className="flex-1 h-10 rounded-lg text-[13px] border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
           <button onClick={handleDelete} disabled={deleting}
             className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white transition disabled:opacity-60"
             style={{ background: '#B8423C' }}>
@@ -358,7 +358,7 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
             <p className="text-[14px] mt-1.5" style={{ color: '#6B7A72' }}>Manage packages, booths, and lead capture.</p>
           </div>
           <button onClick={() => setShowAdd(v => !v)}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13.5px] font-medium text-cream transition-colors"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-[13.5px] font-medium text-cream transition-colors"
             style={{ background: '#1F4D3A' }}>
             <svg width={15} height={15} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -532,7 +532,7 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
                     </button>
 
                     <button onClick={() => copyPortalLink(sponsor.invite_token)}
-                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12.5px] font-medium transition-colors border shrink-0"
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[12.5px] font-medium transition-colors border shrink-0"
                       style={{
                         borderColor: copied === sponsor.invite_token ? 'rgba(45,122,79,0.4)' : '#E5E0D4',
                         color: copied === sponsor.invite_token ? '#2D7A4F' : '#3A4A42',

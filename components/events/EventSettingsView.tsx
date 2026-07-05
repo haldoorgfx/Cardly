@@ -543,7 +543,7 @@ export function EventSettingsView({ event }: Props) {
             {deleteError && <p className="text-[12px] mb-3" style={{ color: '#B8423C' }}>{deleteError}</p>}
 
             <div className="flex gap-3">
-              <button onClick={() => setDeleteOpen(false)} className="flex-1 h-10 rounded-xl text-[13px] font-medium border transition" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
+              <button onClick={() => setDeleteOpen(false)} className="flex-1 h-10 rounded-lg text-[13px] font-medium border transition" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
                 Cancel
               </button>
               <button

@@ -83,7 +83,7 @@ export default function BillingActions({
           <button
             onClick={openPortal}
             disabled={isPending}
-            className="mt-4 inline-flex items-center gap-2 h-9 px-4 rounded-xl text-[13px] font-medium transition-colors disabled:opacity-50"
+            className="mt-4 inline-flex items-center gap-2 h-9 px-4 rounded-lg text-[13px] font-medium transition-colors disabled:opacity-50"
             style={{ background: '#fff', border: '1px solid #E5E0D4', color: '#0F1F18' }}
           >
             {isPending ? 'Loading…' : 'Manage billing →'}

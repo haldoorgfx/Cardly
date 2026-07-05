@@ -353,7 +353,7 @@ function ERAQandA({ page, dateStr }: { page: EventPageRow; dateStr: string }) {
         <button
           onClick={handleAsk}
           disabled={loading || !question.trim()}
-          className="inline-flex items-center gap-1.5 h-10 px-4 rounded-xl text-[13px] font-semibold text-white transition hover:opacity-90 disabled:opacity-50 shrink-0"
+          className="inline-flex items-center gap-1.5 h-10 px-4 rounded-lg text-[13px] font-semibold text-white transition hover:opacity-90 disabled:opacity-50 shrink-0"
           style={{ background: '#1F4D3A' }}
         >
           {loading ? (
@@ -1096,7 +1096,7 @@ export function PublicEventPageClient({
               <Users size={40} strokeWidth={1.4} style={{ color: '#C9C3B1', margin: '0 auto 16px' }} />
               <p className="text-[15px] mb-4" style={{ color: '#6B7A72' }}>No attendees yet — be the first!</p>
               <Link href={registerHref}
-                className="inline-flex items-center h-11 px-6 rounded-xl font-semibold text-[14px] transition hover:opacity-90"
+                className="inline-flex items-center h-11 px-6 rounded-lg font-semibold text-[14px] transition hover:opacity-90"
                 style={{ background: '#E8C57E', color: '#0F1F18', textDecoration: 'none' }}>
                 Register now
               </Link>
@@ -1121,19 +1121,19 @@ export function PublicEventPageClient({
           </div>
         </div>
         {registrationClosed ? (
-          <div className="inline-flex items-center h-11 px-6 rounded-xl font-semibold text-[14px]"
+          <div className="inline-flex items-center h-11 px-6 rounded-lg font-semibold text-[14px]"
             style={{ background: '#F5F0E8', color: '#6B7A72', border: '1px solid #E5E0D4' }}>
             Closed
           </div>
         ) : allSoldOut ? (
           <Link href={`/e/${registrationSlug}/waitlist`}
-            className="inline-flex items-center h-11 px-6 rounded-xl font-semibold text-[14px] transition hover:opacity-90"
+            className="inline-flex items-center h-11 px-6 rounded-lg font-semibold text-[14px] transition hover:opacity-90"
             style={{ background: '#E8C57E', color: '#0F1F18', textDecoration: 'none' }}>
             Join waitlist
           </Link>
         ) : (
           <Link href={registerHref}
-            className="inline-flex items-center h-11 px-6 rounded-xl font-semibold text-[14px] transition hover:opacity-90"
+            className="inline-flex items-center h-11 px-6 rounded-lg font-semibold text-[14px] transition hover:opacity-90"
             style={{ background: '#E8C57E', color: '#0F1F18', textDecoration: 'none' }}>
             Get tickets
           </Link>

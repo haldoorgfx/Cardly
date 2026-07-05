@@ -34,7 +34,7 @@ export function ClaimSponsorButton() {
       <button
         onClick={claim}
         disabled={state === 'loading'}
-        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-[13.5px] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
         style={{ background: '#1F4D3A' }}
       >
         {state === 'loading' ? (

@@ -145,11 +145,11 @@ export function MeetingsClient({ eventName }: Props) {
                 <div className=" text-[10.5px] tracking-[0.1em] uppercase mt-1" style={{ color: '#6B7A72' }}>{r.when}</div>
               </div>
               <div className="flex items-center gap-2 shrink-0">
-                <button onClick={() => dismiss(i)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12.5px] font-medium border transition-colors"
+                <button onClick={() => dismiss(i)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[12.5px] font-medium border transition-colors"
                   style={{ borderColor: '#E5E0D4', color: '#3A4A42', background: 'white' }}>
                   Approve
                 </button>
-                <button onClick={() => dismiss(i)} className="px-3 py-2 rounded-xl border text-[12.5px] font-medium transition-colors"
+                <button onClick={() => dismiss(i)} className="px-3 py-2 rounded-lg border text-[12.5px] font-medium transition-colors"
                   style={{ borderColor: 'rgba(184,66,60,0.3)', color: '#B8423C' }}>
                   Decline
                 </button>
@@ -205,7 +205,7 @@ export function MeetingsClient({ eventName }: Props) {
                 </div>
               </div>
             ))}
-            <button className="mt-4 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13.5px] font-medium text-cream" style={{ background: '#1F4D3A' }}>
+            <button className="mt-4 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-[13.5px] font-medium text-cream" style={{ background: '#1F4D3A' }}>
               Save settings
             </button>
           </div>

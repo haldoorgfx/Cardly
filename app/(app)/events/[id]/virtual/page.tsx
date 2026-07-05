@@ -66,11 +66,11 @@ export default async function VirtualPage({ params }: Props) {
               Configure your virtual event stream and session recordings.
             </p>
             <div className="flex items-center gap-3">
-              <button className="px-5 py-2.5 rounded-xl text-[13.5px] font-medium transition hover:opacity-90"
+              <button className="px-5 py-2.5 rounded-lg text-[13.5px] font-medium transition hover:opacity-90"
                 style={{ background: '#E8C57E', color: '#0F1F18' }}>
                 Go live
               </button>
-              <button className="px-5 py-2.5 rounded-xl text-[13.5px] font-medium border transition hover:border-[#E8C57E]/60"
+              <button className="px-5 py-2.5 rounded-lg text-[13.5px] font-medium border transition hover:border-[#E8C57E]/60"
                 style={{ border: '1px solid rgba(232,197,126,0.3)', color: '#E8C57E', background: 'transparent' }}>
                 Configure stream
               </button>

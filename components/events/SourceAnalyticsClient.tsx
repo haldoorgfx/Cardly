@@ -85,7 +85,7 @@ export function SourceAnalyticsClient({ eventName, publicSlug, sources, total }:
             Where your attendees are coming from — <span className="font-medium" style={{ color: '#0F1F18' }}>{eventName}</span>
           </p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium border transition hover:opacity-80"
+        <button className="flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium border transition hover:opacity-80"
           style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}>
           <Download size={14} /> Export CSV
         </button>

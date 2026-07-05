@@ -63,14 +63,14 @@ function ComposeModal({
       subtitle={`Send to all confirmed attendees of ${eventName}`}
       maxWidth={540}
       footer={sent ? (
-        <button onClick={onClose} className="h-10 px-5 rounded-xl text-[13px] font-semibold text-white" style={{ background: '#1F4D3A' }}>Done</button>
+        <button onClick={onClose} className="h-10 px-5 rounded-lg text-[13px] font-semibold text-white" style={{ background: '#1F4D3A' }}>Done</button>
       ) : (
         <>
-          <button onClick={onClose} className="h-10 px-4 rounded-xl text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
+          <button onClick={onClose} className="h-10 px-4 rounded-lg text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
           <button
             onClick={handleSend}
             disabled={sending || registrantCount === 0}
-            className="h-10 px-5 rounded-xl text-[13px] font-semibold text-white transition disabled:opacity-60 inline-flex items-center justify-center gap-1.5"
+            className="h-10 px-5 rounded-lg text-[13px] font-semibold text-white transition disabled:opacity-60 inline-flex items-center justify-center gap-1.5"
             style={{ background: '#1F4D3A' }}
           >
             {sending ? 'Sending…' : <><Send size={13} strokeWidth={2} /> Send to {registrantCount}</>}
@@ -172,12 +172,12 @@ function CampaignDraftModal({ draft, onClose }: { draft: string; onClose: () => 
         <div className="flex gap-2 px-6 pb-5">
           <button
             onClick={handleCopy}
-            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-xl text-[13px] font-semibold text-white transition hover:opacity-90"
+            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-semibold text-white transition hover:opacity-90"
             style={{ background: '#1F4D3A' }}
           >
             {copied ? <><Check size={13} strokeWidth={2} /> Copied!</> : <><Copy size={13} strokeWidth={2} /> Copy</>}
           </button>
-          <button onClick={onClose} className="h-9 px-4 rounded-xl text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
+          <button onClick={onClose} className="h-9 px-4 rounded-lg text-[13px] font-medium border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
             Close
           </button>
         </div>

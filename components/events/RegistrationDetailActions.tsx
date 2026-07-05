@@ -82,7 +82,7 @@ function EditAttendeeModal({
           </div>
         </div>
         <div className="px-4 sm:px-6 pb-6 flex gap-3">
-          <button onClick={onClose} className="flex-1 h-10 rounded-xl text-[13px] border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
+          <button onClick={onClose} className="flex-1 h-10 rounded-lg text-[13px] border" style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>Cancel</button>
           <button onClick={handleSave} disabled={saving}
             className="flex-1 h-10 rounded-xl text-[13px] font-semibold text-white disabled:opacity-60"
             style={{ background: '#1F4D3A' }}>
@@ -151,7 +151,7 @@ export function RegistrationDetailActions({
       <button
         onClick={() => setShowEdit(true)}
         disabled={loading}
-        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-medium border transition-all disabled:opacity-50"
+        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-medium border transition-all disabled:opacity-50"
         style={{ borderColor: '#E5E0D4', color: '#3A4A42', background: 'white' }}
       >
         <Pencil size={13} />
@@ -163,7 +163,7 @@ export function RegistrationDetailActions({
         <button
           onClick={() => changeStatus('confirmed')}
           disabled={loading}
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-semibold border transition-all disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-semibold border transition-all disabled:opacity-50"
           style={{ borderColor: 'rgba(31,77,58,0.35)', color: '#1F4D3A', background: '#E8EFEB' }}
         >
           Approve
@@ -175,7 +175,7 @@ export function RegistrationDetailActions({
         <button
           onClick={() => changeStatus('cancelled')}
           disabled={loading}
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-medium border transition-all disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-medium border transition-all disabled:opacity-50"
           style={{ borderColor: 'rgba(201,122,45,0.35)', color: '#C97A2D', background: 'rgba(201,122,45,0.06)' }}
         >
           Cancel registration
@@ -185,7 +185,7 @@ export function RegistrationDetailActions({
         <button
           onClick={() => changeStatus('refunded')}
           disabled={loading}
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-medium border transition-all disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-medium border transition-all disabled:opacity-50"
           style={{ borderColor: 'rgba(58,107,140,0.35)', color: '#3A6B8C', background: 'rgba(58,107,140,0.06)' }}
         >
           Mark refunded
@@ -195,7 +195,7 @@ export function RegistrationDetailActions({
         <button
           onClick={() => changeStatus('confirmed')}
           disabled={loading}
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-medium border transition-all disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-medium border transition-all disabled:opacity-50"
           style={{ borderColor: 'rgba(31,77,58,0.35)', color: '#1F4D3A', background: '#E8EFEB' }}
         >
           Restore

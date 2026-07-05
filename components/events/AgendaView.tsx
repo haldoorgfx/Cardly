@@ -154,7 +154,7 @@ export function AgendaView({ eventId, initialSessions, speakers, initialTracks, 
         </div>
         <button
           onClick={() => setAddOpen(true)}
-          className="inline-flex items-center gap-1.5 h-9 px-4 rounded-xl text-[13px] font-semibold text-white transition-all hover:opacity-90 shrink-0"
+          className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-semibold text-white transition-all hover:opacity-90 shrink-0"
           style={{ background: '#1F4D3A' }}>
           <Plus size={14} strokeWidth={2.5} />
           Add session
@@ -193,7 +193,7 @@ export function AgendaView({ eventId, initialSessions, speakers, initialTracks, 
           </p>
           <button
             onClick={() => setAddOpen(true)}
-            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-xl text-[13px] font-semibold text-white"
+            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-semibold text-white"
             style={{ background: '#1F4D3A' }}>
             <Plus size={14} strokeWidth={2.5} />
             Add first session

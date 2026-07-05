@@ -54,7 +54,7 @@ export function BadgesClient({ eventName, ticketTypes, regCount }: Props) {
           <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>Badge designer & bulk print · {eventName}</p>
         </div>
         <button onClick={bulkPrint} disabled={printing}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13.5px] font-medium text-cream transition-opacity"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-[13.5px] font-medium text-cream transition-opacity"
           style={{ background: '#1F4D3A', opacity: printing ? 0.7 : 1 }}>
           <svg width={15} height={15} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.75 18m10.56-4.171l-.405 4.172M19.5 9V6.75A2.25 2.25 0 0017.25 4.5H6.75A2.25 2.25 0 004.5 6.75V9m15 0H4.5m15 0v5.25A2.25 2.25 0 0117.25 21H6.75A2.25 2.25 0 014.5 18.75V9" />

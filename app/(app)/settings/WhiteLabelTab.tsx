@@ -106,7 +106,7 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
         </p>
         <a
           href="/settings/billing"
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-[14px] font-medium text-white"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-[14px] font-medium text-white"
           style={{ background: '#1F4D3A' }}
         >
           Upgrade to Studio →

@@ -134,7 +134,7 @@ export default function PersonalAgendaClient({ sessions: initialSessions, regist
 
                   {/* Card */}
                   <div
-                    className="flex-1 bg-white border rounded-xl p-4 mb-2"
+                    className="flex-1 bg-white border rounded-2xl p-4 mb-2"
                     style={{ borderColor: '#E5E0D4' }}
                   >
                     <div className="flex items-start justify-between gap-2">

@@ -45,3 +45,6 @@ test-*.png
 
 # QA test credentials (local only)
 .qa-creds.json
+
+# gstack reference toolkit — not part of the app, do not build/commit/deploy
+gstack-main/

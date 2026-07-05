@@ -227,7 +227,7 @@ export default function NewEventPage() {
             <button
               onClick={handleCreate}
               disabled={!canProceed || loading}
-              className="inline-flex items-center gap-2 h-11 px-7 rounded-xl font-display font-semibold text-[14px] text-white transition-all"
+              className="inline-flex items-center gap-2 h-11 px-7 rounded-lg font-display font-semibold text-[14px] text-white transition-all"
               style={{
                 background: canProceed && !loading ? '#1F4D3A' : '#E5E0D4',
                 color: canProceed && !loading ? 'white' : '#9BA8A1',

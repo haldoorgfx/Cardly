@@ -447,7 +447,7 @@ export default function TemplatesPage() {
           <div className="text-[10px] tracking-widest text-[#1F4D3A]/60 mb-2 uppercase">Coming soon</div>
           <div className="font-display font-bold text-[22px]">Submit your own template</div>
           <p className="text-[13.5px] text-[#0F1F18]/55 mt-2 max-w-[420px] mx-auto">Save any event design as a reusable template and share it with the community.</p>
-          <Link href="/pricing" className="mt-5 inline-flex items-center gap-2 text-[13px] font-semibold text-white px-6 py-3 rounded-xl hover:opacity-95 transition"
+          <Link href="/pricing" className="mt-5 inline-flex items-center gap-2 text-[13px] font-semibold text-white px-6 py-3 rounded-lg hover:opacity-95 transition"
             style={{ background:'linear-gradient(135deg,#1F4D3A,#E8C57E)' }}>
             See Studio plan →
           </Link>
