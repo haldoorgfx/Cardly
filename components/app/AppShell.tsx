@@ -870,12 +870,12 @@ function writeProfileCache(p: Profile) {
   try { sessionStorage.setItem('eventera_profile', JSON.stringify(p)); } catch {}
 }
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({ children, initialSections }: { children: React.ReactNode; initialSections?: VisibleSections }) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
   const [profile, setProfile] = useState<Profile | null>(() => readProfileCache());
-  const [sections, setSections] = useState<VisibleSections>(EMPTY_SECTIONS);
+  const [sections, setSections] = useState<VisibleSections>(initialSections ?? EMPTY_SECTIONS);
   const [eventCount, setEventCount] = useState(0);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
