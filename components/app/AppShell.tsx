@@ -12,7 +12,7 @@ import {
   ScrollText, Sliders,
   Home, Layout, CalendarDays, MessageSquare, Bell,
   Ticket, ScanLine, User, Network, Trophy, Briefcase, Video, Palette,
-  UserCircle, HelpCircle, Zap, ShoppingCart, Handshake, Clock, IdCard,
+  UserCircle, HelpCircle, Zap, ShoppingCart, Handshake, Clock, IdCard, Heart,
   Tag, Plug, Globe, Download, Link2, Code2, UserCog, Share2, Images, Monitor,
   RefreshCw, Megaphone, Bot, MessageCircle,
 } from 'lucide-react';
@@ -169,6 +169,8 @@ const EVENT_STATUS_BADGE: Record<string, { cls: string; dot: string; label: stri
 const ROLE_NAV_ITEMS: { href: string; label: string; icon: React.ReactNode; flag: keyof VisibleSections | 'always' }[] = [
   { href: '/home',       label: 'Home',        icon: <Home size={15} strokeWidth={1.8} />,     flag: 'always' },
   { href: '/my-tickets', label: 'My tickets',  icon: <Ticket size={15} strokeWidth={1.8} />,   flag: 'tickets' },
+  { href: '/my-cards',   label: 'My cards',    icon: <IdCard size={15} strokeWidth={1.8} />,   flag: 'tickets' },
+  { href: '/saved',      label: 'Saved',       icon: <Heart size={15} strokeWidth={1.8} />,    flag: 'always' },
   { href: '/speaking',   label: 'Speaking',    icon: <User size={15} strokeWidth={1.8} />,     flag: 'speaking' },
   { href: '/sponsoring', label: 'Sponsoring',  icon: <Briefcase size={15} strokeWidth={1.8} />, flag: 'sponsoring' },
   { href: '/dashboard',  label: 'Organizing',  icon: <LayoutGrid size={15} strokeWidth={1.8} />, flag: 'organizing' },
@@ -782,6 +784,15 @@ function getPageBreadcrumbs(pathname: string, eventName: string | null): { label
   if (pathname.startsWith('/settings'))                  return [{ label: 'Settings' }];
   if (pathname.startsWith('/admin'))                     return [{ label: 'Admin' }];
   if (pathname === '/events/new')                        return [{ label: 'New Event' }];
+  if (pathname === '/my-tickets')                        return [{ label: 'My tickets' }];
+  if (pathname.startsWith('/my-tickets/'))               return [{ label: 'My tickets', href: '/my-tickets' }, { label: 'Transfer' }];
+  if (pathname === '/my-cards')                          return [{ label: 'My cards' }];
+  if (pathname === '/saved')                             return [{ label: 'Saved & following' }];
+  if (pathname.startsWith('/attending/'))                return [{ label: 'My tickets', href: '/my-tickets' }, { label: 'Event tools' }];
+  if (pathname === '/speaking')                          return [{ label: 'Speaking' }];
+  if (pathname.startsWith('/speaking/'))                 return [{ label: 'Speaking', href: '/speaking' }, { label: 'Workspace' }];
+  if (pathname === '/sponsoring')                        return [{ label: 'Sponsoring' }];
+  if (pathname.startsWith('/sponsoring/'))               return [{ label: 'Sponsoring', href: '/sponsoring' }, { label: 'Workspace' }];
 
   const m = pathname.match(/^\/events\/([^/]+)(?:\/(.+))?$/);
   if (m) {
