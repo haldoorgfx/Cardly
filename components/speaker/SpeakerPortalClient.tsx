@@ -52,6 +52,9 @@ interface Props {
   event: EventInfo;
   sessions: Session[];
   resources: Resource[];
+  /** When true (dashboard /speaking route), the standalone portal header and
+   *  full-page background are suppressed — the AppShell provides the chrome. */
+  embedded?: boolean;
 }
 
 type Tab = 'home' | 'profile' | 'sessions' | 'card' | 'resources';
@@ -788,7 +791,7 @@ function ResourcesTab({ resources }: { resources: Resource[] }) {
 }
 
 /* ── Main Component ────────────────────────────────────────────────── */
-export function SpeakerPortalClient({ speaker: initialSpeaker, event, sessions, resources }: Props) {
+export function SpeakerPortalClient({ speaker: initialSpeaker, event, sessions, resources, embedded = false }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>('home');
   const [speaker, setSpeaker] = useState(initialSpeaker);
 
@@ -797,8 +800,9 @@ export function SpeakerPortalClient({ speaker: initialSpeaker, event, sessions, 
   }
 
   return (
-    <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
-      {/* Top nav */}
+    <div style={embedded ? undefined : { background: '#FAF6EE', minHeight: '100vh' }}>
+      {/* Top nav — hidden in the dashboard, where AppShell is the chrome */}
+      {!embedded && (
       <header style={{ background: '#fff', borderBottom: '1px solid #E5E0D4', position: 'sticky', top: 0, zIndex: 40 }}>
         <div className="max-w-[960px] mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
           <div className="flex items-center gap-2">
@@ -818,6 +822,7 @@ export function SpeakerPortalClient({ speaker: initialSpeaker, event, sessions, 
           </div>
         </div>
       </header>
+      )}
 
       {/* Tab nav */}
       <div style={{ background: '#fff', borderBottom: '1px solid #E5E0D4' }}>

@@ -298,10 +298,10 @@ export default async function SpeakingPage() {
                     </div>
                   </div>
                   {group.speakerId && (
-                    <Link href={`/s/${group.eventSlug}/${group.speakerId}`}
+                    <Link href={`/speaking/${group.speakerId}`}
                       className="shrink-0 inline-flex items-center gap-1.5 text-[12.5px] font-medium transition hover:text-[#163828]"
                       style={{ color: '#1F4D3A' }}>
-                      Speaker profile
+                      Speaker workspace
                       <ArrowRight size={13} strokeWidth={2} />
                     </Link>
                   )}
