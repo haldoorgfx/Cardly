@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -54,6 +55,15 @@ export async function POST(req: Request, { params }: Params) {
   }).select().single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Write-path parity (migration 055): if the invited email belongs to an
+  // account, record the staff role so the unified dashboard resolver sees it.
+  // Best-effort — never blocks the invite.
+  const staffAccountId = await resolveAccountIdByEmail(email);
+  if (staffAccountId) {
+    await upsertEventRole({ userId: staffAccountId, eventId: id, role: 'staff' });
+  }
+
   return NextResponse.json(data, { status: 201 });
 }
 
@@ -74,7 +84,36 @@ export async function PATCH(req: Request, { params }: Params) {
   const db = admin as any;
 
   if (action === 'remove') {
+    const { data: removedRow } = await db
+      .from('event_staff')
+      .select('email')
+      .eq('id', staffId)
+      .eq('event_id', id)
+      .maybeSingle();
     await db.from('event_staff').update({ status: 'removed' }).eq('id', staffId).eq('event_id', id);
+
+    // Write-path parity: revoke the mirrored staff role if the email maps to an
+    // account and no OTHER active staff assignment remains for this event.
+    if (removedRow?.email) {
+      const accountId = await resolveAccountIdByEmail(removedRow.email as string);
+      if (accountId) {
+        const { data: remaining } = await db
+          .from('event_staff')
+          .select('id')
+          .eq('event_id', id)
+          .eq('email', (removedRow.email as string).toLowerCase())
+          .neq('status', 'removed')
+          .limit(1);
+        if (!remaining || remaining.length === 0) {
+          await db
+            .from('user_event_roles')
+            .update({ status: 'revoked' })
+            .eq('user_id', accountId)
+            .eq('event_id', id)
+            .eq('role', 'staff');
+        }
+      }
+    }
     return NextResponse.json({ ok: true });
   }
   if (action === 'update_role' && role) {
