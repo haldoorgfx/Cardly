@@ -5,6 +5,7 @@ import { createTicketPaymentIntent } from '@/lib/payments/stripe';
 import { initFlutterwavePayment, isFlutterwaveCurrency, type FlutterwaveCurrency } from '@/lib/payments/flutterwave';
 import { isWaafiPayCurrency } from '@/lib/payments/waafipay';
 import { splitTicketAmount, type FeeBearer } from '@/lib/billing/fees';
+import { onRegistrationConfirmed } from '@/lib/integrations/dispatch';
 import type { Plan } from '@/lib/billing/plans';
 import { createNotification } from '@/lib/notifications';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
@@ -492,6 +493,22 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       ?? (await resolveAccountIdByEmail(registration.attendee_email));
     if (attendeeAccountId) {
       await upsertEventRole({ userId: attendeeAccountId, eventId: params.id, role: 'attendee' });
+    }
+
+    // Fire the organizer's connected integrations (Slack/Sheets/CRM/etc).
+    // Non-blocking — never affects the registration response.
+    if (evRow.user_id) {
+      void onRegistrationConfirmed(evRow.user_id, {
+        eventName: eventPage.title,
+        eventSlug,
+        attendeeName: registration.attendee_name,
+        attendeeEmail: registration.attendee_email,
+        attendeePhone: registration.attendee_phone ?? null,
+        ticketType: ticket.name,
+        amountPaid: 0,
+        currency: ticket.currency ?? null,
+        registeredAt: new Date().toISOString(),
+      });
     }
   }
 

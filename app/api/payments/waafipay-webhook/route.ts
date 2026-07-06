@@ -3,6 +3,7 @@ import { verifyWaafiPayWebhook } from '@/lib/payments/waafipay';
 import { createAdminClient } from '@/lib/supabase/server';
 import { sendRegistrationConfirmEmail } from '@/lib/registration/email';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
+import { onRegistrationConfirmed } from '@/lib/integrations/dispatch';
 
 // WaafiPay async callback — handles post-payment confirmations and reversals.
 export async function POST(req: NextRequest) {
@@ -79,7 +80,20 @@ export async function POST(req: NextRequest) {
       ]);
       if (eventPage) {
         const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
-        const { data: event } = await admin.from('events').select('slug').eq('id', updated.event_id).single();
+        const { data: event } = await admin.from('events').select('slug, user_id').eq('id', updated.event_id).single();
+        if (event?.user_id) {
+          void onRegistrationConfirmed(event.user_id, {
+            eventName: eventPage.title,
+            eventSlug: event.slug ?? updated.event_id,
+            attendeeName: updated.attendee_name,
+            attendeeEmail: updated.attendee_email,
+            attendeePhone: null,
+            ticketType: ticket?.name ?? null,
+            amountPaid: paidAmount ?? null,
+            currency: paidCurrency ?? null,
+            registeredAt: new Date().toISOString(),
+          });
+        }
         sendRegistrationConfirmEmail({
           to: updated.attendee_email,
           attendeeName: updated.attendee_name,

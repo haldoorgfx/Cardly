@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { sendRegistrationConfirmEmail } from '@/lib/registration/email';
 import { createNotification } from '@/lib/notifications';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
+import { onRegistrationConfirmed } from '@/lib/integrations/dispatch';
 
 export const runtime = 'nodejs';
 
@@ -37,7 +38,7 @@ export async function POST(req: NextRequest) {
         })
         .eq('stripe_payment_intent_id', pi.id)
         .eq('payment_status', 'pending') // idempotent guard
-        .select('attendee_name, attendee_email, qr_code_token, ticket_type_id, user_id, event_id, ticket_types(name), events!inner(slug, event_pages(title, starts_at, venue_name, is_online))')
+        .select('attendee_name, attendee_email, attendee_phone, qr_code_token, ticket_type_id, user_id, event_id, ticket_types(name), events!inner(slug, user_id, event_pages(title, starts_at, venue_name, is_online))')
         .maybeSingle();
       if (error) console.error('[Stripe webhook] update failed:', error.message);
       if (updated) {
@@ -47,6 +48,19 @@ export async function POST(req: NextRequest) {
           await admin.rpc('increment_ticket_quantity_sold', { ticket_id: updated.ticket_type_id, qty: 1 });
         }
         const ep = updated.events?.event_pages?.[0];
+        if (updated.events?.user_id) {
+          void onRegistrationConfirmed(updated.events.user_id, {
+            eventName: ep?.title ?? '',
+            eventSlug: updated.events?.slug ?? '',
+            attendeeName: updated.attendee_name,
+            attendeeEmail: updated.attendee_email,
+            attendeePhone: updated.attendee_phone ?? null,
+            ticketType: updated.ticket_types?.name ?? null,
+            amountPaid: typeof pi.amount === 'number' ? pi.amount / 100 : null,
+            currency: pi.currency ? pi.currency.toUpperCase() : null,
+            registeredAt: new Date().toISOString(),
+          });
+        }
         sendRegistrationConfirmEmail({
           to: updated.attendee_email,
           attendeeName: updated.attendee_name,

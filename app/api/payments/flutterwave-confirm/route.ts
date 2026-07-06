@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { sendRegistrationConfirmEmail } from '@/lib/registration/email';
 import { createNotification } from '@/lib/notifications';
 import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
+import { onRegistrationConfirmed } from '@/lib/integrations/dispatch';
 
 // Called by the confirm page on Flutterwave redirect return.
 // tx_ref = qr_code_token. Verifies the transaction and marks registration paid.
@@ -60,7 +61,20 @@ export async function POST(req: NextRequest) {
         ]);
         if (eventPage) {
           const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
-          const { data: event } = await admin.from('events').select('slug').eq('id', updated.event_id).single();
+          const { data: event } = await admin.from('events').select('slug, user_id').eq('id', updated.event_id).single();
+          if (event?.user_id) {
+            void onRegistrationConfirmed(event.user_id, {
+              eventName: eventPage.title,
+              eventSlug: event.slug ?? updated.event_id,
+              attendeeName: updated.attendee_name,
+              attendeeEmail: updated.attendee_email,
+              attendeePhone: null,
+              ticketType: ticket?.name ?? null,
+              amountPaid: amount ?? null,
+              currency: currency ?? null,
+              registeredAt: new Date().toISOString(),
+            });
+          }
           sendRegistrationConfirmEmail({
             to: updated.attendee_email,
             attendeeName: updated.attendee_name,
