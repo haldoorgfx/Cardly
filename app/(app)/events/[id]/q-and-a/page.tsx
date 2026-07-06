@@ -40,7 +40,7 @@ export default async function QAModerationPage({ params }: Props) {
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="px-4 sm:px-6 py-6">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-6">
         <div className="mb-5">
           <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.015em' }}>Q&amp;A Moderation</h1>
           <p className="text-[13px] mt-1" style={{ color: '#6B7A72' }}>Feature, answer, or hide questions in real time.</p>

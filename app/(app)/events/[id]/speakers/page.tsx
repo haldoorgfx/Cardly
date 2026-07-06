@@ -29,7 +29,7 @@ export default async function SpeakersPage({ params }: Props) {
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         <SpeakersManager eventId={id} slug={event.slug} initialSpeakers={(speakers ?? []) as any} />
       </div>
