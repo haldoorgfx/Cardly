@@ -77,7 +77,7 @@ export default async function MyTicketsPage() {
   }
 
   return (
-    <PageShell>
+    <PageShell width="wide">
       <PageHeader
         title="Tickets"
         subtitle={<>
@@ -97,7 +97,7 @@ export default async function MyTicketsPage() {
             </span>
             <h2 className="font-display font-medium text-[18px]" style={{ color: '#0F1F18' }}>Speaking</h2>
           </div>
-          <div className="grid sm:grid-cols-2 gap-3">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {speaking.map(s => (
               <Link key={s.id} href="/speaking"
                 className="group bg-white rounded-2xl border p-4 flex items-center gap-3 transition-colors hover:border-[#1F4D3A]/40"
@@ -125,7 +125,7 @@ export default async function MyTicketsPage() {
             </span>
             <h2 className="font-display font-medium text-[18px]" style={{ color: '#0F1F18' }}>Your booths</h2>
           </div>
-          <div className="grid sm:grid-cols-2 gap-3">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {booths.map(b => (
               <Link key={b.id} href="/sponsoring"
                 className="group bg-white rounded-2xl border p-4 flex items-center gap-3 transition-colors hover:border-[#1F4D3A]/40"
