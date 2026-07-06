@@ -10,7 +10,7 @@ interface Props {
   logoUrl?: string | null;
   eventName: string;
   eventSlug: string;
-  activeTab: 'overview' | 'leads' | 'booth' | 'resources' | 'team';
+  activeTab: 'overview' | 'leads' | 'booth' | 'products' | 'meetings' | 'resources' | 'team';
   /** Additive: when the visitor is a logged-in sponsor for this event, show a
    *  small "Back to your dashboard" link. Absent/false for anonymous token
    *  visitors — the token experience is otherwise unchanged. */
@@ -25,7 +25,9 @@ interface Props {
 const TABS = [
   { id: 'overview',   label: 'Overview' },
   { id: 'leads',      label: 'Leads' },
+  { id: 'meetings',   label: 'Meetings' },
   { id: 'booth',      label: 'Booth profile' },
+  { id: 'products',   label: 'Products' },
   { id: 'resources',  label: 'Resources' },
   { id: 'team',       label: 'Team' },
 ] as const;

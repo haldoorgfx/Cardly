@@ -7,7 +7,8 @@
  *   arrival   → E0 – Intro with card preview + CTA
  *   details   → E1 – Form with live preview
  *   crop      → E1.5 – Photo crop modal (rendered on top of details)
- *   preview   → E2 – Generated card preview + download
+ *   reveal    → E2 – Card reveal moment (confetti + gold-glow stage, real PNG)
+ *   preview   → E2b – Generated card preview + download (legacy, still reachable)
  *   success   → E3 – Success + viral share
  */
 
@@ -19,6 +20,7 @@ import type { Area } from 'react-easy-crop';
 import ArrivalScreen       from './components/ArrivalScreen';
 import DetailsFormScreen   from './components/DetailsFormScreen';
 import PhotoCropModal      from './components/PhotoCropModal';
+import RevealScreen        from './components/RevealScreen';
 import PreviewDownloadScreen from './components/PreviewDownloadScreen';
 import SuccessShareScreen  from './components/SuccessShareScreen';
 
@@ -32,7 +34,7 @@ export interface AttendeeFlowProps {
   zones: Zone[];
 }
 
-type Screen = 'arrival' | 'details' | 'preview' | 'success';
+type Screen = 'arrival' | 'details' | 'reveal' | 'preview' | 'success';
 
 export interface CropTarget {
   zoneId: string;
@@ -184,7 +186,8 @@ export default function AttendeeFlow({
       const returnedCardId = res.headers.get('X-Card-Id');
       if (returnedCardId) setCardId(returnedCardId);
       setResultUrl(URL.createObjectURL(blob));
-      setScreen('preview');
+      // Land on the celebratory reveal moment first.
+      setScreen('reveal');
     } catch (e: unknown) {
       setGenerateError(e instanceof Error ? e.message : 'Something went wrong.');
     } finally {
@@ -194,7 +197,8 @@ export default function AttendeeFlow({
   }, [variantId, values, photoFiles, idempotencyKey]);
 
   /* ── Download card ────────────────────────────────────────────────────── */
-  const handleDownload = useCallback(() => {
+  // Core download: trigger the browser save of the REAL rendered PNG + track.
+  const downloadPng = useCallback(() => {
     if (!resultUrl) return;
     const a = document.createElement('a');
     a.href     = resultUrl;
@@ -204,8 +208,13 @@ export default function AttendeeFlow({
     import('@/components/shared/PostHogProvider').then(({ track }) => {
       track('card_downloaded', { event_name: eventName });
     });
-    setTimeout(() => setScreen('success'), 400);
   }, [resultUrl, eventName]);
+
+  // Preview-screen download: save, then advance to the success/share screen.
+  const handleDownload = useCallback(() => {
+    downloadPng();
+    setTimeout(() => setScreen('success'), 400);
+  }, [downloadPng]);
 
   /* ── Render ───────────────────────────────────────────────────────────── */
 
@@ -264,6 +273,18 @@ export default function AttendeeFlow({
     </>
   );
 
+  if (screen === 'reveal' && resultUrl) return (
+    <RevealScreen
+      eventName={eventName}
+      backgroundWidth={backgroundWidth}
+      backgroundHeight={backgroundHeight}
+      resultUrl={resultUrl}
+      onDownload={downloadPng}
+      onEnter={() => setScreen('success')}
+      onEdit={() => { setIdempotencyKey(crypto.randomUUID()); setCardId(null); setScreen('details'); }}
+    />
+  );
+
   if (screen === 'preview' && resultUrl) return (
     <PreviewDownloadScreen
       eventName={eventName}
@@ -282,7 +303,7 @@ export default function AttendeeFlow({
       backgroundWidth={backgroundWidth}
       backgroundHeight={backgroundHeight}
       resultUrl={resultUrl}
-      onBack={() => setScreen('preview')}
+      onBack={() => setScreen('reveal')}
     />
   );
 

@@ -24,6 +24,11 @@ import 'event_page_model.dart';
 import 'session_detail_screen.dart';
 import 'speaker_detail_screen.dart';
 import 'sponsor_detail_screen.dart';
+import '../../rbac/role_service.dart';
+import '../../roles/role_widgets.dart';
+import '../../roles/sponsor/sponsor_tools_screen.dart';
+import '../../roles/speaker/speaker_tools_screen.dart';
+import '../../roles/staff/event_control_screen.dart';
 
 /// The public event page hub — mirrors app/(public)/e/[slug]/page.tsx.
 ///
@@ -60,6 +65,11 @@ class _EventHubScreenState extends State<EventHubScreen> {
   final List<SponsorSummary> _sponsors = [];
   final List<AttendeeAvatar> _attendees = [];
   String? _regId;
+  bool _isSponsor = false;
+  bool _isSpeaker = false;
+  bool _isExhibitor = false;
+  bool _isStaff = false;
+  bool _isOrganizer = false;
 
   bool _saved = false;
   bool _following = false;
@@ -107,6 +117,7 @@ class _EventHubScreenState extends State<EventHubScreen> {
           _loadSpeakers(eventId),
           _loadSponsors(eventId),
           _loadAttendees(eventId),
+          _loadMyRoles(eventId),
         ]);
       }
 
@@ -568,10 +579,35 @@ class _EventHubScreenState extends State<EventHubScreen> {
                     eventId: id, registrationId: _regId)),
             _moreRow(Icons.description_outlined, 'Call for papers',
                 () => CfpScreen(eventId: id, slug: widget.slug)),
+            if (_isSponsor)
+              _moreRow(Icons.workspace_premium_outlined, 'Booth tools',
+                  () => SponsorToolsScreen(eventId: id, eventName: _page?.title ?? 'Event')),
+            if (_isSpeaker)
+              _moreRow(Icons.mic_none, 'Speaker tools',
+                  () => SpeakerToolsScreen(eventId: id, eventName: _page?.title ?? 'Event')),
+            if (_isOrganizer || _isStaff)
+              _moreRow(Icons.verified_user_outlined,
+                  _isOrganizer ? 'Manage check-in' : 'Check-in access',
+                  () => EventControlScreen(
+                      eventId: id,
+                      eventName: _page?.title ?? 'Event',
+                      isOwner: _isOrganizer)),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _loadMyRoles(String eventId) async {
+    try {
+      final roles = await const RoleService().loadRoles();
+      _isSponsor = roles.eventIdsByRole['sponsor']?.contains(eventId) ?? false;
+      _isSpeaker = roles.eventIdsByRole['speaker']?.contains(eventId) ?? false;
+      _isExhibitor = roles.eventIdsByRole['exhibitor']?.contains(eventId) ?? false;
+      _isStaff = roles.eventIdsByRole['staff']?.contains(eventId) ?? false;
+      _isOrganizer = roles.eventIdsByRole['organizer']?.contains(eventId) ?? false;
+      if (mounted) setState(() {});
+    } catch (_) {}
   }
 
   Widget _moreRow(IconData icon, String label, Widget Function() build) {
@@ -635,6 +671,7 @@ class _EventHubScreenState extends State<EventHubScreen> {
                   onBack: () => Navigator.of(context).maybePop(),
                   onSave: _handleSave,
                   onShare: _handleShare,
+                  rolePills: _rolePills(),
                 )
               else
                 SliverAppBar(
@@ -745,6 +782,11 @@ class _EventHubScreenState extends State<EventHubScreen> {
       ));
     }
 
+    // Your role tools — the signature "role unlocks a section on the card"
+    // moment. A forest ToolCard appears here for each role the account holds at
+    // this event, sitting high in the overview (above About) per the mocks.
+    _appendRoleTools(w, page);
+
     // About (with read more)
     if (page.featureOn('about') && (page.description ?? '').isNotEmpty) {
       w.add(const SizedBox(height: 22));
@@ -817,6 +859,71 @@ class _EventHubScreenState extends State<EventHubScreen> {
     ));
 
     return w;
+  }
+
+  /// True when the account holds any role at this event that unlocks tools.
+  bool get _hasAnyRole =>
+      _isSpeaker || _isSponsor || _isExhibitor || _isOrganizer || _isStaff;
+
+  /// Gold role pills for the hero cover — one per held role at this event.
+  List<Widget> _rolePills() {
+    final pills = <Widget>[];
+    if (_isSpeaker) pills.add(const RolePill(icon: Icons.mic_none, label: 'Speaker'));
+    if (_isSponsor) {
+      pills.add(const RolePill(
+          icon: Icons.workspace_premium_outlined, label: 'Sponsor'));
+    }
+    if (_isExhibitor && !_isSponsor) {
+      pills.add(const RolePill(icon: Icons.storefront_outlined, label: 'Exhibitor'));
+    }
+    if (_isOrganizer) {
+      pills.add(const RolePill(icon: Icons.verified_user_outlined, label: 'Organizer'));
+    } else if (_isStaff) {
+      pills.add(const RolePill(icon: Icons.badge_outlined, label: 'Staff'));
+    }
+    return pills;
+  }
+
+  /// Appends a "Your role" section + one ToolCard per held role to the overview.
+  void _appendRoleTools(List<Widget> w, EventPageModel page) {
+    if (!_hasAnyRole) return;
+    final id = page.eventId;
+    if (id == null || id.isEmpty) return;
+    final name = page.title;
+
+    w.add(const SizedBox(height: 22));
+    w.add(const SectionLabel('Your role'));
+    w.add(const SizedBox(height: 12));
+
+    void card(IconData icon, String title, String summary, Widget Function() build) {
+      w.add(Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: ToolCard(
+          icon: icon,
+          title: title,
+          summary: summary,
+          onTap: () => _push(build()),
+        ),
+      ));
+    }
+
+    if (_isSpeaker) {
+      card(Icons.mic_none, 'Speaker tools', 'Your sessions · profile · audience Q&A',
+          () => SpeakerToolsScreen(eventId: id, eventName: name));
+    }
+    if (_isSponsor || _isExhibitor) {
+      card(Icons.workspace_premium_outlined,
+          _isExhibitor && !_isSponsor ? 'Exhibitor tools' : 'Booth tools',
+          'Lead scanner · my booth · my leads',
+          () => SponsorToolsScreen(eventId: id, eventName: name));
+    }
+    if (_isOrganizer || _isStaff) {
+      card(Icons.verified_user_outlined,
+          _isOrganizer ? 'Manage check-in' : 'Check-in access',
+          'Scan QR codes · attendee list · live numbers',
+          () => EventControlScreen(
+              eventId: id, eventName: name, isOwner: _isOrganizer));
+    }
   }
 
   void _jumpTo(_Section target) {
@@ -996,12 +1103,14 @@ class _HeroSliver extends StatelessWidget {
   final VoidCallback onBack;
   final VoidCallback onSave;
   final VoidCallback onShare;
+  final List<Widget> rolePills;
   const _HeroSliver({
     required this.page,
     required this.saved,
     required this.onBack,
     required this.onSave,
     required this.onShare,
+    this.rolePills = const [],
   });
 
   @override
@@ -1054,7 +1163,10 @@ class _HeroSliver extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if ((page.category ?? '').isNotEmpty) ...[
+                  if (rolePills.isNotEmpty) ...[
+                    Wrap(spacing: 6, runSpacing: 6, children: rolePills),
+                    const SizedBox(height: 10),
+                  ] else if ((page.category ?? '').isNotEmpty) ...[
                     Tag(page.category!, kind: TagKind.gold),
                     const SizedBox(height: 10),
                   ],

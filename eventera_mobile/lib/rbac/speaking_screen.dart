@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 import '../attendee/event_landing_screen.dart';
 import '../attendee/hub/session_detail_screen.dart';
 import '../net.dart';
+import '../roles/role_widgets.dart';
+import '../roles/speaker/speaker_tools_screen.dart';
 import '../ui/components.dart';
 import '../ui/tokens.dart';
+import 'speaker_profile_edit_screen.dart';
 
 /// "Speaking" — the events where the signed-in account holds an ACTIVE
 /// `speaker` role (resolved from `user_event_roles`, passed in as [eventIds]).
@@ -13,7 +16,8 @@ import '../ui/tokens.dart';
 /// the signed-in email against `speakers.email` (migration 039) — then load the
 /// published `sessions` those speaker rows are on (via `session_speakers`),
 /// showing title, time and room. The speaker can open a session to see full
-/// details, or open the public event page.
+/// details, open the public event page, edit their speaker profile, or open the
+/// speaker tools ([SpeakerToolsScreen]: green room + per-session live Q&A).
 ///
 /// All reads go through the anon client. `speakers`, `session_speakers` and
 /// published `sessions` are public-readable under RLS, so this needs no special
@@ -107,7 +111,13 @@ class _SpeakingScreenState extends State<SpeakingScreen> {
       for (final s in (speakerRows as List).whereType<Map>()) {
         final sid = asString(s['id']);
         final eid = asString(s['event_id']);
-        if (sid.isNotEmpty && eid.isNotEmpty) speakerToEvent[sid] = eid;
+        if (sid.isNotEmpty && eid.isNotEmpty) {
+          speakerToEvent[sid] = eid;
+          // Remember this account's speaker row for the event (first one wins)
+          // so the profile-edit entry can target the right row.
+          final ev = byId[eid];
+          if (ev != null && ev.speakerId.isEmpty) ev.speakerId = sid;
+        }
       }
       if (speakerToEvent.isEmpty) return;
 
@@ -179,6 +189,8 @@ class _SpeakingScreenState extends State<SpeakingScreen> {
                       event: _events[i],
                       onOpenEvent: () => _openEvent(_events[i]),
                       onOpenSession: (s) => _openSession(_events[i], s),
+                      onOpenTools: () => _openTools(_events[i]),
+                      onEditProfile: () => _editProfile(_events[i]),
                     ),
                   ),
       ),
@@ -200,6 +212,41 @@ class _SpeakingScreenState extends State<SpeakingScreen> {
       ),
     );
   }
+
+  /// Opens the speaker tools (green room + per-session live Q&A).
+  /// [SpeakerToolsScreen] resolves the account's sessions itself, so we only
+  /// pass the event id + name. Wrapped so a nav failure never crashes the tab.
+  void _openTools(_SpeakingEvent e) {
+    try {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) =>
+              SpeakerToolsScreen(eventId: e.id, eventName: e.name),
+        ),
+      );
+    } catch (_) {
+      showToast(context, 'Could not open speaker tools.');
+    }
+  }
+
+  /// Opens the speaker profile editor for this event. Passes the resolved
+  /// speaker id when known so the editor skips the lookup; the editor also
+  /// resolves by email as a fallback.
+  void _editProfile(_SpeakingEvent e) {
+    try {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => SpeakerProfileEditScreen(
+            eventId: e.id,
+            eventName: e.name,
+            speakerId: e.speakerId.isEmpty ? null : e.speakerId,
+          ),
+        ),
+      );
+    } catch (_) {
+      showToast(context, 'Could not open your speaker profile.');
+    }
+  }
 }
 
 class _SpeakingEvent {
@@ -210,6 +257,10 @@ class _SpeakingEvent {
   final String location;
   final String coverUrl;
   final List<_SpeakerSession> sessions = [];
+  // The account's speaker row id at this event, resolved by email in
+  // _attachSessions. Empty until resolved (or if no match). Used to target the
+  // speaker profile edit at the correct row.
+  String speakerId = '';
   _SpeakingEvent({
     required this.id,
     required this.name,
@@ -277,10 +328,14 @@ class _EventBlock extends StatelessWidget {
   final _SpeakingEvent event;
   final VoidCallback onOpenEvent;
   final ValueChanged<_SpeakerSession> onOpenSession;
+  final VoidCallback onOpenTools;
+  final VoidCallback onEditProfile;
   const _EventBlock({
     required this.event,
     required this.onOpenEvent,
     required this.onOpenSession,
+    required this.onOpenTools,
+    required this.onEditProfile,
   });
 
   @override
@@ -370,6 +425,21 @@ class _EventBlock extends StatelessWidget {
             _SessionRow(session: s, onTap: () => onOpenSession(s)),
             const SizedBox(height: 8),
           ],
+        // ── Speaker tools + profile ───────────────────────────────────────
+        const SizedBox(height: 6),
+        ToolCard(
+          icon: Icons.mic_none,
+          title: 'Speaker tools',
+          summary: 'Green room · logistics · live audience Q&A',
+          onTap: onOpenTools,
+        ),
+        const SizedBox(height: 8),
+        ToolCard(
+          icon: Icons.person_outline,
+          title: 'Edit speaker profile',
+          summary: 'Name, title, company, bio and links',
+          onTap: onEditProfile,
+        ),
       ],
     );
   }

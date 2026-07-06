@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="design_doc_mode" content="canvas">
+<title>Eventera · Organize side</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="mobile.css">
+<style>
+  body{ font-family:var(--body); }
+  .screen.cam{ background:#0A0F0C; }
+  .canvas-h{ position:absolute; font-family:var(--display); font-weight:700; letter-spacing:-0.02em; color:var(--forest); }
+  .canvas-h .big{ font-size:30px; display:block; }
+  .canvas-h .lead{ font-family:var(--body); font-weight:400; font-size:15px; color:var(--ink-muted); margin-top:6px; max-width:560px; line-height:1.5; }
+  .canvas-h .kicker{ font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold-hover); margin-bottom:8px; }
+
+  /* ---- Organize bottom nav — Events · Scan(center) · Attendees · Stats · Profile ---- */
+  .onav{ flex:none; height:82px; background:var(--cream-surface); border-top:1px solid var(--cream-border);
+    display:flex; padding:8px 6px 22px; box-shadow:0 -4px 20px rgba(15,31,24,.05); position:relative; }
+  .onav .tab{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; }
+  .onav .tab svg{ width:23px; height:23px; stroke:var(--ink-muted); fill:none; stroke-width:1.8; }
+  .onav .tab span{ font-family:var(--body); font-weight:500; font-size:10px; color:var(--ink-muted); }
+  .onav .tab.on svg{ stroke:var(--forest); }
+  .onav .tab.on span{ color:var(--forest); font-weight:600; }
+  .onav .scanbtn{ flex:none; width:62px; display:flex; justify-content:center; }
+  .onav .scanbtn .b{ width:58px; height:58px; border-radius:19px; margin-top:-24px; background:linear-gradient(150deg,#2A6A50,#1F4D3A 70%);
+    display:flex; align-items:center; justify-content:center; box-shadow:0 10px 24px -6px rgba(31,77,58,.6), inset 0 1px 0 rgba(255,255,255,.18); border:3px solid var(--cream-surface); }
+  .onav .scanbtn .b svg{ width:26px; height:26px; stroke:var(--gold); fill:none; stroke-width:2; }
+  .onav .scanbtn span{ font-family:var(--body); font-weight:600; font-size:10px; color:var(--forest); margin-top:2px; }
+
+  /* status pill on event cards */
+  .stpill{ display:inline-flex; align-items:center; gap:5px; height:22px; padding:0 9px; border-radius:999px; font-family:var(--body); font-weight:600; font-size:10.5px; letter-spacing:.02em; }
+  .stpill .d{ width:6px; height:6px; border-radius:50%; }
+  .stpill.live{ background:rgba(45,122,79,.13); color:var(--success); } .stpill.live .d{ background:var(--success); }
+  .stpill.soon{ background:rgba(201,122,45,.14); color:var(--warning); } .stpill.soon .d{ background:var(--warning); }
+  .stpill.done{ background:var(--cream-soft); color:var(--ink-muted); } .stpill.done .d{ background:var(--ink-muted); }
+
+  /* organizer event card */
+  .oev{ border-radius:var(--rm-card); overflow:hidden; border:1px solid var(--cream-border); box-shadow:var(--sh-soft); background:var(--cream-surface); }
+  .oev + .oev{ margin-top:14px; }
+  .oev .cov{ height:96px; position:relative; }
+  .oev .cov .stpill{ position:absolute; top:10px; right:10px; }
+  .oev-b{ padding:13px 14px; }
+  .oev-b .nm{ font-family:var(--display); font-weight:700; font-size:16px; letter-spacing:-0.02em; color:var(--ink); }
+  .oev-b .wh{ font-family:var(--mono); font-size:11px; color:var(--ink-muted); margin-top:5px; }
+  .oev-stats{ display:flex; gap:0; margin-top:12px; border-top:1px solid var(--cream-border); padding-top:11px; }
+  .oev-stats .s{ flex:1; }
+  .oev-stats .s + .s{ border-left:1px solid var(--cream-border); padding-left:14px; }
+  .oev-stats .n{ font-family:var(--mono); font-weight:500; font-size:18px; color:var(--forest); }
+  .oev-stats .l{ font-family:var(--body); font-size:10.5px; color:var(--ink-muted); margin-top:2px; }
+
+  /* big stat bar (control hub) */
+  .statbar{ display:flex; background:linear-gradient(135deg,#163828 0%,#1F4D3A 70%); border-radius:16px; padding:16px 4px; box-shadow:var(--sh-lift); }
+  .statbar .c{ flex:1; text-align:center; position:relative; }
+  .statbar .c + .c::before{ content:''; position:absolute; left:0; top:8px; bottom:8px; width:1px; background:rgba(255,255,255,.14); }
+  .statbar .c .n{ font-family:var(--mono); font-weight:500; font-size:23px; color:#fff; letter-spacing:-0.01em; }
+  .statbar .c .n.g{ color:var(--gold); }
+  .statbar .c .l{ font-family:var(--body); font-size:10.5px; color:rgba(250,246,238,.7); margin-top:3px; }
+
+  /* big action buttons (control hub) */
+  .bigact{ display:flex; align-items:center; gap:14px; width:100%; padding:16px; border-radius:15px; border:1px solid var(--cream-border);
+    background:var(--cream-surface); box-shadow:var(--sh-soft); text-decoration:none; }
+  .bigact + .bigact{ margin-top:11px; }
+  .bigact .ic{ width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; flex:none; background:var(--forest-soft); }
+  .bigact .ic svg{ width:22px; height:22px; stroke:var(--forest); fill:none; stroke-width:1.9; }
+  .bigact .t{ flex:1; }
+  .bigact .t .a{ font-family:var(--display); font-weight:600; font-size:15.5px; color:var(--ink); letter-spacing:-0.01em; }
+  .bigact .t .b{ font-family:var(--body); font-size:12px; color:var(--ink-muted); margin-top:1px; }
+  .bigact .chev{ width:18px; height:18px; stroke:var(--ink-muted); fill:none; stroke-width:2; flex:none; }
+  .bigact.primary{ background:linear-gradient(140deg,#2A6A50,#1F4D3A 75%); border:none; padding:20px 18px; box-shadow:0 12px 28px -10px rgba(31,77,58,.55); }
+  .bigact.primary .ic{ background:rgba(232,197,126,.16); border:1px solid rgba(232,197,126,.3); }
+  .bigact.primary .ic svg{ stroke:var(--gold); width:26px; height:26px; }
+  .bigact.primary .t .a{ color:#fff; font-size:18px; }
+  .bigact.primary .t .b{ color:rgba(250,246,238,.75); }
+  .bigact.primary .chev{ stroke:rgba(255,255,255,.6); }
+
+  /* attendee list row */
+  .arow{ display:flex; align-items:center; gap:12px; padding:12px 0; }
+  .arow + .arow{ border-top:1px solid var(--cream-border); }
+  .arow .at{ flex:1; min-width:0; }
+  .arow .an{ font-family:var(--display); font-weight:600; font-size:14.5px; color:var(--ink); letter-spacing:-0.01em; }
+  .arow .am{ font-family:var(--body); font-size:12px; color:var(--ink-muted); margin-top:2px; }
+  .arow .cdot{ width:9px; height:9px; border-radius:50%; flex:none; }
+  .arow .cdot.in{ background:var(--success); box-shadow:0 0 0 3px rgba(45,122,79,.16); }
+  .arow .cdot.pend{ background:var(--border-strong); }
+
+  /* live indicator */
+  .live{ display:inline-flex; align-items:center; gap:6px; font-family:var(--body); font-weight:600; font-size:11px; letter-spacing:.04em; text-transform:uppercase; color:var(--success); }
+  .live .pulse{ width:7px; height:7px; border-radius:50%; background:var(--success); animation:pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse{ 0%,100%{ opacity:1; box-shadow:0 0 0 0 rgba(45,122,79,.5); } 50%{ opacity:.5; box-shadow:0 0 0 5px rgba(45,122,79,0); } }
+
+  /* camera scanner */
+  .camwrap{ position:absolute; inset:0; overflow:hidden; }
+  .camtex{ position:absolute; inset:0; background:
+    radial-gradient(circle at 30% 30%, rgba(60,80,68,.5), transparent 55%),
+    radial-gradient(circle at 75% 70%, rgba(40,58,48,.6), transparent 50%),
+    linear-gradient(160deg,#12201A,#0A0F0C); }
+  .camtex::after{ content:''; position:absolute; inset:0; background-image:radial-gradient(rgba(255,255,255,.03) 1px, transparent 1px); background-size:5px 5px; }
+  .scanbox{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:230px; height:230px; }
+  .scanbox .cnr{ position:absolute; width:38px; height:38px; border:3px solid var(--gold); animation:cnrpulse 2.4s ease-in-out infinite; }
+  @keyframes cnrpulse{ 0%,100%{ opacity:.7; } 50%{ opacity:1; } }
+  .scanbox .tl{ top:0; left:0; border-right:none; border-bottom:none; border-radius:6px 0 0 0; }
+  .scanbox .tr{ top:0; right:0; border-left:none; border-bottom:none; border-radius:0 6px 0 0; }
+  .scanbox .bl{ bottom:0; left:0; border-right:none; border-top:none; border-radius:0 0 0 6px; }
+  .scanbox .br{ bottom:0; right:0; border-left:none; border-top:none; border-radius:0 0 6px 0; }
+  .scanline{ position:absolute; left:8px; right:8px; height:2px; border-radius:2px; background:linear-gradient(90deg,transparent,var(--gold),transparent);
+    box-shadow:0 0 12px 2px rgba(232,197,126,.6); animation:scan 2.4s ease-in-out infinite; }
+  @keyframes scan{ 0%,100%{ top:12px; } 50%{ top:216px; } }
+  .camhint{ position:absolute; left:26px; right:26px; text-align:center; }
+  .camhint .ch-t{ font-family:var(--display); font-weight:600; font-size:16px; color:#fff; letter-spacing:-0.01em; }
+  .camhint .ch-d{ font-family:var(--body); font-size:13px; color:rgba(255,255,255,.66); margin-top:6px; line-height:1.45; }
+
+  /* scan result full-screen */
+  .result{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; text-align:center; }
+  .result.ok{ background:radial-gradient(ellipse 90% 60% at 50% 12%, rgba(45,122,79,.32), transparent 60%), linear-gradient(170deg,#123024,#0D1F17); }
+  .result.warn{ background:radial-gradient(ellipse 90% 60% at 50% 12%, rgba(201,122,45,.34), transparent 60%), linear-gradient(170deg,#2A2013,#1A130A); }
+  .result.err{ background:radial-gradient(ellipse 90% 60% at 50% 12%, rgba(184,66,60,.34), transparent 60%), linear-gradient(170deg,#2A1513,#1A0D0B); }
+  .res-badge{ width:84px; height:84px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-top:14px; }
+  .res-badge svg{ width:42px; height:42px; fill:none; stroke-width:3; }
+  .res-ok{ background:rgba(45,122,79,.2); border:1px solid rgba(159,224,187,.4); } .res-ok svg{ stroke:#9fe0bb; }
+  .res-warn{ background:rgba(201,122,45,.22); border:1px solid rgba(255,217,168,.4); } .res-warn svg{ stroke:#ffd9a8; }
+  .res-err{ background:rgba(184,66,60,.22); border:1px solid rgba(255,180,176,.4); } .res-err svg{ stroke:#ffb4b0; }
+  .res-status{ font-family:var(--body); font-weight:600; font-size:12px; letter-spacing:.12em; text-transform:uppercase; margin-top:16px; }
+  .res-name{ font-family:var(--display); font-weight:700; font-size:26px; color:#fff; letter-spacing:-0.02em; margin-top:8px; }
+  .res-sub{ font-family:var(--body); font-size:13.5px; color:rgba(250,246,238,.72); margin-top:5px; }
+
+  /* mini eventera card thumbnail (identity confirm) */
+  .minicard{ width:150px; padding:13px; border-radius:14px; background:linear-gradient(150deg,#1F4D3A,#2A6A50); border:1px solid rgba(232,197,126,.28);
+    box-shadow:0 16px 34px -14px rgba(0,0,0,.6); display:flex; flex-direction:column; gap:9px; text-align:left; }
+  .minicard .mc-top{ display:flex; align-items:center; justify-content:space-between; }
+  .minicard .mc-k{ font-family:var(--mono); font-size:8px; letter-spacing:.18em; text-transform:uppercase; color:var(--gold); }
+  .minicard .mc-qr{ width:22px; height:22px; border-radius:5px; background:#fff; display:grid; grid-template-columns:repeat(4,1fr); grid-template-rows:repeat(4,1fr); padding:3px; gap:1px; }
+  .minicard .mc-qr i{ background:var(--ink); border-radius:1px; }
+  .minicard .mc-nm{ font-family:var(--display); font-weight:700; font-size:15px; color:#fff; letter-spacing:-0.01em; }
+  .minicard .mc-rl{ font-family:var(--body); font-size:10px; color:rgba(250,246,238,.7); }
+
+  /* chart bars */
+  .chart{ display:flex; align-items:flex-end; gap:6px; height:96px; padding-top:8px; }
+  .chart .bar{ flex:1; background:linear-gradient(180deg,#2A6A50,#1F4D3A); border-radius:4px 4px 0 0; position:relative; }
+  .chart .bar.peak{ background:linear-gradient(180deg,var(--gold),var(--gold-hover)); }
+  .chart-x{ display:flex; gap:6px; margin-top:7px; }
+  .chart-x span{ flex:1; text-align:center; font-family:var(--mono); font-size:9px; color:var(--ink-muted); }
+
+  /* progress ring for check-in rate */
+  .ring{ position:relative; width:120px; height:120px; margin:0 auto; }
+  .ring .lbl{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .ring .lbl .p{ font-family:var(--mono); font-weight:500; font-size:26px; color:var(--forest); }
+  .ring .lbl .t{ font-family:var(--body); font-size:10px; color:var(--ink-muted); letter-spacing:.04em; }
+
+  /* staff banner */
+  .staffban{ display:flex; align-items:center; gap:9px; padding:11px 13px; background:var(--gold-soft); border-radius:12px; }
+  .staffban svg{ width:17px; height:17px; stroke:var(--gold-hover); fill:none; stroke-width:2; flex:none; }
+  .staffban .t{ font-family:var(--body); font-size:12px; color:var(--ink-soft); line-height:1.4; }
+</style>
+</head>
+<body>
+
+<!-- ============ TITLE ============ -->
+<div class="canvas-h" style="left:80px; top:-260px;">
+  <div class="kicker">Eventera · Organize side</div>
+  <span class="big" style="font-size:42px;">Organize — event-day command center</span>
+  <div class="lead">The mobile organizer experience: lightweight and on-site. Heavy management (agenda building, comms, payouts) stays on the web; the phone is for the door — check-in, QR scanning, validation, walk-ins and quick live stats. Bottom nav: Events · Scan · Attendees · Stats · Profile. Same forest + cream system; every number in JetBrains Mono; gold once per screen; scanner screens go dark.</div>
+</div>
+
+<!-- ============ ROW 1 ============ -->
+<div class="canvas-h" style="left:80px; top:0px;"><span class="big">1 · Events &amp; the door</span></div>
+
+<!-- O01 — Organize home / My Events -->
+<div class="dev" style="left:80px; top:80px;">
+  <div class="label">O01 · My Events</div><div class="sub">Events tab · live counts</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar" style="height:58px;"><div class="title" style="font-size:22px; font-weight:700;">My events</div><div class="spacer"></div><div class="act"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></div><div class="act" style="background:var(--forest); width:36px; height:36px;"><svg viewBox="0 0 24 24" style="stroke:#fff;"><path d="M12 5v14M5 12h14"/></svg></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:8px; padding-bottom:14px;">
+        <div class="chiprow" style="margin-bottom:16px;"><div class="chip on">Live &amp; upcoming</div><div class="chip">Past</div><div class="chip">Drafts</div></div>
+        <!-- live event -->
+        <div class="oev">
+          <div class="ph cov" style="--h:158;"><div class="scrim-b" style="position:absolute; inset:0;"></div><span class="stpill live"><span class="d"></span>Live today</span></div>
+          <div class="oev-b">
+            <div class="nm">AfriTech Summit 2026</div>
+            <div class="wh">12–14 MAR · Palais du Peuple</div>
+            <div class="oev-stats">
+              <div class="s"><div class="n">842</div><div class="l">Registered</div></div>
+              <div class="s"><div class="n" style="color:var(--gold-hover);">613</div><div class="l">Checked in</div></div>
+              <div class="s"><div class="n">73%</div><div class="l">Rate</div></div>
+            </div>
+          </div>
+        </div>
+        <!-- upcoming -->
+        <div class="oev">
+          <div class="ph cov" style="--h:265;"><div class="scrim-b" style="position:absolute; inset:0;"></div><span class="stpill soon"><span class="d"></span>In 12 days</span></div>
+          <div class="oev-b">
+            <div class="nm">Nairobi Design Week</div>
+            <div class="wh">04 APR · Nairobi Garage</div>
+            <div class="oev-stats">
+              <div class="s"><div class="n">318</div><div class="l">Registered</div></div>
+              <div class="s"><div class="n">0</div><div class="l">Checked in</div></div>
+              <div class="s"><div class="n">—</div><div class="l">Rate</div></div>
+            </div>
+          </div>
+        </div>
+      </div></div>
+      <div class="onav">
+        <div class="tab on"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg><span>Events</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0113 0"/></svg><span>Attendees</span></div>
+        <div class="scanbtn"><div style="display:flex; flex-direction:column; align-items:center;"><div class="b"><svg viewBox="0 0 24 24"><path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2"/><path d="M4 12h16"/></svg></div><span>Scan</span></div></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><path d="M4 19V10M10 19V5M16 19v-6M22 19H2"/></svg><span>Stats</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0113 0"/></svg><span>Profile</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- O02 — Event control hub -->
+<div class="dev" style="left:540px; top:80px;">
+  <div class="label">O02 · Event control hub</div><div class="sub">stats bar · big actions</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title" style="font-size:15px;">AfriTech Summit</div><div class="spacer"></div><div class="live"><span class="pulse"></span>Live</div><div style="width:8px;"></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px;">
+        <div class="statbar">
+          <div class="c"><div class="n">842</div><div class="l">Registered</div></div>
+          <div class="c"><div class="n g">613</div><div class="l">Checked in</div></div>
+          <div class="c"><div class="n">73%</div><div class="l">Check-in rate</div></div>
+        </div>
+        <div style="margin-top:18px;">
+          <a class="bigact primary" href="#"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2"/><path d="M4 12h16"/></svg></div><div class="t"><div class="a">Scan check-in</div><div class="b">Point &amp; check in at the door</div></div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></a>
+          <a class="bigact" href="#"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg></div><div class="t"><div class="a">Attendee list</div><div class="b"><span class="monos">842</span> registered · search &amp; verify</div></div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></a>
+          <a class="bigact" href="#"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0113 0"/><path d="M18 8h4M20 6v4"/></svg></div><div class="t"><div class="a">Walk-in registration</div><div class="b">Register &amp; check in at the door</div></div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></a>
+          <a class="bigact" href="#"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 19V10M10 19V5M16 19v-6M22 19H2"/></svg></div><div class="t"><div class="a">Live stats</div><div class="b">Real-time check-in dashboard</div></div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></a>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- O03 — QR Scanner (check-in) -->
+<div class="dev" style="left:1000px; top:80px;">
+  <div class="label">O03 · QR Scanner — check-in</div><div class="sub">the key screen · dark</div>
+  <div class="phone">
+    <div class="screen cam">
+      <div class="camwrap">
+        <div class="camtex"></div>
+        <div style="position:absolute; top:52px; left:0; right:0; display:flex; align-items:center; gap:12px; padding:8px 16px; z-index:10;">
+          <div style="width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,.12); display:flex; align-items:center; justify-content:center;"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2;"><path d="M6 6l12 12M18 6L6 18"/></svg></div>
+          <div style="flex:1; text-align:center;"><div style="font-family:var(--display); font-weight:600; font-size:15px; color:#fff;">Check-in scanner</div><div class="monos" style="font-size:10px; color:rgba(255,255,255,.6); margin-top:1px;">AfriTech Summit · Door 1</div></div>
+          <div style="width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,.12); display:flex; align-items:center; justify-content:center;"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:var(--gold);fill:none;stroke-width:2;"><path d="M12 3v2M12 19v2M5 12H3M21 12h-2M6 6l1.5 1.5M16.5 16.5L18 18M18 6l-1.5 1.5M7.5 16.5L6 18"/><circle cx="12" cy="12" r="3.5"/></svg></div>
+        </div>
+        <div class="scanbox">
+          <div class="cnr tl"></div><div class="cnr tr"></div><div class="cnr bl"></div><div class="cnr br"></div>
+          <div class="scanline"></div>
+        </div>
+        <div class="camhint" style="top:calc(50% + 150px); transform:translateY(-50%);">
+          <div class="ch-t">Point at attendee's QR code</div>
+          <div class="ch-d">Hold steady inside the frame to check them in.</div>
+        </div>
+        <div style="position:absolute; bottom:40px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:9px; height:44px; padding:0 18px; border-radius:999px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.16); backdrop-filter:blur(8px);">
+          <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:#9fe0bb;fill:none;stroke-width:2.4;"><path d="M5 12l4 4 10-10"/></svg>
+          <span style="font-family:var(--body); font-weight:600; font-size:13px; color:#fff;"><span class="monos">613</span> checked in</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- O04 — Scan result: success -->
+<div class="dev" style="left:1460px; top:80px;">
+  <div class="label">O04 · Scan result — success</div><div class="sub">green flash · identity confirm</div>
+  <div class="phone">
+    <div class="screen cam">
+      <div class="result ok">
+        <div style="padding-top:20px;"></div>
+        <div class="res-badge res-ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg></div>
+        <div class="res-status" style="color:#9fe0bb;">Checked in ✓</div>
+        <div style="width:96px; height:96px; border-radius:50%; margin-top:18px; padding:3px; background:var(--gold);"><div class="ph" style="--h:265; width:100%; height:100%; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--display); font-weight:600; font-size:32px; color:#fff;">LH</div></div>
+        <div class="res-name">Layla Hassan</div>
+        <div class="res-sub">General Admission · <span class="monos">#A-0613</span></div>
+        <div style="margin-top:22px;"><div class="minicard">
+          <div class="mc-top"><div class="mc-k">Eventera Card</div><div class="mc-qr"><i></i><i style="opacity:.2"></i><i></i><i></i><i style="opacity:.2"></i><i></i><i></i><i style="opacity:.2"></i><i></i><i></i><i style="opacity:.2"></i><i></i><i style="opacity:.2"></i><i></i><i></i><i style="opacity:.2"></i></div></div>
+          <div><div class="mc-nm">Layla Hassan</div><div class="mc-rl">Head of Product · Nomad Health</div></div>
+        </div></div>
+        <div style="flex:1;"></div>
+        <div style="width:100%; padding:0 20px 24px;"><button class="mbtn mbtn-gold"><svg viewBox="0 0 24 24"><path d="M4 12h16M4 12l6-6M4 12l6 6" style="display:none;"/><path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2M4 12h16"/></svg>Scan next</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ROW 2 ============ -->
+<div class="canvas-h" style="left:80px; top:1060px;"><span class="big">2 · Validation &amp; the list</span></div>
+
+<!-- O05 — Already checked in -->
+<div class="dev" style="left:80px; top:1140px;">
+  <div class="label">O05 · Scan result — already in</div><div class="sub">amber warning</div>
+  <div class="phone">
+    <div class="screen cam">
+      <div class="result warn">
+        <div style="padding-top:20px;"></div>
+        <div class="res-badge res-warn"><svg viewBox="0 0 24 24"><path d="M12 8v5M12 16v.01"/><circle cx="12" cy="12" r="9"/></svg></div>
+        <div class="res-status" style="color:#ffd9a8;">Already checked in</div>
+        <div style="width:96px; height:96px; border-radius:50%; margin-top:18px; padding:3px; background:rgba(255,217,168,.5);"><div class="ph" style="--h:200; width:100%; height:100%; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--display); font-weight:600; font-size:32px; color:#fff;">OS</div></div>
+        <div class="res-name">Omar Said</div>
+        <div class="res-sub">VIP · <span class="monos">#A-0288</span></div>
+        <div style="margin-top:20px; display:inline-flex; align-items:center; gap:9px; padding:12px 18px; border-radius:12px; background:rgba(201,122,45,.18); border:1px solid rgba(255,217,168,.3);">
+          <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:#ffd9a8;fill:none;stroke-width:2;"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          <div style="text-align:left;"><div style="font-family:var(--body); font-size:11px; color:rgba(255,217,168,.8);">Checked in at</div><div class="monos" style="font-size:15px; color:#fff; font-weight:500;">08:42 · Door 1</div></div>
+        </div>
+        <div style="flex:1;"></div>
+        <div style="width:100%; padding:0 20px 24px; display:flex; flex-direction:column; gap:10px;">
+          <button class="mbtn" style="background:rgba(255,255,255,.12); color:#fff;">Check in again anyway</button>
+          <button class="mbtn mbtn-gold"><svg viewBox="0 0 24 24"><path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2M4 12h16"/></svg>Scan next</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- O06 — Invalid -->
+<div class="dev" style="left:540px; top:1140px;">
+  <div class="label">O06 · Scan result — invalid</div><div class="sub">red flash</div>
+  <div class="phone">
+    <div class="screen cam">
+      <div class="result err" style="justify-content:center;">
+        <div class="res-badge res-err"><svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg></div>
+        <div class="res-status" style="color:#ffb4b0;">Invalid code</div>
+        <div class="res-name">Ticket not found</div>
+        <div class="res-sub" style="max-width:250px;">This QR isn't a valid ticket for AfriTech Summit. Check they're at the right event, or verify manually.</div>
+        <div class="monos" style="font-size:11px; color:rgba(255,180,176,.6); margin-top:16px; letter-spacing:.1em;">SCANNED · 8XK2-9QP1</div>
+        <div style="position:absolute; left:0; right:0; bottom:24px; padding:0 20px; display:flex; flex-direction:column; gap:10px;">
+          <button class="mbtn" style="background:rgba(255,255,255,.12); color:#fff;"><svg viewBox="0 0 24 24" style="stroke:#fff;"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>Find in attendee list</button>
+          <button class="mbtn mbtn-gold"><svg viewBox="0 0 24 24"><path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2M4 12h16"/></svg>Try again</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- O07 — Attendee list -->
+<div class="dev" style="left:1000px; top:1140px;">
+  <div class="label">O07 · Attendee list</div><div class="sub">Attendees tab · search · filter</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Attendees</div></div>
+      <div class="pad" style="padding-top:12px;">
+        <div class="input" style="height:44px; margin-bottom:10px;"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input placeholder="Search name or email" readonly></div>
+      </div>
+      <div class="segnav" style="height:42px;"><div class="seg on" style="height:42px;">All · <span class="monos">842</span></div><div class="seg" style="height:42px;">Checked in · <span class="monos">613</span></div><div class="seg" style="height:42px;">Pending · <span class="monos">229</span></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:8px; padding-bottom:14px;">
+        <div class="arow"><div class="av av-40 ph" style="--h:265;">LH</div><div class="at"><div class="an">Layla Hassan</div><div class="am">General · l.hassan@…</div></div><div class="cdot in"></div></div>
+        <div class="arow"><div class="av av-40 ph" style="--h:200;">OS</div><div class="at"><div class="an">Omar Said</div><div class="am">VIP · omar@…</div></div><div class="cdot in"></div></div>
+        <div class="arow"><div class="av av-40 ph" style="--h:20;">NB</div><div class="at"><div class="an">Nadia Beye</div><div class="am">General · nadia@…</div></div><div class="cdot pend"></div></div>
+        <div class="arow"><div class="av av-40 ph" style="--h:120;">TM</div><div class="at"><div class="an">Tariq Mensah</div><div class="am">Speaker · tariq@…</div></div><div class="cdot in"></div></div>
+        <div class="arow"><div class="av av-40 ph" style="--h:300;">RA</div><div class="at"><div class="an">Rania Adan</div><div class="am">General · rania@…</div></div><div class="cdot pend"></div></div>
+        <div class="arow"><div class="av av-40 ph" style="--h:35;">FK</div><div class="at"><div class="an">Faisal Karim</div><div class="am">VIP · faisal@…</div></div><div class="cdot in"></div></div>
+        <div class="arow"><div class="av av-40 ph" style="--h:160;">AM</div><div class="at"><div class="an">Aya Mbeki</div><div class="am">General · aya@…</div></div><div class="cdot pend"></div></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- O08 — Manual check-in / verification -->
+<div class="dev" style="left:1460px; top:1140px;">
+  <div class="label">O08 · Manual check-in</div><div class="sub">attendee detail · verify by hand</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title" style="font-size:15px;">Attendee</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:18px; padding-bottom:16px;">
+        <div style="display:flex; flex-direction:column; align-items:center; text-align:center;">
+          <div class="av ph" style="--h:20; width:76px; height:76px; font-size:26px;">NB</div>
+          <div style="font-family:var(--display); font-weight:700; font-size:20px; letter-spacing:-0.02em; margin-top:12px;">Nadia Beye</div>
+          <div style="margin-top:6px;"><span class="stpill soon"><span class="d"></span>Pending check-in</span></div>
+        </div>
+        <div class="menu" style="margin-top:22px;">
+          <div class="mrow"><div class="itile itile-muted"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3 8l9 6 9-6"/></svg></div><div class="mt"><div class="d">Email</div><div class="t" style="font-size:14px;">nadia.beye@dakarvc.co</div></div></div>
+          <div class="mrow"><div class="itile itile-muted"><svg viewBox="0 0 24 24"><path d="M4 8a2 2 0 012-2h12a2 2 0 012 2v3a2 2 0 000 4v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3a2 2 0 000-4z"/></svg></div><div class="mt"><div class="d">Ticket type</div><div class="t" style="font-size:14px;">General Admission</div></div><div class="count monos">#A-0641</div></div>
+          <div class="mrow"><div class="itile itile-muted"><svg viewBox="0 0 24 24"><path d="M4 20V8l6-4 6 4v12"/></svg></div><div class="mt"><div class="d">Company</div><div class="t" style="font-size:14px;">Dakar Ventures</div></div></div>
+          <div class="mrow"><div class="itile itile-muted"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6-7-11a7 7 0 1114 0c0 5-7 11-7 11z"/></svg></div><div class="mt"><div class="d">Dietary</div><div class="t" style="font-size:14px;">Vegetarian</div></div></div>
+        </div>
+        <div class="staffban" style="margin-top:16px;"><svg viewBox="0 0 24 24"><path d="M12 8v5M12 16v.01"/><circle cx="12" cy="12" r="9"/></svg><div class="t">Use manual check-in only when the QR won't scan.</div></div>
+      </div></div>
+      <div class="stickycta"><button class="mbtn mbtn-forest"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>Check in manually</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ROW 3 ============ -->
+<div class="canvas-h" style="left:80px; top:2120px;"><span class="big">3 · Walk-ins, stats, roles &amp; profile</span></div>
+
+<!-- O09 — Walk-in registration -->
+<div class="dev" style="left:80px; top:2200px;">
+  <div class="label">O09 · Walk-in registration</div><div class="sub">register + check in + card</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title" style="font-size:15px;">Walk-in</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px;">
+        <div class="h2">Register at the door</div>
+        <div class="bodytext muted" style="font-size:13.5px; margin-top:6px;">One flow — registers, checks in, and creates their Eventera Card.</div>
+        <div class="field" style="margin-top:20px;"><label>Full name</label><div class="input focus"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0113 0"/></svg><input placeholder="e.g. Amina Osman" readonly></div></div>
+        <div class="field"><label>Email</label><div class="input"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3 8l9 6 9-6"/></svg><input placeholder="name@email.com" readonly></div></div>
+        <div class="field" style="margin-bottom:0;"><label>Ticket type</label>
+          <label class="mcard" style="display:flex; align-items:center; gap:12px; margin-bottom:10px; padding:13px 14px;"><span class="oc-radio" style="width:22px;height:22px;border-radius:50%;border:1.5px solid var(--forest); box-shadow:inset 0 0 0 5px var(--forest);flex:none;"></span><div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:14.5px;">General Admission</div><div style="font-size:11.5px; color:var(--ink-muted); margin-top:1px;">Full access · all 3 days</div></div><div class="monos" style="font-size:15px; color:var(--forest); font-weight:500;">$25</div></label>
+          <label class="mcard" style="display:flex; align-items:center; gap:12px; padding:13px 14px;"><span style="width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border-strong);flex:none;"></span><div style="flex:1;"><div style="font-family:var(--display); font-weight:600; font-size:14.5px;">VIP</div><div style="font-size:11.5px; color:var(--ink-muted); margin-top:1px;">Front row · speaker lounge</div></div><div class="monos" style="font-size:15px; color:var(--forest); font-weight:500;">$80</div></label>
+        </div>
+      </div></div>
+      <div class="stickycta"><button class="mbtn mbtn-forest">Register &amp; check in</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- O09b — Walk-in success -->
+<div class="dev" style="left:540px; top:2200px;">
+  <div class="label">O09 · Walk-in — done</div><div class="sub">registered · checked in · card ready</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="body"><div class="scroll pad" style="height:100%; padding-top:20px; display:flex; flex-direction:column; align-items:center; text-align:center;">
+        <div style="width:76px; height:76px; border-radius:50%; background:rgba(45,122,79,.14); border:1px solid rgba(45,122,79,.3); display:flex; align-items:center; justify-content:center; margin-top:8px;"><div style="width:52px; height:52px; border-radius:50%; background:var(--success); display:flex; align-items:center; justify-content:center;"><svg viewBox="0 0 24 24" style="width:28px;height:28px;stroke:#fff;fill:none;stroke-width:2.6;"><path d="M5 12l4 4 10-10"/></svg></div></div>
+        <div style="font-family:var(--display); font-weight:700; font-size:22px; letter-spacing:-0.02em; margin-top:18px;">Aya Mbeki is in</div>
+        <div class="bodytext muted" style="font-size:13.5px; margin-top:8px; max-width:250px;">Registered, checked in, and their Eventera Card is ready.</div>
+        <div style="width:100%; margin-top:22px; display:flex; flex-direction:column; gap:10px; text-align:left;">
+          <div style="display:flex; align-items:center; gap:12px; background:var(--cream-surface); border:1px solid var(--cream-border); border-radius:12px; padding:12px 14px; box-shadow:var(--sh-soft);"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:var(--success);fill:none;stroke-width:2;flex:none;"><path d="M5 12l4 4 10-10"/></svg><div style="font-family:var(--body); font-size:13px; color:var(--ink);">Registered · General Admission</div><div style="flex:1;"></div><div class="monos" style="font-size:11px; color:var(--ink-muted);">#A-0843</div></div>
+          <div style="display:flex; align-items:center; gap:12px; background:var(--cream-surface); border:1px solid var(--cream-border); border-radius:12px; padding:12px 14px; box-shadow:var(--sh-soft);"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:var(--success);fill:none;stroke-width:2;flex:none;"><path d="M5 12l4 4 10-10"/></svg><div style="font-family:var(--body); font-size:13px; color:var(--ink);">Checked in · <span class="monos">09:14</span></div></div>
+          <div style="display:flex; align-items:center; gap:12px; background:var(--gold-soft); border:1px solid var(--gold); border-radius:12px; padding:12px 14px;"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:var(--gold-hover);fill:none;stroke-width:2;flex:none;"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="8.5" cy="11" r="2"/><path d="M13 9h5M13 13h5"/></svg><div style="font-family:var(--body); font-size:13px; color:var(--ink);">Eventera Card created</div></div>
+        </div>
+      </div></div>
+      <div class="stickycta" style="flex-direction:column; gap:9px;"><button class="mbtn mbtn-forest">Register another walk-in</button><button class="mbtn mbtn-text" style="font-weight:600;">Back to control hub</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- O10 — Live stats -->
+<div class="dev" style="left:1000px; top:2200px;">
+  <div class="label">O10 · Live stats</div><div class="sub">Stats tab · auto-updating</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="title">Live stats</div><div class="spacer"></div><div class="live"><span class="pulse"></span>Live</div><div style="width:8px;"></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px;">
+        <div style="display:flex; gap:10px;">
+          <div class="stat" style="text-align:left;"><div class="l" style="margin:0 0 6px;">Registered</div><div class="n" style="font-family:var(--mono); font-size:24px;">842</div></div>
+          <div class="stat" style="text-align:left;"><div class="l" style="margin:0 0 6px;">Checked in</div><div class="n" style="font-family:var(--mono); font-size:24px; color:var(--gold-hover);">613</div></div>
+        </div>
+        <div class="mcard" style="margin-top:12px; text-align:center;">
+          <div class="ring">
+            <svg viewBox="0 0 120 120" style="width:120px; height:120px; transform:rotate(-90deg);"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--cream-soft)" stroke-width="12"/><circle cx="60" cy="60" r="52" fill="none" stroke="var(--forest)" stroke-width="12" stroke-linecap="round" stroke-dasharray="326" stroke-dashoffset="88"/></svg>
+            <div class="lbl"><div class="p">73%</div><div class="t">Check-in rate</div></div>
+          </div>
+        </div>
+        <div class="mcard" style="margin-top:12px;">
+          <div style="display:flex; align-items:baseline; justify-content:space-between;"><div class="seclab">Check-ins over time</div><div class="monos" style="font-size:11px; color:var(--forest);">08:00–12:00</div></div>
+          <div class="chart">
+            <div class="bar" style="height:22%;"></div><div class="bar" style="height:38%;"></div><div class="bar" style="height:64%;"></div><div class="bar peak" style="height:96%;"></div><div class="bar" style="height:72%;"></div><div class="bar" style="height:50%;"></div><div class="bar" style="height:40%;"></div><div class="bar" style="height:30%;"></div>
+          </div>
+          <div class="chart-x"><span>8</span><span>9</span><span>9:30</span><span>10</span><span>10:30</span><span>11</span><span>11:30</span><span>12</span></div>
+        </div>
+        <div class="seclab" style="margin:18px 0 8px;">Recent check-ins</div>
+        <div class="arow" style="padding:10px 0;"><div class="av av-32 ph" style="--h:265;">LH</div><div class="at"><div class="an" style="font-size:13.5px;">Layla Hassan</div></div><div class="monos" style="font-size:11px; color:var(--ink-muted);">just now</div></div>
+        <div class="arow" style="padding:10px 0;"><div class="av av-32 ph" style="--h:120;">TM</div><div class="at"><div class="an" style="font-size:13.5px;">Tariq Mensah</div></div><div class="monos" style="font-size:11px; color:var(--ink-muted);">1m ago</div></div>
+        <div class="arow" style="padding:10px 0;"><div class="av av-32 ph" style="--h:35;">FK</div><div class="at"><div class="an" style="font-size:13.5px;">Faisal Karim</div></div><div class="monos" style="font-size:11px; color:var(--ink-muted);">2m ago</div></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- O11 — Staff limited view -->
+<div class="dev" style="left:1460px; top:2200px;">
+  <div class="label">O11 · Staff limited view</div><div class="sub">scanner + list only · no stats/walk-in</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title" style="font-size:15px;">AfriTech Summit</div><div class="spacer"></div><span class="tag tag-gold">Staff</span></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px;">
+        <div class="staffban" style="margin-bottom:16px;"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg><div class="t"><b>Staff access.</b> You can scan and look up attendees. Stats, walk-ins &amp; settings are organizer-only.</div></div>
+        <a class="bigact primary" href="#"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2"/><path d="M4 12h16"/></svg></div><div class="t"><div class="a">Scan check-in</div><div class="b">Point &amp; check in at the door</div></div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></a>
+        <a class="bigact" href="#"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg></div><div class="t"><div class="a">Attendee list</div><div class="b">Search &amp; manual check-in</div></div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></a>
+        <!-- locked actions -->
+        <div class="bigact" style="opacity:.5; box-shadow:none;"><div class="ic" style="background:var(--cream-soft);"><svg viewBox="0 0 24 24" style="stroke:var(--ink-muted);"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0113 0"/></svg></div><div class="t"><div class="a" style="color:var(--ink-muted);">Walk-in registration</div><div class="b">Organizer only</div></div><svg class="chev" viewBox="0 0 24 24" style="stroke:var(--ink-muted);"><rect x="6" y="11" width="12" height="8" rx="2"/><path d="M9 11V8a3 3 0 016 0v3"/></svg></div>
+        <div class="bigact" style="opacity:.5; box-shadow:none;"><div class="ic" style="background:var(--cream-soft);"><svg viewBox="0 0 24 24" style="stroke:var(--ink-muted);"><path d="M4 19V10M10 19V5M16 19v-6M22 19H2"/></svg></div><div class="t"><div class="a" style="color:var(--ink-muted);">Live stats</div><div class="b">Organizer only</div></div><svg class="chev" viewBox="0 0 24 24" style="stroke:var(--ink-muted);"><rect x="6" y="11" width="12" height="8" rx="2"/><path d="M9 11V8a3 3 0 016 0v3"/></svg></div>
+      </div></div>
+      <div class="onav">
+        <div class="tab on"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg><span>Events</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0113 0"/></svg><span>Attendees</span></div>
+        <div class="scanbtn"><div style="display:flex; flex-direction:column; align-items:center;"><div class="b"><svg viewBox="0 0 24 24"><path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2"/><path d="M4 12h16"/></svg></div><span>Scan</span></div></div>
+        <div class="tab" style="opacity:.4;"><svg viewBox="0 0 24 24"><path d="M4 19V10M10 19V5M16 19v-6M22 19H2"/></svg><span>Stats</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0113 0"/></svg><span>Profile</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ROW 4 ============ -->
+<!-- O12 — Profile / mode switch -->
+<div class="dev" style="left:80px; top:3260px;">
+  <div class="label">O12 · Profile / mode switch</div><div class="sub">Profile tab · Attend ⇄ Organize</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="title">Profile</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:16px; padding-bottom:14px;">
+        <div style="display:flex; align-items:center; gap:14px;"><div class="av av-64" style="width:60px; height:60px;">A</div><div style="flex:1; min-width:0;"><div style="font-family:var(--display); font-weight:700; font-size:19px; letter-spacing:-0.02em;">Amina Osman</div><div style="font-family:var(--body); font-size:12.5px; color:var(--ink-muted); margin-top:2px;">amina@sahelpay.co</div></div></div>
+        <div style="display:flex; gap:7px; margin-top:14px; flex-wrap:wrap;"><span class="tag tag-forest">Organizer</span><span class="tag tag-forest">Speaker</span><span class="tag" style="background:var(--cream-soft); color:var(--ink-soft);">Attendee</span></div>
+
+        <div class="grouplab" style="margin:22px 0 10px;">Mode</div>
+        <div class="seg-ctl" style="padding:4px;"><div>Attend</div><div class="on">Organize</div></div>
+        <div class="bodytext muted" style="font-size:12px; margin:9px 2px 0;">You're organizing. Switch to Attend to browse and join events as a guest.</div>
+
+        <div class="grouplab" style="margin:22px 0 10px;">Settings</div>
+        <div class="menu">
+          <div class="mrow"><div class="itile itile-forest"><svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19 12a7 7 0 00-.1-1l2-1.6-2-3.4-2.4 1a7 7 0 00-1.7-1L16.5 3h-4l-.3 2.5a7 7 0 00-1.7 1l-2.4-1-2 3.4 2 1.6a7 7 0 000 2l-2 1.6 2 3.4 2.4-1a7 7 0 001.7 1l.3 2.5h4l.3-2.5a7 7 0 001.7-1l2.4 1 2-3.4-2-1.6a7 7 0 00.1-1z" style="display:none;"/><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5.6 5.6L4.2 4.2M19.8 19.8l-1.4-1.4M18.4 5.6l1.4-1.4M4.2 19.8l1.4-1.4"/></svg></div><div class="mt"><div class="t">Account settings</div></div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+          <div class="mrow"><div class="itile itile-info"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0"/></svg></div><div class="mt"><div class="t">Notifications</div></div><div class="tgl on"></div></div>
+          <div class="mrow"><div class="itile itile-muted"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18"/></svg></div><div class="mt"><div class="t">Language</div></div><div class="count">English</div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+        </div>
+        <button class="mbtn mbtn-text" style="margin-top:18px; color:var(--danger); font-weight:600;">Sign out</button>
+      </div></div>
+      <div class="onav">
+        <div class="tab"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg><span>Events</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0113 0"/></svg><span>Attendees</span></div>
+        <div class="scanbtn"><div style="display:flex; flex-direction:column; align-items:center;"><div class="b"><svg viewBox="0 0 24 24"><path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2"/><path d="M4 12h16"/></svg></div><span>Scan</span></div></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><path d="M4 19V10M10 19V5M16 19v-6M22 19H2"/></svg><span>Stats</span></div>
+        <div class="tab on"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0113 0"/></svg><span>Profile</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- O07b — Attendee list: empty (search) -->
+<div class="dev" style="left:540px; top:3260px;">
+  <div class="label">O07 · Attendee list — empty</div><div class="sub">no search match</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Attendees</div></div>
+      <div class="pad" style="padding-top:12px;">
+        <div class="input focus" style="height:44px; margin-bottom:10px;"><svg viewBox="0 0 24 24" style="stroke:var(--forest);"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input value="zkq" readonly style="color:var(--ink);"></div>
+      </div>
+      <div class="body" style="display:flex; align-items:center; justify-content:center;"><div class="pad" style="text-align:center;">
+        <div style="width:70px; height:70px; border-radius:50%; background:var(--cream-soft); display:flex; align-items:center; justify-content:center; margin:0 auto 16px;"><svg viewBox="0 0 24 24" style="width:30px;height:30px;stroke:var(--ink-muted);fill:none;stroke-width:1.8;"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></div>
+        <div class="h3">No matches</div>
+        <div class="bodytext muted" style="font-size:13px; margin-top:8px; max-width:230px;">No attendee matches “zkq”. Try a different name or email — or check them in as a walk-in.</div>
+        <button class="mbtn mbtn-sec mbtn-sm" style="width:auto; padding:0 20px; margin:18px auto 0;">Add as walk-in</button>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- O01b — My Events: loading -->
+<div class="dev" style="left:1000px; top:3260px;">
+  <div class="label">O01 · My Events — loading</div><div class="sub">skeleton state</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar" style="height:58px;"><div class="title" style="font-size:22px; font-weight:700;">My events</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:12px;">
+        <div style="display:flex; gap:8px; margin-bottom:16px;"><div class="skl" style="width:110px; height:32px; border-radius:999px;"></div><div class="skl" style="width:70px; height:32px; border-radius:999px;"></div></div>
+        <div class="oev" style="box-shadow:none;"><div class="skl" style="height:96px; border-radius:0;"></div><div class="oev-b"><div class="skl" style="width:70%; height:18px;"></div><div class="skl" style="width:50%; height:12px; margin-top:9px;"></div><div style="display:flex; gap:10px; margin-top:16px;"><div class="skl" style="flex:1; height:34px;"></div><div class="skl" style="flex:1; height:34px;"></div><div class="skl" style="flex:1; height:34px;"></div></div></div></div>
+        <div class="oev" style="box-shadow:none; margin-top:14px;"><div class="skl" style="height:96px; border-radius:0;"></div><div class="oev-b"><div class="skl" style="width:60%; height:18px;"></div><div class="skl" style="width:45%; height:12px; margin-top:9px;"></div></div></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- O13 — Announcements / push to attendees -->
+<div class="dev" style="left:1460px; top:3260px;">
+  <div class="label">O13 · Announcements</div><div class="sub">push to attendees · live</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Announcements</div><div class="spacer"></div><div class="act" style="background:var(--forest); width:36px; height:36px;"><svg viewBox="0 0 24 24" style="stroke:#fff;"><path d="M12 5v14M5 12h14"/></svg></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px;">
+        <!-- composer -->
+        <div class="mcard">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--gold-hover);fill:none;stroke-width:1.9;"><path d="M4 8v6l14 4V4zM18 8a3 3 0 010 6"/></svg><span style="font-family:var(--display); font-weight:600; font-size:14px;">New announcement</span></div>
+          <div class="input textarea" style="min-height:70px;"><input placeholder="Message all 842 attendees…" readonly></div>
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-top:12px;"><div class="chip">To: Everyone ▾</div><button class="mbtn mbtn-forest mbtn-sm" style="width:auto; padding:0 18px;">Send push</button></div>
+        </div>
+        <div class="seclab" style="margin:22px 0 12px;">Sent</div>
+        <div class="mcard" style="margin-bottom:11px;">
+          <div style="display:flex; align-items:baseline; justify-content:space-between;"><div style="font-family:var(--display); font-weight:600; font-size:14px;">Doors open at 8:30</div><div class="monos" style="font-size:11px; color:var(--ink-muted);">08:12</div></div>
+          <div class="bodytext" style="font-size:13px; margin-top:6px;">Registration desk is in the Main Hall lobby — have your QR ready.</div>
+          <div style="display:flex; align-items:center; gap:6px; margin-top:10px; font-family:var(--body); font-size:11.5px; color:var(--success);"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--success);fill:none;stroke-width:2;"><path d="M5 12l4 4 10-10"/></svg>Delivered to <span class="monos">842</span> · <span class="monos">318</span> opened</div>
+        </div>
+        <div class="mcard">
+          <div style="display:flex; align-items:baseline; justify-content:space-between;"><div style="font-family:var(--display); font-weight:600; font-size:14px;">Keynote starting soon</div><div class="monos" style="font-size:11px; color:var(--ink-muted);">08:50</div></div>
+          <div class="bodytext" style="font-size:13px; margin-top:6px;">Head to Main Stage — Amina Osman opens in 10 minutes.</div>
+          <div style="display:flex; align-items:center; gap:6px; margin-top:10px; font-family:var(--body); font-size:11.5px; color:var(--success);"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--success);fill:none;stroke-width:2;"><path d="M5 12l4 4 10-10"/></svg>Delivered to <span class="monos">842</span></div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ROW 5 ============ -->
+<div class="canvas-h" style="left:80px; top:4240px;"><span class="big">4 · Session check-in, staff &amp; settings</span></div>
+
+<!-- O14 — Session / room check-in -->
+<div class="dev" style="left:80px; top:4320px;">
+  <div class="label">O14 · Session check-in</div><div class="sub">scan into a specific session</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title" style="font-size:15px;">Session check-in</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px;">
+        <div class="bodytext muted" style="font-size:13.5px;">Track attendance per session — pick the room, then scan attendees in as they enter.</div>
+        <div class="seclab" style="margin:20px 0 10px;">Now &amp; next · Main Stage</div>
+        <a class="sessrow" href="#" style="display:block; background:var(--cream-surface); border:1px solid var(--forest); box-shadow:var(--sh-ring); border-radius:var(--rm-card); padding:14px 15px;">
+          <div style="display:flex; align-items:center; justify-content:space-between;"><span class="monos" style="font-size:12px; color:var(--forest); font-weight:500;">09:00–09:45</span><span class="tag tag-gold">Selected</span></div>
+          <div style="font-family:var(--display); font-weight:600; font-size:15.5px; margin-top:7px;">Designing for the next billion</div>
+          <div style="display:flex; align-items:center; gap:8px; margin-top:9px;"><span class="tag" style="background:var(--forest-soft); color:var(--forest);">Main Stage</span><span style="font-family:var(--body); font-size:12px; color:var(--ink-muted);"><span class="monos">142</span> / 300 in</span></div>
+        </a>
+        <div style="height:11px;"></div>
+        <div style="background:var(--cream-surface); border:1px solid var(--cream-border); box-shadow:var(--sh-soft); border-radius:var(--rm-card); padding:14px 15px;">
+          <div class="monos" style="font-size:12px; color:var(--ink-muted);">10:30–11:15</div>
+          <div style="font-family:var(--display); font-weight:600; font-size:15px; margin-top:7px;">Scaling across borders</div>
+          <div style="font-family:var(--body); font-size:12px; color:var(--ink-muted); margin-top:8px;">Track A · Room 2</div>
+        </div>
+      </div></div>
+      <div class="stickycta"><button class="mbtn mbtn-forest"><svg viewBox="0 0 24 24"><path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2M4 12h16"/></svg>Scan into this session</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- O15 — Staff & roles -->
+<div class="dev" style="left:540px; top:4320px;">
+  <div class="label">O15 · Staff &amp; roles</div><div class="sub">invite · assign door · access</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Staff &amp; roles</div><div class="spacer"></div><div class="act" style="background:var(--forest); width:36px; height:36px;"><svg viewBox="0 0 24 24" style="stroke:#fff;"><path d="M12 5v14M5 12h14"/></svg></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px;">
+        <div class="seclab" style="margin-bottom:12px;">Team · <span class="monos" style="letter-spacing:0;">5</span></div>
+        <div class="menu">
+          <div class="mrow"><div class="av av-40">A</div><div class="mt"><div class="t">Amina Osman</div><div class="d">Owner · full access</div></div><span class="tag tag-gold">Owner</span></div>
+          <div class="mrow"><div class="av av-40 ph" style="--h:200;">FK</div><div class="mt"><div class="t">Faisal Karim</div><div class="d">Organizer · all events</div></div><span class="tag tag-forest">Organizer</span></div>
+          <div class="mrow"><div class="av av-40 ph" style="--h:120;">TM</div><div class="mt"><div class="t">Tariq Mensah</div><div class="d">Staff · Door 1</div></div><span class="tag" style="background:var(--cream-soft); color:var(--ink-soft);">Staff</span></div>
+          <div class="mrow"><div class="av av-40 ph" style="--h:300;">RA</div><div class="mt"><div class="t">Rania Adan</div><div class="d">Staff · Door 2</div></div><span class="tag" style="background:var(--cream-soft); color:var(--ink-soft);">Staff</span></div>
+          <div class="mrow" style="opacity:.7;"><div class="av av-40" style="background:var(--cream-soft); color:var(--ink-muted);">?</div><div class="mt"><div class="t">aya@karta.studio</div><div class="d">Invite pending</div></div><span class="tag tag-warning">Pending</span></div>
+        </div>
+        <div class="staffban" style="margin-top:16px;"><svg viewBox="0 0 24 24"><path d="M12 8v5M12 16v.01"/><circle cx="12" cy="12" r="9"/></svg><div class="t"><b>Staff</b> get scanner + attendee list only. <b>Organizers</b> get everything on this device.</div></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- O16 — Organizer settings -->
+<div class="dev" style="left:1000px; top:4320px;">
+  <div class="label">O16 · Event settings</div><div class="sub">on-site controls</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title" style="font-size:15px;">Event settings</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px;">
+        <div class="grouplab" style="margin:2px 0 10px;">Check-in</div>
+        <div class="menu">
+          <div class="mrow"><div class="itile itile-forest"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div class="mt"><div class="t">Check-in window</div><div class="d">Opens 1h before doors</div></div><svg class="chev" viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--ink-muted);fill:none;stroke-width:2;"><path d="M9 6l6 6-6 6"/></svg></div>
+          <div class="mrow"><div class="itile itile-forest"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0113 0"/><path d="M18 8h4M20 6v4"/></svg></div><div class="mt"><div class="t">Allow walk-ins</div><div class="d">Register at the door</div></div><div class="tgl on"></div></div>
+          <div class="mrow"><div class="itile itile-forest"><svg viewBox="0 0 24 24"><path d="M12 8v5M12 16v.01"/><circle cx="12" cy="12" r="9"/></svg></div><div class="mt"><div class="t">Warn on double-scan</div><div class="d">Flag already-checked-in</div></div><div class="tgl on"></div></div>
+        </div>
+        <div class="grouplab" style="margin:22px 0 10px;">On-site</div>
+        <div class="menu">
+          <div class="mrow"><div class="itile itile-info"><svg viewBox="0 0 24 24"><path d="M4 4v16M4 4h13l-2 4 2 4H4"/></svg></div><div class="mt"><div class="t">Offline mode</div><div class="d">Queue scans, sync later</div></div><div class="tgl"></div></div>
+          <div class="mrow"><div class="itile itile-gold"><svg viewBox="0 0 24 24"><path d="M6 9V4h12v5M6 18h12v-6H6zM6 14H4v-3a2 2 0 012-2h12a2 2 0 012 2v3h-2"/></svg></div><div class="mt"><div class="t">Print badges</div><div class="d">On check-in · Zebra ZD421</div></div><div class="tgl on"></div></div>
+        </div>
+        <div class="staffban" style="margin-top:16px;"><svg viewBox="0 0 24 24"><path d="M12 8v5M12 16v.01"/><circle cx="12" cy="12" r="9"/></svg><div class="t">Ticket types, pricing &amp; the agenda are configured on <b>eventera.so</b>.</div></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CHROME SCRIPT ============ -->
+<script>
+  const clock='9:41';
+  const statusSys=`<div class="sys">
+    <svg viewBox="0 0 18 12"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="4.5" y="4.5" width="3" height="7.5" rx="1"/><rect x="9" y="2" width="3" height="10" rx="1"/><rect x="13.5" y="0" width="3" height="12" rx="1"/></svg>
+    <svg viewBox="0 0 18 12"><path d="M9 2.5c2.4 0 4.6.9 6.2 2.4l1.3-1.4A11 11 0 009 .5 11 11 0 001.5 3.5l1.3 1.4A9 9 0 019 2.5z"/><path d="M9 6c1.3 0 2.5.5 3.4 1.3l1.3-1.4A7 7 0 009 4a7 7 0 00-4.7 1.9l1.3 1.4A5 5 0 019 6z"/><path d="M9 9.5l2-2.1A3 3 0 009 6.5a3 3 0 00-2 .9z"/></svg>
+    <svg viewBox="0 0 26 12" style="width:24px;"><rect x="0.5" y="1" width="21" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1" opacity=".4"/><rect x="2" y="2.5" width="16" height="7" rx="1"/><rect x="23" y="4" width="1.6" height="4" rx="0.8"/></svg>
+  </div>`;
+  document.querySelectorAll('.screen').forEach(s=>{
+    const dark = s.classList.contains('cam');
+    const bar=document.createElement('div');
+    bar.className='statusbar'+(dark?' on-dark':'');
+    bar.innerHTML=`<div class="time">${clock}</div>${statusSys}`;
+    s.insertBefore(bar, s.firstChild);
+  });
+  document.querySelectorAll('.phone').forEach(p=>{
+    p.insertAdjacentHTML('afterbegin','<div class="notch"></div>');
+    p.insertAdjacentHTML('beforeend','<div class="homebar"></div>');
+  });
+</script>
+
+<template id="__bundler_thumbnail">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#0D1F17"/><rect x="34" y="34" width="32" height="32" rx="6" fill="none" stroke="#E8C57E" stroke-width="4"/><rect x="30" y="30" width="12" height="4" fill="#E8C57E"/><rect x="30" y="30" width="4" height="12" fill="#E8C57E"/><rect x="58" y="30" width="12" height="4" fill="#E8C57E"/><rect x="66" y="30" width="4" height="12" fill="#E8C57E"/><rect x="34" y="48" width="32" height="3" fill="#E8C57E"/></svg>
+</template>
+</body>
+</html>

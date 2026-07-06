@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 import {
   Home, User, Calendar, CreditCard, FileText,
   CheckCircle2, Circle, Upload, Share2, Download,
-  ExternalLink, Camera,
+  ExternalLink, Camera, MessageSquare, Mic, MapPin, Phone, ArrowBigUp, Clock,
 } from 'lucide-react';
 
 interface Speaker {
@@ -47,22 +47,36 @@ interface Resource {
   file_size: number | null;
 }
 
+interface Question {
+  id: string;
+  session_id: string | null;
+  question: string;
+  upvotes_count: number | null;
+  is_anonymous: boolean | null;
+  created_at: string;
+  registrations?: { attendee_name: string | null } | null;
+}
+
 interface Props {
   speaker: Speaker;
   event: EventInfo;
   sessions: Session[];
   resources: Resource[];
+  /** Read-only, upvote-sorted audience Q&A across this speaker's sessions (SP02). */
+  questions?: Question[];
   /** When true (dashboard /speaking route), the standalone portal header and
    *  full-page background are suppressed — the AppShell provides the chrome. */
   embedded?: boolean;
 }
 
-type Tab = 'home' | 'profile' | 'sessions' | 'card' | 'resources';
+type Tab = 'home' | 'profile' | 'sessions' | 'qa' | 'greenroom' | 'card' | 'resources';
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: 'home', label: 'Home', icon: <Home size={15} strokeWidth={2} /> },
   { id: 'profile', label: 'My Profile', icon: <User size={15} strokeWidth={2} /> },
   { id: 'sessions', label: 'My Sessions', icon: <Calendar size={15} strokeWidth={2} /> },
+  { id: 'qa', label: 'Q&A', icon: <MessageSquare size={15} strokeWidth={2} /> },
+  { id: 'greenroom', label: 'Green room', icon: <Mic size={15} strokeWidth={2} /> },
   { id: 'card', label: 'My Card', icon: <CreditCard size={15} strokeWidth={2} /> },
   { id: 'resources', label: 'Resources', icon: <FileText size={15} strokeWidth={2} /> },
 ];
@@ -70,7 +84,7 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
 function fmt(dt: string) {
   return new Date(dt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
-function fmtTime(dt: string) {
+function fmtTime(dt: string | Date) {
   return new Date(dt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
 }
 function fileSize(bytes: number | null) {
@@ -790,8 +804,173 @@ function ResourcesTab({ resources }: { resources: Resource[] }) {
   );
 }
 
+/* ── Q&A Tab (read-only, upvote-sorted) ────────────────────────────── */
+function QATab({ questions, sessions }: { questions: Question[]; sessions: Session[] }) {
+  const sessionTitle = (id: string | null) =>
+    (id && sessions.find(s => s.id === id)?.title) || null;
+
+  function ago(dt: string) {
+    const mins = Math.round((Date.now() - new Date(dt).getTime()) / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.round(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    return fmt(dt);
+  }
+
+  return (
+    <div className="max-w-[760px] mx-auto px-4 sm:px-6 py-8 space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="font-display font-normal text-[22px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>Audience Q&amp;A</h2>
+        <span className="inline-flex items-center gap-1.5 text-[12px] font-medium px-2.5 py-1 rounded-full"
+          style={{ background: 'rgba(184,66,60,0.08)', color: '#B8423C', border: '1px solid rgba(184,66,60,0.2)' }}>
+          <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#B8423C' }} />
+          Live
+        </span>
+      </div>
+      <p className="text-[13px]" style={{ color: '#6B7A72' }}>
+        Sorted by upvotes · {questions.length} question{questions.length !== 1 ? 's' : ''} · read-only
+      </p>
+
+      {questions.length === 0 ? (
+        <div className="py-14 text-center">
+          <div style={{ width: 64, height: 64, borderRadius: 18, background: 'rgba(232,197,126,0.18)', margin: '0 auto 14px', display: 'grid', placeItems: 'center' }}>
+            <MessageSquare size={28} style={{ color: '#C9A45E' }} />
+          </div>
+          <div className="font-display text-[17px] font-semibold" style={{ color: '#0F1F18' }}>No questions yet</div>
+          <p className="text-[13px] mt-1.5 max-w-[260px] mx-auto" style={{ color: '#6B7A72' }}>
+            Questions from the audience will appear here as they&apos;re asked — most-upvoted first.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-2.5">
+          {questions.map((q, i) => {
+            const author = q.is_anonymous ? 'Anonymous' : (q.registrations?.attendee_name || 'Attendee');
+            const sTitle = sessionTitle(q.session_id);
+            const top = i === 0;
+            return (
+              <div key={q.id} className="flex items-start gap-3 px-4 py-3.5 rounded-xl"
+                style={{ background: '#fff', border: '1px solid #E5E0D4' }}>
+                <div className="flex flex-col items-center justify-center rounded-lg shrink-0"
+                  style={{ width: 44, padding: '6px 0', background: top ? 'rgba(31,77,58,0.08)' : '#FAF6EE', border: `1px solid ${top ? 'rgba(31,77,58,0.2)' : '#E5E0D4'}` }}>
+                  <ArrowBigUp size={16} style={{ color: top ? '#1F4D3A' : '#6B7A72' }} fill={top ? '#1F4D3A' : 'none'} />
+                  <span className="text-[13px] font-semibold" style={{ color: top ? '#1F4D3A' : '#3A4A42', fontFamily: 'Inter, system-ui, sans-serif' }}>
+                    {q.upvotes_count ?? 0}
+                  </span>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[13.5px] leading-snug" style={{ color: '#0F1F18' }}>{q.question}</div>
+                  <div className="text-[11.5px] mt-1" style={{ color: '#6B7A72' }}>
+                    {author} · {ago(q.created_at)}{sTitle ? ` · ${sTitle}` : ''}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── Green room Tab ─────────────────────────────────────────────────── */
+function GreenRoomTab({ sessions }: { sessions: Session[] }) {
+  if (sessions.length === 0) {
+    return (
+      <div className="max-w-[680px] mx-auto px-4 sm:px-6 py-16 text-center">
+        <div style={{ width: 48, height: 48, borderRadius: 12, background: '#E8EFEB', margin: '0 auto 16px', display: 'grid', placeItems: 'center' }}>
+          <Mic size={20} style={{ color: '#1F4D3A' }} />
+        </div>
+        <h2 className="font-display font-normal text-[22px] mb-2" style={{ color: '#0F1F18' }}>Green room</h2>
+        <p className="text-[14px]" style={{ color: '#6B7A72' }}>
+          Once the organiser assigns you a session, your call time and stage logistics will appear here.
+        </p>
+      </div>
+    );
+  }
+
+  // Use the earliest session as the "next up" for the green-room summary.
+  const next = [...sessions].sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime())[0];
+  const onStage = new Date(next.starts_at);
+  const callTime = new Date(onStage.getTime() - 30 * 60000); // 30 min before on-stage
+  const lengthMin = Math.max(0, Math.round((new Date(next.ends_at).getTime() - onStage.getTime()) / 60000));
+  const introTime = new Date(onStage.getTime() - 5 * 60000);
+
+  const stat = (label: string, value: string) => (
+    <div className="flex-1" style={{ background: '#fff', border: '1px solid #E5E0D4', borderRadius: 12, padding: '14px 16px' }}>
+      <div className="text-[10px] tracking-[0.14em] uppercase mb-1.5" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>{label}</div>
+      <div className="text-[19px] font-semibold" style={{ color: '#0F1F18', fontFamily: 'Inter, system-ui, sans-serif' }}>{value}</div>
+    </div>
+  );
+
+  const runOfShow = [
+    { time: fmtTime(callTime.toISOString()), dot: '#E8C57E', label: 'Arrive & mic check' },
+    { time: fmtTime(introTime.toISOString()), dot: '#1F4D3A', label: 'Intro by host' },
+    { time: fmtTime(onStage.toISOString()), dot: '#1F4D3A', label: "You're on" },
+  ];
+
+  return (
+    <div className="max-w-[760px] mx-auto px-4 sm:px-6 py-8 space-y-5">
+      <div>
+        <h2 className="font-display font-normal text-[22px]" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>Green room</h2>
+        <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>{next.title}</p>
+      </div>
+
+      {/* Stats */}
+      <div className="flex gap-3">
+        {stat('Call time', fmtTime(callTime))}
+        {stat('On stage', fmtTime(onStage))}
+        {stat('Length', `${lengthMin}m`)}
+      </div>
+
+      {/* Stage + AV */}
+      <div className="space-y-2.5">
+        <div className="flex items-center gap-3.5 px-4 py-3.5 rounded-xl" style={{ background: '#fff', border: '1px solid #E5E0D4' }}>
+          <div style={{ width: 40, height: 40, borderRadius: 10, background: '#E8EFEB', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+            <MapPin size={17} style={{ color: '#1F4D3A' }} />
+          </div>
+          <div className="min-w-0">
+            <div className="text-[11px]" style={{ color: '#6B7A72' }}>Stage</div>
+            <div className="text-[13.5px] font-medium" style={{ color: '#0F1F18' }}>{next.room || 'Main stage'}</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-3.5 px-4 py-3.5 rounded-xl" style={{ background: '#fff', border: '1px solid #E5E0D4' }}>
+          <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(232,197,126,0.22)', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+            <Phone size={17} style={{ color: '#C9A45E' }} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-[11px]" style={{ color: '#6B7A72' }}>AV / stage manager</div>
+            <div className="text-[13.5px] font-medium" style={{ color: '#0F1F18' }}>Contact your organiser on-site</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Run of show */}
+      <div>
+        <div className="text-[10px] tracking-[0.16em] uppercase mb-2.5" style={{ color: '#6B7A72', fontFamily: 'Inter, system-ui, sans-serif' }}>Run of show</div>
+        <div style={{ background: '#fff', border: '1px solid #E5E0D4', borderRadius: 12, overflow: 'hidden' }}>
+          {runOfShow.map((r, i) => (
+            <div key={i} className="flex items-center gap-3 px-4 py-3" style={{ borderTop: i === 0 ? 'none' : '1px solid #E5E0D4' }}>
+              <span className="text-[11px]" style={{ color: '#6B7A72', width: 44, fontFamily: 'Inter, system-ui, sans-serif' }}>{r.time}</span>
+              <span className="rounded-full shrink-0" style={{ width: 7, height: 7, background: r.dot }} />
+              <span className="text-[13.5px] font-medium" style={{ color: '#0F1F18' }}>{r.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex items-start gap-2.5 px-4 py-3 rounded-xl" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }}>
+        <Clock size={16} style={{ color: '#6B7A72', flexShrink: 0, marginTop: 1 }} />
+        <span className="text-[12px] leading-relaxed" style={{ color: '#3A4A42' }}>
+          Call time and run-of-show are estimated from your session schedule. Confirm exact times with the AV team on the day.
+        </span>
+      </div>
+    </div>
+  );
+}
+
 /* ── Main Component ────────────────────────────────────────────────── */
-export function SpeakerPortalClient({ speaker: initialSpeaker, event, sessions, resources, embedded = false }: Props) {
+export function SpeakerPortalClient({ speaker: initialSpeaker, event, sessions, resources, questions = [], embedded = false }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>('home');
   const [speaker, setSpeaker] = useState(initialSpeaker);
 
@@ -851,6 +1030,8 @@ export function SpeakerPortalClient({ speaker: initialSpeaker, event, sessions, 
       {activeTab === 'home' && <HomeTab speaker={speaker} event={event} sessions={sessions} onTab={setActiveTab} />}
       {activeTab === 'profile' && <ProfileTab speaker={speaker} onSaved={handleProfileSaved} />}
       {activeTab === 'sessions' && <SessionsTab sessions={sessions} />}
+      {activeTab === 'qa' && <QATab questions={questions} sessions={sessions} />}
+      {activeTab === 'greenroom' && <GreenRoomTab sessions={sessions} />}
       {activeTab === 'card' && <CardTab speaker={speaker} event={event} />}
       {activeTab === 'resources' && <ResourcesTab resources={resources} />}
     </div>

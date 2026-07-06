@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../eventera_api.dart';
 import '../../models.dart';
 import '../../theme.dart';
+import '../../roles/staff/event_control_screen.dart';
 import 'share_screen.dart';
 import 'zone_editor_screen.dart';
 
@@ -211,6 +212,19 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               _reload();
             }
           },
+        ),
+        _actionTile(
+          icon: Icons.qr_code_scanner,
+          title: 'Check in attendees',
+          subtitle: e.isPublished
+              ? 'Scan QR codes and see live check-in numbers'
+              : 'Publish first to open the door',
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => EventControlScreen(
+                  eventId: e.id, eventName: e.name, isOwner: true),
+            ),
+          ),
         ),
         _actionTile(
           icon: Icons.ios_share,

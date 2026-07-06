@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../attendee/event_landing_screen.dart';
 import '../net.dart';
+import '../roles/role_widgets.dart';
+import '../roles/sponsor/sponsor_tools_screen.dart';
 import '../ui/components.dart';
 import '../ui/tokens.dart';
 
@@ -13,8 +15,14 @@ import '../ui/tokens.dart';
 /// link the 055 backfill uses) — and show a booth summary: company, tier and
 /// booth location/hours. We also try to read the sponsor's own lead count; the
 /// `sponsor_leads` RLS grants read to the EVENT OWNER only (migration 023), so
-/// on the anon/sponsor path that read returns nothing — in which case we show a
-/// clear "Manage leads on the web" note instead of a misleading zero.
+/// on the anon/sponsor path that read returns nothing — the count is simply
+/// omitted rather than shown as a misleading zero.
+///
+/// Every booth exposes a "Booth tools" entry that opens [SponsorToolsScreen]
+/// (lead scanner, my leads, booth team, booth & products, meetings, directory
+/// preview) — the same self-contained tools the event hub uses. Those screens
+/// resolve their own sponsor id from the account, so we only pass eventId +
+/// eventName.
 ///
 /// Sponsor rows are public-readable (`is_visible = true`), event/`event_pages`
 /// are public too, so this works under RLS with no special policy. Everything
@@ -143,9 +151,6 @@ class _SponsoringScreenState extends State<SponsoringScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Show the lead-tools note only when no booth exposed a readable lead count
-    // (the common case on mobile under current RLS).
-    final anyLeads = _events.any((e) => (e.booth?.leadCount ?? -1) >= 0);
     return MScaffold(
       appBar: const MAppBar(title: 'Sponsoring'),
       body: RefreshIndicator(
@@ -171,10 +176,13 @@ class _SponsoringScreenState extends State<SponsoringScreen> {
                     padding: const EdgeInsets.fromLTRB(20, 12, 20, 36),
                     children: [
                       for (final e in _events) ...[
-                        _EventBlock(event: e, onTap: () => _open(e)),
+                        _EventBlock(
+                          event: e,
+                          onTap: () => _open(e),
+                          onOpenTools: () => _openTools(e),
+                        ),
                         const SizedBox(height: 16),
                       ],
-                      if (!anyLeads) const _LeadToolsNote(),
                     ],
                   ),
       ),
@@ -187,6 +195,22 @@ class _SponsoringScreenState extends State<SponsoringScreen> {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => EventLandingScreen(slug: e.slug)),
     );
+  }
+
+  /// Opens the full sponsor tool set for this event. [SponsorToolsScreen]
+  /// resolves the account's sponsor booth itself, so we only pass the event
+  /// id + name. Wrapped so a navigation failure never crashes the tab.
+  void _openTools(_SponsorEvent e) {
+    try {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) =>
+              SponsorToolsScreen(eventId: e.id, eventName: e.name),
+        ),
+      );
+    } catch (_) {
+      showToast(context, 'Could not open sponsor tools.');
+    }
   }
 }
 
@@ -274,7 +298,12 @@ class _Booth {
 class _EventBlock extends StatelessWidget {
   final _SponsorEvent event;
   final VoidCallback onTap;
-  const _EventBlock({required this.event, required this.onTap});
+  final VoidCallback onOpenTools;
+  const _EventBlock({
+    required this.event,
+    required this.onTap,
+    required this.onOpenTools,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -337,6 +366,15 @@ class _EventBlock extends StatelessWidget {
           const SizedBox(height: 10),
           _BoothCard(booth: b),
         ],
+        // Booth tools entry — opens the full sponsor toolset (lead scanner,
+        // my leads, booth team, products, meetings, directory preview).
+        const SizedBox(height: 10),
+        ToolCard(
+          icon: Icons.workspace_premium_outlined,
+          title: 'Booth tools',
+          summary: 'Lead scanner · my leads · team · products · meetings',
+          onTap: onOpenTools,
+        ),
       ],
     );
   }
@@ -441,37 +479,6 @@ class _MetaRow extends StatelessWidget {
               style: AppText.bodySm.copyWith(color: AppColors.inkSoft)),
         ),
       ],
-    );
-  }
-}
-
-/// Quiet note pointing sponsors to the web for lead scanning / booth tools,
-/// which don't have a mobile surface yet.
-class _LeadToolsNote extends StatelessWidget {
-  const _LeadToolsNote();
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.forestSoft,
-        borderRadius: BorderRadius.circular(AppRadius.card),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(Icons.qr_code_scanner_outlined,
-              size: 20, color: AppColors.forest),
-          const SizedBox(width: 11),
-          Expanded(
-            child: Text(
-              'Lead scanning, booth editing and exhibitor resources are on the '
-              'web dashboard. Open Eventera in your browser to manage leads.',
-              style: AppText.bodySm.copyWith(color: AppColors.forest),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

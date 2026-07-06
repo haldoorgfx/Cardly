@@ -65,6 +65,27 @@ export default async function SpeakerWorkspacePage({
     resources = [];
   }
 
+  // Read-only live Q&A for this speaker's sessions (SP02). Defensive: a missing
+  // table or empty read must render a clean empty state, never crash the page.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const sessionIds = sessions.map((s: any) => s.id).filter(Boolean);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let questions: any[] = [];
+  if (sessionIds.length > 0) {
+    try {
+      const { data } = await admin
+        .from('qa_questions')
+        .select('id, session_id, question, upvotes_count, is_anonymous, created_at, registrations!qa_questions_registration_id_fkey(attendee_name)')
+        .in('session_id', sessionIds)
+        .neq('status', 'hidden')
+        .order('upvotes_count', { ascending: false })
+        .order('created_at', { ascending: true });
+      questions = data ?? [];
+    } catch {
+      questions = [];
+    }
+  }
+
   return (
     <div className="mx-auto w-full px-4 sm:px-6 lg:px-8 py-6" style={{ maxWidth: 1000 }}>
       <SpeakerPortalClient
@@ -79,6 +100,7 @@ export default async function SpeakerWorkspacePage({
         }}
         sessions={sessions}
         resources={resources}
+        questions={questions}
       />
     </div>
   );

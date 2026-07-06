@@ -30,7 +30,9 @@ function ScoreRing({ score, tier }: { score: number; tier: string }) {
   const r = 20;
   const circ = 2 * Math.PI * r;
   const offset = circ - (score / 100) * circ;
-  const color = tier === 'hot' ? '#E8C57E' : tier === 'warm' ? '#3A8A6E' : 'rgba(255,255,255,0.25)';
+  // Rating semantics (align with the rest of the design system):
+  // hot = danger, warm = warning, cold = info/muted.
+  const color = tier === 'hot' ? '#D96A63' : tier === 'warm' ? '#D99A4E' : 'rgba(255,255,255,0.35)';
 
   return (
     <div className="relative shrink-0" style={{ width: 52, height: 52 }}>
@@ -49,16 +51,16 @@ function ScoreRing({ score, tier }: { score: number; tier: string }) {
 }
 
 function TierIcon({ tier }: { tier: string }) {
-  if (tier === 'hot') return <Flame size={12} style={{ color: '#E8C57E' }} />;
-  if (tier === 'warm') return <Zap size={12} style={{ color: '#3A8A6E' }} />;
-  return <Snowflake size={12} style={{ color: 'rgba(255,255,255,0.35)' }} />;
+  if (tier === 'hot') return <Flame size={12} style={{ color: '#D96A63' }} />;
+  if (tier === 'warm') return <Zap size={12} style={{ color: '#D99A4E' }} />;
+  return <Snowflake size={12} style={{ color: 'rgba(255,255,255,0.4)' }} />;
 }
 
 function TierBadge({ tier }: { tier: string }) {
   const styles = {
-    hot: { bg: 'rgba(232,197,126,0.15)', color: '#E8C57E', label: 'Hot' },
-    warm: { bg: 'rgba(58,138,110,0.15)', color: '#3A8A6E', label: 'Warm' },
-    cold: { bg: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.4)', label: 'Cold' },
+    hot: { bg: 'rgba(184,66,60,0.18)', color: '#D96A63', label: 'Hot' },
+    warm: { bg: 'rgba(201,122,45,0.18)', color: '#D99A4E', label: 'Warm' },
+    cold: { bg: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.45)', label: 'Cold' },
   };
   const s = styles[tier as keyof typeof styles] ?? styles.cold;
   return (
@@ -167,7 +169,7 @@ export function LeadScoringClient({ eventSlug, eventName, leads: dbLeads }: Prop
           const expanded = expandedId === lead.id;
           return (
             <div key={lead.id} className="rounded-2xl overflow-hidden transition cursor-pointer"
-              style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${lead.tier === 'hot' ? 'rgba(232,197,126,0.15)' : 'rgba(255,255,255,0.06)'}` }}
+              style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${lead.tier === 'hot' ? 'rgba(184,66,60,0.22)' : 'rgba(255,255,255,0.06)'}` }}
               onClick={() => setExpandedId(expanded ? null : lead.id)}>
 
               <div className="flex items-center gap-3 p-4">
@@ -223,7 +225,7 @@ export function LeadScoringClient({ eventSlug, eventName, leads: dbLeads }: Prop
                     )}
                     <div className="flex gap-2">
                       <button className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[13px] font-semibold transition hover:opacity-80"
-                        style={{ background: lead.tier === 'hot' ? '#E8C57E' : 'rgba(255,255,255,0.08)', color: lead.tier === 'hot' ? '#0F1F18' : '#FAF6EE' }}>
+                        style={{ background: lead.tier === 'hot' ? '#B8423C' : 'rgba(255,255,255,0.08)', color: '#FAF6EE' }}>
                         <Mail size={13} /> Send email
                       </button>
                       <button className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13px] font-semibold transition hover:opacity-80"

@@ -8,7 +8,7 @@ import '../models.dart';
 import '../ui/components.dart';
 import '../ui/tokens.dart';
 import '../widgets/card_preview.dart';
-import 'preview_screen.dart';
+import 'card_reveal_screen.dart';
 
 /// The personalize form: shows the card design, lets the attendee switch
 /// between designs (if more than one), fills one field per input zone, then
@@ -165,8 +165,9 @@ class _PersonalizeScreenState extends State<PersonalizeScreen> {
         photos: _photos,
       );
       if (!mounted) return;
+      // personalize → render → REVEAL → (existing preview + share/download).
       Navigator.of(context).push(MaterialPageRoute(
-        builder: (_) => PreviewScreen(
+        builder: (_) => CardRevealScreen(
           imageBytes: bytes,
           eventName: widget.event.name,
         ),

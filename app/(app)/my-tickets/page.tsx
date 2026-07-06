@@ -24,7 +24,7 @@ export default async function MyTicketsPage() {
   const { data: regs, error: regsError } = await (admin as any)
     .from('registrations')
     .select(`
-      id, attendee_name, attendee_email, status, eventera_card_url, qr_code_token, created_at,
+      id, attendee_name, attendee_email, status, payment_status, amount_paid, eventera_card_url, qr_code_token, created_at,
       ticket_types(name, price),
       events(id, name, slug, event_pages(id, title, cover_image_url, starts_at, ends_at, venue_name, city, is_online))
     `)
@@ -157,6 +157,8 @@ type Registration = {
   attendee_name: string;
   attendee_email: string;
   status: string;
+  payment_status: string;
+  amount_paid: number | string | null;
   eventera_card_url: string | null;
   qr_code_token: string;
   created_at: string;

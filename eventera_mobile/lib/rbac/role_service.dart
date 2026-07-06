@@ -53,6 +53,7 @@ class UserRoles {
   bool get hasSpeaking => roleKinds.contains(EventRoleKind.speaker);
   bool get hasSponsoring => roleKinds.contains(EventRoleKind.sponsor);
   bool get hasOrganizing => roleKinds.contains(EventRoleKind.organizer);
+  bool get hasStaff => roleKinds.contains(EventRoleKind.staff);
 
   /// Admin gate — `platform_role in ('admin','super_admin')`, matching web
   /// `isAdmin()`.

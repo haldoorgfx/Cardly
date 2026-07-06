@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../app_config.dart';
 import '../../ics_export.dart';
@@ -80,7 +82,7 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
     return '${AppConfig.renderBaseUrl}/e/$slug';
   }
 
-  Future<void> _addToCalendar() async {
+  Future<void> _exportIcs() async {
     try {
       await exportEventToCalendar(
         title: widget.eventName,
@@ -92,6 +94,67 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
       );
     } catch (_) {
       if (mounted) showToast(context, 'Could not export to calendar.');
+    }
+  }
+
+  /// Builds a Google Calendar "render" URL that pre-fills a new event.
+  Uri _googleCalUri() {
+    String fmt(DateTime d) {
+      final u = d.toUtc();
+      String two(int n) => n.toString().padLeft(2, '0');
+      return '${u.year.toString().padLeft(4, '0')}${two(u.month)}${two(u.day)}'
+          'T${two(u.hour)}${two(u.minute)}${two(u.second)}Z';
+    }
+
+    final start = widget.startsAt;
+    final params = <String, String>{
+      'action': 'TEMPLATE',
+      'text': widget.eventName,
+      if (start != null)
+        'dates': '${fmt(start)}/${fmt(start.add(const Duration(hours: 2)))}',
+      if ((widget.venue ?? '').isNotEmpty) 'location': widget.venue!,
+      if (_eventUrl != null) 'details': _eventUrl!,
+    };
+    return Uri.https('calendar.google.com', '/calendar/render', params);
+  }
+
+  Future<void> _openCalendarPicker() async {
+    showMSheet(
+      context,
+      Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('Add to calendar', style: AppText.h3),
+          const SizedBox(height: 8),
+          _action(Icons.event_available_outlined, 'Google Calendar', () async {
+            Navigator.pop(context);
+            final uri = _googleCalUri();
+            final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
+            if (!ok && mounted) showToast(context, 'Could not open Google Calendar.');
+          }),
+          _action(Icons.apple, 'Apple Calendar', () {
+            Navigator.pop(context);
+            _exportIcs();
+          }),
+          _action(Icons.download_outlined, 'Download .ics file', () {
+            Navigator.pop(context);
+            _exportIcs();
+          }),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _shareTicket() async {
+    final url = _eventUrl;
+    final msg = url != null
+        ? 'I\'m going to ${widget.eventName} — $url'
+        : 'I\'m going to ${widget.eventName}';
+    try {
+      await Share.share(msg, subject: widget.eventName);
+    } catch (_) {
+      if (mounted) showToast(context, 'Could not open share sheet.');
     }
   }
 
@@ -164,7 +227,11 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
           const SizedBox(height: 8),
           _action(Icons.calendar_today_outlined, 'Add to calendar', () {
             Navigator.pop(context);
-            _addToCalendar();
+            _openCalendarPicker();
+          }),
+          _action(Icons.ios_share, 'Share ticket', () {
+            Navigator.pop(context);
+            _shareTicket();
           }),
           if (canTransfer)
             _action(Icons.send_outlined, 'Transfer ticket', () {
@@ -274,7 +341,7 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
                   child: MButton('Add to calendar',
                       kind: MBtnKind.sec,
                       icon: Icons.calendar_today_outlined,
-                      onTap: _addToCalendar),
+                      onTap: _openCalendarPicker),
                 ),
                 if ((_status == 'confirmed') && !_transferred) ...[
                   const SizedBox(width: 10),
@@ -364,6 +431,30 @@ class _ReceiptScreen extends StatelessWidget {
               child: Text('Order $orderRef',
                   style: AppText.numSm.copyWith(color: AppColors.inkMuted))),
           const SizedBox(height: 22),
+          Text('Order summary',
+              style: AppText.seclab.copyWith(color: AppColors.inkMuted)),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(AppRadius.card),
+              border: Border.all(color: AppColors.border),
+              boxShadow: AppShadow.soft,
+            ),
+            child: Column(
+              children: [
+                // Line item: 1 × ticket type
+                _row('1 × $ticketType', amountLabel),
+                _div(),
+                _row('Total', amountLabel, bold: true),
+              ],
+            ),
+          ),
+          const SizedBox(height: 18),
+          Text('Details',
+              style: AppText.seclab.copyWith(color: AppColors.inkMuted)),
+          const SizedBox(height: 8),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -376,12 +467,8 @@ class _ReceiptScreen extends StatelessWidget {
               children: [
                 _row('Event', eventName),
                 _div(),
-                _row('Ticket', ticketType),
-                _div(),
-                _row('Attendee', attendee),
-                if (date != null) ...[_div(), _row('Date', _fmt(date!))],
-                _div(),
-                _row('Total', amountLabel, bold: true),
+                _row('Billed to', attendee),
+                if (date != null) ...[_div(), _row('Event date', _fmt(date!))],
               ],
             ),
           ),

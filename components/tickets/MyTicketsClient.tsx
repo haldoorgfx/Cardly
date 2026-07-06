@@ -1,14 +1,17 @@
-﻿'use client';
+'use client';
 
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { X, Check } from 'lucide-react';
+import { X, ChevronRight, Lock } from 'lucide-react';
 
 type Registration = {
   id: string;
   attendee_name: string;
+  attendee_email?: string;
   status: string;
+  payment_status?: string;
+  amount_paid?: number | string | null;
   eventera_card_url: string | null;
   qr_code_token: string;
   created_at: string;
@@ -35,6 +38,18 @@ interface Props {
   past: Registration[];
 }
 
+// ── Brand ─────────────────────────────────────────────────────────────────────
+
+const FOREST = '#1F4D3A';
+const FOREST_DARK = '#163828';
+const CREAM_SOFT = '#F5F1E8';
+const GOLD = '#E8C57E';
+const INK = '#0F1F18';
+const MUTED = '#6B7A72';
+const BORDER = '#E5E0D4';
+const WARNING = '#C97A2D';
+const SUCCESS = '#2D7A4F';
+
 // ── QR overlay ────────────────────────────────────────────────────────────────
 
 interface QROverlayProps {
@@ -48,7 +63,7 @@ function QROverlay({ token, name, label, onClose }: QROverlayProps) {
   return (
     <div
       className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-0"
-      style={{ background: '#163828' }}
+      style={{ background: FOREST_DARK }}
       onClick={onClose}
     >
       <button
@@ -81,7 +96,7 @@ function QROverlay({ token, name, label, onClose }: QROverlayProps) {
         {name}
       </div>
       <div className="mt-1.5 text-center px-6"
-        style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, color: '#E8C57E' }}>
+        style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, color: GOLD }}>
         {label}
       </div>
       <div className="mt-5 text-[13px] text-center px-6" style={{ color: 'rgba(255,255,255,0.55)' }}>
@@ -93,306 +108,107 @@ function QROverlay({ token, name, label, onClose }: QROverlayProps) {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function fmtDate(iso: string | null | undefined) {
+function fmtWhen(iso: string | null | undefined) {
   if (!iso) return null;
   const d = new Date(iso);
-  const weekday = d.toLocaleDateString(undefined, { weekday: 'short' }).toUpperCase();
+  const month = d.toLocaleDateString(undefined, { month: 'short' });
   const day = d.getDate();
-  const month = d.toLocaleDateString(undefined, { month: 'short' }).toUpperCase();
+  const year = d.getFullYear();
   const time = d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
-  return `${weekday} ${day} ${month} · ${time}`;
+  return `${month} ${day}, ${year} · ${time}`;
 }
 
-function timeUntil(iso: string | null | undefined): string | null {
-  if (!iso) return null;
-  const diff = new Date(iso).getTime() - Date.now();
-  if (diff < 0) return null;
-  const h = Math.floor(diff / 3600000);
-  const d = Math.floor(h / 24);
-  if (d > 0) return `IN ${d} DAY${d !== 1 ? 'S' : ''}`;
-  if (h > 0) return `IN ${h} HOUR${h !== 1 ? 'S' : ''}`;
-  return 'STARTING SOON';
+// A paid ticket that hasn't been paid → QR must stay locked.
+function isPendingPayment(reg: Registration): boolean {
+  const amt = Number(reg.amount_paid ?? 0);
+  return reg.status !== 'checked_in'
+    && (reg.payment_status === 'pending' || reg.payment_status === 'failed')
+    && amt > 0;
 }
 
-function fmtPastDate(iso: string | null | undefined) {
-  if (!iso) return '';
-  return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
-}
+type StatusTag = { label: string; color: string; accent: string };
 
-// ── Ticket card (D04) ─────────────────────────────────────────────────────────
-
-function TicketCard({ reg, onShowQR }: { reg: Registration; onShowQR: () => void }) {
-  const ep = reg.events?.event_pages?.[0];
-  const dateStr = fmtDate(ep?.starts_at);
-  const until = timeUntil(ep?.starts_at);
-  const venue = ep?.is_online ? 'Online' : (ep?.city ?? ep?.venue_name ?? null);
-  const ticketName = reg.ticket_types?.name ?? 'General';
-  const cardNum = reg.id.slice(-4).toUpperCase();
-
-  // Transfer modal state
-  const [showTransfer, setShowTransfer] = useState(false);
-  const [transferName, setTransferName] = useState('');
-  const [transferEmail, setTransferEmail] = useState('');
-  const [transferring, setTransferring] = useState(false);
-  const [transferDone, setTransferDone] = useState(false);
-  const [transferError, setTransferError] = useState('');
-  const dialogRef = useRef<HTMLDivElement>(null);
-
-  async function handleTransfer() {
-    if (!transferName.trim() || !transferEmail.trim()) {
-      setTransferError('Name and email are required.');
-      return;
-    }
-    setTransferring(true);
-    setTransferError('');
-    try {
-      const res = await fetch(`/api/registrations/${reg.id}/transfer`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to_name: transferName.trim(), to_email: transferEmail.trim() }),
-      });
-      if (res.ok) {
-        setTransferDone(true);
-      } else {
-        const d = await res.json();
-        setTransferError(d.error ?? 'Transfer failed. Please try again.');
-      }
-    } catch {
-      setTransferError('Transfer failed. Please try again.');
-    } finally {
-      setTransferring(false);
-    }
+function statusTag(reg: Registration, isPast: boolean): StatusTag {
+  if (reg.status === 'checked_in') return { label: 'Checked in', color: FOREST, accent: FOREST };
+  if (isPendingPayment(reg) || reg.payment_status === 'pending' || reg.status === 'pending' || reg.status === 'pending_approval') {
+    return { label: 'Payment pending', color: WARNING, accent: WARNING };
   }
+  if (isPast) return { label: 'Expired', color: MUTED, accent: '#C7C0AF' };
+  return { label: 'Confirmed', color: SUCCESS, accent: SUCCESS };
+}
 
-  void dialogRef; // used by ref
+// ── Ticket stub ─────────────────────────────────────────────────────────────
+
+function TicketStub({ reg, isPast, onShowQR }: { reg: Registration; isPast: boolean; onShowQR: () => void }) {
+  const ep = reg.events?.event_pages?.[0];
+  const whenStr = fmtWhen(ep?.starts_at);
+  const ticketName = reg.ticket_types?.name ?? 'General';
+  const tag = statusTag(reg, isPast);
+  const locked = isPendingPayment(reg);
 
   return (
     <div
-      className="overflow-hidden mb-5"
+      className="relative overflow-hidden transition-shadow hover:shadow-md"
       style={{
         background: '#FFFFFF',
-        border: '1px solid #E5E0D4',
-        borderRadius: 12,
-        boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)',
+        border: `1px solid ${BORDER}`,
+        borderRadius: 14,
+        boxShadow: '0 1px 2px rgba(15,31,24,0.04)',
+        opacity: isPast ? 0.9 : 1,
       }}
     >
-      {/* 3-col on desktop, 1-col on mobile */}
-      <div className="grid sm:grid-cols-[220px_1fr_auto]">
-          {/* Cover image */}
-          <div className="relative sm:min-h-[170px] min-h-[130px]">
+      {/* Left status accent bar */}
+      <div className="absolute left-0 top-0 bottom-0" style={{ width: 4, background: tag.accent }} />
+
+      <div className="pl-5 pr-4 py-4">
+        <Link href={`/my-tickets/${reg.id}`} className="flex gap-3.5 items-start">
+          {/* Cover thumb */}
+          <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0">
             {ep?.cover_image_url ? (
               <Image src={ep.cover_image_url} alt="" fill className="object-cover" />
             ) : (
-              <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg, #0D2018 0%, #1F4D3A 60%, #2A6A50 100%)' }} />
+              <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)' }} />
             )}
           </div>
 
-          {/* Body */}
-          <div className="p-5 sm:p-6 flex flex-col">
-            {dateStr && (
-              <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, color: '#6B7A72', fontWeight: 500, letterSpacing: '0.02em' }}>
-                {dateStr}{until && <span className="ml-2.5 font-semibold" style={{ color: '#1F4D3A' }}>· {until}</span>}
-              </div>
-            )}
-            <Link
-              href={`/e/${reg.events?.slug ?? ''}`}
-              className="mt-1.5 font-medium text-[20px] leading-snug hover:text-[#1F4D3A] transition-colors"
-              style={{ fontFamily: '"DM Sans", sans-serif', color: '#0F1F18', letterSpacing: '-0.015em' }}
-            >
+          <div className="flex-1 min-w-0">
+            <div className="font-display font-medium text-[16px] leading-snug truncate" style={{ fontFamily: '"DM Sans", sans-serif', color: INK, letterSpacing: '-0.01em' }}>
               {reg.events?.name ?? ep?.title}
-            </Link>
-            {venue && (
-              <p className="mt-1 text-[13px]" style={{ color: '#6B7A72' }}>{venue}</p>
+            </div>
+            {whenStr && (
+              <div className="text-[12.5px] mt-0.5" style={{ color: MUTED }}>{whenStr}</div>
             )}
-
-            <div className="mt-auto pt-4 flex items-center gap-2.5 flex-wrap">
-              <span
-                className="inline-flex items-center justify-center h-7 px-3 rounded-full text-[12px] font-medium"
-                style={{ background: '#E8EFEB', color: '#1F4D3A', fontFamily: '"DM Sans", sans-serif' }}
-              >
-                {ticketName}
-              </span>
-              {reg.events?.slug && ['confirmed', 'checked_in'].includes(reg.status) && (
-                <Link
-                  href={`/attending/${reg.events.slug}`}
-                  className="inline-flex items-center justify-center gap-1 h-7 px-3.5 rounded-full text-[12px] font-semibold text-white transition hover:opacity-90"
-                  style={{ background: '#1F4D3A' }}
-                  onClick={e => e.stopPropagation()}
-                >
-                  Open event
-                </Link>
-              )}
-              {ep?.id && ep?.starts_at && (
-                <a
-                  href={`/api/calendar/${ep.id}`}
-                  download
-                  className="inline-flex items-center justify-center h-7 px-3 rounded-full text-[12px] font-medium transition hover:opacity-75"
-                  style={{ background: '#FAF6EE', color: '#1F4D3A', border: '1px solid #E5E0D4' }}
-                  onClick={e => e.stopPropagation()}
-                >
-                  + Calendar
-                </a>
-              )}
-              {reg.status === 'confirmed' && (
-                <button
-                  onClick={e => { e.stopPropagation(); setShowTransfer(true); }}
-                  className="inline-flex items-center justify-center h-7 px-3 rounded-full text-[12px] font-medium transition hover:opacity-75"
-                  style={{ background: '#FAF6EE', color: '#6B7A72', border: '1px solid #E5E0D4' }}
-                >
-                  Transfer
-                </button>
-              )}
-              {reg.eventera_card_url && (
-                <>
-                  <div
-                    className="w-14 h-9 rounded overflow-hidden relative shrink-0"
-                    style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)' }}
-                  >
-                    <div className="absolute bottom-1 left-1.5" style={{ fontFamily: '"DM Sans", sans-serif', fontWeight: 600, fontSize: 6, color: '#E8C57E' }}>
-                      EVENTERA №{cardNum}
-                    </div>
-                  </div>
-                  <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: '#6B7A72' }}>
-                    Card №{cardNum}
-                  </span>
-                </>
-              )}
+            <div className="inline-flex items-center gap-1.5 h-6 px-2.5 rounded-full mt-2" style={{ background: CREAM_SOFT }}>
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: tag.accent }} />
+              <span className="text-[11.5px] font-semibold" style={{ color: tag.color }}>{tag.label}</span>
             </div>
           </div>
+        </Link>
 
-          {/* QR stub */}
-          <div
-            className="sm:flex hidden flex-col items-center justify-center gap-2.5 px-6 py-5"
-            style={{ borderLeft: '1px dashed #E5E0D4', minWidth: 130, cursor: 'pointer' }}
-            onClick={onShowQR}
-            role="button"
-            tabIndex={0}
-            onKeyDown={e => e.key === 'Enter' && onShowQR()}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={`/api/qr/${reg.qr_code_token}`}
-              alt="QR"
-              width={92}
-              height={92}
-              style={{ borderRadius: 6, border: '1px solid #E5E0D4' }}
-            />
-            <span className="text-[11px] text-center" style={{ color: '#6B7A72' }}>Tap for door QR</span>
-          </div>
-        </div>
+        {/* Footer */}
+        <div className="flex items-center justify-between mt-3.5 pt-3.5" style={{ borderTop: `1px solid ${BORDER}` }}>
+          <span className="text-[12.5px] font-medium" style={{ color: MUTED }}>{ticketName}</span>
 
-      {/* Mobile QR row */}
-      <div
-        className="sm:hidden flex items-center gap-4 px-5 py-4"
-        style={{ borderTop: '1px dashed #E5E0D4', cursor: 'pointer' }}
-        onClick={onShowQR}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={`/api/qr/${reg.qr_code_token}`}
-          alt="QR"
-          width={60}
-          height={60}
-          style={{ borderRadius: 6, border: '1px solid #E5E0D4', flexShrink: 0 }}
-        />
-        <div>
-          <p className="font-medium text-[13px]" style={{ color: '#0F1F18' }}>Tap to show door QR</p>
-          <p className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>Full screen for scanning</p>
-        </div>
-      </div>
-
-      {/* Transfer modal */}
-      {showTransfer && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: 'rgba(15,31,24,0.4)' }}
-          onClick={() => !transferring && setShowTransfer(false)}
-        >
-          <div
-            className="w-full max-w-sm rounded-2xl p-6"
-            style={{ background: 'white', border: '1px solid #E5E0D4' }}
-            onClick={e => e.stopPropagation()}
-          >
-            {transferDone ? (
-              <div className="text-center py-4">
-                <div className="mx-auto mb-3 flex items-center justify-center rounded-full" style={{ width: 40, height: 40, background: '#E8EFEB', color: '#1F4D3A' }}>
-                  <Check size={20} strokeWidth={2.2} />
-                </div>
-                <h3 className="font-semibold text-[17px] mb-1" style={{ color: '#1F4D3A' }}>Ticket transferred</h3>
-                <p className="text-[14px] mb-4" style={{ color: '#6B7A72' }}>{transferName} will receive a confirmation email.</p>
-                <button
-                  onClick={() => { setShowTransfer(false); setTransferDone(false); setTransferName(''); setTransferEmail(''); }}
-                  className="h-10 px-5 rounded-lg text-[14px] font-medium"
-                  style={{ background: '#1F4D3A', color: 'white' }}
-                >Done</button>
-              </div>
-            ) : (
-              <>
-                <h3 className="font-semibold text-[17px] mb-1" style={{ color: '#0F1F18' }}>Transfer ticket</h3>
-                <p className="text-[13px] mb-4" style={{ color: '#6B7A72' }}>Enter the name and email of the person receiving your ticket. They&apos;ll get a confirmation email.</p>
-                <div className="space-y-3 mb-4">
-                  <input
-                    type="text" value={transferName} onChange={e => setTransferName(e.target.value)}
-                    placeholder="Full name" autoFocus
-                    className="w-full h-10 px-3 rounded-lg text-[14px] outline-none"
-                    style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18' }}
-                    onFocus={e => (e.target.style.borderColor = '#E8C57E')}
-                    onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
-                  />
-                  <input
-                    type="email" value={transferEmail} onChange={e => setTransferEmail(e.target.value)}
-                    placeholder="Email address"
-                    className="w-full h-10 px-3 rounded-lg text-[14px] outline-none"
-                    style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', color: '#0F1F18' }}
-                    onFocus={e => (e.target.style.borderColor = '#E8C57E')}
-                    onBlur={e => (e.target.style.borderColor = '#E5E0D4')}
-                  />
-                </div>
-                {transferError && <p className="text-[12px] mb-3" style={{ color: '#B8423C' }}>{transferError}</p>}
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setShowTransfer(false)}
-                    className="flex-1 h-10 rounded-lg text-[14px] font-medium"
-                    style={{ background: '#FAF6EE', color: '#6B7A72', border: '1px solid #E5E0D4' }}
-                  >Cancel</button>
-                  <button
-                    onClick={handleTransfer}
-                    disabled={transferring}
-                    className="flex-1 h-10 rounded-lg text-[14px] font-medium transition"
-                    style={{ background: '#1F4D3A', color: 'white', opacity: transferring ? 0.6 : 1 }}
-                  >{transferring ? 'Transferring…' : 'Transfer ticket'}</button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── Past event compact card ───────────────────────────────────────────────────
-
-function PastCard({ reg }: { reg: Registration }) {
-  const ep = reg.events?.event_pages?.[0];
-  return (
-    <div
-      className="flex gap-3 items-center p-3 rounded-xl cursor-pointer hover:bg-[#F5F3EE] transition-colors"
-      style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', opacity: 0.85 }}
-    >
-      <div className="relative w-16 h-12 rounded overflow-hidden shrink-0">
-        {ep?.cover_image_url ? (
-          <Image src={ep.cover_image_url} alt="" fill className="object-cover" />
-        ) : (
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)' }} />
-        )}
-      </div>
-      <div className="min-w-0">
-        <div className="font-medium text-[14px] truncate" style={{ fontFamily: '"DM Sans", sans-serif', color: '#0F1F18' }}>
-          {reg.events?.name ?? ep?.title}
-        </div>
-        <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: '#6B7A72', marginTop: 2 }}>
-          {fmtPastDate(ep?.starts_at)} · attended
+          {locked ? (
+            <Link href={`/my-tickets/${reg.id}`} className="inline-flex items-center gap-1 text-[12.5px] font-semibold" style={{ color: WARNING }}>
+              <Lock size={13} strokeWidth={2.2} />
+              Pay to unlock
+            </Link>
+          ) : reg.status === 'checked_in' || isPast ? (
+            <Link href={`/my-tickets/${reg.id}`} className="inline-flex items-center gap-0.5 text-[12.5px] font-semibold" style={{ color: MUTED }}>
+              Receipt
+              <ChevronRight size={15} strokeWidth={2.2} />
+            </Link>
+          ) : (
+            <button
+              onClick={onShowQR}
+              className="inline-flex items-center gap-0.5 text-[12.5px] font-semibold"
+              style={{ color: FOREST }}
+            >
+              Show QR
+              <ChevronRight size={15} strokeWidth={2.2} />
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -402,48 +218,61 @@ function PastCard({ reg }: { reg: Registration }) {
 // ── Main export ───────────────────────────────────────────────────────────────
 
 export default function MyTicketsClient({ upcoming, past }: Props) {
+  const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming');
   const [qr, setQR] = useState<{ token: string; name: string; label: string } | null>(null);
 
   function openQR(reg: Registration) {
     setQR({
       token: reg.qr_code_token,
       name: reg.attendee_name,
-      label: [reg.events?.name, reg.ticket_types?.name, `№${reg.id.slice(-4).toUpperCase()}`].filter(Boolean).join(' · '),
+      label: [reg.events?.name, reg.ticket_types?.name].filter(Boolean).join(' · '),
     });
-    // Attempt to increase brightness for scanning
     if (typeof document !== 'undefined') {
       try { (screen as Screen & { brightness?: number }).brightness = 1; } catch { /* ignore */ }
     }
   }
 
+  const list = tab === 'upcoming' ? upcoming : past;
+
   return (
     <div>
-      {/* Upcoming */}
-      {upcoming.length === 0 ? (
+      {/* Segmented control */}
+      <div className="inline-flex p-0.5 rounded-full mb-5" style={{ background: CREAM_SOFT, border: `1px solid ${BORDER}` }}>
+        {(['upcoming', 'past'] as const).map(t => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className="h-8 px-4 rounded-full text-[13px] font-semibold capitalize transition"
+            style={tab === t
+              ? { background: '#fff', color: FOREST, boxShadow: '0 1px 2px rgba(15,31,24,0.08)' }
+              : { background: 'transparent', color: MUTED }}
+          >
+            {t}
+            {t === 'upcoming' && upcoming.length > 0 && <span className="ml-1.5 opacity-60">{upcoming.length}</span>}
+            {t === 'past' && past.length > 0 && <span className="ml-1.5 opacity-60">{past.length}</span>}
+          </button>
+        ))}
+      </div>
+
+      {/* List */}
+      {list.length === 0 ? (
         <div className="py-16 text-center">
-          <p className="text-[14px]" style={{ color: '#6B7A72' }}>
-            No upcoming tickets.{' '}
-            <Link href="/events" className="font-medium hover:underline" style={{ color: '#1F4D3A' }}>
-              Browse events →
-            </Link>
+          <p className="text-[14px]" style={{ color: MUTED }}>
+            {tab === 'upcoming' ? (
+              <>No upcoming tickets.{' '}
+                <Link href="/events" className="font-medium hover:underline" style={{ color: FOREST }}>Browse events →</Link>
+              </>
+            ) : (
+              'No past events yet.'
+            )}
           </p>
         </div>
       ) : (
-        upcoming.map(reg => (
-          <TicketCard key={reg.id} reg={reg} onShowQR={() => openQR(reg)} />
-        ))
-      )}
-
-      {/* Past events */}
-      {past.length > 0 && (
-        <>
-          <h2 className="font-medium text-[18px] mt-12 mb-4" style={{ fontFamily: '"DM Sans", sans-serif', color: '#0F1F18' }}>
-            Past events
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {past.map(reg => <PastCard key={reg.id} reg={reg} />)}
-          </div>
-        </>
+        <div className="flex flex-col gap-4">
+          {list.map(reg => (
+            <TicketStub key={reg.id} reg={reg} isPast={tab === 'past'} onShowQR={() => openQR(reg)} />
+          ))}
+        </div>
       )}
 
       {/* QR overlay */}

@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { upsertEventRole, resolveAccountIdByEmail } from '@/lib/rbac/assign';
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -14,7 +15,7 @@ export async function POST(req: Request) {
 
   const { data: sponsor } = await admin
     .from('sponsors')
-    .select('id')
+    .select('id, event_id')
     .eq('invite_token', token)
     .single();
 
@@ -27,6 +28,15 @@ export async function POST(req: Request) {
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Best-effort: if the invited teammate already has an account, grant them the
+  // event-scoped 'sponsor' role so the mobile Sponsor tools unlock for them too.
+  try {
+    const memberUserId = await resolveAccountIdByEmail(email);
+    if (memberUserId && sponsor.event_id) {
+      await upsertEventRole({ userId: memberUserId, eventId: sponsor.event_id as string, role: 'sponsor' });
+    }
+  } catch { /* never block the invite */ }
 
   return NextResponse.json({ member });
 }

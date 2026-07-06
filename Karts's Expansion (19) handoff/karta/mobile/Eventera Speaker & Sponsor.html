@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="design_doc_mode" content="canvas">
+<title>Eventera · Speaker, Sponsor &amp; Exhibitor modes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../karta.css">
+<link rel="stylesheet" href="mobile.css">
+<style>
+  body{ font-family:var(--body); }
+  .screen.dark{ background:
+    radial-gradient(ellipse 70% 60% at 15% 10%, rgba(31,77,58,0.9) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 30%, rgba(232,197,126,0.22) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 60% at 60% 95%, rgba(42,106,80,0.35) 0%, transparent 55%),
+    var(--forest-dark); }
+  /* camera-black scanner theme */
+  .screen.cam{ background:#0A0F0C; }
+  .canvas-h{ position:absolute; font-family:var(--display); font-weight:700; letter-spacing:-0.02em; color:var(--forest); }
+  .canvas-h .big{ font-size:30px; display:block; }
+  .canvas-h .lead{ font-family:var(--body); font-weight:400; font-size:15px; color:var(--ink-muted); margin-top:6px; max-width:560px; line-height:1.5; }
+  .canvas-h .kicker{ font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold-hover); margin-bottom:8px; }
+
+  /* role banner — speaker / sponsor context strip at top of the tool screens */
+  .rolebar{ flex:none; display:flex; align-items:center; gap:11px; padding:12px 16px; background:linear-gradient(135deg,#163828 0%,#1F4D3A 65%,#2A6A50 100%); color:#fff; }
+  .rolebar .rb-ic{ width:38px; height:38px; border-radius:11px; background:rgba(232,197,126,.16); border:1px solid rgba(232,197,126,.32); display:flex; align-items:center; justify-content:center; flex:none; }
+  .rolebar .rb-ic svg{ width:20px; height:20px; stroke:var(--gold); fill:none; stroke-width:1.9; }
+  .rolebar .rb-ev{ font-family:var(--display); font-weight:600; font-size:14.5px; letter-spacing:-0.01em; }
+  .rolebar .rb-role{ font-family:var(--mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold); margin-top:2px; }
+
+  /* role pill — appears on event cards for multi-role users */
+  .rolepill{ display:inline-flex; align-items:center; gap:5px; height:24px; padding:0 10px; border-radius:999px;
+    font-family:var(--body); font-weight:600; font-size:11px; letter-spacing:.01em; background:var(--gold); color:var(--ink); }
+  .rolepill svg{ width:13px; height:13px; stroke:var(--ink); fill:none; stroke-width:2; }
+
+  /* tools entry-point card (Speaker tools / Sponsor tools) */
+  .toolcard{ display:flex; align-items:center; gap:13px; padding:14px; border-radius:14px;
+    background:linear-gradient(135deg,#163828 0%,#1F4D3A 70%); border:1px solid rgba(232,197,126,.22); box-shadow:var(--sh-soft); }
+  .toolcard .tc-ic{ width:44px; height:44px; border-radius:12px; background:rgba(232,197,126,.15); border:1px solid rgba(232,197,126,.3); display:flex; align-items:center; justify-content:center; flex:none; }
+  .toolcard .tc-ic svg{ width:22px; height:22px; stroke:var(--gold); fill:none; stroke-width:1.9; }
+  .toolcard .tc-t{ flex:1; min-width:0; }
+  .toolcard .tc-t .t{ font-family:var(--display); font-weight:600; font-size:15px; color:#fff; letter-spacing:-0.01em; }
+  .toolcard .tc-t .d{ font-family:var(--body); font-size:12px; color:rgba(250,246,238,.72); margin-top:2px; }
+  .toolcard .tc-go{ width:18px; height:18px; stroke:var(--gold); fill:none; stroke-width:2; flex:none; }
+
+  /* session row */
+  .sess{ display:block; background:var(--cream-surface); border:1px solid var(--cream-border); border-radius:var(--rm-card); box-shadow:var(--sh-soft); padding:14px 15px; }
+  .sess + .sess{ margin-top:11px; }
+  .sess .st-time{ font-family:var(--mono); font-size:12px; color:var(--forest); font-weight:500; }
+  .sess .st-title{ font-family:var(--display); font-weight:600; font-size:15.5px; color:var(--ink); letter-spacing:-0.01em; margin-top:7px; line-height:1.25; }
+  .sess .st-meta{ display:flex; align-items:center; gap:8px; margin-top:9px; }
+
+  /* live Q&A row */
+  .qrow{ padding:13px 0; display:flex; gap:12px; }
+  .qrow + .qrow{ border-top:1px solid var(--cream-border); }
+  .qvote{ width:44px; flex:none; display:flex; flex-direction:column; align-items:center; gap:2px; padding-top:2px; }
+  .qvote svg{ width:16px; height:16px; stroke:var(--forest); fill:none; stroke-width:2; }
+  .qvote .n{ font-family:var(--mono); font-size:14px; font-weight:500; color:var(--ink); }
+  .qvote.top{ }
+  .qvote.top svg{ stroke:var(--gold-hover); fill:var(--gold); }
+  .qtext{ flex:1; min-width:0; }
+  .qtext .q{ font-family:var(--body); font-size:13.5px; line-height:1.45; color:var(--ink); }
+  .qtext .qby{ font-family:var(--body); font-size:11.5px; color:var(--ink-muted); margin-top:6px; }
+
+  /* live indicator */
+  .live{ display:inline-flex; align-items:center; gap:6px; font-family:var(--body); font-weight:600; font-size:11px; letter-spacing:.04em; text-transform:uppercase; color:var(--danger); }
+  .live .pulse{ width:7px; height:7px; border-radius:50%; background:var(--danger); animation:pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse{ 0%,100%{ opacity:1; box-shadow:0 0 0 0 rgba(184,66,60,.5); } 50%{ opacity:.5; box-shadow:0 0 0 5px rgba(184,66,60,0); } }
+
+  /* rating pills (hot / warm / cold) */
+  .rate{ display:flex; gap:8px; }
+  .rate .rp{ flex:1; height:44px; border-radius:12px; border:1px solid var(--cream-border); background:var(--cream-surface);
+    display:flex; align-items:center; justify-content:center; gap:7px; font-family:var(--display); font-weight:600; font-size:13.5px; color:var(--ink-soft); }
+  .rate .rp .rd{ width:9px; height:9px; border-radius:50%; }
+  .rate .rp.hot.on{ background:rgba(184,66,60,.1); border-color:var(--danger); color:var(--danger); }
+  .rate .rp.warm.on{ background:rgba(201,122,45,.13); border-color:var(--warning); color:var(--warning); }
+  .rate .rp.cold.on{ background:rgba(58,107,140,.12); border-color:var(--info); color:var(--info); }
+  .rate .rp.hot .rd{ background:var(--danger); }
+  .rate .rp.warm .rd{ background:var(--warning); }
+  .rate .rp.cold .rd{ background:var(--info); }
+
+  /* lead row */
+  .lead{ display:flex; align-items:center; gap:12px; padding:13px 0; }
+  .lead + .lead{ border-top:1px solid var(--cream-border); }
+  .lead .ld-t{ flex:1; min-width:0; }
+  .lead .ld-name{ font-family:var(--display); font-weight:600; font-size:14.5px; color:var(--ink); letter-spacing:-0.01em; }
+  .lead .ld-co{ font-family:var(--body); font-size:12px; color:var(--ink-muted); margin-top:2px; }
+  .lead .ld-date{ font-family:var(--mono); font-size:11px; color:var(--ink-muted); text-align:right; }
+
+  /* camera scanner shared */
+  .camwrap{ position:absolute; inset:0; overflow:hidden; }
+  .camtex{ position:absolute; inset:0; background:
+    radial-gradient(circle at 30% 30%, rgba(60,80,68,.5), transparent 55%),
+    radial-gradient(circle at 75% 70%, rgba(40,58,48,.6), transparent 50%),
+    linear-gradient(160deg,#12201A,#0A0F0C); }
+  .camtex::after{ content:''; position:absolute; inset:0; background-image:radial-gradient(rgba(255,255,255,.03) 1px, transparent 1px); background-size:5px 5px; }
+  .scanbox{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:230px; height:230px; }
+  .scanbox .cnr{ position:absolute; width:38px; height:38px; border:3px solid var(--gold); }
+  .scanbox .tl{ top:0; left:0; border-right:none; border-bottom:none; border-radius:6px 0 0 0; }
+  .scanbox .tr{ top:0; right:0; border-left:none; border-bottom:none; border-radius:0 6px 0 0; }
+  .scanbox .bl{ bottom:0; left:0; border-right:none; border-top:none; border-radius:0 0 0 6px; }
+  .scanbox .br{ bottom:0; right:0; border-left:none; border-top:none; border-radius:0 0 6px 0; }
+  .scanline{ position:absolute; left:8px; right:8px; height:2px; border-radius:2px; background:linear-gradient(90deg,transparent,var(--gold),transparent);
+    box-shadow:0 0 12px 2px rgba(232,197,126,.6); animation:scan 2.4s ease-in-out infinite; }
+  @keyframes scan{ 0%,100%{ top:12px; } 50%{ top:216px; } }
+  .camhint{ position:absolute; left:26px; right:26px; text-align:center; }
+  .camhint .ch-t{ font-family:var(--display); font-weight:600; font-size:16px; color:#fff; letter-spacing:-0.01em; }
+  .camhint .ch-d{ font-family:var(--body); font-size:13px; color:rgba(255,255,255,.66); margin-top:6px; line-height:1.45; }
+</style>
+</head>
+<body>
+
+<!-- ============ TITLE ============ -->
+<div class="canvas-h" style="left:80px; top:-250px;">
+  <div class="kicker">Eventera · Attend side · additions</div>
+  <span class="big" style="font-size:42px;">Speaker, Sponsor &amp; Exhibitor modes</span>
+  <div class="lead">Layered onto the existing attendee event hub — not a separate app. A person can be an attendee <i>and</i> a speaker, sponsor <i>or</i> exhibitor at the same event, so these are additional sections a role badge unlocks. Same forest + cream system, DM Sans / Inter / JetBrains Mono, gold once per screen. Camera screens go dark for clarity.</div>
+</div>
+
+<!-- ============ ROW 1 — SPEAKER ============ -->
+<div class="canvas-h" style="left:80px; top:0px;"><span class="big">Speaker mode</span><div class="lead" style="margin-top:2px;">SP01–SP04 · unlocked when you're presenting at an event</div></div>
+
+<!-- SP04 — Speaker badge in event hub -->
+<div class="dev" style="left:80px; top:110px;">
+  <div class="label">SP04 · Speaker badge in event hub</div><div class="sub">role pill on card · tools entry</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title" style="font-size:15px;">AfriTech Summit</div><div class="spacer"></div><div class="act"><svg viewBox="0 0 24 24"><path d="M6 4h12v16l-6-4-6 4z"/></svg></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px;">
+        <!-- event card with role badge -->
+        <div style="border-radius:var(--rm-card); overflow:hidden; box-shadow:var(--sh-soft); border:1px solid var(--cream-border);">
+          <div class="ph" style="--h:158; height:118px; position:relative;">
+            <div class="scrim-b" style="position:absolute; inset:0;"></div>
+            <div style="position:absolute; top:12px; left:12px; display:flex; gap:7px;"><span class="rolepill"><svg viewBox="0 0 24 24"><path d="M12 3a3 3 0 013 3v5a3 3 0 01-6 0V6a3 3 0 013-3z"/><path d="M6 11a6 6 0 0012 0M12 17v4"/></svg>Speaker</span></div>
+            <div style="position:absolute; left:14px; bottom:12px; right:14px; z-index:2;"><div style="font-family:var(--display); font-weight:700; font-size:18px; color:#fff; letter-spacing:-0.02em;">AfriTech Summit 2026</div><div class="monos" style="font-size:11px; color:rgba(250,246,238,.82); margin-top:4px;">12–14 MAR · Djibouti City</div></div>
+          </div>
+        </div>
+        <div class="bodytext" style="font-size:13px; margin:14px 2px 6px;">You're presenting here. Your speaker sections sit alongside your attendee experience.</div>
+        <a class="toolcard" href="#" style="margin-top:10px; text-decoration:none;"><div class="tc-ic"><svg viewBox="0 0 24 24"><path d="M12 3a3 3 0 013 3v5a3 3 0 01-6 0V6a3 3 0 013-3z"/><path d="M6 11a6 6 0 0012 0M12 17v4M8 21h8"/></svg></div><div class="tc-t"><div class="t">Speaker tools</div><div class="d">2 sessions · profile · audience Q&amp;A</div></div><svg class="tc-go" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></a>
+        <div class="seclab" style="margin:22px 0 12px;">Your event, at a glance</div>
+        <div class="stats">
+          <div class="stat"><div class="n">2</div><div class="l">Sessions</div></div>
+          <div class="stat"><div class="n">237</div><div class="l">Attending</div></div>
+          <div class="stat"><div class="n">18</div><div class="l">Questions</div></div>
+        </div>
+      </div></div>
+      <div class="tabbar">
+        <div class="tab"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span>Discover</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><path d="M4 8a2 2 0 012-2h12a2 2 0 012 2v3a2 2 0 000 4v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3a2 2 0 000-4z"/></svg><span>Tickets</span></div>
+        <div class="tab on"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="8.5" cy="11" r="2"/><path d="M13 9h5M13 13h5"/></svg><span>Cards</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0113 0"/></svg><span>Account</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SP01 — Speaker: My Sessions -->
+<div class="dev" style="left:540px; top:110px;">
+  <div class="label">SP01 · Speaker — My Sessions</div><div class="sub">sessions I'm presenting</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Speaker tools</div></div>
+      <div class="rolebar"><div class="rb-ic"><svg viewBox="0 0 24 24"><path d="M12 3a3 3 0 013 3v5a3 3 0 01-6 0V6a3 3 0 013-3z"/><path d="M6 11a6 6 0 0012 0M12 17v4"/></svg></div><div><div class="rb-ev">AfriTech Summit 2026</div><div class="rb-role">Speaker</div></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:16px; padding-bottom:16px;">
+        <div class="seclab" style="margin-bottom:12px;">My sessions · <span class="monos" style="letter-spacing:0;">2</span></div>
+        <a class="sess" href="#">
+          <div style="display:flex; align-items:center; justify-content:space-between;"><span class="st-time">THU · 09:00–09:45</span><span class="tag tag-gold">Keynote</span></div>
+          <div class="st-title">Designing for the next billion</div>
+          <div class="st-meta"><span class="tag tag-forest"><svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M12 21s-7-6-7-11a7 7 0 1114 0c0 5-7 11-7 11z"/></svg>Main Stage</span><span class="chip" style="height:24px; font-size:11.5px;">Product</span></div>
+        </a>
+        <a class="sess" href="#">
+          <div style="display:flex; align-items:center; justify-content:space-between;"><span class="st-time">FRI · 14:30–15:15</span><span class="chip" style="height:24px; font-size:11.5px;">Panel</span></div>
+          <div class="st-title">Building trust in African fintech</div>
+          <div class="st-meta"><span class="tag tag-forest"><svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M12 21s-7-6-7-11a7 7 0 1114 0c0 5-7 11-7 11z"/></svg>Track A · Room 2</span><span class="chip" style="height:24px; font-size:11.5px;">Fintech</span></div>
+        </a>
+        <div class="whynote" style="margin-top:20px;"><svg viewBox="0 0 24 24"><path d="M12 8v5M12 16v.01"/><circle cx="12" cy="12" r="9"/></svg><div class="wt">Tap a session to see its description, co-speakers and the live audience Q&amp;A.</div></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SP02 — Speaker: Session detail + live Q&A -->
+<div class="dev" style="left:1000px; top:110px;">
+  <div class="label">SP02 · Speaker — Session detail</div><div class="sub">info · co-speakers · live Q&amp;A (read-only)</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title" style="font-size:15px;">Session</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px;">
+        <div class="monos" style="font-size:12px; color:var(--forest); font-weight:500;">THU · 09:00–09:45 · Main Stage</div>
+        <div class="h2" style="margin-top:8px;">Designing for the next billion</div>
+        <div class="bodytext" style="font-size:13.5px; margin-top:10px;">How the next wave of African products win by designing for constraint — low bandwidth, cash-first users, and trust built one transaction at a time.</div>
+        <div class="seclab" style="margin:20px 0 10px;">Co-speakers</div>
+        <div style="display:flex; gap:12px;">
+          <div style="display:flex; align-items:center; gap:9px;"><div class="av av-40 ph" style="--h:200;">FK</div><div><div style="font-family:var(--display); font-weight:600; font-size:13px;">Faisal Karim</div><div style="font-size:11px; color:var(--ink-muted);">Baobab Bank</div></div></div>
+        </div>
+
+        <div style="display:flex; align-items:center; justify-content:space-between; margin:22px 0 4px;">
+          <div class="seclab">Audience Q&amp;A</div>
+          <div class="live"><span class="pulse"></span>Live</div>
+        </div>
+        <div class="bodytext muted" style="font-size:12px; margin-bottom:6px;">Sorted by upvotes · <span class="monos">18</span> questions · read-only</div>
+        <div>
+          <div class="qrow"><div class="qvote top"><svg viewBox="0 0 24 24"><path d="M12 5l7 7h-4v7H9v-7H5z"/></svg><span class="n">42</span></div><div class="qtext"><div class="q">How do you build trust with users who've never used a bank before?</div><div class="qby">Layla Hassan · 2m ago</div></div></div>
+          <div class="qrow"><div class="qvote"><svg viewBox="0 0 24 24"><path d="M12 5l7 7h-4v7H9v-7H5z"/></svg><span class="n">31</span></div><div class="qtext"><div class="q">What metrics matter most in the first 90 days?</div><div class="qby">Omar Said · 4m ago</div></div></div>
+          <div class="qrow"><div class="qvote"><svg viewBox="0 0 24 24"><path d="M12 5l7 7h-4v7H9v-7H5z"/></svg><span class="n">24</span></div><div class="qtext"><div class="q">Any advice on going multi-country vs. going deep in one market first?</div><div class="qby">Nadia Beye · 6m ago</div></div></div>
+          <div class="qrow"><div class="qvote"><svg viewBox="0 0 24 24"><path d="M12 5l7 7h-4v7H9v-7H5z"/></svg><span class="n">15</span></div><div class="qtext"><div class="q">How big was the team at your first million users?</div><div class="qby">Anonymous · 7m ago</div></div></div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SP03 — Speaker: My Profile -->
+<div class="dev" style="left:1460px; top:110px;">
+  <div class="label">SP03 · Speaker — My Profile</div><div class="sub">as attendees see it · light edit</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title" style="font-size:15px;">Speaker profile</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:18px; padding-bottom:16px;">
+        <div style="display:flex; flex-direction:column; align-items:center; text-align:center;">
+          <div class="photoup" style="margin:0;"><div class="av av-64 ph" style="--h:30; width:88px; height:88px; font-size:28px;">AO</div><div class="badge"><svg viewBox="0 0 24 24"><path d="M4 20l4-1 10-10-3-3L5 16z"/></svg></div></div>
+          <div style="font-family:var(--display); font-weight:700; font-size:20px; letter-spacing:-0.02em; margin-top:12px;">Amina Osman</div>
+          <div style="font-family:var(--body); font-size:13px; color:var(--ink-muted); margin-top:2px;">Founder &amp; CEO · Sahel Pay</div>
+        </div>
+        <div class="field" style="margin-top:22px;"><label>Bio</label><div class="input textarea" style="min-height:88px;"><input value="Building cash-first financial rails for the Horn of Africa. Ex-fintech operator across three markets." readonly style="color:var(--ink);"></div></div>
+        <div class="field"><label>Company</label><div class="input"><svg viewBox="0 0 24 24"><path d="M4 20V8l6-4 6 4v12M4 20h16M9 20v-5h2v5"/></svg><input value="Sahel Pay" readonly style="color:var(--ink);"></div></div>
+        <div class="seclab" style="margin:6px 0 10px;">Social links</div>
+        <div class="field" style="margin-bottom:10px;"><div class="input"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 11v5M8 8v.01M12 16v-3a2 2 0 014 0v3"/></svg><input value="linkedin.com/in/aminaosman" readonly style="color:var(--ink);"></div></div>
+        <div class="field" style="margin-bottom:16px;"><div class="input"><svg viewBox="0 0 24 24"><path d="M4 4l7 8.5M20 20l-7-8.5M4 4h3l13 16h-3z"/></svg><input value="@aminaosman" readonly style="color:var(--ink);"></div></div>
+        <div class="whynote"><svg viewBox="0 0 24 24"><path d="M12 8v5M12 16v.01"/><circle cx="12" cy="12" r="9"/></svg><div class="wt">Full profile management — session slides, headshots &amp; abstracts — on <b>eventera.so</b>.</div></div>
+      </div></div>
+      <div class="stickycta"><button class="mbtn mbtn-forest">Save changes</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ROW 2 — SPONSOR ============ -->
+<div class="canvas-h" style="left:80px; top:1110px;"><span class="big">Sponsor mode</span><div class="lead" style="margin-top:2px;">SPO01–SPO05 · unlocked when your company sponsors an event · lead retrieval is the workhorse</div></div>
+
+<!-- SPO05 — Sponsor badge in event hub -->
+<div class="dev" style="left:80px; top:1220px;">
+  <div class="label">SPO05 · Sponsor badge in event hub</div><div class="sub">role pill on card · tools entry</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title" style="font-size:15px;">AfriTech Summit</div><div class="spacer"></div><div class="act"><svg viewBox="0 0 24 24"><path d="M6 4h12v16l-6-4-6 4z"/></svg></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px;">
+        <div style="border-radius:var(--rm-card); overflow:hidden; box-shadow:var(--sh-soft); border:1px solid var(--cream-border);">
+          <div class="ph" style="--h:158; height:118px; position:relative;">
+            <div class="scrim-b" style="position:absolute; inset:0;"></div>
+            <div style="position:absolute; top:12px; left:12px; display:flex; gap:7px;"><span class="rolepill"><svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.6 6 .7-4.4 4.1 1.2 6L12 16.8 6.6 19.4l1.2-6L3.4 9.3l6-.7z"/></svg>Sponsor</span></div>
+            <div style="position:absolute; left:14px; bottom:12px; right:14px; z-index:2;"><div style="font-family:var(--display); font-weight:700; font-size:18px; color:#fff; letter-spacing:-0.02em;">AfriTech Summit 2026</div><div class="monos" style="font-size:11px; color:rgba(250,246,238,.82); margin-top:4px;">12–14 MAR · Djibouti City</div></div>
+          </div>
+        </div>
+        <div class="bodytext" style="font-size:13px; margin:14px 2px 6px;">Baobab Bank is a <b>Headline</b> sponsor. Capture leads and manage your booth from here.</div>
+        <a class="toolcard" href="#" style="margin-top:10px; text-decoration:none;"><div class="tc-ic"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><path d="M13 13h3v3M20 20v.01M17 17h.01M20 13h.01M13 20h.01"/></svg></div><div class="tc-t"><div class="t">Sponsor tools</div><div class="d">Lead scanner · my booth · my leads</div></div><svg class="tc-go" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></a>
+        <div class="seclab" style="margin:22px 0 12px;">Booth performance</div>
+        <div class="stats">
+          <div class="stat"><div class="n">47</div><div class="l">Leads</div></div>
+          <div class="stat"><div class="n">12</div><div class="l">Hot</div></div>
+          <div class="stat"><div class="n">A1</div><div class="l">Booth</div></div>
+        </div>
+      </div></div>
+      <div class="tabbar">
+        <div class="tab"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span>Discover</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><path d="M4 8a2 2 0 012-2h12a2 2 0 012 2v3a2 2 0 000 4v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3a2 2 0 000-4z"/></svg><span>Tickets</span></div>
+        <div class="tab on"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="8.5" cy="11" r="2"/><path d="M13 9h5M13 13h5"/></svg><span>Cards</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0113 0"/></svg><span>Account</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SPO01 — Sponsor: My Booth -->
+<div class="dev" style="left:540px; top:1220px;">
+  <div class="label">SPO01 · Sponsor — My Booth</div><div class="sub">booth info · light edit</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Sponsor tools</div></div>
+      <div class="rolebar"><div class="rb-ic"><svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.6 6 .7-4.4 4.1 1.2 6L12 16.8 6.6 19.4l1.2-6L3.4 9.3l6-.7z"/></svg></div><div><div class="rb-ev">AfriTech Summit 2026</div><div class="rb-role">Sponsor · Headline</div></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:16px; padding-bottom:16px;">
+        <div style="display:flex; align-items:center; gap:13px;"><div style="width:56px; height:56px; border-radius:14px; background:var(--forest-soft); display:flex; align-items:center; justify-content:center; font-family:var(--display); font-weight:700; font-size:20px; color:var(--forest); flex:none;">B</div><div><div style="font-family:var(--display); font-weight:700; font-size:18px; letter-spacing:-0.02em;">Baobab Bank</div><div style="font-family:var(--body); font-size:12.5px; color:var(--ink-muted); margin-top:2px;">Booth <span class="monos" style="color:var(--forest); font-weight:500;">A1</span> · Main Hall</div></div></div>
+        <div class="seg-ctl" style="margin-top:18px;"><div class="on">Booth info</div><div>Team</div></div>
+        <div class="field" style="margin-top:18px;"><label>Booth name</label><div class="input"><input value="Baobab Bank" readonly style="color:var(--ink);"></div></div>
+        <div class="field"><label>Location / number</label><div class="input"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6-7-11a7 7 0 1114 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><input value="A1 · Main Hall" readonly style="color:var(--ink);"></div></div>
+        <div class="field"><label>Tier</label><div class="input" style="justify-content:space-between;"><span style="color:var(--ink);">Headline sponsor</span><svg viewBox="0 0 24 24" style="stroke:var(--ink-muted);"><path d="M6 9l6 6 6-6"/></svg></div></div>
+        <div class="field" style="margin-bottom:0;"><label>Description</label><div class="input textarea" style="min-height:84px;"><input value="Banking built for how Africa actually moves money. Live demos every hour at Booth A1." readonly style="color:var(--ink);"></div></div>
+        <div class="whynote" style="margin-top:16px;"><svg viewBox="0 0 24 24"><path d="M12 8v5M12 16v.01"/><circle cx="12" cy="12" r="9"/></svg><div class="wt">Logo, collateral &amp; team roster are managed on <b>eventera.so</b>.</div></div>
+      </div></div>
+      <div class="stickycta"><button class="mbtn mbtn-forest">Save changes</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- SPO02 — Sponsor: Lead Retrieval (scanner) -->
+<div class="dev" style="left:1000px; top:1220px;">
+  <div class="label">SPO02 · Sponsor — Lead Retrieval</div><div class="sub">full-screen scanner · dark</div>
+  <div class="phone">
+    <div class="screen cam">
+      <div class="camwrap">
+        <div class="camtex"></div>
+        <!-- top bar -->
+        <div style="position:absolute; top:52px; left:0; right:0; display:flex; align-items:center; gap:12px; padding:8px 16px; z-index:10;">
+          <div style="width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,.12); display:flex; align-items:center; justify-content:center;"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2;"><path d="M6 6l12 12M18 6L6 18"/></svg></div>
+          <div style="flex:1; text-align:center; font-family:var(--display); font-weight:600; font-size:15px; color:#fff;">Lead retrieval</div>
+          <div style="width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,.12); display:flex; align-items:center; justify-content:center;"><svg viewBox="0 0 24 24" style="width:19px;height:19px;stroke:#fff;fill:none;stroke-width:2;"><path d="M7 4h10l-1 4H8zM6 8h12l-1 12H7z"/></svg></div>
+        </div>
+        <!-- scan window -->
+        <div class="scanbox">
+          <div class="cnr tl"></div><div class="cnr tr"></div><div class="cnr bl"></div><div class="cnr br"></div>
+          <div class="scanline"></div>
+        </div>
+        <!-- hint -->
+        <div class="camhint" style="top:calc(50% + 150px); transform:translateY(-50%);">
+          <div class="ch-t">Scan an attendee's code</div>
+          <div class="ch-d">Point at the QR on their Eventera card to capture their contact.</div>
+        </div>
+        <!-- counter chip -->
+        <div style="position:absolute; bottom:40px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:9px; height:44px; padding:0 18px; border-radius:999px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.16); backdrop-filter:blur(8px);">
+          <svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:var(--gold);fill:none;stroke-width:2;"><path d="M9 8a4 4 0 118 0M5 8a4 4 0 108 0"/><path d="M3 20a5 5 0 0110 0M11 20a5 5 0 0110 0"/></svg>
+          <span style="font-family:var(--body); font-weight:600; font-size:13px; color:#fff;"><span class="monos" style="color:var(--gold);">47</span> leads today</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SPO03 — Sponsor: Lead captured -->
+<div class="dev" style="left:1460px; top:1220px;">
+  <div class="label">SPO03 · Sponsor — Lead captured</div><div class="sub">note · hot / warm / cold · save</div>
+  <div class="phone">
+    <div class="screen cam">
+      <!-- captured sheet over dimmed camera -->
+      <div class="camtex" style="opacity:.5;"></div>
+      <div class="scrim" style="background:rgba(8,15,11,.55);"></div>
+      <div class="sheet" style="padding-bottom:26px;">
+        <div class="grab"></div>
+        <div style="display:flex; align-items:center; gap:6px; margin-bottom:14px;"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--success);fill:none;stroke-width:2.4;"><path d="M5 12l4 4 10-10"/></svg><span style="font-family:var(--body); font-weight:600; font-size:12.5px; color:var(--success);">Lead captured</span></div>
+        <div style="display:flex; align-items:center; gap:14px;">
+          <div class="av ph" style="--h:265; width:60px; height:60px; border:2px solid var(--gold); font-size:20px;">LH</div>
+          <div style="min-width:0;"><div style="font-family:var(--display); font-weight:700; font-size:19px; letter-spacing:-0.02em;">Layla Hassan</div><div style="font-family:var(--body); font-size:13px; color:var(--ink-soft); margin-top:2px;">Head of Product · Nomad Health</div></div>
+        </div>
+        <div class="seclab" style="margin:20px 0 9px;">Rate this lead</div>
+        <div class="rate">
+          <div class="rp hot on"><span class="rd"></span>Hot</div>
+          <div class="rp warm"><span class="rd"></span>Warm</div>
+          <div class="rp cold"><span class="rd"></span>Cold</div>
+        </div>
+        <div class="field" style="margin:18px 0 0;"><label>Note</label><div class="input textarea" style="min-height:76px;"><input value="Wants a demo of the payouts API — follow up Monday." readonly style="color:var(--ink);"></div></div>
+        <div style="display:flex; gap:11px; margin-top:16px;">
+          <button class="mbtn mbtn-sec" style="width:52px; flex:none;"><svg viewBox="0 0 24 24" style="stroke:var(--forest);"><path d="M12 5v14M5 12h14"/></svg></button>
+          <button class="mbtn mbtn-forest" style="flex:1;">Save lead</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ROW 3 — SPONSOR LEADS ============ -->
+<!-- SPO04 — Sponsor: My Leads -->
+<div class="dev" style="left:80px; top:2330px;">
+  <div class="label">SPO04 · Sponsor — My Leads</div><div class="sub">search · export note</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">My leads</div><div class="spacer"></div><div class="act"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:12px; padding-bottom:16px;">
+        <div class="input" style="height:44px; margin-bottom:8px;"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input placeholder="Search name or company" readonly></div>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin:8px 2px 4px;"><div class="seclab"><span class="monos" style="letter-spacing:0;">47</span> leads</div><div class="chiprow" style="gap:6px; overflow:visible;"><div class="chip on" style="height:28px; font-size:11.5px;">All</div><div class="chip" style="height:28px; font-size:11.5px;">Hot</div></div></div>
+        <div>
+          <div class="lead"><div class="av av-40 ph" style="--h:265;">LH</div><div class="ld-t"><div class="ld-name">Layla Hassan</div><div class="ld-co">Nomad Health</div></div><div><span class="tag tag-danger">Hot</span><div class="ld-date">14 MAR</div></div></div>
+          <div class="lead"><div class="av av-40 ph" style="--h:200;">OS</div><div class="ld-t"><div class="ld-name">Omar Said</div><div class="ld-co">Kilifi Logistics</div></div><div><span class="tag tag-warning">Warm</span><div class="ld-date">14 MAR</div></div></div>
+          <div class="lead"><div class="av av-40 ph" style="--h:20;">NB</div><div class="ld-t"><div class="ld-name">Nadia Beye</div><div class="ld-co">Dakar Ventures</div></div><div><span class="tag tag-danger">Hot</span><div class="ld-date">13 MAR</div></div></div>
+          <div class="lead"><div class="av av-40 ph" style="--h:120;">TM</div><div class="ld-t"><div class="ld-name">Tariq Mensah</div><div class="ld-co">Accra Foundry</div></div><div><span class="tag tag-info">Cold</span><div class="ld-date">13 MAR</div></div></div>
+          <div class="lead"><div class="av av-40 ph" style="--h:300;">RA</div><div class="ld-t"><div class="ld-name">Rania Adan</div><div class="ld-co">Red Sea Freight</div></div><div><span class="tag tag-warning">Warm</span><div class="ld-date">12 MAR</div></div></div>
+        </div>
+        <div class="whynote" style="margin-top:18px;"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><div class="wt">Full CSV export &amp; CRM sync available on <b>eventera.so</b>.</div></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SPO04b — My Leads: empty state -->
+<div class="dev" style="left:540px; top:2330px;">
+  <div class="label">SPO04 · My Leads — empty</div><div class="sub">before first scan</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">My leads</div></div>
+      <div class="body" style="display:flex; align-items:center; justify-content:center;"><div class="pad" style="text-align:center;">
+        <div style="width:76px; height:76px; border-radius:20px; background:var(--gold-soft); display:flex; align-items:center; justify-content:center; margin:0 auto 18px;"><svg viewBox="0 0 24 24" style="width:34px;height:34px;stroke:var(--gold-hover);fill:none;stroke-width:1.8;"><rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><path d="M13 13h3v3M20 20v.01M17 17h.01"/></svg></div>
+        <div class="h3">No leads yet</div>
+        <div class="bodytext muted" style="font-size:13px; margin-top:8px; max-width:230px;">Scan an attendee's Eventera card at your booth to capture your first lead.</div>
+        <button class="mbtn mbtn-forest mbtn-sm" style="width:auto; padding:0 20px; margin:20px auto 0;"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/></svg>Scan a lead</button>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SP01b — My Sessions: loading skeleton -->
+<div class="dev" style="left:1000px; top:2330px;">
+  <div class="label">SP01 · My Sessions — loading</div><div class="sub">skeleton state</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Speaker tools</div></div>
+      <div class="rolebar"><div class="rb-ic"><svg viewBox="0 0 24 24"><path d="M12 3a3 3 0 013 3v5a3 3 0 01-6 0V6a3 3 0 013-3z"/><path d="M6 11a6 6 0 0012 0M12 17v4"/></svg></div><div><div class="rb-ev">AfriTech Summit 2026</div><div class="rb-role">Speaker</div></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:16px;">
+        <div class="skl" style="width:120px; height:12px; margin-bottom:16px;"></div>
+        <div class="mcard" style="margin-bottom:11px;"><div class="skl" style="width:90px; height:12px;"></div><div class="skl" style="width:80%; height:18px; margin-top:12px;"></div><div class="skl" style="width:130px; height:22px; border-radius:999px; margin-top:12px;"></div></div>
+        <div class="mcard"><div class="skl" style="width:90px; height:12px;"></div><div class="skl" style="width:70%; height:18px; margin-top:12px;"></div><div class="skl" style="width:130px; height:22px; border-radius:999px; margin-top:12px;"></div></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ROW 4 — MORE SPEAKER & SPONSOR ============ -->
+<div class="canvas-h" style="left:80px; top:3440px;"><span class="big">More speaker &amp; sponsor screens</span><div class="lead" style="margin-top:2px;">Green room &amp; logistics, empty Q&amp;A, lead detail, and booth scan-access — the rest of what each role needs on the day.</div></div>
+
+<!-- SP05 — Speaker green room / logistics -->
+<div class="dev" style="left:80px; top:3560px;">
+  <div class="label">SP05 · Speaker — Green room</div><div class="sub">call time · stage · AV contact</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Speaker tools</div></div>
+      <div class="rolebar"><div class="rb-ic"><svg viewBox="0 0 24 24"><path d="M12 3a3 3 0 013 3v5a3 3 0 01-6 0V6a3 3 0 013-3z"/><path d="M6 11a6 6 0 0012 0M12 17v4"/></svg></div><div><div class="rb-ev">Designing for the next billion</div><div class="rb-role">Green room · Keynote</div></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:16px; padding-bottom:16px;">
+        <div style="display:flex; gap:10px;">
+          <div class="stat" style="text-align:left;"><div class="l" style="margin:0 0 5px;">Call time</div><div class="n" style="font-family:var(--mono); font-size:19px;">08:30</div></div>
+          <div class="stat" style="text-align:left;"><div class="l" style="margin:0 0 5px;">On stage</div><div class="n" style="font-family:var(--mono); font-size:19px;">09:00</div></div>
+          <div class="stat" style="text-align:left;"><div class="l" style="margin:0 0 5px;">Length</div><div class="n" style="font-family:var(--mono); font-size:19px;">45m</div></div>
+        </div>
+        <div class="menu" style="margin-top:16px;">
+          <div class="mrow"><div class="itile itile-forest"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6-7-11a7 7 0 1114 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div><div class="mt"><div class="d">Stage</div><div class="t" style="font-size:14px;">Main Stage · backstage left</div></div></div>
+          <div class="mrow"><div class="itile itile-gold"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-3 2a11 11 0 005 5l2-3 5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/></svg></div><div class="mt"><div class="d">AV / stage manager</div><div class="t" style="font-size:14px;">Yusuf Ali · +253 77 40 11 09</div></div><svg class="chev" viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--ink-muted);fill:none;stroke-width:2;"><path d="M9 6l6 6-6 6"/></svg></div>
+        </div>
+        <div class="seclab" style="margin:20px 0 10px;">Run of show</div>
+        <div class="mcard" style="padding:0;">
+          <div style="display:flex; gap:12px; align-items:center; padding:12px 14px;"><div class="monos" style="font-size:11px; color:var(--ink-muted); width:40px;">08:30</div><div style="width:7px; height:7px; border-radius:50%; background:var(--gold); flex:none;"></div><div style="flex:1; font-family:var(--display); font-weight:500; font-size:13.5px;">Arrive &amp; mic check</div></div>
+          <div style="display:flex; gap:12px; align-items:center; padding:12px 14px; border-top:1px solid var(--cream-border);"><div class="monos" style="font-size:11px; color:var(--ink-muted); width:40px;">08:55</div><div style="width:7px; height:7px; border-radius:50%; background:var(--forest); flex:none;"></div><div style="flex:1; font-family:var(--display); font-weight:500; font-size:13.5px;">Intro by host</div></div>
+          <div style="display:flex; gap:12px; align-items:center; padding:12px 14px; border-top:1px solid var(--cream-border);"><div class="monos" style="font-size:11px; color:var(--ink-muted); width:40px;">09:00</div><div style="width:7px; height:7px; border-radius:50%; background:var(--forest); flex:none;"></div><div style="flex:1; font-family:var(--display); font-weight:500; font-size:13.5px;">You're on</div></div>
+        </div>
+        <div class="whynote" style="margin-top:16px;"><svg viewBox="0 0 24 24"><path d="M12 8v5M12 16v.01"/><circle cx="12" cy="12" r="9"/></svg><div class="wt">Upload slides &amp; rider on <b>eventera.so</b> — the AV team pulls them from there.</div></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SP06 — Session Q&A empty -->
+<div class="dev" style="left:540px; top:3560px;">
+  <div class="label">SP06 · Audience Q&amp;A — empty</div><div class="sub">before questions arrive</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title" style="font-size:15px;">Session</div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px;">
+        <div class="monos" style="font-size:12px; color:var(--forest); font-weight:500;">FRI · 14:30–15:15 · Track A</div>
+        <div class="h2" style="margin-top:8px;">Building trust in African fintech</div>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin:22px 0 4px;"><div class="seclab">Audience Q&amp;A</div><div class="live"><span class="pulse"></span>Live</div></div>
+        <div class="bodytext muted" style="font-size:12px;">Sorted by upvotes · read-only</div>
+        <div style="margin-top:48px; display:flex; flex-direction:column; align-items:center; text-align:center;">
+          <div style="width:72px; height:72px; border-radius:20px; background:var(--gold-soft); display:flex; align-items:center; justify-content:center; margin-bottom:16px;"><svg viewBox="0 0 24 24" style="width:32px;height:32px;stroke:var(--gold-hover);fill:none;stroke-width:1.8;"><path d="M8 10h8M8 14h5"/><path d="M4 5h16v11H9l-4 4z"/></svg></div>
+          <div class="h3">No questions yet</div>
+          <div class="bodytext muted" style="font-size:13px; margin-top:8px; max-width:230px;">Questions from the audience will appear here as they're asked — most-upvoted first.</div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SPO06 — Lead detail -->
+<div class="dev" style="left:1000px; top:3560px;">
+  <div class="label">SPO06 · Sponsor — Lead detail</div><div class="sub">tap a lead · full contact</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title" style="font-size:15px;">Lead</div><div class="spacer"></div><div class="act"><svg viewBox="0 0 24 24"><path d="M4 20l4-1 10-10-3-3L5 16z"/></svg></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:18px; padding-bottom:16px;">
+        <div style="display:flex; align-items:center; gap:14px;"><div class="av ph" style="--h:265; width:60px; height:60px; border:2px solid var(--gold); font-size:20px;">LH</div><div style="min-width:0;"><div style="font-family:var(--display); font-weight:700; font-size:19px; letter-spacing:-0.02em;">Layla Hassan</div><div style="font-family:var(--body); font-size:12.5px; color:var(--ink-muted); margin-top:2px;">Head of Product · Nomad Health</div></div></div>
+        <div class="rate" style="margin-top:16px;"><div class="rp hot on"><span class="rd"></span>Hot</div><div class="rp warm"><span class="rd"></span>Warm</div><div class="rp cold"><span class="rd"></span>Cold</div></div>
+        <div class="menu" style="margin-top:16px;">
+          <div class="mrow"><div class="itile itile-muted"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3 8l9 6 9-6"/></svg></div><div class="mt"><div class="d">Email</div><div class="t" style="font-size:14px;">l.hassan@nomadhealth.io</div></div></div>
+          <div class="mrow"><div class="itile itile-muted"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-3 2a11 11 0 005 5l2-3 5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/></svg></div><div class="mt"><div class="d">Phone</div><div class="t" style="font-size:14px;">+254 71 220 4471</div></div></div>
+          <div class="mrow"><div class="itile itile-muted"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 11v5M8 8v.01M12 16v-3a2 2 0 014 0v3"/></svg></div><div class="mt"><div class="d">LinkedIn</div><div class="t" style="font-size:14px;">in/laylahassan</div></div></div>
+        </div>
+        <div class="field" style="margin:16px 0 0;"><label>Note</label><div class="input textarea" style="min-height:76px;"><input value="Wants a demo of the payouts API — follow up Monday." readonly style="color:var(--ink);"></div></div>
+        <div style="display:flex; align-items:center; gap:8px; margin-top:14px; font-family:var(--body); font-size:12px; color:var(--ink-muted);"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:var(--ink-muted);fill:none;stroke-width:1.8;"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Captured at Booth A1 · <span class="monos">14 MAR · 11:24</span></div>
+      </div></div>
+      <div class="stickycta"><button class="mbtn mbtn-forest">Save changes</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- SPO07 — Booth team / scan access -->
+<div class="dev" style="left:1460px; top:3560px;">
+  <div class="label">SPO07 · Sponsor — Booth team</div><div class="sub">who can scan leads</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Sponsor tools</div></div>
+      <div class="rolebar"><div class="rb-ic"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0111 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15 19a4 4 0 016-3.4"/></svg></div><div><div class="rb-ev">Baobab Bank · Booth A1</div><div class="rb-role">Team · scan access</div></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:16px; padding-bottom:16px;">
+        <div class="seclab" style="margin-bottom:12px;">Booth staff · <span class="monos" style="letter-spacing:0;">3</span></div>
+        <div class="menu">
+          <div class="mrow"><div class="av av-40 ph" style="--h:35;">FK</div><div class="mt"><div class="t">Faisal Karim</div><div class="d">Owner · you</div></div><span class="tag tag-forest">Full</span></div>
+          <div class="mrow"><div class="av av-40 ph" style="--h:200;">SM</div><div class="mt"><div class="t">Sara Moussa</div><div class="d">Can scan leads</div></div><div class="tgl on"></div></div>
+          <div class="mrow"><div class="av av-40 ph" style="--h:120;">DK</div><div class="mt"><div class="t">Deng Koang</div><div class="d">Can scan leads</div></div><div class="tgl on"></div></div>
+        </div>
+        <button class="mbtn mbtn-sec" style="margin-top:14px;"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Invite teammate</button>
+        <div class="whynote" style="margin-top:16px;"><svg viewBox="0 0 24 24"><path d="M12 8v5M12 16v.01"/><circle cx="12" cy="12" r="9"/></svg><div class="wt">Teammates scan into the same lead pool. Turn access off to revoke their scanner instantly.</div></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ROW 5 — EXHIBITOR ============ -->
+<div class="canvas-h" style="left:80px; top:4670px;"><span class="big">Exhibitor mode</span><div class="lead" style="margin-top:2px;">EX01–EX04 · unlocked when your company has a booth in the expo hall · you’re in the attendee-facing directory, so it’s products &amp; meetings, not just leads</div></div>
+
+<!-- EX01 — Exhibitor badge in event hub -->
+<div class="dev" style="left:80px; top:4790px;">
+  <div class="label">EX01 · Exhibitor badge in event hub</div><div class="sub">role pill on card · tools entry</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title" style="font-size:15px;">AfriTech Summit</div><div class="spacer"></div><div class="act"><svg viewBox="0 0 24 24"><path d="M6 4h12v16l-6-4-6 4z"/></svg></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px;">
+        <div style="border-radius:var(--rm-card); overflow:hidden; box-shadow:var(--sh-soft); border:1px solid var(--cream-border);">
+          <div class="ph" style="--h:158; height:118px; position:relative;">
+            <div class="scrim-b" style="position:absolute; inset:0;"></div>
+            <div style="position:absolute; top:12px; left:12px; display:flex; gap:7px;"><span class="rolepill"><svg viewBox="0 0 24 24"><path d="M4 9l1.4-5h13.2L20 9M5 9v10a1 1 0 001 1h12a1 1 0 001-1V9M4 9h16M9.5 20v-5h5v5"/></svg>Exhibitor</span></div>
+            <div style="position:absolute; left:14px; bottom:12px; right:14px; z-index:2;"><div style="font-family:var(--display); font-weight:700; font-size:18px; color:#fff; letter-spacing:-0.02em;">AfriTech Summit 2026</div><div class="monos" style="font-size:11px; color:rgba(250,246,238,.82); margin-top:4px;">12–14 MAR · Djibouti City</div></div>
+          </div>
+        </div>
+        <div class="bodytext" style="font-size:13px; margin:14px 2px 6px;">TechNova has a booth in the expo hall. Attendees can find you in the directory — set up your products and take meetings from here.</div>
+        <a class="toolcard" href="#" style="margin-top:10px; text-decoration:none;"><div class="tc-ic"><svg viewBox="0 0 24 24"><path d="M4 9l1.4-5h13.2L20 9M5 9v10a1 1 0 001 1h12a1 1 0 001-1V9M4 9h16M9.5 20v-5h5v5"/></svg></div><div class="tc-t"><div class="t">Exhibitor tools</div><div class="d">Booth · products · meetings · leads</div></div><svg class="tc-go" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></a>
+        <div class="seclab" style="margin:22px 0 12px;">Booth performance</div>
+        <div class="stats">
+          <div class="stat"><div class="n">34</div><div class="l">Leads</div></div>
+          <div class="stat"><div class="n">9</div><div class="l">Meetings</div></div>
+          <div class="stat"><div class="n">E12</div><div class="l">Booth</div></div>
+        </div>
+      </div></div>
+      <div class="tabbar">
+        <div class="tab"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span>Discover</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><path d="M4 8a2 2 0 012-2h12a2 2 0 012 2v3a2 2 0 000 4v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3a2 2 0 000-4z"/></svg><span>Tickets</span></div>
+        <div class="tab on"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="8.5" cy="11" r="2"/><path d="M13 9h5M13 13h5"/></svg><span>Cards</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0113 0"/></svg><span>Account</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EX02 — Exhibitor: My Booth & products -->
+<div class="dev" style="left:540px; top:4790px;">
+  <div class="label">EX02 · Exhibitor — My Booth &amp; products</div><div class="sub">booth info · product showcase</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Exhibitor tools</div></div>
+      <div class="rolebar"><div class="rb-ic"><svg viewBox="0 0 24 24"><path d="M4 9l1.4-5h13.2L20 9M5 9v10a1 1 0 001 1h12a1 1 0 001-1V9M4 9h16M9.5 20v-5h5v5"/></svg></div><div><div class="rb-ev">AfriTech Summit 2026</div><div class="rb-role">Exhibitor · Booth E12</div></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:16px; padding-bottom:16px;">
+        <div style="display:flex; align-items:center; gap:13px;"><div style="width:56px; height:56px; border-radius:14px; background:var(--forest-soft); display:flex; align-items:center; justify-content:center; font-family:var(--display); font-weight:700; font-size:20px; color:var(--forest); flex:none;">T</div><div><div style="font-family:var(--display); font-weight:700; font-size:18px; letter-spacing:-0.02em;">TechNova</div><div style="font-family:var(--body); font-size:12.5px; color:var(--ink-muted); margin-top:2px;">Booth <span class="monos" style="color:var(--forest); font-weight:500;">E12</span> · Expo Hall</div></div></div>
+        <div class="seg-ctl" style="margin-top:18px;"><div>Booth info</div><div class="on">Products</div></div>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin:18px 2px 10px;"><div class="seclab">Showcase · <span class="monos" style="letter-spacing:0;">3</span></div></div>
+        <div class="menu">
+          <div class="mrow"><div class="ph" style="--h:210; width:48px; height:48px; border-radius:10px; flex:none;"></div><div class="mt"><div class="t" style="font-size:14px;">Payouts API</div><div class="d">Developer platform · live demo</div></div><span class="tag tag-gold">Featured</span></div>
+          <div class="mrow"><div class="ph" style="--h:145; width:48px; height:48px; border-radius:10px; flex:none;"></div><div class="mt"><div class="t" style="font-size:14px;">Merchant terminal</div><div class="d">Hardware · in stock</div></div><svg class="chev" viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--ink-muted);fill:none;stroke-width:2;"><path d="M9 6l6 6-6 6"/></svg></div>
+          <div class="mrow"><div class="ph" style="--h:305; width:48px; height:48px; border-radius:10px; flex:none;"></div><div class="mt"><div class="t" style="font-size:14px;">Business dashboard</div><div class="d">SaaS · free trial</div></div><svg class="chev" viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--ink-muted);fill:none;stroke-width:2;"><path d="M9 6l6 6-6 6"/></svg></div>
+        </div>
+        <button class="mbtn mbtn-sec" style="margin-top:14px;"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add product</button>
+        <div class="whynote" style="margin-top:16px;"><svg viewBox="0 0 24 24"><path d="M12 8v5M12 16v.01"/><circle cx="12" cy="12" r="9"/></svg><div class="wt">Logo, brochures &amp; rich product pages are managed on <b>eventera.so</b> — they sync to your directory listing.</div></div>
+      </div></div>
+      <div class="stickycta"><button class="mbtn mbtn-forest">Save changes</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- EX03 — Exhibitor: Meeting requests -->
+<div class="dev" style="left:1000px; top:4790px;">
+  <div class="label">EX03 · Exhibitor — Meeting requests</div><div class="sub">attendees requesting booth time</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title">Meetings</div></div>
+      <div class="rolebar"><div class="rb-ic"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 9.5h17M8 3.5v4M16 3.5v4M12 13v3l2 1"/></svg></div><div><div class="rb-ev">TechNova · Booth E12</div><div class="rb-role">Meetings · 3 pending</div></div></div>
+      <div class="body"><div class="scroll pad" style="padding-top:14px; padding-bottom:16px;">
+        <div class="seg-ctl"><div class="on">Requests <span class="monos" style="font-size:11px;">3</span></div><div>Scheduled <span class="monos" style="font-size:11px;">6</span></div></div>
+        <div style="margin-top:16px;">
+          <div class="mcard" style="padding:14px;">
+            <div style="display:flex; align-items:center; gap:11px;"><div class="av av-40 ph" style="--h:265;">LH</div><div style="flex:1; min-width:0;"><div style="font-family:var(--display); font-weight:600; font-size:14.5px; letter-spacing:-0.01em;">Layla Hassan</div><div style="font-family:var(--body); font-size:12px; color:var(--ink-muted); margin-top:2px;">Head of Product · Nomad Health</div></div></div>
+            <div style="display:flex; align-items:center; gap:8px; margin-top:11px; font-family:var(--body); font-size:12.5px; color:var(--ink-soft);"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:var(--forest);fill:none;stroke-width:1.9;"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M12 13v3l2 1"/></svg>Requested <b style="color:var(--ink);">Thu · 11:30</b> at your booth</div>
+            <div style="display:flex; gap:9px; margin-top:13px;"><button class="mbtn mbtn-sec mbtn-sm" style="flex:1;">Propose time</button><button class="mbtn mbtn-forest mbtn-sm" style="flex:1;">Accept</button></div>
+          </div>
+          <div class="mcard" style="padding:14px; margin-top:11px;">
+            <div style="display:flex; align-items:center; gap:11px;"><div class="av av-40 ph" style="--h:120;">TM</div><div style="flex:1; min-width:0;"><div style="font-family:var(--display); font-weight:600; font-size:14.5px; letter-spacing:-0.01em;">Tariq Mensah</div><div style="font-family:var(--body); font-size:12px; color:var(--ink-muted); margin-top:2px;">CTO · Accra Foundry</div></div></div>
+            <div style="display:flex; align-items:center; gap:8px; margin-top:11px; font-family:var(--body); font-size:12.5px; color:var(--ink-soft);"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:var(--forest);fill:none;stroke-width:1.9;"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M12 13v3l2 1"/></svg>Requested <b style="color:var(--ink);">Fri · 10:00</b> at your booth</div>
+            <div style="display:flex; gap:9px; margin-top:13px;"><button class="mbtn mbtn-sec mbtn-sm" style="flex:1;">Propose time</button><button class="mbtn mbtn-forest mbtn-sm" style="flex:1;">Accept</button></div>
+          </div>
+        </div>
+        <div class="whynote" style="margin-top:18px;"><svg viewBox="0 0 24 24"><path d="M12 8v5M12 16v.01"/><circle cx="12" cy="12" r="9"/></svg><div class="wt">Accepted meetings drop into your agenda and the attendee’s — both get a reminder.</div></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- EX04 — Exhibitor: Booth as attendees see it -->
+<div class="dev" style="left:1460px; top:4790px;">
+  <div class="label">EX04 · Exhibitor — Directory preview</div><div class="sub">your booth as attendees see it</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="appbar hair"><div class="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div><div class="title" style="font-size:15px;">Expo directory</div><div class="spacer"></div><span class="tag tag-gold" style="margin-right:4px;">Preview</span></div>
+      <div class="body"><div class="scroll" style="padding-bottom:16px;">
+        <div class="ph" style="--h:158; height:132px; position:relative;"><div class="scrim-b" style="position:absolute; inset:0;"></div><div style="position:absolute; left:16px; bottom:14px; right:16px; display:flex; align-items:center; gap:12px;"><div style="width:52px; height:52px; border-radius:13px; background:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--display); font-weight:700; font-size:20px; color:var(--forest); flex:none;">T</div><div><div style="font-family:var(--display); font-weight:700; font-size:18px; color:#fff; letter-spacing:-0.02em;">TechNova</div><div class="monos" style="font-size:11px; color:rgba(250,246,238,.85); margin-top:3px;">BOOTH E12 · EXPO HALL</div></div></div></div>
+        <div class="pad" style="padding-top:15px;">
+          <div style="display:flex; gap:7px; flex-wrap:wrap;"><span class="chip" style="height:26px; font-size:11.5px;">Fintech</span><span class="chip" style="height:26px; font-size:11.5px;">Payments</span><span class="chip" style="height:26px; font-size:11.5px;">Hardware</span></div>
+          <div class="bodytext" style="font-size:13.5px; margin-top:12px;">Payment infrastructure built for African merchants — APIs, terminals and a business dashboard in one stack. Live demos every hour.</div>
+          <div style="display:flex; gap:10px; margin-top:16px;"><button class="mbtn mbtn-forest" style="flex:1;"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M12 13v3l2 1"/></svg>Request meeting</button><button class="mbtn mbtn-sec" style="width:52px; flex:none;"><svg viewBox="0 0 24 24" style="stroke:var(--forest);"><path d="M12 21s-7-6-7-11a7 7 0 1114 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></button></div>
+          <div class="seclab" style="margin:22px 0 11px;">Products</div>
+          <div class="menu">
+            <div class="mrow"><div class="ph" style="--h:210; width:44px; height:44px; border-radius:10px; flex:none;"></div><div class="mt"><div class="t" style="font-size:14px;">Payouts API</div><div class="d">Developer platform</div></div></div>
+            <div class="mrow"><div class="ph" style="--h:145; width:44px; height:44px; border-radius:10px; flex:none;"></div><div class="mt"><div class="t" style="font-size:14px;">Merchant terminal</div><div class="d">Hardware</div></div></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CHROME SCRIPT ============ -->
+<script>
+  const clock='9:41';
+  const statusSys=`<div class="sys">
+    <svg viewBox="0 0 18 12"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="4.5" y="4.5" width="3" height="7.5" rx="1"/><rect x="9" y="2" width="3" height="10" rx="1"/><rect x="13.5" y="0" width="3" height="12" rx="1"/></svg>
+    <svg viewBox="0 0 18 12"><path d="M9 2.5c2.4 0 4.6.9 6.2 2.4l1.3-1.4A11 11 0 009 .5 11 11 0 001.5 3.5l1.3 1.4A9 9 0 019 2.5z"/><path d="M9 6c1.3 0 2.5.5 3.4 1.3l1.3-1.4A7 7 0 009 4a7 7 0 00-4.7 1.9l1.3 1.4A5 5 0 019 6z"/><path d="M9 9.5l2-2.1A3 3 0 009 6.5a3 3 0 00-2 .9z"/></svg>
+    <svg viewBox="0 0 26 12" style="width:24px;"><rect x="0.5" y="1" width="21" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1" opacity=".4"/><rect x="2" y="2.5" width="16" height="7" rx="1"/><rect x="23" y="4" width="1.6" height="4" rx="0.8"/></svg>
+  </div>`;
+  document.querySelectorAll('.screen').forEach(s=>{
+    const dark = s.classList.contains('dark') || s.classList.contains('cam');
+    const bar=document.createElement('div');
+    bar.className='statusbar'+(dark?' on-dark':'');
+    bar.innerHTML=`<div class="time">${clock}</div>${statusSys}`;
+    s.insertBefore(bar, s.firstChild);
+  });
+  document.querySelectorAll('.phone').forEach(p=>{
+    p.insertAdjacentHTML('afterbegin','<div class="notch"></div>');
+    p.insertAdjacentHTML('beforeend','<div class="homebar"></div>');
+  });
+</script>
+
+<template id="__bundler_thumbnail">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#1F4D3A"/><rect x="26" y="30" width="48" height="10" rx="5" fill="#E8C57E"/><rect x="26" y="46" width="34" height="6" rx="3" fill="#FAF6EE"/><rect x="26" y="58" width="40" height="6" rx="3" fill="#FAF6EE" opacity=".6"/><circle cx="70" cy="70" r="7" fill="#E8C57E"/></svg>
+</template>
+</body>
+</html>
