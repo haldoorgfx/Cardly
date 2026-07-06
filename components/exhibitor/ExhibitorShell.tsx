@@ -10,7 +10,11 @@ interface Props {
   logoUrl?: string | null;
   eventName: string;
   eventSlug: string;
-  activeTab: 'overview' | 'leads' | 'booth' | 'products' | 'meetings' | 'resources' | 'team';
+  activeTab: 'overview' | 'leads' | 'booth' | 'products' | 'meetings' | 'preview' | 'resources' | 'team';
+  /** Derived workspace mode. An entry with a booth/products presents as an
+   *  "Exhibitor"; a pure logo-tier partner presents as a "Sponsor". Defaults to
+   *  'sponsor' so existing behaviour is unchanged when not supplied. */
+  mode?: 'sponsor' | 'exhibitor';
   /** Additive: when the visitor is a logged-in sponsor for this event, show a
    *  small "Back to your dashboard" link. Absent/false for anonymous token
    *  visitors — the token experience is otherwise unchanged. */
@@ -28,6 +32,7 @@ const TABS = [
   { id: 'meetings',   label: 'Meetings' },
   { id: 'booth',      label: 'Booth profile' },
   { id: 'products',   label: 'Products' },
+  { id: 'preview',    label: 'Directory preview' },
   { id: 'resources',  label: 'Resources' },
   { id: 'team',       label: 'Team' },
 ] as const;
@@ -59,9 +64,10 @@ function tierTone(tier: string | null) {
   return 'bg-[rgba(255,255,255,0.1)] text-white border-[rgba(255,255,255,0.2)]';
 }
 
-export function ExhibitorShell({ token, companyName, tier, boothNumber, logoUrl, eventName, children, activeTab, showDashboardLink, hrefBase }: Props) {
+export function ExhibitorShell({ token, companyName, tier, boothNumber, logoUrl, eventName, children, activeTab, showDashboardLink, hrefBase, mode = 'sponsor' }: Props) {
   const initials = companyName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
   const embedded = Boolean(hrefBase);
+  const modeWord = mode === 'exhibitor' ? 'Exhibitor' : 'Sponsor';
   const href = (id: string) =>
     hrefBase ? (id === 'overview' ? hrefBase : `${hrefBase}/${id}`) : tabHref(token, id);
 
@@ -75,7 +81,7 @@ export function ExhibitorShell({ token, companyName, tier, boothNumber, logoUrl,
             <span className="w-7 h-7 rounded-lg shrink-0" style={{ background: 'linear-gradient(135deg,#1F4D3A,#2A6A50 60%,#E8C57E)' }} />
             <div className="leading-none">
               <div className="font-display text-[15px] font-bold" style={{ color: '#1F4D3A' }}>Eventera</div>
-              <div className=" text-[8.5px] tracking-[0.16em] uppercase mt-0.5" style={{ color: '#6B7A72' }}>Exhibitor Portal</div>
+              <div className=" text-[8.5px] tracking-[0.16em] uppercase mt-0.5" style={{ color: '#6B7A72' }}>{modeWord} Portal</div>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -109,9 +115,13 @@ export function ExhibitorShell({ token, companyName, tier, boothNumber, logoUrl,
           <div className="flex items-start justify-between gap-6">
             <div>
               <div className="flex items-center gap-2 mb-3">
-                {tier && (
+                {tier ? (
                   <span className={`inline-flex items-center text-[11px] font-medium px-2.5 py-1 rounded-full border ${tierTone(tier)}`}>
-                    {tier} sponsor
+                    {tier} {modeWord.toLowerCase()}
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center text-[11px] font-medium px-2.5 py-1 rounded-full border bg-[rgba(255,255,255,0.1)] text-white border-[rgba(255,255,255,0.2)]">
+                    {modeWord}
                   </span>
                 )}
                 {boothNumber && (

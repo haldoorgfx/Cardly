@@ -8,6 +8,8 @@ interface Member {
   role: string | null;
   status: string;
   user_id: string | null;
+  /** SPO07 · who can scan leads. May be absent until migration 059 is applied. */
+  scan_access?: boolean | null;
   profiles?: { full_name: string; email: string } | null;
 }
 
@@ -59,6 +61,25 @@ export function TeamTab({ members: initial, token }: Props) {
       setMembers(prev => prev.filter(m => m.id !== id));
       setRemovingId(null);
     });
+  }
+
+  function toggleScan(m: Member) {
+    const next = !(m.scan_access ?? true);
+    // Optimistic: flip immediately, revert if the API rejects (e.g. column not yet migrated).
+    setMembers(prev => prev.map(x => x.id === m.id ? { ...x, scan_access: next } : x));
+    fetch('/api/exhibitor/team', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, id: m.id, scan_access: next }),
+    })
+      .then(res => {
+        if (!res.ok) {
+          setMembers(prev => prev.map(x => x.id === m.id ? { ...x, scan_access: m.scan_access ?? true } : x));
+        }
+      })
+      .catch(() => {
+        setMembers(prev => prev.map(x => x.id === m.id ? { ...x, scan_access: m.scan_access ?? true } : x));
+      });
   }
 
   function handleInvite() {
@@ -139,6 +160,32 @@ export function TeamTab({ members: initial, token }: Props) {
                   <div className="text-[13.5px] font-medium truncate" style={{ color: '#0F1F18' }}>{displayName}</div>
                   <div className=" text-[11px] mt-0.5" style={{ color: '#6B7A72' }}>{displayRole}</div>
                 </div>
+                {/* SPO07 · scan-access toggle — who may scan attendee QR codes for leads */}
+                {(() => {
+                  const on = m.scan_access ?? true;
+                  return (
+                    <button
+                      type="button"
+                      onClick={() => toggleScan(m)}
+                      className="inline-flex items-center gap-2 shrink-0"
+                      title={on ? 'Can scan leads' : 'Cannot scan leads'}
+                      aria-pressed={on}
+                    >
+                      <span className="hidden sm:inline text-[11px] font-medium" style={{ color: on ? '#1F4D3A' : '#9BA8A1' }}>
+                        Scan
+                      </span>
+                      <span
+                        className="relative inline-flex h-5 w-9 rounded-full transition-colors"
+                        style={{ background: on ? '#1F4D3A' : '#E5E0D4' }}
+                      >
+                        <span
+                          className="absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform"
+                          style={{ left: 2, transform: on ? 'translateX(16px)' : 'translateX(0)' }}
+                        />
+                      </span>
+                    </button>
+                  );
+                })()}
                 {statusPill(m.status)}
                 {/* "You" pill — first active member */}
                 {i === 0 && m.status === 'active' && (

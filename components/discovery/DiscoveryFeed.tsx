@@ -233,6 +233,8 @@ function SH({ title, href, linkText = 'View all →' }: { title: string; href: s
 export function DiscoveryFeed({ events }: DiscoveryFeedProps) {
   const router = useRouter();
   const [query, setQuery] = useState('');
+  const [code, setCode] = useState('');
+  const [codeError, setCodeError] = useState<string | null>(null);
 
   const now = new Date();
   const upcoming = events.filter(e => !e.ends_at || new Date(e.ends_at) >= now);
@@ -242,6 +244,18 @@ export function DiscoveryFeed({ events }: DiscoveryFeedProps) {
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     if (query.trim()) router.push(`/events/search?q=${encodeURIComponent(query.trim())}`);
+  }
+
+  function handleJoin(e: React.FormEvent) {
+    e.preventDefault();
+    const trimmed = code.trim();
+    if (!trimmed) {
+      setCodeError('Enter an event code to continue.');
+      return;
+    }
+    // Codes double as event slugs — jump straight to the public event page.
+    const slug = trimmed.toLowerCase().replace(/^\/?(e\/)?/, '');
+    router.push(`/e/${encodeURIComponent(slug)}`);
   }
 
   // Build host chips from real event organizers
@@ -343,6 +357,41 @@ export function DiscoveryFeed({ events }: DiscoveryFeedProps) {
                   ))}
                 </div>
               </form>
+
+              {/* Have an event code — quick join */}
+              <div className="mt-5 rounded-[16px] flex flex-wrap items-center gap-x-5 gap-y-3 px-5 py-4"
+                style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', boxShadow: '0 1px 4px rgba(15,31,24,0.04)', maxWidth: 560 }}>
+                <div className="flex items-center gap-3 min-w-[180px]">
+                  <div className="w-10 h-10 rounded-[11px] flex items-center justify-center shrink-0" style={{ background: '#E8EFEB' }}>
+                    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="#1F4D3A" strokeWidth="1.8">
+                      <rect x="3" y="4" width="18" height="16" rx="2" /><path d="M7 9h4M7 13h10M7 17h7" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="font-display font-semibold text-[14px]" style={{ color: '#0F1F18' }}>Have an event code?</div>
+                    <div className="text-[12px]" style={{ color: '#6B7A72' }}>Jump straight to the event.</div>
+                  </div>
+                </div>
+                <form onSubmit={handleJoin} className="flex items-center gap-2 flex-1 min-w-[220px]">
+                  <input
+                    type="text"
+                    value={code}
+                    onChange={e => { setCode(e.target.value); if (codeError) setCodeError(null); }}
+                    placeholder="e.g. lagos-tech-2024"
+                    aria-label="Event code"
+                    className="flex-1 min-w-0 h-11 px-3.5 rounded-xl text-[14px] outline-none"
+                    style={{ background: '#FAF6EE', border: `1px solid ${codeError ? '#B8423C' : '#E5E0D4'}`, color: '#0F1F18', fontFamily: '"JetBrains Mono", monospace', letterSpacing: '0.02em' }}
+                  />
+                  <button type="submit" aria-label="Go to event"
+                    className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition hover:opacity-90"
+                    style={{ background: '#E8C57E', color: '#163828', border: 'none' }}>
+                    <ArrowRight size={18} strokeWidth={2.2} />
+                  </button>
+                </form>
+                {codeError && (
+                  <div className="w-full text-[12px]" style={{ color: '#B8423C' }}>{codeError}</div>
+                )}
+              </div>
             </div>
 
             {/* Right: stacked hero cards (desktop only) */}

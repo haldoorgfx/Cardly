@@ -195,6 +195,13 @@ export default function OnboardingWizard({
     setDone(true);
   });
 
+  // Same save, but drops the user on their profile to review it instead of the
+  // "all set" done screen. Save logic is untouched.
+  const finishToProfile = handleSubmit(async (values) => {
+    await persist(values);
+    router.push('/account/profile');
+  });
+
   // ── Avatar upload ──────────────────────────────────────────────────────────
   async function handleAvatar(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -336,11 +343,16 @@ export default function OnboardingWizard({
             </div>
           ))}
         </div>
-        <div className="mt-8 max-w-[420px] mx-auto">
+        <div className="mt-8 max-w-[420px] mx-auto grid gap-2.5">
           <button onClick={onFinish} disabled={saving}
             className="h-12 w-full rounded-lg font-medium text-[15px] transition hover:opacity-90 disabled:opacity-60"
             style={{ background: GOLD, color: FOREST_DARK, fontFamily: DISPLAY }}>
-            {saving ? 'Saving…' : 'Finish'}
+            {saving ? 'Saving…' : 'Explore my first event'}
+          </button>
+          <button onClick={finishToProfile} disabled={saving}
+            className="h-11 w-full rounded-lg font-medium text-[14px] transition hover:opacity-90 disabled:opacity-60"
+            style={{ background: 'transparent', color: 'rgba(255,255,255,0.9)', border: '1px solid rgba(255,255,255,0.28)', fontFamily: DISPLAY }}>
+            Review my profile
           </button>
         </div>
       </div>

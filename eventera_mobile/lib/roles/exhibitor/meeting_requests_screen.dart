@@ -62,6 +62,72 @@ class _MeetingRequestsScreenState extends State<MeetingRequestsScreen> {
     } catch (_) {}
   }
 
+  /// Propose an alternative time: pick a date, then a time, then schedule the
+  /// meeting at that moment. Writes the same columns as [_accept] so both paths
+  /// land the request in the "Scheduled" tab.
+  Future<void> _proposeTime(_Meeting m) async {
+    final now = DateTime.now();
+    final seed = m.requestedTime != null && m.requestedTime!.isAfter(now)
+        ? m.requestedTime!
+        : now;
+    try {
+      final date = await showDatePicker(
+        context: context,
+        initialDate: seed,
+        firstDate: DateTime(now.year, now.month, now.day),
+        lastDate: DateTime(now.year + 1, now.month, now.day),
+        builder: (ctx, child) => Theme(
+          data: Theme.of(ctx).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: AppColors.forest,
+              onPrimary: Colors.white,
+              onSurface: AppColors.ink,
+            ),
+          ),
+          child: child!,
+        ),
+      );
+      if (date == null || !mounted) return;
+
+      final time = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.fromDateTime(seed),
+        builder: (ctx, child) => Theme(
+          data: Theme.of(ctx).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: AppColors.forest,
+              onPrimary: Colors.white,
+              onSurface: AppColors.ink,
+            ),
+          ),
+          child: child!,
+        ),
+      );
+      if (time == null || !mounted) return;
+
+      final scheduled = DateTime(
+        date.year,
+        date.month,
+        date.day,
+        time.hour,
+        time.minute,
+      );
+
+      await Supabase.instance.client.from('meeting_requests').update({
+        'status': 'scheduled',
+        'scheduled_time': scheduled.toIso8601String(),
+        'requested_time': scheduled.toIso8601String(),
+      }).eq('id', m.id);
+
+      if (!mounted) return;
+      setState(() => _future = _load());
+      showToast(context, 'Time proposed — meeting scheduled.');
+    } catch (_) {
+      if (!mounted) return;
+      showToast(context, "Couldn't propose that time. Try again.");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MScaffold(
@@ -136,7 +202,9 @@ class _MeetingRequestsScreenState extends State<MeetingRequestsScreen> {
                               const SizedBox(width: 8),
                               Expanded(
                                 child: MButton('Propose time',
-                                    small: true, kind: MBtnKind.sec, onTap: () {}),
+                                    small: true,
+                                    kind: MBtnKind.sec,
+                                    onTap: () => _proposeTime(m)),
                               ),
                             ]),
                           ],

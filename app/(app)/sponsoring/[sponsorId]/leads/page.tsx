@@ -33,6 +33,7 @@ export default async function SponsorLeadsPage({
       eventName={event.name}
       eventSlug={event.slug}
       activeTab="leads"
+      mode={sponsor.booth_location ? 'exhibitor' : 'sponsor'}
     >
       <LeadsTab leads={leads ?? []} token={sponsor.invite_token} />
     </ExhibitorShell>

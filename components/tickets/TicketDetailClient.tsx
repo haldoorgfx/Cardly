@@ -5,6 +5,7 @@ import Link from 'next/link';
 import {
   ChevronLeft, MoreHorizontal, MapPin, Lock, Clock, CalendarPlus,
   ArrowLeftRight, Receipt, Share2, MessageSquare, X, ChevronRight, Check,
+  Download,
 } from 'lucide-react';
 
 // ── Types ───────────────────────────────────────────────────────────────────
@@ -93,6 +94,30 @@ function money(amount: number, currency: string | null): string {
   } catch {
     return `${cur} ${amount.toFixed(2)}`;
   }
+}
+
+// Format a date for a Google Calendar template URL: YYYYMMDDTHHMMSSZ (UTC).
+function toGCalDate(iso: string): string {
+  return new Date(iso).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+}
+
+// Build a Google Calendar "add event" template URL from the event fields we already have.
+function googleCalendarUrl(opts: {
+  title: string;
+  start: string;
+  end: string | null;
+  location: string | null;
+}): string {
+  const start = toGCalDate(opts.start);
+  // Default to a 2-hour block when no end is set, matching the .ics fallback.
+  const end = toGCalDate(opts.end ?? new Date(new Date(opts.start).getTime() + 2 * 3600000).toISOString());
+  const p = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: opts.title,
+    dates: `${start}/${end}`,
+  });
+  if (opts.location) p.set('location', opts.location);
+  return `https://calendar.google.com/calendar/render?${p.toString()}`;
 }
 
 // Turn the qr_code_token into a stable, human-readable ticket code (TKT-XXXX-XXXX).
@@ -242,6 +267,7 @@ export default function TicketDetailClient({ reg, scannedByName }: Props) {
   const [showQR, setShowQR] = useState(false);
   const [showActions, setShowActions] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
 
   const ep = reg.events?.event_pages?.[0];
   const slug = reg.events?.slug ?? '';
@@ -255,6 +281,16 @@ export default function TicketDetailClient({ reg, scannedByName }: Props) {
     ? 'Online event'
     : [ep?.venue_name, ep?.city ?? ep?.country].filter(Boolean).join(' · ') || null;
   const gate = ep?.is_online ? 'Online' : (ep?.venue_name ?? 'Main entrance');
+
+  // Calendar: build a Google Calendar URL from fields we already have; .ics stays server-side.
+  const calLocation = ep?.is_online
+    ? 'Online event'
+    : [ep?.venue_name, ep?.venue_address, ep?.city, ep?.country].filter(Boolean).join(', ') || null;
+  const canAddCalendar = Boolean(ep?.id && ep?.starts_at);
+  const gcalUrl = ep?.starts_at
+    ? googleCalendarUrl({ title: eventName, start: ep.starts_at, end: ep.ends_at, location: calLocation })
+    : '';
+  const icsUrl = ep?.id ? `/api/calendar/${ep.id}` : '';
 
   // ── State machine ──
   const isCheckedIn = reg.status === 'checked_in';
@@ -443,16 +479,15 @@ export default function TicketDetailClient({ reg, scannedByName }: Props) {
 
         {isLive && (
           <div className="flex gap-2.5 mt-4">
-            {ep?.id && ep?.starts_at && (
-              <a
-                href={`/api/calendar/${ep.id}`}
-                download
+            {canAddCalendar && (
+              <button
+                onClick={() => setShowCalendar(true)}
                 className="flex-1 flex items-center justify-center gap-2 h-11 rounded-2xl text-[14px] font-semibold transition hover:opacity-90"
                 style={{ background: '#fff', color: FOREST, border: `1px solid ${BORDER}` }}
               >
                 <CalendarPlus size={16} />
                 Calendar
-              </a>
+              </button>
             )}
             <Link
               href={`/my-tickets/${reg.id}/transfer`}
@@ -474,6 +509,48 @@ export default function TicketDetailClient({ reg, scannedByName }: Props) {
       {/* ── Receipt ── */}
       {showReceipt && <ReceiptModal reg={reg} onClose={() => setShowReceipt(false)} />}
 
+      {/* ── Calendar source picker ── */}
+      {showCalendar && canAddCalendar && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: 'rgba(15,31,24,0.4)' }} onClick={() => setShowCalendar(false)}>
+          <div
+            className="w-full max-w-md rounded-t-[22px] px-5 pt-3 pb-8"
+            style={{ background: '#fff' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="w-9 h-1 rounded-full mx-auto mb-4" style={{ background: BORDER }} />
+            <div className="font-display font-semibold text-[16px] mb-1" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>Add to calendar</div>
+            <div className="text-[13px] mb-3" style={{ color: MUTED }}>Choose where to save this event.</div>
+
+            <div className="divide-y" style={{ borderColor: BORDER }}>
+              {/* Google Calendar */}
+              <a href={gcalUrl} target="_blank" rel="noopener noreferrer" onClick={() => setShowCalendar(false)}>
+                <div className="flex items-center gap-3.5 py-3.5">
+                  <span style={{ color: FOREST }}><CalendarPlus size={20} /></span>
+                  <span className="flex-1 font-display font-medium text-[15px]" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>Google Calendar</span>
+                  <ChevronRight size={18} style={{ color: MUTED }} />
+                </div>
+              </a>
+              {/* Apple Calendar (uses the .ics download) */}
+              <a href={icsUrl} download onClick={() => setShowCalendar(false)}>
+                <div className="flex items-center gap-3.5 py-3.5">
+                  <span style={{ color: FOREST }}><CalendarPlus size={20} /></span>
+                  <span className="flex-1 font-display font-medium text-[15px]" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>Apple Calendar</span>
+                  <ChevronRight size={18} style={{ color: MUTED }} />
+                </div>
+              </a>
+              {/* Download .ics */}
+              <a href={icsUrl} download onClick={() => setShowCalendar(false)}>
+                <div className="flex items-center gap-3.5 py-3.5">
+                  <span style={{ color: FOREST }}><Download size={20} /></span>
+                  <span className="flex-1 font-display font-medium text-[15px]" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>Download .ics</span>
+                  <ChevronRight size={18} style={{ color: MUTED }} />
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Actions sheet ── */}
       {showActions && (
         <div className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: 'rgba(15,31,24,0.4)' }} onClick={() => setShowActions(false)}>
@@ -494,12 +571,11 @@ export default function TicketDetailClient({ reg, scannedByName }: Props) {
                   onClick={() => setShowActions(false)}
                 />
               )}
-              {ep?.id && ep?.starts_at && (
+              {canAddCalendar && (
                 <ActionRow
                   icon={<CalendarPlus size={20} />}
                   label="Add to calendar"
-                  href={`/api/calendar/${ep.id}`}
-                  onClick={() => setShowActions(false)}
+                  onClick={() => { setShowActions(false); setShowCalendar(true); }}
                 />
               )}
               <ActionRow

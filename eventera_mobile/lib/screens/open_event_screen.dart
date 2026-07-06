@@ -4,6 +4,7 @@ import '../eventera_api.dart';
 import '../ui/components.dart';
 import '../ui/tokens.dart';
 import 'personalize_screen.dart';
+import 'pick_design_screen.dart';
 
 /// Loads an event by slug (from a deep link or the home screen), shows a
 /// spinner, then replaces itself with the personalize screen. On failure it
@@ -35,9 +36,21 @@ class _OpenEventScreenState extends State<OpenEventScreen> {
         throw EventeraException('This event has no card design yet.');
       }
       if (!mounted) return;
+
+      // When the event offers more than one design, let the attendee pick one
+      // first (screen 14). Any failure here falls back to the default-variant
+      // personalize flow below, so the attendee is never blocked.
+      bool multiple = false;
+      try {
+        multiple = event.variants.length > 1;
+      } catch (_) {
+        multiple = false;
+      }
+
       Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (_) =>
-            PersonalizeScreen(event: event, initialVariant: variant),
+        builder: (_) => multiple
+            ? PickDesignScreen(event: event, initialVariant: variant)
+            : PersonalizeScreen(event: event, initialVariant: variant),
       ));
     } on EventeraException catch (e) {
       if (!mounted) return;

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import {
   Search, UserCheck, Clock, UserPlus, Sparkles, Loader2,
-  MessageCircle, ExternalLink, Users,
+  MessageCircle, ExternalLink, Users, Check, X, Inbox, Send,
 } from 'lucide-react';
 
 /* ─── Types ─────────────────────────────────────────────────────── */
@@ -31,6 +31,13 @@ interface MatchSuggestion {
   } | null;
 }
 
+interface ConnectionRequest {
+  connection_id: string;
+  person_id: string;
+  name: string;
+  created_at: string;
+}
+
 interface Props {
   eventId: string;
   eventSlug: string;
@@ -39,7 +46,7 @@ interface Props {
   initialPeople?: Person[];
 }
 
-type Filter = 'all' | 'connected' | 'pending' | 'suggested';
+type Filter = 'all' | 'connected' | 'requests' | 'suggested';
 
 /* ─── Helpers ───────────────────────────────────────────────────── */
 
@@ -121,6 +128,12 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const [suggestionsLoaded, setSuggestionsLoaded] = useState(false);
 
+  const [incoming, setIncoming] = useState<ConnectionRequest[]>([]);
+  const [sent, setSent] = useState<ConnectionRequest[]>([]);
+  const [loadingRequests, setLoadingRequests] = useState(false);
+  const [requestsLoaded, setRequestsLoaded] = useState(false);
+  const [respondingTo, setRespondingTo] = useState<string | null>(null);
+
   const messagesHref = registrationId
     ? `/e/${eventSlug}/messages?reg=${registrationId}`
     : `/e/${eventSlug}/messages`;
@@ -169,10 +182,58 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
       });
       if (!res.ok) throw new Error('failed');
       setPeople(prev => prev.map(p => p.id === personId ? { ...p, connection_status: 'pending' } : p));
+      setRequestsLoaded(false); // let the Requests tab re-fetch the new sent request
     } catch {
       setConnectError('Could not send request. Please try again.');
     } finally {
       setConnecting(null);
+    }
+  };
+
+  /* Load pending connection requests (incoming + sent) for the Requests tab. */
+  const loadRequests = useCallback(async () => {
+    if (!registrationId) return;
+    setLoadingRequests(true);
+    try {
+      const res = await fetch(`/api/events/${eventId}/connections/requests?reg=${registrationId}`);
+      if (!res.ok) throw new Error('failed');
+      const data = await res.json() as { incoming: ConnectionRequest[]; sent: ConnectionRequest[] };
+      setIncoming(data.incoming ?? []);
+      setSent(data.sent ?? []);
+    } catch {
+      setIncoming([]);
+      setSent([]);
+    } finally {
+      setLoadingRequests(false);
+      setRequestsLoaded(true);
+    }
+  }, [eventId, registrationId]);
+
+  useEffect(() => {
+    if (filter === 'requests' && registrationId && !requestsLoaded) loadRequests();
+  }, [filter, registrationId, requestsLoaded, loadRequests]);
+
+  const handleRespond = async (connectionId: string, action: 'accept' | 'decline') => {
+    if (!registrationId) return;
+    setRespondingTo(connectionId);
+    setConnectError(null);
+    try {
+      const res = await fetch(`/api/events/${eventId}/connections`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ connection_id: connectionId, action, registration_id: registrationId }),
+      });
+      if (!res.ok) throw new Error('failed');
+      const accepted = incoming.find(r => r.connection_id === connectionId);
+      setIncoming(prev => prev.filter(r => r.connection_id !== connectionId));
+      // Reflect an accepted request in the directory immediately.
+      if (action === 'accept' && accepted) {
+        setPeople(prev => prev.map(p => p.id === accepted.person_id ? { ...p, connection_status: 'accepted' } : p));
+      }
+    } catch {
+      setConnectError('Could not update the request. Please try again.');
+    } finally {
+      setRespondingTo(null);
     }
   };
 
@@ -193,17 +254,14 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
 
   const filteredPeople = people.filter(p => {
     const matchQ = !query || p.attendee_name.toLowerCase().includes(query.toLowerCase());
-    const matchF =
-      filter === 'connected' ? p.connection_status === 'accepted' :
-      filter === 'pending' ? p.connection_status === 'pending' :
-      true;
+    const matchF = filter === 'connected' ? p.connection_status === 'accepted' : true;
     return matchQ && matchF;
   });
 
   const tabs: { key: Filter; label: string }[] = [
     { key: 'all', label: 'All' },
     { key: 'connected', label: 'Connected' },
-    { key: 'pending', label: 'Pending' },
+    { key: 'requests', label: 'Requests' },
     { key: 'suggested', label: 'Suggested' },
   ];
 
@@ -263,7 +321,19 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
               }}
             >
               {t.key === 'suggested' && <Sparkles size={12} />}
+              {t.key === 'requests' && <Inbox size={12} />}
               {t.label}
+              {t.key === 'requests' && incoming.length > 0 && (
+                <span
+                  className="inline-flex items-center justify-center text-[10px] font-semibold rounded-full px-1.5 min-w-[18px] h-[18px]"
+                  style={{
+                    background: filter === 'requests' ? '#E8C57E' : '#1F4D3A',
+                    color: filter === 'requests' ? '#163828' : 'white',
+                  }}
+                >
+                  {incoming.length}
+                </span>
+              )}
             </button>
           ))}
         </div>
@@ -273,8 +343,95 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
         <p className="text-[12px] mb-3" style={{ color: '#B8423C' }}>{connectError}</p>
       )}
 
-      {/* ── Suggested (AI matches) ─────────────────────────────── */}
-      {filter === 'suggested' ? (
+      {/* ── Requests (incoming / sent pending) ─────────────────── */}
+      {filter === 'requests' ? (
+        loadingRequests && !requestsLoaded ? (
+          <div className="rounded-2xl py-16 flex flex-col items-center justify-center gap-3" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
+            <Loader2 size={24} className="animate-spin" style={{ color: '#1F4D3A' }} />
+            <p className="text-[13px]" style={{ color: '#6B7A72' }}>Loading requests…</p>
+          </div>
+        ) : incoming.length === 0 && sent.length === 0 ? (
+          <div className="rounded-2xl py-16 text-center" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
+            <Inbox size={24} className="mx-auto mb-3" style={{ color: '#6B7A72' }} />
+            <p className="text-[14px] font-medium mb-1" style={{ color: '#0F1F18' }}>No pending requests</p>
+            <p className="text-[13px]" style={{ color: '#6B7A72' }}>Requests you send or receive will appear here.</p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-8">
+            {/* Incoming */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Inbox size={15} style={{ color: '#1F4D3A' }} />
+                <span className="text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: '#6B7A72' }}>
+                  Incoming · {incoming.length}
+                </span>
+              </div>
+              {incoming.length === 0 ? (
+                <p className="text-[13px]" style={{ color: '#6B7A72' }}>No incoming requests right now.</p>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {incoming.map(r => (
+                    <div key={r.connection_id} className="rounded-2xl p-4 flex flex-col gap-3" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
+                      <div className="flex items-center gap-3">
+                        <Avatar name={r.name} size={48} />
+                        <div className="flex-1 min-w-0">
+                          <div className="font-display font-medium text-[15px] truncate" style={{ color: '#0F1F18' }}>{r.name}</div>
+                          <div className="text-[12px]" style={{ color: '#6B7A72' }}>Wants to connect</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleRespond(r.connection_id, 'accept')}
+                          disabled={respondingTo === r.connection_id}
+                          className="flex-1 inline-flex items-center justify-center gap-1.5 text-[12px] font-medium px-3 py-2 rounded-full transition-opacity"
+                          style={{ background: '#1F4D3A', color: 'white', opacity: respondingTo === r.connection_id ? 0.5 : 1 }}
+                        >
+                          {respondingTo === r.connection_id ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />}
+                          Accept
+                        </button>
+                        <button
+                          onClick={() => handleRespond(r.connection_id, 'decline')}
+                          disabled={respondingTo === r.connection_id}
+                          className="flex-1 inline-flex items-center justify-center gap-1.5 text-[12px] font-medium px-3 py-2 rounded-full transition-opacity"
+                          style={{ border: '1px solid #E5E0D4', color: '#6B7A72', opacity: respondingTo === r.connection_id ? 0.5 : 1 }}
+                        >
+                          <X size={12} /> Decline
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Sent */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Send size={15} style={{ color: '#6B7A72' }} />
+                <span className="text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: '#6B7A72' }}>
+                  Sent · {sent.length}
+                </span>
+              </div>
+              {sent.length === 0 ? (
+                <p className="text-[13px]" style={{ color: '#6B7A72' }}>You haven&apos;t sent any requests yet.</p>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {sent.map(r => (
+                    <div key={r.connection_id} className="rounded-2xl p-4 flex items-center gap-3" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
+                      <Avatar name={r.name} size={44} />
+                      <div className="flex-1 min-w-0">
+                        <div className="font-display font-medium text-[15px] truncate" style={{ color: '#0F1F18' }}>{r.name}</div>
+                        <div className="text-[12px]" style={{ color: '#6B7A72' }}>Request sent</div>
+                      </div>
+                      <StatusTag status="pending" />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      ) : filter === 'suggested' ? (
         loadingSuggestions ? (
           <div className="rounded-2xl py-16 flex flex-col items-center justify-center gap-3" style={{ background: 'white', border: '1px solid #E5E0D4' }}>
             <Loader2 size={24} className="animate-spin" style={{ color: '#1F4D3A' }} />

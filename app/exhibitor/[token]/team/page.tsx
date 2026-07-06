@@ -21,12 +21,24 @@ export default async function ExhibitorTeamPage({ params }: Props) {
 
   if (!sponsor) notFound();
 
+  // scan_access (migration 059) may not be applied yet — try the richer select,
+  // and fall back to the base columns so the tab never 500s on a missing column.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: members } = await (admin as any)
+  const db = admin as any;
+  let members = await db
     .from('sponsor_members')
-    .select('id, invited_email, role, status, user_id, profiles(full_name, email)')
+    .select('id, invited_email, role, status, user_id, scan_access, profiles(full_name, email)')
     .eq('sponsor_id', sponsor.id)
-    .order('created_at', { ascending: true });
+    .order('created_at', { ascending: true })
+    .then((r: { data: unknown[] | null; error: unknown }) => (r.error ? null : r.data));
+  if (!members) {
+    const { data } = await db
+      .from('sponsor_members')
+      .select('id, invited_email, role, status, user_id, profiles(full_name, email)')
+      .eq('sponsor_id', sponsor.id)
+      .order('created_at', { ascending: true });
+    members = data;
+  }
 
   const event = sponsor.events as { id: string; name: string; slug: string };
   const showDashboardLink = await isLoggedInSponsorFor(event.id);
@@ -41,6 +53,7 @@ export default async function ExhibitorTeamPage({ params }: Props) {
       eventName={event.name}
       eventSlug={event.slug}
       activeTab="team"
+      mode={sponsor.booth_location ? 'exhibitor' : 'sponsor'}
       showDashboardLink={showDashboardLink}
     >
       <TeamTab members={members ?? []} token={token} />

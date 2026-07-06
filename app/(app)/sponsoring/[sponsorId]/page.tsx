@@ -43,6 +43,7 @@ export default async function SponsorWorkspacePage({
       eventName={event.name}
       eventSlug={event.slug}
       activeTab="overview"
+      mode={sponsor.booth_location ? 'exhibitor' : 'sponsor'}
     >
       <OverviewTab
         sponsorId={sponsor.id}

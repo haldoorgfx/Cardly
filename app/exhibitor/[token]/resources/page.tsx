@@ -41,6 +41,7 @@ export default async function ExhibitorResourcesPage({ params }: Props) {
       eventName={event.name}
       eventSlug={event.slug}
       activeTab="resources"
+      mode={sponsor.booth_location ? 'exhibitor' : 'sponsor'}
       showDashboardLink={showDashboardLink}
     >
       <ResourcesTab resources={resources ?? []} token={token} />

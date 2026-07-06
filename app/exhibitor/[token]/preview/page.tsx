@@ -3,40 +3,44 @@ export const dynamic = 'force-dynamic';
 import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { ExhibitorShell } from '@/components/exhibitor/ExhibitorShell';
-import { MeetingsTab } from '@/components/exhibitor/MeetingsTab';
+import { DirectoryPreviewTab } from '@/components/exhibitor/DirectoryPreviewTab';
 import { isLoggedInSponsorFor } from '@/lib/rbac/exhibitor-viewer';
 
 interface Props { params: Promise<{ token: string }> }
 
-export default async function ExhibitorMeetingsPage({ params }: Props) {
+export default async function ExhibitorPreviewPage({ params }: Props) {
   const { token } = await params;
   const admin = createAdminClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: sponsor } = await (admin as any)
     .from('sponsors')
-    .select('id, company_name, tier, booth_location, logo_url, events(id, name, slug)')
+    .select('*, events(id, name, slug)')
     .eq('invite_token', token)
     .single();
 
   if (!sponsor) notFound();
 
+  // Products power both the preview list and the exhibitor-vs-sponsor mode.
+  // Missing table (migration 060 not applied) → clean empty state, never a 500.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let meetings: any[] = [];
+  let products: any[] = [];
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data } = await (admin as any)
-      .from('meeting_requests')
-      .select('*')
+      .from('exhibitor_products')
+      .select('id, name, description, image_url, is_featured')
       .eq('sponsor_id', sponsor.id)
-      .order('created_at', { ascending: false });
-    meetings = data ?? [];
+      .order('position', { ascending: true })
+      .order('created_at', { ascending: true });
+    products = data ?? [];
   } catch {
-    meetings = [];
+    products = [];
   }
 
   const event = sponsor.events as { id: string; name: string; slug: string };
   const showDashboardLink = await isLoggedInSponsorFor(event.id);
+  const mode: 'sponsor' | 'exhibitor' = sponsor.booth_location || products.length > 0 ? 'exhibitor' : 'sponsor';
 
   return (
     <ExhibitorShell
@@ -47,11 +51,11 @@ export default async function ExhibitorMeetingsPage({ params }: Props) {
       logoUrl={sponsor.logo_url}
       eventName={event.name}
       eventSlug={event.slug}
-      activeTab="meetings"
-      mode={sponsor.booth_location ? 'exhibitor' : 'sponsor'}
+      activeTab="preview"
+      mode={mode}
       showDashboardLink={showDashboardLink}
     >
-      <MeetingsTab meetings={meetings} token={token} />
+      <DirectoryPreviewTab sponsor={sponsor} products={products} />
     </ExhibitorShell>
   );
 }

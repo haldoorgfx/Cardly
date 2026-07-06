@@ -25,6 +25,7 @@ export default async function SponsorBoothPage({
       eventName={event.name}
       eventSlug={event.slug}
       activeTab="booth"
+      mode={sponsor.booth_location ? 'exhibitor' : 'sponsor'}
     >
       <BoothTab sponsor={sponsor} token={sponsor.invite_token} />
     </ExhibitorShell>

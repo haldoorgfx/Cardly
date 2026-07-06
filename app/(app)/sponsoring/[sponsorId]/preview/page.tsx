@@ -2,26 +2,28 @@ export const dynamic = 'force-dynamic';
 
 import { createAdminClient } from '@/lib/supabase/server';
 import { ExhibitorShell } from '@/components/exhibitor/ExhibitorShell';
-import { ProductsTab } from '@/components/exhibitor/ProductsTab';
+import { DirectoryPreviewTab } from '@/components/exhibitor/DirectoryPreviewTab';
 import { requireSponsorWorkspace } from '@/lib/rbac/sponsorWorkspace';
 
-export const metadata = { title: 'Products' };
+export const metadata = { title: 'Directory preview' };
 
-export default async function SponsorProductsPage({
+export default async function SponsorPreviewPage({
   params,
 }: {
   params: Promise<{ sponsorId: string }>;
 }) {
   const { sponsorId } = await params;
-  const { sponsor, event } = await requireSponsorWorkspace(sponsorId, `/sponsoring/${sponsorId}/products`);
+  const { sponsor, event } = await requireSponsorWorkspace(sponsorId, `/sponsoring/${sponsorId}/preview`);
 
+  // Products power both the preview list and the exhibitor-vs-sponsor mode.
+  // Missing table (migration 060 not applied) → clean empty state, never a 500.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let products: any[] = [];
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data } = await (createAdminClient() as any)
       .from('exhibitor_products')
-      .select('*')
+      .select('id, name, description, image_url, is_featured')
       .eq('sponsor_id', sponsor.id)
       .order('position', { ascending: true })
       .order('created_at', { ascending: true });
@@ -29,6 +31,8 @@ export default async function SponsorProductsPage({
   } catch {
     products = [];
   }
+
+  const mode: 'sponsor' | 'exhibitor' = sponsor.booth_location || products.length > 0 ? 'exhibitor' : 'sponsor';
 
   return (
     <ExhibitorShell
@@ -40,10 +44,10 @@ export default async function SponsorProductsPage({
       logoUrl={sponsor.logo_url}
       eventName={event.name}
       eventSlug={event.slug}
-      activeTab="products"
-      mode={(sponsor.booth_location || products.length > 0) ? 'exhibitor' : 'sponsor'}
+      activeTab="preview"
+      mode={mode}
     >
-      <ProductsTab products={products} token={sponsor.invite_token} />
+      <DirectoryPreviewTab sponsor={sponsor} products={products} />
     </ExhibitorShell>
   );
 }

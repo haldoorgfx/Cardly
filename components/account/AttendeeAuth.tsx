@@ -137,13 +137,24 @@ export default function AttendeeAuth() {
     const nextOtp = [...otp];
     nextOtp[i] = digit;
     setOtp(nextOtp);
+    // Editing after a wrong code clears the red error state.
+    if (error) setError('');
     if (digit && i < 5) inputRefs.current[i + 1]?.focus();
+  }
+
+  // Return to the email-entry step (reused by "Change" and "Use a different
+  // email"). Clears the code and any error so the user starts fresh.
+  function backToEmail() {
+    setState('email');
+    setOtp(['', '', '', '', '', '']);
+    setError('');
   }
 
   function handleOtpPaste(e: React.ClipboardEvent) {
     const text = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
     if (text.length === 6) {
       setOtp(text.split(''));
+      if (error) setError('');
       inputRefs.current[5]?.focus();
     }
   }
@@ -228,6 +239,15 @@ export default function AttendeeAuth() {
         <p className="text-[14px] mt-2 leading-relaxed" style={{ color: '#6B7A72' }}>
           We sent a 6-digit code to{' '}
           <strong style={{ color: '#0F1F18', fontWeight: 600 }}>{email}</strong>
+          {' '}
+          <button
+            type="button"
+            onClick={backToEmail}
+            className="font-medium hover:underline"
+            style={{ color: '#1F4D3A' }}
+          >
+            Change
+          </button>
         </p>
 
         <div className="flex gap-2.5 mt-7" onPaste={handleOtpPaste}>
@@ -246,10 +266,11 @@ export default function AttendeeAuth() {
                 width: 52, height: 60,
                 fontFamily: 'Inter, system-ui, sans-serif',
                 fontWeight: 500, fontSize: 24,
-                color: '#0F1F18',
-                border: `1px solid ${d ? '#1F4D3A' : '#E5E0D4'}`,
+                color: error ? '#B8423C' : '#0F1F18',
+                // Wrong code → all six boxes flip to the danger style.
+                border: `1px solid ${error ? '#B8423C' : d ? '#1F4D3A' : '#E5E0D4'}`,
                 borderRadius: 8,
-                background: d ? '#E8EFEB' : '#FFFFFF',
+                background: error ? 'rgba(184,66,60,0.06)' : d ? '#E8EFEB' : '#FFFFFF',
               }}
             />
           ))}
@@ -278,7 +299,7 @@ export default function AttendeeAuth() {
 
         <button
           type="button"
-          onClick={() => { setState('email'); setOtp(['', '', '', '', '', '']); setError(''); }}
+          onClick={backToEmail}
           className="mt-5 text-[13px] font-medium block"
           style={{ color: '#1F4D3A' }}
         >

@@ -25,6 +25,7 @@ type SponsorCard = {
   warm: number;
   cold: number;
   resources: number;
+  mode: 'sponsor' | 'exhibitor';
 };
 
 export default async function SponsoringPage() {
@@ -73,11 +74,19 @@ export default async function SponsoringPage() {
     const eventIds = Array.from(new Set(sponsorRows.map(s => s.event_id as string)));
     const sponsorIds = sponsorRows.map(s => s.id as string);
 
-    const [eventsRes, leadsRes, resourcesRes] = await Promise.all([
+    const [eventsRes, leadsRes, resourcesRes, productsRes] = await Promise.all([
       db.from('events').select('id, name, slug').in('id', eventIds),
       db.from('sponsor_leads').select('sponsor_id, rating').in('sponsor_id', sponsorIds),
       db.from('sponsor_resources').select('sponsor_id').in('sponsor_id', sponsorIds),
+      // exhibitor_products (migration 060) may not exist yet — never let it break the list.
+      db.from('exhibitor_products').select('sponsor_id').in('sponsor_id', sponsorIds)
+        .then((r: { data: unknown[] | null; error: unknown }) => (r.error ? { data: [] } : r)),
     ]);
+
+    const productSponsorIds = new Set<string>(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (((productsRes?.data as any[]) ?? [])).map(p => p.sponsor_id as string),
+    );
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const eventById = new Map<string, any>(((eventsRes?.data as any[]) ?? []).map(e => [e.id, e]));
@@ -115,6 +124,8 @@ export default async function SponsoringPage() {
           warm: lead.warm,
           cold: lead.cold,
           resources: resourcesBySponsor.get(s.id) ?? 0,
+          // An entry with a booth or products is an exhibitor; a pure partner is a sponsor.
+          mode: (s.booth_location || productSponsorIds.has(s.id)) ? 'exhibitor' : 'sponsor',
         };
       });
   }
@@ -160,6 +171,10 @@ export default async function SponsoringPage() {
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-display text-[16px] font-semibold truncate" style={{ color: '#0F1F18' }}>
                         {card.companyName}
+                      </span>
+                      <span className="text-[10.5px] font-medium px-2 py-0.5 rounded-full border"
+                        style={{ background: '#E8EFEB', color: '#1F4D3A', borderColor: 'rgba(31,77,58,0.2)' }}>
+                        {card.mode === 'exhibitor' ? 'Exhibitor' : 'Sponsor'}
                       </span>
                       {card.tier && (
                         <span className="text-[10.5px] font-medium px-2 py-0.5 rounded-full border capitalize"
