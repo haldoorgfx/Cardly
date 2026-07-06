@@ -138,7 +138,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
             <path key={i} d={`M -40 ${30 + i * 32} Q 320 ${-8 + i * 32} 640 ${60 + i * 32} T 1280 ${36 + i * 32}`} fill="none" stroke="#E8C57E" strokeWidth="1.5" />
           ))}
         </svg>
-        <div className="relative max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-5 flex flex-col justify-end">
+        <div className="relative max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-5 flex flex-col justify-end">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4">
             <div>
               <span className={`inline-flex items-center gap-1.5 text-[10px] tracking-[0.1em] uppercase px-2 py-0.5 rounded-full border bg-[#FAF6EE]/95 mb-3 ${st.cls}`}>
@@ -192,7 +192,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
         </div>
       </div>
 
-      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
         {/* ── Stats bar ── */}
         <div className="bg-white rounded-2xl border px-5 py-4"

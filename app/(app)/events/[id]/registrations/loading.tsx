@@ -4,7 +4,7 @@ function Skel({ className, style }: { className?: string; style?: CSSProperties 
 }
 export default function RegistrationsLoading() {
   return (
-    <div className="px-4 sm:px-6 py-8 max-w-[1200px]">
+    <div className="px-4 sm:px-6 py-8 max-w-[1200px] mx-auto">
       <Skel className="h-3 w-48 mb-6" />
       <div className="bg-white rounded-2xl border border-[#E5E0D4] overflow-hidden">
         <div className="p-5 border-b border-[#E5E0D4] flex items-center justify-between">

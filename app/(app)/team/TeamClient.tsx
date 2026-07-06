@@ -265,7 +265,7 @@ export function TeamClient({
   }
 
   return (
-    <div className="px-8 py-8 max-w-[860px]">
+    <div className="px-8 py-8 max-w-[900px] mx-auto">
       {showInviteModal && initialTeam && (
         <InviteModal
           teamId={initialTeam.id}

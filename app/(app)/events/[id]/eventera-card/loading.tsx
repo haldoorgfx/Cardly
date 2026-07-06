@@ -4,7 +4,7 @@ function Skel({ w, h, className }: { w?: string; h?: string; className?: string 
 
 export default function EventeraCardLoading() {
   return (
-    <div className="max-w-[1100px] mx-auto px-4 sm:px-6 py-8">
+    <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-8">
       <div className="flex items-start justify-between mb-6">
         <div><Skel w="160px" h="28px" className="mb-2" /><Skel w="240px" h="16px" /></div>
         <div className="flex gap-2"><Skel w="160px" h="36px" /><Skel w="120px" h="36px" /></div>

@@ -70,7 +70,7 @@ export default async function SpeakerDetailPage({ params }: Props) {
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
 
         {/* Back */}
         <Link href={`/events/${_ev.slug}/speakers`}

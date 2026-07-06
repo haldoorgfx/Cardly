@@ -150,7 +150,7 @@ export default async function BillingPage({
   if (plan === 'free') {
     return (
       <>
-          <div className="max-w-[760px]">
+          <div className="max-w-[760px] mx-auto">
           <div className="mb-8">
             <h1 className="font-display font-semibold text-[24px] text-[#0F1F18] tracking-tight">Billing</h1>
             <p className="text-[14px] text-[#6B7A72] mt-1">Manage your plan and payment method</p>
@@ -175,7 +175,7 @@ export default async function BillingPage({
 
   return (
     <>
-            <div className="max-w-[960px]">
+            <div className="max-w-[900px] mx-auto">
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-8 flex-wrap">
         <div>

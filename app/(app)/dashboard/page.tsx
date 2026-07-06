@@ -131,7 +131,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-full" style={{ background: '#FAF6EE' }}>
-      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
 
         {/* ── Page header ── */}
         <div className="flex items-start justify-between mb-6 gap-4 flex-wrap">

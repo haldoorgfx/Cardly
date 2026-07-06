@@ -35,7 +35,7 @@ export default async function AttendingPollsPage({
   for (const v of (votes ?? [])) myVotes[v.poll_id] = v.option_id;
 
   return (
-    <div className="max-w-[760px]">
+    <div className="max-w-[760px] mx-auto">
       <div className="mb-8">
         <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
           Polls
