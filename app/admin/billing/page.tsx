@@ -4,7 +4,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { BillingAdminClient } from './BillingAdminClient';
 import type { Plan } from '@/types/database';
 
-export const metadata = { title: 'Billing — Eventera Admin' };
+export const metadata = { title: 'Revenue — Eventera Admin' };
 export const dynamic = 'force-dynamic';
 
 interface SearchParams {
@@ -76,8 +76,8 @@ export default async function BillingAdminPage({
         <div className=" text-[10px] tracking-[0.22em] uppercase text-[#6B7A72] mb-2">
           Admin · Billing
         </div>
-        <h1 className="font-display font-bold text-[28px] text-[#0F1F18] tracking-tight">
-          Billing Management
+        <h1 className="font-display font-semibold text-[26px] sm:text-[30px] text-[#0F1F18] tracking-tight">
+          Revenue
         </h1>
         <p className="mt-1.5 text-[14px] text-[#6B7A72]">
           View subscriptions, comp plans (Stripe-bypassing), view invoices, and issue refunds.

@@ -28,7 +28,7 @@ export default async function MediaLibraryPage({
         <div className=" text-[10px] tracking-[0.22em] uppercase text-[#6B7A72] mb-2">
           Admin · Content
         </div>
-        <h1 className="font-display font-bold text-[28px] text-[#0F1F18] tracking-tight">
+        <h1 className="font-display font-semibold text-[26px] sm:text-[30px] text-[#0F1F18] tracking-tight">
           Media Library
         </h1>
         <p className="mt-1.5 text-[14px] text-[#6B7A72]">

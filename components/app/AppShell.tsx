@@ -191,7 +191,9 @@ const USER_NAV_GROUPS: NavGroup[] = [
   { key: 'organizing', title: 'Organizing', flag: 'organizing', collapsible: true, items: [
     { href: '/dashboard',  label: 'Events',    icon: <LayoutGrid size={15} strokeWidth={1.8} />, matchPrefix: true },
     { href: '/analytics',  label: 'Analytics', icon: <TrendingUp size={15} strokeWidth={1.8} /> },
+    { href: '/brand',      label: 'Brand Kit', icon: <Palette size={15} strokeWidth={1.8} /> },
     { href: '/team',       label: 'Team',      icon: <Users size={15} strokeWidth={1.8} /> },
+    { href: '/templates',  label: 'Templates', icon: <Layout size={15} strokeWidth={1.8} /> },
   ]},
   { key: 'speaking', title: '', flag: 'speaking', collapsible: false, items: [
     { href: '/speaking', label: 'Speaking', icon: <User size={15} strokeWidth={1.8} />, matchPrefix: true },

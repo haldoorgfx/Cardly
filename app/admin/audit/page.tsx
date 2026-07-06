@@ -4,7 +4,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { AuditLogTable, type AuditEntry } from '@/components/admin/AuditLogTable';
 import { AuditFiltersClient } from './AuditFiltersClient';
 
-export const metadata = { title: 'Audit Log — Eventera Admin' };
+export const metadata = { title: 'Activity Log — Eventera Admin' };
 export const dynamic = 'force-dynamic';
 
 interface SearchParams {
@@ -50,8 +50,8 @@ export default async function AuditPage({
         <div className=" text-[10px] tracking-[0.22em] uppercase text-[#6B7A72] mb-2">
           Admin · Audit Log
         </div>
-        <h1 className="font-display font-bold text-[28px] text-[#0F1F18] tracking-tight">
-          Audit Log
+        <h1 className="font-display font-semibold text-[26px] sm:text-[30px] text-[#0F1F18] tracking-tight">
+          Activity Log
         </h1>
         <p className="mt-1.5 text-[14px] text-[#6B7A72]">
           Every admin action, in order. Read-only.
