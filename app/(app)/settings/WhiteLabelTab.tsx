@@ -11,6 +11,7 @@ interface WhiteLabelSettings {
   brand_name: string;
   primary_color: string;
   custom_domain: string;
+  domain_verified: boolean;
   from_name: string;
   reply_to_email: string;
   hide_powered_by: boolean;
@@ -20,6 +21,7 @@ const DEFAULTS: WhiteLabelSettings = {
   brand_name: '',
   primary_color: '#1F4D3A',
   custom_domain: '',
+  domain_verified: false,
   from_name: '',
   reply_to_email: '',
   hide_powered_by: false,
@@ -46,6 +48,9 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [verifying, setVerifying] = useState(false);
+  const [verifyMsg, setVerifyMsg] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/white-label')
@@ -65,16 +70,39 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
+    setSaveError(null);
     try {
-      await fetch('/api/white-label', {
+      const res = await fetch('/api/white-label', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settings),
       });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setSaveError(data.error ?? 'Could not save. Please try again.');
+        return;
+      }
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
+    } catch {
+      setSaveError('Network error — please try again.');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleVerifyDomain = async () => {
+    setVerifying(true);
+    setVerifyMsg(null);
+    try {
+      const res = await fetch('/api/white-label/verify-domain', { method: 'POST' });
+      const data = await res.json().catch(() => ({}));
+      setSettings(prev => ({ ...prev, domain_verified: Boolean(data.verified) }));
+      setVerifyMsg(data.verified ? 'Domain verified ✓' : (data.detail ?? data.error ?? 'Not verified yet.'));
+    } catch {
+      setVerifyMsg('Could not check DNS right now — try again.');
+    } finally {
+      setVerifying(false);
     }
   };
 
@@ -206,10 +234,37 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
                 >
                   CNAME&nbsp;&nbsp;{settings.custom_domain}&nbsp;&nbsp;→&nbsp;&nbsp;{(process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/^https?:\/\//, '')}
                 </div>
-                <div className="flex items-center gap-2 mt-3 text-[13px]" style={{ color: '#C97A2D' }}>
-                  <span className="w-2 h-2 rounded-full" style={{ background: '#C97A2D' }} />
-                  Waiting for DNS propagation…
+
+                <div className="flex items-center justify-between gap-3 mt-3 flex-wrap">
+                  {settings.domain_verified ? (
+                    <div className="flex items-center gap-2 text-[13px]" style={{ color: '#2D7A4F' }}>
+                      <Check size={14} strokeWidth={2.5} /> Domain verified
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 text-[13px]" style={{ color: '#C97A2D' }}>
+                      <span className="w-2 h-2 rounded-full" style={{ background: '#C97A2D' }} />
+                      Not verified yet
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleVerifyDomain}
+                    disabled={verifying}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-opacity"
+                    style={{ border: '1px solid #E5E0D4', color: '#1F4D3A', opacity: verifying ? 0.6 : 1 }}
+                  >
+                    {verifying ? <><Loader2 size={13} className="animate-spin" /> Checking…</> : 'Verify DNS'}
+                  </button>
                 </div>
+
+                {verifyMsg && (
+                  <p className="text-[12px] mt-2" style={{ color: settings.domain_verified ? '#2D7A4F' : '#6B7A72' }}>
+                    {verifyMsg}
+                  </p>
+                )}
+                <p className="text-[12px] mt-2" style={{ color: '#6B7A72' }}>
+                  Save your changes first, then verify. Serving the domain also requires our team to add it to the platform — contact support once DNS is verified.
+                </p>
               </div>
             )}
           </div>
@@ -255,6 +310,11 @@ export function WhiteLabelTab({ plan }: { plan: string }) {
           </div>
 
           {/* Save */}
+          {saveError && (
+            <div className="rounded-xl px-4 py-3 text-[13px]" style={{ background: '#FBEAE9', color: '#B8423C', border: '1px solid #F0C9C6' }}>
+              {saveError}
+            </div>
+          )}
           <button
             type="submit"
             disabled={saving}

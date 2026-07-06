@@ -6,6 +6,8 @@ import { notFound } from 'next/navigation';
 import AttendeeFlow from './AttendeeFlow';
 import VariantPickerClient from './VariantPickerClient';
 import { ViewTracker } from './components/ViewTracker';
+import { AttendeeBrandProvider } from '@/components/white-label/attendee-brand';
+import { getWhiteLabelByEvent } from '@/lib/white-label/server';
 import type { Zone, Variant } from '@/types/database';
 
 export async function generateMetadata(
@@ -101,11 +103,19 @@ export default async function AttendeePage({
     );
   }
 
+  // Attendee-facing white-label branding (Studio plan), applied to every screen.
+  const wl = await getWhiteLabelByEvent(event.id);
+  const brand = {
+    brandName: wl?.brandName ?? null,
+    primaryColor: wl?.primaryColor ?? '#1F4D3A',
+    hidePoweredBy: wl?.hidePoweredBy ?? false,
+  };
+
   // Single variant — skip the picker and go straight to the form
   if (variants.length === 1) {
     const v = variants[0];
     return (
-      <>
+      <AttendeeBrandProvider value={brand}>
         {/* Don't count views in preview mode */}
         {!isPreview && <ViewTracker eventId={event.id} />}
         {isPreview && (
@@ -122,13 +132,13 @@ export default async function AttendeePage({
           backgroundHeight={v.background_height ?? 1350}
           zones={(v.zones as unknown as Zone[]) ?? []}
         />
-      </>
+      </AttendeeBrandProvider>
     );
   }
 
   // Multiple variants — show the picker
   return (
-    <>
+    <AttendeeBrandProvider value={brand}>
       {!isPreview && <ViewTracker eventId={event.id} />}
       {isPreview && (
         <div className="fixed top-0 left-0 right-0 z-50 bg-amber-500/90 text-white text-center text-[12px] py-1.5 px-4">
@@ -140,6 +150,6 @@ export default async function AttendeePage({
         eventSlug={event.slug}
         variants={variants}
       />
-    </>
+    </AttendeeBrandProvider>
   );
 }

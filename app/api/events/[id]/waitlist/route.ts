@@ -85,7 +85,7 @@ export async function POST(
     eventDate: page.starts_at
       ? new Date(page.starts_at).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
       : '',
-    city: page.city ?? null,
+    city: page.city ?? null, eventId: page.event_id ?? undefined,
   }).catch(() => {});
 
   return NextResponse.json({ position }, { status: 201 });
@@ -151,7 +151,7 @@ export async function PATCH(
     .update({ status: 'invited', notified_at: new Date().toISOString() })
     .eq('id', parsed.data.entry_id)
     .eq('status', 'waiting')
-    .select('email, name, event_pages(title, starts_at, custom_slug, events!inner(slug))')
+    .select('email, name, event_pages(title, starts_at, custom_slug, event_id, events!inner(slug))')
     .maybeSingle();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -177,6 +177,7 @@ export async function PATCH(
       eventDate: ep?.starts_at
         ? new Date(ep.starts_at).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
         : '',
+      eventId: ep?.event_id ?? undefined,
     }).catch(() => {});
   }
 

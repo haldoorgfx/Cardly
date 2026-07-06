@@ -1,4 +1,5 @@
 'use client';
+import { PoweredByInline } from '@/components/white-label/attendee-brand';
 
 /** Compact organizer strip shown at the top of every attendee screen. */
 
@@ -64,7 +65,7 @@ export default function EventBrandStrip({ eventName, compact = false }: Props) {
           letterSpacing: '0.04em',
           marginTop: 2,
         }}>
-          powered by eventera
+          <PoweredByInline tone="plain" />
         </div>
       </div>
     </div>

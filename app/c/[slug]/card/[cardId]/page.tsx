@@ -4,6 +4,8 @@ import type { Metadata } from 'next';
 import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import CardRedownload from './CardRedownload';
+import { AttendeeBrandProvider } from '@/components/white-label/attendee-brand';
+import { getWhiteLabelByEvent } from '@/lib/white-label/server';
 
 export async function generateMetadata(
   { params }: { params: Promise<{ slug: string; cardId: string }> }
@@ -44,12 +46,21 @@ export default async function CardPage(
 
   if (!card || !card.output_url) notFound();
 
+  const wl = await getWhiteLabelByEvent(event.id);
+  const brand = {
+    brandName: wl?.brandName ?? null,
+    primaryColor: wl?.primaryColor ?? '#1F4D3A',
+    hidePoweredBy: wl?.hidePoweredBy ?? false,
+  };
+
   return (
-    <CardRedownload
-      eventName={event.name}
-      attendeeName={card.attendee_name ?? undefined}
-      outputUrl={card.output_url}
-      createdAt={card.created_at}
-    />
+    <AttendeeBrandProvider value={brand}>
+      <CardRedownload
+        eventName={event.name}
+        attendeeName={card.attendee_name ?? undefined}
+        outputUrl={card.output_url}
+        createdAt={card.created_at}
+      />
+    </AttendeeBrandProvider>
   );
 }

@@ -64,6 +64,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       eventSlug,
       eventDate,
       qrCodeUrl: `${appUrl}/api/qr/${reg.qr_code_token}`,
+      eventId: reg.events?.id ?? undefined,
     }).catch(() => {});
   } else {
     sendDeniedEmail({
@@ -72,6 +73,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       eventTitle: ep?.title ?? '',
       eventSlug,
       eventDate,
+      eventId: reg.events?.id ?? undefined,
     }).catch(() => {});
   }
 

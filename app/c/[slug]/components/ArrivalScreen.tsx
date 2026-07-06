@@ -1,4 +1,5 @@
 'use client';
+import { PoweredByInline } from '@/components/white-label/attendee-brand';
 
 /**
  * ArrivalScreen — E0
@@ -172,7 +173,7 @@ export default function ArrivalScreen({
             fontSize: 11, color: '#6B7A72',
             letterSpacing: '0.04em', textAlign: 'center',
           }}>
-            powered by <span style={{ color: '#0F1F18', fontWeight: 500 }}>eventera</span>
+            <PoweredByInline />
           </div>
         </div>
       </div>
@@ -188,7 +189,7 @@ export default function ArrivalScreen({
             fontFamily: 'Inter, system-ui, sans-serif',
             fontSize: 11, color: '#6B7A72', letterSpacing: '0.04em',
           }}>
-            powered by <span style={{ color: '#0F1F18', fontWeight: 500 }}>eventera</span>
+            <PoweredByInline />
           </div>
         </div>
 

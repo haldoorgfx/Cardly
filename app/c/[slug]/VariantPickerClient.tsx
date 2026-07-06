@@ -1,4 +1,5 @@
 'use client';
+import { PoweredByInline } from '@/components/white-label/attendee-brand';
 
 import { useRouter } from 'next/navigation';
 import type { Variant } from '@/types/database';
@@ -51,17 +52,7 @@ export default function VariantPickerClient({ eventName, eventSlug, variants }: 
         </div>
 
         <div className="mt-10 text-center text-[11px] text-white/20">
-          Powered by{' '}
-          <span
-            style={{
-              background: 'linear-gradient(135deg,#1F4D3A,#E8C57E)',
-              WebkitBackgroundClip: 'text',
-              backgroundClip: 'text',
-              color: 'transparent',
-            }}
-          >
-            Eventera
-          </span>
+          <PoweredByInline tone="gradient" />
         </div>
       </div>
     </div>

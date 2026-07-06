@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
           eventDate: ep?.starts_at ? new Date(ep.starts_at).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : '',
           eventVenue: ep?.is_online ? 'Online' : (ep?.venue_name ?? 'Venue TBA'),
           qrCodeUrl: `${appUrl}/api/qr/${updated.qr_code_token}`,
-          eventeraCardUrl: null,
+          eventeraCardUrl: null, eventId: updated.event_id,
           eventSlug: updated.events?.slug ?? '',
           ticketType: updated.ticket_types?.name ?? 'Ticket',
         }).catch(() => {});

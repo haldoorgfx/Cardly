@@ -461,6 +461,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       eventTitle: eventPage.title,
       eventSlug,
       eventDate: eventDateStr,
+      eventId: params.id,
     }).catch(() => {});
   } else {
     sendRegistrationConfirmEmail({
@@ -470,7 +471,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       eventDate: eventDateStr,
       eventVenue: eventPage.is_online ? 'Online' : (eventPage.venue_name ?? eventPage.venue_address ?? 'See event page'),
       qrCodeUrl: `${appUrl}/api/qr/${registration.qr_code_token}`,
-      eventeraCardUrl: null,
+      eventeraCardUrl: null, eventId: params.id,
       eventSlug,
       ticketType: ticket.name,
     }).catch(() => {});
