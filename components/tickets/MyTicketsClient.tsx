@@ -43,10 +43,13 @@ interface Props {
 const FOREST = '#1F4D3A';
 const FOREST_DARK = '#163828';
 const CREAM_SOFT = '#F5F1E8';
+const CANVAS = '#FAF6EE';      // page background — used for perforation notch "bites"
+const SURFACE = '#FFFFFF';
 const GOLD = '#E8C57E';
 const INK = '#0F1F18';
 const MUTED = '#6B7A72';
 const BORDER = '#E5E0D4';
+const BORDER_STRONG = '#C9C3B1'; // crisper dashed perforation line
 const WARNING = '#C97A2D';
 const SUCCESS = '#2D7A4F';
 
@@ -142,75 +145,80 @@ function statusTag(reg: Registration, isPast: boolean): StatusTag {
 function TicketStub({ reg, isPast, onShowQR }: { reg: Registration; isPast: boolean; onShowQR: () => void }) {
   const ep = reg.events?.event_pages?.[0];
   const whenStr = fmtWhen(ep?.starts_at);
-  const ticketName = reg.ticket_types?.name ?? 'General';
+  const ticketName = reg.ticket_types?.name ?? 'General Admission';
   const tag = statusTag(reg, isPast);
   const locked = isPendingPayment(reg);
+  const title = reg.events?.name ?? ep?.title ?? 'Event';
+  const detailHref = `/my-tickets/${reg.id}`;
+
+  const COVER = 104; // left cover-stub width
+  const NOTCH = 20;  // perforation "bite" diameter
+
+  const action = locked ? (
+    <Link href={detailHref} className="inline-flex items-center gap-1 text-[12.5px] font-semibold" style={{ color: WARNING }}>
+      <Lock size={13} strokeWidth={2.2} /> Pay to unlock
+    </Link>
+  ) : reg.status === 'checked_in' || isPast ? (
+    <Link href={detailHref} className="inline-flex items-center gap-0.5 text-[12.5px] font-semibold" style={{ color: MUTED }}>
+      Receipt <ChevronRight size={15} strokeWidth={2.2} />
+    </Link>
+  ) : (
+    <button onClick={onShowQR} className="inline-flex items-center gap-0.5 text-[12.5px] font-semibold" style={{ color: FOREST }}>
+      Show QR <ChevronRight size={15} strokeWidth={2.2} />
+    </button>
+  );
 
   return (
-    <div
-      className="relative overflow-hidden transition-shadow hover:shadow-md"
-      style={{
-        background: '#FFFFFF',
-        border: `1px solid ${BORDER}`,
-        borderRadius: 14,
-        boxShadow: '0 1px 2px rgba(15,31,24,0.04)',
-        opacity: isPast ? 0.9 : 1,
-      }}
-    >
-      {/* Left status accent bar */}
-      <div className="absolute left-0 top-0 bottom-0" style={{ width: 4, background: tag.accent }} />
-
-      <div className="pl-5 pr-4 py-4">
-        <Link href={`/my-tickets/${reg.id}`} className="flex gap-3.5 items-start">
-          {/* Cover thumb */}
-          <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0">
-            {ep?.cover_image_url ? (
-              <Image src={ep.cover_image_url} alt="" fill className="object-cover" />
-            ) : (
-              <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)' }} />
-            )}
-          </div>
-
-          <div className="flex-1 min-w-0">
-            <div className="font-display font-medium text-[16px] leading-snug truncate" style={{ fontFamily: '"DM Sans", sans-serif', color: INK, letterSpacing: '-0.01em' }}>
-              {reg.events?.name ?? ep?.title}
-            </div>
-            {whenStr && (
-              <div className="text-[12.5px] mt-0.5" style={{ color: MUTED }}>{whenStr}</div>
-            )}
-            <div className="inline-flex items-center gap-1.5 h-6 px-2.5 rounded-full mt-2" style={{ background: CREAM_SOFT }}>
-              <span className="w-1.5 h-1.5 rounded-full" style={{ background: tag.accent }} />
-              <span className="text-[11.5px] font-semibold" style={{ color: tag.color }}>{tag.label}</span>
-            </div>
-          </div>
+    <div className="relative">
+      {/* Ticket card — a real tear-off stub laid horizontally */}
+      <div
+        className="relative flex overflow-hidden transition-shadow hover:shadow-lg"
+        style={{
+          background: SURFACE,
+          border: `1px solid ${BORDER}`,
+          borderRadius: 16,
+          boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.05)',
+          opacity: isPast ? 0.82 : 1,
+        }}
+      >
+        {/* Cover stub (left) */}
+        <Link href={detailHref} aria-label={title} className="relative shrink-0 self-stretch" style={{ width: COVER, minHeight: 108 }}>
+          {ep?.cover_image_url ? (
+            <Image src={ep.cover_image_url} alt="" fill sizes="104px" className="object-cover" />
+          ) : (
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #1F4D3A 0%, #2A6A50 60%, #E8C57E 100%)' }} />
+          )}
+          {/* status accent strip on the far edge */}
+          <span className="absolute left-0 top-0 bottom-0" style={{ width: 5, background: tag.accent }} />
         </Link>
 
-        {/* Footer */}
-        <div className="flex items-center justify-between mt-3.5 pt-3.5" style={{ borderTop: `1px solid ${BORDER}` }}>
-          <span className="text-[12.5px] font-medium" style={{ color: MUTED }}>{ticketName}</span>
-
-          {locked ? (
-            <Link href={`/my-tickets/${reg.id}`} className="inline-flex items-center gap-1 text-[12.5px] font-semibold" style={{ color: WARNING }}>
-              <Lock size={13} strokeWidth={2.2} />
-              Pay to unlock
-            </Link>
-          ) : reg.status === 'checked_in' || isPast ? (
-            <Link href={`/my-tickets/${reg.id}`} className="inline-flex items-center gap-0.5 text-[12.5px] font-semibold" style={{ color: MUTED }}>
-              Receipt
-              <ChevronRight size={15} strokeWidth={2.2} />
-            </Link>
-          ) : (
-            <button
-              onClick={onShowQR}
-              className="inline-flex items-center gap-0.5 text-[12.5px] font-semibold"
-              style={{ color: FOREST }}
+        {/* Body (right) */}
+        <div className="flex-1 min-w-0 flex flex-col justify-center" style={{ padding: '13px 15px 13px 20px' }}>
+          <Link href={detailHref} className="block min-w-0">
+            <div
+              className="font-display font-semibold leading-snug"
+              style={{ fontFamily: '"DM Sans", sans-serif', color: INK, fontSize: 15.5, letterSpacing: '-0.01em', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
             >
-              Show QR
-              <ChevronRight size={15} strokeWidth={2.2} />
-            </button>
-          )}
+              {title}
+            </div>
+            <div className="mt-1 text-[11.5px]" style={{ color: MUTED, fontFamily: '"JetBrains Mono", monospace' }}>
+              {whenStr ?? ticketName}
+            </div>
+          </Link>
+          <div className="flex items-center gap-2 mt-2.5">
+            <span className="inline-flex items-center gap-1.5 h-6 px-2.5 rounded-full" style={{ background: tag.accent + '1F' }}>
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: tag.accent }} />
+              <span className="text-[11.5px] font-semibold" style={{ color: tag.color }}>{tag.label}</span>
+            </span>
+            <span className="ml-auto">{action}</span>
+          </div>
         </div>
       </div>
+
+      {/* Perforation between stub and body: dashed line + top/bottom notch "bites" */}
+      <div className="absolute pointer-events-none" style={{ left: COVER - 1, top: 13, bottom: 13, width: 2, borderLeft: `2px dashed ${BORDER_STRONG}` }} />
+      <span className="absolute rounded-full pointer-events-none" style={{ width: NOTCH, height: NOTCH, left: COVER - NOTCH / 2, top: -NOTCH / 2, background: CANVAS, border: `1px solid ${BORDER}` }} />
+      <span className="absolute rounded-full pointer-events-none" style={{ width: NOTCH, height: NOTCH, left: COVER - NOTCH / 2, bottom: -NOTCH / 2, background: CANVAS, border: `1px solid ${BORDER}` }} />
     </div>
   );
 }

@@ -61,6 +61,7 @@ const INK = '#0F1F18';
 const INK_SOFT = '#3A4A42';
 const MUTED = '#6B7A72';
 const BORDER = '#E5E0D4';
+const BORDER_STRONG = '#C9C3B1';
 const DANGER = '#B8423C';
 const WARNING = '#C97A2D';
 const SUCCESS = '#2D7A4F';
@@ -326,7 +327,7 @@ export default function TicketDetailClient({ reg, scannedByName }: Props) {
 
       <div className="max-w-md mx-auto px-4 pt-4 pb-10">
         {/* ── THE TICKET ── */}
-        <div className="overflow-hidden" style={{ background: '#fff', border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 12px 32px rgba(15,31,24,0.07)' }}>
+        <div className="overflow-hidden" style={{ background: '#fff', border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: '0 2px 4px rgba(15,31,24,0.05), 0 18px 48px rgba(31,77,58,0.10)' }}>
           {/* Cover */}
           <div className="relative" style={{ height: 150 }}>
             {ep?.cover_image_url ? (
@@ -359,7 +360,7 @@ export default function TicketDetailClient({ reg, scannedByName }: Props) {
           <div className="relative" style={{ height: 24 }}>
             <div className="absolute rounded-full" style={{ width: 24, height: 24, background: CREAM, border: `1px solid ${BORDER}`, left: -13, top: 0 }} />
             <div className="absolute rounded-full" style={{ width: 24, height: 24, background: CREAM, border: `1px solid ${BORDER}`, right: -13, top: 0 }} />
-            <div className="absolute left-4 right-4 top-1/2" style={{ borderTop: `2px dashed ${BORDER}` }} />
+            <div className="absolute left-4 right-4 top-1/2" style={{ borderTop: `2px dashed ${BORDER_STRONG}` }} />
           </div>
 
           {/* Stub: framed QR + ticket code */}
