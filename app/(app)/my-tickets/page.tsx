@@ -26,7 +26,7 @@ export default async function MyTicketsPage() {
     .select(`
       id, attendee_name, attendee_email, status, payment_status, amount_paid, eventera_card_url, qr_code_token, created_at,
       ticket_types(name, price),
-      events(id, name, slug, event_pages(id, title, cover_image_url, starts_at, ends_at, venue_name, city, is_online))
+      events(id, name, slug, event_pages(id, title, cover_image_url, starts_at, ends_at, venue_name, city, is_online, features))
     `)
     .or(`attendee_email.eq.${(user.email ?? '').toLowerCase()},user_id.eq.${user.id}`)
     .in('status', ['confirmed', 'checked_in', 'pending', 'pending_approval'])
@@ -48,6 +48,18 @@ export default async function MyTicketsPage() {
     return new Date(ep.starts_at) < now;
   });
   const cardCount = allRegs.filter(r => r.eventera_card_url).length;
+
+  // "Next up" hero: the soonest confirmed upcoming event with a live QR, so the
+  // event you're about to attend surfaces its tools front-and-center.
+  const featuredPool = upcoming.filter(r => r.status === 'confirmed' || r.status === 'checked_in');
+  const featured =
+    [...featuredPool]
+      .filter(r => r.events?.event_pages?.[0]?.starts_at)
+      .sort((a, b) =>
+        new Date(a.events!.event_pages[0].starts_at!).getTime() -
+        new Date(b.events!.event_pages[0].starts_at!).getTime())[0]
+    ?? featuredPool[0]
+    ?? null;
 
   // ── Speaking + Your booths — match the logged-in email to speaker / sponsor records ──
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -86,7 +98,7 @@ export default async function MyTicketsPage() {
           {cardCount > 0 && <> · {cardCount} Eventera Card{cardCount !== 1 ? 's' : ''} collected</>}
         </>}
       />
-      <MyTicketsClient upcoming={upcoming} past={past} />
+      <MyTicketsClient upcoming={upcoming} past={past} featured={featured} />
 
       {/* Speaking — your speaker workspace lives in the dashboard */}
       {speaking.length > 0 && (
@@ -176,6 +188,7 @@ type Registration = {
       venue_name: string | null;
       city: string | null;
       is_online: boolean;
+      features: Record<string, boolean> | null;
     }>;
   } | null;
 };

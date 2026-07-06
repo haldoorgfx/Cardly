@@ -7,6 +7,7 @@ import {
   ArrowLeftRight, Receipt, Share2, MessageSquare, X, ChevronRight, Check,
   Download,
 } from 'lucide-react';
+import { EventToolsGrid } from './EventTools';
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -21,6 +22,7 @@ type EventPage = {
   city: string | null;
   country: string | null;
   is_online: boolean;
+  features: Record<string, boolean> | null;
 };
 
 type Registration = {
@@ -498,6 +500,14 @@ export default function TicketDetailClient({ reg, scannedByName }: Props) {
               <ArrowLeftRight size={16} />
               Transfer
             </Link>
+          </div>
+        )}
+
+        {/* ── Event tools — engage with the event and organizer ── */}
+        {slug && (
+          <div className="mt-7">
+            <div className="mb-3 text-[11.5px] font-semibold uppercase tracking-[0.1em]" style={{ color: MUTED }}>Event tools</div>
+            <EventToolsGrid slug={slug} features={ep?.features ?? {}} />
           </div>
         )}
       </div>

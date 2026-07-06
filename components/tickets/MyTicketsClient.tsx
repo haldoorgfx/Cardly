@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { X, ChevronRight, Lock, MapPin } from 'lucide-react';
+import { X, ChevronRight, Lock, MapPin, QrCode } from 'lucide-react';
+import { EventToolsGrid } from './EventTools';
 
 type Registration = {
   id: string;
@@ -29,6 +30,7 @@ type Registration = {
       venue_name: string | null;
       city: string | null;
       is_online: boolean;
+      features: Record<string, boolean> | null;
     }>;
   } | null;
 };
@@ -36,6 +38,7 @@ type Registration = {
 interface Props {
   upcoming: Registration[];
   past: Registration[];
+  featured: Registration | null;
 }
 
 // ── Brand ─────────────────────────────────────────────────────────────────────
@@ -231,9 +234,86 @@ function TicketStub({ reg, isPast, onShowQR }: { reg: Registration; isPast: bool
   );
 }
 
+// ── Next-up hub ─────────────────────────────────────────────────────────────
+
+function countdownLabel(iso: string | null | undefined): string | null {
+  if (!iso) return null;
+  const diff = new Date(iso).getTime() - Date.now();
+  if (diff < -12 * 3600_000) return null;               // well past — no countdown
+  if (diff < 3600_000) return 'Happening now';
+  const days = Math.ceil(diff / 86_400_000);
+  if (days <= 0) return 'Today';
+  if (days === 1) return 'Tomorrow';
+  if (days <= 30) return `In ${days} days`;
+  return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+function NextUpHub({ reg, onShowQR }: { reg: Registration; onShowQR: () => void }) {
+  const ep = reg.events?.event_pages?.[0];
+  const slug = reg.events?.slug ?? '';
+  const title = reg.events?.name ?? ep?.title ?? 'Event';
+  const cd = countdownLabel(ep?.starts_at);
+  const venue = ep?.is_online ? 'Online event' : [ep?.venue_name, ep?.city].filter(Boolean).join(' · ') || null;
+  const features = ep?.features ?? {};
+  const locked = isPendingPayment(reg);
+
+  return (
+    <div className="mb-6 overflow-hidden" style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 20, boxShadow: '0 2px 4px rgba(15,31,24,0.05), 0 18px 48px rgba(31,77,58,0.10)' }}>
+      {/* Banner */}
+      <div className="relative px-5 py-5 sm:px-6 sm:py-6" style={{ minHeight: 138 }}>
+        {ep?.cover_image_url ? (
+          <Image src={ep.cover_image_url} alt="" fill sizes="(max-width:1200px) 100vw, 1200px" className="object-cover" />
+        ) : (
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(120deg, #163828 0%, #1F4D3A 55%, #2A6A50 100%)' }} />
+        )}
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(115deg, rgba(15,31,24,0.88) 0%, rgba(15,31,24,0.52) 58%, rgba(15,31,24,0.30) 100%)' }} />
+
+        <div className="relative">
+          <div className="text-[11px] font-semibold uppercase" style={{ color: GOLD, letterSpacing: '0.14em' }}>
+            Next up{cd ? ` · ${cd}` : ''}
+          </div>
+          <div
+            className="mt-1.5 font-display font-bold text-white"
+            style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 22, lineHeight: 1.15, letterSpacing: '-0.02em', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+          >
+            {title}
+          </div>
+          {venue && (
+            <div className="mt-1.5 flex items-center gap-1.5 text-[13px]" style={{ color: 'rgba(250,246,238,0.9)' }}>
+              <MapPin size={13} style={{ color: GOLD }} /> {venue}
+            </div>
+          )}
+          <div className="mt-4 flex flex-wrap items-center gap-2.5">
+            {locked ? (
+              <Link href={`/my-tickets/${reg.id}`} className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full text-[13.5px] font-semibold" style={{ background: WARNING, color: '#fff' }}>
+                <Lock size={15} strokeWidth={2.2} /> Pay to unlock
+              </Link>
+            ) : (
+              <button onClick={onShowQR} className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full text-[13.5px] font-semibold transition hover:opacity-90" style={{ background: '#fff', color: FOREST }}>
+                <QrCode size={16} strokeWidth={2} /> Show QR
+              </button>
+            )}
+            <Link href={`/e/${slug}`} className="inline-flex items-center gap-1 h-9 px-4 rounded-full text-[13.5px] font-semibold transition hover:bg-white/10" style={{ color: '#fff', border: '1px solid rgba(255,255,255,0.32)' }}>
+              Event page <ChevronRight size={15} strokeWidth={2.2} />
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Tools */}
+      <div className="px-4 pt-4 pb-4 sm:px-5" style={{ background: CANVAS, borderTop: `1px solid ${BORDER}` }}>
+        <div className="mb-3 px-0.5 text-[11.5px] font-semibold uppercase" style={{ color: MUTED, letterSpacing: '0.1em' }}>
+          Event tools
+        </div>
+        <EventToolsGrid slug={slug} features={features} />
+      </div>
+    </div>
+  );
+}
+
 // ── Main export ───────────────────────────────────────────────────────────────
 
-export default function MyTicketsClient({ upcoming, past }: Props) {
+export default function MyTicketsClient({ upcoming, past, featured }: Props) {
   const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming');
   const [qr, setQR] = useState<{ token: string; name: string; label: string } | null>(null);
 
@@ -248,10 +328,15 @@ export default function MyTicketsClient({ upcoming, past }: Props) {
     }
   }
 
-  const list = tab === 'upcoming' ? upcoming : past;
+  // The featured event headlines the hub, so don't repeat it in the wallet.
+  const upcomingList = featured ? upcoming.filter(r => r.id !== featured.id) : upcoming;
+  const list = tab === 'upcoming' ? upcomingList : past;
 
   return (
     <div>
+      {/* Next-up hub — the soonest event + its tools, front and centre */}
+      {featured && <NextUpHub reg={featured} onShowQR={() => openQR(featured)} />}
+
       {/* Segmented control */}
       <div className="inline-flex p-0.5 rounded-full mb-5" style={{ background: CREAM_SOFT, border: `1px solid ${BORDER}` }}>
         {(['upcoming', 'past'] as const).map(t => (
