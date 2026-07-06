@@ -60,7 +60,7 @@ function CopyBtn({ text }: { text: string }) {
 
 // ─── API Keys section ─────────────────────────────────────────────────────────
 
-const BASE_URL = `${process.env.NEXT_PUBLIC_APP_URL}/api/v1`;
+const BASE_URL = `${(process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/\/$/, '')}/api/v1`;
 
 function ApiKeysSection({ plan }: { plan: string }) {
   const [keys, setKeys] = useState<ApiKey[]>([]);
@@ -99,6 +99,18 @@ function ApiKeysSection({ plan }: { plan: string }) {
     setKeys(prev => prev.filter(k => k.id !== id));
   }
 
+  async function rotate(id: string) {
+    if (!confirm('Rotate this key? The current key stops working immediately and a new one is issued.')) return;
+    const res = await fetch(`/api/keys/${id}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'rotate' }),
+    });
+    const data = await res.json();
+    if (!res.ok) { setError(data.error ?? 'Failed to rotate key.'); return; }
+    // Swap the old key row for the freshly issued one and reveal the new secret.
+    setKeys(prev => [data.record, ...prev.filter(k => k.id !== id)]);
+    setNewKey(data.key);
+  }
+
   if (plan !== 'studio') {
     return (
       <div className="text-center py-8">
@@ -120,7 +132,7 @@ function ApiKeysSection({ plan }: { plan: string }) {
           {BASE_URL}
           <CopyBtn text={BASE_URL} />
         </div>
-        <a href="#" className="ml-auto text-[13px] font-semibold" style={{ color: '#C9A45E' }}>
+        <a href="/developers" target="_blank" rel="noopener noreferrer" className="ml-auto text-[13px] font-semibold" style={{ color: '#C9A45E' }}>
           View API docs →
         </a>
       </div>
@@ -252,7 +264,7 @@ function ApiKeysSection({ plan }: { plan: string }) {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <button className="text-[13px] font-medium" style={{ color: '#3A4A42' }}>
+                      <button onClick={() => rotate(k.id)} className="text-[13px] font-medium" style={{ color: '#3A4A42' }}>
                         Rotate
                       </button>
                       <button

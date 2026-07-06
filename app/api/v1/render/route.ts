@@ -11,43 +11,12 @@
  * Body: { eventId, variantId?, fields: { zoneId: value, … }, photoDataUrl? }
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { validateApiKey } from '@/lib/api-keys';
-import { createAdminClient } from '@/lib/supabase/server';
+import { authenticateApiKey } from '@/lib/api-keys/auth';
 
 export async function POST(req: NextRequest) {
-  // ── Auth via Bearer token ─────────────────────────────────────────────────
-  const authHeader = req.headers.get('authorization') ?? '';
-  if (!authHeader.startsWith('Bearer ')) {
-    return NextResponse.json(
-      { error: 'Missing Authorization header. Use: Bearer sk_live_...' },
-      { status: 401 },
-    );
-  }
-  const rawKey = authHeader.slice(7).trim();
-  const userId = await validateApiKey(rawKey);
-  if (!userId) {
-    return NextResponse.json({ error: 'Invalid or revoked API key.' }, { status: 401 });
-  }
-
-  // ── Plan check ─────────────────────────────────────────────────────────────
-  const db = createAdminClient();
-  const { data: profile } = await db
-    .from('profiles')
-    .select('plan, subscription_status')
-    .eq('id', userId)
-    .single();
-
-  const subscriptionFailed =
-    profile?.subscription_status === 'canceled' ||
-    profile?.subscription_status === 'past_due';
-  const plan = (subscriptionFailed && profile?.plan !== 'free') ? 'free' : (profile?.plan ?? 'free');
-
-  if (plan !== 'studio') {
-    return NextResponse.json(
-      { error: 'API access requires the Studio plan.' },
-      { status: 402 },
-    );
-  }
+  // ── Auth via Bearer token (Studio plan enforced in the shared helper) ──────
+  const auth = await authenticateApiKey(req);
+  if (!auth.ok) return auth.response;
 
   // ── Forward to the internal render endpoint ───────────────────────────────
   // Clone the request body and pass through with a trusted user-id header
