@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { BrandLogo } from '@/components/settings/BrandLogos';
 
 type Provider = 'slack' | 'zapier' | 'google_sheets' | 'mailchimp' | 'hubspot';
 
@@ -146,8 +147,10 @@ export function IntegrationsClient() {
           return (
             <div key={m.provider} className="bg-white rounded-2xl p-5 flex flex-col" style={{ border: `1px solid ${C.border}` }}>
               <div className="flex items-start justify-between mb-3">
-                <div className="w-10 h-10 rounded-xl grid place-items-center text-[16px] font-bold"
-                  style={{ background: C.soft, color: C.primary }}>{m.name[0]}</div>
+                <div className="w-10 h-10 rounded-xl grid place-items-center"
+                  style={{ background: 'white', border: `1px solid ${C.border}` }}>
+                  <BrandLogo id={m.provider} size={22} />
+                </div>
                 <StatusPill connected={connected} error={!!state?.last_error} />
               </div>
               <div className="font-display text-[14.5px] font-semibold mb-1" style={{ color: C.ink }}>{m.name}</div>
@@ -172,8 +175,10 @@ export function IntegrationsClient() {
         {/* Stripe — Connect onboarding, not a paste field */}
         <div className="bg-white rounded-2xl p-5 flex flex-col" style={{ border: `1px solid ${C.border}` }}>
           <div className="flex items-start justify-between mb-3">
-            <div className="w-10 h-10 rounded-xl grid place-items-center text-[16px] font-bold"
-              style={{ background: C.soft, color: C.primary }}>S</div>
+            <div className="w-10 h-10 rounded-xl grid place-items-center"
+              style={{ background: 'white', border: `1px solid ${C.border}` }}>
+              <BrandLogo id="stripe" size={22} />
+            </div>
             <StripePill stripe={stripe} />
           </div>
           <div className="font-display text-[14.5px] font-semibold mb-1" style={{ color: C.ink }}>Stripe</div>

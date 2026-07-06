@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { SettingsTabs } from '@/components/settings/SettingsTabs';
 import { IntegrationsClient } from '@/components/settings/IntegrationsClient';
 
 export const metadata = { title: 'Integrations' };
@@ -10,10 +9,5 @@ export default async function IntegrationsPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  return (
-    <>
-      <SettingsTabs />
-      <IntegrationsClient />
-    </>
-  );
+  return <IntegrationsClient />;
 }
