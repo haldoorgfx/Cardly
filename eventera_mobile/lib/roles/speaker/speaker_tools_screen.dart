@@ -80,7 +80,13 @@ class _SpeakerToolsScreenState extends State<SpeakerToolsScreen> {
         future: _future,
         builder: (context, snap) {
           if (snap.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator(color: AppColors.forest));
+            return const LoadingState();
+          }
+          if (snap.hasError) {
+            return ErrorStateView(
+              message: "We couldn't load your speaker tools.",
+              onRetry: () => setState(() => _future = _load()),
+            );
           }
           final sessions = snap.data ?? [];
           return ListView(
@@ -111,6 +117,7 @@ class _SpeakerToolsScreenState extends State<SpeakerToolsScreen> {
                         summary: 'Green room · logistics',
                         onTap: () => Navigator.of(context).push(MaterialPageRoute(
                             builder: (_) => GreenRoomScreen(
+                                eventId: widget.eventId, sessionId: s.id,
                                 eventName: widget.eventName, sessionTitle: s.title,
                                 startsAt: s.startsAt, endsAt: s.endsAt, room: s.room))),
                       ),
@@ -118,7 +125,7 @@ class _SpeakerToolsScreenState extends State<SpeakerToolsScreen> {
                       ToolCard(
                         icon: Icons.forum_outlined,
                         title: '${s.title} · Q&A',
-                        summary: 'Read audience questions (upvote-sorted)',
+                        summary: 'Answer, feature & moderate audience questions',
                         onTap: () => Navigator.of(context).push(MaterialPageRoute(
                             builder: (_) => SessionQaScreen(
                                 eventId: widget.eventId, sessionId: s.id,
