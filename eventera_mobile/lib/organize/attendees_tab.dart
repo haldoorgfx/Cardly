@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../eventera_api.dart';
 import '../models.dart';
 import '../net.dart';
 import '../ui/components.dart';
 import '../ui/tokens.dart';
+import 'organizer_api.dart';
 
 /// Organize · Attendees (O07) — pick an event, then search, filter and check
 /// people in. Same look as the design ref: search field, All / Checked in /
@@ -40,6 +42,7 @@ class _OrganizerAttendeesTabState extends State<OrganizerAttendeesTab> {
   String _q = '';
   String? _busyId;
   final _searchCtl = TextEditingController();
+  final _org = const OrganizerApi();
 
   @override
   void initState() {
@@ -146,11 +149,33 @@ class _OrganizerAttendeesTabState extends State<OrganizerAttendeesTab> {
 
   int get _checkedCount => _attendees.where((a) => a.checkedIn).length;
 
+  // Walk-in / at-the-door registration — direct Supabase insert (status
+  // confirmed), then refresh the list so the new person is checkable.
+  Future<void> _openWalkIn() async {
+    final id = _selectedId;
+    if (id == null) return;
+    HapticFeedback.selectionClick();
+    final res = await showMSheet<WalkInResult>(
+      context,
+      _WalkInSheet(eventId: id, org: _org),
+    );
+    if (res == null || !mounted) return;
+    if (res.created) {
+      showToast(context, '${res.name} added to the list ✓');
+    } else if (res.alreadyCheckedIn) {
+      showToast(context, '${res.name} is already checked in.');
+    } else {
+      showToast(context, '${res.name} is already on the list.');
+    }
+    await _loadList(id);
+  }
+
   // Manual check-in (O08) — confirm sheet, then the by-id RPC.
   // Approve / decline an approval-gated registration via the RPC (075).
   Future<void> _decide(_Attendee a, bool approve) async {
     final eventId = _selectedId;
     if (eventId == null) return;
+    HapticFeedback.selectionClick();
     setState(() => _busyId = a.id);
     try {
       final res = await supa.rpc('approve_registration', params: {
@@ -186,6 +211,7 @@ class _OrganizerAttendeesTabState extends State<OrganizerAttendeesTab> {
   Future<void> _tapAttendee(_Attendee a) async {
     final eventId = _selectedId;
     if (eventId == null) return;
+    HapticFeedback.selectionClick();
     // Approval-gated rows get an approve/decline sheet, not check-in.
     if (a.awaitingApproval) {
       final choice = await showMSheet<String>(context, _ApprovalSheet(attendee: a));
@@ -237,8 +263,18 @@ class _OrganizerAttendeesTabState extends State<OrganizerAttendeesTab> {
 
   @override
   Widget build(BuildContext context) {
+    final canWalkIn = _selectedId != null && !_loadingEvents && !_error;
     return MScaffold(
-      appBar: const MAppBar(title: 'Attendees', showBack: false, hairline: true),
+      appBar: MAppBar(
+        title: 'Attendees',
+        showBack: false,
+        hairline: true,
+        actions: [
+          if (canWalkIn)
+            AppBarAction(Icons.person_add_alt_1,
+                color: AppColors.forest, onTap: _openWalkIn),
+        ],
+      ),
       body: _body(),
     );
   }
@@ -660,6 +696,133 @@ class _ApprovalSheet extends StatelessWidget {
         ),
       ),
     ]);
+  }
+}
+
+/// Walk-in / at-the-door registration sheet — adds a confirmed registration
+/// straight to the list (or reports a duplicate). Mirrors the web walk-in flow.
+class _WalkInSheet extends StatefulWidget {
+  final String eventId;
+  final OrganizerApi org;
+  const _WalkInSheet({required this.eventId, required this.org});
+
+  @override
+  State<_WalkInSheet> createState() => _WalkInSheetState();
+}
+
+class _WalkInSheetState extends State<_WalkInSheet> {
+  final _name = TextEditingController();
+  final _email = TextEditingController();
+  final _phone = TextEditingController();
+  bool _busy = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _email.dispose();
+    _phone.dispose();
+    super.dispose();
+  }
+
+  bool get _validEmail {
+    final e = _email.text.trim();
+    return e.contains('@') && e.contains('.') && e.length >= 5;
+  }
+
+  Future<void> _submit() async {
+    FocusScope.of(context).unfocus();
+    if (_name.text.trim().isEmpty) {
+      setState(() => _error = 'Enter the attendee\'s name.');
+      return;
+    }
+    if (!_validEmail) {
+      setState(() => _error = 'Enter a valid email address.');
+      return;
+    }
+    HapticFeedback.lightImpact();
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      final res = await widget.org.addWalkIn(
+        widget.eventId,
+        name: _name.text,
+        email: _email.text,
+        phone: _phone.text,
+      );
+      if (mounted) Navigator.of(context).pop(res);
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _error = "That didn't go through. Check your connection and try again.";
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text('Add a walk-in', style: AppText.h3),
+        const SizedBox(height: 6),
+        Text(
+          'Register someone at the door. They\'re added as confirmed and ready '
+          'to check in.',
+          style: AppText.bodySm,
+        ),
+        const SizedBox(height: 16),
+        MInput(
+          label: 'Full name',
+          hint: 'e.g. Amina Farah',
+          controller: _name,
+          action: TextInputAction.next,
+        ),
+        const SizedBox(height: 14),
+        MInput(
+          label: 'Email',
+          hint: 'name@email.com',
+          controller: _email,
+          keyboardType: TextInputType.emailAddress,
+          action: TextInputAction.next,
+        ),
+        const SizedBox(height: 14),
+        MInput(
+          label: 'Phone (optional)',
+          hint: '+253 …',
+          controller: _phone,
+          keyboardType: TextInputType.phone,
+          action: TextInputAction.done,
+          onSubmitted: (_) => _submit(),
+        ),
+        if (_error != null) ...[
+          const SizedBox(height: 12),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.error_outline, color: AppColors.danger, size: 18),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(_error!,
+                    style: AppText.bodySm.copyWith(color: AppColors.danger)),
+              ),
+            ],
+          ),
+        ],
+        const SizedBox(height: 18),
+        MButton('Add attendee',
+            icon: Icons.person_add_alt_1, loading: _busy, onTap: _busy ? null : _submit),
+        const SizedBox(height: 4),
+        MButton('Cancel',
+            kind: MBtnKind.text,
+            onTap: _busy ? null : () => Navigator.of(context).pop()),
+      ],
+    );
   }
 }
 

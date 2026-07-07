@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../eventera_api.dart';
 import '../../models.dart';
+import '../../organize/organizer_api.dart';
 import '../../theme.dart';
 import '../../roles/staff/event_control_screen.dart';
 import 'manage_tickets_screen.dart';
@@ -25,6 +27,7 @@ class EventDetailScreen extends StatefulWidget {
 
 class _EventDetailScreenState extends State<EventDetailScreen> {
   final _api = EventeraApi();
+  final _org = const OrganizerApi();
   late Future<OwnedEvent> _future;
   bool _changed = false; // whether to tell the dashboard to refresh
   bool _busy = false;
@@ -40,16 +43,58 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   }
 
   Future<void> _togglePublish(OwnedEvent e) async {
+    final publishing = !e.isPublished;
+    if (!publishing) {
+      final ok = await _confirmUnpublish();
+      if (ok != true) return;
+    }
+    HapticFeedback.lightImpact();
     setState(() => _busy = true);
     try {
-      await _api.setPublished(e.id, !e.isPublished);
+      await _api.setPublished(e.id, publishing);
+      // Keep the public event page's visibility in step with the status so the
+      // discovery / registration side matches (best-effort; status is the
+      // source of truth for the card flow).
+      try {
+        await _org.setEventPublic(e.id, publishing, title: e.name);
+      } catch (_) {/* status already flipped */}
       _changed = true;
       _reload();
+      if (mounted) {
+        _snack(publishing
+            ? 'Event published — share it now.'
+            : 'Event unpublished.');
+      }
     } catch (_) {
       _snack('Could not update. Please try again.');
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  Future<bool?> _confirmUnpublish() {
+    return showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Brand.surface,
+        title: const Text('Unpublish event?'),
+        content: const Text(
+            'Attendees won\'t be able to open the link or register until you '
+            'publish again. Your registrations and check-ins are kept.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Keep published',
+                style: TextStyle(color: Brand.forest)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child:
+                const Text('Unpublish', style: TextStyle(color: Brand.danger)),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _delete(OwnedEvent e) async {
@@ -73,6 +118,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       ),
     );
     if (ok != true) return;
+    HapticFeedback.mediumImpact();
     try {
       await _api.deleteEvent(e.id);
       if (mounted) Navigator.of(context).pop(true);
@@ -247,12 +293,17 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           subtitle: e.isPublished
               ? 'Send the link or QR to attendees'
               : 'Publish first to share',
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) =>
-                  ShareScreen(slug: e.slug, eventName: e.name),
-            ),
-          ),
+          onTap: () {
+            if (!e.isPublished) {
+              _snack('Publish the event first so attendees can open the link.');
+              return;
+            }
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => ShareScreen(slug: e.slug, eventName: e.name),
+              ),
+            );
+          },
         ),
         _actionTile(
           icon: Icons.delete_outline,
