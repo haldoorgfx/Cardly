@@ -22,7 +22,7 @@ export default function AttendeeLoginPage() {
 
         {/* Wordmark */}
         <div className="relative z-10 font-semibold text-[22px]" style={{ fontFamily: '"DM Sans", sans-serif', color: '#FFFFFF', letterSpacing: '-0.01em' }}>
-          Kart<span style={{ color: '#E8C57E' }}>a</span>
+          Eventer<span style={{ color: '#E8C57E' }}>a</span>
         </div>
 
         {/* Pitch */}

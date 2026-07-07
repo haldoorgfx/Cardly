@@ -273,7 +273,7 @@ function PlanCard({ plan, billing }: { plan: Plan; billing: 'monthly' | 'yearly'
             right: 28,
             background: C.accent,
             color: C.primaryDark,
-            fontFamily: 'var(--font-jetbrains-mono, monospace)',
+            fontFamily: 'var(--font-sans, Inter, sans-serif)',
             fontSize: 10,
             letterSpacing: '0.16em',
             textTransform: 'uppercase',
@@ -334,7 +334,7 @@ function PlanCard({ plan, billing }: { plan: Plan; billing: 'monthly' | 'yearly'
       {/* Billing note */}
       <div style={{
         marginTop: 6,
-        fontFamily: 'var(--font-jetbrains-mono, monospace)',
+        fontFamily: 'var(--font-sans, Inter, sans-serif)',
         fontSize: 10,
         letterSpacing: '0.16em',
         textTransform: 'uppercase',
@@ -367,7 +367,7 @@ function PlanCard({ plan, billing }: { plan: Plan; billing: 'monthly' | 'yearly'
           if (typeof f === 'object' && 'section' in f) {
             return (
               <li key={i} style={{
-                fontFamily: 'var(--font-jetbrains-mono, monospace)',
+                fontFamily: 'var(--font-sans, Inter, sans-serif)',
                 fontSize: 10,
                 letterSpacing: '0.16em',
                 textTransform: 'uppercase',
@@ -397,7 +397,7 @@ function PlanCard({ plan, billing }: { plan: Plan; billing: 'monthly' | 'yearly'
 
       {/* CTA */}
       <Link
-        href="/signup"
+        href={plan.id === 'free' ? '/signup' : `/signup?plan=${plan.id}`}
         style={{
           marginTop: 32,
           display: 'inline-flex',
@@ -480,7 +480,7 @@ function ComparisonTable() {
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 48 }}>
           <div style={{
-            fontFamily: 'var(--font-jetbrains-mono, monospace)',
+            fontFamily: 'var(--font-sans, Inter, sans-serif)',
             fontSize: 11,
             letterSpacing: '0.22em',
             textTransform: 'uppercase',
@@ -522,7 +522,7 @@ function ComparisonTable() {
               borderBottom: `1px solid ${C.border}`,
             }}>
               <tr>
-                <th style={{ padding: '16px 28px', fontFamily: 'var(--font-jetbrains-mono, monospace)', fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: C.muted, width: '40%' }}>
+                <th style={{ padding: '16px 28px', fontFamily: 'var(--font-sans, Inter, sans-serif)', fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: C.muted, width: '40%' }}>
                   Feature
                 </th>
                 <th style={{ padding: '16px 12px', textAlign: 'center', fontFamily: 'var(--font-dm-sans, DM Sans, sans-serif)', fontSize: 14, fontWeight: 600, color: C.ink }}>
@@ -544,7 +544,7 @@ function ComparisonTable() {
                       colSpan={4}
                       style={{
                         padding: '12px 28px',
-                        fontFamily: 'var(--font-jetbrains-mono, monospace)',
+                        fontFamily: 'var(--font-sans, Inter, sans-serif)',
                         fontSize: 10,
                         letterSpacing: '0.22em',
                         textTransform: 'uppercase',
@@ -635,7 +635,7 @@ function PricingFAQ() {
       <div style={{ maxWidth: 920, margin: '0 auto', padding: '80px 20px' }}>
         <div style={{ marginBottom: 48 }}>
           <div style={{
-            fontFamily: 'var(--font-jetbrains-mono, monospace)',
+            fontFamily: 'var(--font-sans, Inter, sans-serif)',
             fontSize: 11,
             letterSpacing: '0.22em',
             textTransform: 'uppercase',
@@ -752,7 +752,7 @@ export default function PricingContent() {
         <div style={{ position: 'relative', maxWidth: 1100, margin: '0 auto', padding: 'clamp(64px, 8vw, 96px) 20px 48px', textAlign: 'center' }}>
           {/* Overline */}
           <div style={{
-            fontFamily: 'var(--font-jetbrains-mono, monospace)',
+            fontFamily: 'var(--font-sans, Inter, sans-serif)',
             fontSize: 11,
             letterSpacing: '0.22em',
             textTransform: 'uppercase',
@@ -817,7 +817,7 @@ export default function PricingContent() {
                   {id === 'monthly' ? 'Monthly' : 'Yearly'}
                   {id === 'yearly' && (
                     <span style={{
-                      fontFamily: 'var(--font-jetbrains-mono, monospace)',
+                      fontFamily: 'var(--font-sans, Inter, sans-serif)',
                       fontSize: 10,
                       letterSpacing: '0.12em',
                       textTransform: 'uppercase',

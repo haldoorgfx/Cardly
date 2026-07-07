@@ -40,7 +40,7 @@ export default async function AttendingQandAPage({
         <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
           Q&amp;A
         </h1>
-        <p className="text-[14px] sm:text-[14.5px] mt-1.5" style={{ color: '#6B7A72' }}>{eventPageTitle ?? event.name}</p>
+        <p className="text-[14px] sm:text-[14.5px] mt-1.5" style={{ color: '#3A4A42' }}>{eventPageTitle ?? event.name}</p>
       </div>
       <QandAClient
         eventId={event.id}

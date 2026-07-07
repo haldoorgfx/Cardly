@@ -146,7 +146,7 @@ export default async function SponsoringPage() {
             <h2 className="font-display text-[20px] font-semibold tracking-tight" style={{ color: '#0F1F18' }}>
               No sponsorships yet
             </h2>
-            <p className="mt-2 text-[14px] max-w-[420px] mx-auto leading-[1.6]" style={{ color: '#6B7A72' }}>
+            <p className="mt-2 text-[14px] max-w-[420px] mx-auto leading-[1.6]" style={{ color: '#3A4A42' }}>
               When an organizer adds you as a sponsor, your booth and leads will appear here.
               If you were invited by email, claim access to link it to your account.
             </p>
@@ -165,7 +165,7 @@ export default async function SponsoringPage() {
                     {card.logoUrl
                       // eslint-disable-next-line @next/next/no-img-element
                       ? <img src={card.logoUrl} alt="" className="w-full h-full object-contain" />
-                      : <Briefcase size={20} strokeWidth={1.8} style={{ color: '#6B7A72' }} />}
+                      : <Briefcase size={20} strokeWidth={1.8} style={{ color: '#3A4A42' }} />}
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -183,9 +183,9 @@ export default async function SponsoringPage() {
                         </span>
                       )}
                     </div>
-                    <div className="mt-0.5 text-[13px]" style={{ color: '#6B7A72' }}>{card.eventName}</div>
+                    <div className="mt-0.5 text-[13px]" style={{ color: '#3A4A42' }}>{card.eventName}</div>
                     {card.boothLocation && (
-                      <div className="mt-1 inline-flex items-center gap-1.5 text-[12.5px]" style={{ color: '#6B7A72' }}>
+                      <div className="mt-1 inline-flex items-center gap-1.5 text-[12.5px]" style={{ color: '#3A4A42' }}>
                         <MapPin size={12} strokeWidth={1.9} /> {card.boothLocation}
                       </div>
                     )}
@@ -201,10 +201,10 @@ export default async function SponsoringPage() {
                   ].map((stat, i) => (
                     <div key={i} className="px-4 py-4 text-center border-l first:border-l-0" style={{ borderColor: '#F0EDE6' }}>
                       <div className="inline-flex items-center gap-1.5 text-[18px] font-semibold" style={{ color: '#1F4D3A' }}>
-                        <span style={{ color: '#6B7A72' }}>{stat.icon}</span>
+                        <span style={{ color: '#3A4A42' }}>{stat.icon}</span>
                         {stat.value}
                       </div>
-                      <div className="text-[11px] mt-0.5 uppercase tracking-[0.06em]" style={{ color: '#9BA8A1' }}>{stat.label}</div>
+                      <div className="text-[11px] mt-0.5 uppercase tracking-[0.06em]" style={{ color: '#3A4A42' }}>{stat.label}</div>
                     </div>
                   ))}
                 </div>
@@ -222,7 +222,7 @@ export default async function SponsoringPage() {
                         <div key={bar.label}>
                           <div className="flex items-center justify-between mb-1 text-[12.5px]">
                             <span style={{ color: '#3A4A42' }}>{bar.label}</span>
-                            <span style={{ color: '#6B7A72' }}>{bar.count} · {pct}%</span>
+                            <span style={{ color: '#3A4A42' }}>{bar.count} · {pct}%</span>
                           </div>
                           <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(232,239,235,0.6)' }}>
                             <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: bar.color }} />
@@ -236,7 +236,7 @@ export default async function SponsoringPage() {
                 {/* Open the sponsor workspace — native dashboard route */}
                 <div className="px-5 sm:px-6 py-4 border-t flex items-center justify-between gap-3"
                   style={{ borderColor: '#F0EDE6' }}>
-                  <span className="text-[12.5px]" style={{ color: '#6B7A72' }}>
+                  <span className="text-[12.5px]" style={{ color: '#3A4A42' }}>
                     Manage leads, booth profile & resources
                   </span>
                   <Link href={`/sponsoring/${card.sponsorId}`}

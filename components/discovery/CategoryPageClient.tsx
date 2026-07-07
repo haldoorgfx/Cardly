@@ -30,15 +30,6 @@ const RELATED_CATEGORIES: Record<string, string[]> = {
   default: ['tech', 'business', 'arts'],
 };
 
-const DEMO_EVENTS: EventPage[] = [
-  { id: '1', title: 'Lagos Design Week 2026', cover_image_url: null, starts_at: '2026-11-05T10:00:00Z', city: 'Lagos', is_online: false, price_from: 0, custom_slug: null, events: { slug: 'lagos-design-week' } },
-  { id: '2', title: 'Nairobi Tech Summit', cover_image_url: null, starts_at: '2026-09-12T08:00:00Z', city: 'Nairobi', is_online: false, price_from: 25, custom_slug: null, events: { slug: 'nairobi-tech-summit' } },
-  { id: '3', title: 'Virtual Design Systems Conf', cover_image_url: null, starts_at: '2026-08-20T15:00:00Z', city: null, is_online: true, price_from: 0, custom_slug: null, events: { slug: 'design-systems-conf' } },
-  { id: '4', title: 'Accra Product Design Fair', cover_image_url: null, starts_at: '2026-10-08T09:00:00Z', city: 'Accra', is_online: false, price_from: 15, custom_slug: null, events: { slug: 'accra-design-fair' } },
-  { id: '5', title: 'Cape Town UX Forum', cover_image_url: null, starts_at: '2026-12-01T09:00:00Z', city: 'Cape Town', is_online: false, price_from: 0, custom_slug: null, events: { slug: 'cape-town-ux' } },
-  { id: '6', title: 'Figma Africa Community Day', cover_image_url: null, starts_at: '2027-01-15T10:00:00Z', city: 'Lagos', is_online: false, price_from: 0, custom_slug: null, events: { slug: 'figma-africa' } },
-];
-
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' });
 }
@@ -74,8 +65,7 @@ function EventCard({ ep }: { ep: EventPage }) {
   );
 }
 
-export function CategoryPageClient({ category, events: dbEvents }: Props) {
-  const events = dbEvents.length > 0 ? dbEvents : DEMO_EVENTS;
+export function CategoryPageClient({ category, events }: Props) {
   const label = CATEGORY_LABELS[category.toLowerCase()] ?? (category.charAt(0).toUpperCase() + category.slice(1));
   const related = RELATED_CATEGORIES[category.toLowerCase()] ?? RELATED_CATEGORIES.default;
 

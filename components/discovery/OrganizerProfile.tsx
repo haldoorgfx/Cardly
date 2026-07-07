@@ -1,10 +1,11 @@
 ﻿'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Calendar, Check, Plus, CalendarClock, ArrowRight } from 'lucide-react';
+import { Calendar, Check, Plus, CalendarClock, ArrowRight, Share2, Link2 } from 'lucide-react';
 import { EventCard, type DiscoveryEvent } from './EventCard';
+import { toggleSavedEvent } from '@/components/shared/saveEvent';
 
 interface PastEvent {
   id: string;
@@ -45,11 +46,44 @@ export function OrganizerProfile({
   const router = useRouter();
   const [following, setFollowing] = useState(initialFollowing);
   const [followerCount, setFollowerCount] = useState(initialFollowerCount);
-  const [savedSet] = useState(new Set(savedIds));
+  const [savedSet, setSavedSet] = useState(new Set(savedIds));
+
+  const handleSave = useCallback(async (pageId: string, save: boolean) => {
+    setSavedSet(prev => {
+      const next = new Set(prev);
+      if (save) { next.add(pageId); } else { next.delete(pageId); }
+      return next;
+    });
+    const { unauthorized } = await toggleSavedEvent(pageId, save);
+    if (unauthorized) {
+      setSavedSet(prev => {
+        const next = new Set(prev);
+        if (save) { next.delete(pageId); } else { next.add(pageId); }
+        return next;
+      });
+      router.push(`/account/login?next=${encodeURIComponent(`/o/${userId}`)}`);
+    }
+  }, [router, userId]);
+
+  const [shared, setShared] = useState(false);
 
   const displayName = organization ?? name;
   const initials = displayName.split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
   const coverUrl = upcomingEvents[0]?.cover_image_url ?? null;
+
+  async function handleShare() {
+    const url = typeof window !== 'undefined' ? window.location.href : '';
+    const shareData = { title: displayName, text: `Events by ${displayName} on Eventera`, url };
+    try {
+      if (typeof navigator !== 'undefined' && navigator.share) {
+        await navigator.share(shareData);
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      setShared(true);
+      setTimeout(() => setShared(false), 2000);
+    } catch { /* user dismissed share sheet — nothing to do */ }
+  }
 
   async function handleFollow() {
     const willFollow = !following;
@@ -145,6 +179,14 @@ export function OrganizerProfile({
             >
               <Calendar size={14} /> Calendar
             </Link>
+            <button
+              onClick={handleShare}
+              aria-label="Share this profile"
+              className="h-10 w-10 rounded-xl flex items-center justify-center transition hover:bg-[#E8EFEB]"
+              style={{ background: '#FFFFFF', color: '#1F4D3A', border: '1px solid #E5E0D4' }}
+            >
+              {shared ? <Link2 size={16} /> : <Share2 size={16} />}
+            </button>
           </div>
         </div>
 
@@ -162,7 +204,7 @@ export function OrganizerProfile({
           ) : (
             <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(280px, 100%), 1fr))' }}>
               {upcomingEvents.slice(0, 6).map(ev => (
-                <EventCard key={ev.id} page={ev} saved={savedSet.has(ev.id)} />
+                <EventCard key={ev.id} page={ev} saved={savedSet.has(ev.id)} onSave={handleSave} />
               ))}
             </div>
           )}

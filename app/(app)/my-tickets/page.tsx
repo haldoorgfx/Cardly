@@ -120,7 +120,7 @@ export default async function MyTicketsPage() {
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="font-medium text-[14px] truncate" style={{ color: '#0F1F18' }}>{s.eventName}</div>
-                  <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>Open speaker workspace</div>
+                  <div className="text-[12px] mt-0.5" style={{ color: '#3A4A42' }}>Open speaker workspace</div>
                 </div>
                 <ArrowRight size={14} strokeWidth={2} className="opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: '#1F4D3A' }} />
               </Link>
@@ -147,11 +147,11 @@ export default async function MyTicketsPage() {
                   {b.logo_url
                     // eslint-disable-next-line @next/next/no-img-element
                     ? <img src={b.logo_url} alt="" className="w-full h-full object-contain" />
-                    : <Store size={16} strokeWidth={1.8} style={{ color: '#6B7A72' }} />}
+                    : <Store size={16} strokeWidth={1.8} style={{ color: '#3A4A42' }} />}
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="font-medium text-[14px] truncate" style={{ color: '#0F1F18' }}>{b.company_name}</div>
-                  <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>Open sponsor workspace</div>
+                  <div className="text-[12px] mt-0.5" style={{ color: '#3A4A42' }}>Open sponsor workspace</div>
                 </div>
                 <ArrowRight size={14} strokeWidth={2} className="opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: '#1F4D3A' }} />
               </Link>

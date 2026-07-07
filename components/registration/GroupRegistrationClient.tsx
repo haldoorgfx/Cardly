@@ -42,15 +42,7 @@ function initials(name: string) {
   return name.split(' ').filter(Boolean).map(w => w[0]).slice(0, 2).join('').toUpperCase() || '?';
 }
 
-const DEMO_TICKETS: TicketType[] = [
-  { id: 't1', name: 'General', description: 'Full access to all sessions', price: 0, currency: 'USD', quantity: null, quantity_sold: 0 },
-  { id: 't2', name: 'VIP', description: 'Front-row seating + networking dinner', price: 150, currency: 'USD', quantity: 50, quantity_sold: 12 },
-  { id: 't3', name: 'Student', description: 'Valid student ID required at door', price: 0, currency: 'USD', quantity: 100, quantity_sold: 34 },
-];
-
-export function GroupRegistrationClient({ eventId, eventName, eventSlug, tickets: dbTickets, maxCapacity, confirmedCount = 0 }: Props) {
-  const tickets = dbTickets.length > 0 ? dbTickets : DEMO_TICKETS;
-
+export function GroupRegistrationClient({ eventId, eventName, eventSlug, tickets, maxCapacity, confirmedCount = 0 }: Props) {
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [attendees, setAttendees] = useState<Record<string, AttendeeFields[]>>({});
   const [expandedTicketId, setExpandedTicketId] = useState<string | null>(null);
@@ -124,8 +116,11 @@ export function GroupRegistrationClient({ eventId, eventName, eventSlug, tickets
       })));
       setSuccess(true);
     } else {
-      const data = await res.json() as { error?: string };
-      setSubmitError(data.error ?? 'Registration failed. Please try again.');
+      const data = await res.json().catch(() => ({})) as { error?: string };
+      const friendly = res.status === 401
+        ? 'Group registration is available to the event organizer. Please sign in with the organizer account.'
+        : (data.error ?? 'Registration failed. Please try again.');
+      setSubmitError(friendly);
     }
   }
 
@@ -228,6 +223,18 @@ export function GroupRegistrationClient({ eventId, eventName, eventSlug, tickets
           <h2 className="font-display font-semibold text-[18px] mb-4" style={{ color: '#0F1F18', letterSpacing: '-0.01em' }}>
             Select tickets
           </h2>
+
+          {tickets.length === 0 && (
+            <div className="rounded-2xl py-12 px-6 text-center mb-6" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
+              <p className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>No tickets available yet</p>
+              <p className="text-[13px] mt-1.5" style={{ color: '#3A4A42' }}>
+                This event hasn&rsquo;t published any tickets, so seats can&rsquo;t be reserved right now.
+              </p>
+              <Link href={`/e/${eventSlug}`} className="inline-block mt-4 text-[13px] font-semibold" style={{ color: '#1F4D3A' }}>
+                Back to event →
+              </Link>
+            </div>
+          )}
 
           <div className="flex flex-col gap-3 mb-6">
             {tickets.map(t => {

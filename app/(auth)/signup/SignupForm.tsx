@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
-import { signIn } from "../actions";
+import { signUp } from "../actions";
 import { createClient } from "@/lib/supabase/client";
 
 // Only forward same-origin paths so ?next= can't become an open redirect.
@@ -14,10 +14,10 @@ function safeNext(value: string | null): string {
   return value;
 }
 
-export default function LoginClient() {
+export default function SignupForm() {
   const searchParams = useSearchParams();
   const next = safeNext(searchParams.get("next"));
-  const signupHref = next ? `/signup?next=${encodeURIComponent(next)}` : "/signup";
+  const loginHref = next ? `/login?next=${encodeURIComponent(next)}` : "/login";
 
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -29,7 +29,7 @@ export default function LoginClient() {
     setError(null);
     const formData = new FormData(e.currentTarget);
     startTransition(async () => {
-      const result = await signIn(formData);
+      const result = await signUp(formData);
       if (result?.error) setError(result.error);
     });
   }
@@ -79,15 +79,15 @@ export default function LoginClient() {
         }}
       >
         <h1 className="text-[22px] font-bold text-[#0F1F18] tracking-tight mb-1">
-          Welcome back
+          Create your account
         </h1>
         <p className="text-[14px] text-[#3A4A42] mb-7">
-          Don&apos;t have an account?{" "}
+          Already have one?{" "}
           <Link
-            href={signupHref}
+            href={loginHref}
             className="text-[#1F4D3A] font-medium hover:underline"
           >
-            Sign up →
+            Sign in →
           </Link>
         </p>
 
@@ -98,6 +98,33 @@ export default function LoginClient() {
               {error}
             </div>
           )}
+
+          <div>
+            <label className="block text-[13px] font-medium text-[#3A4A42] mb-1.5">
+              Full name
+            </label>
+            <input
+              name="full_name"
+              type="text"
+              required
+              autoComplete="name"
+              placeholder="Your name"
+              className="w-full h-10 px-3.5 rounded-lg border text-[14px] text-[#0F1F18] placeholder:text-[#6B7A72]/60 transition focus:outline-none"
+              style={{
+                borderColor: "#E5E0D4",
+                background: "#FAF6EE",
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = "rgba(31,77,58,0.4)";
+                e.currentTarget.style.boxShadow =
+                  "0 0 0 3px rgba(31,77,58,0.1)";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = "#E5E0D4";
+                e.currentTarget.style.boxShadow = "none";
+              }}
+            />
+          </div>
 
           <div>
             <label className="block text-[13px] font-medium text-[#3A4A42] mb-1.5">
@@ -127,24 +154,17 @@ export default function LoginClient() {
           </div>
 
           <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-[13px] font-medium text-[#3A4A42]">
-                Password
-              </label>
-              <Link
-                href="/forgot-password"
-                className="text-[12px] text-[#3A4A42] hover:text-[#1F4D3A] transition"
-              >
-                Forgot password?
-              </Link>
-            </div>
+            <label className="block text-[13px] font-medium text-[#3A4A42] mb-1.5">
+              Password
+            </label>
             <div className="relative">
               <input
                 name="password"
                 type={showPassword ? "text" : "password"}
                 required
-                autoComplete="current-password"
-                placeholder="Your password"
+                minLength={8}
+                autoComplete="new-password"
+                placeholder="At least 8 characters"
                 className="w-full h-10 px-3.5 pr-10 rounded-lg border text-[14px] text-[#0F1F18] placeholder:text-[#6B7A72]/60 transition focus:outline-none"
                 style={{
                   borderColor: "#E5E0D4",
@@ -186,8 +206,20 @@ export default function LoginClient() {
             className="w-full h-10 text-white text-[14px] font-semibold rounded-lg disabled:opacity-50 transition hover:opacity-90"
             style={{ background: "#1F4D3A" }}
           >
-            {isPending ? "Signing in…" : "Sign in"}
+            {isPending ? "Creating account…" : "Create account"}
           </button>
+
+          <p className="text-[12px] text-[#3A4A42] text-center leading-relaxed">
+            By creating an account you agree to our{" "}
+            <Link href="/terms" className="text-[#1F4D3A] hover:underline">
+              Terms
+            </Link>{" "}
+            and{" "}
+            <Link href="/privacy" className="text-[#1F4D3A] hover:underline">
+              Privacy Policy
+            </Link>
+            .
+          </p>
         </form>
 
         <div className="flex items-center gap-3 mt-5">

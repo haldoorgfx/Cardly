@@ -2,8 +2,10 @@
 
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Map } from 'lucide-react';
 import { EventCard, type DiscoveryEvent } from './EventCard';
+import { toggleSavedEvent } from '@/components/shared/saveEvent';
 
 const DATE_CHIPS = ['All dates', 'Today', 'This weekend', 'This week'] as const;
 const CAT_CHIPS = ['Music', 'Tech', 'Food', 'Business', 'Culture', 'Free'] as const;
@@ -18,6 +20,7 @@ interface CityPageProps {
 }
 
 export function CityPage({ city, events, savedIds, eventCount }: CityPageProps) {
+  const router = useRouter();
   const [dateChip, setDateChip] = useState<DateChip>('All dates');
   const [catChip, setCatChip] = useState<CatChip | null>(null);
   const [savedSet, setSavedSet] = useState(new Set(savedIds));
@@ -28,18 +31,16 @@ export function CityPage({ city, events, savedIds, eventCount }: CityPageProps) 
       if (save) { next.add(pageId); } else { next.delete(pageId); }
       return next;
     });
-    try {
-      if (save) {
-        await fetch('/api/account/saved', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ event_page_id: pageId }),
-        });
-      } else {
-        await fetch(`/api/account/saved?event_page_id=${pageId}`, { method: 'DELETE' });
-      }
-    } catch { /* optimistic */ }
-  }, []);
+    const { unauthorized } = await toggleSavedEvent(pageId, save);
+    if (unauthorized) {
+      setSavedSet(prev => {
+        const next = new Set(prev);
+        if (save) { next.delete(pageId); } else { next.add(pageId); }
+        return next;
+      });
+      router.push(`/account/login?next=${encodeURIComponent(`/events/city/${city.toLowerCase().replace(/ /g, '-')}`)}`);
+    }
+  }, [router, city]);
 
   const now = new Date();
   const todayEnd = new Date(now); todayEnd.setHours(23, 59, 59, 999);

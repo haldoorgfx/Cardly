@@ -50,7 +50,7 @@ export default async function AttendingHubPage({
         <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
           {eventPageTitle ?? event.name}
         </h1>
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1.5 text-[13.5px]" style={{ color: '#6B7A72' }}>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1.5 text-[13.5px]" style={{ color: '#3A4A42' }}>
           {when && <span className="inline-flex items-center gap-1.5"><CalendarDays size={14} strokeWidth={1.8} /> {when}</span>}
           {where && <span className="inline-flex items-center gap-1.5"><MapPin size={14} strokeWidth={1.8} /> {where}</span>}
         </div>
@@ -63,7 +63,7 @@ export default async function AttendingHubPage({
             <span className="grid place-items-center w-9 h-9 rounded-xl" style={{ background: '#E8EFEB', color: '#1F4D3A' }}><Ticket size={17} strokeWidth={1.8} /></span>
             <div className="min-w-0">
               <div className="text-[14px] font-semibold" style={{ color: '#0F1F18' }}>Your ticket</div>
-              <div className="text-[12px] truncate" style={{ color: '#6B7A72' }}>{ticketName}</div>
+              <div className="text-[12px] truncate" style={{ color: '#3A4A42' }}>{ticketName}</div>
             </div>
             <span className="ml-auto text-[11px] font-medium px-2.5 py-1 rounded-full capitalize" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>{status.replace('_', ' ')}</span>
           </div>
@@ -71,13 +71,13 @@ export default async function AttendingHubPage({
             <div className="flex items-center gap-4">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={`/api/qr/${qrToken}`} alt="Entry QR" className="w-28 h-28 rounded-xl border shrink-0" style={{ borderColor: '#E5E0D4' }} />
-              <div className="text-[13px]" style={{ color: '#6B7A72' }}>
+              <div className="text-[13px]" style={{ color: '#3A4A42' }}>
                 <div className="font-medium" style={{ color: '#0F1F18' }}>{reg?.attendee_name ?? 'You'}</div>
                 <div className="mt-1 leading-[1.5]">Show this QR at the door to check in.</div>
               </div>
             </div>
           ) : (
-            <div className="text-[13px]" style={{ color: '#6B7A72' }}>Your QR will appear once your registration is confirmed.</div>
+            <div className="text-[13px]" style={{ color: '#3A4A42' }}>Your QR will appear once your registration is confirmed.</div>
           )}
         </div>
 
@@ -94,7 +94,7 @@ export default async function AttendingHubPage({
             </div>
           ) : (
             <div>
-              <p className="text-[13px] mb-3 leading-[1.5]" style={{ color: '#6B7A72' }}>You haven&apos;t made your card for this event yet.</p>
+              <p className="text-[13px] mb-3 leading-[1.5]" style={{ color: '#3A4A42' }}>You haven&apos;t made your card for this event yet.</p>
               <Link href={`/c/${slug}`} className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-medium text-white" style={{ background: '#1F4D3A' }}>Create your card <ArrowRight size={14} strokeWidth={2} /></Link>
             </div>
           )}
@@ -103,7 +103,7 @@ export default async function AttendingHubPage({
 
       {/* Event tools — 8-card grid */}
       <div>
-        <div className="text-[10px] tracking-[0.2em] uppercase mb-3" style={{ color: '#6B7A72' }}>Your event tools</div>
+        <div className="text-[10px] tracking-[0.2em] uppercase mb-3" style={{ color: '#3A4A42' }}>Your event tools</div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {TOOLS.map((t) => (
             <Link key={t.seg} href={`/attending/${slug}/${t.seg}`}
@@ -111,7 +111,7 @@ export default async function AttendingHubPage({
               style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04)' }}>
               <span className="grid place-items-center w-10 h-10 rounded-xl mb-3" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>{t.icon}</span>
               <div className="text-[13.5px] font-semibold" style={{ color: '#0F1F18' }}>{t.label}</div>
-              <div className="text-[11.5px] mt-0.5" style={{ color: '#6B7A72' }}>{t.desc}</div>
+              <div className="text-[11.5px] mt-0.5" style={{ color: '#3A4A42' }}>{t.desc}</div>
             </Link>
           ))}
         </div>

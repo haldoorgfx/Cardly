@@ -102,7 +102,7 @@ export function ContactFormClient() {
             <h3 className="font-display font-bold text-[24px] text-[#0F1F18] tracking-tight mb-2">
               Message sent
             </h3>
-            <p className="text-[15px] text-[#6B7A72] leading-relaxed max-w-[360px]">
+            <p className="text-[15px] text-[#3A4A42] leading-relaxed max-w-[360px]">
               We&apos;ll get back to you within one business day. Check your inbox for a confirmation.
             </p>
             <button
@@ -183,7 +183,7 @@ export function ContactFormClient() {
 
             {/* Error */}
             {state === 'error' && (
-              <p className="text-[13px] text-red-500">{errorMsg}</p>
+              <p role="alert" className="text-[13px]" style={{ color: '#B8423C' }}>{errorMsg}</p>
             )}
 
             {/* Submit */}
@@ -226,7 +226,7 @@ export function ContactFormClient() {
                 <div className="text-[14px] font-semibold text-[#0F1F18] truncate">
                   {item.value}
                 </div>
-                <div className="text-[12px] text-[#6B7A72] mt-0.5">{item.desc}</div>
+                <div className="text-[12px] text-[#3A4A42] mt-0.5">{item.desc}</div>
               </div>
             </div>
           );

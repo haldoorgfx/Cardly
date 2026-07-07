@@ -63,7 +63,7 @@ export default function CareersPage() {
         </div>
         <h1 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 'clamp(36px, 6vw, 72px)', fontWeight: 700, color: C.ink, letterSpacing: '-0.02em', lineHeight: 1.1, maxWidth: 720, margin: '0 auto 24px' }}>Help us build the future of events.</h1>
         <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 'clamp(16px, 2vw, 20px)', color: C.inkSoft, maxWidth: 600, margin: '0 auto 40px', lineHeight: 1.65 }}>Eventera is a small, focused team building the event platform we always wished existed. If you care about craft, love shipping, and want to work on something that matters to real people — keep reading.</p>
-        <Link href="/contact" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 15, background: C.primary, color: C.surface, padding: '14px 28px', borderRadius: 10, textDecoration: 'none', display: 'inline-block' }}>See open roles</Link>
+        <a href="#roles" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 15, background: C.primary, color: C.surface, padding: '14px 28px', borderRadius: 10, textDecoration: 'none', display: 'inline-block' }}>See open roles</a>
       </section>
 
       {/* Why Eventera */}
@@ -82,10 +82,10 @@ export default function CareersPage() {
       </section>
 
       {/* Open Roles */}
-      <section style={{ background: C.cream, padding: 'clamp(60px, 8vw, 100px) clamp(20px, 5vw, 80px)' }}>
+      <section id="roles" style={{ scrollMarginTop: 80, background: C.cream, padding: 'clamp(60px, 8vw, 100px) clamp(20px, 5vw, 80px)' }}>
         <div style={{ maxWidth: 860, margin: '0 auto' }}>
           <h2 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 700, color: C.ink, letterSpacing: '-0.02em', textAlign: 'center', marginBottom: 12 }}>Open roles</h2>
-          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 16, color: C.muted, textAlign: 'center', maxWidth: 480, margin: '0 auto 56px' }}>Four positions. All remote. All with real ownership from day one.</p>
+          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 16, color: C.inkSoft, textAlign: 'center', maxWidth: 480, margin: '0 auto 56px' }}>Four positions. All remote. All with real ownership from day one.</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             {roles.map((r) => (
               <div key={r.title} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: '32px 28px' }}>

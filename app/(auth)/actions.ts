@@ -5,6 +5,16 @@ import { redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { sendWelcomeEmail } from "@/lib/email";
 
+// Only allow same-origin absolute paths as a post-auth destination. Blocks
+// protocol-relative ("//evil.com") and back-slash tricks so ?next= can't be
+// used as an open-redirect.
+function safeNext(value: FormDataEntryValue | null): string | null {
+  if (typeof value !== "string" || value.length === 0) return null;
+  if (!value.startsWith("/")) return null;
+  if (value.startsWith("//") || value.startsWith("/\\")) return null;
+  return value;
+}
+
 export async function signIn(formData: FormData) {
   const supabase = createClient();
 
@@ -25,18 +35,22 @@ export async function signIn(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect("/dashboard");
+  redirect(safeNext(formData.get("next")) ?? "/dashboard");
 }
 
 export async function signUp(formData: FormData) {
   const supabase = createClient();
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+  const next = safeNext(formData.get("next"));
+  const callbackUrl = `${appUrl}/auth/callback${next ? `?next=${encodeURIComponent(next)}` : ''}`;
 
   const { data, error } = await supabase.auth.signUp({
     email: formData.get("email") as string,
     password: formData.get("password") as string,
     options: {
       data: { full_name: formData.get("full_name") as string },
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/auth/callback`,
+      emailRedirectTo: callbackUrl,
     },
   });
 
@@ -56,7 +70,7 @@ export async function signUp(formData: FormData) {
     redirect("/signup/check-email");
   }
 
-  redirect("/dashboard");
+  redirect(next ?? "/dashboard");
 }
 
 export async function signOut() {

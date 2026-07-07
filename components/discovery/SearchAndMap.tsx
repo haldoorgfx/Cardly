@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Search } from 'lucide-react';
 import type { DiscoveryEvent } from './EventCard';
 import { GoogleMapView } from './GoogleMapView';
+import { toggleSavedEvent } from '@/components/shared/saveEvent';
 
 interface SearchAndMapProps {
   events: DiscoveryEvent[];
@@ -40,18 +41,16 @@ export function SearchAndMap({ events, savedIds, query: initialQuery, totalCount
       if (save) { next.add(pageId); } else { next.delete(pageId); }
       return next;
     });
-    try {
-      if (save) {
-        await fetch('/api/account/saved', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ event_page_id: pageId }),
-        });
-      } else {
-        await fetch(`/api/account/saved?event_page_id=${pageId}`, { method: 'DELETE' });
-      }
-    } catch { /* optimistic */ }
-  }, []);
+    const { unauthorized } = await toggleSavedEvent(pageId, save);
+    if (unauthorized) {
+      setSavedSet(prev => {
+        const next = new Set(prev);
+        if (save) { next.delete(pageId); } else { next.add(pageId); }
+        return next;
+      });
+      router.push(`/account/login?next=${encodeURIComponent(`/events/search?${searchParams.toString()}`)}`);
+    }
+  }, [router, searchParams]);
 
   function pushSearch(newQ: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -281,20 +280,25 @@ function isChipActive(chip: string, searchParams: ReturnType<typeof useSearchPar
 
 function buildChipHref(chip: string, searchParams: ReturnType<typeof useSearchParams>): string {
   const params = new URLSearchParams(searchParams.toString());
+  const active = isChipActive(chip, searchParams);
   if (chip === 'All') {
     params.delete('category');
     params.delete('free');
     params.delete('date');
+    params.delete('format');
   } else if (chip === 'Free') {
-    params.set('free', 'true');
-    params.delete('category');
+    if (active) params.delete('free');
+    else { params.set('free', 'true'); params.delete('category'); }
   } else if (chip === 'This week') {
-    params.set('date', 'week');
+    if (active) params.delete('date');
+    else params.set('date', 'week');
   } else if (chip === 'Online') {
-    params.set('format', 'online');
+    if (active) params.delete('format');
+    else params.set('format', 'online');
   } else {
-    params.set('category', chip.toLowerCase());
-    params.delete('free');
+    // Category chip — toggle off if it's the active one, else select it.
+    if (active) params.delete('category');
+    else { params.set('category', chip.toLowerCase()); params.delete('free'); }
   }
   return `/events/search?${params.toString()}`;
 }
