@@ -8,10 +8,19 @@ import { redirect } from 'next/navigation';
 import GeneralSettings from './GeneralSettings';
 import ProfileSettings from '@/components/account/ProfileSettings';
 
-export default async function SettingsPage() {
+export default async function SettingsPage({
+  searchParams,
+}: {
+  searchParams?: { tab?: string };
+}) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
+
+  // Which account section to show (driven by the single tab bar's ?tab=).
+  const tab = searchParams?.tab;
+  const section: 'profile' | 'preferences' | 'notifications' | 'account' =
+    tab === 'preferences' || tab === 'notifications' || tab === 'account' ? tab : 'profile';
 
   const admin = createAdminClient();
   // Select includes columns (job_title, industry, …) added in migration 048 that
@@ -40,6 +49,7 @@ export default async function SettingsPage() {
 
   return (
     <GeneralSettings
+      section={section}
       profile={profile}
       userId={user.id}
       profileTab={
