@@ -1,0 +1,86 @@
+# Eventera — Attendee Journey QA Audit
+
+Auditor: merciless QA, role-playing a real attendee.
+Scope: web (`app/(public)`, `app/(app)`, `components/registration`, `components/events`) + Flutter mobile (`eventera_mobile/lib`) + LIVE production Supabase backend (reads only).
+Method: code trace + live prod queries via `q.mjs` (anon key + test user token).
+
+---
+
+## TL;DR
+
+The registration *logic* is mostly careful (atomic promo increment, capacity rechecks, stale-attempt cleanup). But the **production database has broken/missing RLS** — with nothing but the public anon key I read **all 79 registrations, every attendee email + name + custom fields, every QR token, and every user profile/email/plan** platform-wide. That is a full PII breach and it dwarfs everything else. On top of that, attendees **cannot cancel or refund** their own ticket (no endpoint exists), the checkout **displays a wrong "service fee"** that doesn't match what the server charges, and there is **no Apple/Google Wallet, no paid waitlist, and no automatic waitlist promotion** — all table stakes vs Luma/Eventbrite in 2026.
+
+---
+
+## Prioritized findings
+
+| # | Severity | Area | File:line (or prod query) | What's broken | Concrete fix | Verified how |
+|---|----------|------|---------------------------|---------------|--------------|--------------|
+| 1 | **CRITICAL** | RLS / PII | prod: `GET /rest/v1/registrations` with anon key | Anon key (no auth) returns **all 79 registrations** across every organizer — name, email, custom_fields (city/role), qr_code_token, amount. Migration `017_event_registration.sql:179-198` defines correct policies (`owner_all`, `attendee_read`, `public_insert`) but prod behaves as if RLS is disabled or a permissive policy overrides them. | In Supabase: `ALTER TABLE registrations ENABLE ROW LEVEL SECURITY;` and drop any `USING (true)` SELECT policy. Confirm 017's `attendee_read`/`owner_all` are the only SELECT policies. Re-verify with anon key returns `[]`. | Ran `node q.mjs GET /rest/v1/registrations?select=id` → 79 rows; raw anon-only fetch (Bearer = anon key) still returned rows. |
+| 2 | **CRITICAL** | RLS / PII | prod: `GET /rest/v1/profiles` anon | Every user profile is anon-readable — `email`, `plan` for all accounts (`cre8so.pro@gmail.com/pro`, etc.). Enables user enumeration + targeted phishing. | Enable RLS on `profiles`; SELECT policy `id = auth.uid()` (plus a public-safe view for organizer display names if needed). | `node q.mjs GET /rest/v1/profiles?select=id,email,plan` returned all rows with anon key. |
+| 3 | **CRITICAL** | RLS | migrations 020/021 | `attendee_connections`, `message_threads`, `messages`, `qa_upvotes`, `session_ratings`, `event_feedback`, `poll_votes` etc. use `for all using (true) with check (true)` — **any anon user can read AND write/delete all private DMs, Q&A, votes, feedback** platform-wide. | Replace `using(true)` FOR ALL policies with scoped policies (owner via `auth.uid()`, or event-scoped). At minimum split read vs write. | `supabase/migrations/021_networking_qa_polls.sql:133-180`, `020_speakers_and_agenda.sql:166-178`; `qa_questions` rows returned via anon in prod. |
+| 4 | **CRITICAL** | Registration / confirm | `app/(public)/e/[slug]/register/confirm/page.tsx:30-34` | Confirm page loads the **full** registration by `qr_code_token` alone (`select('*')`, no auth). Anyone holding a token (leaked via #1, emails, browser history) sees the attendee's record. QR image endpoint `app/api/qr/[token]/route.ts:9` is likewise token-only. | Confirm page: after loading by token, gate PII behind session ownership (match `attendee_email`/`user_id`) or only render minimal public fields. Treat qr_code_token as a bearer secret (it currently is world-readable — see #1). | Read the route; token is plain 32-hex and anon-readable. |
+| 5 | **HIGH** | Checkout pricing | `components/registration/RegistrationClient.tsx:244` | Client hardcodes `fee = priceAfterPromo * 0.035` ("Service fee") and shows `total = price + fee`. Server (`lib/billing/fees.ts:42`, `register/route.ts:234-236`) charges `split.charged`, which for the default `absorb` bearer = **face price, no fee added**, and for `pass` = plan-based 5%/2%/0% — never 3.5%. Attendee is shown a total they are not charged (or a different one). | Compute the fee server-side and return it in the register/promo response; render exactly that. Remove the hardcoded `0.035`. | Compared `RegistrationClient.tsx:244` vs `fees.ts` + `register/route.ts:222-236`. |
+| 6 | **HIGH** | Cancel / refund | (no file — endpoint absent) | There is **no attendee-facing cancel or refund endpoint**. `grep` of `app/api/registrations` + `app/api/tickets` finds only organizer `approve/route.ts`. Attendee cannot cancel a free reg, cancel a paid one, or self-refund. Table stakes on Luma/Eventbrite. | Add `POST /api/tickets/[id]/cancel` (owner-gated, sets `cancelled`, frees capacity + `quantity_sold`, triggers Stripe/Flutterwave refund for paid). | `grep -rniE "cancel|refund" app/api/registrations app/api/tickets` → only organizer approve. |
+| 7 | **HIGH** | Paid capacity oversell | `register/route.ts:168-178, 290-304` | Capacity check counts only `confirmed`/`checked_in`. Paid tickets are created `pending` and counted only after the webhook. So N concurrent paid buyers all pass the pre-check → event oversells beyond `max_capacity`; the post-insert recheck (line 293) runs **for free tickets only**. | Count `pending` paid regs toward a "held" total with a short TTL, or reserve capacity at PI creation and release on abandon. | Traced branches in register route. |
+| 8 | **HIGH** | Ticket transfer | `app/api/tickets/[id]/transfer/route.ts:69-75` | On transfer the `qr_code_token` is **not rotated** — the original holder's saved QR/Wallet image still scans in. No check that recipient isn't already registered for the event (creates a duplicate/second ticket for one person, bypassing the unique-email guard). | Regenerate `qr_code_token` on transfer; reject if `recipientEmail` already has a reg for that event. | Read route; token untouched, no dup check. |
+| 9 | **HIGH** | Filter injection | `transfer/route.ts:47`, `app/(app)/my-tickets/page.tsx:31` | `user.email` is interpolated raw into a PostgREST `.or("attendee_email.eq.${email},user_id.eq.${id}")`. An email containing `,` `(` `)` `.` can break the filter / widen the match. The team already sanitizes this in `checkin/route.ts:55` — proving it's a known class, just missed here. | Sanitize/encode the email or use `.or()` with a safe builder; strip `(),*:%` as checkin does, or use two `.eq` filters combined server-side. | Compared to `checkin/route.ts:54-55` which strips metachars. |
+| 10 | **HIGH** | Access codes | `unlock/route.ts:24` + `RegistrationClient.tsx:742` | Server matches `access_code` **case-sensitively** (`.eq('access_code', code)`), but the client force-uppercases the input (`.toUpperCase()`). Any organizer whose code has lowercase letters → attendees can *never* unlock the hidden ticket. Register route (`route.ts:115`) also does exact-match compare. | Normalize both sides: store + compare `upper(access_code)`, or compare case-insensitively (`.ilike`). Do the same in register route line 115. | Read unlock route + client uppercasing. |
+| 11 | **HIGH** | Hidden-ticket data | prod: ticket `007e3cf9` | A ticket with `is_visible:false` and `access_code:null` has `quantity_sold:8`. Register route (`route.ts:113-116`) rejects such tickets ("Ticket type not available") — so those 8 regs got in another way (walk-in/import), but the state is inconsistent: a hidden, un-unlockable ticket that already has sales and can never be bought again through the funnel. | Data cleanup + validation: forbid saving `is_visible=false` with null `access_code`. | `q.mjs GET /rest/v1/ticket_types` row `007e3cf9-...`. |
+| 12 | **MEDIUM** | Waitlist race | `waitlist/route.ts:61-75` | `position = count + 1` computed non-atomically → two concurrent joins get the same position. On re-join (upsert) the position is recomputed against current count, so numbers drift and duplicate. No unique/atomic sequence. | Use a DB sequence or `row_number()` computed at read time instead of storing a racy position. | Read route. |
+| 13 | **MEDIUM** | Waitlist email links | `waitlist/route.ts:84`, `85` | `eventSlug: params.id` passed to the confirm email, but `params.id` is often the **event UUID** (route is `/api/events/[id]/waitlist`), producing `/e/<uuid>` links that 404. | Resolve the real slug (already fetched `event.slug` in `resolvePage`) and pass it. | Read route; `params.id` used verbatim. |
+| 14 | **MEDIUM** | Waitlist gating | `waitlist/route.ts` + `WaitlistJoinClient.tsx:150` | Join has **no capacity/sold-out check** — anyone can join the waitlist of a non-full event. There is **no automatic promotion** when a spot frees; the organizer must manually PATCH-invite each entry. Luma auto-invites + supports **paid waitlists (auth-and-charge on approval)**. | Add "only when sold out" gate; add auto-promote on cancellation; support paid-waitlist authorization. | Read route (no capacity check on POST) + benchmark. |
+| 15 | **MEDIUM** | Discovery scale | `app/(public)/events/page.tsx:30-35` | Discovery loads a fixed `limit(48)` with **no pagination / infinite scroll** and all search+filtering is client-side over those 48 rows. The `featured` event (separate `limit(1)` query, line 23) is also included in the 48 → duplicated hero + card. Past 48 events, the rest are invisible. | Server-side search/filter + cursor pagination; exclude the featured id from the grid query. | Read page. |
+| 16 | **MEDIUM** | PWYW unused/untested | prod: `ticket_types?min_price=not.is.null` → `[]` | Pay-what-you-want has **zero** rows in production — the entire branch (`register/route.ts:118-128`) is shipped but never exercised. Combined with #5 the PWYW total display is also suspect. | Add an integration test; QA a real PWYW ticket end-to-end before relying on it. | `q.mjs` returned empty set. |
+| 17 | **LOW** | Duplicate-reg UX | `register/route.ts:203-207` | Any prior `cancelled` registration is silently **deleted** on a new attempt. If an attendee was intentionally cancelled/refunded by the organizer, re-registering erases that audit row. | Don't hard-delete cancelled rows; create a fresh reg and keep history. | Read route. |
+| 18 | **LOW** | Promo display vs charge | `RegistrationClient.tsx:241` vs `register/route.ts:159-165` | Client computes promo discount from `appliedPromo.discount_amount` (validated against `effectivePrice`); server recomputes against `effectivePrice` independently. Mostly consistent, but percent rounding (`Math.round(...*100)/100` both sides) can differ by a cent on odd amounts → displayed total ≠ charged total. | Return the authoritative `charged` from register and display it; stop recomputing in the client. | Compared both. |
+
+---
+
+## Mobile (Flutter) findings
+
+| # | Severity | Area | File:line | What's broken | Fix |
+|---|----------|------|-----------|---------------|-----|
+| M-1 | **CRITICAL** | Paid checkout | `lib/attendee/register/registration_screen.dart:398-407` | Stripe path is a **dead end**: mobile shows "card payment isn't available in the app yet, complete on web." Web register route defaults to Stripe for every non-African currency (USD/EUR) and Stripe-only organizers → most paid events are un-buyable in-app, leaving an orphaned `pending` reg. | Implement flutter_stripe PaymentSheet with the returned `client_secret`, or deep-link into web checkout. |
+| M-2 | **CRITICAL** | Paid checkout | `registration_screen.dart:388-396, 1012-1041` | Flutterwave "payment" renders the redirect URL as `SelectableText` and tells the user to copy-paste it into a browser. `url_launcher` is already a dep but unused here. No return path → ticket stuck `pending`. | `launchUrl(..., externalApplication)` + deep-link return handler. |
+| M-3 | **CRITICAL** | Access codes | `registration_screen.dart:188` | Hidden/invite-only tickets are entirely missing on mobile — tickets loaded with `.not('is_visible','is',false)`, no access-code field. Discover's "Have an invite code?" (`discover_screen.dart:396-440`) only opens the landing page. Invite events can't be registered for in-app. | Add access-code field, forward `access_code` in register body. |
+| M-4 | **HIGH** | Approval events | `registration_screen.dart:409` → `confirm_screen.dart:101` | Approval-required events return `awaiting_approval:true`, but mobile shows the full "You're in." success screen **with a QR that won't scan** — attendee thinks they're admitted. | Branch on `awaiting_approval`; show "pending approval" screen, no live QR. |
+| M-5 | **HIGH** | Capacity | `registration_screen.dart:411-417` | `EVENT_FULL` (event-level capacity) isn't detected — raw error string shown, no waitlist offer (only ticket-level `soldOut` triggers waitlist). | Detect `EVENT_FULL`/`TICKET_SOLD_OUT` codes → route to waitlist. |
+| M-6 | **HIGH** | Payment routing | `registration_screen.dart:330` | Mobile **always** sends `preferred_processor: 'waafipay'` regardless of currency — pushes non-African buyers into East-Africa-only mobile money; combined with M-1 non-African card buyers hit the dead end. | Only prefer WaafiPay for WaafiPay currencies, else let user choose. |
+| M-7 | **HIGH** | Deadlines | `registration_screen.dart:180-223` | Ticket sales windows + `registration_deadline` not enforced client-side — attendee fills whole form, then gets a generic server rejection. | Read `sales_start`/`sales_end`/`registration_deadline`, disable tickets accordingly. |
+| M-8 | **MEDIUM** | Domain | `app_config.dart:13` vs `event_hub_screen.dart:507` | `renderBaseUrl` hardcodes `karta.cre8so.com` (all API/QR/payment URLs) but share links hardcode a **different** `eventera.app` domain → shared links may not resolve. Violates the repo "never hardcode domain" rule. | Single domain source of truth; derive share links from it. |
+| M-9 | **MEDIUM** | Cancel | `ticket_detail_screen.dart` | No cancel action on mobile either (mirrors web #6). | Add cancel calling a real endpoint (which also doesn't exist yet — see web #6). |
+
+Mobile did several things well: strong null-data coercion (no crashes on missing cover/venue/tickets), consistent loading/empty/error states, and per-user registration status (no device-wide leak).
+
+---
+
+## Capability gaps vs competitors (Luma / Eventbrite / Eventee, 2026)
+
+- **No Apple/Google Wallet passes.** `grep` for `pkpass|wallet|passkit` across `app/lib/components` → nothing. Luma ships wallet passes with offline entry. Eventera only has a PNG QR + the Eventera Card. This is the single biggest attendee-facing gap.
+- **No self-serve cancel or refund** (finding #6). Luma & Eventbrite let attendees cancel and (policy-permitting) self-refund.
+- **No paid waitlist / auto-promotion** (finding #14). Luma authorizes payment on paid-waitlist join and charges only on approval, and auto-invites when a spot opens. Eventera's waitlist is join-only + manual invite, free-only.
+- **Transfer is one-way and lossy** (finding #8) — no token rotation, no recipient acceptance step. Luma keeps the pass valid only for the new holder.
+- **No pagination in discovery** (finding #15) — caps the marketplace at 48 events.
+- **ICS export exists** (`app/api/calendar/[pageId]/route.ts`) — good — but no "Add to Google/Outlook" one-tap deep links surfaced consistently (needs UI verification).
+
+---
+
+## Confusing / janky UX
+
+- **Wrong "Service fee" line** (finding #5): attendee sees a 3.5% fee and a total they won't be charged. Erodes trust at the exact moment of payment.
+- **Access-code case trap** (finding #10): silent failure — attendee types the code the organizer gave them and it just says "Invalid," with no hint that casing is the issue.
+- **"Already registered" is email-agnostic**: the register route's duplicate check (`route.ts:192`, `ilike attendee_email`) blocks by email regardless of login. A logged-in user with a different typed email can double-register; a guest reusing a household email is hard-blocked with no "this was you?" recovery.
+- **Waitlist position is cosmetic** (findings #12/#14): shows a confident `#N` that is racy, never updates, and leads to no automatic outcome — the attendee waits forever unless an organizer manually clicks invite.
+- **Confirm/QR pages leak** (finding #4): sharing a confirmation link (common — people screenshot tickets) hands over a working QR + full PII, because tokens aren't treated as secrets and RLS is off.
+- **Discovery hero duplicates** the featured event into the grid (finding #15) — looks like a bug to any attendee scrolling.
+
+---
+
+## What actually works (credit where due)
+
+- Atomic promo increment via `increment_promo_code_uses` RPC (`register/route.ts:273-278`) closes the double-spend on `max_uses`.
+- Free-ticket capacity has a genuine pre + post-insert recheck (`route.ts:168-178`, `290-304`).
+- Stale/abandoned pending attempts are cleaned up so retries don't 409 (`route.ts:195-208`), and duplicate-insert race is caught via `23505` (`route.ts:262-264`).
+- Server-authoritative promo + PWYW validation (client cannot set its own price/discount).
+- Check-in route sanitizes PostgREST filter metacharacters (`checkin/route.ts:55`) — the right pattern, just not applied in transfer/my-tickets.

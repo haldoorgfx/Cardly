@@ -150,18 +150,14 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           .range(from, from + _pageSize - 1);
 
       final batch = <_DiscoverEvent>[];
-      if (rows is List) {
-        for (final r in rows) {
-          if (r is Map) {
-            // Parse each row defensively — one malformed row must never take
-            // down the entire feed.
-            try {
-              batch.add(_DiscoverEvent.fromRow(Map<String, dynamic>.from(r)));
-            } catch (e, st) {
-              debugPrint('[Discover] skipped a row it could not parse: $e');
-              if (kDebugMode) debugPrintStack(stackTrace: st);
-            }
-          }
+      for (final r in rows) {
+        // Parse each row defensively — one malformed row must never take
+        // down the entire feed.
+        try {
+          batch.add(_DiscoverEvent.fromRow(Map<String, dynamic>.from(r)));
+        } catch (e, st) {
+          debugPrint('[Discover] skipped a row it could not parse: $e');
+          if (kDebugMode) debugPrintStack(stackTrace: st);
         }
       }
 

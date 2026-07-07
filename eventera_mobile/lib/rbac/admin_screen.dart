@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../ui/components.dart';
-import '../ui/tokens.dart';
 
 /// "Admin" — shown only when `platform_role in ('admin','super_admin')`.
 ///

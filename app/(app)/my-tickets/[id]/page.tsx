@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect, notFound } from 'next/navigation';
 import TicketDetailClient from '@/components/tickets/TicketDetailClient';
+import { registrationOwnershipFilter } from '@/lib/registration/ownership';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = { title: 'Ticket' };
@@ -26,7 +27,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
       events(id, name, slug, event_pages(id, title, cover_image_url, starts_at, ends_at, venue_name, venue_address, city, country, is_online, features))
     `)
     .eq('id', id)
-    .or(`attendee_email.eq.${(user.email ?? '').toLowerCase()},user_id.eq.${user.id}`)
+    .or(registrationOwnershipFilter(user.id, user.email))
     .maybeSingle();
 
   if (!reg) notFound();

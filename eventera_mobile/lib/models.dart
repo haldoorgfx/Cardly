@@ -106,6 +106,9 @@ class OrganizerEvent {
   final int viewCount;
   final int downloadCount;
   final DateTime? createdAt;
+  final DateTime? startsAt;
+  final String? location;
+  final String? coverUrl;
 
   OrganizerEvent({
     required this.id,
@@ -115,19 +118,61 @@ class OrganizerEvent {
     required this.viewCount,
     required this.downloadCount,
     required this.createdAt,
+    this.startsAt,
+    this.location,
+    this.coverUrl,
   });
 
-  factory OrganizerEvent.fromJson(Map<String, dynamic> j) => OrganizerEvent(
-        id: j['id'] as String,
-        name: (j['name'] as String?) ?? 'Untitled event',
-        slug: (j['slug'] as String?) ?? '',
-        status: (j['status'] as String?) ?? 'draft',
-        viewCount: (j['view_count'] as num?)?.toInt() ?? 0,
-        downloadCount: (j['download_count'] as num?)?.toInt() ?? 0,
-        createdAt: DateTime.tryParse(j['created_at'] as String? ?? ''),
-      );
+  factory OrganizerEvent.fromJson(Map<String, dynamic> j) {
+    // Date/venue/cover live on the joined event_pages row (one per event).
+    // Supabase returns it as a list or a map depending on the relationship.
+    Map<String, dynamic>? page;
+    final rawPage = j['event_pages'];
+    if (rawPage is Map) {
+      page = Map<String, dynamic>.from(rawPage);
+    } else if (rawPage is List && rawPage.isNotEmpty && rawPage.first is Map) {
+      page = Map<String, dynamic>.from(rawPage.first as Map);
+    }
+    final venue = (page?['venue_name'] as String?)?.trim();
+    final city = (page?['city'] as String?)?.trim();
+    final loc = [
+      if (venue != null && venue.isNotEmpty) venue,
+      if (city != null && city.isNotEmpty && city != venue) city,
+    ].join(' · ');
+
+    return OrganizerEvent(
+      id: j['id'] as String,
+      name: (j['name'] as String?) ?? 'Untitled event',
+      slug: (j['slug'] as String?) ?? '',
+      status: (j['status'] as String?) ?? 'draft',
+      viewCount: (j['view_count'] as num?)?.toInt() ?? 0,
+      downloadCount: (j['download_count'] as num?)?.toInt() ?? 0,
+      createdAt: DateTime.tryParse(j['created_at'] as String? ?? ''),
+      startsAt: DateTime.tryParse(page?['starts_at'] as String? ?? ''),
+      location: loc.isEmpty ? null : loc,
+      coverUrl: page?['cover_image_url'] as String?,
+    );
+  }
 
   bool get isPublished => status == 'published';
+
+  /// True when the event runs today (drives the "Live today" pill).
+  bool get isToday {
+    final s = startsAt;
+    if (s == null) return false;
+    final now = DateTime.now();
+    return s.year == now.year && s.month == now.month && s.day == now.day;
+  }
+
+  /// Whole days until the event starts (negative = already past).
+  int? get daysUntil {
+    final s = startsAt;
+    if (s == null) return null;
+    final now = DateTime.now();
+    return DateTime(s.year, s.month, s.day)
+        .difference(DateTime(now.year, now.month, now.day))
+        .inDays;
+  }
 }
 
 /// An event loaded for its owner (manage + edit). Keeps the default variant's

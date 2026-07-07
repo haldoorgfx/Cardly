@@ -114,7 +114,7 @@ class _BoothTeamScreenState extends State<BoothTeamScreen> {
                             style: TextStyle(color: AppColors.inkMuted, fontSize: 11)),
                         Switch(
                           value: m.scanAccess,
-                          activeColor: AppColors.forest,
+                          activeThumbColor: Colors.white, activeTrackColor: AppColors.forest,
                           onChanged: (v) => _toggle(m, v),
                         ),
                       ],

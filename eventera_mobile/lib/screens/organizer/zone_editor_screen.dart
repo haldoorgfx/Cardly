@@ -424,7 +424,7 @@ class _ZoneEditorScreenState extends State<ZoneEditorScreen> {
                     style: TextStyle(color: Brand.inkSoft, fontSize: 14)),
                 const Spacer(),
                 Switch(
-                  activeColor: Brand.forest,
+                  activeThumbColor: Colors.white, activeTrackColor: Brand.forest,
                   value: z.required,
                   onChanged: (v) => setState(() => z.required = v),
                 ),

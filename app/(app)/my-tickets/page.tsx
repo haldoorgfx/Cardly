@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Mic, Store, ArrowRight } from 'lucide-react';
 import MyTicketsClient from '@/components/tickets/MyTicketsClient';
 import { PageShell, PageHeader } from '@/components/dash';
+import { registrationOwnershipFilter } from '@/lib/registration/ownership';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = { title: 'Tickets' };
@@ -28,7 +29,7 @@ export default async function MyTicketsPage() {
       ticket_types(name, price),
       events(id, name, slug, event_pages(id, title, cover_image_url, starts_at, ends_at, venue_name, city, is_online, features))
     `)
-    .or(`attendee_email.eq.${(user.email ?? '').toLowerCase()},user_id.eq.${user.id}`)
+    .or(registrationOwnershipFilter(user.id, user.email))
     .in('status', ['confirmed', 'checked_in', 'pending', 'pending_approval'])
     .order('created_at', { ascending: false });
 

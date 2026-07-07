@@ -68,14 +68,20 @@ interface Profile {
 interface Props {
   profile: Profile | null;
   userId: string;
+  /** Which section to render. Omit to render all (legacy). The General
+   *  settings sub-tabs pass one of these so each tab shows just its section
+   *  while all state + the single Save persist everything together. */
+  section?: 'preferences' | 'notifications' | 'account';
 }
 
 function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
   return (
     <button
       type="button"
+      role="switch"
+      aria-checked={checked}
       onClick={() => onChange(!checked)}
-      className="relative inline-flex h-6 w-11 shrink-0 rounded-full transition-colors duration-200"
+      className="relative inline-flex h-6 w-11 shrink-0 rounded-full transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1F4D3A]"
       style={{ background: checked ? '#1F4D3A' : '#E5E0D4' }}
     >
       <span
@@ -121,7 +127,9 @@ function SelectField({
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export default function SettingsClient({ profile }: Props) {
+export default function SettingsClient({ profile, section }: Props) {
+  const show = (s: 'preferences' | 'notifications' | 'account') => !section || section === s;
+  const showSaveBar = !section || section === 'preferences' || section === 'notifications';
   // Preferences
   const [timezone, setTimezone]     = useState(profile?.timezone   ?? 'UTC');
   const [language, setLanguage]     = useState(profile?.language   ?? 'English');
@@ -176,30 +184,27 @@ export default function SettingsClient({ profile }: Props) {
   }
 
   return (
-    <div className="max-w-[760px] mx-auto pt-8">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4 mb-8">
-        <div>
-          <h1 className="font-display font-semibold text-[24px] leading-tight text-[#0F1F18]">Workspace preferences</h1>
-          <p className="text-[14px] text-[#6B7A72] mt-1">Timezone, language and organizer notifications</p>
-        </div>
-        <div className="flex flex-col items-end gap-1 shrink-0 mt-1">
+    <div className="w-full">
+      {/* Save bar — shown on Preferences + Notifications tabs (they share state) */}
+      {showSaveBar && (
+        <div className="flex items-center justify-end gap-3 mb-5">
+          {error && <p className="text-[12px]" style={{ color: '#B8423C' }}>{error}</p>}
           <button
             onClick={handleSave}
             disabled={saving}
-            className="inline-flex items-center gap-2 h-9 px-5 rounded-lg text-[13.5px] font-semibold text-white transition disabled:opacity-60"
+            className="inline-flex items-center gap-2 h-9 px-5 rounded-lg text-[13.5px] font-semibold text-white transition disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1F4D3A]"
             style={{ background: saved ? '#2D7A4F' : '#1F4D3A' }}
           >
             <Check size={13} strokeWidth={2.5} />
             {saved ? 'Saved!' : saving ? 'Saving…' : 'Save changes'}
           </button>
-          {error && <p className="text-[12px]" style={{ color: '#B8423C' }}>{error}</p>}
         </div>
-      </div>
+      )}
 
       <div className="space-y-5">
 
         {/* ── Preferences ── */}
+        {show('preferences') && (
         <section className="bg-white rounded-2xl border p-6" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)' }}>
           <h2 className="font-display font-semibold text-[15px] tracking-tight text-[#0F1F18] mb-5">Preferences</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4">
@@ -239,8 +244,10 @@ export default function SettingsClient({ profile }: Props) {
             />
           </div>
         </section>
+        )}
 
         {/* ── Notifications ── */}
+        {show('notifications') && (
         <section className="bg-white rounded-2xl border p-6" style={{ borderColor: '#E5E0D4', boxShadow: '0 1px 2px rgba(15,31,24,0.04), 0 8px 24px rgba(15,31,24,0.06)' }}>
           <h2 className="font-display font-semibold text-[15px] tracking-tight text-[#0F1F18] mb-5">Notifications</h2>
           <div className="divide-y" style={{ borderColor: '#E5E0D4' }}>
@@ -280,8 +287,11 @@ export default function SettingsClient({ profile }: Props) {
             ))}
           </div>
         </section>
+        )}
 
         {/* ── Danger zone ── */}
+        {show('account') && (
+        <>
         <section className="bg-white rounded-2xl border p-6" style={{ borderColor: 'rgba(184,66,60,0.25)' }}>
           <div className="flex items-center justify-between gap-6">
             <div>
@@ -314,10 +324,12 @@ export default function SettingsClient({ profile }: Props) {
 
         {/* Sign out */}
         <div className="pt-2 pb-4">
-          <button onClick={() => signOut()} className="text-[13px] transition" style={{ color: '#6B7A72' }}>
+          <button onClick={() => signOut()} className="text-[13px] transition hover:text-[#0F1F18] rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1F4D3A]" style={{ color: '#6B7A72' }}>
             Sign out of Eventera →
           </button>
         </div>
+        </>
+        )}
 
       </div>
     </div>

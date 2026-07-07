@@ -74,7 +74,12 @@ class DirectoryPreviewScreen extends StatelessWidget {
                 Text(description ?? 'No description yet.',
                     style: const TextStyle(color: AppColors.inkSoft, fontSize: 14, height: 1.5)),
                 const SizedBox(height: 16),
-                MButton('Request meeting', icon: Icons.event_outlined, onTap: () {}),
+                // This screen previews your public booth listing — the button
+                // is what ATTENDEES tap. Make that explicit rather than dead.
+                MButton('Request meeting',
+                    icon: Icons.event_outlined,
+                    onTap: () => showToast(context,
+                        'Preview only — this is the button attendees tap to request a meeting with your booth.')),
                 const SizedBox(height: 20),
                 const Text('Products',
                     style: TextStyle(color: AppColors.ink, fontSize: 15, fontWeight: FontWeight.w700)),

@@ -77,8 +77,10 @@ function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void 
   return (
     <button
       type="button"
+      role="switch"
+      aria-checked={on}
       onClick={() => onChange(!on)}
-      className="relative shrink-0 transition-colors"
+      className="relative shrink-0 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1F4D3A]"
       style={{
         width: 40, height: 23,
         borderRadius: 100,

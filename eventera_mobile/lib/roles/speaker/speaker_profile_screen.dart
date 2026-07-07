@@ -23,7 +23,7 @@ class _SpeakerProfileScreenState extends State<SpeakerProfileScreen> {
   final _company = TextEditingController();
   final _bio = TextEditingController();
   final _linkedin = TextEditingController();
-  String? _speakerId, _name, _photo;
+  String? _speakerId, _name;
   bool _loading = true, _saving = false;
   String? _msg;
 
@@ -44,7 +44,6 @@ class _SpeakerProfileScreenState extends State<SpeakerProfileScreen> {
       final m = Map<String, dynamic>.from(rows.first as Map);
       _speakerId = (m['id'] ?? '').toString();
       _name = (m['name'] ?? '').toString();
-      _photo = (m['photo_url'] ?? '').toString();
       _headline.text = (m['headline'] ?? '').toString();
       _company.text = (m['company'] ?? '').toString();
       _bio.text = (m['bio'] ?? '').toString();

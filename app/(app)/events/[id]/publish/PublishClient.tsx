@@ -290,7 +290,7 @@ export default function PublishClient({
       setPublishError('Failed to publish. Please try again.');
       setPublishing(false);
     }
-  }, [eventId]);
+  }, [eventId, router]);
 
   const handleCopy = useCallback(async () => {
     try {

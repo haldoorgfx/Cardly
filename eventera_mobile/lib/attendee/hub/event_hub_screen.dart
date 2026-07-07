@@ -227,10 +227,9 @@ class _EventHubScreenState extends State<EventHubScreen> {
 
   Future<void> _loadSponsors(String eventId) async {
     final rows = await supa
-        .from('sponsors')
+        .from('public_sponsors')
         .select('id, company_name, tagline, logo_url, tier, position')
         .eq('event_id', eventId)
-        .eq('is_visible', true)
         .order('position');
     for (final r in _asRows(rows)) {
       _sponsors.add(SponsorSummary.fromRow(r));
@@ -256,21 +255,19 @@ class _EventHubScreenState extends State<EventHubScreen> {
           .inFilter('status',
               ['confirmed', 'checked_in', 'pending', 'pending_approval'])
           .limit(1);
-      if (rows is List && rows.isNotEmpty) {
-        return asString((rows.first as Map)['id']);
+      if (rows.isNotEmpty) {
+        return asString(rows.first['id']);
       }
     } catch (_) {}
     return null;
   }
 
   Future<void> _loadAttendees(String eventId) async {
-    final rows = await supa
-        .from('registrations')
-        .select('attendee_name, user_id')
-        .eq('event_id', eventId)
-        .inFilter('status', ['confirmed', 'checked_in'])
-        .order('created_at', ascending: false)
-        .limit(100);
+    // Safe RPC — returns only display name + user_id for confirmed attendees of
+    // a public event (never email/phone/token). registrations is no longer
+    // anon-readable, so a direct table read here would correctly return empty.
+    final rows =
+        await supa.rpc('event_public_attendees', params: {'p_event_id': eventId});
     final regs = _asRows(rows);
 
     // join profiles for avatars
@@ -281,7 +278,7 @@ class _EventHubScreenState extends State<EventHubScreen> {
     final avatarByUser = <String, String>{};
     if (userIds.isNotEmpty) {
       final profiles = await supa
-          .from('profiles')
+          .from('public_profiles')
           .select('id, avatar_url')
           .inFilter('id', userIds);
       for (final p in _asRows(profiles)) {
@@ -932,7 +929,6 @@ class _EventHubScreenState extends State<EventHubScreen> {
   }
 
   String? _timeLine(EventPageModel page) {
-    final t = HubDates.range(page.startsAt, page.endsAt);
     final tz = (page.timezone ?? '').trim();
     // Prefer just the time portion + timezone if we can split it.
     final start = HubDates.time(page.startsAt);

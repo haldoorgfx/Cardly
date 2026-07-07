@@ -4,6 +4,10 @@
     <!-- "Events near me" on the map. -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <!-- QR check-in scanner (mobile_scanner) — without this the Scan button
+         can never open the camera. -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
     <application
         android:label="Eventera"
         android:name="${applicationName}"

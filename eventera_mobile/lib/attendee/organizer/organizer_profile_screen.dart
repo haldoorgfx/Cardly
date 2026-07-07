@@ -58,7 +58,7 @@ class _OrganizerProfileScreenState extends State<OrganizerProfileScreen> {
       final id = widget.organizerId;
 
       final prof = await supa
-          .from('profiles')
+          .from('public_profiles')
           .select('id, full_name, avatar_url, bio, organization, city')
           .eq('id', id)
           .maybeSingle();
@@ -84,7 +84,7 @@ class _OrganizerProfileScreenState extends State<OrganizerProfileScreen> {
         final mine = await supa
             .from('organizer_follows')
             .select('id')
-            .eq('follower_id', currentUserId as Object)
+            .eq('follower_id', currentUserId ?? '')
             .eq('organizer_id', id);
         following = (mine as List).isNotEmpty;
       }
@@ -152,7 +152,7 @@ class _OrganizerProfileScreenState extends State<OrganizerProfileScreen> {
     try {
       if (want) {
         await supa.from('organizer_follows').insert({
-          'follower_id': currentUserId as Object,
+          'follower_id': currentUserId ?? '',
           'organizer_id': widget.organizerId,
           'notify_new_events': true,
         });
@@ -160,7 +160,7 @@ class _OrganizerProfileScreenState extends State<OrganizerProfileScreen> {
         await supa
             .from('organizer_follows')
             .delete()
-            .eq('follower_id', currentUserId as Object)
+            .eq('follower_id', currentUserId ?? '')
             .eq('organizer_id', widget.organizerId);
       }
       if (mounted) showToast(context, want ? 'Following $_name' : 'Unfollowed');

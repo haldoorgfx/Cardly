@@ -129,7 +129,7 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
           .select(
               'full_name, avatar_url, city, phone, interests, notification_prefs, email, '
               'job_title, organization, linkedin_url, x_url, directory_visible, open_to_connect')
-          .eq('id', currentUserId as Object)
+          .eq('id', currentUserId ?? '')
           .maybeSingle();
 
       if (!mounted) return;
@@ -218,7 +218,7 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
         'interests': _interests,
         'notification_prefs': _prefs,
       };
-      await supa.from('profiles').update(patch).eq('id', currentUserId as Object);
+      await supa.from('profiles').update(patch).eq('id', currentUserId ?? '');
       if (!mounted) return;
       setState(() => _saving = false);
       showToast(context, 'Profile saved');
@@ -259,7 +259,7 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
       final url = supa.storage.from('uploads').getPublicUrl(path);
       await supa
           .from('profiles')
-          .update({'avatar_url': url}).eq('id', currentUserId as Object);
+          .update({'avatar_url': url}).eq('id', currentUserId ?? '');
 
       if (!mounted) return;
       setState(() {
@@ -506,7 +506,7 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
       try {
         await apiPost('/api/account/delete', {});
       } catch (_) {
-        await supa.from('profiles').delete().eq('id', currentUserId as Object);
+        await supa.from('profiles').delete().eq('id', currentUserId ?? '');
       }
       await supa.auth.signOut();
       if (!mounted) return;

@@ -91,9 +91,6 @@ class _SpeakerToolsScreenState extends State<SpeakerToolsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('${sessions.length} session${sessions.length == 1 ? '' : 's'}',
-                        style: const TextStyle(color: AppColors.inkMuted, fontSize: 13)),
-                    const SizedBox(height: 10),
                     ToolCard(
                       icon: Icons.person_outline,
                       title: 'My speaker profile',
@@ -102,7 +99,11 @@ class _SpeakerToolsScreenState extends State<SpeakerToolsScreen> {
                           builder: (_) => SpeakerProfileScreen(
                               eventId: widget.eventId, eventName: widget.eventName))),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 22),
+                    if (sessions.isNotEmpty) ...[
+                      const SectionLabel('Your sessions'),
+                      const SizedBox(height: 10),
+                    ],
                     for (final s in sessions) ...[
                       ToolCard(
                         icon: Icons.meeting_room_outlined,
@@ -126,8 +127,32 @@ class _SpeakerToolsScreenState extends State<SpeakerToolsScreen> {
                       const SizedBox(height: 10),
                     ],
                     if (sessions.isEmpty)
-                      const Text('No sessions assigned yet.',
-                          style: TextStyle(color: AppColors.inkMuted, fontSize: 13.5)),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(18),
+                        decoration: BoxDecoration(
+                          color: AppColors.creamSoft,
+                          borderRadius: BorderRadius.circular(AppRadius.card),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Icon(Icons.event_note_outlined,
+                                size: 26, color: AppColors.inkMuted),
+                            const SizedBox(height: 10),
+                            Text('No sessions yet',
+                                style: AppText.h3.copyWith(fontSize: 15)),
+                            const SizedBox(height: 4),
+                            Text(
+                              'When the organizer adds you to the schedule, your '
+                              'sessions — with green room details and live audience '
+                              'Q&A — will appear here.',
+                              style: AppText.bodySm
+                                  .copyWith(color: AppColors.inkMuted, height: 1.5),
+                            ),
+                          ],
+                        ),
+                      ),
                   ],
                 ),
               ),

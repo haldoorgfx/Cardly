@@ -3,10 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'app_mode.dart';
 import 'attendee/app_shell.dart';
 import 'attendee/onboarding/onboarding_screen.dart';
 import 'biometric_service.dart';
 import 'net.dart';
+import 'organize/organize_shell.dart';
 import 'ui/components.dart';
 import 'ui/tokens.dart';
 
@@ -40,6 +42,8 @@ class _RootGateState extends State<RootGate> {
       if (mounted) setState(() => _ready = true);
     });
     _evaluateBiometricGate();
+    // Reopen on the side (Attend / Organize) the user was last using.
+    restoreAppMode(signedIn: supa.auth.currentSession != null);
     // After any sign-in (email or Google), run the onboarding wizard once if
     // the user hasn't finished it. Skipping/finishing sets onboarding_completed,
     // so it never nags again.
@@ -48,6 +52,10 @@ class _RootGateState extends State<RootGate> {
           (data.event == AuthChangeEvent.signedIn ||
               data.event == AuthChangeEvent.initialSession)) {
         _maybeShowOnboarding();
+      }
+      // Organizing needs an account — a sign-out always lands on Attend.
+      if (data.event == AuthChangeEvent.signedOut) {
+        setAppMode(AppMode.attend);
       }
     });
   }
@@ -136,7 +144,14 @@ class _RootGateState extends State<RootGate> {
         onUsePassword: _usePasswordInstead,
       );
     } else {
-      child = const MainShell(key: ValueKey('shell'));
+      // The one mode switch: Attend shows the attendee tabs, Organize shows
+      // the organizer shell (Events · Attendees · Scan · Stats · Profile).
+      child = ValueListenableBuilder<AppMode>(
+        valueListenable: appMode,
+        builder: (_, mode, __) => mode == AppMode.organize
+            ? const OrganizeShell(key: ValueKey('organize'))
+            : const MainShell(key: ValueKey('shell')),
+      );
     }
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 500),

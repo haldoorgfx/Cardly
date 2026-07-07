@@ -168,7 +168,7 @@ class _CaptureSheetState extends State<_CaptureSheet> {
                     margin: const EdgeInsets.only(right: 8),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     decoration: BoxDecoration(
-                      color: sel ? r.$3.withOpacity(0.12) : AppColors.creamSoft,
+                      color: sel ? r.$3.withValues(alpha: 0.12) : AppColors.creamSoft,
                       border: Border.all(color: sel ? r.$3 : AppColors.border, width: sel ? 2 : 1),
                       borderRadius: BorderRadius.circular(12),
                     ),

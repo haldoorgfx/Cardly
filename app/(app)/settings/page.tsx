@@ -5,7 +5,7 @@ export const metadata: Metadata = { title: 'Settings' };
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import SettingsClient from './SettingsClient';
+import GeneralSettings from './GeneralSettings';
 import ProfileSettings from '@/components/account/ProfileSettings';
 
 export default async function SettingsPage() {
@@ -39,33 +39,36 @@ export default async function SettingsPage() {
   const p = profile as any;
 
   return (
-    <>
-      <ProfileSettings
-        embedded
-        profile={{
-          id: p.id,
-          full_name: p.full_name,
-          email: p.email ?? user.email ?? '',
-          avatar_url: p.avatar_url,
-          interests: (p.interests as string[] | null) ?? null,
-          city: p.city ?? null,
-          phone: p.phone ?? null,
-          whatsapp_verified: p.whatsapp_verified ?? null,
-          notification_prefs: (p.notification_prefs as Record<string, boolean> | null) ?? null,
-          language: (p.language as string | null) ?? null,
-          bio: p.bio ?? null,
-          job_title: p.job_title ?? null,
-          organization: p.organization ?? null,
-          industry: p.industry ?? null,
-          role_types: (p.role_types as string[] | null) ?? null,
-          goals: (p.goals as string[] | null) ?? null,
-          directory_visible: p.directory_visible ?? null,
-          open_to_connect: p.open_to_connect ?? null,
-          linkedin_url: p.linkedin_url ?? null,
-          x_url: p.x_url ?? null,
-        }}
-      />
-      <SettingsClient profile={profile} userId={user.id} />
-    </>
+    <GeneralSettings
+      profile={profile}
+      userId={user.id}
+      profileTab={
+        <ProfileSettings
+          embedded
+          profile={{
+            id: p.id,
+            full_name: p.full_name,
+            email: p.email ?? user.email ?? '',
+            avatar_url: p.avatar_url,
+            interests: (p.interests as string[] | null) ?? null,
+            city: p.city ?? null,
+            phone: p.phone ?? null,
+            whatsapp_verified: p.whatsapp_verified ?? null,
+            notification_prefs: (p.notification_prefs as Record<string, boolean> | null) ?? null,
+            language: (p.language as string | null) ?? null,
+            bio: p.bio ?? null,
+            job_title: p.job_title ?? null,
+            organization: p.organization ?? null,
+            industry: p.industry ?? null,
+            role_types: (p.role_types as string[] | null) ?? null,
+            goals: (p.goals as string[] | null) ?? null,
+            directory_visible: p.directory_visible ?? null,
+            open_to_connect: p.open_to_connect ?? null,
+            linkedin_url: p.linkedin_url ?? null,
+            x_url: p.x_url ?? null,
+          }}
+        />
+      }
+    />
   );
 }

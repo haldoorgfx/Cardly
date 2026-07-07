@@ -10,9 +10,10 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../net.dart';
-import '../../ui/tokens.dart';
-import '../../ui/components.dart';
+import '../../organize/org_widgets.dart';
 import '../../screens/organizer/checkin_scanner_screen.dart';
+import '../../ui/components.dart';
+import '../../ui/tokens.dart';
 import 'attendee_list_screen.dart';
 
 class EventControlScreen extends StatefulWidget {
@@ -115,31 +116,17 @@ class _EventControlScreenState extends State<EventControlScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
           children: [
-            // Live stat bar
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 14),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [AppColors.forest, AppColors.forestDark],
-                ),
-                borderRadius: BorderRadius.circular(AppRadius.card),
-                boxShadow: AppShadow.soft,
-              ),
-              child: Row(
-                children: [
-                  _stat('$_total', 'Registered'),
-                  _divider(),
-                  _stat('$_checkedIn', 'Checked in'),
-                  _divider(),
-                  _stat('$rate%', 'Rate'),
-                ],
-              ),
-            ),
+            // Live stat bar (O02 .statbar — checked-in count in gold)
+            StatBar(cells: [
+              (_loading ? '—' : '$_total', 'Registered', false),
+              (_loading ? '—' : '$_checkedIn', 'Checked in', true),
+              (_loading ? '—' : '$rate%', 'Check-in rate', false),
+            ]),
             if (_error) ...[
               const SizedBox(height: 10),
-              Text('Live counts unavailable — pull to refresh.',
+              Text(
+                  "We couldn't refresh the live numbers. "
+                  'Pull down to try again.',
                   style: AppText.caption.copyWith(color: AppColors.inkMuted)),
             ],
             const SizedBox(height: 20),
@@ -170,24 +157,7 @@ class _EventControlScreenState extends State<EventControlScreen> {
     );
   }
 
-  Widget _stat(String value, String label) {
-    return Expanded(
-      child: Column(
-        children: [
-          Text(_loading ? '—' : value,
-              style: const TextStyle(
-                  color: Colors.white, fontSize: 24, fontWeight: FontWeight.w700)),
-          const SizedBox(height: 3),
-          Text(label,
-              style: const TextStyle(color: Colors.white70, fontSize: 12)),
-        ],
-      ),
-    );
-  }
-
-  Widget _divider() => Container(
-      width: 1, height: 34, color: Colors.white.withValues(alpha: 0.18));
-
+  // O02 `.bigact` action rows — primary = forest gradient with gold icon.
   Widget _action({
     required IconData icon,
     required String title,
@@ -195,16 +165,32 @@ class _EventControlScreenState extends State<EventControlScreen> {
     required VoidCallback onTap,
     bool gold = false,
   }) {
+    final primary = gold;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(AppRadius.card),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(primary ? 20 : 16),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: primary ? null : AppColors.surface,
+          gradient: primary
+              ? const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFF2A6A50), AppColors.forest],
+                  stops: [0.0, 0.75],
+                )
+              : null,
           borderRadius: BorderRadius.circular(AppRadius.card),
-          border: Border.all(color: AppColors.border),
-          boxShadow: AppShadow.soft,
+          border: primary ? null : Border.all(color: AppColors.border),
+          boxShadow: primary
+              ? const [
+                  BoxShadow(
+                      color: Color(0x8C1F4D3A),
+                      blurRadius: 28,
+                      offset: Offset(0, 12)),
+                ]
+              : AppShadow.soft,
         ),
         child: Row(
           children: [
@@ -213,24 +199,41 @@ class _EventControlScreenState extends State<EventControlScreen> {
               height: 46,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: gold ? AppColors.goldSoft : AppColors.forestSoft,
+                color: primary
+                    ? AppColors.gold.withValues(alpha: 0.16)
+                    : AppColors.forestSoft,
                 borderRadius: BorderRadius.circular(12),
+                border: primary
+                    ? Border.all(
+                        color: AppColors.gold.withValues(alpha: 0.3))
+                    : null,
               ),
               child: Icon(icon,
-                  color: gold ? AppColors.goldHover : AppColors.forest, size: 24),
+                  color: primary ? AppColors.gold : AppColors.forest,
+                  size: primary ? 26 : 22),
             ),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: AppText.h3.copyWith(fontSize: 15.5)),
+                  Text(title,
+                      style: AppText.h3.copyWith(
+                          fontSize: primary ? 18 : 15.5,
+                          color: primary ? Colors.white : AppColors.ink)),
                   const SizedBox(height: 2),
-                  Text(subtitle, style: AppText.bodySm),
+                  Text(subtitle,
+                      style: AppText.bodySm.copyWith(
+                          color: primary
+                              ? Colors.white.withValues(alpha: 0.75)
+                              : AppColors.inkSoft)),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: AppColors.inkMuted),
+            Icon(Icons.chevron_right,
+                color: primary
+                    ? Colors.white.withValues(alpha: 0.6)
+                    : AppColors.inkMuted),
           ],
         ),
       ),

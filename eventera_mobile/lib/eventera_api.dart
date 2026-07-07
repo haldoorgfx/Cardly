@@ -70,7 +70,8 @@ class EventeraApi {
     final rows = await _db
         .from('events')
         .select(
-            'id, name, slug, status, view_count, download_count, created_at')
+            'id, name, slug, status, view_count, download_count, created_at, '
+            'event_pages(starts_at, venue_name, city, cover_image_url)')
         .eq('user_id', uid)
         .order('created_at', ascending: false);
     return (rows as List)

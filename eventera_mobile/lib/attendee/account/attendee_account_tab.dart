@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../../app_mode.dart';
 import '../../net.dart';
 import '../../rbac/admin_screen.dart';
 import '../../rbac/role_service.dart';
 import '../../rbac/speaking_screen.dart';
 import '../../rbac/sponsoring_screen.dart';
 import '../../screens/my_cards_screen.dart';
-import '../../screens/organizer/dashboard_screen.dart';
 import '../../ui/components.dart';
 import '../../ui/menu.dart';
 import '../../ui/tokens.dart';
@@ -163,6 +163,26 @@ class _AttendeeAccountTabState extends State<AttendeeAccountTab> {
       ),
       const SizedBox(height: 24),
 
+      // O12 mode switch — shown once the account can organize. Selecting
+      // Organize swaps the whole bottom nav to the organizer shell.
+      if (_roles?.hasOrganizing == true) ...[
+        const GroupLabel('Mode'),
+        SegControl(
+          segments: const ['Attend', 'Organize'],
+          index: 0,
+          onChanged: (i) {
+            if (i == 1) setAppMode(AppMode.organize);
+          },
+        ),
+        const SizedBox(height: 10),
+        Text(
+          "You're attending. Switch to Organize to run your events, "
+          'check people in and see your stats.',
+          style: AppText.bodySm.copyWith(color: AppColors.inkMuted),
+        ),
+        const SizedBox(height: 22),
+      ],
+
       const GroupLabel('My stuff'),
       MenuGroup(children: [
         MenuRow(
@@ -248,8 +268,8 @@ class _AttendeeAccountTabState extends State<AttendeeAccountTab> {
         icon: Icons.dashboard_customize_outlined,
         tone: ITone.forest,
         title: 'Organizing',
-        subtitle: 'Manage your events',
-        onTap: () => _push(const DashboardScreen()),
+        subtitle: 'Switch to organizer mode',
+        onTap: () => setAppMode(AppMode.organize),
       ));
     }
     if (roles.hasSpeaking) {

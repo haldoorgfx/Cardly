@@ -73,7 +73,7 @@ class ToolCard extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.12),
+                color: Colors.white.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: AppColors.gold, size: 20),
@@ -91,7 +91,7 @@ class ToolCard extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(summary,
                       style: TextStyle(
-                          color: Colors.white.withOpacity(0.75), fontSize: 12.5)),
+                          color: Colors.white.withValues(alpha: 0.75), fontSize: 12.5)),
                 ],
               ),
             ),
@@ -132,7 +132,7 @@ class RoleBar extends StatelessWidget {
             width: 34,
             height: 34,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.12),
+              color: Colors.white.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: AppColors.gold, size: 18),

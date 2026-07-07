@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition, useRef } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Modal } from '@/components/ui/Modal';
 
@@ -47,7 +48,7 @@ function tierLabel(tier: string | null) {
 function SponsorAvatar({ name, logoUrl }: { name: string; logoUrl: string | null }) {
   if (logoUrl) {
     return (
-      <img src={logoUrl} alt={name}
+      <Image src={logoUrl} alt={name} width={40} height={40}
         className="w-10 h-10 rounded-xl object-contain shrink-0 bg-white"
         style={{ border: '1px solid #E5E0D4' }} />
     );
@@ -104,7 +105,7 @@ function LogoUpload({
           <span className="text-[12px]" style={{ color: '#6B7A72' }}>Uploading…</span>
         ) : preview ? (
           <>
-            <img src={preview} alt="Logo" className="h-10 w-10 object-contain rounded-lg" style={{ border: '1px solid #E5E0D4' }} />
+            <Image src={preview} alt="Logo" width={40} height={40} className="h-10 w-10 object-contain rounded-lg" style={{ border: '1px solid #E5E0D4' }} />
             <span className="text-[12px]" style={{ color: '#6B7A72' }}>Replace logo</span>
           </>
         ) : (
@@ -439,7 +440,9 @@ export function SponsorsClient({ eventId, sponsors: initial }: Props) {
                 style={{ borderColor: '#E5E0D4', background: logoPreview ? 'white' : '#FAF6EE' }}>
                 {logoPreview ? (
                   <>
-                    <img src={logoPreview} alt="Preview" className="h-10 w-10 object-contain rounded-lg" style={{ border: '1px solid #E5E0D4' }} />
+                    {/* Local FileReader data-URL preview — the optimizer can't process
+                        data: URLs, so this one stays unoptimized. */}
+                    <Image src={logoPreview} alt="Preview" width={40} height={40} unoptimized className="h-10 w-10 object-contain rounded-lg" style={{ border: '1px solid #E5E0D4' }} />
                     <span className="text-[12px]" style={{ color: '#6B7A72' }}>Change logo</span>
                   </>
                 ) : (

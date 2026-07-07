@@ -330,8 +330,17 @@ export function ConfirmPage({ registration, eventTitle, eventSlug, ticketName, v
           />
 
           {cardError && (
-            <div className="mt-5 px-4 py-3 rounded-xl text-[14px]" style={{ background: 'rgba(184,66,60,0.06)', color: '#B8423C', border: '1px solid rgba(184,66,60,0.15)' }}>
-              {cardError}
+            <div className="mt-5 px-4 py-3 rounded-xl text-[14px] flex items-center justify-between gap-3" style={{ background: 'rgba(184,66,60,0.06)', color: '#B8423C', border: '1px solid rgba(184,66,60,0.15)' }}>
+              <span>We couldn&apos;t create your card just now. Your ticket is safe — you can try again.</span>
+              <button
+                type="button"
+                onClick={handleGenerateCard}
+                disabled={generatingCard}
+                className="shrink-0 h-8 px-3 rounded-lg text-[13px] font-semibold text-white transition disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1F4D3A]"
+                style={{ background: '#1F4D3A' }}
+              >
+                {generatingCard ? 'Trying…' : 'Try again'}
+              </button>
             </div>
           )}
         </div>

@@ -36,13 +36,14 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Payment amount does not match the expected amount' }, { status: 422 });
       }
 
+      // amount/currency are deliberately NOT overwritten — the registration
+      // row already holds the authoritative charged amount (validated above);
+      // a missing gateway field must never zero it or flip the currency.
       const { data: updated } = await admin
         .from('registrations')
         .update({
           payment_status: 'paid',
           status: 'confirmed',
-          amount_paid: amount ?? 0,
-          currency: currency ?? 'USD',
           updated_at: new Date().toISOString(),
         })
         .eq('qr_code_token', tx_ref)

@@ -102,20 +102,33 @@ export type LimiterTier = keyof typeof limiters;
 // Longest-prefix match. Everything not listed falls through to 'standard'.
 
 const ROUTE_TIERS: Array<{ prefix: string; tier: LimiterTier }> = [
-  // Strictest — auth, payments, image generation
+  // Strictest — auth, payments
   { prefix: '/api/auth',                      tier: 'strict'   },
   { prefix: '/api/billing',                   tier: 'strict'   },
   { prefix: '/api/payments',                  tier: 'strict'   },
+  // Expensive generation — image rendering and LLM calls
   { prefix: '/api/render',                    tier: 'render'   },
+  { prefix: '/api/era',                       tier: 'render'   },
+  { prefix: '/api/apply-solid-bg',            tier: 'render'   },
+  { prefix: '/api/apply-template-bg',         tier: 'render'   },
   // Public-facing (unauthenticated, higher volume expected)
-  { prefix: '/api/events/register',           tier: 'public'   },
   { prefix: '/api/contact',                   tier: 'strict'   },
   { prefix: '/api/view',                      tier: 'public'   },
   { prefix: '/api/download',                  tier: 'public'   },
   // Everything else → standard (authenticated organiser actions)
 ];
 
+// Dynamic-segment routes a static prefix can't express:
+// /api/events/<id>/register and /api/events/<id>/copilot.
+const ROUTE_TIER_PATTERNS: Array<{ pattern: RegExp; tier: LimiterTier }> = [
+  { pattern: /^\/api\/events\/[^/]+\/register(\/|$)/, tier: 'public' },
+  { pattern: /^\/api\/events\/[^/]+\/copilot(\/|$)/,  tier: 'render' },
+];
+
 export function getTierForPath(pathname: string): LimiterTier {
+  for (const { pattern, tier } of ROUTE_TIER_PATTERNS) {
+    if (pattern.test(pathname)) return tier;
+  }
   for (const { prefix, tier } of ROUTE_TIERS) {
     if (pathname.startsWith(prefix)) return tier;
   }
