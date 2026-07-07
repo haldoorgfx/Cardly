@@ -5,6 +5,7 @@ import '../../ics_export.dart';
 import '../../screens/open_event_screen.dart';
 import '../../ui/components.dart';
 import '../../ui/tokens.dart';
+import '../app_shell.dart';
 
 /// Success screen shown after a registration completes (screen 11 — DARK).
 /// Renders the ticket QR (the check-in URL, matching what /api/qr/[token]
@@ -185,7 +186,12 @@ class ConfirmScreen extends StatelessWidget {
                 const SizedBox(height: 16),
               ],
               GestureDetector(
-                onTap: () => Navigator.of(context).popUntil((r) => r.isFirst),
+                onTap: () {
+                  // Land on the Tickets tab (index 1), not just whatever tab was
+                  // last active, so the label matches the destination.
+                  mainTab.value = 1;
+                  Navigator.of(context).popUntil((r) => r.isFirst);
+                },
                 child: Text(
                   'View my tickets',
                   style: AppText.bodyStrong.copyWith(
