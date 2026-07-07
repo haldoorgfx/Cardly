@@ -55,6 +55,7 @@ export function PromoterLinksManager({ eventId, eventSlug, initialCodes, appUrl 
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<PromoterCode | null>(null);
   const [error, setError] = useState('');
   const [form, setForm] = useState({ code: '', label: '' });
 
@@ -80,11 +81,21 @@ export function PromoterLinksManager({ eventId, eventSlug, initialCodes, appUrl 
 
   const handleDelete = async (id: string) => {
     setDeleting(id);
+    setError('');
     try {
-      await fetch(`/api/events/${eventId}/promoter-codes/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/events/${eventId}/promoter-codes/${id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        setError(json.error ?? 'Could not delete this link. Please try again.');
+        return;
+      }
       setCodes(prev => prev.filter(c => c.id !== id));
-    } catch { /* non-blocking */ }
-    finally { setDeleting(null); }
+      setConfirmDelete(null);
+    } catch {
+      setError('Network error — please try again.');
+    } finally {
+      setDeleting(null);
+    }
   };
 
   return (
@@ -224,7 +235,7 @@ export function PromoterLinksManager({ eventId, eventSlug, initialCodes, appUrl 
                     <CopyButton text={link} label="Copy link" />
                     <CopyButton text={c.code} label="Copy code" />
                     <button
-                      onClick={() => handleDelete(c.id)}
+                      onClick={() => { setError(''); setConfirmDelete(c); }}
                       disabled={deleting === c.id}
                       className="w-8 h-8 grid place-items-center rounded-lg transition-colors hover:bg-red-50 disabled:opacity-50"
                       style={{ color: '#B8423C' }}
@@ -239,6 +250,39 @@ export function PromoterLinksManager({ eventId, eventSlug, initialCodes, appUrl 
           })}
         </div>
       )}
+
+      {/* Delete confirmation */}
+      <Modal
+        open={!!confirmDelete}
+        onClose={() => { if (!deleting) { setConfirmDelete(null); setError(''); } }}
+        title="Delete promoter link?"
+        subtitle={confirmDelete?.code}
+        footer={
+          <>
+            <button
+              onClick={() => { setConfirmDelete(null); setError(''); }}
+              disabled={!!deleting}
+              className="h-10 px-4 rounded-lg text-[13px] font-medium border disabled:opacity-60"
+              style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => confirmDelete && handleDelete(confirmDelete.id)}
+              disabled={!!deleting}
+              className="h-10 px-5 rounded-lg text-[13px] font-semibold text-white disabled:opacity-60"
+              style={{ background: '#B8423C' }}
+            >
+              {deleting ? 'Deleting…' : 'Delete link'}
+            </button>
+          </>
+        }
+      >
+        <p className="text-[14px] leading-relaxed" style={{ color: '#3A4A42' }}>
+          This removes the tracking link <strong>{confirmDelete?.code}</strong>. Registrations already attributed to it stay in your reports, but the link will stop working.
+        </p>
+        {error && <p className="text-[13px] mt-3" style={{ color: '#B8423C' }}>{error}</p>}
+      </Modal>
     </div>
   );
 }

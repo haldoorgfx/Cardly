@@ -22,19 +22,26 @@ export default async function WaitlistPage({ params }: Props) {
     { data: event },
     { data: waitlist },
     { count: totalRegs },
-    { count: maxCapacity },
+    { data: eventPage },
+    { data: ticketQtys },
   ] = await Promise.all([
     db.from('events').select('id, name').eq('id', id).eq('user_id', user.id).single(),
     db.from('registrations').select('id, attendee_name, attendee_email, created_at, status, ticket_types(name)')
       .eq('event_id', id).eq('status', 'waitlisted').order('created_at', { ascending: true }),
     db.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', id).in('status', ['confirmed', 'checked_in']),
-    db.from('ticket_types').select('cap', { count: 'exact', head: false }).eq('event_id', id),
+    db.from('event_pages').select('max_capacity').eq('event_id', id).maybeSingle(),
+    db.from('ticket_types').select('quantity').eq('event_id', id),
   ]);
 
   if (!event) redirect('/dashboard');
 
-  // Sum all ticket type caps for total capacity
-  const cap = maxCapacity ?? 0;
+  // Total capacity: prefer the event's overall cap; otherwise fall back to the
+  // sum of all ticket-type quantities (0 = unlimited/uncapped).
+  const summedQty = (ticketQtys ?? []).reduce(
+    (sum: number, t: { quantity: number | null }) => sum + (t.quantity ?? 0),
+    0,
+  );
+  const cap = eventPage?.max_capacity ?? summedQty;
 
   return (
     <WaitlistClient
