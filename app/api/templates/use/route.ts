@@ -8,6 +8,7 @@ import {
   W, H,
   ZONE_PHOTO, ZONE_NAME, ZONE_TITLE, ZONE_ORG,
 } from '@/lib/templates/svgs';
+import { injectSvgFonts } from '@/lib/templates/svg-fonts';
 import { PLANS, type Plan } from '@/lib/billing/plans';
 import { generateSlug } from '@/lib/slug';
 
@@ -164,7 +165,7 @@ export async function POST(req: NextRequest) {
   if (!config) return NextResponse.json({ error: 'Unknown template' }, { status: 400 });
 
   /* Build SVG (background + baked static text) → PNG via sharp */
-  const svgStr = buildSVG(templateId, config.text);
+  const svgStr = injectSvgFonts(buildSVG(templateId, config.text));
   const pngBuf = await sharp(Buffer.from(svgStr)).png().toBuffer();
 
   /* Upload background PNG to Supabase storage */
