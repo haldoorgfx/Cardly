@@ -31,7 +31,9 @@ class EventeraApi {
 
     final eventRow = await _db
         .from('events')
-        .select('id, name, slug, status')
+        // event_pages.title is the canonical display title (what Discover and
+        // the web show). events.name can drift out of sync, so prefer the title.
+        .select('id, name, slug, status, event_pages(title)')
         .eq('slug', cleaned)
         .eq('status', 'published')
         .maybeSingle();
@@ -40,6 +42,12 @@ class EventeraApi {
       throw EventeraException(
           'No published event found for "$cleaned". Check the link.');
     }
+
+    final page = eventRow['event_pages'];
+    final pageTitle = page is Map ? page['title'] as String? : null;
+    final displayName = (pageTitle != null && pageTitle.trim().isNotEmpty)
+        ? pageTitle
+        : ((eventRow['name'] as String?) ?? 'Event');
 
     final variantRows = await _db
         .from('event_variants')
@@ -55,7 +63,7 @@ class EventeraApi {
 
     return EventModel(
       id: eventRow['id'] as String,
-      name: (eventRow['name'] as String?) ?? 'Event',
+      name: displayName,
       slug: eventRow['slug'] as String,
       status: eventRow['status'] as String,
       variants: variants,
