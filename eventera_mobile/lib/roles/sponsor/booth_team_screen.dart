@@ -1,15 +1,15 @@
-// SPO07 · Booth team — teammates with scan-access toggles (shared lead pool).
-// Reads/updates `sponsor_members` (scan_access added in 059_sponsor_lead_capture.sql).
-//
-// DRAFT — not build-tested. The scan_access UPDATE relies on an RLS update policy for
-// sponsor owners/members; if updates are blocked, wrap it in a small SECURITY DEFINER
-// RPC the same way capture_lead works. Noted in the audit.
+// SPO07 · Booth team — teammates with per-person scan-access toggles (shared
+// lead pool), plus invite + remove. Reads/writes `sponsor_members`
+// (scan_access added in 059_sponsor_lead_capture.sql). Manage actions run under
+// the event-owner RLS policy from 072_rls_lockdown.sql; when a write is blocked
+// the optimistic change rolls back and a toast explains why.
 
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter/services.dart';
 
 import '../../ui/tokens.dart';
 import '../../ui/components.dart';
+import 'sponsor_api.dart';
 
 class BoothTeamScreen extends StatefulWidget {
   final String sponsorId;
@@ -20,9 +20,9 @@ class BoothTeamScreen extends StatefulWidget {
 }
 
 class _Member {
-  final String id, email, role;
+  final String id, email, role, status;
   bool scanAccess;
-  _Member(this.id, this.email, this.role, this.scanAccess);
+  _Member(this.id, this.email, this.role, this.status, this.scanAccess);
 }
 
 class _BoothTeamScreenState extends State<BoothTeamScreen> {
@@ -35,30 +35,118 @@ class _BoothTeamScreenState extends State<BoothTeamScreen> {
   }
 
   Future<List<_Member>> _load() async {
-    final rows = await Supabase.instance.client
-        .from('sponsor_members')
-        .select('id, invited_email, role, scan_access')
-        .eq('sponsor_id', widget.sponsorId)
-        .order('created_at');
-    return (rows as List).map((r) {
-      final m = Map<String, dynamic>.from(r as Map);
+    final rows = await SponsorApi.fetchTeam(widget.sponsorId);
+    return rows.map((m) {
       return _Member(
         (m['id'] ?? '').toString(),
         (m['invited_email'] ?? '').toString(),
         (m['role'] ?? 'Team member').toString(),
+        (m['status'] ?? 'invited').toString(),
         m['scan_access'] != false,
       );
     }).toList();
   }
 
+  void _reload() => setState(() => _future = _load());
+
   Future<void> _toggle(_Member m, bool v) async {
+    HapticFeedback.selectionClick();
     setState(() => m.scanAccess = v);
     try {
-      await Supabase.instance.client
-          .from('sponsor_members')
-          .update({'scan_access': v}).eq('id', m.id);
+      await SponsorApi.setScanAccess(m.id, v);
     } catch (_) {
-      if (mounted) setState(() => m.scanAccess = !v); // revert on failure
+      if (!mounted) return;
+      setState(() => m.scanAccess = !v); // revert on failure
+      showToast(context,
+          "Couldn't update scan access. Only the event organizer can change the team.");
+    }
+  }
+
+  Future<void> _invite() async {
+    final email = TextEditingController();
+    final role = TextEditingController();
+    final ok = await showMSheet<bool>(
+      context,
+      StatefulBuilder(builder: (ctx, setSheet) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Invite teammate',
+                style: TextStyle(
+                    color: AppColors.ink, fontSize: 17, fontWeight: FontWeight.w700)),
+            const SizedBox(height: 4),
+            const Text('They can scan leads at your booth once they sign in.',
+                style: TextStyle(color: AppColors.inkSoft, fontSize: 13)),
+            const SizedBox(height: 16),
+            MInput(
+                label: 'Email',
+                hint: 'name@company.com',
+                controller: email,
+                icon: Icons.mail_outline,
+                keyboardType: TextInputType.emailAddress),
+            const SizedBox(height: 12),
+            MInput(
+                label: 'Role (optional)',
+                hint: 'e.g. Booth staff',
+                controller: role,
+                icon: Icons.badge_outlined),
+            const SizedBox(height: 18),
+            MButton('Send invite', icon: Icons.send_outlined,
+                onTap: () => Navigator.pop(ctx, true)),
+          ],
+        );
+      }),
+    );
+    if (ok != true) return;
+    final e = email.text.trim();
+    if (e.isEmpty || !e.contains('@')) {
+      if (mounted) showToast(context, 'Enter a valid email to invite.');
+      return;
+    }
+    try {
+      await SponsorApi.inviteMember(widget.sponsorId, e, role.text.trim());
+      if (!mounted) return;
+      _reload();
+      showToast(context, 'Invite added for $e.');
+    } catch (_) {
+      if (!mounted) return;
+      showToast(context,
+          "Couldn't add that teammate. Only the event organizer can manage the team.");
+    }
+  }
+
+  Future<void> _remove(_Member m) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: const Text('Remove teammate?'),
+        content: Text(
+            'Remove ${m.email} from your booth team? They will lose scan access.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancel',
+                  style: TextStyle(color: AppColors.inkSoft))),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Remove',
+                  style: TextStyle(
+                      color: AppColors.danger, fontWeight: FontWeight.w700))),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    try {
+      await SponsorApi.removeMember(m.id);
+      if (!mounted) return;
+      _reload();
+      showToast(context, 'Removed ${m.email}.');
+    } catch (_) {
+      if (!mounted) return;
+      showToast(context,
+          "Couldn't remove that teammate. Only the event organizer can manage the team.");
     }
   }
 
@@ -66,28 +154,40 @@ class _BoothTeamScreenState extends State<BoothTeamScreen> {
   Widget build(BuildContext context) {
     return MScaffold(
       appBar: MAppBar(title: 'Booth team'),
+      bottomBar: Padding(
+        padding: const EdgeInsets.all(16),
+        child: MButton('Invite teammate', icon: Icons.person_add_alt,
+            onTap: _invite),
+      ),
       body: FutureBuilder<List<_Member>>(
         future: _future,
         builder: (context, snap) {
           if (snap.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator(color: AppColors.forest));
+            return const LoadingState();
+          }
+          if (snap.hasError) {
+            return ErrorStateView(
+              message: "We couldn't load your booth team. Try again.",
+              onRetry: _reload,
+            );
           }
           final team = snap.data ?? [];
           if (team.isEmpty) {
             return const EmptyState(
               icon: Icons.group_outlined,
               title: 'No teammates yet',
-              message: 'Invite booth staff from the Eventera web dashboard. They can scan leads once added.',
+              message:
+                  'Invite booth staff so they can scan leads at your booth.',
             );
           }
           return ListView.separated(
             padding: const EdgeInsets.all(16),
             itemCount: team.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 8),
+            separatorBuilder: (_, _) => const SizedBox(height: 8),
             itemBuilder: (_, i) {
               final m = team[i];
               return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding: const EdgeInsets.fromLTRB(14, 10, 6, 10),
                 decoration: BoxDecoration(
                   color: AppColors.surface,
                   borderRadius: BorderRadius.circular(14),
@@ -101,23 +201,43 @@ class _BoothTeamScreenState extends State<BoothTeamScreen> {
                         children: [
                           Text(m.email,
                               style: const TextStyle(
-                                  color: AppColors.ink, fontSize: 14, fontWeight: FontWeight.w600)),
-                          Text(m.role,
-                              style: const TextStyle(color: AppColors.inkMuted, fontSize: 12.5)),
+                                  color: AppColors.ink,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600)),
+                          const SizedBox(height: 2),
+                          Row(children: [
+                            Text(m.role,
+                                style: const TextStyle(
+                                    color: AppColors.inkSoft, fontSize: 12.5)),
+                            if (m.status == 'invited') ...[
+                              const SizedBox(width: 6),
+                              const Tag('Invited', kind: TagKind.warning),
+                            ],
+                          ]),
                         ],
                       ),
                     ),
                     Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text('Scan access',
-                            style: TextStyle(color: AppColors.inkMuted, fontSize: 11)),
-                        Switch(
+                        const Text('Scan',
+                            style: TextStyle(
+                                color: AppColors.inkSoft, fontSize: 11)),
+                        const SizedBox(height: 2),
+                        MToggle(
                           value: m.scanAccess,
-                          activeThumbColor: Colors.white, activeTrackColor: AppColors.forest,
                           onChanged: (v) => _toggle(m, v),
                         ),
                       ],
+                    ),
+                    IconButton(
+                      onPressed: () => _remove(m),
+                      icon: const Icon(Icons.more_vert,
+                          size: 20, color: AppColors.inkMuted),
+                      tooltip: 'Remove',
+                      constraints:
+                          const BoxConstraints(minWidth: 44, minHeight: 44),
                     ),
                   ],
                 ),
