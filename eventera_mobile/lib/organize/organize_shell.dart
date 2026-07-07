@@ -25,6 +25,12 @@ class OrganizeShell extends StatefulWidget {
 class _OrganizeShellState extends State<OrganizeShell> {
   int _index = 0;
 
+  // Re-entrancy guard for the Scan button. `_openScan` awaits the network
+  // (myEvents) before any sheet appears, so without this a second tap during
+  // that silent gap would stack a second event-picker sheet on top of the
+  // first (the "scanner opens twice" bug).
+  bool _scanning = false;
+
   final _pages = const [
     OrganizerEventsTab(),
     OrganizerAttendeesTab(),
@@ -41,40 +47,49 @@ class _OrganizeShellState extends State<OrganizeShell> {
   // One event → straight to the camera. Several → quick picker. None → a
   // friendly explanation with a way forward. Never a dead button.
   Future<void> _openScan() async {
+    // Ignore taps while a scan flow is already opening/open — otherwise the
+    // network gap before the picker appears lets a second tap stack a second
+    // sheet.
+    if (_scanning) return;
+    _scanning = true;
     HapticFeedback.mediumImpact();
-    List<OrganizerEvent> events;
     try {
-      events = await EventeraApi().myEvents();
-    } catch (_) {
+      List<OrganizerEvent> events;
+      try {
+        events = await EventeraApi().myEvents();
+      } catch (_) {
+        if (!mounted) return;
+        showToast(context,
+            "We couldn't load your events. Check your connection and try again.");
+        return;
+      }
       if (!mounted) return;
-      showToast(context,
-          "We couldn't load your events. Check your connection and try again.");
-      return;
+
+      final published = events.where((e) => e.isPublished).toList();
+      final scannable = published.isNotEmpty ? published : events;
+
+      if (scannable.isEmpty) {
+        await showMSheet(context, _NoEventsToScan(onCreate: () {
+          Navigator.of(context).pop();
+          Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const CreateEventScreen()));
+        }));
+        return;
+      }
+
+      if (scannable.length == 1) {
+        _pushScanner(scannable.first);
+        return;
+      }
+
+      final picked = await showMSheet<OrganizerEvent>(
+        context,
+        _ScanEventPicker(events: scannable),
+      );
+      if (picked != null && mounted) _pushScanner(picked);
+    } finally {
+      _scanning = false;
     }
-    if (!mounted) return;
-
-    final published = events.where((e) => e.isPublished).toList();
-    final scannable = published.isNotEmpty ? published : events;
-
-    if (scannable.isEmpty) {
-      await showMSheet(context, _NoEventsToScan(onCreate: () {
-        Navigator.of(context).pop();
-        Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const CreateEventScreen()));
-      }));
-      return;
-    }
-
-    if (scannable.length == 1) {
-      _pushScanner(scannable.first);
-      return;
-    }
-
-    final picked = await showMSheet<OrganizerEvent>(
-      context,
-      _ScanEventPicker(events: scannable),
-    );
-    if (picked != null && mounted) _pushScanner(picked);
   }
 
   void _pushScanner(OrganizerEvent e) {
