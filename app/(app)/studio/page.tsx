@@ -1,14 +1,9 @@
-import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { StudioClient } from '@/components/studio/StudioClient';
-import type { Metadata } from 'next';
 
-export const metadata: Metadata = { title: 'Eventera Card Studio' };
-
-export default async function StudioPage() {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
-
-  return <StudioClient />;
+// The standalone "/studio" surface was an early, non-functional design mockup
+// (no event context, no persistence, no auto-save/undo/redo, brand-noncompliant).
+// The real Card Studio is the canvas editor at /events/[id]/edit, reached by
+// picking a template in the gallery. Route users to the working entry point.
+export default function StudioPage() {
+  redirect('/templates');
 }
