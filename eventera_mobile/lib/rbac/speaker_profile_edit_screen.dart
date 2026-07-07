@@ -1,28 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../net.dart';
+import '../roles/speaker/speaker_api.dart';
 import '../ui/components.dart';
 import '../ui/tokens.dart';
 
 /// Edit the signed-in speaker's public `speakers` profile for one event.
 ///
-/// This is the mobile equivalent of the web speaker self-edit surface. The
-/// speaker row is resolved for the account by email against `speakers.email`
-/// (migration 039) at the given [eventId], then the editable text fields —
-/// name, role/title, company, bio and socials — are saved through the existing
-/// web API route `PATCH /api/speakers/{id}/profile`.
+/// The speaker row is resolved for the account by email against `speakers.email`
+/// (migration 039) at the given [eventId], then the editable subset — headline/
+/// title, company, bio and socials — is saved DIRECT to Supabase through the
+/// ownership-checked `update_speaker_profile` RPC (063).
 ///
-/// Why the API route and not a direct Supabase update: the `speakers` RLS
-/// (migration 020) only lets the EVENT OWNER write the row; a speaker cannot
-/// update their own row via the anon client. The API route runs admin-side and
-/// authorizes the caller by email/role match (`ownedSpeaker`), so the save
-/// works for the speaker themself. The route accepts name, role, company, bio,
-/// twitter_url, linkedin_url and website_url — those are exactly the fields
-/// edited here.
+/// Why the RPC and not the web API route: `speakers` RLS (migration 020) only
+/// lets the EVENT OWNER write the row, and the Next.js `PATCH
+/// /api/speakers/{id}/profile` route is COOKIE-authenticated — the mobile app
+/// sends a Bearer token and has no cookie session, so that route always 401s
+/// from here. The SECURITY DEFINER RPC authorizes the caller by email / active
+/// speaker role and is the sanctioned mobile write path.
 ///
-/// The headshot (`photo_url`) is set by the organizer and is not part of the
-/// self-edit route, so it is shown read-only with an honest note rather than a
-/// dead "coming soon" control.
+/// The RPC owns headline, bio, company and the three social links. `name` and
+/// the headshot (`photo_url`) are organizer-managed — the RPC cannot write
+/// them — so they are shown read-only with an honest note rather than a fake
+/// control that silently drops the edit.
 ///
 /// Everything fails SAFE: a resolve/save error shows a message, never a crash.
 class SpeakerProfileEditScreen extends StatefulWidget {
@@ -52,9 +53,9 @@ class _SpeakerProfileEditScreenState extends State<SpeakerProfileEditScreen> {
 
   String _speakerId = '';
   String _photoUrl = '';
+  String _name = ''; // organizer-managed, read-only
 
-  final _nameCtl = TextEditingController();
-  final _roleCtl = TextEditingController();
+  final _headlineCtl = TextEditingController();
   final _companyCtl = TextEditingController();
   final _bioCtl = TextEditingController();
   final _linkedinCtl = TextEditingController();
@@ -69,8 +70,7 @@ class _SpeakerProfileEditScreenState extends State<SpeakerProfileEditScreen> {
 
   @override
   void dispose() {
-    _nameCtl.dispose();
-    _roleCtl.dispose();
+    _headlineCtl.dispose();
     _companyCtl.dispose();
     _bioCtl.dispose();
     _linkedinCtl.dispose();
@@ -85,31 +85,10 @@ class _SpeakerProfileEditScreenState extends State<SpeakerProfileEditScreen> {
       _error = null;
     });
     try {
-      Map<String, dynamic>? row;
-
-      if ((widget.speakerId ?? '').isNotEmpty) {
-        final r = await supa
-            .from('speakers')
-            .select(
-                'id, name, headline, role, company, bio, photo_url, linkedin_url, twitter_url, website_url')
-            .eq('id', widget.speakerId as Object)
-            .maybeSingle();
-        if (r != null) row = Map<String, dynamic>.from(r);
-      } else {
-        final email = (currentUserEmail ?? '').trim().toLowerCase();
-        if (email.isNotEmpty) {
-          final rows = await supa
-              .from('speakers')
-              .select(
-                  'id, name, headline, role, company, bio, photo_url, linkedin_url, twitter_url, website_url, email')
-              .eq('event_id', widget.eventId)
-              .ilike('email', email);
-          for (final r in (rows as List).whereType<Map>()) {
-            row = Map<String, dynamic>.from(r);
-            break; // first matching speaker row for this account at this event
-          }
-        }
-      }
+      final row = await SpeakerApi.resolveSpeaker(
+        eventId: widget.eventId,
+        speakerId: widget.speakerId,
+      );
 
       if (!mounted) return;
       if (row == null) {
@@ -124,10 +103,11 @@ class _SpeakerProfileEditScreenState extends State<SpeakerProfileEditScreen> {
 
       _speakerId = asString(row['id']);
       _photoUrl = asString(row['photo_url']).trim();
-      _nameCtl.text = asString(row['name']);
-      // `role` is the title field; fall back to legacy `headline` if role is empty.
-      final role = asString(row['role']).trim();
-      _roleCtl.text = role.isNotEmpty ? role : asString(row['headline']).trim();
+      _name = asString(row['name']);
+      // The RPC persists `headline`; fall back to legacy `role` when empty.
+      final headline = asString(row['headline']).trim();
+      _headlineCtl.text =
+          headline.isNotEmpty ? headline : asString(row['role']).trim();
       _companyCtl.text = asString(row['company']);
       _bioCtl.text = asString(row['bio']);
       _linkedinCtl.text = asString(row['linkedin_url']);
@@ -146,37 +126,21 @@ class _SpeakerProfileEditScreenState extends State<SpeakerProfileEditScreen> {
 
   Future<void> _save() async {
     if (_saving || _speakerId.isEmpty) return;
-    final name = _nameCtl.text.trim();
-    if (name.isEmpty) {
-      showToast(context, 'Your name is required.');
-      return;
-    }
+    HapticFeedback.mediumImpact();
     setState(() => _saving = true);
-    try {
-      String? tv(TextEditingController c) =>
-          c.text.trim().isEmpty ? null : c.text.trim();
-      await apiPatch('/api/speakers/$_speakerId/profile', {
-        'name': name,
-        'role': tv(_roleCtl),
-        'company': tv(_companyCtl),
-        'bio': tv(_bioCtl),
-        'linkedin_url': tv(_linkedinCtl),
-        'twitter_url': tv(_twitterCtl),
-        'website_url': tv(_websiteCtl),
-      });
-      if (!mounted) return;
-      setState(() => _saving = false);
-      showToast(context, 'Speaker profile saved');
-      Navigator.of(context).maybePop();
-    } on ApiException catch (e) {
-      if (!mounted) return;
-      setState(() => _saving = false);
-      showToast(context, e.message);
-    } catch (_) {
-      if (!mounted) return;
-      setState(() => _saving = false);
-      showToast(context, 'Could not save your speaker profile.');
-    }
+    final res = await SpeakerApi.saveProfile(
+      speakerId: _speakerId,
+      headline: _headlineCtl.text,
+      company: _companyCtl.text,
+      bio: _bioCtl.text,
+      linkedin: _linkedinCtl.text,
+      twitter: _twitterCtl.text,
+      website: _websiteCtl.text,
+    );
+    if (!mounted) return;
+    setState(() => _saving = false);
+    showToast(context, res.message);
+    if (res.ok) Navigator.of(context).maybePop();
   }
 
   @override
@@ -203,12 +167,15 @@ class _SpeakerProfileEditScreenState extends State<SpeakerProfileEditScreen> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 40),
       children: [
-        // ── Headshot (read-only) + event context ────────────────────────────
+        // ── Name + headshot (read-only, organizer-managed) + event context ──
         Center(
           child: Column(
             children: [
-              Avatar(name: _nameCtl.text, imageUrl: _photoUrl, size: 76),
+              Avatar(name: _name, imageUrl: _photoUrl, size: 76),
               const SizedBox(height: 10),
+              Text(_name.isEmpty ? 'Speaker' : _name,
+                  textAlign: TextAlign.center, style: AppText.h3),
+              const SizedBox(height: 2),
               Text(widget.eventName,
                   textAlign: TextAlign.center,
                   maxLines: 2,
@@ -225,17 +192,9 @@ class _SpeakerProfileEditScreenState extends State<SpeakerProfileEditScreen> {
           child: Column(
             children: [
               MInput(
-                label: 'Name',
-                hint: 'Your full name',
-                controller: _nameCtl,
-                icon: Icons.person_outline,
-                onChanged: (_) => setState(() {}),
-              ),
-              const SizedBox(height: 16),
-              MInput(
-                label: 'Role / title',
+                label: 'Headline / title',
                 hint: 'e.g. Head of Design',
-                controller: _roleCtl,
+                controller: _headlineCtl,
                 icon: Icons.badge_outlined,
               ),
               const SizedBox(height: 16),
@@ -295,8 +254,8 @@ class _SpeakerProfileEditScreenState extends State<SpeakerProfileEditScreen> {
         ),
         const SizedBox(height: 16),
 
-        // Honest note: the photo is organizer-managed, not part of the
-        // self-edit route — so we say so instead of faking an upload control.
+        // Honest note: name + photo are organizer-managed, not writable by the
+        // self-edit RPC — so we say so instead of faking a control.
         Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
@@ -311,9 +270,9 @@ class _SpeakerProfileEditScreenState extends State<SpeakerProfileEditScreen> {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Your headshot is set by the event organizer. Ask them to '
-                  'update it if it needs changing.',
-                  style: AppText.bodySm.copyWith(color: AppColors.inkMuted),
+                  'Your name and headshot are set by the event organizer. Ask '
+                  'them to update those if they need changing.',
+                  style: AppText.bodySm.copyWith(color: AppColors.inkSoft),
                 ),
               ),
             ],
