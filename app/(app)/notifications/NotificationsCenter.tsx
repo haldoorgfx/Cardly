@@ -56,16 +56,19 @@ const NOTIF_ROWS: { key: string; label: string; sub: string }[] = [
   { key: 'recommendations',  label: 'Recommendations',         sub: 'Weekly digest for your city' },
 ];
 
-function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) {
+function Toggle({ on, onChange, label }: { on: boolean; onChange: (v: boolean) => void; label: string }) {
   return (
     <button
       type="button"
+      role="switch"
+      aria-checked={on}
+      aria-label={label}
       onClick={() => onChange(!on)}
-      className="relative shrink-0 transition-colors"
+      className="relative shrink-0 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1F4D3A]/40 focus-visible:ring-offset-2"
       style={{
         width: 40, height: 23,
         borderRadius: 100,
-        background: on ? '#1F4D3A' : '#E5E0D4',
+        background: on ? '#1F4D3A' : '#C9C3B1',
         border: 'none',
       }}
     >
@@ -92,43 +95,71 @@ export default function NotificationsCenter({ initialNotifs, initialPrefs }: Pro
 
   // Inbox state
   const [notifications, setNotifications] = useState<Notification[]>(initialNotifs);
+  const [markingAll, setMarkingAll] = useState(false);
 
   // Prefs state
   const [prefs, setPrefs] = useState<NotifPrefs>(initialPrefs);
   const [prefsDirty, setPrefsDirty] = useState(false);
   const [savingPrefs, setSavingPrefs] = useState(false);
   const [savedPrefs, setSavedPrefs] = useState(false);
+  const [prefsError, setPrefsError] = useState(false);
 
-  function handleClick(notif: Notification) {
+  async function handleClick(notif: Notification) {
     if (!notif.read_at) {
-      fetch(`/api/notifications/${notif.id}`, { method: 'PATCH' });
-      setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, read_at: new Date().toISOString() } : n));
+      // Optimistic mark-as-read; revert if the request fails.
+      const now = new Date().toISOString();
+      setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, read_at: now } : n));
+      try {
+        const res = await fetch(`/api/notifications/${notif.id}`, { method: 'PATCH' });
+        if (!res.ok) throw new Error();
+      } catch {
+        setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, read_at: null } : n));
+      }
     }
     if (notif.action_url) router.push(notif.action_url);
   }
 
-  function handleMarkAll() {
-    fetch('/api/notifications', { method: 'PATCH' });
-    setNotifications(prev => prev.map(n => ({ ...n, read_at: n.read_at ?? new Date().toISOString() })));
+  async function handleMarkAll() {
+    if (markingAll) return;
+    setMarkingAll(true);
+    const snapshot = notifications;
+    const now = new Date().toISOString();
+    setNotifications(prev => prev.map(n => ({ ...n, read_at: n.read_at ?? now })));
+    try {
+      const res = await fetch('/api/notifications', { method: 'PATCH' });
+      if (!res.ok) throw new Error();
+    } catch {
+      setNotifications(snapshot); // roll back on failure
+    } finally {
+      setMarkingAll(false);
+    }
   }
 
   function togglePref(key: string, value: boolean) {
     setPrefs(prev => ({ ...prev, [key]: value }));
     setPrefsDirty(true);
     setSavedPrefs(false);
+    setPrefsError(false);
   }
 
   async function savePrefs() {
     setSavingPrefs(true);
     setSavedPrefs(false);
-    await fetch('/api/account/profile', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ notification_prefs: prefs }),
-    }).catch(() => {});
-    setSavingPrefs(false);
-    setPrefsDirty(false);
-    setSavedPrefs(true);
+    setPrefsError(false);
+    try {
+      const res = await fetch('/api/account/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notification_prefs: prefs }),
+      });
+      if (!res.ok) throw new Error();
+      setPrefsDirty(false);
+      setSavedPrefs(true);
+    } catch {
+      setPrefsError(true);
+    } finally {
+      setSavingPrefs(false);
+    }
   }
 
   const unreadCount = notifications.filter(n => !n.read_at).length;
@@ -140,14 +171,14 @@ export default function NotificationsCenter({ initialNotifs, initialPrefs }: Pro
         <div>
           <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>Notifications</h1>
           {tab === 'inbox' && unreadCount > 0 && (
-            <p className="text-[13px] mt-0.5" style={{ color: '#6B7A72' }}>{unreadCount} unread</p>
+            <p className="text-[13px] mt-0.5" style={{ color: '#3A4A42' }}>{unreadCount} unread</p>
           )}
         </div>
         {tab === 'inbox' && unreadCount > 0 && (
-          <button onClick={handleMarkAll}
-            className="text-[12px] uppercase tracking-widest px-3 py-1.5 rounded-lg border transition hover:bg-[#F5F3EE]"
-            style={{ color: '#6B7A72', borderColor: '#E5E0D4' }}>
-            Mark all read
+          <button onClick={handleMarkAll} disabled={markingAll}
+            className="min-h-[40px] text-[12px] uppercase tracking-widest px-3 py-1.5 rounded-lg border transition hover:bg-[#F5F3EE] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1F4D3A]/40 disabled:opacity-50"
+            style={{ color: '#3A4A42', borderColor: '#E5E0D4' }}>
+            {markingAll ? 'Marking…' : 'Mark all read'}
           </button>
         )}
       </div>
@@ -158,10 +189,11 @@ export default function NotificationsCenter({ initialNotifs, initialPrefs }: Pro
           <button
             key={id}
             onClick={() => setTab(id)}
-            className="text-[13px] font-medium px-4 py-1.5 rounded-lg transition"
+            aria-pressed={tab === id}
+            className="min-h-[40px] text-[13px] font-medium px-4 py-1.5 rounded-lg transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1F4D3A]/40"
             style={{
               background: tab === id ? '#FFFFFF' : 'transparent',
-              color: tab === id ? '#1F4D3A' : '#6B7A72',
+              color: tab === id ? '#1F4D3A' : '#3A4A42',
               boxShadow: tab === id ? '0 1px 2px rgba(15,31,24,0.06)' : 'none',
             }}
           >
@@ -175,14 +207,14 @@ export default function NotificationsCenter({ initialNotifs, initialPrefs }: Pro
         notifications.length === 0 ? (
           <div className="text-center py-20">
             <Bell size={32} strokeWidth={1.3} className="mx-auto mb-3" style={{ color: '#C9C3B1' }} />
-            <p className="font-medium text-[15px]" style={{ color: '#3A4A42' }}>You&apos;re all caught up</p>
-            <p className="text-[13px] mt-1" style={{ color: '#9BA8A1' }}>Notifications appear here as things happen across your events.</p>
+            <p className="font-medium text-[15px]" style={{ color: '#0F1F18' }}>You&apos;re all caught up</p>
+            <p className="text-[13px] mt-1" style={{ color: '#3A4A42' }}>Notifications appear here as things happen across your events.</p>
           </div>
         ) : (
           <div className="rounded-2xl overflow-hidden border" style={{ borderColor: '#E5E0D4' }}>
             {notifications.map((n, i) => (
               <button key={n.id} onClick={() => handleClick(n)}
-                className={`w-full text-left flex items-start gap-4 px-5 py-4 transition hover:bg-[#FAF6EE] ${!n.action_url ? 'cursor-default' : 'cursor-pointer'}`}
+                className={`w-full text-left flex items-start gap-4 px-5 py-4 transition hover:bg-[#FAF6EE] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#1F4D3A]/40 ${!n.action_url ? 'cursor-default' : 'cursor-pointer'}`}
                 style={{ borderBottom: i < notifications.length - 1 ? '1px solid #F0EDE7' : 'none', background: n.read_at ? 'white' : '#FDFBF7' }}>
                 <div className="h-9 w-9 rounded-xl grid place-items-center shrink-0 mt-0.5"
                   style={{ background: '#F0EDE8', color: '#1F4D3A' }}>
@@ -190,8 +222,8 @@ export default function NotificationsCenter({ initialNotifs, initialPrefs }: Pro
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[13.5px] font-medium leading-snug" style={{ color: '#0F1F18' }}>{n.title}</p>
-                  {n.body && <p className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>{n.body}</p>}
-                  <p className="text-[11px] mt-1 " style={{ color: '#9BA8A1' }}>{fmtTime(n.created_at)}</p>
+                  {n.body && <p className="text-[12.5px] mt-0.5" style={{ color: '#3A4A42' }}>{n.body}</p>}
+                  <p className="text-[11px] mt-1 " style={{ color: '#6B7A72' }}>{fmtTime(n.created_at)}</p>
                 </div>
                 {!n.read_at && (
                   <span className="h-2 w-2 rounded-full shrink-0 mt-2" style={{ background: '#E8C57E' }} />
@@ -205,7 +237,7 @@ export default function NotificationsCenter({ initialNotifs, initialPrefs }: Pro
       {/* Preferences tab */}
       {tab === 'prefs' && (
         <div>
-          <p className="text-[13px] mb-4" style={{ color: '#6B7A72' }}>
+          <p className="text-[13px] mb-4" style={{ color: '#3A4A42' }}>
             Choose which updates reach you. Changes apply across email and in-app.
           </p>
           <div className="rounded-2xl overflow-hidden border" style={{ borderColor: '#E5E0D4' }}>
@@ -220,9 +252,9 @@ export default function NotificationsCenter({ initialNotifs, initialPrefs }: Pro
               >
                 <div className="min-w-0">
                   <p className="text-[13.5px] font-medium" style={{ color: '#0F1F18' }}>{row.label}</p>
-                  <p className="text-[12.5px] mt-0.5" style={{ color: '#6B7A72' }}>{row.sub}</p>
+                  <p className="text-[12.5px] mt-0.5" style={{ color: '#3A4A42' }}>{row.sub}</p>
                 </div>
-                <Toggle on={prefs[row.key] ?? true} onChange={v => togglePref(row.key, v)} />
+                <Toggle on={prefs[row.key] ?? true} onChange={v => togglePref(row.key, v)} label={row.label} />
               </div>
             ))}
           </div>
@@ -231,13 +263,16 @@ export default function NotificationsCenter({ initialNotifs, initialPrefs }: Pro
             <button
               onClick={savePrefs}
               disabled={savingPrefs || !prefsDirty}
-              className="h-9 px-5 rounded-lg font-medium text-[13px] text-white transition hover:opacity-90 disabled:opacity-50"
+              className="min-h-[40px] h-10 px-5 rounded-lg font-medium text-[13px] text-white transition hover:opacity-90 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1F4D3A]/40 focus-visible:ring-offset-2"
               style={{ background: '#1F4D3A' }}
             >
               {savingPrefs ? 'Saving…' : 'Save preferences'}
             </button>
             {savedPrefs && !prefsDirty && (
-              <span className="text-[13px]" style={{ color: '#2D7A4F' }}>Saved</span>
+              <span className="text-[13px]" style={{ color: '#2D7A4F' }} role="status">Saved</span>
+            )}
+            {prefsError && (
+              <span className="text-[13px]" style={{ color: '#B8423C' }} role="alert">Couldn&apos;t save. Try again.</span>
             )}
           </div>
         </div>

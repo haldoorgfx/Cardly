@@ -21,7 +21,7 @@ export default function MarketingError({
         <h1 className="font-title font-bold text-[32px] leading-tight text-[#0F1F18]">
           Something went wrong
         </h1>
-        <p className="text-[15px] text-[#6B7A72] mt-4 leading-relaxed">
+        <p className="text-[15px] text-[#3A4A42] mt-4 leading-relaxed">
           An unexpected error occurred. Try refreshing the page, or head back to the homepage.
         </p>
         <div className="mt-8 flex items-center justify-center gap-3">

@@ -34,7 +34,7 @@ export function ClaimSponsorButton() {
       <button
         onClick={claim}
         disabled={state === 'loading'}
-        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-[13.5px] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+        className="inline-flex items-center gap-2 min-h-[40px] px-4 py-2.5 rounded-lg text-[13.5px] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1F4D3A]/40 focus-visible:ring-offset-2"
         style={{ background: '#1F4D3A' }}
       >
         {state === 'loading' ? (
@@ -44,16 +44,18 @@ export function ClaimSponsorButton() {
         )}
         {state === 'loading' ? 'Checking…' : 'Claim sponsor access'}
       </button>
-      {state === 'none' && (
-        <p className="text-[12.5px]" style={{ color: '#6B7A72' }}>
-          No sponsorships found for your account email yet.
-        </p>
-      )}
-      {state === 'error' && (
-        <p className="text-[12.5px]" style={{ color: '#B8423C' }}>
-          Something went wrong. Please try again.
-        </p>
-      )}
+      <div aria-live="polite" className="min-h-0">
+        {state === 'none' && (
+          <p className="text-[12.5px]" style={{ color: '#3A4A42' }}>
+            No sponsorships found for your account email yet.
+          </p>
+        )}
+        {state === 'error' && (
+          <p className="text-[12.5px]" style={{ color: '#B8423C' }} role="alert">
+            Something went wrong. Please try again.
+          </p>
+        )}
+      </div>
     </div>
   );
 }

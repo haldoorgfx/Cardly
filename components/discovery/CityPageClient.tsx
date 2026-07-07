@@ -10,15 +10,6 @@ type EventPage = any;
 
 interface Props { city: string; events: EventPage[] }
 
-const DEMO_EVENTS: EventPage[] = [
-  { id: '1', title: 'Nairobi Tech Summit 2026', cover_image_url: null, starts_at: '2026-09-12T08:00:00Z', city: 'Nairobi', is_online: false, price_from: 25, category: 'tech', custom_slug: null, events: { slug: 'nairobi-tech-summit' } },
-  { id: '2', title: 'Nairobi Startup Weekend', cover_image_url: null, starts_at: '2026-10-03T09:00:00Z', city: 'Nairobi', is_online: false, price_from: 0, category: 'business', custom_slug: null, events: { slug: 'startup-weekend-nairobi' } },
-  { id: '3', title: 'Design Systems Africa', cover_image_url: null, starts_at: '2026-10-20T10:00:00Z', city: 'Nairobi', is_online: false, price_from: 0, category: 'design', custom_slug: null, events: { slug: 'design-systems-africa' } },
-  { id: '4', title: 'Nairobi Music Festival', cover_image_url: null, starts_at: '2026-11-08T18:00:00Z', city: 'Nairobi', is_online: false, price_from: 40, category: 'music', custom_slug: null, events: { slug: 'nairobi-music-fest' } },
-  { id: '5', title: 'Africa Climate Forum', cover_image_url: null, starts_at: '2026-11-25T09:00:00Z', city: 'Nairobi', is_online: false, price_from: 0, category: 'community', custom_slug: null, events: { slug: 'climate-forum-nairobi' } },
-  { id: '6', title: 'East Africa Fintech Week', cover_image_url: null, starts_at: '2026-12-05T08:00:00Z', city: 'Nairobi', is_online: false, price_from: 150, category: 'fintech', custom_slug: null, events: { slug: 'ea-fintech-week' } },
-];
-
 const CATEGORIES = ['All', 'Tech', 'Business', 'Design', 'Music', 'Arts', 'Food', 'Community', 'Fintech'];
 
 function fmtDate(iso: string) {
@@ -28,8 +19,7 @@ function fmtDay(iso: string) { return new Date(iso).toLocaleDateString('en', { w
 function fmtPrice(p: number | null) { return !p || p === 0 ? 'Free' : `From $${p}`; }
 function getSlug(ep: EventPage) { return ep.custom_slug ?? ep.events?.slug ?? ep.id; }
 
-export function CityPageClient({ city, events: dbEvents }: Props) {
-  const events = dbEvents.length > 0 ? dbEvents : DEMO_EVENTS;
+export function CityPageClient({ city, events }: Props) {
   const [catFilter, setCatFilter] = useState('All');
   const [priceFilter, setPriceFilter] = useState<'all' | 'free' | 'paid'>('all');
 
@@ -172,10 +162,12 @@ export function CityPageClient({ city, events: dbEvents }: Props) {
               Subscribe to get a weekly digest of upcoming events
             </p>
           </div>
-          <button className="px-4 py-2 rounded-xl text-[13px] font-semibold transition hover:opacity-90 shrink-0"
-            style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
+          <Link
+            href={`/account/login?next=${encodeURIComponent('/account/notifications')}`}
+            className="px-4 py-2 rounded-xl text-[13px] font-semibold transition hover:opacity-90 shrink-0 inline-flex items-center"
+            style={{ background: '#1F4D3A', color: '#FAF6EE', textDecoration: 'none' }}>
             Subscribe
-          </button>
+          </Link>
         </div>
       </div>
     </div>

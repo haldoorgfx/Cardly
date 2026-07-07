@@ -317,12 +317,9 @@ function UseCaseSection({ u }: { u: UseCase }) {
               <blockquote className="font-display text-ink text-[17px] lg:text-[19px] leading-[1.4] tracking-[-0.01em] italic">
                 &ldquo;{u.quote.text}&rdquo;
               </blockquote>
-              <figcaption className="mt-4  text-[10px] tracking-[0.18em] uppercase text-muted">
+              <figcaption className="mt-4 text-[10px] tracking-[0.18em] uppercase text-ink-soft">
                 {u.quote.who}
               </figcaption>
-              <div className="mt-1  text-[9px] tracking-[0.18em] uppercase" style={{ color: 'rgba(107,122,114,0.6)' }}>
-                [placeholder]
-              </div>
             </figure>
           </div>
           </Reveal>

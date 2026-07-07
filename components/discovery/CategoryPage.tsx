@@ -2,7 +2,9 @@
 
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { EventCard, type DiscoveryEvent } from './EventCard';
+import { toggleSavedEvent } from '@/components/shared/saveEvent';
 
 const ALL_CATEGORIES = ['Tech', 'Music', 'Business', 'Culture', 'Food', 'Sports', 'Health', 'Film', 'Education'] as const;
 
@@ -16,6 +18,7 @@ interface CategoryPageProps {
 }
 
 export function CategoryPage({ category, events, savedIds, cityCounts }: CategoryPageProps) {
+  const router = useRouter();
   const [savedSet, setSavedSet] = useState(new Set(savedIds));
   const [cityFilter, setCityFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('any');
@@ -28,18 +31,16 @@ export function CategoryPage({ category, events, savedIds, cityCounts }: Categor
       if (save) { next.add(pageId); } else { next.delete(pageId); }
       return next;
     });
-    try {
-      if (save) {
-        await fetch('/api/account/saved', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ event_page_id: pageId }),
-        });
-      } else {
-        await fetch(`/api/account/saved?event_page_id=${pageId}`, { method: 'DELETE' });
-      }
-    } catch { /* optimistic */ }
-  }, []);
+    const { unauthorized } = await toggleSavedEvent(pageId, save);
+    if (unauthorized) {
+      setSavedSet(prev => {
+        const next = new Set(prev);
+        if (save) { next.delete(pageId); } else { next.add(pageId); }
+        return next;
+      });
+      router.push(`/account/login?next=${encodeURIComponent(`/events/category/${category.toLowerCase()}`)}`);
+    }
+  }, [router, category]);
 
   const now = new Date();
   const weekEnd = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
@@ -80,7 +81,7 @@ export function CategoryPage({ category, events, savedIds, cityCounts }: Categor
           <nav className="text-[12px] mb-3" style={{ color: '#6B7A72' }}>
             <Link href="/events" style={{ color: '#6B7A72' }}>Events</Link>
             {' / '}
-            <Link href="/events/categories" style={{ color: '#6B7A72' }}>Categories</Link>
+            <span>Categories</span>
             {' / '}
             <span style={{ color: '#0F1F18' }}>{category}</span>
           </nav>

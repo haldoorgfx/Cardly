@@ -34,9 +34,9 @@ export default async function AccountSetupPage() {
       {/* Minimal nav */}
       <nav className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
         <div className="font-semibold text-[19px]" style={{ fontFamily: '"DM Sans", sans-serif', color: '#0F1F18', letterSpacing: '-0.01em' }}>
-          Kart<span style={{ color: '#E8C57E' }}>a</span>
+          Eventer<span style={{ color: '#E8C57E' }}>a</span>
         </div>
-        <span className="text-[13px]" style={{ color: '#6B7A72' }}>{user.email}</span>
+        <span className="text-[13px]" style={{ color: '#3A4A42' }}>{user.email}</span>
       </nav>
 
       <div className="max-w-[620px] mx-auto px-5 pb-24">

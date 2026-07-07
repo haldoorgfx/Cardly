@@ -37,7 +37,7 @@ export default async function AttendingAgendaPage({
         <h1 className="font-display font-semibold text-[26px] sm:text-[30px] leading-tight" style={{ color: '#0F1F18', letterSpacing: '-0.02em' }}>
           My Agenda
         </h1>
-        <p className="text-[14px] sm:text-[14.5px] mt-1.5" style={{ color: '#6B7A72' }}>
+        <p className="text-[14px] sm:text-[14.5px] mt-1.5" style={{ color: '#3A4A42' }}>
           {sessions.length} session{sessions.length !== 1 ? 's' : ''} saved · {eventPageTitle ?? event.name}
         </p>
       </div>

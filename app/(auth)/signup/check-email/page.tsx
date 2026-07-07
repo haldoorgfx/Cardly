@@ -8,9 +8,6 @@ export default function CheckEmailPage() {
       className="min-h-screen flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden"
       style={{ background: "#FAF6EE" }}
     >
-      <div className="absolute pointer-events-none" style={{ top: "-10%", left: "-8%", width: 500, height: 500, background: "radial-gradient(ellipse, rgba(31,77,58,0.12) 0%, transparent 70%)", filter: "blur(70px)" }} />
-      <div className="absolute pointer-events-none" style={{ bottom: "-10%", right: "-8%", width: 420, height: 420, background: "radial-gradient(ellipse, rgba(232,197,126,0.14) 0%, transparent 70%)", filter: "blur(60px)" }} />
-
       <div className="relative mb-8">
         <Link href="/">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -30,10 +27,10 @@ export default function CheckEmailPage() {
         </div>
 
         <h1 className="text-[22px] font-bold text-[#0F1F18] tracking-tight mb-2">Check your inbox</h1>
-        <p className="text-[14px] text-[#6B7A72] leading-relaxed mb-6">
+        <p className="text-[14px] text-[#3A4A42] leading-relaxed mb-6">
           We sent a confirmation link to your email. Click it to activate your account and get started.
         </p>
-        <p className="text-[13px] text-[#6B7A72] mb-6">
+        <p className="text-[13px] text-[#3A4A42] mb-6">
           Didn&apos;t get it? Check your spam folder, or{" "}
           <Link href="/signup" className="text-[#1F4D3A] font-medium hover:underline">
             try again
@@ -48,11 +45,11 @@ export default function CheckEmailPage() {
         </Link>
       </div>
 
-      <p className="relative mt-8 text-center text-[12px] text-[#6B7A72]">
+      <p className="relative mt-8 text-center text-[12px] text-[#3A4A42]">
         © 2026 Eventera ·{" "}
-        <Link href="/privacy" className="hover:text-[#3A4A42] transition">Privacy</Link>
+        <Link href="/privacy" className="underline-offset-2 hover:underline transition">Privacy</Link>
         {" · "}
-        <Link href="/terms" className="hover:text-[#3A4A42] transition">Terms</Link>
+        <Link href="/terms" className="underline-offset-2 hover:underline transition">Terms</Link>
       </p>
     </div>
   );

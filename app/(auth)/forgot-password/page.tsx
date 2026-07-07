@@ -28,9 +28,6 @@ export default function ForgotPasswordPage() {
       className="min-h-screen flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden"
       style={{ background: "#FAF6EE" }}
     >
-      <div className="absolute pointer-events-none" style={{ top: "-10%", right: "-8%", width: 500, height: 500, background: "radial-gradient(ellipse, rgba(31,77,58,0.12) 0%, transparent 70%)", filter: "blur(70px)" }} />
-      <div className="absolute pointer-events-none" style={{ bottom: "-10%", left: "-8%", width: 420, height: 420, background: "radial-gradient(ellipse, rgba(232,197,126,0.14) 0%, transparent 70%)", filter: "blur(60px)" }} />
-
       <div className="relative mb-8">
         <Link href="/">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -50,7 +47,7 @@ export default function ForgotPasswordPage() {
               </svg>
             </div>
             <h1 className="text-[20px] font-bold text-[#0F1F18] tracking-tight mb-2">Check your inbox</h1>
-            <p className="text-[14px] text-[#6B7A72] leading-relaxed mb-6">
+            <p className="text-[14px] text-[#3A4A42] leading-relaxed mb-6">
               We sent a password reset link to your email. Click it to set a new password.
             </p>
             <Link href="/login" className="text-[13px] font-medium text-[#1F4D3A] hover:underline">
@@ -60,7 +57,7 @@ export default function ForgotPasswordPage() {
         ) : (
           <>
             <h1 className="text-[22px] font-bold text-[#0F1F18] tracking-tight mb-1">Forgot password?</h1>
-            <p className="text-[14px] text-[#6B7A72] mb-7">
+            <p className="text-[14px] text-[#3A4A42] mb-7">
               Enter your email and we&apos;ll send you a reset link.{" "}
               <Link href="/login" className="text-[#1F4D3A] font-medium hover:underline">Sign in →</Link>
             </p>
@@ -97,11 +94,11 @@ export default function ForgotPasswordPage() {
         )}
       </div>
 
-      <p className="relative mt-8 text-center text-[12px] text-[#6B7A72]">
+      <p className="relative mt-8 text-center text-[12px] text-[#3A4A42]">
         © 2026 Eventera ·{" "}
-        <Link href="/privacy" className="hover:text-[#3A4A42] transition">Privacy</Link>
+        <Link href="/privacy" className="underline-offset-2 hover:underline transition">Privacy</Link>
         {" · "}
-        <Link href="/terms" className="hover:text-[#3A4A42] transition">Terms</Link>
+        <Link href="/terms" className="underline-offset-2 hover:underline transition">Terms</Link>
       </p>
     </div>
   );

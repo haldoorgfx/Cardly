@@ -5,13 +5,13 @@ const FOOTER_COLS = [
   {
     title: 'Product',
     links: [
-      { label: 'Registration',  href: '/pricing' },
-      { label: 'Agenda',        href: '/pricing' },
-      { label: 'Speakers',      href: '/pricing' },
-      { label: 'Check-in',      href: '/pricing' },
-      { label: 'Networking',    href: '/pricing' },
-      { label: 'Analytics',     href: '/pricing' },
-      { label: 'Eventera Card',    href: '/pricing' },
+      { label: 'Registration',  href: '/features/registration' },
+      { label: 'Agenda',        href: '/features/agenda' },
+      { label: 'Speakers',      href: '/features/speakers' },
+      { label: 'Check-in',      href: '/features/check-in' },
+      { label: 'Networking',    href: '/features/networking' },
+      { label: 'Analytics',     href: '/features/analytics' },
+      { label: 'Eventera Card',    href: '/features/eventera-card' },
     ],
   },
   {
@@ -32,7 +32,7 @@ const FOOTER_COLS = [
       { label: 'Blog',     href: '/blog' },
       { label: 'Contact',  href: '/contact' },
       { label: 'Partners', href: '/partners' },
-      { label: 'Careers',  href: '/contact' },
+      { label: 'Careers',  href: '/careers' },
     ],
   },
   {
@@ -40,7 +40,7 @@ const FOOTER_COLS = [
     links: [
       { label: "What's new",  href: '/whats-new' },
       { label: 'Help Center', href: '/help' },
-      { label: 'API Docs',    href: '/help' },
+      { label: 'API Docs',    href: '/developers' },
       { label: 'Status',      href: '/status' },
     ],
   },
@@ -81,13 +81,15 @@ export function MarketingFooter() {
             <div className="flex items-center gap-2.5 mt-6">
               {/* Social icons — simple SVG anchors */}
               {[
-                { label: 'LinkedIn',  path: 'M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z M4 6a2 2 0 1 0 0-4 2 2 0 0 0 0 4z', href: '#' },
-                { label: 'Twitter/X', path: 'M4 4l16 16M4 20 20 4',       href: '#' },
-                { label: 'Instagram', path: 'M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37zM17.5 6.5h.01M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5z', href: '#' },
+                { label: 'LinkedIn',  path: 'M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z M4 6a2 2 0 1 0 0-4 2 2 0 0 0 0 4z', href: 'https://www.linkedin.com/company/eventera' },
+                { label: 'Twitter/X', path: 'M4 4l16 16M4 20 20 4',       href: 'https://x.com/eventera' },
+                { label: 'Instagram', path: 'M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37zM17.5 6.5h.01M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5z', href: 'https://www.instagram.com/eventera' },
               ].map(({ label, path, href }) => (
                 <a
                   key={label}
                   href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   aria-label={label}
                   className="w-9 h-9 grid place-items-center rounded-full border transition-colors hover:bg-cream/10 hover:border-cream/30"
                   style={{ borderColor: 'rgba(250,246,238,0.15)' }}

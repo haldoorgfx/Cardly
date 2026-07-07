@@ -150,7 +150,7 @@ export default async function HomePage() {
               {org && (
                 <SectionCard title="Needs attention">
                   {org.attention.length === 0 ? (
-                    <div className="px-3 py-4 text-[13px] text-center" style={{ color: '#6B7A72' }}>All your events look healthy.</div>
+                    <div className="px-3 py-4 text-[13px] text-center" style={{ color: '#3A4A42' }}>All your events look healthy.</div>
                   ) : (
                     <div className="space-y-0.5">
                       {org.attention.map((item) => (
@@ -171,7 +171,7 @@ export default async function HomePage() {
               {sections.tickets && (
                 <SectionCard title="Attending next" action={<Link href="/my-tickets" className="text-[12px] font-medium" style={{ color: '#1F4D3A' }}>View all &rarr;</Link>}>
                   {attending.length === 0 ? (
-                    <div className="px-3 py-4 text-[13px] text-center" style={{ color: '#6B7A72' }}>
+                    <div className="px-3 py-4 text-[13px] text-center" style={{ color: '#3A4A42' }}>
                       No upcoming events. <Link href="/discover" className="font-medium" style={{ color: '#1F4D3A' }}>Discover events &rarr;</Link>
                     </div>
                   ) : (
@@ -181,9 +181,9 @@ export default async function HomePage() {
                           <div className="w-8 h-8 rounded-lg shrink-0" style={{ background: 'linear-gradient(135deg,#1F4D3A,#2A6A50)' }} />
                           <div className="min-w-0 flex-1">
                             <div className="text-[13px] font-medium truncate" style={{ color: '#0F1F18' }}>{a.name}</div>
-                            <div className="text-[11.5px]" style={{ color: '#6B7A72' }}>{a.when ? new Date(a.when).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'Date TBA'}</div>
+                            <div className="text-[11.5px]" style={{ color: '#3A4A42' }}>{a.when ? new Date(a.when).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'Date TBA'}</div>
                           </div>
-                          <ArrowRight size={14} strokeWidth={2} style={{ color: '#6B7A72' }} />
+                          <ArrowRight size={14} strokeWidth={2} style={{ color: '#3A4A42' }} />
                         </Link>
                       ))}
                     </div>
@@ -207,7 +207,7 @@ export default async function HomePage() {
               {org && (
                 <SectionCard title="Recent activity">
                   {org.recent.length === 0 ? (
-                    <div className="px-3 py-4 text-[13px] text-center" style={{ color: '#6B7A72' }}>No activity yet.</div>
+                    <div className="px-3 py-4 text-[13px] text-center" style={{ color: '#3A4A42' }}>No activity yet.</div>
                   ) : (
                     <div className="space-y-0.5">
                       {org.recent.map((r) => (
@@ -215,10 +215,10 @@ export default async function HomePage() {
                           <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: r.amount > 0 ? '#2D7A4F' : '#1F4D3A' }} />
                           <div className="min-w-0 flex-1 text-[13px]">
                             <span className="font-medium" style={{ color: '#0F1F18' }}>{r.name}</span>
-                            <span style={{ color: '#6B7A72' }}> · {r.event}</span>
+                            <span style={{ color: '#3A4A42' }}> · {r.event}</span>
                           </div>
                           {r.amount > 0 && <span className="text-[12.5px] font-medium shrink-0" style={{ color: '#2D7A4F' }}>{formatRevenue(r.amount, 'USD')}</span>}
-                          <span className="text-[11.5px] shrink-0" style={{ color: '#9BA8A1' }}>{timeAgo(r.when)}</span>
+                          <span className="text-[11.5px] shrink-0" style={{ color: '#3A4A42' }}>{timeAgo(r.when)}</span>
                         </div>
                       ))}
                     </div>
@@ -240,7 +240,7 @@ export default async function HomePage() {
 
           {(sections.speaking || sections.sponsoring || sections.admin) && (
             <section>
-              <div className="text-[10px] tracking-[0.2em] uppercase mb-3" style={{ color: '#6B7A72' }}>More</div>
+              <div className="text-[10px] tracking-[0.2em] uppercase mb-3" style={{ color: '#3A4A42' }}>More</div>
               <div className="grid sm:grid-cols-3 gap-3">
                 {sections.speaking && <RoleLink href="/speaking" icon={<Mic size={18} strokeWidth={1.8} />} label="Speaking" desc="Your sessions" />}
                 {sections.sponsoring && <RoleLink href="/sponsoring" icon={<Briefcase size={18} strokeWidth={1.8} />} label="Sponsoring" desc="Booths & leads" />}
@@ -260,7 +260,7 @@ function RoleLink({ href, icon, label, desc }: { href: string; icon: React.React
       <span className="grid place-items-center w-10 h-10 rounded-xl shrink-0" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>{icon}</span>
       <div className="min-w-0">
         <div className="text-[14px] font-semibold" style={{ color: '#0F1F18' }}>{label}</div>
-        <div className="text-[12px]" style={{ color: '#6B7A72' }}>{desc}</div>
+        <div className="text-[12px]" style={{ color: '#3A4A42' }}>{desc}</div>
       </div>
     </Link>
   );

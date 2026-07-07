@@ -24,14 +24,6 @@ function fmtDate(iso: string) {
 function fmtPrice(p: number | null) { return !p || p === 0 ? 'Free' : `From $${p}`; }
 function getSlug(ep: EventPage) { return ep.custom_slug ?? ep.events?.slug ?? ep.id; }
 
-const DEMO_EVENTS: EventPage[] = [
-  { id: '1', title: 'Lagos Tech Summit 2026', cover_image_url: null, starts_at: '2026-09-15T08:00:00Z', city: 'Lagos', is_online: false, price_from: 25, category: 'tech', custom_slug: null, events: { slug: 'lagos-tech-2026' } },
-  { id: '2', title: 'Sahel Fintech Forum', cover_image_url: null, starts_at: '2026-09-20T08:00:00Z', city: 'Dakar', is_online: false, price_from: 50, category: 'fintech', custom_slug: null, events: { slug: 'sahel-fintech-2026' } },
-  { id: '3', title: 'Design Week Nairobi', cover_image_url: null, starts_at: '2026-10-05T10:00:00Z', city: 'Nairobi', is_online: false, price_from: 0, category: 'design', custom_slug: null, events: { slug: 'design-week-nairobi' } },
-  { id: '4', title: 'Africa Startup Weekend', cover_image_url: null, starts_at: '2026-10-18T09:00:00Z', city: 'Accra', is_online: false, price_from: 0, category: 'business', custom_slug: null, events: { slug: 'startup-weekend-africa' } },
-  { id: '5', title: 'Virtual AI Summit', cover_image_url: null, starts_at: '2026-11-01T14:00:00Z', city: null, is_online: true, price_from: 0, category: 'tech', custom_slug: null, events: { slug: 'virtual-ai-summit' } },
-];
-
 export function SearchPageClient({ initialQuery, initialCity, events: serverEvents }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -39,7 +31,7 @@ export function SearchPageClient({ initialQuery, initialCity, events: serverEven
   const [cityFilter, setCityFilter] = useState(initialCity);
   const [showCityDropdown, setShowCityDropdown] = useState(false);
 
-  const events = serverEvents.length > 0 ? serverEvents : DEMO_EVENTS;
+  const events = serverEvents;
 
   const doSearch = useCallback((q: string, city: string) => {
     const params = new URLSearchParams(searchParams.toString());

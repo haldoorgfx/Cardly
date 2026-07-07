@@ -167,7 +167,7 @@ function QRFullscreen({ token, name, label, code, onClose }: {
         <img src={`/api/qr/${token}`} alt="Check-in QR" width={230} height={230} style={{ display: 'block', borderRadius: 6 }} />
       </div>
 
-      <div className="mt-6 text-[14px]" style={{ letterSpacing: '0.2em', color: '#fff', fontFamily: '"JetBrains Mono", monospace' }}>{code}</div>
+      <div className="mt-6 text-[14px]" style={{ letterSpacing: '0.2em', color: '#fff', fontFamily: 'Inter, system-ui, sans-serif' }}>{code}</div>
       <div className="mt-2.5 flex items-center gap-1.5 text-[12px]" style={{ color: 'rgba(250,246,238,0.6)' }}>
         <span className="w-1.5 h-1.5 rounded-full" style={{ background: GOLD }} />
         Screen brightened for scanning
@@ -229,7 +229,7 @@ function ReceiptModal({ reg, onClose }: { reg: Registration; onClose: () => void
             <div className="font-display font-semibold text-[17px]" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>
               {isFree ? 'Registration confirmed' : isPaid ? 'Payment successful' : 'Order pending'}
             </div>
-            <div className="text-[11.5px] mt-1.5" style={{ color: MUTED, fontFamily: '"JetBrains Mono", monospace' }}>Order #{orderNo}</div>
+            <div className="text-[11.5px] mt-1.5" style={{ color: MUTED, fontFamily: 'Inter, system-ui, sans-serif' }}>Order #{orderNo}</div>
           </div>
 
           <div className="rounded-xl p-4 mb-4" style={{ background: '#FBFAF6', border: `1px solid ${BORDER}` }}>
@@ -238,11 +238,11 @@ function ReceiptModal({ reg, onClose }: { reg: Registration; onClose: () => void
             </div>
             <div className="flex justify-between text-[13px] mb-3">
               <span style={{ color: INK_SOFT }}>1 × {ticketName}</span>
-              <span style={{ fontFamily: '"JetBrains Mono", monospace', color: INK }}>{isFree ? 'Free' : money(amount, currency)}</span>
+              <span style={{ fontFamily: 'Inter, system-ui, sans-serif', color: INK }}>{isFree ? 'Free' : money(amount, currency)}</span>
             </div>
             <div className="flex justify-between items-center pt-3" style={{ borderTop: `1px solid ${BORDER}` }}>
               <span className="font-display font-semibold text-[15px]" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>Total {isPaid ? 'paid' : ''}</span>
-              <span style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: 19, color: FOREST }}>{isFree ? 'Free' : money(amount, currency)}</span>
+              <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 19, color: FOREST }}>{isFree ? 'Free' : money(amount, currency)}</span>
             </div>
           </div>
 
@@ -414,7 +414,7 @@ export default function TicketDetailClient({ reg, scannedByName }: Props) {
             <div className="text-[11px] font-semibold uppercase tracking-[0.12em] mt-4" style={{ color: MUTED }}>
               {isCheckedIn ? 'Checked in at' : 'Ticket code'}
             </div>
-            <div className="text-[15px] mt-1" style={{ fontFamily: '"JetBrains Mono", monospace', letterSpacing: '0.06em', color: INK }}>
+            <div className="text-[15px] mt-1" style={{ fontFamily: 'Inter, system-ui, sans-serif', letterSpacing: '0.06em', color: INK }}>
               {isCheckedIn ? fmtStamp(reg.checked_in_at) : code}
             </div>
           </div>
@@ -460,7 +460,7 @@ export default function TicketDetailClient({ reg, scannedByName }: Props) {
               Reserved for a limited time · pay to confirm your seat
             </div>
             <Link
-              href={`/e/${slug}/register`}
+              href={`/e/${slug}/register/pay?reg=${reg.qr_code_token}`}
               className="mt-3.5 flex items-center justify-center h-12 rounded-2xl text-[15px] font-semibold transition hover:opacity-90"
               style={{ background: FOREST, color: CREAM }}
             >
