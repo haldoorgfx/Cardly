@@ -116,6 +116,24 @@ class RoleService {
       debugPrint('RoleService: user_event_roles load failed — $e');
     }
 
+    // Owning an event ALWAYS makes you an organizer, even if no explicit
+    // user_event_roles row exists. Deriving organizer access solely from that
+    // table was fragile — an event owner could lose the Organize shell if the
+    // role row was never created or got cleaned up. Ownership is the source of
+    // truth (events.user_id via own-row RLS).
+    if (!kinds.contains(organizer)) {
+      try {
+        final owned = await supa
+            .from('events')
+            .select('id')
+            .eq('user_id', uid)
+            .limit(1);
+        if ((owned as List).isNotEmpty) kinds.add(organizer);
+      } catch (e) {
+        debugPrint('RoleService: owned-events check failed — $e');
+      }
+    }
+
     return UserRoles(
       platformRole: platformRole,
       roleKinds: kinds,
