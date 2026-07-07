@@ -19,19 +19,6 @@ interface Props {
   embedded?: boolean;
 }
 
-const DEMO_SAVED: EventPage[] = [
-  { id: '1', title: 'Africa Climate Action 2027', cover_image_url: null, starts_at: '2027-01-15T09:00:00Z', city: 'Nairobi', is_online: false, price_from: 0, custom_slug: null, events: { slug: 'africa-climate-action-2027' } },
-  { id: '2', title: 'Sahel Fintech Forum 2026', cover_image_url: null, starts_at: '2026-09-20T08:00:00Z', city: 'Dakar', is_online: false, price_from: 50, custom_slug: null, events: { slug: 'sahel-fintech-2026' } },
-  { id: '3', title: 'Lagos Design Week', cover_image_url: null, starts_at: '2026-11-05T10:00:00Z', city: 'Lagos', is_online: false, price_from: 0, custom_slug: null, events: { slug: 'lagos-design-week' } },
-  { id: '4', title: 'Virtual AI Summit Africa', cover_image_url: null, starts_at: '2026-08-12T14:00:00Z', city: null, is_online: true, price_from: 0, custom_slug: null, events: { slug: 'ai-summit-africa' } },
-];
-
-const DEMO_FOLLOWING: Follow[] = [
-  { organizer_id: 'o1', profiles: { id: 'o1', full_name: 'Eventera Studio', organization: 'Eventera Studio', avatar_url: null }, next_event_title: 'Lagos Design Week', follower_count: 2840 },
-  { organizer_id: 'o2', profiles: { id: 'o2', full_name: 'Amara Events', organization: 'Amara Events', avatar_url: null }, next_event_title: 'Africa Climate Action', follower_count: 1203 },
-  { organizer_id: 'o3', profiles: { id: 'o3', full_name: 'Fintech Hub', organization: null, avatar_url: null }, next_event_title: null, follower_count: 456 },
-];
-
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' });
 }
@@ -49,10 +36,12 @@ function initials(name: string) {
 }
 
 export function SavedFollowingClient({ saved: dbSaved, following: dbFollowing, embedded = false }: Props) {
-  const saved = dbSaved.length > 0 ? dbSaved : DEMO_SAVED;
-  const following = dbFollowing.length > 0 ? dbFollowing : DEMO_FOLLOWING;
+  // Real data only — the demo fallbacks masked the real empty states.
+  const [saved, setSaved] = useState<EventPage[]>(dbSaved);
+  const [following, setFollowing] = useState<Follow[]>(dbFollowing);
   const [tab, setTab] = useState<'saved' | 'following'>('saved');
   const [notifications, setNotifications] = useState<Set<string>>(new Set());
+  const [busy, setBusy] = useState<Set<string>>(new Set());
 
   function toggleNotif(id: string) {
     setNotifications(prev => {
@@ -60,6 +49,34 @@ export function SavedFollowingClient({ saved: dbSaved, following: dbFollowing, e
       if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
+  }
+
+  // Unsave — optimistic remove + rollback on failure (was a dead no-op).
+  async function unsave(ep: EventPage) {
+    const prev = saved;
+    setSaved(s => s.filter(x => x.id !== ep.id));
+    try {
+      const res = await fetch(`/api/account/saved?event_page_id=${ep.id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error();
+    } catch { setSaved(prev); }
+  }
+
+  // Unfollow — confirm (destructive) + optimistic (was a dead button).
+  async function unfollow(f: Follow) {
+    const label = f.profiles?.organization ?? f.profiles?.full_name ?? 'this organizer';
+    if (!confirm(`Unfollow ${label}?`)) return;
+    if (busy.has(f.organizer_id)) return;
+    setBusy(b => new Set(b).add(f.organizer_id));
+    const prev = following;
+    setFollowing(list => list.filter(x => x.organizer_id !== f.organizer_id));
+    try {
+      const res = await fetch(`/api/account/follows?organizer_id=${f.organizer_id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error();
+    } catch {
+      setFollowing(prev);
+    } finally {
+      setBusy(b => { const n = new Set(b); n.delete(f.organizer_id); return n; });
+    }
   }
 
   return (
@@ -101,8 +118,9 @@ export function SavedFollowingClient({ saved: dbSaved, following: dbFollowing, e
                     <img src={ep.cover_image_url} alt="" className="absolute inset-0 w-full h-full object-cover" />
                   )}
                   <button
-                    onClick={e => { e.preventDefault(); /* unsave */ }}
-                    className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition hover:scale-110"
+                    aria-label="Remove from saved"
+                    onClick={e => { e.preventDefault(); unsave(ep); }}
+                    className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition hover:scale-110 focus-visible:ring-2 focus-visible:ring-white"
                     style={{ background: 'rgba(0,0,0,0.35)' }}>
                     <Heart size={14} fill="#FAF6EE" style={{ color: '#FAF6EE' }} />
                   </button>
@@ -174,9 +192,13 @@ export function SavedFollowingClient({ saved: dbSaved, following: dbFollowing, e
                       : <BellOff size={15} style={{ color: '#6B7A72' }} />
                     }
                   </button>
-                  <button className="px-3 py-1.5 rounded-xl text-[12px] font-semibold border transition hover:opacity-80 shrink-0"
-                    style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
-                    Following
+                  <button
+                    onClick={() => unfollow(f)}
+                    disabled={busy.has(f.organizer_id)}
+                    className="group/unfollow px-3 py-1.5 rounded-xl text-[12px] font-semibold border transition shrink-0 focus-visible:ring-2 focus-visible:ring-[#B8423C]/40 hover:border-[#B8423C] hover:text-[#B8423C]"
+                    style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}>
+                    <span className="group-hover/unfollow:hidden">Following</span>
+                    <span className="hidden group-hover/unfollow:inline">Unfollow</span>
                   </button>
                 </div>
               );

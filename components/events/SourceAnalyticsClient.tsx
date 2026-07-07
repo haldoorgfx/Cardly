@@ -61,6 +61,28 @@ const BASE = `${process.env.NEXT_PUBLIC_APP_URL ?? ''}/e`;
 
 export function SourceAnalyticsClient({ eventName, publicSlug, sources, total }: Props) {
   const cardRegs = sources.find(s => s.name === 'card');
+  const [exported, setExported] = useState(false);
+
+  function exportCsv() {
+    if (sources.length === 0) return;
+    const headers = ['Source', 'Registrations', 'Percentage'];
+    const rows = sources.map(s => [sourceDisplay(s.name), String(s.count), `${s.pct}%`]);
+    const csv = [headers, ...rows]
+      .map(row => row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
+      .join('\n');
+    const slug = eventName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `eventera-sources-${slug || 'event'}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    setExported(true);
+    setTimeout(() => setExported(false), 2000);
+  }
 
   const trackedLinks = [
     { label: 'Instagram bio link',  url: `${BASE}/${publicSlug}?src=instagram&utm_campaign=launch` },
@@ -85,9 +107,12 @@ export function SourceAnalyticsClient({ eventName, publicSlug, sources, total }:
             Where your attendees are coming from — <span className="font-medium" style={{ color: '#0F1F18' }}>{eventName}</span>
           </p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium border transition hover:opacity-80"
-          style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}>
-          <Download size={14} /> Export CSV
+        <button
+          onClick={exportCsv}
+          disabled={sources.length === 0}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium border transition hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
+          style={{ borderColor: '#E5E0D4', color: exported ? '#2D7A4F' : '#3A4A42' }}>
+          {exported ? <Check size={14} /> : <Download size={14} />} {exported ? 'Exported' : 'Export CSV'}
         </button>
       </div>
 
