@@ -9,50 +9,42 @@ type Collection = any;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Promoted = any;
 
-const DEMO_COLLECTIONS: Collection[] = [
-  { id: '1', name: 'Ramadan Nights 2026', slug: 'ramadan-nights-2026', event_count: 12, status: 'live', description: 'Curated evening experiences during Ramadan across East Africa', cover_color: '#1F4D3A' },
-  { id: '2', name: 'Tech in East Africa', slug: 'tech-east-africa', event_count: 34, status: 'live', description: 'The biggest tech conferences, hackathons and meetups', cover_color: '#3A6B8C' },
-  { id: '3', name: 'Independence Weekend', slug: 'independence-weekend', event_count: 8, status: 'scheduled', description: 'Celebrations and cultural events for national holidays', cover_color: '#7A3A8C' },
-];
-
-const DEMO_PROMOTED: Promoted[] = [
-  {
-    id: 'p1', event_id: 'e1', submitted_at: '2026-06-10T09:00:00Z', status: 'pending_review',
-    quality: { cover: true, description: true, tickets: true, external_links: false },
-    event_pages: { title: 'Africa Climate Action 2027', cover_image_url: null, starts_at: '2027-01-15T09:00:00Z', city: 'Nairobi', venue_name: 'KICC' },
-  },
-  {
-    id: 'p2', event_id: 'e2', submitted_at: '2026-06-09T14:30:00Z', status: 'pending_review',
-    quality: { cover: true, description: true, tickets: false, external_links: true },
-    event_pages: { title: 'Sahel Fintech Forum', cover_image_url: null, starts_at: '2026-09-20T08:00:00Z', city: 'Dakar', venue_name: 'Centre de Conférences' },
-  },
-  {
-    id: 'p3', event_id: 'e3', submitted_at: '2026-06-08T11:00:00Z', status: 'pending_review',
-    quality: { cover: true, description: false, tickets: true, external_links: true },
-    event_pages: { title: 'Lagos Design Week', cover_image_url: null, starts_at: '2026-11-05T10:00:00Z', city: 'Lagos', venue_name: 'Eko Convention Centre' },
-  },
-];
-
 function qualityScore(q: Record<string, boolean>) {
   const checks = Object.values(q);
   return checks.filter(Boolean).length;
 }
 
-export function OperatorCollectionsClient({ collections: dbCollections, promoted: dbPromoted }: { collections: Collection[]; promoted: Promoted[] }) {
-  const collections = dbCollections.length > 0 ? dbCollections : DEMO_COLLECTIONS;
-  const [promoted, setPromoted] = useState<Promoted[]>(dbPromoted.length > 0 ? dbPromoted : DEMO_PROMOTED);
+export function OperatorCollectionsClient({ collections, promoted: dbPromoted }: { collections: Collection[]; promoted: Promoted[] }) {
+  // Real DB data only — no fabricated demo rows (admins must never see fiction
+  // they can "approve"). Empty states below handle the no-data case honestly.
+  const [promoted, setPromoted] = useState<Promoted[]>(dbPromoted);
   const [activeTab, setActiveTab] = useState<'collections' | 'review'>('collections');
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<{ id: string; text: string } | null>(null);
+  const [notice, setNotice] = useState('');
 
   async function handleAction(id: string, action: 'approve' | 'reject') {
+    if (action === 'reject' && !confirm('Reject this promoted listing? The organizer will need to resubmit.')) return;
     setProcessingId(id);
-    await fetch(`/api/admin/promoted/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action }),
-    });
-    setPromoted(prev => prev.filter(p => p.id !== id));
-    setProcessingId(null);
+    setActionError(null);
+    try {
+      const res = await fetch(`/api/admin/promoted/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setActionError({ id, text: data.error ?? `Could not ${action} — please try again.` });
+        return;
+      }
+      // Only drop the row once the server confirms the change.
+      setPromoted(prev => prev.filter(p => p.id !== id));
+    } catch {
+      setActionError({ id, text: 'Network error — please try again.' });
+    } finally {
+      setProcessingId(null);
+    }
   }
 
   return (
@@ -70,11 +62,21 @@ export function OperatorCollectionsClient({ collections: dbCollections, promoted
               Manage event collections and review promoted listing requests
             </p>
           </div>
-          <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold transition hover:opacity-90"
+          <button
+            onClick={() => setNotice('Collection creation is managed server-side for now — new collections are seeded via migration. A create form is coming to this panel.')}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold transition hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1F4D3A]"
             style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
             <Plus size={15} /> New collection
           </button>
         </div>
+
+        {notice && (
+          <div className="mb-4 rounded-xl px-4 py-3 flex items-start justify-between gap-3 text-[13px]" role="status"
+            style={{ background: '#E8EFEB', border: '1px solid #C9E0D4', color: '#1F4D3A' }}>
+            <span>{notice}</span>
+            <button onClick={() => setNotice('')} className="shrink-0 text-[11px] underline">Dismiss</button>
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="flex gap-1 p-1 rounded-xl mb-6 w-fit" style={{ background: '#EDE9E0' }}>
@@ -98,8 +100,15 @@ export function OperatorCollectionsClient({ collections: dbCollections, promoted
         {/* Collections tab */}
         {activeTab === 'collections' && (
           <div className="grid grid-cols-1 gap-3">
+            {collections.length === 0 && (
+              <div className="rounded-2xl py-16 text-center" style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
+                <LayoutGrid size={30} style={{ color: '#C9C3B1' }} className="mx-auto mb-3" />
+                <p className="font-medium text-[15px]" style={{ color: '#0F1F18' }}>No collections yet</p>
+                <p className="text-[13px] mt-1" style={{ color: '#3A4A42' }}>Curated marketplace collections will appear here once created.</p>
+              </div>
+            )}
             {collections.map((col: Collection) => (
-              <div key={col.id} className="rounded-2xl p-5 flex items-center gap-5 transition hover:shadow-md cursor-pointer"
+              <div key={col.id} className="rounded-2xl p-5 flex items-center gap-5"
                 style={{ background: '#FFFFFF', border: '1px solid #E5E0D4' }}>
                 {/* Color swatch */}
                 <div className="w-12 h-12 rounded-xl shrink-0 flex items-center justify-center"
@@ -242,6 +251,9 @@ export function OperatorCollectionsClient({ collections: dbCollections, promoted
                           <XCircle size={14} /> Reject
                         </button>
                       </div>
+                      {actionError && actionError.id === p.id && (
+                        <p role="alert" className="text-[12px] mt-2.5" style={{ color: '#B8423C' }}>{actionError.text}</p>
+                      )}
                     </div>
                   </div>
                 );

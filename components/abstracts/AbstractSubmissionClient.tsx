@@ -214,13 +214,16 @@ export default function AbstractSubmissionClient({
           </div>
 
           <div>
-            <label className="block text-[13px] font-medium mb-2" style={{ color: '#3A4A42' }}>Full paper (optional)</label>
+            <label className="block text-[13px] font-medium mb-2" style={{ color: '#3A4A42' }}>Full paper</label>
             <div
-              className="rounded-xl h-24 flex items-center justify-center gap-2 cursor-pointer transition-colors hover:border-[#E8C57E]"
-              style={{ border: '1.5px dashed #E5E0D4', background: 'white' }}
+              className="rounded-xl px-4 py-3 flex items-start gap-2.5"
+              style={{ border: '1px solid #E5E0D4', background: '#FAF6EE' }}
             >
-              <Upload size={16} color="#6B7A72" />
-              <span className="text-[13px]" style={{ color: '#6B7A72' }}>Upload full paper — PDF, max 10MB</span>
+              <Upload size={16} color="#3A4A42" className="mt-0.5 shrink-0" />
+              <span className="text-[13px] leading-relaxed" style={{ color: '#3A4A42' }}>
+                Your abstract is all that&apos;s needed to apply. Authors whose abstracts are accepted
+                will be emailed a link to upload their full paper (PDF).
+              </span>
             </div>
           </div>
         </div>

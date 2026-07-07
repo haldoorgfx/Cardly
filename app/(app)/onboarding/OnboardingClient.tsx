@@ -93,6 +93,7 @@ export default function OnboardingClient() {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   // Step 0 — event type
   const [evType, setEvType] = useState('tech');
@@ -151,20 +152,32 @@ export default function OnboardingClient() {
 
   const handleFinish = async () => {
     setSubmitting(true);
+    setSubmitError('');
     try {
+      // Logo is non-critical — it can be re-uploaded in Brand Kit, so a
+      // failure here shouldn't block finishing onboarding.
       if (logoFile) {
         const fd = new FormData();
         fd.append('file', logoFile);
         fd.append('variant', 'light');
-        await fetch('/api/brand/logo', { method: 'POST', body: fd });
+        await fetch('/api/brand/logo', { method: 'POST', body: fd }).catch(() => {});
       }
-      await fetch('/api/onboarding', {
+      const res = await fetch('/api/onboarding', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ evType, orgName, region, currency, accent: accentId, evName, evStart, evEnd, venue, inviteEmails: emails }),
       });
-    } catch {}
-    router.push('/dashboard');
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setSubmitError(data.error ?? 'Could not save your setup. Please try again.');
+        setSubmitting(false);
+        return;
+      }
+      router.push('/dashboard');
+    } catch {
+      setSubmitError('Could not save your setup. Please check your connection and try again.');
+      setSubmitting(false);
+    }
   };
 
   const DONE = step === STEPS.length - 1;
@@ -576,15 +589,20 @@ export default function OnboardingClient() {
                 </button>
               </div>
             ) : (
-              <button
-                onClick={handleFinish}
-                disabled={submitting}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors hover:bg-[#163828] mx-auto disabled:opacity-60"
-                style={{ background: '#1F4D3A', color: '#FAF6EE', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.15), 0 4px 12px rgba(31,77,58,0.2)' }}
-              >
-                {submitting ? 'Setting up…' : 'Enter your dashboard'}
-                <ArrowRight size={16} />
-              </button>
+              <div className="flex flex-col items-center gap-2 mx-auto">
+                <button
+                  onClick={handleFinish}
+                  disabled={submitting}
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors hover:bg-[#163828] disabled:opacity-60"
+                  style={{ background: '#1F4D3A', color: '#FAF6EE', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.15), 0 4px 12px rgba(31,77,58,0.2)' }}
+                >
+                  {submitting ? 'Setting up…' : 'Enter your dashboard'}
+                  <ArrowRight size={16} />
+                </button>
+                {submitError && (
+                  <p role="alert" className="text-[12.5px] text-center" style={{ color: '#B8423C' }}>{submitError}</p>
+                )}
+              </div>
             )}
           </div>
         </div>

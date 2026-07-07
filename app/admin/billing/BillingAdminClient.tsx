@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Search, Loader2, Gift, FileText, RotateCcw, X } from 'lucide-react';
 import type { BillingUserRow } from './page';
@@ -143,34 +143,44 @@ function InvoicesPanel({ user, onClose }: { user: BillingUserRow; onClose: () =>
   const [invoices, setInvoices] = useState<Invoice[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [refunding, setRefunding] = useState<string | null>(null);
-  const [refundAmount, setRefundAmount] = useState('');
+  // Per-invoice refund amount (was a single shared value that leaked across rows)
+  const [refundAmounts, setRefundAmounts] = useState<Record<string, string>>({});
+  const [refundMsg, setRefundMsg] = useState<{ id: string; type: 'error' | 'success'; text: string } | null>(null);
 
-  useState(() => {
+  useEffect(() => {
     if (!user.stripe_customer_id) { setLoading(false); return; }
+    let active = true;
     fetch(`/api/admin/billing/invoices?customerId=${user.stripe_customer_id}`)
       .then(r => r.json())
-      .then(d => { setInvoices(d.invoices ?? []); setLoading(false); })
-      .catch(() => { setInvoices([]); setLoading(false); });
-  });
+      .then(d => { if (active) { setInvoices(d.invoices ?? []); setLoading(false); } })
+      .catch(() => { if (active) { setInvoices([]); setLoading(false); } });
+    return () => { active = false; };
+  }, [user.stripe_customer_id]);
 
   const issueRefund = async (paymentIntentId: string, maxAmount: number) => {
-    const amountCents = refundAmount ? Math.round(parseFloat(refundAmount) * 100) : undefined;
-    if (amountCents && (amountCents <= 0 || amountCents > maxAmount)) {
-      alert(`Amount must be between $0.01 and ${formatAmount(maxAmount, 'usd')}`);
+    const raw = refundAmounts[paymentIntentId] ?? '';
+    const amountCents = raw ? Math.round(parseFloat(raw) * 100) : undefined;
+    if (amountCents !== undefined && (Number.isNaN(amountCents) || amountCents <= 0 || amountCents > maxAmount)) {
+      setRefundMsg({ id: paymentIntentId, type: 'error', text: `Amount must be between $0.01 and ${formatAmount(maxAmount, 'usd')}` });
       return;
     }
+    const label = amountCents ? formatAmount(amountCents, 'usd') : 'the full amount';
+    if (!confirm(`Issue a refund of ${label} to ${user.email}?\n\nThis cannot be undone.`)) return;
 
     setRefunding(paymentIntentId);
+    setRefundMsg(null);
     try {
       const res = await fetch('/api/admin/billing/refund', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ paymentIntentId, amount: amountCents, userId: user.id }),
       });
-      const data = await res.json();
-      if (!res.ok) { alert(data.error ?? 'Refund failed'); return; }
-      alert(`Refund of ${formatAmount(data.refund.amount, data.refund.currency)} issued.`);
-      setRefundAmount('');
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { setRefundMsg({ id: paymentIntentId, type: 'error', text: data.error ?? 'Refund failed' }); return; }
+      setRefundMsg({ id: paymentIntentId, type: 'success', text: `Refund of ${formatAmount(data.refund.amount, data.refund.currency)} issued.` });
+      setRefundAmounts(m => ({ ...m, [paymentIntentId]: '' }));
+    } catch {
+      setRefundMsg({ id: paymentIntentId, type: 'error', text: 'Network error — please try again.' });
     } finally {
       setRefunding(null);
     }
@@ -230,15 +240,15 @@ function InvoicesPanel({ user, onClose }: { user: BillingUserRow; onClose: () =>
                     {inv.status === 'paid' && (
                       <div className="ml-auto flex items-center gap-2">
                         <input
-                          value={refundAmount}
-                          onChange={e => setRefundAmount(e.target.value)}
+                          value={refundAmounts[inv.id] ?? ''}
+                          onChange={e => setRefundAmounts(m => ({ ...m, [inv.id]: e.target.value }))}
                           placeholder="Partial $ (blank=full)"
-                          className="h-7 w-32 border border-[#E5E0D4] rounded-lg px-2 text-[11px] outline-none "
+                          className="h-8 w-32 border border-[#E5E0D4] rounded-lg px-2 text-[11px] outline-none focus:ring-2 focus:ring-[#1F4D3A]/20"
                         />
                         <button
                           onClick={() => issueRefund(inv.id, inv.amount)}
                           disabled={refunding === inv.id}
-                          className="flex items-center gap-1 h-7 px-2.5 rounded-lg border border-[#E5E0D4] text-[11px] text-[#B8423C] hover:bg-red-50 transition-colors disabled:opacity-50"
+                          className="flex items-center gap-1 h-8 px-2.5 rounded-lg border border-[#E5E0D4] text-[11px] text-[#B8423C] hover:bg-red-50 transition-colors disabled:opacity-50"
                         >
                           {refunding === inv.id ? <Loader2 size={10} strokeWidth={2} className="animate-spin" /> : <RotateCcw size={10} strokeWidth={2} />}
                           Refund
@@ -246,6 +256,11 @@ function InvoicesPanel({ user, onClose }: { user: BillingUserRow; onClose: () =>
                       </div>
                     )}
                   </div>
+                  {refundMsg && refundMsg.id === inv.id && (
+                    <p role="alert" className="text-[11px] mt-2 text-right" style={{ color: refundMsg.type === 'success' ? '#2D7A4F' : '#B8423C' }}>
+                      {refundMsg.text}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>

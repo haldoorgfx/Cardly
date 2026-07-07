@@ -209,9 +209,11 @@ function BlockRow({
   );
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState('');
 
   const handleSave = async () => {
     setSaving(true);
+    setSaveError('');
     try {
       const res = await fetch(`/api/admin/content/${block.page_id}/blocks/${block.id}`, {
         method: 'PATCH',
@@ -223,7 +225,7 @@ function BlockRow({
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } catch {
-      alert('Failed to save block.');
+      setSaveError('Failed to save block — please try again.');
     } finally {
       setSaving(false);
     }
@@ -294,6 +296,7 @@ function BlockRow({
             >
               Cancel
             </button>
+            {saveError && <span role="alert" className="text-[12px]" style={{ color: '#B8423C' }}>{saveError}</span>}
           </div>
         </div>
       )}
