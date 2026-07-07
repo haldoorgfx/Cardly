@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { RefreshCw, Calendar, ChevronDown, ChevronUp, ExternalLink, Plus, SkipForward } from 'lucide-react';
+import { RefreshCw, Calendar, ChevronDown, ChevronUp, ExternalLink, CalendarPlus } from 'lucide-react';
 import Link from 'next/link';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -31,12 +31,6 @@ const INHERITED = [
   'Registration form',
 ];
 
-const DEMO_INSTANCES: Instance[] = [
-  { id: 'i1', scheduled_date: '2026-07-15', status: 'published', registrations_count: 48, events: { name: 'Lagos Design Week — Jul 2026', status: 'published' } },
-  { id: 'i2', scheduled_date: '2026-08-19', status: 'draft', registrations_count: 0, events: { name: 'Lagos Design Week — Aug 2026', status: 'draft' } },
-  { id: 'i3', scheduled_date: '2026-09-16', status: 'draft', registrations_count: 0, events: { name: 'Lagos Design Week — Sep 2026', status: 'draft' } },
-];
-
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString('en', { weekday: 'short', month: 'long', day: 'numeric', year: 'numeric' });
 }
@@ -47,19 +41,30 @@ export function EventSeriesClient({ eventId, eventName, eventSlug, series }: Pro
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState('');
 
-  const instances: Instance[] = series?.event_series_instances ?? DEMO_INSTANCES;
+  const instances: Instance[] = series?.event_series_instances ?? [];
 
   async function save() {
     setSaving(true);
-    await fetch(`/api/events/${eventId}/series`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ frequency: freq, default_time: time }),
-    });
-    setSaving(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+    setSaveError('');
+    try {
+      const res = await fetch(`/api/events/${eventId}/series`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ frequency: freq, default_time: time }),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d.error ?? 'Could not save series settings.');
+      }
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch (e) {
+      setSaveError(e instanceof Error ? e.message : 'Could not save series settings.');
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -123,11 +128,14 @@ export function EventSeriesClient({ eventId, eventName, eventSlug, series }: Pro
           </div>
         </div>
 
-        <button onClick={save} disabled={saving}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-[14px] font-semibold transition hover:opacity-90 disabled:opacity-60"
-          style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
-          {saved ? '✓ Saved' : saving ? 'Saving…' : 'Save series settings'}
-        </button>
+        <div className="flex items-center gap-3">
+          <button onClick={save} disabled={saving}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-[14px] font-semibold transition hover:opacity-90 disabled:opacity-60"
+            style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
+            {saved ? '✓ Saved' : saving ? 'Saving…' : 'Save series settings'}
+          </button>
+          {saveError && <span className="text-[12.5px]" style={{ color: '#B8423C' }}>{saveError}</span>}
+        </div>
       </div>
 
       {/* Instances list */}
@@ -136,12 +144,26 @@ export function EventSeriesClient({ eventId, eventName, eventSlug, series }: Pro
           <h2 className="font-semibold text-[16px]" style={{ color: '#0F1F18' }}>
             Upcoming instances
           </h2>
-          <button className="flex items-center gap-1.5 text-[13px] font-semibold transition hover:opacity-70"
-            style={{ color: '#1F4D3A' }}>
-            <Plus size={14} /> Add instance
-          </button>
         </div>
 
+        {instances.length === 0 ? (
+          <div className="rounded-2xl px-6 py-10 text-center" style={{ border: '1px solid #E5E0D4', background: '#FFFFFF' }}>
+            <div className="w-11 h-11 rounded-xl grid place-items-center mx-auto mb-3" style={{ background: '#E8EFEB' }}>
+              <CalendarPlus size={19} style={{ color: '#1F4D3A' }} />
+            </div>
+            <p className="text-[14px] font-semibold mb-1" style={{ color: '#0F1F18' }}>No instances scheduled yet</p>
+            <p className="text-[13px] max-w-[380px] mx-auto" style={{ color: '#3A4A42' }}>
+              Save your recurrence settings above, then duplicate this event for each date to build out the series. Each copy keeps the venue, tickets, and branding.
+            </p>
+            <Link
+              href={`/events/${eventSlug}/settings`}
+              className="inline-flex items-center gap-1.5 mt-4 px-4 py-2 rounded-lg text-[13px] font-semibold text-white transition hover:opacity-90"
+              style={{ background: '#1F4D3A' }}
+            >
+              Duplicate this event
+            </Link>
+          </div>
+        ) : (
         <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4', background: '#FFFFFF' }}>
           {instances.map((inst: Instance, i: number) => {
             const expanded = expandedId === inst.id;
@@ -182,16 +204,13 @@ export function EventSeriesClient({ eventId, eventName, eventSlug, series }: Pro
                       style={{ color: '#1F4D3A' }}>
                       <ExternalLink size={12} /> View page
                     </Link>
-                    <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[13px] font-medium transition hover:opacity-80"
-                      style={{ color: '#6B7A72' }}>
-                      <SkipForward size={12} /> Skip date
-                    </button>
                   </div>
                 )}
               </div>
             );
           })}
         </div>
+        )}
       </div>
 
       {/* Attendee-facing preview */}
@@ -208,10 +227,11 @@ export function EventSeriesClient({ eventId, eventName, eventSlug, series }: Pro
               </span>
             ))}
           </div>
-          <button className="px-4 py-2 rounded-lg text-[13px] font-semibold transition hover:opacity-90"
+          {/* Illustrative only — this is a preview of the attendee-facing page */}
+          <div className="inline-flex px-4 py-2 rounded-lg text-[13px] font-semibold"
             style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
             Follow the series
-          </button>
+          </div>
         </div>
       </div>
     </div>

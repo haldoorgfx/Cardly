@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { IdCard, Share2, Sparkles, Palette, Plus, Printer, FileImage } from 'lucide-react';
+import { IdCard, Share2, Sparkles, Palette, Plus, Printer, FileImage, ScanLine, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 interface PrimaryVariant {
@@ -32,13 +31,7 @@ interface Props {
   allVariants: VariantSummary[];
 }
 
-const PAPER_SIZES = ['A4', 'A6', 'Letter', '4×6 in'] as const;
-type PaperSize = typeof PAPER_SIZES[number];
-
-// Share channel breakdown is not tracked yet — this section shows empty state until we add tracking
-
 export function EventeraCardView({ eventName, eventSlug, eventStatus, totalCards, todayCards, sharedCards, primaryVariant, allVariants }: Props) {
-  const [paperSize, setPaperSize] = useState<PaperSize>('A6');
   const hasDesign = !!primaryVariant?.backgroundUrl;
   const isPublished = eventStatus === 'published';
   // Attendee page only works when the event is published and has at least one variant with a design
@@ -246,60 +239,58 @@ export function EventeraCardView({ eventName, eventSlug, eventStatus, totalCards
             )}
           </Panel>
 
-          {/* Where cards are shared — coming soon */}
+          {/* Where cards are shared — honest empty state (per-channel tracking not collected yet) */}
           <Panel title="Share channel breakdown">
-            <p className="text-[13px] py-4 text-center" style={{ color: '#6B7A72' }}>
-              Channel analytics coming soon. Once attendees share their cards we&apos;ll show a breakdown here.
-            </p>
+            <div className="flex flex-col items-center text-center py-6">
+              <div className="w-10 h-10 rounded-xl grid place-items-center mb-3" style={{ background: '#E8EFEB' }}>
+                <Share2 size={17} strokeWidth={1.8} style={{ color: '#1F4D3A' }} />
+              </div>
+              {sharedCards > 0 ? (
+                <p className="text-[13px] max-w-[340px]" style={{ color: '#3A4A42' }}>
+                  {sharedCards.toLocaleString()} {sharedCards === 1 ? 'card has' : 'cards have'} been personalised so far.
+                  Per-channel share tracking isn&apos;t collected yet — the totals above are the source of truth.
+                </p>
+              ) : (
+                <p className="text-[13px] max-w-[340px]" style={{ color: '#3A4A42' }}>
+                  No cards personalised yet. As attendees create and download their cards, the running totals appear in the counters above.
+                </p>
+              )}
+            </div>
           </Panel>
         </div>
       </div>
 
-      {/* ── Print & Badges section ── */}
+      {/* ── Check-in / badges section ── */}
       <div className="mt-6 rounded-2xl overflow-hidden" style={{ border: '1px solid #E5E0D4', background: 'white' }}>
-        <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
+        <div className="flex items-center gap-2.5 px-5 py-4" style={{ borderBottom: '1px solid #E5E0D4' }}>
+          <Printer size={15} strokeWidth={2} style={{ color: '#6B7A72' }} />
           <div>
-            <h3 className="text-[14px] font-semibold flex items-center gap-2" style={{ color: '#0F1F18' }}>
-              <Printer size={15} strokeWidth={2} style={{ color: '#6B7A72' }} />
-              Print badges
-            </h3>
-            <p className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>
-              Same design, printed for check-in. Includes name, ticket type, and QR code.
+            <h3 className="text-[14px] font-semibold" style={{ color: '#0F1F18' }}>Door check-in</h3>
+            <p className="text-[12px] mt-0.5" style={{ color: '#3A4A42' }}>
+              No printed badges needed — every attendee carries a scannable QR code.
             </p>
           </div>
-          <span
-            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-semibold cursor-not-allowed"
-            style={{ background: '#F5F3EE', color: '#6B7A72', border: '1px solid #E5E0D4' }}
-            title="Print badges — coming soon"
-          >
-            <Printer size={13} strokeWidth={2} />
-            Coming soon
-          </span>
         </div>
-        <div className="p-5 grid sm:grid-cols-2 gap-8 items-start">
-          {/* Paper size */}
+        <div className="p-5 grid sm:grid-cols-2 gap-6 sm:gap-8 items-start">
+          {/* How check-in works today */}
           <div>
-            <div className="text-[11px] font-semibold uppercase tracking-wider mb-3" style={{ color: '#6B7A72' }}>Paper size</div>
-            <div className="grid grid-cols-2 gap-2">
-              {PAPER_SIZES.map(size => (
-                <button
-                  key={size}
-                  onClick={() => setPaperSize(size)}
-                  className="py-2.5 px-3 rounded-xl text-[13px] font-medium transition text-center"
-                  style={{
-                    border: `1px solid ${paperSize === size ? '#1F4D3A' : '#E5E0D4'}`,
-                    background: paperSize === size ? 'rgba(31,77,58,0.06)' : 'white',
-                    color: paperSize === size ? '#1F4D3A' : '#3A4A42',
-                  }}
-                >
-                  {size}
-                </button>
-              ))}
-            </div>
+            <div className="text-[11px] font-semibold uppercase tracking-wider mb-3" style={{ color: '#6B7A72' }}>How it works</div>
+            <p className="text-[13px] mb-4" style={{ color: '#3A4A42', lineHeight: 1.55 }}>
+              Each registrant gets a unique QR code by email and on their Eventera Card. Open the scanner at the door and check people in as they arrive.
+            </p>
+            <Link
+              href={`/events/${eventSlug}/check-in`}
+              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-semibold text-white transition hover:opacity-90"
+              style={{ background: '#1F4D3A' }}
+            >
+              <ScanLine size={14} strokeWidth={2} />
+              Open check-in
+              <ArrowRight size={13} strokeWidth={2} />
+            </Link>
           </div>
-          {/* Badge preview */}
+          {/* What each card carries */}
           <div>
-            <div className="text-[11px] font-semibold uppercase tracking-wider mb-3" style={{ color: '#6B7A72' }}>Badge includes</div>
+            <div className="text-[11px] font-semibold uppercase tracking-wider mb-3" style={{ color: '#6B7A72' }}>Each card carries</div>
             <div className="space-y-2">
               {[
                 { label: 'Attendee name', always: true },

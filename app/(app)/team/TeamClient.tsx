@@ -217,6 +217,117 @@ function InviteModal({ teamId, onClose, onInvited }: { teamId: string; onClose: 
   );
 }
 
+function MemberSettingsModal({
+  teamId, member, onClose, onRoleChanged, onRemoved,
+}: {
+  teamId: string;
+  member: TeamMember;
+  onClose: () => void;
+  onRoleChanged: (userId: string, role: 'admin' | 'member') => void;
+  onRemoved: (userId: string) => void;
+}) {
+  const [role, setRole] = useState<'admin' | 'member'>(member.role === 'admin' ? 'admin' : 'member');
+  const [savingRole, setSavingRole] = useState(false);
+  const [removing, setRemoving] = useState(false);
+  const [confirmRemove, setConfirmRemove] = useState(false);
+  const [error, setError] = useState('');
+
+  const name = member.profile.full_name ?? member.profile.email ?? 'this member';
+  const roleDirty = role !== (member.role === 'admin' ? 'admin' : 'member');
+
+  async function saveRole() {
+    setSavingRole(true); setError('');
+    try {
+      const res = await fetch(`/api/teams/${teamId}/members/${member.user_id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role }),
+      });
+      if (!res.ok) { const j = await res.json().catch(() => ({})); throw new Error(j.error ?? 'Could not update role.'); }
+      onRoleChanged(member.user_id, role);
+      onClose();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not update role.');
+    } finally {
+      setSavingRole(false);
+    }
+  }
+
+  async function remove() {
+    setRemoving(true); setError('');
+    try {
+      const res = await fetch(`/api/teams/${teamId}/members/${member.user_id}`, { method: 'DELETE' });
+      if (!res.ok) { const j = await res.json().catch(() => ({})); throw new Error(j.error ?? 'Could not remove member.'); }
+      onRemoved(member.user_id);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not remove member.');
+      setRemoving(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-lift w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
+        <h2 className="font-display font-bold text-[18px] text-[#0F1F18] mb-1">Member settings</h2>
+        <p className="text-[13px] text-[#6B7A72] mb-5">{name}</p>
+
+        <label className="block text-[11px] tracking-widest text-[#6B7A72] uppercase mb-1.5">Role</label>
+        <select
+          value={role}
+          onChange={e => setRole(e.target.value as 'admin' | 'member')}
+          className="w-full h-10 px-3 rounded-lg border border-border text-[13.5px] outline-none transition cursor-pointer mb-3"
+        >
+          <option value="admin">Admin</option>
+          <option value="member">Editor</option>
+        </select>
+
+        {error && <p className="text-[12px] text-[#B8423C] mb-3">{error}</p>}
+
+        <button
+          onClick={saveRole}
+          disabled={savingRole || !roleDirty}
+          className="w-full h-10 rounded-xl text-[13.5px] font-semibold text-white bg-primary hover:opacity-95 disabled:opacity-50 transition mb-5"
+        >
+          {savingRole ? 'Saving…' : 'Save role'}
+        </button>
+
+        <div className="pt-4 border-t border-border">
+          {!confirmRemove ? (
+            <button
+              onClick={() => setConfirmRemove(true)}
+              className="w-full h-10 rounded-lg border text-[13.5px] font-medium transition"
+              style={{ borderColor: 'rgba(184,66,60,0.4)', color: '#B8423C' }}
+            >
+              Remove from team
+            </button>
+          ) : (
+            <div>
+              <p className="text-[13px] text-[#3A4A42] mb-3">Remove <strong>{name}</strong> from the team? They&apos;ll lose access to all shared events.</p>
+              <div className="flex gap-3">
+                <button onClick={() => setConfirmRemove(false)} className="flex-1 h-10 rounded-lg border border-border text-[13.5px] font-medium text-[#3A4A42] hover:bg-cream transition">
+                  Cancel
+                </button>
+                <button
+                  onClick={remove}
+                  disabled={removing}
+                  className="flex-1 h-10 rounded-xl text-[13.5px] font-semibold text-white disabled:opacity-50 transition"
+                  style={{ background: '#B8423C' }}
+                >
+                  {removing ? 'Removing…' : 'Remove'}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <button onClick={onClose} className="mt-4 w-full text-[13px] text-[#6B7A72] hover:text-[#0F1F18] transition">
+          Close
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function TeamClient({
   userId,
   plan,
@@ -224,23 +335,30 @@ export function TeamClient({
   members: initialMembers,
   invites: initialInvites,
 }: Props) {
-  const [members] = useState(initialMembers);
+  const [members, setMembers] = useState(initialMembers);
   const [invites, setInvites] = useState(initialInvites);
   const [search, setSearch] = useState('');
-  const [roleFilter] = useState('All roles');
+  const [roleFilter, setRoleFilter] = useState('All roles');
+  const [roleMenuOpen, setRoleMenuOpen] = useState(false);
+  const [managingMember, setManagingMember] = useState<TeamMember | null>(null);
   const [showInviteModal, setShowInviteModal] = useState(false);
 
   const isOwner = initialTeam ? initialTeam.owner_id === userId : false;
   const totalCount = members.length;
   const pendingCount = invites.length;
 
-  // Filter members by search
+  const ROLE_FILTERS = ['All roles', 'Owner', 'Admin', 'Editor'] as const;
+  const memberDisplayRole = (m: TeamMember) =>
+    m.user_id === (initialTeam?.owner_id ?? '') ? 'Owner' : m.role === 'admin' ? 'Admin' : 'Editor';
+
+  // Filter members by search + role
   const filteredMembers = members.filter(m => {
     const q = search.toLowerCase();
-    return (
+    const matchesSearch =
       (m.profile.full_name ?? '').toLowerCase().includes(q) ||
-      (m.profile.email ?? '').toLowerCase().includes(q)
-    );
+      (m.profile.email ?? '').toLowerCase().includes(q);
+    if (!matchesSearch) return false;
+    return roleFilter === 'All roles' || memberDisplayRole(m) === roleFilter;
   });
 
   if (plan !== 'studio') {
@@ -277,6 +395,21 @@ export function TeamClient({
         />
       )}
 
+      {managingMember && initialTeam && (
+        <MemberSettingsModal
+          teamId={initialTeam.id}
+          member={managingMember}
+          onClose={() => setManagingMember(null)}
+          onRoleChanged={(userId, role) => {
+            setMembers(prev => prev.map(m => m.user_id === userId ? { ...m, role } : m));
+          }}
+          onRemoved={userId => {
+            setMembers(prev => prev.filter(m => m.user_id !== userId));
+            setManagingMember(null);
+          }}
+        />
+      )}
+
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>
@@ -308,10 +441,32 @@ export function TeamClient({
             className="w-full h-9 pl-9 pr-3 rounded-lg border border-border bg-white text-[13px] text-[#0F1F18] placeholder:text-[#6B7A72]/60 focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none transition"
           />
         </div>
-        <button className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg border border-border bg-white text-[13px] text-[#3A4A42] hover:bg-cream transition">
-          {roleFilter}
-          <ChevronDown size={13} strokeWidth={2} />
-        </button>
+        <div className="relative">
+          <button
+            onClick={() => setRoleMenuOpen(o => !o)}
+            className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg border border-border bg-white text-[13px] text-[#3A4A42] hover:bg-cream transition"
+          >
+            {roleFilter}
+            <ChevronDown size={13} strokeWidth={2} />
+          </button>
+          {roleMenuOpen && (
+            <>
+              <div className="fixed inset-0 z-10" onClick={() => setRoleMenuOpen(false)} />
+              <div className="absolute right-0 mt-1 z-20 w-40 rounded-lg border border-border bg-white shadow-lift p-1">
+                {ROLE_FILTERS.map(r => (
+                  <button
+                    key={r}
+                    onClick={() => { setRoleFilter(r); setRoleMenuOpen(false); }}
+                    className="w-full text-left px-3 py-2 rounded-md text-[13px] hover:bg-cream transition"
+                    style={{ color: roleFilter === r ? '#1F4D3A' : '#3A4A42', fontWeight: roleFilter === r ? 600 : 400 }}
+                  >
+                    {r}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Members table */}
@@ -372,7 +527,7 @@ export function TeamClient({
                   <button
                     className="h-7 w-7 rounded-lg grid place-items-center text-[#6B7A72] hover:bg-[#E8EFEB] hover:text-[#0F1F18] transition"
                     title="Member settings"
-                    onClick={() => {/* future: open member settings */}}
+                    onClick={() => setManagingMember(m)}
                   >
                     <Settings size={14} strokeWidth={1.8} />
                   </button>

@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import { useState } from 'react';
-import { TrendingUp, MousePointer, Ticket, DollarSign, Pause, RefreshCw, LayoutGrid } from 'lucide-react';
+import { TrendingUp, MousePointer, Ticket, DollarSign, RefreshCw, LayoutGrid } from 'lucide-react';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Campaign = any;
@@ -46,6 +46,7 @@ export function PromotedListingClient({ eventId, eventName, campaign }: Props) {
   const [placements, setPlacements] = useState<string[]>(campaign?.placements ?? ['homepage', 'city']);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const totalSpend = budget * parseInt(duration);
   const estImpressions = Math.round(totalSpend * 340);
@@ -59,15 +60,29 @@ export function PromotedListingClient({ eventId, eventName, campaign }: Props) {
   }
 
   async function submit() {
+    if (placements.length === 0) {
+      setSubmitError('Choose at least one placement.');
+      return;
+    }
     setSubmitting(true);
-    await fetch(`/api/events/${eventId}/promote`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ daily_budget: budget, duration_days: parseInt(duration), placements }),
-    });
-    setSubmitting(false);
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 3000);
+    setSubmitError('');
+    try {
+      const res = await fetch(`/api/events/${eventId}/promote`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ daily_budget: budget, duration_days: parseInt(duration), placements }),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d.error ?? 'Could not submit your campaign. Please try again.');
+      }
+      setSubmitted(true);
+      setTimeout(() => setSubmitted(false), 3000);
+    } catch (e) {
+      setSubmitError(e instanceof Error ? e.message : 'Could not submit your campaign. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -157,26 +172,23 @@ export function PromotedListingClient({ eventId, eventName, campaign }: Props) {
           </div>
 
           {/* Actions */}
-          <div className="flex gap-2">
-            {hasActiveCampaign ? (
-              <>
-                <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-[13px] font-semibold border transition hover:opacity-80"
-                  style={{ borderColor: '#E5E0D4', color: '#6B7A72' }}>
-                  <Pause size={13} /> Pause campaign
-                </button>
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-2">
+              {hasActiveCampaign ? (
                 <button onClick={submit} disabled={submitting}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold transition hover:opacity-90 disabled:opacity-60"
                   style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
-                  <RefreshCw size={13} /> Update campaign
+                  <RefreshCw size={13} /> {submitting ? 'Saving…' : submitted ? '✓ Changes saved' : 'Update campaign'}
                 </button>
-              </>
-            ) : (
-              <button onClick={submit} disabled={submitting || submitted}
-                className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-[14px] font-semibold transition hover:opacity-90 disabled:opacity-60"
-                style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
-                {submitted ? '✓ Submitted for review' : submitting ? 'Submitting…' : 'Launch campaign'}
-              </button>
-            )}
+              ) : (
+                <button onClick={submit} disabled={submitting || submitted}
+                  className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-[14px] font-semibold transition hover:opacity-90 disabled:opacity-60"
+                  style={{ background: '#1F4D3A', color: '#FAF6EE' }}>
+                  {submitted ? '✓ Submitted for review' : submitting ? 'Submitting…' : 'Launch campaign'}
+                </button>
+              )}
+            </div>
+            {submitError && <p className="text-[12.5px]" style={{ color: '#B8423C' }}>{submitError}</p>}
           </div>
         </div>
 

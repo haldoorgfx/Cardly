@@ -31,6 +31,10 @@ const EventPageSchema = z.object({
   seo_description:            z.string().max(300, 'SEO description must be 300 characters or less').trim().nullable().optional(),
   cover_url:                  z.string().url('Invalid cover URL').nullable().optional()
                                 .or(z.literal('')).transform(v => v === '' ? null : v),
+  // The real event_pages column is cover_image_url; the editor sends this and
+  // it was being silently stripped (covers never persisted). Accept it.
+  cover_image_url:            z.string().url('Invalid cover URL').nullable().optional()
+                                .or(z.literal('')).transform(v => v === '' ? null : v),
   organizer_name:             z.string().max(100).trim().nullable().optional(),
   organizer_email:            z.string().email('Invalid organiser email').max(254).nullable().optional()
                                 .or(z.literal('')).transform(v => v === '' ? null : v),

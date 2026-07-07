@@ -127,6 +127,43 @@ export function EventSettingsView({ event }: Props) {
   const [deleteConfirm, setDeleteConfirm] = useState('');
   const [deleteError, setDeleteError] = useState('');
   const [deleting, setDeleting] = useState(false);
+  const [duplicating, setDuplicating] = useState(false);
+  const [archiving, setArchiving] = useState(false);
+  const [dangerError, setDangerError] = useState('');
+
+  async function handleDuplicate() {
+    setDuplicating(true);
+    setDangerError('');
+    try {
+      const res = await fetch(`/api/events/${event.id}/duplicate`, { method: 'POST' });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? 'Could not duplicate this event.');
+      router.push(`/events/${data.slug ?? data.id}`);
+    } catch (e) {
+      setDangerError(e instanceof Error ? e.message : 'Could not duplicate this event.');
+      setDuplicating(false);
+    }
+  }
+
+  async function handleArchive() {
+    setArchiving(true);
+    setDangerError('');
+    try {
+      const res = await fetch(`/api/events/${event.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'archived' }),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d.error ?? 'Could not archive this event.');
+      }
+      router.push('/dashboard');
+    } catch (e) {
+      setDangerError(e instanceof Error ? e.message : 'Could not archive this event.');
+      setArchiving(false);
+    }
+  }
 
   async function handleDelete() {
     if (deleteConfirm !== event.name) {
@@ -463,12 +500,20 @@ export function EventSettingsView({ event }: Props) {
       {/* Danger zone tab */}
       {tab === 'danger' && (
         <div className="space-y-3">
+          {dangerError && (
+            <p className="text-[13px] px-1" style={{ color: '#B8423C' }}>{dangerError}</p>
+          )}
           <DangerCard
             title="Duplicate event"
-            desc="Create a copy of this event with the same settings and ticket types."
+            desc="Create a draft copy of this event with the same settings, ticket types, and card design."
             action={
-              <button disabled className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-medium border transition opacity-40 cursor-not-allowed" style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}>
-                <Copy size={13} strokeWidth={2} /> Duplicate
+              <button
+                onClick={handleDuplicate}
+                disabled={duplicating}
+                className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-medium border transition hover:border-[#1F4D3A]/50 disabled:opacity-50"
+                style={{ borderColor: '#E5E0D4', color: '#3A4A42' }}
+              >
+                <Copy size={13} strokeWidth={2} /> {duplicating ? 'Duplicating…' : 'Duplicate'}
               </button>
             }
           />
@@ -477,18 +522,12 @@ export function EventSettingsView({ event }: Props) {
             desc="Hide this event from your dashboard without deleting any data."
             action={
               <button
-                onClick={async () => {
-                  const res = await fetch(`/api/events/${event.id}`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: 'archived' }),
-                  });
-                  if (res.ok) router.push('/dashboard');
-                }}
-                className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-medium border transition hover:border-[#C97A2D]/60"
+                onClick={handleArchive}
+                disabled={archiving}
+                className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-[13px] font-medium border transition hover:border-[#C97A2D]/60 disabled:opacity-50"
                 style={{ borderColor: '#FBD38D', color: '#C97A2D' }}
               >
-                <AlertTriangle size={13} strokeWidth={2} /> Archive
+                <AlertTriangle size={13} strokeWidth={2} /> {archiving ? 'Archiving…' : 'Archive'}
               </button>
             }
           />
