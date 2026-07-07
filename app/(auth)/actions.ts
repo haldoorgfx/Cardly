@@ -5,6 +5,18 @@ import { redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { sendWelcomeEmail } from "@/lib/email";
 
+/**
+ * Only allow same-origin relative redirects (e.g. `/e/foo/register`).
+ * Rejects protocol-relative (`//evil.com`) and absolute URLs to prevent
+ * open-redirect abuse via the `?next=` param.
+ */
+function safeNext(raw: FormData | string | null, fallback = "/dashboard"): string {
+  const value = typeof raw === "string" ? raw : (raw?.get("next") as string | null);
+  if (!value) return fallback;
+  if (!value.startsWith("/") || value.startsWith("//")) return fallback;
+  return value;
+}
+
 export async function signIn(formData: FormData) {
   const supabase = createClient();
 
@@ -25,7 +37,7 @@ export async function signIn(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect("/dashboard");
+  redirect(safeNext(formData));
 }
 
 export async function signUp(formData: FormData) {
@@ -56,7 +68,7 @@ export async function signUp(formData: FormData) {
     redirect("/signup/check-email");
   }
 
-  redirect("/dashboard");
+  redirect(safeNext(formData));
 }
 
 export async function signOut() {

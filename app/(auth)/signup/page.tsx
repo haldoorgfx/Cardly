@@ -1,15 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { signUp } from "../actions";
 import { createClient } from "@/lib/supabase/client";
+
+/** Same-origin relative path only — guards against open-redirect abuse. */
+function sanitizeNext(raw: string | null): string {
+  if (!raw) return "";
+  if (!raw.startsWith("/") || raw.startsWith("//")) return "";
+  return raw;
+}
 
 export default function SignupPage() {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [googlePending, setGooglePending] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [next, setNext] = useState("");
+
+  useEffect(() => {
+    setNext(sanitizeNext(new URLSearchParams(window.location.search).get("next")));
+  }, []);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -27,7 +39,9 @@ export default function SignupPage() {
       const supabase = createClient();
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: "google",
-        options: { redirectTo: `${window.location.origin}/auth/callback` },
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback${next ? `?next=${encodeURIComponent(next)}` : ""}`,
+        },
       });
       if (oauthError) {
         setError(oauthError.message);
@@ -95,7 +109,7 @@ export default function SignupPage() {
         <p className="text-[14px] text-[#6B7A72] mb-7">
           Already have one?{" "}
           <Link
-            href="/login"
+            href={next ? `/login?next=${encodeURIComponent(next)}` : "/login"}
             className="text-[#1F4D3A] font-medium hover:underline"
           >
             Sign in →
@@ -103,6 +117,7 @@ export default function SignupPage() {
         </p>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
+          {next && <input type="hidden" name="next" value={next} />}
           {error && (
             <div className="text-[13px] text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
               {error}

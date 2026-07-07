@@ -77,10 +77,10 @@ export function CategoryPage({ category, events, savedIds, cityCounts }: Categor
           }}
         />
         <div className="relative">
-          <nav className="text-[12px] mb-3" style={{ color: '#6B7A72' }}>
-            <Link href="/events" style={{ color: '#6B7A72' }}>Events</Link>
+          <nav className="text-[12px] mb-3" style={{ color: '#3A4A42' }}>
+            <Link href="/events" className="hover:text-[#1F4D3A] transition-colors" style={{ color: '#3A4A42' }}>Events</Link>
             {' / '}
-            <Link href="/events/categories" style={{ color: '#6B7A72' }}>Categories</Link>
+            <Link href="/events/categories" className="hover:text-[#1F4D3A] transition-colors" style={{ color: '#3A4A42' }}>Categories</Link>
             {' / '}
             <span style={{ color: '#0F1F18' }}>{category}</span>
           </nav>
