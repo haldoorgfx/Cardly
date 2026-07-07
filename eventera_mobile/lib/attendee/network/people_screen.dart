@@ -138,6 +138,34 @@ class _PeopleScreenState extends State<PeopleScreen> {
     }
   }
 
+  /// Sends a real connection request for an AI-suggested match. Mirrors
+  /// [_connect] but tracks state on the [_Match] so the suggested-for-you card's
+  /// button reflects loading/pending like the directory rows do.
+  Future<void> _connectMatch(_Match m) async {
+    if (m.connecting || m.connectionStatus != null) return;
+    setState(() => m.connecting = true);
+    try {
+      await apiPost('/api/events/${widget.eventId}/connections', {
+        'requester_id': _rid,
+        'recipient_id': m.id,
+      });
+      if (!mounted) return;
+      setState(() {
+        m.connectionStatus = 'pending';
+        m.connecting = false;
+      });
+      showToast(context, 'Connection request sent');
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => m.connecting = false);
+      showToast(context, e.message);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => m.connecting = false);
+      showToast(context, 'Could not send request');
+    }
+  }
+
   void _openThread(String otherId, String otherName) {
     if (!_canNetwork) return;
     Navigator.of(context).push(
@@ -321,12 +349,34 @@ class _PeopleScreenState extends State<PeopleScreen> {
               ),
             ],
             const SizedBox(height: 11),
-            MButton(
-              'Connect',
-              small: true,
-              icon: Icons.add,
-              onTap: () => _openThread(m.id, m.name),
-            ),
+            if (m.connectionStatus != null)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: _statusTag(m.connectionStatus!),
+              )
+            else
+              Row(
+                children: [
+                  Expanded(
+                    child: MButton(
+                      'Connect',
+                      small: true,
+                      icon: Icons.person_add_alt,
+                      loading: m.connecting,
+                      onTap: () => _connectMatch(m),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  MButton(
+                    'Message',
+                    kind: MBtnKind.sec,
+                    small: true,
+                    fullWidth: false,
+                    icon: Icons.chat_bubble_outline,
+                    onTap: () => _openThread(m.id, m.name),
+                  ),
+                ],
+              ),
           ],
         ),
       ),
@@ -461,6 +511,8 @@ class _Match {
   final String subtitle;
   final int scorePct;
   final String reason;
+  String? connectionStatus;
+  bool connecting = false;
 
   _Match({
     required this.id,

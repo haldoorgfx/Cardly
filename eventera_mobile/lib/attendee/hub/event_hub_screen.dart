@@ -65,6 +65,14 @@ class _EventHubScreenState extends State<EventHubScreen> {
   final List<SponsorSummary> _sponsors = [];
   final List<AttendeeAvatar> _attendees = [];
   String? _regId;
+
+  // Ticket availability, so the sticky CTA never dead-ends at "No tickets
+  // available". `_ticketsLoaded` guards against flashing the wrong label before
+  // the count comes back; `_hasOpenTickets` == at least one visible ticket row
+  // (matches what the registration screen will actually accept).
+  bool _ticketsLoaded = false;
+  bool _hasOpenTickets = false;
+  bool _allTicketsSoldOut = false;
   bool _isSponsor = false;
   bool _isSpeaker = false;
   bool _isExhibitor = false;
@@ -118,6 +126,7 @@ class _EventHubScreenState extends State<EventHubScreen> {
           _loadSponsors(eventId),
           _loadAttendees(eventId),
           _loadMyRoles(eventId),
+          _loadTicketAvailability(eventId),
         ]);
       }
 
@@ -233,6 +242,37 @@ class _EventHubScreenState extends State<EventHubScreen> {
         .order('position');
     for (final r in _asRows(rows)) {
       _sponsors.add(SponsorSummary.fromRow(r));
+    }
+  }
+
+  /// Loads whether this event has any registerable tickets, so the sticky CTA
+  /// can hide/disable instead of dead-ending at "No tickets available". A ticket
+  /// is registerable when it's visible (mirrors the registration screen, which
+  /// shows every `is_visible != false` row and routes sold-out ones to the
+  /// waitlist). When every visible ticket is sold out we surface a waitlist
+  /// label rather than a plain "Get ticket".
+  Future<void> _loadTicketAvailability(String eventId) async {
+    try {
+      final rows = await supa
+          .from('ticket_types')
+          .select('quantity, quantity_sold, is_visible')
+          .eq('event_id', eventId)
+          .not('is_visible', 'is', false);
+      final list = _asRows(rows);
+      _hasOpenTickets = list.isNotEmpty;
+      _allTicketsSoldOut = list.isNotEmpty &&
+          list.every((t) {
+            final qty = t['quantity'];
+            if (qty == null) return false; // unlimited => never sold out
+            return asInt(t['quantity_sold']) >= asInt(qty);
+          });
+    } catch (_) {
+      // Non-fatal: if we can't read tickets, fall back to allowing the CTA so a
+      // transient error never blocks a real registration.
+      _hasOpenTickets = true;
+      _allTicketsSoldOut = false;
+    } finally {
+      _ticketsLoaded = true;
     }
   }
 
@@ -565,7 +605,7 @@ class _EventHubScreenState extends State<EventHubScreen> {
             _moreRow(Icons.chat_bubble_outline, 'Messages',
                 () => MessagesScreen(eventId: id, registrationId: _regId)),
             _moreRow(Icons.emoji_events_outlined, 'Leaderboard',
-                () => LeaderboardScreen(eventId: id)),
+                () => LeaderboardScreen(eventId: id, registrationId: _regId)),
             _moreRow(Icons.rate_review_outlined, 'Feedback',
                 () => FeedbackScreen(eventId: id, registrationId: _regId)),
             _moreRow(Icons.tag, 'Community',
@@ -1022,24 +1062,49 @@ class _EventHubScreenState extends State<EventHubScreen> {
 
   Widget _registerBar(EventPageModel page) {
     final registered = _regId != null;
+    // Once ticket availability is known, guard the CTA so it never dead-ends at
+    // "No tickets available": with zero visible tickets we show a disabled
+    // "Registration closed"; with tickets that are all sold out we invite the
+    // waitlist (the registration screen handles it); otherwise "Get ticket".
+    final noTickets = _ticketsLoaded && !_hasOpenTickets;
+    final soldOut = _ticketsLoaded && _hasOpenTickets && _allTicketsSoldOut;
+
     // Enable the primary button only when there's something real to do:
-    // a wired register handler and the user isn't already registered. When
-    // already registered we show a disabled "Registered" confirmation; when no
-    // handler is wired we disable it rather than showing a dead-end toast.
-    final canTap = _canRegister && !registered;
+    // a wired register handler, the user isn't already registered, and there is
+    // at least one registerable ticket. When already registered we show a
+    // disabled "Registered" confirmation; when no handler is wired or no ticket
+    // is open we disable it rather than showing a dead-end.
+    final canTap = _canRegister && !registered && !noTickets;
+
+    final String label;
+    final IconData? icon;
+    if (registered) {
+      label = 'Registered';
+      icon = Icons.check;
+    } else if (noTickets) {
+      label = 'Registration closed';
+      icon = Icons.lock_outline;
+    } else if (soldOut) {
+      label = 'Join the waitlist';
+      icon = Icons.notifications_active_outlined;
+    } else {
+      label = 'Get ticket';
+      icon = null;
+    }
+
     return StickyCta(children: [
       MButton(
         '',
         kind: MBtnKind.sec,
-        icon: Icons.bookmark_border,
+        icon: _saved ? Icons.bookmark : Icons.bookmark_border,
         fullWidth: false,
         onTap: _handleSave,
       ),
       const SizedBox(width: 10),
       Expanded(
         child: MButton(
-          registered ? 'Registered' : 'Get ticket',
-          icon: registered ? Icons.check : null,
+          label,
+          icon: icon,
           onTap: canTap ? _handleRegister : null,
         ),
       ),
