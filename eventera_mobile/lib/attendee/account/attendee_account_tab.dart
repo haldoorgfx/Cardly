@@ -31,6 +31,9 @@ class _AttendeeAccountTabState extends State<AttendeeAccountTab> {
   int _tickets = 0;
   int _saved = 0;
   int _following = 0;
+  // Real name from profiles.full_name (matches the organizer profile). The
+  // email-derived fallback reads like a username ("Cabdalla005"), not a person.
+  String? _fullName;
 
   // Role gating (mirrors the web unified-dashboard nav). Null until the first
   // load resolves, so we render nothing (never flash rows) while loading.
@@ -63,6 +66,7 @@ class _AttendeeAccountTabState extends State<AttendeeAccountTab> {
           _saved = 0;
           _following = 0;
           _roles = null;
+          _fullName = null;
         });
       }
       return;
@@ -95,12 +99,24 @@ class _AttendeeAccountTabState extends State<AttendeeAccountTab> {
       count(() =>
           supa.from('organizer_follows').select('id').eq('follower_id', uid)),
     ]);
+    String? fullName;
+    try {
+      final row = await supa
+          .from('profiles')
+          .select('full_name')
+          .eq('id', uid)
+          .maybeSingle();
+      final n = (row?['full_name'] as String?)?.trim();
+      if (n != null && n.isNotEmpty) fullName = n;
+    } catch (_) {/* fall back to the email-derived name */}
+
     if (!mounted) return;
     setState(() {
       _unread = results[0];
       _tickets = results[1];
       _saved = results[2];
       _following = results[3];
+      _fullName = fullName;
     });
   }
 
@@ -150,7 +166,9 @@ class _AttendeeAccountTabState extends State<AttendeeAccountTab> {
   // ── Signed-in ──────────────────────────────────────────────────────────
   List<Widget> _signedIn() {
     final email = currentUserEmail ?? '';
-    final name = _displayName(email);
+    final name = (_fullName != null && _fullName!.isNotEmpty)
+        ? _fullName!
+        : _displayName(email);
     return [
       _ProfileHeader(
         name: name,

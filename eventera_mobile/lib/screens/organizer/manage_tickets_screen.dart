@@ -525,8 +525,18 @@ class _TicketEditorScreenState extends State<_TicketEditorScreen> {
           ),
           if (_isEdit) ...[
             const SizedBox(height: 20),
-            MButton('Delete ticket type',
-                kind: MBtnKind.text, onTap: _saving ? null : _delete),
+            // Destructive action reads in danger red, not brand green.
+            Center(
+              child: TextButton(
+                onPressed: _saving ? null : _delete,
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.danger,
+                  minimumSize: const Size(0, 48),
+                ),
+                child: const Text('Delete ticket type',
+                    style: TextStyle(fontWeight: FontWeight.w600)),
+              ),
+            ),
           ],
           if (_error != null) ...[
             const SizedBox(height: 16),
