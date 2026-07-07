@@ -115,6 +115,7 @@ const ROUTE_TIERS: Array<{ prefix: string; tier: LimiterTier }> = [
   { prefix: '/api/contact',                   tier: 'strict'   },
   { prefix: '/api/view',                      tier: 'public'   },
   { prefix: '/api/download',                  tier: 'public'   },
+  { prefix: '/api/registrations/status',      tier: 'public'   },
   // Everything else → standard (authenticated organiser actions)
 ];
 

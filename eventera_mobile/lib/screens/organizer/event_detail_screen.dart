@@ -4,6 +4,7 @@ import '../../eventera_api.dart';
 import '../../models.dart';
 import '../../theme.dart';
 import '../../roles/staff/event_control_screen.dart';
+import 'manage_tickets_screen.dart';
 import 'share_screen.dart';
 import 'zone_editor_screen.dart';
 
@@ -211,6 +212,20 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               _changed = true;
               _reload();
             }
+          },
+        ),
+        _actionTile(
+          icon: Icons.confirmation_number_outlined,
+          title: 'Tickets & pricing',
+          subtitle: 'Add, edit, hide or price your ticket types',
+          onTap: () async {
+            final changed = await Navigator.of(context).push<bool>(
+              MaterialPageRoute(
+                builder: (_) => ManageTicketsScreen(
+                    eventId: e.id, eventName: e.name),
+              ),
+            );
+            if (changed == true) _changed = true;
           },
         ),
         _actionTile(

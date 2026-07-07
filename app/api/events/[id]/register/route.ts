@@ -489,7 +489,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         type: 'ticket_confirmed',
         title: "You're in — ticket confirmed",
         body: `Your ticket for ${eventPage.title} is ready.`,
-        actionUrl: '/account/my-tickets',
+        actionUrl: '/my-tickets',
       });
     }
 

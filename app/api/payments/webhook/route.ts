@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
             type: 'ticket_confirmed',
             title: "You're in — ticket confirmed",
             body: `Your ticket for ${ep?.title ?? 'the event'} is ready.`,
-            actionUrl: '/account/my-tickets',
+            actionUrl: '/my-tickets',
           });
         }
 
