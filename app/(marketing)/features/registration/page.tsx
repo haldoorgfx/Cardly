@@ -102,6 +102,239 @@ const STATS = [
   { value: '97%', label: 'registration completion rate' },
 ];
 
+function RegistrationMockup() {
+  return (
+    <section
+      style={{
+        background: '#0F1F18',
+        padding: '80px 24px',
+        textAlign: 'center',
+      }}
+    >
+      <div style={{ maxWidth: 480, margin: '0 auto' }}>
+        <div
+          style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: '0.15em',
+            color: '#E8C57E',
+            textTransform: 'uppercase' as const,
+            marginBottom: 16,
+          }}
+        >
+          ATTENDEE VIEW
+        </div>
+        <h2
+          style={{
+            fontFamily: 'DM Sans, sans-serif',
+            fontSize: 28,
+            fontWeight: 700,
+            letterSpacing: '-0.02em',
+            color: '#FAF6EE',
+            marginBottom: 12,
+          }}
+        >
+          What your attendees see
+        </h2>
+        <p
+          style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: 16,
+            color: 'rgba(250,246,238,0.65)',
+            marginBottom: 48,
+            lineHeight: 1.6,
+          }}
+        >
+          A registration experience they&apos;ll actually complete.
+        </p>
+
+        {/* Phone frame */}
+        <div
+          style={{
+            background: '#163828',
+            borderRadius: 36,
+            width: 300,
+            margin: '0 auto',
+            padding: 10,
+            boxShadow: '0 32px 80px rgba(0,0,0,0.40)',
+          }}
+        >
+          <div
+            style={{
+              background: '#FAF6EE',
+              borderRadius: 28,
+              overflow: 'hidden',
+            }}
+          >
+            {/* Top bar */}
+            <div style={{ background: '#1F4D3A', padding: 16 }}>
+              <div
+                style={{
+                  fontFamily: 'DM Sans, sans-serif',
+                  fontSize: 14,
+                  fontWeight: 700,
+                  color: '#FFFFFF',
+                  marginBottom: 4,
+                }}
+              >
+                Pan-African Tech Summit
+              </div>
+              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: 'rgba(255,255,255,0.65)' }}>
+                Mar 15 · Nairobi
+              </div>
+            </div>
+
+            {/* Ticket selector */}
+            <div style={{ background: '#FFFFFF', padding: 16 }}>
+              <div
+                style={{
+                  fontFamily: 'Inter, sans-serif',
+                  fontSize: 11,
+                  fontWeight: 600,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase' as const,
+                  color: '#6B7A72',
+                  marginBottom: 10,
+                }}
+              >
+                Select ticket
+              </div>
+              <div
+                style={{
+                  background: '#FFFFFF',
+                  border: '1px solid #E5E0D4',
+                  borderRadius: 8,
+                  padding: '10px 12px',
+                  marginBottom: 6,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#0F1F18' }}>General</span>
+                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#6B7A72' }}>$0 Free</span>
+              </div>
+              <div
+                style={{
+                  background: '#FFFFFF',
+                  border: '1px solid #E5E0D4',
+                  borderRadius: 8,
+                  padding: '10px 12px',
+                  marginBottom: 6,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#0F1F18' }}>Early Bird</span>
+                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#6B7A72' }}>$49</span>
+              </div>
+              <div
+                style={{
+                  background: 'rgba(31,77,58,0.05)',
+                  border: '1px solid #E5E0D4',
+                  borderLeft: '3px solid #1F4D3A',
+                  borderRadius: 8,
+                  padding: '10px 12px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600, color: '#0F1F18' }}>VIP Access</span>
+                  <span
+                    style={{
+                      fontFamily: 'Inter, sans-serif',
+                      fontSize: 10,
+                      fontWeight: 600,
+                      color: '#0F1F18',
+                      background: '#E8C57E',
+                      borderRadius: 4,
+                      padding: '2px 6px',
+                    }}
+                  >
+                    Selling fast
+                  </span>
+                </div>
+                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 700, color: '#1F4D3A' }}>$149</span>
+              </div>
+            </div>
+
+            {/* Form fields */}
+            <div style={{ padding: 16 }}>
+              <div
+                style={{
+                  fontFamily: 'Inter, sans-serif',
+                  fontSize: 11,
+                  fontWeight: 600,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase' as const,
+                  color: '#6B7A72',
+                  marginBottom: 10,
+                }}
+              >
+                Your details
+              </div>
+              {['Full name', 'Email address', 'Company / Organisation'].map((placeholder) => (
+                <div
+                  key={placeholder}
+                  style={{
+                    background: '#FFFFFF',
+                    border: '1px solid #E5E0D4',
+                    borderRadius: 8,
+                    height: 40,
+                    marginBottom: 8,
+                    padding: '0 12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#6B7A72' }}>{placeholder}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Register button */}
+            <div style={{ padding: '0 16px 16px' }}>
+              <div
+                style={{
+                  background: '#1F4D3A',
+                  color: '#FAF6EE',
+                  borderRadius: 10,
+                  height: 48,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontFamily: 'Inter, sans-serif',
+                  fontSize: 15,
+                  fontWeight: 700,
+                }}
+              >
+                Register for VIP · $149
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div
+              style={{
+                fontFamily: 'Inter, sans-serif',
+                fontSize: 12,
+                color: '#6B7A72',
+                textAlign: 'center',
+                paddingBottom: 16,
+              }}
+            >
+              🔒 Secured · 2 spots remaining
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function RegistrationFeaturePage() {
   return (
     <>
@@ -213,6 +446,8 @@ export default function RegistrationFeaturePage() {
           </div>
         </div>
       </section>
+
+      <RegistrationMockup />
 
       {/* ── Feature cards ───────────────────────────────────────────── */}
       <section style={{ background: C.surface, padding: 'clamp(64px, 10vw, 100px) 24px' }}>

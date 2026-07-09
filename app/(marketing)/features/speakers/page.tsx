@@ -102,6 +102,263 @@ const STATS = [
   { value: '100%', label: 'of plans include shareable speaker URLs' },
 ];
 
+function SpeakersMockup() {
+  return (
+    <section
+      style={{
+        background: '#1F4D3A',
+        padding: '80px 24px',
+        textAlign: 'center',
+      }}
+    >
+      <div style={{ maxWidth: 920, margin: '0 auto' }}>
+        <div
+          style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: '0.15em',
+            color: '#E8C57E',
+            textTransform: 'uppercase' as const,
+            marginBottom: 16,
+          }}
+        >
+          ATTENDEE VIEW
+        </div>
+        <h2
+          style={{
+            fontFamily: 'DM Sans, sans-serif',
+            fontSize: 28,
+            fontWeight: 700,
+            letterSpacing: '-0.02em',
+            color: '#FAF6EE',
+            marginBottom: 12,
+          }}
+        >
+          The directory that builds anticipation.
+        </h2>
+        <p
+          style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: 16,
+            color: 'rgba(250,246,238,0.65)',
+            marginBottom: 48,
+            lineHeight: 1.6,
+          }}
+        >
+          Attendees browse speakers before the event. Speakers share their profile after.
+        </p>
+
+        {/* Browser frame */}
+        <div
+          style={{
+            maxWidth: 880,
+            margin: '0 auto',
+            background: '#FFFFFF',
+            borderRadius: 14,
+            overflow: 'hidden',
+            boxShadow: '0 32px 80px rgba(0,0,0,0.35)',
+            textAlign: 'left',
+          }}
+        >
+          {/* Nav strip */}
+          <div
+            style={{
+              background: '#FAF6EE',
+              borderBottom: '1px solid #E5E0D4',
+              height: 44,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '0 20px',
+            }}
+          >
+            <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600, color: '#1F4D3A' }}>
+              Pan-African Tech Summit · Speakers
+            </span>
+            <span
+              style={{
+                fontFamily: 'Inter, sans-serif',
+                fontSize: 12,
+                color: '#6B7A72',
+                background: '#E8EFEB',
+                borderRadius: 20,
+                padding: '3px 10px',
+              }}
+            >
+              32 speakers
+            </span>
+          </div>
+
+          {/* Featured speaker */}
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #1F4D3A 0%, #163828 100%)',
+              padding: 28,
+              display: 'flex',
+              gap: 20,
+              alignItems: 'flex-start',
+            }}
+          >
+            {/* Avatar */}
+            <div
+              style={{
+                width: 72,
+                height: 72,
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #E8C57E 0%, #C9A45E 100%)',
+                border: '3px solid #E8C57E',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontFamily: 'DM Sans, sans-serif',
+                fontSize: 22,
+                fontWeight: 700,
+                color: '#163828',
+                flexShrink: 0,
+              }}
+            >
+              AO
+            </div>
+            {/* Info */}
+            <div style={{ flex: 1 }}>
+              <div
+                style={{
+                  fontFamily: 'Inter, sans-serif',
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: '0.12em',
+                  color: '#E8C57E',
+                  textTransform: 'uppercase' as const,
+                  marginBottom: 6,
+                }}
+              >
+                FEATURED KEYNOTE
+              </div>
+              <div
+                style={{
+                  fontFamily: 'DM Sans, sans-serif',
+                  fontSize: 22,
+                  fontWeight: 700,
+                  color: '#FAF6EE',
+                  marginBottom: 4,
+                }}
+              >
+                Dr. Amara Osei
+              </div>
+              <div
+                style={{
+                  fontFamily: 'Inter, sans-serif',
+                  fontSize: 13,
+                  color: 'rgba(250,246,238,0.75)',
+                  marginBottom: 8,
+                }}
+              >
+                CEO, AfriTech Ventures
+              </div>
+              <div
+                style={{
+                  fontFamily: 'Inter, sans-serif',
+                  fontSize: 13,
+                  color: 'rgba(250,246,238,0.6)',
+                  marginBottom: 12,
+                  lineHeight: 1.5,
+                  overflow: 'hidden',
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical' as const,
+                }}
+              >
+                Pioneer in pan-African technology ecosystems with 20+ years building scalable ventures across 12 countries.
+              </div>
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  background: 'rgba(232,197,126,0.2)',
+                  color: '#E8C57E',
+                  fontFamily: 'Inter, sans-serif',
+                  fontSize: 11,
+                  fontWeight: 600,
+                  padding: '4px 10px',
+                  borderRadius: 20,
+                }}
+              >
+                Opening Keynote · Mar 15 · 9:00 AM
+              </div>
+            </div>
+          </div>
+
+          {/* Speaker grid */}
+          <div
+            style={{
+              padding: 16,
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: 12,
+            }}
+          >
+            {[
+              { initials: 'AM', name: 'Aisha Mwangi', title: 'Head of Product · M-Pesa', session: 'Design Track · 10:30 AM', bg: '#E8EFEB', color: '#1F4D3A' },
+              { initials: 'KA', name: 'Kofi Asante', title: 'Lead Engineer · Flutterwave', session: 'Tech Track · 10:30 AM', bg: '#E8EFEB', color: '#1F4D3A' },
+              { initials: 'FH', name: 'Fatima Hassan', title: 'Investment Director · Partech', session: 'Business Track · 10:30 AM', bg: '#E8EFEB', color: '#1F4D3A' },
+            ].map((speaker) => (
+              <div
+                key={speaker.name}
+                style={{
+                  background: '#FFFFFF',
+                  border: '1px solid #E5E0D4',
+                  borderRadius: 12,
+                  padding: 16,
+                }}
+              >
+                <div
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: '50%',
+                    background: speaker.bg,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontFamily: 'DM Sans, sans-serif',
+                    fontSize: 14,
+                    fontWeight: 700,
+                    color: speaker.color,
+                    marginBottom: 10,
+                  }}
+                >
+                  {speaker.initials}
+                </div>
+                <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, fontWeight: 700, color: '#0F1F18', marginBottom: 2 }}>
+                  {speaker.name}
+                </div>
+                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72', marginBottom: 8, lineHeight: 1.4 }}>
+                  {speaker.title}
+                </div>
+                <div
+                  style={{
+                    fontFamily: 'Inter, sans-serif',
+                    fontSize: 10,
+                    fontWeight: 600,
+                    color: '#1F4D3A',
+                    background: '#E8EFEB',
+                    borderRadius: 20,
+                    padding: '3px 8px',
+                    display: 'inline-block',
+                  }}
+                >
+                  {speaker.session}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function SpeakersFeaturePage() {
   return (
     <>
@@ -214,6 +471,8 @@ export default function SpeakersFeaturePage() {
           </div>
         </div>
       </section>
+
+      <SpeakersMockup />
 
       {/* ── Feature cards ───────────────────────────────────────────── */}
       <section style={{ background: C.surface, padding: 'clamp(64px, 10vw, 100px) 24px' }}>
