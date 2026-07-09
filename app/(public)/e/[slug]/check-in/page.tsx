@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 import { QRScanner } from '@/components/check-in/QRScanner';
 
 interface Props { params: { slug: string } }
@@ -14,15 +15,18 @@ export default async function CheckInPage({ params }: Props) {
   const admin = createAdminClient();
 
   // Resolve event by custom_slug or event slug
-  const { data: eventPage } = await admin
-    .from('event_pages')
-    .select('event_id, title, events!inner(id, slug, name, user_id, status)')
-    .or(`custom_slug.eq.${params.slug},events.slug.eq.${params.slug}`)
+  const resolved = await resolvePublicSlug(params.slug);
+  if (!resolved) redirect('/events');
+  const { event: resolvedEvent } = resolved;
+
+  const { data: eventFull } = await admin
+    .from('events')
+    .select('id, slug, name, user_id, status')
+    .eq('id', resolvedEvent.id)
     .single();
 
-  if (!eventPage) redirect('/events');
-
-  const event = eventPage.events as unknown as { id: string; slug: string; name: string; user_id: string; status: string };
+  if (!eventFull) redirect('/events');
+  const event = eventFull as { id: string; slug: string; name: string; user_id: string; status: string };
 
   // Only the event owner can access the check-in scanner
   if (event.user_id !== user.id) redirect('/dashboard');
