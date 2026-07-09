@@ -3,16 +3,9 @@
   "configurations": [
     {
       "name": "Karta Phase1 Dev",
-      "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
-      "runtimeArgs": [
-        "C:\\Users\\cabda\\cardly\\.claude\\worktrees\\hungry-hellman-26c7dc\\node_modules\\next\\dist\\bin\\next",
-        "dev",
-        "-p",
-        "3001"
-      ],
-      "cwd": "C:\\Users\\cabda\\cardly\\.claude\\worktrees\\hungry-hellman-26c7dc",
-      "port": 3001,
-      "autoPort": false
+      "runtimeExecutable": "C:\\Users\\cabda\\cardly\\.claude\\worktrees\\hungry-hellman-26c7dc\\start-dev.bat",
+      "runtimeArgs": [],
+      "port": 3001
     }
   ]
 }

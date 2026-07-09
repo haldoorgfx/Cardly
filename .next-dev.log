@@ -1,0 +1,120 @@
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3001
+  - Environments: .env.local
+  - Experiments (use with caution):
+    · instrumentationHook
+
+ ✓ Starting...
+ ○ Compiling /instrumentation ...
+ ✓ Compiled /instrumentation in 1487ms (1085 modules)
+ ✓ Ready in 4.7s
+ ✓ Compiled /middleware in 491ms (894 modules)
+ ○ Compiling /events ...
+ ✓ Compiled /events in 5.8s (2493 modules)
+ ✓ Compiled in 479ms (755 modules)
+ ✓ Compiled in 94ms (741 modules)
+ GET /events 200 in 7124ms
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 1547ms (2726 modules)
+ GET /dashboard 200 in 2220ms
+ ○ Compiling /events/[id] ...
+ ✓ Compiled /events/[id] in 928ms (2812 modules)
+ GET /events/e548038e-3815-4310-a707-ede753062cff?_rsc=1h81t 200 in 1504ms
+ GET /events/e548038e-3815-4310-a707-ede753062cff?_rsc=1s3so 200 in 716ms
+ ○ Compiling /events/[id]/tickets ...
+ ✓ Compiled /events/[id]/tickets in 936ms (2834 modules)
+ GET /events/e548038e-3815-4310-a707-ede753062cff/tickets 200 in 1795ms
+ ○ Compiling /api/events/[id]/tickets ...
+ ✓ Compiled /api/events/[id]/tickets in 729ms (1990 modules)
+ POST /api/events/e548038e-3815-4310-a707-ede753062cff/tickets 500 in 2028ms
+ ○ Compiling /events/[id]/promo-codes ...
+ ✓ Compiled /events/[id]/promo-codes in 754ms (2873 modules)
+ GET /events/e548038e-3815-4310-a707-ede753062cff/promo-codes 200 in 1721ms
+ ○ Compiling /events/[id]/analytics ...
+ ✓ Compiled /events/[id]/analytics in 555ms (2880 modules)
+ GET /events/e548038e-3815-4310-a707-ede753062cff/analytics 200 in 1447ms
+ ○ Compiling /events/[id]/registrations ...
+ ✓ Compiled /events/[id]/registrations in 1063ms (2887 modules)
+ GET /events/e548038e-3815-4310-a707-ede753062cff/registrations 200 in 2019ms
+ ○ Compiling /e/[slug] ...
+ ✓ Compiled /e/[slug] in 919ms (2891 modules)
+ GET /e/agora-open-forum-c4vq 404 in 1938ms
+ ○ Compiling /events/[id]/event-page ...
+ ✓ Compiled /events/[id]/event-page in 848ms (2729 modules)
+ GET /events/e548038e-3815-4310-a707-ede753062cff/event-page 200 in 1789ms
+ ○ Compiling /events/[id]/form ...
+ ✓ Compiled /events/[id]/form in 578ms (2744 modules)
+ GET /events/e548038e-3815-4310-a707-ede753062cff/form 200 in 1366ms
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 998ms (1918 modules)
+ GET /dashboard?_rsc=9jnxz 200 in 1148ms
+ ○ Compiling /events/[id] ...
+ ✓ Compiled /events/[id] in 525ms (1997 modules)
+ GET /events/e548038e-3815-4310-a707-ede753062cff?_rsc=9jnxz 200 in 1089ms
+ ○ Compiling /events/new ...
+ ✓ Compiled /events/new in 1805ms (2912 modules)
+ GET /events/new?_rsc=rmkg8 200 in 1935ms
+ GET /dashboard?_rsc=1rve1 200 in 447ms
+ ○ Compiling /events/[id]/edit ...
+ ✓ Compiled /events/[id]/edit in 2s (3037 modules)
+ GET /events/e548038e-3815-4310-a707-ede753062cff/edit?_rsc=1h81t 200 in 2470ms
+ GET /events/e548038e-3815-4310-a707-ede753062cff/edit?_rsc=14agb 200 in 509ms
+ ○ Compiling /api/brand ...
+ ✓ Compiled /api/brand in 726ms (2097 modules)
+ GET /api/brand 200 in 1094ms
+ GET /api/brand 200 in 278ms
+ ○ Compiling /events/[id]/publish ...
+ ✓ Compiled /events/[id]/publish in 1131ms (3131 modules)
+ GET /events/e548038e-3815-4310-a707-ede753062cff/publish?_rsc=1jke9 200 in 1599ms
+ GET /events/e548038e-3815-4310-a707-ede753062cff/publish?_rsc=h1b19 200 in 530ms
+ GET /events/e548038e-3815-4310-a707-ede753062cff?_rsc=1s3so 200 in 789ms
+ ○ Compiling /admin/analytics ...
+ ✓ Compiled /admin/analytics in 3.5s (4092 modules)
+ GET /admin/analytics?_rsc=kq7jz 200 in 944ms
+ ○ Compiling /admin/theme ...
+ ✓ Compiled /admin/theme in 881ms (4090 modules)
+ GET /admin/theme?_rsc=kid9x 200 in 649ms
+ GET /dashboard?_rsc=1rve1 200 in 625ms
+ ○ Compiling /analytics ...
+ ✓ Compiled /analytics in 2.7s (4651 modules)
+ GET /analytics?_rsc=1h81t 200 in 2939ms
+ GET /analytics?_rsc=1biep 200 in 587ms
+ ○ Compiling /api/brand ...
+ ✓ Compiled /api/brand in 1059ms (2827 modules)
+ GET /api/brand 200 in 1505ms
+ GET /api/brand 200 in 287ms
+ ○ Compiling /events/[id]/event-page ...
+ ✓ Compiled /events/[id]/event-page in 1003ms (2776 modules)
+ GET /events/e548038e-3815-4310-a707-ede753062cff/event-page?_rsc=8d9z0 200 in 577ms
+ ○ Compiling /events/[id]/tickets ...
+ ✓ Compiled /events/[id]/tickets in 534ms (2294 modules)
+ GET /events/e548038e-3815-4310-a707-ede753062cff/tickets?_rsc=69ezt 200 in 475ms
+ ○ Compiling /api/events/[id]/tickets ...
+ ✓ Compiled /api/events/[id]/tickets in 562ms (2282 modules)
+ POST /api/events/e548038e-3815-4310-a707-ede753062cff/tickets 500 in 1172ms
+ POST /api/events/e548038e-3815-4310-a707-ede753062cff/tickets 500 in 584ms
+ ○ Compiling /events/[id]/form ...
+ ✓ Compiled /events/[id]/form in 883ms (2292 modules)
+ GET /events/e548038e-3815-4310-a707-ede753062cff/form?_rsc=1qhke 200 in 465ms
+ ✓ Compiled /api/events/[id]/form in 490ms (2001 modules)
+ POST /api/events/e548038e-3815-4310-a707-ede753062cff/form 500 in 1624ms
+ ✓ Compiled /events/[id]/registrations in 502ms (2013 modules)
+ GET /events/e548038e-3815-4310-a707-ede753062cff/registrations?_rsc=xtev2 200 in 573ms
+ ○ Compiling /e/[slug]/check-in ...
+ ✓ Compiled /e/[slug]/check-in in 2.4s (4235 modules)
+ GET /e/agora-open-forum-c4vq/check-in?_rsc=6un32 200 in 373ms
+ ○ Compiling /events ...
+ ✓ Compiled /events in 539ms (2238 modules)
+ GET /events?_rsc=168yj 200 in 167ms
+ ○ Compiling /events/new ...
+ ✓ Compiled /events/new in 784ms (2246 modules)
+ GET /events/new?_rsc=23e6b 200 in 878ms
+ ○ Compiling /how-it-works ...
+ ✓ Compiled /how-it-works in 2.1s (4124 modules)
+ GET /how-it-works?_rsc=zwv0j 200 in 45ms
+ ○ Compiling /events/[id]/promo-codes ...
+ ✓ Compiled /events/[id]/promo-codes in 586ms (2095 modules)
+ GET /events/e548038e-3815-4310-a707-ede753062cff/promo-codes?_rsc=1rlom 200 in 447ms
+ ○ Compiling /events/[id]/analytics ...
+ ✓ Compiled /events/[id]/analytics in 813ms (2100 modules)
+ GET /events/e548038e-3815-4310-a707-ede753062cff/analytics?_rsc=eu996 200 in 510ms
