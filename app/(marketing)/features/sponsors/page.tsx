@@ -25,6 +25,126 @@ const spStats = [
   { value: '6 min', label: 'median time to export leads post-event' },
 ];
 
+function SponsorsMockup() {
+  return (
+    <section style={{ background: '#163828', padding: '80px 24px' }}>
+      <div style={{ maxWidth: 900, margin: '0 auto', textAlign: 'center' }}>
+        {/* Header */}
+        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600, color: '#E8C57E', letterSpacing: '0.15em', textTransform: 'uppercase' as const, marginBottom: 16 }}>SPONSOR VIEW</p>
+        <h2 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 28, fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.02em', marginBottom: 12 }}>Every sponsor gets their own dashboard.</h2>
+        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: 'rgba(250,246,238,0.65)', marginBottom: 48 }}>Leads, analytics, booth visits — all in one place after the event.</p>
+
+        {/* Browser Frame */}
+        <div style={{ maxWidth: 860, margin: '0 auto', background: '#1A1A1A', borderRadius: 14, overflow: 'hidden', boxShadow: '0 32px 80px rgba(0,0,0,0.5)' }}>
+          {/* Chrome Bar */}
+          <div style={{ background: '#2A2A2A', height: 36, display: 'flex', alignItems: 'center', padding: '0 14px', gap: 6 }}>
+            <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#FF5F57' }} />
+            <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#FEBC2E' }} />
+            <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#28C840' }} />
+            <div style={{ background: '#3A3A3A', borderRadius: 4, flex: '0 0 280px', height: 20, marginLeft: 12, display: 'flex', alignItems: 'center', padding: '0 8px' }}>
+              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>karta.cre8so.com/sponsors/safaricom</span>
+            </div>
+          </div>
+
+          {/* App Content */}
+          <div style={{ background: '#FAF6EE', textAlign: 'left' }}>
+            {/* Nav Strip */}
+            <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E5E0D4', height: 44, display: 'flex', alignItems: 'center', padding: '0 20px', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 700, color: '#0F1F18' }}>Safaricom</span>
+                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6B7A72', marginLeft: 6 }}>Gold Sponsor · Pan-African Tech Summit</span>
+              </div>
+              <div style={{ background: '#2D7A4F', color: '#FFFFFF', fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 700, borderRadius: 999, padding: '4px 10px' }}>47 leads</div>
+            </div>
+
+            {/* Stats Row */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, padding: '16px 20px' }}>
+              {[
+                { val: '47', label: 'Leads collected', sub: '↑ 12 today' },
+                { val: '284', label: 'Booth visits', sub: '↑ 34 today' },
+                { val: '1,840', label: 'Session views', sub: 'Sponsored session' },
+              ].map((s) => (
+                <div key={s.val} style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 10, padding: 14 }}>
+                  <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 26, fontWeight: 700, color: '#1F4D3A' }}>{s.val}</div>
+                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6B7A72', marginTop: 2 }}>{s.label}</div>
+                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#2D7A4F', marginTop: 6 }}>{s.sub}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Two-column layout */}
+            <div style={{ display: 'flex', gap: 16, padding: '0 20px 20px' }}>
+              {/* Left Panel */}
+              <div style={{ flex: 1 }}>
+                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 700, color: '#0F1F18', marginBottom: 10 }}>Lead capture</div>
+                {/* Instruction strip */}
+                <div style={{ background: '#E8EFEB', borderRadius: 8, padding: 12, display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                  {/* QR icon */}
+                  <div style={{ width: 48, height: 48, background: '#FFFFFF', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                      <rect x="3" y="3" width="10" height="10" rx="1" stroke="#0F1F18" strokeWidth="1.5" fill="none"/>
+                      <rect x="5" y="5" width="6" height="6" rx="0.5" fill="#0F1F18"/>
+                      <rect x="15" y="3" width="10" height="10" rx="1" stroke="#0F1F18" strokeWidth="1.5" fill="none"/>
+                      <rect x="17" y="5" width="6" height="6" rx="0.5" fill="#0F1F18"/>
+                      <rect x="3" y="15" width="10" height="10" rx="1" stroke="#0F1F18" strokeWidth="1.5" fill="none"/>
+                      <rect x="5" y="17" width="6" height="6" rx="0.5" fill="#0F1F18"/>
+                      <rect x="15" y="15" width="4" height="4" rx="0.5" fill="#0F1F18"/>
+                      <rect x="21" y="15" width="4" height="4" rx="0.5" fill="#0F1F18"/>
+                      <rect x="15" y="21" width="4" height="4" rx="0.5" fill="#0F1F18"/>
+                      <rect x="21" y="21" width="4" height="4" rx="0.5" fill="#0F1F18"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#0F1F18' }}>Scan attendee QR codes at your booth to capture leads instantly.</div>
+                    <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72', marginTop: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#2D7A4F' }} />
+                      <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#2D7A4F' }} />
+                      2 staff scanning
+                    </div>
+                  </div>
+                </div>
+                {/* Recent Leads */}
+                <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column' as const, gap: 6 }}>
+                  {[
+                    { initials: 'AY', bg: 'linear-gradient(135deg,#E8C57E,#C9A45E)', name: 'Amara Yusuf', role: 'Climate Lead · Nairobi, Kenya', time: '2m ago' },
+                    { initials: 'KB', bg: 'linear-gradient(135deg,#1F4D3A,#2A6A50)', name: 'Kwame Boateng', role: 'Product Dir. · Accra', time: '5m ago' },
+                    { initials: 'TN', bg: 'linear-gradient(135deg,#C9A45E,#E8C57E)', name: 'Tinashe Nyathi', role: 'Founder · Harare', time: '8m ago' },
+                  ].map((l) => (
+                    <div key={l.initials} style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 8, padding: 10, display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: l.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, fontWeight: 700, color: '#163828' }}>{l.initials}</span>
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600, color: '#0F1F18' }}>{l.name}</div>
+                        <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72' }}>{l.role}</div>
+                      </div>
+                      <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72', flexShrink: 0 }}>{l.time}</span>
+                      <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#1F4D3A', flexShrink: 0, marginLeft: 4 }}>View →</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right Panel */}
+              <div style={{ width: 220, flexShrink: 0 }}>
+                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 700, color: '#0F1F18', marginBottom: 10 }}>Your sponsored session</div>
+                <div style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 10, padding: 14 }}>
+                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 9, fontWeight: 600, color: '#C9A45E', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 6 }}>SPONSORED</div>
+                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 700, color: '#0F1F18', marginBottom: 4 }}>Building Fintech at Scale</div>
+                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72', marginBottom: 12 }}>Mar 15 · 2:00 PM · Tech Track</div>
+                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72' }}>1,840 views</div>
+                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72', marginTop: 2 }}>312 attendees live</div>
+                </div>
+                <div style={{ background: '#E8EFEB', color: '#1F4D3A', fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 500, borderRadius: 8, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 10 }}>Export leads to CSV</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function SponsorsPage() {
   return (
     <>
@@ -41,6 +161,7 @@ export default function SponsorsPage() {
           <Link href="/pricing" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 15, background: C.surface, color: C.primary, border: `1.5px solid ${C.border}`, padding: '14px 28px', borderRadius: 10, textDecoration: 'none', display: 'inline-block' }}>See pricing</Link>
         </div>
       </section>
+      <SponsorsMockup />
 
       {/* Features */}
       <section style={{ background: C.surface, padding: 'clamp(60px, 8vw, 100px) clamp(20px, 5vw, 80px)' }}>
