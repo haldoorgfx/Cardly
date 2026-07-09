@@ -105,254 +105,95 @@ const STATS = [
 
 function AgendaMockup() {
   return (
-    <section
-      style={{
-        background: '#0F1F18',
-        padding: '80px 24px',
-        textAlign: 'center',
-      }}
-    >
-      <div style={{ maxWidth: 960, margin: '0 auto' }}>
-        <div
-          style={{
-            fontFamily: 'Inter, sans-serif',
-            fontSize: 11,
-            fontWeight: 700,
-            letterSpacing: '0.15em',
-            color: '#E8C57E',
-            textTransform: 'uppercase' as const,
-            marginBottom: 16,
-          }}
-        >
-          ORGANISER VIEW
+    <section style={{ background: '#0F1F18', padding: 'clamp(72px,10vw,112px) clamp(20px,4vw,48px) 0', overflow: 'hidden' }}>
+      <div style={{ maxWidth: 1080, margin: '0 auto' }}>
+        {/* TOP ROW — text left, stats right */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))', gap: 40, alignItems: 'end', marginBottom: 48 }}>
+          {/* Left */}
+          <div>
+            <div style={{ display: 'inline-block', background: 'rgba(232,197,126,0.12)', border: '1px solid rgba(232,197,126,0.25)', color: '#E8C57E', fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase' as const, borderRadius: 999, padding: '5px 14px', fontFamily: 'Inter,sans-serif', marginBottom: 20 }}>
+              Organiser View
+            </div>
+            <h2 style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 'clamp(1.7rem,3vw,2.4rem)', fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 14 }}>
+              A schedule worth sharing<br/>before the event starts.
+            </h2>
+            <p style={{ fontFamily: 'Inter,sans-serif', fontSize: 16, color: 'rgba(250,246,238,0.60)', lineHeight: 1.65, maxWidth: 400 }}>
+              Multi-track, multi-day, drag-and-drop. Publish with one click. Attendees browse on any phone without an app.
+            </p>
+          </div>
+          {/* Right — 3 stat chips */}
+          <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 12 }}>
+            {[
+              { n: '500+', label: 'sessions managed' },
+              { n: '12', label: 'parallel tracks supported' },
+              { n: '0', label: 'app downloads required' },
+            ].map((s) => (
+              <div key={s.label} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '14px 18px', flex: '1 1 120px' }}>
+                <div style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 28, fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.03em', lineHeight: 1 }}>{s.n}</div>
+                <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, color: 'rgba(250,246,238,0.45)', marginTop: 4 }}>{s.label}</div>
+              </div>
+            ))}
+          </div>
         </div>
-        <h2
-          style={{
-            fontFamily: 'DM Sans, sans-serif',
-            fontSize: 28,
-            fontWeight: 700,
-            letterSpacing: '-0.02em',
-            color: '#FAF6EE',
-            marginBottom: 12,
-          }}
-        >
-          Your multi-track agenda, live.
-        </h2>
-        <p
-          style={{
-            fontFamily: 'Inter, sans-serif',
-            fontSize: 16,
-            color: 'rgba(250,246,238,0.65)',
-            marginBottom: 48,
-            lineHeight: 1.6,
-          }}
-        >
-          Speakers see their sessions. Attendees plan their day. No spreadsheet.
-        </p>
 
-        {/* Browser frame */}
-        <div
-          style={{
-            maxWidth: 900,
-            margin: '0 auto',
-            background: '#1A1A1A',
-            borderRadius: 12,
-            overflow: 'hidden',
-            boxShadow: '0 32px 80px rgba(0,0,0,0.5)',
-          }}
-        >
-          {/* Browser chrome */}
-          <div
-            style={{
-              background: '#2A2A2A',
-              height: 36,
-              display: 'flex',
-              alignItems: 'center',
-              padding: '0 14px',
-              gap: 6,
-            }}
-          >
-            <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#FF5F57' }} />
-            <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#FEBC2E' }} />
-            <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#28C840' }} />
-            <div
-              style={{
-                background: '#3A3A3A',
-                borderRadius: 4,
-                width: 280,
-                height: 22,
-                margin: '0 auto',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontFamily: 'Inter, sans-serif',
-                fontSize: 11,
-                color: 'rgba(255,255,255,0.5)',
-              }}
-            >
-              karta.cre8so.com/e/pan-african-summit/agenda
+        {/* WIDE BROWSER FRAME — bleeds to bottom */}
+        <div style={{ background: '#1A1A1A', borderRadius: '14px 14px 0 0', overflow: 'hidden', boxShadow: '0 -4px 60px rgba(0,0,0,0.4)' }}>
+          {/* Chrome bar */}
+          <div style={{ background: '#2A2A2A', height: 36, display: 'flex', alignItems: 'center', padding: '0 14px', gap: 6 }}>
+            {['#FF5F57','#FEBC2E','#28C840'].map((c) => <div key={c} style={{ width: 10, height: 10, borderRadius: '50%', background: c }} />)}
+            <div style={{ background: '#3A3A3A', borderRadius: 5, height: 22, flex: 1, maxWidth: 320, marginLeft: 12, display: 'flex', alignItems: 'center', padding: '0 10px' }}>
+              <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, fontFamily: 'Inter,sans-serif' }}>karta.cre8so.com/e/pan-african-summit/agenda</span>
             </div>
           </div>
-
           {/* App content */}
-          <div style={{ background: '#FAF6EE', textAlign: 'left' }}>
+          <div style={{ background: '#FAF6EE' }}>
             {/* Day tabs */}
-            <div
-              style={{
-                background: '#FFFFFF',
-                borderBottom: '1px solid #E5E0D4',
-                padding: '12px 16px',
-                display: 'flex',
-                gap: 6,
-              }}
-            >
-              {[
-                { label: 'Day 1 · Mar 15', active: true },
-                { label: 'Day 2 · Mar 16', active: false },
-                { label: 'Day 3 · Mar 17', active: false },
-              ].map((tab) => (
-                <div
-                  key={tab.label}
-                  style={{
-                    fontFamily: 'Inter, sans-serif',
-                    fontSize: 13,
-                    fontWeight: tab.active ? 600 : 400,
-                    color: tab.active ? '#FFFFFF' : '#6B7A72',
-                    background: tab.active ? '#1F4D3A' : 'transparent',
-                    borderRadius: 6,
-                    padding: '6px 12px',
-                  }}
-                >
-                  {tab.label}
-                </div>
+            <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E5E0D4', padding: '0 16px', display: 'flex', gap: 4, alignItems: 'center', height: 44 }}>
+              {['Day 1 · Mar 15','Day 2 · Mar 16','Day 3 · Mar 17'].map((d, i) => (
+                <div key={d} style={{ padding: '6px 12px', borderRadius: 6, fontSize: 12, fontFamily: 'Inter,sans-serif', background: i === 0 ? '#1F4D3A' : 'transparent', color: i === 0 ? '#FAF6EE' : '#6B7A72', fontWeight: i === 0 ? 600 : 400 }}>{d}</div>
               ))}
+              <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
+                <div style={{ fontSize: 11, color: '#6B7A72', fontFamily: 'Inter,sans-serif', padding: '4px 8px', border: '1px solid #E5E0D4', borderRadius: 6 }}>All tracks</div>
+              </div>
             </div>
-
-            {/* Track headers */}
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '80px 1fr 1fr 1fr',
-                gap: 8,
-                padding: '12px 16px 6px',
-                borderBottom: '1px solid #E5E0D4',
-              }}
-            >
+            {/* Schedule grid */}
+            <div style={{ padding: '12px 16px 0', display: 'grid', gridTemplateColumns: '64px 1fr 1fr 1fr', gap: 8 }}>
+              {/* Column headers */}
               <div />
-              {[
-                { label: '🎨 Design Track', color: '#3A6B8C' },
-                { label: '⚙️ Tech Track', color: '#1F4D3A' },
-                { label: '💼 Business Track', color: '#C9A45E' },
-              ].map((track) => (
-                <div
-                  key={track.label}
-                  style={{
-                    fontFamily: 'Inter, sans-serif',
-                    fontSize: 11,
-                    fontWeight: 700,
-                    letterSpacing: '0.06em',
-                    textTransform: 'uppercase' as const,
-                    color: track.color,
-                  }}
-                >
-                  {track.label}
+              {[['🎨','Design Track','#3B82F6'],['⚙️','Tech Track','#1F4D3A'],['💼','Business Track','#C9A45E']].map(([icon, name, color]) => (
+                <div key={String(name)} style={{ fontSize: 11, fontFamily: 'Inter,sans-serif', color: String(color), fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' as const, paddingBottom: 6, borderBottom: `2px solid ${String(color)}20` }}>
+                  {String(icon)} {String(name)}
                 </div>
               ))}
-            </div>
 
-            {/* Session rows */}
-            <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
-              {/* Row 1 — Keynote (full width) */}
-              <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr', gap: 8, alignItems: 'start' }}>
-                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72', paddingTop: 12 }}>9:00–9:45</div>
-                <div
-                  style={{
-                    background: '#FFFFFF',
-                    border: '1px solid #E5E0D4',
-                    borderLeft: '4px solid #1F4D3A',
-                    borderRadius: 8,
-                    padding: '10px 14px',
-                  }}
-                >
-                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600, color: '#0F1F18', marginBottom: 4 }}>
-                    Opening Keynote: The Future of African Innovation
-                  </div>
-                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72' }}>Main Stage · All tracks · Dr. Amara Osei</div>
-                </div>
+              {/* Time label col */}
+              <div style={{ fontSize: 11, color: '#6B7A72', fontFamily: 'Inter,sans-serif', paddingTop: 8 }}>9:00</div>
+              {/* Keynote spanning 3 cols */}
+              <div style={{ gridColumn: '2 / 5', background: '#FFFFFF', border: '1px solid #E5E0D4', borderLeft: '3px solid #1F4D3A', borderRadius: 8, padding: '10px 12px', marginBottom: 8 }}>
+                <div style={{ fontSize: 11, fontFamily: 'Inter,sans-serif', fontWeight: 700, color: '#0F1F18' }}>Opening Keynote: The Future of African Innovation</div>
+                <div style={{ fontSize: 10, color: '#6B7A72', marginTop: 3 }}>Dr. Amara Osei · Main Stage · All tracks</div>
               </div>
 
-              {/* Row 2 — Three tracks */}
-              <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr 1fr 1fr', gap: 8, alignItems: 'start' }}>
-                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72', paddingTop: 12 }}>10:30–11:15</div>
-                {[
-                  { title: 'Designing for Low-Bandwidth Users', speaker: 'Aisha Mwangi', color: '#3A6B8C' },
-                  { title: 'Building for M-Pesa', speaker: 'Kofi Asante', color: '#1F4D3A' },
-                  { title: 'Investor Q&A Panel', speaker: '4 speakers', color: '#C9A45E' },
-                ].map((session) => (
-                  <div
-                    key={session.title}
-                    style={{
-                      background: '#FFFFFF',
-                      border: '1px solid #E5E0D4',
-                      borderLeft: `3px solid ${session.color}`,
-                      borderRadius: 8,
-                      padding: '10px 12px',
-                    }}
-                  >
-                    <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 600, color: '#0F1F18', marginBottom: 4, lineHeight: 1.4 }}>
-                      {session.title}
-                    </div>
-                    <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72' }}>{session.speaker}</div>
-                  </div>
-                ))}
+              <div style={{ fontSize: 11, color: '#6B7A72', fontFamily: 'Inter,sans-serif', paddingTop: 4 }}>10:30</div>
+              <div style={{ background: 'rgba(59,130,246,0.07)', border: '1px solid rgba(59,130,246,0.2)', borderRadius: 8, padding: '8px 10px', fontSize: 11, fontFamily: 'Inter,sans-serif' }}>
+                <div style={{ fontWeight: 600, color: '#0F1F18' }}>Designing for Low Bandwidth</div>
+                <div style={{ color: '#6B7A72', fontSize: 10, marginTop: 2 }}>Aisha Mwangi · Studio A</div>
+              </div>
+              <div style={{ background: 'rgba(31,77,58,0.07)', border: '1px solid rgba(31,77,58,0.2)', borderRadius: 8, padding: '8px 10px', fontSize: 11, fontFamily: 'Inter,sans-serif' }}>
+                <div style={{ fontWeight: 600, color: '#0F1F18' }}>Building for M-Pesa</div>
+                <div style={{ color: '#6B7A72', fontSize: 10, marginTop: 2 }}>Kofi Asante · Tech Lab</div>
+              </div>
+              <div style={{ background: 'rgba(201,164,94,0.07)', border: '1px solid rgba(201,164,94,0.2)', borderRadius: 8, padding: '8px 10px', fontSize: 11, fontFamily: 'Inter,sans-serif' }}>
+                <div style={{ fontWeight: 600, color: '#0F1F18' }}>Investor Q&amp;A Panel</div>
+                <div style={{ color: '#6B7A72', fontSize: 10, marginTop: 2 }}>4 speakers · Boardroom</div>
               </div>
 
-              {/* Row 3 — Two sessions + break */}
-              <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr 1fr 1fr', gap: 8, alignItems: 'start' }}>
-                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72', paddingTop: 12 }}>11:30–12:15</div>
-                <div
-                  style={{
-                    background: '#FFFFFF',
-                    border: '1px solid #E5E0D4',
-                    borderLeft: '3px solid #3A6B8C',
-                    borderRadius: 8,
-                    padding: '10px 12px',
-                  }}
-                >
-                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 600, color: '#0F1F18', marginBottom: 4, lineHeight: 1.4 }}>
-                    Type Systems in Production
-                  </div>
-                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72' }}>Nadia Owusu</div>
-                </div>
-                <div
-                  style={{
-                    background: '#FFFFFF',
-                    border: '1px solid #E5E0D4',
-                    borderLeft: '3px solid #1F4D3A',
-                    borderRadius: 8,
-                    padding: '10px 12px',
-                  }}
-                >
-                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 600, color: '#0F1F18', marginBottom: 4, lineHeight: 1.4 }}>
-                    Serverless on the Continent
-                  </div>
-                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72' }}>Emmanuel Diallo</div>
-                </div>
-                <div
-                  style={{
-                    background: 'transparent',
-                    border: '1px dashed #C9C3B1',
-                    borderRadius: 8,
-                    padding: '10px 12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6B7A72' }}>Networking Break</span>
-                </div>
+              <div style={{ fontSize: 11, color: '#6B7A72', fontFamily: 'Inter,sans-serif', paddingTop: 4 }}>12:00</div>
+              <div style={{ gridColumn: '2/5', background: 'transparent', border: '1.5px dashed #E5E0D4', borderRadius: 8, padding: '8px 12px', fontSize: 11, color: '#6B7A72', fontFamily: 'Inter,sans-serif' }}>
+                Networking Lunch · Rooftop Terrace
               </div>
             </div>
+            <div style={{ height: 16 }} />
           </div>
         </div>
       </div>

@@ -104,256 +104,82 @@ const STATS = [
 
 function SpeakersMockup() {
   return (
-    <section
-      style={{
-        background: '#1F4D3A',
-        padding: '80px 24px',
-        textAlign: 'center',
-      }}
-    >
-      <div style={{ maxWidth: 920, margin: '0 auto' }}>
-        <div
-          style={{
-            fontFamily: 'Inter, sans-serif',
-            fontSize: 11,
-            fontWeight: 700,
-            letterSpacing: '0.15em',
-            color: '#E8C57E',
-            textTransform: 'uppercase' as const,
-            marginBottom: 16,
-          }}
-        >
-          ATTENDEE VIEW
-        </div>
-        <h2
-          style={{
-            fontFamily: 'DM Sans, sans-serif',
-            fontSize: 28,
-            fontWeight: 700,
-            letterSpacing: '-0.02em',
-            color: '#FAF6EE',
-            marginBottom: 12,
-          }}
-        >
-          The directory that builds anticipation.
-        </h2>
-        <p
-          style={{
-            fontFamily: 'Inter, sans-serif',
-            fontSize: 16,
-            color: 'rgba(250,246,238,0.65)',
-            marginBottom: 48,
-            lineHeight: 1.6,
-          }}
-        >
-          Attendees browse speakers before the event. Speakers share their profile after.
-        </p>
+    <section style={{ background: '#0F1F18', padding: 'clamp(72px,10vw,112px) clamp(20px,4vw,48px)', overflow: 'hidden' }}>
+      <div style={{ maxWidth: 1080, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 56, alignItems: 'center' }}>
 
-        {/* Browser frame */}
-        <div
-          style={{
-            maxWidth: 880,
-            margin: '0 auto',
-            background: '#FFFFFF',
-            borderRadius: 14,
-            overflow: 'hidden',
-            boxShadow: '0 32px 80px rgba(0,0,0,0.35)',
-            textAlign: 'left',
-          }}
-        >
+        {/* LEFT — Text */}
+        <div>
+          <div style={{ display: 'inline-block', background: 'rgba(232,197,126,0.12)', border: '1px solid rgba(232,197,126,0.25)', color: '#E8C57E', fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase' as const, borderRadius: 999, padding: '5px 14px', fontFamily: 'Inter,sans-serif', marginBottom: 20 }}>
+            Speaker Directory
+          </div>
+          <h2 style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 'clamp(1.7rem,3vw,2.4rem)', fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 16 }}>
+            A directory that builds anticipation before day one.
+          </h2>
+          <p style={{ fontFamily: 'Inter,sans-serif', fontSize: 16, color: 'rgba(250,246,238,0.60)', lineHeight: 1.65, marginBottom: 24, maxWidth: 420 }}>
+            Every speaker gets a public profile with photo, bio, LinkedIn, and their session schedule. Attendees browse before the event. Speakers share it after.
+          </p>
+          <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px', display: 'flex', flexDirection: 'column' as const, gap: 10 }}>
+            {[
+              'Speaker profiles with session links automatically generated',
+              'Featured keynotes pinned to the top of the directory',
+              'Each speaker gets a shareable URL they can post on LinkedIn',
+            ].map((b) => (
+              <li key={b} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontFamily: 'Inter,sans-serif', fontSize: 14, color: 'rgba(250,246,238,0.70)', lineHeight: 1.5 }}>
+                <span style={{ color: '#E8C57E', marginTop: 2, flexShrink: 0 }}>✦</span>
+                {b}
+              </li>
+            ))}
+          </ul>
+          <Link href="/signup" style={{ display: 'inline-flex', alignItems: 'center', background: '#E8C57E', color: '#0F1F18', fontFamily: 'Inter,sans-serif', fontSize: 14, fontWeight: 700, padding: '12px 22px', borderRadius: 10, textDecoration: 'none' }}>
+            Add speakers to your event →
+          </Link>
+        </div>
+
+        {/* RIGHT — Browser card */}
+        <div style={{ maxWidth: 480, width: '100%', background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 16, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }}>
+
           {/* Nav strip */}
-          <div
-            style={{
-              background: '#FAF6EE',
-              borderBottom: '1px solid #E5E0D4',
-              height: 44,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '0 20px',
-            }}
-          >
-            <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600, color: '#1F4D3A' }}>
-              Pan-African Tech Summit · Speakers
-            </span>
-            <span
-              style={{
-                fontFamily: 'Inter, sans-serif',
-                fontSize: 12,
-                color: '#6B7A72',
-                background: '#E8EFEB',
-                borderRadius: 20,
-                padding: '3px 10px',
-              }}
-            >
-              32 speakers
-            </span>
+          <div style={{ background: '#FAF6EE', borderBottom: '1px solid #E5E0D4', padding: '0 16px', height: 40, display: 'flex', flexDirection: 'row' as const, alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, fontWeight: 700, color: '#1F4D3A' }}>Pan-African Tech Summit · Speakers</span>
+            <span style={{ background: '#E8EFEB', color: '#1F4D3A', fontSize: 10, borderRadius: 999, padding: '2px 8px', fontFamily: 'Inter,sans-serif' }}>32 speakers</span>
           </div>
 
           {/* Featured speaker */}
-          <div
-            style={{
-              background: 'linear-gradient(135deg, #1F4D3A 0%, #163828 100%)',
-              padding: 28,
-              display: 'flex',
-              gap: 20,
-              alignItems: 'flex-start',
-            }}
-          >
-            {/* Avatar */}
-            <div
-              style={{
-                width: 72,
-                height: 72,
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, #E8C57E 0%, #C9A45E 100%)',
-                border: '3px solid #E8C57E',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontFamily: 'DM Sans, sans-serif',
-                fontSize: 22,
-                fontWeight: 700,
-                color: '#163828',
-                flexShrink: 0,
-              }}
-            >
+          <div style={{ background: 'linear-gradient(135deg,#1F4D3A,#163828)', padding: 18, display: 'flex', flexDirection: 'row' as const, gap: 14, alignItems: 'flex-start' }}>
+            <div style={{ width: 60, height: 60, borderRadius: '50%', background: 'linear-gradient(135deg,#E8C57E,#C9A45E)', border: '2.5px solid #E8C57E', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'DM Sans,sans-serif', fontSize: 18, fontWeight: 700, color: '#163828', flexShrink: 0 }}>
               AO
             </div>
-            {/* Info */}
             <div style={{ flex: 1 }}>
-              <div
-                style={{
-                  fontFamily: 'Inter, sans-serif',
-                  fontSize: 10,
-                  fontWeight: 700,
-                  letterSpacing: '0.12em',
-                  color: '#E8C57E',
-                  textTransform: 'uppercase' as const,
-                  marginBottom: 6,
-                }}
-              >
-                FEATURED KEYNOTE
-              </div>
-              <div
-                style={{
-                  fontFamily: 'DM Sans, sans-serif',
-                  fontSize: 22,
-                  fontWeight: 700,
-                  color: '#FAF6EE',
-                  marginBottom: 4,
-                }}
-              >
-                Dr. Amara Osei
-              </div>
-              <div
-                style={{
-                  fontFamily: 'Inter, sans-serif',
-                  fontSize: 13,
-                  color: 'rgba(250,246,238,0.75)',
-                  marginBottom: 8,
-                }}
-              >
-                CEO, AfriTech Ventures
-              </div>
-              <div
-                style={{
-                  fontFamily: 'Inter, sans-serif',
-                  fontSize: 13,
-                  color: 'rgba(250,246,238,0.6)',
-                  marginBottom: 12,
-                  lineHeight: 1.5,
-                  overflow: 'hidden',
-                  display: '-webkit-box',
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical' as const,
-                }}
-              >
-                Pioneer in pan-African technology ecosystems with 20+ years building scalable ventures across 12 countries.
-              </div>
-              <div
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  background: 'rgba(232,197,126,0.2)',
-                  color: '#E8C57E',
-                  fontFamily: 'Inter, sans-serif',
-                  fontSize: 11,
-                  fontWeight: 600,
-                  padding: '4px 10px',
-                  borderRadius: 20,
-                }}
-              >
+              <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 9, fontWeight: 700, color: '#E8C57E', textTransform: 'uppercase' as const, letterSpacing: '0.14em', marginBottom: 4 }}>FEATURED KEYNOTE</div>
+              <div style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 17, fontWeight: 700, color: '#FAF6EE' }}>Dr. Amara Osei</div>
+              <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, color: 'rgba(250,246,238,0.65)', marginTop: 2 }}>CEO, AfriTech Ventures · Nairobi</div>
+              <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, color: 'rgba(250,246,238,0.5)', lineHeight: 1.4, marginTop: 6 }}>AI is transforming how African entrepreneurs...</div>
+              <div style={{ display: 'inline-block', background: 'rgba(232,197,126,0.18)', color: '#E8C57E', fontFamily: 'Inter,sans-serif', fontSize: 10, borderRadius: 6, padding: '3px 8px', marginTop: 8 }}>
                 Opening Keynote · Mar 15 · 9:00 AM
               </div>
             </div>
           </div>
 
           {/* Speaker grid */}
-          <div
-            style={{
-              padding: 16,
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: 12,
-            }}
-          >
+          <div style={{ padding: 14, display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 8 }}>
             {[
-              { initials: 'AM', name: 'Aisha Mwangi', title: 'Head of Product · M-Pesa', session: 'Design Track · 10:30 AM', bg: '#E8EFEB', color: '#1F4D3A' },
-              { initials: 'KA', name: 'Kofi Asante', title: 'Lead Engineer · Flutterwave', session: 'Tech Track · 10:30 AM', bg: '#E8EFEB', color: '#1F4D3A' },
-              { initials: 'FH', name: 'Fatima Hassan', title: 'Investment Director · Partech', session: 'Business Track · 10:30 AM', bg: '#E8EFEB', color: '#1F4D3A' },
-            ].map((speaker) => (
-              <div
-                key={speaker.name}
-                style={{
-                  background: '#FFFFFF',
-                  border: '1px solid #E5E0D4',
-                  borderRadius: 12,
-                  padding: 16,
-                }}
-              >
-                <div
-                  style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: '50%',
-                    background: speaker.bg,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontFamily: 'DM Sans, sans-serif',
-                    fontSize: 14,
-                    fontWeight: 700,
-                    color: speaker.color,
-                    marginBottom: 10,
-                  }}
-                >
-                  {speaker.initials}
+              { initials: 'AM', name: 'Aisha Mwangi', title: 'Head of Product · M-Pesa', session: 'Design Track · 10:30 AM', avatarBg: '#E8EFEB', avatarColor: '#1F4D3A' },
+              { initials: 'KA', name: 'Kofi Asante', title: 'CTO · Flutterwave', session: 'Tech Track · 10:30 AM', avatarBg: 'rgba(31,77,58,0.15)', avatarColor: '#1F4D3A' },
+              { initials: 'FH', name: 'Fatima Hassan', title: 'Investment Dir. · Partech', session: 'Business Track · 10:30 AM', avatarBg: 'rgba(232,197,126,0.2)', avatarColor: '#C9A45E' },
+              { initials: 'TN', name: 'Tinashe Nyathi', title: 'Founder · Paystack', session: 'Business Track · 2:00 PM', avatarBg: '#E8EFEB', avatarColor: '#1F4D3A' },
+            ].map((sp) => (
+              <div key={sp.initials} style={{ background: '#FAF6EE', border: '1px solid #E5E0D4', borderRadius: 12, padding: 12 }}>
+                <div style={{ width: 36, height: 36, borderRadius: '50%', background: sp.avatarBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'DM Sans,sans-serif', fontSize: 12, fontWeight: 700, color: sp.avatarColor }}>
+                  {sp.initials}
                 </div>
-                <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, fontWeight: 700, color: '#0F1F18', marginBottom: 2 }}>
-                  {speaker.name}
-                </div>
-                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72', marginBottom: 8, lineHeight: 1.4 }}>
-                  {speaker.title}
-                </div>
-                <div
-                  style={{
-                    fontFamily: 'Inter, sans-serif',
-                    fontSize: 10,
-                    fontWeight: 600,
-                    color: '#1F4D3A',
-                    background: '#E8EFEB',
-                    borderRadius: 20,
-                    padding: '3px 8px',
-                    display: 'inline-block',
-                  }}
-                >
-                  {speaker.session}
-                </div>
+                <div style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 13, fontWeight: 700, color: '#0F1F18', marginTop: 6 }}>{sp.name}</div>
+                <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 11, color: '#6B7A72', marginTop: 1 }}>{sp.title}</div>
+                <div style={{ display: 'inline-block', background: '#E8EFEB', color: '#1F4D3A', fontFamily: 'Inter,sans-serif', fontSize: 10, borderRadius: 4, padding: '2px 6px', marginTop: 6 }}>{sp.session}</div>
               </div>
             ))}
           </div>
         </div>
+
       </div>
     </section>
   );
