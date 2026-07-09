@@ -1778,24 +1778,31 @@ class _SponsorStrip extends StatelessWidget {
       spacing: 10,
       runSpacing: 10,
       children: sponsors.map((s) {
-        return Container(
-          constraints: const BoxConstraints(minWidth: 88),
-          height: 56,
-          padding: const EdgeInsets.symmetric(horizontal: 14),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.border),
+        // IntrinsicWidth: a Container with `alignment` set expands to fill
+        // whatever bounded width its parent offers (Wrap's row width here),
+        // regardless of `constraints.minWidth` — the same bug that made the
+        // organizer Profile role chips render as full-width bars. Forcing
+        // this to its intrinsic width keeps it a compact, minWidth-88 pill.
+        return IntrinsicWidth(
+          child: Container(
+            constraints: const BoxConstraints(minWidth: 88),
+            height: 56,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: (s.logoUrl != null && s.logoUrl!.isNotEmpty)
+                ? Image.network(
+                    s.logoUrl!,
+                    height: 28,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => _sponsorName(s),
+                  )
+                : _sponsorName(s),
           ),
-          child: (s.logoUrl != null && s.logoUrl!.isNotEmpty)
-              ? Image.network(
-                  s.logoUrl!,
-                  height: 28,
-                  fit: BoxFit.contain,
-                  errorBuilder: (_, __, ___) => _sponsorName(s),
-                )
-              : _sponsorName(s),
         );
       }).toList(),
     );
