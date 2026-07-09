@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
-import { Mic, Clock, MapPin, Link2, Globe, ArrowLeft } from 'lucide-react';
+import { Mic, Clock, MapPin, Link2, Globe, ArrowLeft, Twitter, ChevronRight } from 'lucide-react';
 import { resolvePublicSlug } from '@/lib/events/resolvePublicSlug';
 import { ownedSpeaker } from '@/lib/rbac/ownership';
 import { PublicNav } from '@/components/events/PublicNav';
@@ -107,8 +107,13 @@ export default async function PublicSpeakerPage({ params }: Props) {
                     <Link2 size={16} strokeWidth={1.8} />
                   </a>
                 )}
+                {speaker.twitter_url && (
+                  <a href={speaker.twitter_url} target="_blank" rel="noopener noreferrer" aria-label="Twitter / X profile" style={{ color: '#1F4D3A' }}>
+                    <Twitter size={16} strokeWidth={1.8} />
+                  </a>
+                )}
                 {speaker.website_url && (
-                  <a href={speaker.website_url} target="_blank" rel="noopener noreferrer" style={{ color: '#1F4D3A' }}>
+                  <a href={speaker.website_url} target="_blank" rel="noopener noreferrer" aria-label="Website" style={{ color: '#1F4D3A' }}>
                     <Globe size={16} strokeWidth={1.8} />
                   </a>
                 )}
@@ -131,27 +136,33 @@ export default async function PublicSpeakerPage({ params }: Props) {
             <ul>
               {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {sessions.map((s: any, i: number) => (
-                <li key={s.id} className="px-6 py-4 flex items-start gap-3"
-                  style={{ borderTop: i > 0 ? '1px solid #F0EDE6' : 'none' }}>
-                  <span className="grid place-items-center w-8 h-8 rounded-lg shrink-0 mt-0.5"
-                    style={{ background: '#FAF6EE', color: '#1F4D3A', border: '1px solid #E5E0D4' }}>
-                    <Mic size={14} strokeWidth={1.8} />
-                  </span>
-                  <div className="min-w-0">
-                    <div className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>{s.title}</div>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-[12.5px]" style={{ color: '#6B7A72' }}>
-                      {s.starts_at && (
-                        <span className="inline-flex items-center gap-1.5">
-                          <Clock size={12} strokeWidth={1.9} /> {fmtTime(s.starts_at)}
-                        </span>
-                      )}
-                      {s.room && (
-                        <span className="inline-flex items-center gap-1.5">
-                          <MapPin size={12} strokeWidth={1.9} /> {s.room}
-                        </span>
-                      )}
+                <li key={s.id} style={{ borderTop: i > 0 ? '1px solid #F0EDE6' : 'none' }}>
+                  <Link
+                    href={`/e/${params.slug}/sessions/${s.id}`}
+                    className="group px-6 py-4 flex items-center gap-3 transition hover:bg-[#F7F4ED]"
+                    style={{ textDecoration: 'none' }}
+                  >
+                    <span className="grid place-items-center w-8 h-8 rounded-lg shrink-0 mt-0.5"
+                      style={{ background: '#FAF6EE', color: '#1F4D3A', border: '1px solid #E5E0D4' }}>
+                      <Mic size={14} strokeWidth={1.8} />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[14px] font-medium group-hover:text-[#1F4D3A] transition-colors" style={{ color: '#0F1F18' }}>{s.title}</div>
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-[12.5px]" style={{ color: '#3A4A42' }}>
+                        {s.starts_at && (
+                          <span className="inline-flex items-center gap-1.5">
+                            <Clock size={12} strokeWidth={1.9} /> {fmtTime(s.starts_at)}
+                          </span>
+                        )}
+                        {s.room && (
+                          <span className="inline-flex items-center gap-1.5">
+                            <MapPin size={12} strokeWidth={1.9} /> {s.room}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  </div>
+                    <ChevronRight size={16} strokeWidth={2} className="shrink-0" style={{ color: '#C9C3B1' }} />
+                  </Link>
                 </li>
               ))}
             </ul>
