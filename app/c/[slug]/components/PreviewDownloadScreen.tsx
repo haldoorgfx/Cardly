@@ -27,23 +27,6 @@ function WhatsAppIcon({ size = 22 }: { size?: number }) {
   );
 }
 
-function InstagramIcon({ size = 22 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24">
-      <defs>
-        <linearGradient id="igPrev" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#feda75"/>
-          <stop offset="30%" stopColor="#fa7e1e"/>
-          <stop offset="60%" stopColor="#d62976"/>
-          <stop offset="100%" stopColor="#4f5bd5"/>
-        </linearGradient>
-      </defs>
-      <rect x="2" y="2" width="20" height="20" rx="5.5" fill="url(#igPrev)"/>
-      <circle cx="12" cy="12" r="4.2" fill="none" stroke="#fff" strokeWidth="1.8"/>
-      <circle cx="17.4" cy="6.6" r="1.1" fill="#fff"/>
-    </svg>
-  );
-}
 
 function XIcon({ size = 22 }: { size?: number }) {
   return (

@@ -3,7 +3,7 @@ import Image from 'next/image';
 import {
   ArrowRight, Check, Mic, Heart, Flag, Sun, ShoppingBag, GraduationCap,
   Layers, Crop, Eye, Share2, Globe, UserX, PenLine, Send,
-  Quote, Upload, ScanLine,
+  Upload, ScanLine,
 } from 'lucide-react';
 import { DotGrid } from '@/components/marketing/DotGrid';
 import { FAQAccordion, type FAQItem } from '@/components/marketing/FAQAccordion';
