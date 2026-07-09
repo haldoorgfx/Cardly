@@ -108,6 +108,151 @@ const stats = [
   { value: '82%', label: 'meeting confirmation rate' },
 ];
 
+function NetworkingMockup() {
+  return (
+    <section
+      style={{
+        background: 'linear-gradient(180deg, #1F4D3A 0%, #163828 100%)',
+        padding: '80px 24px',
+      }}
+    >
+      <div style={{ maxWidth: 400, margin: '0 auto', textAlign: 'center' }}>
+        {/* Header */}
+        <div
+          style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase' as const,
+            color: '#E8C57E',
+            marginBottom: 12,
+          }}
+        >
+          Attendee View
+        </div>
+        <h2
+          style={{
+            fontFamily: '"DM Sans", sans-serif',
+            fontSize: 'clamp(22px, 4vw, 28px)',
+            fontWeight: 700,
+            letterSpacing: '-0.02em',
+            color: '#FAF6EE',
+            marginBottom: 10,
+          }}
+        >
+          Your best connections, before lunch.
+        </h2>
+        <p
+          style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: 16,
+            color: 'rgba(250,246,238,0.65)',
+            marginBottom: 48,
+            lineHeight: 1.5,
+          }}
+        >
+          AI reads every profile and surfaces the people worth meeting.
+        </p>
+
+        {/* Phone frame */}
+        <div
+          style={{
+            width: 300,
+            margin: '0 auto',
+            background: '#163828',
+            borderRadius: 36,
+            padding: 10,
+            boxShadow: '0 4px 12px rgba(15,31,24,0.5), 0 24px 60px rgba(15,31,24,0.6)',
+          }}
+        >
+          <div style={{ background: '#FAF6EE', borderRadius: 28, overflow: 'hidden' }}>
+            {/* Header bar */}
+            <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E5E0D4', padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 16, fontWeight: 700, color: '#0F1F18' }}>Who to meet</span>
+              <span style={{ background: '#E8EFEB', color: '#1F4D3A', borderRadius: 999, padding: '3px 8px', fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600 }}>
+                3 new matches
+              </span>
+            </div>
+
+            {/* Match cards */}
+            <div style={{ padding: '8px 0' }}>
+              {/* Card 1 — Top match */}
+              <div style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 14, margin: '8px 12px', padding: 14, display: 'flex', gap: 12, position: 'relative' as const }}>
+                <div style={{ position: 'absolute' as const, top: 10, right: 10, background: 'rgba(232,197,126,0.2)', color: '#E8C57E', borderRadius: 4, padding: '2px 6px', fontFamily: 'Inter, sans-serif', fontSize: 9, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' as const }}>
+                  Top Match
+                </div>
+                <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'linear-gradient(135deg, #1F4D3A, #2A6A50)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: '"DM Sans", sans-serif', fontSize: 16, fontWeight: 700, color: '#FAF6EE', flexShrink: 0 }}>
+                  KA
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 14, fontWeight: 700, color: '#0F1F18', marginBottom: 2 }}>Kofi Asante</div>
+                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6B7A72', marginBottom: 6 }}>CTO · Flutterwave · Lagos</div>
+                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' as const, marginBottom: 8 }}>
+                    {['Fintech', 'APIs', 'Python'].map((tag) => (
+                      <span key={tag} style={{ background: '#E8EFEB', color: '#1F4D3A', borderRadius: 4, padding: '2px 6px', fontFamily: 'Inter, sans-serif', fontSize: 10, fontWeight: 500 }}>{tag}</span>
+                    ))}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#2D7A4F', fontWeight: 600 }}>94% match</span>
+                    <span style={{ background: '#1F4D3A', color: '#FAF6EE', borderRadius: 6, padding: '4px 10px', fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600 }}>Connect →</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 2 */}
+              <div style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 14, margin: '8px 12px', padding: 14, display: 'flex', gap: 12 }}>
+                <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'linear-gradient(135deg, #C9A45E, #E8C57E)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: '"DM Sans", sans-serif', fontSize: 16, fontWeight: 700, color: '#0F1F18', flexShrink: 0 }}>
+                  FH
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 14, fontWeight: 700, color: '#0F1F18', marginBottom: 2 }}>Fatima Hassan</div>
+                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6B7A72', marginBottom: 6 }}>Investment Director · Partech Africa</div>
+                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' as const, marginBottom: 8 }}>
+                    {['Venture Capital', 'SaaS'].map((tag) => (
+                      <span key={tag} style={{ background: '#E8EFEB', color: '#1F4D3A', borderRadius: 4, padding: '2px 6px', fontFamily: 'Inter, sans-serif', fontSize: 10, fontWeight: 500 }}>{tag}</span>
+                    ))}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#2D7A4F', fontWeight: 600 }}>87% match</span>
+                    <span style={{ background: '#1F4D3A', color: '#FAF6EE', borderRadius: 6, padding: '4px 10px', fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600 }}>Connect →</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 3 */}
+              <div style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 14, margin: '8px 12px', padding: 14, display: 'flex', gap: 12 }}>
+                <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#E8EFEB', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: '"DM Sans", sans-serif', fontSize: 16, fontWeight: 700, color: '#1F4D3A', flexShrink: 0 }}>
+                  BB
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 14, fontWeight: 700, color: '#0F1F18', marginBottom: 2 }}>Blessing Balogun</div>
+                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6B7A72', marginBottom: 6 }}>Product Lead · Andela</div>
+                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' as const, marginBottom: 8 }}>
+                    {['Product', 'Design'].map((tag) => (
+                      <span key={tag} style={{ background: '#E8EFEB', color: '#1F4D3A', borderRadius: 4, padding: '2px 6px', fontFamily: 'Inter, sans-serif', fontSize: 10, fontWeight: 500 }}>{tag}</span>
+                    ))}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#2D7A4F', fontWeight: 600 }}>81% match</span>
+                    <span style={{ background: '#1F4D3A', color: '#FAF6EE', borderRadius: 6, padding: '4px 10px', fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600 }}>Connect →</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer bar */}
+            <div style={{ background: '#FFFFFF', borderTop: '1px solid #E5E0D4', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6B7A72' }}>3 of 12 matches shown</span>
+              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#1F4D3A', fontWeight: 600 }}>See all →</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function NetworkingPage() {
   return (
     <>
@@ -240,6 +385,8 @@ export default function NetworkingPage() {
           </div>
         </div>
       </section>
+
+      <NetworkingMockup />
 
       {/* ── Features grid ─────────────────────────────────────── */}
       <section
