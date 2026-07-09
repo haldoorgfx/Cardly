@@ -200,7 +200,7 @@ const QUALITY_BARS = [
   { label: 'Cold · browsing',    color: '#A8C2B5' },
 ];
 
-export function OverviewTab({ stats: initialStats, boothNumber, token }: Props) {
+export function OverviewTab({ stats: initialStats, token }: Props) {
   const [stats, setStats]     = useState(initialStats);
   const [showModal, setShowModal] = useState(false);
 
@@ -289,24 +289,10 @@ export function OverviewTab({ stats: initialStats, boothNumber, token }: Props) 
 
         <Panel title="Your sessions">
           <div className="grid gap-2.5">
-            {boothNumber
-              ? (
-                <div className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 border" style={{ background: 'rgba(250,246,238,0.6)', borderColor: '#E5E0D4' }}>
-                  <span className="w-8 h-8 rounded-lg grid place-items-center shrink-0" style={{ background: '#E8EFEB', color: '#1F4D3A' }}>
-                    <svg width={14} height={14} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
-                    </svg>
-                  </span>
-                  <div className="min-w-0">
-                    <div className="text-[13px] font-medium" style={{ color: '#0F1F18' }}>Product demo at booth</div>
-                    <div className=" text-[10.5px] mt-0.5" style={{ color: '#6B7A72' }}>Booth {boothNumber}</div>
-                  </div>
-                </div>
-              )
-              : (
-                <p className="text-[13px] py-3" style={{ color: '#6B7A72' }}>No sessions scheduled yet.</p>
-              )
-            }
+            {/* No exhibitor-session data source exists yet — this used to fabricate
+                a "Product demo at booth" entry for any sponsor with a booth number,
+                regardless of whether a demo was ever actually scheduled. */}
+            <p className="text-[13px] py-3" style={{ color: '#6B7A72' }}>No sessions scheduled yet.</p>
           </div>
         </Panel>
       </div>
