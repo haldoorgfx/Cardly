@@ -1,13 +1,15 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   ChevronLeft, MoreHorizontal, MapPin, Lock, Clock, CalendarPlus,
   ArrowLeftRight, Receipt, Share2, MessageSquare, X, ChevronRight, Check,
-  Download,
+  Download, IdCard,
 } from 'lucide-react';
 import { EventToolsGrid } from './EventTools';
+import { GetCardModal, type CardVariant } from './GetCardModal';
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -50,6 +52,7 @@ type Registration = {
 interface Props {
   reg: Registration;
   scannedByName: string | null;
+  variant: CardVariant | null;
 }
 
 // ── Brand ────────────────────────────────────────────────────────────────────
@@ -266,11 +269,14 @@ function ReceiptModal({ reg, onClose }: { reg: Registration; onClose: () => void
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 
-export default function TicketDetailClient({ reg, scannedByName }: Props) {
+export default function TicketDetailClient({ reg, scannedByName, variant }: Props) {
+  const router = useRouter();
   const [showQR, setShowQR] = useState(false);
   const [showActions, setShowActions] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [showCardModal, setShowCardModal] = useState(false);
+  const [cardDataUrl, setCardDataUrl] = useState<string | null>(null);
 
   const ep = reg.events?.event_pages?.[0];
   const slug = reg.events?.slug ?? '';
@@ -308,6 +314,17 @@ export default function TicketDetailClient({ reg, scannedByName }: Props) {
   else if (isPendingPayment) { ribbonLabel = 'Payment pending'; ribbonColor = WARNING; }
 
   const qrLabel = [eventName, ticketName].filter(Boolean).join(' · ');
+
+  // Card generation: only offer it once the ticket is live (not blocked on
+  // payment), the event actually has a design, and no card exists yet.
+  const hasCard = !!reg.eventera_card_url || !!cardDataUrl;
+  const canGetCard = !isPendingPayment && !!variant && !hasCard;
+
+  function handleCardGenerated(dataUrl: string) {
+    setCardDataUrl(dataUrl);
+    setShowCardModal(false);
+    router.refresh();
+  }
 
   return (
     <div style={{ background: CREAM, minHeight: '100dvh' }}>
@@ -503,6 +520,45 @@ export default function TicketDetailClient({ reg, scannedByName }: Props) {
           </div>
         )}
 
+        {/* ── Eventera Card — generate on-demand if it wasn't made at registration ── */}
+        {cardDataUrl ? (
+          <div className="mt-4 rounded-2xl overflow-hidden" style={{ background: '#fff', border: `1px solid ${BORDER}` }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={cardDataUrl} alt="Your Eventera Card" className="w-full block" />
+            <div className="p-4 flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="font-display font-semibold text-[14px]" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>Your Eventera Card</div>
+                <div className="text-[12px] mt-0.5" style={{ color: MUTED }}>Saved — you can find it in My Cards too.</div>
+              </div>
+              <a
+                href={cardDataUrl}
+                download={`eventera-card-${reg.attendee_name.replace(/\s+/g, '-').toLowerCase()}.png`}
+                className="shrink-0 flex items-center gap-1.5 h-9 px-3.5 rounded-full text-[12.5px] font-semibold transition hover:opacity-90"
+                style={{ background: FOREST_SOFT, color: FOREST }}
+              >
+                <Download size={13} strokeWidth={2.2} /> Download
+              </a>
+            </div>
+          </div>
+        ) : canGetCard && (
+          <div className="mt-4 rounded-2xl p-4 flex items-center gap-3.5" style={{ background: '#fff', border: `1px solid ${BORDER}` }}>
+            <div className="shrink-0 w-11 h-11 rounded-full flex items-center justify-center" style={{ background: FOREST_SOFT }}>
+              <IdCard size={20} strokeWidth={1.9} style={{ color: FOREST }} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-display font-semibold text-[14px]" style={{ fontFamily: '"DM Sans", sans-serif', color: INK }}>Get my Eventera Card</div>
+              <div className="text-[12px] mt-0.5" style={{ color: MUTED }}>Personalise your branded card for this event.</div>
+            </div>
+            <button
+              onClick={() => setShowCardModal(true)}
+              className="shrink-0 flex items-center gap-1 h-9 px-3.5 rounded-full text-[12.5px] font-semibold text-white transition hover:opacity-90"
+              style={{ background: FOREST }}
+            >
+              Get card <ChevronRight size={13} strokeWidth={2.5} />
+            </button>
+          </div>
+        )}
+
         {/* ── Event tools — engage with the event and organizer ── */}
         {slug && (
           <div className="mt-7">
@@ -519,6 +575,18 @@ export default function TicketDetailClient({ reg, scannedByName }: Props) {
 
       {/* ── Receipt ── */}
       {showReceipt && <ReceiptModal reg={reg} onClose={() => setShowReceipt(false)} />}
+
+      {/* ── Get my Eventera Card ── */}
+      {showCardModal && variant && (
+        <GetCardModal
+          variant={variant}
+          registrationId={reg.id}
+          eventId={reg.events?.id ?? ''}
+          attendeeName={reg.attendee_name}
+          onClose={() => setShowCardModal(false)}
+          onGenerated={handleCardGenerated}
+        />
+      )}
 
       {/* ── Calendar source picker ── */}
       {showCalendar && canAddCalendar && (
