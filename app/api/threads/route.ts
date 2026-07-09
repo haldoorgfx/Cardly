@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { assertOwnsRegistration } from '@/lib/attendee-identity';
 import { z } from 'zod';
 
 const GetSchema = z.object({ registration_id: z.string().uuid(), event_id: z.string().uuid() });
@@ -12,6 +13,10 @@ export async function GET(req: NextRequest) {
   if (!parsed.success) return NextResponse.json({ error: 'Missing params' }, { status: 400 });
 
   const { registration_id, event_id } = parsed.data;
+
+  const identity = await assertOwnsRegistration(event_id, registration_id);
+  if (!identity.ok) return NextResponse.json({ error: identity.error }, { status: identity.status });
+
   const admin = createAdminClient();
 
   const { data: threads, error } = await admin
@@ -53,6 +58,10 @@ export async function POST(req: NextRequest) {
   if (!parsed.success) return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
 
   const { event_id, sender_id, recipient_id, content } = parsed.data;
+
+  const identity = await assertOwnsRegistration(event_id, sender_id);
+  if (!identity.ok) return NextResponse.json({ error: identity.error }, { status: identity.status });
+
   const admin = createAdminClient();
 
   // Normalise participant order (lower UUID first) for unique constraint

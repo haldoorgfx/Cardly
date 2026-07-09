@@ -25,6 +25,14 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ error: 'registration_id required' }, { status: 400 });
   }
 
+  // The caller-supplied registration_id gates everything below (which threads,
+  // whose inbox) — without this, anyone could read another attendee's DMs by
+  // swapping the id.
+  const identity = await assertOwnsRegistration(params.id, registrationId);
+  if (!identity.ok) {
+    return NextResponse.json({ error: identity.error }, { status: identity.status });
+  }
+
   const admin = createAdminClient();
 
   if (threadId) {
@@ -215,13 +223,32 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 }
 
 // PATCH — mark all messages in a thread as read
-export async function PATCH(req: NextRequest) {
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   const body = await req.json().catch(() => null);
   const parsed = ReadSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
 
   const { thread_id, registration_id } = parsed.data;
+
+  const identity = await assertOwnsRegistration(params.id, registration_id);
+  if (!identity.ok) {
+    return NextResponse.json({ error: identity.error }, { status: identity.status });
+  }
+
   const admin = createAdminClient();
+
+  // registration_id is verified above, but thread_id isn't — confirm it's
+  // actually one of this registration's own threads before touching it.
+  const { data: thread } = await admin
+    .from('message_threads')
+    .select('id')
+    .eq('id', thread_id)
+    .eq('event_id', params.id)
+    .or(`participant_a.eq.${registration_id},participant_b.eq.${registration_id}`)
+    .maybeSingle();
+  if (!thread) {
+    return NextResponse.json({ error: 'Thread not found' }, { status: 404 });
+  }
 
   await admin
     .from('messages')
