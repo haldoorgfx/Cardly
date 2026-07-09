@@ -6,6 +6,7 @@ export const metadata: Metadata = { title: 'Check-in' };
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
+import { hasCheckInAccess } from '@/lib/rbac/ownership';
 import CheckInDashboard from '@/components/check-in/CheckInDashboard';
 
 interface Props { params: Promise<{ id: string }> }
@@ -28,11 +29,12 @@ export default async function CheckInPage({ params }: Props) {
 
   const admin = createAdminClient();
 
+  if (!(await hasCheckInAccess(user.id, id))) redirect('/dashboard');
+
   const { data: event } = await admin
     .from('events')
     .select('id, name, slug, status')
     .eq('id', id)
-    .eq('user_id', user.id)
     .single();
 
   if (!event) redirect('/dashboard');

@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient, createClient } from '@/lib/supabase/server';
+import { hasCheckInAccess } from '@/lib/rbac/ownership';
 import { z } from 'zod';
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!(await hasCheckInAccess(user.id, params.id))) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   const admin = createAdminClient();
-  const { data: event } = await admin.from('events').select('id').eq('id', params.id).eq('user_id', user.id).single();
-  if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   // ?feed=1 → live feed + stats (used for auto-refresh)
   if (req.nextUrl.searchParams.get('feed') === '1') {
@@ -82,11 +82,13 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (!parsed.success) return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
 
   const { qr_code_token } = parsed.data;
+  if (!(await hasCheckInAccess(user.id, params.id))) return NextResponse.json({ error: 'Event not found' }, { status: 404 });
+
   const admin = createAdminClient();
 
   const { data: event } = await admin
     .from('events').select('id, name')
-    .eq('id', params.id).eq('user_id', user.id).single();
+    .eq('id', params.id).single();
   if (!event) return NextResponse.json({ error: 'Event not found' }, { status: 404 });
 
   const { data: epDate } = await admin.from('event_pages').select('starts_at, ends_at').eq('event_id', params.id).maybeSingle();

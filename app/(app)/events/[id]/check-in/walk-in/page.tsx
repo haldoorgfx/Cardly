@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { resolveEventRef } from '@/lib/events/resolveEventRef';
+import { hasCheckInAccess } from '@/lib/rbac/ownership';
 import { WalkInClient } from '@/components/check-in/WalkInClient';
 
 export async function generateMetadata() {
@@ -18,9 +19,11 @@ export default async function WalkInPage({ params }: { params: Promise<{ id: str
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
+  if (!(await hasCheckInAccess(user.id, id))) redirect('/dashboard');
+
   const admin = createAdminClient();
   const [{ data: event }, { data: tickets }, { data: checkinStats }, { data: eventPage }] = await Promise.all([
-    admin.from('events').select('id, name, slug, status').eq('id', id).eq('user_id', user.id).single(),
+    admin.from('events').select('id, name, slug, status').eq('id', id).single(),
     admin.from('ticket_types').select('id, name, price, currency, quantity').eq('event_id', id).eq('is_visible', true).order('position'),
     admin.from('registrations').select('id, status', { count: 'exact', head: false }).eq('event_id', id).in('status', ['confirmed', 'checked_in']),
     admin.from('event_pages').select('max_capacity').eq('event_id', id).maybeSingle(),
