@@ -300,7 +300,11 @@ class _RoleChip extends StatelessWidget {
     return Container(
       height: 24,
       padding: const EdgeInsets.symmetric(horizontal: 10),
-      alignment: Alignment.center,
+      // No `alignment` here: Container + non-null alignment expands to fill
+      // any bounded parent constraint (even Wrap's loose max-width), which is
+      // exactly how this pill ended up as a full-width bar. Dropping it lets
+      // the Container shrink-wrap to the Text, which is all the padding is
+      // for anyway.
       decoration: BoxDecoration(
         color: muted ? AppColors.creamSoft : AppColors.forestSoft,
         borderRadius: BorderRadius.circular(999),
