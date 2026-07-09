@@ -27,6 +27,7 @@ interface EventInfo {
   slug: string;
   starts_at: string | null;
   ends_at: string | null;
+  organizer_email?: string | null;
 }
 
 interface Session {
@@ -747,15 +748,7 @@ function CardTab({ speaker, event }: { speaker: Speaker; event: EventInfo }) {
 }
 
 /* ── Resources Tab ─────────────────────────────────────────────────── */
-function ResourcesTab({ resources }: { resources: Resource[] }) {
-  const FALLBACK_RESOURCES = [
-    { id: '1', title: 'Speaker brief & code of conduct', url: '#', file_type: 'PDF', file_size: 1258291 },
-    { id: '2', title: 'AV & stage guidelines', url: '#', file_type: 'PDF', file_size: 819200 },
-    { id: '3', title: 'Slide template (16:9)', url: '#', file_type: 'PPTX', file_size: null },
-    { id: '4', title: 'Travel & accommodation info', url: '#', file_type: 'Link', file_size: null },
-  ];
-  const items = resources.length > 0 ? resources : FALLBACK_RESOURCES;
-
+function ResourcesTab({ resources, organizerEmail }: { resources: Resource[]; organizerEmail?: string | null }) {
   return (
     <div className="max-w-[760px] mx-auto px-4 sm:px-6 py-8 space-y-4">
       <div>
@@ -763,8 +756,19 @@ function ResourcesTab({ resources }: { resources: Resource[] }) {
         <p className="text-[14px] mt-1" style={{ color: '#6B7A72' }}>Everything you need to prepare.</p>
       </div>
 
+      {resources.length === 0 ? (
+        <div className="flex flex-col items-center justify-center text-center py-16 rounded-xl" style={{ background: '#fff', border: '1px solid #E5E0D4' }}>
+          <div style={{ width: 40, height: 40, borderRadius: 8, background: '#E8EFEB', display: 'grid', placeItems: 'center', marginBottom: 12 }}>
+            <FileText size={16} style={{ color: '#1F4D3A' }} />
+          </div>
+          <div className="text-[14px] font-medium" style={{ color: '#0F1F18' }}>No resources yet</div>
+          <p className="text-[12.5px] mt-1 max-w-[320px]" style={{ color: '#6B7A72' }}>
+            When the organiser shares briefs, slide templates, or logistics docs, they&apos;ll appear here.
+          </p>
+        </div>
+      ) : (
       <div className="grid sm:grid-cols-2 gap-4">
-        {items.map((r) => (
+        {resources.map((r) => (
           <a
             key={r.id}
             href={r.url}
@@ -786,20 +790,24 @@ function ResourcesTab({ resources }: { resources: Resource[] }) {
           </a>
         ))}
       </div>
+      )}
 
-      {/* Help CTA */}
-      <div className="flex items-center justify-between px-5 py-4 rounded-xl" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }}>
-        <div>
-          <div className="text-[13px] font-medium" style={{ color: '#0F1F18' }}>Need help?</div>
-          <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>Reach the organiser team directly.</div>
+      {/* Help CTA — only shown when the organiser has a contact email on file */}
+      {organizerEmail && (
+        <div className="flex items-center justify-between px-5 py-4 rounded-xl" style={{ background: '#FAF6EE', border: '1px solid #E5E0D4' }}>
+          <div>
+            <div className="text-[13px] font-medium" style={{ color: '#0F1F18' }}>Need help?</div>
+            <div className="text-[12px] mt-0.5" style={{ color: '#6B7A72' }}>Reach the organiser team directly.</div>
+          </div>
+          <a
+            href={`mailto:${organizerEmail}`}
+            className="flex items-center gap-2 h-9 px-4 rounded-lg text-[13px] font-medium transition-colors"
+            style={{ background: '#1F4D3A', color: '#FAF6EE', textDecoration: 'none' }}
+          >
+            Message organiser
+          </a>
         </div>
-        <button
-          className="flex items-center gap-2 h-9 px-4 rounded-lg text-[13px] font-medium transition-colors"
-          style={{ background: '#1F4D3A', color: '#FAF6EE' }}
-        >
-          Message organiser
-        </button>
-      </div>
+      )}
     </div>
   );
 }
@@ -1033,7 +1041,7 @@ export function SpeakerPortalClient({ speaker: initialSpeaker, event, sessions, 
       {activeTab === 'qa' && <QATab questions={questions} sessions={sessions} />}
       {activeTab === 'greenroom' && <GreenRoomTab sessions={sessions} />}
       {activeTab === 'card' && <CardTab speaker={speaker} event={event} />}
-      {activeTab === 'resources' && <ResourcesTab resources={resources} />}
+      {activeTab === 'resources' && <ResourcesTab resources={resources} organizerEmail={event.organizer_email} />}
     </div>
   );
 }

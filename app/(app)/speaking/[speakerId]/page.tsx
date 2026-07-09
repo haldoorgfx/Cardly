@@ -42,7 +42,7 @@ export default async function SpeakerWorkspacePage({
       .eq('speaker_id', speakerId),
     admin
       .from('event_pages')
-      .select('starts_at, ends_at')
+      .select('starts_at, ends_at, organizer_email')
       .eq('event_id', speaker.event_id)
       .maybeSingle(),
   ]);
@@ -97,6 +97,7 @@ export default async function SpeakerWorkspacePage({
           slug: event.slug,
           starts_at: page?.starts_at ?? null,
           ends_at: page?.ends_at ?? null,
+          organizer_email: page?.organizer_email ?? null,
         }}
         sessions={sessions}
         resources={resources}
