@@ -3,7 +3,7 @@
   "configurations": [
     {
       "name": "karta-dev",
-      "runtimeExecutable": "pnpm",
+      "runtimeExecutable": "C:\\Users\\cabda\\AppData\\Roaming\\npm\\pnpm.cmd",
       "runtimeArgs": ["dev"],
       "port": 3000
     }
