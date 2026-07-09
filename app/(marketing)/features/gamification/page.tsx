@@ -26,82 +26,97 @@ const stats = [
 
 function GamificationMockup() {
   return (
-    <section style={{ background: '#0F1F18', padding: '80px 24px' }}>
-      <div style={{ maxWidth: 860, margin: '0 auto', textAlign: 'center' }}>
-        {/* Header */}
-        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600, color: '#E8C57E', letterSpacing: '0.15em', textTransform: 'uppercase' as const, marginBottom: 16 }}>ATTENDEE VIEW</p>
-        <h2 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 28, fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.02em', marginBottom: 12 }}>Friendly competition. Real engagement.</h2>
-        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: 'rgba(250,246,238,0.65)', marginBottom: 48 }}>Points update the moment they complete an action.</p>
-
-        {/* Phone Frame */}
-        <div style={{ width: 300, margin: '0 auto', background: '#163828', borderRadius: 36, padding: 10, boxShadow: '0 32px 80px rgba(0,0,0,0.5)' }}>
-          <div style={{ background: '#FAF6EE', borderRadius: 28, overflow: 'hidden' }}>
-
-            {/* Top Bar */}
-            <div style={{ background: '#1F4D3A', padding: 16 }}>
-              <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 15, fontWeight: 700, color: '#FAF6EE' }}>🏆 Leaderboard</div>
-              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: 'rgba(250,246,238,0.65)', marginTop: 2 }}>Pan-African Tech Summit · Day 1</div>
-              <div style={{ display: 'inline-block', background: 'rgba(255,255,255,0.12)', color: '#FAF6EE', fontFamily: 'Inter, sans-serif', fontSize: 11, borderRadius: 999, padding: '4px 10px', marginTop: 10 }}>Your rank: #7 · 340 pts</div>
-            </div>
-
-            {/* Top 3 */}
-            <div style={{ background: '#FFFFFF', margin: 8, borderRadius: 14, padding: 16 }}>
-              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, color: '#6B7A72', textTransform: 'uppercase' as const, letterSpacing: '0.05em', marginBottom: 12 }}>Top this event</div>
-              {[
-                { medal: '🥇', initials: 'AO', avatarBg: 'linear-gradient(135deg,#E8C57E,#C9A45E)', initialsColor: '#163828', name: 'Dr. Amara Osei', org: 'Nairobi Tech', pts: '1,240 pts' },
-                { medal: '🥈', initials: 'KA', avatarBg: 'linear-gradient(135deg,#1F4D3A,#2A6A50)', initialsColor: '#FAF6EE', name: 'Kofi Asante', org: 'Accra Labs', pts: '980 pts' },
-                { medal: '🥉', initials: 'FH', avatarBg: 'linear-gradient(135deg,#C9A45E,#E8C57E)', initialsColor: '#163828', name: 'Fatima Hassan', org: 'Lagos Startup', pts: '820 pts' },
-              ].map((r, i) => (
-                <div key={r.initials} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0', borderBottom: i < 2 ? '1px solid #F5F0E8' : 'none' }}>
-                  <span style={{ fontSize: 22 }}>{r.medal}</span>
-                  <div style={{ width: 40, height: 40, borderRadius: '50%', background: r.avatarBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, fontWeight: 700, color: r.initialsColor }}>{r.initials}</span>
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 700, color: '#0F1F18', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.name}</div>
-                    <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72' }}>{r.org}</div>
-                  </div>
-                  <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 700, color: '#1F4D3A', textAlign: 'right' as const, flexShrink: 0 }}>{r.pts}</div>
-                </div>
-              ))}
-            </div>
-
-            {/* Badges */}
-            <div style={{ background: '#FAF6EE', padding: '12px 16px' }}>
-              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 700, color: '#0F1F18', marginBottom: 10 }}>Your badges</div>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' as const }}>
+    <section style={{ background: '#0F1F18', padding: 'clamp(72px,10vw,112px) clamp(20px,4vw,48px)' }}>
+      <div style={{ maxWidth: 1080, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px,1fr))', gap: 'clamp(40px,6vw,80px)', alignItems: 'center' }}>
+        {/* LEFT — copy */}
+        <div>
+          <div style={{ display: 'inline-block', background: 'rgba(232,197,126,0.12)', border: '1px solid rgba(232,197,126,0.25)', color: '#E8C57E', fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase' as const, borderRadius: 999, padding: '5px 14px', fontFamily: 'Inter,sans-serif', marginBottom: 20 }}>
+            Attendee Engagement
+          </div>
+          <h2 style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 'clamp(1.7rem,3vw,2.4rem)', fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 16 }}>
+            Friendly competition that drives real event engagement.
+          </h2>
+          <p style={{ fontFamily: 'Inter,sans-serif', fontSize: 16, color: 'rgba(250,246,238,0.65)', lineHeight: 1.7, marginBottom: 28, maxWidth: 460 }}>
+            Points for every action. A live leaderboard everyone checks. Badges that mean something. The most engaged attendees rise — and everyone else wants in.
+          </p>
+          <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px', display: 'flex', flexDirection: 'column' as const, gap: 11 }}>
+            {['Points auto-update on check-ins, sessions, booth visits, Q&A', 'Leaderboard visible to all attendees in real time', 'Badges and achievements shown on attendee profiles'].map(pt => (
+              <li key={pt} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 14, color: 'rgba(250,246,238,0.8)', fontFamily: 'Inter,sans-serif', lineHeight: 1.5 }}>
+                <span style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(31,77,58,0.9)', border: '1px solid rgba(31,77,58,1)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
+                  <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1.5 4.5l2 2 4-4" stroke="#E8C57E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </span>
+                {pt}
+              </li>
+            ))}
+          </ul>
+          <Link href="/signup" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#1F4D3A', color: '#FAF6EE', fontSize: 14, fontWeight: 600, fontFamily: 'Inter,sans-serif', padding: '12px 24px', borderRadius: 10, textDecoration: 'none', border: '1.5px solid rgba(31,77,58,0.6)' }}>
+            Add gamification to your event →
+          </Link>
+        </div>
+        {/* RIGHT — phone mockup */}
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <div style={{ width: 300, background: '#163828', borderRadius: 36, padding: 10, boxShadow: '0 24px 60px rgba(0,0,0,0.5)' }}>
+            <div style={{ background: '#FAF6EE', borderRadius: 28, overflow: 'hidden' }}>
+              {/* Top Bar */}
+              <div style={{ background: '#1F4D3A', padding: 16 }}>
+                <div style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 15, fontWeight: 700, color: '#FAF6EE' }}>🏆 Leaderboard</div>
+                <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 11, color: 'rgba(250,246,238,0.6)', marginTop: 2 }}>Pan-African Tech Summit · Day 1</div>
+                <div style={{ display: 'inline-block', background: 'rgba(255,255,255,0.12)', color: '#FAF6EE', fontFamily: 'Inter,sans-serif', fontSize: 11, borderRadius: 999, padding: '4px 10px', marginTop: 10 }}>Your rank: #7 · 340 pts</div>
+              </div>
+              {/* Top 3 */}
+              <div style={{ background: '#FFFFFF', margin: 8, borderRadius: 14, padding: 14 }}>
+                <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 10, color: '#6B7A72', textTransform: 'uppercase' as const, letterSpacing: '0.1em', marginBottom: 12 }}>Top this event</div>
                 {[
-                  { emoji: '✅', label: 'Early Bird', locked: false },
-                  { emoji: '🎤', label: '5 Sessions', locked: false },
-                  { emoji: '🤝', label: 'Networker', locked: false },
-                  { emoji: '🏢', label: 'Booth Hopper', locked: true },
-                ].map((b) => (
-                  <div key={b.label} style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 8, padding: '8px 10px', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 4, opacity: b.locked ? 0.4 : 1 }}>
-                    <span style={{ fontSize: 20 }}>{b.emoji}</span>
-                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, color: '#6B7A72' }}>{b.label}</span>
+                  { medal: '🥇', initials: 'AO', avatarBg: 'linear-gradient(135deg,#E8C57E,#C9A45E)', initialsColor: '#163828', name: 'Dr. Amara Osei', org: 'Nairobi Tech', pts: '1,240 pts' },
+                  { medal: '🥈', initials: 'KA', avatarBg: 'linear-gradient(135deg,#1F4D3A,#2A6A50)', initialsColor: '#FAF6EE', name: 'Kofi Asante', org: 'Accra Labs', pts: '980 pts' },
+                  { medal: '🥉', initials: 'FH', avatarBg: 'linear-gradient(135deg,#C9A45E,#E8C57E)', initialsColor: '#163828', name: 'Fatima Hassan', org: 'Lagos Startup', pts: '820 pts' },
+                ].map((r, i) => (
+                  <div key={r.initials} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0', borderBottom: i < 2 ? '1px solid #F5F0E8' : 'none' }}>
+                    <span style={{ fontSize: 20 }}>{r.medal}</span>
+                    <div style={{ width: 40, height: 40, borderRadius: '50%', background: r.avatarBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <span style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 14, fontWeight: 700, color: r.initialsColor }}>{r.initials}</span>
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 13, fontWeight: 700, color: '#0F1F18', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.name}</div>
+                      <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 11, color: '#6B7A72' }}>{r.org}</div>
+                    </div>
+                    <div style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 13, fontWeight: 700, color: '#1F4D3A', flexShrink: 0 }}>{r.pts}</div>
+                  </div>
+                ))}
+              </div>
+              {/* Badges */}
+              <div style={{ background: '#FAF6EE', padding: '10px 12px' }}>
+                <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 13, fontWeight: 700, color: '#0F1F18', marginBottom: 8 }}>Your badges</div>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
+                  {[
+                    { emoji: '✅', label: 'Early Bird', locked: false },
+                    { emoji: '🎤', label: '5 Sessions', locked: false },
+                    { emoji: '🤝', label: 'Networker', locked: false },
+                    { emoji: '🏢', label: 'Booth Hopper', locked: true },
+                  ].map(b => (
+                    <div key={b.label} style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 8, padding: 8, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 3, opacity: b.locked ? 0.3 : 1 }}>
+                      <span style={{ fontSize: 18 }}>{b.emoji}</span>
+                      <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 9, color: '#6B7A72' }}>{b.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Points Feed */}
+              <div style={{ background: '#FFFFFF', margin: 8, borderRadius: 12, padding: 12 }}>
+                <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 10, color: '#6B7A72', textTransform: 'uppercase' as const, letterSpacing: '0.05em', marginBottom: 8 }}>Recent points</div>
+                {[
+                  { pts: '+100', label: 'Attended Opening Keynote', time: 'now' },
+                  { pts: '+50', label: 'Connected with Kofi Asante', time: '2m' },
+                  { pts: '+200', label: 'Visited 4 sponsor booths', time: '10m' },
+                ].map((a, i) => (
+                  <div key={a.label} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: i < 2 ? '1px solid #F5F0E8' : 'none' }}>
+                    <span style={{ background: 'rgba(45,122,79,0.15)', color: '#2D7A4F', fontFamily: 'Inter,sans-serif', fontSize: 11, fontWeight: 700, borderRadius: 6, padding: '3px 8px', flexShrink: 0 }}>{a.pts}</span>
+                    <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, color: '#0F1F18', flex: 1 }}>{a.label}</span>
+                    <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 10, color: '#6B7A72', flexShrink: 0 }}>{a.time}</span>
                   </div>
                 ))}
               </div>
             </div>
-
-            {/* Activity Feed */}
-            <div style={{ background: '#FFFFFF', margin: 8, borderRadius: 14, padding: 12 }}>
-              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, color: '#6B7A72', textTransform: 'uppercase' as const, letterSpacing: '0.05em', marginBottom: 8 }}>Recent points</div>
-              {[
-                { pts: '+100', label: 'Attended Opening Keynote', time: 'Just now' },
-                { pts: '+50', label: 'Connected with Kofi Asante', time: '2m ago' },
-                { pts: '+200', label: 'Visited 4 sponsor booths', time: '10m ago' },
-              ].map((a) => (
-                <div key={a.label} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0' }}>
-                  <div style={{ width: 36, height: 24, borderRadius: 6, background: '#2D7A4F', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700, color: '#FAF6EE' }}>{a.pts}</span>
-                  </div>
-                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#0F1F18', flex: 1 }}>{a.label}</span>
-                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#6B7A72', flexShrink: 0 }}>{a.time}</span>
-                </div>
-              ))}
-            </div>
-
           </div>
         </div>
       </div>

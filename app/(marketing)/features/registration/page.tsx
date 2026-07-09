@@ -104,229 +104,89 @@ const STATS = [
 
 function RegistrationMockup() {
   return (
-    <section
-      style={{
-        background: '#0F1F18',
-        padding: '80px 24px',
-        textAlign: 'center',
-      }}
-    >
-      <div style={{ maxWidth: 480, margin: '0 auto' }}>
-        <div
-          style={{
-            fontFamily: 'Inter, sans-serif',
-            fontSize: 11,
-            fontWeight: 700,
-            letterSpacing: '0.15em',
-            color: '#E8C57E',
-            textTransform: 'uppercase' as const,
-            marginBottom: 16,
-          }}
-        >
-          ATTENDEE VIEW
+    <section style={{ background: '#0F1F18', padding: 'clamp(72px,10vw,112px) clamp(20px,4vw,48px)' }}>
+      <div style={{ maxWidth: 1080, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px,1fr))', gap: 'clamp(40px,6vw,80px)', alignItems: 'center' }}>
+        {/* LEFT — copy */}
+        <div>
+          <div style={{ display: 'inline-block', background: 'rgba(232,197,126,0.12)', border: '1px solid rgba(232,197,126,0.25)', color: '#E8C57E', fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase' as const, borderRadius: 999, padding: '5px 14px', fontFamily: 'Inter,sans-serif', marginBottom: 20 }}>
+            Attendee Experience
+          </div>
+          <h2 style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 'clamp(1.7rem,3vw,2.4rem)', fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 16 }}>
+            Registration that takes under 60 seconds.
+          </h2>
+          <p style={{ fontFamily: 'Inter,sans-serif', fontSize: 16, color: 'rgba(250,246,238,0.65)', lineHeight: 1.7, marginBottom: 28, maxWidth: 460 }}>
+            A clean mobile form — ticket selector, personal details, payment. Attendees are confirmed and get their Karta Card before they close the tab.
+          </p>
+          <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px', display: 'flex', flexDirection: 'column' as const, gap: 11 }}>
+            {['Pick ticket type and pay in one step', 'Custom fields for any info you need', 'Instant confirmation + Karta Card'].map(pt => (
+              <li key={pt} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 14, color: 'rgba(250,246,238,0.8)', fontFamily: 'Inter,sans-serif', lineHeight: 1.5 }}>
+                <span style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(31,77,58,0.9)', border: '1px solid rgba(31,77,58,1)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
+                  <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1.5 4.5l2 2 4-4" stroke="#E8C57E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </span>
+                {pt}
+              </li>
+            ))}
+          </ul>
+          <Link href="/signup" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#1F4D3A', color: '#FAF6EE', fontSize: 14, fontWeight: 600, fontFamily: 'Inter,sans-serif', padding: '12px 24px', borderRadius: 10, textDecoration: 'none', border: '1.5px solid rgba(31,77,58,0.6)' }}>
+            Open a free event →
+          </Link>
         </div>
-        <h2
-          style={{
-            fontFamily: 'DM Sans, sans-serif',
-            fontSize: 28,
-            fontWeight: 700,
-            letterSpacing: '-0.02em',
-            color: '#FAF6EE',
-            marginBottom: 12,
-          }}
-        >
-          What your attendees see
-        </h2>
-        <p
-          style={{
-            fontFamily: 'Inter, sans-serif',
-            fontSize: 16,
-            color: 'rgba(250,246,238,0.65)',
-            marginBottom: 48,
-            lineHeight: 1.6,
-          }}
-        >
-          A registration experience they&apos;ll actually complete.
-        </p>
-
-        {/* Phone frame */}
-        <div
-          style={{
-            background: '#163828',
-            borderRadius: 36,
-            width: 300,
-            margin: '0 auto',
-            padding: 10,
-            boxShadow: '0 32px 80px rgba(0,0,0,0.40)',
-          }}
-        >
-          <div
-            style={{
-              background: '#FAF6EE',
-              borderRadius: 28,
-              overflow: 'hidden',
-            }}
-          >
-            {/* Top bar */}
-            <div style={{ background: '#1F4D3A', padding: 16 }}>
-              <div
-                style={{
-                  fontFamily: 'DM Sans, sans-serif',
-                  fontSize: 14,
-                  fontWeight: 700,
-                  color: '#FFFFFF',
-                  marginBottom: 4,
-                }}
-              >
-                Pan-African Tech Summit
-              </div>
-              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: 'rgba(255,255,255,0.65)' }}>
-                Mar 15 · Nairobi
-              </div>
-            </div>
-
-            {/* Ticket selector */}
-            <div style={{ background: '#FFFFFF', padding: 16 }}>
-              <div
-                style={{
-                  fontFamily: 'Inter, sans-serif',
-                  fontSize: 11,
-                  fontWeight: 600,
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase' as const,
-                  color: '#6B7A72',
-                  marginBottom: 10,
-                }}
-              >
-                Select ticket
-              </div>
-              <div
-                style={{
-                  background: '#FFFFFF',
-                  border: '1px solid #E5E0D4',
-                  borderRadius: 8,
-                  padding: '10px 12px',
-                  marginBottom: 6,
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#0F1F18' }}>General</span>
-                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#6B7A72' }}>$0 Free</span>
-              </div>
-              <div
-                style={{
-                  background: '#FFFFFF',
-                  border: '1px solid #E5E0D4',
-                  borderRadius: 8,
-                  padding: '10px 12px',
-                  marginBottom: 6,
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#0F1F18' }}>Early Bird</span>
-                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#6B7A72' }}>$49</span>
-              </div>
-              <div
-                style={{
-                  background: 'rgba(31,77,58,0.05)',
-                  border: '1px solid #E5E0D4',
-                  borderLeft: '3px solid #1F4D3A',
-                  borderRadius: 8,
-                  padding: '10px 12px',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600, color: '#0F1F18' }}>VIP Access</span>
-                  <span
-                    style={{
-                      fontFamily: 'Inter, sans-serif',
-                      fontSize: 10,
-                      fontWeight: 600,
-                      color: '#0F1F18',
-                      background: '#E8C57E',
-                      borderRadius: 4,
-                      padding: '2px 6px',
-                    }}
-                  >
-                    Selling fast
-                  </span>
+        {/* RIGHT — phone mockup */}
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <div style={{ width: 320, background: '#163828', borderRadius: 38, padding: 10, boxShadow: '0 24px 60px rgba(0,0,0,0.5)' }}>
+            <div style={{ background: '#FAF6EE', borderRadius: 30, overflow: 'hidden' }}>
+              {/* Top event header */}
+              <div style={{ background: '#1F4D3A', padding: '20px 18px' }}>
+                <div style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 15, fontWeight: 700, color: '#FAF6EE', textAlign: 'center' as const }}>Pan-African Tech Summit</div>
+                <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, color: 'rgba(250,246,238,0.6)', textAlign: 'center' as const, marginTop: 3 }}>Mar 15 · Nairobi, Kenya</div>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 10, flexWrap: 'wrap' as const }}>
+                  {['🎤 42 speakers', '📍 KICC', '⏱ 2 days'].map(chip => (
+                    <span key={chip} style={{ background: 'rgba(255,255,255,0.1)', color: '#FAF6EE', fontSize: 10, borderRadius: 999, padding: '2px 7px', fontFamily: 'Inter,sans-serif' }}>{chip}</span>
+                  ))}
                 </div>
-                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 700, color: '#1F4D3A' }}>$149</span>
               </div>
-            </div>
-
-            {/* Form fields */}
-            <div style={{ padding: 16 }}>
-              <div
-                style={{
-                  fontFamily: 'Inter, sans-serif',
-                  fontSize: 11,
-                  fontWeight: 600,
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase' as const,
-                  color: '#6B7A72',
-                  marginBottom: 10,
-                }}
-              >
-                Your details
-              </div>
-              {['Full name', 'Email address', 'Company / Organisation'].map((placeholder) => (
-                <div
-                  key={placeholder}
-                  style={{
-                    background: '#FFFFFF',
-                    border: '1px solid #E5E0D4',
-                    borderRadius: 8,
-                    height: 40,
-                    marginBottom: 8,
-                    padding: '0 12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}
-                >
-                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#6B7A72' }}>{placeholder}</span>
+              {/* Ticket section */}
+              <div style={{ background: '#FFFFFF', padding: '16px 18px' }}>
+                <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 10, textTransform: 'uppercase' as const, letterSpacing: '0.12em', color: '#6B7A72', marginBottom: 10 }}>Select Ticket</div>
+                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
+                  <div style={{ border: '1px solid #E5E0D4', borderRadius: 10, height: 52, display: 'flex', alignItems: 'center', padding: '0 14px', justifyContent: 'space-between', background: '#FFFFFF' }}>
+                    <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 13, fontWeight: 700, color: '#0F1F18' }}>General</span>
+                    <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 13, color: '#6B7A72' }}>$0 Free</span>
+                  </div>
+                  <div style={{ border: '1px solid #E5E0D4', borderRadius: 10, height: 52, display: 'flex', alignItems: 'center', padding: '0 14px', justifyContent: 'space-between', background: '#FFFFFF' }}>
+                    <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 13, fontWeight: 700, color: '#0F1F18' }}>Early Bird</span>
+                    <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 13, color: '#3A4A42' }}>$49</span>
+                  </div>
+                  <div style={{ border: '1.5px solid #1F4D3A', borderLeft: '3px solid #1F4D3A', borderRadius: 10, height: 52, display: 'flex', alignItems: 'center', padding: '0 14px', justifyContent: 'space-between', background: 'rgba(31,77,58,0.04)' }}>
+                    <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 13, fontWeight: 700, color: '#1F4D3A' }}>VIP Access</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ background: '#E8C57E', color: '#163828', fontSize: 9, fontWeight: 700, borderRadius: 4, padding: '2px 6px', fontFamily: 'Inter,sans-serif' }}>Selling fast</span>
+                      <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 13, fontWeight: 700, color: '#1F4D3A' }}>$149</span>
+                    </div>
+                  </div>
                 </div>
-              ))}
-            </div>
-
-            {/* Register button */}
-            <div style={{ padding: '0 16px 16px' }}>
-              <div
-                style={{
-                  background: '#1F4D3A',
-                  color: '#FAF6EE',
-                  borderRadius: 10,
-                  height: 48,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontFamily: 'Inter, sans-serif',
-                  fontSize: 15,
-                  fontWeight: 700,
-                }}
-              >
-                Register for VIP · $149
               </div>
-            </div>
-
-            {/* Footer */}
-            <div
-              style={{
-                fontFamily: 'Inter, sans-serif',
-                fontSize: 12,
-                color: '#6B7A72',
-                textAlign: 'center',
-                paddingBottom: 16,
-              }}
-            >
-              🔒 Secured · 2 spots remaining
+              {/* Form section */}
+              <div style={{ background: '#FAF6EE', padding: '14px 18px' }}>
+                <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 10, textTransform: 'uppercase' as const, letterSpacing: '0.12em', color: '#6B7A72', marginBottom: 10 }}>Your Details</div>
+                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
+                  {[['Amara Yusuf', '#0F1F18'], ['amara@cop29.org', '#0F1F18'], ['COP29 Secretariat', '#0F1F18']].map(([val, col]) => (
+                    <div key={val} style={{ background: '#FFFFFF', border: '1px solid #E5E0D4', borderRadius: 8, height: 40, padding: '0 12px', display: 'flex', alignItems: 'center' }}>
+                      <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 13, color: col }}>{val}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Button */}
+              <div style={{ padding: '0 18px 12px' }}>
+                <div style={{ background: '#1F4D3A', color: '#FAF6EE', height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter,sans-serif', fontSize: 13, fontWeight: 700, borderRadius: 10 }}>
+                  Register for VIP · $149
+                </div>
+              </div>
+              {/* Footer */}
+              <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 11, color: '#6B7A72', textAlign: 'center' as const, paddingBottom: 12 }}>
+                🔒 Secured by Karta · 2 spots remaining
+              </div>
             </div>
           </div>
         </div>

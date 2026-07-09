@@ -113,211 +113,81 @@ const stats = [
 
 function CheckInMockup() {
   return (
-    <section
-      style={{
-        background: '#0F1F18',
-        padding: '80px 24px',
-      }}
-    >
-      <div style={{ maxWidth: 700, margin: '0 auto', textAlign: 'center' }}>
-        {/* Header */}
-        <div
-          style={{
-            fontFamily: 'Inter, sans-serif',
-            fontSize: 11,
-            fontWeight: 700,
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase' as const,
-            color: '#E8C57E',
-            marginBottom: 12,
-          }}
-        >
-          Door Staff View
-        </div>
-        <h2
-          style={{
-            fontFamily: '"DM Sans", sans-serif',
-            fontSize: 'clamp(24px, 4vw, 32px)',
-            fontWeight: 700,
-            letterSpacing: '-0.02em',
-            color: '#FAF6EE',
-            marginBottom: 10,
-          }}
-        >
-          Scan. Confirm. Next.
-        </h2>
-        <p
-          style={{
-            fontFamily: 'Inter, sans-serif',
-            fontSize: 16,
-            color: 'rgba(250,246,238,0.65)',
-            marginBottom: 48,
-          }}
-        >
-          Works on any phone — no app, no training.
-        </p>
-
-        {/* Phones row */}
-        <div
-          style={{
-            display: 'flex',
-            gap: 32,
-            justifyContent: 'center',
-            flexWrap: 'wrap' as const,
-            alignItems: 'flex-start',
-          }}
-        >
-          {/* LEFT PHONE — Scanner */}
-          <div
-            style={{
-              width: 260,
-              background: '#163828',
-              borderRadius: 32,
-              padding: 10,
-              boxShadow: '0 4px 12px rgba(15,31,24,0.5), 0 24px 60px rgba(15,31,24,0.6)',
-              flexShrink: 0,
-            }}
-          >
-            <div
-              style={{
-                background: '#0F1F18',
-                borderRadius: 24,
-                overflow: 'hidden',
-                paddingBottom: 16,
-              }}
-            >
-              {/* Status bar */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px 6px' }}>
-                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#6B7A72', fontWeight: 600 }}>9:41</span>
-                <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                  <div style={{ width: 14, height: 8, border: '1.5px solid #6B7A72', borderRadius: 2, position: 'relative' as const }}>
-                    <div style={{ position: 'absolute' as const, left: 1, top: 1, bottom: 1, width: '70%', background: '#6B7A72', borderRadius: 1 }} />
-                  </div>
-                  <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
-                    <path d="M1 7.5c1.4-1.4 3.2-2.2 5-2.2s3.6.8 5 2.2" stroke="#6B7A72" strokeWidth="1.5" strokeLinecap="round"/>
-                    <path d="M3.5 5.2C4.5 4.3 5.2 4 6 4s1.5.3 2.5 1.2" stroke="#6B7A72" strokeWidth="1.5" strokeLinecap="round"/>
-                    <circle cx="6" cy="9" r="1" fill="#6B7A72"/>
-                  </svg>
-                </div>
-              </div>
-
-              {/* App header */}
-              <div style={{ padding: '8px 0 12px', textAlign: 'center' }}>
-                <div style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 14, fontWeight: 600, color: '#FAF6EE' }}>Karta Check-in</div>
-                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#E8C57E', marginTop: 2 }}>Pan-African Summit</div>
-              </div>
-
-              {/* Camera viewfinder */}
-              <div
-                style={{
-                  margin: '0 14px',
-                  width: 'calc(100% - 28px)',
-                  aspectRatio: '1',
-                  background: '#1A1A1A',
-                  borderRadius: 8,
-                  position: 'relative' as const,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  overflow: 'hidden',
-                }}
-              >
-                {/* Top-left corner */}
-                <div style={{ position: 'absolute' as const, top: 12, left: 12 }}>
-                  <div style={{ width: 20, height: 2, background: '#E8C57E' }} />
-                  <div style={{ width: 2, height: 18, background: '#E8C57E' }} />
-                </div>
-                {/* Top-right corner */}
-                <div style={{ position: 'absolute' as const, top: 12, right: 12 }}>
-                  <div style={{ width: 20, height: 2, background: '#E8C57E', marginLeft: 'auto' }} />
-                  <div style={{ width: 2, height: 18, background: '#E8C57E', marginLeft: 'auto' }} />
-                </div>
-                {/* Bottom-left corner */}
-                <div style={{ position: 'absolute' as const, bottom: 12, left: 12 }}>
-                  <div style={{ width: 2, height: 18, background: '#E8C57E' }} />
-                  <div style={{ width: 20, height: 2, background: '#E8C57E' }} />
-                </div>
-                {/* Bottom-right corner */}
-                <div style={{ position: 'absolute' as const, bottom: 12, right: 12 }}>
-                  <div style={{ width: 2, height: 18, background: '#E8C57E', marginLeft: 'auto' }} />
-                  <div style={{ width: 20, height: 2, background: '#E8C57E', marginLeft: 'auto' }} />
-                </div>
-                {/* Scanning line */}
-                <div
-                  style={{
-                    position: 'absolute' as const,
-                    left: '10%',
-                    width: '80%',
-                    height: 2,
-                    background: '#E8C57E',
-                    opacity: 0.7,
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                  }}
-                />
-                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: 'rgba(255,255,255,0.5)', textAlign: 'center' as const, padding: '0 20px', lineHeight: 1.4 }}>
-                  Point at QR code
+    <section style={{ background: '#0F1F18', padding: 'clamp(72px,10vw,112px) clamp(20px,4vw,48px)' }}>
+      <div style={{ maxWidth: 1080, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px,1fr))', gap: 'clamp(40px,6vw,80px)', alignItems: 'center' }}>
+        {/* LEFT — copy */}
+        <div>
+          <div style={{ display: 'inline-block', background: 'rgba(232,197,126,0.12)', border: '1px solid rgba(232,197,126,0.25)', color: '#E8C57E', fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase' as const, borderRadius: 999, padding: '5px 14px', fontFamily: 'Inter,sans-serif', marginBottom: 20 }}>
+            Door Staff View
+          </div>
+          <h2 style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 'clamp(1.7rem,3vw,2.4rem)', fontWeight: 700, color: '#FAF6EE', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 16 }}>
+            Every attendee checked in under 3 seconds.
+          </h2>
+          <p style={{ fontFamily: 'Inter,sans-serif', fontSize: 16, color: 'rgba(250,246,238,0.65)', lineHeight: 1.7, marginBottom: 28, maxWidth: 460 }}>
+            Staff open a link on any phone. Point the camera. Done. The dashboard updates live. No app. No training. No spreadsheet at the door.
+          </p>
+          <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px', display: 'flex', flexDirection: 'column' as const, gap: 11 }}>
+            {['Works on iPhone and Android, Safari and Chrome', 'Real-time attendance feed on your dashboard', 'Offline mode — syncs when WiFi is back'].map(pt => (
+              <li key={pt} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 14, color: 'rgba(250,246,238,0.8)', fontFamily: 'Inter,sans-serif', lineHeight: 1.5 }}>
+                <span style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(31,77,58,0.9)', border: '1px solid rgba(31,77,58,1)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
+                  <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1.5 4.5l2 2 4-4" stroke="#E8C57E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 </span>
-              </div>
-
-              {/* Stats */}
-              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: 'rgba(250,246,238,0.5)', textAlign: 'center' as const, marginTop: 12, padding: '0 14px' }}>
-                367 checked in · 45 remaining
-              </div>
-              {/* Manual search */}
-              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#E8C57E', textAlign: 'center' as const, marginTop: 10, textDecoration: 'underline' }}>
-                Manual search
+                {pt}
+              </li>
+            ))}
+          </ul>
+          <Link href="/signup" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#1F4D3A', color: '#FAF6EE', fontSize: 14, fontWeight: 600, fontFamily: 'Inter,sans-serif', padding: '12px 24px', borderRadius: 10, textDecoration: 'none', border: '1.5px solid rgba(31,77,58,0.6)' }}>
+            See how check-in works →
+          </Link>
+        </div>
+        {/* RIGHT — two phones */}
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <div style={{ display: 'flex', flexDirection: 'row' as const, gap: 16, justifyContent: 'center', flexWrap: 'wrap' as const }}>
+            {/* Phone 1 — Scanner */}
+            <div style={{ width: 210, background: '#163828', borderRadius: 32, padding: 8, boxShadow: '0 24px 60px rgba(0,0,0,0.5)', flexShrink: 0 }}>
+              <div style={{ background: '#0F1F18', borderRadius: 26, overflow: 'hidden' }}>
+                <div style={{ textAlign: 'center' as const, padding: '12px 0 8px' }}>
+                  <div style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 12, fontWeight: 700, color: '#FAF6EE' }}>Karta Check-in</div>
+                  <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 10, color: 'rgba(250,246,238,0.5)', marginTop: 2 }}>Pan-African Summit · Door A</div>
+                </div>
+                {/* Viewfinder */}
+                <div style={{ background: '#111', margin: '0 8px', borderRadius: 10, height: 160, position: 'relative' as const, overflow: 'hidden' }}>
+                  <div style={{ position: 'absolute' as const, top: 10, left: 10, borderTop: '2px solid #E8C57E', borderLeft: '2px solid #E8C57E', width: 14, height: 14 }} />
+                  <div style={{ position: 'absolute' as const, top: 10, right: 10, borderTop: '2px solid #E8C57E', borderRight: '2px solid #E8C57E', width: 14, height: 14 }} />
+                  <div style={{ position: 'absolute' as const, bottom: 10, left: 10, borderBottom: '2px solid #E8C57E', borderLeft: '2px solid #E8C57E', width: 14, height: 14 }} />
+                  <div style={{ position: 'absolute' as const, bottom: 10, right: 10, borderBottom: '2px solid #E8C57E', borderRight: '2px solid #E8C57E', width: 14, height: 14 }} />
+                  <div style={{ position: 'absolute' as const, top: '50%', left: '10%', right: '10%', height: 1, background: 'rgba(232,197,126,0.6)' }} />
+                  <div style={{ position: 'absolute' as const, bottom: 10, width: '100%', textAlign: 'center' as const, fontFamily: 'Inter,sans-serif', fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>Point at QR code</div>
+                </div>
+                {/* Stats */}
+                <div style={{ background: '#163828', padding: 10, display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 11, color: '#2D7A4F', fontWeight: 600 }}>✓ 312 in</span>
+                  <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 11, color: 'rgba(250,246,238,0.45)' }}>○ 100 left</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* RIGHT PHONE — Confirmation */}
-          <div
-            style={{
-              width: 260,
-              background: '#163828',
-              borderRadius: 32,
-              padding: 10,
-              boxShadow: '0 4px 12px rgba(15,31,24,0.5), 0 24px 60px rgba(15,31,24,0.6)',
-              flexShrink: 0,
-            }}
-          >
-            <div style={{ background: '#FAF6EE', borderRadius: 24, overflow: 'hidden' }}>
-              {/* Status bar on green */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px 6px', background: '#1F4D3A' }}>
-                <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: 'rgba(250,246,238,0.6)', fontWeight: 600 }}>9:47</span>
-                <div style={{ width: 14, height: 8, border: '1.5px solid rgba(250,246,238,0.4)', borderRadius: 2, position: 'relative' as const }}>
-                  <div style={{ position: 'absolute' as const, left: 1, top: 1, bottom: 1, width: '70%', background: 'rgba(250,246,238,0.4)', borderRadius: 1 }} />
+            {/* Phone 2 — Confirmation */}
+            <div style={{ width: 210, background: '#163828', borderRadius: 32, padding: 8, boxShadow: '0 24px 60px rgba(0,0,0,0.5)', flexShrink: 0 }}>
+              <div style={{ background: '#FAF6EE', borderRadius: 26, overflow: 'hidden' }}>
+                {/* Green header */}
+                <div style={{ background: '#2D7A4F', padding: 18, textAlign: 'center' as const }}>
+                  <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto' }}>
+                    <svg width="20" height="20" viewBox="0 0 32 32" fill="none"><path d="M8 22 l8 8 l16-16" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  </div>
+                  <div style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 15, fontWeight: 700, color: '#FAF6EE', marginTop: 8 }}>Checked In ✓</div>
+                  <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 11, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>9:47 AM</div>
                 </div>
-              </div>
-
-              {/* Green confirmation strip */}
-              <div style={{ background: '#1F4D3A', padding: '20px 20px 24px', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 8 }}>
-                <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                    <path d="M5 12l5 5L20 7" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
+                {/* Attendee */}
+                <div style={{ background: '#FFFFFF', padding: 16, display: 'flex', flexDirection: 'column' as const, alignItems: 'center' }}>
+                  <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'linear-gradient(135deg,#1F4D3A,#E8C57E)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'DM Sans,sans-serif', fontSize: 15, fontWeight: 700, color: '#FAF6EE', marginBottom: 10 }}>AY</div>
+                  <div style={{ fontFamily: 'DM Sans,sans-serif', fontSize: 15, fontWeight: 700, color: '#0F1F18', textAlign: 'center' as const }}>Amara Yusuf</div>
+                  <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, color: '#6B7A72', textAlign: 'center' as const, marginTop: 2 }}>VIP Access · Climate Policy Lead</div>
+                  <div style={{ display: 'block', background: '#E8EFEB', color: '#1F4D3A', fontSize: 11, borderRadius: 999, padding: '3px 10px', fontFamily: 'Inter,sans-serif', fontWeight: 600, marginTop: 8, textAlign: 'center' as const }}>Ticket #A1-047</div>
                 </div>
-                <div style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 18, fontWeight: 700, color: '#FAF6EE' }}>Checked In</div>
-                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: 'rgba(250,246,238,0.6)' }}>9:47 AM</div>
-              </div>
-
-              {/* Attendee card */}
-              <div style={{ background: '#FFFFFF', padding: 20, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 6 }}>
-                <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'linear-gradient(135deg, #1F4D3A, #E8C57E)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: '"DM Sans", sans-serif', fontSize: 18, fontWeight: 700, color: '#FFFFFF', marginBottom: 4 }}>
-                  AY
-                </div>
-                <div style={{ fontFamily: '"DM Sans", sans-serif', fontSize: 17, fontWeight: 700, color: '#0F1F18' }}>Amara Yusuf</div>
-                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#6B7A72', textAlign: 'center' as const }}>Climate Policy Lead · COP29</div>
-                <div style={{ display: 'inline-flex', alignItems: 'center', background: '#E8EFEB', color: '#1F4D3A', borderRadius: 999, padding: '3px 10px', fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600, marginTop: 4 }}>
-                  VIP Access · #A1-047
-                </div>
-              </div>
-
-              {/* Tap to scan next */}
-              <div style={{ padding: '0 16px 20px' }}>
-                <div style={{ background: '#1F4D3A', color: '#FAF6EE', borderRadius: 10, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 700 }}>
-                  Tap to scan next
+                {/* Bottom button */}
+                <div style={{ background: '#1F4D3A', height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter,sans-serif', fontSize: 12, fontWeight: 700, color: '#FAF6EE' }}>
+                  Tap to scan next attendee
                 </div>
               </div>
             </div>
