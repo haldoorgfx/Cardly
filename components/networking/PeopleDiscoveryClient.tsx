@@ -138,6 +138,12 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
     ? `/e/${eventSlug}/messages?reg=${registrationId}`
     : `/e/${eventSlug}/messages`;
 
+  /** Per-person deep link that opens (or starts) a conversation with that attendee directly. */
+  const messageHrefFor = (personId: string) =>
+    registrationId
+      ? `/e/${eventSlug}/messages?reg=${registrationId}&to=${personId}`
+      : `/e/${eventSlug}/messages`;
+
   /* Load the directory (with connection status) once we know the viewer's reg. */
   const loadPeople = useCallback(async () => {
     if (!registrationId) return;
@@ -515,7 +521,7 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
                     <div className="flex items-center flex-wrap gap-2">
                       <ConnectAction personId={person.id} />
                       <Link
-                        href={messagesHref}
+                        href={messageHrefFor(person.id)}
                         className="inline-flex items-center gap-1.5 text-[12px] font-medium px-3 py-1.5 rounded-full transition-colors"
                         style={{ background: '#F0EDE8', color: '#3A4A42', textDecoration: 'none' }}
                       >
