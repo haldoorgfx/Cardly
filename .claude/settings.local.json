@@ -25,7 +25,9 @@
       "PowerShell($p = \\(Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue | Where-Object State -eq 'Listen'\\).OwningProcess; if \\($p\\) { Stop-Process -Id $p -Force; Write-Output \"Killed PID $p\" } else { Write-Output \"Port 3000 free\" })",
       "Bash(npx next *)",
       "Bash(node -e ' *)",
-      "Bash(git checkout *)"
+      "Bash(git checkout *)",
+      "Bash(pnpm tsc *)",
+      "Bash(mkdir -p \"C:\\\\Users\\\\cabda\\\\cardly\\\\app\\\\suspended\" \"C:\\\\Users\\\\cabda\\\\cardly\\\\lib\\\\admin\")"
     ]
   }
 }

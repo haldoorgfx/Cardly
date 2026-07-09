@@ -9,9 +9,9 @@ export default function AboutPage() {
           ABOUT
         </div>
         <h1 className="font-display font-bold text-[48px] sm:text-[60px] leading-[1.02] tracking-tight text-balance">
-          Built for every event
+          Built in Djibouti,
           <br />
-          <span className="grad-text">everywhere.</span>
+          <span className="grad-text">for the world.</span>
         </h1>
       </section>
 
@@ -92,7 +92,7 @@ export default function AboutPage() {
           <div
             className="h-16 w-16 rounded-2xl shrink-0"
             style={{
-              background: "linear-gradient(135deg,#6c63ff,#f8a4d8)",
+              background: "linear-gradient(135deg,#1F4D3A 0%,#2A6A50 60%,#E8C57E 100%)",
             }}
           />
           <div>

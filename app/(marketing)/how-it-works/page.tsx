@@ -32,7 +32,7 @@ const STEPS = [
       <div className="mt-6 rounded-2xl bg-brand-offwhite h-28 relative overflow-hidden">
         <div
           className="absolute inset-3 rounded-xl"
-          style={{ background: "linear-gradient(135deg,#1b1240,#4b2d7a)" }}
+          style={{ background: "linear-gradient(135deg,#1F4D3A,#2A6A50)" }}
         />
         <div className="absolute left-6 bottom-6 h-7 w-7 rounded-full border-[1.5px] border-dashed border-brand-primary" />
         <div className="absolute left-16 bottom-7 right-6 h-5 rounded-md border-[1.5px] border-dashed border-brand-primary" />
@@ -109,7 +109,7 @@ const STEPS = [
           height="20"
           viewBox="0 0 24 24"
           fill="none"
-          stroke="#6c63ff"
+          stroke="#1F4D3A"
           strokeWidth="2"
           strokeLinecap="round"
         >
@@ -118,7 +118,7 @@ const STEPS = [
         <div
           className="h-[72px] w-[54px] rounded-lg overflow-hidden shrink-0"
           style={{
-            background: "linear-gradient(135deg,#1b1240,#4b2d7a)",
+            background: "linear-gradient(135deg,#1F4D3A,#2A6A50)",
           }}
         >
           <div className="h-full w-full relative">
