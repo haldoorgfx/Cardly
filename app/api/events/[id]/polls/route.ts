@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { assertOwnsRegistration } from '@/lib/attendee-identity';
+import { hasModeratorAccess } from '@/lib/rbac/ownership';
 import { z } from 'zod';
 
 const CreateSchema = z.object({
@@ -39,13 +40,15 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+  if (!(await hasModeratorAccess(user.id, params.id))) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
   const body = await req.json().catch(() => null);
   const parsed = CreateSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
 
   const admin = createAdminClient();
-  const { data: event } = await admin.from('events').select('id').eq('id', params.id).eq('user_id', user.id).single();
-  if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   const { data: epPoll } = await admin.from('event_pages').select('ends_at').eq('event_id', params.id).maybeSingle();
   if (epPoll?.ends_at && new Date(epPoll.ends_at) < new Date()) {
@@ -68,6 +71,9 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!(await hasModeratorAccess(user.id, params.id))) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
 
   const { pollId, is_active, is_closed } = await req.json();
   if (!pollId) return NextResponse.json({ error: 'pollId required' }, { status: 400 });

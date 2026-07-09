@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { assertOwnsRegistration } from '@/lib/attendee-identity';
+import { hasModeratorAccess } from '@/lib/rbac/ownership';
 import { z } from 'zod';
 import { sendQAAnsweredEmail } from '@/lib/email';
 
@@ -94,6 +95,9 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!(await hasModeratorAccess(user.id, params.id))) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
 
   const { questionId, status, is_featured } = await req.json();
   if (!questionId) return NextResponse.json({ error: 'questionId required' }, { status: 400 });

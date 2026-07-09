@@ -515,7 +515,7 @@ export default function PeopleDiscoveryClient({ eventId, eventSlug, registration
                     <div className="flex items-center flex-wrap gap-2">
                       <ConnectAction personId={person.id} />
                       <Link
-                        href={messagesHref}
+                        href={`${messagesHref}${messagesHref.includes('?') ? '&' : '?'}to=${person.id}&name=${encodeURIComponent(person.attendee_name)}`}
                         className="inline-flex items-center gap-1.5 text-[12px] font-medium px-3 py-1.5 rounded-full transition-colors"
                         style={{ background: '#F0EDE8', color: '#3A4A42', textDecoration: 'none' }}
                       >

@@ -25,6 +25,9 @@ interface Props {
   registrationId: string | null;
   /** Dashboard mode: contained rounded card instead of full-viewport panes. */
   embedded?: boolean;
+  /** Deep-link from the People directory: open (or start) a conversation with this attendee. */
+  initialRecipientId?: string;
+  initialRecipientName?: string;
 }
 
 function initials(name: string) {
@@ -41,16 +44,29 @@ function timeAgo(iso: string) {
   return `${Math.floor(hrs / 24)}d`;
 }
 
-export default function MessagingClient({ eventId, registrationId, embedded = false }: Props) {
+export default function MessagingClient({ eventId, registrationId, embedded = false, initialRecipientId, initialRecipientName }: Props) {
   const [threads, setThreads] = useState<Thread[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMsg, setNewMsg] = useState('');
   const [sending, setSending] = useState(false);
   const [loadingThreads, setLoadingThreads] = useState(true);
+  // A recipient picked from the People directory who doesn't have a thread yet —
+  // rendered as a normal conversation pane until the first message is sent, at
+  // which point the real thread takes over.
+  const [draftRecipient, setDraftRecipient] = useState<{ id: string; name: string } | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const handledDeepLink = useRef(false);
 
-  const activeThread = threads.find(t => t.id === activeId) ?? null;
+  const activeThread = activeId === 'draft'
+    ? (draftRecipient && {
+        id: 'draft',
+        other_participant_id: draftRecipient.id,
+        other_participant_name: draftRecipient.name,
+        last_message_at: null,
+        unread_count: 0,
+      })
+    : threads.find(t => t.id === activeId) ?? null;
 
   const loadThreads = useCallback(async () => {
     if (!registrationId) { setLoadingThreads(false); return; }
@@ -66,6 +82,23 @@ export default function MessagingClient({ eventId, registrationId, embedded = fa
   }, [eventId, registrationId]);
 
   useEffect(() => { loadThreads(); }, [loadThreads]);
+
+  // Deep-link from the People directory ("Message" on a specific attendee's card).
+  // If a thread with them already exists, open it; otherwise start a draft. Only
+  // handled once — after that the user's own navigation inside the inbox wins.
+  useEffect(() => {
+    if (!initialRecipientId || !registrationId || loadingThreads || handledDeepLink.current) return;
+    handledDeepLink.current = true;
+    const existing = threads.find(t => t.other_participant_id === initialRecipientId);
+    if (existing) {
+      switchThread(existing.id);
+    } else {
+      setDraftRecipient({ id: initialRecipientId, name: initialRecipientName || 'Attendee' });
+      setActiveId('draft');
+      setMessages([]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialRecipientId, initialRecipientName, registrationId, loadingThreads, threads]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -105,12 +138,30 @@ export default function MessagingClient({ eventId, registrationId, embedded = fa
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sender_id: registrationId, recipient_id: recipientId, content }),
       });
-      const data = await res.json() as { message?: Message };
+      const data = await res.json() as { message?: Message; thread_id?: string };
       if (data.message) {
         setMessages(prev => prev.map(m => (m.id === optimistic.id ? data.message! : m)));
-        setThreads(prev => prev.map(t => (t.id === activeThread.id
-          ? { ...t, last_message_at: new Date().toISOString(), last_message: { content, created_at: optimistic.created_at, sender_id: registrationId } }
-          : t)));
+        if (activeThread.id === 'draft' && data.thread_id) {
+          // Promote the draft into a real thread now that the first message landed.
+          const realId = data.thread_id;
+          setThreads(prev => [
+            {
+              id: realId,
+              other_participant_id: recipientId,
+              other_participant_name: activeThread.other_participant_name,
+              last_message_at: new Date().toISOString(),
+              last_message: { content, created_at: optimistic.created_at, sender_id: registrationId },
+              unread_count: 0,
+            },
+            ...prev,
+          ]);
+          setDraftRecipient(null);
+          setActiveId(realId);
+        } else {
+          setThreads(prev => prev.map(t => (t.id === activeThread.id
+            ? { ...t, last_message_at: new Date().toISOString(), last_message: { content, created_at: optimistic.created_at, sender_id: registrationId } }
+            : t)));
+        }
       } else {
         setMessages(prev => prev.filter(m => m.id !== optimistic.id));
         setNewMsg(content);

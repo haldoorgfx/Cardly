@@ -99,3 +99,35 @@ export async function hasCheckInAccess(userId: string, eventId: string): Promise
     .maybeSingle();
   return Boolean(staff);
 }
+
+/**
+ * Does this account have Q&A / polls moderation access for this event? True for
+ * the event owner, or for an account whose email matches an active `event_staff`
+ * row with role 'moderator' or 'manager' (the Staff roles UI describes 'moderator'
+ * as including "Moderate Q&A, polls, photo wall, live display").
+ */
+export async function hasModeratorAccess(userId: string, eventId: string): Promise<boolean> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const admin = createAdminClient() as any;
+
+  const { data: event } = await admin
+    .from('events')
+    .select('id')
+    .eq('id', eventId)
+    .eq('user_id', userId)
+    .maybeSingle();
+  if (event) return true;
+
+  const email = await profileEmail(userId);
+  if (!email) return false;
+
+  const { data: staff } = await admin
+    .from('event_staff')
+    .select('id')
+    .eq('event_id', eventId)
+    .eq('email', email)
+    .in('role', ['moderator', 'manager'])
+    .neq('status', 'removed')
+    .maybeSingle();
+  return Boolean(staff);
+}
