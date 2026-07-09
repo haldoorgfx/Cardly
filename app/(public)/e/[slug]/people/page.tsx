@@ -43,26 +43,28 @@ export default async function PeoplePage({ params, searchParams }: Props) {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const enriched = (people ?? []).map((p: any) => ({ ...p, connection_status: connMap.get(p.id) ?? null }));
+  const enriched = (people ?? []).map((p: any) => ({
+    id: p.id,
+    name: p.attendee_name ?? 'Attendee',
+    headline: (p.custom_fields as Record<string, string> | null)?.headline ?? (p.custom_fields as Record<string, string> | null)?.title ?? null,
+    photo_url: p.karta_card_url ?? null,
+    interests: (p.custom_fields as Record<string, string> | null)?.interests
+      ? String((p.custom_fields as Record<string, string>).interests).split(',').map((s: string) => s.trim()).filter(Boolean)
+      : [],
+    mutual_count: 0,
+    is_online: false,
+    connection_status: connMap.get(p.id) ?? null,
+  }));
 
   return (
     <div style={{ background: '#FAF6EE', minHeight: '100vh' }}>
       <PublicNav eventSlug={params.slug} eventName={event.name} />
-      <div className="max-w-[1000px] mx-auto px-5 py-10">
-        <div className="mb-8">
-          <h1 className="font-display font-normal text-[32px]" style={{ color: '#1F4D3A', letterSpacing: '-0.025em' }}>
-            People
-          </h1>
-          <p className="text-[16px] mt-2" style={{ color: '#6B7A72' }}>
-            {enriched.length} attendee{enriched.length !== 1 ? 's' : ''} at {eventPage.title}
-          </p>
-        </div>
-        <PeopleDiscoveryClient
-          eventId={event.id}
-          registrationId={searchParams.reg ?? null}
-          initialPeople={enriched}
-        />
-      </div>
+      <PeopleDiscoveryClient
+        people={enriched}
+        currentUserId={null}
+        eventName={eventPage.title ?? event.name}
+        registrationId={searchParams.reg ?? null}
+      />
     </div>
   );
 }
