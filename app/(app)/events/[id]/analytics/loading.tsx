@@ -1,0 +1,39 @@
+import type { CSSProperties } from 'react';
+
+function Skel({ className, style }: { className?: string; style?: CSSProperties }) {
+  return <div className={`animate-pulse rounded-lg bg-[#E5E0D4]/60 ${className ?? ''}`} style={style} />;
+}
+
+export default function AnalyticsLoading() {
+  return (
+    <div className="px-8 py-8 max-w-[1200px]">
+      <Skel className="h-3 w-48 mb-6" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="bg-white rounded-2xl border border-[#E5E0D4] p-5">
+            <Skel className="h-3 w-24 mb-3" />
+            <Skel className="h-9 w-20" />
+          </div>
+        ))}
+      </div>
+      <div className="bg-white rounded-2xl border border-[#E5E0D4] p-6 mb-6">
+        <Skel className="h-5 w-32 mb-4" />
+        <Skel className="h-48 w-full rounded-xl" />
+      </div>
+      <div className="bg-white rounded-2xl border border-[#E5E0D4] overflow-hidden">
+        <div className="p-5 border-b border-[#E5E0D4]">
+          <Skel className="h-5 w-36" />
+        </div>
+        <div className="p-5 space-y-4">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-4">
+              <Skel className="h-4 w-32" />
+              <Skel className="h-4 flex-1" />
+              <Skel className="h-4 w-12" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
