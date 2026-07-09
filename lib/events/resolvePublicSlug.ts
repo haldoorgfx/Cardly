@@ -10,6 +10,13 @@ export interface ResolvedPublicEvent {
  * Resolves a public slug to an event page.
  * Tries custom_slug first, then falls back to events.slug.
  * The broken .or() cross-table query pattern cannot be used in PostgREST.
+ *
+ * Requires BOTH event_pages.is_public AND events.status === 'published'.
+ * is_public alone used to be enough — but the Event Page editor defaulted it
+ * to true for a brand-new event, so a draft event went fully public and
+ * orderable the moment the organizer saved the first wizard step, well
+ * before ever clicking "Publish." Requiring status='published' too makes the
+ * actual Publish action the real gate, matching what its own UI copy claims.
  */
 export async function resolvePublicSlug(slug: string): Promise<ResolvedPublicEvent | null> {
   const admin = createAdminClient();
@@ -17,9 +24,10 @@ export async function resolvePublicSlug(slug: string): Promise<ResolvedPublicEve
   // 1. Try custom_slug on event_pages
   const { data: byCustom } = await admin
     .from('event_pages')
-    .select('event_id, title, events!inner(id, slug, name)')
+    .select('event_id, title, events!inner(id, slug, name, status)')
     .eq('custom_slug', slug)
     .eq('is_public', true)
+    .eq('events.status', 'published')
     .single();
 
   if (byCustom) {
@@ -36,15 +44,17 @@ export async function resolvePublicSlug(slug: string): Promise<ResolvedPublicEve
 
   if (!eventRow) return null;
 
-  const { data: page } = await admin
-    .from('event_pages')
-    .select('event_id, title')
-    .eq('event_id', eventRow.id)
-    .eq('is_public', true)
-    .maybeSingle();
+  if (eventRow.status === 'published') {
+    const { data: page } = await admin
+      .from('event_pages')
+      .select('event_id, title')
+      .eq('event_id', eventRow.id)
+      .eq('is_public', true)
+      .maybeSingle();
 
-  if (page) {
-    return { eventId: page.event_id, eventPageTitle: page.title, event: eventRow };
+    if (page) {
+      return { eventId: page.event_id, eventPageTitle: page.title, event: eventRow };
+    }
   }
 
   // 2b. Self-heal: the event is published but has no public page row (e.g. created

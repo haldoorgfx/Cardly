@@ -74,7 +74,12 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
   const [timezone, setTimezone] = useState(existing?.timezone ?? 'UTC');
   const [deadline, setDeadline] = useState(toLocalDatetimeValue(existing?.registration_deadline ?? null));
   const [maxCapacity, setMaxCapacity] = useState(existing?.max_capacity?.toString() ?? '');
-  const [isPublic, setIsPublic] = useState(existing?.is_public ?? true);
+  // Defaults false for a brand-new event page: this toggle is the actual
+  // access gate (resolvePublicSlug requires event_pages.is_public), separate
+  // from events.status. Defaulting it true meant a draft event went fully
+  // public — discoverable and orderable — the moment the organizer saved the
+  // very first wizard step, long before "Publish."
+  const [isPublic, setIsPublic] = useState(existing?.is_public ?? false);
   const [customSlug, setCustomSlug] = useState(existing?.custom_slug ?? '');
   const [paymentProcessors, setPaymentProcessors] = useState<string[]>(() => {
     const arr = (existing as { payment_processors?: string[] | null } | null)?.payment_processors;
