@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import CopyButton from '@/components/shared/CopyButton';
 import EventDetailActions from './EventDetailActions';
+import { OverviewCards } from './OverviewCards';
 import type { Zone, Variant } from '@/types/database';
 
 function timeAgo(dateStr: string) {
@@ -41,13 +42,14 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
 
   const admin = createAdminClient();
 
-  const [{ data: event }, { data: variantsData }, { data: recentRegs }, { data: revData }, { count: regCount }, { count: checkedInCount }] = await Promise.all([
+  const [{ data: event }, { data: variantsData }, { data: recentRegs }, { data: revData }, { count: regCount }, { count: checkedInCount }, { data: profile }] = await Promise.all([
     admin.from('events').select('id, name, slug, status, view_count, download_count, user_id, created_at').eq('id', id).eq('user_id', user.id).single(),
     admin.from('event_variants').select('id, variant_name, variant_slug, background_url, background_width, background_height, zones, position').eq('event_id', id).order('position', { ascending: true }),
     admin.from('registrations').select('id, attendee_name, status, created_at').eq('event_id', id).order('created_at', { ascending: false }).limit(5),
     admin.from('registrations').select('amount_paid').eq('event_id', id).in('status', ['confirmed', 'checked_in']),
     admin.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', id).in('status', ['confirmed', 'checked_in']),
     admin.from('registrations').select('id', { count: 'exact', head: true }).eq('event_id', id).eq('status', 'checked_in'),
+    admin.from('profiles').select('plan').eq('id', user.id).single(),
   ]);
 
   if (!event) redirect('/dashboard');
@@ -62,7 +64,8 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
   const checkedIn = checkedInCount ?? 0;
   const checkInRate = registrations > 0 ? Math.round((checkedIn / registrations) * 100) : 0;
 
-  const st = STATUS_STYLE[event.status as keyof typeof STATUS_STYLE] ?? STATUS_STYLE.draft;
+  const st   = STATUS_STYLE[event.status as keyof typeof STATUS_STYLE] ?? STATUS_STYLE.draft;
+  const plan = profile?.plan ?? 'free';
 
   // Action banners
   const actionItems: { text: string; cta: string; href: string; accent?: boolean }[] = [];
@@ -161,6 +164,14 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
             ))}
           </div>
         )}
+
+        {/* ── Feature overview grid ── */}
+        <OverviewCards
+          eventId={id}
+          plan={plan}
+          registered={registrations}
+          cards={event.download_count ?? 0}
+        />
 
         {/* ── Main content: recent registrations + quick links ── */}
         <div className="grid lg:grid-cols-[1fr_320px] gap-6">

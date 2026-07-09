@@ -17,16 +17,26 @@ export default async function DashboardPage() {
   if (!user) redirect('/login');
 
   const admin = createAdminClient();
-  const [{ data: events }, { data: profile }] = await Promise.all([
+  const [{ data: events }, { data: profile }, orgResult] = await Promise.all([
     admin.from('events')
       .select('id, name, slug, status, view_count, download_count, updated_at, event_pages(starts_at, venue_name), event_variants(id, background_url, position)')
       .eq('user_id', user.id)
       .order('updated_at', { ascending: false }),
     admin.from('profiles').select('plan, full_name').eq('id', user.id).single(),
+    // organizations table added in migration 023; gracefully absent before it runs
+    (async () => {
+      try {
+        return await admin.from('organizations').select('id, onboarded_at').eq('owner_id', user.id).order('created_at', { ascending: true }).limit(1).single();
+      } catch {
+        return { data: null };
+      }
+    })(),
   ]);
+  const org = (orgResult as { data: { id: string; onboarded_at: string | null } | null }).data;
 
   const allEvents = events ?? [];
-  const isEmpty = allEvents.length === 0;
+  const isEmpty   = allEvents.length === 0;
+  const needsOnboarding = isEmpty && !org?.onboarded_at;
   const plan = (profile?.plan ?? 'free') as Plan;
   const planName = plan.charAt(0).toUpperCase() + plan.slice(1);
   const limit = (PLANS[plan] ?? PLANS.free).events;
@@ -35,6 +45,9 @@ export default async function DashboardPage() {
 
   const activeCount = allEvents.filter(e => e.status === 'published').length;
   const draftCount  = allEvents.filter(e => e.status === 'draft').length;
+
+  // ─── Redirect brand-new users to the onboarding wizard ───────────────────
+  if (needsOnboarding) redirect('/onboarding');
 
   // ─── Empty state ───────────────────────────────────────────────────────────
   if (isEmpty) {

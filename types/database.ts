@@ -376,6 +376,7 @@ export interface Database {
           moderation_status: ModerationStatus;
           view_count: number;
           download_count: number;
+          organization_id: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -392,6 +393,7 @@ export interface Database {
           moderation_status?: ModerationStatus;
           view_count?: number;
           download_count?: number;
+          organization_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -1244,6 +1246,83 @@ export interface Database {
             columns: ["page_id"];
             isOneToOne: false;
             referencedRelation: "cms_pages";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      // migration 023
+      organizations: {
+        Row: {
+          id: string;
+          name: string;
+          slug: string;
+          plan: string;
+          owner_id: string;
+          brand: Json;
+          onboarded_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          slug: string;
+          plan?: string;
+          owner_id: string;
+          brand?: Json;
+          onboarded_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          name?: string;
+          slug?: string;
+          plan?: string;
+          brand?: Json;
+          onboarded_at?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "organizations_owner_id_fkey";
+            columns: ["owner_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      organization_members: {
+        Row: {
+          id: string;
+          organization_id: string;
+          user_id: string;
+          role: string;
+          joined_at: string;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          user_id: string;
+          role?: string;
+          joined_at?: string;
+        };
+        Update: {
+          role?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "organization_members_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "organization_members_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
             referencedColumns: ["id"];
           }
         ];
