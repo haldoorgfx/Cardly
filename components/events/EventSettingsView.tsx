@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Check, Copy, AlertTriangle, Trash2, X, MapPin, ArrowRight } from 'lucide-react';
 import { PlacesAutocomplete, type PlaceResult } from '@/components/shared/PlacesAutocomplete';
 import { EventFeaturesManager } from '@/components/events/EventFeaturesManager';
+import { zonedDatetimeToISO, isoToZonedDatetimeValue } from '@/lib/events/format';
 
 interface EventData {
   id: string;
@@ -52,13 +53,6 @@ const PAYMENT_METHODS: { value: PaymentProcessor; label: string; desc: string }[
   { value: 'flutterwave', label: 'Flutterwave',            desc: 'Card, bank transfer, USSD — African currencies' },
 ];
 
-function toLocalDate(iso: string | null) {
-  if (!iso) return '';
-  const d = new Date(iso);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-
 export function EventSettingsView({ event }: Props) {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>('general');
@@ -68,8 +62,14 @@ export function EventSettingsView({ event }: Props) {
 
   // General
   const [name, setName] = useState(event.name);
-  const [startsAt, setStartsAt] = useState(toLocalDate(event.starts_at));
-  const [endsAt, setEndsAt] = useState(toLocalDate(event.ends_at));
+  // Dates are wall-clock time IN THE EVENT'S TIME ZONE (event.timezone), not
+  // the organizer's browser zone — see zonedDatetimeToISO / isoToZonedDatetimeValue
+  // in lib/events/format.ts. Using the browser zone here silently shifted
+  // starts_at/ends_at (and could clobber a correctly-saved timezone with a
+  // stale value) any time Settings was saved from a different zone than the
+  // one selected for the event.
+  const [startsAt, setStartsAt] = useState(isoToZonedDatetimeValue(event.starts_at, event.timezone));
+  const [endsAt, setEndsAt] = useState(isoToZonedDatetimeValue(event.ends_at, event.timezone));
   const [venue, setVenue] = useState(event.venue_name ?? '');
   const [placeData, setPlaceData] = useState<PlaceResult | null>(
     event.venue_lat && event.venue_lng ? {
@@ -195,8 +195,8 @@ export function EventSettingsView({ event }: Props) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             title:         name.trim(),
-            starts_at:     startsAt ? new Date(startsAt).toISOString() : null,
-            ends_at:       endsAt   ? new Date(endsAt).toISOString()   : null,
+            starts_at:     startsAt ? zonedDatetimeToISO(startsAt, timezone) : null,
+            ends_at:       endsAt   ? zonedDatetimeToISO(endsAt, timezone)   : null,
             max_capacity:           capacity ? parseInt(capacity) : null,
             is_public:              isPublic,
             payment_processors:     paymentProcessors,

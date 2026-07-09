@@ -4,7 +4,7 @@ import { useState, useRef, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Upload, Globe, ExternalLink, ChevronRight, ChevronLeft, Check, CreditCard, Smartphone, Gift, Layers } from 'lucide-react';
 import { PlacesAutocomplete } from '@/components/shared/PlacesAutocomplete';
-import { TIMEZONES } from '@/lib/events/format';
+import { TIMEZONES, zonedDatetimeToISO, isoToZonedDatetimeValue } from '@/lib/events/format';
 import type { Database } from '@/types/database';
 import { ERAButton } from '@/components/ai/ERAButton';
 
@@ -17,18 +17,6 @@ interface Props {
   existing: EventPageRow | null;
   onComplete?: () => void;
   plan?: 'free' | 'pro' | 'studio';
-}
-
-function toLocalDatetimeValue(isoString: string | null): string {
-  if (!isoString) return '';
-  const d = new Date(isoString);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-
-function toISOFromLocal(localValue: string): string {
-  if (!localValue) return '';
-  return new Date(localValue).toISOString();
 }
 
 const STEPS = [
@@ -69,10 +57,15 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
   const [venueLng, setVenueLng] = useState<number | null>((existing as { venue_lng?: number | null } | null)?.venue_lng ?? null);
   const [isOnline, setIsOnline] = useState(existing?.is_online ?? false);
   const [onlineUrl, setOnlineUrl] = useState(existing?.online_url ?? '');
-  const [startsAt, setStartsAt] = useState(toLocalDatetimeValue(existing?.starts_at ?? null));
-  const [endsAt, setEndsAt] = useState(toLocalDatetimeValue(existing?.ends_at ?? null));
-  const [timezone, setTimezone] = useState(existing?.timezone ?? 'UTC');
-  const [deadline, setDeadline] = useState(toLocalDatetimeValue(existing?.registration_deadline ?? null));
+  // Dates are displayed as wall-clock time IN THE EVENT'S TIME ZONE, not the
+  // organizer's browser time zone — otherwise an organizer editing from a
+  // different zone than the one they picked for the event would see (and
+  // re-save) shifted times. See zonedDatetimeToISO / isoToZonedDatetimeValue.
+  const initialTimezone = existing?.timezone ?? 'UTC';
+  const [startsAt, setStartsAt] = useState(isoToZonedDatetimeValue(existing?.starts_at ?? null, initialTimezone));
+  const [endsAt, setEndsAt] = useState(isoToZonedDatetimeValue(existing?.ends_at ?? null, initialTimezone));
+  const [timezone, setTimezone] = useState(initialTimezone);
+  const [deadline, setDeadline] = useState(isoToZonedDatetimeValue(existing?.registration_deadline ?? null, initialTimezone));
   const [maxCapacity, setMaxCapacity] = useState(existing?.max_capacity?.toString() ?? '');
   // Defaults false for a brand-new event page: this toggle is the actual
   // access gate (resolvePublicSlug requires event_pages.is_public), separate
@@ -179,10 +172,10 @@ export function EventPageEditor({ eventId, eventSlug, eventName, existing, onCom
           venue_lng: isOnline ? null : venueLng,
           is_online: isOnline,
           online_url: isOnline ? (onlineUrl.trim() || null) : null,
-          starts_at: toISOFromLocal(startsAt),
-          ends_at: toISOFromLocal(endsAt),
+          starts_at: zonedDatetimeToISO(startsAt, timezone),
+          ends_at: zonedDatetimeToISO(endsAt, timezone),
           timezone,
-          registration_deadline: deadline ? toISOFromLocal(deadline) : null,
+          registration_deadline: deadline ? zonedDatetimeToISO(deadline, timezone) : null,
           max_capacity: maxCapacity ? parseInt(maxCapacity) : null,
           is_public: isPublic,
           custom_slug: customSlug.trim() || null,
