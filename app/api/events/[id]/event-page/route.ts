@@ -44,7 +44,10 @@ const EventPageSchema = z.object({
                                 .regex(/^[a-z0-9-]*$/, 'Slug may only contain lowercase letters, numbers, and hyphens')
                                 .nullable().optional(),
   payment_processor:          z.enum(['stripe', 'flutterwave', 'waafipay', 'free']).optional(),
-  payment_processors:         z.array(z.enum(['stripe', 'flutterwave', 'waafipay'])).min(1).optional(),
+  // Must match payment_processor's enum — EventPageEditor's "Free only" toggle
+  // sends payment_processors: ['free'], which this rejected until now, making
+  // it impossible to ever save an event with "Free only" selected.
+  payment_processors:         z.array(z.enum(['stripe', 'flutterwave', 'waafipay', 'free'])).min(1).optional(),
   collect_attendee_details:   z.boolean().optional(),
   apply_vat:                  z.boolean().optional(),
   variant_id:                 z.string().uuid().nullable().optional(),
