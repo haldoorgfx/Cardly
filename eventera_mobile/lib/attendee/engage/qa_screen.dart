@@ -5,11 +5,13 @@ import '../../ui/components.dart';
 import '../../ui/tokens.dart';
 import '_shared.dart';
 
-/// QaScreen — audience Q&A. Reads `qa_questions` (public) ordered by upvotes,
-/// lets attendees ask and upvote.
+/// QaScreen — audience Q&A. Reads `qa_questions_public` (078 lockdown — the
+/// base table's registration_id is no longer world-readable, since that
+/// defeated "anonymous" questions; this view pre-resolves attendee_name
+/// server-side, respecting is_anonymous, and never exposes the raw id).
 ///
 /// Contracts verified:
-///  - Read:    qa_questions select('*, registrations(attendee_name)')
+///  - Read:    qa_questions_public select('*')
 ///             .eq('event_id', ...).neq('status','hidden')
 ///             .order('upvotes_count', desc).order('created_at', asc).
 ///  - Ask:     POST /api/events/[id]/q-and-a
@@ -83,8 +85,8 @@ class _QaScreenState extends State<QaScreen> {
     });
     try {
       var query = supa
-          .from('qa_questions')
-          .select('*, registrations!qa_questions_registration_id_fkey(attendee_name)')
+          .from('qa_questions_public')
+          .select('*')
           .eq('event_id', widget.eventId)
           .neq('status', 'hidden');
       if (widget.sessionId != null) {
@@ -97,11 +99,10 @@ class _QaScreenState extends State<QaScreen> {
       final list = <_Question>[];
       for (final r in (rows as List).whereType<Map>()) {
         final map = Map<String, dynamic>.from(r);
-        final reg = map['registrations'];
         final anon = asBool(map['is_anonymous']);
-        final name = (!anon && reg is Map && reg['attendee_name'] != null)
-            ? reg['attendee_name'].toString()
-            : 'Anonymous';
+        // The view already resolves this respecting anonymity; no client-side
+        // join or registration_id needed (see 078_engagement_rls_lockdown.sql).
+        final name = asString(map['attendee_name'], 'Anonymous');
         list.add(_Question(
           id: asString(map['id']),
           text: asString(map['question']),

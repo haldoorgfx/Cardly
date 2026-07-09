@@ -225,7 +225,7 @@ class _EventHubScreenState extends State<EventHubScreen> {
 
   Future<void> _loadSpeakers(String eventId) async {
     final rows = await supa
-        .from('speakers')
+        .from('public_speakers')
         .select('id, name, role, company, headline, photo_url')
         .eq('event_id', eventId)
         .order('position');

@@ -3,13 +3,20 @@
 // cookie-authenticated Next.js /api routes).
 //
 // Access model, per the web app + the RLS lockdown (migration 050):
-//  - `speakers`      : public SELECT; writes blocked by RLS → self-edit goes
-//                      through the SECURITY DEFINER `update_speaker_profile`
-//                      RPC (063), which authorises the caller by email / active
-//                      speaker role. It writes the fields it owns, never `name`
-//                      (organizer-managed) — so the mobile editor treats name as
+//  - `speakers`      : self-row SELECT only (078 lockdown — no more public
+//                      read of the base table, since it carries `email`).
+//                      Public/co-speaker display reads go through the
+//                      `public_speakers` view (no email) instead. Writes
+//                      blocked by RLS → self-edit goes through the SECURITY
+//                      DEFINER `update_speaker_profile` RPC (063), which
+//                      authorises the caller by email / active speaker role.
+//                      It writes the fields it owns, never `name` (organizer-
+//                      managed) — so the mobile editor treats name as
 //                      read-only, matching the RPC's real capability.
-//  - `qa_questions`  : public SELECT; writes blocked by RLS → a speaker marks a
+//  - `qa_questions`  : scoped SELECT (078 — organizer/asker/session speaker
+//                      only); the public Q&A feed reads `qa_questions_public`
+//                      instead, which omits `registration_id`. Writes blocked
+//                      by RLS → a speaker marks a
 //                      question answered / featured / hidden through the
 //                      SECURITY DEFINER `speaker_set_qa_status` RPC, which binds
 //                      the write to auth.uid() (event owner OR active staff OR a
@@ -195,7 +202,7 @@ class SpeakerApi {
         .toList();
     if (ids.isEmpty) return [];
     final rows = await supa
-        .from('speakers')
+        .from('public_speakers')
         .select('id, name, headline, role, company, photo_url')
         .inFilter('id', ids);
     return (rows as List)
