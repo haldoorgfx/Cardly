@@ -27,17 +27,34 @@ class BiometricService {
   );
   static const _enabledKey = 'biometric_enabled';
 
-  /// True if the device has fingerprint/Face hardware the user has enrolled.
+  /// Whether this device can do biometric / device-credential unlock at all —
+  /// used to show the setup toggle and the post-login offer.
+  ///
+  /// We rely on isDeviceSupported() (+ canCheckBiometrics as a fallback signal)
+  /// and deliberately DO NOT require getAvailableBiometrics() to be non-empty:
+  /// that call is flaky on many Android devices (notably Samsung), returning an
+  /// empty list even when a fingerprint/face is enrolled — which was hiding the
+  /// entire feature. authenticate() still gates the real unlock, so a device
+  /// with nothing enrolled simply fails/falls back gracefully at that point.
   Future<bool> isAvailable() async {
     try {
       final supported = await _auth.isDeviceSupported();
-      if (!supported) return false;
-      final canCheck = await _auth.canCheckBiometrics;
-      if (!canCheck) return false;
-      final types = await _auth.getAvailableBiometrics();
-      return types.isNotEmpty;
+      if (supported) return true;
+      // Some devices report false for isDeviceSupported but true here.
+      return await _auth.canCheckBiometrics;
     } on PlatformException {
       return false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Best-effort: true if the user actually has a fingerprint/face enrolled.
+  /// Used only for guidance copy — never to hide the feature.
+  Future<bool> hasEnrolledBiometrics() async {
+    try {
+      final types = await _auth.getAvailableBiometrics();
+      return types.isNotEmpty;
     } catch (_) {
       return false;
     }

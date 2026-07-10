@@ -58,9 +58,18 @@ class _RootGateState extends State<RootGate> {
     if (_bioChecked) return;
     _bioChecked = true;
     try {
-      final hasSession = supa.auth.currentSession != null;
       final enabled = await BiometricService.instance.isEnabled();
-      if (hasSession && enabled) {
+      if (!enabled) return;
+      // supabase_flutter restores the persisted session asynchronously, so
+      // currentSession can still be null the instant we launch. Wait briefly for
+      // it before deciding — otherwise the lock is skipped and the user slips
+      // straight into the app (the "biometric doesn't ask me" bug).
+      var session = supa.auth.currentSession;
+      for (var i = 0; session == null && i < 12; i++) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        session = supa.auth.currentSession;
+      }
+      if (session != null) {
         if (mounted) setState(() => _locked = true);
         await _promptUnlock();
       }

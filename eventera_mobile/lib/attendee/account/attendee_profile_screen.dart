@@ -91,9 +91,25 @@ class _AttendeeProfileScreenState extends State<AttendeeProfileScreen> {
 
   Future<void> _toggleBiometric(bool enable) async {
     if (enable) {
+      // Confirm with a live biometric check before turning it on.
       final ok = await BiometricService.instance
           .authenticate(reason: 'Confirm to enable biometric unlock');
-      if (!ok) return;
+      if (!ok) {
+        if (!mounted) return;
+        // Keep the switch off and explain why, so it never looks broken.
+        setState(() => _biometricEnabled = false);
+        final enrolled =
+            await BiometricService.instance.hasEnrolledBiometrics();
+        if (!mounted) return;
+        showToast(
+          context,
+          enrolled
+              ? "Couldn't confirm — please try again."
+              : 'Set up a fingerprint or face in your phone settings first, '
+                  'then enable this.',
+        );
+        return;
+      }
       await BiometricService.instance.setEnabled(true);
     } else {
       await BiometricService.instance.setEnabled(false);
