@@ -108,21 +108,25 @@ export function computeRedemptionStats(
   }
 
   return entitlements.map((e) => {
+    // NOTE: `for…of` over a Set/Map needs `--downlevelIteration` under this
+    // repo's tsconfig target. `.forEach` is equivalent and compiles cleanly.
     const included = includedByEnt.get(e.id) ?? new Set<string>();
     const baseHolders = new Set<string>();
-    for (const tt of included) {
+    included.forEach((tt) => {
       for (const rid of regsByTicket.get(tt) ?? []) baseHolders.add(rid);
-    }
+    });
+
     // union of base holders + any registration touched by the hold ledger
-    const candidates = new Set<string>(baseHolders);
-    for (const rid of ledgerRegsByEnt.get(e.id) ?? []) candidates.add(rid);
+    const candidates = new Set<string>();
+    baseHolders.forEach((rid) => candidates.add(rid));
+    (ledgerRegsByEnt.get(e.id) ?? new Set<string>()).forEach((rid) => candidates.add(rid));
 
     let holders = 0;
-    for (const rid of candidates) {
+    candidates.forEach((rid) => {
       const base = baseHolders.has(rid) ? 1 : 0;
       const net = holdNet.get(`${e.id}::${rid}`) ?? 0;
       if (base + net > 0) holders++;
-    }
+    });
 
     return {
       id: e.id,
