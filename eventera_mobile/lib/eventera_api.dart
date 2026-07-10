@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:math';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -258,16 +258,66 @@ class EventeraApi {
   /// Mirrors the web attendee flow: multipart with `variantId`, `fields`
   /// (JSON of zoneId -> text), `idempotencyKey`, and `photo_<zoneId>` files.
   /// Returns the PNG bytes on success.
+  ///
+  /// Attendees are often on slow, lossy mobile networks, so this is resilient:
+  ///  1. Retry the multipart upload a few times for transient blips.
+  ///  2. Fall back to a JSON body with a base64 photo — the same endpoint
+  ///     accepts both. The JSON path sends one contiguous body, which survives
+  ///     environments where chunked multipart uploads are flaky (some NATs, the
+  ///     Android emulator). A single `idempotencyKey` is reused across all
+  ///     attempts so a retry never double-counts against the event's card cap.
   Future<Uint8List> generateCard({
     required String variantId,
     required Map<String, String> fields,
     required Map<String, PhotoUpload> photos,
   }) async {
+    final idempotencyKey = 'mob-${DateTime.now().microsecondsSinceEpoch}';
+    Object? lastError;
+
+    // 1) Multipart, with a few retries for transient network failures.
+    for (var attempt = 0; attempt < 3; attempt++) {
+      try {
+        return await _sendCardMultipart(
+            variantId, fields, photos, idempotencyKey);
+      } on EventeraException {
+        rethrow; // real backend rejection (4xx) — retrying won't help
+      } catch (e) {
+        lastError = e;
+        if (kDebugMode) {
+          debugPrint('generateCard multipart attempt $attempt failed: $e');
+        }
+      }
+      await Future.delayed(Duration(milliseconds: 500 * (attempt + 1)));
+    }
+
+    // 2) Fallback: JSON + base64 photo (single contiguous body). The JSON path
+    //    maps one photo to the first photo zone, so only use it with ≤1 photo.
+    if (photos.length <= 1) {
+      try {
+        return await _sendCardJson(variantId, fields, photos, idempotencyKey);
+      } on EventeraException {
+        rethrow;
+      } catch (e) {
+        lastError = e;
+        if (kDebugMode) debugPrint('generateCard JSON fallback failed: $e');
+      }
+    }
+
+    if (kDebugMode) debugPrint('generateCard gave up: $lastError');
+    throw EventeraException(
+        'Could not reach the server. Check your connection and try again.');
+  }
+
+  Future<Uint8List> _sendCardMultipart(
+    String variantId,
+    Map<String, String> fields,
+    Map<String, PhotoUpload> photos,
+    String idempotencyKey,
+  ) async {
     final req = http.MultipartRequest('POST', AppConfig.renderEndpoint);
     req.fields['variantId'] = variantId;
     req.fields['fields'] = jsonEncode(fields);
-    req.fields['idempotencyKey'] =
-        'mob-${DateTime.now().microsecondsSinceEpoch}';
+    req.fields['idempotencyKey'] = idempotencyKey;
 
     photos.forEach((zoneId, photo) {
       req.files.add(http.MultipartFile.fromBytes(
@@ -278,21 +328,42 @@ class EventeraApi {
       ));
     });
 
-    late http.StreamedResponse streamed;
-    try {
-      streamed = await req.send().timeout(const Duration(seconds: 45));
-    } catch (_) {
-      throw EventeraException(
-          'Could not reach the server. Check your connection and try again.');
-    }
-
+    final streamed = await req.send().timeout(const Duration(seconds: 45));
     final res = await http.Response.fromStream(streamed);
+    return _cardResponse(res);
+  }
 
-    if (res.statusCode == 200) {
-      return res.bodyBytes;
+  Future<Uint8List> _sendCardJson(
+    String variantId,
+    Map<String, String> fields,
+    Map<String, PhotoUpload> photos,
+    String idempotencyKey,
+  ) async {
+    final body = <String, dynamic>{
+      'variantId': variantId,
+      'fields': fields,
+      'idempotencyKey': idempotencyKey,
+    };
+    if (photos.isNotEmpty) {
+      final photo = photos.values.first;
+      body['photoDataUrl'] =
+          'data:image/${photo.subtype};base64,${base64Encode(photo.bytes)}';
     }
+    final res = await http
+        .post(
+          AppConfig.renderEndpoint,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode(body),
+        )
+        .timeout(const Duration(seconds: 45));
+    return _cardResponse(res);
+  }
 
-    // Map backend error codes to friendly copy (same codes as the web app).
+  /// Shared response handling: 200 -> PNG bytes; otherwise map the backend
+  /// error code to friendly copy (same codes as the web app).
+  Uint8List _cardResponse(http.Response res) {
+    if (res.statusCode == 200) return res.bodyBytes;
+
     String code = '';
     String? detail;
     try {
