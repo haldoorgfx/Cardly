@@ -505,18 +505,18 @@ class _AttendeeAuthScreenState extends State<AttendeeAuthScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SizedBox(height: 6),
-            Align(
-              alignment: Alignment.centerLeft,
+            const SizedBox(height: 16),
+            Center(
               child: Image.asset(
                 'assets/brand/logo.png',
-                height: 30,
+                height: 32,
                 errorBuilder: (_, __, ___) =>
                     Text('Eventera', style: AppText.h2),
               ),
             ),
-            const SizedBox(height: 30),
-            Text('Welcome to Eventera', style: AppText.h1),
+            const SizedBox(height: 26),
+            Text('Welcome to Eventera',
+                style: AppText.h2, textAlign: TextAlign.center),
             const SizedBox(height: 28),
             MInput(
               label: 'Email address',
